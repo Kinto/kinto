@@ -3,17 +3,15 @@ import os
 from eve.io.sql.decorators import registerSchema
 from readinglist import schemas, auth
 
-PROJECT_ROOT = os.path.dirname(__file__)
 
-DEBUG = True
+PROJECT_ROOT = os.path.dirname(__file__)
 
 URL_PREFIX = 'v1'
 
 X_DOMAINS = '*'  # CORS
 XML = False  # JSON only
 
-SQLITE_DB = os.path.join(PROJECT_ROOT, 'readinglist.db')
-SQLALCHEMY_DATABASE_URI = 'sqlite:///%s' % SQLITE_DB
+SQLALCHEMY_DATABASE_URI = 'sqlite:///'
 
 
 registerSchema('article')(schemas.Article)

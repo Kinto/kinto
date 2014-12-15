@@ -1,6 +1,6 @@
 from unittest import TestCase
 from flask.ext.webtest import TestApp
-from readinglist import app, db
+from readinglist.run import app, db
 
 
 class TestBase(object):
