@@ -28,7 +28,7 @@ $(PYTHON):
 	virtualenv $(VENV)
 
 serve: install-dev
-	EVE_SETTINGS=$(READINGLIST_SETTINGS) python run.py
+	EVE_SETTINGS=$(READINGLIST_SETTINGS) $(VENV)/bin/python readinglist/run.py
 
 tests: install-dev
 	$(VENV)/bin/nosetests -s

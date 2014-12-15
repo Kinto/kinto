@@ -8,7 +8,7 @@ from flask.ext.bootstrap import Bootstrap
 from readinglist import hooks, schemas, views
 
 
-here = os.path.dirname(__file__)
+here = os.path.abspath(os.path.dirname(__file__))
 settings_file = os.path.join(here, 'settings.py')
 
 app = Eve(validator=ValidatorSQL, data=SQL, settings=settings_file)
