@@ -1,16 +1,20 @@
 from eve import Eve
+from eve.io.sql import SQL, ValidatorSQL
 from eve_docs import eve_docs
 from flask.ext.bootstrap import Bootstrap
 
-
-def filter_by_author(request, lookup):
-    username = request.authorization['username']
-    lookup['_author'] = username
+from readinglist import events, schemas
 
 
-app = Eve()
+app = Eve(validator=ValidatorSQL, data=SQL)
 
-app.on_pre_GET_article += filter_by_author
+events.bind(app)
+
+# bind SQLAlchemy
+db = app.data.driver
+schemas.Base.metadata.bind = db.engine
+db.Model = schemas.Base
+db.create_all()
 
 # Activate docs
 Bootstrap(app)

@@ -19,7 +19,7 @@ class TestPOC(TestCase):
         self.test_list_filtered()
 
     def test_home(self):
-        res = self.session.get(self.api_url('article'), auth=self.alice_auth)
+        res = self.session.get(self.api_url('articles'), auth=self.alice_auth)
         self.assertEqual(res.status_code, 200)
 
     def test_create_record(self):
@@ -29,20 +29,20 @@ class TestPOC(TestCase):
             "status": "unread"
         }
         res = self.session.post(
-            self.api_url('article'),
+            self.api_url('articles'),
             data,
             auth=self.alice_auth)
         self.assertEqual(res.status_code, 201)
 
     def test_update_status(self):
-        res = self.session.get(self.api_url('article'), auth=self.alice_auth)
+        res = self.session.get(self.api_url('articles'), auth=self.alice_auth)
         record = res.json()['_items'][0]
 
         data = {'status': 'read'}
         headers = {"If-Match": record['_etag']}
 
         res = self.session.patch(
-            self.api_url('article/%s' % record['_id']),
+            self.api_url('articles/%s' % record['_id']),
             data,
             auth=self.alice_auth,
             headers=headers
@@ -50,5 +50,5 @@ class TestPOC(TestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_list_filtered(self):
-        res = self.session.get(self.api_url('article'), auth=self.john_auth)
+        res = self.session.get(self.api_url('articles'), auth=self.john_auth)
         self.assertEqual(len(res.json()['_items']), 0)
