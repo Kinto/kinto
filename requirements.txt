@@ -1,5 +1,0 @@
-https://github.com/nicolaiarocci/eve/archive/sqlalchemy.zip
-Eve-docs
-loads
-flask-webtest
-nose
