@@ -5,7 +5,7 @@ from eve.io.sql import SQL, ValidatorSQL
 from eve_docs import eve_docs
 from flask.ext.bootstrap import Bootstrap
 
-from readinglist import events, schemas, views
+from readinglist import hooks, schemas, views
 
 
 here = os.path.dirname(__file__)
@@ -13,7 +13,7 @@ settings_file = os.path.join(here, 'settings.py')
 
 app = Eve(validator=ValidatorSQL, data=SQL, settings=settings_file)
 
-events.bind(app)
+hooks.setup(app)
 
 app.register_blueprint(views.main)
 
