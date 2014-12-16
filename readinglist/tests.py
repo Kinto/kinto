@@ -127,7 +127,17 @@ class DeviceTracking(TestBase, TestCase):
         device = 'Other-Ubuntu-Other'
         self.assertEqual(len(self.db_filter(schemas.ArticleDevice, device=device).all()), 1)
 
+    def test_can_get_status_of_all_devices(self):
+        headers = self.auth_headers(username='alice', password='secret')
+        r = self.w.get(self.url_for('/articles/%s/devices' % self.article1.id), headers=headers)
+        self.assertEqual(len(r.json['_items']), 1)
+
     def test_can_get_status_by_device(self):
+        headers = self.auth_headers(username='alice', password='secret')
+        r = self.w.get(self.url_for('/articles/%s/devices/Manual' % self.article1.id), headers=headers)
+        self.assertEqual(r.json['read'], 50)
+
+    def test_can_patch_read_for_device(self):
         headers = self.auth_headers(username='alice', password='secret')
         r = self.w.get(self.url_for('/articles/%s/devices' % self.article1.id), headers=headers)
         self.assertEqual(len(r.json['_items']), 1)
