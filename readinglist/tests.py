@@ -32,6 +32,9 @@ class HomeTest(TestBase, TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r.headers['Location'], 'http://localhost:80/v1')
 
+    def test_docs_are_available_with_prefix(self):
+        self.w.get('/v1/docs/')
+
 
 class ArticlesList(TestBase, TestCase):
     def setUp(self):

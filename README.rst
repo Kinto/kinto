@@ -8,5 +8,5 @@ API
 ===
 
 * ``/v1/articles``
-* ``/v1/articles?where={"status": "unread"}
-* ``/v1/articles?sort=[("title", -1)]
+* ``/v1/articles?where={"status": "unread"}``
+* ``/v1/articles?sort=[("title", -1)]``

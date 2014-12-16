@@ -25,7 +25,8 @@ db.create_all()
 
 # Activate docs
 Bootstrap(app)
-app.register_blueprint(eve_docs, url_prefix='/docs')
+docs_prefix = '/%s/docs' % app.config['URL_PREFIX']
+app.register_blueprint(eve_docs, url_prefix=docs_prefix)
 
 
 if __name__ == '__main__':
