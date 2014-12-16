@@ -72,23 +72,28 @@ class ArticlesList(TestBase, TestCase):
 
 
 class ArticleCreation(TestBase, TestCase):
+    def setUp(self):
+        super(ArticleCreation, self).setUp()
+
+        self.headers = self.auth_headers(username='alice', password='secret')
+
     def test_article_cannot_be_created_anonymously(self):
         record = dict(title="MoCo", url="http://mozilla.com")
         self.w.post(self.url_for('/articles'), record, status=401)
 
     def test_article_must_have_an_url_and_title(self):
         record = dict(title='')
-        headers = self.auth_headers(username='alice', password='secret')
-        r = self.w.post(self.url_for('/articles'), record, headers=headers, status=422)
+        r = self.w.post(self.url_for('/articles'), record,
+                        headers=self.headers, status=422)
         self.assertItemsEqual(['url', 'title'], r.json['_issues'].keys())
 
     def test_article_urls_must_be_unique(self):
         record = dict(title="MoCo", url="http://mozilla.com")
-        headers = self.auth_headers(username='alice', password='secret')
-        self.w.post(self.url_for('/articles'), record, headers=headers)
+        self.w.post(self.url_for('/articles'), record,
+                    headers=self.headers)
         record['title'] = "Mozilla Corp"
-        r = self.w.post(self.url_for('/articles'), record, headers=headers,
-                        status=422)
+        r = self.w.post(self.url_for('/articles'), record,
+                        headers=self.headers, status=422)
         self.assertIn('url', r.json['_issues'])
 
     def test_article_is_linked_to_author(self):
@@ -103,6 +108,9 @@ class ArticleCreation(TestBase, TestCase):
 class DeviceTracking(TestBase, TestCase):
     def setUp(self):
         super(DeviceTracking, self).setUp()
+
+        self.headers = self.auth_headers(username='alice', password='secret')
+
         self.article1 = schemas.Article(title="MoFo",
                                         url="http://mozilla.org",
                                         author=1)
@@ -115,32 +123,31 @@ class DeviceTracking(TestBase, TestCase):
         self.w.db.session.commit()
 
     def test_device_is_created_when_article_is_fetched(self):
-        headers = self.auth_headers(username='alice', password='secret')
-        self.w.get(self.url_for('/articles/%s' % self.article1.id), headers=headers)
+        self.w.get(self.url_for('/articles/%s' % self.article1.id),
+                   headers=self.headers)
         _all = self.db_filter(schemas.ArticleDevice, article=self.article1.id).all()
         self.assertEqual(len(_all), 2)
 
     def test_useragent_is_used_to_track_device(self):
-        headers = self.auth_headers(username='alice', password='secret')
+        headers = self.headers.copy()
         headers['User-Agent'] = 'WebTest/1.0 (Linux; Ubuntu 14.04)'
         self.w.get(self.url_for('/articles/%s' % self.article1.id), headers=headers)
         device = 'Other-Ubuntu-Other'
         self.assertEqual(len(self.db_filter(schemas.ArticleDevice, device=device).all()), 1)
 
     def test_can_get_status_of_all_devices(self):
-        headers = self.auth_headers(username='alice', password='secret')
-        r = self.w.get(self.url_for('/articles/%s/devices' % self.article1.id), headers=headers)
+        r = self.w.get(self.url_for('/articles/%s/devices' % self.article1.id),
+                       headers=self.headers)
         self.assertEqual(len(r.json['_items']), 1)
 
     def test_can_get_status_by_device(self):
-        headers = self.auth_headers(username='alice', password='secret')
-        r = self.w.get(self.url_for('/articles/%s/devices/Manual' % self.article1.id), headers=headers)
+        r = self.w.get(self.url_for('/articles/%s/devices/Manual' % self.article1.id),
+                       headers=self.headers)
         self.assertEqual(r.json['read'], 50)
 
     def test_can_patch_read_for_device(self):
-        headers = self.auth_headers(username='alice', password='secret')
         device_url = self.url_for('/articles/%s/devices/%s' % (self.article1.id, self.device1.id))
         device_read = {"read": 75}
-        self.w.patch_json(device_url, device_read, headers=headers)
+        self.w.patch_json(device_url, device_read, headers=self.headers)
         self.device1 = self.w.db.session.merge(self.device1)
         self.assertEqual(self.device1.read, 75)
