@@ -51,6 +51,6 @@ class Article(CommonColumns):
     __tablename__ = 'article'
     id = Column(Integer, primary_key=True, autoincrement=True)
     author = Column(Integer, ForeignKey('account.id'))
-    title = Column(String(512))
-    url = Column(String(512))
+    title = Column(String(512), nullable=False)
+    url = Column(String(512), nullable=False)
     status = Column(Enum('unread', 'read', 'archived', 'deleted'))
