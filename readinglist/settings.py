@@ -25,4 +25,8 @@ article.update({
     'item_methods': ['GET', 'PATCH', 'DELETE'],
 })
 
+article['schema']['url']['minlength'] = 6
+article['schema']['title']['minlength'] = 1
+
+
 DOMAIN = {'articles': article}

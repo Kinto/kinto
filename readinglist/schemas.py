@@ -7,7 +7,6 @@ from sqlalchemy import (
     Column,
     String,
     Integer,
-    Enum,
     ForeignKey,
     DateTime)
 
@@ -53,4 +52,3 @@ class Article(CommonColumns):
     author = Column(Integer, ForeignKey('account.id'))
     title = Column(String(512), nullable=False)
     url = Column(String(512), unique=True, nullable=False)
-    status = Column(Enum('unread', 'read', 'archived', 'deleted'))

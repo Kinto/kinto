@@ -55,11 +55,15 @@ class ArticlesList(TestBase, TestCase):
     def test_articles_are_filtered_by_author(self):
         headers = self.auth_headers(username='alice', password='secret')
         r = self.w.get(self.url_for('/articles'), headers=headers)
+        self.article1 = db.session.merge(self.article1)
         self.assertEqual(len(r.json['_items']), 1)
+        self.assertEqual(r.json['_items'][0]['_id'], self.article1.id)
 
         headers = self.auth_headers(username='john', password='secret')
         r = self.w.get(self.url_for('/articles'), headers=headers)
+        self.article2 = db.session.merge(self.article2)
         self.assertEqual(len(r.json['_items']), 1)
+        self.assertEqual(r.json['_items'][0]['_id'], self.article2.id)
 
 
 class ArticleCreation(TestBase, TestCase):
@@ -68,7 +72,7 @@ class ArticleCreation(TestBase, TestCase):
         self.w.post(self.url_for('/articles'), record, status=401)
 
     def test_article_must_have_an_url_and_title(self):
-        record = dict(status='read')
+        record = dict(title='')
         headers = self.auth_headers(username='alice', password='secret')
         r = self.w.post(self.url_for('/articles'), record, headers=headers, status=422)
         self.assertItemsEqual(['url', 'title'], r.json['_issues'].keys())
@@ -84,8 +88,8 @@ class ArticleCreation(TestBase, TestCase):
 
     def test_article_is_linked_to_author(self):
         record = dict(title="MoCo", url="http://mozilla.com")
-        headers = self.auth_headers(username='alice', password='secret')
+        headers = self.auth_headers(username='john', password='secret')
         r = self.w.post(self.url_for('/articles'), record, headers=headers)
         record_id = r.json['_id']
         record = self.w.db.session.query(schemas.Article).filter_by(id=record_id).first()
-        self.assertEqual(record.author, 1)
+        self.assertEqual(record.author, 2)
