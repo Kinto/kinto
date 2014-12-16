@@ -52,5 +52,5 @@ class Article(CommonColumns):
     id = Column(Integer, primary_key=True, autoincrement=True)
     author = Column(Integer, ForeignKey('account.id'))
     title = Column(String(512), nullable=False)
-    url = Column(String(512), nullable=False)
+    url = Column(String(512), unique=True, nullable=False)
     status = Column(Enum('unread', 'read', 'archived', 'deleted'))

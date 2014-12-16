@@ -71,7 +71,16 @@ class ArticleCreation(TestBase, TestCase):
         record = dict(status='read')
         headers = self.auth_headers(username='alice', password='secret')
         r = self.w.post(self.url_for('/articles'), record, headers=headers, status=422)
-        self.assertItemsEqual(['url', 'title'], r.json['_issues'])
+        self.assertItemsEqual(['url', 'title'], r.json['_issues'].keys())
+
+    def test_article_urls_must_be_unique(self):
+        record = dict(title="MoCo", url="http://mozilla.com")
+        headers = self.auth_headers(username='alice', password='secret')
+        self.w.post(self.url_for('/articles'), record, headers=headers)
+        record['title'] = "Mozilla Corp"
+        r = self.w.post(self.url_for('/articles'), record, headers=headers,
+                        status=422)
+        self.assertIn('url', r.json['_issues'])
 
     def test_article_is_linked_to_author(self):
         record = dict(title="MoCo", url="http://mozilla.com")
