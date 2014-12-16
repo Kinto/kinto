@@ -139,5 +139,8 @@ class DeviceTracking(TestBase, TestCase):
 
     def test_can_patch_read_for_device(self):
         headers = self.auth_headers(username='alice', password='secret')
-        r = self.w.get(self.url_for('/articles/%s/devices' % self.article1.id), headers=headers)
-        self.assertEqual(len(r.json['_items']), 1)
+        device_url = self.url_for('/articles/%s/devices/%s' % (self.article1.id, self.device1.id))
+        device_read = {"read": 75}
+        self.w.patch_json(device_url, device_read, headers=headers)
+        self.device1 = self.w.db.session.merge(self.device1)
+        self.assertEqual(self.device1.read, 75)

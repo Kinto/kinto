@@ -10,6 +10,7 @@ URL_PREFIX = 'v1'
 
 X_DOMAINS = '*'  # CORS
 XML = False  # JSON only
+IF_MATCH = False  # Disable concurrency control
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///'
 
