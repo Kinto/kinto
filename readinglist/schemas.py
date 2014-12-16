@@ -52,3 +52,11 @@ class Article(CommonColumns):
     author = Column(Integer, ForeignKey('account.id'))
     title = Column(String(512), nullable=False)
     url = Column(String(512), unique=True, nullable=False)
+
+
+class ArticleDevice(CommonColumns):
+    __tablename__ = 'article_device'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    device = Column(String(128), nullable=False)
+    article = Column(Integer, ForeignKey('article.id'), nullable=False)
+    read = Column(Integer, default=0, nullable=False)

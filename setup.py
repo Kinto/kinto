@@ -8,7 +8,8 @@ with open(os.path.join(here, 'README.rst')) as f:
 
 REQUIREMENTS = [
     'Eve',
-    'Eve-docs'
+    'Eve-docs',
+    'ua_parser'
 ]
 DEPENDENCY_LINKS = [
     'https://github.com/nicolaiarocci/eve/tarball/sqlalchemy#egg=Eve-0.5dev-sql',

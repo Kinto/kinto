@@ -25,6 +25,10 @@ class TestBase(object):
             'Authorization': 'Basic {0}'.format(auth_password),
         }
 
+    def db_filter(self, schema, **filters):
+        _all = self.w.db.session.query(schema)
+        return _all.filter_by(**filters)
+
 
 class HomeTest(TestBase, TestCase):
     def test_root_url_redirects_to_prefix(self):
@@ -93,3 +97,26 @@ class ArticleCreation(TestBase, TestCase):
         record_id = r.json['_id']
         record = self.w.db.session.query(schemas.Article).filter_by(id=record_id).first()
         self.assertEqual(record.author, 2)
+
+
+class DeviceTracking(TestBase, TestCase):
+    def setUp(self):
+        super(DeviceTracking, self).setUp()
+        self.article1 = schemas.Article(title="MoFo",
+                                        url="http://mozilla.org",
+                                        author=1)
+        self.w.db.session.add(self.article1)
+        self.w.db.session.commit()
+
+    def test_device_is_created_when_article_is_fetched(self):
+        headers = self.auth_headers(username='alice', password='secret')
+        self.w.get(self.url_for('/articles/%s' % self.article1.id), headers=headers)
+        device = self.db_filter(schemas.ArticleDevice, article=self.article1.id).first()
+        self.assertEqual(device.read, 0)
+
+    def test_useragent_is_used_to_track_device(self):
+        headers = self.auth_headers(username='alice', password='secret')
+        headers['User-Agent'] = 'WebTest/1.0 (Linux; Ubuntu 14.04)'
+        self.w.get(self.url_for('/articles/%s' % self.article1.id), headers=headers)
+        device = 'Other-Ubuntu-Other'
+        self.assertEqual(len(self.db_filter(schemas.ArticleDevice, device=device).all()), 1)
