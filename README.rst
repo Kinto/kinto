@@ -18,8 +18,11 @@ API
 * Modify article with ``PATCH`` on ``/v1/articles/<id>``
 * Delete article with ``DELETE`` on ``/v1/articles/<id>``
 
+The following end-points may suffer changes:
+
 * Filter articles list with ``/v1/articles?where={"status": "unread"}``
 * Sort articles list with ``/v1/articles?sort=[("title", -1)]``
+* Embed devices informations in articles ``/v1/articles/<id>?embedded={"devices": 1}``
 
 
 We'll improve the auto-generated documentation at ``/v1/docs/``.
