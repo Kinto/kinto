@@ -13,6 +13,7 @@ class TestBase(object):
 
     def tearDown(self):
         self.w.db.session.query(schemas.Article).delete()
+        self.w.db.session.query(schemas.ArticleDevice).delete()
 
     def url_for(self, path):
         return "/v1" + path
@@ -107,12 +108,17 @@ class DeviceTracking(TestBase, TestCase):
                                         author=1)
         self.w.db.session.add(self.article1)
         self.w.db.session.commit()
+        self.device1 = schemas.ArticleDevice(article=self.article1.id,
+                                             device="Manual",
+                                             read=50)
+        self.w.db.session.add(self.device1)
+        self.w.db.session.commit()
 
     def test_device_is_created_when_article_is_fetched(self):
         headers = self.auth_headers(username='alice', password='secret')
         self.w.get(self.url_for('/articles/%s' % self.article1.id), headers=headers)
-        device = self.db_filter(schemas.ArticleDevice, article=self.article1.id).first()
-        self.assertEqual(device.read, 0)
+        _all = self.db_filter(schemas.ArticleDevice, article=self.article1.id).all()
+        self.assertEqual(len(_all), 2)
 
     def test_useragent_is_used_to_track_device(self):
         headers = self.auth_headers(username='alice', password='secret')
@@ -120,3 +126,8 @@ class DeviceTracking(TestBase, TestCase):
         self.w.get(self.url_for('/articles/%s' % self.article1.id), headers=headers)
         device = 'Other-Ubuntu-Other'
         self.assertEqual(len(self.db_filter(schemas.ArticleDevice, device=device).all()), 1)
+
+    def test_can_get_status_by_device(self):
+        headers = self.auth_headers(username='alice', password='secret')
+        r = self.w.get(self.url_for('/articles/%s/devices' % self.article1.id), headers=headers)
+        self.assertEqual(len(r.json['_items']), 1)
