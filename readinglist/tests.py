@@ -134,6 +134,13 @@ class DeviceTracking(TestBase, TestCase):
         _all = self.db_filter(schemas.ArticleDevice, article=self.article1).all()
         self.assertEqual(len(_all), 2)
 
+    def test_device_is_not_recreated_if_it_exists(self):
+        for i in range(2):
+            self.w.get(self.url_for('/articles/%s' % self.article1.id),
+                       headers=self.headers)
+        _all = self.db_filter(schemas.ArticleDevice, article=self.article1).all()
+        self.assertEqual(len(_all), 2)
+
     def test_useragent_is_used_to_track_device(self):
         headers = self.headers.copy()
         headers['User-Agent'] = 'WebTest/1.0 (Linux; Ubuntu 14.04)'

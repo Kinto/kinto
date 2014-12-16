@@ -18,6 +18,8 @@ def __track_device(request, payload):
 
     db = app.data.driver.session
     article = db.query(schemas.Article).filter_by(id=article_id).first()
+    if not article:
+        return
 
     try:
         useragent = ua_parse(request.headers['User-Agent'])
@@ -27,8 +29,12 @@ def __track_device(request, payload):
     except KeyError:
         device = 'Unknown'
 
-    db.add(schemas.ArticleDevice(article=article, device=device, read=0))
-    db.commit()
+    existing = db.query(schemas.ArticleDevice)\
+                 .filter_by(article=article, device=device)\
+                 .first()
+    if not existing:
+        db.add(schemas.ArticleDevice(article=article, device=device, read=0))
+        db.commit()
 
 
 def setup(app):
