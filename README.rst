@@ -3,7 +3,6 @@ Documentation
 
 Put a brief description of 'readinglist'.
 
-
 API
 ===
 
@@ -26,3 +25,12 @@ The following end-points may suffer changes:
 
 
 We'll improve the auto-generated documentation at ``/v1/docs/``.
+
+
+Run locally
+===========
+
+::
+
+    make serve
+
