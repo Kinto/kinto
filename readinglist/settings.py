@@ -6,7 +6,7 @@ from readinglist import schemas, auth
 
 PROJECT_ROOT = os.path.dirname(__file__)
 
-URL_PREFIX = 'v1'
+API_VERSION = 'v1'
 
 X_DOMAINS = '*'  # CORS
 XML = False  # JSON only

@@ -10,4 +10,4 @@ main = Blueprint("main", __name__)
 @main.route("/")
 def home():
     from readinglist.run import app
-    return redirect('%s' % app.config['URL_PREFIX'])
+    return redirect('%s' % app.config['API_VERSION'])
