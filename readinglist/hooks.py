@@ -27,7 +27,7 @@ def __track_device(request, payload):
     except KeyError:
         device = 'Unknown'
 
-    db.add(schemas.ArticleDevice(article=article.id, device=device, read=0))
+    db.add(schemas.ArticleDevice(article=article, device=device, read=0))
     db.commit()
 
 

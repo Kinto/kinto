@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext import hybrid
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import func
+from sqlalchemy.orm import relationship
 from sqlalchemy import (
     Column,
     String,
@@ -17,7 +18,6 @@ class CommonColumns(Base):
     __abstract__ = True
     _created = Column(DateTime, default=func.now())
     _updated = Column(DateTime, default=func.now(), onupdate=func.now())
-    _etag = Column(String(512))
 
     @hybrid_property
     def _id(self):
@@ -52,11 +52,13 @@ class Article(CommonColumns):
     author = Column(Integer, ForeignKey('account.id'))
     title = Column(String(512), nullable=False)
     url = Column(String(512), unique=True, nullable=False)
+    devices = relationship("ArticleDevice", backref="article")
 
 
 class ArticleDevice(CommonColumns):
     __tablename__ = 'article_device'
     id = Column(Integer, primary_key=True, autoincrement=True)
     device = Column(String(128), nullable=False)
-    article = Column(Integer, ForeignKey('article.id'), nullable=False)
+    article_id = Column(Integer, ForeignKey('article.id'), nullable=False)
+
     read = Column(Integer, default=0, nullable=False)

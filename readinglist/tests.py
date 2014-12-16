@@ -116,16 +116,22 @@ class DeviceTracking(TestBase, TestCase):
                                         author=1)
         self.w.db.session.add(self.article1)
         self.w.db.session.commit()
-        self.device1 = schemas.ArticleDevice(article=self.article1.id,
+        self.device1 = schemas.ArticleDevice(article=self.article1,
                                              device="Manual",
                                              read=50)
         self.w.db.session.add(self.device1)
         self.w.db.session.commit()
 
+    def test_devices_are_embedded_in_articles(self):
+        r = self.w.get(self.url_for('/articles/%s?embedded={"devices": 1}' % self.article1.id),
+                       headers=self.headers)
+        self.assertEqual(len(r.json['devices']), 2)
+        self.assertEqual(r.json['devices'][0]['read'], 50)
+
     def test_device_is_created_when_article_is_fetched(self):
         self.w.get(self.url_for('/articles/%s' % self.article1.id),
                    headers=self.headers)
-        _all = self.db_filter(schemas.ArticleDevice, article=self.article1.id).all()
+        _all = self.db_filter(schemas.ArticleDevice, article=self.article1).all()
         self.assertEqual(len(_all), 2)
 
     def test_useragent_is_used_to_track_device(self):

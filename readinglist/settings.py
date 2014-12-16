@@ -19,6 +19,7 @@ registerSchema('article')(schemas.Article)
 article = schemas.Article._eve_schema['article']
 article['schema']['url']['minlength'] = 6
 article['schema']['title']['minlength'] = 1
+article['schema']['devices']['data_relation']['resource'] = 'devices'
 
 article.update({
     'authentication': auth.FxaAuth(),
