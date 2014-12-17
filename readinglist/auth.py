@@ -1,10 +1,64 @@
-from eve.auth import BasicAuth
+import json
+
+import requests
+from eve.auth import TokenAuth
+from flask import request, current_app as app
 
 
-class FxaAuth(BasicAuth):
-    def check_auth(self, username, password, allowed_roles, resource,
-                   method):
-        accounts = [('alice', 'secret'), ('john', 'secret')]
-        userid = accounts.index((username, password)) + 1
-        self.set_request_auth_value(userid)
-        return userid > 0
+class FxaAuth(TokenAuth):
+    def check_auth(self, token, allowed_roles, resource, method):
+        try:
+            profile = fxa_fetch_profile(oauth_uri=app.config["FXA_OAUTH_URI"],
+                                        token=token)
+        except:
+            return False
+
+        uid = profile['uid']
+        self.set_request_auth_value(uid)
+        return True
+
+    def authorized(self, allowed_roles, resource, method):
+        auth = request.headers.get('Authorization')
+        try:
+            token_type, token = auth.split()
+            assert token_type == 'Bearer'
+        except (ValueError, AssertionError):
+            auth = None
+
+        return auth and self.check_auth(token, allowed_roles, resource, method)
+
+
+def fxa_trade_token(oauth_uri, client_id, client_secret, code):
+    url = '%s/token' % oauth_uri,
+    data = {
+        'code': code,
+        'client_id': client_id,
+        'client_secret': client_secret
+    }
+    headers = {'Content-Type': 'application/json'}
+
+    resp = requests.post(url, data=json.dumps(data), headers=headers)
+
+    if not 200 <= resp.status_code < 300:
+        print resp.json()
+        raise Exception('XXX')
+
+    oauth_server_response = resp.json()
+    return oauth_server_response['access_token']
+
+
+def fxa_fetch_profile(oauth_uri, token):
+    url = '%s/profile' % oauth_uri
+    headers = {
+        'Authorization': 'Bearer %s' % token,
+        'Accept': 'application/json'
+    }
+
+    resp = requests.get(url, headers=headers)
+
+    if not 200 <= resp.status_code < 300:
+        print resp.json()
+        raise Exception('XXX')
+
+    profile_server_response = resp.json()
+    return profile_server_response
