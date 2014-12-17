@@ -23,6 +23,13 @@ schemas.Base.metadata.bind = db.engine
 db.Model = schemas.Base
 db.create_all()
 
+# Register errors
+@app.errorhandler(exceptions.InvalidUsage)
+def handle_invalid_usage(error):
+    response = flask.jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
+
 # Activate docs
 Bootstrap(app)
 docs_prefix = '/%s/docs' % app.config['API_VERSION']
