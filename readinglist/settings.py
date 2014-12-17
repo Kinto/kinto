@@ -16,10 +16,7 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///'
 
 
 registerSchema('article')(schemas.Article)
-article = schemas.Article._eve_schema['article']
-article['schema']['url']['minlength'] = 6
-article['schema']['title']['minlength'] = 1
-article['schema']['devices']['data_relation']['resource'] = 'devices'
+article = schemas.Article.eve_schema('article')
 
 article.update({
     'authentication': auth.FxaAuth(),
@@ -31,7 +28,7 @@ article.update({
 
 
 registerSchema('device')(schemas.ArticleDevice)
-device = schemas.ArticleDevice._eve_schema['device']
+device = schemas.ArticleDevice.eve_schema('device')
 
 device.update({
     'authentication': auth.FxaAuth(),

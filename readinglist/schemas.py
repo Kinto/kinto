@@ -19,6 +19,10 @@ class CommonColumns(Base):
     _created = Column(DateTime, default=func.now())
     _updated = Column(DateTime, default=func.now(), onupdate=func.now())
 
+    @classmethod
+    def eve_schema(cls, name):
+        return cls._eve_schema[name]
+
     @hybrid_property
     def _id(self):
         """
@@ -53,6 +57,14 @@ class Article(CommonColumns):
     title = Column(String(512), nullable=False)
     url = Column(String(512), unique=True, nullable=False)
     devices = relationship("ArticleDevice", backref="article")
+
+    @classmethod
+    def eve_schema(cls, name):
+        schema = super(Article, cls).eve_schema(name)
+        schema['schema']['url']['minlength'] = 6
+        schema['schema']['title']['minlength'] = 1
+        schema['schema']['devices']['data_relation']['resource'] = 'devices'
+        return schema
 
 
 class ArticleDevice(CommonColumns):
