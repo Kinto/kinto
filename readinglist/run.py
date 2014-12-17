@@ -30,4 +30,4 @@ app.register_blueprint(eve_docs, url_prefix=docs_prefix)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=app.config.get('SERVER_PORT'))
