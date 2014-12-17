@@ -1,11 +1,12 @@
 import os
 
+import flask
 from eve import Eve
 from eve.io.sql import SQL, ValidatorSQL
 from eve_docs import eve_docs
 from flask.ext.bootstrap import Bootstrap
 
-from readinglist import hooks, schemas, views
+from readinglist import hooks, schemas, views, exceptions
 
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -16,6 +17,8 @@ app = Eve(validator=ValidatorSQL, data=SQL, settings=settings_file)
 hooks.setup(app)
 
 app.register_blueprint(views.main)
+
+app.secret_key = app.config['SECRET_KEY']
 
 # bind SQLAlchemy
 db = app.data.driver
