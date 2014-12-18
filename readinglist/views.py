@@ -3,7 +3,7 @@ Blueprint for reading list endpoints not provided by python Eve.
 """
 import uuid
 
-from flask import request, jsonify, Blueprint, redirect, session, abort
+from flask import request, jsonify, Blueprint, session, abort
 
 from readinglist import exceptions
 from readinglist import auth
@@ -12,17 +12,6 @@ from readinglist import auth
 STORAGE_BACKEND = {
     'state': {}
 }
-
-main = Blueprint("main", __name__)
-
-
-@main.route("/")
-def home():
-    """Redirects to version prefixed.
-    """
-    from flask import current_app as app
-
-    return redirect("%s" % app.config['API_VERSION'])
 
 
 fxa = Blueprint("fxa", __name__)
@@ -38,7 +27,7 @@ def fxa_oauth_params():
     session.setdefault("session_id", uuid.uuid4().hex)
     session_id = session["session_id"]
 
-    # Store arbitrary string (state) to be checked after login on Firefox Account
+    # Store arbitrary string (state), checked when return from login page
     state = uuid.uuid4().hex
     STORAGE_BACKEND['state'][session_id] = state
 
@@ -91,17 +80,8 @@ def fxa_oauth_token():
     except auth.OAuth2Error:
         abort(503)
 
-    # Fetch profile data from FxA account
-    try:
-        profile = auth.fxa_fetch_profile(
-            profile_uri=app.config["FXA_PROFILE_URI"],
-            token=token)
-    except auth.OAuth2Error:
-        abort(503)
-
     data = {
         'token': token,
-        'profile': profile
     }
     response = jsonify(**data)
     response.headers['Session-Id'] = session_id

@@ -36,27 +36,23 @@ class CommonColumns(Base):
         """
         relationships = inspect(self.__class__).relationships.keys()
         mapper = inspect(self)
-        attrs = [a.key for a in mapper.attrs if \
-            a.key not in relationships \
-            and not a.key in mapper.expired_attributes]
+        attrs = [a.key for a in mapper.attrs
+                 if a.key not in relationships and
+                 a.key not in mapper.expired_attributes]
         model_descriptors = inspect(self.__class__).all_orm_descriptors
-        attrs += [a.__name__ for a in model_descriptors if \
-            a.extension_type is hybrid.HYBRID_PROPERTY]
+        attrs += [a.__name__ for a in model_descriptors
+                  if a.extension_type is hybrid.HYBRID_PROPERTY]
         return dict([(c, getattr(self, c, None)) for c in attrs])
 
 
-class Account(Base):
-    __tablename__ = 'account'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-
 class Article(CommonColumns):
-    __tablename__ = 'article'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    author = Column(Integer, ForeignKey('account.id'))
+    author = Column(String(256))
     title = Column(String(512), nullable=False)
     url = Column(String(512), unique=True, nullable=False)
     devices = relationship("ArticleDevice", backref="article")
+
+    __tablename__ = 'article'
 
     @classmethod
     def eve_schema(cls, name):
@@ -68,9 +64,9 @@ class Article(CommonColumns):
 
 
 class ArticleDevice(CommonColumns):
-    __tablename__ = 'article_device'
     id = Column(Integer, primary_key=True, autoincrement=True)
     device = Column(String(128), nullable=False)
     article_id = Column(Integer, ForeignKey('article.id'), nullable=False)
-
     read = Column(Integer, default=0, nullable=False)
+
+    __tablename__ = 'article_device'

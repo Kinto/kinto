@@ -6,19 +6,10 @@ from eve.auth import TokenAuth
 from flask import request, current_app as app
 
 
-class FxaAuth(TokenAuth):
-    def check_auth(self, token, allowed_roles, resource, method):
-        try:
-            account = fxa_verify(oauth_uri=app.config["FXA_OAUTH_URI"],
-                                 token=token)
-        except OAuth2Error:
-            return False
-
-        self.set_request_auth_value(account['user'])
-        return True
-
+class OAuth2(TokenAuth):
     def authorized(self, allowed_roles, resource, method):
-        auth = request.headers.get('Authorization', '')
+        auth = request.authorization = request.headers.get('Authorization', '')
+
         try:
             token_type, token = auth.split()
             assert token_type == 'Bearer'
@@ -26,6 +17,17 @@ class FxaAuth(TokenAuth):
             auth = None
 
         return auth and self.check_auth(token, allowed_roles, resource, method)
+
+
+class FxAAuth(OAuth2):
+    def check_auth(self, token, allowed_roles, resource, method):
+        try:
+            account = fxa_verify(oauth_uri=app.config["FXA_OAUTH_URI"],
+                                 token=token)
+        except OAuth2Error:
+            return False
+        self.set_request_auth_value(account['user'])
+        return True
 
 
 class OAuth2Error(Exception):
@@ -44,15 +46,12 @@ def fxa_trade_token(oauth_uri, client_id, client_secret, code):
     try:
         resp = requests.post(url, data=json.dumps(data), headers=headers)
     except requests_exceptions.RequestException as e:
-        print e
         error_msg = 'OAuth connection error ({})'.format(e)
         raise OAuth2Error(error_msg)
 
     if not 200 <= resp.status_code < 300:
         # XXX : if 400, take message from response
         # https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#errors
-        print resp
-        print resp.json()
         error_msg = 'Bad OAuth response ({})'.format(resp.status_code)
         raise OAuth2Error(error_msg)
 
@@ -70,9 +69,7 @@ def fxa_verify(oauth_uri, token):
     data = {
         'token': token
     }
-    headers = {
-        'Accept': 'application/json'
-    }
+    headers = {'Content-Type': 'application/json'}
 
     try:
         resp = requests.post(url, data=json.dumps(data), headers=headers)
