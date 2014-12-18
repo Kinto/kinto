@@ -5,7 +5,7 @@ import uuid
 
 from flask import request, jsonify, Blueprint, redirect, session, abort
 
-from readinglist import API_VERSION, exceptions
+from readinglist import exceptions
 from readinglist import auth
 
 
@@ -19,10 +19,17 @@ main = Blueprint("main", __name__)
 
 @main.route("/")
 def home():
-    return redirect("%s" % API_VERSION)
+    """Redirects to version prefixed.
+    """
+    from flask import current_app as app
+
+    return redirect("%s" % app.config['API_VERSION'])
 
 
-@main.route("/%s/fxa-oauth/params" % API_VERSION)
+fxa = Blueprint("fxa", __name__)
+
+
+@fxa.route("/fxa-oauth/params")
 def fxa_oauth_params():
     """Create session and provide the OAuth parameters to the client.
     """
@@ -58,7 +65,7 @@ def fxa_oauth_params():
     return response
 
 
-@main.route("/%s/fxa-oauth/tokens" % API_VERSION, methods=["POST"])
+@fxa.route("/fxa-oauth/tokens", methods=["POST"])
 def fxa_oauth_token():
     from flask import current_app as app
 
@@ -110,7 +117,7 @@ def fxa_oauth_token():
     return response
 
 
-@main.route("/%s/fxa-oauth/redirect" % API_VERSION)
+@fxa.route("/fxa-oauth/redirect")
 def fxa_oauth_redirect():
     """
     Check that returned state matches the one we stored in this session.

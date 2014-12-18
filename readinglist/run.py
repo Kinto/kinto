@@ -14,11 +14,12 @@ settings_file = os.path.join(here, 'settings.py')
 
 app = Eve(validator=ValidatorSQL, data=SQL, settings=settings_file)
 
-hooks.setup(app)
-
-app.register_blueprint(views.main)
-
 app.secret_key = app.config['SECRET_KEY']
+version_prefix = '/%s' % app.config['API_VERSION']
+
+hooks.setup(app)
+app.register_blueprint(views.main, url_prefix=version_prefix)
+app.register_blueprint(views.fxa, url_prefix=version_prefix)
 
 # bind SQLAlchemy
 db = app.data.driver
@@ -35,7 +36,7 @@ def handle_invalid_usage(error):
 
 # Activate docs
 Bootstrap(app)
-docs_prefix = '/%s/docs' % app.config['API_VERSION']
+docs_prefix = version_prefix + '/docs'
 app.register_blueprint(eve_docs, url_prefix=docs_prefix)
 
 

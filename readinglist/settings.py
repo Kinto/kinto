@@ -1,10 +1,12 @@
 import os
 
 from eve.io.sql.decorators import registerSchema
-from readinglist import API_VERSION, schemas, auth
+from readinglist import schemas, auth
 
 
 PROJECT_ROOT = os.path.dirname(__file__)
+
+API_VERSION = 'v1'
 
 X_DOMAINS = '*'  # CORS
 XML = False  # JSON only
