@@ -5,7 +5,7 @@ from eve.auth import TokenAuth
 from flask import request, current_app as app
 
 
-class OAuth2Exception(Exception):
+class OAuth2Error(Exception):
     pass
 
 
@@ -14,7 +14,7 @@ class FxaAuth(TokenAuth):
         try:
             profile = fxa_fetch_profile(oauth_uri=app.config["FXA_OAUTH_URI"],
                                         token=token)
-        except OAuth2Exception:
+        except OAuth2Error:
             return False
 
         uid = profile['uid']
@@ -45,13 +45,13 @@ def fxa_trade_token(oauth_uri, client_id, client_secret, code):
 
     if not 200 <= resp.status_code < 300:
         error_msg = 'Bad OAuth response ({})'.format(resp.status_code)
-        raise OAuth2Exception(error_msg)
+        raise OAuth2Error(error_msg)
 
     oauth_server_response = resp.json()
 
     if 'access_token' not in oauth_server_response:
         error_msg = 'access_token missing in OAuth response'
-        raise OAuth2Exception(error_msg)
+        raise OAuth2Error(error_msg)
 
     return oauth_server_response['access_token']
 
@@ -67,7 +67,7 @@ def fxa_fetch_profile(oauth_uri, token):
 
     if not 200 <= resp.status_code < 300:
         error_msg = 'Bad OAuth response ({})'.format(resp.status_code)
-        raise OAuth2Exception(error_msg)
+        raise OAuth2Error(error_msg)
 
     profile_server_response = resp.json()
     return profile_server_response

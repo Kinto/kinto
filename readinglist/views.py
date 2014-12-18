@@ -46,7 +46,7 @@ def fxa_oauth_params():
     # Store next url to redirect after login on Firefox Account
     next = request.args.get('next')
     if not next:
-        raise exceptions.InvalidUsage(message="Missing next parameter")
+        raise exceptions.UsageError(message="Missing next parameter")
     STORAGE_BACKEND['next'][state] = next
 
     # OAuth parameters
@@ -82,12 +82,12 @@ def fxa_oauth_token():
     code = data.get("code")
     state = data.get("state")
     if not (code and state):
-        raise exceptions.InvalidUsage(message="Missing code or state")
+        raise exceptions.UsageError(message="Missing code or state")
 
     # Compare previously stored state
     stored_state = STORAGE_BACKEND['state'].pop(session_id, None)
     if stored_state != state:
-        raise exceptions.InvalidUsage(message="Invalid state")
+        raise exceptions.UsageError(message="Invalid state")
 
     # Trade the OAuth code for a durable token
     try:
@@ -96,7 +96,7 @@ def fxa_oauth_token():
             client_id=app.config["FXA_CLIENT_ID"],
             client_secret=app.config["FXA_CLIENT_SECRET"],
             code=code)
-    except auth.OAuth2Exception:
+    except auth.OAuth2Error:
         abort(503)
 
     # Fetch profile data from FxA account
@@ -104,7 +104,7 @@ def fxa_oauth_token():
         profile = auth.fxa_fetch_profile(
             oauth_uri=app.config["FXA_OAUTH_URI"],
             token=token)
-    except auth.OAuth2Exception:
+    except auth.OAuth2Error:
         abort(503)
 
     session['username'] = profile['uid']
@@ -124,10 +124,10 @@ def fxa_oauth_redirect():
     """
     state = request.args.get('state')
     if not state:
-        raise exceptions.InvalidUsage(message="Missing state parameter")
+        raise exceptions.UsageError(message="Missing state parameter")
 
     stored_next = STORAGE_BACKEND['next'].pop(state, None)
     if not stored_next:
-        raise exceptions.InvalidUsage(message="Unknown state")
+        raise exceptions.UsageError(message="Unknown state")
 
     return redirect(next)

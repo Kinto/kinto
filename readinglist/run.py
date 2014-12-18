@@ -28,7 +28,7 @@ db.Model = schemas.Base
 db.create_all()
 
 # Register errors
-@app.errorhandler(exceptions.InvalidUsage)
+@app.errorhandler(exceptions.UsageError)
 def handle_invalid_usage(error):
     response = flask.jsonify(error.to_dict())
     response.status_code = error.status_code

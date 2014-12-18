@@ -1,11 +1,11 @@
-class InvalidUsage(Exception):
+class UsageError(Exception):
     status_code = 400
     description = "Bad Request"
     error_number = 999
 
     def __init__(self, message, status_code=None,
                  error_number=None, description=None):
-        super(InvalidUsage, self).__init__()
+        super(UsageError, self).__init__()
         self.message = message
         if error_number is not None:
             self.error_number = error_number
