@@ -10,7 +10,6 @@ from readinglist import auth
 
 
 STORAGE_BACKEND = {
-    'next': {},
     'state': {}
 }
 
@@ -43,12 +42,6 @@ def fxa_oauth_params():
     state = uuid.uuid4().hex
     STORAGE_BACKEND['state'][session_id] = state
 
-    # Store next url to redirect after login on Firefox Account
-    next = request.args.get('next')
-    if not next:
-        raise exceptions.UsageError(message="Missing next parameter")
-    STORAGE_BACKEND['next'][state] = next
-
     # OAuth parameters
     params = {
         "client_id": app.config["FXA_CLIENT_ID"],
@@ -65,7 +58,7 @@ def fxa_oauth_params():
     return response
 
 
-@fxa.route("/fxa-oauth/tokens", methods=["POST"])
+@fxa.route("/fxa-oauth/token")
 def fxa_oauth_token():
     from flask import current_app as app
 
@@ -78,9 +71,8 @@ def fxa_oauth_token():
         abort(401)
 
     # Initial state and FxA code to trade
-    data = request.get_json() or {}
-    code = data.get("code")
-    state = data.get("state")
+    code = request.args.get("code")
+    state = request.args.get("state")
     if not (code and state):
         raise exceptions.UsageError(message="Missing code or state")
 
@@ -89,7 +81,7 @@ def fxa_oauth_token():
     if stored_state != state:
         raise exceptions.UsageError(message="Invalid state")
 
-    # Trade the OAuth code for a durable token
+    # Trade the OAuth code for a longer-lived token
     try:
         token = auth.fxa_trade_token(
             oauth_uri=app.config["FXA_OAUTH_URI"],
@@ -102,32 +94,15 @@ def fxa_oauth_token():
     # Fetch profile data from FxA account
     try:
         profile = auth.fxa_fetch_profile(
-            oauth_uri=app.config["FXA_OAUTH_URI"],
+            profile_uri=app.config["FXA_PROFILE_URI"],
             token=token)
     except auth.OAuth2Error:
         abort(503)
 
-    session['username'] = profile['uid']
-
     data = {
-        "profile": profile
+        'token': token,
+        'profile': profile
     }
     response = jsonify(**data)
     response.headers['Session-Id'] = session_id
     return response
-
-
-@fxa.route("/fxa-oauth/redirect")
-def fxa_oauth_redirect():
-    """
-    Check that returned state matches the one we stored in this session.
-    """
-    state = request.args.get('state')
-    if not state:
-        raise exceptions.UsageError(message="Missing state parameter")
-
-    stored_next = STORAGE_BACKEND['next'].pop(state, None)
-    if not stored_next:
-        raise exceptions.UsageError(message="Unknown state")
-
-    return redirect(next)
