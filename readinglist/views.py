@@ -85,7 +85,7 @@ def fxa_oauth_token():
         raise exceptions.InvalidUsage(message="Missing code or state")
 
     # Compare previously stored state
-    stored_state = STORAGE_BACKEND['state'][session_id]
+    stored_state = STORAGE_BACKEND['state'].pop(session_id, None)
     if stored_state != state:
         raise exceptions.InvalidUsage(message="Invalid state")
 
@@ -126,7 +126,7 @@ def fxa_oauth_redirect():
     if not state:
         raise exceptions.InvalidUsage(message="Missing state parameter")
 
-    stored_next = STORAGE_BACKEND['next'].get(state)
+    stored_next = STORAGE_BACKEND['next'].pop(state, None)
     if not stored_next:
         raise exceptions.InvalidUsage(message="Unknown state")
 
