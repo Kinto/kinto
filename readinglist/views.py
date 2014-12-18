@@ -96,7 +96,7 @@ def fxa_oauth_token():
             client_id=app.config["FXA_CLIENT_ID"],
             client_secret=app.config["FXA_CLIENT_SECRET"],
             code=code)
-    except:
+    except auth.OAuth2Exception:
         abort(503)
 
     # Fetch profile data from FxA account
@@ -104,7 +104,7 @@ def fxa_oauth_token():
         profile = auth.fxa_fetch_profile(
             oauth_uri=app.config["FXA_OAUTH_URI"],
             token=token)
-    except:
+    except auth.OAuth2Exception:
         abort(503)
 
     session['username'] = profile['uid']
