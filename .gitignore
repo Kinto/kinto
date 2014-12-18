@@ -1,4 +1,5 @@
 *.pyc
 *.egg-info
 *.stamp
+*.db
 .venv/

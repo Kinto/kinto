@@ -1,5 +1,5 @@
 SERVER_URL = http://localhost:5000
-READINGLIST_SETTINGS = $(shell pwd)/readinglist.ini
+READINGLIST_SETTINGS = $(shell pwd)/development.cfg
 
 VIRTUALENV=virtualenv
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
