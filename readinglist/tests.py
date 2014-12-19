@@ -10,7 +10,7 @@ class TestBase(object):
         self.app = app
         self.w = TestApp(self.app, db=db, use_session_scopes=True)
 
-        self.patcher = mock.patch('readinglist.auth.fxa_verify')
+        self.patcher = mock.patch('readinglist.fxa.verify_token')
         self.fxa_verify = self.patcher.start()
         self.fxa_verify.return_value = {
             'user': 'alice'

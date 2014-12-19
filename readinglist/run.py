@@ -6,7 +6,8 @@ from eve.io.sql import SQL, ValidatorSQL
 from eve_docs import eve_docs
 from flask.ext.bootstrap import Bootstrap
 
-from readinglist import hooks, schemas, views, exceptions
+from readinglist import hooks, schemas, exceptions
+from readinglist.fxa import views as fxa_views
 
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -19,7 +20,7 @@ version_prefix = '/%s' % app.config['API_VERSION']
 
 # Setup events and views
 hooks.setup(app)
-app.register_blueprint(views.fxa, url_prefix=version_prefix)
+app.register_blueprint(fxa_views.fxa, url_prefix=version_prefix)
 
 # Activate docs
 Bootstrap(app)
