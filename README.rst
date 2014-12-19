@@ -27,6 +27,33 @@ The following end-points may suffer changes:
 We'll improve the auto-generated documentation at ``/v1/docs/``.
 
 
+Authentication
+==============
+
+In your requests, use the OAuth token with this header:
+
+::
+
+    Authorization: Bearer <token>
+
+
+Obtain token manually
+~~~~~~~~~~~~~~~~~~~~~
+
+* Go to ``/v1/fxa-oauth/login``
+* After submitting the Firefox Account login form, you are redirected
+  to ``/v1/fxa-oauth/token``, which provides the OAuth token.
+
+
+Obtain token using API
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Obtain Firefox Account parameters and state in JSON at ``/v1/fxa-oauth/params``
+* Navigate the client to ``{oauth_uri}/authorization?action=signin&client_id={client_id}&state={state}&scope={scope}``
+* Follow OAuth response redirection to ``/v1/fxa-oauth/token``
+* Read token in JSON
+
+
 Run locally
 ===========
 

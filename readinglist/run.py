@@ -20,7 +20,8 @@ version_prefix = '/%s' % app.config['API_VERSION']
 
 # Setup events and views
 hooks.setup(app)
-app.register_blueprint(fxa_views.fxa, url_prefix=version_prefix)
+fxa_prefix = version_prefix + '/fxa-oauth'
+app.register_blueprint(fxa_views.fxa, url_prefix=fxa_prefix)
 
 # Activate docs
 Bootstrap(app)

@@ -2,3 +2,4 @@ loads
 flask-webtest
 nose
 mock
+responses

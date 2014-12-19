@@ -22,7 +22,7 @@ class TestBase(object):
     def tearDown(self):
         self.w.db.session.query(schemas.Article).delete()
         self.w.db.session.query(schemas.ArticleDevice).delete()
-        self.fxa_verify = self.patcher.stop()
+        self.patcher.stop()
 
     def url_for(self, path):
         return "/v1" + path
