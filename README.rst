@@ -49,7 +49,7 @@ GET /articles/<id>
 
 Returns a specific article by its id.
 
-.. notes::
+:notes:
 
     With the current behaviour, this operation will associate a device
     to this article.
@@ -113,6 +113,10 @@ mapping containing:
 
 Authentication
 ==============
+
+
+OAuth token
+-----------
 
 In your requests, use the OAuth token with this header:
 
