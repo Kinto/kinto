@@ -6,25 +6,109 @@ Put a brief description of 'readinglist'.
 API
 ===
 
-* Retrieve all articles with ``GET`` on ``/v1/articles``
-* Create article with ``POST`` on ``/v1/articles``
-
-* Register your device with ``GET`` on ``/v1/articles/<id>``
-* Track all devices with ``GET`` on ``/v1/articles/<id>/devices``
-* Get device status with ``GET`` on ``/v1/articles/<id>/devices/<name>``
-* Modify device status with ``PATCH`` on ``/v1/articles/<id>/devices/<name>``
-
-* Modify article with ``PATCH`` on ``/v1/articles/<id>``
-* Delete article with ``DELETE`` on ``/v1/articles/<id>``
-
-The following end-points may suffer changes:
-
-* Filter articles list with ``/v1/articles?where={"status": "unread"}``
-* Sort articles list with ``/v1/articles?sort=[("title", -1)]``
-* Embed devices informations in articles ``/v1/articles/<id>?embedded={"devices": 1}``
+    We have auto-generated documentation at ``/v1/docs/``.
 
 
-We'll improve the auto-generated documentation at ``/v1/docs/``.
+GET /articles
+-------------
+
+**Requires an FxA Oauth authentication**
+
+Returns all articles of a given user.
+The returned value is a json mapping containing:
+
+- **_items**: the list of articles
+
+Filtering
+~~~~~~~~~
+
+**/articles?where={"status": "unread"}**
+
+Sorting
+~~~~~~~
+
+**/articles?sort=[("title", -1)]**
+
+
+POST /articles
+--------------
+
+**Requires an FxA Oauth authentication**
+
+Used to post an article to the server. The POST body is a Json
+mapping containing:
+
+- **title**: readable title
+- **url**: full url
+
+
+GET /articles/<id>
+------------------
+
+**Requires an FxA Oauth authentication**
+
+Returns a specific article by its id.
+
+.. notes::
+
+    With the current behaviour, this operation will associate a device
+    to this article.
+
+
+DELETE /articles/<id>
+---------------------
+
+**Requires an FxA Oauth authentication**
+
+Delete a specific article by its id.
+
+
+PATCH /articles/<id>
+--------------------
+
+**Requires an FxA Oauth authentication**
+
+Modify a specific article by its id. The PATCH body is a Json
+mapping containing a subset of articles fields.
+
+
+Embedded devices status
+~~~~~~~~~~~~~~~~~~~~~~~
+
+**/articles/<id>?embedded={"devices": 1}**
+
+
+GET /articles/<id>/devices
+--------------------------
+
+**Requires an FxA Oauth authentication**
+
+Returns all articles of a given user.
+The returned value is a json mapping containing:
+
+- **_items**: the list of devices and status
+
+
+GET /articles/<id>/devices/<name>
+---------------------------------
+
+**Requires an FxA Oauth authentication**
+
+Returns the read status of a given device.
+The returned value is a json mapping containing:
+
+- **read** (integer): the percentage read of this article on this device
+
+
+PATCH /articles/<id>/devices/<name>
+-----------------------------------
+
+**Requires an FxA Oauth authentication**
+
+Modify read status of a given device. The PATCH body is a Json
+mapping containing:
+
+- **read** (integer): the percentage read of this article on this device
 
 
 Authentication
@@ -49,7 +133,7 @@ Obtain token using API
 ~~~~~~~~~~~~~~~~~~~~~~
 
 * Obtain Firefox Account parameters and state in JSON at ``/v1/fxa-oauth/params``
-* Navigate the client to ``{oauth_uri}/authorization?action=signin&client_id={client_id}&state={state}&scope={scope}``
+* Navigate the client to ``<oauth_uri>/authorization?action=signin&client_id=<client_id>&state=<state>&scope=<scope>``
 * Follow OAuth response redirection to ``/v1/fxa-oauth/token``
 * Read token in JSON
 
@@ -60,4 +144,3 @@ Run locally
 ::
 
     make serve
-
