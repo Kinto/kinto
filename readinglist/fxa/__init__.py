@@ -78,7 +78,7 @@ def verify_token(oauth_uri, token):
 
     verify_response = resp.json()
 
-    missing_attrs = ", ".join([k for k in ('user', 'scopes', 'client_id')
+    missing_attrs = ", ".join([k for k in ('user', 'scope', 'client_id')
                                if k not in verify_response])
     if missing_attrs:
         error_msg = '{} missing in OAuth response'.format(missing_attrs)

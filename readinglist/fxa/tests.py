@@ -77,7 +77,7 @@ class VerifyTokenTest(TestCase):
     @responses.activate
     def setUp(self):
         responses.add(responses.POST, 'https://server/verify',
-            body='{"user": "alice", "scopes": "profile", "client_id": "abc"}',
+            body='{"user": "alice", "scope": ["profile"], "client_id": "abc"}',
             content_type='application/json')
 
         self.verification = fxa.verify_token(oauth_uri='https://server',
@@ -99,7 +99,7 @@ class VerifyTokenTest(TestCase):
     def test_returns_response_given_by_server(self):
         expected = {
             "user": "alice",
-            "scopes": "profile",
+            "scope": ["profile"],
             "client_id": "abc"
         }
         self.assertDictEqual(self.verification, expected)
