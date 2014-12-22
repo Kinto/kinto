@@ -65,6 +65,10 @@ class BaseResourceTest(BaseWebTest):
         resp = self.app.get(url, headers=self.headers)
         self.assertRecordEquals(resp.json, self.record)
 
+    def test_get_record_unknown(self):
+        url = '/{}s/unknown'.format(self.resource)
+        self.app.get(url, headers=self.headers, status=404)
+
     def test_modify_record(self):
         url = '/{}s/{}'.format(self.resource, self.record['_id'])
         modified = self.modify_record(self.record)
@@ -72,7 +76,15 @@ class BaseResourceTest(BaseWebTest):
         stored = self.db.get(self.resource, '', self.record['_id'])
         self.assertRecordEquals(resp.json, stored)
 
+    def test_modify_record_unknown(self):
+        url = '/{}s/unknown'.format(self.resource)
+        self.app.patch_json(url, {}, headers=self.headers, status=404)
+
     def test_delete_record(self):
         url = '/{}s/{}'.format(self.resource, self.record['_id'])
         resp = self.app.delete(url, headers=self.headers)
         self.assertRecordEquals(resp.json, self.record)
+
+    def test_delete_record_unknown(self):
+        url = '/{}s/unknown'.format(self.resource)
+        self.app.delete(url, headers=self.headers, status=404)

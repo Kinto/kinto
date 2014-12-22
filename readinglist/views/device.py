@@ -1,6 +1,8 @@
 import json
 from cornice import Service
 
+from readinglist.decorators import exists_or_404
+
 
 devices = Service(name="devices",
                   path='/devices',
@@ -8,7 +10,7 @@ devices = Service(name="devices",
 
 
 device = Service(name="device",
-                 path='/devices/{device_id}',
+                 path='/devices/{record_id}',
                  description="Single device.")
 
 
@@ -31,25 +33,28 @@ def create_device(request):
 
 
 @device.get()
+@exists_or_404()
 def get_device(request):
     """Fetch single device of user."""
-    device_id = request.matchdict['device_id']
-    device = request.db.get('device', '', device_id)
+    record_id = request.matchdict['record_id']
+    device = request.db.get('device', '', record_id)
     return device
 
 
 @device.patch()
+@exists_or_404()
 def modify_device(request):
     """Modify device of user."""
-    device_id = request.matchdict['device_id']
+    record_id = request.matchdict['record_id']
     device = json.loads(request.body)
-    device = request.db.update('device', '', device_id, device)
+    device = request.db.update('device', '', record_id, device)
     return device
 
 
 @device.delete()
+@exists_or_404()
 def delete_device(request):
     """Delete device of user."""
-    device_id = request.matchdict['device_id']
-    device = request.db.delete('device', '', device_id)
+    record_id = request.matchdict['record_id']
+    device = request.db.delete('device', '', record_id)
     return device
