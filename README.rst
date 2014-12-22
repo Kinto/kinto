@@ -79,11 +79,6 @@ GET /articles/<id>
 
 Returns a specific article by its id.
 
-:notes:
-
-    With the current behaviour, this operation will associate a device
-    to this article.
-
 
 DELETE /articles/<id>
 ---------------------
@@ -142,8 +137,8 @@ The returned value is a json mapping containing:
 - **read** (integer): the percentage read of this article on this device
 
 
-PATCH /articles/<id>/status/<name>
-----------------------------------
+PATCH /articles/<id>/status/<device-id>
+---------------------------------------
 
 **Requires an FxA Oauth authentication**
 
