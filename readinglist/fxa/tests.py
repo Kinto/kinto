@@ -11,9 +11,10 @@ from readinglist import fxa
 class TradeCodeTest(TestCase):
     @responses.activate
     def setUp(self):
-        responses.add(responses.POST, 'https://server/token',
-            body='{"access_token": "yeah"}',
-            content_type='application/json')
+        responses.add(responses.POST,
+                      'https://server/token',
+                      body='{"access_token": "yeah"}',
+                      content_type='application/json')
 
         self.token = fxa.trade_code(oauth_uri='https://server',
                                     client_id='abc',
@@ -52,9 +53,10 @@ class TradeCodeErrorTest(TestCase):
 
     @responses.activate
     def test_raises_error_if_response_returns_400(self):
-        responses.add(responses.POST, 'https://server/token',
-            body='{"errorno": "999"}', status=400,
-            content_type='application/json')
+        responses.add(responses.POST,
+                      'https://server/token',
+                      body='{"errorno": "999"}', status=400,
+                      content_type='application/json')
         with self.assertRaises(fxa.OAuth2Error):
             fxa.trade_code(oauth_uri='https://server',
                            client_id='abc',
@@ -63,9 +65,10 @@ class TradeCodeErrorTest(TestCase):
 
     @responses.activate
     def test_raises_error_if_access_token_not_returned(self):
-        responses.add(responses.POST, 'https://server/token',
-            body='{"foo": "bar"}',
-            content_type='application/json')
+        responses.add(responses.POST,
+                      'https://server/token',
+                      body='{"foo": "bar"}',
+                      content_type='application/json')
         with self.assertRaises(fxa.OAuth2Error):
             fxa.trade_code(oauth_uri='https://server',
                            client_id='abc',
@@ -76,9 +79,11 @@ class TradeCodeErrorTest(TestCase):
 class VerifyTokenTest(TestCase):
     @responses.activate
     def setUp(self):
-        responses.add(responses.POST, 'https://server/verify',
-            body='{"user": "alice", "scope": ["profile"], "client_id": "abc"}',
-            content_type='application/json')
+        data = {"user": "alice", "scope": ["profile"], "client_id": "abc"}
+        responses.add(responses.POST,
+                      'https://server/verify',
+                      body=json.dumps(data),
+                      content_type='application/json')
 
         self.verification = fxa.verify_token(oauth_uri='https://server',
                                              token='abc')
@@ -116,28 +121,29 @@ class VerifyTokenErrorTest(TestCase):
 
     @responses.activate
     def test_raises_error_if_response_returns_400(self):
-        responses.add(responses.POST, 'https://server/verify',
-            body='{"errorno": "999"}', status=400,
-            content_type='application/json')
+        responses.add(responses.POST,
+                      'https://server/verify',
+                      body='{"errorno": "999"}', status=400,
+                      content_type='application/json')
         with self.assertRaises(fxa.OAuth2Error):
             fxa.verify_token(oauth_uri='https://server',
                              token='1234')
 
     @responses.activate
     def test_raises_error_if_some_attributes_are_not_returned(self):
-        responses.add(responses.POST, 'https://server/verify',
-            body='{"foo": "bar"}',
-            content_type='application/json')
+        responses.add(responses.POST,
+                      'https://server/verify',
+                      body='{"foo": "bar"}',
+                      content_type='application/json')
         with self.assertRaises(fxa.OAuth2Error):
             fxa.verify_token(oauth_uri='https://server',
                              token='1234')
 
 
-"""
+#
+# Views tests
+#
 
-Views tests
-
-"""
 
 from flask.ext.webtest import TestApp
 from readinglist.run import app
@@ -179,8 +185,8 @@ class ParamsViewTest(TestBase, TestCase):
     def test_provide_oauth_parameters_and_state(self):
         r = self.w.get(self.url)
         self.assertEqual(sorted(r.json.keys()),
-            ['client_id', 'oauth_uri', 'profile_uri', 'redirect_uri',
-             'scope', 'state'])
+                         ['client_id', 'oauth_uri', 'profile_uri',
+                          'redirect_uri', 'scope', 'state'])
 
 
 class TokenViewTest(TestBase, TestCase):
@@ -201,7 +207,7 @@ class TokenViewTest(TestBase, TestCase):
         with app.test_client() as c:
             with c.session_transaction() as sess:
                 sess['state'] = 'abc'
-            r = c.get(self.url + '?state=def&code=1234')
+            r = c.get('{}?state=def&code=1234'.format(self.url))
             self.assertEqual(r.status_code, 400)
 
     @mock.patch('readinglist.fxa.views.trade_code')
@@ -211,7 +217,7 @@ class TokenViewTest(TestBase, TestCase):
         with app.test_client() as c:
             with c.session_transaction() as sess:
                 sess['state'] = 'abc'
-            r = c.get(self.url + '?state=abc&code=1234')
+            r = c.get('{}?state=abc&code=1234'.format(self.url))
 
             self.assertEqual(r.status_code, 200)
             token = json.loads(r.data)['token']

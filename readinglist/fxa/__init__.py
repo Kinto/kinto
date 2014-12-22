@@ -5,8 +5,7 @@ from requests import exceptions as requests_exceptions
 
 
 class OAuth2Error(Exception):
-    """Base exception for FxA authentication errors.
-    """
+    """Base exception for FxA authentication errors."""
     def __init__(self, error=None, code=None, message=None, errorno=None):
         super(Exception, self).__init__(error or 'OAuth error')
         self.error = error
@@ -30,8 +29,7 @@ class OAuth2Error(Exception):
 
 
 def trade_code(oauth_uri, client_id, client_secret, code):
-    """Trade the authentication code for a longer lived token.
-    """
+    """Trade the authentication code for a longer lived token."""
     url = '%s/token' % oauth_uri
     data = {
         'code': code,
@@ -59,8 +57,7 @@ def trade_code(oauth_uri, client_id, client_secret, code):
 
 
 def verify_token(oauth_uri, token):
-    """Verify a OAuth token, and retrieve user id and scopes.
-    """
+    """Verify a OAuth token, and retrieve user id and scopes."""
     url = '%s/verify' % oauth_uri
     data = {
         'token': token

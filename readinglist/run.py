@@ -20,12 +20,12 @@ version_prefix = '/%s' % app.config['API_VERSION']
 
 # Setup events and views
 hooks.setup(app)
-fxa_prefix = version_prefix + '/fxa-oauth'
+fxa_prefix = '{}/fxa-oauth'.format(version_prefix)
 app.register_blueprint(fxa_views.fxa, url_prefix=fxa_prefix)
 
 # Activate docs
 Bootstrap(app)
-docs_prefix = version_prefix + '/docs'
+docs_prefix = '{}/docs'.format(version_prefix)
 app.register_blueprint(eve_docs, url_prefix=docs_prefix)
 
 # Bind SQLAlchemy
