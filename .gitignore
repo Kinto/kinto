@@ -3,3 +3,4 @@
 *.stamp
 *.db
 .venv/
+.coverage

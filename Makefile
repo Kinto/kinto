@@ -1,5 +1,4 @@
-SERVER_URL = http://localhost:5000
-READINGLIST_SETTINGS = $(shell pwd)/development.cfg
+SERVER_URL = http://localhost:8000
 
 VIRTUALENV=virtualenv
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
@@ -18,7 +17,7 @@ $(INSTALL_STAMP): $(PYTHON)
 	$(PYTHON) setup.py develop
 	touch $(INSTALL_STAMP)
 
-install-dev: $(DEV_STAMP)
+install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON)
 	$(VENV)/bin/pip install -r dev-requirements.txt
 	touch $(DEV_STAMP)
@@ -28,10 +27,10 @@ $(PYTHON):
 	virtualenv $(VENV)
 
 serve: install-dev
-	EVE_SETTINGS=$(READINGLIST_SETTINGS) $(VENV)/bin/python readinglist/run.py
+	$(VENV)/bin/pserve conf/readinglist.ini --reload
 
 tests: install-dev
-	$(VENV)/bin/nosetests -s
+	$(VENV)/bin/nosetests -s --with-coverage --cover-package=readinglist
 
 bench: install-dev
 	$(VENV)/bin/loads-runner --config=./loadtests/bench.ini --server-url=$(SERVER_URL) loadtests.TestPOC.test_all
