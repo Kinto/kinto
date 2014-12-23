@@ -16,7 +16,7 @@ class BackendBase(object):
     def get(self, resource, user_id, record_id):
         raise NotImplementedError
 
-    def update(self, resource, user_id, device_id, record):
+    def update(self, resource, user_id, record_id, record):
         raise NotImplementedError
 
     def delete(self, resource, user_id, record_id):

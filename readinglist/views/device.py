@@ -4,8 +4,7 @@ from pyramid.security import Authenticated
 from readinglist.resource import BaseResource
 
 
-@resource(name='device',
-          collection_path='/devices',
+@resource(collection_path='/devices',
           path='/devices/{id}',
           description='Collection of devices',
           permission=Authenticated)

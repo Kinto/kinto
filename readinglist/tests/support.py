@@ -44,7 +44,10 @@ class BaseResourceViewsTest(BaseWebTest):
         self.db.create(self.resource, u'bob', self.record)
 
     def assertRecordEquals(self, record1, record2):
-        return self.assertEquals(record1, record2)
+        return self.assertEqual(record1, record2)
+
+    def assertRecordNotEquals(self, record1, record2):
+        return self.assertNotEqual(record1, record2)
 
     def record_factory(self):
         raise NotImplementedError
@@ -91,10 +94,11 @@ class BaseResourceViewsTest(BaseWebTest):
 
     def test_modify_record(self):
         url = '/{}s/{}'.format(self.resource, self.record['_id'])
+        stored = self.db.get(self.resource, u'bob', self.record['_id'])
         modified = self.modify_record(self.record)
         resp = self.app.patch_json(url, modified, headers=self.headers)
-        stored = self.db.get(self.resource, u'bob', self.record['_id'])
-        self.assertRecordEquals(resp.json, stored)
+        self.assertEquals(resp.json['_id'], stored['_id'])
+        self.assertRecordNotEquals(resp.json, stored)
 
     def test_modify_record_unknown(self):
         url = '/{}s/unknown'.format(self.resource)

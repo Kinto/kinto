@@ -28,31 +28,34 @@ class BaseResource(object):
                               user_id=request.authenticated_userid)
 
     def collection_get(self):
-        devices = self.request.db.get_all(**self.db_kwargs)
+        records = self.request.db.get_all(**self.db_kwargs)
         body = {
-            '_items': devices
+            '_items': records
         }
         return body
 
     def collection_post(self):
-        device = json.loads(self.request.body)
-        device = self.request.db.create(record=device, **self.db_kwargs)
-        return device
+        record = json.loads(self.request.body)
+        record = self.request.db.create(record=record, **self.db_kwargs)
+        return record
 
     @exists_or_404()
     def get(self):
         record_id = self.request.matchdict['id']
-        device = self.request.db.get(record_id=record_id, **self.db_kwargs)
-        return device
+        record = self.request.db.get(record_id=record_id, **self.db_kwargs)
+        return record
 
     @exists_or_404()
     def patch(self):
         record_id = self.request.matchdict['id']
-        device = self.request.db.get(record_id=record_id, **self.db_kwargs)
-        return device
+        record = json.loads(self.request.body)
+        record = self.request.db.update(record_id=record_id,
+                                        record=record,
+                                        **self.db_kwargs)
+        return record
 
     @exists_or_404()
     def delete(self):
         record_id = self.request.matchdict['id']
-        device = self.request.db.delete(record_id=record_id, **self.db_kwargs)
-        return device
+        record = self.request.db.delete(record_id=record_id, **self.db_kwargs)
+        return record
