@@ -1,17 +1,21 @@
 import json
+
 from cornice import Service
+from pyramid.security import Authenticated
 
 from readinglist.decorators import exists_or_404
 
 
 devices = Service(name="devices",
                   path='/devices',
-                  description="Collection of devices.")
+                  description="Collection of devices.",
+                  permission=Authenticated)
 
 
 device = Service(name="device",
                  path='/devices/{record_id}',
-                 description="Single device.")
+                 description="Single device.",
+                 permission=Authenticated)
 
 
 @devices.get()

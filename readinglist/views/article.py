@@ -1,17 +1,20 @@
 import json
 from cornice import Service
+from pyramid.security import Authenticated
 
 from readinglist.decorators import exists_or_404
 
 
 articles = Service(name="articles",
-                  path='/articles',
-                  description="Collection of articles.")
+                   path='/articles',
+                   description="Collection of articles.",
+                   permission=Authenticated)
 
 
 article = Service(name="article",
-                 path='/articles/{record_id}',
-                 description="Single article.")
+                  path='/articles/{record_id}',
+                  description="Single article.",
+                  permission=Authenticated)
 
 
 @articles.get()
