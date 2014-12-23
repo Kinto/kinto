@@ -54,16 +54,6 @@ The returned value is a json mapping containing:
 
 - **_items**: the list of articles
 
-Filtering
-~~~~~~~~~
-
-**/articles?where={"status": "unread"}**
-
-Sorting
-~~~~~~~
-
-**/articles?sort=[("title", -1)]**
-
 
 POST /articles
 --------------
@@ -100,12 +90,6 @@ PATCH /articles/<id>
 
 Modify a specific article by its id. The PATCH body is a Json
 mapping containing a subset of articles fields.
-
-
-Embedded devices status
-~~~~~~~~~~~~~~~~~~~~~~~
-
-**/articles/<id>?embedded={"status": 1}**
 
 
 GET /articles/<id>/status
