@@ -1,5 +1,8 @@
 import json
 
+import pyramid.httpexceptions
+import colander
+
 from readinglist.backend.exceptions import RecordNotFoundError
 
 
@@ -16,7 +19,16 @@ def exists_or_404():
     return wrap
 
 
+class RessourceSchema(colander.MappingSchema):
+    _id = colander.SchemaNode(colander.String(), missing=colander.drop)
+
+    def schema_type(self, **kwargs):
+        return colander.Mapping(unknown='preserve')
+
+
 class BaseResource(object):
+
+    mapping = RessourceSchema()
 
     @classmethod
     def resource_name(cls):
@@ -28,6 +40,22 @@ class BaseResource(object):
         self.db_kwargs = dict(resource=self.resource_name(),
                               user_id=request.authenticated_userid)
 
+    def deserialize(self, raw):
+        return json.loads(raw)
+
+    def validate(self, record):
+        # XXX: how to use cls.mapping in cornice decorators
+        # instead of custom code here ?
+        try:
+            return self.mapping.deserialize(record)
+        except colander.Invalid as e:
+            self.request.errors.add('path', 'id', str(e))
+            raise pyramid.httpexceptions.HTTPBadRequest()
+
+    #
+    # End-points
+    #
+
     def collection_get(self):
         records = self.db.get_all(**self.db_kwargs)
         body = {
@@ -36,7 +64,8 @@ class BaseResource(object):
         return body
 
     def collection_post(self):
-        record = json.loads(self.request.body)
+        record = self.deserialize(self.request.body)
+        record = self.validate(record)
         record = self.db.create(record=record, **self.db_kwargs)
         return record
 
@@ -49,10 +78,18 @@ class BaseResource(object):
     @exists_or_404()
     def patch(self):
         record_id = self.request.matchdict['id']
-        record = json.loads(self.request.body)
+
+        original = self.db.get(record_id=record_id, **self.db_kwargs)
+        modified = self.deserialize(self.request.body)
+        updated = original.copy()
+        updated.update(**modified)
+
+        updated = self.validate(updated)
+
         record = self.db.update(record_id=record_id,
-                                record=record,
+                                record=updated,
                                 **self.db_kwargs)
+
         return record
 
     @exists_or_404()

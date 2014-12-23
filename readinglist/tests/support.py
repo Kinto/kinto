@@ -54,6 +54,9 @@ class BaseResourceViewsTest(BaseWebTest):
     def record_factory(self):
         raise NotImplementedError
 
+    def invalid_record_factory(self):
+        return dict(foo="bar")
+
     def modify_record(self, original):
         raise NotImplementedError
 
@@ -76,6 +79,13 @@ class BaseResourceViewsTest(BaseWebTest):
                                   body,
                                   headers=self.headers)
         self.assertIn('_id', resp.json)
+
+    def test_invalid_record_raises_error(self):
+        body = self.invalid_record_factory()
+        self.app.post_json(self.collection_url,
+                           body,
+                           headers=self.headers,
+                           status=400)
 
     def test_new_records_are_linked_to_owner(self):
         body = self.record_factory()
@@ -103,8 +113,9 @@ class BaseResourceViewsTest(BaseWebTest):
         self.assertRecordNotEquals(resp.json, stored)
 
     def test_modify_record_unknown(self):
+        body = self.record_factory()
         url = self.item_url.format('unknown')
-        self.app.patch_json(url, {}, headers=self.headers, status=404)
+        self.app.patch_json(url, body, headers=self.headers, status=404)
 
     def test_delete_record(self):
         url = self.item_url.format(self.record['_id'])

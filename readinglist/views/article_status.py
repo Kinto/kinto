@@ -1,10 +1,15 @@
-import json
-
 from cornice.resource import resource
 from pyramid.security import Authenticated
+from colander import SchemaNode, String, Int
 
 from readinglist.backend.exceptions import RecordNotFoundError
-from readinglist.resource import BaseResource, exists_or_404
+from readinglist.resource import BaseResource, exists_or_404, RessourceSchema
+
+
+class DeviceStatus(RessourceSchema):
+    article_id = SchemaNode(String())
+    device_id = SchemaNode(String())
+    read = device_id = SchemaNode(Int())
 
 
 @resource(collection_path='/articles/{id}/status',
@@ -12,6 +17,7 @@ from readinglist.resource import BaseResource, exists_or_404
           description='Article status by device',
           permission=Authenticated)
 class ArticleStatus(BaseResource):
+    mapping = DeviceStatus()
 
     def get_article(self):
         """Helper to get related article record."""
@@ -39,11 +45,13 @@ class ArticleStatus(BaseResource):
 
     @exists_or_404()
     def collection_post(self):
-        status = json.loads(self.request.body)
+        status = self.deserialize(self.request.body)
 
         # Link to current article
         article = self.get_article()
         status['article_id'] = article['_id']
+
+        status = self.validate(status)
 
         status = self.request.db.create(record=status, **self.db_kwargs)
         return status
@@ -56,9 +64,15 @@ class ArticleStatus(BaseResource):
     def patch(self):
         record = self.get_article_status()
         record_id = record['_id']
-        modified = json.loads(self.request.body)
+
+        modified = self.deserialize(self.request.body)
+        updated = record.copy()
+        updated.update(**modified)
+
+        updated = self.validate(updated)
+
         record = self.request.db.update(record_id=record_id,
-                                        record=modified,
+                                        record=updated,
                                         **self.db_kwargs)
         return record
 

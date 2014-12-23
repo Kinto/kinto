@@ -26,11 +26,8 @@ class Memory(BackendBase):
         return collection[record_id]
 
     def update(self, resource, user_id, record_id, record):
-        original = self.get(resource, user_id, record_id)
-        updated = original.copy()
-        updated.update(**record)
-        self._store[resource][user_id][record_id] = updated
-        return updated
+        self._store[resource][user_id][record_id] = record
+        return record
 
     def delete(self, resource, user_id, record_id):
         existing = self.get(resource, user_id, record_id)

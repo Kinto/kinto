@@ -1,7 +1,12 @@
 from cornice.resource import resource
 from pyramid.security import Authenticated
+from colander import SchemaNode, String
 
-from readinglist.resource import BaseResource
+from readinglist.resource import BaseResource, RessourceSchema
+
+
+class DeviceSchema(RessourceSchema):
+    name = SchemaNode(String())
 
 
 @resource(collection_path='/devices',
@@ -9,4 +14,4 @@ from readinglist.resource import BaseResource
           description='Collection of devices',
           permission=Authenticated)
 class Device(BaseResource):
-    pass
+    mapping = DeviceSchema()
