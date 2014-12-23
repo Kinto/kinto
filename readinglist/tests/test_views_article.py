@@ -3,7 +3,7 @@ import unittest
 from .support import BaseResourceTest
 
 
-class DeviceResourceTest(BaseResourceTest, unittest.TestCase):
+class ResourceTest(BaseResourceTest, unittest.TestCase):
     resource = 'article'
 
     def record_factory(self):
