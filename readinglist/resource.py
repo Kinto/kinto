@@ -24,11 +24,12 @@ class BaseResource(object):
 
     def __init__(self, request):
         self.request = request
+        self.db = request.db
         self.db_kwargs = dict(resource=self.resource_name(),
                               user_id=request.authenticated_userid)
 
     def collection_get(self):
-        records = self.request.db.get_all(**self.db_kwargs)
+        records = self.db.get_all(**self.db_kwargs)
         body = {
             '_items': records
         }
@@ -36,26 +37,26 @@ class BaseResource(object):
 
     def collection_post(self):
         record = json.loads(self.request.body)
-        record = self.request.db.create(record=record, **self.db_kwargs)
+        record = self.db.create(record=record, **self.db_kwargs)
         return record
 
     @exists_or_404()
     def get(self):
         record_id = self.request.matchdict['id']
-        record = self.request.db.get(record_id=record_id, **self.db_kwargs)
+        record = self.db.get(record_id=record_id, **self.db_kwargs)
         return record
 
     @exists_or_404()
     def patch(self):
         record_id = self.request.matchdict['id']
         record = json.loads(self.request.body)
-        record = self.request.db.update(record_id=record_id,
-                                        record=record,
-                                        **self.db_kwargs)
+        record = self.db.update(record_id=record_id,
+                                record=record,
+                                **self.db_kwargs)
         return record
 
     @exists_or_404()
     def delete(self):
         record_id = self.request.matchdict['id']
-        record = self.request.db.delete(record_id=record_id, **self.db_kwargs)
+        record = self.db.delete(record_id=record_id, **self.db_kwargs)
         return record

@@ -16,20 +16,13 @@ class BackendBaseTest(unittest.TestCase):
         self.assertEqual(backend.id_generator, l)
 
     def test_mandatory_overrides(self):
-        self.assertRaises(NotImplementedError,
-                          self.backend.flush)
-        self.assertRaises(NotImplementedError,
-                          self.backend.create,
-                          '', '', {})
-        self.assertRaises(NotImplementedError,
-                          self.backend.get,
-                          '', '', '')
-        self.assertRaises(NotImplementedError,
-                          self.backend.update,
-                          '', '', '', {})
-        self.assertRaises(NotImplementedError,
-                          self.backend.delete,
-                          '', '', '')
-        self.assertRaises(NotImplementedError,
-                          self.backend.get_all,
-                          '', '')
+        calls = [
+            (self.backend.flush,),
+            (self.backend.create, '', '', {}),
+            (self.backend.get, '', '', ''),
+            (self.backend.update, '', '', '', {}),
+            (self.backend.delete, '', '', ''),
+            (self.backend.get_all, '', ''),
+        ]
+        for call in calls:
+            self.assertRaises(NotImplementedError, *call)
