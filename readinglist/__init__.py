@@ -26,7 +26,7 @@ def main(global_config, **settings):
         authentication.BasicAuthAuthenticationPolicy(),
     ]
     authn_policy = MultiAuthenticationPolicy(policies)
-    authz_policy  = authentication.AuthorizationPolicy()
+    authz_policy = authentication.AuthorizationPolicy()
 
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
