@@ -11,7 +11,7 @@ You can look at the API design here: https://github.com/mozilla-services/reading
 Implemented API
 ===============
 
-    We have auto-generated documentation at ``/v1/docs/``.
+We have auto-generated documentation at ``/v1/docs/``.
 
 
 GET /devices
