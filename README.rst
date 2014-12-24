@@ -1,10 +1,15 @@
 Documentation
 =============
 
-Put a brief description of 'readinglist'.
+Reading list is a service that help to synchronize articles url in between device of the same person.
 
-API
-===
+API Design
+==========
+
+You can look at the API design here: https://github.com/mozilla-services/readinglist/wiki/API-Design-proposal
+
+Implemented API
+===============
 
     We have auto-generated documentation at ``/v1/docs/``.
 
