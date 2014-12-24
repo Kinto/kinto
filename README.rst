@@ -9,6 +9,36 @@ API
     We have auto-generated documentation at ``/v1/docs/``.
 
 
+GET /devices
+------------
+
+**Requires an FxA Oauth authentication**
+
+Returns all devices of a given user.
+The returned value is a json mapping containing:
+
+- **_items**: the list of devices
+
+
+POST /devices
+--------------
+
+**Requires an FxA Oauth authentication**
+
+Used to post a device to the server. The POST body is a Json
+mapping containing:
+
+- **name**: device name
+
+
+DELETE /devices/<id>
+--------------------
+
+**Requires an FxA Oauth authentication**
+
+Delete a specific device by its id.
+
+
 GET /articles
 -------------
 
@@ -49,11 +79,6 @@ GET /articles/<id>
 
 Returns a specific article by its id.
 
-:notes:
-
-    With the current behaviour, this operation will associate a device
-    to this article.
-
 
 DELETE /articles/<id>
 ---------------------
@@ -75,11 +100,11 @@ mapping containing a subset of articles fields.
 Embedded devices status
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-**/articles/<id>?embedded={"devices": 1}**
+**/articles/<id>?embedded={"status": 1}**
 
 
-GET /articles/<id>/devices
---------------------------
+GET /articles/<id>/status
+-------------------------
 
 **Requires an FxA Oauth authentication**
 
@@ -89,8 +114,20 @@ The returned value is a json mapping containing:
 - **_items**: the list of devices and status
 
 
-GET /articles/<id>/devices/<name>
----------------------------------
+POST /articles/<id>/status
+--------------------------
+
+**Requires an FxA Oauth authentication**
+
+Modify read status of a given device. The POST body is a Json
+mapping containing:
+
+- **device_id** (integer): device id
+- **read** (integer): the percentage read of this article on this device
+
+
+GET /articles/<id>/status/<device-id>
+-------------------------------------
 
 **Requires an FxA Oauth authentication**
 
@@ -100,8 +137,8 @@ The returned value is a json mapping containing:
 - **read** (integer): the percentage read of this article on this device
 
 
-PATCH /articles/<id>/devices/<name>
------------------------------------
+PATCH /articles/<id>/status/<device-id>
+---------------------------------------
 
 **Requires an FxA Oauth authentication**
 

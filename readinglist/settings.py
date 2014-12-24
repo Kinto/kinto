@@ -36,22 +36,28 @@ article.update({
 })
 
 
-registerSchema('device')(schemas.ArticleDevice)
-device = schemas.ArticleDevice.eve_schema('device')
+registerSchema('device')(schemas.Device)
+device = schemas.Device.eve_schema('device')
 
 device.update({
     'authentication': auth.FxAAuth(),
-    'url': 'articles/<regex("\d+"):article>/devices',
-    'resource_methods': ['GET'],
-    'item_methods': ['GET', 'PATCH', 'DELETE'],
-    'additional_lookup': {
-        'url': 'regex(".+")',
-        'field': 'device'
-    },
+    'auth_field': 'owner',
+    'resource_methods': ['GET', 'POST'],
+    'item_methods': ['DELETE'],
 })
 
 
+registerSchema('article_status')(schemas.ArticleStatus)
+article_status = schemas.ArticleStatus.eve_schema('article_status')
+
+article_status.update({
+    'url': 'articles/<regex("\d+"):article_id>/status',
+    'resource_methods': ['GET', 'POST'],
+    'item_methods': ['GET', 'PATCH', 'DELETE'],
+})
+
 DOMAIN = {
     'articles': article,
-    'devices': device
+    'devices': device,
+    'article_status': article_status,
 }
