@@ -112,10 +112,36 @@ class BaseResourceViewsTest(BaseWebTest):
         self.assertEquals(resp.json['_id'], stored['_id'])
         self.assertRecordNotEquals(resp.json, stored)
 
+    def test_modify_with_invalid_record(self):
+        url = self.item_url.format(self.record['_id'])
+        stored = self.db.get(self.resource, u'bob', self.record['_id'])
+        modified = self.modify_record(self.record)
+        for k in modified.keys():
+            stored.pop(k)
+        self.app.patch_json(url, stored, headers=self.headers, status=400)
+
     def test_modify_record_unknown(self):
         body = self.record_factory()
         url = self.item_url.format('unknown')
         self.app.patch_json(url, body, headers=self.headers, status=404)
+
+    def test_replace_record(self):
+        url = self.item_url.format(self.record['_id'])
+        stored = self.db.get(self.resource, u'bob', self.record['_id'])
+        modified = self.modify_record(self.record)
+        stored.update(**modified)
+        resp = self.app.put_json(url, stored, headers=self.headers)
+        self.assertEquals(resp.json['_id'], stored['_id'])
+        self.assertRecordEquals(resp.json, stored)
+
+    def test_replace_with_invalid_record(self):
+        url = self.item_url.format(self.record['_id'])
+        body = self.invalid_record_factory()
+        self.app.put_json(url, body, headers=self.headers, status=400)
+
+    def test_replace_record_unknown(self):
+        url = self.item_url.format('unknown')
+        self.app.patch_json(url, {}, headers=self.headers, status=404)
 
     def test_delete_record(self):
         url = self.item_url.format(self.record['_id'])

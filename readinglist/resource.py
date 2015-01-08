@@ -76,6 +76,16 @@ class BaseResource(object):
         return record
 
     @exists_or_404()
+    def put(self):
+        record_id = self.request.matchdict['id']
+        record = self.deserialize(self.request.body)
+        record = self.validate(record)
+        record = self.db.update(record_id=record_id,
+                                record=record,
+                                **self.db_kwargs)
+        return record
+
+    @exists_or_404()
     def patch(self):
         record_id = self.request.matchdict['id']
 
