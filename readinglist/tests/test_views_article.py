@@ -7,7 +7,7 @@ class ResourceTest(BaseResourceTest, unittest.TestCase):
     resource = 'article'
 
     def record_factory(self):
-        return dict(title="MoFo", url="http://mozilla.org")
+        return dict(title="MoFo", url="http://mozilla.org", added_by="FxOS")
 
     def modify_record(self, original):
         return dict(title="Mozilla Foundation")

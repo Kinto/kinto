@@ -132,7 +132,8 @@ class BaseResourceViewsTest(BaseWebTest):
         stored.update(**modified)
         resp = self.app.put_json(url, stored, headers=self.headers)
         self.assertEquals(resp.json['_id'], stored['_id'])
-        self.assertRecordEquals(resp.json, stored)
+        for field in stored.keys():
+            self.assertEquals(resp.json[field], stored[field])
 
     def test_replace_with_invalid_record(self):
         url = self.item_url.format(self.record['_id'])
