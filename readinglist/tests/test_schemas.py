@@ -41,11 +41,21 @@ class ArticleSchemaTest(unittest.TestCase):
                           self.schema.deserialize,
                           self.record)
 
+    def test_url_is_stripped(self):
+        self.record['url'] = '  http://charliehebdo.fr'
+        deserialized = self.schema.deserialize(self.record)
+        self.assertEqual(deserialized['url'], 'http://charliehebdo.fr')
+
     def test_title_is_required(self):
         self.record.pop('title')
         self.assertRaises(colander.Invalid,
                           self.schema.deserialize,
                           self.record)
+
+    def test_title_is_stripped(self):
+        self.record['title'] = '  Nous Sommes Charlie  '
+        deserialized = self.schema.deserialize(self.record)
+        self.assertEqual(deserialized['title'], 'Nous Sommes Charlie')
 
     def test_title_must_be_at_least_one_character(self):
         self.record['title'] = ''
@@ -66,7 +76,7 @@ class ArticleSchemaTest(unittest.TestCase):
                           self.record)
 
     def test_marked_read_by_must_be_at_least_one_character(self):
-        self.record['marked_read_by'] = ''
+        self.record['marked_read_by'] = ' '
         self.assertRaises(colander.Invalid,
                           self.schema.deserialize,
                           self.record)
