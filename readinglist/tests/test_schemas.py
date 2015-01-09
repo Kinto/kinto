@@ -33,6 +33,7 @@ class ArticleSchemaTest(unittest.TestCase):
         self.assertEqual(self.deserialized['resolved_title'],
                          "We are Charlie")
         self.assertIsNotNone(self.deserialized.get('stored_on'))
+        self.assertIsNotNone(self.deserialized.get('added_on'))
         self.assertIsNotNone(self.deserialized.get('last_modified'))
 
     def test_url_is_required(self):

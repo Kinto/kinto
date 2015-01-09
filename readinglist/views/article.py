@@ -44,6 +44,7 @@ class ArticleSchema(RessourceSchema):
                        preparer=strip_whitespace,
                        validator=colander.Length(min=1))
     added_by = DeviceName()
+    added_on = TimeStamp()
 
     stored_on = TimeStamp()
     last_modified = TimeStamp()
