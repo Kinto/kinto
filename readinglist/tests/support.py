@@ -1,4 +1,4 @@
-import base64
+import mock
 
 import webtest
 
@@ -25,14 +25,21 @@ class BaseWebTest(object):
         self.app.RequestClass = PrefixedRequestClass
         self.db = self.app.app.registry.backend
 
-        auth_password = base64.b64encode('bob:secret')
+        self.patcher = mock.patch('readinglist.authentication.OAuthClient.verify_token')
+        self.fxa_verify = self.patcher.start()
+        self.fxa_verify.return_value = {
+            'user': 'bob'
+        }
+
+        access_token = 'secret'
         self.headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'Basic {0}'.format(auth_password),
+            'Authorization': 'Bearer {0}'.format(access_token),
         }
 
     def tearDown(self):
         self.db.flush()
+        self.patcher.stop()
 
 
 class BaseResourceViewsTest(BaseWebTest):
@@ -67,8 +74,9 @@ class BaseResourceViewsTest(BaseWebTest):
         self.assertRecordEquals(records[0], self.record)
 
     def test_list_is_filtered_by_user(self):
-        auth_password = base64.b64encode('alice:secret')
-        self.headers['Authorization'] = 'Basic {}'.format(auth_password)
+        self.fxa_verify.return_value = {
+            'user': 'alice'
+        }
         resp = self.app.get(self.collection_url, headers=self.headers)
         records = resp.json['_items']
         self.assertEquals(len(records), 0)

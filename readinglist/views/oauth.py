@@ -4,14 +4,14 @@ from cornice import Service
 from pyramid.httpexceptions import HTTPUnauthorized, HTTPServiceUnavailable
 from colander import MappingSchema, SchemaNode, String
 from fxa.oauth import Client as OAuthClient
-from fxa import errors as pyfxa_errors
+from fxa import errors as fxa_errors
 
 
 login = Service(name='fxa-oauth-login', path='/fxa-oauth/login')
 token = Service(name='fxa-oauth-token', path='/fxa-oauth/token')
 
 
-fxa_conf = lambda request, name: request.registry['fxa-oauth.' + name]
+fxa_conf = lambda request, name: request.registry.settings['fxa-oauth.' + name]
 
 
 def persist_state(request):
@@ -69,9 +69,9 @@ def fxa_oauth_token(request):
                               client_secret=fxa_conf(request, 'client_secret'))
     try:
         token = auth_client.trade_code(code)
-    except pyfxa_errors.OutOfProtocolError:
+    except fxa_errors.OutOfProtocolError:
         return HTTPServiceUnavailable()
-    except pyfxa_errors.InProtocolError:
+    except fxa_errors.InProtocolError:
         # XXX: use exception details
         request.response.status = 400
         return
