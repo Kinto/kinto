@@ -9,13 +9,14 @@ with open(os.path.join(here, 'README.rst')) as f:
 REQUIREMENTS = [
     'colander',
     'cornice',
+    'pyfxa',
     'pyramid_multiauth',
     'requests',
     'waitress',
     'six',
 ]
 DEPENDENCY_LINKS = [
-    'https://github.com/nicolaiarocci/eve/tarball/sqlalchemy#egg=Eve-0.5dev-sql',
+    'https://github.com/mozilla/PyFxA/tarball/sqlalchemy#egg=PyFxA-0.0.2dev',
 ]
 ENTRY_POINTS = {
     'paste.app_factory': [

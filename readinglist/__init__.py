@@ -34,6 +34,12 @@ def main(global_config, **settings):
     config.include("cornice")
     config.scan("readinglist.views")
 
+    # Put FxA settings in registry
+
+    for fxa_setting in ['client_id', 'client_secret', 'oauth_uri', 'scope']:
+        prefixed = 'fxa-oauth.' + fxa_setting
+        config.registry[prefixed] = settings.get(prefixed)
+
     # Attachments on requests
 
     def attach_objects_to_request(event):
