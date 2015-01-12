@@ -8,6 +8,8 @@ hello = Service(name="hello", path='/', description="Welcome")
 @hello.get()
 def get_hello(request):
     """Return information regarding the current instance."""
-    return dict(readinglist='hello',
+    eos = request.registry.settings.get('readinglist.eos', '').strip() or None
+    return dict(hello='readinglist',
                 version=VERSION,
-                url=request.host_url)
+                url=request.host_url,
+                eos=eos)

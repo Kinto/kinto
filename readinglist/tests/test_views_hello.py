@@ -1,3 +1,4 @@
+import mock
 import unittest
 
 from readinglist import __version__ as VERSION
@@ -11,4 +12,8 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get('/')
         self.assertEqual(response.json['version'], VERSION)
         self.assertEqual(response.json['url'], 'http://localhost')
-        self.assertEqual(response.json['readinglist'], 'hello')
+        self.assertEqual(response.json['hello'], 'readinglist')
+
+    def test_returns_none_if_eos_empty_in_settings(self):
+        response = self.app.get('/')
+        self.assertEqual(response.json['eos'], None)
