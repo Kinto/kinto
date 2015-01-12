@@ -14,6 +14,9 @@ class Memory(BackendBase):
     def flush(self):
         pass
 
+    def ping(self):
+        return True
+
     def create(self, resource, user_id, record):
         _id = record['_id'] = self.id_generator()
         self._store[resource][user_id][_id] = record

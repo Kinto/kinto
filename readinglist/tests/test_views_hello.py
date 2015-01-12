@@ -1,4 +1,3 @@
-import mock
 import unittest
 
 from readinglist import __version__ as VERSION

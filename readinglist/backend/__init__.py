@@ -10,6 +10,9 @@ class BackendBase(object):
     def flush(self):
         raise NotImplementedError
 
+    def ping(self):
+        raise NotImplementedError
+
     def create(self, resource, user_id, record):
         raise NotImplementedError
 

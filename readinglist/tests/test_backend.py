@@ -18,6 +18,7 @@ class BackendBaseTest(unittest.TestCase):
     def test_mandatory_overrides(self):
         calls = [
             (self.backend.flush,),
+            (self.backend.ping,),
             (self.backend.create, '', '', {}),
             (self.backend.get, '', '', ''),
             (self.backend.update, '', '', '', {}),
