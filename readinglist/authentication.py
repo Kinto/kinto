@@ -24,14 +24,6 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
 @implementer(IAuthenticationPolicy)
 class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
-    def remember(self, request, principal, **kw):
-        """A no-op. Credentials are sent on every request."""
-        return []
-
-    def forget(self, request):
-        """A no-op. Credentials are sent on every request."""
-        return []
-
     def unauthenticated_userid(self, request):
         user_id = self._get_credentials(request)
         return user_id
@@ -52,12 +44,11 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         try:
             profile = auth_client.verify_token(token=auth, scope=scope)
             user_id = profile['user']
-            return user_id
         except fxa_errors.OutOfProtocolError:
             raise HTTPServiceUnavailable()
         except (fxa_errors.InProtocolError, fxa_errors.TrustError):
             return None
-        return profile
+        return user_id
 
 
 @implementer(IAuthorizationPolicy)

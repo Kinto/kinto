@@ -62,6 +62,7 @@ class Article(BaseResource):
         validated['resolved_url'] = validated['url']
 
         if validated['unread']:
+            # Article is not read
             validated['marked_read_on'] = None
             validated['marked_read_by'] = None
 

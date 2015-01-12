@@ -25,18 +25,23 @@ class ArticleModificationTest(BaseWebTest, unittest.TestCase):
                                   MINIMALIST_ARTICLE,
                                   headers=self.headers)
         self.before = resp.json
-
-    def test_mark_by_are_set_to_none_if_unread_is_true(self):
-        url = '/articles/{}'.format(self.before['_id'])
-
-        mark_read = MINIMALIST_ARTICLE.copy()
-        mark_read.update(unread=False, marked_read_by='FxOS')
-        resp = self.app.patch_json(url, mark_read, headers=self.headers)
-        self.assertEqual(resp.json['marked_read_by'], 'FxOS')
-
-        resp = self.app.patch_json(url, {'unread': True}, headers=self.headers)
-        self.assertEqual(resp.json['marked_read_by'], None)
+        self.url = '/articles/{}'.format(self.before['_id'])
 
     def test_resolved_url_and_titles_are_set(self):
         self.assertEqual(self.before['resolved_url'], "http://mozilla.org")
         self.assertEqual(self.before['resolved_title'], "MoFo")
+
+    def test_mark_by_and_on_are_set_to_none_if_unread_is_true(self):
+        mark_read = {
+            'unread': False,
+            'marked_read_by': 'FxOS',
+            'marked_read_on': 1234}
+        resp = self.app.patch_json(self.url, mark_read, headers=self.headers)
+        self.assertIsNotNone(resp.json['marked_read_by'])
+        self.assertIsNotNone(resp.json['marked_read_on'])
+
+        resp = self.app.patch_json(self.url,
+                                   {'unread': True},
+                                   headers=self.headers)
+        self.assertIsNone(resp.json['marked_read_by'])
+        self.assertIsNone(resp.json['marked_read_on'])
