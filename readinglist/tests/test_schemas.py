@@ -26,12 +26,10 @@ class ArticleSchemaTest(unittest.TestCase):
         self.assertIsNone(self.deserialized.get('marked_read_by'))
         self.assertIsNone(self.deserialized.get('marked_read_on'))
         self.assertIsNone(self.deserialized.get('word_count'))
+        self.assertIsNone(self.deserialized.get('resolved_url'))
+        self.assertIsNone(self.deserialized.get('resolved_title'))
 
     def test_record_validation_computed_values(self):
-        self.assertEqual(self.deserialized['resolved_url'],
-                         "http://charliehebdo.fr")
-        self.assertEqual(self.deserialized['resolved_title'],
-                         "We are Charlie")
         self.assertIsNotNone(self.deserialized.get('stored_on'))
         self.assertIsNotNone(self.deserialized.get('added_on'))
         self.assertIsNotNone(self.deserialized.get('last_modified'))

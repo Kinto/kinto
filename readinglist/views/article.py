@@ -44,17 +44,6 @@ class ArticleSchema(RessourceSchema):
     resolved_url = SchemaNode(String(), missing=None)
     resolved_title = SchemaNode(String(), missing=None)
 
-    def deserialize(self, cstruct):
-        """Deserialization overrides that allow values manipulation between
-        several fields.
-
-        Currently, article content is not fetched, thus resolved url and title
-        are the ones provided.
-        """
-        cstruct['resolved_title'] = cstruct.get('title')
-        cstruct['resolved_url'] = cstruct.get('url')
-        return super(ArticleSchema, self).deserialize(cstruct)
-
 
 @resource(collection_path='/articles',
           path='/articles/{id}',
@@ -62,3 +51,18 @@ class ArticleSchema(RessourceSchema):
           permission=Authenticated)
 class Article(BaseResource):
     mapping = ArticleSchema()
+
+    def validate(self, record):
+        """Currently, article content is not fetched, thus resolved url
+        and title are the ones provided.
+        """
+        validated = super(Article, self).validate(record)
+
+        validated['resolved_title'] = validated['title']
+        validated['resolved_url'] = validated['url']
+
+        if validated['unread']:
+            validated['marked_read_on'] = None
+            validated['marked_read_by'] = None
+
+        return validated

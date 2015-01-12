@@ -116,6 +116,7 @@ class BaseResource(object):
 
         original = self.db.get(record_id=record_id, **self.db_kwargs)
         modified = self.deserialize(self.request.body)
+
         updated = original.copy()
         updated.update(**modified)
         updated[self.modified_field] = TimeStamp.now()
