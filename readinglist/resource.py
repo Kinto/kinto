@@ -59,7 +59,7 @@ class BaseResource(object):
     def collection_get(self):
         records = self.db.get_all(**self.db_kwargs)
         body = {
-            '_items': records
+            'items': records
         }
         return body
 

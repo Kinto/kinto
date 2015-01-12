@@ -69,7 +69,7 @@ class BaseResourceViewsTest(BaseWebTest):
 
     def test_list(self):
         resp = self.app.get(self.collection_url, headers=self.headers)
-        records = resp.json['_items']
+        records = resp.json['items']
         self.assertEquals(len(records), 1)
         self.assertRecordEquals(records[0], self.record)
 
@@ -78,7 +78,7 @@ class BaseResourceViewsTest(BaseWebTest):
             'user': 'alice'
         }
         resp = self.app.get(self.collection_url, headers=self.headers)
-        records = resp.json['_items']
+        records = resp.json['items']
         self.assertEquals(len(records), 0)
 
     def test_create_record(self):
