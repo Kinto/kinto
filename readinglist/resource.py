@@ -1,3 +1,4 @@
+import time
 import json
 
 import pyramid.httpexceptions
@@ -19,8 +20,27 @@ def exists_or_404():
     return wrap
 
 
+class TimeStamp(colander.SchemaNode):
+    """Basic integer field that takes current timestamp if no value
+    is provided.
+    """
+    schema_type = colander.Integer
+    title = 'Epoch timestamp'
+
+    @staticmethod
+    def now():
+        return int(time.time())
+
+    def deserialize(self, cstruct):
+        if cstruct is colander.null and self.required:
+            cstruct = TimeStamp.now()
+        return super(TimeStamp, self).deserialize(cstruct)
+
+
+
 class RessourceSchema(colander.MappingSchema):
     _id = colander.SchemaNode(colander.String(), missing=colander.drop)
+    last_modified = TimeStamp()
 
     def schema_type(self, **kwargs):
         return colander.Mapping(unknown='preserve')
@@ -29,6 +49,7 @@ class RessourceSchema(colander.MappingSchema):
 class BaseResource(object):
 
     mapping = RessourceSchema()
+    modified_field = 'last_modified'
 
     @classmethod
     def resource_name(cls):
@@ -97,6 +118,7 @@ class BaseResource(object):
         modified = self.deserialize(self.request.body)
         updated = original.copy()
         updated.update(**modified)
+        updated[self.modified_field] = TimeStamp.now()
 
         updated = self.validate(updated)
 

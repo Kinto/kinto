@@ -47,10 +47,12 @@ class BaseResourceViewsTest(BaseWebTest):
 
     def setUp(self):
         super(BaseResourceViewsTest, self).setUp()
-        self.record = self.record_factory()
-        self.db.create(self.resource, u'bob', self.record)
         self.collection_url = '/%ss' % self.resource
         self.item_url = '/%ss/{}' % self.resource
+        resp = self.app.post_json(self.collection_url,
+                                  self.record_factory(),
+                                  headers=self.headers)
+        self.record = resp.json
 
     def assertRecordEquals(self, record1, record2):
         return self.assertEqual(record1, record2)
@@ -125,6 +127,19 @@ class BaseResourceViewsTest(BaseWebTest):
         self.assertEquals(resp.json['_id'], stored['_id'])
         self.assertRecordNotEquals(resp.json, stored)
 
+    @mock.patch('readinglist.resource.TimeStamp.now')
+    def test_modify_record_updates_timestamp(self, now_mocked):
+        now_mocked.return_value = 42
+
+        url = self.item_url.format(self.record['_id'])
+        stored = self.db.get(self.resource, u'bob', self.record['_id'])
+        before = stored['last_modified']
+        modified = self.modify_record(self.record)
+
+        resp = self.app.patch_json(url, modified, headers=self.headers)
+        after = resp.json['last_modified']
+        self.assertNotEquals(after, before)
+
     def test_modify_with_invalid_record(self):
         url = self.item_url.format(self.record['_id'])
         stored = self.db.get(self.resource, u'bob', self.record['_id'])
@@ -140,13 +155,17 @@ class BaseResourceViewsTest(BaseWebTest):
 
     def test_replace_record(self):
         url = self.item_url.format(self.record['_id'])
-        stored = self.db.get(self.resource, u'bob', self.record['_id'])
+        before = self.db.get(self.resource, u'bob', self.record['_id'])
+
         modified = self.modify_record(self.record)
-        stored.update(**modified)
-        resp = self.app.put_json(url, stored, headers=self.headers)
-        self.assertEquals(resp.json['_id'], stored['_id'])
-        for field in stored.keys():
-            self.assertEquals(resp.json[field], stored[field])
+        replaced = before.copy()
+        replaced.update(**modified)
+        resp = self.app.put_json(url, replaced, headers=self.headers)
+        after = resp.json
+
+        self.assertEquals(before['_id'], after['_id'])
+        for field in modified.keys():
+            self.assertEquals(replaced[field], after[field])
 
     def test_replace_with_invalid_record(self):
         url = self.item_url.format(self.record['_id'])

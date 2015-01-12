@@ -1,25 +1,10 @@
-import time
-
 from cornice.resource import resource
 from pyramid.security import Authenticated
 
 import colander
 from colander import SchemaNode, String, null
 
-from readinglist.resource import BaseResource, RessourceSchema
-
-
-class TimeStamp(SchemaNode):
-    """Basic integer field that takes current timestamp if no value
-    is provided.
-    """
-    schema_type = colander.Integer
-    title = 'Epoch timestamp'
-
-    def deserialize(self, cstruct):
-        if cstruct is null and self.required:
-            cstruct = int(time.time())
-        return super(TimeStamp, self).deserialize(cstruct)
+from readinglist.resource import BaseResource, RessourceSchema, TimeStamp
 
 
 # removes whitespace, newlines, and tabs from the beginning/end of a string
@@ -45,9 +30,7 @@ class ArticleSchema(RessourceSchema):
                        validator=colander.Length(min=1))
     added_by = DeviceName()
     added_on = TimeStamp()
-
     stored_on = TimeStamp()
-    last_modified = TimeStamp()
 
     status = SchemaNode(colander.Integer(), missing=0)
     favorite = SchemaNode(colander.Boolean(), missing=False)
