@@ -58,8 +58,12 @@ class BaseResource(object):
 
     def collection_get(self):
         records = self.db.get_all(**self.db_kwargs)
+        meta = {
+            'total': len(records)
+        }
         body = {
-            'items': records
+            'items': records,
+            'meta': meta
         }
         return body
 
