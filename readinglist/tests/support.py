@@ -1,5 +1,4 @@
 import mock
-
 import webtest
 
 from readinglist import API_VERSION
@@ -25,7 +24,8 @@ class BaseWebTest(object):
         self.app.RequestClass = PrefixedRequestClass
         self.db = self.app.app.registry.backend
 
-        self.patcher = mock.patch('readinglist.authentication.OAuthClient.verify_token')
+        self.patcher = mock.patch('readinglist.authentication.'
+                                  'OAuthClient.verify_token')
         self.fxa_verify = self.patcher.start()
         self.fxa_verify.return_value = {
             'user': 'bob'
@@ -43,16 +43,22 @@ class BaseWebTest(object):
 
 
 class BaseResourceViewsTest(BaseWebTest):
-    resource = ''
+    resource_class = None
 
     def setUp(self):
         super(BaseResourceViewsTest, self).setUp()
-        self.collection_url = '/%ss' % self.resource
-        self.item_url = '/%ss/{}' % self.resource
+        self.resource = self.resource_class(mock.MagicMock())
+
+        resource_name = self.resource_class.__name__.lower()
+        self.collection_url = '/%ss' % resource_name
+        self.item_url = '/%ss/{}' % resource_name
+        self.record = self._createRecord()
+
+    def _createRecord(self):
         resp = self.app.post_json(self.collection_url,
                                   self.record_factory(),
                                   headers=self.headers)
-        self.record = resp.json
+        return resp.json
 
     def assertRecordEquals(self, record1, record2):
         return self.assertEqual(record1, record2)

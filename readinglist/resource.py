@@ -37,7 +37,6 @@ class TimeStamp(colander.SchemaNode):
         return super(TimeStamp, self).deserialize(cstruct)
 
 
-
 class RessourceSchema(colander.MappingSchema):
     _id = colander.SchemaNode(colander.String(), missing=colander.drop)
     last_modified = TimeStamp()
@@ -49,17 +48,15 @@ class RessourceSchema(colander.MappingSchema):
 class BaseResource(object):
 
     mapping = RessourceSchema()
+    id_field = '_id'
     modified_field = 'last_modified'
-
-    @classmethod
-    def resource_name(cls):
-        return cls.__name__.lower()
 
     def __init__(self, request):
         self.request = request
         self.db = request.db
-        self.db_kwargs = dict(resource=self.resource_name(),
+        self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
+        self.record = None
 
     def deserialize(self, raw):
         return json.loads(raw)
@@ -89,38 +86,36 @@ class BaseResource(object):
         return body
 
     def collection_post(self):
-        record = self.deserialize(self.request.body)
-        record = self.validate(record)
-        record = self.db.create(record=record, **self.db_kwargs)
-        return record
+        new_record = self.deserialize(self.request.body)
+        new_record = self.validate(new_record)
+        self.record = self.db.create(record=new_record, **self.db_kwargs)
+        return self.record
 
     @exists_or_404()
     def get(self):
         record_id = self.request.matchdict['id']
-        record = self.db.get(record_id=record_id, **self.db_kwargs)
-        return record
+        self.record = self.db.get(record_id=record_id, **self.db_kwargs)
+        return self.record
 
     @exists_or_404()
     def put(self):
         record_id = self.request.matchdict['id']
-        record = self.deserialize(self.request.body)
-        record = self.validate(record)
-        record = self.db.update(record_id=record_id,
-                                record=record,
-                                **self.db_kwargs)
-        return record
+        new_record = self.deserialize(self.request.body)
+        new_record = self.validate(new_record)
+        self.record = self.db.update(record_id=record_id,
+                                     record=new_record,
+                                     **self.db_kwargs)
+        return self.record
 
     @exists_or_404()
     def patch(self):
         record_id = self.request.matchdict['id']
+        self.record = self.db.get(record_id=record_id, **self.db_kwargs)
 
-        original = self.db.get(record_id=record_id, **self.db_kwargs)
         modified = self.deserialize(self.request.body)
-
-        updated = original.copy()
+        updated = self.record.copy()
         updated.update(**modified)
         updated[self.modified_field] = TimeStamp.now()
-
         updated = self.validate(updated)
 
         record = self.db.update(record_id=record_id,
@@ -132,5 +127,5 @@ class BaseResource(object):
     @exists_or_404()
     def delete(self):
         record_id = self.request.matchdict['id']
-        record = self.db.delete(record_id=record_id, **self.db_kwargs)
-        return record
+        self.record = self.db.delete(record_id=record_id, **self.db_kwargs)
+        return self.record

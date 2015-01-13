@@ -1,5 +1,6 @@
 import unittest
 
+from readinglist.views.article import Article
 from .support import BaseResourceTest, BaseWebTest
 
 
@@ -9,7 +10,7 @@ MINIMALIST_ARTICLE = dict(title="MoFo",
 
 
 class ResourceTest(BaseResourceTest, unittest.TestCase):
-    resource = 'article'
+    resource_class = Article
 
     def record_factory(self):
         return MINIMALIST_ARTICLE
