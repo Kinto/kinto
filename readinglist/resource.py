@@ -1,6 +1,7 @@
 import time
 import json
 import ast
+import re
 
 import six
 import colander
@@ -77,6 +78,7 @@ class BaseResource(object):
         self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
         self.record = None
+        self.known_fields = [c.name for c in self.mapping.children]
 
     def deserialize(self, raw):
         raw = raw.decode('utf-8')
@@ -88,14 +90,24 @@ class BaseResource(object):
     def _extract_filters(self, queryparams):
         """Extracts filters from QueryString parameters."""
         filters = {}
-        known_fields = [c.name for c in self.mapping.children]
 
         for param, value in queryparams.items():
-            if param in known_fields:
+            if param in self.known_fields:
                 value = self.__decode_filter_value(value)
                 filters[param] = value
 
         return filters
+
+    def _extract_sorting(self, queryparams):
+        """Extracts filters from QueryString parameters."""
+        specified = queryparams.get('sort', '').split(',')
+        sorting = {}
+        for field in specified:
+            m = re.match(r'\s?([\-+]?)(\w+)\s?', field)
+            if m:
+                order, field = m.groups()
+                sorting[field] = -1 if order == '-' else 1
+        return sorting
 
     def __decode_filter_value(self, value):
         """Converts string value to native python values."""
@@ -115,7 +127,9 @@ class BaseResource(object):
     @view(permission='readonly')
     def collection_get(self):
         filters = self._extract_filters(self.request.GET)
+        sorting = self._extract_sorting(self.request.GET)
         records = self.db.get_all(filters=filters,
+                                  sorting=sorting,
                                   **self.db_kwargs)
         meta = {
             'total': len(records)

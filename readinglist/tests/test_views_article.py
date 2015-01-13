@@ -78,3 +78,35 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(len(resp.json['items']), 0)
         resp = self.app.get('/articles?title=MoFo', headers=self.headers)
         self.assertEqual(len(resp.json['items']), 6)
+
+
+class ArticleSortingTest(BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super(ArticleSortingTest, self).setUp()
+        for i in range(6):
+            article = MINIMALIST_ARTICLE.copy()
+            article['title'] = '{title} #{number}'.format(
+                title=article['title'], number=i)
+            article['status'] = i % 3
+            self.app.post_json('/articles', article, headers=self.headers)
+
+    def test_single_basic_sort_by_attribute(self):
+        resp = self.app.get('/articles?sort=title', headers=self.headers)
+        records = resp.json['items']
+        self.assertEqual(records[0]['title'], 'MoFo #0')
+        self.assertEqual(records[-1]['title'], 'MoFo #5')
+
+    def test_single_basic_sort_by_attribute_reversed(self):
+        resp = self.app.get('/articles?sort=-title', headers=self.headers)
+        records = resp.json['items']
+        self.assertEqual(records[0]['title'], 'MoFo #5')
+        self.assertEqual(records[-1]['title'], 'MoFo #0')
+
+    def test_multiple_sort(self):
+        resp = self.app.get('/articles?sort=status,title',
+                            headers=self.headers)
+        records = resp.json['items']
+        self.assertEqual(records[0]['status'], 0)
+        self.assertEqual(records[0]['title'], 'MoFo #0')
+        self.assertEqual(records[1]['status'], 0)
+        self.assertEqual(records[1]['title'], 'MoFo #3')
