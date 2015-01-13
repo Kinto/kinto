@@ -109,6 +109,20 @@ class BaseResourceViewsTest(BaseWebTest):
                                   status=400)
         self.assertIn('errors', resp.json)
 
+    def test_empty_body_raises_error(self):
+        resp = self.app.post(self.collection_url,
+                             '',
+                             headers=self.headers,
+                             status=400)
+        self.assertEqual(resp.json['errors'][0]['description'], 'Required')
+
+    def test_invalid_uft8_raises_error(self):
+        resp = self.app.post(self.collection_url,
+                             '{"foo": "\u0d1"}',
+                             headers=self.headers,
+                             status=400)
+        self.assertIn('Invalid', resp.json['errors'][0]['description'])
+
     def test_new_records_are_linked_to_owner(self):
         body = self.record_factory()
         resp = self.app.post_json(self.collection_url,

@@ -1,7 +1,7 @@
 import time
 import json
 
-import pyramid.httpexceptions
+import six
 import colander
 
 from readinglist.backend.exceptions import RecordNotFoundError
@@ -26,11 +26,13 @@ def validates_or_400():
         def wrapped_view(self, *args, **kwargs):
             try:
                 return view(self, *args, **kwargs)
+            except ValueError as e:
+                self.request.errors.add('body', 'body', six.text_type(e))
             except colander.Invalid as e:
                 # Transform the errors we got from colander into cornice errors
                 for field, error in e.asdict().items():
                     self.request.errors.add('body', field, error)
-                self.request.errors.status = "400 Bad Request"
+            self.request.errors.status = "400 Bad Request"
         return wrapped_view
     return wrap
 
@@ -76,7 +78,8 @@ class BaseResource(object):
         self.record = None
 
     def deserialize(self, raw):
-        return json.loads(raw)
+        raw = raw.decode('utf-8')
+        return json.loads(raw) if raw else {}
 
     def validate(self, record):
         return self.mapping.deserialize(record)
