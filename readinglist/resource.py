@@ -37,7 +37,6 @@ def validates_or_400():
     return wrap
 
 
-
 class TimeStamp(colander.SchemaNode):
     """Basic integer field that takes current timestamp if no value
     is provided.

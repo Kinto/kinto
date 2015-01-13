@@ -25,13 +25,13 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         headers = {
             'Authorization': 'Basic abc'
         }
-        self.app.get(self.sample_url, headers=headers, status=403)
+        self.app.get(self.sample_url, headers=headers, status=401)
 
     def test_views_are_forbidden_if_unknown_auth_method(self):
         self.headers['Authorization'] = 'Carrier'
-        self.app.get(self.sample_url, headers=self.headers, status=403)
+        self.app.get(self.sample_url, headers=self.headers, status=401)
         self.headers['Authorization'] = 'Carrier pigeon'
-        self.app.get(self.sample_url, headers=self.headers, status=403)
+        self.app.get(self.sample_url, headers=self.headers, status=401)
 
     def test_views_are_503_if_oauth2_server_misbehaves(self):
         self.fxa_verify.side_effect = fxa_errors.OutOfProtocolError
@@ -39,8 +39,8 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
     def test_views_are_forbidden_if_oauth2_error(self):
         self.fxa_verify.side_effect = fxa_errors.ClientError
-        self.app.get(self.sample_url, headers=self.headers, status=403)
+        self.app.get(self.sample_url, headers=self.headers, status=401)
 
     def test_views_are_forbidden_if_oauth2_scope_mismatch(self):
         self.fxa_verify.side_effect = fxa_errors.TrustError
-        self.app.get(self.sample_url, headers=self.headers, status=403)
+        self.app.get(self.sample_url, headers=self.headers, status=401)

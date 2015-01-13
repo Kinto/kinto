@@ -208,15 +208,34 @@ class BaseResourceViewsTest(BaseWebTest):
 
 
 class BaseResourceAuthorizationTest(BaseWebTest):
-    resource = ''
-
     def test_all_views_require_authentication(self):
-        self.app.get(self.collection_url, status=403)
-        self.app.post(self.collection_url, {}, status=403)
+        self.app.get(self.collection_url, status=401)
+        self.app.post(self.collection_url, {}, status=401)
         url = self.item_url.format('abc')
-        self.app.get(url, status=403)
-        self.app.patch(url, {}, status=403)
-        self.app.delete(url, status=403)
+        self.app.get(url, status=401)
+        self.app.patch(url, {}, status=401)
+        self.app.delete(url, status=401)
+
+    def test_update_record_of_another_user_will_create_it(self):
+        self.fxa_verify.return_value = {
+            'user': 'alice'
+        }
+        url = self.item_url.format(self.record['_id'])
+        self.app.put_json(url, self.record_factory(), headers=self.headers)
+
+    def test_cannot_modify_record_of_other_user(self):
+        self.fxa_verify.return_value = {
+            'user': 'alice'
+        }
+        url = self.item_url.format(self.record['_id'])
+        self.app.patch_json(url, {}, headers=self.headers, status=404)
+
+    def test_cannot_delete_record_of_other_user(self):
+        self.fxa_verify.return_value = {
+            'user': 'alice'
+        }
+        url = self.item_url.format(self.record['_id'])
+        self.app.delete(url, headers=self.headers, status=404)
 
 
 class BaseResourceTest(BaseResourceViewsTest, BaseResourceAuthorizationTest):

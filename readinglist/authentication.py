@@ -24,9 +24,18 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
 @implementer(IAuthenticationPolicy)
 class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
+    def __init__(self, realm='Realm'):
+        self.realm = realm
+
     def unauthenticated_userid(self, request):
         user_id = self._get_credentials(request)
         return user_id
+
+    def forget(self, request):
+        """A no-op. Credentials are sent on every request.
+        Return WWW-Authenticate Realm header for Bearer token.
+        """
+        return [('WWW-Authenticate', 'Bearer realm="%s"' % self.realm)]
 
     def _get_credentials(self, request):
         authorization = request.headers.get('Authorization', '')
