@@ -25,5 +25,5 @@ class BackendBase(object):
     def delete(self, resource, user_id, record_id):
         raise NotImplementedError
 
-    def get_all(self, resource, user_id):
+    def get_all(self, resource, user_id, filters=None):
         raise NotImplementedError

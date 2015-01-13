@@ -42,9 +42,16 @@ class Memory(BackendBase):
         self._store[resource_name][user_id].pop(record_id)
         return existing
 
-    def get_all(self, resource, user_id):
+    def get_all(self, resource, user_id, filters=None):
         resource_name = classname(resource)
-        return list(self._store[resource_name][user_id].values())
+        records = self._store[resource_name][user_id].values()
+        return [r for r in records if self.__matches_filters(r, filters)]
+
+    def __matches_filters(self, record, filters):
+        for k, v in filters.items():
+            if record[k] != v:
+                return False
+        return True
 
 
 def load_from_config(config):

@@ -49,3 +49,32 @@ class ArticleModificationTest(BaseWebTest, unittest.TestCase):
                                    headers=self.headers)
         self.assertIsNone(resp.json['marked_read_by'])
         self.assertIsNone(resp.json['marked_read_on'])
+
+
+class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super(ArticleFilteringTest, self).setUp()
+        for i in range(6):
+            article = MINIMALIST_ARTICLE.copy()
+            article['status'] = i % 3
+            article['favorite'] = (i % 4 == 0)
+            self.app.post_json('/articles', article, headers=self.headers)
+
+    def test_single_basic_filter_by_attribute(self):
+        resp = self.app.get('/articles?status=1', headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 2)
+
+    def test_filter_on_unknown_attribute_is_ignored(self):
+        resp = self.app.get('/articles?foo=1', headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 6)
+
+    def test_double_basic_filter_by_attribute(self):
+        resp = self.app.get('/articles?status=1&favorite=true',
+                            headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 1)
+
+    def test_string_filters_naively_by_value(self):
+        resp = self.app.get('/articles?title=MoF', headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 0)
+        resp = self.app.get('/articles?title=MoFo', headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 6)
