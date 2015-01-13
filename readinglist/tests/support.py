@@ -103,10 +103,11 @@ class BaseResourceViewsTest(BaseWebTest):
 
     def test_invalid_record_raises_error(self):
         body = self.invalid_record_factory()
-        self.app.post_json(self.collection_url,
-                           body,
-                           headers=self.headers,
-                           status=400)
+        resp = self.app.post_json(self.collection_url,
+                                  body,
+                                  headers=self.headers,
+                                  status=400)
+        self.assertIn('errors', resp.json)
 
     def test_new_records_are_linked_to_owner(self):
         body = self.record_factory()

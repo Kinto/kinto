@@ -20,6 +20,22 @@ def exists_or_404():
     return wrap
 
 
+def validates_or_400():
+    """View decorator to catch validation errors and return 400 responses."""
+    def wrap(view):
+        def wrapped_view(self, *args, **kwargs):
+            try:
+                return view(self, *args, **kwargs)
+            except colander.Invalid as e:
+                # Transform the errors we got from colander into cornice errors
+                for field, error in e.asdict().items():
+                    self.request.errors.add('body', field, error)
+                self.request.errors.status = "400 Bad Request"
+        return wrapped_view
+    return wrap
+
+
+
 class TimeStamp(colander.SchemaNode):
     """Basic integer field that takes current timestamp if no value
     is provided.
@@ -38,11 +54,12 @@ class TimeStamp(colander.SchemaNode):
 
 
 class RessourceSchema(colander.MappingSchema):
+    """Base resource schema.
+
+    It brings common fields and behaviour for all inherited schemas.
+    """
     _id = colander.SchemaNode(colander.String(), missing=colander.drop)
     last_modified = TimeStamp()
-
-    def schema_type(self, **kwargs):
-        return colander.Mapping(unknown='preserve')
 
 
 class BaseResource(object):
@@ -62,13 +79,7 @@ class BaseResource(object):
         return json.loads(raw)
 
     def validate(self, record):
-        # XXX: how to use cls.mapping in cornice decorators
-        # instead of custom code here ?
-        try:
-            return self.mapping.deserialize(record)
-        except colander.Invalid as e:
-            self.request.errors.add('path', 'id', str(e))
-            raise pyramid.httpexceptions.HTTPBadRequest()
+        return self.mapping.deserialize(record)
 
     #
     # End-points
@@ -85,6 +96,7 @@ class BaseResource(object):
         }
         return body
 
+    @validates_or_400()
     def collection_post(self):
         new_record = self.deserialize(self.request.body)
         new_record = self.validate(new_record)
@@ -98,6 +110,7 @@ class BaseResource(object):
         return self.record
 
     @exists_or_404()
+    @validates_or_400()
     def put(self):
         record_id = self.request.matchdict['id']
         new_record = self.deserialize(self.request.body)
@@ -108,6 +121,7 @@ class BaseResource(object):
         return self.record
 
     @exists_or_404()
+    @validates_or_400()
     def patch(self):
         record_id = self.request.matchdict['id']
         self.record = self.db.get(record_id=record_id, **self.db_kwargs)
@@ -121,7 +135,6 @@ class BaseResource(object):
         record = self.db.update(record_id=record_id,
                                 record=updated,
                                 **self.db_kwargs)
-
         return record
 
     @exists_or_404()
