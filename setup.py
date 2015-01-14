@@ -16,7 +16,7 @@ REQUIREMENTS = [
     'six',
 ]
 DEPENDENCY_LINKS = [
-    'https://github.com/mozilla/PyFxA/tarball/sqlalchemy#egg=PyFxA-0.0.2dev',
+    'https://github.com/mozilla/PyFxA/tarball/master#egg=PyFxA-0.0.2dev',
 ]
 ENTRY_POINTS = {
     'paste.app_factory': [
