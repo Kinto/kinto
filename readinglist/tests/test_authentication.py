@@ -17,7 +17,8 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
     @mock.patch('readinglist.authentication.check_credentials')
     def test_basic_auth_is_accepted(self, check_mocked):
-        auth_password = base64.b64encode('bob:secret'.encode('utf-8')).decode('utf-8')
+        auth_password = base64.b64encode(
+            'bob:secret'.encode('utf-8')).decode('utf-8')
         headers = {
             'Authorization': 'Basic {token}'.format(token=auth_password)
         }
