@@ -67,7 +67,12 @@ class AuthorizationPolicy(object):
         """Currently we don't check scopes nor permissions.
         Authenticated users only are allowed.
         """
-        return Authenticated in principals
+        PERMISSIONS = {
+            'readonly': Authenticated,
+            'readwrite': Authenticated,
+        }
+        role = PERMISSIONS.get(permission)
+        return role and role in principals
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER
