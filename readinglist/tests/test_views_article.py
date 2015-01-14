@@ -4,6 +4,7 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest
+import mock
 
 from readinglist.views.article import Article
 from .support import BaseResourceTest, BaseWebTest
@@ -80,6 +81,21 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(len(resp.json['items']), 0)
         resp = self.app.get('/articles?title=MoFo', headers=self.headers)
         self.assertEqual(len(resp.json['items']), 6)
+
+
+class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
+
+    @mock.patch('readinglist.resource.TimeStamp.now')
+    def setUp(self, now_mocked):
+        super(ArticleFilterModifiedTest, self).setUp()
+        for i in range(6):
+            now_mocked.return_value = i
+            article = MINIMALIST_ARTICLE.copy()
+            self.app.post_json('/articles', article, headers=self.headers)
+
+    def test_filter_with_since(self):
+        resp = self.app.get('/articles?since=3', headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 3)
 
 
 class ArticleSortingTest(BaseWebTest, unittest.TestCase):
