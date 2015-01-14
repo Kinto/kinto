@@ -1,10 +1,10 @@
 from zope.interface import implementer
 from pyramid import authentication as base_auth
 from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
+from pyramid.security import Authenticated
 from pyramid.httpexceptions import HTTPServiceUnavailable
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
-from pyramid.security import Authenticated
 
 
 def check_credentials(username, password, request):
@@ -64,12 +64,15 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
 @implementer(IAuthorizationPolicy)
 class AuthorizationPolicy(object):
     def permits(self, context, principals, permission):
+        """Currently we don't check scopes nor permissions.
+        Authenticated users only are allowed.
+        """
         PERMISSIONS = {
-            'articles': Authenticated,
+            'readonly': Authenticated,
+            'readwrite': Authenticated,
         }
-        if permission in PERMISSIONS:
-            return PERMISSIONS[permission] in principals
-        return False
+        role = PERMISSIONS.get(permission)
+        return role and role in principals
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER

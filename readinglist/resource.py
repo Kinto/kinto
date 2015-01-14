@@ -3,6 +3,7 @@ import json
 
 import six
 import colander
+from cornice.resource import view
 
 from readinglist.backend.exceptions import RecordNotFoundError
 
@@ -87,6 +88,7 @@ class BaseResource(object):
     # End-points
     #
 
+    @view(permission='readonly')
     def collection_get(self):
         records = self.db.get_all(**self.db_kwargs)
         meta = {
@@ -98,6 +100,7 @@ class BaseResource(object):
         }
         return body
 
+    @view(permission='readwrite')
     @validates_or_400()
     def collection_post(self):
         new_record = self.deserialize(self.request.body)
@@ -105,12 +108,14 @@ class BaseResource(object):
         self.record = self.db.create(record=new_record, **self.db_kwargs)
         return self.record
 
+    @view(permission='readonly')
     @exists_or_404()
     def get(self):
         record_id = self.request.matchdict['id']
         self.record = self.db.get(record_id=record_id, **self.db_kwargs)
         return self.record
 
+    @view(permission='readwrite')
     @exists_or_404()
     @validates_or_400()
     def put(self):
@@ -122,6 +127,7 @@ class BaseResource(object):
                                      **self.db_kwargs)
         return self.record
 
+    @view(permission='readwrite')
     @exists_or_404()
     @validates_or_400()
     def patch(self):
@@ -139,6 +145,7 @@ class BaseResource(object):
                                 **self.db_kwargs)
         return record
 
+    @view(permission='readwrite')
     @exists_or_404()
     def delete(self):
         record_id = self.request.matchdict['id']
