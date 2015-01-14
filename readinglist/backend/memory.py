@@ -44,7 +44,7 @@ class Memory(BackendBase):
 
     def get_all(self, resource, user_id):
         resource_name = classname(resource)
-        return self._store[resource_name][user_id].values()
+        return list(self._store[resource_name][user_id].values())
 
 
 def load_from_config(config):

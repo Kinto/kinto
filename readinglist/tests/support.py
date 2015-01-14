@@ -118,7 +118,7 @@ class BaseResourceViewsTest(BaseWebTest):
 
     def test_invalid_uft8_raises_error(self):
         resp = self.app.post(self.collection_url,
-                             '{"foo": "\u0d1"}',
+                             '{"foo": "\\u0d1"}',
                              headers=self.headers,
                              status=400)
         self.assertIn('Invalid', resp.json['errors'][0]['description'])

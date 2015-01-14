@@ -1,3 +1,4 @@
+import six
 try:
     import unittest2 as unittest
 except ImportError:
@@ -11,7 +12,7 @@ class BackendBaseTest(unittest.TestCase):
         self.backend = BackendBase()
 
     def test_default_generator(self):
-        self.assertEqual(type(self.backend.id_generator()), unicode)
+        self.assertEqual(type(self.backend.id_generator()), six.text_type)
 
     def test_custom_generator(self):
         l = lambda x: x
