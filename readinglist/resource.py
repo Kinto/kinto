@@ -15,7 +15,7 @@ def exists_or_404():
             try:
                 return view(self, *args, **kwargs)
             except RecordNotFoundError as e:
-                self.request.errors.add('path', 'id', str(e))
+                self.request.errors.add('path', 'id', six.text_type(e))
                 self.request.errors.status = "404 Resource Not Found"
         return wrapped_view
     return wrap

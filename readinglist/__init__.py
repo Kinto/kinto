@@ -5,11 +5,14 @@ import pkg_resources
 #: Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution(__package__).version
 
+import six
+
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
 from pyramid_multiauth import MultiAuthenticationPolicy
 
 from readinglist import authentication
+from readinglist.resource import TimeStamp
 
 
 API_VERSION = 'v%s' % __version__.split('.')[0]
@@ -44,5 +47,13 @@ def main(global_config, **settings):
             event.request.scheme = http_scheme
 
     config.add_subscriber(attach_objects_to_request, NewRequest)
+
+    # Timestamp in response headers
+
+    def add_timestamp_header_to_responses(event):
+        timestamp = six.text_type(TimeStamp.now())
+        event.request.response.headers['Timestamp'] = timestamp
+
+    config.add_subscriber(add_timestamp_header_to_responses, NewRequest)
 
     return config.make_wsgi_app()

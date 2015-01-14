@@ -19,3 +19,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
     def test_returns_none_if_eos_empty_in_settings(self):
         response = self.app.get('/')
         self.assertEqual(response.json['eos'], None)
+
+    def test_a_timestamp_header_is_provided_in_responses(self):
+        response = self.app.get('/')
+        self.assertIsNotNone(response.headers.get('Timestamp'))
