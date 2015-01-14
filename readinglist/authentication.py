@@ -4,6 +4,7 @@ from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.httpexceptions import HTTPServiceUnavailable
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
+from pyramid.security import Authenticated
 
 
 def check_credentials(username, password, request):
@@ -63,7 +64,12 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
 @implementer(IAuthorizationPolicy)
 class AuthorizationPolicy(object):
     def permits(self, context, principals, permission):
-        return permission in principals
+        PERMISSIONS = {
+            'articles': Authenticated,
+        }
+        if permission in PERMISSIONS:
+            return PERMISSIONS[permission] in principals
+        return False
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER

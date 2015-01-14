@@ -1,5 +1,4 @@
 from cornice.resource import resource
-from pyramid.security import Authenticated
 
 import colander
 from colander import SchemaNode, String, null
@@ -48,7 +47,7 @@ class ArticleSchema(RessourceSchema):
 @resource(collection_path='/articles',
           path='/articles/{id}',
           description='Collection of articles',
-          permission=Authenticated)
+          permission='articles')
 class Article(BaseResource):
     mapping = ArticleSchema()
 
