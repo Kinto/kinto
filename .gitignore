@@ -3,3 +3,5 @@
 *.stamp
 *.db
 .venv/
+.coverage
+.tox/

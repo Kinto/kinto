@@ -7,17 +7,20 @@ with open(os.path.join(here, 'README.rst')) as f:
     README = f.read()
 
 REQUIREMENTS = [
-    'Eve',
-    'Eve-docs',
-    'ua_parser',
-    'requests'
+    'colander',
+    'cornice',
+    'pyfxa',
+    'pyramid_multiauth',
+    'requests',
+    'waitress',
+    'six',
 ]
 DEPENDENCY_LINKS = [
-    'https://github.com/nicolaiarocci/eve/tarball/sqlalchemy#egg=Eve-0.5dev-sql',
+    'https://github.com/mozilla/PyFxA/tarball/master#egg=PyFxA-0.0.3dev',
 ]
 ENTRY_POINTS = {
     'paste.app_factory': [
-        'main = readinglist:run',
+        'main = readinglist:main',
     ]}
 
 

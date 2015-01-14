@@ -1,5 +1,5 @@
 loads
-flask-webtest
+WebTest
 nose
+nose-cov
 mock
-responses
