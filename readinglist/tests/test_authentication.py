@@ -1,5 +1,8 @@
 import base64
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 import mock
 
@@ -16,7 +19,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
     def test_basic_auth_is_accepted(self, check_mocked):
         auth_password = base64.b64encode('bob:secret')
         headers = {
-            'Authorization': 'Basic {}'.format(auth_password)
+            'Authorization': 'Basic {token}'.format(token=auth_password)
         }
         self.app.get('/articles', headers=headers)
         check_mocked.assertIsCalled()

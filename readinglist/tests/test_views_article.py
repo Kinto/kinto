@@ -1,4 +1,7 @@
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from readinglist.views.article import Article
 from .support import BaseResourceTest, BaseWebTest
@@ -26,7 +29,7 @@ class ArticleModificationTest(BaseWebTest, unittest.TestCase):
                                   MINIMALIST_ARTICLE,
                                   headers=self.headers)
         self.before = resp.json
-        self.url = '/articles/{}'.format(self.before['_id'])
+        self.url = '/articles/{id}'.format(id=self.before['_id'])
 
     def test_resolved_url_and_titles_are_set(self):
         self.assertEqual(self.before['resolved_url'], "http://mozilla.org")

@@ -51,7 +51,7 @@ class BaseResourceViewsTest(BaseWebTest):
 
         resource_name = self.resource_class.__name__.lower()
         self.collection_url = '/%ss' % resource_name
-        self.item_url = '/%ss/{}' % resource_name
+        self.item_url = '/%ss/{id}' % resource_name
         self.record = self._createRecord()
 
     def _createRecord(self):
@@ -132,16 +132,16 @@ class BaseResourceViewsTest(BaseWebTest):
         self.db.get(self.resource, u'bob', record_id)  # not raising
 
     def test_get_record(self):
-        url = self.item_url.format(self.record['_id'])
+        url = self.item_url.format(id=self.record['_id'])
         resp = self.app.get(url, headers=self.headers)
         self.assertRecordEquals(resp.json, self.record)
 
     def test_get_record_unknown(self):
-        url = self.item_url.format('unknown')
+        url = self.item_url.format(id='unknown')
         self.app.get(url, headers=self.headers, status=404)
 
     def test_modify_record(self):
-        url = self.item_url.format(self.record['_id'])
+        url = self.item_url.format(id=self.record['_id'])
         stored = self.db.get(self.resource, u'bob', self.record['_id'])
         modified = self.modify_record(self.record)
         resp = self.app.patch_json(url, modified, headers=self.headers)
@@ -152,7 +152,7 @@ class BaseResourceViewsTest(BaseWebTest):
     def test_modify_record_updates_timestamp(self, now_mocked):
         now_mocked.return_value = 42
 
-        url = self.item_url.format(self.record['_id'])
+        url = self.item_url.format(id=self.record['_id'])
         stored = self.db.get(self.resource, u'bob', self.record['_id'])
         before = stored['last_modified']
         modified = self.modify_record(self.record)
@@ -162,7 +162,7 @@ class BaseResourceViewsTest(BaseWebTest):
         self.assertNotEquals(after, before)
 
     def test_modify_with_invalid_record(self):
-        url = self.item_url.format(self.record['_id'])
+        url = self.item_url.format(id=self.record['_id'])
         stored = self.db.get(self.resource, u'bob', self.record['_id'])
         modified = self.modify_record(self.record)
         for k in modified.keys():
@@ -171,11 +171,11 @@ class BaseResourceViewsTest(BaseWebTest):
 
     def test_modify_record_unknown(self):
         body = self.record_factory()
-        url = self.item_url.format('unknown')
+        url = self.item_url.format(id='unknown')
         self.app.patch_json(url, body, headers=self.headers, status=404)
 
     def test_replace_record(self):
-        url = self.item_url.format(self.record['_id'])
+        url = self.item_url.format(id=self.record['_id'])
         before = self.db.get(self.resource, u'bob', self.record['_id'])
 
         modified = self.modify_record(self.record)
@@ -189,21 +189,21 @@ class BaseResourceViewsTest(BaseWebTest):
             self.assertEquals(replaced[field], after[field])
 
     def test_replace_with_invalid_record(self):
-        url = self.item_url.format(self.record['_id'])
+        url = self.item_url.format(id=self.record['_id'])
         body = self.invalid_record_factory()
         self.app.put_json(url, body, headers=self.headers, status=400)
 
     def test_replace_record_unknown(self):
-        url = self.item_url.format('unknown')
+        url = self.item_url.format(id='unknown')
         self.app.patch_json(url, {}, headers=self.headers, status=404)
 
     def test_delete_record(self):
-        url = self.item_url.format(self.record['_id'])
+        url = self.item_url.format(id=self.record['_id'])
         resp = self.app.delete(url, headers=self.headers)
         self.assertRecordEquals(resp.json, self.record)
 
     def test_delete_record_unknown(self):
-        url = self.item_url.format('unknown')
+        url = self.item_url.format(id='unknown')
         self.app.delete(url, headers=self.headers, status=404)
 
 
@@ -211,7 +211,7 @@ class BaseResourceAuthorizationTest(BaseWebTest):
     def test_all_views_require_authentication(self):
         self.app.get(self.collection_url, status=401)
         self.app.post(self.collection_url, {}, status=401)
-        url = self.item_url.format('abc')
+        url = self.item_url.format(id='abc')
         self.app.get(url, status=401)
         self.app.patch(url, {}, status=401)
         self.app.delete(url, status=401)
@@ -220,21 +220,21 @@ class BaseResourceAuthorizationTest(BaseWebTest):
         self.fxa_verify.return_value = {
             'user': 'alice'
         }
-        url = self.item_url.format(self.record['_id'])
+        url = self.item_url.format(id=self.record['_id'])
         self.app.put_json(url, self.record_factory(), headers=self.headers)
 
     def test_cannot_modify_record_of_other_user(self):
         self.fxa_verify.return_value = {
             'user': 'alice'
         }
-        url = self.item_url.format(self.record['_id'])
+        url = self.item_url.format(id=self.record['_id'])
         self.app.patch_json(url, {}, headers=self.headers, status=404)
 
     def test_cannot_delete_record_of_other_user(self):
         self.fxa_verify.return_value = {
             'user': 'alice'
         }
-        url = self.item_url.format(self.record['_id'])
+        url = self.item_url.format(id=self.record['_id'])
         self.app.delete(url, headers=self.headers, status=404)
 
 
