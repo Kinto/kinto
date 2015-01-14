@@ -30,7 +30,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
     url = '/fxa-oauth/token'
 
     def test_fails_if_no_ongoing_session(self):
-        url = '{}?state=abc&code=1234'.format(self.url)
+        url = '{url}?state=abc&code=1234'.format(url=self.url)
         self.app.get(url, status=401)
 
     def test_fails_if_state_or_code_is_missing(self):
@@ -39,7 +39,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
             self.app.get(self.url + params, headers=headers, status=400)
 
     def test_fails_if_state_does_not_match(self):
-        url = '{}?state=abc&code=1234'.format(self.url)
+        url = '{url}?state=abc&code=1234'.format(url=self.url)
         headers = {'Cookie': 'state=def'}
         self.app.get(url, headers=headers, status=400)
 
@@ -47,7 +47,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
     def tests_returns_token_traded_against_code(self, mocked_trade):
         mocked_trade.return_value = 'oauth-token'
 
-        url = '{}?state=abc&code=1234'.format(self.url)
+        url = '{url}?state=abc&code=1234'.format(url=self.url)
         headers = {'Cookie': 'state=abc'}
         r = self.app.get(url, headers=headers)
         token = r.json['token']
@@ -57,7 +57,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
     def tests_return_503_if_fxa_server_behaves_badly(self, mocked_trade):
         mocked_trade.side_effect = fxa_errors.OutOfProtocolError
 
-        url = '{}?state=abc&code=1234'.format(self.url)
+        url = '{url}?state=abc&code=1234'.format(url=self.url)
         headers = {'Cookie': 'state=abc'}
         self.app.get(url, headers=headers, status=503)
 
@@ -65,6 +65,6 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
     def tests_return_400_if_client_error_detected(self, mocked_trade):
         mocked_trade.side_effect = fxa_errors.ClientError
 
-        url = '{}?state=abc&code=1234'.format(self.url)
+        url = '{url}?state=abc&code=1234'.format(url=self.url)
         headers = {'Cookie': 'state=abc'}
         self.app.get(url, headers=headers, status=400)
