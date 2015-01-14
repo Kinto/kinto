@@ -89,24 +89,25 @@ class BaseResource(object):
 
     def _extract_filters(self, queryparams):
         """Extracts filters from QueryString parameters."""
-        filters = {}
+        filters = []
 
         for param, value in queryparams.items():
             if param in self.known_fields:
                 value = self.__decode_filter_value(value)
-                filters[param] = value
+                filters.append((param, value))
 
         return filters
 
     def _extract_sorting(self, queryparams):
         """Extracts filters from QueryString parameters."""
         specified = queryparams.get('sort', '').split(',')
-        sorting = {}
+        sorting = []
         for field in specified:
             m = re.match(r'\s?([\-+]?)(\w+)\s?', field)
             if m:
                 order, field = m.groups()
-                sorting[field] = -1 if order == '-' else 1
+                direction = -1 if order == '-' else 1
+                sorting.append((field, direction))
         return sorting
 
     def __decode_filter_value(self, value):
