@@ -46,8 +46,7 @@ class ArticleSchema(RessourceSchema):
 
 @resource(collection_path='/articles',
           path='/articles/{id}',
-          description='Collection of articles',
-          permission='articles')
+          description='Collection of articles')
 class Article(BaseResource):
     mapping = ArticleSchema()
 

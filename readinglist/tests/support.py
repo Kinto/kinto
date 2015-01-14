@@ -216,6 +216,27 @@ class BaseResourceAuthorizationTest(BaseWebTest):
         self.app.patch(url, {}, status=401)
         self.app.delete(url, status=401)
 
+    @mock.patch('readinglist.authentication.AuthorizationPolicy.permits')
+    def test_view_permissions(self, permits_mocked):
+        permission_required = lambda: permits_mocked.call_args[0][-1]
+
+        self.app.get(self.collection_url)
+        self.assertEqual(permission_required(), 'readonly')
+
+        resp = self.app.post_json(self.collection_url,
+                                  self.record_factory())
+        self.assertEqual(permission_required(), 'readwrite')
+
+        url = self.item_url.format(id=resp.json['_id'])
+        self.app.get(url)
+        self.assertEqual(permission_required(), 'readonly')
+
+        self.app.patch(url, {})
+        self.assertEqual(permission_required(), 'readwrite')
+
+        self.app.delete(url)
+        self.assertEqual(permission_required(), 'readwrite')
+
     def test_update_record_of_another_user_will_create_it(self):
         self.fxa_verify.return_value = {
             'user': 'alice'
