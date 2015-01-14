@@ -29,8 +29,11 @@ $(PYTHON):
 serve: install-dev
 	$(VENV)/bin/pserve conf/readinglist.ini --reload
 
-tests: install-dev
+tests-once: install-dev
 	$(VENV)/bin/nosetests -s --with-coverage --cover-package=readinglist
+
+tests:
+	tox
 
 bench: install-dev
 	$(VENV)/bin/loads-runner --config=./loadtests/bench.ini --server-url=$(SERVER_URL) loadtests.TestPOC.test_all

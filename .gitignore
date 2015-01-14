@@ -4,3 +4,4 @@
 *.db
 .venv/
 .coverage
+.tox/
