@@ -1,11 +1,11 @@
 import time
-import json
 import ast
 import re
+import inspect
 
 import six
 import colander
-from cornice.resource import view
+from cornice import resource
 
 from readinglist.backend.exceptions import RecordNotFoundError
 
@@ -29,8 +29,6 @@ def validates_or_400():
         def wrapped_view(self, *args, **kwargs):
             try:
                 return view(self, *args, **kwargs)
-            except ValueError as e:
-                self.request.errors.add('body', 'body', six.text_type(e))
             except colander.Invalid as e:
                 # Transform the errors we got from colander into cornice errors
                 for field, error in e.asdict().items():
@@ -46,15 +44,43 @@ class TimeStamp(colander.SchemaNode):
     """
     schema_type = colander.Integer
     title = 'Epoch timestamp'
+    auto_now = True
+    missing = None
 
     @staticmethod
     def now():
         return int(time.time())
 
-    def deserialize(self, cstruct):
-        if cstruct is colander.null and self.required:
+    def deserialize(self, cstruct=colander.null):
+        if cstruct is colander.null and self.auto_now:
             cstruct = TimeStamp.now()
         return super(TimeStamp, self).deserialize(cstruct)
+
+
+def crud(**kwargs):
+    """
+    Decorator for resource classes.
+
+    This allows to bring default parameters for Cornice ``resource()``.
+    """
+    def wrapper(klass):
+        resource_name = klass.__name__.lower()
+        params = dict(collection_path='/{0}s'.format(resource_name),
+                      path='/{0}s/{{id}}'.format(resource_name),
+                      description='Collection of {0}'.format(resource_name),
+                      depth=2)
+        params.update(**kwargs)
+
+        # Inject resource schema in views decorators arguments
+        for name, method in inspect.getmembers(klass):
+            # Hack from Cornice ``@resource()`` and ``@view()`` decorator
+            decorations = getattr(method, '__views__', [])
+            for view_args in decorations:
+                if view_args.pop('with_schema', False):
+                    view_args['schema'] = klass.mapping
+
+        return resource.resource(**params)(klass)
+    return wrapper
 
 
 class RessourceSchema(colander.MappingSchema):
@@ -80,9 +106,11 @@ class BaseResource(object):
         self.record = None
         self.known_fields = [c.name for c in self.mapping.children]
 
-    def deserialize(self, raw):
-        raw = raw.decode('utf-8')
-        return json.loads(raw) if raw else {}
+    def process_record(self, new, old=None):
+        """Hook to post-process records and introduce specific logics
+        or validation.
+        """
+        return new
 
     def validate(self, record):
         return self.mapping.deserialize(record)
@@ -127,7 +155,7 @@ class BaseResource(object):
     # End-points
     #
 
-    @view(permission='readonly')
+    @resource.view(permission='readonly')
     def collection_get(self):
         filters = self._extract_filters(self.request.GET)
         sorting = self._extract_sorting(self.request.GET)
@@ -143,52 +171,57 @@ class BaseResource(object):
         }
         return body
 
-    @view(permission='readwrite')
-    @validates_or_400()
+    @resource.view(permission='readwrite', with_schema=True)
     def collection_post(self):
-        new_record = self.deserialize(self.request.body)
-        new_record = self.validate(new_record)
+        new_record = self.request.validated
+        new_record = self.process_record(new_record)
         self.record = self.db.create(record=new_record, **self.db_kwargs)
         return self.record
 
-    @view(permission='readonly')
+    @resource.view(permission='readonly')
     @exists_or_404()
     def get(self):
         record_id = self.request.matchdict['id']
         self.record = self.db.get(record_id=record_id, **self.db_kwargs)
         return self.record
 
-    @view(permission='readwrite')
-    @exists_or_404()
-    @validates_or_400()
+    @resource.view(permission='readwrite', with_schema=True)
     def put(self):
         record_id = self.request.matchdict['id']
-        new_record = self.deserialize(self.request.body)
-        new_record = self.validate(new_record)
+
+        try:
+            self.record = self.db.get(record_id=record_id, **self.db_kwargs)
+        except RecordNotFoundError:
+            self.record = None
+
+        new_record = self.request.validated
+        new_record = self.process_record(new_record, old=self.record)
         self.record = self.db.update(record_id=record_id,
                                      record=new_record,
                                      **self.db_kwargs)
         return self.record
 
-    @view(permission='readwrite')
+    @resource.view(permission='readwrite')
     @exists_or_404()
     @validates_or_400()
     def patch(self):
         record_id = self.request.matchdict['id']
         self.record = self.db.get(record_id=record_id, **self.db_kwargs)
 
-        modified = self.deserialize(self.request.body)
+        modified = self.request.json
         updated = self.record.copy()
         updated.update(**modified)
         updated[self.modified_field] = TimeStamp.now()
         updated = self.validate(updated)
+
+        updated = self.process_record(updated, old=self.record)
 
         record = self.db.update(record_id=record_id,
                                 record=updated,
                                 **self.db_kwargs)
         return record
 
-    @view(permission='readwrite')
+    @resource.view(permission='readwrite')
     @exists_or_404()
     def delete(self):
         record_id = self.request.matchdict['id']
