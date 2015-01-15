@@ -52,7 +52,7 @@ def main(global_config, **settings):
 
     def add_timestamp_header_to_responses(event):
         timestamp = six.text_type(TimeStamp.now())
-        event.request.response.headers['Timestamp'] = timestamp
+        event.request.response.headers['Timestamp'] = timestamp.encode('utf-8')
 
     config.add_subscriber(add_timestamp_header_to_responses, NewRequest)
 
