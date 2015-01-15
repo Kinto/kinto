@@ -15,3 +15,7 @@ def native_value(value):
         return ast.literal_eval(value)
     except ValueError:
         return value
+
+
+def Enum(**enums):
+    return type('Enum', (), enums)

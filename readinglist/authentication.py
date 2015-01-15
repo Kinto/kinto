@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
 from zope.interface import implementer
+
 from pyramid import authentication as base_auth
 from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Authenticated
-from pyramid.httpexceptions import HTTPServiceUnavailable
+
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
+
+from readinglist.views.errors import service_unavailable
 
 
 def check_credentials(username, password, request):
@@ -58,7 +62,7 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
             profile = auth_client.verify_token(token=auth, scope=scope)
             user_id = profile['user']
         except fxa_errors.OutOfProtocolError:
-            raise HTTPServiceUnavailable()
+            raise service_unavailable()
         except (fxa_errors.InProtocolError, fxa_errors.TrustError):
             return None
         return user_id

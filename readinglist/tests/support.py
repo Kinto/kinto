@@ -41,6 +41,24 @@ class BaseWebTest(object):
         self.db.flush()
         self.patcher.stop()
 
+    def assertFormattedError(self, response, code, errno, error,
+                             message=None, info=None):
+        self.assertEqual(response.headers['Content-Type'],
+                         'application/json; charset=UTF-8')
+        self.assertEqual(response.json['code'], code)
+        self.assertEqual(response.json['errno'], errno)
+        self.assertEqual(response.json['error'], error)
+
+        if message is not None:
+            self.assertEqual(response.json['message'], message)
+        else:
+            self.assertNotIn('message', response.json)
+
+        if info is not None:
+            self.assertEqual(response.json['info'], info)
+        else:
+            self.assertNotIn('info', response.json)
+
 
 class BaseResourceViewsTest(BaseWebTest):
     resource_class = None

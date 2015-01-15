@@ -16,7 +16,6 @@ def get_heartbeat(request):
     status = dict(database=database)
     has_error = not all([v for v in status.values()])
     if has_error:
-        # XXX: use Cornice errors
         request.response.status = 503
 
     return status
