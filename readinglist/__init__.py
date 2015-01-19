@@ -52,22 +52,20 @@ def main(global_config, **settings):
     config.include("cornice")
     config.scan("readinglist.views")
 
-    # Attachments on requests
-
-    def attach_objects_to_request(event):
+    def on_new_request(event):
+        # Attach objects on requests for easier access.
         event.request.db = config.registry.backend
         http_scheme = config.registry.settings.get('readinglist.http_scheme')
         if http_scheme:
             event.request.scheme = http_scheme
 
-    config.add_subscriber(attach_objects_to_request, NewRequest)
+    config.add_subscriber(on_new_request, NewRequest)
 
-    # Timestamp in response headers
-
-    def add_timestamp_header_to_responses(event):
+    def on_new_response(event):
+        # Add timestamp info in response headers.
         timestamp = six.text_type(TimeStamp.now())
         event.request.response.headers['Timestamp'] = timestamp.encode('utf-8')
 
-    config.add_subscriber(add_timestamp_header_to_responses, NewRequest)
+    config.add_subscriber(on_new_response, NewRequest)
 
     return config.make_wsgi_app()
