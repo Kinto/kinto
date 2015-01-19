@@ -94,7 +94,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
             self.app.post_json('/articles', article, headers=self.headers)
 
     def test_filter_with_since(self):
-        resp = self.app.get('/articles?since=3', headers=self.headers)
+        resp = self.app.get('/articles?_since=3', headers=self.headers)
         self.assertEqual(len(resp.json['items']), 3)
 
 
@@ -112,25 +112,25 @@ class ArticleSortingTest(BaseWebTest, unittest.TestCase):
             self.app.post_json('/articles', article, headers=self.headers)
 
     def test_single_basic_sort_by_attribute(self):
-        resp = self.app.get('/articles?sort=title', headers=self.headers)
+        resp = self.app.get('/articles?_sort=title', headers=self.headers)
         records = resp.json['items']
         self.assertEqual(records[0]['title'], 'MoFo #00')
         self.assertEqual(records[-1]['title'], 'MoFo #19')
 
     def test_single_basic_sort_by_attribute_reversed(self):
-        resp = self.app.get('/articles?sort=-title', headers=self.headers)
+        resp = self.app.get('/articles?_sort=-title', headers=self.headers)
         records = resp.json['items']
         self.assertEqual(records[0]['title'], 'MoFo #19')
         self.assertEqual(records[-1]['title'], 'MoFo #00')
 
     def test_boolean_sort_brings_true_first(self):
-        resp = self.app.get('/articles?sort=unread', headers=self.headers)
+        resp = self.app.get('/articles?_sort=unread', headers=self.headers)
         records = resp.json['items']
         self.assertEqual(records[0]['unread'], True)
         self.assertEqual(records[-1]['unread'], False)
 
     def test_multiple_sort(self):
-        resp = self.app.get('/articles?sort=status,title',
+        resp = self.app.get('/articles?_sort=status,title',
                             headers=self.headers)
         records = resp.json['items']
         self.assertEqual(records[0]['status'], 0)
@@ -143,7 +143,7 @@ class ArticleSortingTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(records[-1]['title'], 'MoFo #19')
 
     def test_multiple_sort_with_order(self):
-        resp = self.app.get('/articles?sort=status,-title',
+        resp = self.app.get('/articles?_sort=status,-title',
                             headers=self.headers)
         records = resp.json['items']
         self.assertEqual(records[0]['status'], 0)

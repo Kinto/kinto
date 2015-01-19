@@ -95,14 +95,14 @@ class BaseResource(object):
             value = self.__decode_filter_value(value)
             if param in self.known_fields:
                 filters.append((param, value, '=='))
-            if param == 'since':
+            if param == '_since':
                 filters.append((self.modified_field, value, '>='))
 
         return filters
 
     def _extract_sorting(self, queryparams):
         """Extracts filters from QueryString parameters."""
-        specified = queryparams.get('sort', '').split(',')
+        specified = queryparams.get('_sort', '').split(',')
         sorting = []
         for field in specified:
             m = re.match(r'\s?([\-+]?)(\w+)\s?', field)
