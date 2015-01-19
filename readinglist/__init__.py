@@ -2,9 +2,6 @@
 """
 import pkg_resources
 
-#: Module version, as defined in PEP-0396.
-__version__ = pkg_resources.get_distribution(__package__).version
-
 import six
 
 from pyramid.config import Configurator
@@ -16,6 +13,10 @@ from readinglist import authentication
 from readinglist.resource import TimeStamp
 
 
+# Module version, as defined in PEP-0396.
+__version__ = pkg_resources.get_distribution(__package__).version
+
+# The API version is derivated from the module version.
 API_VERSION = 'v%s' % __version__.split('.')[0]
 
 
