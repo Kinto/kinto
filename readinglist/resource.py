@@ -1,5 +1,6 @@
 import time
 import json
+import ast
 
 import six
 import colander
@@ -84,13 +85,38 @@ class BaseResource(object):
     def validate(self, record):
         return self.mapping.deserialize(record)
 
+    def _extract_filters(self, queryparams):
+        """Extracts filters from QueryString parameters."""
+        filters = {}
+        known_fields = [c.name for c in self.mapping.children]
+
+        for param, value in queryparams.items():
+            if param in known_fields:
+                value = self.__decode_filter_value(value)
+                filters[param] = value
+
+        return filters
+
+    def __decode_filter_value(self, value):
+        """Converts string value to native python values."""
+        if value.lower() in ['on', 'true', 'yes', '1']:
+            value = True
+        elif value.lower() in ['off', 'false', 'no', '0']:
+            value = False
+        try:
+            ast.literal_eval(value)
+        except ValueError:
+            return value
+
     #
     # End-points
     #
 
     @view(permission='readonly')
     def collection_get(self):
-        records = self.db.get_all(**self.db_kwargs)
+        filters = self._extract_filters(self.request.GET)
+        records = self.db.get_all(filters=filters,
+                                  **self.db_kwargs)
         meta = {
             'total': len(records)
         }
