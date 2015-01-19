@@ -9,6 +9,7 @@ import six
 
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
+from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid_multiauth import MultiAuthenticationPolicy
 
 from readinglist import authentication
@@ -18,8 +19,20 @@ from readinglist.resource import TimeStamp
 API_VERSION = 'v%s' % __version__.split('.')[0]
 
 
+def redirect_to_version(request):
+    """Redirect to the current version of the API."""
+    raise HTTPTemporaryRedirect(
+        '/%s/%s' % (API_VERSION, request.matchdict['path']))
+
+
 def main(global_config, **settings):
     config = Configurator(settings=settings)
+
+    # Redirect to the current version of the API if the prefix isn't used.
+    config.add_route(name='redirect_to_version',
+                     pattern='/{path:(?!%s).*}' % API_VERSION)
+    config.add_view(view=redirect_to_version, route_name='redirect_to_version')
+
     config.route_prefix = '/%s' % API_VERSION
 
     backend_module = config.maybe_dotted(settings['readinglist.backend'])
