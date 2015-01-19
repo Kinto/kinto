@@ -78,7 +78,7 @@ def attach_http_objects(config):
 def main(global_config, **settings):
     config = Configurator(settings=settings)
     handle_api_redirection(config)
-    
+
     config.route_prefix = '/%s' % API_VERSION
 
     backend_module = config.maybe_dotted(settings['readinglist.backend'])

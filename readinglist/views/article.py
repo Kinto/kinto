@@ -1,5 +1,5 @@
 import colander
-from colander import SchemaNode, String, null
+from colander import SchemaNode, String
 
 from readinglist.resource import crud, BaseResource, RessourceSchema, TimeStamp
 from readinglist.util import strip_whitespace
