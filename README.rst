@@ -1,12 +1,15 @@
 Documentation
 =============
 
-Reading list is a service that help to synchronize articles url in between device of the same person.
+Reading list is a service that aims to synchronize a list of articles URLs
+between a set of devices owned by a same account.
+
 
 API
 ===
 
-* `API Design proposal <https://github.com/mozilla-services/readinglist/wiki/API-Design-proposal>`_
+* `API Design proposal
+  <https://github.com/mozilla-services/readinglist/wiki/API-Design-proposal>`_
 
 
 Run locally
