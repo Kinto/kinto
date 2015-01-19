@@ -1,9 +1,7 @@
-from cornice.resource import resource
-
 import colander
 from colander import SchemaNode, String, null
 
-from readinglist.resource import BaseResource, RessourceSchema, TimeStamp
+from readinglist.resource import crud, BaseResource, RessourceSchema, TimeStamp
 
 
 # removes whitespace, newlines, and tabs from the beginning/end of a string
@@ -38,30 +36,28 @@ class ArticleSchema(RessourceSchema):
     excerpt = SchemaNode(String(), missing="")
 
     marked_read_by = DeviceName(missing=None)
-    marked_read_on = TimeStamp(missing=None)
+    marked_read_on = TimeStamp(auto_now=False)
     word_count = SchemaNode(colander.Integer(), missing=None)
     resolved_url = SchemaNode(String(), missing=None)
     resolved_title = SchemaNode(String(), missing=None)
 
 
-@resource(collection_path='/articles',
-          path='/articles/{id}',
-          description='Collection of articles')
+@crud()
 class Article(BaseResource):
     mapping = ArticleSchema()
 
-    def validate(self, record):
+    def process_record(self, new, old=None):
         """Currently, article content is not fetched, thus resolved url
         and title are the ones provided.
         """
-        validated = super(Article, self).validate(record)
+        record = super(Article, self).process_record(new, old)
 
-        validated['resolved_title'] = validated['title']
-        validated['resolved_url'] = validated['url']
+        record['resolved_title'] = record['title']
+        record['resolved_url'] = record['url']
 
-        if validated['unread']:
+        if record['unread']:
             # Article is not read
-            validated['marked_read_on'] = None
-            validated['marked_read_by'] = None
+            record['marked_read_on'] = None
+            record['marked_read_by'] = None
 
-        return validated
+        return record

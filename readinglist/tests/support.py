@@ -114,7 +114,8 @@ class BaseResourceViewsTest(BaseWebTest):
                              '',
                              headers=self.headers,
                              status=400)
-        self.assertEqual(resp.json['errors'][0]['description'], 'Required')
+        self.assertEqual(resp.json['errors'][0]['description'],
+                         'url is missing')
 
     def test_invalid_uft8_raises_error(self):
         resp = self.app.post(self.collection_url,
@@ -209,11 +210,12 @@ class BaseResourceViewsTest(BaseWebTest):
 
 class BaseResourceAuthorizationTest(BaseWebTest):
     def test_all_views_require_authentication(self):
+        record = self.record_factory()
         self.app.get(self.collection_url, status=401)
-        self.app.post(self.collection_url, {}, status=401)
+        self.app.post(self.collection_url, record, status=401)
         url = self.item_url.format(id='abc')
         self.app.get(url, status=401)
-        self.app.patch(url, {}, status=401)
+        self.app.patch(url, record, status=401)
         self.app.delete(url, status=401)
 
     @mock.patch('readinglist.authentication.AuthorizationPolicy.permits')
@@ -231,7 +233,7 @@ class BaseResourceAuthorizationTest(BaseWebTest):
         self.app.get(url)
         self.assertEqual(permission_required(), 'readonly')
 
-        self.app.patch(url, {})
+        self.app.patch_json(url, {})
         self.assertEqual(permission_required(), 'readwrite')
 
         self.app.delete(url)
