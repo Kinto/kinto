@@ -92,15 +92,17 @@ class BaseResource(object):
         filters = []
 
         for param, value in queryparams.items():
+            value = self.__decode_filter_value(value)
             if param in self.known_fields:
-                value = self.__decode_filter_value(value)
-                filters.append((param, value))
+                filters.append((param, value, '=='))
+            if param == '_since':
+                filters.append((self.modified_field, value, '>='))
 
         return filters
 
     def _extract_sorting(self, queryparams):
         """Extracts filters from QueryString parameters."""
-        specified = queryparams.get('sort', '').split(',')
+        specified = queryparams.get('_sort', '').split(',')
         sorting = []
         for field in specified:
             m = re.match(r'\s?([\-+]?)(\w+)\s?', field)
@@ -117,7 +119,7 @@ class BaseResource(object):
         elif value.lower() in ['off', 'false', 'no', '0']:
             value = False
         try:
-            ast.literal_eval(value)
+            return ast.literal_eval(value)
         except ValueError:
             return value
 

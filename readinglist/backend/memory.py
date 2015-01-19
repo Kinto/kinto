@@ -1,3 +1,4 @@
+import operator
 from operator import itemgetter
 from collections import defaultdict
 
@@ -51,8 +52,16 @@ class Memory(BackendBase):
         return sorted_
 
     def __apply_filters(self, records, filters):
+        operators = {
+            '<': operator.lt,
+            '<=': operator.le,
+            '==': operator.eq,
+            '!=': operator.ne,
+            '>=': operator.ge,
+            '>': operator.gt,
+        }
         for record in records:
-            matches = [record[k] == v for k, v in filters]
+            matches = [operators[op](record[k], v) for k, v, op in filters]
             if all(matches):
                 yield record
 
