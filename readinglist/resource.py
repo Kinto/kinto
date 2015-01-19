@@ -152,6 +152,13 @@ class BaseResource(object):
                 sorting.append((field, direction))
         return sorting
 
+    def merge_fields(self, stored, changes):
+        """Merge given request fields with stored fields"""
+        updated = stored.copy()
+        updated.update(**changes)
+        updated[self.modified_field] = TimeStamp.now()
+        return self.validate(updated)
+
     #
     # End-points
     #
@@ -208,11 +215,8 @@ class BaseResource(object):
         record_id = self.request.matchdict['id']
         self.record = self.db.get(record_id=record_id, **self.db_kwargs)
 
-        modified = self.request.json
-        updated = self.record.copy()
-        updated.update(**modified)
-        updated[self.modified_field] = TimeStamp.now()
-        updated = self.validate(updated)
+        updated = self.merge_fields(stored=self.record,
+                                    changes=self.request.json)
 
         updated = self.process_record(updated, old=self.record)
 
