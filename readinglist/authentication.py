@@ -7,7 +7,7 @@ from pyramid.security import Authenticated
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 
-from readinglist.views.errors import HTTPServiceUnavailable
+from readinglist.errors import HTTPServiceUnavailable
 
 
 def check_credentials(username, password, request):

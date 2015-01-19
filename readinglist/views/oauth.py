@@ -6,10 +6,8 @@ from colander import MappingSchema, SchemaNode, String
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 
-from readinglist.views.errors import (
-    authorization_required, HTTPServiceUnavailable
-)
-
+from readinglist.errors import HTTPServiceUnavailable
+from readinglist.views.errors import authorization_required
 
 login = Service(name='fxa-oauth-login', path='/fxa-oauth/login')
 token = Service(name='fxa-oauth-token', path='/fxa-oauth/token')

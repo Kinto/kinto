@@ -1,7 +1,8 @@
+from __future__ import print_function
 import traceback
+import sys
 from pyramid.httpexceptions import (
     HTTPForbidden, HTTPUnauthorized, HTTPNotFound, HTTPInternalServerError,
-    HTTPServiceUnavailable as PyramidHTTPServiceUnavailable
 )
 from pyramid.security import forget
 from pyramid.view import forbidden_view_config, notfound_view_config
@@ -54,7 +55,7 @@ def error(context, request):
         raise
     except Exception:
         # client.captureException()
-        traceback.print_exc()
+        print(traceback.format_exc(), file=sys.stderr)
 
     return HTTPInternalServerError(
         body=get_formatted_error(
@@ -63,16 +64,3 @@ def error(context, request):
             "Internal Server Error",
             "A programmatic error occured, developers have been informed."),
         content_type='application/json')
-
-
-class HTTPServiceUnavailable(PyramidHTTPServiceUnavailable):
-    def __init__(self, **kwargs):
-        if 'body' not in kwargs:
-            kwargs['body'] = get_formatted_error(
-                503, ERRORS.BACKEND, "Service unavailable",
-                "Service unavailable due to high load, please retry later.")
-
-        if 'content_type' not in kwargs:
-            kwargs['content_type'] = 'application/json'
-
-        super(HTTPServiceUnavailable, self).__init__(**kwargs)

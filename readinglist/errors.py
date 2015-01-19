@@ -1,6 +1,10 @@
 import json
 
 from readinglist.utils import Enum
+from pyramid.config import global_registries
+from pyramid.httpexceptions import (
+    HTTPServiceUnavailable as PyramidHTTPServiceUnavailable
+)
 
 ERRORS = Enum(
     MISSING_AUTH_TOKEN=104,
@@ -33,3 +37,26 @@ def get_formatted_error(code, errno, error, message=None, info=None):
         result['info'] = info
 
     return json.dumps(result)
+
+
+class HTTPServiceUnavailable(PyramidHTTPServiceUnavailable):
+    """Return an HTTPServiceUnavailable formatted error."""
+
+    def __init__(self, **kwargs):
+        if 'body' not in kwargs:
+            kwargs['body'] = get_formatted_error(
+                503, ERRORS.BACKEND, "Service unavailable",
+                "Service unavailable due to high load, please retry later.")
+
+        if 'content_type' not in kwargs:
+            kwargs['content_type'] = 'application/json'
+
+        if 'headers' not in kwargs:
+            kwargs['headers'] = []
+
+        settings = global_registries.last.settings
+        kwargs['headers'].append(
+            ("Retry-After", settings.get('readinglist.retry_after', "30"))
+        )
+
+        super(HTTPServiceUnavailable, self).__init__(**kwargs)
