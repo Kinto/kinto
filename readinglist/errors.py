@@ -1,10 +1,10 @@
 import json
-
-from readinglist.utils import Enum
 from pyramid.config import global_registries
 from pyramid.httpexceptions import (
-    HTTPServiceUnavailable as PyramidHTTPServiceUnavailable
+    HTTPServiceUnavailable as PyramidHTTPServiceUnavailable, HTTPError
 )
+from pyramid.response import Response
+from readinglist.utils import Enum
 
 ERRORS = Enum(
     MISSING_AUTH_TOKEN=104,
@@ -60,3 +60,25 @@ class HTTPServiceUnavailable(PyramidHTTPServiceUnavailable):
         )
 
         super(HTTPServiceUnavailable, self).__init__(**kwargs)
+
+
+class _JSONError(HTTPError):
+    def __init__(self, errors, status=400):
+        try:
+            code = int(status)
+        except ValueError:
+            code = int(status[:3])
+
+        body = get_formatted_error(
+            code=code, errno=ERRORS.INVALID_PARAMETERS,
+            error="Invalid parameters",
+            message='%(name)s in %(location)s: %(description)s' % errors[0])
+        super(Response, self).__init__(body, content_type='application/json', status=status)
+
+
+def json_error(errors):
+    """Returns an HTTPError with the given status and message.
+
+    The HTTP error content type is "application/json"
+    """
+    return _JSONError(errors, errors.status)
