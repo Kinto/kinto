@@ -51,7 +51,8 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
         mock_err.assert_called_once_with()
         self.assertFormattedError(
             response, 500, ERRORS.UNDEFINED, "Internal Server Error",
-            "A programmatic error occured, developers have been informed.")
+            "A programmatic error occured, developers have been informed.",
+            "https://github.com/mozilla-services/readinglist/issues/")
 
     def test_503_is_valid_formatted_error(self):
         self.fxa_verify.side_effect = fxa_errors.OutOfProtocolError

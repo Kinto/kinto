@@ -1,10 +1,8 @@
-import json
 from pyramid.config import global_registries
 from pyramid.httpexceptions import (
-    HTTPServiceUnavailable as PyramidHTTPServiceUnavailable, HTTPError
+    HTTPServiceUnavailable as PyramidHTTPServiceUnavailable, HTTPBadRequest
 )
-from pyramid.response import Response
-from readinglist.utils import Enum
+from readinglist.utils import Enum, json
 
 ERRORS = Enum(
     MISSING_AUTH_TOKEN=104,
@@ -55,25 +53,13 @@ class HTTPServiceUnavailable(PyramidHTTPServiceUnavailable):
             kwargs['headers'] = []
 
         settings = global_registries.last.settings
+        retry_after = settings.get(
+            'readinglist.retry_after', "30").encode("utf-8")
         kwargs['headers'].append(
-            ("Retry-After", settings.get('readinglist.retry_after', "30"))
+            ("Retry-After", retry_after)
         )
 
         super(HTTPServiceUnavailable, self).__init__(**kwargs)
-
-
-class _JSONError(HTTPError):
-    def __init__(self, errors, status=400):
-        try:
-            code = int(status)
-        except ValueError:
-            code = int(status[:3])
-
-        body = get_formatted_error(
-            code=code, errno=ERRORS.INVALID_PARAMETERS,
-            error="Invalid parameters",
-            message='%(name)s in %(location)s: %(description)s' % errors[0])
-        super(Response, self).__init__(body, content_type='application/json', status=status)
 
 
 def json_error(errors):
@@ -81,4 +67,19 @@ def json_error(errors):
 
     The HTTP error content type is "application/json"
     """
-    return _JSONError(errors, errors.status)
+    sorted_errors = sorted(errors, key=lambda x: "%s" % x['name'])
+    error = sorted_errors[0]
+    if error['name'] is not None:
+        if error['name'] in error['description']:
+            message = error['description']
+        else:
+            message = '%(name)s in %(location)s: %(description)s' % error
+    else:
+        message = '%(location)s: %(description)s' % error
+    body = get_formatted_error(
+        code=400, errno=ERRORS.INVALID_PARAMETERS,
+        error="Invalid parameters",
+        message=message)
+    response = HTTPBadRequest(body=body, content_type='application/json')
+    response.status = errors.status
+    return response

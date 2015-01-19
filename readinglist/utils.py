@@ -1,3 +1,8 @@
+try:
+    import simplejson as json
+except ImportError:
+    import json  # NOQA
+
 import ast
 from colander import null
 

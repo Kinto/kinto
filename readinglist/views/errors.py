@@ -39,9 +39,7 @@ def page_not_found(request):
     """Return a JSON 404 error page."""
     response = HTTPNotFound(
         body=get_formatted_error(
-            404,
-            ERRORS.MISSING_RESOURCE,
-            "Not Found",
+            404, ERRORS.MISSING_RESOURCE, "Not Found",
             "The resource your are looking for could not be found."),
         content_type='application/json')
     return response
@@ -62,5 +60,6 @@ def error(context, request):
             500,
             ERRORS.UNDEFINED,
             "Internal Server Error",
-            "A programmatic error occured, developers have been informed."),
+            "A programmatic error occured, developers have been informed.",
+            "https://github.com/mozilla-services/readinglist/issues/"),
         content_type='application/json')

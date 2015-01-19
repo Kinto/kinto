@@ -128,7 +128,7 @@ class BaseResourceViewsTest(BaseWebTest):
                                   status=400)
         self.assertFormattedError(
             resp, 400, ERRORS.INVALID_PARAMETERS,
-            "Invalid parameters", "url in body: Required")
+            "Invalid parameters", "added_by is missing")
 
     def test_empty_body_raises_error(self):
         resp = self.app.post(self.collection_url,
@@ -137,7 +137,7 @@ class BaseResourceViewsTest(BaseWebTest):
                              status=400)
         self.assertFormattedError(
             resp, 400, ERRORS.INVALID_PARAMETERS,
-            "Invalid parameters", "url in body: Required")
+            "Invalid parameters", "added_by is missing")
 
     def test_invalid_uft8_raises_error(self):
         resp = self.app.post(self.collection_url,
@@ -147,7 +147,8 @@ class BaseResourceViewsTest(BaseWebTest):
         self.assertFormattedError(
             resp, 400, ERRORS.INVALID_PARAMETERS,
             "Invalid parameters",
-            "body in body: Invalid \\uXXXX escape: line 1 column 11 (char 10)")
+            "body: Invalid JSON request body: Invalid \\uXXXX escape sequence:"
+            " line 1 column 11 (char 10)")
 
     def test_new_records_are_linked_to_owner(self):
         body = self.record_factory()
