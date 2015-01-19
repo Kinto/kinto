@@ -174,8 +174,7 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite', with_schema=True)
     def collection_post(self):
-        new_record = self.request.validated
-        new_record = self.process_record(new_record)
+        new_record = self.process_record(self.request.validated)
         self.record = self.db.create(record=new_record, **self.db_kwargs)
         return self.record
 
