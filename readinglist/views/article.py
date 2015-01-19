@@ -2,10 +2,7 @@ import colander
 from colander import SchemaNode, String, null
 
 from readinglist.resource import crud, BaseResource, RessourceSchema, TimeStamp
-
-
-# removes whitespace, newlines, and tabs from the beginning/end of a string
-strip_whitespace = lambda v: v.strip(' \t\n\r') if v is not null else v
+from readinglist.util import strip_whitespace
 
 
 class DeviceName(SchemaNode):
