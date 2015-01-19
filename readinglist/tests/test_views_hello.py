@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 try:
     import unittest2 as unittest
 except ImportError:

@@ -7,7 +7,7 @@ from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 
 from readinglist.views.errors import (
-    authorization_required, service_unavailable
+    authorization_required, HTTPServiceUnavailable
 )
 
 
@@ -74,7 +74,7 @@ def fxa_oauth_token(request):
     try:
         token = auth_client.trade_code(code)
     except fxa_errors.OutOfProtocolError:
-        return service_unavailable()
+        return HTTPServiceUnavailable()
     except fxa_errors.InProtocolError:
         # XXX: use exception details
         request.response.status = 400
