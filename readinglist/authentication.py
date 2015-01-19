@@ -8,7 +8,10 @@ from fxa import errors as fxa_errors
 
 
 def check_credentials(username, password, request):
-    """Basic auth backdoor. Used for testing (unit and loads)
+    """Basic auth backdoor.
+
+    This is mocked in the (unit and load) tests, and kept separate from the
+    authentication policies to ease the mocking.
     """
     settings = request.registry.settings
     credentials = settings.get('readinglist.basic_auth_backdoor', '')
