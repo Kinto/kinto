@@ -20,25 +20,27 @@ __version__ = pkg_resources.get_distribution(__package__).version
 API_VERSION = 'v%s' % __version__.split('.')[0]
 
 
-def redirect_to_version(request):
-    """Redirect to the current version of the API."""
-    raise HTTPTemporaryRedirect(
-        '/%s/%s' % (API_VERSION, request.matchdict['path']))
+def handle_api_redirection(config):
+    """Adds a view which redirect to the current version of the API.
+    """
 
-
-def main(global_config, **settings):
-    config = Configurator(settings=settings)
+    def _redirect_to_version_view(request):
+        raise HTTPTemporaryRedirect(
+            '/%s/%s' % (API_VERSION, request.matchdict['path']))
 
     # Redirect to the current version of the API if the prefix isn't used.
     config.add_route(name='redirect_to_version',
                      pattern='/{path:(?!%s).*}' % API_VERSION)
-    config.add_view(view=redirect_to_version, route_name='redirect_to_version')
+
+    config.add_view(view=_redirect_to_version_view,
+                    route_name='redirect_to_version')
 
     config.route_prefix = '/%s' % API_VERSION
 
-    backend_module = config.maybe_dotted(settings['readinglist.backend'])
-    config.registry.backend = backend_module.load_from_config(config)
 
+def set_auth(config):
+    """Define the authentication and authorization policies.
+    """
     policies = [
         authentication.Oauth2AuthenticationPolicy(),
         authentication.BasicAuthAuthenticationPolicy(),
@@ -49,9 +51,13 @@ def main(global_config, **settings):
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
 
-    config.include("cornice")
-    config.scan("readinglist.views")
 
+def attach_http_objects(config):
+    """Attach HTTP requests/responses objects.
+
+    This is useful to attach objects to the request object for easier
+    access, and to pre-process responses.
+    """
     def on_new_request(event):
         # Attach objects on requests for easier access.
         event.request.db = config.registry.backend
@@ -67,5 +73,23 @@ def main(global_config, **settings):
         event.request.response.headers['Timestamp'] = timestamp.encode('utf-8')
 
     config.add_subscriber(on_new_response, NewRequest)
+
+
+def main(global_config, **settings):
+    config = Configurator(settings=settings)
+    handle_api_redirection(config)
+    
+    config.route_prefix = '/%s' % API_VERSION
+
+    backend_module = config.maybe_dotted(settings['readinglist.backend'])
+    config.registry.backend = backend_module.load_from_config(config)
+
+    set_auth(config)
+
+    # Discover cornice super powers and include readinglist views.
+    config.include("cornice")
+    config.scan("readinglist.views")
+
+    attach_http_objects(config)
 
     return config.make_wsgi_app()
