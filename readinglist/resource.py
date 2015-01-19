@@ -83,6 +83,18 @@ def crud(**kwargs):
     return wrapper
 
 
+def decode_filter_value(value):
+    """Converts string value to native python values."""
+    if value.lower() in ['on', 'true', 'yes', '1']:
+        value = True
+    elif value.lower() in ['off', 'false', 'no', '0']:
+        value = False
+    try:
+        return ast.literal_eval(value)
+    except ValueError:
+        return value
+
+
 class RessourceSchema(colander.MappingSchema):
     """Base resource schema.
 
@@ -120,7 +132,7 @@ class BaseResource(object):
         filters = []
 
         for param, value in queryparams.items():
-            value = self.__decode_filter_value(value)
+            value = decode_filter_value(value)
             if param in self.known_fields:
                 filters.append((param, value, '=='))
             if param == '_since':
@@ -139,17 +151,6 @@ class BaseResource(object):
                 direction = -1 if order == '-' else 1
                 sorting.append((field, direction))
         return sorting
-
-    def __decode_filter_value(self, value):
-        """Converts string value to native python values."""
-        if value.lower() in ['on', 'true', 'yes', '1']:
-            value = True
-        elif value.lower() in ['off', 'false', 'no', '0']:
-            value = False
-        try:
-            return ast.literal_eval(value)
-        except ValueError:
-            return value
 
     #
     # End-points
