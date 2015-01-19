@@ -1,4 +1,5 @@
 SERVER_URL = http://localhost:8000
+SERVER_CONFIG = conf/readinglist.ini
 
 VIRTUALENV=virtualenv
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
@@ -6,6 +7,7 @@ PYTHON=$(VENV)/bin/python
 DEV_STAMP=$(VENV)/.dev_env_installed.stamp
 INSTALL_STAMP=$(VENV)/.install.stamp
 
+.IGNORE: clean
 .PHONY: all install virtualenv tests
 
 OBJECTS = .venv .coverage
@@ -26,7 +28,7 @@ $(PYTHON):
 	virtualenv $(VENV)
 
 serve: install-dev
-	$(VENV)/bin/pserve conf/readinglist.ini --reload
+	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
 
 tests-once: install-dev
 	$(VENV)/bin/nosetests -s --with-coverage --cover-package=readinglist
@@ -35,7 +37,7 @@ tests:
 	tox
 
 bench: install-dev
-	$(VENV)/bin/loads-runner --config=./loadtests/bench.ini --server-url=$(SERVER_URL) loadtests.TestPOC.test_all
+	$(VENV)/bin/loads-runner --config=./loadtests/bench.ini --server-url=$(SERVER_URL) loadtests.TestBasic.test_all
 
 clean:
 	find . -name '*.pyc' -delete

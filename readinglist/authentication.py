@@ -17,8 +17,10 @@ def check_credentials(username, password, request):
     iteration.
     """
     settings = request.registry.settings
-    credentials = settings.get('readinglist.basic_auth_backdoor', '')
-    is_matching = tuple(credentials.split(':', 1)) == (username, password)
+    basic_auths = settings.get('readinglist.basic_auth_backdoor', '')
+    credentials = [tuple(cred.strip().split(':', 1))
+                   for cred in basic_auths.split(',')]
+    is_matching = (username, password) in credentials
     return [username] if is_matching else []
 
 
