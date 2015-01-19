@@ -1,3 +1,4 @@
+from operator import itemgetter
 from collections import defaultdict
 
 from readinglist.backend import BackendBase, exceptions
@@ -42,16 +43,31 @@ class Memory(BackendBase):
         self._store[resource_name][user_id].pop(record_id)
         return existing
 
-    def get_all(self, resource, user_id, filters=None):
+    def get_all(self, resource, user_id, filters=None, sorting=None):
         resource_name = classname(resource)
         records = self._store[resource_name][user_id].values()
-        return [r for r in records if self.__matches_filters(r, filters)]
+        filtered = self.__apply_filters(records, filters or [])
+        sorted_ = self.__apply_sorting(filtered, sorting or [])
+        return sorted_
 
-    def __matches_filters(self, record, filters):
-        for k, v in filters.items():
-            if record[k] != v:
-                return False
-        return True
+    def __apply_filters(self, records, filters):
+        for record in records:
+            matches = [record[k] == v for k, v in filters]
+            if all(matches):
+                yield record
+
+    def __apply_sorting(self, records, sorting):
+        result = list(records)
+
+        if not records:
+            return result
+
+        for field, direction in reversed(sorting):
+            is_boolean_field = isinstance(result[0][field], bool)
+            reverse = direction < 0 or is_boolean_field
+            result = sorted(result, key=itemgetter(field), reverse=reverse)
+
+        return result
 
 
 def load_from_config(config):
