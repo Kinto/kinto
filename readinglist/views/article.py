@@ -43,18 +43,17 @@ class ArticleSchema(RessourceSchema):
 class Article(BaseResource):
     mapping = ArticleSchema()
 
-    def process_record(self, new, old=None):
+    def preprocess_record(self, new, old=None):
         """Currently, article content is not fetched, thus resolved url
         and title are the ones provided.
         """
-        record = super(Article, self).process_record(new, old)
 
-        record['resolved_title'] = record['title']
-        record['resolved_url'] = record['url']
+        new['resolved_title'] = new['title']
+        new['resolved_url'] = new['url']
 
-        if record['unread']:
+        if new['unread']:
             # Article is not read
-            record['marked_read_on'] = None
-            record['marked_read_by'] = None
+            new['marked_read_on'] = None
+            new['marked_read_by'] = None
 
-        return record
+        return new

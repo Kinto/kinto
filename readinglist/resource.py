@@ -122,6 +122,10 @@ class BaseResource(object):
         """Hook to post-process records and introduce specific logics
         or validation.
         """
+        new = self.preprocess_record(new, old)
+        return new
+
+    def preprocess_record(self, new, old=None):
         return new
 
     def validate(self, record):
