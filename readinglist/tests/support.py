@@ -131,6 +131,13 @@ class BaseResourceViewsTest(BaseWebTest):
             resp, 400, ERRORS.INVALID_PARAMETERS,
             "Invalid parameters", "added_by is missing")
 
+    def test_create_with_invalid_json(self):
+        body = "{'foo': 'bad json'}"
+        self.app.post(self.collection_url,
+                      body,
+                      headers=self.headers,
+                      status=400)
+
     def test_empty_body_raises_error(self):
         resp = self.app.post(self.collection_url,
                              '',
@@ -197,6 +204,11 @@ class BaseResourceViewsTest(BaseWebTest):
             stored.pop(k)
         self.app.patch_json(url, stored, headers=self.headers, status=400)
 
+    def test_modify_with_invalid_json(self):
+        url = self.item_url.format(id=self.record['_id'])
+        body = "{'foo': 'bad json'}"
+        self.app.patch(url, body, headers=self.headers, status=400)
+
     def test_modify_record_unknown(self):
         body = self.record_factory()
         url = self.item_url.format(id='unknown')
@@ -220,6 +232,11 @@ class BaseResourceViewsTest(BaseWebTest):
         url = self.item_url.format(id=self.record['_id'])
         body = self.invalid_record_factory()
         self.app.put_json(url, body, headers=self.headers, status=400)
+
+    def test_replace_with_invalid_json(self):
+        url = self.item_url.format(id=self.record['_id'])
+        body = "{'foo': 'bad json'}"
+        self.app.put(url, body, headers=self.headers, status=400)
 
     def test_replace_record_unknown(self):
         url = self.item_url.format(id='unknown')
