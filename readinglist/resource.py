@@ -175,6 +175,7 @@ class BaseResource(object):
     def collection_post(self):
         new_record = self.process_record(self.request.validated)
         self.record = self.db.create(record=new_record, **self.db_kwargs)
+        self.request.response.status = '201 Created'
         return self.record
 
     @resource.view(permission='readonly')
