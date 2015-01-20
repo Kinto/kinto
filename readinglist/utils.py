@@ -14,6 +14,9 @@ strip_whitespace = lambda v: v.strip(' \t\n\r') if v is not null else v
 
 msec_time = lambda: int(time.time() * 1000.0)  # floor
 
+# Get a classname from a class.
+classname = lambda c: c.__class__.__name__.lower()
+
 
 def native_value(value):
     """Convert string value to native python values."""
