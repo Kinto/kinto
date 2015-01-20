@@ -6,82 +6,55 @@ from requests.auth import HTTPBasicAuth
 from loads.case import TestCase
 
 
-PERCENTAGE_OF_CREATION = 20
-PERCENTAGE_OF_UPDATE = 50
-PERCENTAGE_OF_FILTERING = 60
-PERCENTAGE_OF_READ_POSITION = 80
-PERCENTAGE_OF_MARKING_AS_READ = 40
-PERCENTAGE_OF_ARCHIVING = 10
-PERCENTAGE_OF_DELETING = 10
-PERCENTAGE_OF_CONFLICT_CREATION = 10
-PERCENTAGE_OF_CONFLICT_UPDATE = 10
+ACTIONS_PERCENTAGE = [
+    ('create', 20),
+    ('update', 50),
+    ('filter_sort', 60),
+    ('read_further', 80),
+    ('mark_as_read', 40),
+    ('create_conflict', 10),
+    ('update_conflict', 10),
+    ('archive', 10),
+    ('delete', 10)
+]
 
 
 class TestBasic(TestCase):
-    available_users = [
-        ('alice', 'secret'),
-        ('bob', 'secret'),
-        ('charlie', 'secret')
-    ]
-
     def __init__(self, *args, **kwargs):
+        """Initialization that happens once per user.
+        """
         super(TestBasic, self).__init__(*args, **kwargs)
 
-        self.random_user = None
+        self.random_user = uuid.uuid4().hex
+        self.basic_auth = HTTPBasicAuth(self.random_user, 'secret')
 
-        # Create at least one record per user
-        for user in self.available_users:
-            self.basic_auth = HTTPBasicAuth(*user)
-            self.test_create_record()
+        # Create at least some records for this user
+        total_records = random.randint(0, 100)
+        for i in range(total_records):
+            self.create()
 
     def setUp(self):
-        # Change current user randomly
-        self.random_user = random.choice(self.available_users)
-        self.basic_auth = HTTPBasicAuth(*self.random_user)
-
+        # Pick a random record
         resp = self.session.get(self.api_url('articles'), auth=self.basic_auth)
         self.random_record = random.choice(resp.json()['items'])
         self.random_id = self.random_record['_id']
         self.random_url = self.api_url('articles/{0}'.format(self.random_id))
 
     def incr_counter(self, name):
-        if not self.random_user:
+        hit, user, current_hit, current_user = self.session.loads_status
+        if current_user is None:
             return
-        name = "{} {}".format(self.random_user[0], name)
         super(TestBasic, self).incr_counter(name)
 
     def api_url(self, path):
         return "{0}/v0/{1}".format(self.server_url, path)
 
     def test_all(self):
-        if random.randint(0, 100) < PERCENTAGE_OF_CREATION:
-            self.test_create_record()
+        for action, percentage in ACTIONS_PERCENTAGE:
+            if random.randint(0, 100) < percentage:
+                getattr(self, action)()
 
-        if random.randint(0, 100) < PERCENTAGE_OF_UPDATE:
-            self.test_update_record()
-
-        if random.randint(0, 100) < PERCENTAGE_OF_CONFLICT_CREATION:
-            self.test_create_conflicting_record()
-
-        if random.randint(0, 100) < PERCENTAGE_OF_FILTERING:
-            self.test_filter_and_sort_list()
-
-        if random.randint(0, 100) < PERCENTAGE_OF_READ_POSITION:
-            self.test_update_read_position()
-
-        if random.randint(0, 100) < PERCENTAGE_OF_MARKING_AS_READ:
-            self.test_mark_as_read()
-
-        if random.randint(0, 100) < PERCENTAGE_OF_CONFLICT_UPDATE:
-            self.test_conflicting_update()
-
-        if random.randint(0, 100) < PERCENTAGE_OF_ARCHIVING:
-            self.test_archive()
-
-        if random.randint(0, 100) < PERCENTAGE_OF_DELETING:
-            self.test_delete()
-
-    def test_create_record(self, prepare=False):
+    def create(self, prepare=False):
         suffix = uuid.uuid4().hex
         data = {
             "title": "Corp Site {0}".format(suffix),
@@ -95,7 +68,7 @@ class TestBasic(TestCase):
         self.assertEqual(resp.status_code, 201)
         self.incr_counter("created")
 
-    def test_create_conflicting_record(self):
+    def create_conflict(self):
         data = self.random_record.copy()
         data.pop('_id')
         resp = self.session.post(
@@ -105,7 +78,7 @@ class TestBasic(TestCase):
         self.assertEqual(resp.status_code, 201)  # XXX. 303
         self.incr_counter("create-conflict")
 
-    def test_filter_and_sort_list(self):
+    def filter_sort(self):
         queries = [
             [('status', '0')],
             [('unread', 'true'), ('status', '0')],
@@ -124,7 +97,7 @@ class TestBasic(TestCase):
         resp = self.session.patch(url, data, auth=self.basic_auth)
         self.assertEqual(resp.status_code, status)
 
-    def test_update_record(self):
+    def update(self):
         data = {
             "title": "Some title {}".format(random.randint(0, 1)),
             "status": random.randint(0, 1),
@@ -134,14 +107,14 @@ class TestBasic(TestCase):
         self._patch(self.random_url, data)
         self.incr_counter("update-record")
 
-    def test_update_read_position(self):
+    def read_further(self):
         data = {
             "read_position": random.randint(0, 10000)
         }
         self._patch(self.random_url, data)
         self.incr_counter("read-further")
 
-    def test_mark_as_read(self):
+    def mark_as_read(self):
         data = {
             "marked_read_by": "Desktop",
             "marked_read_on": 12345,
@@ -150,20 +123,20 @@ class TestBasic(TestCase):
         self._patch(self.random_url, data)
         self.incr_counter("marked-as-read")
 
-    def test_conflicting_update(self):
+    def update_conflict(self):
         data = {
             "resolved_url": "http://mozilla.org"  # XXX reuse existing
         }
         self._patch(self.random_url, data)
         self.incr_counter("update-conflict")
 
-    def test_archive(self):
+    def archive(self):
         data = {
             "status": 1
         }
         self._patch(self.random_url, data)
 
-    def test_delete(self):
+    def delete(self):
         resp = self.session.delete(self.random_url, auth=self.basic_auth)
         self.assertEqual(resp.status_code, 200)
         self.incr_counter("deleted")
