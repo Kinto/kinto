@@ -1,6 +1,11 @@
 import mock
 import webtest
 
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest  # NOQA
+
 from readinglist import API_VERSION
 from readinglist.errors import ERRORS
 

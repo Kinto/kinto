@@ -1,12 +1,7 @@
-import mock
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 from fxa import errors as fxa_errors
+import mock
 
-from .support import BaseWebTest
+from .support import BaseWebTest, unittest
 
 
 class LoginViewTest(BaseWebTest, unittest.TestCase):

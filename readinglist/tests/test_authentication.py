@@ -1,14 +1,9 @@
 import base64
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
-import mock
-
-from .support import BaseWebTest
 
 from fxa import errors as fxa_errors
+import mock
+
+from .support import BaseWebTest, unittest
 
 
 class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):

@@ -1,13 +1,9 @@
+import mock
 from random import shuffle
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-import mock
-
 from readinglist.views.article import Article
-from .support import BaseResourceTest, BaseWebTest
+
+from .support import BaseResourceTest, BaseWebTest, unittest
 
 
 MINIMALIST_ARTICLE = dict(title="MoFo",

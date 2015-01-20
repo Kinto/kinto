@@ -1,11 +1,8 @@
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 import colander
 
 from readinglist.views.article import ArticleSchema
+
+from .support import unittest
 
 
 class ArticleSchemaTest(unittest.TestCase):
