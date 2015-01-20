@@ -8,7 +8,10 @@ from fxa import errors as fxa_errors
 
 
 def check_credentials(username, password, request):
-    """Basic auth backdoor. Used for testing (unit and loads)
+    """Basic auth backdoor.
+
+    Here to ease client development to bypass FxA authentication during first
+    iteration.
     """
     settings = request.registry.settings
     credentials = settings.get('readinglist.basic_auth_backdoor', '')

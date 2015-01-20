@@ -2,9 +2,6 @@
 """
 import pkg_resources
 
-#: Module version, as defined in PEP-0396.
-__version__ = pkg_resources.get_distribution(__package__).version
-
 import six
 
 from pyramid.config import Configurator
@@ -16,28 +13,34 @@ from readinglist import authentication
 from readinglist.resource import TimeStamp
 
 
+# Module version, as defined in PEP-0396.
+__version__ = pkg_resources.get_distribution(__package__).version
+
+# The API version is derivated from the module version.
 API_VERSION = 'v%s' % __version__.split('.')[0]
 
 
-def redirect_to_version(request):
-    """Redirect to the current version of the API."""
-    raise HTTPTemporaryRedirect(
-        '/%s/%s' % (API_VERSION, request.matchdict['path']))
+def handle_api_redirection(config):
+    """Add a view which redirects to the current version of the API.
+    """
 
-
-def main(global_config, **settings):
-    config = Configurator(settings=settings)
+    def _redirect_to_version_view(request):
+        raise HTTPTemporaryRedirect(
+            '/%s/%s' % (API_VERSION, request.matchdict['path']))
 
     # Redirect to the current version of the API if the prefix isn't used.
     config.add_route(name='redirect_to_version',
                      pattern='/{path:(?!%s).*}' % API_VERSION)
-    config.add_view(view=redirect_to_version, route_name='redirect_to_version')
+
+    config.add_view(view=_redirect_to_version_view,
+                    route_name='redirect_to_version')
 
     config.route_prefix = '/%s' % API_VERSION
 
-    backend_module = config.maybe_dotted(settings['readinglist.backend'])
-    config.registry.backend = backend_module.load_from_config(config)
 
+def set_auth(config):
+    """Define the authentication and authorization policies.
+    """
     policies = [
         authentication.Oauth2AuthenticationPolicy(),
         authentication.BasicAuthAuthenticationPolicy(),
@@ -48,31 +51,50 @@ def main(global_config, **settings):
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
 
-    config.include("cornice")
-    config.scan("readinglist.views")
 
-    # Attachments on requests
+def attach_http_objects(config):
+    """Attach HTTP requests/responses objects.
 
-    def attach_objects_to_request(event):
+    This is useful to attach objects to the request object for easier
+    access, and to pre-process responses.
+    """
+    def on_new_request(event):
+        # Attach objects on requests for easier access.
         event.request.db = config.registry.backend
         http_scheme = config.registry.settings.get('readinglist.http_scheme')
         if http_scheme:
             event.request.scheme = http_scheme
 
-    config.add_subscriber(attach_objects_to_request, NewRequest)
+    config.add_subscriber(on_new_request, NewRequest)
 
-    # Timestamp in response headers
-
-    def add_timestamp_header_to_responses(event):
+    def on_new_response(event):
+        # Add timestamp info in response headers.
         timestamp = six.text_type(TimeStamp.now())
         event.request.response.headers['Timestamp'] = timestamp.encode('utf-8')
 
-    def add_backoff_header_to_responses(event):
+        # Add backoff in response headers
         backoff = config.registry.settings.get("readinglist.backoff")
         if backoff is not None:
             event.request.response.headers['Backoff'] = backoff.encode('utf-8')
 
-    config.add_subscriber(add_timestamp_header_to_responses, NewRequest)
-    config.add_subscriber(add_backoff_header_to_responses, NewRequest)
+    config.add_subscriber(on_new_response, NewRequest)
+
+
+def main(global_config, **settings):
+    config = Configurator(settings=settings)
+    handle_api_redirection(config)
+
+    config.route_prefix = '/%s' % API_VERSION
+
+    backend_module = config.maybe_dotted(settings['readinglist.backend'])
+    config.registry.backend = backend_module.load_from_config(config)
+
+    set_auth(config)
+
+    # Include cornice and discover views.
+    config.include("cornice")
+    config.scan("readinglist.views")
+
+    attach_http_objects(config)
 
     return config.make_wsgi_app()

@@ -1,5 +1,4 @@
 import time
-import ast
 import re
 import inspect
 
@@ -8,6 +7,7 @@ import colander
 from cornice import resource
 
 from readinglist.backend.exceptions import RecordNotFoundError
+from readinglist.utils import native_value
 
 
 def exists_or_404():
@@ -110,6 +110,10 @@ class BaseResource(object):
         """Hook to post-process records and introduce specific logics
         or validation.
         """
+        new = self.preprocess_record(new, old)
+        return new
+
+    def preprocess_record(self, new, old=None):
         return new
 
     def validate(self, record):
@@ -120,7 +124,7 @@ class BaseResource(object):
         filters = []
 
         for param, value in queryparams.items():
-            value = self.__decode_filter_value(value)
+            value = native_value(value)
             if param in self.known_fields:
                 filters.append((param, value, '=='))
             if param == '_since':
@@ -140,16 +144,12 @@ class BaseResource(object):
                 sorting.append((field, direction))
         return sorting
 
-    def __decode_filter_value(self, value):
-        """Converts string value to native python values."""
-        if value.lower() in ['on', 'true', 'yes', '1']:
-            value = True
-        elif value.lower() in ['off', 'false', 'no', '0']:
-            value = False
-        try:
-            return ast.literal_eval(value)
-        except ValueError:
-            return value
+    def merge_fields(self, changes):
+        """Merge changes into current ord fields"""
+        updated = self.record.copy()
+        updated.update(**changes)
+        updated[self.modified_field] = TimeStamp.now()
+        return self.validate(updated)
 
     #
     # End-points
@@ -173,8 +173,7 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite', with_schema=True)
     def collection_post(self):
-        new_record = self.request.validated
-        new_record = self.process_record(new_record)
+        new_record = self.process_record(self.request.validated)
         self.record = self.db.create(record=new_record, **self.db_kwargs)
         return self.record
 
@@ -208,11 +207,7 @@ class BaseResource(object):
         record_id = self.request.matchdict['id']
         self.record = self.db.get(record_id=record_id, **self.db_kwargs)
 
-        modified = self.request.json
-        updated = self.record.copy()
-        updated.update(**modified)
-        updated[self.modified_field] = TimeStamp.now()
-        updated = self.validate(updated)
+        updated = self.merge_fields(changes=self.request.json)
 
         updated = self.process_record(updated, old=self.record)
 
