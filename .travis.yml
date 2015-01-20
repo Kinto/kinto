@@ -8,6 +8,6 @@ env:
     - TOX_ENV=flake8
 script:
     - tox -e $TOX_ENV
-    - make loadtests-check
+    - make loadtest-check
 install:
     - pip install tox

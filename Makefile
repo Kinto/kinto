@@ -43,8 +43,11 @@ clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
 
-loadtests-check:
+loadtest: install-dev
+	$(VENV)/bin/loads-runner --config=./loadtests/test.ini --server-url=$(SERVER_URL) loadtests.TestBasic.test_all
+
+loadtest-check:
 	make serve & PID=$$!; \
 	  sleep 1; \
-	  make bench; \
+	  make loadtest; \
 	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
