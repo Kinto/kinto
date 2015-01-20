@@ -1,10 +1,13 @@
 from zope.interface import implementer
+
 from pyramid import authentication as base_auth
 from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Authenticated
-from pyramid.httpexceptions import HTTPServiceUnavailable
+
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
+
+from readinglist.errors import HTTPServiceUnavailable
 
 
 def check_credentials(username, password, request):

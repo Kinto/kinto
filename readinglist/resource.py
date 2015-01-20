@@ -7,6 +7,7 @@ import colander
 from cornice import resource
 
 from readinglist.backend.exceptions import RecordNotFoundError
+from readinglist.errors import json_error
 from readinglist.utils import native_value
 
 
@@ -68,6 +69,7 @@ def crud(**kwargs):
         params = dict(collection_path='/{0}s'.format(resource_name),
                       path='/{0}s/{{id}}'.format(resource_name),
                       description='Collection of {0}'.format(resource_name),
+                      error_handler=json_error,
                       depth=2)
         params.update(**kwargs)
 

@@ -1,12 +1,13 @@
 import uuid
 
 from cornice import Service
-from pyramid.httpexceptions import HTTPUnauthorized, HTTPServiceUnavailable
 
 from colander import MappingSchema, SchemaNode, String
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 
+from readinglist.errors import HTTPServiceUnavailable
+from readinglist.views.errors import authorization_required
 
 login = Service(name='fxa-oauth-login', path='/fxa-oauth/login')
 token = Service(name='fxa-oauth-token', path='/fxa-oauth/token')
@@ -56,7 +57,7 @@ def fxa_oauth_token(request):
     try:
         stored_state = request.cookies.pop('state')
     except KeyError:
-        return HTTPUnauthorized()
+        return authorization_required(request)
 
     # Compare with previously persisted state
     if stored_state != state:

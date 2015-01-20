@@ -2,6 +2,7 @@ import mock
 import webtest
 
 from readinglist import API_VERSION
+from readinglist.errors import ERRORS
 
 
 class PrefixedRequestClass(webtest.app.TestRequest):
@@ -40,6 +41,24 @@ class BaseWebTest(object):
     def tearDown(self):
         self.db.flush()
         self.patcher.stop()
+
+    def assertFormattedError(self, response, code, errno, error,
+                             message=None, info=None):
+        self.assertEqual(response.headers['Content-Type'],
+                         'application/json; charset=UTF-8')
+        self.assertEqual(response.json['code'], code)
+        self.assertEqual(response.json['errno'], errno)
+        self.assertEqual(response.json['error'], error)
+
+        if message is not None:
+            self.assertEqual(response.json['message'], message)
+        else:
+            self.assertNotIn('message', response.json)
+
+        if info is not None:
+            self.assertEqual(response.json['info'], info)
+        else:
+            self.assertNotIn('info', response.json)
 
 
 class BaseResourceViewsTest(BaseWebTest):
@@ -107,22 +126,29 @@ class BaseResourceViewsTest(BaseWebTest):
                                   body,
                                   headers=self.headers,
                                   status=400)
-        self.assertIn('errors', resp.json)
+        self.assertFormattedError(
+            resp, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters", "added_by is missing")
 
     def test_empty_body_raises_error(self):
         resp = self.app.post(self.collection_url,
                              '',
                              headers=self.headers,
                              status=400)
-        self.assertEqual(resp.json['errors'][0]['description'],
-                         'url is missing')
+        self.assertFormattedError(
+            resp, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters", "added_by is missing")
 
     def test_invalid_uft8_raises_error(self):
         resp = self.app.post(self.collection_url,
                              '{"foo": "\\u0d1"}',
                              headers=self.headers,
                              status=400)
-        self.assertIn('Invalid', resp.json['errors'][0]['description'])
+        self.assertFormattedError(
+            resp, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters",
+            "body: Invalid JSON request body: Invalid \\uXXXX escape sequence:"
+            " line 1 column 11 (char 10)")
 
     def test_new_records_are_linked_to_owner(self):
         body = self.record_factory()

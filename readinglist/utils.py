@@ -1,3 +1,8 @@
+try:
+    import simplejson as json
+except ImportError:
+    import json  # NOQA
+
 import ast
 from colander import null
 
@@ -15,3 +20,7 @@ def native_value(value):
         return ast.literal_eval(value)
     except ValueError:
         return value
+
+
+def Enum(**enums):
+    return type('Enum', (), enums)
