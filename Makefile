@@ -42,3 +42,9 @@ bench: install-dev
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
+
+loadtests-check:
+	make serve & PID=$$!; \
+	  sleep 1; \
+	  make bench; \
+	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
