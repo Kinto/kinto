@@ -20,6 +20,7 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
             self.assertIn('Backoff', response.headers)
             self.assertEquals(response.headers['Backoff'],
                               '10'.encode('utf-8'))
+
     def test_404_is_valid_formatted_error(self):
         response = self.app.get('/unknown', status=404)
         self.assertFormattedError(

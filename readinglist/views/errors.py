@@ -1,15 +1,15 @@
 from __future__ import print_function
-import traceback
 import sys
+import traceback
 from pyramid.httpexceptions import (
     HTTPForbidden, HTTPUnauthorized, HTTPNotFound, HTTPInternalServerError,
 )
 from pyramid.security import forget
-from pyramid.view import forbidden_view_config, notfound_view_config
+from pyramid.view import (
+    forbidden_view_config, notfound_view_config, view_config
+)
 
-from readinglist.errors import get_formatted_error, ERRORS
-
-from pyramid.view import view_config
+from readinglist.errors import format_error, ERRORS
 
 
 @forbidden_view_config()
@@ -19,7 +19,7 @@ def authorization_required(request):
     """
     if not request.authenticated_userid:
         response = HTTPUnauthorized(
-            body=get_formatted_error(
+            body=format_error(
                 401, ERRORS.MISSING_AUTH_TOKEN, "Unauthorized",
                 "Please authenticate yourself to use this endpoint."),
             content_type='application/json')
@@ -27,7 +27,7 @@ def authorization_required(request):
         return response
 
     response = HTTPForbidden(
-        body=get_formatted_error(
+        body=format_error(
             403, ERRORS.FORBIDDEN, "Forbidden",
             "This user cannot access this resource."),
         content_type='application/json')
@@ -38,7 +38,7 @@ def authorization_required(request):
 def page_not_found(request):
     """Return a JSON 404 error page."""
     response = HTTPNotFound(
-        body=get_formatted_error(
+        body=format_error(
             404, ERRORS.MISSING_RESOURCE, "Not Found",
             "The resource your are looking for could not be found."),
         content_type='application/json')
@@ -56,7 +56,7 @@ def error(context, request):
         print(traceback.format_exc(), file=sys.stderr)
 
     return HTTPInternalServerError(
-        body=get_formatted_error(
+        body=format_error(
             500,
             ERRORS.UNDEFINED,
             "Internal Server Error",

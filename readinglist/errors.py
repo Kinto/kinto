@@ -1,3 +1,4 @@
+import six
 from pyramid.config import global_registries
 from pyramid.httpexceptions import (
     HTTPServiceUnavailable as PyramidHTTPServiceUnavailable, HTTPBadRequest
@@ -21,7 +22,8 @@ ERRORS = Enum(
 )
 
 
-def get_formatted_error(code, errno, error, message=None, info=None):
+def format_error(code, errno, error, message=None, info=None):
+    """Return a JSON formated string matching the error protocol."""
     result = {
         "code": code,
         "errno": errno,
@@ -42,7 +44,7 @@ class HTTPServiceUnavailable(PyramidHTTPServiceUnavailable):
 
     def __init__(self, **kwargs):
         if 'body' not in kwargs:
-            kwargs['body'] = get_formatted_error(
+            kwargs['body'] = format_error(
                 503, ERRORS.BACKEND, "Service unavailable",
                 "Service unavailable due to high load, please retry later.")
 
@@ -63,23 +65,30 @@ class HTTPServiceUnavailable(PyramidHTTPServiceUnavailable):
 
 
 def json_error(errors):
-    """Returns an HTTPError with the given status and message.
+    """Return an HTTPError with the given status and message.
 
     The HTTP error content type is "application/json"
     """
-    sorted_errors = sorted(errors, key=lambda x: "%s" % x['name'])
+    assert len(errors) != 0
+    sorted_errors = sorted(errors, key=lambda x: six.text_type(x['name']))
     error = sorted_errors[0]
-    if error['name'] is not None:
-        if error['name'] in error['description']:
-            message = error['description']
+    name = error['name']
+    description = error['description']
+
+    if name is not None:
+        if name in description:
+            message = description
         else:
             message = '%(name)s in %(location)s: %(description)s' % error
     else:
         message = '%(location)s: %(description)s' % error
-    body = get_formatted_error(
+
+    body = format_error(
         code=400, errno=ERRORS.INVALID_PARAMETERS,
         error="Invalid parameters",
         message=message)
+
     response = HTTPBadRequest(body=body, content_type='application/json')
     response.status = errors.status
+
     return response
