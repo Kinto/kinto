@@ -97,6 +97,12 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('/articles?_since=3', headers=self.headers)
         self.assertEqual(len(resp.json['items']), 3)
 
+    def test_filter_works_with_empty_list(self):
+        self.fxa_verify.return_value = {
+            'user': 'jean-louis'
+        }
+        self.app.get('/articles?unread=true', headers=self.headers)
+
 
 class ArticleSortingTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
@@ -110,6 +116,12 @@ class ArticleSortingTest(BaseWebTest, unittest.TestCase):
             article['status'] = i % 4
             article['unread'] = (i % 2 == 0)
             self.app.post_json('/articles', article, headers=self.headers)
+
+    def test_sort_works_with_empty_list(self):
+        self.fxa_verify.return_value = {
+            'user': 'jean-louis'
+        }
+        self.app.get('/articles?_sort=unread', headers=self.headers)
 
     def test_single_basic_sort_by_attribute(self):
         resp = self.app.get('/articles?_sort=title', headers=self.headers)
