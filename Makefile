@@ -6,7 +6,6 @@ PYTHON=$(VENV)/bin/python
 DEV_STAMP=$(VENV)/.dev_env_installed.stamp
 INSTALL_STAMP=$(VENV)/.install.stamp
 
-.IGNORE: clean
 .PHONY: all install virtualenv tests
 
 OBJECTS = .venv .coverage
@@ -37,3 +36,7 @@ tests:
 
 bench: install-dev
 	$(VENV)/bin/loads-runner --config=./loadtests/bench.ini --server-url=$(SERVER_URL) loadtests.TestPOC.test_all
+
+clean:
+	find . -name '*.pyc' -delete
+	find . -name '__pycache__' -type d -exec rm -fr {} \;

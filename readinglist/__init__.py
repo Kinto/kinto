@@ -67,6 +67,12 @@ def main(global_config, **settings):
         timestamp = six.text_type(TimeStamp.now())
         event.request.response.headers['Timestamp'] = timestamp.encode('utf-8')
 
+    def add_backoff_header_to_responses(event):
+        backoff = config.registry.settings.get("readinglist.backoff")
+        if backoff is not None:
+            event.request.response.headers['Backoff'] = backoff.encode('utf-8')
+
     config.add_subscriber(add_timestamp_header_to_responses, NewRequest)
+    config.add_subscriber(add_backoff_header_to_responses, NewRequest)
 
     return config.make_wsgi_app()
