@@ -36,7 +36,7 @@ def fxa_oauth_login(request):
                                client_id=fxa_conf(request, 'client_id'),
                                scope=fxa_conf(request, 'scope'),
                                state=state)
-    request.response.status = 302
+    request.response.status_code = 302
     request.response.headers['Location'] = form_url
     return {}
 
@@ -62,7 +62,7 @@ def fxa_oauth_token(request):
     # Compare with previously persisted state
     if stored_state != state:
         # XXX: use Cornice errors
-        request.response.status = 400
+        request.response.status_code = 400
         return
 
     # Trade the OAuth code for a longer-lived token
@@ -75,7 +75,7 @@ def fxa_oauth_token(request):
         return HTTPServiceUnavailable()
     except fxa_errors.InProtocolError:
         # XXX: use exception details
-        request.response.status = 400
+        request.response.status_code = 400
         return
 
     data = {

@@ -117,7 +117,8 @@ class BaseResourceViewsTest(BaseWebTest):
         body = self.record_factory()
         resp = self.app.post_json(self.collection_url,
                                   body,
-                                  headers=self.headers)
+                                  headers=self.headers,
+                                  status=201)
         self.assertIn('_id', resp.json)
 
     def test_invalid_record_raises_error(self):

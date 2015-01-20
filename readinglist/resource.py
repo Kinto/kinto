@@ -19,7 +19,7 @@ def exists_or_404():
                 return view(self, *args, **kwargs)
             except RecordNotFoundError as e:
                 self.request.errors.add('path', 'id', six.text_type(e))
-                self.request.errors.status = "404 Resource Not Found"
+                self.request.errors.status = 404
         return wrapped_view
     return wrap
 
@@ -34,7 +34,7 @@ def validates_or_400():
                 # Transform the errors we got from colander into cornice errors
                 for field, error in e.asdict().items():
                     self.request.errors.add('body', field, error)
-            self.request.errors.status = "400 Bad Request"
+            self.request.errors.status = 400
         return wrapped_view
     return wrap
 
@@ -177,6 +177,7 @@ class BaseResource(object):
     def collection_post(self):
         new_record = self.process_record(self.request.validated)
         self.record = self.db.create(record=new_record, **self.db_kwargs)
+        self.request.response.status_code = 201
         return self.record
 
     @resource.view(permission='readonly')
