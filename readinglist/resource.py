@@ -7,7 +7,7 @@ import colander
 from cornice import resource
 
 from readinglist.backend.exceptions import RecordNotFoundError
-from readinglist.util import native_value
+from readinglist.utils import native_value
 
 
 def exists_or_404():

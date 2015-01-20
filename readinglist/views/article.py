@@ -2,7 +2,7 @@ import colander
 from colander import SchemaNode, String
 
 from readinglist.resource import crud, BaseResource, RessourceSchema, TimeStamp
-from readinglist.util import strip_whitespace
+from readinglist.utils import strip_whitespace
 
 
 class DeviceName(SchemaNode):
