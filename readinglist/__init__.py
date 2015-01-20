@@ -21,7 +21,7 @@ API_VERSION = 'v%s' % __version__.split('.')[0]
 
 
 def handle_api_redirection(config):
-    """Adds a view which redirect to the current version of the API.
+    """Add a view which redirects to the current version of the API.
     """
 
     def _redirect_to_version_view(request):
@@ -86,7 +86,7 @@ def main(global_config, **settings):
 
     set_auth(config)
 
-    # Discover cornice super powers and include readinglist views.
+    # Include cornice and discover views.
     config.include("cornice")
     config.scan("readinglist.views")
 
