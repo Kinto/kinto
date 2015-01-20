@@ -206,7 +206,13 @@ class BaseResourceViewsTest(BaseWebTest):
         modified = self.modify_record(self.record)
         for k in modified.keys():
             stored.pop(k)
-        self.app.patch_json(url, stored, headers=self.headers, status=400)
+        resp = self.app.patch_json(url,
+                                   stored,
+                                   headers=self.headers,
+                                   status=400)
+        self.assertFormattedError(
+            resp, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters", "Required")
 
     def test_modify_with_invalid_json(self):
         url = self.item_url.format(id=self.record['_id'])
@@ -238,7 +244,10 @@ class BaseResourceViewsTest(BaseWebTest):
     def test_replace_with_invalid_record(self):
         url = self.item_url.format(id=self.record['_id'])
         body = self.invalid_record_factory()
-        self.app.put_json(url, body, headers=self.headers, status=400)
+        resp = self.app.put_json(url, body, headers=self.headers, status=400)
+        self.assertFormattedError(
+            resp, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters", "is missing")
 
     def test_replace_with_invalid_json(self):
         url = self.item_url.format(id=self.record['_id'])
