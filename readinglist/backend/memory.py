@@ -68,7 +68,7 @@ class Memory(BackendBase):
     def __apply_sorting(self, records, sorting):
         result = list(records)
 
-        if not records:
+        if not result:
             return result
 
         for field, direction in reversed(sorting):
