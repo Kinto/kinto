@@ -14,14 +14,29 @@ class DeviceName(SchemaNode):
         return strip_whitespace(appstruct)
 
 
-class ArticleSchema(RessourceSchema):
+class URL(SchemaNode):
+    """String representing a URL."""
+    schema_type = String
+    validator = colander.All(colander.url, colander.Length(min=1, max=2048))
 
-    url = SchemaNode(String(),
-                     preparer=strip_whitespace,
-                     validator=colander.url)
-    title = SchemaNode(String(),
-                       preparer=strip_whitespace,
-                       validator=colander.Length(min=1))
+    def preparer(self, appstruct):
+        return strip_whitespace(appstruct)
+
+
+class ArticleTitle(SchemaNode):
+    """String representing the title of an article."""
+    schema_type = String
+    validator = colander.Length(min=1, max=1024)
+
+    def preparer(self, appstruct):
+        return strip_whitespace(appstruct)
+
+
+class ArticleSchema(RessourceSchema):
+    """Schema for a reading list article."""
+
+    url = URL()
+    title = ArticleTitle()
     added_by = DeviceName()
     added_on = TimeStamp()
     stored_on = TimeStamp()
@@ -35,8 +50,8 @@ class ArticleSchema(RessourceSchema):
     marked_read_by = DeviceName(missing=None)
     marked_read_on = TimeStamp(auto_now=False)
     word_count = SchemaNode(colander.Integer(), missing=None)
-    resolved_url = SchemaNode(String(), missing=None)
-    resolved_title = SchemaNode(String(), missing=None)
+    resolved_url = URL(missing=None)
+    resolved_title = ArticleTitle(missing=None)
 
 
 @crud()
