@@ -100,10 +100,10 @@ class BaseResourceViewsTest(BaseWebTest):
         self.assertEquals(len(records), 1)
         self.assertRecordEquals(records[0], self.record)
 
-    def test_list_gives_number_of_results(self):
-        resp = self.app.get(self.collection_url, headers=self.headers)
-        meta = resp.json['meta']
-        self.assertEquals(meta['total'], 1)
+    def test_list_gives_number_of_results_in_headers(self):
+        resp = self.app.head(self.collection_url, headers=self.headers)
+        count = resp.headers['Total-Records']
+        self.assertEquals(int(count), 1)
 
     def test_list_is_filtered_by_user(self):
         self.fxa_verify.return_value = {

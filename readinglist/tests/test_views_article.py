@@ -63,6 +63,11 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
             article['favorite'] = (i % 4 == 0)
             self.app.post_json('/articles', article, headers=self.headers)
 
+    def test_number_of_records_matches_filter(self):
+        resp = self.app.head('/articles?status=1', headers=self.headers)
+        count = resp.headers['Total-Records']
+        self.assertEquals(int(count), 2)
+
     def test_single_basic_filter_by_attribute(self):
         resp = self.app.get('/articles?status=1', headers=self.headers)
         self.assertEqual(len(resp.json['items']), 2)
