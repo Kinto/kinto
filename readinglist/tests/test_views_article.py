@@ -21,6 +21,11 @@ class ResourceTest(BaseResourceTest, unittest.TestCase):
     def modify_record(self, original):
         return dict(title="Mozilla Foundation")
 
+    def _get_modified_keys(self):
+        keys = set(self.modify_record(self.record).keys())
+        keys |= set(['_id', 'last_modified', 'stored_on', 'url'])
+        return keys
+
 
 class ArticleModificationTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
@@ -49,6 +54,20 @@ class ArticleModificationTest(BaseWebTest, unittest.TestCase):
                                    headers=self.headers)
         self.assertIsNone(resp.json['marked_read_by'])
         self.assertIsNone(resp.json['marked_read_on'])
+
+    def test_cannot_modify_url(self):
+        body = {'url': 'http://immutable.org'}
+        self.app.patch_json(self.url,
+                            body,
+                            headers=self.headers,
+                            status=400)
+
+    def test_cannot_modify_stored_on(self):
+        body = {'stored_on': 1234}
+        self.app.patch_json(self.url,
+                            body,
+                            headers=self.headers,
+                            status=400)
 
 
 class ArticleFilteringTest(BaseWebTest, unittest.TestCase):

@@ -38,6 +38,9 @@ class ArticleSchema(RessourceSchema):
     resolved_url = SchemaNode(String(), missing=None)
     resolved_title = SchemaNode(String(), missing=None)
 
+    __readonly_fields__ = ('url', 'stored_on') \
+        + RessourceSchema.__readonly_fields__
+
 
 @crud()
 class Article(BaseResource):
