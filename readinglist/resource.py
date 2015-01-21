@@ -130,9 +130,19 @@ class BaseResource(object):
 
         for param, value in queryparams.items():
             value = native_value(value)
-            if param in self.known_fields:
-                filters.append((param, value, COMPARISON.EQ))
-            if param == '_since':
+
+            m = re.match(r'\s?(min|max|not)_(\w+)\s?', param)
+
+            if m:
+                keyword, field = m.groups()
+                operator = COMPARISON[keyword]
+            else:
+                operator, field = COMPARISON.EQ, param
+
+            if field in self.known_fields:
+                filters.append((field, value, operator))
+
+            if field == '_since':
                 if isinstance(value, six.integer_types):
                     filters.append(
                         (self.modified_field, value, COMPARISON.MIN)
