@@ -6,7 +6,7 @@ from requests.auth import HTTPBasicAuth
 from loads.case import TestCase
 
 
-ACTIONS_PERCENTAGE = [
+ACTIONS_FREQUENCIES = [
     ('create', 20),
     ('update', 50),
     ('filter_sort', 60),
@@ -29,7 +29,7 @@ class TestBasic(TestCase):
         self.basic_auth = HTTPBasicAuth(self.random_user, 'secret')
 
         # Create at least some records for this user
-        total_records = random.randint(0, 100)
+        total_records = random.randint(3, 100)
         for i in range(total_records):
             self.create()
 
@@ -50,9 +50,12 @@ class TestBasic(TestCase):
         return "{0}/v0/{1}".format(self.server_url, path)
 
     def test_all(self):
-        for action, percentage in ACTIONS_PERCENTAGE:
-            if random.randint(0, 100) < percentage:
-                getattr(self, action)()
+        # Pick a random action, with particular frequency
+        action, percentage = random.choice(ACTIONS_FREQUENCIES)
+        while random.randint(0, 100) > percentage:
+            action, percentage = random.choice(ACTIONS_FREQUENCIES)
+
+        getattr(self, action)()
 
     def create(self, prepare=False):
         suffix = uuid.uuid4().hex
