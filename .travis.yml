@@ -6,8 +6,9 @@ env:
     - TOX_ENV=py27
     - TOX_ENV=py34
     - TOX_ENV=flake8
-script:
-    - tox -e $TOX_ENV
-    - make loadtest-check
+    - ACTION=loadtest
 install:
-    - pip install tox
+    - if [[ $ACTION != loadtest ]]; then pip install tox; fi
+script:
+    - if [[ $ACTION != loadtest ]]; then tox -e $TOX_ENV; fi
+    - if [[ $ACTION == loadtest ]]; then make loadtest-check; fi
