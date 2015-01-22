@@ -195,7 +195,7 @@ class BaseResourceViewsTest(BaseWebTest):
         self.assertEquals(resp.json['_id'], stored['_id'])
         self.assertRecordNotEquals(resp.json, stored)
 
-    @mock.patch('readinglist.resource.TimeStamp.now')
+    @mock.patch('readinglist.utils.TimeStamper.now')
     def test_modify_record_updates_timestamp(self, now_mocked):
         now_mocked.return_value = 42
 
@@ -237,6 +237,8 @@ class BaseResourceViewsTest(BaseWebTest):
     def test_replace_record(self):
         url = self.item_url.format(id=self.record['_id'])
         before = self.db.get(self.resource, u'bob', self.record['_id'])
+        # Decimal type is not JSON serializable, convert before posting
+        before['last_modified'] = float(before['last_modified'])
 
         modified = self.modify_record(self.record)
         replaced = before.copy()

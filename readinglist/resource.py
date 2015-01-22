@@ -1,4 +1,3 @@
-import time
 import re
 import inspect
 
@@ -8,7 +7,7 @@ from cornice import resource
 
 from readinglist.backend.exceptions import RecordNotFoundError
 from readinglist.errors import json_error, ImmutableFieldError
-from readinglist.utils import COMPARISON, native_value
+from readinglist.utils import COMPARISON, native_value, timestamper
 
 
 def exists_or_404():
@@ -53,13 +52,9 @@ class TimeStamp(colander.SchemaNode):
     auto_now = True
     missing = None
 
-    @staticmethod
-    def now():
-        return int(time.time())
-
     def deserialize(self, cstruct=colander.null):
         if cstruct is colander.null and self.auto_now:
-            cstruct = TimeStamp.now()
+            cstruct = timestamper.now()
         return super(TimeStamp, self).deserialize(cstruct)
 
 
@@ -124,6 +119,7 @@ class BaseResource(object):
         """Hook to post-process records and introduce specific logics
         or validation.
         """
+        new[self.modified_field] = self.request.timestamp
         new = self.preprocess_record(new, old)
         return new
 
@@ -214,7 +210,6 @@ class BaseResource(object):
 
         updated = self.record.copy()
         updated.update(**changes)
-        updated[self.modified_field] = TimeStamp.now()
         return self.validate(updated)
 
     #

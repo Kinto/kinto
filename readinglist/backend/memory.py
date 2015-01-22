@@ -4,6 +4,7 @@ from collections import defaultdict
 
 from readinglist.backend import BackendBase, exceptions
 from readinglist.utils import COMPARISON
+from readinglist.utils import timestamper
 
 
 tree = lambda: defaultdict(tree)
@@ -20,6 +21,9 @@ class Memory(BackendBase):
 
     def ping(self):
         return True
+
+    def now(self):
+        return timestamper.now()
 
     def create(self, resource, user_id, record):
         resource_name = classname(resource)

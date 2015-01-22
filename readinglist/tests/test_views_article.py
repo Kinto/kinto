@@ -3,6 +3,7 @@ from random import shuffle
 
 from readinglist.errors import ERRORS
 from readinglist.views.article import Article
+from readinglist.utils import timestamper
 
 from .support import BaseResourceTest, BaseWebTest, unittest
 
@@ -135,7 +136,7 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
 
 class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
-    @mock.patch('readinglist.resource.TimeStamp.now')
+    @mock.patch('readinglist.utils.TimeStamper.now')
     def setUp(self, now_mocked):
         super(ArticleFilterModifiedTest, self).setUp()
         for i in range(6):
@@ -143,9 +144,44 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
             article = MINIMALIST_ARTICLE.copy()
             self.app.post_json('/articles', article, headers=self.headers)
 
-    def test_filter_with_since(self):
+    def test_filter_with_since_is_exclusive(self):
         resp = self.app.get('/articles?_since=3', headers=self.headers)
-        self.assertEqual(len(resp.json['items']), 3)
+        self.assertEqual(len(resp.json['items']), 2)
+
+    def test_the_timestamp_header_is_equal_to_last_modification(self):
+        article = MINIMALIST_ARTICLE.copy()
+        resp = self.app.post_json('/articles', article, headers=self.headers)
+        modification = resp.json['last_modified']
+        header = float(resp.headers['Timestamp'])
+        self.assertEqual(header, modification)
+
+    def test_filter_with_since_accepts_decimal_value(self):
+        before = timestamper.now()
+        article = MINIMALIST_ARTICLE.copy()
+        self.app.post_json('/articles', article, headers=self.headers)
+        url = '/articles?_since={0}'.format(before)
+        resp = self.app.get(url, headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 1)
+
+    def test_filter_from_last_modified_is_exclusive(self):
+        article = MINIMALIST_ARTICLE.copy()
+        resp = self.app.post_json('/articles', article, headers=self.headers)
+
+        current = resp.json['last_modified']
+        url = '/articles?_since={0}'.format(current)
+
+        resp = self.app.get(url, headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 0)
+
+    def test_filter_from_last_header_value_is_exclusive(self):
+        article = MINIMALIST_ARTICLE.copy()
+        resp = self.app.post_json('/articles', article, headers=self.headers)
+
+        current = float(resp.headers['Timestamp'])
+        url = '/articles?_since={0:.3f}'.format(current)
+
+        resp = self.app.get(url, headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 0)
 
     def test_filter_works_with_empty_list(self):
         self.fxa_verify.return_value = {

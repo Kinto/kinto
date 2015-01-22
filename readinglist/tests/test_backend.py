@@ -21,6 +21,7 @@ class BackendBaseTest(unittest.TestCase):
         calls = [
             (self.backend.flush,),
             (self.backend.ping,),
+            (self.backend.now,),
             (self.backend.create, '', '', {}),
             (self.backend.get, '', '', ''),
             (self.backend.update, '', '', '', {}),

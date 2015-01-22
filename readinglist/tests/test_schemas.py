@@ -1,8 +1,18 @@
+import mock
 import colander
 
+from readinglist.resource import TimeStamp
 from readinglist.views.article import ArticleSchema
 
 from .support import unittest
+
+
+class TimeStampTest(unittest.TestCase):
+    @mock.patch('readinglist.utils.TimeStamper.now')
+    def test_default_value_comes_from_timestamper(self, now_mocked):
+        now_mocked.return_value = 666
+        default = TimeStamp().deserialize(colander.null)
+        self.assertEqual(default, 666)
 
 
 class ArticleSchemaTest(unittest.TestCase):
