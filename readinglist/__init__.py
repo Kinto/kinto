@@ -5,7 +5,7 @@ import pkg_resources
 import six
 
 from pyramid.config import Configurator
-from pyramid.events import NewRequest
+from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid_multiauth import MultiAuthenticationPolicy
 
@@ -77,7 +77,7 @@ def attach_http_objects(config):
         if backoff is not None:
             event.request.response.headers['Backoff'] = backoff.encode('utf-8')
 
-    config.add_subscriber(on_new_response, NewRequest)
+    config.add_subscriber(on_new_response, NewResponse)
 
 
 def main(global_config, **settings):
