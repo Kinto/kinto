@@ -18,7 +18,7 @@ def native_value(value):
         value = False
     try:
         return ast.literal_eval(value)
-    except ValueError:
+    except (ValueError, SyntaxError):
         return value
 
 

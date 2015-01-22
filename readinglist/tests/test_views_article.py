@@ -82,6 +82,11 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('/articles?title=MoFo', headers=self.headers)
         self.assertEqual(len(resp.json['items']), 6)
 
+    def test_filter_considers_string_if_syntaxically_invalid(self):
+        url = '/articles?status=1.2.3'
+        resp = self.app.get(url, headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 0)
+
 
 class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
