@@ -108,6 +108,10 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         }
         self.app.get('/articles?unread=true', headers=self.headers)
 
+    def test_filter_with_since_rejects_non_numeric_value(self):
+        url = '/articles?_since=abc'
+        self.app.get(url, headers=self.headers, status=400)
+
 
 class ArticleSortingTest(BaseWebTest, unittest.TestCase):
     def setUp(self):

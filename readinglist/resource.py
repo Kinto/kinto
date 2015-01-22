@@ -130,7 +130,11 @@ class BaseResource(object):
             if param in self.known_fields:
                 filters.append((param, value, '=='))
             if param == '_since':
-                filters.append((self.modified_field, value, '>='))
+                if isinstance(value, six.integer_types + (float,)):
+                    filters.append((self.modified_field, value, '>='))
+                else:
+                    error_msg = 'Invalid value for _since'
+                    self.request.errors.add('querystring', param, error_msg)
 
         return filters
 
