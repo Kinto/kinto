@@ -8,9 +8,9 @@ from .support import unittest
 
 
 class TimeStampTest(unittest.TestCase):
-    @mock.patch('readinglist.utils.TimeStamper.now')
-    def test_default_value_comes_from_timestamper(self, now_mocked):
-        now_mocked.return_value = 666
+    @mock.patch('readinglist.resource.time_second')
+    def test_default_value_comes_from_timestamper(self, time_mocked):
+        time_mocked.return_value = 666
         default = TimeStamp().deserialize(colander.null)
         self.assertEqual(default, 666)
 

@@ -195,15 +195,12 @@ class BaseResourceViewsTest(BaseWebTest):
         self.assertEquals(resp.json['_id'], stored['_id'])
         self.assertRecordNotEquals(resp.json, stored)
 
-    @mock.patch('readinglist.utils.TimeStamper.now')
-    def test_modify_record_updates_timestamp(self, now_mocked):
-        now_mocked.return_value = 42
-
-        url = self.item_url.format(id=self.record['_id'])
+    def test_modify_record_updates_timestamp(self):
         stored = self.db.get(self.resource, u'bob', self.record['_id'])
         before = stored['last_modified']
-        modified = self.modify_record(self.record)
 
+        url = self.item_url.format(id=self.record['_id'])
+        modified = self.modify_record(self.record)
         resp = self.app.patch_json(url, modified, headers=self.headers)
         after = resp.json['last_modified']
         self.assertNotEquals(after, before)

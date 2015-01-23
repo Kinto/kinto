@@ -61,8 +61,9 @@ def attach_http_objects(config):
         # Attach objects on requests for easier access.
         event.request.db = config.registry.backend
 
-        # Track incoming request timestamp
-        event.request.timestamp = config.registry.backend.now()
+        # Current revision when request comes in
+        user_id = event.request.authenticated_userid
+        event.request.revision = event.request.db.revision(user_id)
 
         http_scheme = config.registry.settings.get('readinglist.http_scheme')
         if http_scheme:
@@ -71,9 +72,9 @@ def attach_http_objects(config):
     config.add_subscriber(on_new_request, NewRequest)
 
     def on_new_response(event):
-        # Add request timestamp info in response headers.
-        timestamp = six.text_type(event.request.timestamp)
-        event.request.response.headers['Timestamp'] = timestamp.encode('utf-8')
+        # Add request revision info in response headers.
+        revision = six.text_type(getattr(event.request, 'revision', ''))
+        event.request.response.headers['Timestamp'] = revision.encode('utf-8')
 
         # Add backoff in response headers
         backoff = config.registry.settings.get("readinglist.backoff")
