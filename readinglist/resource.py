@@ -1,46 +1,15 @@
 import re
 import inspect
 
-import six
 import colander
 from cornice import resource
+from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
+                                    HTTPNotFound)
+import six
 
 from readinglist.backend.exceptions import RecordNotFoundError
-from readinglist.errors import json_error, ImmutableFieldError
+from readinglist import errors
 from readinglist.utils import COMPARISON, native_value, msec_time
-
-
-def exists_or_404():
-    """View decorator to catch unknown record errors in backend."""
-    def wrap(view):
-        def wrapped_view(self, *args, **kwargs):
-            try:
-                return view(self, *args, **kwargs)
-            except RecordNotFoundError as e:
-                self.request.errors.add('path', 'id', six.text_type(e))
-                self.request.errors.status = 404
-        return wrapped_view
-    return wrap
-
-
-def validates_or_400():
-    """View decorator to catch validation errors and return 400 responses."""
-    def wrap(view):
-        def wrapped_view(self, *args, **kwargs):
-            try:
-                return view(self, *args, **kwargs)
-            except ValueError as e:
-                error = "Invalid JSON request body: " + six.text_type(e)
-                self.request.errors.add('body', name=None, description=error)
-            except ImmutableFieldError as e:
-                self.request.errors.add('body', e.field, six.text_type(e))
-            except colander.Invalid as e:
-                # Transform the errors we got from colander into cornice errors
-                for field, error in e.asdict().items():
-                    self.request.errors.add('body', field, error)
-            self.request.errors.status = 400
-        return wrapped_view
-    return wrap
 
 
 class TimeStamp(colander.SchemaNode):
@@ -69,7 +38,7 @@ def crud(**kwargs):
         params = dict(collection_path='/{0}s'.format(resource_name),
                       path='/{0}s/{{id}}'.format(resource_name),
                       description='Collection of {0}'.format(resource_name),
-                      error_handler=json_error,
+                      error_handler=errors.json_error,
                       depth=2)
         params.update(**kwargs)
 
@@ -112,15 +81,22 @@ class BaseResource(object):
         self.db = request.db
         self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
-        self.record = None
         self.known_fields = [c.name for c in self.mapping.children]
 
-    def add_timestamp_header(self):
-        """Add current timestamp in response headers, when request comes in.
-        """
-        timestamp = self.db.timestamp(**self.db_kwargs)
-        timestamp = six.text_type(timestamp).encode('utf-8')
-        self.request.response.headers['Last-Modified'] = timestamp
+    def fetch_record(self):
+        """Fetch current view related record, and raise 404 if missing."""
+        try:
+            record_id = self.request.matchdict['id']
+            return self.db.get(record_id=record_id,
+                               **self.db_kwargs)
+        except RecordNotFoundError:
+            response = HTTPNotFound(
+                body=errors.format_error(
+                    code=HTTPNotFound.code,
+                    errno=errors.ERRORS.INVALID_RESOURCE_ID,
+                    error=HTTPNotFound.title),
+                content_type='application/json')
+            raise response
 
     def process_record(self, new, old=None):
         """Hook to post-process records and introduce specific logics
@@ -132,8 +108,76 @@ class BaseResource(object):
     def preprocess_record(self, new, old=None):
         return new
 
+    def merge_fields(self, record, changes):
+        """Merge changes into current record fields.
+        """
+        for field in changes.keys():
+            if self.mapping.is_readonly(field):
+                error = 'Cannot modify {0}'.format(field)
+                self.request.errors.add('body', name=field, description=error)
+                raise errors.json_error(self.request.errors)
+
+        updated = record.copy()
+        updated.update(**changes)
+        return self.validate(updated)
+
     def validate(self, record):
-        return self.mapping.deserialize(record)
+        """Validate specified record against resource schema.
+        Raise 400 if not valid."""
+        try:
+            return self.mapping.deserialize(record)
+        except colander.Invalid as e:
+            # Transform the errors we got from colander into cornice errors
+            for field, error in e.asdict().items():
+                self.request.errors.add('body', name=field, description=error)
+            raise errors.json_error(self.request.errors)
+
+    def add_timestamp_header(self):
+        """Add current timestamp in response headers, when request comes in.
+        """
+        timestamp = self.db.timestamp(**self.db_kwargs)
+        timestamp = six.text_type(timestamp).encode('utf-8')
+        self.request.response.headers['Last-Modified'] = timestamp
+
+    def raise_304_if_not_modified(self, record=None):
+        """Raise 304 if current timestamp is inferior to the one specified
+        in headers."""
+        modified_since = self.request.headers.get('If-Modified-Since')
+
+        if modified_since:
+            modified_since = int(modified_since)
+
+            if record:
+                current_timestamp = record[self.modified_field]
+            else:
+                current_timestamp = self.db.timestamp(**self.db_kwargs)
+
+            if current_timestamp <= modified_since:
+                raise HTTPNotModified()
+
+    def raise_412_if_modified(self, record=None):
+        """Raise 412 if current timestamp is superior to the one
+        specified in headers."""
+        unmodified_since = self.request.headers.get('If-Unmodified-Since')
+
+        if unmodified_since:
+            unmodified_since = int(unmodified_since)
+
+            if record:
+                current_timestamp = record[self.modified_field]
+            else:
+                current_timestamp = self.db.timestamp(**self.db_kwargs)
+
+            if current_timestamp > unmodified_since:
+                error_msg = 'Resource was modified meanwhile'
+                response = HTTPPreconditionFailed(
+                    body=errors.format_error(
+                        code=HTTPPreconditionFailed.code,
+                        errno=errors.ERRORS.MODIFIED_MEANWHILE,
+                        error=HTTPPreconditionFailed.title,
+                        message=error_msg),
+                    content_type='application/json')
+                raise response
 
     def _extract_filters(self, queryparams):
         """Extracts filters from QueryString parameters."""
@@ -154,7 +198,7 @@ class BaseResource(object):
                         'description': 'Invalid value for _since'
                     }
                     self.request.errors.add(**error_details)
-                    return
+                    raise errors.json_error(self.request.errors)
 
                 filters.append(
                     (self.modified_field, value, COMPARISON.GT)
@@ -198,25 +242,12 @@ class BaseResource(object):
                         'description': "Unknown sort field '{0}'".format(field)
                     }
                     self.request.errors.add(**error_details)
-                    return
+                    raise errors.json_error(self.request.errors)
 
                 direction = -1 if order == '-' else 1
                 sorting.append((field, direction))
 
         return sorting
-
-    def merge_fields(self, changes):
-        """Merge changes into current record fields.
-
-        :raises ImmutableFieldError: if some field is read-only.
-        """
-        for field in changes.keys():
-            if self.mapping.is_readonly(field):
-                raise ImmutableFieldError(field)
-
-        updated = self.record.copy()
-        updated.update(**changes)
-        return self.validate(updated)
 
     #
     # End-points
@@ -224,6 +255,8 @@ class BaseResource(object):
 
     @resource.view(permission='readonly')
     def collection_get(self):
+        self.raise_304_if_not_modified()
+        self.raise_412_if_modified()
         self.add_timestamp_header()
 
         filters = self._extract_filters(self.request.GET)
@@ -242,55 +275,65 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite', with_schema=True)
     def collection_post(self):
+        self.raise_412_if_modified()
+
         new_record = self.process_record(self.request.validated)
-        self.record = self.db.create(record=new_record, **self.db_kwargs)
+        record = self.db.create(record=new_record, **self.db_kwargs)
         self.request.response.status_code = 201
-        return self.record
+        return record
 
     @resource.view(permission='readonly')
-    @exists_or_404()
     def get(self):
+        record = self.fetch_record()
+        self.raise_304_if_not_modified(record)
+        self.raise_412_if_modified(record)
         self.add_timestamp_header()
 
-        record_id = self.request.matchdict['id']
-        self.record = self.db.get(record_id=record_id, **self.db_kwargs)
-        return self.record
+        return record
 
     @resource.view(permission='readwrite', with_schema=True)
     def put(self):
         record_id = self.request.matchdict['id']
 
         try:
-            self.record = self.db.get(record_id=record_id, **self.db_kwargs)
+            existing = self.db.get(record_id=record_id,
+                                   **self.db_kwargs)
+            self.raise_412_if_modified(existing)
         except RecordNotFoundError:
-            self.record = None
+            existing = None
 
         new_record = self.request.validated
-        new_record = self.process_record(new_record, old=self.record)
-        self.record = self.db.update(record_id=record_id,
-                                     record=new_record,
-                                     **self.db_kwargs)
-        return self.record
+        new_record = self.process_record(new_record, old=existing)
+        record = self.db.update(record_id=record_id,
+                                record=new_record,
+                                **self.db_kwargs)
+        return record
 
     @resource.view(permission='readwrite')
-    @exists_or_404()
-    @validates_or_400()
     def patch(self):
-        record_id = self.request.matchdict['id']
-        self.record = self.db.get(record_id=record_id, **self.db_kwargs)
+        record = self.fetch_record()
+        self.raise_412_if_modified(record)
 
-        updated = self.merge_fields(changes=self.request.json)
+        try:
+            changes = self.request.json
+        except ValueError as e:
+            error_msg = "Invalid JSON request body: " + six.text_type(e)
+            self.request.errors.add('body', name=None, description=error_msg)
+            raise errors.json_error(self.request.errors)
 
-        updated = self.process_record(updated, old=self.record)
+        updated = self.merge_fields(record, changes=changes)
 
-        record = self.db.update(record_id=record_id,
+        updated = self.process_record(updated, old=record)
+
+        record = self.db.update(record_id=record[self.id_field],
                                 record=updated,
                                 **self.db_kwargs)
         return record
 
     @resource.view(permission='readwrite')
-    @exists_or_404()
     def delete(self):
-        record_id = self.request.matchdict['id']
-        self.record = self.db.delete(record_id=record_id, **self.db_kwargs)
-        return self.record
+        record = self.fetch_record()
+        self.raise_412_if_modified(record)
+
+        self.db.delete(record_id=record[self.id_field], **self.db_kwargs)
+        return record

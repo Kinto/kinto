@@ -1,4 +1,5 @@
 import mock
+import six
 import webtest
 
 try:
@@ -348,5 +349,81 @@ class BaseResourceAuthorizationTest(BaseWebTest):
         self.app.delete(url, headers=self.headers, status=404)
 
 
-class BaseResourceTest(BaseResourceViewsTest, BaseResourceAuthorizationTest):
+class BaseResourcePreconditionsTest(BaseWebTest):
+    def test_collection_returns_304_if_no_change_meanwhile(self):
+        resp = self.app.get(self.collection_url, headers=self.headers)
+        current = resp.headers['Last-Modified']
+        headers = self.headers.copy()
+        headers['If-Modified-Since'] = current
+        resp = self.app.get(self.collection_url,
+                            headers=headers,
+                            status=304)
+
+    def test_single_record_returns_304_if_no_change_meanwhile(self):
+        url = self.item_url.format(id=self.record['_id'])
+        resp = self.app.get(url, headers=self.headers)
+        current = resp.headers['Last-Modified']
+        headers = self.headers.copy()
+        headers['If-Modified-Since'] = current
+        resp = self.app.get(url, headers=headers, status=304)
+
+    def _get_outdated_headers(self):
+        resp = self.app.get(self.collection_url, headers=self.headers)
+        current = resp.headers['Last-Modified']
+        previous = six.text_type(int(current) - 1)
+        headers = self.headers.copy()
+        headers['If-Unmodified-Since'] = previous.encode('utf-8')
+        return headers
+
+    def test_preconditions_errors_are_json_formatted(self):
+        resp = self.app.get(self.collection_url,
+                            headers=self._get_outdated_headers(),
+                            status=412)
+        self.assertFormattedError(
+            resp, 412, ERRORS.MODIFIED_MEANWHILE,
+            "Precondition Failed",
+            "Resource was modified meanwhile")
+
+    def test_collection_returns_412_if_changed_meanwhile(self):
+        self.app.get(self.collection_url,
+                     headers=self._get_outdated_headers(),
+                     status=412)
+
+    def test_single_record_returns_412_if_changed_meanwhile(self):
+        url = self.item_url.format(id=self.record['_id'])
+        self.app.get(url,
+                     headers=self._get_outdated_headers(),
+                     status=412)
+
+    def test_create_returns_412_if_changed_meanwhile(self):
+        self.app.post_json(self.collection_url,
+                           self.record_factory(),
+                           headers=self._get_outdated_headers(),
+                           status=412)
+
+    def test_put_returns_412_if_changed_meanwhile(self):
+        url = self.item_url.format(id=self.record['_id'])
+        self.app.put_json(url,
+                          self.record_factory(),
+                          headers=self._get_outdated_headers(),
+                          status=412)
+
+    def test_patch_returns_412_if_changed_meanwhile(self):
+        url = self.item_url.format(id=self.record['_id'])
+        modified = self.modify_record(self.record)
+        self.app.patch_json(url,
+                            modified,
+                            headers=self._get_outdated_headers(),
+                            status=412)
+
+    def test_delete_returns_412_if_changed_meanwhile(self):
+        url = self.item_url.format(id=self.record['_id'])
+        self.app.delete(url,
+                        headers=self._get_outdated_headers(),
+                        status=412)
+
+
+class BaseResourceTest(BaseResourceViewsTest,
+                       BaseResourcePreconditionsTest,
+                       BaseResourceAuthorizationTest):
     pass

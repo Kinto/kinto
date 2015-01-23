@@ -14,6 +14,7 @@ ERRORS = Enum(
     INVALID_POSTED_DATA=109,
     INVALID_RESOURCE_ID=110,
     MISSING_RESOURCE=111,
+    MODIFIED_MEANWHILE=114,
     FORBIDDEN=121,
     REQUEST_TOO_LARGE=113,
     CLIENT_REACHED_CAPACITY=117,
@@ -92,11 +93,3 @@ def json_error(errors):
     response.status = errors.status
 
     return response
-
-
-class ImmutableFieldError(Exception):
-    """Raised when attempting to modify a read-only field."""
-    def __init__(self, field, msg=None):
-        self.field = field
-        msg = msg or 'Cannot modify {0}'.format(field)
-        super(ImmutableFieldError, self).__init__(msg)
