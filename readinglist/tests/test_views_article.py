@@ -99,9 +99,15 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
         self.assertTrue(all([value >= 2 for value in values]))
 
     def test_maximal_value(self):
-        resp = self.app.get('/articles?max_status=2', headers=self.headers)
+        resp = self.app.get('/articles?max_status=1', headers=self.headers)
         values = [item['status'] for item in resp.json['items']]
-        self.assertTrue(all([value <= 2 for value in values]))
+        self.assertTrue(all([value <= 1 for value in values]))
+
+    def test_regexp_false_positive(self):
+        """Make sure madmax is not understood as max."""
+        resp = self.app.get('/articles?madmax_status=1', headers=self.headers)
+        values = [item['status'] for item in resp.json['items']]
+        self.assertFalse(all([value <= 1 for value in values]))
 
 
 class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
