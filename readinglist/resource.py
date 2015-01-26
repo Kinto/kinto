@@ -98,11 +98,12 @@ class RessourceSchema(colander.MappingSchema):
     _id = colander.SchemaNode(colander.String(), missing=colander.drop)
     last_modified = TimeStamp()
 
-    __readonly_fields__ = ('_id', 'last_modified')
+    class Options:
+        readonly_fields = ('_id', 'last_modified')
 
     def is_readonly(self, field):
         """Return True if specified field name is read-only."""
-        return field in self.__readonly_fields__
+        return field in self.Options.readonly_fields
 
 
 class BaseResource(object):
@@ -203,7 +204,7 @@ class BaseResource(object):
         return sorting
 
     def merge_fields(self, changes):
-        """Merge changes into current ord fields.
+        """Merge changes into current record fields.
 
         :raises ImmutableFieldError: if some field is read-only.
         """

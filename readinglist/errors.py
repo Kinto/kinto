@@ -97,6 +97,6 @@ def json_error(errors):
 class ImmutableFieldError(Exception):
     """Raised when attempting to modify a read-only field."""
     def __init__(self, field, msg=None):
-            self.field = field
-            msg = msg or 'Cannot modify {0}'.format(field)
-            super(ImmutableFieldError, self).__init__(msg)
+        self.field = field
+        msg = msg or 'Cannot modify {0}'.format(field)
+        super(ImmutableFieldError, self).__init__(msg)
