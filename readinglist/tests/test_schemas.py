@@ -45,6 +45,24 @@ class ArticleSchemaTest(unittest.TestCase):
         deserialized = self.schema.deserialize(self.record)
         self.assertEqual(deserialized['url'], 'http://charliehebdo.fr')
 
+    def test_resolved_url_is_stripped(self):
+        self.record['resolved_url'] = '  http://charliehebdo.fr'
+        deserialized = self.schema.deserialize(self.record)
+        self.assertEqual(deserialized['resolved_url'],
+                         'http://charliehebdo.fr')
+
+    def test_url_has_max_length(self):
+        self.record['url'] = 'http://charliehebdo.fr/#' + ('a' * 2048)
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          self.record)
+
+    def test_resolved_url_has_max_length(self):
+        self.record['resolved_url'] = 'http://charliehebdo.fr/#' + ('a' * 2048)
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          self.record)
+
     def test_title_is_required(self):
         self.record.pop('title')
         self.assertRaises(colander.Invalid,
@@ -56,8 +74,35 @@ class ArticleSchemaTest(unittest.TestCase):
         deserialized = self.schema.deserialize(self.record)
         self.assertEqual(deserialized['title'], 'Nous Sommes Charlie')
 
+    def test_title_max_length_represents_characters_not_bytes(self):
+        self.record['title'] = u'\u76d8' * 1024
+        self.schema.deserialize(self.record)  # not raising
+
+    def test_title_has_max_length(self):
+        self.record['title'] = u'\u76d8' * 1025
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          self.record)
+
+    def test_resolved_title_has_max_length(self):
+        self.record['resolved_title'] = u'\u76d8' * 1025
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          self.record)
+
+    def test_resolved_title_is_stripped(self):
+        self.record['resolved_title'] = '  Nous Sommes Charlie  '
+        deserialized = self.schema.deserialize(self.record)
+        self.assertEqual(deserialized['resolved_title'], 'Nous Sommes Charlie')
+
     def test_title_must_be_at_least_one_character(self):
         self.record['title'] = ''
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          self.record)
+
+    def test_resolved_title_must_be_at_least_one_character(self):
+        self.record['resolved_title'] = ' '
         self.assertRaises(colander.Invalid,
                           self.schema.deserialize,
                           self.record)
