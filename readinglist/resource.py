@@ -129,26 +129,44 @@ class BaseResource(object):
         filters = []
 
         for param, value in queryparams.items():
+            param = param.strip()
             value = native_value(value)
 
-            m = re.match(r'^(min|max|not)_(\w+)$', param.strip())
+            if param == '_sort':
+                continue
+
+            if param == '_since':
+                if not isinstance(value, six.integer_types):
+                    error_details = {
+                        'name': param,
+                        'location': 'querystring',
+                        'description': 'Invalid value for _since'
+                    }
+                    self.request.errors.add(**error_details)
+                    return
+
+                filters.append(
+                    (self.modified_field, value, COMPARISON.MIN)
+                )
+                continue
+
+            m = re.match(r'^(min|max|not)_(\w+)$', param)
             if m:
                 keyword, field = m.groups()
                 operator = getattr(COMPARISON, keyword.upper())
             else:
-                operator, field = COMPARISON.EQ, param.strip()
+                operator, field = COMPARISON.EQ, param
 
-            if field in self.known_fields:
-                filters.append((field, value, operator))
+            if field not in self.known_fields:
+                error_details = {
+                    'name': None,
+                    'location': 'querystring',
+                    'description': "Unknown filter field '{0}'".format(param)
+                }
+                self.request.errors.add(**error_details)
+                return
 
-            if field == '_since':
-                if isinstance(value, six.integer_types):
-                    filters.append(
-                        (self.modified_field, value, COMPARISON.MIN)
-                    )
-                else:
-                    error_msg = 'Invalid value for _since'
-                    self.request.errors.add('querystring', param, error_msg)
+            filters.append((field, value, operator))
 
         return filters
 
@@ -157,11 +175,23 @@ class BaseResource(object):
         specified = queryparams.get('_sort', '').split(',')
         sorting = []
         for field in specified:
-            m = re.match(r'^([\-+]?)(\w+)$', field.strip())
+            field = field.strip()
+            m = re.match(r'^([\-+]?)(\w+)$', field)
             if m:
                 order, field = m.groups()
+
+                if field not in self.known_fields:
+                    error_details = {
+                        'name': None,
+                        'location': 'querystring',
+                        'description': "Unknown sort field '{0}'".format(field)
+                    }
+                    self.request.errors.add(**error_details)
+                    return
+
                 direction = -1 if order == '-' else 1
                 sorting.append((field, direction))
+
         return sorting
 
     def merge_fields(self, changes):

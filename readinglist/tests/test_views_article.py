@@ -1,6 +1,7 @@
 import mock
 from random import shuffle
 
+from readinglist.errors import ERRORS
 from readinglist.views.article import Article
 
 from .support import BaseResourceTest, BaseWebTest, unittest
@@ -68,9 +69,12 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('/articles?status=1', headers=self.headers)
         self.assertEqual(len(resp.json['items']), 2)
 
-    def test_filter_on_unknown_attribute_is_ignored(self):
-        resp = self.app.get('/articles?foo=1', headers=self.headers)
-        self.assertEqual(len(resp.json['items']), 6)
+    def test_filter_on_unknown_attribute_raises_error(self):
+        url = '/articles?foo=1'
+        resp = self.app.get(url, headers=self.headers, status=400)
+        self.assertFormattedError(
+            resp, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters", "querystring: Unknown filter field 'foo'")
 
     def test_double_basic_filter_by_attribute(self):
         resp = self.app.get('/articles?status=1&favorite=true',
@@ -105,9 +109,9 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
 
     def test_regexp_false_positive(self):
         """Make sure madmax is not understood as max."""
-        resp = self.app.get('/articles?madmax_status=1', headers=self.headers)
-        values = [item['status'] for item in resp.json['items']]
-        self.assertFalse(all([value <= 1 for value in values]))
+        self.app.get('/articles?madmax_status=1',
+                     headers=self.headers,
+                     status=400)
 
 
 class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
@@ -157,6 +161,13 @@ class ArticleSortingTest(BaseWebTest, unittest.TestCase):
             'user': 'jean-louis'
         }
         self.app.get('/articles?_sort=unread', headers=self.headers)
+
+    def test_sort_on_unknown_attribute_raises_error(self):
+        url = '/articles?_sort=foo'
+        resp = self.app.get(url, headers=self.headers, status=400)
+        self.assertFormattedError(
+            resp, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters", "querystring: Unknown sort field 'foo'")
 
     def test_single_basic_sort_by_attribute(self):
         resp = self.app.get('/articles?_sort=title', headers=self.headers)
