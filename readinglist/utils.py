@@ -24,3 +24,13 @@ def native_value(value):
 
 def Enum(**enums):
     return type('Enum', (), enums)
+
+
+COMPARISON = Enum(
+    LT='<',
+    MIN='>=',
+    MAX='<=',
+    NOT='!=',
+    EQ='==',
+    GT='>',
+)

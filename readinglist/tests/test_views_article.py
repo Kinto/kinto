@@ -112,6 +112,10 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         url = '/articles?_since=abc'
         self.app.get(url, headers=self.headers, status=400)
 
+    def test_filter_with_since_rejects_decimal_value(self):
+        url = '/articles?_since=1.2'
+        self.app.get(url, headers=self.headers, status=400)
+
 
 class ArticleSortingTest(BaseWebTest, unittest.TestCase):
     def setUp(self):

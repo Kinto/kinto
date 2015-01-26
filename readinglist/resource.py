@@ -8,7 +8,7 @@ from cornice import resource
 
 from readinglist.backend.exceptions import RecordNotFoundError
 from readinglist.errors import json_error
-from readinglist.utils import native_value
+from readinglist.utils import COMPARISON, native_value
 
 
 def exists_or_404():
@@ -128,10 +128,12 @@ class BaseResource(object):
         for param, value in queryparams.items():
             value = native_value(value)
             if param in self.known_fields:
-                filters.append((param, value, '=='))
+                filters.append((param, value, COMPARISON.EQ))
             if param == '_since':
-                if isinstance(value, six.integer_types + (float,)):
-                    filters.append((self.modified_field, value, '>='))
+                if isinstance(value, six.integer_types):
+                    filters.append(
+                        (self.modified_field, value, COMPARISON.MIN)
+                    )
                 else:
                     error_msg = 'Invalid value for _since'
                     self.request.errors.add('querystring', param, error_msg)
