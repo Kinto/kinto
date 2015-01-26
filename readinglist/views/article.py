@@ -38,6 +38,10 @@ class ArticleSchema(RessourceSchema):
     resolved_url = SchemaNode(String(), missing=None)
     resolved_title = SchemaNode(String(), missing=None)
 
+    class Options:
+        readonly_fields = ('url', 'stored_on') + \
+            RessourceSchema.Options.readonly_fields
+
 
 @crud()
 class Article(BaseResource):

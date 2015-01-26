@@ -99,6 +99,9 @@ class BaseResourceViewsTest(BaseWebTest):
     def modify_record(self, original):
         raise NotImplementedError
 
+    def _get_modified_keys(self):
+        return self.modify_record(self.record).keys()
+
     def test_list(self):
         resp = self.app.get(self.collection_url, headers=self.headers)
         records = resp.json['items']
@@ -208,8 +211,7 @@ class BaseResourceViewsTest(BaseWebTest):
     def test_modify_with_invalid_record(self):
         url = self.item_url.format(id=self.record['_id'])
         stored = self.db.get(self.resource, u'bob', self.record['_id'])
-        modified = self.modify_record(self.record)
-        for k in modified.keys():
+        for k in self._get_modified_keys():
             stored.pop(k)
         resp = self.app.patch_json(url,
                                    stored,
@@ -274,6 +276,24 @@ class BaseResourceViewsTest(BaseWebTest):
     def test_delete_record_unknown(self):
         url = self.item_url.format(id='unknown')
         self.app.delete(url, headers=self.headers, status=404)
+
+    def test_cannot_modify_id(self):
+        url = self.item_url.format(id=self.record['_id'])
+        body = {'_id': 999}
+        resp = self.app.patch_json(url, body, headers=self.headers, status=400)
+        self.assertFormattedError(
+            resp, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters",
+            "Cannot modify _id")
+
+    def test_cannot_modify_last_modified(self):
+        url = self.item_url.format(id=self.record['_id'])
+        body = {'last_modified': 12345}
+        resp = self.app.patch_json(url, body, headers=self.headers, status=400)
+        self.assertFormattedError(
+            resp, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters",
+            "Cannot modify last_modified")
 
 
 class BaseResourceAuthorizationTest(BaseWebTest):

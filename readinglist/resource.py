@@ -7,7 +7,7 @@ import colander
 from cornice import resource
 
 from readinglist.backend.exceptions import RecordNotFoundError
-from readinglist.errors import json_error
+from readinglist.errors import json_error, ImmutableFieldError
 from readinglist.utils import COMPARISON, native_value
 
 
@@ -33,6 +33,8 @@ def validates_or_400():
             except ValueError as e:
                 error = "Invalid JSON request body: " + six.text_type(e)
                 self.request.errors.add('body', name=None, description=error)
+            except ImmutableFieldError as e:
+                self.request.errors.add('body', e.field, six.text_type(e))
             except colander.Invalid as e:
                 # Transform the errors we got from colander into cornice errors
                 for field, error in e.asdict().items():
@@ -95,6 +97,13 @@ class RessourceSchema(colander.MappingSchema):
     """
     _id = colander.SchemaNode(colander.String(), missing=colander.drop)
     last_modified = TimeStamp()
+
+    class Options:
+        readonly_fields = ('_id', 'last_modified')
+
+    def is_readonly(self, field):
+        """Return True if specified field name is read-only."""
+        return field in self.Options.readonly_fields
 
 
 class BaseResource(object):
@@ -195,7 +204,14 @@ class BaseResource(object):
         return sorting
 
     def merge_fields(self, changes):
-        """Merge changes into current ord fields"""
+        """Merge changes into current record fields.
+
+        :raises ImmutableFieldError: if some field is read-only.
+        """
+        for field in changes.keys():
+            if self.mapping.is_readonly(field):
+                raise ImmutableFieldError(field)
+
         updated = self.record.copy()
         updated.update(**changes)
         updated[self.modified_field] = TimeStamp.now()
