@@ -1,10 +1,6 @@
 import mock
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
-from .support import BaseWebTest
+from .support import BaseWebTest, unittest
 
 
 class HeartBeatViewTest(BaseWebTest, unittest.TestCase):

@@ -1,12 +1,9 @@
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
-import mock
 from fxa import errors as fxa_errors
+import mock
+
 from readinglist.errors import ERRORS
-from .support import BaseWebTest
+
+from .support import BaseWebTest, unittest
 
 
 class ErrorViewTest(BaseWebTest, unittest.TestCase):

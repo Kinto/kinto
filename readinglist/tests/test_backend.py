@@ -1,10 +1,8 @@
 import six
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from readinglist.backend import BackendBase
+
+from .support import unittest
 
 
 class BackendBaseTest(unittest.TestCase):

@@ -1,12 +1,8 @@
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 from webtest.app import TestRequest
 
 from readinglist import __version__ as VERSION, API_VERSION
 
-from .support import BaseWebTest
+from .support import BaseWebTest, unittest
 
 
 class HelloViewTest(BaseWebTest, unittest.TestCase):

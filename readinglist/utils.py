@@ -1,6 +1,6 @@
 try:
     import simplejson as json
-except ImportError:
+except ImportError:  # pragma: no cover
     import json  # NOQA
 
 import ast
