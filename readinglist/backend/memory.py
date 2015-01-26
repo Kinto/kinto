@@ -3,6 +3,7 @@ from operator import itemgetter
 from collections import defaultdict
 
 from readinglist.backend import BackendBase, exceptions
+from readinglist.utils import COMPARISON
 
 
 tree = lambda: defaultdict(tree)
@@ -53,13 +54,14 @@ class Memory(BackendBase):
 
     def __apply_filters(self, records, filters):
         operators = {
-            '<': operator.lt,
-            '<=': operator.le,
-            '==': operator.eq,
-            '!=': operator.ne,
-            '>=': operator.ge,
-            '>': operator.gt,
+            COMPARISON.LT: operator.lt,
+            COMPARISON.MAX: operator.le,
+            COMPARISON.EQ: operator.eq,
+            COMPARISON.NOT: operator.ne,
+            COMPARISON.MIN: operator.ge,
+            COMPARISON.GT: operator.gt,
         }
+
         for record in records:
             matches = [operators[op](record[k], v) for k, v, op in filters]
             if all(matches):

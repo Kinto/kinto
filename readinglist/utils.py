@@ -18,9 +18,19 @@ def native_value(value):
         value = False
     try:
         return ast.literal_eval(value)
-    except ValueError:
+    except (ValueError, SyntaxError):
         return value
 
 
 def Enum(**enums):
     return type('Enum', (), enums)
+
+
+COMPARISON = Enum(
+    LT='<',
+    MIN='>=',
+    MAX='<=',
+    NOT='!=',
+    EQ='==',
+    GT='>',
+)

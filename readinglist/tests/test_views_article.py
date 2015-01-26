@@ -83,6 +83,11 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('/articles?title=MoFo', headers=self.headers)
         self.assertEqual(len(resp.json['items']), 6)
 
+    def test_filter_considers_string_if_syntaxically_invalid(self):
+        url = '/articles?status=1.2.3'
+        resp = self.app.get(url, headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 0)
+
 
 class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
@@ -103,6 +108,14 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
             'user': 'jean-louis'
         }
         self.app.get('/articles?unread=true', headers=self.headers)
+
+    def test_filter_with_since_rejects_non_numeric_value(self):
+        url = '/articles?_since=abc'
+        self.app.get(url, headers=self.headers, status=400)
+
+    def test_filter_with_since_rejects_decimal_value(self):
+        url = '/articles?_since=1.2'
+        self.app.get(url, headers=self.headers, status=400)
 
 
 class ArticleSortingTest(BaseWebTest, unittest.TestCase):
