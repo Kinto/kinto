@@ -164,12 +164,12 @@ class BaseResource(object):
         records = self.db.get_all(filters=filters,
                                   sorting=sorting,
                                   **self.db_kwargs)
-        meta = {
-            'total': len(records)
-        }
+
+        total_records = six.text_type(len(records)).encode('utf-8')
+        self.request.response.headers['Total-Records'] = total_records
+
         body = {
             'items': records,
-            'meta': meta
         }
         return body
 
