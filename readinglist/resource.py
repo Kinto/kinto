@@ -30,6 +30,9 @@ def validates_or_400():
         def wrapped_view(self, *args, **kwargs):
             try:
                 return view(self, *args, **kwargs)
+            except ValueError as e:
+                error = "Invalid JSON request body: " + six.text_type(e)
+                self.request.errors.add('body', name=None, description=error)
             except colander.Invalid as e:
                 # Transform the errors we got from colander into cornice errors
                 for field, error in e.asdict().items():
