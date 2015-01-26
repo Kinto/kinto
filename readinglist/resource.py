@@ -129,6 +129,7 @@ class BaseResource(object):
         filters = []
 
         for param, value in queryparams.items():
+            param = param.strip()
             value = native_value(value)
 
             if param == '_sort':
@@ -149,12 +150,12 @@ class BaseResource(object):
                 )
                 continue
 
-            m = re.match(r'^(min|max|not)_(\w+)$', param.strip())
+            m = re.match(r'^(min|max|not)_(\w+)$', param)
             if m:
                 keyword, field = m.groups()
                 operator = getattr(COMPARISON, keyword.upper())
             else:
-                operator, field = COMPARISON.EQ, param.strip()
+                operator, field = COMPARISON.EQ, param
 
             if field not in self.known_fields:
                 error_details = {
@@ -174,7 +175,8 @@ class BaseResource(object):
         specified = queryparams.get('_sort', '').split(',')
         sorting = []
         for field in specified:
-            m = re.match(r'^([\-+]?)(\w+)$', field.strip())
+            field = field.strip()
+            m = re.match(r'^([\-+]?)(\w+)$', field)
             if m:
                 order, field = m.groups()
 
