@@ -7,7 +7,7 @@ from cornice import resource
 
 from readinglist.backend.exceptions import RecordNotFoundError
 from readinglist.errors import json_error, ImmutableFieldError
-from readinglist.utils import COMPARISON, native_value, time_second
+from readinglist.utils import COMPARISON, native_value, msec_time
 
 
 def exists_or_404():
@@ -67,7 +67,7 @@ class TimeStamp(colander.SchemaNode):
 
     def deserialize(self, cstruct=colander.null):
         if cstruct is colander.null and self.auto_now:
-            cstruct = time_second()
+            cstruct = msec_time()
         return super(TimeStamp, self).deserialize(cstruct)
 
 

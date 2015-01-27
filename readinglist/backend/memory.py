@@ -30,8 +30,9 @@ class Memory(BackendBase):
 
         .. note ::
 
-            Here it is assumed that requests from the same user won't burst
-            several time per millisecond.
+            Here it is assumed that if requests from the same user burst in,
+            the time will slide into the future. It is not problematic since
+            the timestamp notion is opaque, and behaves like a revision number.
         """
         previous = self._timestamps.get(user_id)
         current = utils.msec_time()
