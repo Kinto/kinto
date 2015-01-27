@@ -1,4 +1,3 @@
-loads
 WebTest
 nose
 nose-cov

@@ -1,5 +1,4 @@
-SERVER_URL = http://localhost:8000
-SERVER_CONFIG = conf/readinglist.ini
+SERVER_CONFIG = config/readinglist.ini
 
 VIRTUALENV=virtualenv
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
@@ -36,18 +35,12 @@ tests-once: install-dev
 tests:
 	tox
 
-bench: install-dev
-	$(VENV)/bin/loads-runner --config=./loadtests/bench.ini --server-url=$(SERVER_URL) loadtests.TestBasic.test_all
-
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
 
-loadtest: install-dev
-	$(VENV)/bin/loads-runner --config=./loadtests/test.ini --server-url=$(SERVER_URL) loadtests.TestBasic.test_all
-
-loadtest-check:
-	make serve & PID=$$!; \
-	  sleep 1; \
-	  make loadtest; \
+loadtest-check: install
+	$(VENV)/bin/pserve loadtests/server.ini & PID=$$!; \
+	  sleep 1 && cd loadtests && \
+	  make test SERVER_URL=http://127.0.0.1:8000; \
 	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
