@@ -5,6 +5,7 @@ import redis
 
 from readinglist.backend import BackendBase, exceptions
 from readinglist.backend.simpleredis import Redis
+from readinglist.backend.memory import Memory
 
 from .support import unittest
 
@@ -25,7 +26,7 @@ class BackendBaseTest(unittest.TestCase):
         calls = [
             (self.backend.flush,),
             (self.backend.ping,),
-            (self.backend.timestamp, '', ''),
+            (self.backend.last_collection_timestamp, '', ''),
             (self.backend.create, '', '', {}),
             (self.backend.get, '', '', ''),
             (self.backend.update, '', '', '', {}),
@@ -36,13 +37,13 @@ class BackendBaseTest(unittest.TestCase):
             self.assertRaises(NotImplementedError, *call)
 
 
-class TestResource():
+class TestResource(object):
     id_field = "id"
+    modified_field = "last_modified"
 
 
-class RedisBackendTest(unittest.TestCase):
+class BaseTestBackend(object):
     def setUp(self):
-        self.backend = Redis()
         self.resource = TestResource()
         self.record = {'foo': 'bar'}
         self.user_id = 1234
@@ -104,9 +105,24 @@ class RedisBackendTest(unittest.TestCase):
         records = self.backend.get_all(self.resource, self.user_id)
         self.assertEquals(len(records), 10)
 
+    def test_ping_returns_true_when_working(self):
+        self.assertTrue(self.backend.ping())
+
+
+class RedisBackendTest(BaseTestBackend, unittest.TestCase):
+    def setUp(self):
+        super(RedisBackendTest, self).setUp()
+        self.backend = Redis()
+
     def test_ping_returns_an_error_if_unavailable(self):
         self.backend._client.setex = mock.MagicMock(side_effect=redis.RedisError)
         self.assertFalse(self.backend.ping())
 
-    def test_ping_returns_true_when_working(self):
-        self.assertTrue(self.backend.ping())
+
+class MemoryBackendTest(BaseTestBackend, unittest.TestCase):
+    def setUp(self):
+        super(MemoryBackendTest, self).setUp()
+        self.backend = Memory()
+
+    def test_ping_returns_an_error_if_unavailable(self):
+        pass

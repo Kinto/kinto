@@ -16,7 +16,7 @@ class BackendBase(object):
     def ping(self):
         raise NotImplementedError
 
-    def timestamp(self, resource, user_id):
+    def last_collection_timestamp(self, resource, user_id):
         raise NotImplementedError
 
     def create(self, resource, user_id, record):
@@ -33,6 +33,11 @@ class BackendBase(object):
 
     def get_all(self, resource, user_id, filters=None, sorting=None):
         raise NotImplementedError
+
+    def set_record_timestamp(self, record, resource, user_id):
+        timestamp = self._bump_timestamp(resource, user_id)
+        record[resource.modified_field] = timestamp
+        return record
 
 
 def apply_filters(records, filters):

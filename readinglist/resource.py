@@ -82,7 +82,7 @@ class BaseResource(object):
         self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
         self.known_fields = [c.name for c in self.mapping.children]
-        self.timestamp = self.db.timestamp(**self.db_kwargs)
+        self.timestamp = self.db.last_collection_timestamp(**self.db_kwargs)
 
     def fetch_record(self):
         """Fetch current view related record, and raise 404 if missing."""
@@ -150,7 +150,7 @@ class BaseResource(object):
             if record:
                 current_timestamp = record[self.modified_field]
             else:
-                current_timestamp = self.db.timestamp(**self.db_kwargs)
+                current_timestamp = self.db.last_collection_timestamp(**self.db_kwargs)
 
             if current_timestamp <= modified_since:
                 response = HTTPNotModified()
@@ -168,7 +168,7 @@ class BaseResource(object):
             if record:
                 current_timestamp = record[self.modified_field]
             else:
-                current_timestamp = self.db.timestamp(**self.db_kwargs)
+                current_timestamp = self.db.last_collection_timestamp(**self.db_kwargs)
 
             if current_timestamp > unmodified_since:
                 error_msg = 'Resource was modified meanwhile'
