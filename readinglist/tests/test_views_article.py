@@ -140,10 +140,24 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
     @mock.patch('readinglist.backend.BackendBase.revision')
     def setUp(self, revision_mocked):
         super(ArticleFilterModifiedTest, self).setUp()
+
+        self._threads = []
+
         for i in range(6):
             revision_mocked.return_value = i
             article = MINIMALIST_ARTICLE.copy()
             self.app.post_json('/articles', article, headers=self.headers)
+
+    def tearDown(self):
+        super(ArticleFilterModifiedTest, self).tearDown()
+
+        for thread in self._threads:
+            thread.join()
+
+    def _create_thread(self, *args, **kwargs):
+        thread = threading.Thread(*args, **kwargs)
+        self._threads.append(thread)
+        return thread
 
     def test_filter_with_since_is_exclusive(self):
         resp = self.app.get('/articles?_since=3', headers=self.headers)
@@ -228,7 +242,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         def long_fetch():
 
             def delayed_get(*args, **kwargs):
-                time.sleep(.25)
+                time.sleep(.10)
                 return MINIMALIST_ARTICLE
 
             with mock.patch.object(self.db, 'get_all', delayed_get):
@@ -236,13 +250,18 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
                                      headers=self.headers)
                 revisions['fetch'] = resp.headers['Timestamp']
 
-        thread = threading.Thread(target=long_fetch)
+        thread = self._create_thread(target=long_fetch)
         thread.start()
+
+        # Create record while other is fetching
+        time.sleep(.02)
         resp = self.app.post_json('/articles',
                                   MINIMALIST_ARTICLE,
                                   headers=self.headers)
         revisions['post'] = resp.headers['Timestamp']
         thread.join()
+
+        # Make sure fetch revision is below (for next fetch)
         self.assertTrue(revisions['post'] > revisions['fetch'])
 
     def test_timestamps_are_thread_safe(self):
@@ -256,8 +275,8 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
                 current = int(resp.json['last_modified'])
                 obtained.append(current)
 
-        thread1 = threading.Thread(target=hit_post)
-        thread2 = threading.Thread(target=hit_post)
+        thread1 = self._create_thread(target=hit_post)
+        thread2 = self._create_thread(target=hit_post)
         thread1.start()
         thread2.start()
         thread1.join()
