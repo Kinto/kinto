@@ -177,8 +177,8 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         article = MINIMALIST_ARTICLE.copy()
         resp = self.app.post_json('/articles', article, headers=self.headers)
 
-        current = float(resp.headers['Timestamp'])
-        url = '/articles?_since={0:.3f}'.format(current)
+        current = int(resp.headers['Timestamp'])
+        url = '/articles?_since={0}'.format(current)
 
         resp = self.app.get(url, headers=self.headers)
         self.assertEqual(len(resp.json['items']), 0)

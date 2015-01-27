@@ -163,7 +163,7 @@ class BaseResource(object):
                     return
 
                 filters.append(
-                    (self.modified_field, value, COMPARISON.MIN)
+                    (self.modified_field, value, COMPARISON.GT)
                 )
                 continue
 
