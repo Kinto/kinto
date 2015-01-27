@@ -2,8 +2,6 @@
 """
 import pkg_resources
 
-import six
-
 from pyramid.config import Configurator
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect

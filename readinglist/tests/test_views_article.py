@@ -247,6 +247,25 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         after = read_timestamp()
         self.assertTrue(before < now < after)
 
+    def test_timestamp_are_always_incremented_above_existing_value(self):
+        # Create a record with normal clock
+        resp = self.app.post_json('/articles',
+                                  MINIMALIST_ARTICLE,
+                                  headers=self.headers)
+        current = int(resp.json['last_modified'])
+
+        # Patch the clock to return a time in the past
+        with mock.patch('readinglist.utils.msec_time') as time_mocked:
+            time_mocked.return_value = -1
+
+            resp = self.app.post_json('/articles',
+                                      MINIMALIST_ARTICLE,
+                                      headers=self.headers)
+            after = int(resp.json['last_modified'])
+
+        # Expect the current last-modified to be based on the highest value
+        self.assertTrue(current < after)
+
     def test_records_created_during_fetch_are_above_fetch_timestamp(self):
 
         timestamps = {}

@@ -37,9 +37,9 @@ class Memory(BackendBase):
         """
         previous = self._timestamps[resource_name].get(user_id)
         current = utils.msec_time()
-        if previous and previous == current:
-            current += 1
-        self._timestamps[user_id] = current
+        if previous and previous >= current:
+            current = previous + 1
+        self._timestamps[resource_name][user_id] = current
         return current
 
     def create(self, resource, user_id, record):
