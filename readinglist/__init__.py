@@ -2,15 +2,12 @@
 """
 import pkg_resources
 
-import six
-
 from pyramid.config import Configurator
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid_multiauth import MultiAuthenticationPolicy
 
 from readinglist import authentication
-from readinglist.resource import TimeStamp
 
 
 # Module version, as defined in PEP-0396.
@@ -61,6 +58,7 @@ def attach_http_objects(config):
     def on_new_request(event):
         # Attach objects on requests for easier access.
         event.request.db = config.registry.backend
+
         http_scheme = config.registry.settings.get('readinglist.http_scheme')
         if http_scheme:
             event.request.scheme = http_scheme
@@ -68,10 +66,6 @@ def attach_http_objects(config):
     config.add_subscriber(on_new_request, NewRequest)
 
     def on_new_response(event):
-        # Add timestamp info in response headers.
-        timestamp = six.text_type(TimeStamp.now())
-        event.request.response.headers['Timestamp'] = timestamp.encode('utf-8')
-
         # Add backoff in response headers
         backoff = config.registry.settings.get("readinglist.backoff")
         if backoff is not None:

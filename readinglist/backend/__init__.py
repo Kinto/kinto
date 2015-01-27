@@ -13,6 +13,9 @@ class BackendBase(object):
     def ping(self):
         raise NotImplementedError
 
+    def timestamp(self, resource, user_id):
+        raise NotImplementedError
+
     def create(self, resource, user_id, record):
         raise NotImplementedError
 

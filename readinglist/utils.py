@@ -4,10 +4,15 @@ except ImportError:  # pragma: no cover
     import json  # NOQA
 
 import ast
+import time
+
 from colander import null
+
 
 # removes whitespace, newlines, and tabs from the beginning/end of a string
 strip_whitespace = lambda v: v.strip(' \t\n\r') if v is not null else v
+
+msec_time = lambda: int(time.time() * 1000.0)  # floor
 
 
 def native_value(value):
