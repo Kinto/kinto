@@ -7,7 +7,7 @@ from cornice import resource
 
 from readinglist.backend.exceptions import RecordNotFoundError
 from readinglist.errors import json_error, ImmutableFieldError
-from readinglist.utils import COMPARISON, native_value, time_second
+from readinglist.utils import COMPARISON, native_value, msec_time
 
 
 def exists_or_404():
@@ -43,19 +43,6 @@ def validates_or_400():
     return wrap
 
 
-def refresh_revision():
-    """View decorator to refresh the request revision, because it was
-    incremented during the view execution."""
-    def wrap(view):
-        def wrapped_view(self, *args, **kwargs):
-            result = view(self, *args, **kwargs)
-            user_id = self.request.authenticated_userid
-            self.request.revision = self.db.revision(user_id)
-            return result
-        return wrapped_view
-    return wrap
-
-
 class TimeStamp(colander.SchemaNode):
     """Basic integer field that takes current timestamp if no value
     is provided.
@@ -67,7 +54,7 @@ class TimeStamp(colander.SchemaNode):
 
     def deserialize(self, cstruct=colander.null):
         if cstruct is colander.null and self.auto_now:
-            cstruct = time_second()
+            cstruct = msec_time()
         return super(TimeStamp, self).deserialize(cstruct)
 
 
@@ -127,6 +114,13 @@ class BaseResource(object):
                               user_id=request.authenticated_userid)
         self.record = None
         self.known_fields = [c.name for c in self.mapping.children]
+
+    def add_timestamp_header(self):
+        """Add current timestamp in response headers, when request comes in.
+        """
+        timestamp = self.db.timestamp(**self.db_kwargs)
+        timestamp = six.text_type(timestamp).encode('utf-8')
+        self.request.response.headers['Last-Modified'] = timestamp
 
     def process_record(self, new, old=None):
         """Hook to post-process records and introduce specific logics
@@ -230,6 +224,8 @@ class BaseResource(object):
 
     @resource.view(permission='readonly')
     def collection_get(self):
+        self.add_timestamp_header()
+
         filters = self._extract_filters(self.request.GET)
         sorting = self._extract_sorting(self.request.GET)
         records = self.db.get_all(filters=filters,
@@ -245,7 +241,6 @@ class BaseResource(object):
         return body
 
     @resource.view(permission='readwrite', with_schema=True)
-    @refresh_revision()
     def collection_post(self):
         new_record = self.process_record(self.request.validated)
         self.record = self.db.create(record=new_record, **self.db_kwargs)
@@ -255,12 +250,13 @@ class BaseResource(object):
     @resource.view(permission='readonly')
     @exists_or_404()
     def get(self):
+        self.add_timestamp_header()
+
         record_id = self.request.matchdict['id']
         self.record = self.db.get(record_id=record_id, **self.db_kwargs)
         return self.record
 
     @resource.view(permission='readwrite', with_schema=True)
-    @refresh_revision()
     def put(self):
         record_id = self.request.matchdict['id']
 
@@ -279,7 +275,6 @@ class BaseResource(object):
     @resource.view(permission='readwrite')
     @exists_or_404()
     @validates_or_400()
-    @refresh_revision()
     def patch(self):
         record_id = self.request.matchdict['id']
         self.record = self.db.get(record_id=record_id, **self.db_kwargs)
@@ -295,7 +290,6 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     @exists_or_404()
-    @refresh_revision()
     def delete(self):
         record_id = self.request.matchdict['id']
         self.record = self.db.delete(record_id=record_id, **self.db_kwargs)

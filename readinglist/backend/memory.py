@@ -3,7 +3,7 @@ from operator import itemgetter
 from collections import defaultdict
 
 from readinglist.backend import BackendBase, exceptions
-from readinglist.utils import COMPARISON
+from readinglist import utils
 
 
 tree = lambda: defaultdict(tree)
@@ -14,7 +14,7 @@ class Memory(BackendBase):
     def __init__(self, *args, **kwargs):
         super(Memory, self).__init__(*args, **kwargs)
         self._store = tree()
-        self._revisions = defaultdict(int)
+        self._timestamps = defaultdict(dict)
 
     def flush(self):
         pass
@@ -22,18 +22,31 @@ class Memory(BackendBase):
     def ping(self):
         return True
 
-    def revision(self, user_id):
-        return self._revisions[user_id]
+    def timestamp(self, resource, user_id):
+        resource_name = classname(resource)
+        return self._timestamps[resource_name].get(user_id, utils.msec_time())
 
-    def _bump_revision(self, user_id):
-        self._revisions[user_id] += 1
-        return self._revisions[user_id]
+    def _bump_timestamp(self, resource_name, user_id):
+        """Timestamp are base on current millisecond.
+
+        .. note ::
+
+            Here it is assumed that if requests from the same user burst in,
+            the time will slide into the future. It is not problematic since
+            the timestamp notion is opaque, and behaves like a revision number.
+        """
+        previous = self._timestamps[resource_name].get(user_id)
+        current = utils.msec_time()
+        if previous and previous >= current:
+            current = previous + 1
+        self._timestamps[resource_name][user_id] = current
+        return current
 
     def create(self, resource, user_id, record):
         resource_name = classname(resource)
         _id = record[resource.id_field] = self.id_generator()
-        revision = self._bump_revision(user_id)
-        record[resource.modified_field] = revision
+        timestamp = self._bump_timestamp(resource_name, user_id)
+        record[resource.modified_field] = timestamp
         self._store[resource_name][user_id][_id] = record
         return record
 
@@ -46,15 +59,15 @@ class Memory(BackendBase):
 
     def update(self, resource, user_id, record_id, record):
         resource_name = classname(resource)
-        revision = self._bump_revision(user_id)
-        record[resource.modified_field] = revision
+        timestamp = self._bump_timestamp(resource_name, user_id)
+        record[resource.modified_field] = timestamp
         self._store[resource_name][user_id][record_id] = record
         return record
 
     def delete(self, resource, user_id, record_id):
         resource_name = classname(resource)
         existing = self.get(resource, user_id, record_id)
-        self._bump_revision(user_id)
+        self._bump_timestamp(resource_name, user_id)
         self._store[resource_name][user_id].pop(record_id)
         return existing
 
@@ -67,12 +80,12 @@ class Memory(BackendBase):
 
     def __apply_filters(self, records, filters):
         operators = {
-            COMPARISON.LT: operator.lt,
-            COMPARISON.MAX: operator.le,
-            COMPARISON.EQ: operator.eq,
-            COMPARISON.NOT: operator.ne,
-            COMPARISON.MIN: operator.ge,
-            COMPARISON.GT: operator.gt,
+            utils.COMPARISON.LT: operator.lt,
+            utils.COMPARISON.MAX: operator.le,
+            utils.COMPARISON.EQ: operator.eq,
+            utils.COMPARISON.NOT: operator.ne,
+            utils.COMPARISON.MIN: operator.ge,
+            utils.COMPARISON.GT: operator.gt,
         }
 
         for record in records:

@@ -5,6 +5,7 @@ from random import shuffle
 
 from readinglist.errors import ERRORS
 from readinglist.views.article import Article
+from readinglist.utils import msec_time
 
 from .support import BaseResourceTest, BaseWebTest, unittest
 
@@ -137,14 +138,14 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
 
 class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
-    @mock.patch('readinglist.backend.BackendBase.revision')
-    def setUp(self, revision_mocked):
+    @mock.patch('readinglist.utils.msec_time')
+    def setUp(self, timestamp_mocked):
         super(ArticleFilterModifiedTest, self).setUp()
 
         self._threads = []
 
         for i in range(6):
-            revision_mocked.return_value = i
+            timestamp_mocked.return_value = i
             article = MINIMALIST_ARTICLE.copy()
             self.app.post_json('/articles', article, headers=self.headers)
 
@@ -161,13 +162,24 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
     def test_filter_with_since_is_exclusive(self):
         resp = self.app.get('/articles?_since=3', headers=self.headers)
-        self.assertEqual(len(resp.json['items']), 3)
+        self.assertEqual(len(resp.json['items']), 2)
+
+    def test_the_timestamp_are_based_on_real_time_milliseconds(self):
+        article = MINIMALIST_ARTICLE.copy()
+        before = msec_time()
+        time.sleep(0.001)  # 1 msec
+        resp = self.app.post_json('/articles', article, headers=self.headers)
+        now = int(resp.json['last_modified'])
+        time.sleep(0.001)  # 1 msec
+        after = msec_time()
+        self.assertTrue(before < now < after)
 
     def test_the_timestamp_header_is_equal_to_last_modification(self):
         article = MINIMALIST_ARTICLE.copy()
         resp = self.app.post_json('/articles', article, headers=self.headers)
         modification = resp.json['last_modified']
-        header = float(resp.headers['Timestamp'])
+        resp = self.app.get('/articles', headers=self.headers)
+        header = int(resp.headers['Last-Modified'])
         self.assertEqual(header, modification)
 
     def test_filter_with_since_accepts_numeric_value(self):
@@ -188,10 +200,9 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(len(resp.json['items']), 0)
 
     def test_filter_from_last_header_value_is_exclusive(self):
-        article = MINIMALIST_ARTICLE.copy()
-        resp = self.app.post_json('/articles', article, headers=self.headers)
+        resp = self.app.get('/articles', headers=self.headers)
 
-        current = int(resp.headers['Timestamp'])
+        current = int(resp.headers['Last-Modified'])
         url = '/articles?_since={0}'.format(current)
 
         resp = self.app.get(url, headers=self.headers)
@@ -215,12 +226,13 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
         def read_timestamp():
             resp = self.app.head('/articles', headers=self.headers)
-            return int(resp.headers['Timestamp'])
+            return int(resp.headers['Last-Modified'])
 
         before = read_timestamp()
         now = read_timestamp()
         after = read_timestamp()
-        self.assertTrue(before == now == after)
+        self.assertEqual(before, now)
+        self.assertEqual(now, after)
 
     def test_timestamp_are_always_incremented_on_creation(self):
 
@@ -235,11 +247,31 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         after = read_timestamp()
         self.assertTrue(before < now < after)
 
-    def test_records_created_during_fetch_are_above_fetch_revision(self):
+    def test_timestamp_are_always_incremented_above_existing_value(self):
+        # Create a record with normal clock
+        resp = self.app.post_json('/articles',
+                                  MINIMALIST_ARTICLE,
+                                  headers=self.headers)
+        current = int(resp.json['last_modified'])
 
-        revisions = {}
+        # Patch the clock to return a time in the past
+        with mock.patch('readinglist.utils.msec_time') as time_mocked:
+            time_mocked.return_value = -1
+
+            resp = self.app.post_json('/articles',
+                                      MINIMALIST_ARTICLE,
+                                      headers=self.headers)
+            after = int(resp.json['last_modified'])
+
+        # Expect the current last-modified to be based on the highest value
+        self.assertTrue(current < after)
+
+    def test_records_created_during_fetch_are_above_fetch_timestamp(self):
+
+        timestamps = {}
 
         def long_fetch():
+            """Simulate a overhead while reading on backend."""
 
             def delayed_get(*args, **kwargs):
                 time.sleep(.10)
@@ -248,8 +280,14 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
             with mock.patch.object(self.db, 'get_all', delayed_get):
                 resp = self.app.head('/articles',
                                      headers=self.headers)
-                revisions['fetch'] = resp.headers['Timestamp']
+                timestamps['fetch'] = int(resp.headers['Last-Modified'])
 
+        # Create a real record with no patched timestamp
+        self.app.post_json('/articles',
+                           MINIMALIST_ARTICLE,
+                           headers=self.headers)
+
+        # Some client start fetching
         thread = self._create_thread(target=long_fetch)
         thread.start()
 
@@ -258,11 +296,11 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/articles',
                                   MINIMALIST_ARTICLE,
                                   headers=self.headers)
-        revisions['post'] = resp.headers['Timestamp']
+        timestamps['post'] = resp.json['last_modified']
         thread.join()
 
-        # Make sure fetch revision is below (for next fetch)
-        self.assertTrue(revisions['post'] > revisions['fetch'])
+        # Make sure fetch timestamp is below (for next fetch)
+        self.assertTrue(timestamps['post'] > timestamps['fetch'])
 
     def test_timestamps_are_thread_safe(self):
         obtained = []
@@ -284,7 +322,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
         # With CPython (GIL), list appending is thread-safe
         self.assertEqual(len(obtained), 200)
-        # No duplicated revisions
+        # No duplicated timestamps
         self.assertEqual(len(set(obtained)), len(obtained))
 
 
