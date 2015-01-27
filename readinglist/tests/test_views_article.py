@@ -169,7 +169,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         before = msec_time()
         time.sleep(0.001)  # 1 msec
         resp = self.app.post_json('/articles', article, headers=self.headers)
-        now = int(resp.headers['Timestamp'])
+        now = int(resp.json['last_modified'])
         time.sleep(0.001)  # 1 msec
         after = msec_time()
         self.assertTrue(before < now < after)
@@ -178,7 +178,8 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         article = MINIMALIST_ARTICLE.copy()
         resp = self.app.post_json('/articles', article, headers=self.headers)
         modification = resp.json['last_modified']
-        header = float(resp.headers['Timestamp'])
+        resp = self.app.get('/articles', headers=self.headers)
+        header = int(resp.headers['Timestamp'])
         self.assertEqual(header, modification)
 
     def test_filter_with_since_accepts_numeric_value(self):
@@ -199,8 +200,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(len(resp.json['items']), 0)
 
     def test_filter_from_last_header_value_is_exclusive(self):
-        article = MINIMALIST_ARTICLE.copy()
-        resp = self.app.post_json('/articles', article, headers=self.headers)
+        resp = self.app.get('/articles', headers=self.headers)
 
         current = int(resp.headers['Timestamp'])
         url = '/articles?_since={0}'.format(current)
@@ -231,7 +231,8 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         before = read_timestamp()
         now = read_timestamp()
         after = read_timestamp()
-        self.assertTrue(before == now == after)
+        self.assertEqual(before, now)
+        self.assertEqual(now, after)
 
     def test_timestamp_are_always_incremented_on_creation(self):
 
@@ -260,7 +261,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
             with mock.patch.object(self.db, 'get_all', delayed_get):
                 resp = self.app.head('/articles',
                                      headers=self.headers)
-                timestamps['fetch'] = resp.headers['Timestamp']
+                timestamps['fetch'] = int(resp.headers['Timestamp'])
 
         # Create a real record with no patched timestamp
         self.app.post_json('/articles',
@@ -276,7 +277,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/articles',
                                   MINIMALIST_ARTICLE,
                                   headers=self.headers)
-        timestamps['post'] = resp.headers['Timestamp']
+        timestamps['post'] = resp.json['last_modified']
         thread.join()
 
         # Make sure fetch timestamp is below (for next fetch)

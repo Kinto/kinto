@@ -17,10 +17,6 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get('/')
         self.assertEqual(response.json['eos'], None)
 
-    def test_a_timestamp_header_is_provided_in_responses(self):
-        response = self.app.get('/')
-        self.assertIsNotNone(response.headers.get('Timestamp'))
-
     def test_redirect_to_version(self):
         # We don't want the prefix to be automatically added for this test.
         original_request_class = self.app.RequestClass
