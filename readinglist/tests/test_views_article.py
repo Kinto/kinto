@@ -137,14 +137,14 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
 
 class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
-    @mock.patch('readinglist.backend.BackendBase.revision')
-    def setUp(self, revision_mocked):
+    @mock.patch('readinglist.backend.BackendBase.timestamp')
+    def setUp(self, timestamp_mocked):
         super(ArticleFilterModifiedTest, self).setUp()
 
         self._threads = []
 
         for i in range(6):
-            revision_mocked.return_value = i
+            timestamp_mocked.return_value = i
             article = MINIMALIST_ARTICLE.copy()
             self.app.post_json('/articles', article, headers=self.headers)
 
@@ -235,9 +235,9 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         after = read_timestamp()
         self.assertTrue(before < now < after)
 
-    def test_records_created_during_fetch_are_above_fetch_revision(self):
+    def test_records_created_during_fetch_are_above_fetch_timestamp(self):
 
-        revisions = {}
+        timestamps = {}
 
         def long_fetch():
 
@@ -248,7 +248,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
             with mock.patch.object(self.db, 'get_all', delayed_get):
                 resp = self.app.head('/articles',
                                      headers=self.headers)
-                revisions['fetch'] = resp.headers['Timestamp']
+                timestamps['fetch'] = resp.headers['Timestamp']
 
         thread = self._create_thread(target=long_fetch)
         thread.start()
@@ -258,11 +258,11 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/articles',
                                   MINIMALIST_ARTICLE,
                                   headers=self.headers)
-        revisions['post'] = resp.headers['Timestamp']
+        timestamps['post'] = resp.headers['Timestamp']
         thread.join()
 
-        # Make sure fetch revision is below (for next fetch)
-        self.assertTrue(revisions['post'] > revisions['fetch'])
+        # Make sure fetch timestamp is below (for next fetch)
+        self.assertTrue(timestamps['post'] > timestamps['fetch'])
 
     def test_timestamps_are_thread_safe(self):
         obtained = []
@@ -284,7 +284,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
         # With CPython (GIL), list appending is thread-safe
         self.assertEqual(len(obtained), 200)
-        # No duplicated revisions
+        # No duplicated timestamps
         self.assertEqual(len(set(obtained)), len(obtained))
 
 

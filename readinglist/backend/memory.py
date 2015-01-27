@@ -14,7 +14,7 @@ class Memory(BackendBase):
     def __init__(self, *args, **kwargs):
         super(Memory, self).__init__(*args, **kwargs)
         self._store = tree()
-        self._revisions = defaultdict(int)
+        self._timestamps = defaultdict(int)
 
     def flush(self):
         pass
@@ -22,18 +22,18 @@ class Memory(BackendBase):
     def ping(self):
         return True
 
-    def revision(self, user_id):
-        return self._revisions[user_id]
+    def timestamp(self, user_id):
+        return self._timestamps[user_id]
 
-    def _bump_revision(self, user_id):
-        self._revisions[user_id] += 1
-        return self._revisions[user_id]
+    def _bump_timestamp(self, user_id):
+        self._timestamps[user_id] += 1
+        return self._timestamps[user_id]
 
     def create(self, resource, user_id, record):
         resource_name = classname(resource)
         _id = record[resource.id_field] = self.id_generator()
-        revision = self._bump_revision(user_id)
-        record[resource.modified_field] = revision
+        timestamp = self._bump_timestamp(user_id)
+        record[resource.modified_field] = timestamp
         self._store[resource_name][user_id][_id] = record
         return record
 
@@ -46,15 +46,15 @@ class Memory(BackendBase):
 
     def update(self, resource, user_id, record_id, record):
         resource_name = classname(resource)
-        revision = self._bump_revision(user_id)
-        record[resource.modified_field] = revision
+        timestamp = self._bump_timestamp(user_id)
+        record[resource.modified_field] = timestamp
         self._store[resource_name][user_id][record_id] = record
         return record
 
     def delete(self, resource, user_id, record_id):
         resource_name = classname(resource)
         existing = self.get(resource, user_id, record_id)
-        self._bump_revision(user_id)
+        self._bump_timestamp(user_id)
         self._store[resource_name][user_id].pop(record_id)
         return existing
 

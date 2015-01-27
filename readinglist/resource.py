@@ -43,14 +43,14 @@ def validates_or_400():
     return wrap
 
 
-def refresh_revision():
-    """View decorator to refresh the request revision, because it was
+def refresh_timestamp():
+    """View decorator to refresh the request timestamp, because it was
     incremented during the view execution."""
     def wrap(view):
         def wrapped_view(self, *args, **kwargs):
             result = view(self, *args, **kwargs)
             user_id = self.request.authenticated_userid
-            self.request.revision = self.db.revision(user_id)
+            self.request.timestamp = self.db.timestamp(user_id)
             return result
         return wrapped_view
     return wrap
@@ -245,7 +245,7 @@ class BaseResource(object):
         return body
 
     @resource.view(permission='readwrite', with_schema=True)
-    @refresh_revision()
+    @refresh_timestamp()
     def collection_post(self):
         new_record = self.process_record(self.request.validated)
         self.record = self.db.create(record=new_record, **self.db_kwargs)
@@ -260,7 +260,7 @@ class BaseResource(object):
         return self.record
 
     @resource.view(permission='readwrite', with_schema=True)
-    @refresh_revision()
+    @refresh_timestamp()
     def put(self):
         record_id = self.request.matchdict['id']
 
@@ -279,7 +279,7 @@ class BaseResource(object):
     @resource.view(permission='readwrite')
     @exists_or_404()
     @validates_or_400()
-    @refresh_revision()
+    @refresh_timestamp()
     def patch(self):
         record_id = self.request.matchdict['id']
         self.record = self.db.get(record_id=record_id, **self.db_kwargs)
@@ -295,7 +295,7 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     @exists_or_404()
-    @refresh_revision()
+    @refresh_timestamp()
     def delete(self):
         record_id = self.request.matchdict['id']
         self.record = self.db.delete(record_id=record_id, **self.db_kwargs)
