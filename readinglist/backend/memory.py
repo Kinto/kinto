@@ -1,10 +1,12 @@
-import operator
-from operator import itemgetter
 from collections import defaultdict
 
 from readinglist.backend import BackendBase, exceptions
 from readinglist import utils
-from readinglist.utils import COMPARISON, classname
+from readinglist.utils import classname
+
+from readinglist.backend import (
+    BackendBase, exceptions, apply_filters, apply_sorting
+)
 
 
 tree = lambda: defaultdict(tree)
@@ -74,37 +76,9 @@ class Memory(BackendBase):
     def get_all(self, resource, user_id, filters=None, sorting=None):
         resource_name = classname(resource)
         records = self._store[resource_name][user_id].values()
-        filtered = self.__apply_filters(records, filters or [])
-        sorted_ = self.__apply_sorting(filtered, sorting or [])
+        filtered = apply_filters(records, filters or [])
+        sorted_ = apply_sorting(filtered, sorting or [])
         return sorted_
-
-    def __apply_filters(self, records, filters):
-        operators = {
-            utils.COMPARISON.LT: operator.lt,
-            utils.COMPARISON.MAX: operator.le,
-            utils.COMPARISON.EQ: operator.eq,
-            utils.COMPARISON.NOT: operator.ne,
-            utils.COMPARISON.MIN: operator.ge,
-            utils.COMPARISON.GT: operator.gt,
-        }
-
-        for record in records:
-            matches = [operators[op](record[k], v) for k, v, op in filters]
-            if all(matches):
-                yield record
-
-    def __apply_sorting(self, records, sorting):
-        result = list(records)
-
-        if not result:
-            return result
-
-        for field, direction in reversed(sorting):
-            is_boolean_field = isinstance(result[0][field], bool)
-            reverse = direction < 0 or is_boolean_field
-            result = sorted(result, key=itemgetter(field), reverse=reverse)
-
-        return result
 
 
 def load_from_config(config):
