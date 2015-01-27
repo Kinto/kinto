@@ -82,6 +82,7 @@ class BaseResource(object):
         self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
         self.known_fields = [c.name for c in self.mapping.children]
+        self.timestamp = self.db.timestamp(**self.db_kwargs)
 
     def fetch_record(self):
         """Fetch current view related record, and raise 404 if missing."""
@@ -132,12 +133,11 @@ class BaseResource(object):
                 self.request.errors.add('body', name=field, description=error)
             raise errors.json_error(self.request.errors)
 
-    def add_timestamp_header(self):
+    def add_timestamp_header(self, response):
         """Add current timestamp in response headers, when request comes in.
         """
-        timestamp = self.db.timestamp(**self.db_kwargs)
-        timestamp = six.text_type(timestamp).encode('utf-8')
-        self.request.response.headers['Last-Modified'] = timestamp
+        timestamp = six.text_type(self.timestamp).encode('utf-8')
+        response.headers['Last-Modified'] = timestamp
 
     def raise_304_if_not_modified(self, record=None):
         """Raise 304 if current timestamp is inferior to the one specified
@@ -153,7 +153,9 @@ class BaseResource(object):
                 current_timestamp = self.db.timestamp(**self.db_kwargs)
 
             if current_timestamp <= modified_since:
-                raise HTTPNotModified()
+                response = HTTPNotModified()
+                self.add_timestamp_header(response)
+                raise response
 
     def raise_412_if_modified(self, record=None):
         """Raise 412 if current timestamp is superior to the one
@@ -177,6 +179,7 @@ class BaseResource(object):
                         error=HTTPPreconditionFailed.title,
                         message=error_msg),
                     content_type='application/json')
+                self.add_timestamp_header(response)
                 raise response
 
     def _extract_filters(self, queryparams):
@@ -255,9 +258,9 @@ class BaseResource(object):
 
     @resource.view(permission='readonly')
     def collection_get(self):
+        self.add_timestamp_header(self.request.response)
         self.raise_304_if_not_modified()
         self.raise_412_if_modified()
-        self.add_timestamp_header()
 
         filters = self._extract_filters(self.request.GET)
         sorting = self._extract_sorting(self.request.GET)
@@ -284,10 +287,10 @@ class BaseResource(object):
 
     @resource.view(permission='readonly')
     def get(self):
+        self.add_timestamp_header(self.request.response)
         record = self.fetch_record()
         self.raise_304_if_not_modified(record)
         self.raise_412_if_modified(record)
-        self.add_timestamp_header()
 
         return record
 

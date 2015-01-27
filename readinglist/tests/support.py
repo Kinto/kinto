@@ -358,6 +358,7 @@ class BaseResourcePreconditionsTest(BaseWebTest):
         resp = self.app.get(self.collection_url,
                             headers=headers,
                             status=304)
+        self.assertIsNotNone(resp.headers.get('Last-Modified'))
 
     def test_single_record_returns_304_if_no_change_meanwhile(self):
         url = self.item_url.format(id=self.record['_id'])
@@ -366,6 +367,7 @@ class BaseResourcePreconditionsTest(BaseWebTest):
         headers = self.headers.copy()
         headers['If-Modified-Since'] = current
         resp = self.app.get(url, headers=headers, status=304)
+        self.assertIsNotNone(resp.headers.get('Last-Modified'))
 
     def _get_outdated_headers(self):
         resp = self.app.get(self.collection_url, headers=self.headers)
@@ -389,11 +391,24 @@ class BaseResourcePreconditionsTest(BaseWebTest):
                      headers=self._get_outdated_headers(),
                      status=412)
 
+    def test_412_on_collection_has_last_modified_timestamp(self):
+        resp = self.app.get(self.collection_url,
+                            headers=self._get_outdated_headers(),
+                            status=412)
+        self.assertIsNotNone(resp.headers.get('Last-Modified'))
+
     def test_single_record_returns_412_if_changed_meanwhile(self):
         url = self.item_url.format(id=self.record['_id'])
         self.app.get(url,
                      headers=self._get_outdated_headers(),
                      status=412)
+
+    def test_412_on_single_record_has_last_modified_timestamp(self):
+        url = self.item_url.format(id=self.record['_id'])
+        resp = self.app.get(url,
+                            headers=self._get_outdated_headers(),
+                            status=412)
+        self.assertIsNotNone(resp.headers.get('Last-Modified'))
 
     def test_create_returns_412_if_changed_meanwhile(self):
         self.app.post_json(self.collection_url,
