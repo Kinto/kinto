@@ -5,6 +5,7 @@ from random import shuffle
 
 from readinglist.errors import ERRORS
 from readinglist.views.article import Article
+from readinglist.utils import msec_time
 
 from .support import BaseResourceTest, BaseWebTest, unittest
 
@@ -137,7 +138,7 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
 
 class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
-    @mock.patch('readinglist.backend.BackendBase.timestamp')
+    @mock.patch('readinglist.utils.msec_time')
     def setUp(self, timestamp_mocked):
         super(ArticleFilterModifiedTest, self).setUp()
 
@@ -161,7 +162,17 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
     def test_filter_with_since_is_exclusive(self):
         resp = self.app.get('/articles?_since=3', headers=self.headers)
-        self.assertEqual(len(resp.json['items']), 3)
+        self.assertEqual(len(resp.json['items']), 2)
+
+    def test_the_timestamp_are_based_on_real_time_milliseconds(self):
+        article = MINIMALIST_ARTICLE.copy()
+        before = msec_time()
+        time.sleep(0.001)  # 1 msec
+        resp = self.app.post_json('/articles', article, headers=self.headers)
+        now = int(resp.headers['Timestamp'])
+        time.sleep(0.001)  # 1 msec
+        after = msec_time()
+        self.assertTrue(before < now < after)
 
     def test_the_timestamp_header_is_equal_to_last_modification(self):
         article = MINIMALIST_ARTICLE.copy()
@@ -240,6 +251,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         timestamps = {}
 
         def long_fetch():
+            """Simulate a overhead while reading on backend."""
 
             def delayed_get(*args, **kwargs):
                 time.sleep(.10)
@@ -250,6 +262,12 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
                                      headers=self.headers)
                 timestamps['fetch'] = resp.headers['Timestamp']
 
+        # Create a real record with no patched timestamp
+        self.app.post_json('/articles',
+                           MINIMALIST_ARTICLE,
+                           headers=self.headers)
+
+        # Some client start fetching
         thread = self._create_thread(target=long_fetch)
         thread.start()
 

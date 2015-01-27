@@ -3,7 +3,7 @@ from operator import itemgetter
 from collections import defaultdict
 
 from readinglist.backend import BackendBase, exceptions
-from readinglist.utils import COMPARISON
+from readinglist import utils
 
 
 tree = lambda: defaultdict(tree)
@@ -14,7 +14,7 @@ class Memory(BackendBase):
     def __init__(self, *args, **kwargs):
         super(Memory, self).__init__(*args, **kwargs)
         self._store = tree()
-        self._timestamps = defaultdict(int)
+        self._timestamps = {}
 
     def flush(self):
         pass
@@ -23,11 +23,22 @@ class Memory(BackendBase):
         return True
 
     def timestamp(self, user_id):
-        return self._timestamps[user_id]
+        return self._timestamps.get(user_id, utils.msec_time())
 
     def _bump_timestamp(self, user_id):
-        self._timestamps[user_id] += 1
-        return self._timestamps[user_id]
+        """Timestamp are base on current millisecond.
+
+        .. note ::
+
+            Here it is assumed that requests from the same user won't burst
+            several time per millisecond.
+        """
+        previous = self._timestamps.get(user_id)
+        current = utils.msec_time()
+        if previous and previous == current:
+            current += 1
+        self._timestamps[user_id] = current
+        return current
 
     def create(self, resource, user_id, record):
         resource_name = classname(resource)
@@ -67,12 +78,12 @@ class Memory(BackendBase):
 
     def __apply_filters(self, records, filters):
         operators = {
-            COMPARISON.LT: operator.lt,
-            COMPARISON.MAX: operator.le,
-            COMPARISON.EQ: operator.eq,
-            COMPARISON.NOT: operator.ne,
-            COMPARISON.MIN: operator.ge,
-            COMPARISON.GT: operator.gt,
+            utils.COMPARISON.LT: operator.lt,
+            utils.COMPARISON.MAX: operator.le,
+            utils.COMPARISON.EQ: operator.eq,
+            utils.COMPARISON.NOT: operator.ne,
+            utils.COMPARISON.MIN: operator.ge,
+            utils.COMPARISON.GT: operator.gt,
         }
 
         for record in records:
