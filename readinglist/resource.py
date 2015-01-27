@@ -120,7 +120,7 @@ class BaseResource(object):
         """
         timestamp = self.db.timestamp(**self.db_kwargs)
         timestamp = six.text_type(timestamp).encode('utf-8')
-        self.request.response.headers['Timestamp'] = timestamp
+        self.request.response.headers['Last-Modified'] = timestamp
 
     def process_record(self, new, old=None):
         """Hook to post-process records and introduce specific logics

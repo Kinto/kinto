@@ -179,7 +179,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/articles', article, headers=self.headers)
         modification = resp.json['last_modified']
         resp = self.app.get('/articles', headers=self.headers)
-        header = int(resp.headers['Timestamp'])
+        header = int(resp.headers['Last-Modified'])
         self.assertEqual(header, modification)
 
     def test_filter_with_since_accepts_numeric_value(self):
@@ -202,7 +202,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
     def test_filter_from_last_header_value_is_exclusive(self):
         resp = self.app.get('/articles', headers=self.headers)
 
-        current = int(resp.headers['Timestamp'])
+        current = int(resp.headers['Last-Modified'])
         url = '/articles?_since={0}'.format(current)
 
         resp = self.app.get(url, headers=self.headers)
@@ -226,7 +226,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
 
         def read_timestamp():
             resp = self.app.head('/articles', headers=self.headers)
-            return int(resp.headers['Timestamp'])
+            return int(resp.headers['Last-Modified'])
 
         before = read_timestamp()
         now = read_timestamp()
@@ -280,7 +280,7 @@ class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
             with mock.patch.object(self.db, 'get_all', delayed_get):
                 resp = self.app.head('/articles',
                                      headers=self.headers)
-                timestamps['fetch'] = int(resp.headers['Timestamp'])
+                timestamps['fetch'] = int(resp.headers['Last-Modified'])
 
         # Create a real record with no patched timestamp
         self.app.post_json('/articles',
