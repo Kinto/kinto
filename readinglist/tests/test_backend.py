@@ -4,7 +4,9 @@ import mock
 import redis
 
 from readinglist.backend import BackendBase, exceptions
-from readinglist.backend.simpleredis import Redis
+from readinglist.backend.simpleredis import (
+    Redis, load_from_config as load_redis_from_config
+)
 from readinglist.backend.memory import Memory
 
 from .support import unittest
@@ -117,6 +119,13 @@ class RedisBackendTest(BaseTestBackend, unittest.TestCase):
     def test_ping_returns_an_error_if_unavailable(self):
         self.backend._client.setex = mock.MagicMock(side_effect=redis.RedisError)
         self.assertFalse(self.backend.ping())
+
+    def test_load_redis_from_config(self):
+        class config:
+            class registry:
+                settings = {}
+
+        load_redis_from_config(config)
 
 
 class MemoryBackendTest(BaseTestBackend, unittest.TestCase):
