@@ -5,4 +5,4 @@
 .venv/
 .coverage
 .tox/
-loadtests/venv/
+loadtests/.env.install

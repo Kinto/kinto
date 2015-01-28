@@ -40,7 +40,8 @@ clean:
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
 
 loadtest-check: install
-	$(VENV)/bin/pserve loadtests/server.ini & PID=$$!; \
+	$(VENV)/bin/pserve loadtests/server.ini > readinglist.log & PID=$$! && \
+	  rm readinglist.log || cat readinglist.log; \
 	  sleep 1 && cd loadtests && \
 	  make test SERVER_URL=http://127.0.0.1:8000; \
 	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
