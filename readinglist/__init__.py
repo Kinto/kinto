@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
 """Main entry point
 """
+from __future__ import print_function
 import pkg_resources
+from datetime import datetime
 
 from pyramid.config import Configurator
 from pyramid.events import NewRequest, NewResponse
@@ -8,6 +11,7 @@ from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid_multiauth import MultiAuthenticationPolicy
 
 from readinglist import authentication
+from readinglist.utils import msec_time
 
 
 # Module version, as defined in PEP-0396.
@@ -56,6 +60,12 @@ def attach_http_objects(config):
     access, and to pre-process responses.
     """
     def on_new_request(event):
+        # Save the time the request was recekved by the server and
+        # display some information about it.
+        event.request._received_at = msec_time()
+        print("[%s] %s %s" % (datetime.utcnow().isoformat(' '),
+                              event.request.method,
+                              event.request.path), end=" — ")
         # Attach objects on requests for easier access.
         event.request.db = config.registry.backend
 
@@ -66,6 +76,10 @@ def attach_http_objects(config):
     config.add_subscriber(on_new_request, NewRequest)
 
     def on_new_response(event):
+        # Display the status of the request as well as the time spend
+        # on the server.
+        print("%s (%d ms)" % (event.response.status_code,
+                              msec_time() - event.request._received_at))
         # Add backoff in response headers
         backoff = config.registry.settings.get("readinglist.backoff")
         if backoff is not None:
