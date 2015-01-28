@@ -60,7 +60,9 @@ def attach_http_objects(config):
     access, and to pre-process responses.
     """
     def on_new_request(event):
-        event.request.timestamp = msec_time()
+        # Save the time the request was recekved by the server and
+        # display some information about it.
+        event.request._received_at = msec_time()
         print("[%s] %s %s" % (datetime.utcnow().isoformat(' '),
                               event.request.method,
                               event.request.path), end=" — ")
@@ -74,8 +76,10 @@ def attach_http_objects(config):
     config.add_subscriber(on_new_request, NewRequest)
 
     def on_new_response(event):
+        # Display the status of the request as well as the time spend
+        # on the server.
         print("%s (%d ms)" % (event.response.status_code,
-                              msec_time() - event.request.timestamp))
+                              msec_time() - event.request._received_at))
         # Add backoff in response headers
         backoff = config.registry.settings.get("readinglist.backoff")
         if backoff is not None:
