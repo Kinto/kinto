@@ -1,4 +1,4 @@
-SERVER_URL = http://localhost:8000
+SERVER_CONFIG = config/readinglist.ini
 
 VIRTUALENV=virtualenv
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
@@ -6,6 +6,7 @@ PYTHON=$(VENV)/bin/python
 DEV_STAMP=$(VENV)/.dev_env_installed.stamp
 INSTALL_STAMP=$(VENV)/.install.stamp
 
+.IGNORE: clean
 .PHONY: all install virtualenv tests
 
 OBJECTS = .venv .coverage
@@ -26,7 +27,7 @@ $(PYTHON):
 	virtualenv $(VENV)
 
 serve: install-dev
-	$(VENV)/bin/pserve conf/readinglist.ini --reload
+	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
 
 tests-once: install-dev
 	$(VENV)/bin/nosetests -s --with-coverage --cover-package=readinglist
@@ -34,9 +35,13 @@ tests-once: install-dev
 tests:
 	tox
 
-bench: install-dev
-	$(VENV)/bin/loads-runner --config=./loadtests/bench.ini --server-url=$(SERVER_URL) loadtests.TestPOC.test_all
-
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
+
+loadtest-check: install
+	$(VENV)/bin/pserve loadtests/server.ini > readinglist.log & PID=$$! && \
+	  rm readinglist.log || cat readinglist.log; \
+	  sleep 1 && cd loadtests && \
+	  make test SERVER_URL=http://127.0.0.1:8000; \
+	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
