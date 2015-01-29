@@ -25,7 +25,7 @@ class ResourceTest(BaseResourceTest, unittest.TestCase):
 
     def _get_invalid_fields(self):
         return {
-            'favorite': 'nope'
+            'word_count': 'nope'
         }
 
     def _get_modified_keys(self):

@@ -212,16 +212,15 @@ class BaseResourceViewsTest(BaseWebTest):
     def test_modify_with_invalid_record(self):
         url = self.item_url.format(id=self.record['_id'])
         stored = self.db.get(self.resource, u'bob', self.record['_id'])
-        for k in self._get_modified_keys():
-            stored.pop(k)
         stored.update(self._get_invalid_fields())
+
         resp = self.app.patch_json(url,
                                    stored,
                                    headers=self.headers,
                                    status=400)
         self.assertFormattedError(
             resp, 400, ERRORS.INVALID_PARAMETERS,
-            "Invalid parameters", "Required")
+            "Invalid parameters", "Cannot modify url")
 
     def test_modify_with_invalid_json(self):
         url = self.item_url.format(id=self.record['_id'])
