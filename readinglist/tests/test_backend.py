@@ -72,7 +72,7 @@ class BaseTestBackend(object):
             self.backend.get,
             self.resource,
             self.user_id,
-            1234 # This record id doesn't exist.
+            1234  # This record id doesn't exist.
         )
 
     def test_update_creates_a_new_record_when_needed(self):
@@ -92,7 +92,7 @@ class BaseTestBackend(object):
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.backend.get,
-            self.resource, self.user_id, stored['id'] # Shouldn't exist.
+            self.resource, self.user_id, stored['id']  # Shouldn't exist.
         )
 
     def test_delete_raise_when_unknown(self):
@@ -152,7 +152,8 @@ class RedisBackendTest(BaseTestBackend, ThreadMixin, unittest.TestCase):
         self.backend = Redis()
 
     def test_ping_returns_an_error_if_unavailable(self):
-        self.backend._client.setex = mock.MagicMock(side_effect=redis.RedisError)
+        self.backend._client.setex = mock.MagicMock(
+            side_effect=redis.RedisError)
         self.assertFalse(self.backend.ping())
 
     def test_load_redis_from_config(self):

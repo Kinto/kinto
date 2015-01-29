@@ -1,6 +1,5 @@
 from collections import defaultdict
 
-from readinglist.backend import BackendBase, exceptions
 from readinglist import utils
 from readinglist.utils import classname
 

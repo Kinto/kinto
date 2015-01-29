@@ -150,7 +150,8 @@ class BaseResource(object):
             if record:
                 current_timestamp = record[self.modified_field]
             else:
-                current_timestamp = self.db.last_collection_timestamp(**self.db_kwargs)
+                current_timestamp = self.db.last_collection_timestamp(
+                    **self.db_kwargs)
 
             if current_timestamp <= modified_since:
                 response = HTTPNotModified()
@@ -168,7 +169,8 @@ class BaseResource(object):
             if record:
                 current_timestamp = record[self.modified_field]
             else:
-                current_timestamp = self.db.last_collection_timestamp(**self.db_kwargs)
+                current_timestamp = self.db.last_collection_timestamp(
+                    **self.db_kwargs)
 
             if current_timestamp > unmodified_since:
                 error_msg = 'Resource was modified meanwhile'

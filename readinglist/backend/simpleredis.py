@@ -58,7 +58,8 @@ class Redis(BackendBase):
                     pipe.execute()
                     return current
                 except redis.WatchError:
-                    # Our timestamp has been modified by someone else, let's retry
+                    # Our timestamp has been modified by someone else, let's
+                    # retry
                     continue
 
     def create(self, resource, user_id, record):
@@ -109,7 +110,6 @@ class Redis(BackendBase):
 
     def delete(self, resource, user_id, record_id):
         resource_name = classname(resource)
-        existing = self.get(resource, user_id, record_id)
         with self._client.pipeline() as multi:
             multi.get(
                 '{0}.{1}.{2}'.format(resource_name, user_id, record_id)
@@ -137,8 +137,8 @@ class Redis(BackendBase):
         if (len(ids) == 0):
             return []
 
-        keys = ('{0}.{1}.{2}'.format(resource_name, user_id, _id) for _id in ids)
-
+        keys = ('{0}.{1}.{2}'.format(resource_name, user_id, _id)
+                for _id in ids)
 
         encoded_results = self._client.mget(keys)
         records = map(self._decode, encoded_results)
