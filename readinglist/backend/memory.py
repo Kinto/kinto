@@ -15,11 +15,11 @@ tree = lambda: defaultdict(tree)
 class Memory(BackendBase):
     def __init__(self, *args, **kwargs):
         super(Memory, self).__init__(*args, **kwargs)
-        self._store = tree()
-        self._timestamps = defaultdict(dict)
+        self.flush()
 
     def flush(self):
-        pass
+        self._store = tree()
+        self._timestamps = defaultdict(dict)
 
     def ping(self):
         return True

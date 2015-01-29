@@ -35,13 +35,15 @@ class Redis(BackendBase):
     def last_collection_timestamp(self, resource, user_id):
         """Return the last timestamp for the resource collection of the user"""
         resource_name = classname(resource)
-        return self._client.get(
+        timestamp = self._client.get(
             '{0}.{1}.timestamp'.format(resource_name, user_id))
+        if timestamp:
+            return int(timestamp)
+        return utils.msec_time()
 
     def _bump_timestamp(self, resource, user_id):
         resource_name = classname(resource)
         key = '{0}.{1}.timestamp'.format(resource_name, user_id)
-        tries = 0
         while 1:
             with self._client.pipeline() as pipe:
                 try:
@@ -50,15 +52,13 @@ class Redis(BackendBase):
                     pipe.multi()
                     current = utils.msec_time()
 
-                    if previous and previous >= current:
-                        current = previous + 1
+                    if previous and int(previous) >= current:
+                        current = int(previous) + 1
                     pipe.set(key, current)
+                    pipe.execute()
                     return current
                 except redis.WatchError:
                     # Our timestamp has been modified by someone else, let's retry
-                    tries = tries + 1
-                    if tries == 5:
-                        raise
                     continue
 
     def create(self, resource, user_id, record):

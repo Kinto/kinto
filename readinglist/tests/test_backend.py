@@ -2,14 +2,16 @@ import six
 
 import mock
 import redis
+import time
 
 from readinglist.backend import BackendBase, exceptions
 from readinglist.backend.simpleredis import (
     Redis, load_from_config as load_redis_from_config
 )
 from readinglist.backend.memory import Memory
+from readinglist import utils
 
-from .support import unittest
+from .support import unittest, ThreadMixin
 
 
 class BackendBaseTest(unittest.TestCase):
@@ -46,11 +48,13 @@ class TestResource(object):
 
 class BaseTestBackend(object):
     def setUp(self):
+        super(BaseTestBackend, self).setUp()
         self.resource = TestResource()
         self.record = {'foo': 'bar'}
         self.user_id = 1234
 
     def tearDown(self):
+        super(BaseTestBackend, self).tearDown()
         self.backend.flush()
 
     def test_create_adds_the_record_id(self):
@@ -110,8 +114,39 @@ class BaseTestBackend(object):
     def test_ping_returns_true_when_working(self):
         self.assertTrue(self.backend.ping())
 
+    def test_timestamps_are_unique(self):
+        obtained = []
 
-class RedisBackendTest(BaseTestBackend, unittest.TestCase):
+        def create_item():
+            for i in range(100):
+                record = self.backend.create(
+                    self.resource, self.user_id, self.record)
+                obtained.append(record['last_modified'])
+
+        thread1 = self._create_thread(target=create_item)
+        thread2 = self._create_thread(target=create_item)
+        thread1.start()
+        thread2.start()
+        thread1.join()
+        thread2.join()
+
+        # With CPython (GIL), list appending is thread-safe
+        self.assertEqual(len(obtained), 200)
+        # No duplicated timestamps
+        self.assertEqual(len(set(obtained)), len(obtained))
+
+    def test_last_collection_timestamp_returns_now_when_not_found(self):
+        before = utils.msec_time()
+        time.sleep(0.001)  # 1 msec
+        timestamp = self.backend.last_collection_timestamp(
+            self.resource, self.user_id)
+        time.sleep(0.001)  # 1 msec
+        after = utils.msec_time()
+
+        self.assertTrue(before < timestamp < after)
+
+
+class RedisBackendTest(BaseTestBackend, ThreadMixin, unittest.TestCase):
     def setUp(self):
         super(RedisBackendTest, self).setUp()
         self.backend = Redis()
@@ -128,7 +163,7 @@ class RedisBackendTest(BaseTestBackend, unittest.TestCase):
         load_redis_from_config(config)
 
 
-class MemoryBackendTest(BaseTestBackend, unittest.TestCase):
+class MemoryBackendTest(BaseTestBackend, ThreadMixin, unittest.TestCase):
     def setUp(self):
         super(MemoryBackendTest, self).setUp()
         self.backend = Memory()
