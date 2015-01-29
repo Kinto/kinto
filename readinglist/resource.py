@@ -228,7 +228,7 @@ class BaseResource(object):
                     'description': "Unknown filter field '{0}'".format(param)
                 }
                 self.request.errors.add(**error_details)
-                return
+                raise errors.json_error(self.request.errors)
 
             filters.append((field, value, operator))
 
