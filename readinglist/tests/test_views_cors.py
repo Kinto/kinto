@@ -11,6 +11,12 @@ class CORSHeadersTest(BaseWebTest, unittest.TestCase):
         super(CORSHeadersTest, self).setUp()
         self.headers['Origin'] = 'notmyidea.org'
 
+    def test_support_on_hello(self):
+        response = self.app.get('/',
+                                headers=self.headers,
+                                status=200)
+        self.assertIn('Access-Control-Allow-Origin', response.headers)
+
     def test_support_on_get_unknown_id(self):
         response = self.app.get('/articles/unknown',
                                 headers=self.headers,
