@@ -87,7 +87,8 @@ class BaseTestBackend(object):
             self.user_id,
             1234  # This record id doesn't exist.
         )
-        record = self.backend.update(self.resource, self.user_id, 1234, self.record)
+        record = self.backend.update(self.resource, self.user_id, 1234,
+                                     self.record)
         retrieved = self.backend.get(self.resource, self.user_id, 1234)
         self.assertEquals(retrieved, record)
 

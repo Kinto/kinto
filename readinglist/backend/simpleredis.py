@@ -23,7 +23,9 @@ class Redis(BackendBase):
         return json.dumps(record)
 
     def _decode(self, record):
-        return json.loads(record)
+        if record is None:
+            return record
+        return json.loads(record.decode('utf-8'))
 
     def flush(self):
         self._client.flushdb()
@@ -142,7 +144,8 @@ class Redis(BackendBase):
         if (len(ids) == 0):
             return []
 
-        keys = ('{0}.{1}.{2}'.format(resource_name, user_id, _id)
+        keys = ('{0}.{1}.{2}'.format(resource_name, user_id,
+                                     _id.decode('utf-8'))
                 for _id in ids)
 
         encoded_results = self._client.mget(keys)
