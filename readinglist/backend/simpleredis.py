@@ -14,7 +14,10 @@ class Redis(BackendBase):
 
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
-        self._client = redis.StrictRedis(**kwargs)
+        self._client = redis.StrictRedis(
+            connection_pool=redis.BlockingConnectionPool(),
+            **kwargs
+        )
 
     def _encode(self, record):
         return json.dumps(record)
@@ -63,6 +66,7 @@ class Redis(BackendBase):
                     continue
 
     def create(self, resource, user_id, record):
+        record = record.copy()
         resource_name = classname(resource)
         _id = record[resource.id_field] = self.id_generator()
         self.set_record_timestamp(record, resource, user_id)
@@ -91,6 +95,7 @@ class Redis(BackendBase):
         return self._decode(encoded_item)
 
     def update(self, resource, user_id, record_id, record):
+        record = record.copy()
         resource_name = classname(resource)
         self.set_record_timestamp(record, resource, user_id)
         record[resource.id_field] = record_id

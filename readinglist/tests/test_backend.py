@@ -66,6 +66,10 @@ class BaseTestBackend(object):
         retrieved = self.backend.get(self.resource, self.user_id, stored['id'])
         self.assertEquals(retrieved, stored)
 
+    def test_create_copies_the_record_before_modifying_it(self):
+        self.backend.create(self.resource, self.user_id, self.record)
+        self.assertEquals(self.record.get('id'), None)
+
     def test_get_raise_on_record_not_found(self):
         self.assertRaises(
             exceptions.RecordNotFoundError,
@@ -76,9 +80,16 @@ class BaseTestBackend(object):
         )
 
     def test_update_creates_a_new_record_when_needed(self):
-        self.backend.update(self.resource, self.user_id, 1234, self.record)
+        self.assertRaises(
+            exceptions.RecordNotFoundError,
+            self.backend.get,
+            self.resource,
+            self.user_id,
+            1234  # This record id doesn't exist.
+        )
+        record = self.backend.update(self.resource, self.user_id, 1234, self.record)
         retrieved = self.backend.get(self.resource, self.user_id, 1234)
-        self.assertEquals(retrieved, self.record)
+        self.assertEquals(retrieved, record)
 
     def test_update_overwrites_record_id(self):
         self.record['id'] = 4567
@@ -121,7 +132,7 @@ class BaseTestBackend(object):
             for i in range(100):
                 record = self.backend.create(
                     self.resource, self.user_id, self.record)
-                obtained.append(record['last_modified'])
+                obtained.append((record['last_modified'], record['id']))
 
         thread1 = self._create_thread(target=create_item)
         thread2 = self._create_thread(target=create_item)
