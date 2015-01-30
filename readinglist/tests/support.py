@@ -1,5 +1,6 @@
 import mock
 import six
+import threading
 import webtest
 
 try:
@@ -43,10 +44,12 @@ class BaseWebTest(object):
             'Content-Type': 'application/json',
             'Authorization': 'Bearer {0}'.format(access_token),
         }
+        super(BaseWebTest, self).setUp()
 
     def tearDown(self):
         self.db.flush()
         self.patcher.stop()
+        super(BaseWebTest, self).tearDown()
 
     def assertFormattedError(self, response, code, errno, error,
                              message=None, info=None):
@@ -211,13 +214,10 @@ class BaseResourceViewsTest(BaseWebTest):
         stored = self.db.get(self.resource, u'bob', self.record['_id'])
         for k in self._get_modified_keys():
             stored.pop(k)
-        resp = self.app.patch_json(url,
-                                   stored,
-                                   headers=self.headers,
-                                   status=400)
-        self.assertFormattedError(
-            resp, 400, ERRORS.INVALID_PARAMETERS,
-            "Invalid parameters", "Required")
+        stored.update(self._get_invalid_fields())
+
+        self.app.patch_json(url, stored, headers=self.headers,
+                            status=400)
 
     def test_modify_with_invalid_json(self):
         url = self.item_url.format(id=self.record['_id'])
@@ -442,3 +442,20 @@ class BaseResourceTest(BaseResourceViewsTest,
                        BaseResourcePreconditionsTest,
                        BaseResourceAuthorizationTest):
     pass
+
+
+class ThreadMixin(object):
+
+    def setUp(self):
+        self._threads = []
+
+    def tearDown(self):
+        super(ThreadMixin, self).tearDown()
+
+        for thread in self._threads:
+            thread.join()
+
+    def _create_thread(self, *args, **kwargs):
+        thread = threading.Thread(*args, **kwargs)
+        self._threads.append(thread)
+        return thread

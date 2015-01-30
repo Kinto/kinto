@@ -1,5 +1,4 @@
 import time
-import threading
 import mock
 from random import shuffle
 
@@ -7,7 +6,7 @@ from readinglist.errors import ERRORS
 from readinglist.views.article import Article
 from readinglist.utils import msec_time
 
-from .support import BaseResourceTest, BaseWebTest, unittest
+from .support import BaseResourceTest, BaseWebTest, ThreadMixin, unittest
 
 
 MINIMALIST_ARTICLE = dict(title="MoFo",
@@ -23,6 +22,11 @@ class ResourceTest(BaseResourceTest, unittest.TestCase):
 
     def modify_record(self, original):
         return dict(title="Mozilla Foundation")
+
+    def _get_invalid_fields(self):
+        return {
+            'word_count': 'nope'
+        }
 
     def _get_modified_keys(self):
         keys = set(self.modify_record(self.record).keys())
@@ -136,29 +140,16 @@ class ArticleFilteringTest(BaseWebTest, unittest.TestCase):
                      status=400)
 
 
-class ArticleFilterModifiedTest(BaseWebTest, unittest.TestCase):
+class ArticleFilterModifiedTest(BaseWebTest, ThreadMixin, unittest.TestCase):
 
     @mock.patch('readinglist.utils.msec_time')
     def setUp(self, timestamp_mocked):
         super(ArticleFilterModifiedTest, self).setUp()
 
-        self._threads = []
-
         for i in range(6):
             timestamp_mocked.return_value = i
             article = MINIMALIST_ARTICLE.copy()
             self.app.post_json('/articles', article, headers=self.headers)
-
-    def tearDown(self):
-        super(ArticleFilterModifiedTest, self).tearDown()
-
-        for thread in self._threads:
-            thread.join()
-
-    def _create_thread(self, *args, **kwargs):
-        thread = threading.Thread(*args, **kwargs)
-        self._threads.append(thread)
-        return thread
 
     def test_filter_with_since_is_exclusive(self):
         resp = self.app.get('/articles?_since=3', headers=self.headers)

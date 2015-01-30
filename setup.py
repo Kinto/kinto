@@ -11,9 +11,10 @@ REQUIREMENTS = [
     'cornice',
     'pyfxa',
     'pyramid_multiauth',
+    'redis',
     'requests',
-    'waitress',
     'six',
+    'waitress',
 ]
 DEPENDENCY_LINKS = [
     'https://github.com/mozilla/PyFxA/tarball/master#egg=PyFxA-0.0.3dev',
