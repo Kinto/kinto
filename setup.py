@@ -26,7 +26,7 @@ ENTRY_POINTS = {
 
 
 setup(name='readinglist',
-      version=0.1,
+      version='0.1',
       description='readinglist',
       long_description=README,
       classifiers=[

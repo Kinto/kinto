@@ -1,0 +1,24 @@
+Changelog
+=========
+
+This document describes changes between each past release.
+
+
+0.1 (2015-01-30)
+----------------
+
+- Allow Cors (#67)
+- Log incomming request to the console (#65)
+- Add timestamp for 304 and 412 response (#40)
+- Add time vector to GET /articles and GET /articles/<id> (#4)
+- Preconditions Headers for Update and Creation (#60)
+- Provide number of items in headers of GET /articles (#39)
+- Check for filter values (#58)
+- Handle article title length (#37)
+- Support min, max and no keywords filters (#43)
+- Prevent to modify read-only fields (#26)
+- Filtering and sort querystring (#44)
+- Redis backend (#50)
+- Handle errors (#24 - #49)
+- Add loadtests (#47)
+- Handle API version in URL (#33)
