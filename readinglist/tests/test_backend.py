@@ -163,6 +163,11 @@ class RedisBackendTest(BaseTestBackend, ThreadMixin, unittest.TestCase):
         super(RedisBackendTest, self).setUp()
         self.backend = Redis()
 
+    def test_get_all_handle_expired_values(self):
+        with mock.patch.object(self.backend._client, "get",
+                               return_value=['{"id": "foobar"}', None]):
+            self.backend.get_all("foobar", "alexis")  # not raising
+
     def test_ping_returns_an_error_if_unavailable(self):
         self.backend._client.setex = mock.MagicMock(
             side_effect=redis.RedisError)

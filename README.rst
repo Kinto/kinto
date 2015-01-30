@@ -42,15 +42,13 @@ Install Redis
 Linux
 -----
 
-On debian / ubuntu based systems:::
+On debian / ubuntu based systems::
 
-    sh
     apt-get install redis-server
 
 
-or:::
+or::
 
-    sh
     yum install redis
 
 OS X
