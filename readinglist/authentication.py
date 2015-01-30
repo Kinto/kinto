@@ -18,7 +18,7 @@ def check_credentials(username, password, request):
     """
     settings = request.registry.settings
     is_enabled = settings.get('readinglist.basic_auth_backdoor')
-    return [username] if is_enabled else []
+    return ["basicauth_%s" % username] if is_enabled else []
 
 
 class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
