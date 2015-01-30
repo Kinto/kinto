@@ -19,7 +19,7 @@ Run locally
 
 By default, readinglist persists its records inside a `Redis
 <http://redis.io/>`_  database, so you need to have it installed (see the
-"Install Redis" section below for more on this.
+"Install Redis" section below for more on this).
 
 Once you have Redis installed, you just need to do:
 
