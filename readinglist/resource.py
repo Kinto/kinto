@@ -39,7 +39,7 @@ def crud(**kwargs):
                       path='/{0}s/{{id}}'.format(resource_name),
                       description='Collection of {0}'.format(resource_name),
                       error_handler=errors.json_error,
-                      depth=2)
+                      depth=2, cors_origins=('*',))
         params.update(**kwargs)
 
         # Inject resource schema in views decorators arguments

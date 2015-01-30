@@ -7,8 +7,6 @@ from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid_multiauth import MultiAuthenticationPolicy
 
-from cornice import Service
-
 from readinglist import authentication
 
 
@@ -77,7 +75,6 @@ def attach_http_objects(config):
 
 
 def main(global_config, **settings):
-    Service.cors_origins = ('*',)
     config = Configurator(settings=settings)
     handle_api_redirection(config)
 

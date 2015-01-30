@@ -28,6 +28,7 @@ class BaseWebTest(object):
     def setUp(self):
         self.app = webtest.TestApp("config:config/readinglist.ini",
                                    relative_to='.')
+
         self.app.RequestClass = PrefixedRequestClass
         self.db = self.app.app.registry.backend
 

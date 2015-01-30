@@ -1,6 +1,9 @@
 from __future__ import print_function
 import sys
 import traceback
+from functools import wraps
+
+from cornice.cors import ensure_origin
 from pyramid.httpexceptions import (
     HTTPForbidden, HTTPUnauthorized, HTTPNotFound, HTTPInternalServerError,
 )
@@ -12,7 +15,39 @@ from pyramid.view import (
 from readinglist.errors import format_error, ERRORS
 
 
+def reapply_cors(request, response):
+    """Reapply cors headers to the new response with regards to the request.
+
+    We need to re-apply the CORS checks done by Cornice, in case we're
+    recreating the response from scratch.
+
+    """
+    if request.matched_route:
+        services = request.registry.cornice_services
+        pattern = request.matched_route.pattern
+        service = services.get(pattern, None)
+
+        request.info['cors_checked'] = False
+        response = ensure_origin(service, request, response)
+    return response
+
+
+def cors(view):
+    """Make sure CORS headers are correctly processed on errors."""
+
+    @wraps(view)
+    def wrap_view(request, *args, **kwargs):
+        response = view(request, *args, **kwargs)
+
+        # We need to re-apply the CORS checks done by Cornice, since we're
+        # recreating the response from scratch.
+        return reapply_cors(request, response)
+
+    return wrap_view
+
+
 @forbidden_view_config()
+@cors
 def authorization_required(request):
     """Distinguish authentication required (``401 Unauthorized``) from
     not allowed (``403 Forbidden``).
@@ -35,6 +70,7 @@ def authorization_required(request):
 
 
 @notfound_view_config()
+@cors
 def page_not_found(request):
     """Return a JSON 404 error page."""
     response = HTTPNotFound(
@@ -55,7 +91,7 @@ def error(context, request):
         # client.captureException()
         print(traceback.format_exc(), file=sys.stderr)
 
-    return HTTPInternalServerError(
+    response = HTTPInternalServerError(
         body=format_error(
             500,
             ERRORS.UNDEFINED,
@@ -63,3 +99,5 @@ def error(context, request):
             "A programmatic error occured, developers have been informed.",
             "https://github.com/mozilla-services/readinglist/issues/"),
         content_type='application/json')
+
+    return reapply_cors(request, response)
