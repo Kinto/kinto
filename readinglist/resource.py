@@ -39,6 +39,7 @@ def crud(**kwargs):
                       path='/{0}s/{{id}}'.format(resource_name),
                       description='Collection of {0}'.format(resource_name),
                       error_handler=errors.json_error,
+                      cors_origins=('*',),
                       depth=2)
         params.update(**kwargs)
 
