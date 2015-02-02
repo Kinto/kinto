@@ -323,14 +323,7 @@ class BaseResource(object):
         record = self.fetch_record()
         self.raise_412_if_modified(record)
 
-        try:
-            changes = self.request.json
-        except ValueError as e:
-            error_msg = "Invalid JSON request body: " + six.text_type(e)
-            self.request.errors.add('body', name=None, description=error_msg)
-            raise errors.json_error(self.request.errors)
-
-        updated = self.merge_fields(record, changes=changes)
+        updated = self.merge_fields(record, changes=self.request.json)
 
         updated = self.process_record(updated, old=record)
 
