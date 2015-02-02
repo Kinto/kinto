@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 """Main entry point
 """
 from __future__ import print_function
 import pkg_resources
-from datetime import datetime
+import logging
 
 from pyramid.config import Configurator
 from pyramid.events import NewRequest, NewResponse
@@ -21,6 +20,9 @@ __version__ = pkg_resources.get_distribution(__package__).version
 
 # The API version is derivated from the module version.
 API_VERSION = 'v%s' % __version__.split('.')[0]
+
+# Main readinglist logger
+logger = logging.getLogger(__name__)
 
 
 def handle_api_redirection(config):
@@ -62,12 +64,9 @@ def attach_http_objects(config):
     access, and to pre-process responses.
     """
     def on_new_request(event):
-        # Save the time the request was recekved by the server and
-        # display some information about it.
+        # Save the time the request was received by the server
         event.request._received_at = msec_time()
-        print("[%s] %s %s" % (datetime.utcnow().isoformat(' '),
-                              event.request.method,
-                              event.request.path), end=" — ")
+
         # Attach objects on requests for easier access.
         event.request.db = config.registry.backend
 
@@ -80,8 +79,15 @@ def attach_http_objects(config):
     def on_new_response(event):
         # Display the status of the request as well as the time spend
         # on the server.
-        print("%s (%d ms)" % (event.response.status_code,
-                              msec_time() - event.request._received_at))
+        pattern = '"{method} {path}" {status} {size} ({duration} ms)'
+        msg = pattern.format(
+            method=event.request.method,
+            path=event.request.path,
+            status=event.response.status_code,
+            size=event.response.content_length,
+            duration=(msec_time() - event.request._received_at))
+        logger.debug(msg)
+
         # Add backoff in response headers
         backoff = config.registry.settings.get("readinglist.backoff")
         if backoff is not None:
