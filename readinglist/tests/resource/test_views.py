@@ -129,6 +129,13 @@ class InvalidRecordTest(FakeAuthentMixin, BaseWebTest):
 
 
 class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
+    def __init__(self, *args, **kwargs):
+        super(InvalidBodyTest, self).__init__(*args, **kwargs)
+        self.headers.update({
+            'Content-Type': 'application/json',
+        })
+        self.invalid_body = "{'foo>}"
+
     def setUp(self):
         super(InvalidBodyTest, self).setUp()
         resp = self.app.post_json(self.collection_url,
@@ -136,16 +143,17 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
                                   headers=self.headers)
         self.record = resp.json
 
-        self.invalid_body = "{'foo>}"
 
     def test_invalid_body_returns_json_formatted_error(self):
         resp = self.app.post(self.collection_url,
                              self.invalid_body,
                              headers=self.headers,
                              status=400)
+        error_msg = ("body: Invalid JSON request body: Expecting property "
+        "name enclosed in double quotes: line 1 column 2 (char 1)")
         self.assertEqual(resp.json, {
             'errno': ERRORS.INVALID_PARAMETERS,
-            'message': 'Invalid JSON request body',
+            'message': error_msg,
             'code': 400,
             'error': 'Invalid parameters'
         })
