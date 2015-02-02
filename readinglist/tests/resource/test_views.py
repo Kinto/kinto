@@ -1,6 +1,5 @@
 import colander
 from cornice import Service
-from cornice.tests.support import CatchErrors
 import mock
 from pyramid import testing
 import webtest
@@ -41,7 +40,7 @@ class BaseWebTest(unittest.TestCase):
 
         attach_http_objects(self.config)
 
-        self.app = webtest.TestApp(CatchErrors(self.config.make_wsgi_app()))
+        self.app = webtest.TestApp(self.config.make_wsgi_app())
 
         self.collection_url = '/mushrooms'
         self.item_url = '/mushrooms/{id}'
@@ -145,14 +144,13 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
                                   headers=self.headers)
         self.record = resp.json
 
-
     def test_invalid_body_returns_json_formatted_error(self):
         resp = self.app.post(self.collection_url,
                              self.invalid_body,
                              headers=self.headers,
                              status=400)
-        error_msg = ("body: Invalid JSON request body: Expecting property "
-        "name enclosed in double quotes: line 1 column 2 (char 1)")
+        error_msg = ("body: Invalid JSON request body: Expecting property name"
+                     "enclosed in double quotes: line 1 column 2 (char 1)")
         self.assertEqual(resp.json, {
             'errno': ERRORS.INVALID_PARAMETERS,
             'message': error_msg,

@@ -6,6 +6,7 @@ from functools import wraps
 from cornice.cors import ensure_origin
 from pyramid.httpexceptions import (
     HTTPForbidden, HTTPUnauthorized, HTTPNotFound, HTTPInternalServerError,
+    HTTPBadRequest
 )
 from pyramid.security import forget
 from pyramid.view import (
@@ -101,3 +102,8 @@ def error(context, request):
         content_type='application/json')
 
     return reapply_cors(request, response)
+
+
+@view_config(context=HTTPBadRequest)
+def json_error(context, request):
+    return context
