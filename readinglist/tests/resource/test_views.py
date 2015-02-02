@@ -1,5 +1,6 @@
 import colander
 from cornice import Service
+from cornice.tests.support import CatchErrors
 import mock
 from pyramid import testing
 import webtest
@@ -25,7 +26,8 @@ MINIMALIST_RECORD = {'name': 'Champignon'}
 
 class BaseWebTest(unittest.TestCase):
 
-    def setUp(self):
+    def __init__(self, *args, **kwargs):
+        super(BaseWebTest, self).__init__(*args, **kwargs)
         self.config = testing.setUp()
         self.config.registry.backend = Memory()
 
@@ -39,7 +41,7 @@ class BaseWebTest(unittest.TestCase):
 
         attach_http_objects(self.config)
 
-        self.app = webtest.TestApp(self.config.make_wsgi_app())
+        self.app = webtest.TestApp(CatchErrors(self.config.make_wsgi_app()))
 
         self.collection_url = '/mushrooms'
         self.item_url = '/mushrooms/{id}'
