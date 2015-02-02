@@ -1,8 +1,8 @@
 import re
-import inspect
 
 import colander
 from cornice import resource
+from cornice.schemas import CorniceSchema
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPNotFound)
 import six
@@ -43,14 +43,6 @@ def crud(**kwargs):
                       depth=2)
         params.update(**kwargs)
 
-        # Inject resource schema in views decorators arguments
-        for name, method in inspect.getmembers(klass):
-            # Hack from Cornice ``@resource()`` and ``@view()`` decorator
-            decorations = getattr(method, '__views__', [])
-            for view_args in decorations:
-                if view_args.pop('with_schema', False):
-                    view_args['schema'] = klass.mapping
-
         return resource.resource(**params)(klass)
     return wrapper
 
@@ -76,6 +68,7 @@ class BaseResource(object):
     mapping = RessourceSchema()
     id_field = '_id'
     modified_field = 'last_modified'
+    schema_for = ('POST', 'PUT')
 
     def __init__(self, request):
         self.request = request
@@ -84,6 +77,16 @@ class BaseResource(object):
                               user_id=request.authenticated_userid)
         self.known_fields = [c.name for c in self.mapping.children]
         self.timestamp = self.db.last_collection_timestamp(**self.db_kwargs)
+
+    @property
+    def schema(self):
+        colander_schema = self.mapping
+
+        if self.request.method not in self.schema_for:
+            # No-op since payload is not validated against schema
+            colander_schema = colander.MappingSchema(unknown='preserve')
+
+        return CorniceSchema.from_colander(colander_schema)
 
     def fetch_record(self):
         """Fetch current view related record, and raise 404 if missing."""
@@ -279,7 +282,7 @@ class BaseResource(object):
         }
         return body
 
-    @resource.view(permission='readwrite', with_schema=True)
+    @resource.view(permission='readwrite')
     def collection_post(self):
         self.raise_412_if_modified()
 
@@ -297,7 +300,7 @@ class BaseResource(object):
 
         return record
 
-    @resource.view(permission='readwrite', with_schema=True)
+    @resource.view(permission='readwrite')
     def put(self):
         record_id = self.request.matchdict['id']
 
