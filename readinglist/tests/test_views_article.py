@@ -62,6 +62,21 @@ class ArticleModificationTest(BaseWebTest, unittest.TestCase):
         self.assertIsNone(resp.json['marked_read_by'])
         self.assertIsNone(resp.json['marked_read_on'])
 
+    def test_patch_marked_read_are_taken_into_account(self):
+        mark_read = {
+            'unread': False,
+            'marked_read_by': 'FxOS',
+            'marked_read_on': 1234}
+        resp = self.app.patch_json(self.url, mark_read, headers=self.headers)
+        body = resp.json
+        self.assertEqual(body['marked_read_by'], mark_read['marked_read_by'])
+        self.assertEqual(body['marked_read_on'], mark_read['marked_read_on'])
+
+        resp = self.app.get(self.url, headers=self.headers)
+        body = resp.json
+        self.assertEqual(body['marked_read_by'], mark_read['marked_read_by'])
+        self.assertEqual(body['marked_read_on'], mark_read['marked_read_on'])
+
     def test_cannot_modify_url(self):
         body = {'url': 'http://immutable.org'}
         self.app.patch_json(self.url,
