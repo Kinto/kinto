@@ -7,11 +7,11 @@ import webtest
 from readinglist import set_auth, attach_http_objects
 from readinglist.backend.memory import Memory
 from readinglist.errors import ERRORS
-from readinglist.resource import BaseResource, RessourceSchema, crud
+from readinglist.resource import BaseResource, ResourceSchema, crud
 from readinglist.tests.support import unittest, FakeAuthentMixin
 
 
-class MushroomSchema(RessourceSchema):
+class MushroomSchema(ResourceSchema):
     name = colander.SchemaNode(colander.String())
 
 

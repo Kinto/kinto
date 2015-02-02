@@ -47,7 +47,7 @@ def crud(**kwargs):
     return wrapper
 
 
-class RessourceSchema(colander.MappingSchema):
+class ResourceSchema(colander.MappingSchema):
     """Base resource schema.
 
     It brings common fields and behaviour for all inherited schemas.
@@ -65,7 +65,7 @@ class RessourceSchema(colander.MappingSchema):
 
 class BaseResource(object):
 
-    mapping = RessourceSchema()
+    mapping = ResourceSchema()
     id_field = '_id'
     modified_field = 'last_modified'
     validate_schema_for = ('POST', 'PUT')
