@@ -94,7 +94,7 @@ class InvalidRecordTest(FakeAuthentMixin, BaseWebTest):
                                   self.invalid_record,
                                   headers=self.headers,
                                   status=400)
-        self.assertEqual(resp.json, {
+        self.assertDictEqual(resp.json, {
             'errno': ERRORS.INVALID_PARAMETERS,
             'message': "42 is not a string: {'name': ''}",  # XXX: weird msg
             'code': 400,
@@ -150,8 +150,8 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
                              headers=self.headers,
                              status=400)
         error_msg = ("body: Invalid JSON request body: Expecting property name"
-                     "enclosed in double quotes: line 1 column 2 (char 1)")
-        self.assertEqual(resp.json, {
+                     " enclosed in double quotes: line 1 column 2 (char 1)")
+        self.assertDictEqual(resp.json, {
             'errno': ERRORS.INVALID_PARAMETERS,
             'message': error_msg,
             'code': 400,
@@ -184,7 +184,7 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
                              body,
                              headers=self.headers,
                              status=400)
-        self.assertIn('Invalid \uXXXX escape sequence', resp.json['message'])
+        self.assertIn('escape sequence', resp.json['message'])
 
     def test_modify_with_invalid_uft8_returns_400(self):
         url = self.item_url.format(id=self.record['_id'])
@@ -193,7 +193,7 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
                               body,
                               headers=self.headers,
                               status=400)
-        self.assertIn('Invalid \uXXXX escape sequence', resp.json['message'])
+        self.assertIn('escape sequence', resp.json['message'])
 
 
 class CORSHeadersTest(FakeAuthentMixin, BaseWebTest):
