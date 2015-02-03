@@ -332,13 +332,15 @@ class BaseResource(object):
         self.raise_412_if_modified(record)
 
         changes = self.request.json
-        is_equal = all([record.get(k) == v for k, v in changes.items()])
-        if is_equal:
-            return record
 
         updated = self.merge_fields(record, changes=changes)
 
         updated = self.process_record(updated, old=record)
+
+        has_changed = lambda field: record.get(k) == updated.get(k)
+        nothing_changed = all([has_changed(k) for k in changes.keys()])
+        if nothing_changed:
+            return record
 
         record = self.db.update(record_id=record[self.id_field],
                                 record=updated,

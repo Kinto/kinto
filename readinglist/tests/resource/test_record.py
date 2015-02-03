@@ -1,3 +1,4 @@
+import mock
 from pyramid import httpexceptions
 
 from readinglist.errors import ERRORS
@@ -18,9 +19,9 @@ class PutTest(BaseTest):
     def setUp(self):
         super(PutTest, self).setUp()
         self.record = self.db.create(self.resource, 'bob', {'field': 'old'})
+        self.resource.request.matchdict['id'] = self.record['_id']
 
     def test_replace_record_returns_updated_fields(self):
-        self.resource.request.matchdict['id'] = self.record['_id']
         self.resource.request.validated = {'field': 'new'}
 
         result = self.resource.put()
@@ -30,12 +31,10 @@ class PutTest(BaseTest):
         self.assertNotEqual(self.record['field'], 'new')
 
     def test_cannot_replace_with_different_id(self):
-        self.resource.request.matchdict['id'] = self.record['_id']
         self.resource.request.validated = {'_id': 'abc'}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.put)
 
     def test_last_modified_is_overwritten_on_replace(self):
-        self.resource.request.matchdict['id'] = self.record['_id']
         self.resource.request.validated = {'last_modified': 123}
         result = self.resource.put()
         self.assertNotEqual(result['last_modified'], 123)
@@ -87,6 +86,15 @@ class PatchTest(BaseTest):
         self.resource.collection_get()
         last_modified = self.last_response.headers['Last-Modified']
         self.assertEquals(self.result['last_modified'], int(last_modified))
+
+    def test_timestamp_is_not_updated_if_no_change_after_preprocessed(self):
+        with mock.patch.object(self.resource, 'preprocess_record') as mocked:
+            mocked.return_value = {'some': 'change'}
+
+            self.resource.request.json = {'some': 'plop'}
+            result = self.resource.patch()
+            self.assertEquals(self.result['last_modified'],
+                              result['last_modified'])
 
 
 class UnknownRecordTest(BaseTest):

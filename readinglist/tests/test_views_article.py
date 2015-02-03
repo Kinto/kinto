@@ -98,3 +98,25 @@ class ReadArticleModificationTest(BaseWebTest, unittest.TestCase):
                             headers=self.headers)
         record = self.refetch()
         self.assertEqual(record['read_position'], 43)
+
+    def test_marked_by_and_on_are_ignored_if_already_unread(self):
+        body = {
+            'unread': False,
+            'marked_read_by': 'Android',
+            'marked_read_on': 543210}
+        resp = self.app.patch_json(self.url,
+                                   body,
+                                   headers=self.headers)
+        self.assertNotEqual(resp.json['marked_read_by'], 'Android')
+        self.assertNotEqual(resp.json['marked_read_on'], 543210)
+
+    def test_timestamp_is_not_updated_if_already_unread(self):
+        body = {
+            'unread': False,
+            'marked_read_by': 'Android',
+            'marked_read_on': 543210}
+        resp = self.app.patch_json(self.url,
+                                   body,
+                                   headers=self.headers)
+        self.assertEqual(resp.json['last_modified'],
+                         self.record['last_modified'])
