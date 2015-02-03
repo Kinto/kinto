@@ -57,3 +57,13 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
             response, 503, ERRORS.BACKEND, "Service unavailable",
             "Service unavailable due to high load, please retry later.")
         self.assertIn("Retry-After", response.headers)
+
+    def test_500_provides_traceback_on_server(self):
+        mock_traceback = mock.patch('logging.traceback.print_exception')
+        with mock.patch('readinglist.views.article.Article.collection_get',
+                        side_effect=ValueError):
+            with mock_traceback as mocked_traceback:
+                self.app.get('/articles', headers=self.headers, status=500)
+                self.assertTrue(mocked_traceback.called)
+                self.assertEqual(ValueError,
+                                 mocked_traceback.call_args[0][0])

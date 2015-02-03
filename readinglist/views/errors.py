@@ -1,6 +1,4 @@
 from __future__ import print_function
-import sys
-import traceback
 from functools import wraps
 
 from cornice.cors import ensure_origin
@@ -12,6 +10,7 @@ from pyramid.view import (
     forbidden_view_config, notfound_view_config, view_config
 )
 
+from readinglist import logger
 from readinglist.errors import format_error, ERRORS
 
 
@@ -83,13 +82,8 @@ def page_not_found(request):
 
 @view_config(context=Exception)
 def error(context, request):
-    """Display an error message and record it in Sentry."""
-    # client = Client()
-    try:
-        raise
-    except Exception:
-        # client.captureException()
-        print(traceback.format_exc(), file=sys.stderr)
+    """Catch server errors and trace them."""
+    logger.exception(context)
 
     response = HTTPInternalServerError(
         body=format_error(
