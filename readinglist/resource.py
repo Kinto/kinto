@@ -68,7 +68,7 @@ class BaseResource(object):
     mapping = RessourceSchema()
     id_field = '_id'
     modified_field = 'last_modified'
-    schema_for = ('POST', 'PUT')
+    validate_schema_for = ('POST', 'PUT')
 
     def __init__(self, request):
         self.request = request
@@ -82,7 +82,7 @@ class BaseResource(object):
     def schema(self):
         colander_schema = self.mapping
 
-        if self.request.method not in self.schema_for:
+        if self.request.method not in self.validate_schema_for:
             # No-op since payload is not validated against schema
             colander_schema = colander.MappingSchema(unknown='preserve')
 
