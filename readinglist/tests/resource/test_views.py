@@ -256,10 +256,8 @@ class CORSHeadersTest(FakeAuthentMixin, BaseWebTest):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_internal_error(self):
-        with mock.patch('traceback.format_exc', return_value="") as mock_err:
-            with mock.patch('readinglist.views.article.Article.collection_get',
-                            side_effect=ValueError):
-                response = self.app.get('/articles',
-                                        headers=self.headers, status=500)
-        mock_err.assert_called_once_with()
+        with mock.patch('readinglist.views.article.Article.collection_get',
+                        side_effect=ValueError):
+            response = self.app.get('/articles',
+                                    headers=self.headers, status=500)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
