@@ -1,7 +1,6 @@
-import six
-
 import mock
 import redis
+import six
 import time
 
 from readinglist.backend import BackendBase, exceptions
@@ -164,9 +163,14 @@ class RedisBackendTest(BaseTestBackend, ThreadMixin, unittest.TestCase):
         self.backend = Redis()
 
     def test_get_all_handle_expired_values(self):
-        with mock.patch.object(self.backend._client, "get",
-                               return_value=['{"id": "foobar"}', None]):
-            self.backend.get_all("foobar", "alexis")  # not raising
+        record = '{"id": "foo"}'.encode('utf-8')
+        mocked_smember = mock.patch.object(self.backend._client, "smembers",
+                                           return_value=['a', 'b'])
+        mocked_mget = mock.patch.object(self.backend._client, "mget",
+                                        return_value=[record, None])
+        with mocked_smember:
+            with mocked_mget:
+                self.backend.get_all("foobar", "alexis")  # not raising
 
     def test_ping_returns_an_error_if_unavailable(self):
         self.backend._client.setex = mock.MagicMock(
