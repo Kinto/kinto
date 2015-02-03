@@ -7,7 +7,9 @@ Welcome to Reading List's documentation!
 ========================================
 
 *Reading list* is a service to keep track of a list of articles to read.
-The state of the reading list is synchronized between devices.
+
+This is a service attached to Firefox Accounts that enable users to
+keep their Reading List in sync across all of their devices.
 
 Contents:
 

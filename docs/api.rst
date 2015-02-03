@@ -11,18 +11,20 @@ The returned value is a JSON mapping containing:
 - ``hello``: the name of the service (``"reading list"``)
 - ``version``: complete version (``"X.Y.Z"``)
 - ``url``: absolute URI (without a trailing slash) of the API (*can be used by client to build URIs*)
-- ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, null if unknown)
+- ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)
 - ``documentation``: The url to the service documentation
 
 
 GET /__heartbeat__
 ------------------
 
-Return the status of each service the *reading list* depends on. The returned value is a JSON mapping containing:
+Return the status of each service the *reading list* depends on. The
+returned value is a JSON mapping containing:
 
 - ``database`` true if operational
 
-Return ``200`` if the connection with each service is working properly and ``503`` if something doesn't work.
+Return ``200`` if the connection with each service is working properly
+and ``503`` if something doesn't work.
 
 
 GET /articles
@@ -38,11 +40,13 @@ The returned value is a JSON mapping containing:
 
 `See all article attributes <https://github.com/mozilla-services/readinglist/wiki/API-Design-proposal#data-model>`_
 
-A ``Total-Records`` header is sent back to indicate the total number of records
-included in the response.
+A ``Total-Records`` header is sent back to indicate the estimated
+total number of records included in the response.
 
-A header ``Last-Modified`` will provide the current timestamp of the collection (*see Server timestamps section*).
-It is likely to be used by client to provide ``If-Modified-Since`` or ``If-Unmodified-Since`` headers in subsequent requests.
+A header ``Last-Modified`` will provide the current timestamp of the
+collection (*see Server timestamps section*).  It is likely to be used
+by client to provide ``If-Modified-Since`` or ``If-Unmodified-Since``
+headers in subsequent requests.
 
 
 Filtering
@@ -63,7 +67,8 @@ Prefix attribute name with ``min_`` or ``max_``:
 * ``/articles?min_word_count=4000``
 
 :note:
-    The lower and upper bounds are inclusive (*i.e equivalent to greater or equal*).
+    The lower and upper bounds are inclusive (*i.e equivalent to
+    greater or equal*).
 
 **Exclude**
 
@@ -75,7 +80,8 @@ Prefix attribute name with ``not_``:
     Will return an error if an attribute is unknown.
 
 :note:
-    The ``Last-Modified`` response header will always be the same as the unfiltered collection.
+    The ``Last-Modified`` response header will always be the same as
+    the unfiltered collection.
 
 Sorting
 :::::::
@@ -95,66 +101,29 @@ Sorting
 Counting
 ::::::::
 
-In order to count the number of records, by status for example, without fetching
-the actual collection, a ``HEAD`` request can be used. The ``Total-Records`` response
-header will then provide the total number of records.
+In order to count the number of records, by status for example,
+without fetching the actual collection, a ``HEAD`` request can be
+used. The ``Total-Records`` response header will then provide the
+total number of records.
 
 
 Polling for changes
 :::::::::::::::::::
 
-The ``_since`` parameter is provided as an alias for ``min_last_modified``
-(*greater or equal*).
+The ``_since`` parameter is provided as an alias for
+``min_last_modified`` (*greater or equal*).
 
 * ``/articles?_since=123456``
 
-The new value of the collection latest modification is provided in headers (*see Server timestamps section*).
+The new value of the collection latest modification is provided in
+headers (*see Server timestamps section*).
 
-When the since parameter is provided, every deleted articles will appear in the
-list with a deleted status (``status=2``).
+When the since parameter is provided, every deleted articles will
+appear in the list with a deleted status (``status=2``).
 
-If the request header ``If-Modified-Since`` is provided, and if the collection has not
-suffered changes meanwhile, a ``304 Not Modified`` response is returned.
-
-
-Pagination
-::::::::::
-
-Paging is performed through a ``_limit`` parameter and a ``Next-Page`` response header.
-
-Client should begin by issuing a *GET /articles?_limit=<LIMIT>* request, which
-will return up to *<LIMIT>* items.
-
-* ``/articles?_limit=100``
-
-If there were additional items matching the query, the response will be a
-``206 Partial Content`` and include a ``Next-Page`` header containing the next
-page full URL.
-
-To fetch additional items, the next request is performed on the URL obtained from ``Next-Page`` header.
-This process is repeated until the response does not include the ``Next-Page`` header.
-
-:note:
-    Using the ``Next-Page`` technique (i.e. `continuation tokens <http://vermorel.com/journal/2010/2/22/paging-indices-vs-continuation-tokens.html>`_)
-    the implementation of pagination is completely hidden from clients, and thus
-    completely interchangeable.
-
-Pagination on a filtered collection should not be obstructed by modification or creation of non matching records.
-
-To guard against other clients making concurrent changes to the collection, the
-next page URL will contain information about the collection obtained on the first
-pagination call.
-
-:note:
-    Will return an error if limit has invalid values (e.g. non integer or
-    above maximum)
-
-:note:
-    Will return a ``412 Precondition failed`` error if a modification has occured since
-    the first pagination call.
-
-    Pagination should be restarted from the first page, i.e. without pagination
-    parameters.
+If the request header ``If-Modified-Since`` is provided, and if the
+collection has not suffered changes meanwhile, a ``304 Not Modified``
+response is returned.
 
 
 List of available URL parameters
@@ -367,171 +336,3 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 :note:
     As mentionned in the *Validation section*, an article status cannot take the value ``2``.
-
-
-Conflicts
-:::::::::
-
-*(Draft)*
-
-If the modification of ``resolved_url`` introduces a conflict, because another
-record violates unicity, a ``409 Conflict`` error response is returned.
-
-The error attributes will be set:
-
-- ``info``: the URL of the conflicting record
-
-
-Batch operations
-================
-
-**Requires an FxA OAuth authentication**
-
-POST /batch
------------
-
-The POST body is a mapping, with the following attributes:
-
-- ``requests``: the list of requests
-- ``defaults``: (*optional*) values in common for all requests
-
- Each request is a JSON mapping, with the following attribute:
-
-- ``method``: HTTP verb
-- ``path``: URI
-- ``body``: a mapping
-- ``headers``: (*optional*), otherwise take those of batch request
-
-::
-
-    {
-      "defaults": {
-        "method" : "POST",
-        "path" : "/articles",
-        "headers" : {
-          ...
-        }
-      },
-      "requests": [
-        {
-          "body" : {
-            "title": "MoFo",
-            "url" : "http://mozilla.org"
-          }
-        },
-        {
-          "body" : {
-            "title": "MoCo",
-            "url" : "http://mozilla.com"
-          }
-        },
-        {
-          "method" : "PATCH",
-          "path" : "/articles/409",
-          "body" : {
-            "read_position" : 3477
-          }
-        }
-      ]
-    ]
-
-The response body is a list of all responses:
-
-::
-
-    {
-      "defaults": {
-        "path" : "/articles",
-      },
-      "responses": [
-        {
-          "path" : "/articles/409",
-          "status": 200,
-          "body" : {
-            "id": 409,
-            "url": "...",
-            ...
-            "read_position" : 3477
-          },
-          "headers": {
-            ...
-          }
-        },
-        {
-          "status": 201,
-          "body" : {
-            "id": 411,
-            "title": "MoFo",
-            "url" : "http://mozilla.org",
-            ...
-          },
-        },
-        {
-          "status": 201,
-          "body" : {
-            "id": 412,
-            "title": "MoCo",
-            "url" : "http://mozilla.com",
-            ...
-          },
-        },
-      ]
-    ]
-
-
-:note:
-     The responses are not necessarily in the same order of the requests.
-
-
-Pros & Cons
-:::::::::::
-
-* This respects REST principles
-* This is easy for the client to handle, since it just has to pile up HTTP requests while offline
-* It looks to be a convention for several REST APIs (`Neo4J <http://neo4j.com/docs/milestone/rest-api-batch-ops.html>`_, `Facebook <https://developers.facebook.com/docs/graph-api/making-multiple-requests>`_, `Parse <https://parse.com/docs/rest#objects-batch>`_)
-* Payload of response can be heavy, especially while importing huge collections
-
-
-Massive operations
-------------------
-
-*(Undecided, Draft)*
-
-In order to limit the size of reponses payloads, a request header ``Light-Response``
-can be added. Only ``status`` and ``body`` attributes will be returned,
-and only fields specified in the header will be included.
-
-For example, with ``Light-Response: id, stored_on, errno, info``:
-::
-
-    {
-      "responses": [
-        {
-          "status": 200,
-          "body" : {
-            "id": "409",
-            "stored_on": "1234567"
-          }
-        },
-        {
-          "status": 201,
-          "body" : {
-            "id": 412,
-            "stored_on": "988767568"
-          }
-        },
-        {
-          "status": 409,
-          "body" : {
-            "errno": 122,
-            "info": "http://server/v1/articles/970",
-          }
-        },
-        {
-          "status": 303,
-          "body" : {
-            "id": "667",
-          }
-        }
-      ]
-    ]
