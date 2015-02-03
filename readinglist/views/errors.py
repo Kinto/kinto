@@ -6,7 +6,7 @@ from functools import wraps
 from cornice.cors import ensure_origin
 from pyramid.httpexceptions import (
     HTTPForbidden, HTTPUnauthorized, HTTPNotFound, HTTPInternalServerError,
-    HTTPBadRequest
+    Response
 )
 from pyramid.security import forget
 from pyramid.view import (
@@ -85,11 +85,12 @@ def page_not_found(request):
 @view_config(context=Exception)
 def error(context, request):
     """Display an error message and record it in Sentry."""
-    # client = Client()
+    if isinstance(context, Response):
+        return context
+
     try:
         raise
     except Exception:
-        # client.captureException()
         print(traceback.format_exc(), file=sys.stderr)
 
     response = HTTPInternalServerError(
@@ -102,8 +103,3 @@ def error(context, request):
         content_type='application/json')
 
     return reapply_cors(request, response)
-
-
-@view_config(context=HTTPBadRequest)
-def json_error(context, request):
-    return context
