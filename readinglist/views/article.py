@@ -1,7 +1,7 @@
 import colander
 from colander import SchemaNode, String
 
-from readinglist.resource import crud, BaseResource, RessourceSchema, TimeStamp
+from readinglist.resource import crud, BaseResource, ResourceSchema, TimeStamp
 from readinglist.utils import strip_whitespace
 
 
@@ -32,7 +32,7 @@ class ArticleTitle(SchemaNode):
         return strip_whitespace(appstruct)
 
 
-class ArticleSchema(RessourceSchema):
+class ArticleSchema(ResourceSchema):
     """Schema for a reading list article."""
 
     url = URL()
@@ -55,7 +55,7 @@ class ArticleSchema(RessourceSchema):
 
     class Options:
         readonly_fields = ('url', 'stored_on') + \
-            RessourceSchema.Options.readonly_fields
+            ResourceSchema.Options.readonly_fields
 
 
 @crud()

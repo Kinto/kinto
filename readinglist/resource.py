@@ -47,7 +47,7 @@ def crud(**kwargs):
     return wrapper
 
 
-class RessourceSchema(colander.MappingSchema):
+class ResourceSchema(colander.MappingSchema):
     """Base resource schema.
 
     It brings common fields and behaviour for all inherited schemas.
@@ -65,7 +65,7 @@ class RessourceSchema(colander.MappingSchema):
 
 class BaseResource(object):
 
-    mapping = RessourceSchema()
+    mapping = ResourceSchema()
     id_field = '_id'
     modified_field = 'last_modified'
     validate_schema_for = ('POST', 'PUT')
@@ -228,7 +228,7 @@ class BaseResource(object):
                     'description': "Unknown filter field '{0}'".format(param)
                 }
                 self.request.errors.add(**error_details)
-                return
+                raise errors.json_error(self.request.errors)
 
             filters.append((field, value, operator))
 
@@ -312,6 +312,7 @@ class BaseResource(object):
             existing = None
 
         new_record = self.request.validated
+        new_record[self.id_field] = record_id
         new_record = self.process_record(new_record, old=existing)
         record = self.db.update(record_id=record_id,
                                 record=new_record,
