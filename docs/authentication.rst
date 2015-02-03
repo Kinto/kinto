@@ -41,13 +41,10 @@ So far the FxA server only handles the ``profile`` scope.
 See https://github.com/mozilla-services/readinglist/issues/16.
 
 
-
 Basic Auth
 ==========
 
-In case you want to use the readinglist server without Oauth, you can
-activate Basic Auth in the configuration using
-``readinglist.basic_auth_backdoor = true``
+In addition to OAuth, *Basic Auth* can be enabled in the configuration using
+``readinglist.basic_auth_backdoor = true``.
 
-You can then connects using any login/password you want to create a
-user and start putting article for it.
+Articles will then be stored for any username/password combination provided.

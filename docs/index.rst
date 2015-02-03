@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Reading List's documentation!
-=============================
+Reading List documentation!
+===========================
 
 *Reading list* is a service to keep track of a list of articles to read.
 
@@ -19,7 +19,7 @@ Contents:
    model
    authentication
    api
-   generics
+   utilities
    timestamps
    versionning
    backoff
