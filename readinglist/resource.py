@@ -88,6 +88,11 @@ class BaseResource(object):
 
         return CorniceSchema.from_colander(colander_schema)
 
+    def raise_invalid(self, location='body', **kwargs):
+        """Helper to raise a validation error."""
+        self.request.errors.add(location, **kwargs)
+        raise errors.json_error(self.request.errors)
+
     def fetch_record(self):
         """Fetch current view related record, and raise 404 if missing."""
         try:
@@ -119,8 +124,7 @@ class BaseResource(object):
         for field in changes.keys():
             if self.mapping.is_readonly(field):
                 error = 'Cannot modify {0}'.format(field)
-                self.request.errors.add('body', name=field, description=error)
-                raise errors.json_error(self.request.errors)
+                self.raise_invalid(name=field, description=error)
 
         updated = record.copy()
         updated.update(**changes)
@@ -206,8 +210,7 @@ class BaseResource(object):
                         'location': 'querystring',
                         'description': 'Invalid value for _since'
                     }
-                    self.request.errors.add(**error_details)
-                    raise errors.json_error(self.request.errors)
+                    self.raise_invalid(**error_details)
 
                 filters.append(
                     (self.modified_field, value, COMPARISON.GT)
@@ -227,8 +230,7 @@ class BaseResource(object):
                     'location': 'querystring',
                     'description': "Unknown filter field '{0}'".format(param)
                 }
-                self.request.errors.add(**error_details)
-                raise errors.json_error(self.request.errors)
+                self.raise_invalid(**error_details)
 
             filters.append((field, value, operator))
 
@@ -250,8 +252,7 @@ class BaseResource(object):
                         'location': 'querystring',
                         'description': "Unknown sort field '{0}'".format(field)
                     }
-                    self.request.errors.add(**error_details)
-                    raise errors.json_error(self.request.errors)
+                    self.raise_invalid(**error_details)
 
                 direction = -1 if order == '-' else 1
                 sorting.append((field, direction))
