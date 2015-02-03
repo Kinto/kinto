@@ -71,7 +71,7 @@ class Redis(BackendBase):
         record = record.copy()
         resource_name = classname(resource)
         _id = record[resource.id_field] = self.id_generator()
-        self.set_record_timestamp(record, resource, user_id)
+        self.set_record_timestamp(resource, user_id, record)
         with self._client.pipeline() as multi:
             multi.set(
                 '{0}.{1}.{2}'.format(resource_name, user_id, _id),
@@ -99,7 +99,7 @@ class Redis(BackendBase):
     def update(self, resource, user_id, record_id, record):
         record = record.copy()
         resource_name = classname(resource)
-        self.set_record_timestamp(record, resource, user_id)
+        self.set_record_timestamp(resource, user_id, record)
         record[resource.id_field] = record_id
 
         with self._client.pipeline() as multi:

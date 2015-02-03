@@ -34,7 +34,7 @@ class BackendBase(object):
     def get_all(self, resource, user_id, filters=None, sorting=None):
         raise NotImplementedError
 
-    def set_record_timestamp(self, record, resource, user_id):
+    def set_record_timestamp(self, resource, user_id, record):
         timestamp = self._bump_timestamp(resource, user_id)
         record[resource.modified_field] = timestamp
         return record

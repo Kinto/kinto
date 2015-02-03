@@ -48,7 +48,7 @@ class Memory(BackendBase):
         record = record.copy()
         resource_name = classname(resource)
         _id = record[resource.id_field] = self.id_generator()
-        self.set_record_timestamp(record, resource, user_id)
+        self.set_record_timestamp(resource, user_id, record)
         self._store[resource_name][user_id][_id] = record
         return record
 
@@ -62,7 +62,7 @@ class Memory(BackendBase):
     def update(self, resource, user_id, record_id, record):
         record = record.copy()
         resource_name = classname(resource)
-        self.set_record_timestamp(record, resource, user_id)
+        self.set_record_timestamp(resource, user_id, record)
         record['id'] = record_id
         self._store[resource_name][user_id][record_id] = record
         return record
