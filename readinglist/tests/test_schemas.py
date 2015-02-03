@@ -141,3 +141,15 @@ class ArticleSchemaTest(unittest.TestCase):
         self.assertRaises(colander.Invalid,
                           self.schema.deserialize,
                           self.record)
+
+    def test_status_cannot_be_negative(self):
+        self.record['status'] = -1
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          self.record)
+
+    def test_status_cannot_be_set_to_deleted(self):
+        self.record['status'] = 2
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          self.record)

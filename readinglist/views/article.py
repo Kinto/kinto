@@ -41,7 +41,8 @@ class ArticleSchema(ResourceSchema):
     added_on = TimeStamp()
     stored_on = TimeStamp()
 
-    status = SchemaNode(colander.Integer(), missing=0)
+    status = SchemaNode(colander.Integer(), missing=0,
+                        validator=colander.Range(min=0, max=1))
     favorite = SchemaNode(colander.Boolean(), missing=False)
     unread = SchemaNode(colander.Boolean(), missing=True)
     is_article = SchemaNode(colander.Boolean(), missing=True)
