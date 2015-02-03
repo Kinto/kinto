@@ -193,10 +193,6 @@ If the posted values are invalid (e.g. *added_on is not an integer*) an error re
     The ``status`` can take only ``0`` (OK) and ``1`` (archived), even though
     the server sets it to ``2`` when including deleted articles in the collection.
 
-:note:
-    *(undecided)* For some cases, it can make sense for the server to fix arbitrarily
-    validation errors on records (e.g. truncating long titles).
-
 
 Conflicts
 ---------
@@ -214,12 +210,12 @@ Articles URL are unique per user (both ``url`` and ``resolved_url``).
 :note:
     Deleted items should be taken into account for URL unicity.
 
-If an article is created with an URL that already exists, a ``303 See Other`` response
-is returned to indicate the existing record.
+.. If an article is created with an URL that already exists, a ``303 See Other`` response
+   is returned to indicate the existing record.
 
-The response body is a JSON mapping, with the following attribute:
+   The response body is a JSON mapping, with the following attribute:
 
-- ``id``: the id of the conflicting record
+   - ``id``: the id of the conflicting record
 
 
 GET /articles/<id>
@@ -255,13 +251,9 @@ decide to ignore it.
 If the request header ``If-Unmodified-Since`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
-:note:
-    Once deleted, an article will appear in the collection with a deleted status
-    (``status=2``) and will have most of its fields empty.
-
-:note:
-    The server will have to implement an internal mechanism to will keep track of deleted items,
-    and purge them eventually.
+.. :note:
+       Once deleted, an article will appear in the collection with a deleted status
+       (``status=2``) and will have most of its fields empty.
 
 
 PATCH /articles/<id>
@@ -298,14 +290,14 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 :note:
     Changing ``read_position`` never generates conflicts.
 
-:note:
-    ``read_position`` can only be changed for a greater value than the current one.
+.. :note:
+       ``read_position`` can only be changed for a greater value than the current one.
 
-:note:
-    If ``unread`` is changed to false, ``marked_read_on`` and ``marked_read_by`` are expected to be provided.
+.. :note:
+       If ``unread`` is changed to false, ``marked_read_on`` and ``marked_read_by`` are expected to be provided.
 
-:note:
-    If ``unread`` was already false, ``marked_read_on`` and ``marked_read_by`` are not updated with provided values.
+.. :note:
+       If ``unread`` was already false, ``marked_read_on`` and ``marked_read_by`` are not updated with provided values.
 
 :note:
     If ``unread`` is changed to true, ``marked_read_by`` and ``marked_read_on``
