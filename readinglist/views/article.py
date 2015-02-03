@@ -47,6 +47,8 @@ class ArticleSchema(ResourceSchema):
     is_article = SchemaNode(colander.Boolean(), missing=True)
     excerpt = SchemaNode(String(), missing="")
 
+    read_position = SchemaNode(colander.Integer(), missing=0,
+                               validator=colander.Range(min=0))
     marked_read_by = DeviceName(missing=None)
     marked_read_on = TimeStamp(auto_now=False)
     word_count = SchemaNode(colander.Integer(), missing=None)
@@ -66,6 +68,9 @@ class Article(BaseResource):
         """Currently, article content is not fetched, thus resolved url
         and title are the ones provided.
         """
+        if old:
+            if old['read_position'] > new['read_position']:
+                new['read_position'] = old['read_position']
 
         new['resolved_title'] = new['title']
         new['resolved_url'] = new['url']
@@ -74,5 +79,6 @@ class Article(BaseResource):
             # Article is not read
             new['marked_read_on'] = None
             new['marked_read_by'] = None
+            new['read_position'] = 0
 
         return new

@@ -33,6 +33,7 @@ class ArticleSchemaTest(unittest.TestCase):
         self.assertEqual(self.deserialized['favorite'], False)
         self.assertEqual(self.deserialized['unread'], True)
         self.assertEqual(self.deserialized['is_article'], True)
+        self.assertEqual(self.deserialized['read_position'], 0)
         self.assertIsNone(self.deserialized.get('marked_read_by'))
         self.assertIsNone(self.deserialized.get('marked_read_on'))
         self.assertIsNone(self.deserialized.get('word_count'))
@@ -131,6 +132,12 @@ class ArticleSchemaTest(unittest.TestCase):
 
     def test_marked_read_by_must_be_at_least_one_character(self):
         self.record['marked_read_by'] = ' '
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          self.record)
+
+    def test_read_position_must_be_positive(self):
+        self.record['read_position'] = -1
         self.assertRaises(colander.Invalid,
                           self.schema.deserialize,
                           self.record)
