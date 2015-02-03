@@ -21,10 +21,10 @@ def check_credentials(username, password, request):
     settings = request.registry.settings
     is_enabled = settings.get('readinglist.basic_auth_backdoor')
 
-    hmac_key = request.registry.settings.get(
-        'readinglist.userid_hmac_key').encode('utf-8')
+    hmac_secret = settings.get(
+        'readinglist.userid_hmac_secret').encode('utf-8')
     credentials = '%s:%s' % (username, password)
-    userid = hmac.new(hmac_key,
+    userid = hmac.new(hmac_secret,
                       credentials.encode('utf-8'),
                       hashlib.sha256).hexdigest()
 
@@ -55,6 +55,7 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
 
     def _get_credentials(self, request):
         authorization = request.headers.get('Authorization', '')
+        settings = request.registry.settings
 
         try:
             authmeth, auth = authorization.split(' ', 1)
@@ -62,15 +63,15 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         except (AssertionError, ValueError):
             return None
 
-        server_url = request.registry.settings['fxa-oauth.oauth_uri']
-        scope = request.registry.settings['fxa-oauth.scope']
+        server_url = settings['fxa-oauth.oauth_uri']
+        scope = settings['fxa-oauth.scope']
 
         auth_client = OAuthClient(server_url=server_url)
         try:
             profile = auth_client.verify_token(token=auth, scope=scope)
-            hmac_key = request.registry.settings.get(
-                'readinglist.userid_hmac_key').encode('utf-8')
-            user_id = hmac.new(hmac_key,
+            hmac_secret = settings.get(
+                'readinglist.userid_hmac_secret').encode('utf-8')
+            user_id = hmac.new(hmac_secret,
                                profile['user'].encode('utf-8'),
                                hashlib.sha256).hexdigest()
         except fxa_errors.OutOfProtocolError:

@@ -33,10 +33,12 @@ class FakeAuthentMixin(object):
     def setUp(self):
         super(FakeAuthentMixin, self).setUp()
 
-        self.app.app.registry.settings.setdefault('fxa-oauth.oauth_uri', '')
-        self.app.app.registry.settings.setdefault('fxa-oauth.scope', '')
-        self.app.app.registry.settings.setdefault(
-            'readinglist.userid_hmac_key', random_bytes_hex(16))
+        settings = self.app.app.registry.settings
+
+        settings.setdefault('fxa-oauth.oauth_uri', '')
+        settings.setdefault('fxa-oauth.scope', '')
+        settings.setdefault('readinglist.userid_hmac_secret',
+                            random_bytes_hex(16))
 
         self.fxa_verify = self.patcher.start()
         self.fxa_verify.return_value = {
