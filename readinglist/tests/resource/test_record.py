@@ -76,8 +76,8 @@ class UnknownRecordTest(BaseTest):
 class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
         super(ReadonlyFieldsTest, self).setUp()
-        stored = self.db.create(self.resource, 'bob', {})
-        self.resource.request.matchdict['id'] = stored['_id']
+        self.stored = self.db.create(self.resource, 'bob', {})
+        self.resource.request.matchdict['id'] = self.stored['_id']
 
     def assertReadonlyError(self, field):
         error = None
@@ -90,6 +90,13 @@ class ReadonlyFieldsTest(BaseTest):
             'message': 'Cannot modify {0}'.format(field),
             'code': 400,
             'error': 'Invalid parameters'})
+
+    def test_can_specify_readonly_fields_if_not_changed(self):
+        self.resource.request.json = {
+            '_id': self.stored['_id'],
+            'last_modified': self.stored['last_modified']
+        }
+        self.resource.patch()  # not raising
 
     def test_cannot_modify_id(self):
         self.resource.request.json = {'_id': 'change'}

@@ -121,8 +121,9 @@ class BaseResource(object):
     def merge_fields(self, record, changes):
         """Merge changes into current record fields.
         """
-        for field in changes.keys():
-            if self.mapping.is_readonly(field):
+        for field, value in changes.items():
+            has_changed = record.get(field, value) != value
+            if self.mapping.is_readonly(field) and has_changed:
                 error = 'Cannot modify {0}'.format(field)
                 self.raise_invalid(name=field, description=error)
 
