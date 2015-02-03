@@ -4,7 +4,7 @@ API Documentation
 
 
 GET /
------
+=====
 
 The returned value is a JSON mapping containing:
 
@@ -12,11 +12,11 @@ The returned value is a JSON mapping containing:
 - ``version``: complete version (``"X.Y.Z"``)
 - ``url``: absolute URI (without a trailing slash) of the API (*can be used by client to build URIs*)
 - ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)
-- ``documentation``: The url to the service documentation
+- ``documentation``: The url to the service documentation. (What you are reading!)
 
 
 GET /__heartbeat__
-------------------
+==================
 
 Return the status of each service the *reading list* depends on. The
 returned value is a JSON mapping containing:
@@ -28,7 +28,7 @@ and ``503`` if something doesn't work.
 
 
 GET /articles
--------------
+=============
 
 **Requires an FxA OAuth authentication**
 
@@ -50,7 +50,7 @@ headers in subsequent requests.
 
 
 Filtering
-:::::::::
+---------
 
 **Single value**
 
@@ -84,7 +84,7 @@ Prefix attribute name with ``not_``:
     the unfiltered collection.
 
 Sorting
-:::::::
+-------
 
 * ``/articles?_sort=-last_modified,title``
 
@@ -99,7 +99,7 @@ Sorting
 
 
 Counting
-::::::::
+--------
 
 In order to count the number of records, by status for example,
 without fetching the actual collection, a ``HEAD`` request can be
@@ -108,7 +108,7 @@ total number of records.
 
 
 Polling for changes
-:::::::::::::::::::
+-------------------
 
 The ``_since`` parameter is provided as an alias for
 ``min_last_modified`` (*greater or equal*).
@@ -127,7 +127,7 @@ response is returned.
 
 
 List of available URL parameters
-::::::::::::::::::::::::::::::::
+--------------------------------
 
 - ``<prefix?><attribute name>``: filter by value(s)
 - ``_since``: polling changes
@@ -141,7 +141,7 @@ be aware of them, since they are set and provided through the ``Next-Page`` head
 
 
 Combining all parameters
-::::::::::::::::::::::::
+------------------------
 
 Filtering, sorting and paginating can all be combined together.
 
@@ -149,7 +149,7 @@ Filtering, sorting and paginating can all be combined together.
 
 
 POST /articles
---------------
+==============
 
 **Requires an FxA OAuth authentication**
 
@@ -207,7 +207,7 @@ For v2, the server will fetch the content, and assign the following attributes w
 
 
 Validation
-::::::::::
+----------
 
 If the posted values are invalid (e.g. *added_on is not an integer*) an error response is returned with status ``400``. `See details on error responses <https://github.com/mozilla-services/readinglist/wiki/API-Design-proposal#error-responses>`_.
 
@@ -222,7 +222,7 @@ If the posted values are invalid (e.g. *added_on is not an integer*) an error re
 
 
 Conflicts
-:::::::::
+---------
 
 Articles URL are unique per user (both ``url`` and ``resolved_url``).
 
@@ -246,7 +246,7 @@ The response body is a JSON mapping, with the following attribute:
 
 
 GET /articles/<id>
-------------------
+==================
 
 **Requires an FxA OAuth authentication**
 
@@ -264,7 +264,7 @@ changed meanwhile, a ``304 Not Modified`` is returned.
 
 
 DELETE /articles/<id>
----------------------
+=====================
 
 **Requires an FxA OAuth authentication**
 
@@ -288,7 +288,7 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 
 PATCH /articles/<id>
---------------------
+====================
 
 **Requires an FxA OAuth authentication**
 
