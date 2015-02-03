@@ -19,6 +19,7 @@ Contents:
    model
    authentication
    api
+   generics
    timestamps
    versionning
    backoff
