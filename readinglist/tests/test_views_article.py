@@ -33,6 +33,14 @@ class ArticleModificationTest(BaseWebTest, unittest.TestCase):
                             headers=self.headers,
                             status=400)
 
+    def test_cannot_mark_as_read_without_by_and_on(self):
+        body = {'unread': False}
+        resp = self.app.patch_json(self.url,
+                                   body,
+                                   headers=self.headers,
+                                   status=400)
+        self.assertIn('Missing marked_read_by', resp.json['message'])
+
 
 class ReadArticleModificationTest(BaseWebTest, unittest.TestCase):
     def setUp(self):

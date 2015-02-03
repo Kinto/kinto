@@ -1,6 +1,7 @@
 import colander
 from colander import SchemaNode, String
 
+from readinglist import errors
 from readinglist.resource import crud, BaseResource, ResourceSchema, TimeStamp
 from readinglist.utils import strip_whitespace
 
@@ -71,6 +72,12 @@ class Article(BaseResource):
         if old:
             if old['read_position'] > new['read_position']:
                 new['read_position'] = old['read_position']
+
+            if old['unread'] and not new['unread']:
+                if not any((new['marked_read_on'], new['marked_read_by'])):
+                    error = 'Missing marked_read_by or marked_read_on fields'
+                    self.request.errors.add('body', name='unread', description=error)
+                    raise errors.json_error(self.request.errors)
 
         new['resolved_title'] = new['title']
         new['resolved_url'] = new['url']
