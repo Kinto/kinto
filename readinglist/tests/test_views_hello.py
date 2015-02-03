@@ -1,3 +1,4 @@
+import mock
 from webtest.app import TestRequest
 
 from readinglist import __version__ as VERSION, API_VERSION
@@ -12,10 +13,20 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(response.json['version'], VERSION)
         self.assertEqual(response.json['url'], 'http://localhost')
         self.assertEqual(response.json['hello'], 'readinglist')
+        self.assertEqual(response.json['documentation'],
+                         'https://readinglist.rtfd.org/')
 
-    def test_returns_none_if_eos_empty_in_settings(self):
+    def test_do_not_returns_eos_if_empty_in_settings(self):
         response = self.app.get('/')
-        self.assertEqual(response.json['eos'], None)
+        self.assertNotIn('eos', response.json)
+
+    def test_returns_eos_if_not_empty_in_settings(self):
+        eos = '2069-02-21'
+        with mock.patch.dict(
+                self.app.app.registry.settings,
+                [('readinglist.eos', eos)]):
+            response = self.app.get('/')
+            self.assertEqual(response.json['eos'], eos)
 
     def test_redirect_to_version(self):
         # We don't want the prefix to be automatically added for this test.

@@ -2,3 +2,5 @@ WebTest
 nose
 nose-cov
 mock
+Sphinx
+sphinx_rtd_theme

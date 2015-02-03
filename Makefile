@@ -1,10 +1,11 @@
 SERVER_CONFIG = config/readinglist.ini
 
-VIRTUALENV=virtualenv
+VIRTUALENV = virtualenv
+SPHINX_BUILDDIR = docs/_build
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
-PYTHON=$(VENV)/bin/python
-DEV_STAMP=$(VENV)/.dev_env_installed.stamp
-INSTALL_STAMP=$(VENV)/.install.stamp
+PYTHON = $(VENV)/bin/python
+DEV_STAMP = $(VENV)/.dev_env_installed.stamp
+INSTALL_STAMP = $(VENV)/.install.stamp
 
 .IGNORE: clean
 .PHONY: all install virtualenv tests
@@ -45,3 +46,8 @@ loadtest-check: install
 	  sleep 1 && cd loadtests && \
 	  make test SERVER_URL=http://127.0.0.1:8000; \
 	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
+
+docs: install-dev
+	$(VENV)/bin/sphinx-build -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"
