@@ -4,6 +4,9 @@ Authentication
 
 .. _authentication:
 
+Firefox Account OAuth Bearer token
+==================================
+
 Use the OAuth token with this header:
 
 ::
@@ -36,3 +39,15 @@ to delegate access to the readinglist to third party apps
 So far the FxA server only handles the ``profile`` scope.
 
 See https://github.com/mozilla-services/readinglist/issues/16.
+
+
+
+Basic Auth
+==========
+
+In case you want to use the readinglist server without Oauth, you can
+activate Basic Auth in the configuration using
+``readinglist.basic_auth_backdoor = true``
+
+You can then connects using any login/password you want to create a
+user and start putting article for it.

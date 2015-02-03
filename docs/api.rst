@@ -111,11 +111,6 @@ List of available URL parameters
 - ``_sort``: order list
 - ``_limit``: pagination max size
 
-Some additional internal parameters are used by pagination. Client should not
-be aware of them, since they are set and provided through the ``Next-Page`` header.
-
-- ``_page_token``: pagination continuation token
-
 
 Combining all parameters
 ------------------------
