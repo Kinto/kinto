@@ -1,8 +1,6 @@
 import mock
 import threading
 import webtest
-import hashlib
-import hmac
 
 try:
     import unittest2 as unittest
@@ -10,6 +8,7 @@ except ImportError:
     import unittest  # NOQA
 
 from readinglist import API_VERSION
+from readinglist.utils import random_bytes_hex
 
 
 class PrefixedRequestClass(webtest.app.TestRequest):
@@ -36,6 +35,8 @@ class FakeAuthentMixin(object):
 
         self.app.app.registry.settings.setdefault('fxa-oauth.oauth_uri', '')
         self.app.app.registry.settings.setdefault('fxa-oauth.scope', '')
+        self.app.app.registry.settings.setdefault(
+            'readinglist.userid_hmac_key', random_bytes_hex(16))
 
         self.fxa_verify = self.patcher.start()
         self.fxa_verify.return_value = {

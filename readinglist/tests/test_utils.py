@@ -1,6 +1,7 @@
 import colander
+from six import text_type
 
-from readinglist.utils import native_value, strip_whitespace
+from readinglist.utils import native_value, strip_whitespace, random_bytes_hex
 
 from .support import unittest
 
@@ -36,3 +37,21 @@ class StripWhitespaceTest(unittest.TestCase):
 
     def test_idempotent_for_null_values(self):
         self.assertEqual(strip_whitespace(colander.null), colander.null)
+
+
+class CryptographicRandomBytesTest(unittest.TestCase):
+    def test_return_hex_string(self):
+        value = random_bytes_hex(16)
+        try:
+            int(value, 16)
+        except ValueError:
+            self.fail("%s is not an hexadecimal value." % value)
+
+    def test_return_right_length_string(self):
+        for x in range(2, 4):
+            value = random_bytes_hex(x)
+            self.assertEqual(len(value), x * 2)
+
+    def test_return_text_string(self):
+        value = random_bytes_hex(16)
+        self.assertIsInstance(value, text_type)
