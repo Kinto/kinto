@@ -15,16 +15,30 @@ class GetTest(BaseTest):
 
 
 class PutTest(BaseTest):
-    def test_replace_record_returns_updated_fields(self):
-        record = self.db.create(self.resource, 'bob', {'field': 'old'})
+    def setUp(self):
+        super(PutTest, self).setUp()
+        self.record = self.db.create(self.resource, 'bob', {'field': 'old'})
 
-        self.resource.request.matchdict['id'] = record['_id']
+    def test_replace_record_returns_updated_fields(self):
+        self.resource.request.matchdict['id'] = self.record['_id']
         self.resource.request.validated = {'field': 'new'}
 
         result = self.resource.put()
-        self.assertEqual(record['_id'], result['_id'])
-        self.assertNotEqual(record['last_modified'], result['last_modified'])
-        self.assertNotEqual(record['field'], 'new')
+        self.assertEqual(self.record['_id'], result['_id'])
+        self.assertNotEqual(self.record['last_modified'],
+                            result['last_modified'])
+        self.assertNotEqual(self.record['field'], 'new')
+
+    def test_cannot_replace_with_different_id(self):
+        self.resource.request.matchdict['id'] = self.record['_id']
+        self.resource.request.validated = {'_id': 'abc'}
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.put)
+
+    def test_last_modified_is_overwritten_on_replace(self):
+        self.resource.request.matchdict['id'] = self.record['_id']
+        self.resource.request.validated = {'last_modified': 123}
+        result = self.resource.put()
+        self.assertNotEqual(result['last_modified'], 123)
 
 
 class DeleteTest(BaseTest):

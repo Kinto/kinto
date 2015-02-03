@@ -314,6 +314,12 @@ class BaseResource(object):
             existing = None
 
         new_record = self.request.validated
+
+        new_id = new_record.setdefault(self.id_field, record_id)
+        if new_id != record_id:
+            error_msg = 'Record id do not match'
+            self.raise_invalid(name=self.id_field, description=error_msg)
+
         new_record = self.process_record(new_record, old=existing)
         record = self.db.update(record_id=record_id,
                                 record=new_record,
