@@ -76,5 +76,5 @@ Error codes
 Validation errors
 =================
 
-In case multiple validation errors occurs on requests, there will be
-returned one at the time.
+In case multiple validation errors occur on a request, they will be
+returned one at a time.

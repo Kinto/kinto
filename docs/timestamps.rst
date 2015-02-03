@@ -10,7 +10,8 @@ not true HTTP date values, nor milliseconds EPOCH timestamps.
 They are milliseconds EPOCH timestamps with the guarantee of a change per timestamp update.
 If two changes happen at the same millisecond, they will have two differents timestamps.
 
-The Last-Modified header with the last timestamps of the collection for a given user will be given on collection and record GET's endpoints.
+The ``Last-Modified`` header with the last timestamp of the collection for a given
+user will be given on collection and record GET endpoints.
 
 ::
 

@@ -17,7 +17,7 @@ The returned value is a JSON mapping containing:
 GET /__heartbeat__
 ==================
 
-Return the status of each service the *reading list* depends on. The
+Return the status of each service the *Reading List* depends on. The
 returned value is a JSON mapping containing:
 
 - ``database`` true if operational

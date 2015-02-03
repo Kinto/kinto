@@ -32,9 +32,9 @@ Use the OAuth token with this header:
 
 **Reading list scope**
 
-The *reading list* API will eventually have to handle a dedicated OAuth scope (e.g.
+The *Reading List* API will eventually have to handle a dedicated OAuth scope (e.g.
 ``readinglist``, ``readinglist:read``, ``readinglist:write``). This will help users
-to delegate access to the readinglist to third party apps
+to delegate access to the *Reading List* to third party apps
 
 So far the FxA server only handles the ``profile`` scope.
 
