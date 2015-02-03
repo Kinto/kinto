@@ -331,7 +331,12 @@ class BaseResource(object):
         record = self.fetch_record()
         self.raise_412_if_modified(record)
 
-        updated = self.merge_fields(record, changes=self.request.json)
+        changes = self.request.json
+        is_equal = all([record.get(k) == v for k, v in changes.items()])
+        if is_equal:
+            return record
+
+        updated = self.merge_fields(record, changes=changes)
 
         updated = self.process_record(updated, old=record)
 

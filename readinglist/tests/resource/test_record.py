@@ -67,6 +67,27 @@ class PatchTest(BaseTest):
         self.assertEquals(self.stored['_id'], self.result['_id'])
         self.assertEquals(self.result['some'], 'change')
 
+    def test_record_timestamp_is_not_updated_if_none_for_missing_field(self):
+        self.resource.request.json = {'plop': None}
+        result = self.resource.patch()
+        self.assertEquals(self.result['last_modified'],
+                          result['last_modified'])
+
+    def test_record_timestamp_is_not_updated_if_no_field_changed(self):
+        self.resource.request.json = {'some': 'change'}
+        result = self.resource.patch()
+        self.assertEquals(self.result['last_modified'],
+                          result['last_modified'])
+
+    def test_collection_timestamp_is_not_updated_if_no_field_changed(self):
+        self.resource.request.json = {'some': 'change'}
+        self.resource.patch()
+        # Reset
+        BaseTest.setUp(self)
+        self.resource.collection_get()
+        last_modified = self.last_response.headers['Last-Modified']
+        self.assertEquals(self.result['last_modified'], int(last_modified))
+
 
 class UnknownRecordTest(BaseTest):
     def setUp(self):
