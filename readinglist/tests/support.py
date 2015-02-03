@@ -1,6 +1,8 @@
 import mock
 import threading
 import webtest
+import hashlib
+import hmac
 
 try:
     import unittest2 as unittest

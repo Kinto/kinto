@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 from zope.interface import implementer
 
 from pyramid import authentication as base_auth
@@ -18,7 +20,15 @@ def check_credentials(username, password, request):
     """
     settings = request.registry.settings
     is_enabled = settings.get('readinglist.basic_auth_backdoor')
-    return ["basicauth_%s" % username] if is_enabled else []
+
+    hmac_key = request.registry.settings.get(
+        'readinglist.userid_hmac_key').encode('utf-8')
+    credentials = '%s:%s' % (username, password)
+    userid = hmac.new(hmac_key,
+                      credentials.encode('utf-8'),
+                      hashlib.sha256).hexdigest()
+
+    return ["basicauth_%s" % userid] if is_enabled else []
 
 
 class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
@@ -58,7 +68,11 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         auth_client = OAuthClient(server_url=server_url)
         try:
             profile = auth_client.verify_token(token=auth, scope=scope)
-            user_id = profile['user']
+            hmac_key = request.registry.settings.get(
+                'readinglist.userid_hmac_key').encode('utf-8')
+            user_id = hmac.new(hmac_key,
+                               profile['user'].encode('utf-8'),
+                               hashlib.sha256).hexdigest()
         except fxa_errors.OutOfProtocolError:
             raise HTTPServiceUnavailable()
         except (fxa_errors.InProtocolError, fxa_errors.TrustError):
