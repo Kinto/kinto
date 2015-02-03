@@ -70,20 +70,28 @@ class Article(BaseResource):
         and title are the ones provided.
         """
         if old:
+            # Read position should be superior
             if old['read_position'] > new['read_position']:
                 new['read_position'] = old['read_position']
 
+            # Marking as read requires device info
             if old['unread'] and not new['unread']:
                 if not any((new['marked_read_on'], new['marked_read_by'])):
                     error = 'Missing marked_read_by or marked_read_on fields'
                     self.request.errors.add('body', name='unread', description=error)
                     raise errors.json_error(self.request.errors)
 
+            # Device info is ignored if already read
+            if not old['unread']:
+                new['marked_read_on'] = old['marked_read_on']
+                new['marked_read_by'] = old['marked_read_by']
+
+        # Waiting for V2 to fetch articles
         new['resolved_title'] = new['title']
         new['resolved_url'] = new['url']
 
+        # Reset info when article is marked as unreadd
         if new['unread']:
-            # Article is not read
             new['marked_read_on'] = None
             new['marked_read_by'] = None
             new['read_position'] = 0
