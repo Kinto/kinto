@@ -4,7 +4,9 @@ except ImportError:  # pragma: no cover
     import json  # NOQA
 
 import ast
+import os
 import time
+from binascii import hexlify
 
 from colander import null
 
@@ -16,6 +18,13 @@ msec_time = lambda: int(time.time() * 1000.0)  # floor
 
 # Get a classname from a class.
 classname = lambda c: c.__class__.__name__.lower()
+
+
+def random_bytes_hex(bytes_length):
+    """Return a hexstring of bytes_length cryptographic-friendly random bytes.
+
+    """
+    return hexlify(os.urandom(bytes_length)).decode('utf-8')
 
 
 def native_value(value):
