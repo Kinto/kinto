@@ -41,12 +41,10 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
             "This user cannot access this resource.")
 
     def test_500_is_valid_formatted_error(self):
-        with mock.patch('traceback.format_exc', return_value="") as mock_err:
-            with mock.patch('readinglist.views.article.Article.collection_get',
-                            side_effect=ValueError):
-                response = self.app.get('/articles',
-                                        headers=self.headers, status=500)
-        mock_err.assert_called_once_with()
+        with mock.patch('readinglist.views.article.Article.collection_get',
+                        side_effect=ValueError):
+            response = self.app.get('/articles',
+                                    headers=self.headers, status=500)
         self.assertFormattedError(
             response, 500, ERRORS.UNDEFINED, "Internal Server Error",
             "A programmatic error occured, developers have been informed.",
