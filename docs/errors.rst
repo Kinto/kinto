@@ -2,6 +2,8 @@
 Error responses
 ###############
 
+.. _error-responses:
+
 Protocol description
 ====================
 

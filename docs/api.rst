@@ -2,6 +2,7 @@
 API Documentation
 #################
 
+.. _http-apis:
 
 GET /
 =====

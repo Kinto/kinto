@@ -2,8 +2,11 @@
 Backoff indicators
 ##################
 
+.. _backoff-indicators:
+
 Backoff header on heavy load
 ============================
+
 
 A ``Backoff`` header will be added to the success responses (>=200 and
 <400) when the server is under heavy load. It provides the client with

@@ -2,6 +2,8 @@
 Authentication
 ##############
 
+.. _authentication:
+
 Use the OAuth token with this header:
 
 ::

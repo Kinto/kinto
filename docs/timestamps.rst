@@ -2,6 +2,8 @@
 Server timestamps
 #################
 
+.. _server-timestamps:
+
 In order to avoid race conditions, all timestamps manipulated by the server are
 not true HTTP date values, nor milliseconds EPOCH timestamps.
 

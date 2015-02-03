@@ -2,6 +2,8 @@
 Data model
 ##########
 
+.. _data-model:
+
 Articles
 ========
 
