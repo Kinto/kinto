@@ -63,7 +63,7 @@ class Memory(BackendBase):
         record = record.copy()
         resource_name = classname(resource)
         self.set_record_timestamp(resource, user_id, record)
-        record['id'] = record_id
+        record[resource.id_field] = record_id
         self._store[resource_name][user_id][record_id] = record
         return record
 

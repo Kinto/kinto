@@ -312,7 +312,6 @@ class BaseResource(object):
             existing = None
 
         new_record = self.request.validated
-        new_record[self.id_field] = record_id
         new_record = self.process_record(new_record, old=existing)
         record = self.db.update(record_id=record_id,
                                 record=new_record,
