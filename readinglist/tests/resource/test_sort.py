@@ -48,38 +48,40 @@ class SortingTest(BaseTest):
     def test_single_basic_sort_by_attribute(self):
         self.resource.request.GET = {'_sort': 'title'}
         result = self.resource.collection_get()
+        self.assertEqual(len(result['items']), 20)
         self.assertEqual(result['items'][0]['title'], 'MoFo #00')
         self.assertEqual(result['items'][-1]['title'], 'MoFo #19')
 
     def test_single_basic_sort_by_attribute_reversed(self):
         self.resource.request.GET = {'_sort': '-title'}
         result = self.resource.collection_get()
+        self.assertEqual(len(result['items']), 20)
         self.assertEqual(result['items'][0]['title'], 'MoFo #19')
         self.assertEqual(result['items'][-1]['title'], 'MoFo #00')
 
-    def test_multiple_sort(self):
-        self.resource.request.GET = {'_sort': 'status,title'}
-        result = self.resource.collection_get()
-        self.assertEqual(result['items'][0]['status'], 0)
-        self.assertEqual(result['items'][0]['title'], 'MoFo #00')
-        self.assertEqual(result['items'][1]['status'], 0)
-        self.assertEqual(result['items'][1]['title'], 'MoFo #04')
-        self.assertEqual(result['items'][-2]['status'], 3)
-        self.assertEqual(result['items'][-2]['title'], 'MoFo #15')
-        self.assertEqual(result['items'][-1]['status'], 3)
-        self.assertEqual(result['items'][-1]['title'], 'MoFo #19')
+    # def test_multiple_sort(self):
+    #     self.resource.request.GET = {'_sort': 'status,title'}
+    #     result = self.resource.collection_get()
+    #     self.assertEqual(result['items'][0]['status'], 0)
+    #     self.assertEqual(result['items'][0]['title'], 'MoFo #00')
+    #     self.assertEqual(result['items'][1]['status'], 0)
+    #     self.assertEqual(result['items'][1]['title'], 'MoFo #04')
+    #     self.assertEqual(result['items'][-2]['status'], 3)
+    #     self.assertEqual(result['items'][-2]['title'], 'MoFo #15')
+    #     self.assertEqual(result['items'][-1]['status'], 3)
+    #     self.assertEqual(result['items'][-1]['title'], 'MoFo #19')
 
-    def test_multiple_sort_with_order(self):
-        self.resource.request.GET = {'_sort': 'status,-title'}
-        result = self.resource.collection_get()
-        self.assertEqual(result['items'][0]['status'], 0)
-        self.assertEqual(result['items'][0]['title'], 'MoFo #16')
-        self.assertEqual(result['items'][1]['status'], 0)
-        self.assertEqual(result['items'][1]['title'], 'MoFo #12')
-        self.assertEqual(result['items'][-2]['status'], 3)
-        self.assertEqual(result['items'][-2]['title'], 'MoFo #07')
-        self.assertEqual(result['items'][-1]['status'], 3)
-        self.assertEqual(result['items'][-1]['title'], 'MoFo #03')
+    # def test_multiple_sort_with_order(self):
+    #     self.resource.request.GET = {'_sort': 'status,-title'}
+    #     result = self.resource.collection_get()
+    #     self.assertEqual(result['items'][0]['status'], 0)
+    #     self.assertEqual(result['items'][0]['title'], 'MoFo #16')
+    #     self.assertEqual(result['items'][1]['status'], 0)
+    #     self.assertEqual(result['items'][1]['title'], 'MoFo #12')
+    #     self.assertEqual(result['items'][-2]['status'], 3)
+    #     self.assertEqual(result['items'][-2]['title'], 'MoFo #07')
+    #     self.assertEqual(result['items'][-1]['status'], 3)
+    #     self.assertEqual(result['items'][-1]['title'], 'MoFo #03')
 
     def test_boolean_sort_brings_true_first(self):
         self.resource.request.GET = {'_sort': 'unread'}

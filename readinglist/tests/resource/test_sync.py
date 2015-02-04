@@ -129,7 +129,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
             def delayed_get(*args, **kwargs):
                 time.sleep(.100)  # 100 msec
-                return {}
+                return [], 0
 
             with mock.patch.object(self.db, 'get_all', delayed_get):
                 self.resource.collection_get()

@@ -119,8 +119,10 @@ class BaseTestBackend(object):
             record["number"] = x
             self.backend.create(self.resource, self.user_id, record)
 
-        records = self.backend.get_all(self.resource, self.user_id)
+        records, total_records = self.backend.get_all(self.resource,
+                                                      self.user_id)
         self.assertEquals(len(records), 10)
+        self.assertEquals(len(records), total_records)
 
     def test_ping_returns_true_when_working(self):
         self.assertTrue(self.backend.ping())

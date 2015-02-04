@@ -1,4 +1,5 @@
 import re
+from base64 import b64decode, b64encode
 
 import colander
 from cornice import resource
@@ -6,10 +7,13 @@ from cornice.schemas import CorniceSchema
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPNotFound, HTTPConflict)
 import six
+from six.moves.urllib.parse import urlencode
 
 from readinglist.backend import exceptions as backend_exceptions
 from readinglist import errors
-from readinglist.utils import COMPARISON, native_value, msec_time
+from readinglist.utils import COMPARISON, native_value, msec_time, json
+
+DEFAULT_PAGINATE_BY = 20
 
 
 class TimeStamp(colander.SchemaNode):
@@ -216,10 +220,12 @@ class BaseResource(object):
             param = param.strip()
             value = native_value(value)
 
-            if param == '_sort':
+            # Ignore specific fields
+            if param.startswith('_') and param not in ('_since', '_to'):
                 continue
 
-            if param == '_since':
+            # Handle the _since specific filter.
+            if param in ('_since', '_to'):
                 if not isinstance(value, six.integer_types):
                     error_details = {
                         'name': param,
@@ -228,12 +234,17 @@ class BaseResource(object):
                     }
                     self.raise_invalid(**error_details)
 
-                filters.append(
-                    (self.modified_field, value, COMPARISON.GT)
-                )
+                if param == '_since':
+                    filters.append(
+                        (self.modified_field, value, COMPARISON.GT)
+                    )
+                elif param == '_to':
+                    filters.append(
+                        (self.modified_field, value, COMPARISON.LT)
+                    )
                 continue
 
-            m = re.match(r'^(min|max|not)_(\w+)$', param)
+            m = re.match(r'^(min|max|not|lt|gt)_(\w+)$', param)
             if m:
                 keyword, field = m.groups()
                 operator = getattr(COMPARISON, keyword.upper())
@@ -256,7 +267,8 @@ class BaseResource(object):
         """Extracts filters from QueryString parameters."""
         specified = queryparams.get('_sort', '').split(',')
         sorting = []
-        for field in specified:
+        last_modified_used = False
+        for field in specified[:1]:
             field = field.strip()
             m = re.match(r'^([\-+]?)(\w+)$', field)
             if m:
@@ -270,10 +282,109 @@ class BaseResource(object):
                     }
                     self.raise_invalid(**error_details)
 
+                if field == 'last_modified':
+                    last_modified_used = True
+
                 direction = -1 if order == '-' else 1
                 sorting.append((field, direction))
 
+        if not last_modified_used:
+            sorting.append(('last_modified', -1))
         return sorting
+
+    def _extract_pagination_token(self, queryparams):
+        """Get pagination params."""
+        settings = self.request.registry.settings
+        try:
+            limit = int(queryparams.get('_limit', settings.get(
+                'readinglist.paginate_by', DEFAULT_PAGINATE_BY)))
+        except ValueError:
+            error_details = {
+                'name': None,
+                'location': 'querystring',
+                'description': "_limit should be an integer"
+            }
+            self.request.errors.add(**error_details)
+            raise errors.json_error(self.request.errors)
+
+        token = queryparams.get('_token', None)
+        filters = []
+        if token:
+            rules = json.loads(b64decode(token))
+            for rule in rules:
+                filters.append(self._extract_filters(rule))
+        return filters, limit
+
+    def _next_page_url(self, sorting, limit, last_record):
+        queryparams = self.request.GET.copy()
+        queryparams['_limit'] = limit
+        queryparams['_token'] = self._build_pagination_token(
+            sorting, last_record)
+        return '%s%s?%s' % (self.request.host_url, self.request.path_info,
+                            urlencode(queryparams))
+
+    def _build_pagination_token(self, sorting, last_record):
+        """Build a continuation filtering rules.
+
+        Something like that when sorting::
+
+            (status == 2 and last_modified < 123) OR status < 2
+
+
+        Something like that when sorting only per last_modified::
+
+            last_modified < 123
+
+        """
+        first_sort_field = None
+        last_sort_field = None
+        if len(sorting) > 1:
+            first_sort_field, first_sort_direction = sorting[0]
+            last_sort_field, last_sort_direction = sorting[-1]
+            if last_sort_field == 'last_modified':
+                last_sort_field, last_sort_direction = sorting[-2]
+
+        try:
+            _, last_modified_direction = [x for x in sorting
+                                          if x[0] == 'last_modified'][0]
+        except IndexError:
+            last_modified_direction = 1
+
+        if last_modified_direction == -1:
+            last_modified_key = '_to'
+        else:
+            last_modified_key = '_since'
+        last_modified_value = '%s' % last_record.get('last_modified')
+
+        token = []
+        if first_sort_field:
+            first_sort_value = '%s' % last_record.get(first_sort_field)
+            if first_sort_direction == -1:
+                first_sort_key = 'lt_%s' % first_sort_field
+            else:
+                first_sort_key = 'gt_%s' % first_sort_field
+
+            filters1 = {first_sort_field: first_sort_value,
+                        last_modified_key: last_modified_value}
+
+            filters2 = {first_sort_key: first_sort_value}
+
+            for sort_field, sort_direction in \
+                    [x for x in sorting if x[0] not in
+                     ['last_modified', first_sort_field]]:
+                value = '%s' % last_record.get(sort_field)
+                if sort_direction == -1:
+                    key = 'max_%s' % sort_field
+                else:
+                    key = 'min_%s' % sort_field
+
+                filters1[key] = value
+            token.append(filters1)
+            token.append(filters2)
+        else:
+            token.append({last_modified_key: last_modified_value})
+
+        return b64encode(json.dumps(token).encode('utf-8')).decode('utf-8')
 
     #
     # End-points
@@ -287,16 +398,28 @@ class BaseResource(object):
 
         filters = self._extract_filters(self.request.GET)
         sorting = self._extract_sorting(self.request.GET)
-        records = self.db.get_all(filters=filters,
-                                  sorting=sorting,
-                                  **self.db_kwargs)
+        pagination_rules, limit = self._extract_pagination_token(
+            self.request.GET)
 
-        total_records = six.text_type(len(records)).encode('utf-8')
-        self.request.response.headers['Total-Records'] = total_records
+        records, total_records = self.db.get_all(
+            filters=filters,
+            sorting=sorting,
+            pagination_rules=pagination_rules,
+            limit=limit,
+            **self.db_kwargs)
+
+        num_records = '%s' % total_records
+        self.request.response.headers['Total-Records'] = num_records.encode(
+            'utf-8')
+
+        if len(records) == limit and total_records > limit:
+            self.request.response.headers['Next-Page'] = self._next_page_url(
+                sorting, limit, records[-1]).encode('utf-8')
 
         body = {
             'items': records,
         }
+
         return body
 
     @resource.view(permission='readwrite')

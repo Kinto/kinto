@@ -1,6 +1,5 @@
 """Main entry point
 """
-from __future__ import print_function
 import pkg_resources
 import logging
 

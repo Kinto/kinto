@@ -142,12 +142,15 @@ class Redis(BackendBase):
             self._bump_timestamp(resource, user_id)
             return self._decode(encoded_item)
 
-    def get_all(self, resource, user_id, filters=None, sorting=None):
+    def get_all(self, resource, user_id, filters=None, sorting=None,
+                pagination_rules=None, limit=None):
+        if not pagination_rules:
+            pagination_rules = []
         resource_name = classname(resource)
         ids = self._client.smembers('{0}.{1}'.format(resource_name, user_id))
 
         if (len(ids) == 0):
-            return []
+            return [], 0
 
         keys = ('{0}.{1}.{2}'.format(resource_name, user_id,
                                      _id.decode('utf-8'))
@@ -156,9 +159,20 @@ class Redis(BackendBase):
         encoded_results = self._client.mget(keys)
         records = map(self._decode, encoded_results)
 
-        filtered = apply_filters(records, filters or [])
-        sorted_ = apply_sorting(filtered, sorting or [])
-        return sorted_
+        filtered = list(apply_filters(records, filters or []))
+        total_records = len(filtered)
+        paginated = {}
+        for rule in pagination_rules:
+            values = list(apply_filters(filtered, rule))
+            paginated.update(dict(((x['_id'], x) for x in values)))
+        if not paginated:
+            paginated = filtered
+        else:
+            paginated = paginated.values()
+        sorted_ = apply_sorting(paginated, sorting or [])
+        if limit:
+            sorted_ = list(sorted_)[:limit]
+        return sorted_, total_records
 
 
 def load_from_config(config):

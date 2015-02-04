@@ -32,7 +32,8 @@ class BackendBase(object):
     def delete(self, resource, user_id, record_id):
         raise NotImplementedError
 
-    def get_all(self, resource, user_id, filters=None, sorting=None):
+    def get_all(self, resource, user_id, filters=None, sorting=None,
+                pagination_rules=None, limit=None):
         raise NotImplementedError
 
     def set_record_timestamp(self, resource, user_id, record):
@@ -53,8 +54,9 @@ class BackendBase(object):
                        (resource.id_field, record_id, COMPARISON.NOT)]
 
             if value is not None:
-                existing = self.get_all(resource, user_id, filters=filters)
-                if len(existing) > 0:
+                existing, count = self.get_all(resource, user_id,
+                                               filters=filters)
+                if count > 0:
                     raise exceptions.UnicityError(field, existing[0])
 
 
