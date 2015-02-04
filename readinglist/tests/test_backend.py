@@ -157,10 +157,79 @@ class BaseTestBackend(object):
         self.assertTrue(before < timestamp < after)
 
 
-class RedisBackendTest(BaseTestBackend, ThreadMixin, unittest.TestCase):
+class FieldsUnicityTest(object):
     def setUp(self):
-        super(RedisBackendTest, self).setUp()
+        super(FieldsUnicityTest, self).setUp()
+        self.resource.mapping = mock.MagicMock()
+        self.resource.mapping.Options.unique_fields = ('phone',)
+
+    def tearDown(self):
+        super(FieldsUnicityTest, self).tearDown()
+        self.resource.mapping.reset_mock()
+
+    def create_record(self, record=None, user_id=None):
+        record = record or {'phone': '0033677'}
+        user_id = user_id or self.user_id
+        return self.backend.create(self.resource, user_id, record)
+
+    def test_cannot_insert_duplicate_field(self):
+        self.create_record()
+        self.assertRaises(exceptions.UnicityError,
+                          self.create_record)
+
+    def test_unicity_exception_gives_record_and_field(self):
+        record = self.create_record()
+        try:
+            self.create_record()
+        except exceptions.UnicityError as e:
+            error = e
+        self.assertEqual(error.field, 'phone')
+        self.assertDictEqual(error.record, record)
+
+    def test_unicity_is_by_user(self):
+        self.create_record()
+        self.create_record(user_id='alice')  # not raising
+
+    def test_unicity_is_for_non_null_values(self):
+        self.create_record({'phone': None})
+        self.create_record({'phone': None})  # not raising
+
+    def test_unicity_does_not_apply_to_deleted_records(self):
+        record = self.create_record()
+        self.backend.delete(self.resource, self.user_id, record['id'])
+        self.create_record()  # not raising
+
+    def test_unicity_applies_to_one_of_all_fields_specified(self):
+        self.resource.mapping.Options.unique_fields = ('phone', 'line')
+        self.create_record({'phone': 'abc', 'line': '1'})
+        self.assertRaises(exceptions.UnicityError,
+                          self.create_record,
+                          {'phone': 'efg', 'line': '1'})
+
+    def test_updating_with_same_id_does_not_raise_unicity_error(self):
+        record = self.create_record()
+        self.backend.update(self.resource, self.user_id, record['id'], record)
+
+    def test_updating_raises_unicity_error(self):
+        self.create_record({'phone': 'number'})
+        record = self.create_record()
+        self.assertRaises(exceptions.UnicityError,
+                          self.backend.update,
+                          self.resource,
+                          self.user_id,
+                          record['id'],
+                          {'phone': 'number'})
+
+
+class BackendTest(ThreadMixin, FieldsUnicityTest, BaseTestBackend):
+    """Compound of all backend tests."""
+    pass
+
+
+class RedisBackendTest(BackendTest, unittest.TestCase):
+    def setUp(self):
         self.backend = Redis()
+        super(RedisBackendTest, self).setUp()
 
     def test_get_all_handle_expired_values(self):
         record = '{"id": "foo"}'.encode('utf-8')
@@ -185,10 +254,10 @@ class RedisBackendTest(BaseTestBackend, ThreadMixin, unittest.TestCase):
         load_redis_from_config(config)
 
 
-class MemoryBackendTest(BaseTestBackend, ThreadMixin, unittest.TestCase):
+class MemoryBackendTest(BackendTest, unittest.TestCase):
     def setUp(self):
-        super(MemoryBackendTest, self).setUp()
         self.backend = Memory()
+        super(MemoryBackendTest, self).setUp()
 
     def test_ping_returns_an_error_if_unavailable(self):
         pass

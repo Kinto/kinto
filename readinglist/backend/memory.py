@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from readinglist import utils
-from readinglist.utils import classname
+from readinglist.utils import classname, COMPARISON
 
 from readinglist.backend import (
     BackendBase, exceptions, apply_filters, apply_sorting
@@ -45,7 +45,18 @@ class Memory(BackendBase):
         return current
 
     def _check_unicity(self, resource, user_id, record):
-        pass
+        record_id = record.get(resource.id_field)
+        unique_fields = resource.mapping.Options.unique_fields
+
+        for field in unique_fields:
+            value = record.get(field)
+            filters = [(field, value, COMPARISON.EQ),
+                       (resource.id_field, record_id, COMPARISON.NOT)]
+
+            if value is not None:
+                existing = self.get_all(resource, user_id, filters=filters)
+                if len(existing) > 0:
+                    raise exceptions.UnicityError(field, existing[0])
 
     def create(self, resource, user_id, record):
         self._check_unicity(resource, user_id, record)
