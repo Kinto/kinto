@@ -28,7 +28,8 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.sample_url, headers=headers, status=401)
 
     def test_providing_empty_username_is_not_enough(self):
-        empty_username = base64.b64encode(':secret').encode('ascii')
+        empty_username = base64.b64encode(
+            ':secret'.decode('ascii')).encode('ascii')
         headers = {
             'Authorization': 'Basic {token}'.format(token=empty_username)
         }
