@@ -19,7 +19,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
         with mock.patch.dict(self.app.app.registry.settings,
                              [('readinglist.basic_auth_backdoor', 'true')]):
-            self.app.get(self.sample_url, headers=headers)
+            self.app.get(self.sample_url, headers=headers, status=200)
 
     def test_views_are_forbidden_if_basic_is_wrong(self):
         headers = {
