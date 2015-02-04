@@ -22,7 +22,6 @@ classname = lambda c: c.__class__.__name__.lower()
 
 def random_bytes_hex(bytes_length):
     """Return a hexstring of bytes_length cryptographic-friendly random bytes.
-
     """
     return hexlify(os.urandom(bytes_length)).decode('utf-8')
 

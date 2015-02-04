@@ -3,10 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Reading List's documentation!
-=============================
+Reading List documentation!
+===========================
 
-*Reading list* is a service to keep track of a list of articles to read.
+*Reading List* is a service to keep track of a list of articles to read.
 
 This is a service attached to Firefox Accounts that enable users to
 keep their Reading List in sync across all of their devices.
@@ -19,7 +19,7 @@ Contents:
    model
    authentication
    api
-   generics
+   utilities
    timestamps
    versionning
    backoff

@@ -32,22 +32,19 @@ Use the OAuth token with this header:
 
 **Reading list scope**
 
-The *reading list* API will eventually have to handle a dedicated OAuth scope (e.g.
+The *Reading List* API will eventually have to handle a dedicated OAuth scope (e.g.
 ``readinglist``, ``readinglist:read``, ``readinglist:write``). This will help users
-to delegate access to the readinglist to third party apps
+to delegate access to the *Reading List* to third party apps
 
 So far the FxA server only handles the ``profile`` scope.
 
 See https://github.com/mozilla-services/readinglist/issues/16.
 
 
-
 Basic Auth
 ==========
 
-In case you want to use the readinglist server without Oauth, you can
-activate Basic Auth in the configuration using
-``readinglist.basic_auth_backdoor = true``
+In addition to OAuth, *Basic Auth* can be enabled in the configuration using
+``readinglist.basic_auth_backdoor = true``.
 
-You can then connects using any login/password you want to create a
-user and start putting article for it.
+Articles will then be stored for any username/password combination provided.

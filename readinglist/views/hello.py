@@ -16,8 +16,7 @@ def get_hello(request):
     )
 
     eos = request.registry.settings.get('readinglist.eos', '').strip() or None
-
-    if eos is not None:
+    if eos:
         data['eos'] = eos
 
     return data

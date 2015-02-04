@@ -69,9 +69,8 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         auth_client = OAuthClient(server_url=server_url)
         try:
             profile = auth_client.verify_token(token=auth, scope=scope)
-            hmac_secret = settings.get(
-                'readinglist.userid_hmac_secret').encode('utf-8')
-            user_id = hmac.new(hmac_secret,
+            hmac_secret = settings.get('readinglist.userid_hmac_secret')
+            user_id = hmac.new(hmac_secret.encode('utf-8'),
                                profile['user'].encode('utf-8'),
                                hashlib.sha256).hexdigest()
         except fxa_errors.OutOfProtocolError:
