@@ -37,7 +37,7 @@ class Redis(BackendBase):
         except redis.RedisError:
             return False
 
-    def last_collection_timestamp(self, resource, user_id):
+    def collection_timestamp(self, resource, user_id):
         """Return the last timestamp for the resource collection of the user"""
         resource_name = classname(resource)
         timestamp = self._client.get(

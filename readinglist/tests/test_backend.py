@@ -29,7 +29,7 @@ class BackendBaseTest(unittest.TestCase):
         calls = [
             (self.backend.flush,),
             (self.backend.ping,),
-            (self.backend.last_collection_timestamp, '', ''),
+            (self.backend.collection_timestamp, '', ''),
             (self.backend.create, '', '', {}),
             (self.backend.get, '', '', ''),
             (self.backend.update, '', '', '', {}),
@@ -146,10 +146,10 @@ class BaseTestBackend(object):
         # No duplicated timestamps
         self.assertEqual(len(set(obtained)), len(obtained))
 
-    def test_last_collection_timestamp_returns_now_when_not_found(self):
+    def test_collection_timestamp_returns_now_when_not_found(self):
         before = utils.msec_time()
         time.sleep(0.001)  # 1 msec
-        timestamp = self.backend.last_collection_timestamp(
+        timestamp = self.backend.collection_timestamp(
             self.resource, self.user_id)
         time.sleep(0.001)  # 1 msec
         after = utils.msec_time()

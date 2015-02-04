@@ -23,7 +23,7 @@ class Memory(BackendBase):
     def ping(self):
         return True
 
-    def last_collection_timestamp(self, resource, user_id):
+    def collection_timestamp(self, resource, user_id):
         resource_name = classname(resource)
         return self._timestamps[resource_name].get(user_id, utils.msec_time())
 
