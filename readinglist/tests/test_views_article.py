@@ -131,3 +131,50 @@ class ReadArticleModificationTest(BaseWebTest, unittest.TestCase):
                                    headers=self.headers)
         self.assertEqual(resp.json['last_modified'],
                          self.record['last_modified'])
+
+
+class ConflictingArticleTest(BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super(ConflictingArticleTest, self).setUp()
+        resp = self.app.post_json('/articles',
+                                  MINIMALIST_ARTICLE,
+                                  headers=self.headers)
+        self.before = resp.json
+        self.url = '/articles/{id}'.format(id=self.before['_id'])
+
+    def test_creating_with_a_conflicting_url_returns_existing(self):
+        resp = self.app.post_json('/articles',
+                                  MINIMALIST_ARTICLE,
+                                  headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertDictEqual(self.before, resp.json)
+
+    def test_creating_with_a_conflicting_resolved_url_returns_existing(self):
+        # Just double-check that resolved url was set from url
+        self.assertEqual(self.before['resolved_url'], self.before['url'])
+
+        # Try to create another one, with duplicate resolved_url
+        record = MINIMALIST_ARTICLE.copy()
+        record['resolved_url'] = record['url']
+        record['url'] = 'http://bit.ly/abc'
+
+        resp = self.app.post_json('/articles',
+                                  record,
+                                  headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertDictEqual(self.before, resp.json)
+
+    def test_return_409_on_conflict_with_resolved_url(self):
+        record = MINIMALIST_ARTICLE.copy()
+        record['url'] = 'https://ssl.mozilla.org'
+        resp = self.app.post_json('/articles',
+                                  record,
+                                  headers=self.headers)
+        url = '/articles/{id}'.format(id=resp.json['_id'])
+
+        patch = {'resolved_url': MINIMALIST_ARTICLE['url']}
+        self.app.patch_json(url,
+                            patch,
+                            headers=self.headers,
+                            status=409)
+

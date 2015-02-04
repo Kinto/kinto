@@ -1,5 +1,6 @@
 import colander
 from colander import SchemaNode, String
+from pyramid import httpexceptions
 
 from readinglist.resource import crud, BaseResource, ResourceSchema, TimeStamp
 from readinglist.utils import strip_whitespace
@@ -59,6 +60,7 @@ class ArticleSchema(ResourceSchema):
     class Options:
         readonly_fields = ('url', 'stored_on') + \
             ResourceSchema.Options.readonly_fields
+        unique_fields = ('url', 'resolved_url')
 
 
 @crud()
@@ -98,3 +100,10 @@ class Article(BaseResource):
             new['read_position'] = 0
 
         return new
+
+    def collection_post(self, *args, **kwargs):
+        try:
+            return super(Article, self).collection_post(*args, **kwargs)
+        except httpexceptions.HTTPConflict as e:
+            self.request.response.status_code = 200
+            return e.existing
