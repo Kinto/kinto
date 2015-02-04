@@ -21,8 +21,8 @@ def check_credentials(username, password, request):
     settings = request.registry.settings
     is_enabled = settings.get('readinglist.basic_auth_backdoor')
 
-    if not is_enabled:
-        return []
+    if not is_enabled or not username:
+        return
 
     hmac_secret = settings.get(
         'readinglist.userid_hmac_secret').encode('utf-8')
