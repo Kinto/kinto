@@ -19,6 +19,7 @@ Contents:
    model
    authentication
    api
+   batch
    utilities
    timestamps
    versionning
