@@ -11,9 +11,9 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
     sample_url = '/articles'
 
     def test_basic_auth_is_accepted_if_enabled_in_settings(self):
-        auth_password = base64.b64encode('bob:secret').encode('ascii')
+        auth_password = base64.b64encode(u'bob:secret'.encode('ascii'))
         headers = {
-            'Authorization': 'Basic {token}'.format(token=auth_password)
+            'Authorization': 'Basic {0}'.format(auth_password.decode('ascii'))
         }
         self.app.get(self.sample_url, headers=headers, status=401)
 
@@ -28,10 +28,9 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.sample_url, headers=headers, status=401)
 
     def test_providing_empty_username_is_not_enough(self):
-        empty_username = base64.b64encode(
-            ':secret'.decode('ascii')).encode('ascii')
+        auth_password = base64.b64encode(u':secret'.encode('ascii'))
         headers = {
-            'Authorization': 'Basic {token}'.format(token=empty_username)
+            'Authorization': 'Basic {0}'.format(auth_password.decode('ascii'))
         }
         self.app.get(self.sample_url, headers=headers, status=401)
 
