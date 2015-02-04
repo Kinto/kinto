@@ -177,4 +177,3 @@ class ConflictingArticleTest(BaseWebTest, unittest.TestCase):
                             patch,
                             headers=self.headers,
                             status=409)
-

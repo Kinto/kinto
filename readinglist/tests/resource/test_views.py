@@ -303,8 +303,9 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
                           status=409)
 
     def test_patch_returns_409(self):
+        body = {'name': 'Psylo'}
         url = self.item_url.format(id=self.record['_id'])
         self.app.patch_json(url,
-                            MINIMALIST_RECORD,
+                            body,
                             headers=self.headers,
                             status=409)
