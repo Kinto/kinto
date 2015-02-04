@@ -76,7 +76,7 @@ class BaseResource(object):
         self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
         self.known_fields = [c.name for c in self.mapping.children]
-        self.timestamp = self.db.last_collection_timestamp(**self.db_kwargs)
+        self.timestamp = self.db.collection_timestamp(**self.db_kwargs)
 
     @property
     def schema(self):
@@ -154,7 +154,7 @@ class BaseResource(object):
             if record:
                 current_timestamp = record[self.modified_field]
             else:
-                current_timestamp = self.db.last_collection_timestamp(
+                current_timestamp = self.db.collection_timestamp(
                     **self.db_kwargs)
 
             if current_timestamp <= modified_since:
@@ -173,7 +173,7 @@ class BaseResource(object):
             if record:
                 current_timestamp = record[self.modified_field]
             else:
-                current_timestamp = self.db.last_collection_timestamp(
+                current_timestamp = self.db.collection_timestamp(
                     **self.db_kwargs)
 
             if current_timestamp > unmodified_since:
@@ -312,7 +312,6 @@ class BaseResource(object):
             existing = None
 
         new_record = self.request.validated
-        new_record[self.id_field] = record_id
         new_record = self.process_record(new_record, old=existing)
         record = self.db.update(record_id=record_id,
                                 record=new_record,

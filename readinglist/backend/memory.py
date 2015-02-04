@@ -23,7 +23,7 @@ class Memory(BackendBase):
     def ping(self):
         return True
 
-    def last_collection_timestamp(self, resource, user_id):
+    def collection_timestamp(self, resource, user_id):
         resource_name = classname(resource)
         return self._timestamps[resource_name].get(user_id, utils.msec_time())
 
@@ -63,7 +63,7 @@ class Memory(BackendBase):
         record = record.copy()
         resource_name = classname(resource)
         self.set_record_timestamp(resource, user_id, record)
-        record['id'] = record_id
+        record[resource.id_field] = record_id
         self._store[resource_name][user_id][record_id] = record
         return record
 
