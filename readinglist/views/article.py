@@ -86,8 +86,10 @@ class Article(BaseResource):
                 new['marked_read_by'] = old['marked_read_by']
 
         # Waiting for V2 to fetch articles
-        new['resolved_title'] = new['title']
-        new['resolved_url'] = new['url']
+        if new['resolved_title'] is None:
+            new['resolved_title'] = new['title']
+        if new['resolved_url'] is None:
+            new['resolved_url'] = new['url']
 
         # Reset info when article is marked as unreadd
         if new['unread']:

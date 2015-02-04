@@ -19,6 +19,17 @@ class ArticleModificationTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(self.before['resolved_url'], "http://mozilla.org")
         self.assertEqual(self.before['resolved_title'], "MoFo")
 
+    def test_resolved_url_and_titles_can_be_modified(self):
+        body = {
+            'resolved_url': 'https://ssl.mozilla.org',
+            'resolved_title': 'MoFo secure'
+        }
+        updated = self.app.patch_json(self.url, body, headers=self.headers)
+        self.assertNotEqual(self.before['resolved_url'],
+                            updated.json['resolved_url'])
+        self.assertNotEqual(self.before['resolved_title'],
+                            updated.json['resolved_title'])
+
     def test_cannot_modify_url(self):
         body = {'url': 'http://immutable.org'}
         self.app.patch_json(self.url,
