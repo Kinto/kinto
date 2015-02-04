@@ -52,11 +52,11 @@ class ResourceSchema(colander.MappingSchema):
 
     It brings common fields and behaviour for all inherited schemas.
     """
-    _id = colander.SchemaNode(colander.String(), missing=colander.drop)
+    id = colander.SchemaNode(colander.String(), missing=colander.drop)
     last_modified = TimeStamp()
 
     class Options:
-        readonly_fields = ('_id', 'last_modified')
+        readonly_fields = ('id', 'last_modified')
         unique_fields = tuple()
 
     def is_readonly(self, field):
@@ -67,7 +67,7 @@ class ResourceSchema(colander.MappingSchema):
 class BaseResource(object):
 
     mapping = ResourceSchema()
-    id_field = '_id'
+    id_field = 'id'
     modified_field = 'last_modified'
     validate_schema_for = ('POST', 'PUT')
 

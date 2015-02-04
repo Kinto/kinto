@@ -13,7 +13,7 @@ class ArticleModificationTest(BaseWebTest, unittest.TestCase):
                                   MINIMALIST_ARTICLE,
                                   headers=self.headers)
         self.before = resp.json
-        self.url = '/articles/{id}'.format(id=self.before['_id'])
+        self.url = '/articles/{id}'.format(id=self.before['id'])
 
     def test_replacing_records_is_not_allowed(self):
         resp = self.app.put_json(self.url,
@@ -68,7 +68,7 @@ class ReadArticleModificationTest(BaseWebTest, unittest.TestCase):
                                   MINIMALIST_ARTICLE,
                                   headers=self.headers)
         before = resp.json
-        self.url = '/articles/{id}'.format(id=before['_id'])
+        self.url = '/articles/{id}'.format(id=before['id'])
 
         mark_read = {
             'read_position': 42,
@@ -147,7 +147,7 @@ class ConflictingArticleTest(BaseWebTest, unittest.TestCase):
                                   MINIMALIST_ARTICLE,
                                   headers=self.headers)
         self.before = resp.json
-        self.url = '/articles/{id}'.format(id=self.before['_id'])
+        self.url = '/articles/{id}'.format(id=self.before['id'])
 
     def test_creating_with_a_conflicting_url_returns_existing(self):
         resp = self.app.post_json('/articles',
@@ -177,7 +177,7 @@ class ConflictingArticleTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/articles',
                                   record,
                                   headers=self.headers)
-        url = '/articles/{id}'.format(id=resp.json['_id'])
+        url = '/articles/{id}'.format(id=resp.json['id'])
 
         patch = {'resolved_url': MINIMALIST_ARTICLE['url']}
         self.app.patch_json(url,

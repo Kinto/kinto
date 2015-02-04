@@ -69,7 +69,7 @@ class AuthzAuthnTest(BaseWebTest):
                                   MINIMALIST_RECORD)
         self.assertEqual(permission_required(), 'readwrite')
 
-        url = self.item_url.format(id=resp.json['_id'])
+        url = self.item_url.format(id=resp.json['id'])
         self.app.get(url)
         self.assertEqual(permission_required(), 'readonly')
 
@@ -116,14 +116,14 @@ class InvalidRecordTest(FakeAuthentMixin, BaseWebTest):
                            status=400)
 
     def test_modify_with_invalid_record_returns_400(self):
-        url = self.item_url.format(id=self.record['_id'])
+        url = self.item_url.format(id=self.record['id'])
         self.app.patch_json(url,
                             self.invalid_record,
                             headers=self.headers,
                             status=400)
 
     def test_replace_with_invalid_record_returns_400(self):
-        url = self.item_url.format(id=self.record['_id'])
+        url = self.item_url.format(id=self.record['id'])
         self.app.put_json(url,
                           self.invalid_record,
                           headers=self.headers,
@@ -166,14 +166,14 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
                       status=400)
 
     def test_modify_with_invalid_body_returns_400(self):
-        url = self.item_url.format(id=self.record['_id'])
+        url = self.item_url.format(id=self.record['id'])
         self.app.patch(url,
                        self.invalid_body,
                        headers=self.headers,
                        status=400)
 
     def test_replace_with_invalid_body_returns_400(self):
-        url = self.item_url.format(id=self.record['_id'])
+        url = self.item_url.format(id=self.record['id'])
         self.app.put(url,
                      self.invalid_body,
                      headers=self.headers,
@@ -188,7 +188,7 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
         self.assertIn('escape sequence', resp.json['message'])
 
     def test_modify_with_invalid_uft8_returns_400(self):
-        url = self.item_url.format(id=self.record['_id'])
+        url = self.item_url.format(id=self.record['id'])
         body = '{"foo": "\\u0d1"}'
         resp = self.app.patch(url,
                               body,
@@ -215,13 +215,13 @@ class CORSHeadersTest(FakeAuthentMixin, BaseWebTest):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_single_record(self):
-        url = self.item_url.format(id=self.record['_id'])
+        url = self.item_url.format(id=self.record['id'])
         response = self.app.get(url,
                                 headers=self.headers)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_deletion(self):
-        url = self.item_url.format(id=self.record['_id'])
+        url = self.item_url.format(id=self.record['id'])
         response = self.app.delete(url,
                                    headers=self.headers)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
@@ -274,7 +274,7 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
         self.record = resp.json
 
         def unicity_failure(*args, **kwargs):
-            raise backend_exceptions.UnicityError('city', {'_id': 42})
+            raise backend_exceptions.UnicityError('city', {'id': 42})
 
         for operation in ('create', 'update'):
             patch = mock.patch.object(self.config.registry.backend, operation,
@@ -296,7 +296,7 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
                            status=409)
 
     def test_put_returns_409(self):
-        url = self.item_url.format(id=self.record['_id'])
+        url = self.item_url.format(id=self.record['id'])
         self.app.put_json(url,
                           MINIMALIST_RECORD,
                           headers=self.headers,
@@ -304,7 +304,7 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
 
     def test_patch_returns_409(self):
         body = {'name': 'Psylo'}
-        url = self.item_url.format(id=self.record['_id'])
+        url = self.item_url.format(id=self.record['id'])
         self.app.patch_json(url,
                             body,
                             headers=self.headers,

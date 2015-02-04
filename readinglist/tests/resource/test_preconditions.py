@@ -25,7 +25,7 @@ class NotModifiedTest(BaseTest):
         self.assertIsNotNone(error.headers.get('Last-Modified'))
 
     def test_single_record_returns_304_if_no_change_meanwhile(self):
-        self.resource.request.matchdict['id'] = self.stored['_id']
+        self.resource.request.matchdict['id'] = self.stored['id']
         try:
             self.resource.get()
         except httpexceptions.HTTPNotModified as e:
@@ -66,12 +66,12 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertIsNotNone(error.headers.get('Last-Modified'))
 
     def test_single_record_returns_412_if_changed_meanwhile(self):
-        self.resource.request.matchdict['id'] = self.stored['_id']
+        self.resource.request.matchdict['id'] = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.get)
 
     def test_412_on_single_record_has_last_modified_timestamp(self):
-        self.resource.request.matchdict['id'] = self.stored['_id']
+        self.resource.request.matchdict['id'] = self.stored['id']
         try:
             self.resource.get()
         except httpexceptions.HTTPPreconditionFailed as e:
@@ -83,16 +83,16 @@ class ModifiedMeanwhileTest(BaseTest):
                           self.resource.collection_post)
 
     def test_put_returns_412_if_changed_meanwhile(self):
-        self.resource.request.matchdict['id'] = self.stored['_id']
+        self.resource.request.matchdict['id'] = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
     def test_patch_returns_412_if_changed_meanwhile(self):
-        self.resource.request.matchdict['id'] = self.stored['_id']
+        self.resource.request.matchdict['id'] = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.patch)
 
     def test_delete_returns_412_if_changed_meanwhile(self):
-        self.resource.request.matchdict['id'] = self.stored['_id']
+        self.resource.request.matchdict['id'] = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.delete)
