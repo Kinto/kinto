@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from readinglist import utils
-from readinglist.utils import classname, COMPARISON
+from readinglist.utils import classname
 
 from readinglist.backend import (
     BackendBase, exceptions, apply_filters, apply_sorting
@@ -44,22 +44,8 @@ class Memory(BackendBase):
         self._timestamps[resource_name][user_id] = current
         return current
 
-    def _check_unicity(self, resource, user_id, record):
-        record_id = record.get(resource.id_field)
-        unique_fields = resource.mapping.Options.unique_fields
-
-        for field in unique_fields:
-            value = record.get(field)
-            filters = [(field, value, COMPARISON.EQ),
-                       (resource.id_field, record_id, COMPARISON.NOT)]
-
-            if value is not None:
-                existing = self.get_all(resource, user_id, filters=filters)
-                if len(existing) > 0:
-                    raise exceptions.UnicityError(field, existing[0])
-
     def create(self, resource, user_id, record):
-        self._check_unicity(resource, user_id, record)
+        self.check_unicity(resource, user_id, record)
 
         record = record.copy()
         _id = record[resource.id_field] = self.id_generator()
@@ -78,7 +64,7 @@ class Memory(BackendBase):
     def update(self, resource, user_id, record_id, record):
         record = record.copy()
         record[resource.id_field] = record_id
-        self._check_unicity(resource, user_id, record)
+        self.check_unicity(resource, user_id, record)
 
         self.set_record_timestamp(resource, user_id, record)
         resource_name = classname(resource)

@@ -1,5 +1,6 @@
 import operator
 from operator import itemgetter
+from readinglist.backend import exceptions
 from readinglist.backend.id_generator import UUID4Generator
 from readinglist.utils import COMPARISON
 
@@ -38,6 +39,23 @@ class BackendBase(object):
         timestamp = self._bump_timestamp(resource, user_id)
         record[resource.modified_field] = timestamp
         return record
+
+    def check_unicity(self, resource, user_id, record):
+        """Check that the specified record does not violates unicity
+        constraints defined in the resource's mapping options.
+        """
+        record_id = record.get(resource.id_field)
+        unique_fields = resource.mapping.Options.unique_fields
+
+        for field in unique_fields:
+            value = record.get(field)
+            filters = [(field, value, COMPARISON.EQ),
+                       (resource.id_field, record_id, COMPARISON.NOT)]
+
+            if value is not None:
+                existing = self.get_all(resource, user_id, filters=filters)
+                if len(existing) > 0:
+                    raise exceptions.UnicityError(field, existing[0])
 
 
 def apply_filters(records, filters):
