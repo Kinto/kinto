@@ -6,6 +6,7 @@ import webtest
 
 from readinglist import set_auth, attach_http_objects
 from readinglist.backend.memory import Memory
+from readinglist.backend import exceptions as backend_exceptions
 from readinglist.errors import ERRORS
 from readinglist.resource import BaseResource, ResourceSchema, crud
 from readinglist.tests.support import unittest, FakeAuthentMixin
@@ -261,3 +262,41 @@ class CORSHeadersTest(FakeAuthentMixin, BaseWebTest):
             response = self.app.get('/articles',
                                     headers=self.headers, status=500)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
+
+
+class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
+    def setUp(self):
+        super(ConflictErrorsTest, self).setUp()
+
+        resp = self.app.post_json(self.collection_url,
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers)
+        self.record = resp.json
+
+        def unicity_failure(*args, **kwargs):
+            raise backend_exceptions.UnicityError('field', {'_id': 42})
+
+        for operation in ('create', 'update'):
+            patch = mock.patch.object(self.config.registry.backend, operation,
+                                      side_effect=unicity_failure)
+            patch.start()
+
+    def test_post_returns_409(self):
+        self.app.post_json(self.collection_url,
+                           MINIMALIST_RECORD,
+                           headers=self.headers,
+                           status=409)
+
+    def test_put_returns_409(self):
+        url = self.item_url.format(id=self.record['_id'])
+        self.app.put_json(url,
+                          MINIMALIST_RECORD,
+                          headers=self.headers,
+                          status=409)
+
+    def test_patch_returns_409(self):
+        url = self.item_url.format(id=self.record['_id'])
+        self.app.patch_json(url,
+                            MINIMALIST_RECORD,
+                            headers=self.headers,
+                            status=409)

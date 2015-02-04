@@ -44,11 +44,16 @@ class Memory(BackendBase):
         self._timestamps[resource_name][user_id] = current
         return current
 
+    def _check_unicity(self, resource, user_id, record):
+        pass
+
     def create(self, resource, user_id, record):
+        self._check_unicity(resource, user_id, record)
+
         record = record.copy()
-        resource_name = classname(resource)
         _id = record[resource.id_field] = self.id_generator()
         self.set_record_timestamp(resource, user_id, record)
+        resource_name = classname(resource)
         self._store[resource_name][user_id][_id] = record
         return record
 
@@ -61,9 +66,11 @@ class Memory(BackendBase):
 
     def update(self, resource, user_id, record_id, record):
         record = record.copy()
-        resource_name = classname(resource)
-        self.set_record_timestamp(resource, user_id, record)
         record[resource.id_field] = record_id
+        self._check_unicity(resource, user_id, record)
+
+        self.set_record_timestamp(resource, user_id, record)
+        resource_name = classname(resource)
         self._store[resource_name][user_id][record_id] = record
         return record
 
