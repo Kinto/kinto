@@ -21,6 +21,9 @@ def check_credentials(username, password, request):
     settings = request.registry.settings
     is_enabled = settings.get('readinglist.basic_auth_backdoor')
 
+    if not is_enabled:
+        return []
+
     hmac_secret = settings.get(
         'readinglist.userid_hmac_secret').encode('utf-8')
     credentials = '%s:%s' % (username, password)
@@ -28,7 +31,7 @@ def check_credentials(username, password, request):
                       credentials.encode('utf-8'),
                       hashlib.sha256).hexdigest()
 
-    return ["basicauth_%s" % userid] if is_enabled else []
+    return ["basicauth_%s" % userid]
 
 
 class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
