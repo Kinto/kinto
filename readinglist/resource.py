@@ -195,13 +195,15 @@ class BaseResource(object):
                 raise response
 
     def raise_conflict(self, exception):
-        error_msg = six.text_type(exception.record[self.id_field])
+        field = exception.field
+        existing = exception.record[self.id_field]
+        message = 'Conflict of field {0} on record {1}'.format(field, existing)
         response = HTTPConflict(
             body=errors.format_error(
                 code=HTTPConflict.code,
                 errno=errors.ERRORS.CONSTRAINT_VIOLATED,
                 error=HTTPNotFound.title,
-                message=error_msg),
+                message=message),
             content_type='application/json')
         response.existing = exception.record
         raise response

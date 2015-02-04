@@ -274,12 +274,20 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
         self.record = resp.json
 
         def unicity_failure(*args, **kwargs):
-            raise backend_exceptions.UnicityError('field', {'_id': 42})
+            raise backend_exceptions.UnicityError('city', {'_id': 42})
 
         for operation in ('create', 'update'):
             patch = mock.patch.object(self.config.registry.backend, operation,
                                       side_effect=unicity_failure)
             patch.start()
+
+    def test_409_error_gives_detail_about_field_and_record(self):
+        resp = self.app.post_json(self.collection_url,
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers,
+                                  status=409)
+        self.assertEqual(resp.json['message'],
+                         'Conflict of field city on record 42')
 
     def test_post_returns_409(self):
         self.app.post_json(self.collection_url,
