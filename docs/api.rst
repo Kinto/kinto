@@ -265,10 +265,16 @@ The PATCH response is the modified record (full).
 - ``favorite``
 - ``unread``
 - ``status``
+- ``read_position``
+
+Since article fields resolution is performed by the client in the first version
+of the API, the following fields are also modifiable:
+
 - ``is_article``
 - ``resolved_url``
 - ``resolved_title``
-- ``read_position``
+
+**Errors**
 
 If the record is missing (or already deleted), a ``404 Not Found`` error is returned. The client might
 decide to ignore it.
@@ -307,3 +313,8 @@ Conflicts
 
 If changing the article ``resolved_url`` violates the unicity constraint, a
 ``409 Conflict`` error response is returned (see :ref:`error channel <_error-responses>`).
+
+:note:
+
+    Note that ``url`` is a readonly field, and thus cannot generate conflicts
+    here.
