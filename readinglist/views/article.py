@@ -2,6 +2,7 @@ import colander
 from colander import SchemaNode, String
 from pyramid import httpexceptions
 
+from readinglist import errors
 from readinglist.resource import crud, BaseResource, ResourceSchema, TimeStamp
 from readinglist.utils import strip_whitespace
 
@@ -66,6 +67,15 @@ class ArticleSchema(ResourceSchema):
 @crud()
 class Article(BaseResource):
     mapping = ArticleSchema()
+
+    def put(self):
+        response = httpexceptions.HTTPMethodNotAllowed(
+            body=errors.format_error(
+                code=httpexceptions.HTTPMethodNotAllowed.code,
+                errno=errors.ERRORS.METHOD_NOT_ALLOWED,
+                error=httpexceptions.HTTPMethodNotAllowed.title),
+            content_type='application/json')
+        raise response
 
     def preprocess_record(self, new, old=None):
         """Operate changes on submitted record.

@@ -15,6 +15,13 @@ class ArticleModificationTest(BaseWebTest, unittest.TestCase):
         self.before = resp.json
         self.url = '/articles/{id}'.format(id=self.before['_id'])
 
+    def test_replacing_records_is_not_allowed(self):
+        resp = self.app.put_json(self.url,
+                                 MINIMALIST_ARTICLE,
+                                 headers=self.headers,
+                                 status=405)
+        self.assertEqual(resp.json['errno'], 115)
+
     def test_resolved_url_and_titles_are_set(self):
         self.assertEqual(self.before['resolved_url'], "http://mozilla.org")
         self.assertEqual(self.before['resolved_title'], "MoFo")
