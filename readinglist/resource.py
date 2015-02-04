@@ -317,7 +317,7 @@ class BaseResource(object):
 
         new_id = new_record.setdefault(self.id_field, record_id)
         if new_id != record_id:
-            error_msg = 'Record id do not match'
+            error_msg = 'Record id does not match existing record'
             self.raise_invalid(name=self.id_field, description=error_msg)
 
         new_record = self.process_record(new_record, old=existing)

@@ -300,7 +300,7 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 :note:
     If ``unread`` is changed to true, ``marked_read_by``, ``marked_read_on``
-    and ``read_position`` are resetted to their default value.
+    and ``read_position`` are reset to their default value.
 
 :note:
     As mentionned in the *Validation section*, an article status cannot take the value ``2``.
