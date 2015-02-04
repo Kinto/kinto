@@ -65,8 +65,8 @@ Sorting
 
 * ``/articles?_sort=-last_modified,title``
 
-:note:
-    Articles will be ordered by ``-stored_on`` by default (i.e. newest first).
+.. :note:
+..     Articles will be ordered by ``-stored_on`` by default (i.e. newest first).
 
 :note:
     Ordering on a boolean field gives ``true`` values first.
@@ -163,6 +163,7 @@ For v1, the server will assign default values to the following attributes:
 - ``status``: 0-OK
 - ``favorite``: false
 - ``unread``: true
+- ``read_position``: 0
 - ``is_article``: true
 - ``last_modified``: current server timestamp
 - ``stored_on``: current server timestamp
@@ -280,23 +281,26 @@ If the request header ``If-Unmodified-Since`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 :note:
-    ``last_modified`` is updated to the current server timestamp.
+    ``last_modified`` is updated to the current server timestamp, only if a
+    field value was changed.
 
 :note:
     Changing ``read_position`` never generates conflicts.
 
-.. :note:
-       ``read_position`` can only be changed for a greater value than the current one.
-
-.. :note:
-       If ``unread`` is changed to false, ``marked_read_on`` and ``marked_read_by`` are expected to be provided.
-
-.. :note:
-       If ``unread`` was already false, ``marked_read_on`` and ``marked_read_by`` are not updated with provided values.
+:note:
+    ``read_position`` is ignored if the value is lower than the current one.
 
 :note:
-    If ``unread`` is changed to true, ``marked_read_by`` and ``marked_read_on``
-    are changed automatically to null.
+    If ``unread`` is changed to false, ``marked_read_on`` and ``marked_read_by``
+    are expected to be provided.
+
+:note:
+    If ``unread`` was already false, ``marked_read_on`` and ``marked_read_by``
+    are not updated with provided values.
+
+:note:
+    If ``unread`` is changed to true, ``marked_read_by``, ``marked_read_on``
+    and ``read_position`` are reset to their default value.
 
 :note:
     As mentionned in the *Validation section*, an article status cannot take the value ``2``.

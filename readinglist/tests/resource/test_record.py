@@ -1,3 +1,4 @@
+import mock
 from pyramid import httpexceptions
 
 from readinglist.errors import ERRORS
@@ -15,16 +16,28 @@ class GetTest(BaseTest):
 
 
 class PutTest(BaseTest):
-    def test_replace_record_returns_updated_fields(self):
-        record = self.db.create(self.resource, 'bob', {'field': 'old'})
+    def setUp(self):
+        super(PutTest, self).setUp()
+        self.record = self.db.create(self.resource, 'bob', {'field': 'old'})
+        self.resource.request.matchdict['id'] = self.record['_id']
 
-        self.resource.request.matchdict['id'] = record['_id']
+    def test_replace_record_returns_updated_fields(self):
         self.resource.request.validated = {'field': 'new'}
 
         result = self.resource.put()
-        self.assertEqual(record['_id'], result['_id'])
-        self.assertNotEqual(record['last_modified'], result['last_modified'])
-        self.assertNotEqual(record['field'], 'new')
+        self.assertEqual(self.record['_id'], result['_id'])
+        self.assertNotEqual(self.record['last_modified'],
+                            result['last_modified'])
+        self.assertNotEqual(self.record['field'], 'new')
+
+    def test_cannot_replace_with_different_id(self):
+        self.resource.request.validated = {'_id': 'abc'}
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.put)
+
+    def test_last_modified_is_overwritten_on_replace(self):
+        self.resource.request.validated = {'last_modified': 123}
+        result = self.resource.put()
+        self.assertNotEqual(result['last_modified'], 123)
 
 
 class DeleteTest(BaseTest):
@@ -53,6 +66,36 @@ class PatchTest(BaseTest):
         self.assertEquals(self.stored['_id'], self.result['_id'])
         self.assertEquals(self.result['some'], 'change')
 
+    def test_record_timestamp_is_not_updated_if_none_for_missing_field(self):
+        self.resource.request.json = {'plop': None}
+        result = self.resource.patch()
+        self.assertEquals(self.result['last_modified'],
+                          result['last_modified'])
+
+    def test_record_timestamp_is_not_updated_if_no_field_changed(self):
+        self.resource.request.json = {'some': 'change'}
+        result = self.resource.patch()
+        self.assertEquals(self.result['last_modified'],
+                          result['last_modified'])
+
+    def test_collection_timestamp_is_not_updated_if_no_field_changed(self):
+        self.resource.request.json = {'some': 'change'}
+        self.resource.patch()
+        # Reset
+        BaseTest.setUp(self)
+        self.resource.collection_get()
+        last_modified = self.last_response.headers['Last-Modified']
+        self.assertEquals(self.result['last_modified'], int(last_modified))
+
+    def test_timestamp_is_not_updated_if_no_change_after_preprocessed(self):
+        with mock.patch.object(self.resource, 'preprocess_record') as mocked:
+            mocked.return_value = {'some': 'change'}
+
+            self.resource.request.json = {'some': 'plop'}
+            result = self.resource.patch()
+            self.assertEquals(self.result['last_modified'],
+                              result['last_modified'])
+
 
 class UnknownRecordTest(BaseTest):
     def setUp(self):
@@ -76,8 +119,8 @@ class UnknownRecordTest(BaseTest):
 class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
         super(ReadonlyFieldsTest, self).setUp()
-        stored = self.db.create(self.resource, 'bob', {})
-        self.resource.request.matchdict['id'] = stored['_id']
+        self.stored = self.db.create(self.resource, 'bob', {})
+        self.resource.request.matchdict['id'] = self.stored['_id']
 
     def assertReadonlyError(self, field):
         error = None
@@ -90,6 +133,13 @@ class ReadonlyFieldsTest(BaseTest):
             'message': 'Cannot modify {0}'.format(field),
             'code': 400,
             'error': 'Invalid parameters'})
+
+    def test_can_specify_readonly_fields_if_not_changed(self):
+        self.resource.request.json = {
+            '_id': self.stored['_id'],
+            'last_modified': self.stored['last_modified']
+        }
+        self.resource.patch()  # not raising
 
     def test_cannot_modify_id(self):
         self.resource.request.json = {'_id': 'change'}

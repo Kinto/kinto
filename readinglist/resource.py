@@ -88,6 +88,11 @@ class BaseResource(object):
 
         return CorniceSchema.from_colander(colander_schema)
 
+    def raise_invalid(self, location='body', **kwargs):
+        """Helper to raise a validation error."""
+        self.request.errors.add(location, **kwargs)
+        raise errors.json_error(self.request.errors)
+
     def fetch_record(self):
         """Fetch current view related record, and raise 404 if missing."""
         try:
@@ -116,11 +121,11 @@ class BaseResource(object):
     def merge_fields(self, record, changes):
         """Merge changes into current record fields.
         """
-        for field in changes.keys():
-            if self.mapping.is_readonly(field):
+        for field, value in changes.items():
+            has_changed = record.get(field, value) != value
+            if self.mapping.is_readonly(field) and has_changed:
                 error = 'Cannot modify {0}'.format(field)
-                self.request.errors.add('body', name=field, description=error)
-                raise errors.json_error(self.request.errors)
+                self.raise_invalid(name=field, description=error)
 
         updated = record.copy()
         updated.update(**changes)
@@ -206,8 +211,7 @@ class BaseResource(object):
                         'location': 'querystring',
                         'description': 'Invalid value for _since'
                     }
-                    self.request.errors.add(**error_details)
-                    raise errors.json_error(self.request.errors)
+                    self.raise_invalid(**error_details)
 
                 filters.append(
                     (self.modified_field, value, COMPARISON.GT)
@@ -227,8 +231,7 @@ class BaseResource(object):
                     'location': 'querystring',
                     'description': "Unknown filter field '{0}'".format(param)
                 }
-                self.request.errors.add(**error_details)
-                raise errors.json_error(self.request.errors)
+                self.raise_invalid(**error_details)
 
             filters.append((field, value, operator))
 
@@ -250,8 +253,7 @@ class BaseResource(object):
                         'location': 'querystring',
                         'description': "Unknown sort field '{0}'".format(field)
                     }
-                    self.request.errors.add(**error_details)
-                    raise errors.json_error(self.request.errors)
+                    self.raise_invalid(**error_details)
 
                 direction = -1 if order == '-' else 1
                 sorting.append((field, direction))
@@ -312,6 +314,12 @@ class BaseResource(object):
             existing = None
 
         new_record = self.request.validated
+
+        new_id = new_record.setdefault(self.id_field, record_id)
+        if new_id != record_id:
+            error_msg = 'Record id does not match existing record'
+            self.raise_invalid(name=self.id_field, description=error_msg)
+
         new_record = self.process_record(new_record, old=existing)
         record = self.db.update(record_id=record_id,
                                 record=new_record,
@@ -323,9 +331,16 @@ class BaseResource(object):
         record = self.fetch_record()
         self.raise_412_if_modified(record)
 
-        updated = self.merge_fields(record, changes=self.request.json)
+        changes = self.request.json
+
+        updated = self.merge_fields(record, changes=changes)
 
         updated = self.process_record(updated, old=record)
+
+        has_changed = lambda field: record.get(field) != updated.get(field)
+        nothing_changed = not any([has_changed(k) for k in changes.keys()])
+        if nothing_changed:
+            return record
 
         record = self.db.update(record_id=record[self.id_field],
                                 record=updated,
