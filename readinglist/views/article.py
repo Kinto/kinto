@@ -1,5 +1,6 @@
 import colander
 from colander import SchemaNode, String
+from pyramid import httpexceptions
 
 from readinglist.resource import crud, BaseResource, ResourceSchema, TimeStamp
 from readinglist.utils import strip_whitespace
@@ -59,6 +60,7 @@ class ArticleSchema(ResourceSchema):
     class Options:
         readonly_fields = ('url', 'stored_on') + \
             ResourceSchema.Options.readonly_fields
+        unique_fields = ('url', 'resolved_url')
 
 
 @crud()
@@ -66,8 +68,22 @@ class Article(BaseResource):
     mapping = ArticleSchema()
 
     def preprocess_record(self, new, old=None):
-        """Currently, article content is not fetched, thus resolved url
-        and title are the ones provided.
+        """Operate changes on submitted record.
+        This implementation represents the specifities of the *Reading List*
+        article resource.
+
+        In a future version, URL resolution (*redirects*) and article title
+        obtention (*HTML content*) will be performed here.
+
+        Contrary to article content fetching, this fields resolution has to
+        be performed synchronously (i.e. withing request/response cycle) during
+        article creation, otherwise unicity of ``resolved_url`` cannot be
+        guaranteed.
+
+        :note:
+
+            This could moved to a specific end-point, in order to keep the
+            article API aligned with behaviour generic resources.
         """
         if old:
             # Read position should be superior
@@ -85,9 +101,11 @@ class Article(BaseResource):
                 new['marked_read_on'] = old['marked_read_on']
                 new['marked_read_by'] = old['marked_read_by']
 
-        # Waiting for V2 to fetch articles
-        new['resolved_title'] = new['title']
-        new['resolved_url'] = new['url']
+        # In this first version, do not resolve url and title.
+        if new['resolved_title'] is None:
+            new['resolved_title'] = new['title']
+        if new['resolved_url'] is None:
+            new['resolved_url'] = new['url']
 
         # Reset info when article is marked as unreadd
         if new['unread']:
@@ -96,3 +114,10 @@ class Article(BaseResource):
             new['read_position'] = 0
 
         return new
+
+    def collection_post(self, *args, **kwargs):
+        try:
+            return super(Article, self).collection_post(*args, **kwargs)
+        except httpexceptions.HTTPConflict as e:
+            self.request.response.status_code = 200
+            return e.existing

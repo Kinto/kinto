@@ -206,12 +206,8 @@ Articles URL are unique per user (both ``url`` and ``resolved_url``).
 :note:
     Deleted items should be taken into account for URL unicity.
 
-.. If an article is created with an URL that already exists, a ``303 See Other`` response
-   is returned to indicate the existing record.
-
-   The response body is a JSON mapping, with the following attribute:
-
-   - ``id``: the id of the conflicting record
+If an article is created with an URL that already exists, a ``200`` response
+is returned with the existing record in the body.
 
 
 GET /articles/<id>
@@ -269,10 +265,16 @@ The PATCH response is the modified record (full).
 - ``favorite``
 - ``unread``
 - ``status``
+- ``read_position``
+
+Since article fields resolution is performed by the client in the first version
+of the API, the following fields are also modifiable:
+
 - ``is_article``
 - ``resolved_url``
 - ``resolved_title``
-- ``read_position``
+
+**Errors**
 
 If the record is missing (or already deleted), a ``404 Not Found`` error is returned. The client might
 decide to ignore it.
@@ -304,3 +306,15 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 :note:
     As mentionned in the *Validation section*, an article status cannot take the value ``2``.
+
+
+Conflicts
+---------
+
+If changing the article ``resolved_url`` violates the unicity constraint, a
+``409 Conflict`` error response is returned (see :ref:`error channel <_error-responses>`).
+
+:note:
+
+    Note that ``url`` is a readonly field, and thus cannot generate conflicts
+    here.

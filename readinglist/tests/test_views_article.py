@@ -19,6 +19,17 @@ class ArticleModificationTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(self.before['resolved_url'], "http://mozilla.org")
         self.assertEqual(self.before['resolved_title'], "MoFo")
 
+    def test_resolved_url_and_titles_can_be_modified(self):
+        body = {
+            'resolved_url': 'https://ssl.mozilla.org',
+            'resolved_title': 'MoFo secure'
+        }
+        updated = self.app.patch_json(self.url, body, headers=self.headers)
+        self.assertNotEqual(self.before['resolved_url'],
+                            updated.json['resolved_url'])
+        self.assertNotEqual(self.before['resolved_title'],
+                            updated.json['resolved_title'])
+
     def test_cannot_modify_url(self):
         body = {'url': 'http://immutable.org'}
         self.app.patch_json(self.url,
@@ -120,3 +131,49 @@ class ReadArticleModificationTest(BaseWebTest, unittest.TestCase):
                                    headers=self.headers)
         self.assertEqual(resp.json['last_modified'],
                          self.record['last_modified'])
+
+
+class ConflictingArticleTest(BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super(ConflictingArticleTest, self).setUp()
+        resp = self.app.post_json('/articles',
+                                  MINIMALIST_ARTICLE,
+                                  headers=self.headers)
+        self.before = resp.json
+        self.url = '/articles/{id}'.format(id=self.before['_id'])
+
+    def test_creating_with_a_conflicting_url_returns_existing(self):
+        resp = self.app.post_json('/articles',
+                                  MINIMALIST_ARTICLE,
+                                  headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertDictEqual(self.before, resp.json)
+
+    def test_creating_with_a_conflicting_resolved_url_returns_existing(self):
+        # Just double-check that resolved url was set from url
+        self.assertEqual(self.before['resolved_url'], self.before['url'])
+
+        # Try to create another one, with duplicate resolved_url
+        record = MINIMALIST_ARTICLE.copy()
+        record['resolved_url'] = record['url']
+        record['url'] = 'http://bit.ly/abc'
+
+        resp = self.app.post_json('/articles',
+                                  record,
+                                  headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertDictEqual(self.before, resp.json)
+
+    def test_return_409_on_conflict_with_resolved_url(self):
+        record = MINIMALIST_ARTICLE.copy()
+        record['url'] = 'https://ssl.mozilla.org'
+        resp = self.app.post_json('/articles',
+                                  record,
+                                  headers=self.headers)
+        url = '/articles/{id}'.format(id=resp.json['_id'])
+
+        patch = {'resolved_url': MINIMALIST_ARTICLE['url']}
+        self.app.patch_json(url,
+                            patch,
+                            headers=self.headers,
+                            status=409)

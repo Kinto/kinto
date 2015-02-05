@@ -4,10 +4,10 @@ import colander
 from cornice import resource
 from cornice.schemas import CorniceSchema
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
-                                    HTTPNotFound)
+                                    HTTPNotFound, HTTPConflict)
 import six
 
-from readinglist.backend.exceptions import RecordNotFoundError
+from readinglist.backend import exceptions as backend_exceptions
 from readinglist import errors
 from readinglist.utils import COMPARISON, native_value, msec_time
 
@@ -57,6 +57,7 @@ class ResourceSchema(colander.MappingSchema):
 
     class Options:
         readonly_fields = ('_id', 'last_modified')
+        unique_fields = tuple()
 
     def is_readonly(self, field):
         """Return True if specified field name is read-only."""
@@ -99,7 +100,7 @@ class BaseResource(object):
             record_id = self.request.matchdict['id']
             return self.db.get(record_id=record_id,
                                **self.db_kwargs)
-        except RecordNotFoundError:
+        except backend_exceptions.RecordNotFoundError:
             response = HTTPNotFound(
                 body=errors.format_error(
                     code=HTTPNotFound.code,
@@ -192,6 +193,20 @@ class BaseResource(object):
                     content_type='application/json')
                 self.add_timestamp_header(response)
                 raise response
+
+    def raise_conflict(self, exception):
+        field = exception.field
+        existing = exception.record[self.id_field]
+        message = 'Conflict of field {0} on record {1}'.format(field, existing)
+        response = HTTPConflict(
+            body=errors.format_error(
+                code=HTTPConflict.code,
+                errno=errors.ERRORS.CONSTRAINT_VIOLATED,
+                error=HTTPNotFound.title,
+                message=message),
+            content_type='application/json')
+        response.existing = exception.record
+        raise response
 
     def _extract_filters(self, queryparams):
         """Extracts filters from QueryString parameters."""
@@ -289,7 +304,11 @@ class BaseResource(object):
         self.raise_412_if_modified()
 
         new_record = self.process_record(self.request.validated)
-        record = self.db.create(record=new_record, **self.db_kwargs)
+        try:
+            record = self.db.create(record=new_record, **self.db_kwargs)
+        except backend_exceptions.UnicityError as e:
+            self.raise_conflict(e)
+
         self.request.response.status_code = 201
         return record
 
@@ -310,7 +329,7 @@ class BaseResource(object):
             existing = self.db.get(record_id=record_id,
                                    **self.db_kwargs)
             self.raise_412_if_modified(existing)
-        except RecordNotFoundError:
+        except backend_exceptions.RecordNotFoundError:
             existing = None
 
         new_record = self.request.validated
@@ -321,9 +340,14 @@ class BaseResource(object):
             self.raise_invalid(name=self.id_field, description=error_msg)
 
         new_record = self.process_record(new_record, old=existing)
-        record = self.db.update(record_id=record_id,
-                                record=new_record,
-                                **self.db_kwargs)
+
+        try:
+            record = self.db.update(record_id=record_id,
+                                    record=new_record,
+                                    **self.db_kwargs)
+        except backend_exceptions.UnicityError as e:
+            self.raise_conflict(e)
+
         return record
 
     @resource.view(permission='readwrite')
@@ -342,9 +366,13 @@ class BaseResource(object):
         if nothing_changed:
             return record
 
-        record = self.db.update(record_id=record[self.id_field],
-                                record=updated,
-                                **self.db_kwargs)
+        try:
+            record = self.db.update(record_id=record[self.id_field],
+                                    record=updated,
+                                    **self.db_kwargs)
+        except backend_exceptions.UnicityError as e:
+            self.raise_conflict(e)
+
         return record
 
     @resource.view(permission='readwrite')
