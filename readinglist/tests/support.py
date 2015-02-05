@@ -13,7 +13,6 @@ from readinglist import API_VERSION
 from readinglist.utils import random_bytes_hex
 
 
-
 class DummyRequest(mock.MagicMock):
     def __init__(self, *args, **kwargs):
         super(DummyRequest, self).__init__(*args, **kwargs)
