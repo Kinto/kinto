@@ -3,8 +3,7 @@ from functools import wraps
 
 from cornice.cors import ensure_origin
 from pyramid.httpexceptions import (
-    HTTPForbidden, HTTPUnauthorized, HTTPNotFound, HTTPInternalServerError,
-    Response
+    HTTPForbidden, HTTPUnauthorized, HTTPNotFound, Response
 )
 from pyramid.security import forget
 from pyramid.view import (
@@ -12,7 +11,7 @@ from pyramid.view import (
 )
 
 from readinglist import logger
-from readinglist.errors import format_error, ERRORS
+from readinglist.errors import format_error, ERRORS, HTTPInternalServerError
 
 
 def reapply_cors(request, response):
@@ -89,13 +88,6 @@ def error(context, request):
 
     logger.exception(context)
 
-    response = HTTPInternalServerError(
-        body=format_error(
-            500,
-            ERRORS.UNDEFINED,
-            "Internal Server Error",
-            "A programmatic error occured, developers have been informed.",
-            "https://github.com/mozilla-services/readinglist/issues/"),
-        content_type='application/json')
+    response = HTTPInternalServerError()
 
     return reapply_cors(request, response)

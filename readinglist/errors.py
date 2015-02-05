@@ -1,7 +1,8 @@
 import six
 from pyramid.config import global_registries
 from pyramid.httpexceptions import (
-    HTTPServiceUnavailable as PyramidHTTPServiceUnavailable, HTTPBadRequest
+    HTTPServiceUnavailable as PyramidHTTPServiceUnavailable, HTTPBadRequest,
+    HTTPInternalServerError as PyramidHTTPInternalServerError
 )
 from readinglist.utils import Enum, json
 
@@ -41,7 +42,7 @@ def format_error(code, errno, error, message=None, info=None):
 
 
 class HTTPServiceUnavailable(PyramidHTTPServiceUnavailable):
-    """Return an HTTPServiceUnavailable formatted error."""
+    """A HTTPServiceUnavailable formatted in JSON."""
 
     def __init__(self, **kwargs):
         if 'body' not in kwargs:
@@ -63,6 +64,22 @@ class HTTPServiceUnavailable(PyramidHTTPServiceUnavailable):
         )
 
         super(HTTPServiceUnavailable, self).__init__(**kwargs)
+
+
+class HTTPInternalServerError(PyramidHTTPInternalServerError):
+    """A HTTPInternalServerError formatted in JSON."""
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('body', format_error(
+            500,
+            ERRORS.UNDEFINED,
+            "Internal Server Error",
+            "A programmatic error occured, developers have been informed.",
+            "https://github.com/mozilla-services/readinglist/issues/"))
+
+        kwargs.setdefault('content_type', 'application/json')
+
+        super(HTTPInternalServerError, self).__init__(**kwargs)
 
 
 def json_error(errors):
