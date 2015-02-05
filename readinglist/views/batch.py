@@ -1,9 +1,24 @@
+import colander
 from cornice import Service
+
 
 batch = Service(name="batch", path='/batch',
                 description="Batch operations")
 
 
-@batch.post()
+class BatchRequestSchema(colander.MappingSchema):
+    pass
+
+
+class BatchPayloadSchema(colander.MappingSchema):
+    requests = colander.SchemaNode(colander.Sequence(),
+                                   BatchRequestSchema())
+
+
+@batch.post(permission='readonly', schema=BatchPayloadSchema)
 def post_batch(request):
-    return {}
+    responses = []
+
+    return {
+        'responses': responses
+    }

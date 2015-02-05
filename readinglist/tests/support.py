@@ -1,14 +1,29 @@
 import mock
 import threading
-import webtest
 
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest  # NOQA
 
+from cornice import errors as cornice_errors
+import webtest
+
 from readinglist import API_VERSION
 from readinglist.utils import random_bytes_hex
+
+
+
+class DummyRequest(mock.MagicMock):
+    def __init__(self, *args, **kwargs):
+        super(DummyRequest, self).__init__(*args, **kwargs)
+        self.GET = {}
+        self.headers = {}
+        self.errors = cornice_errors.Errors()
+        self.authenticated_userid = 'bob'
+        self.validated = {}
+        self.matchdict = {}
+        self.response = mock.MagicMock(headers={})
 
 
 class PrefixedRequestClass(webtest.app.TestRequest):

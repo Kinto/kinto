@@ -1,9 +1,5 @@
-import mock
-
-from cornice import errors as cornice_errors
-
 from readinglist.backend.memory import Memory
-from readinglist.tests.support import unittest
+from readinglist.tests.support import unittest, DummyRequest
 from readinglist.resource import BaseResource
 
 
@@ -16,13 +12,8 @@ class BaseTest(unittest.TestCase):
         self.resource = BaseResource(self.get_request())
 
     def get_request(self):
-        request = mock.MagicMock(headers={})
+        request = DummyRequest()
         request.db = self.db
-        request.errors = cornice_errors.Errors()
-        request.authenticated_userid = 'bob'
-        request.validated = {}
-        request.matchdict = {}
-        request.response = mock.MagicMock(headers={})
         return request
 
     @property
