@@ -157,6 +157,31 @@ class BaseTestBackend(object):
         self.assertTrue(before < timestamp < after)
 
 
+class TimestampIncrementationTest(object):
+    def test_timestamp_are_incremented_on_create(self):
+        self.backend.create(self.resource, self.user_id, self.record)  # init
+        before = self.backend.collection_timestamp(self.resource, self.user_id)
+        self.backend.create(self.resource, self.user_id, self.record)
+        after = self.backend.collection_timestamp(self.resource, self.user_id)
+        self.assertTrue(before < after)
+
+    def test_timestamp_are_incremented_on_update(self):
+        stored = self.backend.create(self.resource, self.user_id, self.record)
+        _id = stored['id']
+        before = self.backend.collection_timestamp(self.resource, self.user_id)
+        self.backend.update(self.resource, self.user_id, _id, self.record)
+        after = self.backend.collection_timestamp(self.resource, self.user_id)
+        self.assertTrue(before < after)
+
+    def test_timestamp_are_incremented_on_delete(self):
+        stored = self.backend.create(self.resource, self.user_id, self.record)
+        _id = stored['id']
+        before = self.backend.collection_timestamp(self.resource, self.user_id)
+        self.backend.delete(self.resource, self.user_id, _id)
+        after = self.backend.collection_timestamp(self.resource, self.user_id)
+        self.assertTrue(before < after)
+
+
 class FieldsUnicityTest(object):
     def setUp(self):
         super(FieldsUnicityTest, self).setUp()
@@ -221,7 +246,10 @@ class FieldsUnicityTest(object):
                           {'phone': 'number'})
 
 
-class BackendTest(ThreadMixin, FieldsUnicityTest, BaseTestBackend):
+class BackendTest(ThreadMixin,
+                  FieldsUnicityTest,
+                  TimestampIncrementationTest,
+                  BaseTestBackend):
     """Compound of all backend tests."""
     pass
 
