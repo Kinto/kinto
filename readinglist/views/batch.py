@@ -53,6 +53,7 @@ def post_batch(request):
 
     for subrequest_spec in request.validated['requests']:
         subrequest = build_request(request, subrequest_spec)
+
         try:
             subresponse = request.invoke_subrequest(subrequest)
         except httpexceptions.HTTPException as e:
@@ -70,20 +71,33 @@ def post_batch(request):
 
 
 def build_request(original, dict_obj):
+    """
+    Transform a dict object into a ``pyramid.request.Request`` object.
+
+    :param original: the original batch request.
+    :param dict_obj: a dict object with the sub-request specifications.
+    """
     method = dict_obj.get('method') or 'GET'
     path = dict_obj['path']
     headers = dict(original.headers)
     headers.update(**dict_obj.get('headers') or {})
-
     payload = dict_obj.get('body') or None
+
     request = Request.blank(path=path,
                             headers=headers,
                             POST=payload,
                             method=method)
+
     return request
 
 
 def build_response(response, request):
+    """
+    Transform a ``pyramid.response.Response`` object into a serializable dict.
+
+    :param response: a response object, returned by Pyramid.
+    :param request: the request that was used to get the response.
+    """
     dict_obj = {}
     dict_obj['path'] = request.path
     dict_obj['status'] = response.status_code
@@ -95,7 +109,7 @@ def build_response(response, request):
         try:
             body = response.json
         except ValueError:
-            pass
-
+            body = response.body
     dict_obj['body'] = body
+
     return dict_obj
