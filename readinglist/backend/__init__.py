@@ -88,3 +88,23 @@ def apply_sorting(records, sorting):
         result = sorted(result, key=itemgetter(field), reverse=reverse)
 
     return result
+
+
+def handle_records_pagination(records, filters, sorting,
+                              pagination_rules=None, limit=None):
+    if not pagination_rules:
+        pagination_rules = []
+    filtered = list(apply_filters(records, filters or []))
+    total_records = len(filtered)
+    paginated = {}
+    for rule in pagination_rules:
+        values = list(apply_filters(filtered, rule))
+        paginated.update(dict(((x['_id'], x) for x in values)))
+    if not paginated:
+        paginated = filtered
+    else:
+        paginated = paginated.values()
+    sorted_ = apply_sorting(paginated, sorting or [])
+    if limit:
+        sorted_ = list(sorted_)[:limit]
+    return sorted_, total_records

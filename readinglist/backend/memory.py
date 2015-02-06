@@ -4,7 +4,7 @@ from readinglist import utils
 from readinglist.utils import classname
 
 from readinglist.backend import (
-    BackendBase, exceptions, apply_filters, apply_sorting
+    BackendBase, exceptions, handle_records_pagination
 )
 
 
@@ -80,24 +80,10 @@ class Memory(BackendBase):
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None):
-        if not pagination_rules:
-            pagination_rules = []
         resource_name = classname(resource)
         records = self._store[resource_name][user_id].values()
-        filtered = list(apply_filters(records, filters or []))
-        total_records = len(filtered)
-        paginated = {}
-        for rule in pagination_rules:
-            values = list(apply_filters(filtered, rule))
-            paginated.update(dict(((x['_id'], x) for x in values)))
-        if not paginated:
-            paginated = filtered
-        else:
-            paginated = paginated.values()
-        sorted_ = apply_sorting(paginated, sorting or [])
-        if limit:
-            sorted_ = list(sorted_)[:limit]
-        return sorted_, total_records
+        return handle_records_pagination(records, filters, sorting,
+                                         pagination_rules, limit)
 
 
 def load_from_config(config):
