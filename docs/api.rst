@@ -91,7 +91,7 @@ Polling for changes
 -------------------
 
 The ``_since`` parameter is provided as an alias for
-``min_last_modified`` (*greater or equal*).
+``gt_last_modified``.
 
 * ``/articles?_since=123456``
 
@@ -107,7 +107,7 @@ response is returned.
 
 :note:
    You can also use the ``_to`` parameter which works as an alias for
-   ``max_last_modified``
+   ``lt_last_modified``
 
 
 List of available URL parameters
