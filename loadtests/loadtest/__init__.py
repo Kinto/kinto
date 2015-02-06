@@ -78,7 +78,7 @@ class TestBasic(TestCase):
             self.api_url('articles'),
             data,
             auth=self.basic_auth)
-        self.assertEqual(resp.status_code, 201)  # XXX. 303
+        self.assertEqual(resp.status_code, 200)
         self.incr_counter("create-conflict")
 
     def filter_sort(self):
