@@ -205,7 +205,7 @@ class BaseResource(object):
             body=errors.format_error(
                 code=HTTPConflict.code,
                 errno=errors.ERRORS.CONSTRAINT_VIOLATED,
-                error=HTTPNotFound.title,
+                error=HTTPConflict.title,
                 message=message),
             content_type='application/json')
         response.existing = exception.record

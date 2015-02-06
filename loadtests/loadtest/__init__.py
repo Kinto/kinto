@@ -39,6 +39,10 @@ class TestBasic(TestCase):
         self.random_record = random.choice(resp.json()['items'])
         self.random_id = self.random_record['id']
         self.random_url = self.api_url('articles/{0}'.format(self.random_id))
+        random_record = random.choice(resp.json()['items'])
+        while random_record['id'] == self.random_id:
+            random_record = random.choice(resp.json()['items'])
+        self.random_resolved_url = random_record['resolved_url']
 
     def incr_counter(self, name):
         hit, user, current_hit, current_user = self.session.loads_status
@@ -133,9 +137,10 @@ class TestBasic(TestCase):
     def update_conflict(self):
         self.incr_counter("update-conflict")
         data = {
-            "resolved_url": self.random_record['resolved_url']
+            "resolved_url": self.random_resolved_url
         }
-        self._patch(self.random_url, data, status=200)
+        self._patch(self.random_url, data, status=409)
+        self.incr_counter("update-conflict")
 
     def archive(self):
         data = {
