@@ -60,9 +60,6 @@ The response body is a list of all responses:
 ::
 
     {
-      "defaults": {
-        "path" : "/articles",
-      },
       "responses": [
         {
           "path" : "/articles/409",
@@ -79,6 +76,7 @@ The response body is a list of all responses:
         },
         {
           "status": 201,
+          "path" : "/articles",
           "body" : {
             "id": 411,
             "title": "MoFo",
@@ -88,6 +86,7 @@ The response body is a list of all responses:
         },
         {
           "status": 201,
+          "path" : "/articles",
           "body" : {
             "id": 412,
             "title": "MoCo",
@@ -99,9 +98,14 @@ The response body is a list of all responses:
     ]
 
 
+:warning:
+
+    Since the requests bodies are necessarily mappings, posting arbitrary data
+    (*like raw text or binary*)is not supported.
+
 :note:
 
-     The responses are not necessarily in the same order of the requests.
+     The responses are in the same order of the requests.
 
 
 Pros & Cons

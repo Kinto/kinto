@@ -34,7 +34,7 @@ class BatchRequestSchema(colander.MappingSchema):
     headers = colander.SchemaNode(colander.Mapping(unknown='preserve'),
                                   validator=string_values,
                                   missing=colander.drop)
-    body = colander.SchemaNode(colander.String(),
+    body = colander.SchemaNode(colander.Mapping(unknown='preserve'),
                                missing=colander.drop)
 
 
@@ -47,7 +47,7 @@ batch = Service(name="batch", path='/batch',
                 description="Batch operations")
 
 
-@batch.post(permission='readonly', schema=BatchPayloadSchema)
+@batch.post(schema=BatchPayloadSchema)
 def post_batch(request):
     responses = []
 
@@ -82,6 +82,12 @@ def build_request(original, dict_obj):
     headers = dict(original.headers)
     headers.update(**dict_obj.get('headers') or {})
     payload = dict_obj.get('body') or None
+
+    # Payload is always a dict (from ``BatchRequestSchema.body``).
+    # Send it as JSON for subrequests.
+    if isinstance(payload, dict):
+        headers['Content-Type'] = 'application/json; charset=utf-8'
+        payload = json.dumps(payload)
 
     request = Request.blank(path=path,
                             headers=headers,

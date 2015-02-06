@@ -87,7 +87,6 @@ class AuthorizationPolicy(object):
         Authenticated users only are allowed.
         """
         PERMISSIONS = {
-            'batch': Authenticated,
             'readonly': Authenticated,
             'readwrite': Authenticated,
         }

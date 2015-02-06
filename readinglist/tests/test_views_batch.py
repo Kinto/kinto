@@ -1,5 +1,4 @@
-import json
-
+# -*- coding: utf-8 -*-
 import colander
 import mock
 
@@ -9,8 +8,9 @@ from readinglist.tests.support import BaseWebTest, unittest, DummyRequest
 
 class BatchViewTest(BaseWebTest, unittest.TestCase):
 
-    def test_requires_authentication(self):
-        self.app.post('/batch', {}, status=401)
+    def test_does_not_require_authentication(self):
+        body = {'requests': []}
+        self.app.post_json('/batch', body)
 
     def test_returns_400_if_body_has_missing_requests(self):
         self.app.post('/batch', {}, headers=self.headers, status=400)
@@ -67,7 +67,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(error['body']['errno'], 999)
 
     def test_can_be_recursive(self):
-        requests = json.dumps({'requests': [{'path': '/v0/'}]})
+        requests = {'requests': [{'path': '/v0/'}]}
 
         request = {'method': 'POST', 'path': '/v0/batch', 'body': requests}
         body = {'requests': [request]}
