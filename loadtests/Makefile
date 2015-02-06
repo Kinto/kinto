@@ -18,9 +18,6 @@ $(PYTHON):
 
 # Build virtualenv, to ensure we have all the dependencies.
 .env.install: $(PYTHON)
-	$(INSTALL) pexpect >> loadtest.log && \
-	$(INSTALL) configparser==3.3.0r2 >> loadtest.log && \
-	$(INSTALL) gevent >> loadtest.log && \
 	$(INSTALL) git+git://github.com/mozilla-services/loads.git  >> loadtest.log && \
 	rm loadtest.log || cat loadtest.log
 	touch $@
