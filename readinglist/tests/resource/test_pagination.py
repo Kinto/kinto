@@ -19,8 +19,6 @@ class PaginationTest(BaseTest):
                 'unread': (i % 2 == 0)
             }
             self.db.create(self.resource, 'bob', record)
-        self.resource.request.GET = {}
-        self.last_response.headers = {}
 
     def _setup_next_page(self):
         next_page = self.last_response.headers['Next-Page'].decode('utf-8')
@@ -40,7 +38,7 @@ class PaginationTest(BaseTest):
         result = self.resource.collection_get()
         self.assertEqual(len(result['items']), 10)
 
-    def test_return_next_page_url(self):
+    def test_return_next_page_url_is_given_in_headers(self):
         self.resource.request.GET = {'_limit': '10'}
         self.resource.collection_get()
         self.assertIn('Next-Page', self.last_response.headers)
@@ -52,7 +50,7 @@ class PaginationTest(BaseTest):
         self.assertIn('_limit', queryparams)
         self.assertIn('_token', queryparams)
 
-    def test_next_page_url_give_next_page(self):
+    def test_next_page_url_gives_next_page(self):
         self.resource.request.GET = {'_limit': '10'}
         results1 = self.resource.collection_get()
         self._setup_next_page()
@@ -110,56 +108,29 @@ class PaginationTest(BaseTest):
     def test_handle_filtering_sorting(self):
         self.resource.request.GET = {'_sort': '-status,title', 'status': '2'}
         expected_results = self.resource.collection_get()
-        # print "Expected"
-        # for x in expected_results['items']:
-        #     print (x['title'], x['status'], x['last_modified'])
         self.resource.request.GET['_limit'] = '3'
         results1 = self.resource.collection_get()
-        # print "Page1"
-        # for x in results1['items']:
-        #     print (x['title'], x['status'], x['last_modified'])
         self._setup_next_page()
         results2 = self.resource.collection_get()
-        # print "Page2"
-        # for x in results2['items']:
-        #     print (x['title'], x['status'], x['last_modified'])
         self.assertEqual(expected_results['items'],
                          results1['items'] + results2['items'])
 
     def test_handle_sorting_desc(self):
         self.resource.request.GET = {'_sort': 'status,-title'}
         expected_results = self.resource.collection_get()
-        # print "Expected"
-        # for x in expected_results['items']:
-        #     print (x['title'], x['status'], x['last_modified'])
         self.resource.request.GET['_limit'] = '10'
         results1 = self.resource.collection_get()
-        # print "Page1"
-        # for x in results1['items']:
-        #     print (x['title'], x['status'], x['last_modified'])
         self._setup_next_page()
         results2 = self.resource.collection_get()
-        # print "Page2"
-        # for x in results2['items']:
-        #     print (x['title'], x['status'], x['last_modified'])
         self.assertEqual(expected_results['items'],
                          results1['items'] + results2['items'])
 
     def test_handle_since(self):
         self.resource.request.GET = {'_since': '123'}
         expected_results = self.resource.collection_get()
-        # print "Expected"
-        # for x in expected_results['items']:
-        #     print (x['title'], x['status'], x['last_modified'])
         self.resource.request.GET['_limit'] = '10'
         results1 = self.resource.collection_get()
-        # print "Page1"
-        # for x in results1['items']:
-        #     print (x['title'], x['status'], x['last_modified'])
         self._setup_next_page()
         results2 = self.resource.collection_get()
-        # print "Page2"
-        # for x in results2['items']:
-        #     print (x['title'], x['status'], x['last_modified'])
         self.assertEqual(expected_results['items'],
                          results1['items'] + results2['items'])

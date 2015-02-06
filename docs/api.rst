@@ -37,7 +37,7 @@ Filtering
 
 * ``/articles?status=1,2``
 
-**Minimum and maxium**
+**Minimum and maximum**
 
 Prefix attribute name with ``min_`` or ``max_``:
 
@@ -46,6 +46,9 @@ Prefix attribute name with ``min_`` or ``max_``:
 :note:
     The lower and upper bounds are inclusive (*i.e equivalent to
     greater or equal*).
+:note:
+   You can also use ``lt_`` and ``gt_`` in case you don't want to
+   include the bound.
 
 **Exclude**
 
@@ -101,6 +104,10 @@ appear in the list with a deleted status (``status=2``).
 If the request header ``If-Modified-Since`` is provided, and if the
 collection has not suffered changes meanwhile, a ``304 Not Modified``
 response is returned.
+
+:note:
+   You can also use the ``_to`` parameter which works as an alias for
+   ``max_last_modified``
 
 
 List of available URL parameters

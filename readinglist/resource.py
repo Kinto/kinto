@@ -265,10 +265,10 @@ class BaseResource(object):
 
     def _extract_sorting(self, queryparams):
         """Extracts filters from QueryString parameters."""
-        specified = queryparams.get('_sort', '').split(',')
+        specified = queryparams.get('_sort', '').split(',')[:1]
         sorting = []
-        last_modified_used = False
-        for field in specified[:1]:
+        modified_field_used = self.modified_field in specified
+        for field in specified:
             field = field.strip()
             m = re.match(r'^([\-+]?)(\w+)$', field)
             if m:
@@ -282,40 +282,44 @@ class BaseResource(object):
                     }
                     self.raise_invalid(**error_details)
 
-                if field == 'last_modified':
-                    last_modified_used = True
-
                 direction = -1 if order == '-' else 1
                 sorting.append((field, direction))
 
-        if not last_modified_used:
-            sorting.append(('last_modified', -1))
+        if not modified_field_used:
+            # Add a sort by the ``modified_field`` in descending order
+            # useful for pagination
+            sorting.append((self.modified_field, -1))
         return sorting
 
-    def _extract_pagination_token(self, queryparams):
+    def _extract_pagination_rules_from_token(self, queryparams):
         """Get pagination params."""
         settings = self.request.registry.settings
         try:
-            limit = int(queryparams.get('_limit', settings.get(
-                'readinglist.paginate_by', DEFAULT_PAGINATE_BY)))
+            paginate_by = settings.get('readinglist.paginate_by',
+                                       DEFAULT_PAGINATE_BY)
+            limit = int(queryparams.get('_limit', paginate_by))
         except ValueError:
             error_details = {
                 'name': None,
                 'location': 'querystring',
                 'description': "_limit should be an integer"
             }
-            self.request.errors.add(**error_details)
-            raise errors.json_error(self.request.errors)
+            self.raise_invalid(**error_details)
 
         token = queryparams.get('_token', None)
         filters = []
         if token:
-            rules = json.loads(b64decode(token))
-            for rule in rules:
-                filters.append(self._extract_filters(rule))
+            try:
+                rules = json.loads(b64decode(token))
+            except (ValueError, TypeError):
+                pass
+            else:
+                for rule in rules:
+                    filters.append(self._extract_filters(rule))
         return filters, limit
 
     def _next_page_url(self, sorting, limit, last_record):
+        """Build the Next-Page header from where we stopped."""
         queryparams = self.request.GET.copy()
         queryparams['_limit'] = limit
         queryparams['_token'] = self._build_pagination_token(
@@ -324,37 +328,41 @@ class BaseResource(object):
                             urlencode(queryparams))
 
     def _build_pagination_token(self, sorting, last_record):
-        """Build a continuation filtering rules.
+        """Build a pagination token.
 
-        Something like that when sorting::
+        The pagination token is as a piece of JSON encoded in base64,
+        that will be used by the client to resume the current pagination
+        state.
 
-            (status == 2 and last_modified < 123) OR status < 2
+        The goal of the algorithm is the build the set of filters
+        (using min/max/gt/lt) that will reduce the dataset of the next
+        page. The combination of sorting and paginating is complex to resolve
+        for this problem. Depending on the direction of sorting for each
+        field, the set of filters will target values above or below last
+        record field values.
 
-
-        Something like that when sorting only per last_modified::
-
-            last_modified < 123
+        #. Identify if we sort on modified_field (use ``_since`` or ``_to``)
+        #. Loop on the sorting fields and their direction
+        #. Build a list of filters for each of them using ``min``, ``max``,
+           ``gt`` or ``lt`` depending on the direction
+        #. Serialize the filters and encode the token to base64
 
         """
         first_sort_field = None
-        last_sort_field = None
         if len(sorting) > 1:
             first_sort_field, first_sort_direction = sorting[0]
-            last_sort_field, last_sort_direction = sorting[-1]
-            if last_sort_field == 'last_modified':
-                last_sort_field, last_sort_direction = sorting[-2]
 
         try:
-            _, last_modified_direction = [x for x in sorting
-                                          if x[0] == 'last_modified'][0]
+            modified_field_desc = [x[1] for x in sorting
+                                   if x[0] == self.modified_field][0] == -1
         except IndexError:
-            last_modified_direction = 1
+            modified_field_desc = False
 
-        if last_modified_direction == -1:
-            last_modified_key = '_to'
+        if modified_field_desc:
+            modified_field_key = '_to'
         else:
-            last_modified_key = '_since'
-        last_modified_value = '%s' % last_record.get('last_modified')
+            modified_field_key = '_since'
+        modified_field_value = '%s' % last_record.get(self.modified_field)
 
         token = []
         if first_sort_field:
@@ -365,13 +373,14 @@ class BaseResource(object):
                 first_sort_key = 'gt_%s' % first_sort_field
 
             filters1 = {first_sort_field: first_sort_value,
-                        last_modified_key: last_modified_value}
+                        modified_field_key: modified_field_value}
 
             filters2 = {first_sort_key: first_sort_value}
 
-            for sort_field, sort_direction in \
-                    [x for x in sorting if x[0] not in
-                     ['last_modified', first_sort_field]]:
+            used_fields = [self.modified_field, first_sort_field]
+
+            for sort_field, sort_direction in [x for x in sorting if x[0]
+                                               not in used_fields]:
                 value = '%s' % last_record.get(sort_field)
                 if sort_direction == -1:
                     key = 'max_%s' % sort_field
@@ -382,7 +391,7 @@ class BaseResource(object):
             token.append(filters1)
             token.append(filters2)
         else:
-            token.append({last_modified_key: last_modified_value})
+            token.append({modified_field_key: modified_field_value})
 
         return b64encode(json.dumps(token).encode('utf-8')).decode('utf-8')
 
@@ -398,7 +407,7 @@ class BaseResource(object):
 
         filters = self._extract_filters(self.request.GET)
         sorting = self._extract_sorting(self.request.GET)
-        pagination_rules, limit = self._extract_pagination_token(
+        pagination_rules, limit = self._extract_pagination_rules_from_token(
             self.request.GET)
 
         records, total_records = self.db.get_all(
@@ -408,13 +417,12 @@ class BaseResource(object):
             limit=limit,
             **self.db_kwargs)
 
-        num_records = '%s' % total_records
-        self.request.response.headers['Total-Records'] = num_records.encode(
-            'utf-8')
+        headers = self.request.response.headers
+        headers['Total-Records'] = ('%s' % total_records).encode('utf-8')
 
         if len(records) == limit and total_records > limit:
-            self.request.response.headers['Next-Page'] = self._next_page_url(
-                sorting, limit, records[-1]).encode('utf-8')
+            next_page = self._next_page_url(sorting, limit, records[-1])
+            headers['Next-Page'] = next_page.encode('utf-8')
 
         body = {
             'items': records,

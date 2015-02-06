@@ -3,7 +3,7 @@ import redis
 import time
 
 from readinglist.backend import (
-    BackendBase, exceptions, handle_records_pagination
+    BackendBase, exceptions, extract_record_set
 )
 
 from readinglist import utils
@@ -157,8 +157,8 @@ class Redis(BackendBase):
         encoded_results = self._client.mget(keys)
         records = map(self._decode, encoded_results)
 
-        return handle_records_pagination(records, filters, sorting,
-                                         pagination_rules, limit)
+        return extract_record_set(records, filters, sorting,
+                                  pagination_rules, limit)
 
 
 def load_from_config(config):

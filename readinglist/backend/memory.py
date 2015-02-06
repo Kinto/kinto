@@ -4,7 +4,7 @@ from readinglist import utils
 from readinglist.utils import classname
 
 from readinglist.backend import (
-    BackendBase, exceptions, handle_records_pagination
+    BackendBase, exceptions, extract_record_set
 )
 
 
@@ -82,8 +82,8 @@ class Memory(BackendBase):
                 pagination_rules=None, limit=None):
         resource_name = classname(resource)
         records = self._store[resource_name][user_id].values()
-        return handle_records_pagination(records, filters, sorting,
-                                         pagination_rules, limit)
+        return extract_record_set(records, filters, sorting,
+                                  pagination_rules, limit)
 
 
 def load_from_config(config):
