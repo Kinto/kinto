@@ -110,6 +110,22 @@ response is returned.
    ``lt_last_modified``
 
 
+Paginate
+--------
+
+If you provide the ``_limit`` parameter you will get the given number
+of items.
+
+If there are more items for this collection than the limit, your
+response will provide you a ``Next-Page`` header with the URL for the
+Next-Page.
+
+When there is not more ``Next-Page`` response header, there is nothing
+more to fetch.
+
+Pagination works with sorting and filtering.
+
+
 List of available URL parameters
 --------------------------------
 
@@ -117,6 +133,7 @@ List of available URL parameters
 - ``_since``: polling changes
 - ``_sort``: order list
 - ``_limit``: pagination max size
+- ``_token``: pagination token
 
 
 Combining all parameters
