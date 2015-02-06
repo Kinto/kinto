@@ -10,7 +10,7 @@ between a set of devices owned by a same account.
     :target: https://travis-ci.org/mozilla-services/readinglist
 
 .. |readthedocs| image:: https://readthedocs.org/projects/readinglist/badge/?version=latest
-    :target: https://readthedocs.org/projects/readinglist/?badge=latest
+    :target: http://readinglist.readthedocs.org/en/latest/
     :alt: Documentation Status
     
 API
