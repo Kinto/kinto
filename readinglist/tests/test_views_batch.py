@@ -141,6 +141,7 @@ class BatchServiceTest(unittest.TestCase):
     def setUp(self):
         self.method, self.view, self.options = batch_service.definitions[0]
         self.request = DummyRequest()
+        self.request.registry = mock.Mock(settings={})
 
     def post(self, validated):
         self.request.validated = validated
@@ -202,3 +203,21 @@ class BatchServiceTest(unittest.TestCase):
         self.post({'requests': [request]})
         subrequest, = self.request.invoke_subrequest.call_args[0]
         self.assertEqual(subrequest.path, '/%C3%B0%20%C2%AE%20%C2%A9')
+
+    def test_number_of_requests_is_not_limited_by_default(self):
+        requests = {}
+        for i in range(500):
+            requests.setdefault('requests', []).append({'path': '/'})
+        self.post(requests)
+
+    def test_return_400_if_number_of_requests_is_greater_than_settings(self):
+        self.request.registry.settings['readinglist.batch_max_requests'] = 25
+
+        requests = {}
+        for i in range(26):
+            requests.setdefault('requests', []).append({'path': '/'})
+        result = self.post(requests)
+
+        self.assertEqual(self.request.errors[0]['description'],
+                         'Number of requests is limited to 25')
+        self.assertIsNone(result)  # rest of view not executed

@@ -52,9 +52,17 @@ batch = Service(name="batch", path='/batch',
 
 @batch.post(schema=BatchPayloadSchema)
 def post_batch(request):
+    requests = request.validated['requests']
+
+    limit = request.registry.settings.get('readinglist.batch_max_requests')
+    if limit and len(requests) > limit:
+        error_msg = 'Number of requests is limited to %s' % limit
+        request.errors.add('body', 'requests', error_msg)
+        return
+
     responses = []
 
-    for subrequest_spec in request.validated['requests']:
+    for subrequest_spec in requests:
         subrequest = build_request(request, subrequest_spec)
 
         try:
