@@ -1,17 +1,24 @@
-Documentation
-=============
+Readinglist
+===========
 
 Reading list is a service that aims to synchronize a list of articles URLs
 between a set of devices owned by a same account.
 
-.. image:: https://travis-ci.org/mozilla-services/readinglist.svg?branch=master
+|travis| |readthedocs|
+
+.. |travis| image:: https://travis-ci.org/mozilla-services/readinglist.svg?branch=master
     :target: https://travis-ci.org/mozilla-services/readinglist
 
+.. |readthedocs| image:: https://readthedocs.org/projects/readinglist/badge/?version=latest
+    :target: https://readthedocs.org/projects/readinglist/?badge=latest
+    :alt: Documentation Status
+    
 API
 ===
 
 * `API Design proposal
   <https://github.com/mozilla-services/readinglist/wiki/API-Design-proposal>`_
+* `Online documentation <http://readinglist.readthedocs.org/en/latest/>`_
 
 
 Run locally
