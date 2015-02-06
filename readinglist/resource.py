@@ -265,11 +265,9 @@ class BaseResource(object):
 
         return filters
 
-    def _extract_sorting(self, limit=None):
+    def _extract_sorting(self):
         """Extracts filters from QueryString parameters."""
         specified = self.request.GET.get('_sort', '').split(',')
-        if limit is not None:
-            specified = specified[:1]
         sorting = []
         modified_field_used = self.modified_field in specified
         for field in specified:
@@ -289,34 +287,62 @@ class BaseResource(object):
                 direction = -1 if order == '-' else 1
                 sorting.append((field, direction))
 
-        if limit and not modified_field_used:
+        if not modified_field_used:
             # Add a sort by the ``modified_field`` in descending order
             # useful for pagination
             sorting.append((self.modified_field, -1))
         return sorting
 
-    def _extract_pagination_rules_from_token(self):
+    def _build_pagination_rules(self, sorting, last_record, rules=None):
+        """Return the list of rules for a given sorting attribute and
+        last_record.
+
+        """
+        if rules is None:
+            rules = []
+
+        rule = []
+        next_sorting = sorting[:-1]
+
+        for field, _ in next_sorting:
+            rule.append((field, last_record.get(field), COMPARISON.EQ))
+
+        field, direction = sorting[-1]
+
+        if direction == -1:
+            rule.append((field, last_record.get(field), COMPARISON.LT))
+        else:
+            rule.append((field, last_record.get(field), COMPARISON.GT))
+
+        rules.append(rule)
+
+        if len(next_sorting) == 0:
+            return rules
+
+        return self._build_pagination_rules(next_sorting, last_record, rules)
+
+    def _extract_pagination_rules_from_token(self, sorting):
         """Get pagination params."""
         queryparams = self.request.GET
         settings = self.request.registry.settings
         paginate_by = settings.get('readinglist.paginate_by')
         limit = queryparams.get('_limit', paginate_by)
-        try:
-            if limit:
+        if limit:
+            try:
                 limit = int(limit)
-        except ValueError:
-            error_details = {
-                'name': None,
-                'location': 'querystring',
-                'description': "_limit should be an integer"
-            }
-            self.raise_invalid(**error_details)
+            except ValueError:
+                error_details = {
+                    'name': None,
+                    'location': 'querystring',
+                    'description': "_limit should be an integer"
+                }
+                self.raise_invalid(**error_details)
 
         token = queryparams.get('_token', None)
         filters = []
         if token:
             try:
-                rules = decode_token(token)
+                last_record = decode_token(token)
             except (ValueError, TypeError):
                 error_details = {
                     'name': None,
@@ -325,9 +351,7 @@ class BaseResource(object):
                 }
                 self.raise_invalid(**error_details)
 
-            for rule in rules:
-                filters.append(self._extract_filters(rule))
-
+            filters = self._build_pagination_rules(sorting, last_record)
         return filters, limit
 
     def _next_page_url(self, sorting, limit, last_record):
@@ -342,59 +366,16 @@ class BaseResource(object):
     def _build_pagination_token(self, sorting, last_record):
         """Build a pagination token.
 
-        The pagination token is as a piece of JSON encoded in base64,
-        that will be used by the client to resume the current pagination
-        state.
-
-        The goal of the algorithm is the build the set of filters
-        (using min/max/gt/lt) that will reduce the dataset of the next
-        page. The combination of sorting and paginating is complex to resolve
-        for this problem. Depending on the direction of sorting for each
-        field, the set of filters will target values above or below last
-        record field values.
-
-        #. Identify if we sort on modified_field (use ``_since`` or ``_to``)
-        #. Loop on the sorting fields and their direction
-        #. Build a list of filters for each of them using ``min``, ``max``,
-           ``gt`` or ``lt`` depending on the direction
-        #. Serialize the filters and encode the token to base64
+        It is a base64 JSON object with the sorting fields values of
+        the last_record.
 
         """
-        first_sort_field = None
-        if len(sorting) > 1:
-            first_sort_field, first_sort_direction = sorting[0]
+        token = {}
 
-        try:
-            modified_field_desc = [x[1] for x in sorting
-                                   if x[0] == self.modified_field][0] == -1
-        except IndexError:
-            modified_field_desc = False
+        for field, _ in sorting:
+            token[field] = last_record[field]
 
-        if modified_field_desc:
-            modified_field_key = '_to'
-        else:
-            modified_field_key = '_since'
-        modified_field_value = '%s' % last_record.get(self.modified_field)
-
-        pagination_rules = []
-        if first_sort_field:
-            first_sort_value = '%s' % last_record.get(first_sort_field)
-            if first_sort_direction == -1:
-                first_sort_key = 'lt_%s' % first_sort_field
-            else:
-                first_sort_key = 'gt_%s' % first_sort_field
-
-            filters1 = {first_sort_field: first_sort_value,
-                        modified_field_key: modified_field_value}
-
-            filters2 = {first_sort_key: first_sort_value}
-
-            pagination_rules.append(filters1)
-            pagination_rules.append(filters2)
-        else:
-            pagination_rules.append({modified_field_key: modified_field_value})
-
-        return encode_token(pagination_rules)
+        return encode_token(token)
 
     #
     # End-points
@@ -407,8 +388,9 @@ class BaseResource(object):
         self.raise_412_if_modified()
 
         filters = self._extract_filters()
-        pagination_rules, limit = self._extract_pagination_rules_from_token()
-        sorting = self._extract_sorting(limit)
+        sorting = self._extract_sorting()
+        pagination_rules, limit = self._extract_pagination_rules_from_token(
+            sorting)
 
         records, total_records = self.db.get_all(
             filters=filters,

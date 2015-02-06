@@ -166,18 +166,19 @@ class BuildPaginationTokenTest(BaseTest):
         }
 
     def test_no_sorting_default_to_modified_field(self):
-        token = self.resource._build_pagination_token([], self.record)
-        self.assertEqual(b64decode(token).decode('ascii'),
-                         '[{"_since": "1234"}]')
+        token = self.resource._build_pagination_token([('last_modified', -1)],
+                                                      self.record)
+        self.assertDictEqual(json.loads(b64decode(token).decode('ascii')),
+                             {"last_modified": 1234})
 
     def test_sorting_handle_both_rules(self):
         token = self.resource._build_pagination_token([
             ('status', -1),
             ('last_modified', -1)
         ], self.record)
-        self.assertEqual(
+        self.assertDictEqual(
             json.loads(b64decode(token).decode('ascii')),
-            [{"_to": "1234", "status": "2"}, {"lt_status": "2"}])
+            {"last_modified": 1234, "status": 2})
 
     def test_sorting_handle_ordering_direction(self):
         token = self.resource._build_pagination_token([
@@ -186,9 +187,9 @@ class BuildPaginationTokenTest(BaseTest):
         ], self.record)
         self.assertEqual(
             json.loads(b64decode(token).decode('ascii')),
-            [{"_since": "1234", "status": "2"}, {"gt_status": "2"}])
+            {"last_modified": 1234, "status": 2})
 
-    def test_multiple_sorting_keep_one(self):
+    def test_multiple_sorting_keep_all(self):
         token = self.resource._build_pagination_token([
             ('status', 1),
             ('title', -1),
@@ -196,4 +197,4 @@ class BuildPaginationTokenTest(BaseTest):
         ], self.record)
         self.assertEqual(
             json.loads(b64decode(token).decode('ascii')),
-            [{"_to": "1234", "status": "2"}, {"gt_status": "2"}])
+            {"last_modified": 1234, "status": 2, 'title': 'Title'})
