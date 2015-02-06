@@ -26,6 +26,11 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         result = self.resource.collection_get()
         self.assertEqual(len(result['items']), 2)
 
+    def test_filter_with_to_is_exclusive(self):
+        self.resource.request.GET = {'_to': '3'}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['items']), 3)
+
     def test_the_timestamp_are_based_on_real_time_milliseconds(self):
         before = msec_time()
         time.sleep(0.001)  # 1 msec

@@ -90,8 +90,20 @@ class FilteringTest(BaseTest):
         values = [item['status'] for item in result['items']]
         self.assertTrue(all([value >= 2 for value in values]))
 
+    def test_gt_value(self):
+        self.resource.request.GET = {'gt_status': '2'}
+        result = self.resource.collection_get()
+        values = [item['status'] for item in result['items']]
+        self.assertTrue(all([value > 2 for value in values]))
+
     def test_maximal_value(self):
         self.resource.request.GET = {'max_status': '2'}
         result = self.resource.collection_get()
         values = [item['status'] for item in result['items']]
         self.assertTrue(all([value <= 2 for value in values]))
+
+    def test_lt_value(self):
+        self.resource.request.GET = {'lt_status': '2'}
+        result = self.resource.collection_get()
+        values = [item['status'] for item in result['items']]
+        self.assertTrue(all([value < 2 for value in values]))

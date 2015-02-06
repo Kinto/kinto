@@ -1,5 +1,4 @@
 import re
-from base64 import b64decode, b64encode
 
 import colander
 from cornice import resource
@@ -11,7 +10,9 @@ from six.moves.urllib.parse import urlencode
 
 from readinglist.backend import exceptions as backend_exceptions
 from readinglist import errors
-from readinglist.utils import COMPARISON, native_value, msec_time, json
+from readinglist.utils import (
+    COMPARISON, native_value, msec_time, decode_token, encode_token
+)
 
 
 class TimeStamp(colander.SchemaNode):
@@ -315,7 +316,7 @@ class BaseResource(object):
         filters = []
         if token:
             try:
-                rules = json.loads(b64decode(token))
+                rules = decode_token(token)
             except (ValueError, TypeError):
                 error_details = {
                     'name': None,
@@ -375,7 +376,7 @@ class BaseResource(object):
             modified_field_key = '_since'
         modified_field_value = '%s' % last_record.get(self.modified_field)
 
-        token = []
+        pagination_rules = []
         if first_sort_field:
             first_sort_value = '%s' % last_record.get(first_sort_field)
             if first_sort_direction == -1:
@@ -388,23 +389,12 @@ class BaseResource(object):
 
             filters2 = {first_sort_key: first_sort_value}
 
-            used_fields = [self.modified_field, first_sort_field]
-
-            for sort_field, sort_direction in [x for x in sorting if x[0]
-                                               not in used_fields]:
-                value = '%s' % last_record.get(sort_field)
-                if sort_direction == -1:
-                    key = 'max_%s' % sort_field
-                else:
-                    key = 'min_%s' % sort_field
-
-                filters1[key] = value
-            token.append(filters1)
-            token.append(filters2)
+            pagination_rules.append(filters1)
+            pagination_rules.append(filters2)
         else:
-            token.append({modified_field_key: modified_field_value})
+            pagination_rules.append({modified_field_key: modified_field_value})
 
-        return b64encode(json.dumps(token).encode('utf-8')).decode('utf-8')
+        return encode_token(pagination_rules)
 
     #
     # End-points

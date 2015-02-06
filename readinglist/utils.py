@@ -6,6 +6,7 @@ except ImportError:  # pragma: no cover
 import ast
 import os
 import time
+from base64 import b64decode, b64encode
 from binascii import hexlify
 
 from colander import null
@@ -36,6 +37,17 @@ def native_value(value):
         return ast.literal_eval(value)
     except (ValueError, SyntaxError):
         return value
+
+
+def decode_token(token):
+    """Take a token and return the decoded base64 JSON."""
+    return json.loads(b64decode(token))
+
+
+def encode_token(pagination_rules):
+    """Take a list of rules and return a base64-ed JSON."""
+    json_rules = json.dumps(pagination_rules)
+    return b64encode(json_rules.encode('utf-8')).decode('utf-8')
 
 
 def Enum(**enums):

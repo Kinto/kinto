@@ -158,6 +158,48 @@ class BaseTestBackend(object):
 
         self.assertTrue(before < timestamp < after)
 
+    def test_get_all_handle_limit(self):
+        for x in range(10):
+            record = dict(self.record)
+            record["number"] = x
+            self.backend.create(self.resource, self.user_id, record)
+
+        records, total_records = self.backend.get_all(self.resource,
+                                                      self.user_id,
+                                                      limit=2)
+        self.assertEqual(total_records, 10)
+        self.assertEqual(len(records), 2)
+
+    def test_get_all_handle_a_pagination_rules(self):
+        for x in range(10):
+            record = dict(self.record)
+            record['_id'] = x
+            record["number"] = x % 3
+            self.backend.create(self.resource, self.user_id, record)
+
+        records, total_records = self.backend.get_all(
+            self.resource, self.user_id, pagination_rules=[
+                [('number', 1, utils.COMPARISON.GT)]
+            ])
+        self.assertEqual(total_records, 10)
+        self.assertEqual(len(records), 3)
+
+    def test_get_all_handle_all_pagination_rules(self):
+        for x in range(10):
+            record = dict(self.record)
+            record['_id'] = x
+            record["number"] = x % 3
+            self.backend.create(self.resource, self.user_id, record)
+
+        records, total_records = self.backend.get_all(
+            self.resource, self.user_id, pagination_rules=[
+                [('number', 1, utils.COMPARISON.GT)],
+                [('_id', 3, utils.COMPARISON.EQ)]
+
+            ])
+        self.assertEqual(total_records, 10)
+        self.assertEqual(len(records), 4)
+
 
 class TimestampIncrementationTest(object):
     def test_timestamp_are_incremented_on_create(self):

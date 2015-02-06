@@ -1,6 +1,9 @@
+import json
 import random
+from base64 import b64encode, b64decode
 from six.moves.urllib.parse import parse_qs, urlparse
 
+from pyramid.httpexceptions import HTTPBadRequest
 from readinglist.tests.resource import BaseTest
 
 
@@ -135,3 +138,62 @@ class PaginationTest(BaseTest):
         results2 = self.resource.collection_get()
         self.assertEqual(expected_results['items'],
                          results1['items'] + results2['items'])
+
+    def test_wrong_limit_raise_400(self):
+        self.resource.request.GET = {'_since': '123', '_limit': 'toto'}
+        self.assertRaises(HTTPBadRequest, self.resource.collection_get)
+
+    def test_token_wrong_base64(self):
+        self.resource.request.GET = {'_since': '123', '_limit': '20',
+                                     '_token': '123'}
+        self.assertRaises(HTTPBadRequest, self.resource.collection_get)
+
+    def test_token_wrong_json(self):
+        self.resource.request.GET = {
+            '_since': '123', '_limit': '20',
+            '_token': b64encode('{"toto":'.encode('ascii')).decode('ascii')}
+        self.assertRaises(HTTPBadRequest, self.resource.collection_get)
+
+
+class BuildPaginationTokenTest(BaseTest):
+    def setUp(self):
+        super(BuildPaginationTokenTest, self).setUp()
+
+        self.resource.known_fields = ['status', 'unread', 'title']
+        self.record = {
+            '_id': 1, 'status': 2, 'unread': True,
+            'last_modified': 1234, 'title': 'Title'
+        }
+
+    def test_no_sorting_default_to_modified_field(self):
+        token = self.resource._build_pagination_token([], self.record)
+        self.assertEqual(b64decode(token).decode('ascii'),
+                         '[{"_since": "1234"}]')
+
+    def test_sorting_handle_both_rules(self):
+        token = self.resource._build_pagination_token([
+            ('status', -1),
+            ('last_modified', -1)
+        ], self.record)
+        self.assertEqual(
+            json.loads(b64decode(token).decode('ascii')),
+            [{"_to": "1234", "status": "2"}, {"lt_status": "2"}])
+
+    def test_sorting_handle_ordering_direction(self):
+        token = self.resource._build_pagination_token([
+            ('status', 1),
+            ('last_modified', 1)
+        ], self.record)
+        self.assertEqual(
+            json.loads(b64decode(token).decode('ascii')),
+            [{"_since": "1234", "status": "2"}, {"gt_status": "2"}])
+
+    def test_multiple_sorting_keep_one(self):
+        token = self.resource._build_pagination_token([
+            ('status', 1),
+            ('title', -1),
+            ('last_modified', -1)
+        ], self.record)
+        self.assertEqual(
+            json.loads(b64decode(token).decode('ascii')),
+            [{"_to": "1234", "status": "2"}, {"gt_status": "2"}])
