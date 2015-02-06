@@ -16,8 +16,8 @@ from readinglist.utils import random_bytes_hex
 class DummyRequest(mock.MagicMock):
     def __init__(self, *args, **kwargs):
         super(DummyRequest, self).__init__(*args, **kwargs)
+        self.registry = mock.MagicMock(settings={})
         self.GET = {}
-        self.registry.settings = {}
         self.headers = {}
         self.errors = cornice_errors.Errors()
         self.authenticated_userid = 'bob'
