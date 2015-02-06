@@ -55,9 +55,9 @@ class PaginationTest(BaseTest):
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
-        self.assertFalse(
-            set([x['_id'] for x in results1['items']]).intersection(
-                set([x['_id'] for x in results2['items']])))
+        results_id1 = set([x['_id'] for x in results1['items']])
+        results_id2 = set([x['_id'] for x in results2['items']])
+        self.assertFalse(results_id1.intersection(results_id2))
 
     def test_twice_the_same_next_page(self):
         self.resource.request.GET = {'_limit': '10'}
@@ -86,7 +86,7 @@ class PaginationTest(BaseTest):
     #     self.assertNotIn('Next-Page', self.last_response.headers)
 
     def test_handle_simple_sorting(self):
-        self.resource.request.GET = {'_sort': '-status'}
+        self.resource.request.GET = {'_sort': '-status', '_limit': '20'}
         expected_results = self.resource.collection_get()
         self.resource.request.GET['_limit'] = '10'
         results1 = self.resource.collection_get()
@@ -96,7 +96,7 @@ class PaginationTest(BaseTest):
                          results1['items'] + results2['items'])
 
     def test_handle_multiple_sorting(self):
-        self.resource.request.GET = {'_sort': '-status,title'}
+        self.resource.request.GET = {'_sort': '-status,title', '_limit': '20'}
         expected_results = self.resource.collection_get()
         self.resource.request.GET['_limit'] = '10'
         results1 = self.resource.collection_get()
@@ -106,7 +106,8 @@ class PaginationTest(BaseTest):
                          results1['items'] + results2['items'])
 
     def test_handle_filtering_sorting(self):
-        self.resource.request.GET = {'_sort': '-status,title', 'status': '2'}
+        self.resource.request.GET = {'_sort': '-status,title', 'status': '2',
+                                     '_limit': '20'}
         expected_results = self.resource.collection_get()
         self.resource.request.GET['_limit'] = '3'
         results1 = self.resource.collection_get()
@@ -116,7 +117,7 @@ class PaginationTest(BaseTest):
                          results1['items'] + results2['items'])
 
     def test_handle_sorting_desc(self):
-        self.resource.request.GET = {'_sort': 'status,-title'}
+        self.resource.request.GET = {'_sort': 'status,-title', '_limit': '20'}
         expected_results = self.resource.collection_get()
         self.resource.request.GET['_limit'] = '10'
         results1 = self.resource.collection_get()
@@ -126,7 +127,7 @@ class PaginationTest(BaseTest):
                          results1['items'] + results2['items'])
 
     def test_handle_since(self):
-        self.resource.request.GET = {'_since': '123'}
+        self.resource.request.GET = {'_since': '123', '_limit': '20'}
         expected_results = self.resource.collection_get()
         self.resource.request.GET['_limit'] = '10'
         results1 = self.resource.collection_get()

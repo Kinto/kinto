@@ -13,8 +13,6 @@ from readinglist.backend import exceptions as backend_exceptions
 from readinglist import errors
 from readinglist.utils import COMPARISON, native_value, msec_time, json
 
-DEFAULT_PAGINATE_BY = 20
-
 
 class TimeStamp(colander.SchemaNode):
     """Basic integer field that takes current timestamp if no value
@@ -212,8 +210,11 @@ class BaseResource(object):
         response.existing = exception.record
         raise response
 
-    def _extract_filters(self, queryparams):
+    def _extract_filters(self, queryparams=None):
         """Extracts filters from QueryString parameters."""
+        if not queryparams:
+            queryparams = self.request.GET
+
         filters = []
 
         for param, value in queryparams.items():
@@ -263,9 +264,11 @@ class BaseResource(object):
 
         return filters
 
-    def _extract_sorting(self, queryparams):
+    def _extract_sorting(self, limit=None):
         """Extracts filters from QueryString parameters."""
-        specified = queryparams.get('_sort', '').split(',')[:1]
+        specified = self.request.GET.get('_sort', '').split(',')
+        if limit is not None:
+            specified = specified[:1]
         sorting = []
         modified_field_used = self.modified_field in specified
         for field in specified:
@@ -285,19 +288,21 @@ class BaseResource(object):
                 direction = -1 if order == '-' else 1
                 sorting.append((field, direction))
 
-        if not modified_field_used:
+        if limit and not modified_field_used:
             # Add a sort by the ``modified_field`` in descending order
             # useful for pagination
             sorting.append((self.modified_field, -1))
         return sorting
 
-    def _extract_pagination_rules_from_token(self, queryparams):
+    def _extract_pagination_rules_from_token(self):
         """Get pagination params."""
+        queryparams = self.request.GET
         settings = self.request.registry.settings
+        paginate_by = settings.get('readinglist.paginate_by')
+        limit = queryparams.get('_limit', paginate_by)
         try:
-            paginate_by = settings.get('readinglist.paginate_by',
-                                       DEFAULT_PAGINATE_BY)
-            limit = int(queryparams.get('_limit', paginate_by))
+            if limit:
+                limit = int(limit)
         except ValueError:
             error_details = {
                 'name': None,
@@ -312,10 +317,16 @@ class BaseResource(object):
             try:
                 rules = json.loads(b64decode(token))
             except (ValueError, TypeError):
-                pass
-            else:
-                for rule in rules:
-                    filters.append(self._extract_filters(rule))
+                error_details = {
+                    'name': None,
+                    'location': 'querystring',
+                    'description': "_token should be valid base64 JSON encoded"
+                }
+                self.raise_invalid(**error_details)
+
+            for rule in rules:
+                filters.append(self._extract_filters(rule))
+
         return filters, limit
 
     def _next_page_url(self, sorting, limit, last_record):
@@ -405,10 +416,9 @@ class BaseResource(object):
         self.raise_304_if_not_modified()
         self.raise_412_if_modified()
 
-        filters = self._extract_filters(self.request.GET)
-        sorting = self._extract_sorting(self.request.GET)
-        pagination_rules, limit = self._extract_pagination_rules_from_token(
-            self.request.GET)
+        filters = self._extract_filters()
+        pagination_rules, limit = self._extract_pagination_rules_from_token()
+        sorting = self._extract_sorting(limit)
 
         records, total_records = self.db.get_all(
             filters=filters,
@@ -420,7 +430,7 @@ class BaseResource(object):
         headers = self.request.response.headers
         headers['Total-Records'] = ('%s' % total_records).encode('utf-8')
 
-        if len(records) == limit and total_records > limit:
+        if limit and len(records) == limit and total_records > limit:
             next_page = self._next_page_url(sorting, limit, records[-1])
             headers['Next-Page'] = next_page.encode('utf-8')
 
