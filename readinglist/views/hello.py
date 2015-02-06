@@ -15,8 +15,12 @@ def get_hello(request):
         documentation="https://readinglist.rtfd.org/"
     )
 
-    eos = request.registry.settings.get('readinglist.eos', '').strip() or None
+    eos = get_eos(request)
     if eos:
         data['eos'] = eos
 
     return data
+
+
+def get_eos(request):
+    return request.registry.settings.get('readinglist.eos', '').strip() or None
