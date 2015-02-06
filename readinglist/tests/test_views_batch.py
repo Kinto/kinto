@@ -76,9 +76,6 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         hello = resp.json['responses'][0]['body']['responses'][0]
         self.assertEqual(hello['body']['hello'], 'readinglist')
 
-    def test_path_not_url_encoded(self):
-        pass
-
 
 class BatchSchemaTest(unittest.TestCase):
     def setUp(self):
@@ -133,27 +130,21 @@ class BatchSchemaTest(unittest.TestCase):
     # body
     #
 
-    def test_body_is_an_arbitrary_string(self):
-        payload = '{"json": "payload"}'
+    def test_body_is_an_arbitrary_mapping(self):
+        payload = {"json": "payload"}
         request = {'path': '/', 'body': payload}
         deserialized = self.schema.deserialize({'requests': [request]})
         self.assertEqual(deserialized['requests'][0]['body'], payload)
-
-    def test_body_is_dropped_if_empty_string(self):
-        payload = ''
-        request = {'path': '/', 'body': payload}
-        deserialized = self.schema.deserialize({'requests': [request]})
-        self.assertNotIn('body', deserialized['requests'][0])
 
 
 class BatchServiceTest(unittest.TestCase):
     def setUp(self):
         self.method, self.view, self.options = batch_service.definitions[0]
+        self.request = DummyRequest()
 
     def post(self, validated):
-        request = DummyRequest()
-        request.validated = validated
-        return self.view(request)
+        self.request.validated = validated
+        return self.view(self.request)
 
     def test_returns_empty_list_of_responses_if_requests_empty(self):
         result = self.post({'requests': []})
@@ -163,3 +154,51 @@ class BatchServiceTest(unittest.TestCase):
         requests = [{'path': '/'}]
         result = self.post({'requests': requests})
         self.assertEqual(len(result['responses']), len(requests))
+
+    def test_relies_on_pyramid_invoke_subrequest(self):
+        self.post({'requests': [{'path': '/'}]})
+        self.assertTrue(self.request.invoke_subrequest.called)
+
+    def test_returns_requests_path_in_responses(self):
+        result = self.post({'requests': [{'path': '/'}]})
+        self.assertEqual(result['responses'][0]['path'], '/')
+
+    def test_subrequests_are_GET_by_default(self):
+        self.post({'requests': [{'path': '/'}]})
+        subrequest, = self.request.invoke_subrequest.call_args[0]
+        self.assertEqual(subrequest.method, 'GET')
+
+    def test_original_request_headers_are_passed_to_subrequests(self):
+        self.request.headers['Authorization'] = 'Basic ertyfghjkl'
+        self.post({'requests': [{'path': '/'}]})
+        subrequest, = self.request.invoke_subrequest.call_args[0]
+        self.assertIn('Basic', subrequest.headers['Authorization'])
+
+    def test_subrequests_body_are_json_serialized(self):
+        request = {'path': '/', 'body': {'json': 'payload'}}
+        self.post({'requests': [request]})
+        subrequest, = self.request.invoke_subrequest.call_args[0]
+        self.assertEqual(subrequest.body.decode('utf8'),
+                         '{"json": "payload"}')
+
+    def test_subrequests_body_have_json_content_type(self):
+        self.request.headers['Content-Type'] = 'text/xml'
+        request = {'path': '/', 'body': {'json': 'payload'}}
+        self.post({'requests': [request]})
+        subrequest, = self.request.invoke_subrequest.call_args[0]
+        self.assertIn('application/json',
+                      subrequest.headers['Content-Type'])
+
+    def test_subrequests_body_have_utf8_charset(self):
+        request = {'path': '/', 'body': {'json': u"😂"}}
+        self.post({'requests': [request]})
+        subrequest, = self.request.invoke_subrequest.call_args[0]
+        self.assertIn('charset=utf-8', subrequest.headers['Content-Type'])
+        self.assertEqual(subrequest.body.decode('utf8'),
+                         '{"json": "\\ud83d\\ude02"}')
+
+    def test_subrequests_paths_are_url_encoded(self):
+        request = {'path': u'/ð ® ©'}
+        self.post({'requests': [request]})
+        subrequest, = self.request.invoke_subrequest.call_args[0]
+        self.assertEqual(subrequest.path, '/%C3%B0%20%C2%AE%20%C2%A9')

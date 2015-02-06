@@ -1,8 +1,11 @@
+import json
+
 import colander
 from cornice import Service
 from pyramid.request import Request
 from pyramid import httpexceptions
 import six
+from six.moves.urllib import parse as urlparse
 
 from readinglist import logger
 from readinglist.errors import HTTPInternalServerError
@@ -77,8 +80,10 @@ def build_request(original, dict_obj):
     :param original: the original batch request.
     :param dict_obj: a dict object with the sub-request specifications.
     """
-    method = dict_obj.get('method') or 'GET'
     path = dict_obj['path']
+    path = urlparse.quote(path.encode('utf8'))
+
+    method = dict_obj.get('method') or 'GET'
     headers = dict(original.headers)
     headers.update(**dict_obj.get('headers') or {})
     payload = dict_obj.get('body') or None
