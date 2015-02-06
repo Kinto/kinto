@@ -133,6 +133,62 @@ class BatchSchemaTest(unittest.TestCase):
         deserialized = self.schema.deserialize({'requests': [request]})
         self.assertEqual(deserialized['requests'][0]['body'], payload)
 
+    #
+    # defaults
+    #
+
+    def test_defaults_must_be_a_mapping_if_specified(self):
+        request = {'path': '/'}
+        batch_payload = {'requests': [request], 'defaults': 42}
+        self.assertInvalid(batch_payload)
+
+    def test_defaults_must_be_a_request_schema_if_specified(self):
+        request = {'path': '/'}
+        defaults = {'body': 3}
+        batch_payload = {'requests': [request], 'defaults': defaults}
+        self.assertInvalid(batch_payload)
+
+    def test_unknown_defaults_are_ignored_silently(self):
+        request = {'path': '/'}
+        defaults = {'foo': 'bar'}
+        batch_payload = {'requests': [request], 'defaults': defaults}
+        result = self.schema.deserialize(batch_payload)
+        self.assertNotIn('foo', result['requests'][0])
+
+    def test_defaults_can_be_specified_empty(self):
+        request = {'path': '/'}
+        defaults = {}
+        batch_payload = {'requests': [request], 'defaults': defaults}
+        self.schema.deserialize(batch_payload)
+
+    def test_defaults_values_are_applied_to_requests(self):
+        request = {'path': '/'}
+        defaults = {'body': {'json': 'payload'}}
+        batch_payload = {'requests': [request], 'defaults': defaults}
+        result = self.schema.deserialize(batch_payload)
+        self.assertEqual(result['requests'][0]['body'], {'json': 'payload'})
+
+    def test_defaults_values_do_not_overwrite_requests_values(self):
+        request = {'path': '/', 'headers': {'Authorization': 'me'}}
+        defaults = {'headers': {'Authorization': 'you', 'Accept': '*/*'}}
+        batch_payload = {'requests': [request], 'defaults': defaults}
+        result = self.schema.deserialize(batch_payload)
+        self.assertEqual(result['requests'][0]['headers'],
+                         {'Authorization': 'me', 'Accept': '*/*'})
+
+    def test_defaults_values_can_be_path(self):
+        request = {}
+        defaults = {'path': '/'}
+        batch_payload = {'requests': [request], 'defaults': defaults}
+        result = self.schema.deserialize(batch_payload)
+        self.assertEqual(result['requests'][0]['path'], '/')
+
+    def test_defaults_values_for_path_must_start_with_slash(self):
+        request = {}
+        defaults = {'path': 'http://localhost'}
+        batch_payload = {'requests': [request], 'defaults': defaults}
+        self.assertInvalid(batch_payload)
+
 
 class BatchServiceTest(unittest.TestCase):
     def setUp(self):

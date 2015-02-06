@@ -45,6 +45,30 @@ class BatchPayloadSchema(colander.MappingSchema):
     requests = colander.SchemaNode(colander.Sequence(),
                                    BatchRequestSchema())
 
+    def deserialize(self, cstruct=colander.null):
+        """Preprocess received data
+        """
+        if cstruct is colander.null:
+            return colander.null
+
+        # See if defaults was specified in payload
+        defaults = cstruct.get('defaults', {})
+        if isinstance(defaults, dict):
+            defaults.setdefault('path', '/')
+        defaults = BatchRequestSchema().deserialize(defaults)
+
+        # Fill requests values with defaults
+        requests = cstruct.get('requests', [])
+        for request in requests:
+            for k, v in defaults.items():
+                if k == 'headers':
+                    for i, j in v.items():
+                        request.get(k, {}).setdefault(i, j)
+                else:
+                    request.setdefault(k, v)
+
+        return super(BatchPayloadSchema, self).deserialize(cstruct)
+
 
 batch = Service(name="batch", path='/batch',
                 description="Batch operations",
