@@ -58,8 +58,8 @@ class PaginationTest(BaseTest):
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
-        results_id1 = set([x['_id'] for x in results1['items']])
-        results_id2 = set([x['_id'] for x in results2['items']])
+        results_id1 = set([x['id'] for x in results1['items']])
+        results_id2 = set([x['id'] for x in results2['items']])
         self.assertFalse(results_id1.intersection(results_id2))
 
     def test_twice_the_same_next_page(self):
@@ -161,7 +161,7 @@ class BuildPaginationTokenTest(BaseTest):
 
         self.resource.known_fields = ['status', 'unread', 'title']
         self.record = {
-            '_id': 1, 'status': 2, 'unread': True,
+            'id': 1, 'status': 2, 'unread': True,
             'last_modified': 1234, 'title': 'Title'
         }
 

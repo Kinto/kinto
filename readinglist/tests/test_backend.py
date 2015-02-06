@@ -173,7 +173,7 @@ class BaseTestBackend(object):
     def test_get_all_handle_a_pagination_rules(self):
         for x in range(10):
             record = dict(self.record)
-            record['_id'] = x
+            record['id'] = x
             record["number"] = x % 3
             self.backend.create(self.resource, self.user_id, record)
 
@@ -187,14 +187,14 @@ class BaseTestBackend(object):
     def test_get_all_handle_all_pagination_rules(self):
         for x in range(10):
             record = dict(self.record)
-            record['_id'] = x
             record["number"] = x % 3
-            self.backend.create(self.resource, self.user_id, record)
+            last_record = self.backend.create(self.resource, self.user_id,
+                                              record)
 
         records, total_records = self.backend.get_all(
             self.resource, self.user_id, pagination_rules=[
                 [('number', 1, utils.COMPARISON.GT)],
-                [('_id', 3, utils.COMPARISON.EQ)]
+                [('id', last_record['id'], utils.COMPARISON.EQ)]
 
             ])
         self.assertEqual(total_records, 10)
