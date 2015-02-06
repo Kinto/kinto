@@ -24,7 +24,7 @@ class CollectionTest(BaseTest):
 class CreateTest(BaseTest):
     def test_new_records_are_linked_to_owner(self):
         resp = self.resource.collection_post()
-        record_id = resp['_id']
+        record_id = resp['id']
         self.db.get(self.resource, 'bob', record_id)  # not raising
 
     def test_create_record_returns_at_least_id_and_last_modified(self):
@@ -39,7 +39,7 @@ class IsolatedCollectionsTest(BaseTest):
     def setUp(self):
         super(IsolatedCollectionsTest, self).setUp()
         self.stored = self.db.create(self.resource, 'bob', {})
-        self.resource.request.matchdict['id'] = self.stored['_id']
+        self.resource.request.matchdict['id'] = self.stored['id']
 
     def get_request(self):
         request = super(IsolatedCollectionsTest, self).get_request()
@@ -54,7 +54,7 @@ class IsolatedCollectionsTest(BaseTest):
     def test_update_record_of_another_user_will_create_it(self):
         self.resource.request.validated = {'some': 'record'}
         self.resource.put()
-        self.db.get(self.resource, 'alice', self.stored['_id'])  # not raising
+        self.db.get(self.resource, 'alice', self.stored['id'])  # not raising
 
     def test_cannot_modify_record_of_other_user(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.patch)

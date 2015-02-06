@@ -8,7 +8,7 @@ from readinglist.tests.resource import BaseTest
 class GetTest(BaseTest):
     def test_get_record_returns_all_fields(self):
         record = self.db.create(self.resource, 'bob', {'field': 'value'})
-        self.resource.request.matchdict['id'] = record['_id']
+        self.resource.request.matchdict['id'] = record['id']
         result = self.resource.get()
         self.assertIn(self.resource.id_field, result)
         self.assertIn(self.resource.modified_field, result)
@@ -19,19 +19,19 @@ class PutTest(BaseTest):
     def setUp(self):
         super(PutTest, self).setUp()
         self.record = self.db.create(self.resource, 'bob', {'field': 'old'})
-        self.resource.request.matchdict['id'] = self.record['_id']
+        self.resource.request.matchdict['id'] = self.record['id']
 
     def test_replace_record_returns_updated_fields(self):
         self.resource.request.validated = {'field': 'new'}
 
         result = self.resource.put()
-        self.assertEqual(self.record['_id'], result['_id'])
+        self.assertEqual(self.record['id'], result['id'])
         self.assertNotEqual(self.record['last_modified'],
                             result['last_modified'])
         self.assertNotEqual(self.record['field'], 'new')
 
     def test_cannot_replace_with_different_id(self):
-        self.resource.request.validated = {'_id': 'abc'}
+        self.resource.request.validated = {'id': 'abc'}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.put)
 
     def test_last_modified_is_overwritten_on_replace(self):
@@ -43,7 +43,7 @@ class PutTest(BaseTest):
 class DeleteTest(BaseTest):
     def test_delete_record_returns_original_record(self):
         record = self.db.create(self.resource, 'bob', {'field': 'value'})
-        self.resource.request.matchdict['id'] = record['_id']
+        self.resource.request.matchdict['id'] = record['id']
         result = self.resource.delete()
         self.assertDictEqual(result, record)
 
@@ -52,7 +52,7 @@ class PatchTest(BaseTest):
     def setUp(self):
         super(PatchTest, self).setUp()
         self.stored = self.db.create(self.resource, 'bob', {})
-        self.resource.request.matchdict['id'] = self.stored['_id']
+        self.resource.request.matchdict['id'] = self.stored['id']
         self.resource.request.json = {'some': 'change'}
         self.resource.mapping.typ.unknown = 'preserve'
         self.result = self.resource.patch()
@@ -63,7 +63,7 @@ class PatchTest(BaseTest):
         self.assertNotEquals(after, before)
 
     def test_patch_record_returns_updated_fields(self):
-        self.assertEquals(self.stored['_id'], self.result['_id'])
+        self.assertEquals(self.stored['id'], self.result['id'])
         self.assertEquals(self.result['some'], 'change')
 
     def test_record_timestamp_is_not_updated_if_none_for_missing_field(self):
@@ -120,7 +120,7 @@ class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
         super(ReadonlyFieldsTest, self).setUp()
         self.stored = self.db.create(self.resource, 'bob', {})
-        self.resource.request.matchdict['id'] = self.stored['_id']
+        self.resource.request.matchdict['id'] = self.stored['id']
 
     def assertReadonlyError(self, field):
         error = None
@@ -136,14 +136,14 @@ class ReadonlyFieldsTest(BaseTest):
 
     def test_can_specify_readonly_fields_if_not_changed(self):
         self.resource.request.json = {
-            '_id': self.stored['_id'],
+            'id': self.stored['id'],
             'last_modified': self.stored['last_modified']
         }
         self.resource.patch()  # not raising
 
     def test_cannot_modify_id(self):
-        self.resource.request.json = {'_id': 'change'}
-        self.assertReadonlyError('_id')
+        self.resource.request.json = {'id': 'change'}
+        self.assertReadonlyError('id')
 
     def test_cannot_modify_last_modified(self):
         self.resource.request.json = {'last_modified': 123}

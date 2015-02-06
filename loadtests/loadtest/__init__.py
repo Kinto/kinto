@@ -37,7 +37,7 @@ class TestBasic(TestCase):
         # Pick a random record
         resp = self.session.get(self.api_url('articles'), auth=self.basic_auth)
         self.random_record = random.choice(resp.json()['items'])
-        self.random_id = self.random_record['_id']
+        self.random_id = self.random_record['id']
         self.random_url = self.api_url('articles/{0}'.format(self.random_id))
 
     def incr_counter(self, name):
@@ -73,7 +73,7 @@ class TestBasic(TestCase):
 
     def create_conflict(self):
         data = self.random_record.copy()
-        data.pop('_id')
+        data.pop('id')
         resp = self.session.post(
             self.api_url('articles'),
             data,
