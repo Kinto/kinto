@@ -66,15 +66,12 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(error['status'], 500)
         self.assertEqual(error['body']['errno'], 999)
 
-    def test_can_be_recursive(self):
+    def test_batch_cannot_be_recursive(self):
         requests = {'requests': [{'path': '/v0/'}]}
-
         request = {'method': 'POST', 'path': '/v0/batch', 'body': requests}
         body = {'requests': [request]}
-        resp = self.app.post_json('/batch', body, headers=self.headers)
-
-        hello = resp.json['responses'][0]['body']['responses'][0]
-        self.assertEqual(hello['body']['hello'], 'readinglist')
+        resp = self.app.post_json('/batch', body, status=400)
+        self.assertIn('Recursive', resp.json['message'])
 
 
 class BatchSchemaTest(unittest.TestCase):

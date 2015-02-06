@@ -8,7 +8,7 @@ import six
 from six.moves.urllib import parse as urlparse
 
 from readinglist import logger
-from readinglist.errors import HTTPInternalServerError
+from readinglist import errors
 
 
 valid_http_method = colander.OneOf(('GET', 'HEAD', 'DELETE', 'TRACE',
@@ -47,7 +47,8 @@ class BatchPayloadSchema(colander.MappingSchema):
 
 
 batch = Service(name="batch", path='/batch',
-                description="Batch operations")
+                description="Batch operations",
+                error_handler=errors.json_error)
 
 
 @batch.post(schema=BatchPayloadSchema)
@@ -57,6 +58,12 @@ def post_batch(request):
     limit = request.registry.settings.get('readinglist.batch_max_requests')
     if limit and len(requests) > limit:
         error_msg = 'Number of requests is limited to %s' % limit
+        request.errors.add('body', 'requests', error_msg)
+        return
+
+    is_recursive = lambda req: batch.path in req['path']
+    if any([is_recursive(req) for req in requests]):
+        error_msg = 'Recursive call on %s endpoint is forbidden.' % batch.path
         request.errors.add('body', 'requests', error_msg)
         return
 
@@ -71,7 +78,7 @@ def post_batch(request):
             subresponse = e
         except Exception as e:
             logger.exception(e)
-            subresponse = HTTPInternalServerError()
+            subresponse = errors.HTTPInternalServerError()
 
         subresponse = build_response(subresponse, subrequest)
         responses.append(subresponse)
