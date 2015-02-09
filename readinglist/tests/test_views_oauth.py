@@ -53,7 +53,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(url, status=401)
 
     @mock.patch('readinglist.views.oauth.OAuthClient.trade_code')
-    def tests_returns_token_traded_against_code(self, mocked_trade):
+    def tests_redirects_with_token_traded_against_code(self, mocked_trade):
         mocked_trade.return_value = 'oauth-token'
         self.app.app.registry.session.set('abc', 'http://foobar')
         url = '{url}?state=abc&code=1234'.format(url=self.url)

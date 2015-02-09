@@ -19,16 +19,7 @@ Use the OAuth token with this header:
   cookie will be set, and the client will be redirected to a login
   form on the FxA content server
 * After submitting the credentials on the login page, the client will
-  be redirected to ``http://app-endpoint`` the web-app should then
-  access ``GET /v1/fxa-oauth/token``, where its session will be
-  validated. Then, an OAuth token will be returned inside a JSON
-  object:
-
-::
-
-    {
-        "token": "oihyvuh-fefe-ldpieo98963fyhrn"
-    }
+  be redirected to ``http://app-endpoint?token={token}`` the web-app.
 
 **Reading list scope**
 
