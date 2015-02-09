@@ -61,7 +61,8 @@ class ArticleSchema(ResourceSchema):
     class Options:
         readonly_fields = ('url', 'stored_on') + \
             ResourceSchema.Options.readonly_fields
-        unique_fields = ('url', 'resolved_url')
+        unique_fields = ('url', 'resolved_url') + \
+            ResourceSchema.Options.unique_fields
 
 
 @crud()
