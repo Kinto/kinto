@@ -6,10 +6,13 @@ from cornice.schemas import CorniceSchema
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPNotFound, HTTPConflict)
 import six
+from six.moves.urllib.parse import urlencode
 
 from readinglist.backend import exceptions as backend_exceptions
 from readinglist import errors
-from readinglist.utils import COMPARISON, native_value, msec_time
+from readinglist.utils import (
+    COMPARISON, native_value, msec_time, decode_token, encode_token
+)
 
 
 class TimeStamp(colander.SchemaNode):
@@ -202,24 +205,29 @@ class BaseResource(object):
             body=errors.format_error(
                 code=HTTPConflict.code,
                 errno=errors.ERRORS.CONSTRAINT_VIOLATED,
-                error=HTTPNotFound.title,
+                error=HTTPConflict.title,
                 message=message),
             content_type='application/json')
         response.existing = exception.record
         raise response
 
-    def _extract_filters(self, queryparams):
+    def _extract_filters(self, queryparams=None):
         """Extracts filters from QueryString parameters."""
+        if not queryparams:
+            queryparams = self.request.GET
+
         filters = []
 
         for param, value in queryparams.items():
             param = param.strip()
             value = native_value(value)
 
-            if param == '_sort':
+            # Ignore specific fields
+            if param.startswith('_') and param not in ('_since', '_to'):
                 continue
 
-            if param == '_since':
+            # Handle the _since specific filter.
+            if param in ('_since', '_to'):
                 if not isinstance(value, six.integer_types):
                     error_details = {
                         'name': param,
@@ -228,12 +236,17 @@ class BaseResource(object):
                     }
                     self.raise_invalid(**error_details)
 
-                filters.append(
-                    (self.modified_field, value, COMPARISON.GT)
-                )
+                if param == '_since':
+                    filters.append(
+                        (self.modified_field, value, COMPARISON.GT)
+                    )
+                elif param == '_to':
+                    filters.append(
+                        (self.modified_field, value, COMPARISON.LT)
+                    )
                 continue
 
-            m = re.match(r'^(min|max|not)_(\w+)$', param)
+            m = re.match(r'^(min|max|not|lt|gt)_(\w+)$', param)
             if m:
                 keyword, field = m.groups()
                 operator = getattr(COMPARISON, keyword.upper())
@@ -252,10 +265,11 @@ class BaseResource(object):
 
         return filters
 
-    def _extract_sorting(self, queryparams):
+    def _extract_sorting(self):
         """Extracts filters from QueryString parameters."""
-        specified = queryparams.get('_sort', '').split(',')
+        specified = self.request.GET.get('_sort', '').split(',')
         sorting = []
+        modified_field_used = self.modified_field in specified
         for field in specified:
             field = field.strip()
             m = re.match(r'^([\-+]?)(\w+)$', field)
@@ -273,7 +287,95 @@ class BaseResource(object):
                 direction = -1 if order == '-' else 1
                 sorting.append((field, direction))
 
+        if not modified_field_used:
+            # Add a sort by the ``modified_field`` in descending order
+            # useful for pagination
+            sorting.append((self.modified_field, -1))
         return sorting
+
+    def _build_pagination_rules(self, sorting, last_record, rules=None):
+        """Return the list of rules for a given sorting attribute and
+        last_record.
+
+        """
+        if rules is None:
+            rules = []
+
+        rule = []
+        next_sorting = sorting[:-1]
+
+        for field, _ in next_sorting:
+            rule.append((field, last_record.get(field), COMPARISON.EQ))
+
+        field, direction = sorting[-1]
+
+        if direction == -1:
+            rule.append((field, last_record.get(field), COMPARISON.LT))
+        else:
+            rule.append((field, last_record.get(field), COMPARISON.GT))
+
+        rules.append(rule)
+
+        if len(next_sorting) == 0:
+            return rules
+
+        return self._build_pagination_rules(next_sorting, last_record, rules)
+
+    def _extract_pagination_rules_from_token(self, sorting):
+        """Get pagination params."""
+        queryparams = self.request.GET
+        settings = self.request.registry.settings
+        paginate_by = settings.get('readinglist.paginate_by')
+        limit = queryparams.get('_limit', paginate_by)
+        if limit:
+            try:
+                limit = int(limit)
+            except ValueError:
+                error_details = {
+                    'name': None,
+                    'location': 'querystring',
+                    'description': "_limit should be an integer"
+                }
+                self.raise_invalid(**error_details)
+
+        token = queryparams.get('_token', None)
+        filters = []
+        if token:
+            try:
+                last_record = decode_token(token)
+            except (ValueError, TypeError):
+                error_details = {
+                    'name': None,
+                    'location': 'querystring',
+                    'description': "_token should be valid base64 JSON encoded"
+                }
+                self.raise_invalid(**error_details)
+
+            filters = self._build_pagination_rules(sorting, last_record)
+        return filters, limit
+
+    def _next_page_url(self, sorting, limit, last_record):
+        """Build the Next-Page header from where we stopped."""
+        queryparams = self.request.GET.copy()
+        queryparams['_limit'] = limit
+        queryparams['_token'] = self._build_pagination_token(
+            sorting, last_record)
+        return '%s%s?%s' % (self.request.host_url, self.request.path_info,
+                            urlencode(queryparams))
+
+    def _build_pagination_token(self, sorting, last_record):
+        """Build a pagination token.
+
+        It is a base64 JSON object with the sorting fields values of
+        the last_record.
+
+        """
+        token = {}
+
+        for field, _ in sorting:
+            token[field] = last_record[field]
+
+        return encode_token(token)
 
     #
     # End-points
@@ -285,18 +387,29 @@ class BaseResource(object):
         self.raise_304_if_not_modified()
         self.raise_412_if_modified()
 
-        filters = self._extract_filters(self.request.GET)
-        sorting = self._extract_sorting(self.request.GET)
-        records = self.db.get_all(filters=filters,
-                                  sorting=sorting,
-                                  **self.db_kwargs)
+        filters = self._extract_filters()
+        sorting = self._extract_sorting()
+        pagination_rules, limit = self._extract_pagination_rules_from_token(
+            sorting)
 
-        total_records = six.text_type(len(records)).encode('utf-8')
-        self.request.response.headers['Total-Records'] = total_records
+        records, total_records = self.db.get_all(
+            filters=filters,
+            sorting=sorting,
+            pagination_rules=pagination_rules,
+            limit=limit,
+            **self.db_kwargs)
+
+        headers = self.request.response.headers
+        headers['Total-Records'] = ('%s' % total_records).encode('utf-8')
+
+        if limit and len(records) == limit and total_records > limit:
+            next_page = self._next_page_url(sorting, limit, records[-1])
+            headers['Next-Page'] = next_page.encode('utf-8')
 
         body = {
             'items': records,
         }
+
         return body
 
     @resource.view(permission='readwrite')

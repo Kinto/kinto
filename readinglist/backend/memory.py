@@ -4,7 +4,7 @@ from readinglist import utils
 from readinglist.utils import classname
 
 from readinglist.backend import (
-    BackendBase, exceptions, apply_filters, apply_sorting
+    BackendBase, exceptions, extract_record_set
 )
 
 
@@ -78,12 +78,12 @@ class Memory(BackendBase):
         self._store[resource_name][user_id].pop(record_id)
         return existing
 
-    def get_all(self, resource, user_id, filters=None, sorting=None):
+    def get_all(self, resource, user_id, filters=None, sorting=None,
+                pagination_rules=None, limit=None):
         resource_name = classname(resource)
         records = self._store[resource_name][user_id].values()
-        filtered = apply_filters(records, filters or [])
-        sorted_ = apply_sorting(filtered, sorting or [])
-        return sorted_
+        return extract_record_set(records, filters, sorting,
+                                  pagination_rules, limit)
 
 
 def load_from_config(config):

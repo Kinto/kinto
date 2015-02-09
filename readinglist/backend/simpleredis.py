@@ -3,7 +3,7 @@ import redis
 import time
 
 from readinglist.backend import (
-    BackendBase, exceptions, apply_filters, apply_sorting
+    BackendBase, exceptions, extract_record_set
 )
 
 from readinglist import utils
@@ -142,12 +142,13 @@ class Redis(BackendBase):
             self._bump_timestamp(resource, user_id)
             return self._decode(encoded_item)
 
-    def get_all(self, resource, user_id, filters=None, sorting=None):
+    def get_all(self, resource, user_id, filters=None, sorting=None,
+                pagination_rules=None, limit=None):
         resource_name = classname(resource)
         ids = self._client.smembers('{0}.{1}'.format(resource_name, user_id))
 
         if (len(ids) == 0):
-            return []
+            return [], 0
 
         keys = ('{0}.{1}.{2}'.format(resource_name, user_id,
                                      _id.decode('utf-8'))
@@ -156,9 +157,8 @@ class Redis(BackendBase):
         encoded_results = self._client.mget(keys)
         records = map(self._decode, encoded_results)
 
-        filtered = apply_filters(records, filters or [])
-        sorted_ = apply_sorting(filtered, sorting or [])
-        return sorted_
+        return extract_record_set(records, filters, sorting,
+                                  pagination_rules, limit)
 
 
 def load_from_config(config):

@@ -12,7 +12,7 @@ between a set of devices owned by a same account.
 .. |readthedocs| image:: https://readthedocs.org/projects/readinglist/badge/?version=latest
     :target: http://readinglist.readthedocs.org/en/latest/
     :alt: Documentation Status
-    
+
 API
 ===
 
@@ -25,18 +25,18 @@ Run locally
 ===========
 
 By default, readinglist persists its records inside a `Redis
-<http://redis.io/>`_  database, so you need to have it installed (see the
+<http://redis.io/>`_  database, so it has to be installed first (see the
 "Install Redis" section below for more on this).
 
-Once you have Redis installed, you just need to do:
+Once Redis is installed:
 
 ::
 
     make serve
 
 
-You can also change the configuration to persist everything in memory (not
-recommended). To do that, edit your `conf/readinglist.ini` file to have the
+Configuration can be changed to persist everything in memory (not
+recommended). To do that, `conf/readinglist.ini` file should have the
 following config::
 
     readinglist.backend = readinglist.backend.memory
@@ -61,13 +61,13 @@ or::
 OS X
 ----
 
-Assuming you have `brew <http://brew.sh/>`_ installed, use it to install Redis:
+Assuming `brew <http://brew.sh/>`_ is installed, Redis installation becomes:
 
 ::
 
     brew install redis
 
-If you need to restart it (Bug after configuration update)::
+To restart it (Bug after configuration update)::
 
     brew services restart redis
 

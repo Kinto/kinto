@@ -48,12 +48,14 @@ class SortingTest(BaseTest):
     def test_single_basic_sort_by_attribute(self):
         self.resource.request.GET = {'_sort': 'title'}
         result = self.resource.collection_get()
+        self.assertEqual(len(result['items']), 20)
         self.assertEqual(result['items'][0]['title'], 'MoFo #00')
         self.assertEqual(result['items'][-1]['title'], 'MoFo #19')
 
     def test_single_basic_sort_by_attribute_reversed(self):
         self.resource.request.GET = {'_sort': '-title'}
         result = self.resource.collection_get()
+        self.assertEqual(len(result['items']), 20)
         self.assertEqual(result['items'][0]['title'], 'MoFo #19')
         self.assertEqual(result['items'][-1]['title'], 'MoFo #00')
 

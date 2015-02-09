@@ -39,6 +39,10 @@ class TestBasic(TestCase):
         self.random_record = random.choice(resp.json()['items'])
         self.random_id = self.random_record['id']
         self.random_url = self.api_url('articles/{0}'.format(self.random_id))
+        random_record = random.choice(resp.json()['items'])
+        while random_record['id'] == self.random_id:
+            random_record = random.choice(resp.json()['items'])
+        self.random_resolved_url = random_record['resolved_url']
 
     def incr_counter(self, name):
         hit, user, current_hit, current_user = self.session.loads_status
@@ -50,36 +54,38 @@ class TestBasic(TestCase):
         return "{0}/v0/{1}".format(self.server_url, path)
 
     def test_all(self):
-        # Pick a random action, with particular frequency
         action, percentage = random.choice(ACTIONS_FREQUENCIES)
-        while random.randint(0, 100) > percentage:
-            action, percentage = random.choice(ACTIONS_FREQUENCIES)
-
-        getattr(self, action)()
+        if random.randint(0, 100) < percentage:
+            getattr(self, action)()
+        else:
+            self.test_all()
 
     def create(self, prepare=False):
+        self.incr_counter("created")
         suffix = uuid.uuid4().hex
         data = {
             "title": "Corp Site {0}".format(suffix),
             "url": "http://mozilla.org/{0}".format(suffix),
+            "resolved_url": "http://mozilla.org/{0}".format(suffix),
             "added_by": "FxOS-{0}".format(suffix),
         }
         resp = self.session.post(
             self.api_url('articles'),
             data,
             auth=self.basic_auth)
+        self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, 201)
-        self.incr_counter("created")
 
     def create_conflict(self):
+        self.incr_counter("create-conflict")
         data = self.random_record.copy()
         data.pop('id')
         resp = self.session.post(
             self.api_url('articles'),
             data,
             auth=self.basic_auth)
-        self.assertEqual(resp.status_code, 201)  # XXX. 303
-        self.incr_counter("create-conflict")
+        self.incr_counter(resp.status_code)
+        self.assertEqual(resp.status_code, 200)
 
     def filter_sort(self):
         queries = [
@@ -93,14 +99,17 @@ class TestBasic(TestCase):
         query_url = '&'.join(['='.join(param) for param in queryparams])
         url = self.api_url('articles?{}'.format(query_url))
         resp = self.session.get(url, auth=self.basic_auth)
+        self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def _patch(self, url, data, status=200):
         data = json.dumps(data)
         resp = self.session.patch(url, data, auth=self.basic_auth)
+        self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, status)
 
     def update(self):
+        self.incr_counter("update-record")
         data = {
             "title": "Some title {}".format(random.randint(0, 1)),
             "status": random.randint(0, 1),
@@ -108,29 +117,29 @@ class TestBasic(TestCase):
             "favorite": bool(random.randint(0, 1)),
         }
         self._patch(self.random_url, data)
-        self.incr_counter("update-record")
 
     def read_further(self):
+        self.incr_counter("read-further")
         data = {
             "read_position": random.randint(0, 10000)
         }
         self._patch(self.random_url, data)
-        self.incr_counter("read-further")
 
     def mark_as_read(self):
+        self.incr_counter("marked-as-read")
         data = {
             "marked_read_by": "Desktop",
             "marked_read_on": 12345,
             "unread": False,
         }
         self._patch(self.random_url, data)
-        self.incr_counter("marked-as-read")
 
     def update_conflict(self):
+        self.incr_counter("update-conflict")
         data = {
-            "resolved_url": "http://mozilla.org"  # XXX reuse existing
+            "resolved_url": self.random_resolved_url
         }
-        self._patch(self.random_url, data)
+        self._patch(self.random_url, data, status=409)
         self.incr_counter("update-conflict")
 
     def archive(self):
@@ -140,6 +149,7 @@ class TestBasic(TestCase):
         self._patch(self.random_url, data)
 
     def delete(self):
-        resp = self.session.delete(self.random_url, auth=self.basic_auth)
-        self.assertEqual(resp.status_code, 200)
         self.incr_counter("deleted")
+        resp = self.session.delete(self.random_url, auth=self.basic_auth)
+        self.incr_counter(resp.status_code)
+        self.assertEqual(resp.status_code, 200)
