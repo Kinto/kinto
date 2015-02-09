@@ -5,21 +5,13 @@ from pyramid import httpexceptions
 from readinglist import errors
 from readinglist.resource import crud, BaseResource, ResourceSchema, TimeStamp
 from readinglist.utils import strip_whitespace
+from readinglist.schema import URL
 
 
 class DeviceName(SchemaNode):
     """String representing the device name."""
     schema_type = String
     validator = colander.Length(min=1)
-
-    def preparer(self, appstruct):
-        return strip_whitespace(appstruct)
-
-
-class URL(SchemaNode):
-    """String representing a URL."""
-    schema_type = String
-    validator = colander.All(colander.url, colander.Length(min=1, max=2048))
 
     def preparer(self, appstruct):
         return strip_whitespace(appstruct)

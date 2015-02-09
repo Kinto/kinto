@@ -76,7 +76,7 @@ class BaseWebTest(FakeAuthentMixin):
         self.app = webtest.TestApp("config:config/readinglist.ini",
                                    relative_to='.')
         self.app.RequestClass = PrefixedRequestClass
-        self.db = self.app.app.registry.backend
+        self.db = self.app.app.registry.storage
         self.headers.update({
             'Content-Type': 'application/json',
         })

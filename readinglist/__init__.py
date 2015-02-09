@@ -67,7 +67,7 @@ def attach_http_objects(config):
         event.request._received_at = msec_time()
 
         # Attach objects on requests for easier access.
-        event.request.db = config.registry.backend
+        event.request.db = config.registry.storage
 
         http_scheme = config.registry.settings.get('readinglist.http_scheme')
         if http_scheme:
@@ -102,8 +102,11 @@ def main(global_config, **settings):
 
     config.route_prefix = '/%s' % API_VERSION
 
-    backend_module = config.maybe_dotted(settings['readinglist.backend'])
-    config.registry.backend = backend_module.load_from_config(config)
+    storage = config.maybe_dotted(settings['readinglist.storage_backend'])
+    config.registry.storage = storage.load_from_config(config)
+
+    session = config.maybe_dotted(settings['readinglist.session_backend'])
+    config.registry.session = session.load_from_config(config)
 
     set_auth(config)
 

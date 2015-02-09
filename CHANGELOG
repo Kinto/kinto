@@ -24,7 +24,7 @@ This document describes changes between each past release.
 - Support min, max and no keywords filters (#43)
 - Prevent to modify read-only fields (#26)
 - Filtering and sort querystring (#44)
-- Redis backend (#50)
+- Redis storage (#50)
 - Handle errors (#24 - #49)
 - Add loadtests (#47)
 - Handle API version in URL (#33)

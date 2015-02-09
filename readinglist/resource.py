@@ -8,7 +8,7 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 import six
 from six.moves.urllib.parse import urlencode
 
-from readinglist.backend import exceptions as backend_exceptions
+from readinglist.storage import exceptions as storage_exceptions
 from readinglist import errors
 from readinglist.utils import (
     COMPARISON, native_value, msec_time, decode_token, encode_token
@@ -103,7 +103,7 @@ class BaseResource(object):
             record_id = self.request.matchdict['id']
             return self.db.get(record_id=record_id,
                                **self.db_kwargs)
-        except backend_exceptions.RecordNotFoundError:
+        except storage_exceptions.RecordNotFoundError:
             response = HTTPNotFound(
                 body=errors.format_error(
                     code=HTTPNotFound.code,
@@ -419,7 +419,7 @@ class BaseResource(object):
         new_record = self.process_record(self.request.validated)
         try:
             record = self.db.create(record=new_record, **self.db_kwargs)
-        except backend_exceptions.UnicityError as e:
+        except storage_exceptions.UnicityError as e:
             self.raise_conflict(e)
 
         self.request.response.status_code = 201
@@ -442,7 +442,7 @@ class BaseResource(object):
             existing = self.db.get(record_id=record_id,
                                    **self.db_kwargs)
             self.raise_412_if_modified(existing)
-        except backend_exceptions.RecordNotFoundError:
+        except storage_exceptions.RecordNotFoundError:
             existing = None
 
         new_record = self.request.validated
@@ -458,7 +458,7 @@ class BaseResource(object):
             record = self.db.update(record_id=record_id,
                                     record=new_record,
                                     **self.db_kwargs)
-        except backend_exceptions.UnicityError as e:
+        except storage_exceptions.UnicityError as e:
             self.raise_conflict(e)
 
         return record
@@ -483,7 +483,7 @@ class BaseResource(object):
             record = self.db.update(record_id=record[self.id_field],
                                     record=updated,
                                     **self.db_kwargs)
-        except backend_exceptions.UnicityError as e:
+        except storage_exceptions.UnicityError as e:
             self.raise_conflict(e)
 
         return record

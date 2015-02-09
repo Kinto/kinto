@@ -1,4 +1,4 @@
-from readinglist.backend.memory import Memory
+from readinglist.storage.memory import Memory
 from readinglist.tests.support import unittest, DummyRequest
 from readinglist.resource import BaseResource
 

@@ -39,7 +39,7 @@ Configuration can be changed to persist everything in memory (not
 recommended). To do that, `conf/readinglist.ini` file should have the
 following config::
 
-    readinglist.backend = readinglist.backend.memory
+    readinglist.storage_backend = readinglist.storage.memory
 
 
 
