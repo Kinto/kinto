@@ -100,8 +100,8 @@ The ``_since`` parameter is provided as an alias for
 The new value of the collection latest modification is provided in
 headers (*see Server timestamps section*).
 
-When the since parameter is provided, every deleted articles will
-appear in the list with a deleted status (``status=2``).
+When filtering on ``last_modified`` (i.e. with ``_since`` or ``_to`` parameters),
+every deleted articles will appear in the list with a deleted status (``status=2``).
 
 If the request header ``If-Modified-Since`` is provided, and if the
 collection has not suffered changes meanwhile, a ``304 Not Modified``
@@ -268,9 +268,9 @@ decide to ignore it.
 If the request header ``If-Unmodified-Since`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
-.. :note:
-       Once deleted, an article will appear in the collection with a deleted status
-       (``status=2``) and will have most of its fields empty.
+:note:
+    Once deleted, an article will appear in the collection with a deleted status
+    (``status=2``) and will have most of its fields empty.
 
 
 PATCH /articles/<id>
