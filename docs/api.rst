@@ -86,6 +86,8 @@ without fetching the actual collection, a ``HEAD`` request can be
 used. The ``Total-Records`` response header will then provide the
 total number of records.
 
+See :ref:`batch endpoint <batch>` to count several collections in one request.
+
 
 Polling for changes
 -------------------
