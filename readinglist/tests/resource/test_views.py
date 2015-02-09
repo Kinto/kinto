@@ -47,10 +47,10 @@ class BaseWebTest(unittest.TestCase):
         self.item_url = '/mushrooms/{id}'
 
     def get_item_url(self, id=None):
-      """Return the URL of the item using self.item_url."""
-      if id is None:
-          id = self.record['id']
-      return self.item_url.format(id=id)
+        """Return the URL of the item using self.item_url."""
+        if id is None:
+            id = self.record['id']
+        return self.item_url.format(id=id)
 
 
 class AuthzAuthnTest(BaseWebTest):
@@ -237,9 +237,9 @@ class CORSHeadersTest(FakeAuthentMixin, BaseWebTest):
     def test_present_on_invalid_record_update(self):
         body = {'name': 42}
         response = self.app.patch_json(self.get_item_url(),
-                                      body,
-                                      headers=self.headers,
-                                      status=400)
+                                       body,
+                                       headers=self.headers,
+                                       status=400)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_successful_creation(self):
