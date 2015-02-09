@@ -45,7 +45,7 @@ class BaseTestSessionStorage(object):
     def test_expire_expires_the_value(self):
         stored = 'toto'
         self.session.set('foobar', stored)
-        self.session.expire('foobar', 0.1)
+        self.session.expire('foobar', 0.05)
         time.sleep(0.1)
         retrieved = self.session.get('foobar')
         self.assertIsNone(retrieved)

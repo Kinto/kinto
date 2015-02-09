@@ -21,9 +21,14 @@ class LoginViewTest(BaseWebTest, unittest.TestCase):
     @mock.patch('readinglist.views.oauth.uuid.uuid4')
     def test_login_view_redirects_to_authorization(self, mocked_uuid):
         mocked_uuid.return_value = mock.MagicMock(hex='1234')
+        settings = self.app.app.registry.settings
+        oauth_endpoint = settings.get('fxa-oauth.oauth_uri')
+        client_id = settings.get('fxa-oauth.client_id')
+        scope = settings.get('fxa-oauth.scope')
         expected_redirect = (
-            'https://oauth.accounts.firefox.com/v1/authorization?action=signin'
-            '&client_id=&state=1234&scope=profile')
+            '%s/authorization?action=signin'
+            '&client_id=%s&state=1234&scope=%s' % (oauth_endpoint,
+                                                   client_id, scope))
 
         r = self.app.get(self.url)
         self.assertEqual(r.status_code, 302)
