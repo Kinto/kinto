@@ -40,6 +40,7 @@ class StorageBaseTest(unittest.TestCase):
 class TestResource(object):
     id_field = "id"
     modified_field = "last_modified"
+    deleted_mark = ("deleted", True)
 
 
 class BaseTestStorage(object):
@@ -311,9 +312,48 @@ class FieldsUnicityTest(object):
                           {'phone': 'number'})
 
 
+class DeletedRecordsTest(object):
+    def delete_record(self):
+        record = self.create_record()
+        return self.backend.delete(self.resource, self.user_id, record['id'])
+
+    def test_get_should_not_return_deleted_items(self):
+        record = self.delete_record()
+        self.assertRaises(exceptions.RecordNotFoundError,
+                          self.backend.get,
+                          self.resource,
+                          self.user_id,
+                          record['id'])
+
+    def test_get_all_can_return_deleted_items(self):
+        pass
+
+    def test_deleted_items_have_deleted_set_to_true(self):
+        record = self.delete_record()
+        self.assertTrue(record['deleted'])
+
+    def test_last_modified_of_a_deleted_item_is_deletion_time(self):
+        before = self.backend.collection_timestamp(self.resource, self.user_id)
+        record = self.delete_record()
+        self.assertTrue(before < record['last_modified'])
+
+    def test_sorting_applies_to_deleted_items(self):
+        pass
+
+    def test_filtering_applies_to_deleted_items(self):
+        pass
+
+    def test_resurrecting_an_item_should_remove_it_from_deleted(self):
+        pass
+
+    def test_deleting_a_deleted_item_should_raise_not_found(self):
+        pass
+
+
 class StorageTest(ThreadMixin,
                   FieldsUnicityTest,
                   TimestampsTest,
+                  DeletedRecordsTest,
                   BaseTestStorage):
     """Compound of all storage tests."""
     pass

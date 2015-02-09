@@ -72,6 +72,7 @@ class BaseResource(object):
     mapping = ResourceSchema()
     id_field = 'id'
     modified_field = 'last_modified'
+    deleted_mark = ('deleted', True)
     validate_schema_for = ('POST', 'PUT')
 
     def __init__(self, request):

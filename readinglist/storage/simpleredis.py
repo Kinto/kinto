@@ -139,8 +139,10 @@ class Redis(StorageBase):
             if encoded_item is None:
                 raise exceptions.RecordNotFoundError(record_id)
 
-            self._bump_timestamp(resource, user_id)
-            return self._decode(encoded_item)
+            record = self._decode(encoded_item)
+            self.set_record_deleted_mark(resource, user_id, record)
+            self.set_record_timestamp(resource, user_id, record)
+            return record
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None):
