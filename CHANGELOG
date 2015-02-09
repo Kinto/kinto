@@ -7,7 +7,27 @@ This document describes changes between each past release.
 0.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- PUT endpoint was disabled (ref #42)
+- ``_id`` field was renamed to ``id`` (ref PR #91)
+- FxA now requires a redirection URL (ref PR #69)
+
+**New features**
+
+- URLs uniques by user (ref #20)
+- Handle conflicts responses (ref #45)
+- Conditional changes for some articles attributes (ref #6)
+- Batching support (ref #2)
+- Pagination support (ref #25)
+- Online documentation available at http://readinglist.readthedocs.org (ref PR #73)
+- Basic Auth nows support any user/password combination (ref PR #78)
+
+**Bug fixes**
+
+- ``marked_read_by`` was ignored on PATCH (ref PR #72)
+- Timestamp was not incremented on DELETE (ref PR #95)
+- Fix number of bugs regarding support of CORS in error views (ref PR #105)
 
 
 0.1 (2015-01-30)
