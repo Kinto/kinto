@@ -234,6 +234,14 @@ class CORSHeadersTest(FakeAuthentMixin, BaseWebTest):
                                 status=404)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
+    def test_present_on_invalid_record_update(self):
+        body = {'name': 42}
+        response = self.app.patch_json(self.get_item_url(),
+                                      body,
+                                      headers=self.headers,
+                                      status=400)
+        self.assertIn('Access-Control-Allow-Origin', response.headers)
+
     def test_present_on_successful_creation(self):
         response = self.app.post_json(self.collection_url,
                                       MINIMALIST_RECORD,

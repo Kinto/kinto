@@ -31,7 +31,7 @@ def reapply_cors(request, response):
 
 
 def cors(view):
-    """Make sure CORS headers are correctly processed on errors."""
+    """Decorator to make sure CORS headers are correctly processed."""
 
     @wraps(view)
     def wrap_view(request, *args, **kwargs):
@@ -83,7 +83,7 @@ def page_not_found(request):
 def error(context, request):
     """Catch server errors and trace them."""
     if isinstance(context, Response):
-        return context
+        return reapply_cors(request, context)
 
     logger.exception(context)
 
