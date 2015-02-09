@@ -497,5 +497,6 @@ class BaseResource(object):
         record = self.fetch_record()
         self.raise_412_if_modified(record)
 
-        self.db.delete(record_id=record[self.id_field], **self.db_kwargs)
-        return record
+        deleted = self.db.delete(record_id=record[self.id_field],
+                                 **self.db_kwargs)
+        return deleted

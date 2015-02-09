@@ -41,11 +41,20 @@ class PutTest(BaseTest):
 
 
 class DeleteTest(BaseTest):
-    def test_delete_record_returns_original_record(self):
+    def test_delete_record_returns_last_timestamp(self):
+        record = {'field': 'value'}
+        record = self.db.create(self.resource, 'bob', record).copy()
+        self.resource.request.matchdict['id'] = record['id']
+        result = self.resource.delete()
+        self.assertNotEqual(result['last_modified'], record['last_modified'])
+
+    def test_delete_record_returns_stripped_record(self):
         record = self.db.create(self.resource, 'bob', {'field': 'value'})
         self.resource.request.matchdict['id'] = record['id']
         result = self.resource.delete()
-        self.assertDictEqual(result, record)
+        self.assertEqual(result['id'], record['id'])
+        self.assertNotIn('field', result)
+        self.assertIn('last_modified', result)
 
 
 class PatchTest(BaseTest):
