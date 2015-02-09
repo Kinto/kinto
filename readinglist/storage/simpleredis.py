@@ -139,8 +139,8 @@ class Redis(StorageBase):
             if encoded_item is None:
                 raise exceptions.RecordNotFoundError(record_id)
 
-            record = self._decode(encoded_item)
-            self.set_record_deleted_mark(resource, user_id, record)
+            existing = self._decode(encoded_item)
+            record = self.strip_deleted_record(resource, user_id, existing)
             self.set_record_timestamp(resource, user_id, record)
             return record
 

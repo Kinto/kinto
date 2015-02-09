@@ -314,7 +314,8 @@ class FieldsUnicityTest(object):
 
 class DeletedRecordsTest(object):
     def delete_record(self):
-        record = self.create_record()
+        record = {'challenge': 'accepted'}
+        record = self.backend.create(self.resource, self.user_id, record)
         return self.backend.delete(self.resource, self.user_id, record['id'])
 
     def test_get_should_not_return_deleted_items(self):
@@ -331,6 +332,12 @@ class DeletedRecordsTest(object):
     def test_deleted_items_have_deleted_set_to_true(self):
         record = self.delete_record()
         self.assertTrue(record['deleted'])
+
+    def test_deleted_items_have_only_basic_fields(self):
+        record = self.delete_record()
+        self.assertIn('id', record)
+        self.assertIn('last_modified', record)
+        self.assertNotIn('challenge', record)
 
     def test_last_modified_of_a_deleted_item_is_deletion_time(self):
         before = self.backend.collection_timestamp(self.resource, self.user_id)

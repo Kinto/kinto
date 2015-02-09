@@ -35,10 +35,17 @@ class StorageBase(object):
                 pagination_rules=None, limit=None):
         raise NotImplementedError
 
-    def set_record_deleted_mark(self, resource, user_id, record):
+    def strip_deleted_record(self, resource, user_id, record):
+        """Strip the record and return its deleted version."""
+        deleted = {}
+
+        for field in (resource.id_field, resource.modified_field):
+            deleted[field] = record[field]
+
         field, value = resource.deleted_mark
-        record[field] = value
-        return record
+        deleted[field] = value
+
+        return deleted
 
     def set_record_timestamp(self, resource, user_id, record):
         timestamp = self._bump_timestamp(resource, user_id)

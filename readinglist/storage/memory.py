@@ -72,10 +72,10 @@ class Memory(StorageBase):
     def delete(self, resource, user_id, record_id):
         resource_name = classname(resource)
         existing = self.get(resource, user_id, record_id)
-        self.set_record_deleted_mark(resource, user_id, existing)
-        self.set_record_timestamp(resource, user_id, existing)
+        record = self.strip_deleted_record(resource, user_id, existing)
+        self.set_record_timestamp(resource, user_id, record)
         self._store[resource_name][user_id].pop(record_id)
-        return existing
+        return record
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None):
