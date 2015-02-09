@@ -83,4 +83,4 @@ def fxa_oauth_token(request):
             description='Firefox Account code validation failed.')
         raise json_error(request.errors)
 
-    return HTTPFound(location='%s?token=%s' % (stored_redirect, token))
+    return HTTPFound(location='%s%s' % (stored_redirect, token))
