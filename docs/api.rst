@@ -46,9 +46,9 @@ Prefix attribute name with ``min_`` or ``max_``:
 :note:
     The lower and upper bounds are inclusive (*i.e equivalent to
     greater or equal*).
+
 :note:
-   You can also use ``lt_`` and ``gt_`` in case you don't want to
-   include the bound.
+   ``lt_`` and ``gt_`` can also be used to exclude the bound.
 
 **Exclude**
 
@@ -106,18 +106,17 @@ collection has not suffered changes meanwhile, a ``304 Not Modified``
 response is returned.
 
 :note:
-   You can also use the ``_to`` parameter which works as an alias for
-   ``lt_last_modified``
+   The ``_to`` parameter is also available, and is an alias for
+   ``lt_last_modified`` (*strictly inferior*).
 
 
 Paginate
 --------
 
-If you provide the ``_limit`` parameter you will get the given number
-of items.
+If the ``_limit`` parameter is provided, the number of items is limited.
 
-If there are more items for this collection than the limit, your
-response will provide you a ``Next-Page`` header with the URL for the
+If there are more items for this collection than the limit, the
+response will provide a ``Next-Page`` header with the URL for the
 Next-Page.
 
 When there is not more ``Next-Page`` response header, there is nothing
