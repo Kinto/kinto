@@ -46,6 +46,12 @@ class BaseWebTest(unittest.TestCase):
         self.collection_url = '/mushrooms'
         self.item_url = '/mushrooms/{id}'
 
+    def get_item_url(self, id=None):
+      """Return the URL of the item using self.item_url."""
+      if id is None:
+          id = self.record['id']
+      return self.item_url.format(id=id)
+
 
 class AuthzAuthnTest(BaseWebTest):
     def test_all_views_require_authentication(self):
@@ -53,7 +59,7 @@ class AuthzAuthnTest(BaseWebTest):
 
         self.app.post(self.collection_url, MINIMALIST_RECORD, status=401)
 
-        url = self.item_url.format(id='abc')
+        url = self.get_item_url('abc')
         self.app.get(url, status=401)
         self.app.patch(url, MINIMALIST_RECORD, status=401)
         self.app.delete(url, status=401)
@@ -118,15 +124,13 @@ class InvalidRecordTest(FakeAuthentMixin, BaseWebTest):
                            status=400)
 
     def test_modify_with_invalid_record_returns_400(self):
-        url = self.item_url.format(id=self.record['id'])
-        self.app.patch_json(url,
+        self.app.patch_json(self.get_item_url(),
                             self.invalid_record,
                             headers=self.headers,
                             status=400)
 
     def test_replace_with_invalid_record_returns_400(self):
-        url = self.item_url.format(id=self.record['id'])
-        self.app.put_json(url,
+        self.app.put_json(self.get_item_url(),
                           self.invalid_record,
                           headers=self.headers,
                           status=400)
@@ -168,15 +172,13 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
                       status=400)
 
     def test_modify_with_invalid_body_returns_400(self):
-        url = self.item_url.format(id=self.record['id'])
-        self.app.patch(url,
+        self.app.patch(self.get_item_url(),
                        self.invalid_body,
                        headers=self.headers,
                        status=400)
 
     def test_replace_with_invalid_body_returns_400(self):
-        url = self.item_url.format(id=self.record['id'])
-        self.app.put(url,
+        self.app.put(self.get_item_url(),
                      self.invalid_body,
                      headers=self.headers,
                      status=400)
@@ -190,9 +192,8 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
         self.assertIn('escape sequence', resp.json['message'])
 
     def test_modify_with_invalid_uft8_returns_400(self):
-        url = self.item_url.format(id=self.record['id'])
         body = '{"foo": "\\u0d1"}'
-        resp = self.app.patch(url,
+        resp = self.app.patch(self.get_item_url(),
                               body,
                               headers=self.headers,
                               status=400)
@@ -217,19 +218,17 @@ class CORSHeadersTest(FakeAuthentMixin, BaseWebTest):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_single_record(self):
-        url = self.item_url.format(id=self.record['id'])
-        response = self.app.get(url,
+        response = self.app.get(self.get_item_url(),
                                 headers=self.headers)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_deletion(self):
-        url = self.item_url.format(id=self.record['id'])
-        response = self.app.delete(url,
+        response = self.app.delete(self.get_item_url(),
                                    headers=self.headers)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_unknown_record(self):
-        url = self.item_url.format(id='unknown')
+        url = self.get_item_url('unknown')
         response = self.app.get(url,
                                 headers=self.headers,
                                 status=404)
@@ -298,16 +297,14 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
                            status=409)
 
     def test_put_returns_409(self):
-        url = self.item_url.format(id=self.record['id'])
-        self.app.put_json(url,
+        self.app.put_json(self.get_item_url(),
                           MINIMALIST_RECORD,
                           headers=self.headers,
                           status=409)
 
     def test_patch_returns_409(self):
         body = {'name': 'Psylo'}
-        url = self.item_url.format(id=self.record['id'])
-        self.app.patch_json(url,
+        self.app.patch_json(self.get_item_url(),
                             body,
                             headers=self.headers,
                             status=409)
