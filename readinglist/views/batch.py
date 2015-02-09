@@ -48,8 +48,7 @@ class BatchPayloadSchema(colander.MappingSchema):
                                    BatchRequestSchema())
 
     def deserialize(self, cstruct=colander.null):
-        """Preprocess received data
-        """
+        """Preprocess received data to merge defaults."""
         if cstruct is colander.null:
             return colander.null
 

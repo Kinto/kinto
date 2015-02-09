@@ -30,8 +30,7 @@ def classname(obj):
 
 
 def merge_dicts(a, b):
-    """Merge b into a recursively, without overwriting values.
-    """
+    """Merge b into a recursively, without overwriting values."""
     for k, v in b.items():
         if isinstance(v, dict):
             merge_dicts(a.setdefault(k, {}), v)
