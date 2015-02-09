@@ -1,5 +1,5 @@
-from fxa import errors as fxa_errors
 import mock
+from fxa import errors as fxa_errors
 
 from readinglist.errors import ERRORS
 

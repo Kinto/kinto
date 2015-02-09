@@ -1,5 +1,5 @@
-from pyramid import httpexceptions
 import six
+from pyramid import httpexceptions
 
 from readinglist.errors import ERRORS
 from readinglist.resource import BaseResource

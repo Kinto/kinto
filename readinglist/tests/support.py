@@ -6,8 +6,8 @@ try:
 except ImportError:
     import unittest  # NOQA
 
-from cornice import errors as cornice_errors
 import webtest
+from cornice import errors as cornice_errors
 
 from readinglist import API_VERSION
 from readinglist.utils import random_bytes_hex

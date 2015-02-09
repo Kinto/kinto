@@ -1,7 +1,7 @@
 import base64
 
-from fxa import errors as fxa_errors
 import mock
+from fxa import errors as fxa_errors
 
 from .support import BaseWebTest, unittest
 

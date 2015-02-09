@@ -6,6 +6,7 @@ from pyramid.httpexceptions import (
 )
 from readinglist.utils import Enum, json
 
+
 ERRORS = Enum(
     MISSING_AUTH_TOKEN=104,
     INVALID_AUTH_TOKEN=105,

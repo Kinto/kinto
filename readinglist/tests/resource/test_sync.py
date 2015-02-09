@@ -1,8 +1,8 @@
 import mock
 import time
 
-from pyramid import httpexceptions
 import six
+from pyramid import httpexceptions
 
 from readinglist.resource import BaseResource
 from readinglist.tests.resource import BaseTest

@@ -1,5 +1,4 @@
 import operator
-from operator import itemgetter
 from readinglist.storage import exceptions
 from readinglist.storage.id_generator import UUID4Generator
 from readinglist.utils import COMPARISON
@@ -84,8 +83,8 @@ def apply_sorting(records, sorting):
 
     for field, direction in reversed(sorting):
         is_boolean_field = isinstance(result[0][field], bool)
-        reverse = direction < 0 or is_boolean_field
-        result = sorted(result, key=itemgetter(field), reverse=reverse)
+        desc = direction < 0 or is_boolean_field
+        result = sorted(result, key=operator.itemgetter(field), reverse=desc)
 
     return result
 

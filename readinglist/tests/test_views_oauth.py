@@ -1,7 +1,6 @@
-from six.moves.urllib.parse import parse_qs, urlparse
 import mock
-
 from fxa import errors as fxa_errors
+from six.moves.urllib.parse import parse_qs, urlparse
 
 from .support import BaseWebTest, unittest
 

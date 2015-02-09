@@ -12,7 +12,7 @@ POST /batch
 The POST body is a mapping, with the following attributes:
 
 - ``requests``: the list of requests
-- ``defaults``: (*optional*) values in common for all requests
+- ``defaults``: (*optional*) default requests values in common for all requests
 
  Each request is a JSON mapping, with the following attribute:
 
@@ -105,7 +105,7 @@ The response body is a list of all responses:
 
 :note:
 
-     The responses are in the same order of the requests.
+     Responses are provided in the same order than requests.
 
 
 Pros & Cons

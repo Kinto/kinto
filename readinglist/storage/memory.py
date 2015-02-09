@@ -1,11 +1,8 @@
 from collections import defaultdict
 
 from readinglist import utils
+from readinglist.storage import StorageBase, exceptions, extract_record_set
 from readinglist.utils import classname
-
-from readinglist.storage import (
-    StorageBase, exceptions, extract_record_set
-)
 
 
 def tree():

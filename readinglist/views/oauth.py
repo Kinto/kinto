@@ -1,7 +1,6 @@
 import uuid
 
 from cornice import Service
-
 from colander import MappingSchema, SchemaNode, String
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
