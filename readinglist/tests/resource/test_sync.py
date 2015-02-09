@@ -7,7 +7,6 @@ import six
 from readinglist.resource import BaseResource
 from readinglist.tests.resource import BaseTest
 from readinglist.tests.support import ThreadMixin
-from readinglist.utils import msec_time
 
 
 class SinceModifiedTest(ThreadMixin, BaseTest):
@@ -30,15 +29,6 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.resource.request.GET = {'_to': '3'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['items']), 3)
-
-    def test_the_timestamp_are_based_on_real_time_milliseconds(self):
-        before = msec_time()
-        time.sleep(0.001)  # 1 msec
-        result = self.resource.collection_post()
-        now = result['last_modified']
-        time.sleep(0.001)  # 1 msec
-        after = msec_time()
-        self.assertTrue(before < now < after)
 
     def test_the_timestamp_header_is_equal_to_last_modification(self):
         result = self.resource.collection_post()
@@ -110,21 +100,6 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         after = read_timestamp()
         self.assertTrue(before < now < after)
 
-    def test_timestamp_are_always_incremented_above_existing_value(self):
-        # Create a record with normal clock
-        record = self.resource.collection_post()
-        current = record['last_modified']
-
-        # Patch the clock to return a time in the past, before the big bang
-        with mock.patch('readinglist.utils.msec_time') as time_mocked:
-            time_mocked.return_value = -1
-
-            record = self.resource.collection_post()
-            after = record['last_modified']
-
-        # Expect the last one to be based on the highest value
-        self.assertTrue(0 < current < after)
-
     def test_records_created_during_fetch_are_above_fetch_timestamp(self):
 
         timestamps = {}
@@ -158,24 +133,3 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
         # Make sure fetch timestamp is below (for next fetch)
         self.assertTrue(timestamps['post'] > timestamps['fetch'])
-
-    def test_timestamps_are_thread_safe(self):
-        obtained = []
-
-        def hit_post():
-            for i in range(100):
-                record = self.resource.collection_post()
-                current = record['last_modified']
-                obtained.append(current)
-
-        thread1 = self._create_thread(target=hit_post)
-        thread2 = self._create_thread(target=hit_post)
-        thread1.start()
-        thread2.start()
-        thread1.join()
-        thread2.join()
-
-        # With CPython (GIL), list appending is thread-safe
-        self.assertEqual(len(obtained), 200)
-        # No duplicated timestamps
-        self.assertEqual(len(set(obtained)), len(obtained))

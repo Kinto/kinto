@@ -128,37 +128,6 @@ class BaseTestBackend(object):
     def test_ping_returns_true_when_working(self):
         self.assertTrue(self.backend.ping())
 
-    def test_timestamps_are_unique(self):
-        obtained = []
-
-        def create_item():
-            for i in range(100):
-                record = self.backend.create(
-                    self.resource, self.user_id, self.record)
-                obtained.append((record['last_modified'], record['id']))
-
-        thread1 = self._create_thread(target=create_item)
-        thread2 = self._create_thread(target=create_item)
-        thread1.start()
-        thread2.start()
-        thread1.join()
-        thread2.join()
-
-        # With CPython (GIL), list appending is thread-safe
-        self.assertEqual(len(obtained), 200)
-        # No duplicated timestamps
-        self.assertEqual(len(set(obtained)), len(obtained))
-
-    def test_collection_timestamp_returns_now_when_not_found(self):
-        before = utils.msec_time()
-        time.sleep(0.001)  # 1 msec
-        timestamp = self.backend.collection_timestamp(
-            self.resource, self.user_id)
-        time.sleep(0.001)  # 1 msec
-        after = utils.msec_time()
-
-        self.assertTrue(before < timestamp < after)
-
     def test_get_all_handle_limit(self):
         for x in range(10):
             record = dict(self.record)
@@ -202,7 +171,7 @@ class BaseTestBackend(object):
         self.assertEqual(len(records), 4)
 
 
-class TimestampIncrementationTest(object):
+class TimestampsTest(object):
     def test_timestamp_are_incremented_on_create(self):
         self.backend.create(self.resource, self.user_id, self.record)  # init
         before = self.backend.collection_timestamp(self.resource, self.user_id)
@@ -225,6 +194,61 @@ class TimestampIncrementationTest(object):
         self.backend.delete(self.resource, self.user_id, _id)
         after = self.backend.collection_timestamp(self.resource, self.user_id)
         self.assertTrue(before < after)
+
+    def test_timestamps_are_unique(self):
+        obtained = []
+
+        def create_item():
+            for i in range(100):
+                record = self.backend.create(
+                    self.resource, self.user_id, self.record)
+                obtained.append((record['last_modified'], record['id']))
+
+        thread1 = self._create_thread(target=create_item)
+        thread2 = self._create_thread(target=create_item)
+        thread1.start()
+        thread2.start()
+        thread1.join()
+        thread2.join()
+
+        # With CPython (GIL), list appending is thread-safe
+        self.assertEqual(len(obtained), 200)
+        # No duplicated timestamps
+        self.assertEqual(len(set(obtained)), len(obtained))
+
+    def test_collection_timestamp_returns_now_when_not_found(self):
+        before = utils.msec_time()
+        time.sleep(0.001)  # 1 msec
+        timestamp = self.backend.collection_timestamp(
+            self.resource, self.user_id)
+        time.sleep(0.001)  # 1 msec
+        after = utils.msec_time()
+
+        self.assertTrue(before < timestamp < after)
+
+    def test_the_timestamp_are_based_on_real_time_milliseconds(self):
+        before = utils.msec_time()
+        time.sleep(0.001)  # 1 msec
+        record = self.backend.create(self.resource, self.user_id, {})
+        now = record['last_modified']
+        time.sleep(0.001)  # 1 msec
+        after = utils.msec_time()
+        self.assertTrue(before < now < after)
+
+    def test_timestamp_are_always_incremented_above_existing_value(self):
+        # Create a record with normal clock
+        record = self.backend.create(self.resource, self.user_id, {})
+        current = record['last_modified']
+
+        # Patch the clock to return a time in the past, before the big bang
+        with mock.patch('readinglist.utils.msec_time') as time_mocked:
+            time_mocked.return_value = -1
+
+            record = self.backend.create(self.resource, self.user_id, {})
+            after = record['last_modified']
+
+        # Expect the last one to be based on the highest value
+        self.assertTrue(0 < current < after)
 
 
 class FieldsUnicityTest(object):
@@ -293,7 +317,7 @@ class FieldsUnicityTest(object):
 
 class BackendTest(ThreadMixin,
                   FieldsUnicityTest,
-                  TimestampIncrementationTest,
+                  TimestampsTest,
                   BaseTestBackend):
     """Compound of all backend tests."""
     pass
