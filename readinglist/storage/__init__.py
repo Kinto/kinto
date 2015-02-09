@@ -36,16 +36,14 @@ class StorageBase(object):
         raise NotImplementedError
 
     def strip_deleted_record(self, resource, user_id, record):
-        """Strip the record and return its deleted version."""
-        deleted = {}
-
-        for field in (resource.id_field, resource.modified_field):
-            deleted[field] = record[field]
+        """Strip the record to its deleted version (in place)."""
+        fields = record.keys()
+        for field in fields:
+            if field not in (resource.id_field, resource.modified_field):
+                record.pop(field, None)
 
         field, value = resource.deleted_mark
-        deleted[field] = value
-
-        return deleted
+        record[field] = value
 
     def set_record_timestamp(self, resource, user_id, record):
         timestamp = self._bump_timestamp(resource, user_id)

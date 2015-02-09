@@ -140,12 +140,12 @@ class Redis(StorageBase):
                 raise exceptions.RecordNotFoundError(record_id)
 
             existing = self._decode(encoded_item)
-            record = self.strip_deleted_record(resource, user_id, existing)
-            self.set_record_timestamp(resource, user_id, record)
-            return record
+            self.strip_deleted_record(resource, user_id, existing)
+            self.set_record_timestamp(resource, user_id, existing)
+            return existing
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
-                pagination_rules=None, limit=None):
+                pagination_rules=None, limit=None, include_deleted=False):
         resource_name = classname(resource)
         ids = self._client.smembers('{0}.{1}'.format(resource_name, user_id))
 

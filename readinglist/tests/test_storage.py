@@ -1,4 +1,5 @@
 import mock
+import random
 import redis
 import six
 import time
@@ -313,8 +314,8 @@ class FieldsUnicityTest(object):
 
 
 class DeletedRecordsTest(object):
-    def delete_record(self):
-        record = {'challenge': 'accepted'}
+    def delete_record(self, record=None):
+        record = record or {'challenge': 'accepted'}
         record = self.backend.create(self.resource, self.user_id, record)
         return self.backend.delete(self.resource, self.user_id, record['id'])
 
@@ -326,8 +327,13 @@ class DeletedRecordsTest(object):
                           self.user_id,
                           record['id'])
 
-    def test_get_all_can_return_deleted_items(self):
-        pass
+    def test_deleting_a_deleted_item_should_raise_not_found(self):
+        record = self.delete_record()
+        self.assertRaises(exceptions.RecordNotFoundError,
+                          self.backend.delete,
+                          self.resource,
+                          self.user_id,
+                          record['id'])
 
     def test_deleted_items_have_deleted_set_to_true(self):
         record = self.delete_record()
@@ -342,19 +348,73 @@ class DeletedRecordsTest(object):
     def test_last_modified_of_a_deleted_item_is_deletion_time(self):
         before = self.backend.collection_timestamp(self.resource, self.user_id)
         record = self.delete_record()
+        now = self.backend.collection_timestamp(self.resource, self.user_id)
+        self.assertEqual(now, record['last_modified'])
         self.assertTrue(before < record['last_modified'])
 
+    def test_get_all_does_include_deleted_items_by_default(self):
+        self.delete_record()
+        records, _ = self.backend.get_all(self.resource, self.user_id)
+        self.assertEqual(len(records), 0)
+
+    def test_get_all_count_does_not_include_deleted_items(self):
+        self.delete_record()
+        records, count = self.backend.get_all(self.resource, self.user_id,
+                                              include_deleted=True)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(count, 0)
+
+    def test_get_all_can_return_deleted_items(self):
+        record = self.delete_record()
+        records, _ = self.backend.get_all(self.resource, self.user_id,
+                                          include_deleted=True)
+        deleted = records[0]
+        self.assertEqual(deleted['id'], record['id'])
+        self.assertEqual(deleted['last_modified'], record['last_modified'])
+        self.assertEqual(deleted['deleted'], True)
+        self.assertNotIn('challenge', deleted)
+
     def test_sorting_applies_to_deleted_items(self):
-        pass
+        first = last = None
+        indices = list(range(20))
+        random.shuffle(indices)
+        for i in indices:
+            record = self.delete_record({'status': i})
+            first = record if i == 0 else first
+            last = record if i == 19 else last
+
+        sorting = [('status', 1)]
+        records, _ = self.backend.get_all(self.resource, self.user_id,
+                                          sorting=sorting,
+                                          include_deleted=True)
+
+        self.assertDictEqual(records[0], first)
+        self.assertDictEqual(records[-1], last)
+
+    def test_sorting_mixes_deleted_records(self):
+        self.backend.create(self.resource, self.user_id, {'status': 1})
+        self.delete_record({'status': 2})
+        self.delete_record({'status': 0})
+
+        sorting = [('status', 1)]
+        records, _ = self.backend.get_all(self.resource, self.user_id,
+                                          sorting=sorting,
+                                          include_deleted=True)
+
+        self.assertIn('deleted', records[0])
+        self.assertNotIn('deleted', records[1])
+        self.assertIn('deleted', records[2])
 
     def test_filtering_applies_to_deleted_items(self):
-        pass
+        self.delete_record({'status': 1})
+        self.delete_record({'status': 2})
 
-    def test_resurrecting_an_item_should_remove_it_from_deleted(self):
-        pass
+        filters = [('status', 1, utils.COMPARISON.EQ)]
 
-    def test_deleting_a_deleted_item_should_raise_not_found(self):
-        pass
+        records, _ = self.backend.get_all(self.resource, self.user_id,
+                                          filters=filters,
+                                          include_deleted=True)
+        self.assertEqual(len(records), 1)
 
 
 class StorageTest(ThreadMixin,
