@@ -29,6 +29,16 @@ def classname(obj):
     return obj.__class__.__name__.lower()
 
 
+def merge_dicts(a, b):
+    """Merge b into a recursively, without overwriting values.
+    """
+    for k, v in b.items():
+        if isinstance(v, dict):
+            merge_dicts(a.setdefault(k, {}), v)
+        else:
+            a.setdefault(k, v)
+
+
 def random_bytes_hex(bytes_length):
     """Return a hexstring of bytes_length cryptographic-friendly random bytes.
     """

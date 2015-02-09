@@ -84,6 +84,9 @@ class BatchSchemaTest(unittest.TestCase):
     def test_requests_is_mandatory(self):
         self.assertInvalid({})
 
+    def test_requests_schema_supports_null(self):
+        self.schema.deserialize(colander.null)
+
     def test_unknown_attributes_are_dropped(self):
         deserialized = self.schema.deserialize({'requests': [], 'unknown': 42})
         self.assertNotIn('unknown', deserialized)
@@ -94,8 +97,16 @@ class BatchSchemaTest(unittest.TestCase):
     def test_list_of_requests_must_be_a_list(self):
         self.assertInvalid({'requests': {}})
 
+    def test_list_of_requests_must_be_dicts(self):
+        request = 42
+        self.assertInvalid({'requests': [request]})
+
     def test_request_path_must_start_with_slash(self):
         request = {'path': 'http://localhost'}
+        self.assertInvalid({'requests': [request]})
+
+    def test_request_path_is_mandatory(self):
+        request = {'method': 'HEAD'}
         self.assertInvalid({'requests': [request]})
 
     def test_request_method_must_be_known_uppercase_word(self):
@@ -167,6 +178,14 @@ class BatchSchemaTest(unittest.TestCase):
         batch_payload = {'requests': [request], 'defaults': defaults}
         result = self.schema.deserialize(batch_payload)
         self.assertEqual(result['requests'][0]['body'], {'json': 'payload'})
+
+    def test_defaults_headers_are_applied_to_requests(self):
+        request = {'path': '/'}
+        defaults = {'headers': {'Content-Type': 'text/html'}}
+        batch_payload = {'requests': [request], 'defaults': defaults}
+        result = self.schema.deserialize(batch_payload)
+        self.assertEqual(result['requests'][0]['headers']['Content-Type'],
+                         'text/html')
 
     def test_defaults_values_do_not_overwrite_requests_values(self):
         request = {'path': '/', 'headers': {'Authorization': 'me'}}

@@ -9,6 +9,7 @@ from six.moves.urllib import parse as urlparse
 
 from readinglist import logger
 from readinglist import errors
+from readinglist.utils import merge_dicts
 
 
 valid_http_method = colander.OneOf(('GET', 'HEAD', 'DELETE', 'TRACE',
@@ -42,6 +43,7 @@ class BatchRequestSchema(colander.MappingSchema):
 
 
 class BatchPayloadSchema(colander.MappingSchema):
+    defaults = BatchRequestSchema(missing=colander.drop).clone()
     requests = colander.SchemaNode(colander.Sequence(),
                                    BatchRequestSchema())
 
@@ -51,21 +53,15 @@ class BatchPayloadSchema(colander.MappingSchema):
         if cstruct is colander.null:
             return colander.null
 
-        # See if defaults was specified in payload
-        defaults = cstruct.get('defaults', {})
-        if isinstance(defaults, dict):
-            defaults.setdefault('path', '/')
-        defaults = BatchRequestSchema().deserialize(defaults)
+        # On defaults, path is not mandatory
+        self.get('defaults').get('path').missing = colander.drop
 
         # Fill requests values with defaults
         requests = cstruct.get('requests', [])
         for request in requests:
-            for k, v in defaults.items():
-                if k == 'headers':
-                    for i, j in v.items():
-                        request.get(k, {}).setdefault(i, j)
-                else:
-                    request.setdefault(k, v)
+            defaults = cstruct.get('defaults')
+            if isinstance(defaults, dict):
+                merge_dicts(request, defaults)
 
         return super(BatchPayloadSchema, self).deserialize(cstruct)
 
