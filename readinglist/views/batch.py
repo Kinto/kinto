@@ -1,7 +1,7 @@
 import json
-
 import colander
 import six
+
 from cornice import Service
 from pyramid.request import Request
 from pyramid import httpexceptions
