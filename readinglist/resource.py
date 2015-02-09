@@ -393,11 +393,14 @@ class BaseResource(object):
         pagination_rules, limit = self._extract_pagination_rules_from_token(
             sorting)
 
+        include_deleted = self.modified_field in [f[0] for f in filters]
+
         records, total_records = self.db.get_all(
             filters=filters,
             sorting=sorting,
             pagination_rules=pagination_rules,
             limit=limit,
+            include_deleted=include_deleted,
             **self.db_kwargs)
 
         headers = self.request.response.headers

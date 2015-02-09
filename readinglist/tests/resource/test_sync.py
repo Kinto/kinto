@@ -63,6 +63,19 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         result = self.resource.collection_get()
         self.assertEqual(len(result['items']), 0)
 
+    def test_filter_with_last_modified_includes_deleted_items(self):
+        self.resource.collection_post()
+        result = self.resource.collection_post()
+        current = result['last_modified']
+
+        self.resource.request.matchdict['id'] = result['id']
+        self.resource.delete()
+
+        self.resource.request.GET = {'_since': six.text_type(current)}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['items']), 1)
+        self.assertTrue(result['items'][0]['deleted'])
+
     def test_filter_from_last_header_value_is_exclusive(self):
         result = self.resource.collection_get()
         current = int(self.last_response.headers['Last-Modified'])
