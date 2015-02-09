@@ -60,7 +60,9 @@ class AuthzAuthnTest(BaseWebTest):
 
     @mock.patch('readinglist.authentication.AuthorizationPolicy.permits')
     def test_view_permissions(self, permits_mocked):
-        permission_required = lambda: permits_mocked.call_args[0][-1]
+
+        def permission_required():
+            return permits_mocked.call_args[0][-1]
 
         self.app.get(self.collection_url)
         self.assertEqual(permission_required(), 'readonly')

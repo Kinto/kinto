@@ -8,7 +8,8 @@ from readinglist.backend import (
 )
 
 
-tree = lambda: defaultdict(tree)
+def tree():
+    return defaultdict(tree)
 
 
 class Memory(BackendBase):
