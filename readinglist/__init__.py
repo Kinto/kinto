@@ -105,6 +105,9 @@ def main(global_config, **settings):
     backend_module = config.maybe_dotted(settings['readinglist.backend'])
     config.registry.backend = backend_module.load_from_config(config)
 
+    session_module = config.maybe_dotted(settings['readinglist.session'])
+    config.registry.session = session_module.load_from_config(config)
+
     set_auth(config)
 
     # Include cornice and discover views.
