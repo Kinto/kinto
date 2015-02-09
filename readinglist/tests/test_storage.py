@@ -3,11 +3,7 @@ import redis
 import six
 import time
 
-from readinglist.storage import StorageBase, exceptions
-from readinglist.storage.simpleredis import (
-    Redis, load_from_config as load_redis_from_config
-)
-from readinglist.storage.memory import Memory
+from readinglist.storage import StorageBase, exceptions, memory, simpleredis
 from readinglist import utils
 
 from .support import unittest, ThreadMixin
@@ -325,7 +321,7 @@ class StorageTest(ThreadMixin,
 
 class RedisStorageTest(StorageTest, unittest.TestCase):
     def setUp(self):
-        self.storage = Redis()
+        self.storage = simpleredis.Redis()
         super(RedisStorageTest, self).setUp()
 
     def test_get_all_handle_expired_values(self):
@@ -348,12 +344,12 @@ class RedisStorageTest(StorageTest, unittest.TestCase):
             class registry:
                 settings = {}
 
-        load_redis_from_config(config)
+        simpleredis.load_from_config(config)
 
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):
     def setUp(self):
-        self.storage = Memory()
+        self.storage = memory.Memory()
         super(MemoryStorageTest, self).setUp()
 
     def test_ping_returns_an_error_if_unavailable(self):

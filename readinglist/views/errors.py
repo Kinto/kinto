@@ -1,9 +1,7 @@
 from functools import wraps
 
 from cornice.cors import ensure_origin
-from pyramid.httpexceptions import (
-    HTTPForbidden, HTTPUnauthorized, HTTPNotFound, Response
-)
+from pyramid import httpexceptions
 from pyramid.security import forget
 from pyramid.view import (
     forbidden_view_config, notfound_view_config, view_config
@@ -51,7 +49,7 @@ def authorization_required(request):
     not allowed (``403 Forbidden``).
     """
     if not request.authenticated_userid:
-        response = HTTPUnauthorized(
+        response = httpexceptions.HTTPUnauthorized(
             body=format_error(
                 401, ERRORS.MISSING_AUTH_TOKEN, "Unauthorized",
                 "Please authenticate yourself to use this endpoint."),
@@ -59,7 +57,7 @@ def authorization_required(request):
         response.headers.extend(forget(request))
         return response
 
-    response = HTTPForbidden(
+    response = httpexceptions.HTTPForbidden(
         body=format_error(
             403, ERRORS.FORBIDDEN, "Forbidden",
             "This user cannot access this resource."),
@@ -71,7 +69,7 @@ def authorization_required(request):
 @cors
 def page_not_found(request):
     """Return a JSON 404 error page."""
-    response = HTTPNotFound(
+    response = httpexceptions.HTTPNotFound(
         body=format_error(
             404, ERRORS.MISSING_RESOURCE, "Not Found",
             "The resource your are looking for could not be found."),
@@ -82,7 +80,7 @@ def page_not_found(request):
 @view_config(context=Exception)
 def error(context, request):
     """Catch server errors and trace them."""
-    if isinstance(context, Response):
+    if isinstance(context, httpexceptions.Response):
         return reapply_cors(request, context)
 
     logger.exception(context)

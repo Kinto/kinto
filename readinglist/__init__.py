@@ -3,12 +3,11 @@
 import pkg_resources
 import logging
 
+from cornice import Service
 from pyramid.config import Configurator
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid_multiauth import MultiAuthenticationPolicy
-
-from cornice import Service
 
 from readinglist import authentication
 from readinglist.utils import msec_time

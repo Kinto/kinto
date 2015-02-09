@@ -1,13 +1,12 @@
 import hashlib
 import hmac
-from zope.interface import implementer
-
-from pyramid import authentication as base_auth
-from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
-from pyramid.security import Authenticated
 
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
+from pyramid import authentication as base_auth
+from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
+from pyramid.security import Authenticated
+from zope.interface import implementer
 
 from readinglist.errors import HTTPServiceUnavailable
 

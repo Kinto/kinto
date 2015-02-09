@@ -1,8 +1,8 @@
 import colander
-from cornice import Service
 import mock
-from pyramid import testing
 import webtest
+from cornice import Service
+from pyramid import testing
 
 from readinglist import set_auth, attach_http_objects
 from readinglist.storage.memory import Memory

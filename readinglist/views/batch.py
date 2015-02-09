@@ -1,10 +1,10 @@
 import json
 
 import colander
+import six
 from cornice import Service
 from pyramid.request import Request
 from pyramid import httpexceptions
-import six
 from six.moves.urllib import parse as urlparse
 
 from readinglist import logger
@@ -52,10 +52,10 @@ class BatchPayloadSchema(colander.MappingSchema):
         if cstruct is colander.null:
             return colander.null
 
-        # On defaults, path is not mandatory
+        # On defaults, path is not mandatory.
         self.get('defaults').get('path').missing = colander.drop
 
-        # Fill requests values with defaults
+        # Fill requests values with defaults.
         requests = cstruct.get('requests', [])
         for request in requests:
             defaults = cstruct.get('defaults')
