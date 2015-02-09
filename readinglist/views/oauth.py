@@ -6,8 +6,12 @@ from colander import MappingSchema, SchemaNode, String
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 
-from readinglist.errors import HTTPServiceUnavailable
+from pyramid.httpexceptions import HTTPFound
+
+from readinglist.errors import HTTPServiceUnavailable, json_error
+from readinglist.schema import URL
 from readinglist.views.errors import authorization_required
+from readinglist import logger
 
 login = Service(name='fxa-oauth-login', path='/fxa-oauth/login')
 token = Service(name='fxa-oauth-token', path='/fxa-oauth/token')
@@ -22,14 +26,17 @@ def persist_state(request):
     It will be compared when return from login page on OAuth server.
     """
     state = uuid.uuid4().hex
-    request.response.set_cookie('state', state)
+    request.registry.session.set(state, request.validated['redirect'])
     return state
 
 
-@login.get()
+class FxALoginRequest(MappingSchema):
+    redirect = URL(location="querystring")
+
+
+@login.get(schema=FxALoginRequest)
 def fxa_oauth_login(request):
-    """Helper to redirect client towards FxA login form.
-    """
+    """Helper to redirect client towards FxA login form."""
     state = persist_state(request)
     form_url = ('{oauth_uri}/authorization?action=signin'
                 '&client_id={client_id}&state={state}&scope={scope}')
@@ -55,16 +62,10 @@ def fxa_oauth_token(request):
     code = request.validated['code']
 
     # Require on-going session
-    try:
-        stored_state = request.cookies.pop('state')
-    except KeyError:
-        return authorization_required(request)
+    stored_redirect = request.registry.session.get(state)
 
-    # Compare with previously persisted state
-    if stored_state != state:
-        # XXX: use Cornice errors
-        request.response.status_code = 400
-        return
+    if not stored_redirect:
+        return authorization_required(request)
 
     # Trade the OAuth code for a longer-lived token
     auth_client = OAuthClient(server_url=fxa_conf(request, 'oauth_uri'),
@@ -74,12 +75,12 @@ def fxa_oauth_token(request):
         token = auth_client.trade_code(code)
     except fxa_errors.OutOfProtocolError:
         return HTTPServiceUnavailable()
-    except fxa_errors.InProtocolError:
-        # XXX: use exception details
-        request.response.status_code = 400
-        return
+    except fxa_errors.InProtocolError as error:
+        logger.exception(error)
+        request.errors.add(
+            location='querystring',
+            name='code',
+            description='Firefox Account code validation failed.')
+        raise json_error(request.errors)
 
-    data = {
-        'token': token,
-    }
-    return data
+    return HTTPFound(location='%s?token=%s' % (stored_redirect, token))
