@@ -21,7 +21,8 @@ class BackendBaseTest(unittest.TestCase):
         self.assertEqual(type(self.backend.id_generator()), six.text_type)
 
     def test_custom_generator(self):
-        l = lambda x: x  # NOQA
+        def l(x):
+            return x
         backend = BackendBase(id_generator=l)
         self.assertEqual(backend.id_generator, l)
 
