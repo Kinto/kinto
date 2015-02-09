@@ -16,7 +16,7 @@ class Memory(StorageBase):
 
     def flush(self):
         self._store = tree()
-        self._cementery = tree()
+        self._cemetery = tree()
         self._timestamps = defaultdict(dict)
 
     def ping(self):
@@ -76,7 +76,7 @@ class Memory(StorageBase):
         self.set_record_timestamp(resource, user_id, existing)
 
         # Add to deleted items, remove from store.
-        self._cementery[resource_name][user_id][record_id] = existing.copy()
+        self._cemetery[resource_name][user_id][record_id] = existing.copy()
         self._store[resource_name][user_id].pop(record_id)
 
         self.strip_deleted_record(resource, user_id, existing)
@@ -89,7 +89,7 @@ class Memory(StorageBase):
 
         deleted = {}
         if include_deleted:
-            deleted = self._cementery[resource_name][user_id]
+            deleted = self._cemetery[resource_name][user_id]
 
         records, count = extract_record_set(records + deleted.values(),
                                             filters, sorting,
