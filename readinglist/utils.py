@@ -12,13 +12,21 @@ from binascii import hexlify
 from colander import null
 
 
-# removes whitespace, newlines, and tabs from the beginning/end of a string
-strip_whitespace = lambda v: v.strip(' \t\n\r') if v is not null else v
+def strip_whitespace(v):
+    """Remove whitespace, newlines, and tabs from the beginning/end
+    of a string.
+    """
+    return v.strip(' \t\n\r') if v is not null else v
 
-msec_time = lambda: int(time.time() * 1000.0)  # floor
 
-# Get a classname from a class.
-classname = lambda c: c.__class__.__name__.lower()
+def msec_time():
+    """Return current epoch time in milliseconds."""
+    return int(time.time() * 1000.0)  # floor
+
+
+def classname(obj):
+    """Get a classname from a class."""
+    return obj.__class__.__name__.lower()
 
 
 def random_bytes_hex(bytes_length):

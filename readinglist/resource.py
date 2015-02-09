@@ -474,8 +474,8 @@ class BaseResource(object):
 
         updated = self.process_record(updated, old=record)
 
-        has_changed = lambda field: record.get(field) != updated.get(field)
-        nothing_changed = not any([has_changed(k) for k in changes.keys()])
+        nothing_changed = not any([record.get(k) != updated.get(k)
+                                   for k in changes.keys()])
         if nothing_changed:
             return record
 

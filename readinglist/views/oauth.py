@@ -13,7 +13,8 @@ login = Service(name='fxa-oauth-login', path='/fxa-oauth/login')
 token = Service(name='fxa-oauth-token', path='/fxa-oauth/token')
 
 
-fxa_conf = lambda request, name: request.registry.settings['fxa-oauth.' + name]
+def fxa_conf(request, name):
+    return request.registry.settings['fxa-oauth.' + name]
 
 
 def persist_state(request):
