@@ -60,7 +60,7 @@ class ResourceSchema(colander.MappingSchema):
 
     class Options:
         readonly_fields = ('id', 'last_modified')
-        unique_fields = tuple()
+        unique_fields = ('id', 'last_modified')
 
     def is_readonly(self, field):
         """Return True if specified field name is read-only."""
