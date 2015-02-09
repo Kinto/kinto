@@ -206,3 +206,25 @@ class ConflictingArticleTest(BaseWebTest, unittest.TestCase):
                             patch,
                             headers=self.headers,
                             status=409)
+
+
+class DeletedArticleTest(BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super(DeletedArticleTest, self).setUp()
+
+        resp = self.app.post_json('/articles',
+                                  MINIMALIST_ARTICLE,
+                                  headers=self.headers)
+        self.before = resp.json
+        self.url = '/articles/{id}'.format(id=self.before['id'])
+
+    def test_delete_article_returns_status_deleted(self):
+        resp = self.app.delete(self.url, headers=self.headers)
+        self.assertEqual(resp.json['status'], 2)
+
+    def test_deleted_articles_are_marked_with_status_deleted(self):
+        last_modified = self.before['last_modified']
+        self.app.delete(self.url, headers=self.headers)
+        resp = self.app.get('/articles?_since=%s' % last_modified,
+                            headers=self.headers)
+        self.assertEqual(resp.json['items'][0]['status'], 2)

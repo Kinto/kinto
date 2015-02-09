@@ -61,6 +61,7 @@ class ArticleSchema(ResourceSchema):
 @crud()
 class Article(BaseResource):
     mapping = ArticleSchema()
+    deleted_mark = ('status', 2)
 
     def put(self):
         response = httpexceptions.HTTPMethodNotAllowed(
