@@ -2,7 +2,7 @@ from __future__ import absolute_import
 import time
 import redis
 
-from readinglist.sessions import SessionStorageBase
+from readinglist.session import SessionStorageBase
 
 
 class RedisSessionStorage(SessionStorageBase):

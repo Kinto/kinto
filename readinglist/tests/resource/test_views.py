@@ -5,8 +5,8 @@ from pyramid import testing
 import webtest
 
 from readinglist import set_auth, attach_http_objects
-from readinglist.backend.memory import Memory
-from readinglist.backend import exceptions as backend_exceptions
+from readinglist.storage.memory import Memory
+from readinglist.storage import exceptions as storage_exceptions
 from readinglist.errors import ERRORS
 from readinglist.resource import BaseResource, ResourceSchema, crud
 from readinglist.tests.support import unittest, FakeAuthentMixin
@@ -29,7 +29,7 @@ class BaseWebTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.config = testing.setUp()
-        self.config.registry.backend = Memory()
+        self.config.registry.storage = Memory()
 
         Service.cors_origins = ('*',)
 
@@ -276,10 +276,10 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
         self.record = resp.json
 
         def unicity_failure(*args, **kwargs):
-            raise backend_exceptions.UnicityError('city', {'id': 42})
+            raise storage_exceptions.UnicityError('city', {'id': 42})
 
         for operation in ('create', 'update'):
-            patch = mock.patch.object(self.config.registry.backend, operation,
+            patch = mock.patch.object(self.config.registry.storage, operation,
                                       side_effect=unicity_failure)
             patch.start()
 

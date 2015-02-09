@@ -2,8 +2,8 @@ import mock
 import redis
 import time
 
-from readinglist.sessions import SessionStorageBase
-from readinglist.sessions.redis import (
+from readinglist.session import SessionStorageBase
+from readinglist.session.redis import (
     RedisSessionStorage, load_from_config as load_redis_from_config
 )
 

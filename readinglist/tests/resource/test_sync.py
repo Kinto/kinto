@@ -105,7 +105,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         timestamps = {}
 
         def long_fetch():
-            """Simulate a overhead while reading on backend."""
+            """Simulate a overhead while reading on storage."""
 
             def delayed_get(*args, **kwargs):
                 time.sleep(.100)  # 100 msec

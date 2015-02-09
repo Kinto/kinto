@@ -2,15 +2,15 @@ import json
 import redis
 import time
 
-from readinglist.backend import (
-    BackendBase, exceptions, extract_record_set
+from readinglist.storage import (
+    StorageBase, exceptions, extract_record_set
 )
 
 from readinglist import utils
 from readinglist.utils import classname
 
 
-class Redis(BackendBase):
+class Redis(StorageBase):
 
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)

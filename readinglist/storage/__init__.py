@@ -1,11 +1,11 @@
 import operator
 from operator import itemgetter
-from readinglist.backend import exceptions
-from readinglist.backend.id_generator import UUID4Generator
+from readinglist.storage import exceptions
+from readinglist.storage.id_generator import UUID4Generator
 from readinglist.utils import COMPARISON
 
 
-class BackendBase(object):
+class StorageBase(object):
     def __init__(self, id_generator=None, *args, **kwargs):
         if id_generator is None:
             id_generator = UUID4Generator()
