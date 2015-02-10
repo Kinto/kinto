@@ -112,4 +112,4 @@ def json_error(errors):
     response = HTTPBadRequest(body=body, content_type='application/json')
     response.status = errors.status
 
-    raise response
+    return response
