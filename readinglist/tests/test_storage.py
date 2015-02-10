@@ -349,7 +349,7 @@ class RedisStorageTest(StorageTest, unittest.TestCase):
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):
     def setUp(self):
-        self.storage = memory.Memory()
+        self.storage = memory.load_from_config({})
         super(MemoryStorageTest, self).setUp()
 
     def test_ping_returns_an_error_if_unavailable(self):

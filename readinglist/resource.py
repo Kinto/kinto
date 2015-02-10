@@ -237,13 +237,12 @@ class BaseResource(object):
                     self.raise_invalid(**error_details)
 
                 if param == '_since':
-                    filters.append(
-                        (self.modified_field, value, COMPARISON.GT)
-                    )
-                elif param == '_to':
-                    filters.append(
-                        (self.modified_field, value, COMPARISON.LT)
-                    )
+                    comparator = COMPARISON.GT
+                else:
+                    comparator = COMPARISON.LT
+                filters.append(
+                    (self.modified_field, value, comparator)
+                )
                 continue
 
             m = re.match(r'^(min|max|not|lt|gt)_(\w+)$', param)
