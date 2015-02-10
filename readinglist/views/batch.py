@@ -4,6 +4,7 @@ import six
 
 from cornice import Service
 from pyramid.request import Request
+from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid import httpexceptions
 from six.moves.urllib import parse as urlparse
 
@@ -72,7 +73,7 @@ batch = Service(name="batch", path='/batch',
                 error_handler=errors.json_error)
 
 
-@batch.post(schema=BatchPayloadSchema)
+@batch.post(schema=BatchPayloadSchema, permission=NO_PERMISSION_REQUIRED)
 def post_batch(request):
     requests = request.validated['requests']
 

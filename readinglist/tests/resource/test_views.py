@@ -57,11 +57,11 @@ class AuthzAuthnTest(BaseWebTest):
     def test_all_views_require_authentication(self):
         self.app.get(self.collection_url, status=401)
 
-        self.app.post(self.collection_url, MINIMALIST_RECORD, status=401)
+        self.app.post_json(self.collection_url, MINIMALIST_RECORD, status=401)
 
         url = self.get_item_url('abc')
         self.app.get(url, status=401)
-        self.app.patch(url, MINIMALIST_RECORD, status=401)
+        self.app.patch_json(url, MINIMALIST_RECORD, status=401)
         self.app.delete(url, status=401)
 
     @mock.patch('readinglist.authentication.AuthorizationPolicy.permits')

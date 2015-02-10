@@ -6,6 +6,28 @@ MINIMALIST_ARTICLE = dict(title="MoFo",
                           added_by="FxOS")
 
 
+class IntegrationTest(BaseWebTest, unittest.TestCase):
+    def test_all_views_does_not_accept_basic_auth_when_deactivated(self):
+        headers = {'Authorization': 'Basic YWJjOmFi',
+                   'Content-Type': 'application/json'}
+        self.app.get('/articles', status=401, headers=headers)
+        self.app.post_json('/articles', MINIMALIST_ARTICLE, status=401,
+                           headers=headers)
+
+        url = '/articles/:id'
+        self.app.get(url, status=401, headers=headers)
+        self.app.patch_json(url, MINIMALIST_ARTICLE, status=401,
+                            headers=headers)
+        self.app.delete(url, status=401, headers=headers)
+
+    def test_replacing_records_is_not_allowed_even_logged_out(self):
+        resp = self.app.put_json('/articles/:id',
+                                 MINIMALIST_ARTICLE,
+                                 headers=self.headers,
+                                 status=405)
+        self.assertEqual(resp.json['errno'], 115)
+
+
 class ArticleModificationTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(ArticleModificationTest, self).setUp()

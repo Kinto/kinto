@@ -8,6 +8,7 @@ from pyramid.config import Configurator
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid_multiauth import MultiAuthenticationPolicy
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 from readinglist import authentication
 from readinglist.utils import msec_time
@@ -36,7 +37,8 @@ def handle_api_redirection(config):
                      pattern='/{path:(?!%s).*}' % API_VERSION)
 
     config.add_view(view=_redirect_to_version_view,
-                    route_name='redirect_to_version')
+                    route_name='redirect_to_version',
+                    permission=NO_PERMISSION_REQUIRED)
 
     config.route_prefix = '/%s' % API_VERSION
 
@@ -53,6 +55,7 @@ def set_auth(config):
 
     config.set_authorization_policy(authz_policy)
     config.set_authentication_policy(authn_policy)
+    config.set_default_permission('readwrite')
 
 
 def attach_http_objects(config):

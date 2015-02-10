@@ -1,10 +1,11 @@
 from cornice import Service
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 heartbeat = Service(name="heartbeat", path='/__heartbeat__',
                     description="Server health")
 
 
-@heartbeat.get()
+@heartbeat.get(permission=NO_PERMISSION_REQUIRED)
 def get_heartbeat(request):
     """Return information about server health."""
     try:
