@@ -51,8 +51,8 @@ def set_auth(config):
     authn_policy = MultiAuthenticationPolicy(policies)
     authz_policy = authentication.AuthorizationPolicy()
 
-    config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
+    config.set_authentication_policy(authn_policy)
 
 
 def attach_http_objects(config):

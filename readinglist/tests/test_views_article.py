@@ -5,6 +5,20 @@ MINIMALIST_ARTICLE = dict(title="MoFo",
                           url="http://mozilla.org",
                           added_by="FxOS")
 
+class IntegrationTest(BaseWebTest, unittest.TestCase):
+    def test_all_views_does_not_accept_basic_auth_when_deactivated(self):
+        headers = {'Authorization': 'Basic YWJjOmFi',
+                   'Content-Type': 'application/json'}
+        self.app.get('/articles', status=401, headers=headers)
+        self.app.post_json('/articles', MINIMALIST_ARTICLE, status=401,
+                           headers=headers)
+
+        url = '/articles/:id'
+        self.app.get(url, status=401, headers=headers)
+        self.app.patch_json(url, MINIMALIST_ARTICLE, status=401,
+                            headers=headers)
+        self.app.delete(url, status=401, headers=headers)
+
 
 class ArticleModificationTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
@@ -14,18 +28,6 @@ class ArticleModificationTest(BaseWebTest, unittest.TestCase):
                                   headers=self.headers)
         self.before = resp.json
         self.url = '/articles/{id}'.format(id=self.before['id'])
-
-    def test_all_views_does_not_accept_basic_auth_when_deactivated(self):
-        headers = {'Authorization': 'Basic YWJjOmFi',
-                   'Content-Type': 'application/json'}
-        self.app.get('/articles', status=401, headers=headers)
-        self.app.post_json('/articles', MINIMALIST_ARTICLE, status=401,
-                           headers=headers)
-
-        self.app.get(self.url, status=401, headers=headers)
-        self.app.patch_json(self.url, MINIMALIST_ARTICLE, status=401,
-                            headers=headers)
-        self.app.delete(self.url, status=401, headers=headers)
 
     def test_replacing_records_is_not_allowed(self):
         resp = self.app.put_json(self.url,
