@@ -4,7 +4,7 @@ from pyramid.httpexceptions import (
     HTTPServiceUnavailable as PyramidHTTPServiceUnavailable, HTTPBadRequest,
     HTTPInternalServerError as PyramidHTTPInternalServerError
 )
-from readinglist.utils import Enum, json
+from readinglist.utils import Enum, json, reapply_cors
 
 
 ERRORS = Enum(
@@ -111,5 +111,5 @@ def json_error(errors):
 
     response = HTTPBadRequest(body=body, content_type='application/json')
     response.status = errors.status
-
-    raise response
+    response = reapply_cors(errors.request, response)
+    return response

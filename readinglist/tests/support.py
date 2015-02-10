@@ -19,7 +19,7 @@ class DummyRequest(mock.MagicMock):
         self.registry = mock.MagicMock(settings={})
         self.GET = {}
         self.headers = {}
-        self.errors = cornice_errors.Errors()
+        self.errors = cornice_errors.Errors(request=self)
         self.authenticated_userid = 'bob'
         self.validated = {}
         self.matchdict = {}

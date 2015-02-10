@@ -95,7 +95,8 @@ class BaseResource(object):
     def raise_invalid(self, location='body', **kwargs):
         """Helper to raise a validation error."""
         self.request.errors.add(location, **kwargs)
-        raise errors.json_error(self.request.errors)
+        response = errors.json_error(self.request.errors)
+        raise response
 
     def fetch_record(self):
         """Fetch current view related record, and raise 404 if missing."""
