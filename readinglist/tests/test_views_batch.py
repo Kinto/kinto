@@ -172,7 +172,14 @@ class BatchSchemaTest(unittest.TestCase):
         batch_payload = {'requests': [request], 'defaults': defaults}
         self.schema.deserialize(batch_payload)
 
-    def test_defaults_values_are_applied_to_requests(self):
+    def test_defaults_path_is_applied_to_requests(self):
+        request = {'method': 'GET'}
+        defaults = {'path': '/'}
+        batch_payload = {'requests': [request], 'defaults': defaults}
+        result = self.schema.deserialize(batch_payload)
+        self.assertEqual(result['requests'][0]['path'], '/')
+
+    def test_defaults_body_is_applied_to_requests(self):
         request = {'path': '/'}
         defaults = {'body': {'json': 'payload'}}
         batch_payload = {'requests': [request], 'defaults': defaults}
@@ -194,13 +201,6 @@ class BatchSchemaTest(unittest.TestCase):
         result = self.schema.deserialize(batch_payload)
         self.assertEqual(result['requests'][0]['headers'],
                          {'Authorization': 'me', 'Accept': '*/*'})
-
-    def test_defaults_values_can_be_path(self):
-        request = {}
-        defaults = {'path': '/'}
-        batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(batch_payload)
-        self.assertEqual(result['requests'][0]['path'], '/')
 
     def test_defaults_values_for_path_must_start_with_slash(self):
         request = {}
