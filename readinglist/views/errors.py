@@ -2,7 +2,7 @@ from functools import wraps
 
 from cornice.cors import ensure_origin
 from pyramid import httpexceptions
-from pyramid.security import forget
+from pyramid.security import forget, NO_PERMISSION_REQUIRED
 from pyramid.view import (
     forbidden_view_config, notfound_view_config, view_config
 )
@@ -77,7 +77,7 @@ def page_not_found(request):
     return response
 
 
-@view_config(context=Exception)
+@view_config(context=Exception, permission=NO_PERMISSION_REQUIRED)
 def error(context, request):
     """Catch server errors and trace them."""
     if isinstance(context, httpexceptions.Response):

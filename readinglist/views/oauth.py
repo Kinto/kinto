@@ -6,6 +6,7 @@ from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 
 from pyramid.httpexceptions import HTTPFound
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 from readinglist.errors import HTTPServiceUnavailable, json_error
 from readinglist.schema import URL
@@ -33,7 +34,7 @@ class FxALoginRequest(MappingSchema):
     redirect = URL(location="querystring")
 
 
-@login.get(schema=FxALoginRequest)
+@login.get(schema=FxALoginRequest, permission=NO_PERMISSION_REQUIRED)
 def fxa_oauth_login(request):
     """Helper to redirect client towards FxA login form."""
     state = persist_state(request)
@@ -53,7 +54,7 @@ class OAuthRequest(MappingSchema):
     state = SchemaNode(String(), location="querystring")
 
 
-@token.get(schema=OAuthRequest)
+@token.get(schema=OAuthRequest, permission=NO_PERMISSION_REQUIRED)
 def fxa_oauth_token(request):
     """Return OAuth token from authorization code.
     """
