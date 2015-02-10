@@ -92,9 +92,6 @@ class BatchSchemaTest(unittest.TestCase):
     def test_requests_is_mandatory(self):
         self.assertInvalid({})
 
-    def test_requests_schema_supports_null(self):
-        self.schema.deserialize(colander.null)
-
     def test_unknown_attributes_are_dropped(self):
         deserialized = self.schema.deserialize({'requests': [], 'unknown': 42})
         self.assertNotIn('unknown', deserialized)
@@ -171,34 +168,34 @@ class BatchSchemaTest(unittest.TestCase):
         request = {'path': '/'}
         defaults = {'foo': 'bar'}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(batch_payload)
+        result = self.schema.deserialize(self.schema.unflatten(batch_payload))
         self.assertNotIn('foo', result['requests'][0])
 
     def test_defaults_can_be_specified_empty(self):
         request = {'path': '/'}
         defaults = {}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        self.schema.deserialize(batch_payload)
+        self.schema.deserialize(self.schema.unflatten(batch_payload))
 
     def test_defaults_path_is_applied_to_requests(self):
         request = {'method': 'GET'}
         defaults = {'path': '/'}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(batch_payload)
+        result = self.schema.deserialize(self.schema.unflatten(batch_payload))
         self.assertEqual(result['requests'][0]['path'], '/')
 
     def test_defaults_body_is_applied_to_requests(self):
         request = {'path': '/'}
         defaults = {'body': {'json': 'payload'}}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(batch_payload)
+        result = self.schema.deserialize(self.schema.unflatten(batch_payload))
         self.assertEqual(result['requests'][0]['body'], {'json': 'payload'})
 
     def test_defaults_headers_are_applied_to_requests(self):
         request = {'path': '/'}
         defaults = {'headers': {'Content-Type': 'text/html'}}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(batch_payload)
+        result = self.schema.deserialize(self.schema.unflatten(batch_payload))
         self.assertEqual(result['requests'][0]['headers']['Content-Type'],
                          'text/html')
 
@@ -206,7 +203,7 @@ class BatchSchemaTest(unittest.TestCase):
         request = {'path': '/', 'headers': {'Authorization': 'me'}}
         defaults = {'headers': {'Authorization': 'you', 'Accept': '*/*'}}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(batch_payload)
+        result = self.schema.deserialize(self.schema.unflatten(batch_payload))
         self.assertEqual(result['requests'][0]['headers'],
                          {'Authorization': 'me', 'Accept': '*/*'})
 
