@@ -26,7 +26,7 @@ The POST body is a mapping, with the following attributes:
     {
       "defaults": {
         "method" : "POST",
-        "path" : "/articles",
+        "path" : "/v0/articles",
         "headers" : {
           ...
         }
@@ -35,13 +35,15 @@ The POST body is a mapping, with the following attributes:
         {
           "body" : {
             "title": "MoFo",
-            "url" : "http://mozilla.org"
+            "url" : "http://mozilla.org",
+            "added_by": "FxOS",
           }
         },
         {
           "body" : {
             "title": "MoCo",
             "url" : "http://mozilla.com"
+            "added_by": "FxOS",
           }
         },
         {
