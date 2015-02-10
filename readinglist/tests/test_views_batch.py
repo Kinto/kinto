@@ -20,6 +20,14 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/batch', body, headers=self.headers)
         self.assertIn('responses', resp.json)
 
+    def test_defaults_are_applied_to_requests(self):
+        request = {'path': '/v0/'}
+        defaults = {'method': 'POST'}
+        result = self.app.post_json('/batch',
+                                    {'requests': [request],
+                                     'defaults': defaults})
+        self.assertEqual(result.json['responses'][0]['status'], 405)
+
     def test_only_post_is_allowed(self):
         self.app.get('/batch', headers=self.headers, status=405)
         self.app.put('/batch', headers=self.headers, status=405)
