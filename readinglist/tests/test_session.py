@@ -42,6 +42,13 @@ class BaseTestSessionStorage(object):
         retrieved = self.session.get('foobar')
         self.assertEquals(retrieved, stored)
 
+    def test_delete_removes_the_record(self):
+        stored = 'toto'
+        self.session.set('foobar', stored)
+        self.session.delete('foobar')
+        retrieved = self.session.get('foobar')
+        self.assertIsNone(retrieved, stored)
+
     def test_expire_expires_the_value(self):
         stored = 'toto'
         self.session.set('foobar', stored)
@@ -63,6 +70,9 @@ class RedisSessionStorageTest(BaseTestSessionStorage, unittest.TestCase):
     def setUp(self):
         self.session = RedisSessionStorage()
         super(RedisSessionStorageTest, self).setUp()
+
+    def test_ping_returns_true_if_available(self):
+        self.assertTrue(self.session.ping())
 
     def test_ping_returns_an_error_if_unavailable(self):
         self.session._client.setex = mock.MagicMock(
