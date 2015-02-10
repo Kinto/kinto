@@ -9,6 +9,7 @@ import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
 
+from cornice import cors
 from colander import null
 
 
@@ -79,3 +80,20 @@ COMPARISON = Enum(
     EQ='==',
     GT='>',
 )
+
+
+def reapply_cors(request, response):
+    """Reapply cors headers to the new response with regards to the request.
+
+    We need to re-apply the CORS checks done by Cornice, in case we're
+    recreating the response from scratch.
+
+    """
+    if request.matched_route:
+        services = request.registry.cornice_services
+        pattern = request.matched_route.pattern
+        service = services.get(pattern, None)
+
+        request.info['cors_checked'] = False
+        response = cors.ensure_origin(service, request, response)
+    return response

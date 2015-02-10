@@ -1,6 +1,5 @@
 from functools import wraps
 
-from cornice.cors import ensure_origin
 from pyramid import httpexceptions
 from pyramid.security import forget
 from pyramid.view import (
@@ -9,23 +8,7 @@ from pyramid.view import (
 
 from readinglist import logger
 from readinglist.errors import format_error, ERRORS, HTTPInternalServerError
-
-
-def reapply_cors(request, response):
-    """Reapply cors headers to the new response with regards to the request.
-
-    We need to re-apply the CORS checks done by Cornice, in case we're
-    recreating the response from scratch.
-
-    """
-    if request.matched_route:
-        services = request.registry.cornice_services
-        pattern = request.matched_route.pattern
-        service = services.get(pattern, None)
-
-        request.info['cors_checked'] = False
-        response = ensure_origin(service, request, response)
-    return response
+from readinglist.utils import reapply_cors
 
 
 def cors(view):
