@@ -5,6 +5,7 @@ MINIMALIST_ARTICLE = dict(title="MoFo",
                           url="http://mozilla.org",
                           added_by="FxOS")
 
+
 class IntegrationTest(BaseWebTest, unittest.TestCase):
     def test_all_views_does_not_accept_basic_auth_when_deactivated(self):
         headers = {'Authorization': 'Basic YWJjOmFi',
