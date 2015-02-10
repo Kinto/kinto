@@ -1,3 +1,4 @@
+from cornice import resource
 import colander
 from colander import SchemaNode, String
 from pyramid import httpexceptions
@@ -118,6 +119,7 @@ class Article(BaseResource):
 
         return new
 
+    @resource.view(permission='readwrite')
     def collection_post(self, *args, **kwargs):
         try:
             return super(Article, self).collection_post(*args, **kwargs)

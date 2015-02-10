@@ -29,7 +29,6 @@ def check_credentials(username, password, request):
     userid = hmac.new(hmac_secret,
                       credentials.encode('utf-8'),
                       hashlib.sha256).hexdigest()
-
     return ["basicauth_%s" % userid]
 
 
@@ -79,7 +78,7 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
             raise HTTPServiceUnavailable()
         except (fxa_errors.InProtocolError, fxa_errors.TrustError):
             return None
-        return user_id
+        return 'fxa_%s' % user_id
 
 
 @implementer(IAuthorizationPolicy)
