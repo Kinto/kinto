@@ -20,6 +20,13 @@ class IntegrationTest(BaseWebTest, unittest.TestCase):
                             headers=headers)
         self.app.delete(url, status=401, headers=headers)
 
+    def test_replacing_records_is_not_allowed_even_logged_out(self):
+        resp = self.app.put_json('/articles/:id',
+                                 MINIMALIST_ARTICLE,
+                                 headers=self.headers,
+                                 status=405)
+        self.assertEqual(resp.json['errno'], 115)
+
 
 class ArticleModificationTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
