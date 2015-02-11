@@ -2,7 +2,8 @@ import six
 from pyramid.config import global_registries
 from pyramid.httpexceptions import (
     HTTPServiceUnavailable as PyramidHTTPServiceUnavailable, HTTPBadRequest,
-    HTTPInternalServerError as PyramidHTTPInternalServerError
+    HTTPInternalServerError as PyramidHTTPInternalServerError,
+    HTTPGone as PyramidHTTPGone
 )
 from readinglist.utils import Enum, json, reapply_cors
 
@@ -23,7 +24,8 @@ ERRORS = Enum(
     REQUEST_TOO_LARGE=113,
     CLIENT_REACHED_CAPACITY=117,
     UNDEFINED=999,
-    BACKEND=201
+    BACKEND=201,
+    END_OF_LIFE=401
 )
 
 
@@ -83,6 +85,23 @@ class HTTPInternalServerError(PyramidHTTPInternalServerError):
         kwargs.setdefault('content_type', 'application/json')
 
         super(HTTPInternalServerError, self).__init__(**kwargs)
+
+
+class HTTPServiceDeprecated(PyramidHTTPGone):
+    """A HTTPGone formatted in JSON."""
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('body', format_error(
+            410,
+            ERRORS.END_OF_LIFE,
+            "Service deprecated",
+            "The service you are trying to connect no longer exists "
+            "at this location.",
+        ))
+
+        kwargs.setdefault('content_type', 'application/json')
+
+        super(HTTPServiceDeprecated, self).__init__(**kwargs)
 
 
 def json_error(errors):
