@@ -9,7 +9,13 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
-- FxA user ids changed from `<id>` to `fxa_<id>` all records lost. (refs #109)
+- Internal user ids for FxA are now prefixed, all existing records
+  will be lost. (refs #109)
+
+**Bug fixes**
+
+- Fix CORS headers on validation error responses (ref #104)
+- Fix handling of defaults in batch requests (ref #111, #112)
 
 
 0.2 (2015-02-09)
