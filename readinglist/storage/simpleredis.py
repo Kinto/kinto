@@ -77,11 +77,11 @@ class Redis(StorageBase):
         resource_name = classname(resource)
         with self._client.pipeline() as multi:
             multi.set(
-                '{0}.{1}.{2}'.format(resource_name, user_id, _id),
+                '{0}.{1}.{2}.records'.format(resource_name, user_id, _id),
                 self._encode(record)
             )
             multi.sadd(
-                '{0}.{1}'.format(resource_name, user_id),
+                '{0}.{1}.records'.format(resource_name, user_id),
                 _id
             )
             multi.execute()
@@ -92,7 +92,7 @@ class Redis(StorageBase):
         resource_name = classname(resource)
 
         encoded_item = self._client.get(
-            '{0}.{1}.{2}'.format(resource_name, user_id, record_id)
+            '{0}.{1}.{2}.records'.format(resource_name, user_id, record_id)
         )
         if encoded_item is None:
             raise exceptions.RecordNotFoundError(record_id)
@@ -109,11 +109,11 @@ class Redis(StorageBase):
         resource_name = classname(resource)
         with self._client.pipeline() as multi:
             multi.set(
-                '{0}.{1}.{2}'.format(resource_name, user_id, record_id),
+                '{0}.{1}.{2}.records'.format(resource_name, user_id, record_id),
                 self._encode(record)
             )
             multi.sadd(
-                '{0}.{1}'.format(resource_name, user_id),
+                '{0}.{1}.records'.format(resource_name, user_id),
                 record_id
             )
             multi.execute()
@@ -124,43 +124,75 @@ class Redis(StorageBase):
         resource_name = classname(resource)
         with self._client.pipeline() as multi:
             multi.get(
-                '{0}.{1}.{2}'.format(resource_name, user_id, record_id)
+                '{0}.{1}.{2}.records'.format(resource_name, user_id, record_id)
             )
             multi.delete(
-                '{0}.{1}.{2}'.format(resource_name, user_id, record_id))
+                '{0}.{1}.{2}.records'.format(resource_name, user_id, record_id))
 
             multi.srem(
-                '{0}.{1}'.format(resource_name, user_id),
+                '{0}.{1}.records'.format(resource_name, user_id),
                 record_id
             )
             responses = multi.execute()
-            encoded_item = responses[0]
 
-            if encoded_item is None:
-                raise exceptions.RecordNotFoundError(record_id)
+        encoded_item = responses[0]
+        if encoded_item is None:
+            raise exceptions.RecordNotFoundError(record_id)
 
-            existing = self._decode(encoded_item)
-            self.strip_deleted_record(resource, user_id, existing)
-            self.set_record_timestamp(resource, user_id, existing)
-            return existing
+        existing = self._decode(encoded_item)
+        self.set_record_timestamp(resource, user_id, existing)
+        existing = self.strip_deleted_record(resource, user_id, existing)
+
+        with self._client.pipeline() as multi:
+            multi.set(
+                '{0}.{1}.{2}.deleted'.format(resource_name, user_id, record_id),
+                self._encode(existing)
+            )
+            multi.sadd(
+                '{0}.{1}.deleted'.format(resource_name, user_id),
+                record_id
+            )
+            multi.execute()
+
+        return existing
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
         resource_name = classname(resource)
-        ids = self._client.smembers('{0}.{1}'.format(resource_name, user_id))
+        ids = self._client.smembers('{0}.{1}.records'.format(resource_name, user_id))
 
-        if (len(ids) == 0):
-            return [], 0
-
-        keys = ('{0}.{1}.{2}'.format(resource_name, user_id,
+        keys = ('{0}.{1}.{2}.records'.format(resource_name, user_id,
                                      _id.decode('utf-8'))
                 for _id in ids)
 
-        encoded_results = self._client.mget(keys)
-        records = map(self._decode, encoded_results)
+        if len(ids) == 0:
+            records = []
+        else:
+            encoded_results = self._client.mget(keys)
+            records = map(self._decode, encoded_results)
 
-        return extract_record_set(records, filters, sorting,
-                                  pagination_rules, limit)
+        deleted = {}
+        if include_deleted:
+            ids = self._client.smembers('{0}.{1}.deleted'.format(resource_name, user_id))
+
+            keys = ('{0}.{1}.{2}.deleted'.format(resource_name, user_id,
+                                                 _id.decode('utf-8'))
+                    for _id in ids)
+
+            encoded_results = self._client.mget(keys)
+            for result in encoded_results:
+                result = self._decode(result)
+                deleted[result[resource.id_field]] = result
+
+        records, count = extract_record_set(resource,
+                                            records + deleted.values(),
+                                            filters, sorting,
+                                            pagination_rules, limit)
+
+        filtered_deleted = len([r for r in records
+                                if r[resource.id_field] in deleted])
+
+        return records, count - filtered_deleted
 
 
 def load_from_config(config):

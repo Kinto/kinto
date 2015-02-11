@@ -74,12 +74,12 @@ class Memory(StorageBase):
         resource_name = classname(resource)
         existing = self.get(resource, user_id, record_id)
         self.set_record_timestamp(resource, user_id, existing)
+        existing = self.strip_deleted_record(resource, user_id, existing)
 
         # Add to deleted items, remove from store.
         self._cemetery[resource_name][user_id][record_id] = existing.copy()
         self._store[resource_name][user_id].pop(record_id)
 
-        self.strip_deleted_record(resource, user_id, existing)
         return existing
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
@@ -91,15 +91,15 @@ class Memory(StorageBase):
         if include_deleted:
             deleted = self._cemetery[resource_name][user_id]
 
-        records, count = extract_record_set(records + deleted.values(),
+        records, count = extract_record_set(resource,
+                                            records + deleted.values(),
                                             filters, sorting,
                                             pagination_rules, limit)
 
-        for record in records:
-            if record[resource.id_field] in deleted:
-                self.strip_deleted_record(resource, user_id, record)
+        filtered_deleted = len([r for r in records
+                                if r[resource.id_field] in deleted])
 
-        return records, count - len(deleted)
+        return records, count - filtered_deleted
 
 
 def load_from_config(config):
