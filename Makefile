@@ -31,7 +31,7 @@ serve: install-dev
 	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
 
 tests-once: install-dev
-	$(VENV)/bin/nosetests -s --with-coverage --cover-package=readinglist
+	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-package=readinglist
 
 tests:
 	tox
