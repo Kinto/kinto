@@ -217,14 +217,58 @@ class DeletedArticleTest(BaseWebTest, unittest.TestCase):
                                   headers=self.headers)
         self.before = resp.json
         self.url = '/articles/{id}'.format(id=self.before['id'])
+        self.last_modified = self.before['last_modified']
+        self.deleted = self.app.delete(self.url, headers=self.headers)
 
     def test_delete_article_returns_status_deleted(self):
-        resp = self.app.delete(self.url, headers=self.headers)
-        self.assertEqual(resp.json['status'], 2)
+        self.assertEqual(self.deleted.json['status'], 2)
 
     def test_deleted_articles_are_marked_with_status_deleted(self):
-        last_modified = self.before['last_modified']
-        self.app.delete(self.url, headers=self.headers)
-        resp = self.app.get('/articles?_since=%s' % last_modified,
+        resp = self.app.get('/articles?_since=%s' % self.last_modified,
                             headers=self.headers)
         self.assertEqual(resp.json['items'][0]['status'], 2)
+
+    def test_deleted_articles_are_stripped(self):
+        resp = self.app.get('/articles?_since=%s' % self.last_modified,
+                            headers=self.headers)
+        self.assertEqual(sorted(resp.json['items'][0].keys()),
+                         ['id', 'last_modified', 'status'])
+
+    def test_url_unicity_does_not_interfere_with_deleted_records(self):
+        self.app.post_json('/articles',
+                           MINIMALIST_ARTICLE,
+                           headers=self.headers)
+
+    def test_deleted_articles_can_be_filtered(self):
+        self.app.post_json('/articles',
+                           MINIMALIST_ARTICLE,
+                           headers=self.headers)
+        only_deleted = '/articles?_since=%s&status=2' % self.last_modified
+        resp = self.app.get(only_deleted,
+                            headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 1)
+
+    def test_deleted_articles_can_be_sorted_on_status(self):
+        # Create with default status (status=0)
+        self.app.post_json('/articles',
+                           MINIMALIST_ARTICLE,
+                           headers=self.headers)
+
+        # Create another and archive (status=1)
+        body = MINIMALIST_ARTICLE.copy()
+        body['url'] = 'http://host.com'
+        resp = self.app.post_json('/articles',
+                                  body,
+                                  headers=self.headers)
+        self.app.patch_json('/articles/%s' % resp.json['id'],
+                            {'status': 1},
+                            headers=self.headers)
+
+        # Obtain the 3 records
+        sort_status = '/articles?_since=%s&_sort=status' % self.last_modified
+        resp = self.app.get(sort_status,
+                            headers=self.headers)
+        records = resp.json['items']
+        self.assertEqual(records[0]['status'], 0)
+        self.assertEqual(records[1]['status'], 1)
+        self.assertEqual(records[2]['status'], 2)
