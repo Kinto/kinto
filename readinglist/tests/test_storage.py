@@ -1,5 +1,4 @@
 import mock
-import random
 import redis
 import six
 import time

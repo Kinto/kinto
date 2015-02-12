@@ -75,9 +75,12 @@ class Redis(StorageBase):
         self.set_record_timestamp(resource, user_id, record)
 
         resource_name = classname(resource)
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+                                                  user_id,
+                                                  _id)
         with self._client.pipeline() as multi:
             multi.set(
-                '{0}.{1}.{2}.records'.format(resource_name, user_id, _id),
+                record_key,
                 self._encode(record)
             )
             multi.sadd(
@@ -90,10 +93,10 @@ class Redis(StorageBase):
 
     def get(self, resource, user_id, record_id):
         resource_name = classname(resource)
-
-        encoded_item = self._client.get(
-            '{0}.{1}.{2}.records'.format(resource_name, user_id, record_id)
-        )
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+                                                  user_id,
+                                                  record_id)
+        encoded_item = self._client.get(record_key)
         if encoded_item is None:
             raise exceptions.RecordNotFoundError(record_id)
 
@@ -107,9 +110,12 @@ class Redis(StorageBase):
         self.set_record_timestamp(resource, user_id, record)
 
         resource_name = classname(resource)
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+                                                  user_id,
+                                                  record_id)
         with self._client.pipeline() as multi:
             multi.set(
-                '{0}.{1}.{2}.records'.format(resource_name, user_id, record_id),
+                record_key,
                 self._encode(record)
             )
             multi.sadd(
@@ -122,13 +128,12 @@ class Redis(StorageBase):
 
     def delete(self, resource, user_id, record_id):
         resource_name = classname(resource)
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+                                                  user_id,
+                                                  record_id)
         with self._client.pipeline() as multi:
-            multi.get(
-                '{0}.{1}.{2}.records'.format(resource_name, user_id, record_id)
-            )
-            multi.delete(
-                '{0}.{1}.{2}.records'.format(resource_name, user_id, record_id))
-
+            multi.get(record_key)
+            multi.delete(record_key)
             multi.srem(
                 '{0}.{1}.records'.format(resource_name, user_id),
                 record_id
@@ -143,9 +148,12 @@ class Redis(StorageBase):
         self.set_record_timestamp(resource, user_id, existing)
         existing = self.strip_deleted_record(resource, user_id, existing)
 
+        deleted_record_key = '{0}.{1}.{2}.deleted'.format(resource_name,
+                                                          user_id,
+                                                          record_id)
         with self._client.pipeline() as multi:
             multi.set(
-                '{0}.{1}.{2}.deleted'.format(resource_name, user_id, record_id),
+                deleted_record_key,
                 self._encode(existing)
             )
             multi.sadd(
@@ -159,10 +167,11 @@ class Redis(StorageBase):
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
         resource_name = classname(resource)
-        ids = self._client.smembers('{0}.{1}.records'.format(resource_name, user_id))
+        records_ids_key = '{0}.{1}.records'.format(resource_name, user_id)
+        ids = self._client.smembers(records_ids_key)
 
         keys = ('{0}.{1}.{2}.records'.format(resource_name, user_id,
-                                     _id.decode('utf-8'))
+                                             _id.decode('utf-8'))
                 for _id in ids)
 
         if len(ids) == 0:
@@ -173,7 +182,8 @@ class Redis(StorageBase):
 
         deleted = {}
         if include_deleted:
-            ids = self._client.smembers('{0}.{1}.deleted'.format(resource_name, user_id))
+            deleted_ids_key = '{0}.{1}.deleted'.format(resource_name, user_id)
+            ids = self._client.smembers(deleted_ids_key)
 
             keys = ('{0}.{1}.{2}.deleted'.format(resource_name, user_id,
                                                  _id.decode('utf-8'))
