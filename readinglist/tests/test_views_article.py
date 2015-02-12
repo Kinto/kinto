@@ -27,6 +27,13 @@ class IntegrationTest(BaseWebTest, unittest.TestCase):
                                  status=405)
         self.assertEqual(resp.json['errno'], 115)
 
+    def test_options_on_articles_works(self):
+        self.app.options(
+            '/articles',
+            headers={'Access-Control-Request-Method': 'GET',
+                     'Origin': 'http://localhost/'},
+            status=200)
+
 
 class ArticleModificationTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
