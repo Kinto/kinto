@@ -30,8 +30,8 @@ messages, information, or other alerts.
 The value is JSON mapping with the following attributes:
 
 * ``code``: one of the strings ``"soft-eol"`` or ``"hard-eol"``;
-* ``message``: a human-readable message;
-* ``url``: a URL at which more information is available.
+* ``message``: a human-readable message (optional);
+* ``url``: a URL at which more information is available (optional).
 
 A ``410 Gone`` error response can be returned if the
 client version is too old, or the service had been remplaced with
