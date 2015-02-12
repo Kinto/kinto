@@ -55,7 +55,6 @@ def set_auth(config):
 
     config.set_authorization_policy(authz_policy)
     config.set_authentication_policy(authn_policy)
-    config.set_default_permission('readwrite')
 
 
 def attach_http_objects(config):
