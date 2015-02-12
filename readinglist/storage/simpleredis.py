@@ -169,7 +169,7 @@ class Redis(StorageBase):
             records = []
         else:
             encoded_results = self._client.mget(keys)
-            records = map(self._decode, encoded_results)
+            records = [self._decode(r) for r in encoded_results if r]
 
         deleted = {}
         if include_deleted:
@@ -180,8 +180,8 @@ class Redis(StorageBase):
                     for _id in ids)
 
             encoded_results = self._client.mget(keys)
-            for result in encoded_results:
-                result = self._decode(result)
+            results = [self._decode(r) for r in encoded_results if r]
+            for result in results:
                 deleted[result[resource.id_field]] = result
 
         records, count = extract_record_set(resource,

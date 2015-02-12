@@ -95,7 +95,7 @@ def apply_sorting(records, sorting):
         return result
 
     for field, direction in reversed(sorting):
-        is_boolean_field = isinstance(result[0][field], bool)
+        is_boolean_field = isinstance(result[0].get(field, True), bool)
         desc = direction < 0 or is_boolean_field
         result = sorted(result, key=lambda r: r.get(field), reverse=desc)
 
