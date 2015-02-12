@@ -115,11 +115,15 @@ def end_of_life_tween_factory(handler, registry):
     def eos_tween(request):
         eos_date = registry.settings.get("readinglist.eos")
         eos_url = registry.settings.get("readinglist.eos_url")
+        eos_message = registry.settings.get("readinglist.eos_message")
         if eos_date:
             eos_date = dateparser.parse(eos_date)
             alert = {}
             if eos_url is not None:
                 alert['url'] = eos_url
+
+            if eos_message is not None:
+                alert['message'] = eos_message
 
             if eos_date > datetime.datetime.now():
                 alert['code'] = "soft-eol"

@@ -18,8 +18,12 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
         tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
         with mock.patch.dict(
                 self.app.app.registry.settings,
-                [('readinglist.eos', tomorrow.isoformat()),
-                 ('readinglist.eos_url', 'http://eos-url')]):
+                [
+                    ('readinglist.eos', tomorrow.isoformat()),
+                    ('readinglist.eos_url', 'http://eos-url'),
+                    ('readinglist.eos_message',
+                     'This service will soon be decommissioned'),
+                ]):
             response = self.app.get('/')
 
             # Requests should work as usual and contain an
@@ -27,7 +31,8 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
             self.assertIn('Alert', response.headers)
             self.assertEquals(json.loads(response.headers['Alert']), {
                 'code': 'soft-eol',
-                'url': 'http://eos-url'
+                'url': 'http://eos-url',
+                'message': 'This service will soon be decommissioned'
             })
 
     def test_returns_410_if_eos_in_the_past(self):
@@ -35,13 +40,18 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
         with mock.patch.dict(
                 self.app.app.registry.settings,
-                [('readinglist.eos', yesterday.isoformat()),
-                 ('readinglist.eos_url', 'http://eos-url')]):
+                [
+                    ('readinglist.eos', yesterday.isoformat()),
+                    ('readinglist.eos_url', 'http://eos-url'),
+                    ('readinglist.eos_message',
+                     'This service had been decommissioned'),
+                ]):
             response = self.app.get('/', status=410)
             self.assertIn('Alert', response.headers)
             self.assertEquals(json.loads(response.headers['Alert']), {
                 'code': 'hard-eol',
-                'url': 'http://eos-url'
+                'url': 'http://eos-url',
+                'message': 'This service had been decommissioned'
             })
             self.assertEqual(response.body, json.dumps({
                 "errno": ERRORS.SERVICE_DEPRECATED,
