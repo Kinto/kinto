@@ -15,13 +15,20 @@ ACTIONS_FREQUENCIES = [
     ('create_conflict', 10),
     ('update_conflict', 10),
     ('archive', 10),
-    ('delete', 10)
+    ('delete', 10),
+    ('poll_changes', 90),
+    ('list_archived', 20),
+    ('list_deleted', 40),
 ]
 
 
 class TestBasic(TestCase):
     def __init__(self, *args, **kwargs):
         """Initialization that happens once per user.
+
+        :note:
+
+            This method is called as many times as number of users.
         """
         super(TestBasic, self).__init__(*args, **kwargs)
 
@@ -33,35 +40,53 @@ class TestBasic(TestCase):
         for i in range(total_records):
             self.create()
 
-    def setUp(self):
-        # Pick a random record
-        resp = self.session.get(self.api_url('articles'), auth=self.basic_auth)
-        self.random_record = random.choice(resp.json()['items'])
-        self.random_id = self.random_record['id']
-        self.random_url = self.api_url('articles/{0}'.format(self.random_id))
-        random_record = random.choice(resp.json()['items'])
-        while random_record['id'] == self.random_id:
-            random_record = random.choice(resp.json()['items'])
-        self.random_resolved_url = random_record['resolved_url']
-
     def incr_counter(self, name):
+        """Override parent method to add a safety check if session is not yet
+        running.
+        """
         hit, user, current_hit, current_user = self.session.loads_status
         if current_user is None:
             return
-        super(TestBasic, self).incr_counter(name)
+        return super(TestBasic, self).incr_counter(name)
 
     def api_url(self, path):
         return "{0}/v0/{1}".format(self.server_url, path)
 
+    def setUp(self):
+        """Choose some random records in the whole collection.
+
+        :note:
+
+            This method is called as many times as number of hits.
+        """
+        resp = self.session.get(self.api_url('articles'), auth=self.basic_auth)
+        records = resp.json()['items']
+
+        # Pick a random record
+        self.random_record = random.choice(records)
+        self.random_id = self.random_record['id']
+        self.random_url = self.api_url('articles/{0}'.format(self.random_id))
+
+        # Pick another random, different
+        records.remove(self.random_record)
+        self.random_record_2 = random.choice(records)
+
     def test_all(self):
+        """Choose a random action among available, if not frequent enough,
+        try again recursively.
+
+        :note:
+
+            This method is called as many times as number of hits.
+        """
         action, percentage = random.choice(ACTIONS_FREQUENCIES)
         if random.randint(0, 100) < percentage:
-            getattr(self, action)()
+            self.incr_counter(action)
+            return getattr(self, action)()
         else:
             self.test_all()
 
-    def create(self, prepare=False):
-        self.incr_counter("created")
+    def create(self):
         suffix = uuid.uuid4().hex
         data = {
             "title": "Corp Site {0}".format(suffix),
@@ -77,7 +102,6 @@ class TestBasic(TestCase):
         self.assertEqual(resp.status_code, 201)
 
     def create_conflict(self):
-        self.incr_counter("create-conflict")
         data = self.random_record.copy()
         data.pop('id')
         resp = self.session.post(
@@ -109,7 +133,6 @@ class TestBasic(TestCase):
         self.assertEqual(resp.status_code, status)
 
     def update(self):
-        self.incr_counter("update-record")
         data = {
             "title": "Some title {}".format(random.randint(0, 1)),
             "status": random.randint(0, 1),
@@ -119,14 +142,12 @@ class TestBasic(TestCase):
         self._patch(self.random_url, data)
 
     def read_further(self):
-        self.incr_counter("read-further")
         data = {
             "read_position": random.randint(0, 10000)
         }
         self._patch(self.random_url, data)
 
     def mark_as_read(self):
-        self.incr_counter("marked-as-read")
         data = {
             "marked_read_by": "Desktop",
             "marked_read_on": 12345,
@@ -135,9 +156,9 @@ class TestBasic(TestCase):
         self._patch(self.random_url, data)
 
     def update_conflict(self):
-        self.incr_counter("update-conflict")
+        random_resolved_url = self.random_record_2['resolved_url']
         data = {
-            "resolved_url": self.random_resolved_url
+            "resolved_url": random_resolved_url
         }
         self._patch(self.random_url, data, status=409)
         self.incr_counter("update-conflict")
@@ -149,7 +170,23 @@ class TestBasic(TestCase):
         self._patch(self.random_url, data)
 
     def delete(self):
-        self.incr_counter("deleted")
         resp = self.session.delete(self.random_url, auth=self.basic_auth)
         self.incr_counter(resp.status_code)
+        self.assertEqual(resp.status_code, 200)
+
+    def poll_changes(self):
+        last_modified = self.random_record['last_modified']
+        archived_url = self.api_url('articles?_since=%s' % last_modified)
+        resp = self.session.get(archived_url, auth=self.basic_auth)
+        self.assertEqual(resp.status_code, 200)
+
+    def list_archived(self):
+        archived_url = self.api_url('articles?status=1')
+        resp = self.session.get(archived_url, auth=self.basic_auth)
+        self.assertEqual(resp.status_code, 200)
+
+    def list_deleted(self):
+        last_modif = self.random_record['last_modified']
+        deleted_url = self.api_url('articles?_since=%s&status=2' % last_modif)
+        resp = self.session.get(deleted_url, auth=self.basic_auth)
         self.assertEqual(resp.status_code, 200)
