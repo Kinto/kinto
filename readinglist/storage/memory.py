@@ -85,14 +85,14 @@ class Memory(StorageBase):
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
         resource_name = classname(resource)
-        records = self._store[resource_name][user_id].values()
+        records = list(self._store[resource_name][user_id].values())
 
         deleted = {}
         if include_deleted:
             deleted = self._cemetery[resource_name][user_id]
 
         records, count = extract_record_set(resource,
-                                            records + deleted.values(),
+                                            records + list(deleted.values()),
                                             filters, sorting,
                                             pagination_rules, limit)
 

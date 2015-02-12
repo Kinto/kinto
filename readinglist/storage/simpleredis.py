@@ -195,7 +195,7 @@ class Redis(StorageBase):
                 deleted[result[resource.id_field]] = result
 
         records, count = extract_record_set(resource,
-                                            records + deleted.values(),
+                                            records + list(deleted.values()),
                                             filters, sorting,
                                             pagination_rules, limit)
 
