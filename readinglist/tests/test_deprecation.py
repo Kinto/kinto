@@ -4,6 +4,7 @@ import json
 import mock
 
 from .support import BaseWebTest, unittest
+from readinglist.errors import ERRORS
 
 
 class DeprecationTest(BaseWebTest, unittest.TestCase):
@@ -43,9 +44,9 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
                 'url': 'http://eos-url'
             })
             self.assertEqual(response.body, json.dumps({
-                "errno": 401,
+                "errno": ERRORS.SERVICE_DEPRECATED,
                 "message": "The service you are trying to connect no longer "
                            "exists at this location.",
                 "code": 410,
-                "error": "Service deprecated"
+                "error": "Gone"
             }))

@@ -25,7 +25,7 @@ ERRORS = Enum(
     CLIENT_REACHED_CAPACITY=117,
     UNDEFINED=999,
     BACKEND=201,
-    END_OF_LIFE=401
+    SERVICE_DEPRECATED=202
 )
 
 
@@ -52,7 +52,9 @@ class HTTPServiceUnavailable(PyramidHTTPServiceUnavailable):
     def __init__(self, **kwargs):
         if 'body' not in kwargs:
             kwargs['body'] = format_error(
-                503, ERRORS.BACKEND, "Service unavailable",
+                PyramidHTTPServiceUnavailable.code,
+                ERRORS.BACKEND,
+                PyramidHTTPServiceUnavailable.title,
                 "Service unavailable due to high load, please retry later.")
 
         if 'content_type' not in kwargs:
@@ -76,9 +78,9 @@ class HTTPInternalServerError(PyramidHTTPInternalServerError):
 
     def __init__(self, **kwargs):
         kwargs.setdefault('body', format_error(
-            500,
+            PyramidHTTPInternalServerError.code,
             ERRORS.UNDEFINED,
-            "Internal Server Error",
+            PyramidHTTPInternalServerError.title,
             "A programmatic error occured, developers have been informed.",
             "https://github.com/mozilla-services/readinglist/issues/"))
 
@@ -92,9 +94,9 @@ class HTTPServiceDeprecated(PyramidHTTPGone):
 
     def __init__(self, **kwargs):
         kwargs.setdefault('body', format_error(
-            410,
-            ERRORS.END_OF_LIFE,
-            "Service deprecated",
+            PyramidHTTPGone.code,
+            ERRORS.SERVICE_DEPRECATED,
+            PyramidHTTPGone.title,
             "The service you are trying to connect no longer exists "
             "at this location.",
         ))
