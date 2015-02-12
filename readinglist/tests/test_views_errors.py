@@ -72,7 +72,7 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
         self.fxa_verify.side_effect = fxa_errors.OutOfProtocolError
         response = self.app.get('/articles', headers=self.headers, status=503)
         self.assertFormattedError(
-            response, 503, ERRORS.BACKEND, "Service unavailable",
+            response, 503, ERRORS.BACKEND, "Service Unavailable",
             "Service unavailable due to high load, please retry later.")
         self.assertIn("Retry-After", response.headers)
 
