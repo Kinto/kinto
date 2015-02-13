@@ -7,7 +7,9 @@ This document describes changes between each past release.
 0.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix CORS preflight request permissions (PR #119)
 
 
 0.2.1 (2015-02-11)
