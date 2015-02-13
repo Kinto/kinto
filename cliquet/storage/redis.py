@@ -6,13 +6,13 @@ import time
 from six.moves.urllib import parse as urlparse
 
 from cliquet.storage import (
-    StorageBase, exceptions, extract_record_set
+    MemoryBasedStorage, exceptions, extract_record_set
 )
 
 from cliquet import utils
 
 
-class Redis(StorageBase):
+class Redis(MemoryBasedStorage):
 
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
@@ -203,6 +203,6 @@ class Redis(StorageBase):
 def load_from_config(config):
     settings = config.registry.settings
     uri = settings.get('readinglist.storage_url', '')
-    uri = urlparse(uri)
+    uri = urlparse.urlparse(uri)
     db = int(uri.path[1:]) if uri.path else 0
-    return Redis(host=uri.host, port=uri.port, db=db)
+    return Redis(host=uri.hostname, port=uri.port, db=db)

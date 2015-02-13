@@ -1,14 +1,16 @@
 from collections import defaultdict
 
 from cliquet import utils
-from cliquet.storage import StorageBase, exceptions, extract_record_set
+from cliquet.storage import (
+    MemoryBasedStorage, exceptions, extract_record_set
+)
 
 
 def tree():
     return defaultdict(tree)
 
 
-class Memory(StorageBase):
+class Memory(MemoryBasedStorage):
     def __init__(self, *args, **kwargs):
         super(Memory, self).__init__(*args, **kwargs)
         self.flush()

@@ -35,6 +35,27 @@ class StorageBase(object):
                 pagination_rules=None, limit=None):
         raise NotImplementedError
 
+    def check_unicity(self, resource, user_id, record):
+        """Check that the specified record does not violates unicity
+        constraints defined in the resource's mapping options.
+        """
+        record_id = record.get(resource.id_field)
+        unique_fields = resource.mapping.Options.unique_fields
+
+        for field in unique_fields:
+            value = record.get(field)
+            filters = [(field, value, COMPARISON.EQ),
+                       (resource.id_field, record_id, COMPARISON.NOT)]
+
+            if value is not None:
+                existing, count = self.get_all(resource, user_id,
+                                               filters=filters)
+                if count > 0:
+                    raise exceptions.UnicityError(field, existing[0])
+
+
+class MemoryBasedStorage(StorageBase):
+
     def strip_deleted_record(self, resource, user_id, record):
         """Strip the record of all its fields expect id and timestamp,
         and set the deletion field value (e.g deleted=True)
@@ -53,23 +74,8 @@ class StorageBase(object):
         record[resource.modified_field] = timestamp
         return record
 
-    def check_unicity(self, resource, user_id, record):
-        """Check that the specified record does not violates unicity
-        constraints defined in the resource's mapping options.
-        """
-        record_id = record.get(resource.id_field)
-        unique_fields = resource.mapping.Options.unique_fields
-
-        for field in unique_fields:
-            value = record.get(field)
-            filters = [(field, value, COMPARISON.EQ),
-                       (resource.id_field, record_id, COMPARISON.NOT)]
-
-            if value is not None:
-                existing, count = self.get_all(resource, user_id,
-                                               filters=filters)
-                if count > 0:
-                    raise exceptions.UnicityError(field, existing[0])
+    def _bump_timestamp(self, resource, user_id):
+        raise NotImplementedError
 
 
 def apply_filters(records, filters):
