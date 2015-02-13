@@ -48,15 +48,25 @@ class TestResource(object):
 
 
 class BaseTestStorage(object):
+    backend = None
+
+    def __init__(self, *args, **kwargs):
+        super(BaseTestStorage, self).__init__(*args, **kwargs)
+        empty_settings = mock.Mock(registry=mock.Mock(settings={}))
+        self.storage = self.backend.load_from_config(empty_settings)
+        self.resource = TestResource()
+        self.user_id = '1234'
+
     def setUp(self):
         super(BaseTestStorage, self).setUp()
-        self.resource = TestResource()
         self.record = {'foo': 'bar'}
-        self.user_id = 1234
 
     def tearDown(self):
         super(BaseTestStorage, self).tearDown()
         self.storage.flush()
+
+    def test_ping_returns_true_when_working(self):
+        self.assertTrue(self.storage.ping())
 
     def test_create_adds_the_record_id(self):
         record = self.storage.create(self.resource, self.user_id, self.record)
@@ -77,7 +87,7 @@ class BaseTestStorage(object):
             self.storage.get,
             self.resource,
             self.user_id,
-            1234  # This record id doesn't exist.
+            '1234'  # This record id doesn't exist.
         )
 
     def test_update_creates_a_new_record_when_needed(self):
@@ -86,18 +96,18 @@ class BaseTestStorage(object):
             self.storage.get,
             self.resource,
             self.user_id,
-            1234  # This record id doesn't exist.
+            '1234'  # This record id doesn't exist.
         )
-        record = self.storage.update(self.resource, self.user_id, 1234,
+        record = self.storage.update(self.resource, self.user_id, '1234',
                                      self.record)
-        retrieved = self.storage.get(self.resource, self.user_id, 1234)
+        retrieved = self.storage.get(self.resource, self.user_id, '1234')
         self.assertEquals(retrieved, record)
 
     def test_update_overwrites_record_id(self):
         self.record['id'] = 4567
-        self.storage.update(self.resource, self.user_id, 1234, self.record)
-        retrieved = self.storage.get(self.resource, self.user_id, 1234)
-        self.assertEquals(retrieved['id'], 1234)
+        self.storage.update(self.resource, self.user_id, '1234', self.record)
+        retrieved = self.storage.get(self.resource, self.user_id, '1234')
+        self.assertEquals(retrieved['id'], '1234')
 
     def test_delete_works_properly(self):
         stored = self.storage.create(self.resource, self.user_id, self.record)
@@ -112,7 +122,7 @@ class BaseTestStorage(object):
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.delete,
-            self.resource, self.user_id, 1234
+            self.resource, self.user_id, '1234'
         )
 
     def test_get_all_return_all_values(self):
@@ -125,9 +135,6 @@ class BaseTestStorage(object):
                                                       self.user_id)
         self.assertEquals(len(records), 10)
         self.assertEquals(len(records), total_records)
-
-    def test_ping_returns_true_when_working(self):
-        self.assertTrue(self.storage.ping())
 
     def test_get_all_handle_limit(self):
         for x in range(10):
@@ -217,24 +224,25 @@ class TimestampsTest(object):
         # No duplicated timestamps
         self.assertEqual(len(set(obtained)), len(obtained))
 
-    def test_collection_timestamp_returns_now_when_not_found(self):
+    def test_collection_timestamp_returns_now_when_collection_is_empty(self):
         before = utils.msec_time()
         time.sleep(0.001)  # 1 msec
-        timestamp = self.storage.collection_timestamp(
-            self.resource, self.user_id)
+        now = self.storage.collection_timestamp(self.resource, self.user_id)
         time.sleep(0.001)  # 1 msec
         after = utils.msec_time()
-
-        self.assertTrue(before < timestamp < after)
+        self.assertTrue(before < now < after,
+                        '%s < %s < %s' % (before, now, after))
 
     def test_the_timestamp_are_based_on_real_time_milliseconds(self):
         before = utils.msec_time()
         time.sleep(0.001)  # 1 msec
+        print 'create'
         record = self.storage.create(self.resource, self.user_id, {})
         now = record['last_modified']
         time.sleep(0.001)  # 1 msec
         after = utils.msec_time()
-        self.assertTrue(before < now < after)
+        self.assertTrue(before < now < after,
+                        '%s < %s < %s' % (before, now, after))
 
     def test_timestamp_are_always_incremented_above_existing_value(self):
         # Create a record with normal clock
@@ -249,7 +257,8 @@ class TimestampsTest(object):
             after = record['last_modified']
 
         # Expect the last one to be based on the highest value
-        self.assertTrue(0 < current < after)
+        self.assertTrue(0 < current < after,
+                        '0 < %s < %s' % (current, after))
 
 
 class FieldsUnicityTest(object):
@@ -546,9 +555,13 @@ class StorageTest(ThreadMixin,
 
 
 class RedisStorageTest(StorageTest, unittest.TestCase):
+<<<<<<< HEAD:cliquet/tests/test_storage.py
     def setUp(self):
         self.storage = redisbackend.Redis()
         super(RedisStorageTest, self).setUp()
+=======
+    backend = simpleredis
+>>>>>>> Minor improvements in storage tests:readinglist/tests/test_storage.py
 
     def test_get_all_handle_expired_values(self):
         record = '{"id": "foo"}'.encode('utf-8')
@@ -565,6 +578,7 @@ class RedisStorageTest(StorageTest, unittest.TestCase):
             side_effect=redis.RedisError)
         self.assertFalse(self.storage.ping())
 
+<<<<<<< HEAD:cliquet/tests/test_storage.py
     def test_load_redis_from_config(self):
         class config:
             class registry:
@@ -572,11 +586,11 @@ class RedisStorageTest(StorageTest, unittest.TestCase):
 
         redisbackend.load_from_config(config)
 
+=======
+>>>>>>> Minor improvements in storage tests:readinglist/tests/test_storage.py
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):
-    def setUp(self):
-        self.storage = memory.load_from_config({})
-        super(MemoryStorageTest, self).setUp()
+    backend = memory
 
     def test_ping_returns_an_error_if_unavailable(self):
         pass
