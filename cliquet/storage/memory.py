@@ -81,19 +81,16 @@ class Memory(MemoryBasedStorage):
                 pagination_rules=None, limit=None, include_deleted=False):
         records = list(self._store[resource.name][user_id].values())
 
-        deleted = {}
+        deleted = []
         if include_deleted:
-            deleted = self._cemetery[resource.name][user_id]
+            deleted = list(self._cemetery[resource.name][user_id].values())
 
         records, count = extract_record_set(resource,
-                                            records + list(deleted.values()),
+                                            records + deleted,
                                             filters, sorting,
                                             pagination_rules, limit)
 
-        filtered_deleted = len([r for r in records
-                                if r[resource.id_field] in deleted])
-
-        return records, count - filtered_deleted
+        return records, count
 
 
 def load_from_config(config):

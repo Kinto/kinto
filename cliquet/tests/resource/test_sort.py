@@ -83,8 +83,8 @@ class SortingTest(BaseTest):
         self.assertEqual(result['items'][-1]['status'], 3)
         self.assertEqual(result['items'][-1]['title'], 'MoFo #03')
 
-    def test_boolean_sort_brings_true_first(self):
+    def test_boolean_sort_brings_true_last(self):
         self.resource.request.GET = {'_sort': 'unread'}
         result = self.resource.collection_get()
-        self.assertEqual(result['items'][0]['unread'], True)
-        self.assertEqual(result['items'][-1]['unread'], False)
+        self.assertEqual(result['items'][0]['unread'], False)
+        self.assertEqual(result['items'][-1]['unread'], True)

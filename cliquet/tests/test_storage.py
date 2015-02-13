@@ -5,7 +5,7 @@ import time
 
 from cliquet.storage import (
     StorageBase, exceptions, memory,
-    redis as redisbackend
+    redis as redisbackend, postgresql
 )
 from cliquet import utils
 
@@ -45,25 +45,26 @@ class TestResource(object):
     name = "test"
     modified_field = "last_modified"
     deleted_mark = ("deleted", True)
+    mapping = mock.MagicMock()
 
 
 class BaseTestStorage(object):
     backend = None
 
+    settings = {}
+
     def __init__(self, *args, **kwargs):
         super(BaseTestStorage, self).__init__(*args, **kwargs)
-        empty_settings = mock.Mock(registry=mock.Mock(settings={}))
+        empty_settings = mock.Mock(registry=mock.Mock(settings=self.settings))
         self.storage = self.backend.load_from_config(empty_settings)
         self.resource = TestResource()
         self.user_id = '1234'
-
-    def setUp(self):
-        super(BaseTestStorage, self).setUp()
         self.record = {'foo': 'bar'}
 
     def tearDown(self):
         super(BaseTestStorage, self).tearDown()
         self.storage.flush()
+        self.resource.mapping.reset_mock()
 
     def test_ping_returns_true_when_working(self):
         self.assertTrue(self.storage.ping())
@@ -147,6 +148,15 @@ class BaseTestStorage(object):
                                                       limit=2)
         self.assertEqual(total_records, 10)
         self.assertEqual(len(records), 2)
+
+    def test_get_all_handle_sorting_on_id(self):
+        for x in range(3):
+            self.storage.create(self.resource, self.user_id, self.record)
+        sorting = [('id', 1)]
+        records, _ = self.storage.get_all(self.resource,
+                                          self.user_id,
+                                          sorting=sorting)
+        self.assertTrue(records[0]['id'] < records[-1]['id'])
 
     def test_get_all_handle_a_pagination_rules(self):
         for x in range(10):
@@ -236,7 +246,6 @@ class TimestampsTest(object):
     def test_the_timestamp_are_based_on_real_time_milliseconds(self):
         before = utils.msec_time()
         time.sleep(0.001)  # 1 msec
-        print 'create'
         record = self.storage.create(self.resource, self.user_id, {})
         now = record['last_modified']
         time.sleep(0.001)  # 1 msec
@@ -264,12 +273,7 @@ class TimestampsTest(object):
 class FieldsUnicityTest(object):
     def setUp(self):
         super(FieldsUnicityTest, self).setUp()
-        self.resource.mapping = mock.MagicMock()
         self.resource.mapping.Options.unique_fields = ('phone',)
-
-    def tearDown(self):
-        super(FieldsUnicityTest, self).tearDown()
-        self.resource.mapping.reset_mock()
 
     def create_record(self, record=None, user_id=None):
         record = record or {'phone': '0033677'}
@@ -420,7 +424,7 @@ class DeletedRecordsTest(object):
         self.assertNotIn('deleted', records[1])
         self.assertIn('deleted', records[2])
 
-    def test_sorting_on_arbitrary_field_groups_deleted_at_first(self):
+    def test_sorting_on_arbitrary_field_groups_deleted_at_last(self):
         self.storage.create(self.resource, self.user_id, {'status': 0})
         self.create_and_delete_record({'status': 1})
         self.create_and_delete_record({'status': 2})
@@ -429,9 +433,9 @@ class DeletedRecordsTest(object):
         records, _ = self.storage.get_all(self.resource, self.user_id,
                                           sorting=sorting,
                                           include_deleted=True)
-        self.assertIn('deleted', records[0])
+        self.assertNotIn('deleted', records[0])
         self.assertIn('deleted', records[1])
-        self.assertNotIn('deleted', records[2])
+        self.assertIn('deleted', records[2])
 
     def test_support_sorting_on_deleted_field_groups_deleted_at_first(self):
         # Respect boolean sort order
@@ -526,7 +530,7 @@ class DeletedRecordsTest(object):
     #
 
     def test_pagination_rules_on_last_modified_apply_to_deleted_records(self):
-        for i in range(10):
+        for i in range(15):
             if i % 2 == 0:
                 self.create_and_delete_record()
             else:
@@ -555,13 +559,7 @@ class StorageTest(ThreadMixin,
 
 
 class RedisStorageTest(StorageTest, unittest.TestCase):
-<<<<<<< HEAD:cliquet/tests/test_storage.py
-    def setUp(self):
-        self.storage = redisbackend.Redis()
-        super(RedisStorageTest, self).setUp()
-=======
-    backend = simpleredis
->>>>>>> Minor improvements in storage tests:readinglist/tests/test_storage.py
+    backend = redisbackend
 
     def test_get_all_handle_expired_values(self):
         record = '{"id": "foo"}'.encode('utf-8')
@@ -578,19 +576,34 @@ class RedisStorageTest(StorageTest, unittest.TestCase):
             side_effect=redis.RedisError)
         self.assertFalse(self.storage.ping())
 
-<<<<<<< HEAD:cliquet/tests/test_storage.py
-    def test_load_redis_from_config(self):
-        class config:
-            class registry:
-                settings = {}
-
-        redisbackend.load_from_config(config)
-
-=======
->>>>>>> Minor improvements in storage tests:readinglist/tests/test_storage.py
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):
     backend = memory
 
     def test_ping_returns_an_error_if_unavailable(self):
+        pass
+
+
+class PostgresqlStorageTest(StorageTest, unittest.TestCase):
+    backend = postgresql
+    settings = {
+        'storage.url': 'postgres://postgres:postgres@localhost:5432/postgres'
+    }
+
+    def test_ping_returns_an_error_if_unavailable(self):
+        import psycopg2
+        with mock.patch('cliquet.storage.postgresql.psycopg2.connect',
+                        side_effect=psycopg2.DatabaseError):
+            self.assertFalse(self.storage.ping())
+
+    def test_schema_is_not_recreated_from_scratch_if_already_exists(self):
+        pass
+
+    def test_assert_raises_503_when_connection_fails(self):
+        pass
+
+    def test_number_of_fetched_records_can_be_limited_in_settings(self):
+        pass
+
+    def test_connection_is_rolledback_if_error_occurs(self):
         pass

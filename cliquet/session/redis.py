@@ -45,7 +45,7 @@ class RedisSessionStorage(SessionStorageBase):
 
 def load_from_config(config):
     settings = config.registry.settings
-    uri = settings.get('readinglist.session_url', '')
+    uri = settings.get('cliquet.session_url', '')
     uri = urlparse.urlparse(uri)
     db = int(uri.path[1:]) if uri.path else 1
     return RedisSessionStorage(host=uri.hostname, port=uri.port, db=db)

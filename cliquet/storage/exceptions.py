@@ -10,4 +10,4 @@ class UnicityError(IntegrityError):
     def __init__(self, field, record, *args, **kwargs):
         self.field = field
         self.record = record
-        super(UnicityError, self).__init__(self, *args, **kwargs)
+        super(UnicityError, self).__init__(*args, **kwargs)
