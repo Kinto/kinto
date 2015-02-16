@@ -29,7 +29,7 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
             # Requests should work as usual and contain an
             # Alert header, with the service end of life information.
             self.assertIn('Alert', response.headers)
-            self.assertEquals(json.loads(response.headers['Alert']), {
+            self.assertDictEqual(json.loads(response.headers['Alert']), {
                 'code': 'soft-eol',
                 'url': 'http://eos-url',
                 'message': 'This service will soon be decommissioned'
@@ -48,15 +48,15 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
                 ]):
             response = self.app.get('/', status=410)
             self.assertIn('Alert', response.headers)
-            self.assertEquals(json.loads(response.headers['Alert']), {
+            self.assertDictEqual(json.loads(response.headers['Alert']), {
                 'code': 'hard-eol',
                 'url': 'http://eos-url',
                 'message': 'This service had been decommissioned'
             })
-            self.assertEqual(response.body, json.dumps({
+            self.assertDictEqual(json.loads(response.body), {
                 "errno": ERRORS.SERVICE_DEPRECATED,
                 "message": "The service you are trying to connect no longer "
                            "exists at this location.",
                 "code": 410,
                 "error": "Gone"
-            }))
+            })
