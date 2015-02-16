@@ -35,6 +35,19 @@ class StorageBase(object):
                 pagination_rules=None, limit=None):
         raise NotImplementedError
 
+    def strip_deleted_record(self, resource, user_id, record):
+        """Strip the record of all its fields expect id and timestamp,
+        and set the deletion field value (e.g deleted=True)
+        """
+        deleted = {}
+        deleted[resource.id_field] = record[resource.id_field]
+        deleted[resource.modified_field] = record[resource.modified_field]
+
+        field, value = resource.deleted_mark
+        deleted[field] = value
+
+        return deleted
+
     def set_record_timestamp(self, resource, user_id, record):
         timestamp = self._bump_timestamp(resource, user_id)
         record[resource.modified_field] = timestamp
@@ -70,7 +83,7 @@ def apply_filters(records, filters):
     }
 
     for record in records:
-        matches = [operators[op](record[k], v) for k, v, op in filters]
+        matches = [operators[op](record.get(k), v) for k, v, op in filters]
         if all(matches):
             yield record
 
@@ -82,14 +95,15 @@ def apply_sorting(records, sorting):
         return result
 
     for field, direction in reversed(sorting):
-        is_boolean_field = isinstance(result[0][field], bool)
+        is_boolean_field = isinstance(result[0].get(field, True), bool)
         desc = direction < 0 or is_boolean_field
-        result = sorted(result, key=operator.itemgetter(field), reverse=desc)
+        # If field is missing from record, record will come first
+        result = sorted(result, key=lambda r: r.get(field, -1), reverse=desc)
 
     return result
 
 
-def extract_record_set(records, filters, sorting,
+def extract_record_set(resource, records, filters, sorting,
                        pagination_rules=None, limit=None):
     """Take the list of records and handle filtering, sorting and pagination.
 
@@ -102,7 +116,7 @@ def extract_record_set(records, filters, sorting,
     paginated = {}
     for rule in pagination_rules:
         values = list(apply_filters(filtered, rule))
-        paginated.update(dict(((x['id'], x) for x in values)))
+        paginated.update(dict(((x[resource.id_field], x) for x in values)))
 
     if paginated:
         paginated = paginated.values()

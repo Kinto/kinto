@@ -75,13 +75,16 @@ class Redis(StorageBase):
         self.set_record_timestamp(resource, user_id, record)
 
         resource_name = classname(resource)
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+                                                  user_id,
+                                                  _id)
         with self._client.pipeline() as multi:
             multi.set(
-                '{0}.{1}.{2}'.format(resource_name, user_id, _id),
+                record_key,
                 self._encode(record)
             )
             multi.sadd(
-                '{0}.{1}'.format(resource_name, user_id),
+                '{0}.{1}.records'.format(resource_name, user_id),
                 _id
             )
             multi.execute()
@@ -90,10 +93,10 @@ class Redis(StorageBase):
 
     def get(self, resource, user_id, record_id):
         resource_name = classname(resource)
-
-        encoded_item = self._client.get(
-            '{0}.{1}.{2}'.format(resource_name, user_id, record_id)
-        )
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+                                                  user_id,
+                                                  record_id)
+        encoded_item = self._client.get(record_key)
         if encoded_item is None:
             raise exceptions.RecordNotFoundError(record_id)
 
@@ -107,13 +110,16 @@ class Redis(StorageBase):
         self.set_record_timestamp(resource, user_id, record)
 
         resource_name = classname(resource)
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+                                                  user_id,
+                                                  record_id)
         with self._client.pipeline() as multi:
             multi.set(
-                '{0}.{1}.{2}'.format(resource_name, user_id, record_id),
+                record_key,
                 self._encode(record)
             )
             multi.sadd(
-                '{0}.{1}'.format(resource_name, user_id),
+                '{0}.{1}.records'.format(resource_name, user_id),
                 record_id
             )
             multi.execute()
@@ -122,43 +128,81 @@ class Redis(StorageBase):
 
     def delete(self, resource, user_id, record_id):
         resource_name = classname(resource)
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+                                                  user_id,
+                                                  record_id)
         with self._client.pipeline() as multi:
-            multi.get(
-                '{0}.{1}.{2}'.format(resource_name, user_id, record_id)
-            )
-            multi.delete(
-                '{0}.{1}.{2}'.format(resource_name, user_id, record_id))
-
+            multi.get(record_key)
+            multi.delete(record_key)
             multi.srem(
-                '{0}.{1}'.format(resource_name, user_id),
+                '{0}.{1}.records'.format(resource_name, user_id),
                 record_id
             )
             responses = multi.execute()
-            encoded_item = responses[0]
 
-            if encoded_item is None:
-                raise exceptions.RecordNotFoundError(record_id)
+        encoded_item = responses[0]
+        if encoded_item is None:
+            raise exceptions.RecordNotFoundError(record_id)
 
-            self._bump_timestamp(resource, user_id)
-            return self._decode(encoded_item)
+        existing = self._decode(encoded_item)
+        self.set_record_timestamp(resource, user_id, existing)
+        existing = self.strip_deleted_record(resource, user_id, existing)
+
+        deleted_record_key = '{0}.{1}.{2}.deleted'.format(resource_name,
+                                                          user_id,
+                                                          record_id)
+        with self._client.pipeline() as multi:
+            multi.set(
+                deleted_record_key,
+                self._encode(existing)
+            )
+            multi.sadd(
+                '{0}.{1}.deleted'.format(resource_name, user_id),
+                record_id
+            )
+            multi.execute()
+
+        return existing
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
-                pagination_rules=None, limit=None):
+                pagination_rules=None, limit=None, include_deleted=False):
         resource_name = classname(resource)
-        ids = self._client.smembers('{0}.{1}'.format(resource_name, user_id))
+        records_ids_key = '{0}.{1}.records'.format(resource_name, user_id)
+        ids = self._client.smembers(records_ids_key)
 
-        if (len(ids) == 0):
-            return [], 0
-
-        keys = ('{0}.{1}.{2}'.format(resource_name, user_id,
-                                     _id.decode('utf-8'))
+        keys = ('{0}.{1}.{2}.records'.format(resource_name, user_id,
+                                             _id.decode('utf-8'))
                 for _id in ids)
 
-        encoded_results = self._client.mget(keys)
-        records = map(self._decode, encoded_results)
+        if len(ids) == 0:
+            records = []
+        else:
+            encoded_results = self._client.mget(keys)
+            records = [self._decode(r) for r in encoded_results if r]
 
-        return extract_record_set(records, filters, sorting,
-                                  pagination_rules, limit)
+        deleted = {}
+        if include_deleted:
+            deleted_ids_key = '{0}.{1}.deleted'.format(resource_name, user_id)
+            ids = self._client.smembers(deleted_ids_key)
+
+            keys = ('{0}.{1}.{2}.deleted'.format(resource_name, user_id,
+                                                 _id.decode('utf-8'))
+                    for _id in ids)
+
+            encoded_results = self._client.mget(keys)
+            results = [self._decode(r) for r in encoded_results if r]
+            for result in results:
+                deleted[result[resource.id_field]] = result
+
+        records, count = extract_record_set(resource,
+                                            records + list(deleted.values()),
+                                            filters, sorting,
+                                            pagination_rules, limit)
+
+        filtered_deleted = len([r for r in records
+                                if r[resource.id_field] in deleted])
+
+        return records, count - filtered_deleted
 
 
 def load_from_config(config):

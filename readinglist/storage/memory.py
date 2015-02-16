@@ -16,6 +16,7 @@ class Memory(StorageBase):
 
     def flush(self):
         self._store = tree()
+        self._cemetery = tree()
         self._timestamps = defaultdict(dict)
 
     def ping(self):
@@ -72,16 +73,33 @@ class Memory(StorageBase):
     def delete(self, resource, user_id, record_id):
         resource_name = classname(resource)
         existing = self.get(resource, user_id, record_id)
-        self._bump_timestamp(resource, user_id)
+        self.set_record_timestamp(resource, user_id, existing)
+        existing = self.strip_deleted_record(resource, user_id, existing)
+
+        # Add to deleted items, remove from store.
+        self._cemetery[resource_name][user_id][record_id] = existing.copy()
         self._store[resource_name][user_id].pop(record_id)
+
         return existing
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
-                pagination_rules=None, limit=None):
+                pagination_rules=None, limit=None, include_deleted=False):
         resource_name = classname(resource)
-        records = self._store[resource_name][user_id].values()
-        return extract_record_set(records, filters, sorting,
-                                  pagination_rules, limit)
+        records = list(self._store[resource_name][user_id].values())
+
+        deleted = {}
+        if include_deleted:
+            deleted = self._cemetery[resource_name][user_id]
+
+        records, count = extract_record_set(resource,
+                                            records + list(deleted.values()),
+                                            filters, sorting,
+                                            pagination_rules, limit)
+
+        filtered_deleted = len([r for r in records
+                                if r[resource.id_field] in deleted])
+
+        return records, count - filtered_deleted
 
 
 def load_from_config(config):

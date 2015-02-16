@@ -40,6 +40,7 @@ class StorageBaseTest(unittest.TestCase):
 class TestResource(object):
     id_field = "id"
     modified_field = "last_modified"
+    deleted_mark = ("deleted", True)
 
 
 class BaseTestStorage(object):
@@ -311,9 +312,230 @@ class FieldsUnicityTest(object):
                           {'phone': 'number'})
 
 
+class DeletedRecordsTest(object):
+    def create_and_delete_record(self, record=None):
+        """Helper to create and delete a record."""
+        record = record or {'challenge': 'accepted'}
+        record = self.storage.create(self.resource, self.user_id, record)
+        return self.storage.delete(self.resource, self.user_id, record['id'])
+
+    def test_get_should_not_return_deleted_items(self):
+        record = self.create_and_delete_record()
+        self.assertRaises(exceptions.RecordNotFoundError,
+                          self.storage.get,
+                          self.resource,
+                          self.user_id,
+                          record['id'])
+
+    def test_deleting_a_deleted_item_should_raise_not_found(self):
+        record = self.create_and_delete_record()
+        self.assertRaises(exceptions.RecordNotFoundError,
+                          self.storage.delete,
+                          self.resource,
+                          self.user_id,
+                          record['id'])
+
+    def test_deleted_items_have_deleted_set_to_true(self):
+        record = self.create_and_delete_record()
+        self.assertTrue(record['deleted'])
+
+    def test_deleted_items_have_only_basic_fields(self):
+        record = self.create_and_delete_record()
+        self.assertIn('id', record)
+        self.assertIn('last_modified', record)
+        self.assertNotIn('challenge', record)
+
+    def test_last_modified_of_a_deleted_item_is_deletion_time(self):
+        before = self.storage.collection_timestamp(self.resource, self.user_id)
+        record = self.create_and_delete_record()
+        now = self.storage.collection_timestamp(self.resource, self.user_id)
+        self.assertEqual(now, record['last_modified'])
+        self.assertTrue(before < record['last_modified'])
+
+    def test_get_all_does_not_include_deleted_items_by_default(self):
+        self.create_and_delete_record()
+        records, _ = self.storage.get_all(self.resource, self.user_id)
+        self.assertEqual(len(records), 0)
+
+    def test_get_all_count_does_not_include_deleted_items(self):
+        self.create_and_delete_record()
+        records, count = self.storage.get_all(self.resource, self.user_id,
+                                              include_deleted=True)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(count, 0)
+
+    def test_get_all_can_return_deleted_items(self):
+        record = self.create_and_delete_record()
+        records, _ = self.storage.get_all(self.resource, self.user_id,
+                                          include_deleted=True)
+        deleted = records[0]
+        self.assertEqual(deleted['id'], record['id'])
+        self.assertEqual(deleted['last_modified'], record['last_modified'])
+        self.assertEqual(deleted['deleted'], True)
+        self.assertNotIn('challenge', deleted)
+
+    #
+    # Sorting
+    #
+
+    def test_sorting_on_last_modified_applies_to_deleted_items(self):
+        first = last = None
+        for i in range(20, 0, -1):
+            record = self.create_and_delete_record()
+            first = record if i == 1 else first
+            last = record if i == 20 else last
+
+        sorting = [('last_modified', -1)]
+        records, _ = self.storage.get_all(self.resource, self.user_id,
+                                          sorting=sorting,
+                                          include_deleted=True)
+
+        self.assertDictEqual(records[0], first)
+        self.assertDictEqual(records[-1], last)
+
+    def test_sorting_on_last_modified_mixes_deleted_records(self):
+        self.create_and_delete_record()
+        self.storage.create(self.resource, self.user_id, {})
+        self.create_and_delete_record()
+
+        sorting = [('last_modified', 1)]
+        records, _ = self.storage.get_all(self.resource, self.user_id,
+                                          sorting=sorting,
+                                          include_deleted=True)
+
+        self.assertIn('deleted', records[0])
+        self.assertNotIn('deleted', records[1])
+        self.assertIn('deleted', records[2])
+
+    def test_sorting_on_arbitrary_field_groups_deleted_at_first(self):
+        self.storage.create(self.resource, self.user_id, {'status': 0})
+        self.create_and_delete_record({'status': 1})
+        self.create_and_delete_record({'status': 2})
+
+        sorting = [('status', 1)]
+        records, _ = self.storage.get_all(self.resource, self.user_id,
+                                          sorting=sorting,
+                                          include_deleted=True)
+        self.assertIn('deleted', records[0])
+        self.assertIn('deleted', records[1])
+        self.assertNotIn('deleted', records[2])
+
+    def test_support_sorting_on_deleted_field_groups_deleted_at_first(self):
+        # Respect boolean sort order
+        self.create_and_delete_record()
+        self.storage.create(self.resource, self.user_id, {})
+        self.create_and_delete_record()
+
+        sorting = [('deleted', 1)]
+        records, _ = self.storage.get_all(self.resource, self.user_id,
+                                          sorting=sorting,
+                                          include_deleted=True)
+        self.assertIn('deleted', records[0])
+        self.assertIn('deleted', records[1])
+        self.assertNotIn('deleted', records[2])
+
+    #
+    # Filtering
+    #
+
+    def test_filtering_on_last_modified_applies_to_deleted_items(self):
+        r = self.create_and_delete_record()
+        before = r['last_modified']
+        self.storage.create(self.resource, self.user_id, {})
+        self.create_and_delete_record()
+
+        filters = [('last_modified', before, utils.COMPARISON.GT)]
+        records, count = self.storage.get_all(self.resource, self.user_id,
+                                              filters=filters,
+                                              include_deleted=True)
+        self.assertEqual(len(records), 2)
+        self.assertEqual(count, 1)
+
+    def test_filtering_on_arbitrary_field_excludes_deleted_records(self):
+        self.storage.create(self.resource, self.user_id, {'status': 0})
+        self.create_and_delete_record({'status': 1})
+        self.create_and_delete_record({'status': 2})
+
+        filters = [('status', 0, utils.COMPARISON.EQ)]
+        records, count = self.storage.get_all(self.resource, self.user_id,
+                                              filters=filters,
+                                              include_deleted=True)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(count, 1)
+
+    def test_support_filtering_on_deleted_field(self):
+        self.storage.create(self.resource, self.user_id, {})
+        self.create_and_delete_record()
+
+        filters = [('deleted', True, utils.COMPARISON.EQ)]
+        records, count = self.storage.get_all(self.resource, self.user_id,
+                                              filters=filters,
+                                              include_deleted=True)
+        self.assertIn('deleted', records[0])
+        self.assertEqual(len(records), 1)
+        self.assertEqual(count, 0)
+
+    def test_support_filtering_out_on_deleted_field(self):
+        self.storage.create(self.resource, self.user_id, {})
+        self.create_and_delete_record()
+
+        filters = [('deleted', True, utils.COMPARISON.NOT)]
+        records, count = self.storage.get_all(self.resource, self.user_id,
+                                              filters=filters,
+                                              include_deleted=True)
+        self.assertNotIn('deleted', records[0])
+        self.assertEqual(len(records), 1)
+        self.assertEqual(count, 1)
+
+    def test_return_empty_set_if_filtering_on_deleted_false(self):
+        self.storage.create(self.resource, self.user_id, {})
+        self.create_and_delete_record()
+
+        filters = [('deleted', False, utils.COMPARISON.EQ)]
+        records, count = self.storage.get_all(self.resource, self.user_id,
+                                              filters=filters,
+                                              include_deleted=True)
+        self.assertEqual(len(records), 0)
+        self.assertEqual(count, 0)
+
+    def test_return_empty_set_if_filtering_on_deleted_without_include(self):
+        self.storage.create(self.resource, self.user_id, {})
+        self.create_and_delete_record()
+
+        filters = [('deleted', True, utils.COMPARISON.EQ)]
+        records, count = self.storage.get_all(self.resource, self.user_id,
+                                              filters=filters)
+        self.assertEqual(len(records), 0)
+        self.assertEqual(count, 0)
+
+    #
+    # Pagination
+    #
+
+    def test_pagination_rules_on_last_modified_apply_to_deleted_records(self):
+        for i in range(10):
+            if i % 2 == 0:
+                self.create_and_delete_record()
+            else:
+                self.storage.create(self.resource, self.user_id, {})
+
+        pagination = [[('last_modified', 0, utils.COMPARISON.GT)]]
+        sorting = [('last_modified', 1)]
+        records, count = self.storage.get_all(self.resource, self.user_id,
+                                              sorting=sorting,
+                                              pagination_rules=pagination,
+                                              limit=5,
+                                              include_deleted=True)
+        self.assertEqual(len(records), 5)
+        self.assertEqual(count, 7)
+        self.assertIn('deleted', records[0])
+        self.assertNotIn('deleted', records[1])
+
+
 class StorageTest(ThreadMixin,
                   FieldsUnicityTest,
                   TimestampsTest,
+                  DeletedRecordsTest,
                   BaseTestStorage):
     """Compound of all storage tests."""
     pass
@@ -332,7 +554,7 @@ class RedisStorageTest(StorageTest, unittest.TestCase):
                                         return_value=[record, None])
         with mocked_smember:
             with mocked_mget:
-                self.storage.get_all("foobar", "alexis")  # not raising
+                self.storage.get_all(TestResource(), "alexis")  # not raising
 
     def test_ping_returns_an_error_if_unavailable(self):
         self.storage._client.setex = mock.MagicMock(
