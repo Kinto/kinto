@@ -23,13 +23,13 @@ DEPENDENCY_LINKS = [
 ]
 ENTRY_POINTS = {
     'paste.app_factory': [
-        'main = readinglist:main',
+        'main = cliquet:main',
     ]}
 
 
-setup(name='readinglist',
+setup(name='cliquet',
       version='0.3.dev0',
-      description='readinglist',
+      description='cliquet',
       long_description=README,
       classifiers=[
           "Programming Language :: Python",

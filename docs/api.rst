@@ -15,7 +15,7 @@ The returned value is a JSON mapping containing:
 
 - ``items``: the list of articles, with exhaustive attributes
 
-`See all article attributes <https://github.com/mozilla-services/readinglist/wiki/API-Design-proposal#data-model>`_
+`See all article attributes <https://github.com/mozilla-services/cliquet/wiki/API-Design-proposal#data-model>`_
 
 A ``Total-Records`` header is sent back to indicate the estimated
 total number of records included in the response.
@@ -207,7 +207,7 @@ For v2, the server will fetch the content, and assign the following attributes w
 Validation
 ----------
 
-If the posted values are invalid (e.g. *added_on is not an integer*) an error response is returned with status ``400``. `See details on error responses <https://github.com/mozilla-services/readinglist/wiki/API-Design-proposal#error-responses>`_.
+If the posted values are invalid (e.g. *added_on is not an integer*) an error response is returned with status ``400``. `See details on error responses <https://github.com/mozilla-services/cliquet/wiki/API-Design-proposal#error-responses>`_.
 
 
 :note:

@@ -63,18 +63,18 @@ Reading list scope
 ------------------
 
 The *Reading List* API will eventually have to handle a dedicated OAuth scope (e.g.
-``readinglist``, ``readinglist:read``, ``readinglist:write``). This will help users
+``cliquet``, ``cliquet:read``, ``cliquet:write``). This will help users
 to delegate access to the *Reading List* to third party apps
 
 So far the FxA server only handles the ``profile`` scope.
 
-See https://github.com/mozilla-services/readinglist/issues/16.
+See https://github.com/mozilla-services/cliquet/issues/16.
 
 
 Basic Auth
 ==========
 
 In addition to OAuth, *Basic Auth* can be enabled in the configuration using
-``readinglist.basic_auth_backdoor = true``.
+``cliquet.basic_auth_backdoor = true``.
 
 Articles will then be stored for any username/password combination provided.

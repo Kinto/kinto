@@ -48,7 +48,7 @@ This document describes changes between each past release.
 - Conditional changes for some articles attributes (ref #6)
 - Batching support (ref #2)
 - Pagination support (ref #25)
-- Online documentation available at http://readinglist.readthedocs.org (ref PR #73)
+- Online documentation available at http://cliquet.readthedocs.org (ref PR #73)
 - Basic Auth nows support any user/password combination (ref PR #78)
 
 **Bug fixes**
