@@ -131,7 +131,6 @@ def end_of_life_tween_factory(handler, registry):
             else:
                 response = HTTPServiceDeprecated()
                 alert['code'] = "hard-eol"
-                response.headers = {}
             response.headers['Alert'] = json.dumps(alert)
             return response
         return handler(request)

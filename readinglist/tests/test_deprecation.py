@@ -53,7 +53,7 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
                 'url': 'http://eos-url',
                 'message': 'This service had been decommissioned'
             })
-            self.assertDictEqual(json.loads(response.body), {
+            self.assertDictEqual(response.json, {
                 "errno": ERRORS.SERVICE_DEPRECATED,
                 "message": "The service you are trying to connect no longer "
                            "exists at this location.",
