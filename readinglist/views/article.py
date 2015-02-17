@@ -27,6 +27,7 @@ class ArticleTitle(SchemaNode):
 
     def preparer(self, appstruct):
         if appstruct:
+            # Strip then truncate the title to TITLE_MAX_LENGTH
             return strip_whitespace(appstruct)[:TITLE_MAX_LENGTH]
         else:
             return appstruct
