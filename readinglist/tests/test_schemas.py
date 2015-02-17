@@ -91,15 +91,13 @@ class ArticleSchemaTest(unittest.TestCase):
 
     def test_title_has_max_length(self):
         self.record['title'] = u'\u76d8' * 1025
-        self.assertRaises(colander.Invalid,
-                          self.schema.deserialize,
-                          self.record)
+        deserialized = self.schema.deserialize(self.record)
+        self.assertEqual(len(deserialized['title']), 1024)
 
     def test_resolved_title_has_max_length(self):
         self.record['resolved_title'] = u'\u76d8' * 1025
-        self.assertRaises(colander.Invalid,
-                          self.schema.deserialize,
-                          self.record)
+        deserialized = self.schema.deserialize(self.record)
+        self.assertEqual(len(deserialized['resolved_title']), 1024)
 
     def test_resolved_title_is_stripped(self):
         self.record['resolved_title'] = '  Nous Sommes Charlie  '
