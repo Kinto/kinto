@@ -9,6 +9,7 @@ with open(os.path.join(here, 'README.rst')) as f:
 REQUIREMENTS = [
     'colander',
     'cornice',
+    'python-dateutil',
     'pyfxa',
     'pyramid_multiauth',
     'redis',

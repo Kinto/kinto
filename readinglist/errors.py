@@ -2,7 +2,8 @@ import six
 from pyramid.config import global_registries
 from pyramid.httpexceptions import (
     HTTPServiceUnavailable as PyramidHTTPServiceUnavailable, HTTPBadRequest,
-    HTTPInternalServerError as PyramidHTTPInternalServerError
+    HTTPInternalServerError as PyramidHTTPInternalServerError,
+    HTTPGone as PyramidHTTPGone
 )
 from readinglist.utils import Enum, json, reapply_cors
 
@@ -23,7 +24,8 @@ ERRORS = Enum(
     REQUEST_TOO_LARGE=113,
     CLIENT_REACHED_CAPACITY=117,
     UNDEFINED=999,
-    BACKEND=201
+    BACKEND=201,
+    SERVICE_DEPRECATED=202
 )
 
 
@@ -50,7 +52,9 @@ class HTTPServiceUnavailable(PyramidHTTPServiceUnavailable):
     def __init__(self, **kwargs):
         if 'body' not in kwargs:
             kwargs['body'] = format_error(
-                503, ERRORS.BACKEND, "Service unavailable",
+                PyramidHTTPServiceUnavailable.code,
+                ERRORS.BACKEND,
+                PyramidHTTPServiceUnavailable.title,
                 "Service unavailable due to high load, please retry later.")
 
         if 'content_type' not in kwargs:
@@ -74,15 +78,32 @@ class HTTPInternalServerError(PyramidHTTPInternalServerError):
 
     def __init__(self, **kwargs):
         kwargs.setdefault('body', format_error(
-            500,
+            PyramidHTTPInternalServerError.code,
             ERRORS.UNDEFINED,
-            "Internal Server Error",
+            PyramidHTTPInternalServerError.title,
             "A programmatic error occured, developers have been informed.",
             "https://github.com/mozilla-services/readinglist/issues/"))
 
         kwargs.setdefault('content_type', 'application/json')
 
         super(HTTPInternalServerError, self).__init__(**kwargs)
+
+
+class HTTPServiceDeprecated(PyramidHTTPGone):
+    """A HTTPGone formatted in JSON."""
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('body', format_error(
+            PyramidHTTPGone.code,
+            ERRORS.SERVICE_DEPRECATED,
+            PyramidHTTPGone.title,
+            "The service you are trying to connect no longer exists "
+            "at this location.",
+        ))
+
+        kwargs.setdefault('content_type', 'application/json')
+
+        super(HTTPServiceDeprecated, self).__init__(**kwargs)
 
 
 def json_error(errors):

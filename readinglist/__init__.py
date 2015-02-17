@@ -1,5 +1,9 @@
 """Main entry point
 """
+import datetime
+import json
+
+from dateutil import parser as dateparser
 import pkg_resources
 import logging
 
@@ -11,6 +15,7 @@ from pyramid_multiauth import MultiAuthenticationPolicy
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from readinglist import authentication
+from readinglist.errors import HTTPServiceDeprecated
 from readinglist.utils import msec_time
 
 
@@ -65,8 +70,9 @@ def attach_http_objects(config):
     This is useful to attach objects to the request object for easier
     access, and to pre-process responses.
     """
+
     def on_new_request(event):
-        # Save the time the request was received by the server
+        # Save the time the request was received by the server.
         event.request._received_at = msec_time()
 
         # Attach objects on requests for easier access.
@@ -79,7 +85,12 @@ def attach_http_objects(config):
     config.add_subscriber(on_new_request, NewRequest)
 
     def on_new_response(event):
-        # Display the status of the request as well as the time spend
+        if hasattr(event.request, '_received_at'):
+            duration = (msec_time() - event.request._received_at)
+        else:
+            duration = "unknown"
+
+        # Display the status of the request as well as the time spent
         # on the server.
         pattern = '"{method} {path}" {status} {size} ({duration} ms)'
         msg = pattern.format(
@@ -87,10 +98,10 @@ def attach_http_objects(config):
             path=event.request.path,
             status=event.response.status_code,
             size=event.response.content_length,
-            duration=(msec_time() - event.request._received_at))
+            duration=duration)
         logger.debug(msg)
 
-        # Add backoff in response headers
+        # Add backoff in response headers.
         backoff = config.registry.settings.get("readinglist.backoff")
         if backoff is not None:
             event.request.response.headers['Backoff'] = backoff.encode('utf-8')
@@ -98,9 +109,39 @@ def attach_http_objects(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
+def end_of_life_tween_factory(handler, registry):
+    """Pyramid tween to handle service end of life."""
+
+    def eos_tween(request):
+        eos_date = registry.settings.get("readinglist.eos")
+        eos_url = registry.settings.get("readinglist.eos_url")
+        eos_message = registry.settings.get("readinglist.eos_message")
+        if eos_date:
+            eos_date = dateparser.parse(eos_date)
+            alert = {}
+            if eos_url is not None:
+                alert['url'] = eos_url
+
+            if eos_message is not None:
+                alert['message'] = eos_message
+
+            if eos_date > datetime.datetime.now():
+                alert['code'] = "soft-eol"
+                response = handler(request)
+            else:
+                response = HTTPServiceDeprecated()
+                alert['code'] = "hard-eol"
+            response.headers['Alert'] = json.dumps(alert)
+            return response
+        return handler(request)
+    return eos_tween
+
+
 def main(global_config, **settings):
     Service.cors_origins = ('*',)
     config = Configurator(settings=settings)
+    config.add_tween("readinglist.end_of_life_tween_factory")
+
     handle_api_redirection(config)
 
     config.route_prefix = '/%s' % API_VERSION

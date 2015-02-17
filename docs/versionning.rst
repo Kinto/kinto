@@ -21,19 +21,18 @@ Deprecation
 ===========
 
 A track of the client version will be kept to know after which date each old version can be shutdown.
+
 The date of the end of support is provided in the API root URL (e.g. ``/v0``)
 
-.. Using the ``Alert`` header, the server can communicate any potential warning
-.. messages, information, or other alerts.
-.. The value is JSON mapping with the following attributes:
+Using the ``Alert`` response header, the server can communicate any potential warning
+messages, information, or other alerts.
 
-.. * ``code``: one of the strings ``"deprecated-client"``, ``"soft-eol"`` or ``"hard-eol"``
-.. * ``message``: a human-readable message
-.. * ``url``: a URL at which more information is available
+The value is JSON mapping with the following attributes:
 
-.. A ``503 Service Unavailable`` error response can be returned if the
-.. client version is too old.
+* ``code``: one of the strings ``"soft-eol"`` or ``"hard-eol"``;
+* ``message``: a human-readable message (optional);
+* ``url``: a URL at which more information is available (optional).
 
-.. A ``513 Service Decommissioned`` error response can be returned
-.. indicating that the service has been replaced with a new and better
-.. service using some as-yet-undesigned protocol.
+A ``410 Gone`` error response can be returned if the
+client version is too old, or the service had been remplaced with
+a new and better service using a new protocol version.
