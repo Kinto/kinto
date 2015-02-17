@@ -8,6 +8,8 @@ from readinglist.resource import crud, BaseResource, ResourceSchema, TimeStamp
 from readinglist.utils import strip_whitespace
 from readinglist.schema import URL
 
+TITLE_MAX_LENGTH = 1024
+
 
 class DeviceName(SchemaNode):
     """String representing the device name."""
@@ -21,10 +23,13 @@ class DeviceName(SchemaNode):
 class ArticleTitle(SchemaNode):
     """String representing the title of an article."""
     schema_type = String
-    validator = colander.Length(min=1, max=1024)
+    validator = colander.Length(min=1, max=TITLE_MAX_LENGTH)
 
     def preparer(self, appstruct):
-        return strip_whitespace(appstruct)
+        if appstruct:
+            return strip_whitespace(appstruct)[:TITLE_MAX_LENGTH]
+        else:
+            return appstruct
 
 
 class ArticleSchema(ResourceSchema):
