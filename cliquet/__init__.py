@@ -150,6 +150,7 @@ def end_of_life_tween_factory(handler, registry):
 def includeme(config):
     settings = config.get_settings()
     Service.cors_origins = ('*',)
+    Service.cors_headers = ('Next-Page',)
 
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")
