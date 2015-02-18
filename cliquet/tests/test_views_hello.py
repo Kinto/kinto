@@ -42,9 +42,9 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
                              'http://localhost/%s/' % API_VERSION)
 
             # GET on the fields view.
-            response = self.app.get('/articles')
+            response = self.app.get('/mushrooms')
             self.assertEqual(response.status_int, 307)
             self.assertEqual(response.location,
-                             'http://localhost/%s/articles' % API_VERSION)
+                             'http://localhost/%s/mushrooms' % API_VERSION)
         finally:
             self.app.RequestClass = original_request_class

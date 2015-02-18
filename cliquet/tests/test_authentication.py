@@ -8,7 +8,7 @@ from .support import BaseWebTest, unittest
 
 class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
-    sample_url = '/articles'
+    sample_url = '/mushrooms'
 
     def test_basic_auth_is_accepted_if_enabled_in_settings(self):
         auth_password = base64.b64encode('bob:secret'.encode('ascii'))

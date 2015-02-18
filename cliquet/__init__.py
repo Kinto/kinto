@@ -32,21 +32,24 @@ logger = logging.getLogger(__name__)
 def handle_api_redirection(config):
     """Add a view which redirects to the current version of the API.
     """
+    # Disable the route prefix passed by the app.
+    route_prefix = config.route_prefix
+    config.route_prefix = None
 
     def _redirect_to_version_view(request):
         raise HTTPTemporaryRedirect(
-            '/%s/%s' % (API_VERSION, request.matchdict['path']))
+            '/%s/%s' % (route_prefix, request.matchdict['path']))
+
 
     # Redirect to the current version of the API if the prefix isn't used.
     config.add_route(name='redirect_to_version',
-                     pattern='/{path:(?!%s).*}' % API_VERSION)
+                     pattern='/{path:(?!%s).*}' % route_prefix)
 
     config.add_view(view=_redirect_to_version_view,
                     route_name='redirect_to_version',
                     permission=NO_PERMISSION_REQUIRED)
 
-    config.route_prefix = '/%s' % API_VERSION
-
+    config.route_prefix = route_prefix
 
 def set_auth(config):
     """Define the authentication and authorization policies.
@@ -137,14 +140,12 @@ def end_of_life_tween_factory(handler, registry):
     return eos_tween
 
 
-def main(global_config, **settings):
+def includeme(config):
+    settings = config.get_settings()
     Service.cors_origins = ('*',)
-    config = Configurator(settings=settings)
-    config.add_tween("cliquet.end_of_life_tween_factory")
 
     handle_api_redirection(config)
-
-    config.route_prefix = '/%s' % API_VERSION
+    config.add_tween("cliquet.end_of_life_tween_factory")
 
     storage = config.maybe_dotted(settings['cliquet.storage_backend'])
     config.registry.storage = storage.load_from_config(config)
@@ -153,11 +154,8 @@ def main(global_config, **settings):
     config.registry.session = session.load_from_config(config)
 
     set_auth(config)
+    attach_http_objects(config)
 
     # Include cornice and discover views.
     config.include("cornice")
     config.scan("cliquet.views")
-
-    attach_http_objects(config)
-
-    return config.make_wsgi_app()

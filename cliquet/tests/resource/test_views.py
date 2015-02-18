@@ -278,9 +278,9 @@ class CORSHeadersTest(FakeAuthentMixin, BaseWebTest):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_internal_error(self):
-        with mock.patch('cliquet.views.article.Article.collection_get',
+        with mock.patch('cliquet.resource.BaseResource.collection_get',
                         side_effect=ValueError):
-            response = self.app.get('/articles',
+            response = self.app.get('/mushrooms',
                                     headers=self.headers, status=500)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 

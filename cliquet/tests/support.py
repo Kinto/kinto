@@ -11,6 +11,7 @@ from cornice import errors as cornice_errors
 
 from cliquet import API_VERSION
 from cliquet.utils import random_bytes_hex
+from cliquet.tests.testapp import main as testapp
 
 
 class DummyRequest(mock.MagicMock):
@@ -73,13 +74,23 @@ class BaseWebTest(FakeAuthentMixin):
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.app = webtest.TestApp("config:config/cliquet.ini",
-                                   relative_to='.')
+        self.app = webtest.TestApp(testapp(self.get_app_settings()))
         self.app.RequestClass = PrefixedRequestClass
         self.db = self.app.app.registry.storage
         self.headers.update({
             'Content-Type': 'application/json',
         })
+
+    def get_app_settings(self):
+        return {
+            'cliquet.storage_backend': 'cliquet.storage.simpleredis',
+            'cliquet.session_backend': 'cliquet.session.redis',
+            'fxa-oauth.client_id': '89513028159972bc',
+            'fxa-oauth.client_secret': '9aced230585cc0aa2932e2eb871c9a3a7d6458'
+                                       'e59ccf57eb610ea0a3467dd800',
+            'fxa-oauth.oauth_uri': 'https://oauth-stable.dev.lcip.org',
+            'fxa-oauth.scope': 'profile'
+        }
 
     def tearDown(self):
         super(BaseWebTest, self).tearDown()
