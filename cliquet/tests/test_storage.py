@@ -3,7 +3,10 @@ import redis
 import six
 import time
 
-from cliquet.storage import StorageBase, exceptions, memory, simpleredis
+from cliquet.storage import (
+    StorageBase, exceptions, memory,
+    redis as redisbackend
+)
 from cliquet import utils
 
 from .support import unittest, ThreadMixin
@@ -543,7 +546,7 @@ class StorageTest(ThreadMixin,
 
 class RedisStorageTest(StorageTest, unittest.TestCase):
     def setUp(self):
-        self.storage = simpleredis.Redis()
+        self.storage = redisbackend.Redis()
         super(RedisStorageTest, self).setUp()
 
     def test_get_all_handle_expired_values(self):
@@ -566,7 +569,7 @@ class RedisStorageTest(StorageTest, unittest.TestCase):
             class registry:
                 settings = {}
 
-        simpleredis.load_from_config(config)
+        redisbackend.load_from_config(config)
 
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):

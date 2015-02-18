@@ -83,7 +83,7 @@ class BaseWebTest(FakeAuthentMixin):
 
     def get_app_settings(self):
         return {
-            'cliquet.storage_backend': 'cliquet.storage.simpleredis',
+            'cliquet.storage_backend': 'cliquet.storage.redis',
             'cliquet.session_backend': 'cliquet.session.redis',
             'fxa-oauth.client_id': '89513028159972bc',
             'fxa-oauth.client_secret': '9aced230585cc0aa2932e2eb871c9a3a7d6458'

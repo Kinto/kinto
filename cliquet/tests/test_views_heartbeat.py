@@ -10,7 +10,7 @@ class HeartBeatViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(response.json['database'], True)
 
     @mock.patch('cliquet.storage.memory.Memory.ping')
-    @mock.patch('cliquet.storage.simpleredis.Redis.ping')
+    @mock.patch('cliquet.storage.redis.Redis.ping')
     def test_returns_database_false_if_ko(self, *mocked):
         for mock_instance in mocked:
             mock_instance.side_effect = IndexError
