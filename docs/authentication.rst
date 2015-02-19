@@ -26,12 +26,13 @@ Using the Web UI
   be redirected to ``http://app-endpoint/#{token}`` the web-app.
 
 
-Using another flow
-::::::::::::::::::
+Custom flow
+:::::::::::
 
-In case you need to have some configurations in order to trade your
-Firefox Account BrowserID assertion with a Bearer Token, you can use
-the ``GET /v1/fxa-oauth/params`` endpoint.
+The ``GET /v1/fxa-oauth/params`` endpoint can be use to get the
+configuration in order to trade the Firefox Account BrowserID with a
+Bearer Token. `See Firefox Account documentation about this behavior
+<https://developer.mozilla.org/en-US/Firefox_Accounts#Firefox_Accounts_BrowserID_API>`_
 
 .. code-block:: http
 
