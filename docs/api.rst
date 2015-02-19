@@ -4,44 +4,27 @@ API Documentation
 
 .. _http-apis:
 
-GET /articles
-=============
+GET /{resource}
+===============
 
-**Requires an FxA OAuth authentication**
-
-Returns all articles of the current user.
-
-The returned value is a JSON mapping containing:
-
-- ``items``: the list of articles, with exhaustive attributes
-
-`See all article attributes <https://github.com/mozilla-services/cliquet/wiki/API-Design-proposal#data-model>`_
-
-A ``Total-Records`` header is sent back to indicate the estimated
-total number of records included in the response.
-
-A header ``Last-Modified`` will provide the current timestamp of the
-collection (*see Server timestamps section*).  It is likely to be used
-by client to provide ``If-Modified-Since`` or ``If-Unmodified-Since``
-headers in subsequent requests.
-
+XXX define the resource get endpoint.
 
 Filtering
 ---------
 
 **Single value**
 
-* ``/articles?unread=true``
+* ``/resource?field=value``
 
 **Multiple values**
 
-* ``/articles?status=1,2``
+* ``/resource?field,2``
 
 **Minimum and maximum**
 
 Prefix attribute name with ``min_`` or ``max_``:
 
-* ``/articles?min_word_count=4000``
+* ``/resource?min_field=4000``
 
 :note:
     The lower and upper bounds are inclusive (*i.e equivalent to
@@ -54,7 +37,7 @@ Prefix attribute name with ``min_`` or ``max_``:
 
 Prefix attribute name with ``not_``:
 
-* ``/articles?not_status=0``
+* ``/resource?not_field=0``
 
 :note:
     Will return an error if an attribute is unknown.
@@ -66,10 +49,10 @@ Prefix attribute name with ``not_``:
 Sorting
 -------
 
-* ``/articles?_sort=-last_modified,title``
+* ``/resource?_sort=-last_modified,title``
 
 .. :note:
-..     Articles will be ordered by ``-stored_on`` by default (i.e. newest first).
+..     Items will be ordered by ``-stored_on`` by default (i.e. newest first).
 
 :note:
     Ordering on a boolean field gives ``true`` values first.
@@ -95,7 +78,7 @@ Polling for changes
 The ``_since`` parameter is provided as an alias for
 ``gt_last_modified``.
 
-* ``/articles?_since=123456``
+* ``/resource?_since=123456``
 
 The new value of the collection latest modification is provided in
 headers (*see Server timestamps section*).
@@ -142,77 +125,22 @@ Combining all parameters
 
 Filtering, sorting and paginating can all be combined together.
 
-* ``/articles?_sort=-last_modified&_limit=100``
+* ``/resource?_sort=-last_modified&_limit=100``
 
 
-POST /articles
+POST /resource
 ==============
 
-**Requires an FxA OAuth authentication**
+**Requires authentication**
 
-Used to create an article on the server. The POST body is a JSON
-mapping containing:
+Used to create a resource on the server. The POST body is a JSON.
 
-- ``url``
-- ``title``
-- ``added_by``
-
-:note:
-    Since the device which added the article can differ from the current device
-    (e.g. while importing), the device name is not provided through a request header.
+XXX
 
 The POST response body is the newly created record, if all posted values are valid. Additional optional attributes can also be specified:
 
 If the request header ``If-Unmodified-Since`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
-
-**Optional values**
-
-- ``added_on``
-- ``excerpt``
-- ``favorite``
-- ``unread``
-- ``status``
-- ``is_article``
-- ``resolved_url``
-- ``resolved_title``
-
-**Auto default values**
-
-For v1, the server will assign default values to the following attributes:
-
-- ``id``: *uuid*
-- ``resolved_url``: ``url``
-- ``resolved_title``: ``title``
-- ``excerpt``: empty text
-- ``status``: 0-OK
-- ``favorite``: false
-- ``unread``: true
-- ``read_position``: 0
-- ``is_article``: true
-- ``last_modified``: current server timestamp
-- ``stored_on``: current server timestamp
-- ``marked_read_by``: null
-- ``marked_read_on``: null
-- ``word_count``: null
-
-For v2, the server will fetch the content, and assign the following attributes with actual values:
-
-- ``resolved_url``: the final URL obtained after all redirections resolved
-- ``resolved_title``: The fetched page's title (content of <title>)
-- ``excerpt``: The first 200 words of the article
-- ``word_count``: Total word count of the article
-
-
-Validation
-----------
-
-If the posted values are invalid (e.g. *added_on is not an integer*) an error response is returned with status ``400``. `See details on error responses <https://github.com/mozilla-services/cliquet/wiki/API-Design-proposal#error-responses>`_.
-
-
-:note:
-    The ``status`` can take only ``0`` (OK) and ``1`` (archived), even though
-    the server sets it to ``2`` when including deleted articles in the collection.
 
 
 Conflicts

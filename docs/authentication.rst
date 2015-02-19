@@ -4,6 +4,13 @@ Authentication
 
 .. _authentication:
 
+Cliquet uses FirefoxAccounts as an authentication. The recommended way to
+connect to Firefox Accounts is via an OAuth flow. This is the default and
+preffered way to authenticate to Cliquet servers.
+
+Of course, it's possible to plug other authentication policies, all the Pyramid
+authentication policies will work.
+
 Firefox Account OAuth Bearer token
 ==================================
 
@@ -61,14 +68,6 @@ Bearer Token. `See Firefox Account documentation about this behavior
 
 Reading list scope
 ------------------
-
-The *Reading List* API will eventually have to handle a dedicated OAuth scope (e.g.
-``cliquet``, ``cliquet:read``, ``cliquet:write``). This will help users
-to delegate access to the *Reading List* to third party apps
-
-So far the FxA server only handles the ``profile`` scope.
-
-See https://github.com/mozilla-services/cliquet/issues/16.
 
 
 Basic Auth
