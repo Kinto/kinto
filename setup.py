@@ -13,18 +13,12 @@ REQUIREMENTS = [
     'pyfxa',
     'pyramid_multiauth',
     'redis',
-    'requests',
     'six',
-    'waitress',
 ]
 
 DEPENDENCY_LINKS = [
     'https://github.com/mozilla/PyFxA/tarball/master#egg=PyFxA-0.0.3dev',
 ]
-ENTRY_POINTS = {
-    'paste.app_factory': [
-        'main = cliquet:main',
-    ]}
 
 
 setup(name='cliquet',
@@ -44,5 +38,4 @@ setup(name='cliquet',
       include_package_data=True,
       zip_safe=False,
       install_requires=REQUIREMENTS,
-      dependency_links=DEPENDENCY_LINKS,
-      entry_points=ENTRY_POINTS)
+      dependency_links=DEPENDENCY_LINKS)

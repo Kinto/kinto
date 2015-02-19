@@ -153,6 +153,9 @@ def includeme(config):
     session = config.maybe_dotted(settings['cliquet.session_backend'])
     config.registry.session = session.load_from_config(config)
 
+    config.registry.project_name = settings['cliquet.project_name']
+    config.registry.project_docs = settings['cliquet.project_docs']
+
     set_auth(config)
     attach_http_objects(config)
 

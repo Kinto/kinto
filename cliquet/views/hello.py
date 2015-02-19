@@ -10,10 +10,10 @@ hello = Service(name="hello", path='/', description="Welcome")
 def get_hello(request):
     """Return information regarding the current instance."""
     data = dict(
-        hello='cliquet',
+        hello=request.registry.project_name,
         version=VERSION,
         url=request.host_url,
-        documentation="https://cliquet.rtfd.org/"
+        documentation=request.registry.project_docs
     )
 
     eos = get_eos(request)
