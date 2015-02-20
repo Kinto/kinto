@@ -47,5 +47,8 @@ def load_from_config(config):
     settings = config.registry.settings
     uri = settings.get('cliquet.session_url', '')
     uri = urlparse.urlparse(uri)
-    db = int(uri.path[1:]) if uri.path else 1
-    return RedisSessionStorage(host=uri.hostname, port=uri.port, db=db)
+
+    return RedisSessionStorage(host=uri.hostname or 'localhost',
+                               port=uri.port or 6739,
+                               password=uri.password or None,
+                               db=int(uri.path[1:]) if uri.path else 0)

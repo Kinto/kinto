@@ -64,7 +64,7 @@ In configuration::
 
 *(Optional)* Instance location URI can be customized::
 
-    cliquet.storage_url = localhost:6379/0
+    cliquet.storage_url = redis://localhost:6379/0
 
 
 PostgreSQL
@@ -86,7 +86,7 @@ In configuration::
 
 *(Optional)* Instance location URI can be customized::
 
-    cliquet.storage_url = user:pass@db.server.lan:5432/dbname
+    cliquet.storage_url = postgres://user:pass@db.server.lan:5432/dbname
 
 
 *(Optional*) Memory usage parameters::
