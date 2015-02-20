@@ -101,9 +101,13 @@ def apply_sorting(records, sorting):
     if not result:
         return result
 
+    def column(record, name):
+        empty = result[0].get(name, float('inf'))
+        return record.get(name, empty)
+
     for field, direction in reversed(sorting):
         desc = direction < 0
-        result = sorted(result, key=lambda r: r.get(field, ''), reverse=desc)
+        result = sorted(result, key=lambda r: column(r, field), reverse=desc)
 
     return result
 

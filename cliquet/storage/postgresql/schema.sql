@@ -60,6 +60,7 @@ CREATE INDEX idx_deleted_resource_name ON deleted(resource_name);
 DROP INDEX IF EXISTS idx_deleted_last_modified;
 CREATE INDEX idx_deleted_last_modified ON deleted(last_modified);
 
+
 --
 -- Helpers
 --
@@ -84,7 +85,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
+--
+-- Triggers to set last_modified on INSERT/UPDATE
+--
 DROP TRIGGER IF EXISTS tgr_records_last_modified ON records;
 DROP TRIGGER IF EXISTS tgr_deleted_last_modified ON deleted;
 
@@ -114,4 +117,3 @@ FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
 CREATE TRIGGER tgr_deleted_last_modified
 BEFORE INSERT OR UPDATE ON deleted
 FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
-

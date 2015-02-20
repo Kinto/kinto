@@ -646,5 +646,3 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
                               self.storage.collection_timestamp,
                               'foo', 'bar')
             self.assertTrue(fake_rollback.called)
-
-
