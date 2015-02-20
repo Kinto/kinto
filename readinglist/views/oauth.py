@@ -14,6 +14,7 @@ from readinglist.views.errors import authorization_required
 from readinglist import logger
 
 login = Service(name='fxa-oauth-login', path='/fxa-oauth/login')
+params = Service(name='fxa-oauth-params', path='/fxa-oauth/params')
 token = Service(name='fxa-oauth-token', path='/fxa-oauth/token')
 
 
@@ -47,6 +48,17 @@ def fxa_oauth_login(request):
     request.response.status_code = 302
     request.response.headers['Location'] = form_url
     return {}
+
+
+@params.get(permission=NO_PERMISSION_REQUIRED)
+def fxa_oauth_params(request):
+    """Helper to give Firefox Account configuration information."""
+    settings = request.registry.settings
+    return {
+        "client_id": settings.get('fxa-oauth.client_id'),
+        "oauth_uri": settings.get('fxa-oauth.oauth_uri'),
+        "scope": settings.get('fxa-oauth.scope'),
+    }
 
 
 class OAuthRequest(MappingSchema):

@@ -34,6 +34,25 @@ class LoginViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(r.headers['Location'], expected_redirect)
 
 
+class ParamsViewTest(BaseWebTest, unittest.TestCase):
+    url = '/fxa-oauth/params'
+
+    def test_params_view_give_back_needed_values(self):
+        settings = self.app.app.registry.settings
+        oauth_endpoint = settings.get('fxa-oauth.oauth_uri')
+        client_id = settings.get('fxa-oauth.client_id')
+        scope = settings.get('fxa-oauth.scope')
+        expected_body = {
+            "client_id": client_id,
+            "oauth_uri": oauth_endpoint,
+            "scope": scope
+        }
+
+        r = self.app.get(self.url)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json, expected_body)
+
+
 class TokenViewTest(BaseWebTest, unittest.TestCase):
     url = '/fxa-oauth/token'
 
