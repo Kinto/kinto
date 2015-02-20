@@ -33,7 +33,12 @@ class PostgreSQL(StorageBase):
     @property
     @contextlib.contextmanager
     def db(self):
-        """
+        """Connects to the database and instantiates a cursor.
+        At exiting the context manager, a COMMIT is performed on the current
+        transaction if everything went well. Otherwise transaction is ROLLBACK,
+        and everything cleaned up.
+
+        If the database could not be be reached a 503 error is raised.
         """
         conn = None
         cursor = None
@@ -42,6 +47,7 @@ class PostgreSQL(StorageBase):
             options = dict(cursor_factory=psycopg2.extras.DictCursor)
             cursor = conn.cursor(**options)
             yield cursor
+            conn.commit()
         except psycopg2.Error as e:
             if cursor:
                 logger.debug(cursor.query)
@@ -105,7 +111,6 @@ class PostgreSQL(StorageBase):
         """
         with self.db as cursor:
             cursor.execute(query)
-            cursor.connection.commit()
         logger.debug('Flushed PostgreSQL storage tables')
 
     def ping(self):
@@ -143,7 +148,6 @@ class PostgreSQL(StorageBase):
             self.check_unicity(resource, user_id, record)
 
             cursor.execute(query, placeholders)
-            cursor.connection.commit()
             inserted = cursor.fetchone()
 
         record = record.copy()
@@ -198,7 +202,6 @@ class PostgreSQL(StorageBase):
             query = query_update if cursor.rowcount > 0 else query_create
 
             cursor.execute(query, placeholders)
-            cursor.connection.commit()
             result = cursor.fetchone()
 
         record = record.copy()
@@ -228,7 +231,6 @@ class PostgreSQL(StorageBase):
             RETURNING last_modified::BIGINT
             """
             cursor.execute(query, placeholders)
-            cursor.connection.commit()
             inserted = cursor.fetchone()
 
         record = {}
