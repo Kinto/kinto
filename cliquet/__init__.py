@@ -40,7 +40,6 @@ def handle_api_redirection(config):
         raise HTTPTemporaryRedirect(
             '/%s/%s' % (route_prefix, request.matchdict['path']))
 
-
     # Redirect to the current version of the API if the prefix isn't used.
     config.add_route(name='redirect_to_version',
                      pattern='/{path:(?!%s).*}' % route_prefix)
@@ -50,6 +49,7 @@ def handle_api_redirection(config):
                     permission=NO_PERMISSION_REQUIRED)
 
     config.route_prefix = route_prefix
+
 
 def set_auth(config):
     """Define the authentication and authorization policies.

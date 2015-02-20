@@ -56,6 +56,9 @@ class FakeAuthentMixin(object):
         settings.setdefault('cliquet.userid_hmac_secret',
                             random_bytes_hex(16))
 
+        settings.setdefault('cliquet.project_name', 'cliquet')
+        settings.setdefault('cliquet.docs', 'https://cliquet.rtfd.org/')
+
         self.fxa_verify = self.patcher.start()
         self.fxa_verify.return_value = {
             'user': 'bob'
@@ -83,6 +86,8 @@ class BaseWebTest(FakeAuthentMixin):
 
     def get_app_settings(self):
         return {
+            'cliquet.project_name': 'cliquet',
+            'cliquet.project_docs': 'https://cliquet.rtfd.org/',
             'cliquet.storage_backend': 'cliquet.storage.redis',
             'cliquet.session_backend': 'cliquet.session.redis',
             'fxa-oauth.client_id': '89513028159972bc',

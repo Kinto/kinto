@@ -1,4 +1,4 @@
-from .support import unittest
+from cliquet.tests.support import unittest
 
 from cliquet.resource import TimeStamp
 

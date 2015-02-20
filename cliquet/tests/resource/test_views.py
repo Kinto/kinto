@@ -30,6 +30,8 @@ class BaseWebTest(unittest.TestCase):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.config = testing.setUp()
         self.config.registry.storage = Memory()
+        self.config.registry.project_name = "cliquet"
+        self.config.registry.project_docs = "https://cliquet.rtfd.org/"
 
         Service.cors_origins = ('*',)
 
