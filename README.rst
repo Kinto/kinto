@@ -70,6 +70,26 @@ To restart it (Bug after configuration update)::
     brew services restart redis
 
 
+Install libffi
+==============
+
+Linux
+-----
+
+On debian / ubuntu based systems::
+
+    apt-get install libffi-dev
+
+
+OS X
+----
+
+Assuming `brew <http://brew.sh/>`_ is installed, libffi installation becomes:
+
+::
+
+    brew install libffi pkg-config
+
 
 
 Run tests
