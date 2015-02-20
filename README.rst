@@ -76,7 +76,7 @@ Install PostgreSQL client headers::
 
     sudo apt-get install libpq-dev
 
-Install Reading list related dependencies::
+Install cliquet with related dependencies::
 
     pip install cliquet[postgresql]
 
