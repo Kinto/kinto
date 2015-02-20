@@ -33,5 +33,4 @@ setup(name='cliquet',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      install_requires=REQUIREMENTS,
-      dependency_links=DEPENDENCY_LINKS)
+      install_requires=REQUIREMENTS)
