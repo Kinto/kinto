@@ -54,7 +54,8 @@ def set_auth(config):
     """Define the authentication and authorization policies.
     """
     policies = [
-        authentication.Oauth2AuthenticationPolicy(),
+        authentication.Oauth2AuthenticationPolicy(
+            cache=config.registry.session),
         authentication.BasicAuthAuthenticationPolicy(),
     ]
     authn_policy = MultiAuthenticationPolicy(policies)
