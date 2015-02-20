@@ -16,10 +16,6 @@ REQUIREMENTS = [
     'six',
 ]
 
-DEPENDENCY_LINKS = [
-    'https://github.com/mozilla/PyFxA/tarball/master#egg=PyFxA-0.0.3dev',
-]
-
 
 setup(name='cliquet',
       version='0.3.dev0',
