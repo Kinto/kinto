@@ -1,17 +1,31 @@
-.. Reading List documentation master file, created by
-   sphinx-quickstart on Mon Feb  2 15:08:06 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Cliquet documentation
+=====================
 
-Reading List documentation!
-===========================
+Cliquet is a toolkit, built on top of `Cornice <https://cornice.rtfd.org>`_ to
+ease the creation of HTTP services.
 
-*Reading List* is a service to keep track of a list of articles to read.
+Cliquet doesn't try to be a framework: the generated APIs are well defined and
+follow a specific protocol. The goal is to produce APIs which are easy to
+consume for the clients and follow some well known patterns.
 
-This is a service attached to Firefox Accounts that enable users to
-keep their Reading List in sync across all of their devices.
+It's an implementation of a series of opinionated good practices we follow at
+Mozilla.
 
-Contents:
+It is built around the notion of resources: you define a set of resources and
+cliquet generates the APIs out of that.
+
+It handles the storage for you (by default in PostgreSQL) and proposes a set of
+APIs we found the be useful.
+
+Cliquet is built on the shoulders of giants: Pyramid is doing all the heavy
+HTTP stuff and Postgres for the storage.
+
+Here are the steps you need to follow to use cliquet:
+
+1. Think about your data model;
+2. Translate this model into a resource (it's a class);
+3. XXX;
+4. Profit!
 
 .. toctree::
    :maxdepth: 2

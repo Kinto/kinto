@@ -1,48 +1,25 @@
-##########
-Data model
-##########
+Defining your data model
+########################
 
 .. _data-model:
 
-Articles
-========
+In order to define your data model, you need to define a class with some
+special attributes. As a simple example::
 
-+--------------------+-------------+----------------------------------+
-| Attribute          | Type        | Comment                          |
-+====================+=============+==================================+
-| ``id``             | UUID        |                                  |
-+--------------------+-------------+----------------------------------+
-| ``last_modified``  | Timestamp   | server timestamp                 |
-+--------------------+-------------+----------------------------------+
-| ``url``            | URL         | valid (RFC)                      |
-+--------------------+-------------+----------------------------------+
-| ``title``          | String(1024)| 1 character min.                 |
-+--------------------+-------------+----------------------------------+
-| ``resolved_url``   | URL         |                                  |
-+--------------------+-------------+----------------------------------+
-| ``resolved_title`` | String(1024)|                                  |
-+--------------------+-------------+----------------------------------+
-| ``excerpt``        | Text        | first 200 words of the article   |
-+--------------------+-------------+----------------------------------+
-| ``status``         | Enum        | {0: OK, 1: archived, 2: deleted} |
-+--------------------+-------------+----------------------------------+
-| ``favorite``       | Boolean     |                                  |
-+--------------------+-------------+----------------------------------+
-| ``is_article``     | Boolean     |                                  |
-+--------------------+-------------+----------------------------------+
-| ``word_count``     | Integer     |                                  |
-+--------------------+-------------+----------------------------------+
-| ``unread``         | Boolean     |                                  |
-+--------------------+-------------+----------------------------------+
-| ``added_by``       | Device      | device name (cf. issue #23)      |
-+--------------------+-------------+----------------------------------+
-| ``added_on``       | Timestamp   | device timestamp                 |
-+--------------------+-------------+----------------------------------+
-| ``stored_on``      | Timestamp   | server timestamp                 |
-+--------------------+-------------+----------------------------------+
-| ``marked_read_by`` | Device      | device name (cf. issue #23)      |
-+--------------------+-------------+----------------------------------+
-| ``marked_read_on`` | Timestamp   | device timestamp                 |
-+--------------------+-------------+----------------------------------+
-| ``read_position``  | Integer     | Words read from the beginning    |
-+--------------------+-------------+----------------------------------+
+    from cliquet.resource import BaseResource, ResourceSchema, crud
+    import colander
+
+
+    class MushroomSchema(ResourceSchema):
+        name = colander.SchemaNode(colander.String())
+
+
+    @crud()
+    class Mushroom(BaseResource):
+        mapping = MushroomSchema()
+
+By doing that, you just defined a Mushroom resource, which will be available at
+the `/mushrooms/` endpoint.
+
+It will accept a bunch of operations, defined in the next sections of the
+documentation.

@@ -1,4 +1,4 @@
-SERVER_CONFIG = config/readinglist.ini
+SERVER_CONFIG = config/cliquet.ini
 
 VIRTUALENV = virtualenv
 SPHINX_BUILDDIR = docs/_build
@@ -27,11 +27,8 @@ virtualenv: $(PYTHON)
 $(PYTHON):
 	virtualenv $(VENV)
 
-serve: install-dev
-	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
-
 tests-once: install-dev
-	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-package=readinglist
+	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-package=cliquet
 
 tests:
 	tox
@@ -39,13 +36,6 @@ tests:
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
-
-loadtest-check: install
-	$(VENV)/bin/pserve loadtests/server.ini > readinglist.log & PID=$$! && \
-	  rm readinglist.log || cat readinglist.log; \
-	  sleep 1 && cd loadtests && \
-	  make test SERVER_URL=http://127.0.0.1:8000; \
-	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
 
 docs: install-dev
 	$(VENV)/bin/sphinx-build -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
