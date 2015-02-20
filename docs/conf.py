@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Reading List documentation build configuration file, created by
+# Cliquet documentation build configuration file, created by
 # sphinx-quickstart on Mon Feb  2 15:08:06 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -53,7 +53,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Reading List'
+project = u'Cliquet'
 copyright = u'2015, Mozilla Services — Da French Team'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -78,7 +78,7 @@ pygments_style = 'sphinx'
 html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ReadingListdoc'
+htmlhelp_basename = 'Cliquetdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -98,7 +98,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'ReadingList.tex', u'Reading List Documentation',
+  ('index', 'Cliquet.tex', u'Cliquet Documentation',
    u'Mozilla Services — Da French Team', 'manual'),
 ]
 
@@ -108,7 +108,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'cliquet', u'Reading List Documentation',
+    ('index', 'cliquet', u'Cliquet Documentation',
      [u'Mozilla Services — Da French Team'], 1)
 ]
 
@@ -119,7 +119,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'ReadingList', u'Reading List Documentation',
-   u'Mozilla Services — Da French Team', 'ReadingList', 'One line description of project.',
+  ('index', 'cliquet', u'Cliquet Documentation',
+   u'Mozilla Services — Da French Team', 'Cliquet', 'One line description of project.',
    'Miscellaneous'),
 ]

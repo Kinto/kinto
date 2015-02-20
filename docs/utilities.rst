@@ -7,7 +7,7 @@ GET /
 
 The returned value is a JSON mapping containing:
 
-- ``hello``: the name of the service (``"reading list"``)
+- ``hello``: the name of the service (e.g. ``"reading list"``)
 - ``version``: complete version (``"X.Y.Z"``)
 - ``url``: absolute URI (without a trailing slash) of the API (*can be used by client to build URIs*)
 - ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)
@@ -17,7 +17,7 @@ The returned value is a JSON mapping containing:
 GET /__heartbeat__
 ==================
 
-Return the status of each service the *Reading List* depends on. The
+Return the status of each service the your application depends on. The
 returned value is a JSON mapping containing:
 
 - ``database`` true if operational
