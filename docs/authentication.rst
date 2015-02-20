@@ -59,15 +59,10 @@ Bearer Token. `See Firefox Account documentation about this behavior
     Server: waitress
 
     {
-        "client_id": "89513028159972bc", 
-        "oauth_uri": "https://oauth-stable.dev.lcip.org", 
+        "client_id": "89513028159972bc",
+        "oauth_uri": "https://oauth-stable.dev.lcip.org",
         "scope": "profile"
     }
-
-
-
-Reading list scope
-------------------
 
 
 Basic Auth
