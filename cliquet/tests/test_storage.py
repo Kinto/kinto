@@ -3,11 +3,13 @@ import redis
 import six
 import time
 
+import psycopg2
 from cliquet.storage import (
     StorageBase, exceptions, memory,
     redis as redisbackend, postgresql
 )
-from cliquet import utils
+from cliquet import utils, errors
+from pyramid.config import global_registries
 
 from .support import unittest, ThreadMixin
 
@@ -55,11 +57,15 @@ class BaseTestStorage(object):
 
     def __init__(self, *args, **kwargs):
         super(BaseTestStorage, self).__init__(*args, **kwargs)
-        empty_settings = mock.Mock(registry=mock.Mock(settings=self.settings))
-        self.storage = self.backend.load_from_config(empty_settings)
+        self.storage = self.backend.load_from_config(self._get_config())
         self.resource = TestResource()
         self.user_id = '1234'
         self.record = {'foo': 'bar'}
+
+    def _get_config(self):
+        """Mock Pyramid config object.
+        """
+        return mock.Mock(registry=mock.Mock(settings=self.settings))
 
     def tearDown(self):
         super(BaseTestStorage, self).tearDown()
@@ -591,19 +597,54 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     }
 
     def test_ping_returns_an_error_if_unavailable(self):
-        import psycopg2
         with mock.patch('cliquet.storage.postgresql.psycopg2.connect',
                         side_effect=psycopg2.DatabaseError):
             self.assertFalse(self.storage.ping())
 
     def test_schema_is_not_recreated_from_scratch_if_already_exists(self):
-        pass
+        with mock.patch('cliquet.storage.postgresql.logger.debug') as mocked:
+            self.backend.load_from_config(self._get_config())
+            message, = mocked.call_args[0]
+            self.assertEqual(message, "Detected PostgreSQL storage tables")
 
     def test_assert_raises_503_when_connection_fails(self):
-        pass
+        # 503 error relies on Pyramid last registry hook
+        global_registries.add(self._get_config().registry)
+
+        with mock.patch('cliquet.storage.postgresql.PostgreSQL.check_unicity',
+                        side_effect=psycopg2.OperationalError):
+            self.assertRaises(errors.HTTPServiceUnavailable,
+                              self.storage.create,
+                              'foo', 'foo', {})
 
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
-        pass
+        for i in range(4):
+            self.create_record({'phone': 'tel-%s' % i})
+
+        results, count = self.storage.get_all(self.resource, self.user_id)
+        self.assertEqual(len(results), 4)
+
+        config = self._get_config()
+        config.registry.settings['storage.max_fetch_size'] = 2
+        limited = self.backend.load_from_config(config)
+
+        results, count = limited.get_all(self.resource, self.user_id)
+        self.assertEqual(len(results), 2)
 
     def test_connection_is_rolledback_if_error_occurs(self):
-        pass
+        failing_execute = mock.Mock(side_effect=psycopg2.Error)
+        fake_cursor = mock.MagicMock(execute=failing_execute)
+        fake_get_cursor = mock.Mock(return_value=fake_cursor)
+
+        fake_rollback = mock.MagicMock()
+        fake_connection = mock.MagicMock(closed=False,
+                                         cursor=fake_get_cursor,
+                                         rollback=fake_rollback)
+        with mock.patch('cliquet.storage.postgresql.psycopg2.connect',
+                        return_value=fake_connection):
+            self.assertRaises(Exception,
+                              self.storage.collection_timestamp,
+                              'foo', 'bar')
+            self.assertTrue(fake_rollback.called)
+
+
