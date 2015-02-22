@@ -30,10 +30,9 @@ class PostgreSQL(StorageBase):
         self._conn_kwargs = kwargs
         self._init_schema()
 
-    @property
     @contextlib.contextmanager
-    def db(self):
-        """Connects to the database and instantiates a cursor.
+    def connect(self):
+        """Connect to the database and instantiates a cursor.
         At exiting the context manager, a COMMIT is performed on the current
         transaction if everything went well. Otherwise transaction is ROLLBACK,
         and everything cleaned up.
@@ -72,7 +71,7 @@ class PostgreSQL(StorageBase):
         # Since indices cannot be created with IF NOT EXISTS, inspect:
         try:
             inspect_tables = "SELECT * FROM records LIMIT 0;"
-            with self.db as cursor:
+            with self.connect() as cursor:
                 cursor.execute(inspect_tables)
             exists = True
         except psycopg2.ProgrammingError:
@@ -88,7 +87,7 @@ class PostgreSQL(StorageBase):
           FROM pg_database
          WHERE datname =  current_database();
         """
-        with self.db as cursor:
+        with self.connect() as cursor:
             cursor.execute(query)
             result = cursor.fetchone()
         encoding = result['encoding'].lower()
@@ -97,7 +96,7 @@ class PostgreSQL(StorageBase):
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, 'schema.sql')).read()
-        with self.db as cursor:
+        with self.connect() as cursor:
             cursor.execute(schema)
         logger.info('Created PostgreSQL storage tables')
 
@@ -109,13 +108,13 @@ class PostgreSQL(StorageBase):
         DELETE FROM deleted;
         DELETE FROM records;
         """
-        with self.db as cursor:
+        with self.connect() as cursor:
             cursor.execute(query)
         logger.debug('Flushed PostgreSQL storage tables')
 
     def ping(self):
         try:
-            with self.db as cursor:
+            with self.connect() as cursor:
                 cursor.execute("SELECT now();")
             return True
         except psycopg2.Error:
@@ -128,7 +127,7 @@ class PostgreSQL(StorageBase):
         """
         resource_name = classname(resource)
         placeholders = dict(user_id=user_id, resource_name=resource_name)
-        with self.db as cursor:
+        with self.connect() as cursor:
             cursor.execute(query, placeholders)
             result = cursor.fetchone()
         return result['timestamp']
@@ -144,7 +143,7 @@ class PostgreSQL(StorageBase):
                             resource_name=resource_name,
                             data=json.dumps(record))
 
-        with self.db as cursor:
+        with self.connect() as cursor:
             self.check_unicity(resource, user_id, record)
 
             cursor.execute(query, placeholders)
@@ -162,7 +161,7 @@ class PostgreSQL(StorageBase):
          WHERE id = %(record_id)s
         """
         placeholders = dict(record_id=record_id)
-        with self.db as cursor:
+        with self.connect() as cursor:
             cursor.execute(query, placeholders)
             if cursor.rowcount == 0:
                 raise exceptions.RecordNotFoundError(record_id)
@@ -193,7 +192,7 @@ class PostgreSQL(StorageBase):
                             resource_name=resource_name,
                             data=json.dumps(record))
 
-        with self.db as cursor:
+        with self.connect() as cursor:
             self.check_unicity(resource, user_id, record)
 
             # Create or update ?
@@ -215,7 +214,7 @@ class PostgreSQL(StorageBase):
                             user_id=user_id,
                             resource_name=resource_name)
 
-        with self.db as cursor:
+        with self.connect() as cursor:
             query = """
             DELETE
             FROM records
@@ -315,7 +314,7 @@ class PostgreSQL(StorageBase):
             assert isinstance(limit, six.integer_types)  # validated in view
             safeholders['pagination_limit'] = 'LIMIT %s' % limit
 
-        with self.db as cursor:
+        with self.connect() as cursor:
             cursor.execute(query % safeholders, placeholders)
             results = cursor.fetchmany(self._max_fetch_size)
 
