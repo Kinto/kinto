@@ -101,7 +101,7 @@ BEGIN
     current := localtimestamp;
 
     IF previous >= current THEN
-        current := current + INTERVAL '1 milliseconds';
+        current := previous + INTERVAL '1 milliseconds';
     END IF;
 
     NEW.last_modified := current;
