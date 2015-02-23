@@ -34,16 +34,6 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         self.app.patch('/batch', headers=self.headers, status=405)
         self.app.delete('/batch', headers=self.headers, status=405)
 
-    def test_responses_are_redirects_if_no_prefix(self):
-        request = {'path': '/'}
-        body = {'requests': [request]}
-        resp = self.app.post_json('/batch', body, headers=self.headers)
-        redirect = resp.json['responses'][0]
-        self.assertEqual(redirect['path'], '/')
-        self.assertEqual(redirect['status'], 307)
-        self.assertEqual(redirect['body'], '')
-        self.assertEqual(redirect['headers']['Location'], '/v0/')
-
     def test_responses_are_resolved_on_api_with_prefix(self):
         request = {'path': '/v0/'}
         body = {'requests': [request]}
@@ -80,6 +70,16 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         body = {'requests': [request]}
         resp = self.app.post_json('/batch', body, status=400)
         self.assertIn('Recursive', resp.json['message'])
+
+    def test_responses_are_resolved_with_api_with_prefix(self):
+        request = {'path': '/'}
+        body = {'requests': [request]}
+        resp = self.app.post_json('/batch', body, headers=self.headers)
+        hello = resp.json['responses'][0]
+        self.assertEqual(hello['path'], '/v0/')
+        self.assertEqual(hello['status'], 200)
+        self.assertEqual(hello['body']['hello'], 'cliquet')
+        self.assertIn('application/json', hello['headers']['Content-Type'])
 
 
 class BatchSchemaTest(unittest.TestCase):
