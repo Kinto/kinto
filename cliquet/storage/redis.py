@@ -9,7 +9,6 @@ from cliquet.storage import (
 )
 
 from cliquet import utils
-from cliquet.utils import classname
 
 
 class Redis(StorageBase):
@@ -41,16 +40,14 @@ class Redis(StorageBase):
 
     def collection_timestamp(self, resource, user_id):
         """Return the last timestamp for the resource collection of the user"""
-        resource_name = classname(resource)
         timestamp = self._client.get(
-            '{0}.{1}.timestamp'.format(resource_name, user_id))
+            '{0}.{1}.timestamp'.format(resource.name, user_id))
         if timestamp:
             return int(timestamp)
         return utils.msec_time()
 
     def _bump_timestamp(self, resource, user_id):
-        resource_name = classname(resource)
-        key = '{0}.{1}.timestamp'.format(resource_name, user_id)
+        key = '{0}.{1}.timestamp'.format(resource.name, user_id)
         while 1:
             with self._client.pipeline() as pipe:
                 try:
@@ -76,8 +73,7 @@ class Redis(StorageBase):
         _id = record[resource.id_field] = self.id_generator()
         self.set_record_timestamp(resource, user_id, record)
 
-        resource_name = classname(resource)
-        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+        record_key = '{0}.{1}.{2}.records'.format(resource.name,
                                                   user_id,
                                                   _id)
         with self._client.pipeline() as multi:
@@ -86,7 +82,7 @@ class Redis(StorageBase):
                 self._encode(record)
             )
             multi.sadd(
-                '{0}.{1}.records'.format(resource_name, user_id),
+                '{0}.{1}.records'.format(resource.name, user_id),
                 _id
             )
             multi.execute()
@@ -94,8 +90,7 @@ class Redis(StorageBase):
         return record
 
     def get(self, resource, user_id, record_id):
-        resource_name = classname(resource)
-        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+        record_key = '{0}.{1}.{2}.records'.format(resource.name,
                                                   user_id,
                                                   record_id)
         encoded_item = self._client.get(record_key)
@@ -111,8 +106,7 @@ class Redis(StorageBase):
 
         self.set_record_timestamp(resource, user_id, record)
 
-        resource_name = classname(resource)
-        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+        record_key = '{0}.{1}.{2}.records'.format(resource.name,
                                                   user_id,
                                                   record_id)
         with self._client.pipeline() as multi:
@@ -121,7 +115,7 @@ class Redis(StorageBase):
                 self._encode(record)
             )
             multi.sadd(
-                '{0}.{1}.records'.format(resource_name, user_id),
+                '{0}.{1}.records'.format(resource.name, user_id),
                 record_id
             )
             multi.execute()
@@ -129,15 +123,14 @@ class Redis(StorageBase):
         return record
 
     def delete(self, resource, user_id, record_id):
-        resource_name = classname(resource)
-        record_key = '{0}.{1}.{2}.records'.format(resource_name,
+        record_key = '{0}.{1}.{2}.records'.format(resource.name,
                                                   user_id,
                                                   record_id)
         with self._client.pipeline() as multi:
             multi.get(record_key)
             multi.delete(record_key)
             multi.srem(
-                '{0}.{1}.records'.format(resource_name, user_id),
+                '{0}.{1}.records'.format(resource.name, user_id),
                 record_id
             )
             responses = multi.execute()
@@ -150,7 +143,7 @@ class Redis(StorageBase):
         self.set_record_timestamp(resource, user_id, existing)
         existing = self.strip_deleted_record(resource, user_id, existing)
 
-        deleted_record_key = '{0}.{1}.{2}.deleted'.format(resource_name,
+        deleted_record_key = '{0}.{1}.{2}.deleted'.format(resource.name,
                                                           user_id,
                                                           record_id)
         with self._client.pipeline() as multi:
@@ -159,7 +152,7 @@ class Redis(StorageBase):
                 self._encode(existing)
             )
             multi.sadd(
-                '{0}.{1}.deleted'.format(resource_name, user_id),
+                '{0}.{1}.deleted'.format(resource.name, user_id),
                 record_id
             )
             multi.execute()
@@ -168,11 +161,10 @@ class Redis(StorageBase):
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
-        resource_name = classname(resource)
-        records_ids_key = '{0}.{1}.records'.format(resource_name, user_id)
+        records_ids_key = '{0}.{1}.records'.format(resource.name, user_id)
         ids = self._client.smembers(records_ids_key)
 
-        keys = ('{0}.{1}.{2}.records'.format(resource_name, user_id,
+        keys = ('{0}.{1}.{2}.records'.format(resource.name, user_id,
                                              _id.decode('utf-8'))
                 for _id in ids)
 
@@ -184,10 +176,10 @@ class Redis(StorageBase):
 
         deleted = {}
         if include_deleted:
-            deleted_ids_key = '{0}.{1}.deleted'.format(resource_name, user_id)
+            deleted_ids_key = '{0}.{1}.deleted'.format(resource.name, user_id)
             ids = self._client.smembers(deleted_ids_key)
 
-            keys = ('{0}.{1}.{2}.deleted'.format(resource_name, user_id,
+            keys = ('{0}.{1}.{2}.deleted'.format(resource.name, user_id,
                                                  _id.decode('utf-8'))
                     for _id in ids)
 
