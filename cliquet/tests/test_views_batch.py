@@ -34,7 +34,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         self.app.patch('/batch', headers=self.headers, status=405)
         self.app.delete('/batch', headers=self.headers, status=405)
 
-    def test_responses_are_resolved_on_api_with_prefix(self):
+    def test_batch_adds_missing_api_with_prefix(self):
         request = {'path': '/v0/'}
         body = {'requests': [request]}
         resp = self.app.post_json('/batch', body, headers=self.headers)
