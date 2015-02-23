@@ -84,19 +84,17 @@ In configuration::
 
     cliquet.storage_backend = cliquet.storage.postgresql
 
-*(Optional)* Instance location URI can be customized::
+Database location URI can be customized::
 
     cliquet.storage_url = postgres://user:pass@db.server.lan:5432/dbname
 
+Username and password could also rely on system user ident or even specified
+in ``~/.pgpass`` (*see PostgreSQL documentation*).
 
-*(Optional*) Memory usage parameters::
+:note:
 
-    # Number of connections * postgres work_mem
-    pool_minconn = 4
-    pool_maxconn = 10
-    # Max number of records * number of web workers
-    max_fetch_size = 10000
-
+    Using a `connection pool <http://pgpool.net>`_ is highly recommended to
+    boost performances and bound memory usage (*work_mem per connection*).
 
 
 Install Redis
@@ -156,3 +154,8 @@ Run tests
 ::
 
     make tests
+
+:note:
+
+    A dedicated database ``testdb`` is used for PostgreSQL storage tests,
+    make sure it's created before running the tests.
