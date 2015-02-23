@@ -42,6 +42,7 @@ class StorageBaseTest(unittest.TestCase):
 
 class TestResource(object):
     id_field = "id"
+    name = "test"
     modified_field = "last_modified"
     deleted_mark = ("deleted", True)
 

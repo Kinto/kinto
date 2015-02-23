@@ -11,7 +11,7 @@ from six.moves.urllib.parse import urlencode
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet import errors
 from cliquet.utils import (
-    COMPARISON, native_value, msec_time, decode_token, encode_token
+    COMPARISON, classname, native_value, msec_time, decode_token, encode_token
 )
 
 
@@ -82,6 +82,11 @@ class BaseResource(object):
                               user_id=request.authenticated_userid)
         self.known_fields = [c.name for c in self.mapping.children]
         self.timestamp = self.db.collection_timestamp(**self.db_kwargs)
+
+    @property
+    def name(self):
+        """Resource name, unique."""
+        return classname(self)
 
     @property
     def schema(self):
