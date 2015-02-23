@@ -15,7 +15,10 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 
 from cliquet import authentication
 from cliquet.errors import HTTPServiceDeprecated
+from cliquet.session import SessionCache
 from cliquet.utils import msec_time
+
+DEFAULT_OAUTH_CACHE_SECONDS = 5 * 60
 
 
 # Module version, as defined in PEP-0396.
@@ -53,9 +56,12 @@ def handle_api_redirection(config):
 def set_auth(config):
     """Define the authentication and authorization policies.
     """
+    ttl = int(config.registry.settings.get('fxa-oauth.cache_ttl_seconds',
+                                           DEFAULT_OAUTH_CACHE_SECONDS))
+
     policies = [
         authentication.Oauth2AuthenticationPolicy(
-            cache=config.registry.session),
+            cache=SessionCache(config.registry.session, ttl=ttl)),
         authentication.BasicAuthAuthenticationPolicy(),
     ]
     authn_policy = MultiAuthenticationPolicy(policies)

@@ -9,7 +9,6 @@ from pyramid.security import Authenticated
 from zope.interface import implementer
 
 from cliquet.errors import HTTPServiceUnavailable
-from cliquet.session import SessionCache
 
 
 def check_credentials(username, password, request):
@@ -59,7 +58,6 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
     def _get_credentials(self, request):
         authorization = request.headers.get('Authorization', '')
         settings = request.registry.settings
-        ttl = int(settings.get('fxa-oauth.cache_ttl_seconds', 5 * 60))
 
         try:
             authmeth, auth = authorization.split(' ', 1)
@@ -70,9 +68,7 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         server_url = settings['fxa-oauth.oauth_uri']
         scope = settings['fxa-oauth.scope']
 
-        auth_client = OAuthClient(
-            server_url=server_url,
-            cache=SessionCache(request.registry.session, ttl=ttl))
+        auth_client = OAuthClient(server_url=server_url, cache=self.cache)
         try:
             profile = auth_client.verify_token(token=auth, scope=scope)
             hmac_secret = settings.get('cliquet.userid_hmac_secret')
