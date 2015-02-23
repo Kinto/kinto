@@ -377,6 +377,14 @@ class DeletedRecordsTest(object):
         self.assertEqual(deleted['deleted'], True)
         self.assertNotIn('challenge', deleted)
 
+    def test_delete_all_keeps_track_of_deleted_records(self):
+        self.create_and_delete_record()
+        self.storage.delete_all(self.resource, self.user_id)
+        records, count = self.storage.get_all(self.resource, self.user_id,
+                                              include_deleted=True)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(count, 0)
+
     #
     # Sorting
     #

@@ -4,6 +4,7 @@ import colander
 from cornice import resource
 from cornice.schemas import CorniceSchema
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
+                                    HTTPMethodNotAllowed,
                                     HTTPNotFound, HTTPConflict)
 import six
 from six.moves.urllib.parse import urlencode
@@ -428,6 +429,24 @@ class BaseResource(object):
 
         self.request.response.status_code = 201
         return record
+
+    @resource.view(permission='readwrite')
+    def collection_delete(self):
+        settings = self.request.registry.settings
+        enabled = settings.get('cliquet.delete_collection_enabled', 'true')
+        if not native_value(enabled):
+            raise HTTPMethodNotAllowed()
+
+        self.raise_412_if_modified()
+
+        filters = self._extract_filters()
+        deleted = self.db.delete_all(filters=filters, **self.db_kwargs)
+
+        body = {
+            'items': deleted,
+        }
+
+        return body
 
     @resource.view(permission='readonly')
     def get(self):

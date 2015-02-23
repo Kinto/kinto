@@ -35,6 +35,39 @@ class CreateTest(BaseTest):
         self.assertIn('field', record)
 
 
+class DeleteCollectionTest(BaseTest):
+    def setUp(self):
+        super(DeleteCollectionTest, self).setUp()
+        self.resource.known_fields = ('field',)
+        self.db.create(self.resource, 'bob', {'field': 'a'})
+        self.db.create(self.resource, 'bob', {'field': 'b'})
+
+    def test_delete_on_list_removes_all_records(self):
+        self.resource.collection_delete()
+        result = self.resource.collection_get()
+        records = result['items']
+        self.assertEqual(len(records), 0)
+
+    def test_delete_returns_deleted_version_of_records(self):
+        result = self.resource.collection_delete()
+        deleted = result['items'][0]
+        self.assertIn('deleted', deleted)
+
+    def test_delete_supports_collection_filters(self):
+        self.resource.request.GET = {'field': 'a'}
+        self.resource.collection_delete()
+        self.resource.request.GET = {}
+        result = self.resource.collection_get()
+        records = result['items']
+        self.assertEqual(len(records), 1)
+
+    def test_delete_on_collection_can_be_disabled_via_settings(self):
+        key = 'cliquet.delete_collection_enabled'
+        self.resource.request.registry.settings[key] = 'false'
+        self.assertRaises(httpexceptions.HTTPMethodNotAllowed,
+                          self.resource.collection_delete)
+
+
 class IsolatedCollectionsTest(BaseTest):
     def setUp(self):
         super(IsolatedCollectionsTest, self).setUp()
