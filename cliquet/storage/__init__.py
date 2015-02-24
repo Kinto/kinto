@@ -32,14 +32,21 @@ class StorageBase(object):
         raise NotImplementedError
 
     def delete_all(self, resource, user_id, filters=None):
-        """Delete a set of records.
+        """Delete all records in this resource for this user.
 
-        XXX: Move this MemoryBasedStorage once PostgreSQL branch is merged.
+        :param resource: the record associated resource
+        :type resource: cliquer.resource.BaseResource
+
+        :param user_id: the owner of the record
+        :type user_id: unicode
+
+        :param filters: Optionnally filter the records to delete.
+        :type filters: list of filters
+
+        :returns: the list of deleted records, with minimal set of attributes.
+        :rtype: list of dict
         """
-        records, count = self.get_all(resource, user_id, filters=filters)
-        deleted = [self.delete(resource, user_id, r[resource.id_field])
-                   for r in records]
-        return deleted
+        raise NotImplementedError
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None):
@@ -66,6 +73,12 @@ class StorageBase(object):
 
 
 class MemoryBasedStorage(StorageBase):
+
+    def delete_all(self, resource, user_id, filters=None):
+        records, count = self.get_all(resource, user_id, filters=filters)
+        deleted = [self.delete(resource, user_id, r[resource.id_field])
+                   for r in records]
+        return deleted
 
     def strip_deleted_record(self, resource, user_id, record):
         """Strip the record of all its fields expect id and timestamp,
