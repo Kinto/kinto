@@ -35,6 +35,28 @@ class StorageBase(object):
                 pagination_rules=None, limit=None):
         raise NotImplementedError
 
+    def check_unicity(self, resource, user_id, record):
+        """Check that the specified record does not violates unicity
+        constraints defined in the resource's mapping options.
+        """
+        record_id = record.get(resource.id_field)
+        unique_fields = resource.mapping.Options.unique_fields
+
+        for field in unique_fields:
+            value = record.get(field)
+            filters = [(field, value, COMPARISON.EQ)]
+            if record_id:
+                filters += [(resource.id_field, record_id, COMPARISON.NOT)]
+
+            if value is not None:
+                existing, count = self.get_all(resource, user_id,
+                                               filters=filters)
+                if count > 0:
+                    raise exceptions.UnicityError(field, existing[0])
+
+
+class MemoryBasedStorage(StorageBase):
+
     def strip_deleted_record(self, resource, user_id, record):
         """Strip the record of all its fields expect id and timestamp,
         and set the deletion field value (e.g deleted=True)
@@ -53,23 +75,8 @@ class StorageBase(object):
         record[resource.modified_field] = timestamp
         return record
 
-    def check_unicity(self, resource, user_id, record):
-        """Check that the specified record does not violates unicity
-        constraints defined in the resource's mapping options.
-        """
-        record_id = record.get(resource.id_field)
-        unique_fields = resource.mapping.Options.unique_fields
-
-        for field in unique_fields:
-            value = record.get(field)
-            filters = [(field, value, COMPARISON.EQ),
-                       (resource.id_field, record_id, COMPARISON.NOT)]
-
-            if value is not None:
-                existing, count = self.get_all(resource, user_id,
-                                               filters=filters)
-                if count > 0:
-                    raise exceptions.UnicityError(field, existing[0])
+    def _bump_timestamp(self, resource, user_id):
+        raise NotImplementedError
 
 
 def apply_filters(records, filters):
@@ -94,11 +101,13 @@ def apply_sorting(records, sorting):
     if not result:
         return result
 
+    def column(record, name):
+        empty = result[0].get(name, float('inf'))
+        return record.get(name, empty)
+
     for field, direction in reversed(sorting):
-        is_boolean_field = isinstance(result[0].get(field, True), bool)
-        desc = direction < 0 or is_boolean_field
-        # If field is missing from record, record will come first
-        result = sorted(result, key=lambda r: r.get(field, -1), reverse=desc)
+        desc = direction < 0
+        result = sorted(result, key=lambda r: column(r, field), reverse=desc)
 
     return result
 
@@ -108,13 +117,11 @@ def extract_record_set(resource, records, filters, sorting,
     """Take the list of records and handle filtering, sorting and pagination.
 
     """
-    if not pagination_rules:
-        pagination_rules = []
     filtered = list(apply_filters(records, filters or []))
     total_records = len(filtered)
 
     paginated = {}
-    for rule in pagination_rules:
+    for rule in pagination_rules or []:
         values = list(apply_filters(filtered, rule))
         paginated.update(dict(((x[resource.id_field], x) for x in values)))
 
@@ -125,7 +132,10 @@ def extract_record_set(resource, records, filters, sorting,
 
     sorted_ = apply_sorting(paginated, sorting or [])
 
+    field, value = resource.deleted_mark
+    filtered_deleted = len([r for r in sorted_ if r.get(field) == value])
+
     if limit:
         sorted_ = list(sorted_)[:limit]
 
-    return sorted_, total_records
+    return sorted_, total_records - filtered_deleted

@@ -3,15 +3,16 @@ from __future__ import absolute_import
 import json
 import redis
 import time
+from six.moves.urllib import parse as urlparse
 
 from cliquet.storage import (
-    StorageBase, exceptions, extract_record_set
+    MemoryBasedStorage, exceptions, extract_record_set
 )
 
 from cliquet import utils
 
 
-class Redis(StorageBase):
+class Redis(MemoryBasedStorage):
 
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
@@ -174,7 +175,7 @@ class Redis(StorageBase):
             encoded_results = self._client.mget(keys)
             records = [self._decode(r) for r in encoded_results if r]
 
-        deleted = {}
+        deleted = []
         if include_deleted:
             deleted_ids_key = '{0}.{1}.deleted'.format(resource.name, user_id)
             ids = self._client.smembers(deleted_ids_key)
@@ -184,24 +185,22 @@ class Redis(StorageBase):
                     for _id in ids)
 
             encoded_results = self._client.mget(keys)
-            results = [self._decode(r) for r in encoded_results if r]
-            for result in results:
-                deleted[result[resource.id_field]] = result
+            deleted = [self._decode(r) for r in encoded_results if r]
 
         records, count = extract_record_set(resource,
-                                            records + list(deleted.values()),
+                                            records + deleted,
                                             filters, sorting,
                                             pagination_rules, limit)
 
-        filtered_deleted = len([r for r in records
-                                if r[resource.id_field] in deleted])
-
-        return records, count - filtered_deleted
+        return records, count
 
 
 def load_from_config(config):
     settings = config.registry.settings
-    host = settings.get('redis.host', 'localhost')
-    port = settings.get('redis.port', 6379)
-    db = settings.get('redis.db', 0)
-    return Redis(host=host, port=port, db=db)
+    uri = settings.get('cliquet.storage_url', '')
+    uri = urlparse.urlparse(uri)
+
+    return Redis(host=uri.hostname or 'localhost',
+                 port=uri.port or 6739,
+                 password=uri.password or None,
+                 db=int(uri.path[1:]) if uri.path else 0)

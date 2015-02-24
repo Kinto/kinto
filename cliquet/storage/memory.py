@@ -1,14 +1,16 @@
 from collections import defaultdict
 
 from cliquet import utils
-from cliquet.storage import StorageBase, exceptions, extract_record_set
+from cliquet.storage import (
+    MemoryBasedStorage, exceptions, extract_record_set
+)
 
 
 def tree():
     return defaultdict(tree)
 
 
-class Memory(StorageBase):
+class Memory(MemoryBasedStorage):
     def __init__(self, *args, **kwargs):
         super(Memory, self).__init__(*args, **kwargs)
         self.flush()
@@ -79,19 +81,16 @@ class Memory(StorageBase):
                 pagination_rules=None, limit=None, include_deleted=False):
         records = list(self._store[resource.name][user_id].values())
 
-        deleted = {}
+        deleted = []
         if include_deleted:
-            deleted = self._cemetery[resource.name][user_id]
+            deleted = list(self._cemetery[resource.name][user_id].values())
 
         records, count = extract_record_set(resource,
-                                            records + list(deleted.values()),
+                                            records + deleted,
                                             filters, sorting,
                                             pagination_rules, limit)
 
-        filtered_deleted = len([r for r in records
-                                if r[resource.id_field] in deleted])
-
-        return records, count - filtered_deleted
+        return records, count
 
 
 def load_from_config(config):

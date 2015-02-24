@@ -12,10 +12,14 @@ REQUIREMENTS = [
     'python-dateutil',
     'pyfxa',
     'pyramid_multiauth',
-    'redis',
+    'redis',  # Session backend
+    'requests',
     'six',
 ]
 
+POSTGRESQL_REQUIRES = [
+    'psycopg2>2.5',
+]
 
 setup(name='cliquet',
       version='0.3.dev0',
@@ -33,4 +37,7 @@ setup(name='cliquet',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      install_requires=REQUIREMENTS)
+      install_requires=REQUIREMENTS,
+      extras_require={
+        'postgresql': REQUIREMENTS + POSTGRESQL_REQUIRES,
+      })

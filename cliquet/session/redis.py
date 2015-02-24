@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 import time
+
 import redis
+from six.moves.urllib import parse as urlparse
 
 from cliquet.session import SessionStorageBase
 
@@ -43,7 +45,10 @@ class RedisSessionStorage(SessionStorageBase):
 
 def load_from_config(config):
     settings = config.registry.settings
-    host = settings.get('session_redis.host', 'localhost')
-    port = settings.get('session_redis.port', 6379)
-    db = settings.get('session_redis.db', 1)
-    return RedisSessionStorage(host=host, port=port, db=db)
+    uri = settings.get('cliquet.session_url', '')
+    uri = urlparse.urlparse(uri)
+
+    return RedisSessionStorage(host=uri.hostname or 'localhost',
+                               port=uri.port or 6739,
+                               password=uri.password or None,
+                               db=int(uri.path[1:]) if uri.path else 0)
