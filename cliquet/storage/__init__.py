@@ -1,7 +1,16 @@
 import operator
+from collections import namedtuple
+
 from cliquet.storage import exceptions
 from cliquet.storage.id_generator import UUID4Generator
 from cliquet.utils import COMPARISON
+
+
+Filter = namedtuple('Filter', ['field', 'value', 'operator'])
+"""Filtering properties."""
+
+Sort = namedtuple('Sort', ['field', 'direction'])
+"""Sorting properties."""
 
 
 class StorageBase(object):
@@ -54,9 +63,10 @@ class StorageBase(object):
 
         for field in unique_fields:
             value = record.get(field)
-            filters = [(field, value, COMPARISON.EQ)]
+            filters = [Filter(field, value, COMPARISON.EQ)]
             if record_id:
-                filters += [(resource.id_field, record_id, COMPARISON.NOT)]
+                exclude = Filter(resource.id_field, record_id, COMPARISON.NOT)
+                filters.append(exclude)
 
             if value is not None:
                 existing, count = self.get_all(resource, user_id,
@@ -100,7 +110,8 @@ def apply_filters(records, filters):
     }
 
     for record in records:
-        matches = [operators[op](record.get(k), v) for k, v, op in filters]
+        matches = [operators[f.operator](record.get(f.field), f.value)
+                   for f in filters]
         if all(matches):
             yield record
 
@@ -115,9 +126,10 @@ def apply_sorting(records, sorting):
         empty = result[0].get(name, float('inf'))
         return record.get(name, empty)
 
-    for field, direction in reversed(sorting):
-        desc = direction < 0
-        result = sorted(result, key=lambda r: column(r, field), reverse=desc)
+    for sort in reversed(sorting):
+        result = sorted(result,
+                        key=lambda r: column(r, sort.field),
+                        reverse=(sort.direction < 0))
 
     return result
 

@@ -5,8 +5,9 @@ import time
 
 import psycopg2
 from cliquet.storage import (
-    StorageBase, exceptions, memory,
-    redis as redisbackend, postgresql
+    exceptions, Filter, memory,
+    redis as redisbackend, postgresql,
+    Sort, StorageBase
 )
 from cliquet import utils, errors
 from pyramid.config import global_registries
@@ -158,7 +159,7 @@ class BaseTestStorage(object):
     def test_get_all_handle_sorting_on_id(self):
         for x in range(3):
             self.storage.create(self.resource, self.user_id, self.record)
-        sorting = [('id', 1)]
+        sorting = [Sort('id', 1)]
         records, _ = self.storage.get_all(self.resource,
                                           self.user_id,
                                           sorting=sorting)
@@ -173,7 +174,7 @@ class BaseTestStorage(object):
 
         records, total_records = self.storage.get_all(
             self.resource, self.user_id, pagination_rules=[
-                [('number', 1, utils.COMPARISON.GT)]
+                [Filter('number', 1, utils.COMPARISON.GT)]
             ])
         self.assertEqual(total_records, 10)
         self.assertEqual(len(records), 3)
@@ -187,8 +188,8 @@ class BaseTestStorage(object):
 
         records, total_records = self.storage.get_all(
             self.resource, self.user_id, pagination_rules=[
-                [('number', 1, utils.COMPARISON.GT)],
-                [('id', last_record['id'], utils.COMPARISON.EQ)]
+                [Filter('number', 1, utils.COMPARISON.GT)],
+                [Filter('id', last_record['id'], utils.COMPARISON.EQ)]
 
             ])
         self.assertEqual(total_records, 10)
@@ -416,7 +417,7 @@ class DeletedRecordsTest(object):
             first = record if i == 1 else first
             last = record if i == 20 else last
 
-        sorting = [('last_modified', -1)]
+        sorting = [Sort('last_modified', -1)]
         records, _ = self.storage.get_all(self.resource, self.user_id,
                                           sorting=sorting,
                                           include_deleted=True)
@@ -429,7 +430,7 @@ class DeletedRecordsTest(object):
         self.storage.create(self.resource, self.user_id, {})
         self.create_and_delete_record()
 
-        sorting = [('last_modified', 1)]
+        sorting = [Sort('last_modified', 1)]
         records, _ = self.storage.get_all(self.resource, self.user_id,
                                           sorting=sorting,
                                           include_deleted=True)
@@ -443,7 +444,7 @@ class DeletedRecordsTest(object):
         self.create_and_delete_record({'status': 1})
         self.create_and_delete_record({'status': 2})
 
-        sorting = [('status', 1)]
+        sorting = [Sort('status', 1)]
         records, _ = self.storage.get_all(self.resource, self.user_id,
                                           sorting=sorting,
                                           include_deleted=True)
@@ -457,7 +458,7 @@ class DeletedRecordsTest(object):
         self.storage.create(self.resource, self.user_id, {})
         self.create_and_delete_record()
 
-        sorting = [('deleted', 1)]
+        sorting = [Sort('deleted', 1)]
         records, _ = self.storage.get_all(self.resource, self.user_id,
                                           sorting=sorting,
                                           include_deleted=True)
@@ -475,7 +476,7 @@ class DeletedRecordsTest(object):
         self.storage.create(self.resource, self.user_id, {})
         self.create_and_delete_record()
 
-        filters = [('last_modified', before, utils.COMPARISON.GT)]
+        filters = [Filter('last_modified', before, utils.COMPARISON.GT)]
         records, count = self.storage.get_all(self.resource, self.user_id,
                                               filters=filters,
                                               include_deleted=True)
@@ -487,7 +488,7 @@ class DeletedRecordsTest(object):
         self.create_and_delete_record({'status': 1})
         self.create_and_delete_record({'status': 2})
 
-        filters = [('status', 0, utils.COMPARISON.EQ)]
+        filters = [Filter('status', 0, utils.COMPARISON.EQ)]
         records, count = self.storage.get_all(self.resource, self.user_id,
                                               filters=filters,
                                               include_deleted=True)
@@ -498,7 +499,7 @@ class DeletedRecordsTest(object):
         self.storage.create(self.resource, self.user_id, {})
         self.create_and_delete_record()
 
-        filters = [('deleted', True, utils.COMPARISON.EQ)]
+        filters = [Filter('deleted', True, utils.COMPARISON.EQ)]
         records, count = self.storage.get_all(self.resource, self.user_id,
                                               filters=filters,
                                               include_deleted=True)
@@ -510,7 +511,7 @@ class DeletedRecordsTest(object):
         self.storage.create(self.resource, self.user_id, {})
         self.create_and_delete_record()
 
-        filters = [('deleted', True, utils.COMPARISON.NOT)]
+        filters = [Filter('deleted', True, utils.COMPARISON.NOT)]
         records, count = self.storage.get_all(self.resource, self.user_id,
                                               filters=filters,
                                               include_deleted=True)
@@ -522,7 +523,7 @@ class DeletedRecordsTest(object):
         self.storage.create(self.resource, self.user_id, {})
         self.create_and_delete_record()
 
-        filters = [('deleted', False, utils.COMPARISON.EQ)]
+        filters = [Filter('deleted', False, utils.COMPARISON.EQ)]
         records, count = self.storage.get_all(self.resource, self.user_id,
                                               filters=filters,
                                               include_deleted=True)
@@ -533,7 +534,7 @@ class DeletedRecordsTest(object):
         self.storage.create(self.resource, self.user_id, {})
         self.create_and_delete_record()
 
-        filters = [('deleted', True, utils.COMPARISON.EQ)]
+        filters = [Filter('deleted', True, utils.COMPARISON.EQ)]
         records, count = self.storage.get_all(self.resource, self.user_id,
                                               filters=filters)
         self.assertEqual(len(records), 0)
@@ -550,8 +551,8 @@ class DeletedRecordsTest(object):
             else:
                 self.storage.create(self.resource, self.user_id, {})
 
-        pagination = [[('last_modified', 0, utils.COMPARISON.GT)]]
-        sorting = [('last_modified', 1)]
+        pagination = [[Filter('last_modified', 0, utils.COMPARISON.GT)]]
+        sorting = [Sort('last_modified', 1)]
         records, count = self.storage.get_all(self.resource, self.user_id,
                                               sorting=sorting,
                                               pagination_rules=pagination,
