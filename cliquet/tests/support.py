@@ -9,7 +9,6 @@ except ImportError:
 import webtest
 from cornice import errors as cornice_errors
 
-from cliquet import API_VERSION
 from cliquet.utils import random_bytes_hex
 from cliquet.tests.testapp import main as testapp
 
@@ -32,7 +31,7 @@ class PrefixedRequestClass(webtest.app.TestRequest):
 
     @classmethod
     def blank(cls, path, *args, **kwargs):
-        path = '/%s%s' % (API_VERSION, path)
+        path = '/v0%s' % path
         return webtest.app.TestRequest.blank(path, *args, **kwargs)
 
 

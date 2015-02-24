@@ -169,3 +169,15 @@ def includeme(config):
     # Include cornice and discover views.
     config.include("cornice")
     config.scan("cliquet.views")
+
+
+def initialize_cliquet(config, version):
+    """Initialize Cliquet with the given configuration and version"""
+
+    # The API version is derivated from the module version.
+    api_version = 'v%s' % version.split('.')[0]
+
+    # Include cliquet views with the correct api version prefix.
+    config.registry.project_version = version
+    config.include("cliquet", route_prefix=api_version)
+    config.route_prefix = api_version

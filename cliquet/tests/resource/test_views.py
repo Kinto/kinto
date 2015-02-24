@@ -34,6 +34,7 @@ class BaseWebTest(unittest.TestCase):
         self.config.registry.session = RedisSessionStorage()
         self.config.registry.project_name = "cliquet"
         self.config.registry.project_docs = "https://cliquet.rtfd.org/"
+        self.config.registry.project_version = "0.0.1"
 
         Service.cors_origins = ('*',)
 
