@@ -239,7 +239,7 @@ class BatchServiceTest(unittest.TestCase):
 
     def test_returns_requests_path_in_responses(self):
         result = self.post({'requests': [{'path': '/'}]})
-        self.assertEqual(result['responses'][0]['path'], '/')
+        self.assertEqual(result['responses'][0]['path'], '/v0/')
 
     def test_subrequests_are_GET_by_default(self):
         self.post({'requests': [{'path': '/'}]})
@@ -279,7 +279,7 @@ class BatchServiceTest(unittest.TestCase):
         request = {'path': u'/ð ® ©'}
         self.post({'requests': [request]})
         subrequest, = self.request.invoke_subrequest.call_args[0]
-        self.assertEqual(subrequest.path, '/%C3%B0%20%C2%AE%20%C2%A9')
+        self.assertEqual(subrequest.path, '/v0/%C3%B0%20%C2%AE%20%C2%A9')
 
     def test_number_of_requests_is_not_limited_by_default(self):
         requests = {}

@@ -17,6 +17,7 @@ from cliquet.tests.testapp import main as testapp
 class DummyRequest(mock.MagicMock):
     def __init__(self, *args, **kwargs):
         super(DummyRequest, self).__init__(*args, **kwargs)
+        self.upath_info = '/v0/'
         self.registry = mock.MagicMock(settings={})
         self.GET = {}
         self.headers = {}
