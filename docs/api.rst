@@ -163,6 +163,22 @@ If an article is created with an URL that already exists, a ``200`` response
 is returned with the existing record in the body.
 
 
+DELETE /resource
+================
+
+**Requires authentication**
+
+Delete multiple records.
+
+The DELETE response is a JSON mapping with an ``items`` attribute, returning
+the list of records that were deleted.
+
+It supports the same filtering capabilities as GET.
+
+If the request header ``If-Unmodified-Since`` is provided, and if the collection
+has changed meanwhile, a ``412 Precondition failed`` error is returned.
+
+
 GET /articles/<id>
 ==================
 
