@@ -601,6 +601,17 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
                         side_effect=psycopg2.DatabaseError):
             self.assertFalse(self.storage.ping())
 
+    def test_ping_updates_a_value_in_the_metadata_table(self):
+        query = "SELECT value FROM metadata WHERE name='last_heartbeat';"
+        with self.storage.connect() as cursor:
+            cursor.execute(query)
+            before = cursor.fetchone()
+        self.storage.ping()
+        with self.storage.connect() as cursor:
+            cursor.execute(query)
+            after = cursor.fetchone()
+        self.assertNotEqual(before, after)
+
     def test_schema_is_not_recreated_from_scratch_if_already_exists(self):
         with mock.patch('cliquet.storage.postgresql.logger.debug') as mocked:
             self.backend.load_from_config(self._get_config())

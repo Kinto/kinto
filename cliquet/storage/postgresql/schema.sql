@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS metadata (
     value VARCHAR(512) NOT NULL
 );
 INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
+INSERT INTO metadata (name, value) VALUES ('last_heartbeat', '');
 
 
 --

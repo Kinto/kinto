@@ -68,14 +68,15 @@ class PostgreSQL(StorageBase):
         :note:
             Relies on JSON fields, available in recent versions of PostgreSQL.
         """
-        # Since indices cannot be created with IF NOT EXISTS, inspect:
-        try:
-            inspect_tables = "SELECT * FROM records LIMIT 0;"
-            with self.connect() as cursor:
-                cursor.execute(inspect_tables)
-            exists = True
-        except psycopg2.ProgrammingError:
-            exists = False
+        # Since indices cannot be created with IF NOT EXISTS, inspect.
+        query = """
+        SELECT *
+          FROM pg_tables
+         WHERE tablename = 'records';
+        """
+        with self.connect() as cursor:
+            cursor.execute(query)
+            exists = cursor.rowcount > 0
 
         if exists:
             logger.debug('Detected PostgreSQL storage tables')
@@ -113,9 +114,14 @@ class PostgreSQL(StorageBase):
         logger.debug('Flushed PostgreSQL storage tables')
 
     def ping(self):
+        query = """
+        UPDATE metadata
+           SET value = NOW()::TEXT
+         WHERE name = 'last_heartbeat';
+        """
         try:
             with self.connect() as cursor:
-                cursor.execute("SELECT now();")
+                cursor.execute(query)
             return True
         except psycopg2.Error:
             return False
