@@ -626,7 +626,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
                         side_effect=psycopg2.OperationalError):
             self.assertRaises(errors.HTTPServiceUnavailable,
                               self.storage.create,
-                              'foo', 'foo', {})
+                              self.resource, 'foo', {})
 
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
         for i in range(4):
@@ -655,5 +655,5 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
                         return_value=fake_connection):
             self.assertRaises(Exception,
                               self.storage.collection_timestamp,
-                              'foo', 'bar')
+                              self.resource, 'bar')
             self.assertTrue(fake_rollback.called)

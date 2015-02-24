@@ -11,7 +11,7 @@ from six.moves.urllib import parse as urlparse
 from cliquet import logger
 from cliquet import errors
 from cliquet.storage import StorageBase, exceptions
-from cliquet.utils import classname, COMPARISON
+from cliquet.utils import COMPARISON
 
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
@@ -131,8 +131,7 @@ class PostgreSQL(StorageBase):
         SELECT resource_timestamp(%(user_id)s, %(resource_name)s)::BIGINT
             AS timestamp;
         """
-        resource_name = classname(resource)
-        placeholders = dict(user_id=user_id, resource_name=resource_name)
+        placeholders = dict(user_id=user_id, resource_name=resource.name)
         with self.connect() as cursor:
             cursor.execute(query, placeholders)
             result = cursor.fetchone()
@@ -144,9 +143,8 @@ class PostgreSQL(StorageBase):
         VALUES (%(user_id)s, %(resource_name)s, %(data)s::json)
         RETURNING id, last_modified::BIGINT
         """
-        resource_name = classname(resource)
         placeholders = dict(user_id=user_id,
-                            resource_name=resource_name,
+                            resource_name=resource.name,
                             data=json.dumps(record))
 
         with self.connect() as cursor:
@@ -192,10 +190,9 @@ class PostgreSQL(StorageBase):
         WHERE id = %(record_id)s
         RETURNING last_modified::BIGINT
         """
-        resource_name = classname(resource)
         placeholders = dict(record_id=record_id,
                             user_id=user_id,
-                            resource_name=resource_name,
+                            resource_name=resource.name,
                             data=json.dumps(record))
 
         with self.connect() as cursor:
@@ -215,10 +212,9 @@ class PostgreSQL(StorageBase):
         return record
 
     def delete(self, resource, user_id, record_id):
-        resource_name = classname(resource)
         placeholders = dict(record_id=record_id,
                             user_id=user_id,
-                            resource_name=resource_name)
+                            resource_name=resource.name)
 
         with self.connect() as cursor:
             query = """
@@ -287,12 +283,11 @@ class PostgreSQL(StorageBase):
           %(sorting)s
           %(pagination_limit)s;
         """
-        resource_name = classname(resource)
         deleted_mark = json.dumps(dict([resource.deleted_mark]))
 
         # Unsafe strings escaped by PostgreSQL
         placeholders = dict(user_id=user_id,
-                            resource_name=resource_name,
+                            resource_name=resource.name,
                             deleted_mark=deleted_mark)
 
         # Safe strings
