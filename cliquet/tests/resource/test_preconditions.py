@@ -96,3 +96,7 @@ class ModifiedMeanwhileTest(BaseTest):
         self.resource.request.matchdict['id'] = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.delete)
+
+    def test_delete_all_returns_412_if_changed_meanwhile(self):
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed,
+                          self.resource.collection_delete)
