@@ -116,10 +116,10 @@ def build_request(original, dict_obj):
     :param original: the original batch request.
     :param dict_obj: a dict object with the sub-request specifications.
     """
-    api_prefix = '/'.join(original.upath_info.split('/')[:2])
+    api_prefix = '/%s' % original.upath_info.split('/')[1]
     path = dict_obj['path']
     if not path.startswith(api_prefix):
-        path = '%s%s' % (api_prefix, path)
+        path = api_prefix + path
     path = urlparse.quote(path.encode('utf8'))
 
     method = dict_obj.get('method') or 'GET'
