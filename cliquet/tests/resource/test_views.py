@@ -5,6 +5,7 @@ from cornice import Service
 from pyramid import testing
 
 from cliquet import set_auth, attach_http_objects
+from cliquet.session.redis import RedisSessionStorage
 from cliquet.storage.memory import Memory
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
@@ -30,6 +31,7 @@ class BaseWebTest(unittest.TestCase):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.config = testing.setUp()
         self.config.registry.storage = Memory()
+        self.config.registry.session = RedisSessionStorage()
         self.config.registry.project_name = "cliquet"
         self.config.registry.project_docs = "https://cliquet.rtfd.org/"
 

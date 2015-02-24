@@ -41,8 +41,9 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
 @implementer(IAuthenticationPolicy)
 class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
-    def __init__(self, realm='Realm'):
+    def __init__(self, realm='Realm', cache=True):
         self.realm = realm
+        self.cache = cache
 
     def unauthenticated_userid(self, request):
         user_id = self._get_credentials(request)
@@ -67,7 +68,7 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         server_url = settings['fxa-oauth.oauth_uri']
         scope = settings['fxa-oauth.scope']
 
-        auth_client = OAuthClient(server_url=server_url)
+        auth_client = OAuthClient(server_url=server_url, cache=self.cache)
         try:
             profile = auth_client.verify_token(token=auth, scope=scope)
             hmac_secret = settings.get('cliquet.userid_hmac_secret')

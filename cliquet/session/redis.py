@@ -31,8 +31,11 @@ class RedisSessionStorage(SessionStorageBase):
     def expire(self, key, value):
         self._client.pexpire(key, int(value * 1000))
 
-    def set(self, key, value):
-        self._client.set(key, value)
+    def set(self, key, value, ttl=None):
+        if ttl:
+            self._client.psetex(key, int(ttl * 1000), value)
+        else:
+            self._client.set(key, value)
 
     def get(self, key):
         value = self._client.get(key)
