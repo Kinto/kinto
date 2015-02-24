@@ -31,6 +31,16 @@ class StorageBase(object):
     def delete(self, resource, user_id, record_id):
         raise NotImplementedError
 
+    def delete_all(self, resource, user_id, filters=None):
+        """Delete a set of records.
+
+        XXX: Move this MemoryBasedStorage once PostgreSQL branch is merged.
+        """
+        records, count = self.get_all(resource, user_id, filters=filters)
+        deleted = [self.delete(resource, user_id, r[resource.id_field])
+                   for r in records]
+        return deleted
+
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None):
         raise NotImplementedError

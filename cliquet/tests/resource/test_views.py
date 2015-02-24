@@ -89,6 +89,9 @@ class AuthzAuthnTest(BaseWebTest):
         self.app.delete(url)
         self.assertEqual(permission_required(), 'readwrite')
 
+        self.app.delete(self.collection_url)
+        self.assertEqual(permission_required(), 'readwrite')
+
 
 class InvalidRecordTest(FakeAuthentMixin, BaseWebTest):
     def setUp(self):
