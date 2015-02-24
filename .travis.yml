@@ -1,0 +1,16 @@
+language: python
+python: 2.7
+sudo: false
+services: redis-server
+env:
+    - TOX_ENV=py26
+    - TOX_ENV=py27
+    - TOX_ENV=py34
+    - TOX_ENV=flake8
+    - TOX_ENV=docs
+    - ACTION=loadtest
+install:
+    - if [[ $ACTION != loadtest ]]; then pip install tox; fi
+script:
+    - if [[ $ACTION != loadtest ]]; then tox -e $TOX_ENV; fi
+    - if [[ $ACTION == loadtest ]]; then make loadtest-check; fi

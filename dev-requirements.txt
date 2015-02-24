@@ -1,0 +1,8 @@
+WebTest
+nose
+nose-cov
+nose-mocha-reporter
+mock
+Sphinx
+sphinx_rtd_theme
+requests
