@@ -56,12 +56,13 @@ def handle_api_redirection(config):
 def set_auth(config):
     """Define the authentication and authorization policies.
     """
-    ttl = int(config.registry.settings.get('fxa-oauth.cache_ttl_seconds',
-                                           DEFAULT_OAUTH_CACHE_SECONDS))
+    oauth_cache_ttl = int(config.registry.settings.get(
+        'fxa-oauth.cache_ttl_seconds',
+        DEFAULT_OAUTH_CACHE_SECONDS))
 
     policies = [
         authentication.Oauth2AuthenticationPolicy(
-            cache=SessionCache(config.registry.session, ttl=ttl)),
+            cache=SessionCache(config.registry.session, ttl=oauth_cache_ttl)),
         authentication.BasicAuthAuthenticationPolicy(),
     ]
     authn_policy = MultiAuthenticationPolicy(policies)

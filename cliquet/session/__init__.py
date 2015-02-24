@@ -33,8 +33,7 @@ class SessionCache(object):
         return self.cache.get(key)
 
     def set(self, key, value):
-        self.cache.set(key, value)
-        self.cache.expire(key, self.ttl)
+        self.cache.set(key, value, self.ttl)
 
     def delete(self, key):
         self.cache.delete(key)
