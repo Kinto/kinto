@@ -41,7 +41,7 @@ class StorageBase(object):
             This should take deleted records into account.
 
         :param resource: the record associated resource
-        :type resource: cliquer.resource.BaseResource
+        :type resource: :class:`cliquet.resource.BaseResource`
 
         :param user_id: the owner of the record
         :type user_id: unicode
@@ -61,7 +61,7 @@ class StorageBase(object):
         :raises: cliquet.storage.exceptions.UnicityError
 
         :param resource: the record associated resource
-        :type resource: cliquer.resource.BaseResource
+        :type resource: :class:`cliquet.resource.BaseResource`
 
         :param user_id: the owner of the record
         :type user_id: unicode
@@ -80,7 +80,7 @@ class StorageBase(object):
         :raises: cliquet.storage.exceptions.RecordNotFoundError
 
         :param resource: the record associated resource
-        :type resource: cliquer.resource.BaseResource
+        :type resource: :class:`cliquet.resource.BaseResource`
 
         :param user_id: the owner of the record
         :type user_id: unicode
@@ -105,7 +105,7 @@ class StorageBase(object):
         :raises: cliquet.storage.exceptions.UnicityError
 
         :param resource: the record associated resource
-        :type resource: cliquer.resource.BaseResource
+        :type resource: :class:`cliquet.resource.BaseResource`
 
         :param user_id: the owner of the record
         :type user_id: unicode
@@ -134,7 +134,7 @@ class StorageBase(object):
         :raises: cliquet.storage.exceptions.RecordNotFoundError
 
         :param resource: the record associated resource
-        :type resource: cliquer.resource.BaseResource
+        :type resource: :class:`cliquet.resource.BaseResource`
 
         :param user_id: the owner of the record
         :type user_id: unicode
@@ -151,7 +151,7 @@ class StorageBase(object):
         """Delete all records in this resource for this user.
 
         :param resource: the record associated resource
-        :type resource: cliquer.resource.BaseResource
+        :type resource: :class:`cliquet.resource.BaseResource`
 
         :param user_id: the owner of the record
         :type user_id: unicode
@@ -169,7 +169,7 @@ class StorageBase(object):
         """Retrieve all records in this resource for this user.
 
         :param resource: the record associated resource
-        :type resource: cliquer.resource.BaseResource
+        :type resource: :class:`cliquet.resource.BaseResource`
 
         :param user_id: the owner of the record
         :type user_id: unicode

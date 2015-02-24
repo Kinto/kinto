@@ -281,7 +281,7 @@ Conflicts
 ---------
 
 If changing the article ``resolved_url`` violates the unicity constraint, a
-``409 Conflict`` error response is returned (see :ref:`error channel <_error-responses>`).
+``409 Conflict`` error response is returned (see :ref:`error channel <error-responses>`).
 
 :note:
 
