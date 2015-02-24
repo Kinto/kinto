@@ -9,7 +9,7 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 import six
 from six.moves.urllib.parse import urlencode
 
-from cliquet.storage import exceptions as storage_exceptions
+from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet import errors
 from cliquet.utils import (
     COMPARISON, classname, native_value, msec_time, decode_token, encode_token
@@ -245,11 +245,11 @@ class BaseResource(object):
                     self.raise_invalid(**error_details)
 
                 if param == '_since':
-                    comparator = COMPARISON.GT
+                    operator = COMPARISON.GT
                 else:
-                    comparator = COMPARISON.LT
+                    operator = COMPARISON.LT
                 filters.append(
-                    (self.modified_field, value, comparator)
+                    Filter(self.modified_field, value, operator)
                 )
                 continue
 
@@ -268,7 +268,7 @@ class BaseResource(object):
                 }
                 self.raise_invalid(**error_details)
 
-            filters.append((field, value, operator))
+            filters.append(Filter(field, value, operator))
 
         return filters
 
@@ -292,12 +292,12 @@ class BaseResource(object):
                     self.raise_invalid(**error_details)
 
                 direction = -1 if order == '-' else 1
-                sorting.append((field, direction))
+                sorting.append(Sort(field, direction))
 
         if not modified_field_used:
             # Add a sort by the ``modified_field`` in descending order
             # useful for pagination
-            sorting.append((self.modified_field, -1))
+            sorting.append(Sort(self.modified_field, -1))
         return sorting
 
     def _build_pagination_rules(self, sorting, last_record, rules=None):
@@ -312,14 +312,14 @@ class BaseResource(object):
         next_sorting = sorting[:-1]
 
         for field, _ in next_sorting:
-            rule.append((field, last_record.get(field), COMPARISON.EQ))
+            rule.append(Filter(field, last_record.get(field), COMPARISON.EQ))
 
         field, direction = sorting[-1]
 
         if direction == -1:
-            rule.append((field, last_record.get(field), COMPARISON.LT))
+            rule.append(Filter(field, last_record.get(field), COMPARISON.LT))
         else:
-            rule.append((field, last_record.get(field), COMPARISON.GT))
+            rule.append(Filter(field, last_record.get(field), COMPARISON.GT))
 
         rules.append(rule)
 

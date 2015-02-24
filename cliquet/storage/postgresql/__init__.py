@@ -353,28 +353,28 @@ class PostgreSQL(StorageBase):
 
         conditions = []
         holders = {}
-        for i, filter_ in enumerate(filters):
-            field, value, operator = filter_
+        for i, filtr in enumerate(filters):
+            value = filtr.value
 
-            if field == resource.id_field:
+            if filtr.field == resource.id_field:
                 sql_field = 'id'
-            elif field == resource.modified_field:
+            elif filtr.field == resource.modified_field:
                 sql_field = 'last_modified::BIGINT'
             else:
                 # Safely escape field name
                 field_holder = '%s_field_%s' % (prefix, i)
-                holders[field_holder] = field
+                holders[field_holder] = filtr.field
                 # JSON operator ->> retrieves values as text.
                 # If field is missing, we default to ''.
                 sql_field = "coalesce(data->>%%(%s)s, '')" % field_holder
                 # JSON-ify the native value (e.g. True -> 'true')
-                value = json.dumps(value).strip('"')
+                value = json.dumps(filtr.value).strip('"')
 
             # Safely escape value
             value_holder = '%s_value_%s' % (prefix, i)
             holders[value_holder] = value
 
-            sql_operator = operators.setdefault(operator, operator)
+            sql_operator = operators.setdefault(filtr.operator, filtr.operator)
             cond = "%s %s %%(%s)s" % (sql_field, sql_operator, value_holder)
             conditions.append(cond)
 
@@ -421,20 +421,19 @@ class PostgreSQL(StorageBase):
         sorts = []
         holders = {}
         for i, sort in enumerate(sorting):
-            field, direction = sort
 
-            if field == resource.id_field:
+            if sort.field == resource.id_field:
                 sql_field = 'id'
-            elif field == resource.modified_field:
+            elif sort.field == resource.modified_field:
                 sql_field = 'last_modified'
             else:
                 field_holder = 'sort_field_%s' % i
-                holders[field_holder] = field
+                holders[field_holder] = sort.field
                 sql_field = 'data->>%%(%s)s' % field_holder
 
-            sql_direction = 'ASC' if direction > 0 else 'DESC'
-            sort = "%s %s" % (sql_field, sql_direction)
-            sorts.append(sort)
+            sql_direction = 'ASC' if sort.direction > 0 else 'DESC'
+            sql_sort = "%s %s" % (sql_field, sql_direction)
+            sorts.append(sql_sort)
 
         safe_sql = 'ORDER BY %s' % (', '.join(sorts))
         return safe_sql, holders
