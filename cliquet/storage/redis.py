@@ -13,7 +13,20 @@ from cliquet import utils
 
 
 class Redis(MemoryBasedStorage):
+    """Storage backend implementation using Redis.
 
+    :warning:
+        Useful for very low server load, but won't scale since records sorting
+        and filtering are performed in memory.
+
+    Enable in configuration::
+
+        cliquet.storage_backend = cliquet.storage.redis
+
+    *(Optional)* Instance location URI can be customized::
+
+        cliquet.storage_url = redis://localhost:6379/0
+    """
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
         self._client = redis.StrictRedis(
@@ -40,7 +53,6 @@ class Redis(MemoryBasedStorage):
             return False
 
     def collection_timestamp(self, resource, user_id):
-        """Return the last timestamp for the resource collection of the user"""
         timestamp = self._client.get(
             '{0}.{1}.timestamp'.format(resource.name, user_id))
         if timestamp:

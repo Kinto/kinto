@@ -39,38 +39,17 @@ Once Redis is installed:
 Storage backend
 ===============
 
-Configuration can be changed to persist the records in different storage engines.
-
-
-In-Memory
----------
-
-Useful for development or testing purposes, but records are lost after each server restart.
-
-In configuration::
-
-    cliquet.storage_url.storage_backend = cliquet.storage.memory
-
-
 Redis
 -----
 
-Useful for very low server load, but won't scale since records sorting and filtering
-are performed in memory.
-
-In configuration::
-
-    cliquet.storage_backend = cliquet.storage.redis
-
-*(Optional)* Instance location URI can be customized::
-
-    cliquet.storage_url = redis://localhost:6379/0
 
 
-PostgreSQL
-----------
 
-Recommended in production (*requires PostgreSQL 9.3 or higher*).
+Install PostgreSQL
+==================
+
+Client only
+-----------
 
 Install PostgreSQL client headers::
 
@@ -79,22 +58,6 @@ Install PostgreSQL client headers::
 Install cliquet with related dependencies::
 
     pip install cliquet[postgresql]
-
-In configuration::
-
-    cliquet.storage_backend = cliquet.storage.postgresql
-
-Database location URI can be customized::
-
-    cliquet.storage_url = postgres://user:pass@db.server.lan:5432/dbname
-
-Username and password could also rely on system user ident or even specified
-in ``~/.pgpass`` (*see PostgreSQL documentation*).
-
-:note:
-
-    Using a `connection pool <http://pgpool.net>`_ is highly recommended to
-    boost performances and bound memory usage (*work_mem per connection*).
 
 
 Install Redis

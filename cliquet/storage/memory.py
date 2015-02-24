@@ -11,6 +11,15 @@ def tree():
 
 
 class Memory(MemoryBasedStorage):
+    """Storage backend implementation in memory.
+
+    Useful for development or testing purposes, but records are lost after
+    each server restart.
+
+    Enable in configuration::
+
+        cliquet.storage_backend = cliquet.storage.memory
+    """
     def __init__(self, *args, **kwargs):
         super(Memory, self).__init__(*args, **kwargs)
         self.flush()
