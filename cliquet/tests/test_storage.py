@@ -37,6 +37,7 @@ class StorageBaseTest(unittest.TestCase):
             (self.storage.get, '', '', ''),
             (self.storage.update, '', '', '', {}),
             (self.storage.delete, '', '', ''),
+            (self.storage.delete_all, '', ''),
             (self.storage.get_all, '', ''),
         ]
         for call in calls:

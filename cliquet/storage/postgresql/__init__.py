@@ -212,26 +212,26 @@ class PostgreSQL(StorageBase):
         return record
 
     def delete(self, resource, user_id, record_id):
+        query = """
+        WITH deleted_record AS (
+            DELETE
+            FROM records
+            WHERE id = %(record_id)s
+            RETURNING id
+        )
+        INSERT INTO deleted (id, user_id, resource_name)
+        SELECT id, %(user_id)s, %(resource_name)s
+          FROM deleted_record
+        RETURNING last_modified::BIGINT;
+        """
         placeholders = dict(record_id=record_id,
                             user_id=user_id,
                             resource_name=resource.name)
 
         with self.connect() as cursor:
-            query = """
-            DELETE
-            FROM records
-            WHERE id = %(record_id)s;
-            """
             cursor.execute(query, placeholders)
             if cursor.rowcount == 0:
                 raise exceptions.RecordNotFoundError(record_id)
-
-            query = """
-            INSERT INTO deleted (id, user_id, resource_name)
-            VALUES (%(record_id)s, %(user_id)s, %(resource_name)s)
-            RETURNING last_modified::BIGINT
-            """
-            cursor.execute(query, placeholders)
             inserted = cursor.fetchone()
 
         record = {}
@@ -241,6 +241,44 @@ class PostgreSQL(StorageBase):
         field, value = resource.deleted_mark
         record[field] = value
         return record
+
+    def delete_all(self, resource, user_id, filters=None):
+        query = """
+        WITH deleted_records AS (
+            DELETE
+            FROM records
+            WHERE user_id = %%(user_id)s
+              AND resource_name = %%(resource_name)s
+              %(conditions_filter)s
+            RETURNING id
+        )
+        INSERT INTO deleted (id, user_id, resource_name)
+        SELECT id, %%(user_id)s, %%(resource_name)s
+          FROM deleted_records
+        RETURNING id, last_modified::BIGINT;
+        """
+        placeholders = dict(user_id=user_id,
+                            resource_name=resource.name)
+        # Safe strings
+        safeholders = defaultdict(six.text_type)
+
+        if filters:
+            safe_sql, holders = self._format_conditions(resource, filters)
+            safeholders['conditions_filter'] = safe_sql
+            placeholders.update(**holders)
+
+        with self.connect() as cursor:
+            cursor.execute(query % safeholders, placeholders)
+            results = cursor.fetchmany(self._max_fetch_size)
+
+        records = []
+        for result in results:
+            record = dict([resource.deleted_mark])
+            record[resource.id_field] = result['id']
+            record[resource.modified_field] = result['last_modified']
+            records.append(record)
+
+        return records
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
