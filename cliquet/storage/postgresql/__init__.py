@@ -22,7 +22,25 @@ DEFAULT_MAX_FETCH_SIZE = 10000
 
 
 class PostgreSQL(StorageBase):
-    """Storage backend for PostgreSQL.
+    """Storage backend using PostgreSQL.
+
+    Recommended in production (*requires PostgreSQL 9.3 or higher*).
+
+    Enable in configuration::
+
+        cliquet.storage_backend = cliquet.storage.postgresql
+
+    Database location URI can be customized::
+
+        cliquet.storage_url = postgres://user:pass@db.server.lan:5432/dbname
+
+    Alternatively, username and password could also rely on system user ident
+    or even specified in ``~/.pgpass`` (*see PostgreSQL documentation*).
+
+    :note:
+
+        Using a `connection pool <http://pgpool.net>`_ is highly recommended to
+        boost performances and bound memory usage (*work_mem per connection*).
     """
     def __init__(self, *args, **kwargs):
         super(PostgreSQL, self).__init__(*args, **kwargs)
