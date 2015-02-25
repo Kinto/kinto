@@ -5,11 +5,9 @@ import redis
 import time
 from six.moves.urllib import parse as urlparse
 
-from cliquet.storage import (
-    MemoryBasedStorage, exceptions, extract_record_set
-)
-
 from cliquet import utils
+from cliquet.storage import exceptions
+from cliquet.storage.memory import MemoryBasedStorage
 
 
 class Redis(MemoryBasedStorage):
@@ -29,6 +27,7 @@ class Redis(MemoryBasedStorage):
     """
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
+        kwargs.pop('id_generator', None)
         self._client = redis.StrictRedis(
             connection_pool=redis.BlockingConnectionPool(),
             **kwargs
@@ -199,10 +198,10 @@ class Redis(MemoryBasedStorage):
             encoded_results = self._client.mget(keys)
             deleted = [self._decode(r) for r in encoded_results if r]
 
-        records, count = extract_record_set(resource,
-                                            records + deleted,
-                                            filters, sorting,
-                                            pagination_rules, limit)
+        records, count = self.extract_record_set(resource,
+                                                 records + deleted,
+                                                 filters, sorting,
+                                                 pagination_rules, limit)
 
         return records, count
 

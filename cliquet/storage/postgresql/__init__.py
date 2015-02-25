@@ -10,7 +10,7 @@ from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
 from cliquet import errors
-from cliquet.storage import StorageBase, exceptions
+from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.utils import COMPARISON
 
 
@@ -43,7 +43,6 @@ class PostgreSQL(StorageBase):
         boost performances and bound memory usage (*work_mem per connection*).
     """
     def __init__(self, *args, **kwargs):
-        super(PostgreSQL, self).__init__(*args, **kwargs)
         self._max_fetch_size = kwargs.pop('max_fetch_size')
         self._conn_kwargs = kwargs
         self._init_schema()
@@ -166,7 +165,7 @@ class PostgreSQL(StorageBase):
                             data=json.dumps(record))
 
         with self.connect() as cursor:
-            self.check_unicity(resource, user_id, record)
+            self._check_unicity(cursor, resource, user_id, record)
 
             cursor.execute(query, placeholders)
             inserted = cursor.fetchone()
@@ -214,7 +213,7 @@ class PostgreSQL(StorageBase):
                             data=json.dumps(record))
 
         with self.connect() as cursor:
-            self.check_unicity(resource, user_id, record)
+            self._check_unicity(cursor, resource, user_id, record)
 
             # Create or update ?
             query = "SELECT id FROM records WHERE id = %s;"
@@ -493,6 +492,63 @@ class PostgreSQL(StorageBase):
 
         safe_sql = 'ORDER BY %s' % (', '.join(sorts))
         return safe_sql, holders
+
+    def _check_unicity(self, cursor, resource, user_id, record):
+        """Check that no existing record (in the current transaction snapshot)
+        violates the resource unicity rules.
+        """
+        unique_fields = resource.mapping.Options.unique_fields
+        if not unique_fields:
+            return
+
+        query = """
+        SELECT id
+          FROM records
+         WHERE user_id = %%(user_id)s
+           AND resource_name = %%(resource_name)s
+           AND (%(conditions_filter)s)
+           AND %(condition_record)s
+         LIMIT 1;
+        """
+        safeholders = dict()
+        placeholders = dict(user_id=user_id,
+                            resource_name=resource.name)
+
+        # Transform each field unicity into a query condition.
+        filters = []
+        for field in unique_fields:
+            value = record.get(field)
+            if value is None:
+                continue
+            sql, holders = self._format_conditions(
+                resource,
+                [Filter(field, value, COMPARISON.EQ)],
+                prefix=field)
+            filters.append(sql)
+            placeholders.update(**holders)
+
+        # All unique fields are empty in record
+        if not filters:
+            return
+
+        safeholders['conditions_filter'] = ' OR '.join(filters)
+
+        # If record is in database, then exclude it of unicity check.
+        record_id = record.get(resource.id_field)
+        if record_id:
+            sql, holders = self._format_conditions(
+                resource,
+                [Filter(resource.id_field, record_id, COMPARISON.NOT)])
+            safeholders['condition_record'] = sql
+            placeholders.update(**holders)
+        else:
+            safeholders['condition_record'] = 'TRUE'
+
+        cursor.execute(query % safeholders, placeholders)
+        if cursor.rowcount > 0:
+            result = cursor.fetchone()
+            existing = self.get(resource, user_id, result['id'])
+            raise exceptions.UnicityError(field, existing)
 
 
 def load_from_config(config):

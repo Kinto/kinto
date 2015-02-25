@@ -19,15 +19,6 @@ class StorageBaseTest(unittest.TestCase):
     def setUp(self):
         self.storage = StorageBase()
 
-    def test_default_generator(self):
-        self.assertEqual(type(self.storage.id_generator()), six.text_type)
-
-    def test_custom_generator(self):
-        def l(x):
-            return x
-        storage = StorageBase(id_generator=l)
-        self.assertEqual(storage.id_generator, l)
-
     def test_mandatory_overrides(self):
         calls = [
             (self.storage.flush,),
@@ -574,7 +565,23 @@ class StorageTest(ThreadMixin,
     pass
 
 
-class RedisStorageTest(StorageTest, unittest.TestCase):
+class MemoryStorageTest(StorageTest, unittest.TestCase):
+    backend = memory
+
+    def test_ping_returns_an_error_if_unavailable(self):
+        pass
+
+    def test_default_generator(self):
+        self.assertEqual(type(self.storage.id_generator()), six.text_type)
+
+    def test_custom_generator(self):
+        def l(x):
+            return x
+        storage = self.storage.__class__(id_generator=l)
+        self.assertEqual(storage.id_generator, l)
+
+
+class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
     backend = redisbackend
 
     def test_get_all_handle_expired_values(self):
@@ -591,13 +598,6 @@ class RedisStorageTest(StorageTest, unittest.TestCase):
         self.storage._client.setex = mock.MagicMock(
             side_effect=redis.RedisError)
         self.assertFalse(self.storage.ping())
-
-
-class MemoryStorageTest(StorageTest, unittest.TestCase):
-    backend = memory
-
-    def test_ping_returns_an_error_if_unavailable(self):
-        pass
 
 
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
@@ -632,7 +632,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         # 503 error relies on Pyramid last registry hook
         global_registries.add(self._get_config().registry)
 
-        with mock.patch('cliquet.storage.postgresql.PostgreSQL.check_unicity',
+        with mock.patch('cliquet.storage.postgresql.PostgreSQL._check_unicity',
                         side_effect=psycopg2.OperationalError):
             self.assertRaises(errors.HTTPServiceUnavailable,
                               self.storage.create,
