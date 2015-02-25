@@ -11,24 +11,10 @@ from six.moves.urllib.parse import urlencode
 
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet import errors
+from cliquet import schema
 from cliquet.utils import (
-    COMPARISON, classname, native_value, msec_time, decode_token, encode_token
+    COMPARISON, classname, native_value, decode_token, encode_token
 )
-
-
-class TimeStamp(colander.SchemaNode):
-    """Basic integer field that takes current timestamp if no value
-    is provided.
-    """
-    schema_type = colander.Integer
-    title = 'Epoch timestamp'
-    auto_now = True
-    missing = None
-
-    def deserialize(self, cstruct=colander.null):
-        if cstruct is colander.null and self.auto_now:
-            cstruct = msec_time()
-        return super(TimeStamp, self).deserialize(cstruct)
 
 
 def crud(**kwargs):
@@ -60,7 +46,7 @@ class ResourceSchema(colander.MappingSchema):
     * ``last_modified``
     """
     id = colander.SchemaNode(colander.String(), missing=colander.drop)
-    last_modified = TimeStamp()
+    last_modified = schema.TimeStamp()
 
     class Options:
         """
