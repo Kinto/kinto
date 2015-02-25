@@ -1,4 +1,3 @@
-import colander
 import mock
 import webtest
 from cornice import Service
@@ -9,7 +8,6 @@ from cliquet.session.redis import RedisSessionStorage
 from cliquet.storage.memory import Memory
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
-from cliquet.resource import BaseResource, ResourceSchema, crud
 from cliquet.tests.support import unittest, FakeAuthentMixin
 
 
