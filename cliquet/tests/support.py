@@ -56,13 +56,8 @@ class FakeAuthentMixin(object):
 
         settings = self.app.app.registry.settings
 
-        settings.setdefault('fxa-oauth.oauth_uri', '')
-        settings.setdefault('fxa-oauth.scope', '')
         settings.setdefault('cliquet.userid_hmac_secret',
                             random_bytes_hex(16))
-
-        settings.setdefault('cliquet.project_name', 'cliquet')
-        settings.setdefault('cliquet.docs', 'https://cliquet.rtfd.org/')
 
         self.fxa_verify = self.patcher.start()
         self.fxa_verify.return_value = {

@@ -24,7 +24,7 @@ Service.cors_origins = ('*',)
 Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
 
 DEFAULT_OAUTH_CACHE_SECONDS = 5 * 60
-DEFAULT_STORAGE_BACKEND = 'cliquet.storage.postgresql'
+DEFAULT_STORAGE_BACKEND = 'cliquet.storage.redis'
 DEFAULT_SESSION_BACKEND = 'cliquet.session.redis'
 
 
