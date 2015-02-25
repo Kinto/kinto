@@ -8,7 +8,7 @@ It's as simple as that:
 
 1. Decide on model for your data;
 2. Push the data on the server;
-3. Ask the server for the data (ordered, fileterd, paginated) and allow
+3. Ask the server for the data (ordered, filtered, paginated) and allow
    synchronisation.
 
 The server doesn't impose anything about the client data model.
@@ -27,7 +27,7 @@ Run locally
 ===========
 
 Kinto is based on top of the `cliquet <https://cliquet.rtfd.org>`_ project, and
-as such, please follow the installation insstruction there to get started.
+as such, please follow the installation instructions there to get started.
 
 ::
 
