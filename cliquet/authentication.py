@@ -10,6 +10,9 @@ from pyramid.security import Authenticated
 from zope.interface import implementer
 
 
+DEFAULT_FXA_SCOPE = 'profile'
+
+
 def check_credentials(username, password, request):
     """Basic auth implementation.
 
@@ -65,8 +68,9 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         except (AssertionError, ValueError):
             return None
 
-        server_url = settings['fxa-oauth.oauth_uri']
-        scope = settings['fxa-oauth.scope']
+        # Use PyFxa defaults if not specified
+        server_url = settings.get('fxa-oauth.oauth_uri')
+        scope = settings.get('fxa-oauth.scope', DEFAULT_FXA_SCOPE)
 
         auth_client = OAuthClient(server_url=server_url, cache=self.cache)
         try:

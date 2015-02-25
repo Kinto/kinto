@@ -24,6 +24,8 @@ Service.cors_origins = ('*',)
 Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
 
 DEFAULT_OAUTH_CACHE_SECONDS = 5 * 60
+DEFAULT_STORAGE_BACKEND = 'cliquet.storage.postgresql'
+DEFAULT_SESSION_BACKEND = 'cliquet.session.redis'
 
 
 # Module version, as defined in PEP-0396.
@@ -164,14 +166,16 @@ def includeme(config):
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")
 
-    storage = config.maybe_dotted(settings['cliquet.storage_backend'])
+    storage = config.maybe_dotted(settings.get('cliquet.storage_backend',
+                                               DEFAULT_STORAGE_BACKEND))
     config.registry.storage = storage.load_from_config(config)
 
-    session = config.maybe_dotted(settings['cliquet.session_backend'])
+    session = config.maybe_dotted(settings.get('cliquet.session_backend',
+                                               DEFAULT_SESSION_BACKEND))
     config.registry.session = session.load_from_config(config)
 
-    config.registry.project_name = settings['cliquet.project_name']
-    config.registry.project_docs = settings['cliquet.project_docs']
+    config.registry.project_name = settings.get('cliquet.project_name', '')
+    config.registry.project_docs = settings.get('cliquet.project_docs', '')
 
     set_auth(config)
     attach_http_objects(config)
