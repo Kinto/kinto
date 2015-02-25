@@ -25,7 +25,7 @@ token = Service(name='fxa-oauth-token',
 
 
 def fxa_conf(request, name):
-    return request.registry.settings['fxa-oauth.' + name]
+    return request.registry.settings.get('fxa-oauth.' + name)
 
 
 def persist_state(request):
