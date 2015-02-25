@@ -6,6 +6,13 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.rst')) as f:
     README = f.read()
 
+with open(os.path.join(here, 'CHANGELOG.rst')) as f:
+    CHANGELOG = f.read()
+
+with open(os.path.join(here, 'CONTRIBUTORS.rst')) as f:
+    CONTRIBUTORS = f.read()
+
+
 REQUIREMENTS = [
     'colander',
     'cornice',
@@ -22,9 +29,9 @@ POSTGRESQL_REQUIRES = [
 ]
 
 setup(name='cliquet',
-      version='0.3.dev0',
+      version='1.0.dev0',
       description='cliquet',
-      long_description=README,
+      long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',
       classifiers=[
           "Programming Language :: Python",

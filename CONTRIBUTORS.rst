@@ -1,5 +1,5 @@
 Contributors
-############
+============
 
 * Alexis Metaireau <alexis@mozilla.com>
 * Mathieu Leplatre <mathieu@mozilla.com>
