@@ -5,3 +5,4 @@ nose-mocha-reporter
 mock
 Sphinx
 sphinx_rtd_theme
+psycopg2
