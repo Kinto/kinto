@@ -1,21 +1,9 @@
 from pyramid.config import Configurator
-from cliquet.resource import BaseResource, ResourceSchema, crud
 from cliquet import initialize_cliquet
-import colander
-
-
-class MushroomSchema(ResourceSchema):
-    name = colander.SchemaNode(colander.String())
-
-
-@crud()
-class Mushroom(BaseResource):
-    mapping = MushroomSchema()
 
 
 def includeme(config):
-    config.include("cliquet")
-    config.scan("cliquet.tests.testapp")
+    config.scan("cliquet.tests.testappviews")
 
 
 def main(settings=None):

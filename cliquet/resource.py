@@ -388,7 +388,10 @@ class BaseResource(object):
     # End-points
     #
 
-    @resource.view(permission='readonly')
+    @resource.view(
+        permission='readonly',
+        cors_headers=('Next-Page', 'Total-Records', 'Last-Modified')
+    )
     def collection_get(self):
         self.add_timestamp_header(self.request.response)
         self.raise_304_if_not_modified()
@@ -453,7 +456,7 @@ class BaseResource(object):
 
         return body
 
-    @resource.view(permission='readonly')
+    @resource.view(permission='readonly', cors_headers=('Last-Modified',))
     def get(self):
         self.add_timestamp_header(self.request.response)
         record = self.fetch_record()
