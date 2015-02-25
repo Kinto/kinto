@@ -7,30 +7,26 @@ def get_available_headers(headers):
 
 
 class CORSTest(BaseWebTest, unittest.TestCase):
-    def test_preflight_headers_for_default(self):
-        response = self.app.options('/', headers={
+    def assert_headers_present(self, method, path, allowed_headers):
+        if allowed_headers is None:
+            return
+        response = self.app.options(path, headers={
             'Origin': 'lolnet.org',
-            'Access-Control-Request-Method': 'GET'})
+            'Access-Control-Request-Method': method})
         self.assertIn('Access-Control-Expose-Headers', response.headers)
         available_headers = get_available_headers(response.headers)
-        for header in ['Alert', 'Backoff', 'Retry-After']:
+        for header in allowed_headers:
             self.assertIn(header, available_headers)
 
-    def test_preflight_headers_for_collection_get(self):
-        response = self.app.options('/mushrooms', headers={
-            'Origin': 'lolnet.org',
-            'Access-Control-Request-Method': 'GET'})
-        self.assertIn('Access-Control-Expose-Headers', response.headers)
-        available_headers = get_available_headers(response.headers)
-        for header in ['Alert', 'Backoff', 'Retry-After', 'Last-Modified',
-                       'Total-Records', 'Next-Page']:
-            self.assertIn(header, available_headers)
+    def test_preflight_headers_are_set_for_default_endpoints(self):
+        self.assert_headers_present('GET', '/',
+                                    ['Alert', 'Backoff', 'Retry-After'])
 
-    def test_preflight_headers_for_record_get(self):
-        response = self.app.options('/mushrooms/id', headers={
-            'Origin': 'lolnet.org',
-            'Access-Control-Request-Method': 'GET'})
-        self.assertIn('Access-Control-Expose-Headers', response.headers)
-        available_headers = get_available_headers(response.headers)
-        for header in ['Alert', 'Backoff', 'Retry-After', 'Last-Modified']:
-            self.assertIn(header, available_headers)
+    def test_preflight_headers_are_set_for_collection_get(self):
+        self.assert_headers_present('GET', '/mushrooms', [
+            'Alert', 'Backoff', 'Retry-After', 'Last-Modified',
+            'Total-Records', 'Next-Page'])
+
+    def test_preflight_headers_are_set_for_record_get(self):
+        self.assert_headers_present('GET', '/mushrooms/id', [
+            'Alert', 'Backoff', 'Retry-After', 'Last-Modified'])

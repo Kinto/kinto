@@ -7,7 +7,6 @@ from dateutil import parser as dateparser
 import pkg_resources
 import logging
 
-from cornice import Service
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid_multiauth import MultiAuthenticationPolicy
@@ -17,6 +16,12 @@ from cliquet import authentication
 from cliquet.errors import HTTPServiceDeprecated
 from cliquet.session import SessionCache
 from cliquet.utils import msec_time
+
+from cornice import Service
+
+# Monkey Patch Cornice Service to setup the global CORS configuration.
+Service.cors_origins = ('*',)
+Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
 
 DEFAULT_OAUTH_CACHE_SECONDS = 5 * 60
 
@@ -149,8 +154,6 @@ def end_of_life_tween_factory(handler, registry):
 
 def includeme(config):
     settings = config.get_settings()
-    Service.cors_origins = ('*',)
-    Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
 
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")
