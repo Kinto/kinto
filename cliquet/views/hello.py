@@ -1,6 +1,5 @@
 from cornice import Service
 from pyramid.security import NO_PERMISSION_REQUIRED
-from cliquet import __version__ as VERSION
 
 
 hello = Service(name="hello", path='/', description="Welcome")
@@ -11,7 +10,7 @@ def get_hello(request):
     """Return information regarding the current instance."""
     data = dict(
         hello=request.registry.project_name,
-        version=VERSION,
+        version=request.registry.project_version,
         url=request.host_url,
         documentation=request.registry.project_docs
     )

@@ -1,5 +1,6 @@
 from pyramid.config import Configurator
 from cliquet.resource import BaseResource, ResourceSchema, crud
+from cliquet import initialize_cliquet
 import colander
 
 
@@ -31,5 +32,6 @@ def main(settings=None):
             'fxa-oauth.scope': 'profile'
         }
     config = Configurator(settings=settings)
-    config.include(includeme, route_prefix="/v0")
+    initialize_cliquet(config, version='0.0.1')
+    config.include(includeme)
     return config.make_wsgi_app()

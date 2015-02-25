@@ -1,8 +1,6 @@
 import mock
 from webtest.app import TestRequest
 
-from cliquet import __version__ as VERSION, API_VERSION
-
 from .support import BaseWebTest, unittest
 
 
@@ -10,7 +8,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
 
     def test_returns_info_about_url_and_version(self):
         response = self.app.get('/')
-        self.assertEqual(response.json['version'], VERSION)
+        self.assertEqual(response.json['version'], "0.0.1")
         self.assertEqual(response.json['url'], 'http://localhost')
         self.assertEqual(response.json['hello'], 'cliquet')
         self.assertEqual(response.json['documentation'],
@@ -39,12 +37,12 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
             response = self.app.get('/')
             self.assertEqual(response.status_int, 307)
             self.assertEqual(response.location,
-                             'http://localhost/%s/' % API_VERSION)
+                             'http://localhost/v0/')
 
             # GET on the fields view.
             response = self.app.get('/mushrooms')
             self.assertEqual(response.status_int, 307)
             self.assertEqual(response.location,
-                             'http://localhost/%s/mushrooms' % API_VERSION)
+                             'http://localhost/v0/mushrooms')
         finally:
             self.app.RequestClass = original_request_class
