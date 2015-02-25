@@ -1,9 +1,8 @@
-from cliquet.tests.support import unittest
-
-from cliquet import schema
-
 import colander
 import mock
+
+from cliquet.tests.support import unittest
+from cliquet import schema
 
 
 class TimeStampTest(unittest.TestCase):
