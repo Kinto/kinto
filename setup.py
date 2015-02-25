@@ -25,10 +25,12 @@ setup(name='cliquet',
       version='0.3.dev0',
       description='cliquet',
       long_description=README,
+      license='Apache License (2.0)',
       classifiers=[
           "Programming Language :: Python",
           "Topic :: Internet :: WWW/HTTP",
-          "Topic :: Internet :: WWW/HTTP :: WSGI :: Application"
+          "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+          "License :: OSI Approved :: Apache Software License"
       ],
       keywords="web services",
       author='Mozilla Services',
