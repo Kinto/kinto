@@ -39,11 +39,6 @@ Once Redis is installed:
 Storage backend
 ===============
 
-Redis
------
-
-
-
 
 Install PostgreSQL
 ==================
@@ -58,6 +53,16 @@ Install PostgreSQL client headers::
 Install cliquet with related dependencies::
 
     pip install cliquet[postgresql]
+
+
+Run PostgreSQL from a docker::
+
+    sudo docker run -d -p 5432:5432 -i -t -e POSTGRES_PASSWORD=postgres postgres
+
+Create the test database::
+
+    $ psql -h localhost -U postgres -W
+    #> CREATE DATABASE "testdb";
 
 
 Install Redis
