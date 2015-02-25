@@ -61,7 +61,7 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
             "This user cannot access this resource.")
 
     def test_500_is_valid_formatted_error(self):
-        with mock.patch('cliquet.tests.testapp.Mushroom.collection_get',
+        with mock.patch('cliquet.tests.testapp.Mushroom.add_timestamp_header',
                         side_effect=ValueError):
             response = self.app.get(self.sample_url,
                                     headers=self.headers, status=500)
@@ -81,7 +81,7 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
 
     def test_500_provides_traceback_on_server(self):
         mock_traceback = mock.patch('logging.traceback.print_exception')
-        with mock.patch('cliquet.tests.testapp.Mushroom.collection_get',
+        with mock.patch('cliquet.tests.testapp.Mushroom.add_timestamp_header',
                         side_effect=ValueError):
             with mock_traceback as mocked_traceback:
                 self.app.get(self.sample_url, headers=self.headers, status=500)
