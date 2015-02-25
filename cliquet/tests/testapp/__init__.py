@@ -3,7 +3,7 @@ from cliquet import initialize_cliquet
 
 
 def includeme(config):
-    config.scan("cliquet.tests.testappviews")
+    config.scan("cliquet.tests.testapp.views")
 
 
 def main(settings=None):

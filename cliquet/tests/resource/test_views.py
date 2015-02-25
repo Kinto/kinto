@@ -13,15 +13,6 @@ from cliquet.resource import BaseResource, ResourceSchema, crud
 from cliquet.tests.support import unittest, FakeAuthentMixin
 
 
-class MushroomSchema(ResourceSchema):
-    name = colander.SchemaNode(colander.String())
-
-
-@crud()
-class Mushroom(BaseResource):
-    mapping = MushroomSchema()
-
-
 MINIMALIST_RECORD = {'name': 'Champignon'}
 
 
@@ -42,7 +33,7 @@ class BaseWebTest(unittest.TestCase):
 
         self.config.include("cornice")
         self.config.scan("cliquet.views")
-        self.config.scan("cliquet.tests.resource.test_views")
+        self.config.scan("cliquet.tests.testapp.views")
 
         attach_http_objects(self.config)
 
@@ -266,7 +257,7 @@ class CORSHeadersTest(FakeAuthentMixin, BaseWebTest):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_readonly_update(self):
-        with mock.patch('cliquet.tests.resource.test_views.'
+        with mock.patch('cliquet.tests.testapp.views.'
                         'MushroomSchema.is_readonly',
                         return_value=True):
             body = {'name': 'Amanite'}
