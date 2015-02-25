@@ -3,6 +3,9 @@ Glossary
 
 .. glossary::
 
+    endpoint
+        An endpoint handles a particular HTTP verb at a particular URL.
+
     resource
         A resource is a collection of records.
 

@@ -183,7 +183,7 @@ DELETE /{resource}
 
 **Requires authentication**
 
-Delete multiple records.
+Delete multiple records. **Disabled by default**, see :ref:`configuration`.
 
 The DELETE response is a JSON mapping with an ``items`` attribute, returning
 the list of records that were deleted.

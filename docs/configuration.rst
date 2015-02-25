@@ -1,7 +1,8 @@
+.. _configuration:
+
 Configuration
 #############
 
-.. _configuration:
 
 See `Pyramid settings documentation <http://docs.pylonsproject.org/docs/pyramid/en/latest/narr/environment.html>`_.
 
@@ -20,6 +21,7 @@ Feature settings
 .. code-block :: ini
 
     # cliquet.batch_max_requests = 25
+    # cliquet.delete_collection_enabled = true
 
 
 Deployment

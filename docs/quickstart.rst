@@ -46,7 +46,7 @@ the :ref:`API section <api-endpoints>`.
 Configuration
 =============
 
-See :ref:`configuration`_ documentation to customize the project settings,
+See :ref:`configuration` to customize the project settings,
 such as the storage backend.
 
 In order to bypass Firefox Account setup, a ``Basic Auth`` authentication can be
@@ -111,5 +111,5 @@ to the resource.
 Advanced usage
 --------------
 
-See :ref:`resource-class`_ documentation to specify read-only fields,
+See :ref:`the resource documentation <resource-class>`  to specify read-only fields,
 unicity constraints or record pre-processing...

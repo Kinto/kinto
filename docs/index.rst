@@ -1,5 +1,10 @@
 .. include:: ../README.rst
 
+
+
+Table of content
+================
+
 .. toctree::
    :maxdepth: 1
 
