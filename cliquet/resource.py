@@ -210,6 +210,10 @@ class BaseResource(object):
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if filters or
             sorting are invalid.
+        :returns: A tuple with the list of records in the current page,
+            the total number of records in the result set, and the next page
+            url.
+        :rtype: tuple
         """
         filters = self._extract_filters()
         sorting = self._extract_sorting()
@@ -244,7 +248,7 @@ class BaseResource(object):
         filters = self._extract_filters()
         return self.db.delete_all(filters=filters, **self.db_kwargs)
 
-    def fetch_record(self, record_id):
+    def get_record(self, record_id):
         """Fetch current view related record, and raise 404 if missing.
 
         :raises: :class:`pyramid.httpexceptions.HTTPNotFound`
@@ -265,6 +269,14 @@ class BaseResource(object):
         Override to perform actions or post-process records after their
         creation in storage.
 
+        .. code-block :: python
+
+            def create_record(self, record):
+                record = super(MyResource, self).create_record(record)
+                idx = index.store(record)
+                record['index'] = idx
+                return record
+
         :raises: :class:`pyramid.httpexceptions.HTTPConflict` if a unique
         field constraint is violated.
         """
@@ -278,6 +290,14 @@ class BaseResource(object):
 
         Override to perform actions or post-process records after their
         modification in storage.
+
+        .. code-block :: python
+
+            def update_record(self, record, old=None):
+                record = super(MyResource, self).update_record(record, old)
+                subject = 'Record {} was changed'.format(record[self.id_field])
+                send_email(subject)
+                return record
 
         :raises: :class:`pyramid.httpexceptions.HTTPConflict` if a unique
         field constraint is violated.
@@ -312,13 +332,13 @@ class BaseResource(object):
 
     def process_record(self, new, old=None):
         """Hook for processing records before they reach storage, to introduce
-        specific logics on field changes for example.
+        specific logics on fields for example.
 
         .. code-block :: python
 
             def process_record(self, new, old=None):
-                if old and old['position'] > new['position']:
-                    new['position'] = old['position']
+                version = old['version'] if old else 0
+                new['version'] = version + 1
                 return new
 
         Or add extra validation based on request:
@@ -341,6 +361,16 @@ class BaseResource(object):
 
         :note:
             This is used in the context of PATCH only.
+
+        Override this to control field changes at record level, for example:
+
+        .. code-block :: python
+
+            def apply_changes(self, record, changes):
+                # Ignore value change if inferior
+                if record['position'] > changes.get('position', -1):
+                    changes.pop('position', None)
+                return super(MyResource, self).apply_changes(record, changes)
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if result does
             not comply with resource schema.
