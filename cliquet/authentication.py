@@ -12,13 +12,14 @@ from cliquet.errors import HTTPServiceUnavailable
 
 
 def check_credentials(username, password, request):
-    """Basic auth backdoor.
+    """Basic auth implementation.
 
-    Here to ease client development to bypass FxA authentication during first
-    iteration.
+    Allow any user with any credentials (e.g. there is no need to create an
+    account).
+
     """
     settings = request.registry.settings
-    is_enabled = settings.get('cliquet.basic_auth_backdoor')
+    is_enabled = settings.get('cliquet.basic_auth_enabled')
 
     if not is_enabled or not username:
         return

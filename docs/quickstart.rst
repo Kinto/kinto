@@ -52,7 +52,7 @@ such as the storage backend.
 In order to bypass Firefox Account setup, a ``Basic Auth`` authentication can be
 be enabled with::
 
-    cliquet.basic_auth_backdoor = true
+    cliquet.basic_auth_enabled = true
 
 This will associate a unique :term:`user id` for every user/password combination.
 
