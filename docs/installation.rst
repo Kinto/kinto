@@ -98,6 +98,14 @@ In Ubuntu/Debian based::
 Server using Docker
 -------------------
 
+Install docker:
+
+On Ubuntu you can do:
+
+::
+
+    sudo apt-get install docker.io
+
 Run the official PostgreSQL container locally:
 
 ::

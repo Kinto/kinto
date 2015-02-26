@@ -64,6 +64,13 @@ class ResourceSchema(colander.MappingSchema):
 
     class Options:
         """
+        Resource schema options.
+
+        It let you configure the:
+        * ``readonly_fields``: Fields that cannot be updated
+        * ``unique_fields``: Fields that must have unique values for the user
+          collection.
+
         """
         readonly_fields = ('id', 'last_modified')
         unique_fields = ('id', 'last_modified')

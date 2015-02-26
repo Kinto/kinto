@@ -7,7 +7,7 @@ Resource endpoints
 GET /{resource}
 ===============
 
-Returns all records of the current user in this resource.
+Returns all records of the current user for this resource.
 
 The returned value is a JSON mapping containing:
 

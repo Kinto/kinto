@@ -17,7 +17,7 @@ Cliquet handles:
 * Storage by user
 * Pagination
 * Sorting and filtering
-* Preconditions headers
+* Record race conditions handling using preconditions headers
 * Batch operations
 * Polling for collection changes
 * Errors formatting
@@ -44,17 +44,20 @@ Context
 * Reading list project story
 * Firefox Sync
 * Cloud storage
+* Firefox OS User Data synchronization and backup
 
 
 Vision
 ======
 
-General:
+General
+-------
 
-* A global protocol : Cliquet as the implementation of reference in python
+* A global protocol : Cliquet is the reference implementation in Python
 * JavaScript client: implementation of reference
 
-Features:
+Features
+--------
 
 * Notifications channel
 * Pluggable authentication backends (from configuration, just like storage)
@@ -66,6 +69,7 @@ Built with Cliquet
 Some applications in the wild built with Cliquet:
 
 * `Reading List <https://github.com/mozilla-services/readinglist/>`_
+* `Kinto <https://github.com/mozilla-services/kinto/>`_
 
 
 Similar projects

@@ -1,7 +1,6 @@
 .. include:: ../README.rst
 
 
-
 Table of content
 ================
 
@@ -17,9 +16,8 @@ Table of content
    contributing
    glossary
    api/index
-
-.. include:: ../CHANGELOG.rst
-.. include:: ../CONTRIBUTORS.rst
+   changelog
+   contributors
 
 
 Indices and tables

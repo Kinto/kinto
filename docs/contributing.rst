@@ -13,5 +13,6 @@ Run tests
 Definition of done
 ==================
 
-* Tests pass
-* Documentation is up to date
+* Tests pass;
+* Code added comes with tests;
+* Documentation is up to date.
