@@ -54,27 +54,55 @@ def crud(**kwargs):
 class ResourceSchema(colander.MappingSchema):
     """Base resource schema.
 
-    It brings common fields and behaviour for all inherited schemas.
+    It brings common fields and behaviour for all inherited schemas:
+
+    * ``id``
+    * ``last_modified``
     """
     id = colander.SchemaNode(colander.String(), missing=colander.drop)
     last_modified = TimeStamp()
 
     class Options:
+        """
+        Resource schema options.
+
+        It let you configure the:
+        * ``readonly_fields``: Fields that cannot be updated
+        * ``unique_fields``: Fields that must have unique values for the user
+          collection.
+
+        """
         readonly_fields = ('id', 'last_modified')
         unique_fields = ('id', 'last_modified')
 
     def is_readonly(self, field):
-        """Return True if specified field name is read-only."""
+        """Return True if specified field name is read-only.
+
+        :param field: the field name in the schema
+        :type field: string
+        :returns: `True` if the specified field is read-only,
+            `False` otherwise.
+        :rtype: boolean
+        """
         return field in self.Options.readonly_fields
 
 
 class BaseResource(object):
-
+    """Base resource class providing every endpoint."""
     mapping = ResourceSchema()
-    id_field = 'id'
-    modified_field = 'last_modified'
-    deleted_mark = ('deleted', True)
+    """Schema to validate records"""
+
     validate_schema_for = ('POST', 'PUT')
+    """HTTP verbs for which the schema must be validated"""
+
+    id_field = 'id'
+    """Name of *id* field in resource schema"""
+
+    modified_field = 'last_modified'
+    """Name of *last modified* field in resource schema"""
+
+    deleted_mark = ('deleted', True)
+    """Field and value of deleted status in records"""
 
     def __init__(self, request):
         self.request = request
@@ -91,6 +119,7 @@ class BaseResource(object):
 
     @property
     def schema(self):
+        """Resource schema, depending on HTTP verb."""
         colander_schema = self.mapping
 
         if self.request.method not in self.validate_schema_for:
@@ -100,13 +129,21 @@ class BaseResource(object):
         return CorniceSchema.from_colander(colander_schema)
 
     def raise_invalid(self, location='body', **kwargs):
-        """Helper to raise a validation error."""
+        """Helper to raise a validation error.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
+        """
         self.request.errors.add(location, **kwargs)
         response = errors.json_error(self.request.errors)
         raise response
 
     def fetch_record(self):
-        """Fetch current view related record, and raise 404 if missing."""
+        """Fetch current view related record, and raise 404 if missing.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPNotFound`
+        :returns: the record from storage
+        :rtype: dict
+        """
         try:
             record_id = self.request.matchdict['id']
             return self.db.get(record_id=record_id,
@@ -162,7 +199,10 @@ class BaseResource(object):
 
     def raise_304_if_not_modified(self, record=None):
         """Raise 304 if current timestamp is inferior to the one specified
-        in headers."""
+        in headers.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPNotModified`
+        """
         modified_since = self.request.headers.get('If-Modified-Since')
 
         if modified_since:
@@ -181,7 +221,10 @@ class BaseResource(object):
 
     def raise_412_if_modified(self, record=None):
         """Raise 412 if current timestamp is superior to the one
-        specified in headers."""
+        specified in headers.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
+        """
         unmodified_since = self.request.headers.get('If-Unmodified-Since')
 
         if unmodified_since:
@@ -206,6 +249,12 @@ class BaseResource(object):
                 raise response
 
     def raise_conflict(self, exception):
+        """Helper to raise conflict responses.
+
+        :param exception: the original unicity error
+        :type exception: :class:`cliquet.storage.exceptions.UnicityError`
+        :raises: :class:`pyramid.httpexceptions.HTTPConflict`
+        """
         field = exception.field
         existing = exception.record[self.id_field]
         message = 'Conflict of field {0} on record {1}'.format(field, existing)
@@ -393,6 +442,13 @@ class BaseResource(object):
         cors_headers=('Next-Page', 'Total-Records', 'Last-Modified')
     )
     def collection_get(self):
+        """Collection `GET` endpoint.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPNotModified`
+        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if filters or
+            sorting are invalid.
+        """
         self.add_timestamp_header(self.request.response)
         self.raise_304_if_not_modified()
         self.raise_412_if_modified()
@@ -427,6 +483,11 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_post(self):
+        """Collection `POST` endpoint.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
+        """
         self.raise_412_if_modified()
 
         new_record = self.process_record(self.request.validated)
@@ -440,6 +501,14 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_delete(self):
+        """Collection `DELETE` endpoint.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPMethodNotAllowed` if not
+            enabled in configuration.
+        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if filters or
+            sorting are invalid.
+        """
         settings = self.request.registry.settings
         enabled = settings.get('cliquet.delete_collection_enabled', 'true')
         if not native_value(enabled):
@@ -458,6 +527,12 @@ class BaseResource(object):
 
     @resource.view(permission='readonly', cors_headers=('Last-Modified',))
     def get(self):
+        """Record `GET` endpoint.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPNotFound`
+        :raises: :class:`pyramid.httpexceptions.HTTPNotModified`
+        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
+        """
         self.add_timestamp_header(self.request.response)
         record = self.fetch_record()
         self.raise_304_if_not_modified(record)
@@ -467,6 +542,12 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def put(self):
+        """Record `PUT` endpoint.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPConflict`
+        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
+        """
         record_id = self.request.matchdict['id']
 
         try:
@@ -496,6 +577,13 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def patch(self):
+        """Record `PATCH` endpoint.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPNotFound`
+        :raises: :class:`pyramid.httpexceptions.HTTPConflict`
+        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
+        """
         record = self.fetch_record()
         self.raise_412_if_modified(record)
 
@@ -521,6 +609,11 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def delete(self):
+        """Record `DELETE` endpoint.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPNotFound`
+        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
+        """
         record = self.fetch_record()
         self.raise_412_if_modified(record)
 
