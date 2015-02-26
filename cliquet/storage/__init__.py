@@ -18,7 +18,7 @@ class StorageBase(object):
     Configuration can be changed to choose which storage backend will
     persist the records.
 
-    :raises: cliquet.errors.HTTPServiceUnavailable
+    :raises: pyramid.httpexceptions.HTTPServiceUnavailable
     """
     def flush(self):
         """Remove every record from the storage.

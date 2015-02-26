@@ -5,10 +5,10 @@ from colander import MappingSchema, SchemaNode, String
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 
-from pyramid.httpexceptions import HTTPFound
+from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from cliquet.errors import HTTPServiceUnavailable, json_error
+from cliquet import errors
 from cliquet.schema import URL
 from cliquet.views.errors import authorization_required
 from cliquet import logger
@@ -86,13 +86,14 @@ def fxa_oauth_token(request):
     try:
         token = auth_client.trade_code(code)
     except fxa_errors.OutOfProtocolError:
-        return HTTPServiceUnavailable()
+        raise httpexceptions.HTTPServiceUnavailable()
     except fxa_errors.InProtocolError as error:
         logger.exception(error)
-        request.errors.add(
-            location='querystring',
-            name='code',
-            description='Firefox Account code validation failed.')
-        raise json_error(request.errors)
+        error_details = {
+            'name': 'code',
+            'location': 'querystring',
+            'description': 'Firefox Account code validation failed.'
+        }
+        errors.raise_invalid(request, **error_details)
 
-    return HTTPFound(location='%s%s' % (stored_redirect, token))
+    return httpexceptions.HTTPFound(location='%s%s' % (stored_redirect, token))

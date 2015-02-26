@@ -8,12 +8,12 @@ import pkg_resources
 import logging
 
 from pyramid.events import NewRequest, NewResponse
-from pyramid.httpexceptions import HTTPTemporaryRedirect
+from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid_multiauth import MultiAuthenticationPolicy
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from cliquet import authentication
-from cliquet.errors import HTTPServiceDeprecated
+from cliquet import errors
 from cliquet.session import SessionCache
 from cliquet.utils import msec_time
 
@@ -127,6 +127,12 @@ def attach_http_objects(config):
 def end_of_life_tween_factory(handler, registry):
     """Pyramid tween to handle service end of life."""
 
+    deprecated_response = errors.http_error(
+        HTTPGone,
+        errno=errors.ERRORS.SERVICE_DEPRECATED,
+        message="The service you are trying to connect no longer exists "
+                "at this location.")
+
     def eos_tween(request):
         eos_date = registry.settings.get("cliquet.eos")
         eos_url = registry.settings.get("cliquet.eos_url")
@@ -144,7 +150,7 @@ def end_of_life_tween_factory(handler, registry):
                 alert['code'] = "soft-eol"
                 response = handler(request)
             else:
-                response = HTTPServiceDeprecated()
+                response = deprecated_response
                 alert['code'] = "hard-eol"
             response.headers['Alert'] = json.dumps(alert)
             return response

@@ -8,8 +8,9 @@ import psycopg2.extras
 import six
 from six.moves.urllib import parse as urlparse
 
+from pyramid import httpexceptions
+
 from cliquet import logger
-from cliquet import errors
 from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.utils import COMPARISON
 
@@ -71,7 +72,7 @@ class PostgreSQL(StorageBase):
             if conn and not conn.closed:
                 conn.rollback()
             if isinstance(e, psycopg2.OperationalError):
-                raise errors.HTTPServiceUnavailable()
+                raise httpexceptions.HTTPServiceUnavailable()
             raise
         finally:
             if cursor:

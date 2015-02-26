@@ -1,10 +1,6 @@
 import six
-from pyramid.config import global_registries
-from pyramid.httpexceptions import (
-    HTTPServiceUnavailable as PyramidHTTPServiceUnavailable, HTTPBadRequest,
-    HTTPInternalServerError as PyramidHTTPInternalServerError,
-    HTTPGone as PyramidHTTPGone
-)
+from pyramid import httpexceptions
+
 from cliquet.utils import Enum, json, reapply_cors
 
 
@@ -29,87 +25,51 @@ ERRORS = Enum(
 )
 
 
-def format_error(code, errno, error, message=None, info=None):
-    """Return a JSON formated string matching the error protocol."""
-    result = {
-        "code": code,
-        "errno": errno,
-        "error": error
+def http_error(http_exception_klass, errno=None,
+               code=None, error=None, message=None, info=None):
+    """Return a JSON formated response matching the error protocol.
+
+    :param http_exception_klass: See :mod:`pyramid.httpexceptions`
+    :param errno: stable application-level error number (e.g. 109)
+    :param code: matches the HTTP status code (e.g 400)
+    :param error: string description of error type (e.g. "Bad request")
+    :param message: context information (e.g. "Invalid request parameters")
+    :param info: additional details (e.g. URL to error details)
+    :returns: the formatted response object
+    :rtype: pyramid.httpexceptions.HTTPException
+    """
+    body = {
+        "code": code or http_exception_klass.code,
+        "errno": errno or ERRORS.UNDEFINED,
+        "error": error or http_exception_klass.title
     }
 
     if message is not None:
-        result['message'] = message
+        body['message'] = message
 
     if info is not None:
-        result['info'] = info
+        body['info'] = info
 
-    return json.dumps(result)
-
-
-class HTTPServiceUnavailable(PyramidHTTPServiceUnavailable):
-    """A HTTPServiceUnavailable formatted in JSON."""
-
-    def __init__(self, **kwargs):
-        if 'body' not in kwargs:
-            kwargs['body'] = format_error(
-                PyramidHTTPServiceUnavailable.code,
-                ERRORS.BACKEND,
-                PyramidHTTPServiceUnavailable.title,
-                "Service unavailable due to high load, please retry later.")
-
-        if 'content_type' not in kwargs:
-            kwargs['content_type'] = 'application/json'
-
-        if 'headers' not in kwargs:
-            kwargs['headers'] = []
-
-        settings = global_registries.last.settings
-        retry_after = settings.get(
-            'cliquet.retry_after', "30").encode("utf-8")
-        kwargs['headers'].append(
-            ("Retry-After", retry_after)
-        )
-
-        super(HTTPServiceUnavailable, self).__init__(**kwargs)
+    response = http_exception_klass(body=json.dumps(body).encode("utf-8"),
+                                    content_type='application/json')
+    return response
 
 
-class HTTPInternalServerError(PyramidHTTPInternalServerError):
-    """A HTTPInternalServerError formatted in JSON."""
+def json_error_handler(errors):
+    """Cornice JSON error handler, returning consistant JSON formatted errors
+    from schema validation errors.
 
-    def __init__(self, **kwargs):
-        kwargs.setdefault('body', format_error(
-            PyramidHTTPInternalServerError.code,
-            ERRORS.UNDEFINED,
-            PyramidHTTPInternalServerError.title,
-            "A programmatic error occured, developers have been informed.",
-            "https://github.com/mozilla-services/cliquet/issues/"))
+    This is meant to be used is custom services in your applications.
 
-        kwargs.setdefault('content_type', 'application/json')
+    .. code-block :: python
 
-        super(HTTPInternalServerError, self).__init__(**kwargs)
+        upload = Service(name="upload", path='/upload',
+                         error_handler=errors.json_error_handler)
 
+    :warning:
 
-class HTTPServiceDeprecated(PyramidHTTPGone):
-    """A HTTPGone formatted in JSON."""
-
-    def __init__(self, **kwargs):
-        kwargs.setdefault('body', format_error(
-            PyramidHTTPGone.code,
-            ERRORS.SERVICE_DEPRECATED,
-            PyramidHTTPGone.title,
-            "The service you are trying to connect no longer exists "
-            "at this location.",
-        ))
-
-        kwargs.setdefault('content_type', 'application/json')
-
-        super(HTTPServiceDeprecated, self).__init__(**kwargs)
-
-
-def json_error(errors):
-    """Return an HTTPError with the given status and message.
-
-    The HTTP error content type is "application/json"
+        Only the first error of the list is formatted in the response.
+        (c.f. protocol).
     """
     assert len(errors) != 0
     sorted_errors = sorted(errors, key=lambda x: six.text_type(x['name']))
@@ -125,12 +85,20 @@ def json_error(errors):
     else:
         message = '%(location)s: %(description)s' % error
 
-    body = format_error(
-        code=400, errno=ERRORS.INVALID_PARAMETERS,
-        error="Invalid parameters",
-        message=message)
-
-    response = HTTPBadRequest(body=body, content_type='application/json')
+    response = http_error(httpexceptions.HTTPBadRequest,
+                          errno=ERRORS.INVALID_PARAMETERS,
+                          error='Invalid parameters',
+                          message=message)
     response.status = errors.status
     response = reapply_cors(errors.request, response)
     return response
+
+
+def raise_invalid(request, location='body', **kwargs):
+    """Helper to raise a validation error.
+
+    :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
+    """
+    request.errors.add(location, **kwargs)
+    response = json_error_handler(request.errors)
+    raise response
