@@ -6,6 +6,9 @@ Glossary
     endpoint
         An endpoint handles a particular HTTP verb at a particular URL.
 
+    Firefox Accounts
+        Account account system run by Mozilla (https://accounts.firefox.com).
+
     resource
         A resource is a collection of records.
 

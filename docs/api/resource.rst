@@ -7,6 +7,8 @@ Resource endpoints
 GET /{resource}
 ===============
 
+**Requires authentication**
+
 Returns all records of the current user for this resource.
 
 The returned value is a JSON mapping containing:
@@ -29,9 +31,9 @@ Filtering
 
 * ``/resource?field=value``
 
-**Multiple values**
-
-* ``/resource?field,2``
+.. **Multiple values**
+..
+.. * ``/resource?field=1,2``
 
 **Minimum and maximum**
 
@@ -174,7 +176,7 @@ conflicts may appear when creating records.
 :note:
     Deleted records are not taken into account for field unicity.
 
-If the a conflict occurs, an error response is returned with status ``409``.
+If a conflict occurs, an error response is returned with status ``409``.
 A ``existing`` attribute in the response gives the offending record.
 
 
