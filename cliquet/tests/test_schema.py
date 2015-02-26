@@ -7,7 +7,7 @@ import mock
 
 
 class TimeStampTest(unittest.TestCase):
-    @mock.patch('cliquet.resource.msec_time')
+    @mock.patch('cliquet.schema.msec_time')
     def test_default_value_comes_from_timestamper(self, time_mocked):
         time_mocked.return_value = 666
         default = schema.TimeStamp().deserialize(colander.null)

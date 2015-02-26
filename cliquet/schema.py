@@ -26,3 +26,39 @@ class URL(SchemaNode):
 
     def preparer(self, appstruct):
         return strip_whitespace(appstruct)
+
+
+class ResourceSchema(colander.MappingSchema):
+    """Base resource schema.
+
+    It brings common fields and behaviour for all inherited schemas:
+
+    * ``id``
+    * ``last_modified``
+    """
+    id = colander.SchemaNode(colander.String(), missing=colander.drop)
+    last_modified = TimeStamp()
+
+    class Options:
+        """
+        Resource schema options.
+
+        It let you configure the:
+        * ``readonly_fields``: Fields that cannot be updated
+        * ``unique_fields``: Fields that must have unique values for the user
+          collection.
+
+        """
+        readonly_fields = ('id', 'last_modified')
+        unique_fields = ('id', 'last_modified')
+
+    def is_readonly(self, field):
+        """Return True if specified field name is read-only.
+
+        :param field: the field name in the schema
+        :type field: string
+        :returns: `True` if the specified field is read-only,
+            `False` otherwise.
+        :rtype: boolean
+        """
+        return field in self.Options.readonly_fields
