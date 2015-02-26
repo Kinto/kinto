@@ -68,7 +68,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         result = self.resource.collection_post()
         current = result['last_modified']
 
-        self.resource.request.matchdict['id'] = result['id']
+        self.resource.record_id = result['id']
         self.resource.delete()
 
         self.resource.request.GET = {'_since': six.text_type(current)}

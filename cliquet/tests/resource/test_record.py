@@ -8,7 +8,7 @@ from cliquet.tests.resource import BaseTest
 class GetTest(BaseTest):
     def test_get_record_returns_all_fields(self):
         record = self.db.create(self.resource, 'bob', {'field': 'value'})
-        self.resource.request.matchdict['id'] = record['id']
+        self.resource.record_id = record['id']
         result = self.resource.get()
         self.assertIn(self.resource.id_field, result)
         self.assertIn(self.resource.modified_field, result)
@@ -19,7 +19,7 @@ class PutTest(BaseTest):
     def setUp(self):
         super(PutTest, self).setUp()
         self.record = self.db.create(self.resource, 'bob', {'field': 'old'})
-        self.resource.request.matchdict['id'] = self.record['id']
+        self.resource.record_id = self.record['id']
 
     def test_replace_record_returns_updated_fields(self):
         self.resource.request.validated = {'field': 'new'}
@@ -44,13 +44,13 @@ class DeleteTest(BaseTest):
     def test_delete_record_returns_last_timestamp(self):
         record = {'field': 'value'}
         record = self.db.create(self.resource, 'bob', record).copy()
-        self.resource.request.matchdict['id'] = record['id']
+        self.resource.record_id = record['id']
         result = self.resource.delete()
         self.assertNotEqual(result['last_modified'], record['last_modified'])
 
     def test_delete_record_returns_stripped_record(self):
         record = self.db.create(self.resource, 'bob', {'field': 'value'})
-        self.resource.request.matchdict['id'] = record['id']
+        self.resource.record_id = record['id']
         result = self.resource.delete()
         self.assertEqual(result['id'], record['id'])
         self.assertNotIn('field', result)
@@ -61,7 +61,7 @@ class PatchTest(BaseTest):
     def setUp(self):
         super(PatchTest, self).setUp()
         self.stored = self.db.create(self.resource, 'bob', {})
-        self.resource.request.matchdict['id'] = self.stored['id']
+        self.resource.record_id = self.stored['id']
         self.resource.request.json = {'some': 'change'}
         self.resource.mapping.typ.unknown = 'preserve'
         self.result = self.resource.patch()
@@ -97,7 +97,7 @@ class PatchTest(BaseTest):
         self.assertEquals(self.result['last_modified'], int(last_modified))
 
     def test_timestamp_is_not_updated_if_no_change_after_preprocessed(self):
-        with mock.patch.object(self.resource, 'preprocess_record') as mocked:
+        with mock.patch.object(self.resource, 'process_record') as mocked:
             mocked.return_value = {'some': 'change'}
 
             self.resource.request.json = {'some': 'plop'}
@@ -109,7 +109,7 @@ class PatchTest(BaseTest):
 class UnknownRecordTest(BaseTest):
     def setUp(self):
         super(UnknownRecordTest, self).setUp()
-        self.resource.request.matchdict['id'] = 'foo'
+        self.resource.record_id = 'foo'
 
     def test_get_record_unknown_raises_404(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.get)
@@ -129,7 +129,7 @@ class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
         super(ReadonlyFieldsTest, self).setUp()
         self.stored = self.db.create(self.resource, 'bob', {})
-        self.resource.request.matchdict['id'] = self.stored['id']
+        self.resource.record_id = self.stored['id']
 
     def assertReadonlyError(self, field):
         error = None

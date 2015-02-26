@@ -227,7 +227,8 @@ class BaseResource(object):
             sorting=sorting,
             pagination_rules=pagination_rules,
             limit=limit,
-            include_deleted=include_deleted)
+            include_deleted=include_deleted,
+            **self.db_kwargs)
 
         next_page = None
         if limit and len(records) == limit and total_records > limit:

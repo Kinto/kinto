@@ -72,7 +72,7 @@ class IsolatedCollectionsTest(BaseTest):
     def setUp(self):
         super(IsolatedCollectionsTest, self).setUp()
         self.stored = self.db.create(self.resource, 'bob', {})
-        self.resource.request.matchdict['id'] = self.stored['id']
+        self.resource.record_id = self.stored['id']
 
     def get_request(self):
         request = super(IsolatedCollectionsTest, self).get_request()
