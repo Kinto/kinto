@@ -1,3 +1,4 @@
+import json
 from .support import BaseWebTest, unittest
 
 
@@ -10,13 +11,12 @@ class CORSTest(BaseWebTest, unittest.TestCase):
     def assert_headers_present(self, method, path, allowed_headers):
         if allowed_headers is None:
             return
-        response = self.app.options(path, headers={
-            'Origin': 'lolnet.org',
-            'Access-Control-Request-Method': method})
+        self.headers.update({'Origin': 'lolnet.org'})
+        http_method = getattr(self.app, method.lower())
+        response = http_method(path, headers=self.headers)
         self.assertIn('Access-Control-Expose-Headers', response.headers)
-        available_headers = get_available_headers(response.headers)
-        for header in allowed_headers:
-            self.assertIn(header, available_headers)
+        available_headers = get_available_headers(response.headers).sort()
+        self.assertEqual(allowed_headers.sort(), available_headers)
 
     def test_preflight_headers_are_set_for_default_endpoints(self):
         self.assert_headers_present('GET', '/',
@@ -28,5 +28,7 @@ class CORSTest(BaseWebTest, unittest.TestCase):
             'Total-Records', 'Next-Page'])
 
     def test_preflight_headers_are_set_for_record_get(self):
-        self.assert_headers_present('GET', '/mushrooms/id', [
+        resp = self.app.post('/mushrooms', json.dumps({'name': 'Bolet'}),
+                             headers=self.headers, status=201)
+        self.assert_headers_present('GET', '/mushrooms/%s' % resp.json['id'], [
             'Alert', 'Backoff', 'Retry-After', 'Last-Modified'])
