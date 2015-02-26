@@ -15,4 +15,4 @@ the implementation of resource oriented REST APIs.
 
 * `Online documentation <http://cliquet.readthedocs.org/en/latest/>`_
 * `Issue tracker <https://github.com/mozilla-services/cliquet/issues>`_
-* `Contributing <http://cliquet.readthedocs.org/en/latest/contributing/>`_
+* `Contributing <http://cliquet.readthedocs.org/en/latest/contributing.html>`_
