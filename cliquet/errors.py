@@ -94,11 +94,16 @@ def json_error_handler(errors):
     return response
 
 
-def raise_invalid(request, location='body', **kwargs):
+def raise_invalid(request, location='body', name=None, description=None,
+                  **kwargs):
     """Helper to raise a validation error.
+
+    :param location: location in request (e.g. ``'querystring'``)
+    :param name: field name
+    :param description: detailed description of validation error
 
     :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
     """
-    request.errors.add(location, **kwargs)
+    request.errors.add(location, name, description, **kwargs)
     response = json_error_handler(request.errors)
     raise response
