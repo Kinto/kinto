@@ -47,10 +47,13 @@ class ResourceSchema(colander.MappingSchema):
         * ``readonly_fields``: Fields that cannot be updated
         * ``unique_fields``: Fields that must have unique values for the user
           collection.
+        * ``preserve_unknown``: Define if unknown fields should be preserved
+          or not (default False).
 
         """
         readonly_fields = ('id', 'last_modified')
         unique_fields = ('id', 'last_modified')
+        preserve_unknown = False
 
     def is_readonly(self, field):
         """Return True if specified field name is read-only.
@@ -62,3 +65,10 @@ class ResourceSchema(colander.MappingSchema):
         :rtype: boolean
         """
         return field in self.Options.readonly_fields
+
+    def schema_type(self, **kw):
+        if self.Options.preserve_unknown is True:
+            unknown = 'preserve'
+        else:
+            unknown = 'ignore'
+        return colander.Mapping(unknown=unknown)

@@ -25,3 +25,30 @@ class URLTest(unittest.TestCase):
         self.assertRaises(colander.Invalid,
                           schema.URL().deserialize,
                           url)
+
+
+class ResourceSchemaTest(unittest.TestCase):
+
+    def test_preserves_unknown_fields_when_specified(self):
+        class PreserveSchema(schema.ResourceSchema):
+            class Options:
+                preserve_unknown = True
+
+        schema_instance = PreserveSchema()
+        deserialized = schema_instance.deserialize({'foo': 'bar'})
+        self.assertIn('foo', deserialized)
+        self.assertEquals(deserialized['foo'], 'bar')
+
+    def test_ignore_unknwon_fields_when_specified(self):
+        class PreserveSchema(schema.ResourceSchema):
+            class Options:
+                preserve_unknown = False
+
+        schema_instance = PreserveSchema()
+        deserialized = schema_instance.deserialize({'foo': 'bar'})
+        self.assertNotIn('foo', deserialized)
+
+    def test_ignore_unknwon_fields_by_default(self):
+        schema_instance = schema.ResourceSchema()
+        deserialized = schema_instance.deserialize({'foo': 'bar'})
+        self.assertNotIn('foo', deserialized)
