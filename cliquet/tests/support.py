@@ -80,10 +80,14 @@ class BaseWebTest(FakeAuthentMixin):
     """
 
     api_prefix = "v0"
+    app = testapp
+
+    def get_app(self):
+        return self.app
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.app = webtest.TestApp(testapp(self.get_app_settings()))
+        self.app = webtest.TestApp(self.get_app()(self.get_app_settings()))
         self.app.RequestClass = get_request_class(self.api_prefix)
         self.db = self.app.app.registry.storage
         self.headers.update({
