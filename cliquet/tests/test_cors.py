@@ -2,7 +2,7 @@ import json
 from .support import BaseWebTest, unittest
 
 
-def get_available_headers(headers):
+def get_exposed_headers(headers):
     access_control_headers = headers['Access-Control-Expose-Headers']
     return [x.strip() for x in access_control_headers.split(',')]
 
@@ -15,8 +15,8 @@ class CORSTest(BaseWebTest, unittest.TestCase):
         http_method = getattr(self.app, method.lower())
         response = http_method(path, headers=self.headers)
         self.assertIn('Access-Control-Expose-Headers', response.headers)
-        available_headers = get_available_headers(response.headers).sort()
-        self.assertEqual(allowed_headers.sort(), available_headers)
+        exposed_headers = get_exposed_headers(response.headers).sort()
+        self.assertEqual(allowed_headers.sort(), exposed_headers)
 
     def test_preflight_headers_are_set_for_default_endpoints(self):
         self.assert_headers_present('GET', '/',
