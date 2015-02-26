@@ -2,6 +2,7 @@
 """
 import datetime
 import json
+import warnings
 
 from dateutil import parser as dateparser
 import pkg_resources
@@ -175,7 +176,12 @@ def includeme(config):
     config.registry.session = session.load_from_config(config)
 
     config.registry.project_name = settings.get('cliquet.project_name', '')
+    if not config.registry.project_name:
+        warnings.warn('No value for `project_name` in settings')
+
     config.registry.project_docs = settings.get('cliquet.project_docs', '')
+    if not config.registry.project_docs:
+        warnings.warn('No value for `project_docs` in settings')
 
     set_auth(config)
     attach_http_objects(config)
