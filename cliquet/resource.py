@@ -125,9 +125,9 @@ class BaseResource(object):
 
         updated = record.copy()
         updated.update(**changes)
-        return self._validate(updated)
+        return self.validate(updated)
 
-    def _validate(self, record):
+    def validate(self, record):
         """Validate specified record against resource schema.
         Raise 400 if not valid."""
         try:
@@ -137,13 +137,13 @@ class BaseResource(object):
             for field, error in e.asdict().items():
                 raise_invalid(self.request, name=field, description=error)
 
-    def _add_timestamp_header(self, response):
+    def add_timestamp_header(self, response):
         """Add current timestamp in response headers, when request comes in.
         """
         timestamp = six.text_type(self.timestamp).encode('utf-8')
         response.headers['Last-Modified'] = timestamp
 
-    def _raise_304_if_not_modified(self, record=None):
+    def raise_304_if_not_modified(self, record=None):
         """Raise 304 if current timestamp is inferior to the one specified
         in headers.
 
@@ -162,10 +162,10 @@ class BaseResource(object):
 
             if current_timestamp <= modified_since:
                 response = HTTPNotModified()
-                self._add_timestamp_header(response)
+                self.add_timestamp_header(response)
                 raise response
 
-    def _raise_412_if_modified(self, record=None):
+    def raise_412_if_modified(self, record=None):
         """Raise 412 if current timestamp is superior to the one
         specified in headers.
 
@@ -190,13 +190,7 @@ class BaseResource(object):
                 self._add_timestamp_header(response)
                 raise response
 
-    def _raise_invalid(self, location='body', **kwargs):
-        """Helper to raise a validation error."""
-        self.request.errors.add(location, **kwargs)
-        response = errors.json_error(self.request.errors)
-        raise response
-
-    def _raise_conflict(self, exception):
+    def raise_conflict(self, exception):
         """Helper to raise conflict responses.
 
         :param exception: the original unicity error
@@ -389,9 +383,9 @@ class BaseResource(object):
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if filters or
             sorting are invalid.
         """
-        self._add_timestamp_header(self.request.response)
-        self._raise_304_if_not_modified()
-        self._raise_412_if_modified()
+        self.add_timestamp_header(self.request.response)
+        self.raise_304_if_not_modified()
+        self.raise_412_if_modified()
 
         filters = self._extract_filters()
         sorting = self._extract_sorting()
@@ -428,13 +422,13 @@ class BaseResource(object):
         :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        self._raise_412_if_modified()
+        self.raise_412_if_modified()
 
         new_record = self._process_record(self.request.validated)
         try:
             record = self.db.create(record=new_record, **self.db_kwargs)
         except storage_exceptions.UnicityError as e:
-            self._raise_conflict(e)
+            self.raise_conflict(e)
 
         self.request.response.status_code = 201
         return record
@@ -454,7 +448,7 @@ class BaseResource(object):
         if not native_value(enabled):
             raise HTTPMethodNotAllowed()
 
-        self._raise_412_if_modified()
+        self.raise_412_if_modified()
 
         filters = self._extract_filters()
         deleted = self.db.delete_all(filters=filters, **self.db_kwargs)
@@ -473,10 +467,10 @@ class BaseResource(object):
         :raises: :class:`pyramid.httpexceptions.HTTPNotModified`
         :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
         """
-        self._add_timestamp_header(self.request.response)
+        self.add_timestamp_header(self.request.response)
         record = self._fetch_record()
-        self._raise_304_if_not_modified(record)
-        self._raise_412_if_modified(record)
+        self.raise_304_if_not_modified(record)
+        self.raise_412_if_modified(record)
 
         return record
 
@@ -493,7 +487,7 @@ class BaseResource(object):
         try:
             existing = self.db.get(record_id=record_id,
                                    **self.db_kwargs)
-            self._raise_412_if_modified(existing)
+            self.raise_412_if_modified(existing)
         except storage_exceptions.RecordNotFoundError:
             existing = None
 
@@ -514,7 +508,7 @@ class BaseResource(object):
                                     record=new_record,
                                     **self.db_kwargs)
         except storage_exceptions.UnicityError as e:
-            self._raise_conflict(e)
+            self.raise_conflict(e)
 
         return record
 
@@ -527,9 +521,8 @@ class BaseResource(object):
         :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        record = self.fetch_record()
         record = self._fetch_record()
-        self._raise_412_if_modified(record)
+        self.raise_412_if_modified(record)
 
         changes = self.request.json
 
@@ -547,7 +540,7 @@ class BaseResource(object):
                                     record=updated,
                                     **self.db_kwargs)
         except storage_exceptions.UnicityError as e:
-            self._raise_conflict(e)
+            self.raise_conflict(e)
 
         return record
 
@@ -559,7 +552,7 @@ class BaseResource(object):
         :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
         """
         record = self._fetch_record()
-        self._raise_412_if_modified(record)
+        self.raise_412_if_modified(record)
 
         deleted = self.db.delete(record_id=record[self.id_field],
                                  **self.db_kwargs)
