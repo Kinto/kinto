@@ -62,6 +62,7 @@ class BaseResource(object):
                               user_id=request.authenticated_userid)
         self.known_fields = [c.name for c in self.mapping.children]
         self.timestamp = self.db.collection_timestamp(**self.db_kwargs)
+        self.record_id = self.request.matchdict.get('id')
 
     @property
     def name(self):
@@ -79,7 +80,59 @@ class BaseResource(object):
 
         return CorniceSchema.from_colander(colander_schema)
 
-    def fetch_record(self):
+    def raise_invalid(self, location='body', **kwargs):
+        """Helper to raise a validation error.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
+        """
+        self.request.errors.add(location, **kwargs)
+        response = errors.json_error(self.request.errors)
+        raise response
+
+    def fetch_records(self):
+        """Fetch the collection records, using querystring arguments for
+        sorting, filtering and pagination.
+
+        Override to implement custom querystring parsing, or post-process
+        records after their retrieval from storage.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if filters or
+            sorting are invalid.
+        """
+        filters = self._extract_filters()
+        sorting = self._extract_sorting()
+        pagination_rules, limit = self._extract_pagination_rules_from_token(
+            sorting)
+
+        include_deleted = self.modified_field in [f[0] for f in filters]
+
+        records, total_records = self.db.get_all(
+            filters=filters,
+            sorting=sorting,
+            pagination_rules=pagination_rules,
+            limit=limit,
+            include_deleted=include_deleted)
+
+        next_page = None
+        if limit and len(records) == limit and total_records > limit:
+            next_page = self._next_page_url(sorting, limit, records[-1])
+
+        return records, total_records, next_page
+
+    def delete_records(self):
+        """Delete the collection records, using request querystring for
+        filtering.
+
+        Override to implement custom querystring parsing, or post-process
+        records after their deletion from storage.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if filters or
+            sorting are invalid.
+        """
+        filters = self._extract_filters()
+        return self.db.delete_all(filters=filters, **self.db_kwargs)
+
+    def fetch_record(self, record_id):
         """Fetch current view related record, and raise 404 if missing.
 
         :raises: :class:`pyramid.httpexceptions.HTTPNotFound`
@@ -87,7 +140,6 @@ class BaseResource(object):
         :rtype: dict
         """
         try:
-            record_id = self.request.matchdict['id']
             return self.db.get(record_id=record_id,
                                **self.db_kwargs)
         except storage_exceptions.RecordNotFoundError:
@@ -95,13 +147,74 @@ class BaseResource(object):
                                   errno=ERRORS.INVALID_RESOURCE_ID)
             raise response
 
-    def _process_record(self, new, old=None):
-        new = self.preprocess_record(new, old)
-        return new
+    def create_record(self, record):
+        """Create a record in the collection.
 
-    def preprocess_record(self, new, old=None):
-        """Hook to pre-process records and introduce specific logics
-        or validation.
+        Override to perform actions or post-process records after their
+        creation in storage.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPConflict` if a unique
+        field constraint is violated.
+        """
+        try:
+            return self.db.create(record=record, **self.db_kwargs)
+        except storage_exceptions.UnicityError as e:
+            self._raise_conflict(e)
+
+    def update_record(self, record, old=None):
+        """Update a record in the collection.
+
+        Override to perform actions or post-process records after their
+        modification in storage.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPConflict` if a unique
+        field constraint is violated.
+        """
+        record_id = record[self.id_field]
+        try:
+            return self.db.update(record_id=record_id,
+                                  record=record,
+                                  **self.db_kwargs)
+        except storage_exceptions.UnicityError as e:
+            self._raise_conflict(e)
+
+    def delete_record(self, record):
+        """Delete a record in the collection.
+
+        Override to perform actions or post-process records after deletion
+        from storage for example:
+
+        .. code-block :: python
+
+            def delete_record(self, record):
+                deleted = super(Resource, self).delete_record(record)
+                erase_media(record)
+                deleted['media'] = 0
+                return deleted
+
+        :param record: the record to delete
+        :type record: dict
+        """
+        record_id = record[self.id_field]
+        return self.db.delete(record_id=record_id, **self.db_kwargs)
+
+    def process_record(self, new, old=None):
+        """Hook for processing records before they reach storage, to introduce
+        specific logics on field changes for example.
+
+        .. code-block :: python
+
+            def process_record(self, new, old=None):
+                if old and old['position'] > new['position']:
+                    new['position'] = old['position']
+                return new
+
+        Or add extra validation based on request:
+
+            def process_record(self, new, old=None):
+                if new['browser'] not in request.headers['User-Agent']:
+                    self.raise_invalid(name='browser', error='Mismatch')
+                return new
 
         :param new: the validated record to be created or updated.
         :type new: dict
@@ -111,8 +224,14 @@ class BaseResource(object):
         """
         return new
 
-    def _merge_fields(self, record, changes):
+    def apply_changes(self, record, changes):
         """Merge changes into current record fields.
+
+        :note:
+            This is used in the context of PATCH only.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if result does
+            not comply with resource schema.
         """
         for field, value in changes.items():
             has_changed = record.get(field, value) != value
@@ -125,25 +244,23 @@ class BaseResource(object):
 
         updated = record.copy()
         updated.update(**changes)
-        return self.validate(updated)
 
-    def validate(self, record):
-        """Validate specified record against resource schema.
-        Raise 400 if not valid."""
         try:
-            return self.mapping.deserialize(record)
+            return self.mapping.deserialize(updated)
         except colander.Invalid as e:
-            # Transform the errors we got from colander into cornice errors
+            # Transform the errors we got from colander into Cornice errors.
+            # We could not rely on Service schema because the record should be
+            # validated only once the changes are applied
             for field, error in e.asdict().items():
                 raise_invalid(self.request, name=field, description=error)
 
-    def add_timestamp_header(self, response):
+    def _add_timestamp_header(self, response):
         """Add current timestamp in response headers, when request comes in.
         """
         timestamp = six.text_type(self.timestamp).encode('utf-8')
         response.headers['Last-Modified'] = timestamp
 
-    def raise_304_if_not_modified(self, record=None):
+    def _raise_304_if_not_modified(self, record=None):
         """Raise 304 if current timestamp is inferior to the one specified
         in headers.
 
@@ -162,10 +279,10 @@ class BaseResource(object):
 
             if current_timestamp <= modified_since:
                 response = HTTPNotModified()
-                self.add_timestamp_header(response)
+                self._add_timestamp_header(response)
                 raise response
 
-    def raise_412_if_modified(self, record=None):
+    def _raise_412_if_modified(self, record=None):
         """Raise 412 if current timestamp is superior to the one
         specified in headers.
 
@@ -190,7 +307,7 @@ class BaseResource(object):
                 self._add_timestamp_header(response)
                 raise response
 
-    def raise_conflict(self, exception):
+    def _raise_conflict(self, exception):
         """Helper to raise conflict responses.
 
         :param exception: the original unicity error
@@ -376,37 +493,16 @@ class BaseResource(object):
         cors_headers=('Next-Page', 'Total-Records', 'Last-Modified')
     )
     def collection_get(self):
-        """Collection `GET` endpoint.
+        self._add_timestamp_header(self.request.response)
+        self._raise_304_if_not_modified()
+        self._raise_412_if_modified()
 
-        :raises: :class:`pyramid.httpexceptions.HTTPNotModified`
-        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
-        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if filters or
-            sorting are invalid.
-        """
-        self.add_timestamp_header(self.request.response)
-        self.raise_304_if_not_modified()
-        self.raise_412_if_modified()
-
-        filters = self._extract_filters()
-        sorting = self._extract_sorting()
-        pagination_rules, limit = self._extract_pagination_rules_from_token(
-            sorting)
-
-        include_deleted = self.modified_field in [f[0] for f in filters]
-
-        records, total_records = self.db.get_all(
-            filters=filters,
-            sorting=sorting,
-            pagination_rules=pagination_rules,
-            limit=limit,
-            include_deleted=include_deleted,
-            **self.db_kwargs)
+        records, total_records, next_page = self.fetch_records()
 
         headers = self.request.response.headers
         headers['Total-Records'] = ('%s' % total_records).encode('utf-8')
 
-        if limit and len(records) == limit and total_records > limit:
-            next_page = self._next_page_url(sorting, limit, records[-1])
+        if next_page:
             headers['Next-Page'] = next_page.encode('utf-8')
 
         body = {
@@ -417,41 +513,23 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_post(self):
-        """Collection `POST` endpoint.
+        self._raise_412_if_modified()
 
-        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
-        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
-        """
-        self.raise_412_if_modified()
-
-        new_record = self._process_record(self.request.validated)
-        try:
-            record = self.db.create(record=new_record, **self.db_kwargs)
-        except storage_exceptions.UnicityError as e:
-            self.raise_conflict(e)
-
+        new_record = self.process_record(self.request.validated)
+        record = self.create_record(new_record)
         self.request.response.status_code = 201
         return record
 
     @resource.view(permission='readwrite')
     def collection_delete(self):
-        """Collection `DELETE` endpoint.
-
-        :raises: :class:`pyramid.httpexceptions.HTTPMethodNotAllowed` if not
-            enabled in configuration.
-        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
-        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if filters or
-            sorting are invalid.
-        """
         settings = self.request.registry.settings
         enabled = settings.get('cliquet.delete_collection_enabled', 'true')
         if not native_value(enabled):
             raise HTTPMethodNotAllowed()
 
-        self.raise_412_if_modified()
+        self._raise_412_if_modified()
 
-        filters = self._extract_filters()
-        deleted = self.db.delete_all(filters=filters, **self.db_kwargs)
+        deleted = self.delete_records()
 
         body = {
             'items': deleted,
@@ -461,34 +539,19 @@ class BaseResource(object):
 
     @resource.view(permission='readonly', cors_headers=('Last-Modified',))
     def get(self):
-        """Record `GET` endpoint.
-
-        :raises: :class:`pyramid.httpexceptions.HTTPNotFound`
-        :raises: :class:`pyramid.httpexceptions.HTTPNotModified`
-        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
-        """
-        self.add_timestamp_header(self.request.response)
-        record = self._fetch_record()
-        self.raise_304_if_not_modified(record)
-        self.raise_412_if_modified(record)
+        self._add_timestamp_header(self.request.response)
+        record = self.fetch_record(self.record_id)
+        self._raise_304_if_not_modified(record)
+        self._raise_412_if_modified(record)
 
         return record
 
     @resource.view(permission='readwrite')
     def put(self):
-        """Record `PUT` endpoint.
-
-        :raises: :class:`pyramid.httpexceptions.HTTPConflict`
-        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
-        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
-        """
-        record_id = self.request.matchdict['id']
-
         try:
-            existing = self.db.get(record_id=record_id,
-                                   **self.db_kwargs)
-            self.raise_412_if_modified(existing)
-        except storage_exceptions.RecordNotFoundError:
+            existing = self.fetch_record(self.record_id)
+            self._raise_412_if_modified(existing)
+        except HTTPNotFound:
             existing = None
 
         new_record = self.request.validated
@@ -501,59 +564,33 @@ class BaseResource(object):
             }
             raise_invalid(self.request, **error_details)
 
-        new_record = self._process_record(new_record, old=existing)
-
-        try:
-            record = self.db.update(record_id=record_id,
-                                    record=new_record,
-                                    **self.db_kwargs)
-        except storage_exceptions.UnicityError as e:
-            self.raise_conflict(e)
-
+        new_record = self.process_record(new_record, old=existing)
+        record = self.update_record(new_record, existing)
         return record
 
     @resource.view(permission='readwrite')
     def patch(self):
-        """Record `PATCH` endpoint.
-
-        :raises: :class:`pyramid.httpexceptions.HTTPNotFound`
-        :raises: :class:`pyramid.httpexceptions.HTTPConflict`
-        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
-        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
-        """
-        record = self._fetch_record()
-        self.raise_412_if_modified(record)
+        record = self.fetch_record(self.record_id)
+        self._raise_412_if_modified(record)
 
         changes = self.request.json
 
-        updated = self._merge_fields(record, changes=changes)
+        updated = self.apply_changes(record, changes=changes)
 
-        updated = self._process_record(updated, old=record)
+        updated = self.process_record(updated, old=record)
 
         nothing_changed = not any([record.get(k) != updated.get(k)
                                    for k in changes.keys()])
         if nothing_changed:
             return record
 
-        try:
-            record = self.db.update(record_id=record[self.id_field],
-                                    record=updated,
-                                    **self.db_kwargs)
-        except storage_exceptions.UnicityError as e:
-            self.raise_conflict(e)
-
+        record = self.update_record(updated, old=record)
         return record
 
     @resource.view(permission='readwrite')
     def delete(self):
-        """Record `DELETE` endpoint.
+        record = self.fetch_record(self.record_id)
+        self._raise_412_if_modified(record)
 
-        :raises: :class:`pyramid.httpexceptions.HTTPNotFound`
-        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
-        """
-        record = self._fetch_record()
-        self.raise_412_if_modified(record)
-
-        deleted = self.db.delete(record_id=record[self.id_field],
-                                 **self.db_kwargs)
+        deleted = self.delete_record(record)
         return deleted
