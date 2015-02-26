@@ -69,6 +69,6 @@ Basic Auth
 ==========
 
 In addition to OAuth, *Basic Auth* can be enabled in the configuration using
-``cliquet.basic_auth_backdoor = true``.
+``cliquet.basic_auth_enabled = true``.
 
 Articles will then be stored for any username/password combination provided.

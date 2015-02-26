@@ -18,7 +18,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.sample_url, headers=headers, status=401)
 
         with mock.patch.dict(self.app.app.registry.settings,
-                             [('cliquet.basic_auth_backdoor', 'true')]):
+                             [('cliquet.basic_auth_enabled', 'true')]):
             self.app.get(self.sample_url, headers=headers, status=200)
 
     def test_views_are_forbidden_if_basic_is_wrong(self):

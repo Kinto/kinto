@@ -51,7 +51,7 @@ Authentication
 
 .. code-block :: ini
 
-    # cliquet.basic_auth_backdoor = true
+    # cliquet.basic_auth_enabled = true
     # cliquet.userid_hmac_secret = b4c96a8692291d88fe5a97dd91846eb4
 
     fxa-oauth.client_id = 89513028159972bc
