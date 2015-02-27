@@ -7,6 +7,7 @@ except ImportError:
     import unittest  # NOQA
 
 import webtest
+
 from cornice import errors as cornice_errors
 
 from cliquet.utils import random_bytes_hex
@@ -80,14 +81,13 @@ class BaseWebTest(FakeAuthentMixin):
     """
 
     api_prefix = "v0"
-    app = testapp
 
-    def get_app(self):
-        return self.app
+    def get_test_app(self):
+        return webtest.TestApp(testapp(self.get_app_settings()))
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.app = webtest.TestApp(self.get_app()(self.get_app_settings()))
+        self.app = self.get_test_app()
         self.app.RequestClass = get_request_class(self.api_prefix)
         self.db = self.app.app.registry.storage
         self.headers.update({
