@@ -6,12 +6,11 @@ cloud", attached to your Firefox account.
 
 It's as simple as that:
 
-1. Decide on model for your data;
-2. Push the data on the server;
-3. Ask the server for the data (ordered, filtered, paginated) and allow
-   synchronisation.
+1. Pick up a name for your records collection;
+2. Push the records on the server;
+3. Pull the records from the server (ordered, filtered, paginated)
 
-The server doesn't impose anything about the client data model.
+The server doesn't impose anything about the records data model.
 
 |travis| |readthedocs|
 
@@ -27,7 +26,7 @@ Run locally
 ===========
 
 Kinto is based on top of the `cliquet <https://cliquet.rtfd.org>`_ project, and
-as such, please follow the installation instructions there to get started.
+as such, please refer to its documentation regarding API and endpoints.
 
 ::
 
