@@ -23,13 +23,14 @@ ERRORS = Enum(
     BACKEND=201,
     SERVICE_DEPRECATED=202
 )
+"""Predefined errors as specified by the protocol."""
 
 
-def http_error(http_exception_klass, errno=None,
+def http_error(httpexception, errno=None,
                code=None, error=None, message=None, info=None):
     """Return a JSON formated response matching the error protocol.
 
-    :param http_exception_klass: See :mod:`pyramid.httpexceptions`
+    :param httpexception: Instance of :mod:`pyramid.httpexceptions`
     :param errno: stable application-level error number (e.g. 109)
     :param code: matches the HTTP status code (e.g 400)
     :param error: string description of error type (e.g. "Bad request")
@@ -39,9 +40,9 @@ def http_error(http_exception_klass, errno=None,
     :rtype: pyramid.httpexceptions.HTTPException
     """
     body = {
-        "code": code or http_exception_klass.code,
+        "code": code or httpexception.code,
         "errno": errno or ERRORS.UNDEFINED,
-        "error": error or http_exception_klass.title
+        "error": error or httpexception.title
     }
 
     if message is not None:
@@ -50,8 +51,9 @@ def http_error(http_exception_klass, errno=None,
     if info is not None:
         body['info'] = info
 
-    response = http_exception_klass(body=json.dumps(body).encode("utf-8"),
-                                    content_type='application/json')
+    response = httpexception
+    response.body = json.dumps(body).encode("utf-8")
+    response.content_type = 'application/json'
     return response
 
 
@@ -85,7 +87,7 @@ def json_error_handler(errors):
     else:
         message = '%(location)s: %(description)s' % error
 
-    response = http_error(httpexceptions.HTTPBadRequest,
+    response = http_error(httpexceptions.HTTPBadRequest(),
                           errno=ERRORS.INVALID_PARAMETERS,
                           error='Invalid parameters',
                           message=message)

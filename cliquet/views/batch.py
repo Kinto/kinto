@@ -100,7 +100,7 @@ def post_batch(request):
         except Exception as e:
             logger.exception(e)
             subresponse = errors.http_error(
-                httpexceptions.HTTPInternalServerError)
+                httpexceptions.HTTPInternalServerError())
 
         subresponse = build_response(subresponse, subrequest)
         responses.append(subresponse)

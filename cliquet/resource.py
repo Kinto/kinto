@@ -91,7 +91,7 @@ class BaseResource(object):
             return self.db.get(record_id=record_id,
                                **self.db_kwargs)
         except storage_exceptions.RecordNotFoundError:
-            response = http_error(HTTPNotFound,
+            response = http_error(HTTPNotFound(),
                                   errno=ERRORS.INVALID_RESOURCE_ID)
             raise response
 
@@ -178,7 +178,7 @@ class BaseResource(object):
 
             if current_timestamp > unmodified_since:
                 error_msg = 'Resource was modified meanwhile'
-                response = http_error(HTTPPreconditionFailed,
+                response = http_error(HTTPPreconditionFailed(),
                                       errno=ERRORS.MODIFIED_MEANWHILE,
                                       message=error_msg)
                 self.add_timestamp_header(response)
@@ -194,7 +194,7 @@ class BaseResource(object):
         field = exception.field
         existing = exception.record[self.id_field]
         message = 'Conflict of field {0} on record {1}'.format(field, existing)
-        response = http_error(HTTPConflict,
+        response = http_error(HTTPConflict(),
                               errno=ERRORS.CONSTRAINT_VIOLATED,
                               message=message)
         response.existing = exception.record

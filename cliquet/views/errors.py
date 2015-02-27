@@ -37,14 +37,14 @@ def authorization_required(request):
     """
     if not request.authenticated_userid:
         error_msg = "Please authenticate yourself to use this endpoint."
-        response = http_error(httpexceptions.HTTPUnauthorized,
+        response = http_error(httpexceptions.HTTPUnauthorized(),
                               errno=ERRORS.MISSING_AUTH_TOKEN,
                               message=error_msg)
         response.headers.extend(forget(request))
         return response
 
     error_msg = "This user cannot access this resource."
-    response = http_error(httpexceptions.HTTPForbidden,
+    response = http_error(httpexceptions.HTTPForbidden(),
                           errno=ERRORS.FORBIDDEN,
                           message=error_msg)
     return response
@@ -55,7 +55,7 @@ def authorization_required(request):
 def page_not_found(request):
     """Return a JSON 404 error response."""
     error_msg = "The resource your are looking for could not be found."
-    response = http_error(httpexceptions.HTTPNotFound,
+    response = http_error(httpexceptions.HTTPNotFound(),
                           errno=ERRORS.MISSING_RESOURCE,
                           message=error_msg)
     return response
@@ -66,7 +66,7 @@ def page_not_found(request):
 def service_unavailable(context, request):
 
     error_msg = "Service unavailable due to high load, please retry later."
-    response = http_error(httpexceptions.HTTPServiceUnavailable,
+    response = http_error(httpexceptions.HTTPServiceUnavailable(),
                           errno=ERRORS.BACKEND,
                           message=error_msg)
 
@@ -87,7 +87,7 @@ def error(context, request):
 
     error_msg = "A programmatic error occured, developers have been informed."
     info = "https://github.com/mozilla-services/cliquet/issues/"
-    response = http_error(httpexceptions.HTTPInternalServerError,
+    response = http_error(httpexceptions.HTTPInternalServerError(),
                           message=error_msg,
                           info=info)
 

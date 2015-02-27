@@ -128,7 +128,7 @@ def end_of_life_tween_factory(handler, registry):
     """Pyramid tween to handle service end of life."""
 
     deprecated_response = errors.http_error(
-        HTTPGone,
+        HTTPGone(),
         errno=errors.ERRORS.SERVICE_DEPRECATED,
         message="The service you are trying to connect no longer exists "
                 "at this location.")
