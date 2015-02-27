@@ -84,6 +84,10 @@ Or set it up manually:
 
     import pyramid_multiauth
 
+    #
+    # ... (see quickstart example)
+    #
+
     def main(global_config, **settings):
         config = Configurator(settings=settings)
 

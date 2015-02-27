@@ -13,7 +13,7 @@ A policy based on *OAuth2 bearer tokens* is recommended, but not mandatory.
 A *Basic Auth* can also be enabled in :ref:`configuration` for the convenience
 of clients or testing.
 
-By default, we profite a setup using :term:`Firefox Accounts`, that verifies
+By default, we propose a setup using :term:`Firefox Accounts`, that verifies
 the *OAuth2 bearer tokens* on a remote server, and provides some API endpoints
 to perform the *OAuth* dance.
 
@@ -33,7 +33,8 @@ The token is built using this formula ``base64("username:password")``.
 
 :notes:
 
-    If not enabled (**default**) this will result in a ``401`` error response.
+    If not enabled in :ref:`configuration` (**default**) this will result
+    in a ``401`` error response.
 
 
 OAuth Bearer token
