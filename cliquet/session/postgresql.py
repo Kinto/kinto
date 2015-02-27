@@ -22,6 +22,8 @@ class PostgreSQL(SessionStorageBase):
             value TEXT NOT NULL,
             ttl INT4 DEFAULT NULL
         );
+        DROP INDEX IF EXISTS idx_session_ttl;
+        CREATE INDEX idx_session_ttl ON session(ttl);
         """
         with self.connect() as cursor:
             cursor.execute(schema)
@@ -38,12 +40,13 @@ class PostgreSQL(SessionStorageBase):
     def ping(self):
         try:
             self.set('heartbeat', True)
+            return True
         except psycopg2.Error:
             return False
 
     def ttl(self, key):
         query = """
-        SELECT EXTRACT(SECOND FROM (now() - ttl)) AS ttl
+        SELECT EXTRACT(SECOND FROM (ttl - now())) AS ttl
           FROM session
          WHERE key = %s
            AND ttl IS NOT NULL;
@@ -64,11 +67,12 @@ class PostgreSQL(SessionStorageBase):
     def set(self, key, value, ttl=None):
         query = """
         WITH upsert AS (
-            UPDATE session SET value=%(value)s, ttl=%(ttl)s
+            UPDATE session SET value = %(value)s,
+                               ttl= now() + INTERVAL '%(ttl)s second'
              WHERE key=%(key)s
             RETURNING *)
         INSERT INTO session (key, value, ttl)
-        SELECT %(key)s, %(value)s, %(ttl)s
+        SELECT %(key)s, %(value)s, now() + INTERVAL '%(ttl)s second'
         WHERE NOT EXISTS (SELECT * FROM upsert)
         """
         with self.connect() as cursor:
