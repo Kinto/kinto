@@ -10,7 +10,8 @@ import six
 from six.moves.urllib.parse import urlencode
 
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
-from cliquet import errors
+from cliquet.errors import (http_error, raise_invalid, ERRORS,
+                            json_error_handler)
 from cliquet.schema import ResourceSchema
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode_token, encode_token
@@ -28,7 +29,7 @@ def crud(**kwargs):
         params = dict(collection_path='/{0}s'.format(resource_name),
                       path='/{0}s/{{id}}'.format(resource_name),
                       description='Collection of {0}'.format(resource_name),
-                      error_handler=errors.json_error,
+                      error_handler=json_error_handler,
                       cors_origins=('*',),
                       depth=2)
         params.update(**kwargs)
@@ -78,15 +79,6 @@ class BaseResource(object):
 
         return CorniceSchema.from_colander(colander_schema)
 
-    def raise_invalid(self, location='body', **kwargs):
-        """Helper to raise a validation error.
-
-        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
-        """
-        self.request.errors.add(location, **kwargs)
-        response = errors.json_error(self.request.errors)
-        raise response
-
     def fetch_record(self):
         """Fetch current view related record, and raise 404 if missing.
 
@@ -99,12 +91,8 @@ class BaseResource(object):
             return self.db.get(record_id=record_id,
                                **self.db_kwargs)
         except storage_exceptions.RecordNotFoundError:
-            response = HTTPNotFound(
-                body=errors.format_error(
-                    code=HTTPNotFound.code,
-                    errno=errors.ERRORS.INVALID_RESOURCE_ID,
-                    error=HTTPNotFound.title),
-                content_type='application/json')
+            response = http_error(HTTPNotFound(),
+                                  errno=ERRORS.INVALID_RESOURCE_ID)
             raise response
 
     def process_record(self, new, old=None):
@@ -123,8 +111,11 @@ class BaseResource(object):
         for field, value in changes.items():
             has_changed = record.get(field, value) != value
             if self.mapping.is_readonly(field) and has_changed:
-                error = 'Cannot modify {0}'.format(field)
-                self.raise_invalid(name=field, description=error)
+                error_details = {
+                    'name': field,
+                    'description': 'Cannot modify {0}'.format(field)
+                }
+                raise_invalid(self.request, **error_details)
 
         updated = record.copy()
         updated.update(**changes)
@@ -138,8 +129,7 @@ class BaseResource(object):
         except colander.Invalid as e:
             # Transform the errors we got from colander into cornice errors
             for field, error in e.asdict().items():
-                self.request.errors.add('body', name=field, description=error)
-            raise errors.json_error(self.request.errors)
+                raise_invalid(self.request, name=field, description=error)
 
     def add_timestamp_header(self, response):
         """Add current timestamp in response headers, when request comes in.
@@ -188,13 +178,9 @@ class BaseResource(object):
 
             if current_timestamp > unmodified_since:
                 error_msg = 'Resource was modified meanwhile'
-                response = HTTPPreconditionFailed(
-                    body=errors.format_error(
-                        code=HTTPPreconditionFailed.code,
-                        errno=errors.ERRORS.MODIFIED_MEANWHILE,
-                        error=HTTPPreconditionFailed.title,
-                        message=error_msg),
-                    content_type='application/json')
+                response = http_error(HTTPPreconditionFailed(),
+                                      errno=ERRORS.MODIFIED_MEANWHILE,
+                                      message=error_msg)
                 self.add_timestamp_header(response)
                 raise response
 
@@ -208,13 +194,9 @@ class BaseResource(object):
         field = exception.field
         existing = exception.record[self.id_field]
         message = 'Conflict of field {0} on record {1}'.format(field, existing)
-        response = HTTPConflict(
-            body=errors.format_error(
-                code=HTTPConflict.code,
-                errno=errors.ERRORS.CONSTRAINT_VIOLATED,
-                error=HTTPConflict.title,
-                message=message),
-            content_type='application/json')
+        response = http_error(HTTPConflict(),
+                              errno=ERRORS.CONSTRAINT_VIOLATED,
+                              message=message)
         response.existing = exception.record
         raise response
 
@@ -241,7 +223,7 @@ class BaseResource(object):
                         'location': 'querystring',
                         'description': 'Invalid value for _since'
                     }
-                    self.raise_invalid(**error_details)
+                    raise_invalid(self.request, **error_details)
 
                 if param == '_since':
                     operator = COMPARISON.GT
@@ -261,11 +243,10 @@ class BaseResource(object):
 
             if field not in self.known_fields:
                 error_details = {
-                    'name': None,
                     'location': 'querystring',
                     'description': "Unknown filter field '{0}'".format(param)
                 }
-                self.raise_invalid(**error_details)
+                raise_invalid(self.request, **error_details)
 
             filters.append(Filter(field, value, operator))
 
@@ -284,11 +265,10 @@ class BaseResource(object):
 
                 if field not in self.known_fields:
                     error_details = {
-                        'name': None,
                         'location': 'querystring',
                         'description': "Unknown sort field '{0}'".format(field)
                     }
-                    self.raise_invalid(**error_details)
+                    raise_invalid(self.request, **error_details)
 
                 direction = -1 if order == '-' else 1
                 sorting.append(Sort(field, direction))
@@ -338,11 +318,10 @@ class BaseResource(object):
                 limit = int(limit)
             except ValueError:
                 error_details = {
-                    'name': None,
                     'location': 'querystring',
                     'description': "_limit should be an integer"
                 }
-                self.raise_invalid(**error_details)
+                raise_invalid(self.request, **error_details)
 
         token = queryparams.get('_token', None)
         filters = []
@@ -351,11 +330,10 @@ class BaseResource(object):
                 last_record = decode_token(token)
             except (ValueError, TypeError):
                 error_details = {
-                    'name': None,
                     'location': 'querystring',
                     'description': "_token should be valid base64 JSON encoded"
                 }
-                self.raise_invalid(**error_details)
+                raise_invalid(self.request, **error_details)
 
             filters = self._build_pagination_rules(sorting, last_record)
         return filters, limit
@@ -511,8 +489,11 @@ class BaseResource(object):
 
         new_id = new_record.setdefault(self.id_field, record_id)
         if new_id != record_id:
-            error_msg = 'Record id does not match existing record'
-            self.raise_invalid(name=self.id_field, description=error_msg)
+            error_details = {
+                'name': self.id_field,
+                'description': 'Record id does not match existing record'
+            }
+            raise_invalid(self.request, **error_details)
 
         new_record = self.process_record(new_record, old=existing)
 

@@ -4,11 +4,10 @@ import hmac
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 from pyramid import authentication as base_auth
+from pyramid import httpexceptions
 from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Authenticated
 from zope.interface import implementer
-
-from cliquet.errors import HTTPServiceUnavailable
 
 
 def check_credentials(username, password, request):
@@ -77,7 +76,7 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
                                profile['user'].encode('utf-8'),
                                hashlib.sha256).hexdigest()
         except fxa_errors.OutOfProtocolError:
-            raise HTTPServiceUnavailable()
+            raise httpexceptions.HTTPServiceUnavailable()
         except (fxa_errors.InProtocolError, fxa_errors.TrustError):
             return None
         return 'fxa_%s' % user_id

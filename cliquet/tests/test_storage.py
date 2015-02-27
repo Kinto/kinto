@@ -9,7 +9,8 @@ from cliquet.storage import (
     redis as redisbackend, postgresql,
     Sort, StorageBase
 )
-from cliquet import utils, errors
+from cliquet import utils
+from pyramid import httpexceptions
 from pyramid.config import global_registries
 
 from .support import unittest, ThreadMixin
@@ -634,7 +635,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
 
         with mock.patch('cliquet.storage.postgresql.PostgreSQL._check_unicity',
                         side_effect=psycopg2.OperationalError):
-            self.assertRaises(errors.HTTPServiceUnavailable,
+            self.assertRaises(httpexceptions.HTTPServiceUnavailable,
                               self.storage.create,
                               self.resource, 'foo', {})
 

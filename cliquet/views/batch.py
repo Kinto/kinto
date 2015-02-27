@@ -70,7 +70,7 @@ class BatchPayloadSchema(colander.MappingSchema):
 
 batch = Service(name="batch", path='/batch',
                 description="Batch operations",
-                error_handler=errors.json_error)
+                error_handler=errors.json_error_handler)
 
 
 @batch.post(schema=BatchPayloadSchema, permission=NO_PERMISSION_REQUIRED)
@@ -99,7 +99,8 @@ def post_batch(request):
             subresponse = e
         except Exception as e:
             logger.exception(e)
-            subresponse = errors.HTTPInternalServerError()
+            subresponse = errors.http_error(
+                httpexceptions.HTTPInternalServerError())
 
         subresponse = build_response(subresponse, subrequest)
         responses.append(subresponse)
