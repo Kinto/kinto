@@ -3,40 +3,24 @@ try:
 except ImportError:
     import unittest  # NOQA
 
-import webtest
-
-from cliquet.tests.support import FakeAuthentMixin
+from cliquet.tests.support import BaseWebTest as CliquetBaseWebTest
 from kinto import API_VERSION
 
 
-def get_request_class(prefix):
+class BaseWebTest(CliquetBaseWebTest):
 
-    class PrefixedRequestClass(webtest.app.TestRequest):
+    api_prefix = API_VERSION
 
-        @classmethod
-        def blank(cls, path, *args, **kwargs):
-            path = '/%s%s' % (prefix, path)
-            return webtest.app.TestRequest.blank(path, *args, **kwargs)
-
-    return PrefixedRequestClass
-
-
-class BaseWebTest(FakeAuthentMixin):
-    """Base Web Test to test your cornice service.
-
-    It setups the database before each test and delete it after.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.app = webtest.TestApp("config:config/kinto.ini",
-                                   relative_to='.')
-        self.app.RequestClass = get_request_class(prefix=API_VERSION)
-        self.db = self.app.app.registry.storage
-        self.headers.update({
-            'Content-Type': 'application/json',
-        })
-
-    def tearDown(self):
-        super(BaseWebTest, self).tearDown()
-        self.db.flush()
+    def get_app_settings(self):
+        return {
+            'cliquet.project_name': 'cloud storage',
+            'cliquet.project_docs': 'https://kinto.rtfd.org/',
+            'cliquet.basic_auth_enabled': 'true',
+            'cliquet.storage_backend': 'cliquet.storage.redis',
+            'cliquet.session_backend': 'cliquet.session.redis',
+            'fxa-oauth.client_id': '89513028159972bc',
+            'fxa-oauth.client_secret': '9aced230585cc0aa2932e2eb871c9a3a7d6458'
+                                       'e59ccf57eb610ea0a3467dd800',
+            'fxa-oauth.oauth_uri': 'https://oauth-stable.dev.lcip.org',
+            'fxa-oauth.scope': 'profile'
+        }
