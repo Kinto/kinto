@@ -26,7 +26,7 @@ Run locally
 ===========
 
 Kinto is based on top of the `cliquet <https://cliquet.rtfd.org>`_ project, and
-as such, please refer to its documentation regarding API and endpoints.
+as such, please refer to cliquet's documentation regarding API and endpoints.
 
 ::
 
