@@ -80,15 +80,6 @@ class BaseResource(object):
 
         return CorniceSchema.from_colander(colander_schema)
 
-    def raise_invalid(self, location='body', **kwargs):
-        """Helper to raise a validation error.
-
-        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
-        """
-        self.request.errors.add(location, **kwargs)
-        response = errors.json_error(self.request.errors)
-        raise response
-
     #
     # End-points
     #
@@ -98,6 +89,7 @@ class BaseResource(object):
         cors_headers=('Next-Page', 'Total-Records', 'Last-Modified')
     )
     def collection_get(self):
+        """Collection `GET` endpoint."""
         self._add_timestamp_header(self.request.response)
         self._raise_304_if_not_modified()
         self._raise_412_if_modified()
@@ -118,6 +110,7 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_post(self):
+        """Collection `POST` endpoint."""
         self._raise_412_if_modified()
 
         new_record = self.process_record(self.request.validated)
@@ -127,6 +120,7 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_delete(self):
+        """Collection `DELETE` endpoint."""
         settings = self.request.registry.settings
         enabled = settings.get('cliquet.delete_collection_enabled', 'true')
         if not native_value(enabled):
@@ -144,6 +138,7 @@ class BaseResource(object):
 
     @resource.view(permission='readonly', cors_headers=('Last-Modified',))
     def get(self):
+        """Record `GET` endpoint."""
         self._add_timestamp_header(self.request.response)
         record = self.get_record(self.record_id)
         self._raise_304_if_not_modified(record)
@@ -153,6 +148,7 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def put(self):
+        """Record `PUT` endpoint."""
         try:
             existing = self.get_record(self.record_id)
             self._raise_412_if_modified(existing)
@@ -164,7 +160,12 @@ class BaseResource(object):
         new_id = new_record.setdefault(self.id_field, self.record_id)
         if new_id != self.record_id:
             error_msg = 'Record id does not match existing record'
-            self.raise_invalid(name=self.id_field, description=error_msg)
+            error_details = {
+                'name': self.id_field,
+                'location': 'querystring',
+                'description': error_msg
+            }
+            raise_invalid(self.request, **error_details)
 
         new_record = self.process_record(new_record, old=existing)
         record = self.update_record(new_record, existing)
@@ -172,6 +173,7 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def patch(self):
+        """Record `PATCH` endpoint."""
         record = self.get_record(self.record_id)
         self._raise_412_if_modified(record)
 
@@ -191,6 +193,7 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def delete(self):
+        """Record `DELETE` endpoint."""
         record = self.get_record(self.record_id)
         self._raise_412_if_modified(record)
 
@@ -346,7 +349,7 @@ class BaseResource(object):
 
             def process_record(self, new, old=None):
                 if new['browser'] not in request.headers['User-Agent']:
-                    self.raise_invalid(name='browser', error='Mismatch')
+                    raise_invalid(self.request, name='browser', error='Wrong')
                 return new
 
         :param new: the validated record to be created or updated.
