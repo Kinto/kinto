@@ -4,21 +4,56 @@ Authentication
 
 .. _authentication:
 
-Cliquet uses FirefoxAccounts as an authentication. The recommended way to
-connect to Firefox Accounts is via an OAuth flow. This is the default and
-preffered way to authenticate to Cliquet servers.
 
-Of course, it's possible to plug other authentication policies, all the Pyramid
-authentication policies will work.
+Depending on the authentication policies initialized in the application,
+the HTTP method to authenticate requests may differ.
 
-Firefox Account OAuth Bearer token
-==================================
+A policy based on *OAuth2 bearer tokens* is recommended, but not mandatory.
+
+A *Basic Auth* can also be enabled in :ref:`configuration` for the convenience
+of clients or testing.
+
+By default, we propose a setup using :term:`Firefox Accounts`, that verifies
+the *OAuth2 bearer tokens* on a remote server, and provides some API endpoints
+to perform the *OAuth* dance.
+
+
+Basic Auth
+==========
+
+If enabled in settings, using a *Basic Auth* token will associate a unique
+user id for any username/password combination.
+
+::
+
+    Authorization: Basic <basic_token>
+
+
+The token is built using this formula ``base64("username:password")``.
+
+:notes:
+
+    If not enabled in :ref:`configuration` (**default**) this will result
+    in a ``401`` error response.
+
+
+OAuth Bearer token
+==================
 
 Use the OAuth token with this header:
 
 ::
 
     Authorization: Bearer <oauth_token>
+
+
+:notes:
+
+    If the token is not valid, this will result in a ``401`` error response.
+
+
+Firefox Account
+===============
 
 Obtain the token
 ----------------
@@ -63,12 +98,3 @@ Bearer Token. `See Firefox Account documentation about this behavior
         "oauth_uri": "https://oauth-stable.dev.lcip.org",
         "scope": "profile"
     }
-
-
-Basic Auth
-==========
-
-In addition to OAuth, *Basic Auth* can be enabled in the configuration using
-``cliquet.basic_auth_enabled = true``.
-
-Articles will then be stored for any username/password combination provided.
