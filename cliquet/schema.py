@@ -35,6 +35,13 @@ class ResourceSchema(colander.MappingSchema):
 
     * ``id``
     * ``last_modified``
+
+    Override to add extra fields using the Colander API.
+
+    .. code-block :: python
+
+        class Movie(ResourceSchema):
+            director = colander.SchemaNode(colander.String())
     """
     id = colander.SchemaNode(colander.String(), missing=colander.drop)
     last_modified = TimeStamp()
@@ -43,17 +50,24 @@ class ResourceSchema(colander.MappingSchema):
         """
         Resource schema options.
 
-        It let you configure the:
-        * ``readonly_fields``: Fields that cannot be updated
-        * ``unique_fields``: Fields that must have unique values for the user
-          collection.
-        * ``preserve_unknown``: Define if unknown fields should be preserved
-          or not (default False).
+        This is meant to be overriden for changing values:
 
+        .. code-block :: python
+
+            class Bookmark(ResourceSchema):
+                url = schema.URL()
+
+                class Options(ResourceSchema.Options):
+                    unique_fields = ('url',)
         """
         readonly_fields = ('id', 'last_modified')
+        """Fields that cannot be updated"""
+
         unique_fields = ('id', 'last_modified')
+        """Fields that must have unique values for the user collection"""
+
         preserve_unknown = False
+        """Define if unknown fields should be preserved or not"""
 
     def is_readonly(self, field):
         """Return True if specified field name is read-only.
