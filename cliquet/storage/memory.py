@@ -59,7 +59,7 @@ class MemoryBasedStorage(StorageBase):
     def _bump_timestamp(self, resource, user_id):
         raise NotImplementedError
 
-    def _check_unicity(self, resource, user_id, record):
+    def check_unicity(self, resource, user_id, record):
         """Check that the specified record does not violates unicity
         constraints defined in the resource's mapping options.
         """
@@ -186,7 +186,7 @@ class Memory(MemoryBasedStorage):
         return current
 
     def create(self, resource, user_id, record):
-        self._check_unicity(resource, user_id, record)
+        self.check_unicity(resource, user_id, record)
 
         record = record.copy()
         _id = record[resource.id_field] = self.id_generator()
@@ -203,7 +203,7 @@ class Memory(MemoryBasedStorage):
     def update(self, resource, user_id, record_id, record):
         record = record.copy()
         record[resource.id_field] = record_id
-        self._check_unicity(resource, user_id, record)
+        self.check_unicity(resource, user_id, record)
 
         self.set_record_timestamp(resource, user_id, record)
         self._store[resource.name][user_id][record_id] = record
