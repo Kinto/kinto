@@ -51,3 +51,12 @@ class ResourceSchemaTest(unittest.TestCase):
         schema_instance = schema.ResourceSchema()
         deserialized = schema_instance.deserialize({'foo': 'bar'})
         self.assertNotIn('foo', deserialized)
+
+    def test_default_options_parameters_to_ResourceSchema_value(self):
+        class PreserveSchema(schema.ResourceSchema):
+            class Options:
+                pass
+
+        schema_instance = PreserveSchema()
+        deserialized = schema_instance.deserialize({'foo': 'bar'})
+        self.assertNotIn('foo', deserialized)
