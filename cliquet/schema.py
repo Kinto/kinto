@@ -57,7 +57,7 @@ class ResourceSchema(colander.MappingSchema):
             class Bookmark(ResourceSchema):
                 url = schema.URL()
 
-                class Options(ResourceSchema.Options):
+                class Options:
                     unique_fields = ('url',)
         """
         readonly_fields = ('id', 'last_modified')
@@ -69,6 +69,10 @@ class ResourceSchema(colander.MappingSchema):
         preserve_unknown = False
         """Define if unknown fields should be preserved or not"""
 
+    def _get_option(self, attr):
+        default_value = getattr(ResourceSchema.Options, attr)
+        return getattr(self.Options, attr,  default_value)
+
     def is_readonly(self, field):
         """Return True if specified field name is read-only.
 
@@ -78,10 +82,10 @@ class ResourceSchema(colander.MappingSchema):
             `False` otherwise.
         :rtype: boolean
         """
-        return field in self.Options.readonly_fields
+        return field in self._get_option("readonly_fields")
 
     def schema_type(self, **kw):
-        if self.Options.preserve_unknown is True:
+        if self._get_option("preserve_unknown") is True:
             unknown = 'preserve'
         else:
             unknown = 'ignore'
