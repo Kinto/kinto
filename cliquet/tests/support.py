@@ -7,6 +7,7 @@ except ImportError:
     import unittest  # NOQA
 
 import webtest
+
 from cornice import errors as cornice_errors
 
 from cliquet.utils import random_bytes_hex
@@ -27,12 +28,16 @@ class DummyRequest(mock.MagicMock):
         self.response = mock.MagicMock(headers={})
 
 
-class PrefixedRequestClass(webtest.app.TestRequest):
+def get_request_class(prefix):
 
-    @classmethod
-    def blank(cls, path, *args, **kwargs):
-        path = '/v0%s' % path
-        return webtest.app.TestRequest.blank(path, *args, **kwargs)
+    class PrefixedRequestClass(webtest.app.TestRequest):
+
+        @classmethod
+        def blank(cls, path, *args, **kwargs):
+            path = '/%s%s' % (prefix, path)
+            return webtest.app.TestRequest.blank(path, *args, **kwargs)
+
+    return PrefixedRequestClass
 
 
 class FakeAuthentMixin(object):
@@ -75,10 +80,15 @@ class BaseWebTest(FakeAuthentMixin):
     It setups the database before each test and delete it after.
     """
 
+    api_prefix = "v0"
+
+    def get_test_app(self):
+        return webtest.TestApp(testapp(self.get_app_settings()))
+
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.app = webtest.TestApp(testapp(self.get_app_settings()))
-        self.app.RequestClass = PrefixedRequestClass
+        self.app = self.get_test_app()
+        self.app.RequestClass = get_request_class(self.api_prefix)
         self.db = self.app.app.registry.storage
         self.headers.update({
             'Content-Type': 'application/json',
