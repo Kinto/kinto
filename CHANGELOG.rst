@@ -4,7 +4,7 @@ Changelog
 This document describes changes between each past release.
 
 
-1.0 (unreleased)
+1.0 (2015-03-02)
 ----------------
 
 - Initial version, extracted from Mozilla Services Reading List project (#1)
