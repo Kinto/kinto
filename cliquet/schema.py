@@ -69,7 +69,7 @@ class ResourceSchema(colander.MappingSchema):
         preserve_unknown = False
         """Define if unknown fields should be preserved or not"""
 
-    def _get_option(self, attr):
+    def get_option(self, attr):
         default_value = getattr(ResourceSchema.Options, attr)
         return getattr(self.Options, attr,  default_value)
 
@@ -82,10 +82,10 @@ class ResourceSchema(colander.MappingSchema):
             `False` otherwise.
         :rtype: boolean
         """
-        return field in self._get_option("readonly_fields")
+        return field in self.get_option("readonly_fields")
 
     def schema_type(self, **kw):
-        if self._get_option("preserve_unknown") is True:
+        if self.get_option("preserve_unknown") is True:
             unknown = 'preserve'
         else:
             unknown = 'ignore'
