@@ -3,7 +3,7 @@ from cliquet import schema
 
 
 class RecordSchema(schema.ResourceSchema):
-    class Options(schema.ResourceSchema.Options):
+    class Options():
         preserve_unknown = True
 
 
