@@ -99,6 +99,13 @@ The response body is a list of all responses:
       ]
     ]
 
+Error codes
+:::::::::::
+
+* 200 OK: The request have been processed
+* 400 Bad Request: The request body is invalid
+* 503 Service Unavailable: A backend is unavailable
+
 
 :warning:
 
