@@ -69,9 +69,9 @@ class ResourceSchema(colander.MappingSchema):
         preserve_unknown = False
         """Define if unknown fields should be preserved or not"""
 
-    def _get_option(self, value):
-        default_value = getattr(ResourceSchema.Options, value)
-        return getattr(self.Options, value,  default_value)
+    def _get_option(self, attr):
+        default_value = getattr(ResourceSchema.Options, attr)
+        return getattr(self.Options, attr,  default_value)
 
     def is_readonly(self, field):
         """Return True if specified field name is read-only.
