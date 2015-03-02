@@ -604,7 +604,8 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
-        'cliquet.storage_url': 'postgres://postgres:postgres@localhost:5432/testdb'
+        'cliquet.storage_url':
+            'postgres://postgres:postgres@localhost:5432/testdb'
     }
 
     def test_ping_returns_an_error_if_unavailable(self):
