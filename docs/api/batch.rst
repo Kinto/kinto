@@ -99,12 +99,12 @@ The response body is a list of all responses:
       ]
     ]
 
-Error codes
-:::::::::::
+HTTP Status Codes
+-----------------
 
-* 200 OK: The request have been processed
-* 400 Bad Request: The request body is invalid
-* 503 Service Unavailable: A backend is unavailable
+* ``200 OK``: The request have been processed
+* ``400 Bad Request``: The request body is invalid
+* ``503 Service Unavailable``: The service is currently Unavailable.
 
 
 :warning:
@@ -118,7 +118,7 @@ Error codes
 
 
 Pros & Cons
-:::::::::::
+-----------
 
 * This respects REST principles
 * This is easy for the client to handle, since it just has to pile up HTTP requests while offline
