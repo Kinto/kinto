@@ -46,7 +46,7 @@ class MemoryBasedStorage(StorageBase):
         deleted[resource.id_field] = record[resource.id_field]
         deleted[resource.modified_field] = record[resource.modified_field]
 
-        deleted[resource.deleted_mark] = True
+        deleted[resource.deleted_field] = True
         return deleted
 
     def set_record_timestamp(self, resource, user_id, record):
@@ -134,7 +134,7 @@ class MemoryBasedStorage(StorageBase):
         sorted_ = self.apply_sorting(paginated, sorting or [])
 
         filtered_deleted = len([r for r in sorted_
-                                if r.get(resource.deleted_mark) is True])
+                                if r.get(resource.deleted_field) is True])
 
         if limit:
             sorted_ = list(sorted_)[:limit]

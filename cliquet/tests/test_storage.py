@@ -47,7 +47,7 @@ class TestResource(object):
     name = "test"
     modified_field = "last_modified"
     mapping = TestMapping()
-    deleted_mark = "deleted"
+    deleted_field = "deleted"
 
 
 class BaseTestStorage(object):
