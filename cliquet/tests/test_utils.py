@@ -26,6 +26,10 @@ class NativeValueTest(unittest.TestCase):
         false_values = [native_value(s) for s in false_strings]
         self.assertFalse(any(false_values))
 
+    def test_non_string_values(self):
+        self.assertEqual(native_value(7), 7)
+        self.assertEqual(native_value(True), True)
+
 
 class StripWhitespaceTest(unittest.TestCase):
     def test_removes_all_kinds_of_spaces(self):

@@ -5,6 +5,7 @@ except ImportError:  # pragma: no cover
 
 import ast
 import os
+import six
 import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
@@ -47,14 +48,16 @@ def random_bytes_hex(bytes_length):
 
 def native_value(value):
     """Convert string value to native python values."""
-    if value.lower() in ['on', 'true', 'yes', '1']:
-        value = True
-    elif value.lower() in ['off', 'false', 'no', '0']:
-        value = False
-    try:
-        return ast.literal_eval(value)
-    except (ValueError, SyntaxError):
-        return value
+    if isinstance(value, six.string_types):
+        if value.lower() in ['on', 'true', 'yes', '1']:
+            value = True
+        elif value.lower() in ['off', 'false', 'no', '0']:
+            value = False
+        try:
+            return ast.literal_eval(value)
+        except (ValueError, SyntaxError):
+            pass
+    return value
 
 
 def decode_token(token):
