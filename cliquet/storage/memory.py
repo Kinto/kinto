@@ -64,7 +64,7 @@ class MemoryBasedStorage(StorageBase):
         constraints defined in the resource's mapping options.
         """
         record_id = record.get(resource.id_field)
-        unique_fields = resource.mapping.Options.unique_fields
+        unique_fields = resource.mapping.get_option('unique_fields')
 
         for field in unique_fields:
             value = record.get(field)

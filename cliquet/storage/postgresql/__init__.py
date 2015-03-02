@@ -498,7 +498,7 @@ class PostgreSQL(StorageBase):
         """Check that no existing record (in the current transaction snapshot)
         violates the resource unicity rules.
         """
-        unique_fields = resource.mapping.Options.unique_fields
+        unique_fields = resource.mapping.get_option('unique_fields')
         if not unique_fields:
             return
 
