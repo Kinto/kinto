@@ -7,7 +7,19 @@ This document describes changes between each past release.
 1.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+**New features**
+
+- Support filter on deleted using since (#51)
+
+**Internal changes**
+
+- Remove python 2.6 support (#50)
+- Renamed Resource.deleted_mark to Resource.deleted_field (#51)
+- Improve native_value (#56)
+- Fixed Schema options inheritance (#55)
+- Re-build the virtualenv when setup.py changes
+- Renamed storage.url to cliquet.storage_url (#49)
+- Refactored the tests/support.py file (#38)
 
 
 1.0 (2015-03-02)
