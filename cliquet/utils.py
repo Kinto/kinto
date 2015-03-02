@@ -1,7 +1,4 @@
-try:
-    import simplejson as json
-except ImportError:  # pragma: no cover
-    import json  # NOQA
+import json
 
 import ast
 import os
