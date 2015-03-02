@@ -10,6 +10,7 @@ from cliquet.storage import (
     Sort, StorageBase
 )
 from cliquet import utils
+from cliquet import schema
 from pyramid import httpexceptions
 from pyramid.config import global_registries
 
@@ -36,12 +37,17 @@ class StorageBaseTest(unittest.TestCase):
             self.assertRaises(NotImplementedError, *call)
 
 
+class TestMapping(schema.ResourceSchema):
+    class Options:
+        pass
+
+
 class TestResource(object):
     id_field = "id"
     name = "test"
     modified_field = "last_modified"
     deleted_mark = ("deleted", True)
-    mapping = mock.MagicMock()
+    mapping = TestMapping()
 
 
 class BaseTestStorage(object):
@@ -64,7 +70,7 @@ class BaseTestStorage(object):
     def tearDown(self):
         super(BaseTestStorage, self).tearDown()
         self.storage.flush()
-        self.resource.mapping.reset_mock()
+        self.resource.mapping = TestMapping()
 
     def test_ping_returns_true_when_working(self):
         self.assertTrue(self.storage.ping())
