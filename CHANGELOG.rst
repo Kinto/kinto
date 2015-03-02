@@ -4,6 +4,12 @@ Changelog
 This document describes changes between each past release.
 
 
+1.1 (unreleased)
+----------------
+
+- Nothing changed yet.
+
+
 1.0 (2015-03-02)
 ----------------
 
