@@ -558,7 +558,7 @@ def load_from_config(config):
     max_fetch_size = settings.get('storage.max_fetch_size',
                                   DEFAULT_MAX_FETCH_SIZE)
 
-    uri = settings.get('storage.url', '')
+    uri = settings.get('cliquet.storage_url', '')
     uri = urlparse.urlparse(uri)
     conn_kwargs = dict(host=uri.hostname,
                        port=uri.port,
