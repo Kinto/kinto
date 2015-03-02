@@ -3,13 +3,17 @@ try:
 except ImportError:
     import unittest  # NOQA
 
-from cliquet.tests.support import BaseWebTest as CliquetBaseWebTest
-from kinto import API_VERSION
+from cliquet.tests import support as cliquet_support
+import webtest
+import kinto
 
 
-class BaseWebTest(CliquetBaseWebTest):
+class BaseWebTest(cliquet_support.BaseWebTest):
 
-    api_prefix = API_VERSION
+    api_prefix = kinto.API_VERSION
+
+    def get_test_app(self):
+        return webtest.TestApp(kinto.main({}, **self.get_app_settings()))
 
     def get_app_settings(self):
         return {
