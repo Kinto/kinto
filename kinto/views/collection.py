@@ -1,9 +1,17 @@
-from cliquet.resource import crud, BaseResource
+from cliquet import resource
+from cliquet import schema
 
 
-@crud(path="/collections/{collection_id}/records/{id}",
-      collection_path="/collections/{collection_id}/records")
-class Collection(BaseResource):
+class RecordSchema(schema.ResourceSchema):
+    class Options():
+        preserve_unknown = True
+
+
+@resource.crud(path="/collections/{collection_id}/records/{id}",
+               collection_path="/collections/{collection_id}/records")
+class Collection(resource.BaseResource):
+
+    mapping = RecordSchema()
 
     @property
     def name(self):
