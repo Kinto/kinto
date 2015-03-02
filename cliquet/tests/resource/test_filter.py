@@ -7,7 +7,7 @@ from cliquet.tests.resource import BaseTest
 class FilteringTest(BaseTest):
     def setUp(self):
         super(FilteringTest, self).setUp()
-        self.resource.known_fields = ['status', 'favorite', 'title']
+        self.resource.known_fields += ['status', 'favorite', 'title']
         for i in range(6):
             record = {
                 'title': 'MoFo',
@@ -15,6 +15,22 @@ class FilteringTest(BaseTest):
                 'favorite': (i % 4 == 0)
             }
             self.db.create(self.resource, 'bob', record)
+
+    def test_list_can_be_filtered_on_deleted_with_since(self):
+        since = self.db.collection_timestamp(self.resource, 'bob')
+        r = self.db.create(self.resource, 'bob', {})
+        self.db.delete(self.resource, 'bob', r['id'])
+        self.resource.request.GET = {'_since': '%s' % since, 'deleted': 'true'}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['items']), 1)
+        self.assertTrue(result['items'][0]['deleted'])
+
+    def test_list_cannot_be_filtered_on_deleted_without_since(self):
+        r = self.db.create(self.resource, 'bob', {})
+        self.db.delete(self.resource, 'bob', r['id'])
+        self.resource.request.GET = {'deleted': 'true'}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['items']), 0)
 
     def test_filter_works_with_empty_list(self):
         self.resource.db_kwargs['user_id'] = 'alice'

@@ -256,8 +256,7 @@ class PostgreSQL(StorageBase):
         record[resource.modified_field] = inserted['last_modified']
         record[resource.id_field] = record_id
 
-        field, value = resource.deleted_mark
-        record[field] = value
+        record[resource.deleted_mark] = True
         return record
 
     def delete_all(self, resource, user_id, filters=None):
@@ -339,7 +338,7 @@ class PostgreSQL(StorageBase):
           %(sorting)s
           %(pagination_limit)s;
         """
-        deleted_mark = json.dumps(dict([resource.deleted_mark]))
+        deleted_mark = json.dumps(dict([(resource.deleted_mark, True)]))
 
         # Unsafe strings escaped by PostgreSQL
         placeholders = dict(user_id=user_id,

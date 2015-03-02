@@ -52,7 +52,7 @@ class BaseResource(object):
     modified_field = 'last_modified'
     """Name of *last modified* field in resource schema"""
 
-    deleted_mark = ('deleted', True)
+    deleted_mark = 'deleted'
     """Field and value of deleted status in records"""
 
     def __init__(self, request):
@@ -60,7 +60,8 @@ class BaseResource(object):
         self.db = request.db
         self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
-        self.known_fields = [c.name for c in self.mapping.children]
+        self.known_fields = [c.name for c in self.mapping.children] + \
+                            [self.deleted_mark]
         self.timestamp = self.db.collection_timestamp(**self.db_kwargs)
         self.record_id = self.request.matchdict.get('id')
 
