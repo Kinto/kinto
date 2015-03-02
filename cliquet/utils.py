@@ -56,7 +56,7 @@ def native_value(value):
 
 def decode_token(token):
     """Take a token and return the decoded base64 JSON."""
-    return json.loads(b64decode(token))
+    return json.loads(b64decode(token.encode('utf-8')).decode('utf-8'))
 
 
 def encode_token(pagination_rules):
