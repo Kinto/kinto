@@ -1,3 +1,4 @@
 include tox.ini
 include *.rst
+include *.sql
 include LICENSE
