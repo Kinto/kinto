@@ -151,6 +151,7 @@ class BaseTestStorage(object):
 
         records, total_records = self.storage.get_all(self.resource,
                                                       self.user_id,
+                                                      include_deleted=True,
                                                       limit=2)
         self.assertEqual(total_records, 10)
         self.assertEqual(len(records), 2)
