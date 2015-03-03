@@ -4,10 +4,11 @@ Changelog
 This document describes changes between each past release.
 
 
-1.2 (unreleased)
-----------------
+1.1.3 (2015-03-03)
+------------------
 
-- Nothing changed yet.
+- Fix include_deleted code for the redis backend (#60)
+- Improve the update_record API (#61)
 
 
 1.1.2 (2015-03-03)
