@@ -406,6 +406,13 @@ class DeletedRecordsTest(object):
         self.assertEqual(len(records), 1)
         self.assertEqual(count, 0)
 
+    def test_delete_all_deletes_records(self):
+        self.storage.create(self.resource, self.user_id, {'foo': 'bar'})
+        self.storage.create(self.resource, self.user_id, {'bar': 'baz'})
+        self.storage.delete_all(self.resource, self.user_id)
+        _, count = self.storage.get_all(self.resource, self.user_id)
+        self.assertEqual(count, 0)
+
     #
     # Sorting
     #
