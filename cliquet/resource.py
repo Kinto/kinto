@@ -169,7 +169,7 @@ class BaseResource(object):
             raise_invalid(self.request, **error_details)
 
         new_record = self.process_record(new_record, old=existing)
-        record = self.update_record(new_record, existing)
+        record = self.update_record(existing, new_record)
         return record
 
     @resource.view(permission='readwrite')
@@ -181,15 +181,9 @@ class BaseResource(object):
         changes = self.request.json
 
         updated = self.apply_changes(record, changes=changes)
-
         updated = self.process_record(updated, old=record)
 
-        nothing_changed = not any([record.get(k) != updated.get(k)
-                                   for k in changes.keys()])
-        if nothing_changed:
-            return record
-
-        record = self.update_record(updated, old=record)
+        record = self.update_record(record, updated, changes)
         return record
 
     @resource.view(permission='readwrite')
@@ -290,7 +284,7 @@ class BaseResource(object):
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
-    def update_record(self, record, old=None):
+    def update_record(self, old, new, changes=None):
         """Update a record in the collection.
 
         Override to perform actions or post-process records after their
@@ -307,10 +301,16 @@ class BaseResource(object):
         :raises: :class:`pyramid.httpexceptions.HTTPConflict` if a unique
         field constraint is violated.
         """
-        record_id = record[self.id_field]
+        if changes is not None:
+            nothing_changed = not any([old.get(k) != new.get(k)
+                                       for k in changes.keys()])
+            if nothing_changed:
+                return new
+
+        record_id = new[self.id_field]
         try:
             return self.db.update(record_id=record_id,
-                                  record=record,
+                                  record=new,
                                   **self.db_kwargs)
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
