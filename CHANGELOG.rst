@@ -7,7 +7,7 @@ This document describes changes between each past release.
 1.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fix packaging to include .sql files.
 
 
 1.1 (2015-03-03)
