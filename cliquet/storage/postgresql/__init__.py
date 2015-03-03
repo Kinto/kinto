@@ -290,7 +290,8 @@ class PostgreSQL(StorageBase):
 
         records = []
         for result in results:
-            record = dict([resource.deleted_field])
+            record = {}
+            record['deleted'] = True
             record[resource.id_field] = result['id']
             record[resource.modified_field] = result['last_modified']
             records.append(record)
