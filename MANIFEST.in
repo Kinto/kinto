@@ -1,4 +1,4 @@
 include tox.ini
 include *.rst
-include *.sql
+recursive-include cliquet *.sql
 include LICENSE
