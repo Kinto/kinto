@@ -191,12 +191,15 @@ class Redis(MemoryBasedStorage):
             deleted_ids_key = '{0}.{1}.deleted'.format(resource.name, user_id)
             ids = self._client.smembers(deleted_ids_key)
 
-            keys = ('{0}.{1}.{2}.deleted'.format(resource.name, user_id,
+            keys = ['{0}.{1}.{2}.deleted'.format(resource.name, user_id,
                                                  _id.decode('utf-8'))
-                    for _id in ids)
+                    for _id in ids]
 
-            encoded_results = self._client.mget(keys)
-            deleted = [self._decode(r) for r in encoded_results if r]
+            if len(keys) == 0:
+                deleted = []
+            else:
+                encoded_results = self._client.mget(keys)
+                deleted = [self._decode(r) for r in encoded_results if r]
 
         records, count = self.extract_record_set(resource,
                                                  records + deleted,
