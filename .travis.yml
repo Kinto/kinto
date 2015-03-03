@@ -2,12 +2,15 @@ language: python
 python: 2.7
 sudo: false
 services: redis-server
+addons:
+  postgresql: "9.3"
 env:
     - TOX_ENV=py27
     - TOX_ENV=py34
     - TOX_ENV=flake8
     - TOX_ENV=docs
-    - ACTION=loadtest
+before_script:
+    - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
 install:
     - if [[ $ACTION != loadtest ]]; then pip install tox; fi
 script:
