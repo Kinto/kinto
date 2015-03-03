@@ -4,8 +4,8 @@ Changelog
 This document describes changes between each past release.
 
 
-1.1.4 (unreleased)
-----------------
+1.1.4 (2015-03-03)
+------------------
 
 - Update deleted_field support for postgres (#62)
 
