@@ -147,7 +147,6 @@ HTTP Status Codes
 * ``304 Not Modified``: Collection items did not change since ``If-Unmodified-Since`` header value
 * ``400 Bad Request``: The request body is invalid
 * ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
-* ``503 Service Unavailable``: The service is currently Unavailable
 
 
 POST /{resource}
@@ -193,10 +192,11 @@ A ``existing`` attribute in the response gives the offending record.
 HTTP Status Codes
 -----------------
 
-* ``200 OK``: The request have been processed
-* ``400 Bad Request``: The request body is invalid
-* ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
-* ``503 Service Unavailable``: The service is currently Unavailable
+.. * ``200 OK``: This record already exists, here is the one stored on the database;
+* ``201 Created``: The request have been processed, the record created
+* ``400 Bad Request``: The request body is invalid;
+* ``409 Conflict``: Unicity constraint on fields is violated;
+* ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value;
 
 
 DELETE /{resource}
@@ -221,7 +221,6 @@ HTTP Status Codes
 * ``200 OK``: The request have been processed
 * ``405 Method Not Allowed``: This endpoint is not available
 * ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
-* ``503 Service Unavailable``: The service is currently Unavailable
 
 
 GET /{resource}/<id>
@@ -244,7 +243,6 @@ HTTP Status Code
 * ``200 OK``: The request have been processed
 * ``304 Not Modified``: Item did not change since ``If-Unmodified-Since`` header value
 * ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
-* ``503 Service Unavailable``: The service is currently Unavailable
 
 
 DELETE /{resource}/<id>
@@ -271,7 +269,6 @@ HTTP Status Code
 
 * ``200 OK``: The request have been processed
 * ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
-* ``503 Service Unavailable``: The service is currently Unavailable
 
 
 PUT /{resource}/<id>
@@ -292,8 +289,8 @@ HTTP Status Code
 
 * ``200 OK``: The request have been processed
 * ``400 Bad Request``: If the record id does not match an existing record
+* ``409 Conflict``: If changing a record field violates a field unicity constraint
 * ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
-* ``503 Service Unavailable``: The service is currently Unavailable
 
 
 PATCH /{resource}/<id>
@@ -333,5 +330,5 @@ HTTP Status Code
 
 * ``200 OK``: The request have been processed
 * ``400 Bad Request``: The request body is invalid
+* ``409 Conflict``: If changing a record field violates a field unicity constraint
 * ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
-* ``503 Service Unavailable``: The service is currently Unavailable
