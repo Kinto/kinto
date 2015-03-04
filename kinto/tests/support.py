@@ -22,7 +22,7 @@ class BaseWebTest(cliquet_support.BaseWebTest):
             'cliquet.basic_auth_enabled': 'true',
             'cliquet.storage_backend': 'cliquet.storage.postgresql',
             'cliquet.storage_url':
-                'postgres://postgres:postgres@localhost/postgres',
+                'postgres://postgres:postgres@localhost/testdb',
             'cliquet.session_backend': 'cliquet.session.redis',
             'fxa-oauth.client_id': '89513028159972bc',
             'fxa-oauth.client_secret':
