@@ -594,8 +594,9 @@ class UserRecordAccessTest(object):
     def test_users_cannot_update_other_users_record(self):
         record = self.create_record()
         updated = self.storage.update(self.resource,
-                                      self.other_user_id, record['id'])
-        self.assertNotEquals(record.record_id, updated.record_id)
+                                      self.other_user_id, record['id'],
+                                      record)
+        self.assertNotEquals(record['id'], updated['id'])
 
 
 class StorageTest(ThreadMixin,

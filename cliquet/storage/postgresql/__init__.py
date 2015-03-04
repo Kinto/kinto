@@ -181,8 +181,9 @@ class PostgreSQL(StorageBase):
         SELECT last_modified::BIGINT, data
           FROM records
          WHERE id = %(record_id)s
+           AND user_id = %(user_id)s
         """
-        placeholders = dict(record_id=record_id)
+        placeholders = dict(record_id=record_id, user_id=user_id)
         with self.connect() as cursor:
             cursor.execute(query, placeholders)
             if cursor.rowcount == 0:
@@ -206,6 +207,7 @@ class PostgreSQL(StorageBase):
         query_update = """
         UPDATE records SET data=%(data)s::json
         WHERE id = %(record_id)s
+           AND user_id = %(user_id)s
         RETURNING last_modified::BIGINT
         """
         placeholders = dict(record_id=record_id,
@@ -217,8 +219,12 @@ class PostgreSQL(StorageBase):
             self._check_unicity(cursor, resource, user_id, record)
 
             # Create or update ?
-            query = "SELECT id FROM records WHERE id = %s;"
-            cursor.execute(query, (record_id,))
+            query = """
+            SELECT id FROM records
+            WHERE id = %(record_id)s
+              AND user_id = %(user_id)s
+            """
+            cursor.execute(query, placeholders)
             query = query_update if cursor.rowcount > 0 else query_create
 
             cursor.execute(query, placeholders)
@@ -235,6 +241,7 @@ class PostgreSQL(StorageBase):
             DELETE
             FROM records
             WHERE id = %(record_id)s
+              AND user_id = %(user_id)s
             RETURNING id
         )
         INSERT INTO deleted (id, user_id, resource_name)
