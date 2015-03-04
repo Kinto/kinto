@@ -14,6 +14,6 @@ before_install:
 install:
     - pip install tox
 before_script:
-  - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres ; psql -c "CREATE EXTENSION pgcrypto;" -U postgres;
+  - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres ; psql -c 'CREATE EXTENSION "uuid-ossp";' -U postgres
 script:
     - tox -e $TOX_ENV
