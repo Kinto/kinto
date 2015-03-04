@@ -13,9 +13,15 @@ from cliquet.schema import URL
 from cliquet.views.errors import authorization_required
 from cliquet import logger
 
-login = Service(name='fxa-oauth-login', path='/fxa-oauth/login')
-params = Service(name='fxa-oauth-params', path='/fxa-oauth/params')
-token = Service(name='fxa-oauth-token', path='/fxa-oauth/token')
+login = Service(name='fxa-oauth-login',
+                path='/fxa-oauth/login',
+                error_handler=errors.json_error_handler)
+params = Service(name='fxa-oauth-params',
+                 path='/fxa-oauth/params',
+                 error_handler=errors.json_error_handler)
+token = Service(name='fxa-oauth-token',
+                path='/fxa-oauth/token',
+                error_handler=errors.json_error_handler)
 
 
 def fxa_conf(request, name):
