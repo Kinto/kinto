@@ -32,13 +32,12 @@ CREATE CAST (TIMESTAMP AS BIGINT)
 -- Actual records
 --
 CREATE TABLE IF NOT EXISTS records (
-    id UUID NOT NULL DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     user_id VARCHAR(256) NOT NULL,
     resource_name  VARCHAR(256) NOT NULL,
     last_modified TIMESTAMP NOT NULL,
     data JSON NOT NULL DEFAULT '{}',
-    UNIQUE (id, user_id, resource_name, last_modified),
-    PRIMARY KEY (id, user_id, resource_name)
+    UNIQUE (id, user_id, resource_name, last_modified)
 );
 DROP INDEX IF EXISTS idx_records_user_id;
 CREATE INDEX idx_records_user_id ON records(user_id);
