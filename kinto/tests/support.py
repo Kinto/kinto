@@ -1,3 +1,4 @@
+from cliquet import utils
 try:
     import unittest2 as unittest
 except ImportError:
@@ -20,6 +21,7 @@ class BaseWebTest(cliquet_support.BaseWebTest):
             'cliquet.project_name': 'cloud storage',
             'cliquet.project_docs': 'https://kinto.rtfd.org/',
             'cliquet.basic_auth_enabled': 'true',
+            'cliquet.userid_hmac_secret': 'b4c96a8692291d88fe5a97dd91846eb4',
             'cliquet.storage_backend': 'cliquet.storage.postgresql',
             'cliquet.storage_url':
                 'postgres://postgres:postgres@localhost/testdb',
@@ -31,3 +33,11 @@ class BaseWebTest(cliquet_support.BaseWebTest):
             'fxa-oauth.oauth_uri': 'https://oauth-stable.dev.lcip.org',
             'fxa-oauth.scope': 'profile'
         }
+
+
+def get_user_headers(user):
+    credentials = "%s:secret" % user
+    authorization = 'Basic {0}'.format(utils.encode64(credentials))
+    return {
+        'Authorization': authorization
+    }

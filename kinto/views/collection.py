@@ -1,5 +1,4 @@
-from cliquet import resource
-from cliquet import schema
+from cliquet import resource, schema
 
 
 class RecordSchema(schema.ResourceSchema):
