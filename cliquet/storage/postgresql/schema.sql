@@ -1,7 +1,7 @@
 --
 -- Load pgcrypto for UUID generation
 --
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 --
 -- Metadata table
@@ -32,7 +32,7 @@ CREATE CAST (TIMESTAMP AS BIGINT)
 -- Actual records
 --
 CREATE TABLE IF NOT EXISTS records (
-    id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+    id UUID NOT NULL DEFAULT uuid_generate_v4(),
     user_id VARCHAR(256) NOT NULL,
     resource_name  VARCHAR(256) NOT NULL,
     last_modified TIMESTAMP NOT NULL,
@@ -45,6 +45,8 @@ DROP INDEX IF EXISTS idx_records_resource_name;
 CREATE INDEX idx_records_resource_name ON records(resource_name);
 DROP INDEX IF EXISTS idx_records_last_modified;
 CREATE INDEX idx_records_last_modified ON records(last_modified);
+DROP INDEX IF EXISTS idx_records_id;
+CREATE INDEX idx_records_id ON records(id);
 
 
 --
