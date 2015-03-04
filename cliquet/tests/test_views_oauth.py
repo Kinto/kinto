@@ -8,6 +8,11 @@ from .support import BaseWebTest, unittest
 class LoginViewTest(BaseWebTest, unittest.TestCase):
     url = '/fxa-oauth/login?redirect=http://perdu.com/'
 
+    def test_redirect_parameter_is_mandatory(self):
+        url = '/fxa-oauth/login'
+        r = self.app.get(url, status=400)
+        self.assertIn('redirect', r.json['message'])
+
     def test_login_view_persists_state(self):
         r = self.app.get(self.url)
         url = r.headers['Location']
@@ -63,7 +68,8 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
     def test_fails_if_state_or_code_is_missing(self):
         headers = {'Cookie': 'state=abc'}
         for params in ['', '?state=abc', '?code=1234']:
-            self.app.get(self.url + params, headers=headers, status=400)
+            r = self.app.get(self.url + params, headers=headers, status=400)
+            self.assertIn('missing', r.json['message'])
 
     def test_fails_if_state_does_not_match(self):
         self.app.app.registry.session.set('def', 'http://foobar')
