@@ -44,7 +44,7 @@ loadtest-check: install
 	$(VENV)/bin/pserve loadtests/server.ini > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \
 	  sleep 1 && cd loadtests && \
-	  make test SERVER_URL=http://127.0.0.1:8000; \
+	  make test SERVER_URL=http://127.0.0.1:8888; \
 	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
 
 docs: install-dev
