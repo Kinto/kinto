@@ -1,5 +1,7 @@
 from collections import namedtuple
 
+from cliquet.utils import COMPARISON
+
 
 Filter = namedtuple('Filter', ['field', 'value', 'operator'])
 """Filtering properties."""
@@ -204,3 +206,51 @@ class StorageBase(object):
         :rtype: tuple (list, integer)
         """
         raise NotImplementedError
+
+
+def get_unicity_rules(resource, user_id, record):
+    """Build filter to target existing records that violate the resource
+    unicity rules on fields.
+
+    :returns: a list of list of filters
+    """
+    record_id = record.get(resource.id_field)
+    unique_fields = resource.mapping.get_option('unique_fields')
+
+    rules = []
+    for field in unique_fields:
+        value = record.get(field)
+
+        # None values cannot be considered unique
+        if value is None:
+            continue
+
+        filters = [Filter(field, value, COMPARISON.EQ)]
+        if record_id:
+            exclude = Filter(resource.id_field, record_id, COMPARISON.NOT)
+            filters.append(exclude)
+        rules.append(filters)
+
+    return rules
+
+
+def apply_sorting(records, sorting):
+    """Sort the specified records, using cumulative python sorting.
+    """
+    result = list(records)
+
+    if not result:
+        return result
+
+    first_record = result[0]
+
+    def column(first, record, name):
+        empty = first.get(name, float('inf'))
+        return record.get(name, empty)
+
+    for sort in reversed(sorting):
+        result = sorted(result,
+                        key=lambda r: column(first_record, r, sort.field),
+                        reverse=(sort.direction < 0))
+
+    return result

@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from cliquet import utils
 from cliquet.storage import (
-    StorageBase, exceptions, Filter
+    StorageBase, exceptions, get_unicity_rules, apply_sorting
 )
 from cliquet.utils import COMPARISON
 
@@ -61,21 +61,12 @@ class MemoryBasedStorage(StorageBase):
         """Check that the specified record does not violates unicity
         constraints defined in the resource's mapping options.
         """
-        record_id = record.get(resource.id_field)
-        unique_fields = resource.mapping.get_option('unique_fields')
-
-        for field in unique_fields:
-            value = record.get(field)
-            filters = [Filter(field, value, COMPARISON.EQ)]
-            if record_id:
-                exclude = Filter(resource.id_field, record_id, COMPARISON.NOT)
-                filters.append(exclude)
-
-            if value is not None:
-                existing, count = self.get_all(resource, user_id,
-                                               filters=filters)
-                if count > 0:
-                    raise exceptions.UnicityError(field, existing[0])
+        unicity_rules = get_unicity_rules(resource, user_id, record)
+        for filters in unicity_rules:
+            existing, count = self.get_all(resource, user_id, filters=filters)
+            if count > 0:
+                field = filters[0].field
+                raise exceptions.UnicityError(field, existing[0])
 
     def apply_filters(self, records, filters):
         """Filter the specified records, using basic iteration.
@@ -98,25 +89,13 @@ class MemoryBasedStorage(StorageBase):
     def apply_sorting(self, records, sorting):
         """Sort the specified records, using cumulative python sorting.
         """
-        result = list(records)
-
-        if not result:
-            return result
-
-        def column(record, name):
-            empty = result[0].get(name, float('inf'))
-            return record.get(name, empty)
-
-        for sort in reversed(sorting):
-            result = sorted(result,
-                            key=lambda r: column(r, sort.field),
-                            reverse=(sort.direction < 0))
-
-        return result
+        return apply_sorting(records, sorting)
 
     def extract_record_set(self, resource, records, filters, sorting,
                            pagination_rules=None, limit=None):
-        """Take the list of records and handle filtering, sorting and pagination.
+        """Take the list of records and handle filtering, sorting and
+        pagination.
+
         """
         filtered = list(self.apply_filters(records, filters or []))
         total_records = len(filtered)
