@@ -16,6 +16,8 @@ from pyramid.config import global_registries
 
 from .support import unittest, ThreadMixin
 
+RECORD_ID = '472be9ec-26fe-461b-8282-9c4e4b207ab3'
+
 
 class StorageBaseTest(unittest.TestCase):
     def setUp(self):
@@ -60,6 +62,7 @@ class BaseTestStorage(object):
         self.storage = self.backend.load_from_config(self._get_config())
         self.resource = TestResource()
         self.user_id = '1234'
+        self.other_user_id = '5678'
         self.record = {'foo': 'bar'}
 
     def _get_config(self):
@@ -94,7 +97,8 @@ class BaseTestStorage(object):
             self.storage.get,
             self.resource,
             self.user_id,
-            '1234'  # This record id doesn't exist.
+            # This record id doesn't exist.
+            'af04add0-f2b1-431c-a7cc-11285a3be0e1'
         )
 
     def test_update_creates_a_new_record_when_needed(self):
@@ -103,18 +107,20 @@ class BaseTestStorage(object):
             self.storage.get,
             self.resource,
             self.user_id,
-            '1234'  # This record id doesn't exist.
+            # This record id doesn't exist.
+            'af04add0-f2b1-431c-a7cc-11285a3be0e1'
         )
-        record = self.storage.update(self.resource, self.user_id, '1234',
+        record = self.storage.update(self.resource, self.user_id, RECORD_ID,
                                      self.record)
-        retrieved = self.storage.get(self.resource, self.user_id, '1234')
+        retrieved = self.storage.get(self.resource, self.user_id, RECORD_ID)
         self.assertEquals(retrieved, record)
 
     def test_update_overwrites_record_id(self):
-        self.record['id'] = 4567
-        self.storage.update(self.resource, self.user_id, '1234', self.record)
-        retrieved = self.storage.get(self.resource, self.user_id, '1234')
-        self.assertEquals(retrieved['id'], '1234')
+        id2 = 'af04add0-f2b1-431c-a7cc-11285a3be0e1'
+        self.record['id'] = RECORD_ID
+        self.storage.update(self.resource, self.user_id, id2, self.record)
+        retrieved = self.storage.get(self.resource, self.user_id, id2)
+        self.assertEquals(retrieved['id'], id2)
 
     def test_delete_works_properly(self):
         stored = self.storage.create(self.resource, self.user_id, self.record)
@@ -129,7 +135,7 @@ class BaseTestStorage(object):
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.delete,
-            self.resource, self.user_id, '1234'
+            self.resource, self.user_id, RECORD_ID
         )
 
     def test_get_all_return_all_values(self):
@@ -571,10 +577,41 @@ class DeletedRecordsTest(object):
         self.assertNotIn('deleted', records[1])
 
 
+class UserRecordAccessTest(object):
+    def create_record(self):
+        return self.storage.create(self.resource, self.user_id,
+                                   {'foo': 'bar'})
+
+    def test_users_cannot_access_other_users_record(self):
+        record = self.create_record()
+        self.assertRaises(
+            exceptions.RecordNotFoundError,
+            self.storage.get,
+            self.resource, self.other_user_id, record['id'])
+
+    def test_users_cannot_delete_other_users_record(self):
+        record = self.create_record()
+        self.assertRaises(
+            exceptions.RecordNotFoundError,
+            self.storage.delete,
+            self.resource, self.other_user_id, record['id'])
+
+    def test_users_cannot_update_other_users_record(self):
+        record = self.create_record()
+        new_record = {"another": "record"}
+        self.storage.update(self.resource, self.other_user_id, record['id'],
+                            new_record)
+        not_updated = self.storage.get(self.resource, self.user_id,
+                                       record['id'])
+
+        self.assertNotIn("another", not_updated)
+
+
 class StorageTest(ThreadMixin,
                   FieldsUnicityTest,
                   TimestampsTest,
                   DeletedRecordsTest,
+                  UserRecordAccessTest,
                   BaseTestStorage):
     """Compound of all storage tests."""
     pass

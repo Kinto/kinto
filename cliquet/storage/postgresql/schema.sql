@@ -1,4 +1,9 @@
 --
+-- Load pgcrypto for UUID generation
+--
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+--
 -- Metadata table
 --
 CREATE TABLE IF NOT EXISTS metadata (
@@ -27,12 +32,12 @@ CREATE CAST (TIMESTAMP AS BIGINT)
 -- Actual records
 --
 CREATE TABLE IF NOT EXISTS records (
-    id SERIAL PRIMARY KEY,
+    id UUID NOT NULL DEFAULT uuid_generate_v4(),
     user_id VARCHAR(256) NOT NULL,
     resource_name  VARCHAR(256) NOT NULL,
     last_modified TIMESTAMP NOT NULL,
     data JSON NOT NULL DEFAULT '{}',
-    UNIQUE (user_id, resource_name, last_modified)
+    UNIQUE (id, user_id, resource_name, last_modified)
 );
 DROP INDEX IF EXISTS idx_records_user_id;
 CREATE INDEX idx_records_user_id ON records(user_id);
@@ -40,17 +45,19 @@ DROP INDEX IF EXISTS idx_records_resource_name;
 CREATE INDEX idx_records_resource_name ON records(resource_name);
 DROP INDEX IF EXISTS idx_records_last_modified;
 CREATE INDEX idx_records_last_modified ON records(last_modified);
+DROP INDEX IF EXISTS idx_records_id;
+CREATE INDEX idx_records_id ON records(id);
 
 
 --
 -- Deleted records
 --
 CREATE TABLE IF NOT EXISTS deleted (
-    id INT4,
+    id UUID,
     user_id VARCHAR(256) NOT NULL,
     resource_name  VARCHAR(256) NOT NULL,
     last_modified TIMESTAMP NOT NULL,
-    UNIQUE (user_id, resource_name, last_modified)
+    UNIQUE (id, user_id, resource_name, last_modified)
 );
 DROP INDEX IF EXISTS idx_deleted_id;
 CREATE UNIQUE INDEX idx_deleted_id ON deleted(id);
