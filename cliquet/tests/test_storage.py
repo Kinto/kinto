@@ -60,6 +60,7 @@ class BaseTestStorage(object):
         self.storage = self.backend.load_from_config(self._get_config())
         self.resource = TestResource()
         self.user_id = '1234'
+        self.other_user_id = '5678'
         self.record = {'foo': 'bar'}
 
     def _get_config(self):
@@ -571,10 +572,37 @@ class DeletedRecordsTest(object):
         self.assertNotIn('deleted', records[1])
 
 
+class UserRecordAccessTest(object):
+    def create_record(self):
+        return self.storage.create(self.resource, self.user_id,
+                                   {'foo': 'bar'})
+
+    def test_users_cannot_access_other_users_record(self):
+        record = self.create_record()
+        self.assertRaises(
+            exceptions.RecordNotFoundError,
+            self.storage.get,
+            self.resource, self.other_user_id, record['id'])
+
+    def test_users_cannot_delete_other_users_record(self):
+        record = self.create_record()
+        self.assertRaises(
+            exceptions.RecordNotFoundError,
+            self.storage.delete,
+            self.resource, self.other_user_id, record['id'])
+
+    def test_users_cannot_update_other_users_record(self):
+        record = self.create_record()
+        updated = self.storage.update(self.resource,
+                                      self.other_user_id, record['id'])
+        self.assertNotEquals(record.record_id, updated.record_id)
+
+
 class StorageTest(ThreadMixin,
                   FieldsUnicityTest,
                   TimestampsTest,
                   DeletedRecordsTest,
+                  UserRecordAccessTest,
                   BaseTestStorage):
     """Compound of all storage tests."""
     pass
