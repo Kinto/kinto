@@ -81,6 +81,10 @@ class BaseResource(object):
 
         return CorniceSchema.from_colander(colander_schema)
 
+    def is_known_field(self, field_name):
+        """Return the True if the field is known."""
+        return field_name in self.known_fields
+
     #
     # End-points
     #
@@ -515,7 +519,7 @@ class BaseResource(object):
             else:
                 operator, field = COMPARISON.EQ, param
 
-            if field not in self.known_fields:
+            if not self.is_known_field(field):
                 error_details = {
                     'location': 'querystring',
                     'description': "Unknown filter field '{0}'".format(param)
@@ -537,7 +541,7 @@ class BaseResource(object):
             if m:
                 order, field = m.groups()
 
-                if field not in self.known_fields:
+                if not self.is_known_field(field):
                     error_details = {
                         'location': 'querystring',
                         'description': "Unknown sort field '{0}'".format(field)
