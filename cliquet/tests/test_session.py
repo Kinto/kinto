@@ -1,11 +1,12 @@
 import mock
-import redis
 import time
 
+import psycopg2
+import redis
+
 from cliquet.session import SessionStorageBase, SessionCache
-from cliquet.session.redis import (
-    RedisSessionStorage, load_from_config as load_redis_from_config
-)
+from cliquet.session import (postgresql as postgresql_backend,
+                             redis as redis_backend)
 
 from .support import unittest
 
@@ -29,12 +30,24 @@ class SessionStorageBaseTest(unittest.TestCase):
 
 
 class BaseTestSessionStorage(object):
-    def setUp(self):
-        super(BaseTestSessionStorage, self).setUp()
+    backend = None
+
+    settings = {}
+
+    def _get_config(self):
+        """Mock Pyramid config object.
+        """
+        return mock.Mock(registry=mock.Mock(settings=self.settings))
 
     def tearDown(self):
         super(BaseTestSessionStorage, self).tearDown()
         self.session.flush()
+
+    def setUp(self):
+        self.session = self.backend.load_from_config(self._get_config())
+
+    def test_ping_returns_true_if_available(self):
+        self.assertTrue(self.session.ping())
 
     def test_set_adds_the_record(self):
         stored = 'toto'
@@ -70,29 +83,31 @@ class BaseTestSessionStorage(object):
 
 
 class RedisSessionStorageTest(BaseTestSessionStorage, unittest.TestCase):
-    def setUp(self):
-        self.session = RedisSessionStorage()
-        super(RedisSessionStorageTest, self).setUp()
-
-    def test_ping_returns_true_if_available(self):
-        self.assertTrue(self.session.ping())
+    backend = redis_backend
 
     def test_ping_returns_an_error_if_unavailable(self):
         self.session._client.setex = mock.MagicMock(
             side_effect=redis.RedisError)
         self.assertFalse(self.session.ping())
 
-    def test_load_redis_from_config(self):
-        class config:
-            class registry:
-                settings = {}
 
-        load_redis_from_config(config)
+class PostgreSQLSessionStorageTest(BaseTestSessionStorage, unittest.TestCase):
+    backend = postgresql_backend
+
+    settings = {
+        'cliquet.session_url':
+            'postgres://postgres:postgres@localhost:5432/testdb'
+    }
+
+    def test_ping_returns_an_error_if_unavailable(self):
+        with mock.patch.object(self.session, 'connect',
+                               side_effect=psycopg2.OperationalError):
+            self.assertFalse(self.session.ping())
 
 
 class SessionCacheTest(unittest.TestCase):
     def setUp(self):
-        self.cache = SessionCache(RedisSessionStorage(), 0.05)
+        self.cache = SessionCache(redis_backend.RedisSessionStorage(), 0.05)
         super(SessionCacheTest, self).setUp()
 
     def test_set_adds_the_record(self):
