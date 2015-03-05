@@ -99,6 +99,12 @@ The response body is a list of all responses:
       ]
     ]
 
+HTTP Status Codes
+-----------------
+
+* ``200 OK``: The request have been processed
+* ``400 Bad Request``: The request body is invalid
+
 
 :warning:
 
@@ -111,7 +117,7 @@ The response body is a list of all responses:
 
 
 Pros & Cons
-:::::::::::
+-----------
 
 * This respects REST principles
 * This is easy for the client to handle, since it just has to pile up HTTP requests while offline

@@ -140,6 +140,15 @@ Filtering, sorting and paginating can all be combined together.
 * ``/resource?_sort=-last_modified&_limit=100``
 
 
+HTTP Status Codes
+-----------------
+
+* ``200 OK``: The request have been processed
+* ``304 Not Modified``: Collection items did not change since ``If-Unmodified-Since`` header value
+* ``400 Bad Request``: The request body is invalid
+* ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
+
+
 POST /{resource}
 ================
 
@@ -180,6 +189,16 @@ If a conflict occurs, an error response is returned with status ``409``.
 A ``existing`` attribute in the response gives the offending record.
 
 
+HTTP Status Codes
+-----------------
+
+.. * ``200 OK``: This record already exists, here is the one stored on the database;
+* ``201 Created``: The request have been processed, the record created
+* ``400 Bad Request``: The request body is invalid;
+* ``409 Conflict``: Unicity constraint on fields is violated;
+* ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value;
+
+
 DELETE /{resource}
 ==================
 
@@ -196,6 +215,14 @@ If the request header ``If-Unmodified-Since`` is provided, and if the collection
 has changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 
+HTTP Status Codes
+-----------------
+
+* ``200 OK``: The request have been processed
+* ``405 Method Not Allowed``: This endpoint is not available
+* ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
+
+
 GET /{resource}/<id>
 ====================
 
@@ -208,6 +235,14 @@ value of ``last_modified``.
 
 If the request header ``If-Modified-Since`` is provided, and if the record has not
 changed meanwhile, a ``304 Not Modified`` is returned.
+
+
+HTTP Status Code
+----------------
+
+* ``200 OK``: The request have been processed
+* ``304 Not Modified``: Item did not change since ``If-Unmodified-Since`` header value
+* ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
 
 
 DELETE /{resource}/<id>
@@ -229,6 +264,12 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
     Once deleted, a record will appear in the collection when polling for changes,
     with a deleted status (``delete=true``) and will have most of its fields empty.
 
+HTTP Status Code
+----------------
+
+* ``200 OK``: The request have been processed
+* ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
+
 
 PUT /{resource}/<id>
 ====================
@@ -242,6 +283,14 @@ Validation and conflicts behaviour is similar to creating records (``POST``).
 
 If the request header ``If-Unmodified-Since`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
+
+HTTP Status Code
+----------------
+
+* ``200 OK``: The request have been processed
+* ``400 Bad Request``: If the record id does not match an existing record
+* ``409 Conflict``: If changing a record field violates a field unicity constraint
+* ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
 
 
 PATCH /{resource}/<id>
@@ -274,3 +323,12 @@ Conflicts
 
 If changing a record field violates a field unicity constraint, a
 ``409 Conflict`` error response is returned (see :ref:`error channel <error-responses>`).
+
+
+HTTP Status Code
+----------------
+
+* ``200 OK``: The request have been processed
+* ``400 Bad Request``: The request body is invalid
+* ``409 Conflict``: If changing a record field violates a field unicity constraint
+* ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value
