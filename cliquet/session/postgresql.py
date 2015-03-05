@@ -3,16 +3,14 @@ import psycopg2
 from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
-from cliquet.storage import postgresql as postgresql_storage
+from cliquet.storage.postgresql import PostgreSQLClient
 from cliquet.session import SessionStorageBase
 
 
-class PostgreSQL(SessionStorageBase):
-
-    connect = postgresql_storage.PostgreSQL.connect
+class PostgreSQL(PostgreSQLClient, SessionStorageBase):
 
     def __init__(self, **kwargs):
-        self._conn_kwargs = kwargs
+        super(PostgreSQL, self).__init__(**kwargs)
         self._init_schema()
 
     def _init_schema(self):
@@ -20,10 +18,20 @@ class PostgreSQL(SessionStorageBase):
         CREATE TABLE IF NOT EXISTS session(
             key VARCHAR(256) PRIMARY KEY,
             value TEXT NOT NULL,
-            ttl INT4 DEFAULT NULL
+            ttl TIMESTAMP DEFAULT NULL
         );
         DROP INDEX IF EXISTS idx_session_ttl;
         CREATE INDEX idx_session_ttl ON session(ttl);
+
+        CREATE OR REPLACE FUNCTION sec2ttl(seconds FLOAT)
+        RETURNS TIMESTAMP AS $$
+        BEGIN
+            IF seconds IS NULL THEN
+                RETURN NULL;
+            END IF;
+            RETURN now() + (seconds || ' SECOND')::INTERVAL;
+        END;
+        $$ LANGUAGE plpgsql;
         """
         with self.connect() as cursor:
             cursor.execute(schema)
@@ -52,27 +60,26 @@ class PostgreSQL(SessionStorageBase):
            AND ttl IS NOT NULL;
         """
         with self.connect() as cursor:
-            result = cursor.execute(query, (key,))
-            if result.rowcount > 0:
-                return result.fetchone()['ttl']
+            cursor.execute(query, (key,))
+            if cursor.rowcount > 0:
+                return cursor.fetchone()['ttl']
+        return -1
 
-    def expire(self, key, value):
+    def expire(self, key, ttl):
         query = """
-        UPDATE session SET ttl = now() + INTERVAL '%s second'
-        WHERE key = %s;
+        UPDATE session SET ttl = sec2ttl(%s) WHERE key = %s;
         """
         with self.connect() as cursor:
-            cursor.execute(query, (key, value))
+            cursor.execute(query, (ttl, key,))
 
     def set(self, key, value, ttl=None):
         query = """
         WITH upsert AS (
-            UPDATE session SET value = %(value)s,
-                               ttl= now() + INTERVAL '%(ttl)s second'
+            UPDATE session SET value = %(value)s, ttl = sec2ttl(%(ttl)s)
              WHERE key=%(key)s
             RETURNING *)
         INSERT INTO session (key, value, ttl)
-        SELECT %(key)s, %(value)s, now() + INTERVAL '%(ttl)s second'
+        SELECT %(key)s, %(value)s, sec2ttl(%(ttl)s)
         WHERE NOT EXISTS (SELECT * FROM upsert)
         """
         with self.connect() as cursor:
@@ -82,10 +89,10 @@ class PostgreSQL(SessionStorageBase):
         purge = "DELETE FROM session WHERE ttl IS NOT NULL AND now() > ttl;"
         query = "SELECT value FROM session WHERE key = %s;"
         with self.connect() as cursor:
-            result = cursor.execute(purge)
-            result = cursor.execute(query, (key,))
-            if result.rowcount > 0:
-                return result.fetchone()['value']
+            cursor.execute(purge)
+            cursor.execute(query, (key,))
+            if cursor.rowcount > 0:
+                return cursor.fetchone()['value']
 
     def delete(self, key):
         query = "DELETE FROM session WHERE key = %s"

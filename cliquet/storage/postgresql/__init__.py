@@ -22,31 +22,10 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 DEFAULT_MAX_FETCH_SIZE = 10000
 
 
-class PostgreSQL(StorageBase):
-    """Storage backend using PostgreSQL.
+class PostgreSQLClient(object):
 
-    Recommended in production (*requires PostgreSQL 9.3 or higher*).
-
-    Enable in configuration::
-
-        cliquet.storage_backend = cliquet.storage.postgresql
-
-    Database location URI can be customized::
-
-        cliquet.storage_url = postgres://user:pass@db.server.lan:5432/dbname
-
-    Alternatively, username and password could also rely on system user ident
-    or even specified in ``~/.pgpass`` (*see PostgreSQL documentation*).
-
-    :note:
-
-        Using a `connection pool <http://pgpool.net>`_ is highly recommended to
-        boost performances and bound memory usage (*work_mem per connection*).
-    """
     def __init__(self, *args, **kwargs):
-        self._max_fetch_size = kwargs.pop('max_fetch_size')
         self._conn_kwargs = kwargs
-        self._init_schema()
 
     @contextlib.contextmanager
     def connect(self):
@@ -79,6 +58,33 @@ class PostgreSQL(StorageBase):
                 cursor.close()
             if conn and not conn.closed:
                 conn.close()
+
+
+class PostgreSQL(PostgreSQLClient, StorageBase):
+    """Storage backend using PostgreSQL.
+
+    Recommended in production (*requires PostgreSQL 9.3 or higher*).
+
+    Enable in configuration::
+
+        cliquet.storage_backend = cliquet.storage.postgresql
+
+    Database location URI can be customized::
+
+        cliquet.storage_url = postgres://user:pass@db.server.lan:5432/dbname
+
+    Alternatively, username and password could also rely on system user ident
+    or even specified in ``~/.pgpass`` (*see PostgreSQL documentation*).
+
+    :note:
+
+        Using a `connection pool <http://pgpool.net>`_ is highly recommended to
+        boost performances and bound memory usage (*work_mem per connection*).
+    """
+    def __init__(self, *args, **kwargs):
+        super(PostgreSQL, self).__init__(*args, **kwargs)
+        self._max_fetch_size = kwargs.pop('max_fetch_size')
+        self._init_schema()
 
     def _init_schema(self):
         """Create PostgreSQL tables, only if not exists.
