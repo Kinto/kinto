@@ -19,6 +19,7 @@ ENTRY_POINTS = {
         'main = kinto:main',
     ]}
 
+
 setup(name='kinto',
       version='0.1.dev0',
       description='kinto',
