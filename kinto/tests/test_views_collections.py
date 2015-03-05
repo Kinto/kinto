@@ -1,3 +1,4 @@
+from cliquet import utils
 from .support import BaseWebTest, unittest
 from cliquet import utils
 
