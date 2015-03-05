@@ -59,13 +59,23 @@ def native_value(value):
 
 def decode_token(token):
     """Take a token and return the decoded base64 JSON."""
-    return json.loads(b64decode(token.encode('utf-8')).decode('utf-8'))
+    return json.loads(decode64(token))
 
 
 def encode_token(pagination_rules):
     """Take a list of rules and return a base64-ed JSON."""
     json_rules = json.dumps(pagination_rules)
-    return b64encode(json_rules.encode('utf-8')).decode('utf-8')
+    return encode64(json_rules)
+
+
+def encode64(content):
+    """Encode some content in base64."""
+    return b64encode(content.encode('utf-8')).decode('utf-8')
+
+
+def decode64(encoded_content):
+    """Decode some base64 encoded content."""
+    return b64decode(encoded_content.encode('utf-8')).decode('utf-8')
 
 
 def Enum(**enums):
