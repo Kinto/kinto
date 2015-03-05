@@ -19,12 +19,6 @@ ENTRY_POINTS = {
         'main = kinto:main',
     ]}
 
-DEPENDENCY_LINKS = [
-    'https://github.com/mozilla-services/cliquet/tarball/master'
-    '#egg=cliquet-0.3.dev0',
-]
-
-
 setup(name='kinto',
       version='0.1.dev0',
       description='kinto',
@@ -42,5 +36,4 @@ setup(name='kinto',
       include_package_data=True,
       zip_safe=False,
       install_requires=REQUIREMENTS,
-      entry_points=ENTRY_POINTS,
-      dependency_links=DEPENDENCY_LINKS)
+      entry_points=ENTRY_POINTS)
