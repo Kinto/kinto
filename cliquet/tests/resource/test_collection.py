@@ -38,7 +38,7 @@ class CreateTest(BaseTest):
 class DeleteCollectionTest(BaseTest):
     def setUp(self):
         super(DeleteCollectionTest, self).setUp()
-        self.resource.known_fields = ('field',)
+        self.patch_known_field.start()
         self.db.create(self.resource, 'bob', {'field': 'a'})
         self.db.create(self.resource, 'bob', {'field': 'b'})
 

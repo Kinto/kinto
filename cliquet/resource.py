@@ -60,8 +60,6 @@ class BaseResource(object):
         self.db = request.db
         self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
-        self.known_fields = [c.name for c in self.mapping.children] + \
-                            [self.deleted_field]
         self.timestamp = self.db.collection_timestamp(**self.db_kwargs)
         self.record_id = self.request.matchdict.get('id')
 
@@ -81,9 +79,15 @@ class BaseResource(object):
 
         return CorniceSchema.from_colander(colander_schema)
 
-    def is_known_field(self, field_name):
-        """Return the True if the field is known."""
-        return field_name in self.known_fields
+    def is_known_field(self, field):
+        """Return the True if the field is defined in the resource mapping.
+        :param field: Field name
+        :type field: string
+        :rtype: boolean
+        """
+        known_fields = [c.name for c in self.mapping.children] + \
+                       [self.deleted_field]
+        return field in known_fields
 
     #
     # End-points
