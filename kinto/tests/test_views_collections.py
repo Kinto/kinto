@@ -1,6 +1,5 @@
 from cliquet import utils
 from .support import BaseWebTest, unittest
-from cliquet import utils
 
 
 def get_user_headers(user):
