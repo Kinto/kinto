@@ -13,17 +13,59 @@ ERRORS = Enum(
     INVALID_POSTED_DATA=109,
     INVALID_RESOURCE_ID=110,
     MISSING_RESOURCE=111,
+    MISSING_CONTENT_LENGTH=112,
+    REQUEST_TOO_LARGE=113,
     MODIFIED_MEANWHILE=114,
     METHOD_NOT_ALLOWED=115,
+    CLIENT_REACHED_CAPACITY=117,
     FORBIDDEN=121,
     CONSTRAINT_VIOLATED=122,
-    REQUEST_TOO_LARGE=113,
-    CLIENT_REACHED_CAPACITY=117,
     UNDEFINED=999,
     BACKEND=201,
     SERVICE_DEPRECATED=202
 )
-"""Predefined errors as specified by the protocol."""
+"""Predefined errors as specified by the protocol.
+
++-------------+-------+------------------------------------------------+
+| status code | errno | description                                    |
++-------------+-------+------------------------------------------------+
+| 401         | 104   | Missing Authorization Token                    |
++-------------+-------+------------------------------------------------+
+| 401         | 105   | Invalid Authorization Token                    |
++-------------+-------+------------------------------------------------+
+| 400         | 106   | request body was not valid JSON                |
++-------------+-------+------------------------------------------------+
+| 400         | 107   | invalid request parameter                      |
++-------------+-------+------------------------------------------------+
+| 400         | 108   | missing request parameter                      |
++-------------+-------+------------------------------------------------+
+| 400         | 109   | invalid posted data                            |
++-------------+-------+------------------------------------------------+
+| 404         | 110   | Invalid Token / id                             |
++-------------+-------+------------------------------------------------+
+| 404         | 111   | Missing Token / id                             |
++-------------+-------+------------------------------------------------+
+| 411         | 112   | Content-Length header was not provided         |
++-------------+-------+------------------------------------------------+
+| 413         | 113   | Request body too large                         |
++-------------+-------+------------------------------------------------+
+| 412         | 114   | Resource was modified meanwhile                |
++-------------+-------+------------------------------------------------+
+| 405         | 115   | Method not allowed on this end point           |
++-------------+-------+------------------------------------------------+
+| 429         | 117   | Client has sent too many requests              |
++-------------+-------+------------------------------------------------+
+| 403         | 121   | Resource's access forbidden for this user      |
++-------------+-------+------------------------------------------------+
+| 409         | 122   | Another resource violates constraint           |
++-------------+-------+------------------------------------------------+
+| 500         | 999   | Internal Server Error                          |
++-------------+-------+------------------------------------------------+
+| 503         | 201   | Service Temporary unavailable due to high load |
++-------------+-------+------------------------------------------------+
+| 410         | 202   | Service deprecated                             |
++-------------+-------+------------------------------------------------+
+"""
 
 
 def http_error(httpexception, errno=None,
