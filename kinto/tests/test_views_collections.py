@@ -1,10 +1,12 @@
 from .support import BaseWebTest, unittest
-from base64 import b64encode
+from cliquet import utils
 
 
 def get_user_headers(user):
+    credentials = "%s:secret" % user
+    authorization = 'Basic {0}'.format(utils.encode64(credentials))
     return {
-        'Authorization': 'Basic {0}'.format(b64encode("%s:secret" % user)),
+        'Authorization': authorization
     }
 
 MINIMALIST_ITEM = dict(name="Hulled Barley",
