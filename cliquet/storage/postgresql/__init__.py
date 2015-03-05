@@ -82,8 +82,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         boost performances and bound memory usage (*work_mem per connection*).
     """
     def __init__(self, *args, **kwargs):
-        super(PostgreSQL, self).__init__(*args, **kwargs)
         self._max_fetch_size = kwargs.pop('max_fetch_size')
+        super(PostgreSQL, self).__init__(*args, **kwargs)
         self._init_schema()
 
     def _init_schema(self):
