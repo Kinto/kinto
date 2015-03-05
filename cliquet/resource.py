@@ -278,6 +278,7 @@ class BaseResource(object):
 
         :raises: :class:`pyramid.httpexceptions.HTTPConflict` if a unique
         field constraint is violated.
+
         """
         try:
             return self.db.create(record=record, **self.db_kwargs)
@@ -300,6 +301,7 @@ class BaseResource(object):
 
         :raises: :class:`pyramid.httpexceptions.HTTPConflict` if a unique
         field constraint is violated.
+
         """
         if changes is not None:
             nothing_changed = not any([old.get(k) != new.get(k)
