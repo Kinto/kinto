@@ -10,11 +10,10 @@ from cliquet.tests.resource import BaseTest
 class PaginationTest(BaseTest):
     def setUp(self):
         super(PaginationTest, self).setUp()
+        self.patch_known_field.start()
 
         indices = list(range(20))
         random.shuffle(indices)
-
-        self.resource.known_fields = ['status', 'unread', 'title']
         for i in indices:
             record = {
                 'title': 'MoFo #{0:02}'.format(i),
@@ -158,8 +157,7 @@ class PaginationTest(BaseTest):
 class BuildPaginationTokenTest(BaseTest):
     def setUp(self):
         super(BuildPaginationTokenTest, self).setUp()
-
-        self.resource.known_fields = ['status', 'unread', 'title']
+        self.patch_known_field.start()
         self.record = {
             'id': 1, 'status': 2, 'unread': True,
             'last_modified': 1234, 'title': 'Title'

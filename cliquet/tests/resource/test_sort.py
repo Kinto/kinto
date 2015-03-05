@@ -9,11 +9,11 @@ from cliquet.tests.resource import BaseTest
 class SortingTest(BaseTest):
     def setUp(self):
         super(SortingTest, self).setUp()
+        self.patch_known_field.start()
 
         indices = list(range(20))
         random.shuffle(indices)
 
-        self.resource.known_fields = ['status', 'unread', 'title']
         for i in indices:
             record = {
                 'title': 'MoFo #{0:02}'.format(i),
@@ -29,11 +29,13 @@ class SortingTest(BaseTest):
         self.assertEqual(len(result['items']), 0)
 
     def test_sort_on_unknown_attribute_raises_error(self):
+        self.patch_known_field.stop()
         self.resource.request.GET = {'_sort': 'foo'}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_filter_errors_are_json_formatted(self):
+        self.patch_known_field.stop()
         self.resource.request.GET = {'_sort': 'foo'}
         try:
             self.resource.collection_get()

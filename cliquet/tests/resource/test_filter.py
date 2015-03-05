@@ -7,7 +7,7 @@ from cliquet.tests.resource import BaseTest
 class FilteringTest(BaseTest):
     def setUp(self):
         super(FilteringTest, self).setUp()
-        self.resource.known_fields += ['status', 'favorite', 'title']
+        self.patch_known_field.start()
         for i in range(6):
             record = {
                 'title': 'MoFo',
@@ -50,11 +50,13 @@ class FilteringTest(BaseTest):
         self.assertEqual(len(result['items']), 2)
 
     def test_filter_on_unknown_attribute_raises_error(self):
+        self.patch_known_field.stop()
         self.resource.request.GET = {'foo': '1'}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_filter_errors_are_json_formatted(self):
+        self.patch_known_field.stop()
         self.resource.request.GET = {'foo': '1'}
         try:
             self.resource.collection_get()
@@ -67,6 +69,7 @@ class FilteringTest(BaseTest):
             'error': 'Invalid parameters'})
 
     def test_regexp_is_strict_for_min_and_max(self):
+        self.patch_known_field.stop()
         self.resource.request.GET = {'madmax_status': '1'}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
