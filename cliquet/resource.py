@@ -84,6 +84,7 @@ class BaseResource(object):
         :param field: Field name
         :type field: string
         :rtype: boolean
+
         """
         known_fields = [c.name for c in self.mapping.children] + \
                        [self.deleted_field]
