@@ -1,13 +1,5 @@
-from cliquet import utils
-from .support import BaseWebTest, unittest
+from .support import BaseWebTest, unittest, get_user_headers
 
-
-def get_user_headers(user):
-    credentials = "%s:secret" % user
-    authorization = 'Basic {0}'.format(utils.encode64(credentials))
-    return {
-        'Authorization': authorization
-    }
 
 MINIMALIST_ITEM = dict(name="Hulled Barley",
                        type="Whole Grain")
