@@ -144,7 +144,10 @@ class Memory(MemoryBasedStorage):
         return True
 
     def collection_timestamp(self, resource, user_id):
-        return self._timestamps[resource.name].get(user_id, utils.msec_time())
+        ts = self._timestamps[resource.name].get(user_id)
+        if ts is not None:
+            return ts
+        return self._bump_timestamp(resource, user_id)
 
     def _bump_timestamp(self, resource, user_id):
         """Timestamp are base on current millisecond.

@@ -556,8 +556,7 @@ class DeletedRecordsTest(object):
     def test_filtering_on_arbitrary_field_excludes_deleted_records(self):
         filters = self._get_last_modified_filters()
         self.storage.create(self.resource, self.user_id, {'status': 0})
-        self.create_and_delete_record({'status': 1})
-        self.create_and_delete_record({'status': 2})
+        self.create_and_delete_record({'status': 0})
 
         filters += [Filter('status', 0, utils.COMPARISON.EQ)]
         records, count = self.storage.get_all(self.resource, self.user_id,
