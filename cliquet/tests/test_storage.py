@@ -644,8 +644,14 @@ class UserRecordAccessTest(object):
         return self.storage.create(self.resource, self.user_id,
                                    {'foo': 'bar'})
 
+    def authenticate_as(self, user_id):
+        self.resource.request.headers['Authorization'] = 'Basic %s' % (
+            utils.encode64('%s:' % user_id)
+        )
+
     def test_users_cannot_access_other_users_record(self):
         record = self.create_record()
+        self.authenticate_as(self.other_user_id)
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.get,
@@ -653,16 +659,22 @@ class UserRecordAccessTest(object):
 
     def test_users_cannot_delete_other_users_record(self):
         record = self.create_record()
+        self.authenticate_as(self.other_user_id)
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.delete,
             self.resource, self.other_user_id, record['id'])
 
     def test_users_cannot_update_other_users_record(self):
+        self.authenticate_as(self.user_id)
         record = self.create_record()
         new_record = {"another": "record"}
+        # Cloud storage backend ignores the passer userid and read it from the
+        # resource request.
+        self.authenticate_as(self.other_user_id)
         self.storage.update(self.resource, self.other_user_id, record['id'],
                             new_record)
+        self.authenticate_as(self.user_id)
         not_updated = self.storage.get(self.resource, self.user_id,
                                        record['id'])
 

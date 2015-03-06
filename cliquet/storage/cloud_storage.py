@@ -199,7 +199,7 @@ class CloudStorage(StorageBase):
                                         headers=self._build_headers(resource))
                 resp.raise_for_status()
                 for record in resp.json()['items']:
-                    records[record['id']] = record
+                    records[record[resource.id_field]] = record
 
             if sorting:
                 records = apply_sorting(records.values(), sorting)[:limit]
