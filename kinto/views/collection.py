@@ -15,3 +15,7 @@ class Collection(resource.BaseResource):
     @property
     def name(self):
         return self.request.matchdict['collection_id']
+
+    def is_known_field(self, field_name):
+        """Without schema, any field is considered as known."""
+        return True

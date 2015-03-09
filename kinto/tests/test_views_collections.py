@@ -46,3 +46,24 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
                                       headers=self.headers)
         self.app.get('/collections/barley/records/%s' % response.json['id'],
                      headers=self.headers)
+
+    def test_collection_items_can_be_filtered_on_any_field(self):
+        self.app.post_json('/collections/barley/records',
+                           MINIMALIST_ITEM,
+                           headers=self.headers)
+        response = self.app.get('/collections/barley/records?unknown=1',
+                                headers=self.headers)
+        self.assertEqual(len(response.json['items']), 0)
+
+    def test_collection_items_can_be_sorted_on_any_field(self):
+        for i in range(3):
+            record = MINIMALIST_ITEM.copy()
+            record['name'] = 'Stout %s' % i
+            self.app.post_json('/collections/barley/records',
+                               record,
+                               headers=self.headers)
+
+        response = self.app.get('/collections/barley/records?_sort=-name',
+                                headers=self.headers)
+        names = [i['name'] for i in response.json['items']]
+        self.assertEqual(names, ['Stout 2', 'Stout 1', 'Stout 0'])
