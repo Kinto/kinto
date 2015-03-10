@@ -49,7 +49,7 @@ class PostgreSQL(PostgreSQLClient, SessionStorageBase):
         try:
             self.set('heartbeat', True)
             return True
-        except psycopg2.Error:
+        except:
             return False
 
     def ttl(self, key):

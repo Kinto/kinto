@@ -5,6 +5,7 @@ import redis
 from six.moves.urllib import parse as urlparse
 
 from cliquet.session import SessionStorageBase
+from cliquet.storage.redis import wrap_redis_error
 
 
 class RedisSessionStorage(SessionStorageBase):
@@ -15,6 +16,7 @@ class RedisSessionStorage(SessionStorageBase):
             **kwargs
         )
 
+    @wrap_redis_error
     def flush(self):
         self._client.flushdb()
 
@@ -25,23 +27,28 @@ class RedisSessionStorage(SessionStorageBase):
         except redis.RedisError:
             return False
 
+    @wrap_redis_error
     def ttl(self, key):
         return self._client.ttl(key)
 
+    @wrap_redis_error
     def expire(self, key, value):
         self._client.pexpire(key, int(value * 1000))
 
+    @wrap_redis_error
     def set(self, key, value, ttl=None):
         if ttl:
             self._client.psetex(key, int(ttl * 1000), value)
         else:
             self._client.set(key, value)
 
+    @wrap_redis_error
     def get(self, key):
         value = self._client.get(key)
         if value:
             return value.decode('utf-8')
 
+    @wrap_redis_error
     def delete(self, key):
         self._client.delete(key)
 
