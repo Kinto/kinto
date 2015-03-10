@@ -11,11 +11,13 @@ env:
     - TOX_ENV=docs
 before_install:
     - sudo apt-get install postgresql-contrib-9.3
+    # <Kinto>
     - git clone https://github.com/mozilla-services/kinto.git kinto
     - pushd kinto
     - make install-dev
-    - .venv/bin/pserve ../cliquet/tests/config/kinto.ini&
+    - pserve ../cliquet/tests/config/kinto.ini&
     - popd
+    # </Kinto>
 install:
     - pip install tox
 before_script:
