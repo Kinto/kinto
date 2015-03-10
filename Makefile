@@ -20,7 +20,7 @@ $(INSTALL_STAMP): $(PYTHON)
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON)
-	$(VENV)/bin/pip install -r dev-requirements.txt
+	$(VENV)/bin/pip install --force-reinstall -r dev-requirements.txt
 	touch $(DEV_STAMP)
 
 virtualenv: $(PYTHON)
