@@ -8,8 +8,6 @@ import psycopg2.extras
 import six
 from six.moves.urllib import parse as urlparse
 
-from pyramid import httpexceptions
-
 from cliquet import logger
 from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.utils import COMPARISON
@@ -50,9 +48,7 @@ class PostgreSQLClient(object):
             logger.exception(e)
             if conn and not conn.closed:
                 conn.rollback()
-            if isinstance(e, psycopg2.OperationalError):
-                raise httpexceptions.HTTPServiceUnavailable()
-            raise
+            raise exceptions.BackendError(original=e)
         finally:
             if cursor:
                 cursor.close()
@@ -147,7 +143,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             with self.connect() as cursor:
                 cursor.execute(query)
             return True
-        except psycopg2.Error:
+        except:
             return False
 
     def collection_timestamp(self, resource, user_id):
