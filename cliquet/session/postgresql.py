@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-import psycopg2
+
 from six.moves.urllib import parse as urlparse
 
 from cliquet import logger

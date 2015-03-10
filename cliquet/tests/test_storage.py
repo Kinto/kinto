@@ -11,8 +11,6 @@ from cliquet.storage import (
 )
 from cliquet import utils
 from cliquet import schema
-from pyramid import httpexceptions
-from pyramid.config import global_registries
 
 from .support import unittest, ThreadMixin
 

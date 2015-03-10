@@ -1,6 +1,7 @@
 """Exceptions raised by storage backend.
 """
 
+
 class BackendError(Exception):
     """A generic exception raised by storage on error.
 
