@@ -8,9 +8,9 @@ from cliquet.session import SessionStorageBase
 from cliquet.storage.redis import wrap_redis_error
 
 
-class RedisSessionStorage(SessionStorageBase):
+class Redis(SessionStorageBase):
     def __init__(self, *args, **kwargs):
-        super(RedisSessionStorage, self).__init__(*args, **kwargs)
+        super(Redis, self).__init__(*args, **kwargs)
         self._client = redis.StrictRedis(
             connection_pool=redis.BlockingConnectionPool(),
             **kwargs
@@ -58,7 +58,7 @@ def load_from_config(config):
     uri = settings.get('cliquet.session_url', '')
     uri = urlparse.urlparse(uri)
 
-    return RedisSessionStorage(host=uri.hostname or 'localhost',
-                               port=uri.port or 6739,
-                               password=uri.password or None,
-                               db=int(uri.path[1:]) if uri.path else 0)
+    return Redis(host=uri.hostname or 'localhost',
+                 port=uri.port or 6739,
+                 password=uri.password or None,
+                 db=int(uri.path[1:]) if uri.path else 0)

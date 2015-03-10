@@ -133,7 +133,7 @@ class PostgreSQLSessionStorageTest(BaseTestSessionStorage, unittest.TestCase):
 
 class SessionCacheTest(unittest.TestCase):
     def setUp(self):
-        self.cache = SessionCache(redis_backend.RedisSessionStorage(), 0.05)
+        self.cache = SessionCache(redis_backend.Redis(), 0.05)
         super(SessionCacheTest, self).setUp()
 
     def test_set_adds_the_record(self):

@@ -4,7 +4,7 @@ from cornice import Service
 from pyramid import testing
 
 from cliquet import set_auth, attach_http_objects
-from cliquet.session.redis import RedisSessionStorage
+from cliquet.session.redis import Redis
 from cliquet.storage.memory import Memory
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
@@ -20,7 +20,7 @@ class BaseWebTest(unittest.TestCase):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.config = testing.setUp()
         self.config.registry.storage = Memory()
-        self.config.registry.session = RedisSessionStorage()
+        self.config.registry.session = Redis()
         self.config.registry.project_name = "cliquet"
         self.config.registry.project_docs = "https://cliquet.rtfd.org/"
         self.config.registry.project_version = "0.0.1"
@@ -325,3 +325,38 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
                             body,
                             headers=self.headers,
                             status=409)
+
+
+class StorageErrorTest(FakeAuthentMixin, BaseWebTest):
+    def __init__(self, *args, **kwargs):
+        super(StorageErrorTest, self).__init__(*args, **kwargs)
+        self.error = storage_exceptions.BackendError(ValueError())
+        self.storage_error_patcher = mock.patch(
+            'cliquet.storage.memory.Memory.create',
+            side_effect=self.error)
+
+    def test_backend_errors_are_served_as_503(self):
+        with self.storage_error_patcher:
+            self.app.post_json(self.collection_url,
+                               MINIMALIST_RECORD,
+                               headers=self.headers,
+                               status=503)
+
+    def test_backend_errors_original_error_is_logged(self):
+        with mock.patch('cliquet.views.errors.logger.exception') as mocked:
+            with self.storage_error_patcher:
+                self.app.post_json(self.collection_url,
+                                   MINIMALIST_RECORD,
+                                   headers=self.headers,
+                                   status=503)
+                self.assertTrue(mocked.called)
+                self.assertEqual(type(mocked.call_args[0][0]), ValueError)
+
+
+class SessionErrorTest(FakeAuthentMixin, BaseWebTest):
+    def test_session_errors_are_served_as_503(self):
+        with mock.patch('cliquet.session.redis.Redis.get',
+                        side_effect=storage_exceptions.BackendError(None)):
+            self.app.get('/fxa-oauth/token?code=abc&state=xyz',
+                         headers=self.headers,
+                         status=503)
