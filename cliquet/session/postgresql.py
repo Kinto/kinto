@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-import psycopg2
+
 from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
@@ -49,7 +49,7 @@ class PostgreSQL(PostgreSQLClient, SessionStorageBase):
         try:
             self.set('heartbeat', True)
             return True
-        except psycopg2.Error:
+        except:
             return False
 
     def ttl(self, key):

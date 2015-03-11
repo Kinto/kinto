@@ -9,6 +9,7 @@ from pyramid.view import (
 
 from cliquet import logger
 from cliquet.errors import http_error, ERRORS
+from cliquet.storage import exceptions as storage_exceptions
 from cliquet.utils import reapply_cors
 
 
@@ -82,6 +83,10 @@ def error(context, request):
     """Catch server errors and trace them."""
     if isinstance(context, httpexceptions.Response):
         return reapply_cors(request, context)
+
+    if isinstance(context, storage_exceptions.BackendError):
+        logger.exception(context.original)
+        return service_unavailable(context, request)
 
     logger.exception(context)
 

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from functools import wraps
 
 import json
 import redis
@@ -8,6 +9,16 @@ from six.moves.urllib import parse as urlparse
 from cliquet import utils
 from cliquet.storage import exceptions
 from cliquet.storage.memory import MemoryBasedStorage
+
+
+def wrap_redis_error(func):
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except redis.RedisError as e:
+            raise exceptions.BackendError(original=e)
+    return wrapped
 
 
 class Redis(MemoryBasedStorage):
@@ -41,6 +52,7 @@ class Redis(MemoryBasedStorage):
             return record
         return json.loads(record.decode('utf-8'))
 
+    @wrap_redis_error
     def flush(self):
         self._client.flushdb()
 
@@ -51,6 +63,7 @@ class Redis(MemoryBasedStorage):
         except redis.RedisError:
             return False
 
+    @wrap_redis_error
     def collection_timestamp(self, resource, user_id):
         timestamp = self._client.get(
             '{0}.{1}.timestamp'.format(resource.name, user_id))
@@ -58,6 +71,7 @@ class Redis(MemoryBasedStorage):
             return int(timestamp)
         return utils.msec_time()
 
+    @wrap_redis_error
     def _bump_timestamp(self, resource, user_id):
         key = '{0}.{1}.timestamp'.format(resource.name, user_id)
         while 1:
@@ -78,6 +92,7 @@ class Redis(MemoryBasedStorage):
                     # retry
                     continue
 
+    @wrap_redis_error
     def create(self, resource, user_id, record):
         self.check_unicity(resource, user_id, record)
 
@@ -101,6 +116,7 @@ class Redis(MemoryBasedStorage):
 
         return record
 
+    @wrap_redis_error
     def get(self, resource, user_id, record_id):
         record_key = '{0}.{1}.{2}.records'.format(resource.name,
                                                   user_id,
@@ -111,6 +127,7 @@ class Redis(MemoryBasedStorage):
 
         return self._decode(encoded_item)
 
+    @wrap_redis_error
     def update(self, resource, user_id, record_id, record):
         record = record.copy()
         record[resource.id_field] = record_id
@@ -134,6 +151,7 @@ class Redis(MemoryBasedStorage):
 
         return record
 
+    @wrap_redis_error
     def delete(self, resource, user_id, record_id):
         record_key = '{0}.{1}.{2}.records'.format(resource.name,
                                                   user_id,
@@ -171,6 +189,7 @@ class Redis(MemoryBasedStorage):
 
         return existing
 
+    @wrap_redis_error
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
         records_ids_key = '{0}.{1}.records'.format(resource.name, user_id)

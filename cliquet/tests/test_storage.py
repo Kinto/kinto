@@ -11,8 +11,6 @@ from cliquet.storage import (
 )
 from cliquet import utils
 from cliquet import schema
-from pyramid import httpexceptions
-from pyramid.config import global_registries
 
 from .support import unittest, ThreadMixin
 
@@ -64,16 +62,53 @@ class BaseTestStorage(object):
         self.user_id = '1234'
         self.other_user_id = '5678'
         self.record = {'foo': 'bar'}
+        self.client_error_patcher = None
 
-    def _get_config(self):
+    def _get_config(self, settings=None):
         """Mock Pyramid config object.
         """
-        return mock.Mock(registry=mock.Mock(settings=self.settings))
+        if settings is None:
+            settings = self.settings
+        return mock.Mock(registry=mock.Mock(settings=settings))
 
     def tearDown(self):
+        mock.patch.stopall()
         super(BaseTestStorage, self).tearDown()
         self.storage.flush()
         self.resource.mapping = TestMapping()
+
+    def test_raises_backend_error_if_error_occurs_on_client(self):
+        self.client_error_patcher.start()
+        self.assertRaises(exceptions.BackendError,
+                          self.storage.get_all,
+                          self.resource, self.user_id)
+
+    def test_backend_error_provides_original_exception(self):
+        self.client_error_patcher.start()
+        try:
+            self.storage.get_all(self.resource, self.user_id)
+        except exceptions.BackendError as e:
+            error = e
+        self.assertTrue(isinstance(error.original, Exception))
+
+    def test_backend_error_is_raised_anywhere(self):
+        self.client_error_patcher.start()
+        calls = [
+            (self.storage.flush,),
+            (self.storage.collection_timestamp, self.resource, self.user_id),
+            (self.storage.create, self.resource, self.user_id, {}),
+            (self.storage.get, self.resource, self.user_id, ''),
+            (self.storage.update, self.resource, self.user_id, '', {}),
+            (self.storage.delete, self.resource, self.user_id, ''),
+            (self.storage.delete_all, self.resource, self.user_id),
+            (self.storage.get_all, self.resource, self.user_id),
+        ]
+        for call in calls:
+            self.assertRaises(exceptions.BackendError, *call)
+
+    def test_ping_returns_an_error_if_unavailable(self):
+        self.client_error_patcher.start()
+        self.assertFalse(self.storage.ping())
 
     def test_ping_returns_true_when_working(self):
         self.assertTrue(self.storage.ping())
@@ -620,6 +655,20 @@ class StorageTest(ThreadMixin,
 class MemoryStorageTest(StorageTest, unittest.TestCase):
     backend = memory
 
+    def __init__(self, *args, **kwargs):
+        super(MemoryStorageTest, self).__init__(*args, **kwargs)
+        self.client_error_patcher = mock.Mock(
+            side_effect=exceptions.BackendError)
+
+    def test_backend_error_provides_original_exception(self):
+        pass
+
+    def test_raises_backend_error_if_error_occurs_on_client(self):
+        pass
+
+    def test_backend_error_is_raised_anywhere(self):
+        pass
+
     def test_ping_returns_an_error_if_unavailable(self):
         pass
 
@@ -636,6 +685,27 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
 class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
     backend = redisbackend
 
+    def __init__(self, *args, **kwargs):
+        super(RedisStorageTest, self).__init__(*args, **kwargs)
+        self.client_error_patcher = mock.patch.object(
+            self.storage._client,
+            'execute_command',
+            side_effect=redis.RedisError)
+
+    def test_ping_returns_an_error_if_unavailable(self):
+        StorageTest.test_ping_returns_an_error_if_unavailable(self)
+
+    def test_backend_error_provides_original_exception(self):
+        StorageTest.test_backend_error_provides_original_exception(self)
+
+    def test_raises_backend_error_if_error_occurs_on_client(self):
+        StorageTest.test_raises_backend_error_if_error_occurs_on_client(self)
+
+    def test_backend_error_is_raised_anywhere(self):
+        with mock.patch.object(self.storage._client, 'pipeline',
+                               side_effect=redis.RedisError):
+            StorageTest.test_backend_error_is_raised_anywhere(self)
+
     def test_get_all_handle_expired_values(self):
         record = '{"id": "foo"}'.encode('utf-8')
         mocked_smember = mock.patch.object(self.storage._client, "smembers",
@@ -646,11 +716,6 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
             with mocked_mget:
                 self.storage.get_all(TestResource(), "alexis")  # not raising
 
-    def test_ping_returns_an_error_if_unavailable(self):
-        self.storage._client.setex = mock.MagicMock(
-            side_effect=redis.RedisError)
-        self.assertFalse(self.storage.ping())
-
 
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
@@ -659,10 +724,11 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             'postgres://postgres:postgres@localhost:5432/testdb'
     }
 
-    def test_ping_returns_an_error_if_unavailable(self):
-        with mock.patch('cliquet.storage.postgresql.psycopg2.connect',
-                        side_effect=psycopg2.DatabaseError):
-            self.assertFalse(self.storage.ping())
+    def __init__(self, *args, **kwargs):
+        super(PostgresqlStorageTest, self).__init__(*args, **kwargs)
+        self.client_error_patcher = mock.patch(
+            'cliquet.storage.postgresql.psycopg2.connect',
+            side_effect=psycopg2.DatabaseError)
 
     def test_ping_updates_a_value_in_the_metadata_table(self):
         query = "SELECT value FROM metadata WHERE name='last_heartbeat';"
@@ -680,16 +746,6 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             self.backend.load_from_config(self._get_config())
             message, = mocked.call_args[0]
             self.assertEqual(message, "Detected PostgreSQL storage tables")
-
-    def test_assert_raises_503_when_connection_fails(self):
-        # 503 error relies on Pyramid last registry hook
-        global_registries.add(self._get_config().registry)
-
-        with mock.patch('cliquet.storage.postgresql.PostgreSQL._check_unicity',
-                        side_effect=psycopg2.OperationalError):
-            self.assertRaises(httpexceptions.HTTPServiceUnavailable,
-                              self.storage.create,
-                              self.resource, 'foo', {})
 
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
         for i in range(4):
