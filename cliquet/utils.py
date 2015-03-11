@@ -113,7 +113,7 @@ def reapply_cors(request, response):
     if request.matched_route:
         services = request.registry.cornice_services
         pattern = request.matched_route.pattern
-        service = services.get(pattern, None)
+        service = services[pattern]
 
         request.info['cors_checked'] = False
         response = cors.ensure_origin(service, request, response)

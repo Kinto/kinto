@@ -20,10 +20,6 @@ from cliquet.session import SessionCache
 
 from cornice import Service
 
-# Monkey Patch Cornice Service to setup the global CORS configuration.
-Service.cors_origins = ('*',)
-Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
-
 
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution(__package__).version
@@ -195,6 +191,10 @@ def end_of_life_tween_factory(handler, registry):
 
 
 def includeme(config):
+    # Monkey Patch Cornice Service to setup the global CORS configuration.
+    Service.cors_origins = ('*',)
+    Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
+
     load_default_settings(config)
     settings = config.get_settings()
 
@@ -225,9 +225,9 @@ def initialize_cliquet(config, version=None, project_name=None):
     :param config: Pyramid configuration
     :type config: pyramid.config.Configurator
     :param version: Current project version (e.g. '0.0.1') if not defined
-        in config.
+        in application settings.
     :type version: string
-    :param project_name: Project name if not defined in config.
+    :param project_name: Project name if not defined in application settings.
     :type project_name: string
     """
     settings = config.registry.settings
