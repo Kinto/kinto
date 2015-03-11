@@ -613,10 +613,12 @@ class BaseResource(object):
         if token:
             try:
                 last_record = decode_token(token)
-            except (ValueError, TypeError):
+                assert isinstance(last_record, dict)
+            except (ValueError, TypeError, AssertionError):
+                error_msg = '_token has invalid content'
                 error_details = {
                     'location': 'querystring',
-                    'description': "_token should be valid base64 JSON encoded"
+                    'description': error_msg
                 }
                 raise_invalid(self.request, **error_details)
 
