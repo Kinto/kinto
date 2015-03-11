@@ -7,6 +7,17 @@ Configuration
 See `Pyramid settings documentation <http://docs.pylonsproject.org/docs/pyramid/en/latest/narr/environment.html>`_.
 
 
+Environment variables
+=====================
+
+In order to ease deployment or testing strategies, cliquet reads settings
+from environment variables, in addition to ``.ini`` files.
+
+For example, ``cliquet.storage_backend`` is read from environment variable
+``CLIQUET_STORAGE_BACKEND`` if defined, else from application ``.ini``, else
+from internal defaults.
+
+
 Project info
 ============
 
