@@ -229,8 +229,7 @@ class Redis(MemoryBasedStorage):
 
 
 def load_from_config(config):
-    settings = config.registry.settings
-    uri = settings.get('cliquet.storage_url', '')
+    uri = config.registry.settings['cliquet.storage_url']
     uri = urlparse.urlparse(uri)
 
     return Redis(host=uri.hostname or 'localhost',

@@ -1,7 +1,6 @@
 from functools import wraps
 
 from pyramid import httpexceptions
-from pyramid.config import global_registries
 from pyramid.security import forget, NO_PERMISSION_REQUIRED
 from pyramid.view import (
     forbidden_view_config, notfound_view_config, view_config
@@ -11,9 +10,6 @@ from cliquet import logger
 from cliquet.errors import http_error, ERRORS
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.utils import reapply_cors
-
-
-DEFAULT_RETRY_AFTER_SECONDS = '30'
 
 
 def cors(view):
@@ -71,9 +67,7 @@ def service_unavailable(context, request):
                           errno=ERRORS.BACKEND,
                           message=error_msg)
 
-    settings = global_registries.last.settings
-    retry_after = settings.get('cliquet.retry_after',
-                               DEFAULT_RETRY_AFTER_SECONDS)
+    retry_after = '%s' % request.registry.settings['cliquet.retry_after']
     response.headers["Retry-After"] = retry_after.encode("utf-8")
     return reapply_cors(request, response)
 

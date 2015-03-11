@@ -53,7 +53,9 @@ class TestResource(object):
 class BaseTestStorage(object):
     backend = None
 
-    settings = {}
+    settings = {
+        'cliquet.storage_url': ''
+    }
 
     def __init__(self, *args, **kwargs):
         super(BaseTestStorage, self).__init__(*args, **kwargs)
@@ -720,6 +722,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
+        'cliquet.storage_max_fetch_size': 10000,
         'cliquet.storage_url':
             'postgres://postgres:postgres@localhost:5432/testdb'
     }
@@ -755,7 +758,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         self.assertEqual(len(results), 4)
 
         config = self._get_config()
-        config.registry.settings['storage.max_fetch_size'] = 2
+        config.registry.settings['cliquet.storage_max_fetch_size'] = 2
         limited = self.backend.load_from_config(config)
 
         results, count = limited.get_all(self.resource, self.user_id)

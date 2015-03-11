@@ -101,8 +101,7 @@ class PostgreSQL(PostgreSQLClient, SessionStorageBase):
 
 
 def load_from_config(config):
-    settings = config.registry.settings
-    uri = settings.get('cliquet.session_url', '')
+    uri = config.registry.settings['cliquet.session_url']
     uri = urlparse.urlparse(uri)
     conn_kwargs = dict(host=uri.hostname,
                        port=uri.port,

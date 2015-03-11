@@ -15,18 +15,14 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 
 from cliquet import authentication
 from cliquet import errors
+from cliquet import utils
 from cliquet.session import SessionCache
-from cliquet.utils import msec_time
 
 from cornice import Service
 
 # Monkey Patch Cornice Service to setup the global CORS configuration.
 Service.cors_origins = ('*',)
 Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
-
-DEFAULT_OAUTH_CACHE_SECONDS = 5 * 60
-DEFAULT_STORAGE_BACKEND = 'cliquet.storage.redis'
-DEFAULT_SESSION_BACKEND = 'cliquet.session.redis'
 
 
 # Module version, as defined in PEP-0396.
@@ -37,6 +33,43 @@ API_VERSION = 'v%s' % __version__.split('.')[0]
 
 # Main cliquet logger
 logger = logging.getLogger(__name__)
+
+
+DEFAULT_SETTINGS = {
+    'fxa-oauth.cache_ttl_seconds': 5 * 60,
+    'fxa-oauth.client_id': None,
+    'fxa-oauth.client_secret': None,
+    'fxa-oauth.oauth_uri': None,
+    'fxa-oauth.scope': 'profile',
+    'cliquet.backoff': None,
+    'cliquet.basic_auth_enabled': False,
+    'cliquet.batch_max_requests': None,
+    'cliquet.delete_collection_enabled': True,
+    'cliquet.eos': None,
+    'cliquet.eos_message': None,
+    'cliquet.eos_url': None,
+    'cliquet.http_scheme': None,
+    'cliquet.paginate_by': None,
+    'cliquet.project_docs': '',
+    'cliquet.project_name': '',
+    'cliquet.retry_after': 30,  # XXX: rename to retry_after_seconds
+    'cliquet.session_backend': 'cliquet.session.redis',
+    'cliquet.session_url': '',
+    'cliquet.storage_backend': 'cliquet.storage.redis',
+    'cliquet.storage_url': '',
+    'cliquet.storage_max_fetch_size': 10000,
+    'cliquet.userid_hmac_secret': '',
+}
+
+
+def load_default_settings(config):
+    """Read settings provided in Paste ini file, set default values and
+    replace if defined as environment variable.
+    """
+    settings = config.get_settings()
+    for key, value in DEFAULT_SETTINGS.items():
+        settings.setdefault(key, utils.read_env(key, value))
+    config.add_settings(settings)
 
 
 def handle_api_redirection(config):
@@ -64,9 +97,8 @@ def handle_api_redirection(config):
 def set_auth(config):
     """Define the authentication and authorization policies.
     """
-    oauth_cache_ttl = int(config.registry.settings.get(
-        'fxa-oauth.cache_ttl_seconds',
-        DEFAULT_OAUTH_CACHE_SECONDS))
+    settings = config.registry.settings
+    oauth_cache_ttl = int(settings['fxa-oauth.cache_ttl_seconds'])
 
     policies = [
         authentication.Oauth2AuthenticationPolicy(
@@ -91,12 +123,12 @@ def attach_http_objects(config):
 
     def on_new_request(event):
         # Save the time the request was received by the server.
-        event.request._received_at = msec_time()
+        event.request._received_at = utils.msec_time()
 
         # Attach objects on requests for easier access.
         event.request.db = config.registry.storage
 
-        http_scheme = config.registry.settings.get('cliquet.http_scheme')
+        http_scheme = config.registry.settings['cliquet.http_scheme']
         if http_scheme:
             event.request.scheme = http_scheme
 
@@ -104,7 +136,7 @@ def attach_http_objects(config):
 
     def on_new_response(event):
         if hasattr(event.request, '_received_at'):
-            duration = (msec_time() - event.request._received_at)
+            duration = (utils.msec_time() - event.request._received_at)
         else:
             duration = "unknown"
 
@@ -120,7 +152,7 @@ def attach_http_objects(config):
         logger.debug(msg)
 
         # Add backoff in response headers.
-        backoff = config.registry.settings.get("cliquet.backoff")
+        backoff = '%s' % config.registry.settings['cliquet.backoff']
         if backoff is not None:
             event.request.response.headers['Backoff'] = backoff.encode('utf-8')
 
@@ -137,9 +169,9 @@ def end_of_life_tween_factory(handler, registry):
                 "at this location.")
 
     def eos_tween(request):
-        eos_date = registry.settings.get("cliquet.eos")
-        eos_url = registry.settings.get("cliquet.eos_url")
-        eos_message = registry.settings.get("cliquet.eos_message")
+        eos_date = registry.settings['cliquet.eos']
+        eos_url = registry.settings['cliquet.eos_url']
+        eos_message = registry.settings['cliquet.eos_message']
         if eos_date:
             eos_date = dateparser.parse(eos_date)
             alert = {}
@@ -162,24 +194,23 @@ def end_of_life_tween_factory(handler, registry):
 
 
 def includeme(config):
+    load_default_settings(config)
     settings = config.get_settings()
 
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")
 
-    storage = config.maybe_dotted(settings.get('cliquet.storage_backend',
-                                               DEFAULT_STORAGE_BACKEND))
+    storage = config.maybe_dotted(settings['cliquet.storage_backend'])
     config.registry.storage = storage.load_from_config(config)
 
-    session = config.maybe_dotted(settings.get('cliquet.session_backend',
-                                               DEFAULT_SESSION_BACKEND))
+    session = config.maybe_dotted(settings['cliquet.session_backend'])
     config.registry.session = session.load_from_config(config)
 
-    config.registry.project_name = settings.get('cliquet.project_name', '')
+    config.registry.project_name = settings['cliquet.project_name']
     if not config.registry.project_name:
         warnings.warn('No value for `project_name` in settings')
 
-    config.registry.project_docs = settings.get('cliquet.project_docs', '')
+    config.registry.project_docs = settings['cliquet.project_docs']
     if not config.registry.project_docs:
         warnings.warn('No value for `project_docs` in settings')
 

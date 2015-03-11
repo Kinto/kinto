@@ -3,7 +3,7 @@ import webtest
 from cornice import Service
 from pyramid import testing
 
-from cliquet import set_auth, attach_http_objects
+from cliquet import set_auth, attach_http_objects, load_default_settings
 from cliquet.session.redis import Redis
 from cliquet.storage.memory import Memory
 from cliquet.storage import exceptions as storage_exceptions
@@ -26,6 +26,8 @@ class BaseWebTest(unittest.TestCase):
         self.config.registry.project_version = "0.0.1"
 
         Service.cors_origins = ('*',)
+
+        load_default_settings(self.config)
 
         set_auth(self.config)
 

@@ -57,6 +57,17 @@ def native_value(value):
     return value
 
 
+def read_env(key, value):
+    """Read the setting key from environment variables.
+
+    :param key: the setting name
+    :param value: default value if undefined in environment
+    :returns: the value from environment, coerced to python type
+    """
+    envkey = key.replace('.', '_').replace('.', '_').upper()
+    return native_value(os.getenv(envkey, value))
+
+
 def decode_token(token):
     """Take a token and return the decoded base64 JSON."""
     return json.loads(decode64(token))

@@ -23,4 +23,4 @@ def get_hello(request):
 
 
 def get_eos(request):
-    return request.registry.settings.get('cliquet.eos', '').strip() or None
+    return request.registry.settings['cliquet.eos']

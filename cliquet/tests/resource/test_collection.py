@@ -1,3 +1,4 @@
+import mock
 from pyramid import httpexceptions
 
 from cliquet.tests.resource import BaseTest
@@ -62,10 +63,10 @@ class DeleteCollectionTest(BaseTest):
         self.assertEqual(len(records), 1)
 
     def test_delete_on_collection_can_be_disabled_via_settings(self):
-        key = 'cliquet.delete_collection_enabled'
-        self.resource.request.registry.settings[key] = 'false'
-        self.assertRaises(httpexceptions.HTTPMethodNotAllowed,
-                          self.resource.collection_delete)
+        with mock.patch.dict(self.resource.request.registry.settings,
+                             [('cliquet.delete_collection_enabled', False)]):
+            self.assertRaises(httpexceptions.HTTPMethodNotAllowed,
+                              self.resource.collection_delete)
 
 
 class IsolatedCollectionsTest(BaseTest):

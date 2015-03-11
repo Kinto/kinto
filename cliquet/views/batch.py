@@ -77,7 +77,7 @@ batch = Service(name="batch", path='/batch',
 def post_batch(request):
     requests = request.validated['requests']
 
-    limit = request.registry.settings.get('cliquet.batch_max_requests')
+    limit = request.registry.settings['cliquet.batch_max_requests']
     if limit and len(requests) > limit:
         error_msg = 'Number of requests is limited to %s' % limit
         request.errors.add('body', 'requests', error_msg)
