@@ -15,14 +15,20 @@ Project info
     cliquet.project_name = project
     cliquet.project_docs = https://project.rtfd.org/
 
+
 Feature settings
 ================
 
 .. code-block :: ini
 
+    # Limit number of batch operations per request
     # cliquet.batch_max_requests = 25
-    # cliquet.delete_collection_enabled = true
 
+    # Disable DELETE on collection
+    # cliquet.delete_collection_enabled = false
+
+    # Force pagination
+    # cliquet.paginate_by = 20
 
 Deployment
 ==========
@@ -32,7 +38,20 @@ Deployment
     # cliquet.backoff = 10
     cliquet.http_scheme = https
     cliquet.retry_after = 30
-    cliquet.eos =
+
+Deprecation
+:::::::::::
+
+Activate the :ref:`service deprecation <versioning>`. If the date specified
+in ``eos`` is in the future, an alert will be sent to clients. If it's in
+the past, the service will be declared as decomissionned.
+
+.. code-block :: ini
+
+    # cliquet.eos = 2015-01-22
+    # cliquet.eos_message = "Client is too old"
+    # cliquet.eos_url = http://website/info-shutdown.html
+
 
 Storage
 =======
@@ -40,8 +59,12 @@ Storage
 .. code-block :: ini
 
     cliquet.session_backend = cliquet.session.redis
+    cliquet.session_url = redis://localhost:6379/0
     cliquet.storage_backend = cliquet.storage.redis
     cliquet.storage_url = redis://localhost:6379/1
+
+    # Safety limit while fetching from storage
+    # cliquet.storage_max_fetch_size = 10000
 
 See :ref:`storage backend documentation <storage>` for more details.
 
@@ -49,13 +72,20 @@ See :ref:`storage backend documentation <storage>` for more details.
 Authentication
 ==============
 
+Since user identification is hashed in storage, a secret key is required
+in configuration:
+
+.. code-block :: ini
+
+    # cliquet.userid_hmac_secret = b4c96a8692291d88fe5a97dd91846eb4
+
+
 Basic Auth
 ::::::::::
 
 .. code-block :: ini
 
     # cliquet.basic_auth_enabled = true
-    # cliquet.userid_hmac_secret = b4c96a8692291d88fe5a97dd91846eb4
 
 
 Custom Authentication
@@ -116,9 +146,3 @@ If you're a Mozilla service, fill the settings with the values you were provided
     fxa-oauth.client_secret = 9aced230585cc0aaea0a3467dd800
     fxa-oauth.oauth_uri = https://oauth-stable.dev.lcip.org
     fxa-oauth.scope = profile
-
-
-Default settings
-================
-
-.. automodule:: cliquet.DEFAULT_SETTINGS
