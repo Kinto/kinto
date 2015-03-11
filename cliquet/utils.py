@@ -64,7 +64,7 @@ def read_env(key, value):
     :param value: default value if undefined in environment
     :returns: the value from environment, coerced to python type
     """
-    envkey = key.replace('.', '_').replace('.', '_').upper()
+    envkey = key.replace('.', '_').replace('-', '_').upper()
     return native_value(os.getenv(envkey, value))
 
 

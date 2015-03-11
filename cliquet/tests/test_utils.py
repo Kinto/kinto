@@ -1,7 +1,10 @@
+import os
+
 import colander
 from six import text_type
 
-from cliquet.utils import native_value, strip_whitespace, random_bytes_hex
+from cliquet.utils import (native_value, strip_whitespace, random_bytes_hex,
+                           read_env)
 
 from .support import unittest
 
@@ -59,3 +62,20 @@ class CryptographicRandomBytesTest(unittest.TestCase):
     def test_return_text_string(self):
         value = random_bytes_hex(16)
         self.assertIsInstance(value, text_type)
+
+
+class ReadEnvironmentTest(unittest.TestCase):
+    def test_return_passed_value_if_not_defined_in_env(self):
+        self.assertEqual(read_env('missing', 12), 12)
+
+    def test_return_env_value_if_defined_in_env(self):
+        os.environ.setdefault('CLIQUET_CONF', 'abc')
+        self.assertEqual(read_env('CLIQUET_CONF', 12), 'abc')
+
+    def test_return_env_name_as_uppercase(self):
+        os.environ.setdefault('CLIQUET_NAME', 'abc')
+        self.assertEqual(read_env('cliquet.name', 12), 'abc')
+
+    def test_return_env_value_is_coerced_to_python(self):
+        os.environ.setdefault('CLIQUET_CONF_NAME', '3.14')
+        self.assertEqual(read_env('cliquet-conf.name', 12), 3.14)
