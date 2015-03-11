@@ -14,6 +14,7 @@ Project info
 
     cliquet.project_name = project
     cliquet.project_docs = https://project.rtfd.org/
+    # cliquet.project_version = 1.0
 
 
 Feature settings

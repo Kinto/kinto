@@ -52,6 +52,7 @@ DEFAULT_SETTINGS = {
     'cliquet.paginate_by': None,
     'cliquet.project_docs': '',
     'cliquet.project_name': '',
+    'cliquet.project_version': '',
     'cliquet.retry_after': 30,  # XXX: rename to retry_after_seconds
     'cliquet.session_backend': 'cliquet.session.redis',
     'cliquet.session_url': '',
@@ -206,14 +207,6 @@ def includeme(config):
     session = config.maybe_dotted(settings['cliquet.session_backend'])
     config.registry.session = session.load_from_config(config)
 
-    config.registry.project_name = settings['cliquet.project_name']
-    if not config.registry.project_name:
-        warnings.warn('No value for `project_name` in settings')
-
-    config.registry.project_docs = settings['cliquet.project_docs']
-    if not config.registry.project_docs:
-        warnings.warn('No value for `project_docs` in settings')
-
     set_auth(config)
     attach_http_objects(config)
 
@@ -222,13 +215,36 @@ def includeme(config):
     config.scan("cliquet.views")
 
 
-def initialize_cliquet(config, version):
-    """Initialize Cliquet with the given configuration and version"""
+def initialize_cliquet(config, version=None, project_name=None):
+    """Initialize Cliquet with the given configuration, version and project
+    name.
+
+    This will basically include cliquet in Pyramid and set route prefix based
+    on the specified version.
+
+    :param config: Pyramid configuration
+    :type config: pyramid.config.Configurator
+    :param version: Current project version (e.g. '0.0.1') if not defined
+        in config.
+    :type version: string
+    :param project_name: Project name if not defined in config.
+    :type project_name: string
+    """
+    settings = config.registry.settings
 
     # The API version is derivated from the module version.
-    api_version = 'v%s' % version.split('.')[0]
+    project_version = settings.get('cliquet.project_version') or version
+    settings['cliquet.project_version'] = project_version
+    try:
+        api_version = 'v%s' % project_version.split('.')[0]
+    except (AttributeError, ValueError):
+        raise ValueError('Invalid project version')
+
+    project_name = settings.get('cliquet.project_name') or project_name
+    settings['cliquet.project_name'] = project_name
+    if not project_name:
+        warnings.warn('No value specified for `project_name`')
 
     # Include cliquet views with the correct api version prefix.
-    config.registry.project_version = version
     config.include("cliquet", route_prefix=api_version)
     config.route_prefix = api_version
