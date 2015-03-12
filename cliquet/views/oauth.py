@@ -9,7 +9,6 @@ from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from cliquet import errors
-from cliquet.schema import URL
 from cliquet.views.errors import authorization_required
 from cliquet import logger
 
@@ -34,15 +33,12 @@ def persist_state(request):
     It will be compared when return from login page on OAuth server.
     """
     state = uuid.uuid4().hex
-    request.registry.session.set(state, request.validated['redirect'])
+    request.registry.session.set(state,
+                                 fxa_conf(request, 'webapp.redirect_url'))
     return state
 
 
-class FxALoginRequest(MappingSchema):
-    redirect = URL(location="querystring")
-
-
-@login.get(schema=FxALoginRequest, permission=NO_PERMISSION_REQUIRED)
+@login.get(permission=NO_PERMISSION_REQUIRED)
 def fxa_oauth_login(request):
     """Helper to redirect client towards FxA login form."""
     state = persist_state(request)

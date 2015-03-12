@@ -6,12 +6,7 @@ from .support import BaseWebTest, unittest
 
 
 class LoginViewTest(BaseWebTest, unittest.TestCase):
-    url = '/fxa-oauth/login?redirect=http://perdu.com/'
-
-    def test_redirect_parameter_is_mandatory(self):
-        url = '/fxa-oauth/login'
-        r = self.app.get(url, status=400)
-        self.assertIn('redirect', r.json['message'])
+    url = '/fxa-oauth/login'
 
     def test_login_view_persists_state(self):
         r = self.app.get(self.url)
@@ -20,7 +15,7 @@ class LoginViewTest(BaseWebTest, unittest.TestCase):
         queryparams = parse_qs(url_fragments.query)
         state = queryparams['state'][0]
         self.assertEqual(self.app.app.registry.session.get(state),
-                         'http://perdu.com/')
+                         'https://readinglist.firefox.com/#token=')
 
     @mock.patch('cliquet.views.oauth.uuid.uuid4')
     def test_login_view_redirects_to_authorization(self, mocked_uuid):
