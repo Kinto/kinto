@@ -1,6 +1,8 @@
 import hashlib
 import hmac
 
+import structlog
+
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 from pyramid import authentication as base_auth
@@ -8,6 +10,9 @@ from pyramid import httpexceptions
 from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Authenticated
 from zope.interface import implementer
+
+
+logger = structlog.get_logger(__name__)
 
 
 def check_credentials(username, password, request):
@@ -29,6 +34,10 @@ def check_credentials(username, password, request):
     userid = hmac.new(hmac_secret,
                       credentials.encode('utf-8'),
                       hashlib.sha256).hexdigest()
+
+    # Log authentication context.
+    logger.bind(auth_type='Basic')
+
     return ["basicauth_%s" % userid]
 
 
@@ -79,6 +88,10 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
             raise httpexceptions.HTTPServiceUnavailable()
         except (fxa_errors.InProtocolError, fxa_errors.TrustError):
             return None
+
+        # Log authentication context.
+        logger.bind(auth_type='FxA')
+
         return 'fxa_%s' % user_id
 
 
