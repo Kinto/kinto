@@ -11,7 +11,7 @@ REQUIREMENTS = [
     'cornice',
     'six',
     'waitress',
-    'cliquet[postgresql]'
+    'cliquet'
 ]
 
 ENTRY_POINTS = {

@@ -1,4 +1,5 @@
 SERVER_CONFIG = config/kinto.ini
+DEV_SERVER_CONFIG = config/kinto-dev.ini
 
 VIRTUALENV = virtualenv
 SPHINX_BUILDDIR = docs/_build
@@ -26,6 +27,9 @@ $(DEV_STAMP): $(PYTHON)
 virtualenv: $(PYTHON)
 $(PYTHON):
 	virtualenv $(VENV)
+
+serve-dev: install-dev
+	$(VENV)/bin/pserve $(DEV_SERVER_CONFIG) --reload
 
 serve: install-dev
 	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
