@@ -32,6 +32,7 @@ serve-dev: install-dev
 	$(VENV)/bin/pserve $(DEV_SERVER_CONFIG) --reload
 
 serve: install-dev
+	$(VENV)/bin/pip install cliquet[postgresql]
 	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
 
 tests-once: install-dev
