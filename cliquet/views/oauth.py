@@ -23,9 +23,14 @@ token = Service(name='fxa-oauth-token',
                 path='/fxa-oauth/token',
                 error_handler=errors.json_error_handler)
 
+DEFAULT_STATE_EXPIRY_SECONDS = 3600  # 1 hour
 
-def fxa_conf(request, name):
-    return request.registry.settings['fxa-oauth.' + name]
+
+def fxa_conf(request, name, default=None):
+    key = 'fxa-oauth.' + name
+    if default is None:
+        return request.registry.settings[key]
+    return request.registry.settings.get(key, default)
 
 
 def persist_state(request):
@@ -35,6 +40,9 @@ def persist_state(request):
     state = uuid.uuid4().hex
     request.registry.session.set(state,
                                  fxa_conf(request, 'webapp.redirect_url'))
+    request.registry.session.expire(
+        state,
+        fxa_conf(request, 'state.ttl_seconds', DEFAULT_STATE_EXPIRY_SECONDS))
     return state
 
 
@@ -77,6 +85,9 @@ def fxa_oauth_token(request):
 
     # Require on-going session
     stored_redirect = request.registry.session.get(state)
+
+    # Make sure we cannot try twice with the same code
+    request.registry.session.delete(state)
 
     if not stored_redirect:
         return authorization_required(request)
