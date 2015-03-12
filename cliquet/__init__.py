@@ -5,7 +5,6 @@ import json
 
 from dateutil import parser as dateparser
 import pkg_resources
-import logging
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
@@ -14,9 +13,11 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 
 from cliquet import authentication
 from cliquet import errors
+from cliquet import utils
 from cliquet.session import SessionCache
 from cliquet.utils import msec_time
 
+import structlog
 from cornice import Service
 
 # Monkey Patch Cornice Service to setup the global CORS configuration.
@@ -33,7 +34,7 @@ __version__ = pkg_resources.get_distribution(__package__).version
 API_VERSION = 'v%s' % __version__.split('.')[0]
 
 # Main cliquet logger
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 def handle_api_redirection(config):
@@ -93,33 +94,40 @@ def attach_http_objects(config):
         # Attach objects on requests for easier access.
         event.request.db = config.registry.storage
 
+        # Force request scheme from settings.
         http_scheme = config.registry.settings.get('cliquet.http_scheme')
         if http_scheme:
             event.request.scheme = http_scheme
 
+        # Bind request infos on logger.
+        logger.bind(
+            method=event.request.method,
+            path=event.request.path,
+            received_at=msec_time())
+
     config.add_subscriber(on_new_request, NewRequest)
 
     def on_new_response(event):
+        # Add backoff in response headers.
+        backoff = config.registry.settings.get("cliquet.backoff")
+        if backoff is not None:
+            event.request.response.headers['Backoff'] = backoff.encode('utf-8')
+
+        # Display the status of the request as well as the time spent
+        # on the server.
         if hasattr(event.request, '_received_at'):
             duration = (msec_time() - event.request._received_at)
         else:
             duration = "unknown"
 
-        # Display the status of the request as well as the time spent
-        # on the server.
-        pattern = '"{method} {path}" {status} {size} ({duration} ms)'
-        msg = pattern.format(
-            method=event.request.method,
-            path=event.request.path,
+        # Bind response infos on logger.
+        logger.bind(
             status=event.response.status_code,
             size=event.response.content_length,
             duration=duration)
-        logger.debug(msg)
 
-        # Add backoff in response headers.
-        backoff = config.registry.settings.get("cliquet.backoff")
-        if backoff is not None:
-            event.request.response.headers['Backoff'] = backoff.encode('utf-8')
+        # Ouput main logging.
+        logger.info('request.summary')
 
     config.add_subscriber(on_new_response, NewResponse)
 
@@ -159,6 +167,20 @@ def end_of_life_tween_factory(handler, registry):
 
 
 def includeme(config):
+    # Configure logging globally.
+    # XXX: if debug, render as key=value
+    structlog.configure(
+        processors=[
+            # XXX https://github.com/hynek/structlog/pull/50
+            # structlog.stdlib.filter_by_level,
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.format_exc_info,
+            utils.structlog_heka_processor,
+            structlog.processors.JSONRenderer()
+        ],
+        context_class=structlog.threadlocal.wrap_dict(dict),
+        logger_factory=structlog.stdlib.LoggerFactory())
+
     settings = config.get_settings()
 
     handle_api_redirection(config)

@@ -107,3 +107,42 @@ def reapply_cors(request, response):
         request.info['cors_checked'] = False
         response = cors.ensure_origin(service, request, response)
     return response
+
+
+def structlog_heka_processor(logger, method_name, event_dict):
+    """
+    https://github.com/mozilla/mozlog/blob/master/lib/format.js
+    https://github.com/seanmonstar/intel/blob/master/lib/record.js
+    """
+    hostname = os.uname()[1]  # XXX read_env('cliquet.hostname', os.uname()[1])
+    pid = os.getpid()
+    ENV_VERSION = '2.0'
+    SYSLOG_LEVELS = {
+        'critical': 0,
+        'fatal': 0,
+        'exception': 2,
+        'error': 2,
+        'warning': 4,
+        'info': 6,
+        'debug': 7,
+    }
+    name_parts = logger.name.split('.')
+    defaults = {
+        'Timestamp': msec_time(),  # XXX * 1000000 ? see mozlog
+        'Logger': name_parts[0],
+        'Type': '.'.join(name_parts[1:]),
+        'Hostname': hostname,
+        'Severity': SYSLOG_LEVELS[method_name],
+        'Pid': pid,
+        'EnvVersion': ENV_VERSION,
+        'Fields': {}
+    }
+
+    for f, v in defaults.items():
+        event_dict.setdefault(f, v)
+
+    fields = [k for k in event_dict.keys() if k not in defaults]
+    for f in fields:
+        event_dict.setdefault('Fields', {})[f] = event_dict.pop(f)
+
+    return event_dict

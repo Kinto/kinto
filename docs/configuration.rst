@@ -34,6 +34,39 @@ Deployment
     cliquet.retry_after = 30
     cliquet.eos =
 
+
+Logging with Heka
+:::::::::::::::::
+
+.. code-block :: ini
+
+    [loggers]
+    keys = root
+
+    [handlers]
+    keys = console
+
+    [formatters]
+    keys = generic, heka
+
+    [logger_root]
+    level = INFO
+    handlers = console
+    formatter = generic
+
+    [handler_console]
+    class = StreamHandler
+    args = (sys.stderr,)
+    level = NOTSET
+    formatter = heka
+
+    [formatter_generic]
+    format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
+
+    [formatter_heka]
+    format = %(message)s
+
+
 Storage
 =======
 
