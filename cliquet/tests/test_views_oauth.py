@@ -72,6 +72,14 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(url, status=401)
 
     @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')
+    def test_fails_if_state_was_already_consumed(self, mocked_trade):
+        mocked_trade.return_value = 'oauth-token'
+        self.app.app.registry.session.set('abc', 'http://foobar')
+        url = '{url}?state=abc&code=1234'.format(url=self.url)
+        self.app.get(url)
+        self.app.get(url, status=401)
+
+    @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')
     def tests_redirects_with_token_traded_against_code(self, mocked_trade):
         mocked_trade.return_value = 'oauth-token'
         self.app.app.registry.session.set('abc', 'http://foobar?token=')
