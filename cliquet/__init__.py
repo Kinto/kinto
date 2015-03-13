@@ -165,12 +165,14 @@ def setup_logging(config):
         request = event.request
         # Save the time the request was received by the server.
         event.request._received_at = msec_time()
-        # Bind infos for request summary logger.
-        logger.bind(agent=request.headers.get('User-Agent', ''),
-                    path=event.request.path,
-                    method=request.method,
-                    uid=request.authenticated_userid,
-                    lang=request.headers.get('Accept-Language', ''))
+
+        # New logger context, with infos for request summary logger.
+        logger.new(agent=request.headers.get('User-Agent'),
+                   path=event.request.path,
+                   method=request.method,
+                   uid=request.authenticated_userid,
+                   lang=request.headers.get('Accept-Language'),
+                   errno=None)
 
     config.add_subscriber(on_new_request, NewRequest)
 

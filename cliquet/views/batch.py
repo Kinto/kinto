@@ -2,6 +2,7 @@ import json
 import colander
 import six
 
+import structlog
 from cornice import Service
 from pyramid.request import Request
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -76,9 +77,10 @@ batch = Service(name="batch", path='/batch',
 @batch.post(schema=BatchPayloadSchema, permission=NO_PERMISSION_REQUIRED)
 def post_batch(request):
     requests = request.validated['requests']
+    batch_size = len(requests)
 
     limit = request.registry.settings.get('cliquet.batch_max_requests')
-    if limit and len(requests) > limit:
+    if limit and batch_size > limit:
         error_msg = 'Number of requests is limited to %s' % limit
         request.errors.add('body', 'requests', error_msg)
         return
@@ -90,20 +92,35 @@ def post_batch(request):
 
     responses = []
 
+    sublogger = structlog.get_logger(__name__)
+
     for subrequest_spec in requests:
         subrequest = build_request(request, subrequest_spec)
 
+        sublogger.new(path=subrequest.path,
+                      method=subrequest.method)
+
         try:
             subresponse = request.invoke_subrequest(subrequest)
+
         except httpexceptions.HTTPException as e:
             subresponse = e
         except Exception as e:
-            logger.exception(e)
+            logger.error(e)
             subresponse = errors.http_error(
                 httpexceptions.HTTPInternalServerError())
 
+        sublogger.bind(code=subresponse.status_code)
+        sublogger.info('subrequest.summary')
+
         subresponse = build_response(subresponse, subrequest)
         responses.append(subresponse)
+
+    # Rebing batch request for summary
+    logger.bind(path=batch.path,
+                method=request.method,
+                batch_size=batch_size,
+                agent=request.headers.get('User-Agent'),)
 
     return {
         'responses': responses

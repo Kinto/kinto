@@ -88,7 +88,7 @@ def error(context, request):
         logger.critical(context.original, exc_info=True)
         return service_unavailable(context, request)
 
-    logger.exception(context, exc_info=True)
+    logger.error(context, exc_info=True)
 
     error_msg = "A programmatic error occured, developers have been informed."
     info = "https://github.com/mozilla-services/cliquet/issues/"

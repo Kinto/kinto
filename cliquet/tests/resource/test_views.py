@@ -343,7 +343,7 @@ class StorageErrorTest(FakeAuthentMixin, BaseWebTest):
                                status=503)
 
     def test_backend_errors_original_error_is_logged(self):
-        with mock.patch('cliquet.views.errors.logger.exception') as mocked:
+        with mock.patch('cliquet.views.errors.logger.critical') as mocked:
             with self.storage_error_patcher:
                 self.app.post_json(self.collection_url,
                                    MINIMALIST_RECORD,

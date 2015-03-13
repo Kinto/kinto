@@ -5,8 +5,9 @@ import colander
 import mock
 import six
 
-from cliquet.utils import (native_value, strip_whitespace, random_bytes_hex,
-    MozillaHekaRenderer)
+from cliquet.utils import (
+    native_value, strip_whitespace, random_bytes_hex, MozillaHekaRenderer
+)
 
 from .support import unittest
 

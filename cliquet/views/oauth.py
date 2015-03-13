@@ -94,7 +94,7 @@ def fxa_oauth_token(request):
     except fxa_errors.OutOfProtocolError:
         raise httpexceptions.HTTPServiceUnavailable()
     except fxa_errors.InProtocolError as error:
-        logger.exception(error)
+        logger.error(error)
         error_details = {
             'name': 'code',
             'location': 'querystring',
