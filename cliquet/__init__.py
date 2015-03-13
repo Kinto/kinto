@@ -88,9 +88,6 @@ def attach_http_objects(config):
     """
 
     def on_new_request(event):
-        # Save the time the request was received by the server.
-        event.request._received_at = msec_time()
-
         # Attach objects on requests for easier access.
         event.request.db = config.registry.storage
 
@@ -99,12 +96,6 @@ def attach_http_objects(config):
         if http_scheme:
             event.request.scheme = http_scheme
 
-        # Bind request infos on logger.
-        logger.bind(
-            method=event.request.method,
-            path=event.request.path,
-            received_at=msec_time())
-
     config.add_subscriber(on_new_request, NewRequest)
 
     def on_new_response(event):
@@ -112,22 +103,6 @@ def attach_http_objects(config):
         backoff = config.registry.settings.get("cliquet.backoff")
         if backoff is not None:
             event.request.response.headers['Backoff'] = backoff.encode('utf-8')
-
-        # Display the status of the request as well as the time spent
-        # on the server.
-        if hasattr(event.request, '_received_at'):
-            duration = (msec_time() - event.request._received_at)
-        else:
-            duration = "unknown"
-
-        # Bind response infos on logger.
-        logger.bind(
-            status=event.response.status_code,
-            size=event.response.content_length,
-            duration=duration)
-
-        # Ouput main logging.
-        logger.info('request.summary')
 
     config.add_subscriber(on_new_response, NewResponse)
 
@@ -166,22 +141,62 @@ def end_of_life_tween_factory(handler, registry):
     return eos_tween
 
 
-def includeme(config):
-    # Configure logging globally.
+def setup_logging(config):
+    """Setup structured logging, and emit `request.summary` event on each
+    request, as recommanded by Mozilla Services standard:
+
+    * https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
+    * http://12factor.net/logs
+    """
     # XXX: if debug, render as key=value
     structlog.configure(
         processors=[
             # XXX https://github.com/hynek/structlog/pull/50
             # structlog.stdlib.filter_by_level,
-            structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
-            utils.structlog_heka_processor,
-            structlog.processors.JSONRenderer()
+            utils.MozillaHekaRenderer(config.get_settings())
         ],
+        # Share the logger context by thread
         context_class=structlog.threadlocal.wrap_dict(dict),
+        # Integrate with Pyramid logging facilities
         logger_factory=structlog.stdlib.LoggerFactory())
 
+    def on_new_request(event):
+        request = event.request
+        # Save the time the request was received by the server.
+        event.request._received_at = msec_time()
+        # Bind infos for request summary logger.
+        logger.bind(agent=request.headers.get('User-Agent', ''),
+                    path=event.request.path,
+                    method=request.method,
+                    uid=request.authenticated_userid,
+                    lang=request.headers.get('Accept-Language', ''))
+
+    config.add_subscriber(on_new_request, NewRequest)
+
+    def on_new_response(event):
+        response = event.response
+        request = event.request
+
+        # Compute the request processing time in msec (-1 if unknown)
+        current = msec_time()
+        duration = current - getattr(request, '_received_at', current - 1)
+
+        # Bind infos for request summary logger.
+        logger.bind(code=response.status_code,
+                    t=duration)
+
+        # Ouput application request summary.
+        logger.info('request.summary')
+
+    config.add_subscriber(on_new_response, NewResponse)
+
+
+def includeme(config):
     settings = config.get_settings()
+
+    # Configure logging globally.
+    setup_logging(config)
 
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")

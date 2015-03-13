@@ -81,9 +81,16 @@ def http_error(httpexception, errno=None,
     :returns: the formatted response object
     :rtype: pyramid.httpexceptions.HTTPException
     """
+    from cliquet import logger
+
+    errno = errno or ERRORS.UNDEFINED
+
+    # Track error number for request summary
+    logger.bind(errno=errno)
+
     body = {
         "code": code or httpexception.code,
-        "errno": errno or ERRORS.UNDEFINED,
+        "errno": errno,
         "error": error or httpexception.title
     }
 

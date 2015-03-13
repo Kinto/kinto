@@ -64,8 +64,7 @@ class BaseResource(object):
         self.timestamp = self.db.collection_timestamp(**self.db_kwargs)
         self.record_id = self.request.matchdict.get('id')
         # Log resource context.
-        logger.bind(resource_name=self.name,
-                    user_id=request.authenticated_userid)  # hashed
+        logger.bind(resource_name=self.name)
 
     @property
     def name(self):

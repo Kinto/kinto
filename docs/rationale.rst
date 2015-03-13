@@ -22,6 +22,7 @@ Cliquet handles:
 * Polling for collection changes
 * Errors formatting
 * API versioning and deprecation
+* Structured logging
 
 It is built around the notion of resources: resources are defined by sub-classing,
 and Cliquet handles the APIs out of that.
