@@ -159,3 +159,4 @@ If you're a Mozilla service, fill the settings with the values you were provided
     fxa-oauth.oauth_uri = https://oauth-stable.dev.lcip.org
     fxa-oauth.scope = profile
     fxa-oauth.webapp.redirect_url = https://readinglist.firefox.com/#auth:
+    # fxa-oauth.state.ttl_seconds = 300

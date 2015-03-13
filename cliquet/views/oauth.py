@@ -38,11 +38,11 @@ def persist_state(request):
     It will be compared when return from login page on OAuth server.
     """
     state = uuid.uuid4().hex
-    request.registry.session.set(state,
-                                 fxa_conf(request, 'webapp.redirect_url'))
-    request.registry.session.expire(
-        state,
-        fxa_conf(request, 'state.ttl_seconds', DEFAULT_STATE_EXPIRY_SECONDS))
+    redirect_url = fxa_conf(request, 'webapp.redirect_url')
+    request.registry.session.set(state, redirect_url)
+    expiration = fxa_conf(request, 'state.ttl_seconds',
+                          DEFAULT_STATE_EXPIRY_SECONDS)
+    request.registry.session.expire(state, expiration)
     return state
 
 

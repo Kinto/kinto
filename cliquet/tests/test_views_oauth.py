@@ -8,7 +8,7 @@ from .support import BaseWebTest, unittest
 class LoginViewTest(BaseWebTest, unittest.TestCase):
     url = '/fxa-oauth/login'
 
-    def test_login_view_persists_state(self):
+    def test_login_view_persists_state_from_config(self):
         r = self.app.get(self.url)
         url = r.headers['Location']
         url_fragments = urlparse(url)
@@ -16,6 +16,22 @@ class LoginViewTest(BaseWebTest, unittest.TestCase):
         state = queryparams['state'][0]
         self.assertEqual(self.app.app.registry.session.get(state),
                          'https://readinglist.firefox.com/#token=')
+
+    def test_login_view_persists_state_with_expiration(self):
+        r = self.app.get(self.url)
+        url = r.headers['Location']
+        url_fragments = urlparse(url)
+        queryparams = parse_qs(url_fragments.query)
+        state = queryparams['state'][0]
+        self.assertEqual(self.app.app.registry.session.ttl(state), 3600)
+
+    def test_login_view_persists_state_with_expiration_from_settings(self):
+        r = self.app.get(self.url)
+        url = r.headers['Location']
+        url_fragments = urlparse(url)
+        queryparams = parse_qs(url_fragments.query)
+        state = queryparams['state'][0]
+        self.assertEqual(self.app.app.registry.session.ttl(state), 3600)
 
     @mock.patch('cliquet.views.oauth.uuid.uuid4')
     def test_login_view_redirects_to_authorization(self, mocked_uuid):
@@ -77,6 +93,17 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
         self.app.app.registry.session.set('abc', 'http://foobar')
         url = '{url}?state=abc&code=1234'.format(url=self.url)
         self.app.get(url)
+        self.app.get(url, status=401)
+
+    def test_fails_if_state_has_expired(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('fxa-oauth.state.ttl_seconds', 0.0005)]):
+            r = self.app.get('/fxa-oauth/login')
+        url = r.headers['Location']
+        url_fragments = urlparse(url)
+        queryparams = parse_qs(url_fragments.query)
+        state = queryparams['state'][0]
+        url = '{url}?state={state}&code=1234'.format(state=state, url=self.url)
         self.app.get(url, status=401)
 
     @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')
