@@ -52,6 +52,14 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(head['body'], '')
         self.assertNotEqual(len(head['headers']), 0)
 
+    def test_api_errors_are_json_formatted(self):
+        request = {'path': '/unknown/'}
+        body = {'requests': [request]}
+        resp = self.app.post_json('/batch', body, headers=self.headers)
+        error = resp.json['responses'][0]
+        self.assertEqual(error['body']['code'], 404)
+        self.assertIn('message', error['body'])
+
     def test_internal_errors_are_returned_within_responses(self):
         request = {'path': '/v0/'}
         body = {'requests': [request]}
