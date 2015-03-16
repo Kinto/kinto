@@ -1,8 +1,6 @@
 import hashlib
 import hmac
 
-import structlog
-
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 from pyramid import authentication as base_auth
@@ -11,8 +9,7 @@ from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Authenticated
 from zope.interface import implementer
 
-
-logger = structlog.get_logger(__name__)
+from cliquet.logging import logger
 
 
 def check_credentials(username, password, request):

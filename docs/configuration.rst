@@ -38,6 +38,16 @@ Deployment
 Logging with Heka
 :::::::::::::::::
 
+Mozilla Services standard logging format can be enabled using:
+
+.. code-block :: ini
+
+    cliquet.mozlog_enabled = true
+
+
+With the following configuration, all logs to standard output are
+redirected to standard output:
+
 .. code-block :: ini
 
     [loggers]

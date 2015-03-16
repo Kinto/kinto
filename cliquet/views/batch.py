@@ -2,15 +2,14 @@ import json
 import colander
 import six
 
-import structlog
 from cornice import Service
 from pyramid.request import Request
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid import httpexceptions
 from six.moves.urllib import parse as urlparse
 
-from cliquet import logger
 from cliquet import errors
+from cliquet.logging import logger
 from cliquet.utils import merge_dicts
 
 
@@ -92,7 +91,7 @@ def post_batch(request):
 
     responses = []
 
-    sublogger = structlog.get_logger(__name__)
+    sublogger = logger.new()
 
     for subrequest_spec in requests:
         subrequest = build_request(request, subrequest_spec)

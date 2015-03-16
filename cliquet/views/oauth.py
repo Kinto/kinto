@@ -9,9 +9,9 @@ from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from cliquet import errors
+from cliquet.logging import logger
 from cliquet.schema import URL
 from cliquet.views.errors import authorization_required
-from cliquet import logger
 
 login = Service(name='fxa-oauth-login',
                 path='/fxa-oauth/login',

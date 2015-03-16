@@ -9,7 +9,7 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 import six
 from six.moves.urllib.parse import urlencode
 
-from cliquet import logger
+from cliquet.logging import logger
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.errors import (http_error, raise_invalid, ERRORS,
                             json_error_handler)
@@ -114,7 +114,6 @@ class BaseResource(object):
 
         if next_page:
             headers['Next-Page'] = next_page.encode('utf-8')
-
         body = {
             'items': records,
         }

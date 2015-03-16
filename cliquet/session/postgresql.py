@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from six.moves.urllib import parse as urlparse
 
-from cliquet import logger
+from cliquet.logging import logger
 from cliquet.storage.postgresql import PostgreSQLClient
 from cliquet.session import SessionStorageBase
 

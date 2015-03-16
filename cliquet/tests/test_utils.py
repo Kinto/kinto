@@ -1,13 +1,7 @@
-import json
-import logging
-
 import colander
-import mock
 import six
 
-from cliquet.utils import (
-    native_value, strip_whitespace, random_bytes_hex, MozillaHekaRenderer
-)
+from cliquet.utils import native_value, strip_whitespace, random_bytes_hex
 
 from .support import unittest
 
@@ -65,56 +59,3 @@ class CryptographicRandomBytesTest(unittest.TestCase):
     def test_return_text_string(self):
         value = random_bytes_hex(16)
         self.assertIsInstance(value, six.text_type)
-
-
-class MozillaHekaRendererTest(unittest.TestCase):
-    def setUp(self):
-        self.renderer = MozillaHekaRenderer({})
-        self.logger = logging.getLogger(__name__)
-
-    def test_output_is_serialized_json(self):
-        value = self.renderer(self.logger, 'debug', {})
-        self.assertIsInstance(value, six.string_types)
-
-    def test_standard_entries_are_filled(self):
-        import os
-
-        with mock.patch('cliquet.utils.msec_time', return_value=12):
-            value = self.renderer(self.logger, 'debug', {})
-
-        log = json.loads(value)
-        self.assertDictEqual(log, {
-            'EnvVersion': '2.0',
-            'Hostname': os.uname()[1],
-            'Logger': None,
-            'Pid': os.getpid(),
-            'Severity': 7,
-            'Timestamp': 12000000,
-            'Type': '',
-            'Fields': {}
-        })
-
-    def test_standard_entries_are_not_overwritten(self):
-        value = self.renderer(self.logger, 'debug', {'Hostname': 'her'})
-        log = json.loads(value)
-        self.assertEqual(log['Hostname'], 'her')
-
-    def test_type_comes_from_structlog_event(self):
-        value = self.renderer(self.logger, 'debug', {'event': 'booh'})
-        log = json.loads(value)
-        self.assertEqual(log['Type'], 'booh')
-
-    def test_severity_comes_from_logger_name(self):
-        value = self.renderer(self.logger, 'critical', {})
-        log = json.loads(value)
-        self.assertEqual(log['Severity'], 0)
-
-    def test_unknown_fields_are_moved_to_fields_entry(self):
-        value = self.renderer(self.logger, 'critical', {'win': 11})
-        log = json.loads(value)
-        self.assertEqual(log['Fields'], {'win': 11})
-
-    def test_fields_can_be_provided_directly(self):
-        value = self.renderer(self.logger, 'critical', {'Fields': {'win': 11}})
-        log = json.loads(value)
-        self.assertEqual(log['Fields'], {'win': 11})

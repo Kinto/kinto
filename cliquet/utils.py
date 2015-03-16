@@ -7,7 +7,6 @@ import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
 
-import structlog
 from cornice import cors
 from colander import null
 
@@ -108,57 +107,3 @@ def reapply_cors(request, response):
         request.info['cors_checked'] = False
         response = cors.ensure_origin(service, request, response)
     return response
-
-
-class MozillaHekaRenderer(structlog.processors.JSONRenderer):
-    """Build structured log entries as expected by Mozilla Services standard:
-
-    * https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
-    """
-
-    ENV_VERSION = '2.0'
-
-    def __init__(self, settings):
-        super(MozillaHekaRenderer, self).__init__()
-        self.appname = settings.get('cliquet.project_name')
-        self.hostname = os.uname()[1]  # XXX + read env or conf
-        self.pid = os.getpid()
-
-    def __call__(self, logger, name, event_dict):
-        SYSLOG_LEVELS = {
-            'critical': 0,
-            'fatal': 0,
-            'exception': 2,
-            'error': 2,
-            'warning': 4,
-            'info': 6,
-            'debug': 7,
-        }
-        severity = SYSLOG_LEVELS[name]
-
-        MSEC_TO_NANOSEC = 1000000
-        timestamp = msec_time() * MSEC_TO_NANOSEC
-
-        event = event_dict.pop('event', '')
-
-        defaults = {
-            'Timestamp': timestamp,
-            'Logger': self.appname,
-            'Type': event,
-            'Hostname': self.hostname,
-            'Severity': severity,
-            'Pid': self.pid,
-            'EnvVersion': self.ENV_VERSION,
-            'Fields': {}
-        }
-
-        for f, v in defaults.items():
-            event_dict.setdefault(f, v)
-
-        fields = [k for k in event_dict.keys() if k not in defaults]
-        for f in fields:
-            event_dict['Fields'][f] = event_dict.pop(f)
-
-        return super(MozillaHekaRenderer, self).__call__(logger,
-                                                         name,
-                                                         event_dict)

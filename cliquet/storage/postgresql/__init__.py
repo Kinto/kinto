@@ -8,7 +8,7 @@ import psycopg2.extras
 import six
 from six.moves.urllib import parse as urlparse
 
-from cliquet import logger
+from cliquet.logging import logger
 from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.utils import COMPARISON
 
