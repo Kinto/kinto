@@ -9,7 +9,7 @@ from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Authenticated
 from zope.interface import implementer
 
-from cliquet.logging import logger
+from cliquet import logger
 
 
 def check_credentials(username, password, request):

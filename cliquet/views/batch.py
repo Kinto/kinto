@@ -9,7 +9,7 @@ from pyramid import httpexceptions
 from six.moves.urllib import parse as urlparse
 
 from cliquet import errors
-from cliquet.logging import logger
+from cliquet import logger
 from cliquet.utils import merge_dicts
 
 

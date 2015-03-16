@@ -11,9 +11,13 @@ from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid_multiauth import MultiAuthenticationPolicy
 from pyramid.security import NO_PERMISSION_REQUIRED
 
+from cliquet import logging as cliquet_logging
+
+# Main Cliquet logger.
+logger = cliquet_logging.logger
+
 from cliquet import authentication
 from cliquet import errors
-from cliquet import logging as cliquet_logging
 from cliquet.session import SessionCache
 
 from cornice import Service

@@ -1,7 +1,7 @@
 import six
 from pyramid import httpexceptions
 
-from cliquet.logging import logger
+from cliquet import logger
 from cliquet.utils import Enum, json, reapply_cors
 
 

@@ -9,7 +9,7 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 import six
 from six.moves.urllib.parse import urlencode
 
-from cliquet.logging import logger
+from cliquet import logger
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.errors import (http_error, raise_invalid, ERRORS,
                             json_error_handler)

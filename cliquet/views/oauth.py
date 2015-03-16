@@ -8,8 +8,8 @@ from fxa import errors as fxa_errors
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 
+from cliquet import logger
 from cliquet import errors
-from cliquet.logging import logger
 from cliquet.schema import URL
 from cliquet.views.errors import authorization_required
 
