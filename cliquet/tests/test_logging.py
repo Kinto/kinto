@@ -5,39 +5,39 @@ import mock
 import six
 from pyramid import testing
 
-from cliquet import logging as cliquet_logging
+from cliquet import logs as cliquet_logs
 
 from .support import BaseWebTest, unittest
 
 
 def logger_context():
-    return cliquet_logging.logger._context._dict
+    return cliquet_logs.logger._context._dict
 
 
 class LoggingSetupTest(BaseWebTest, unittest.TestCase):
     def test_classic_logger_is_used_by_default(self):
-        classiclog_class = mock.patch('cliquet.logging.ClassicLogRenderer')
+        classiclog_class = mock.patch('cliquet.logs.ClassicLogRenderer')
         with classiclog_class as mocked:
-            cliquet_logging.setup_logging(testing.setUp())
+            cliquet_logs.setup_logging(testing.setUp())
             mocked.assert_called()
 
     def test_mozlog_logger_is_enabled_via_setting(self):
-        mozlog_class = mock.patch('cliquet.logging.MozillaHekaRenderer')
-        classiclog_class = mock.patch('cliquet.logging.ClassicLogRenderer')
+        mozlog_class = mock.patch('cliquet.logs.MozillaHekaRenderer')
+        classiclog_class = mock.patch('cliquet.logs.ClassicLogRenderer')
 
         config = testing.setUp()
         with mock.patch.dict(config.registry.settings,
                              [('cliquet.mozlog_enabled', 'true')]):
             with mozlog_class as moz_mocked:
                 with classiclog_class as classic_mocked:
-                    cliquet_logging.setup_logging(config)
+                    cliquet_logs.setup_logging(config)
                     self.assertTrue(moz_mocked.called)
                     self.assertFalse(classic_mocked.called)
 
 
 class ClassicLogRendererTest(unittest.TestCase):
     def setUp(self):
-        self.renderer = cliquet_logging.ClassicLogRenderer()
+        self.renderer = cliquet_logs.ClassicLogRenderer()
         self.logger = logging.getLogger(__name__)
 
     def test_output_is_serialized_as_string(self):
@@ -80,7 +80,7 @@ class ClassicLogRendererTest(unittest.TestCase):
 
 class MozillaHekaRendererTest(unittest.TestCase):
     def setUp(self):
-        self.renderer = cliquet_logging.MozillaHekaRenderer({})
+        self.renderer = cliquet_logs.MozillaHekaRenderer({})
         self.logger = logging.getLogger(__name__)
 
     def test_output_is_serialized_json(self):
@@ -133,7 +133,7 @@ class MozillaHekaRendererTest(unittest.TestCase):
 
 class RequestSummaryTest(BaseWebTest, unittest.TestCase):
     def test_request_summary_is_sent_as_info(self):
-        with mock.patch('cliquet.logging.logger.info') as mocked:
+        with mock.patch('cliquet.logs.logger.info') as mocked:
             self.app.get('/')
             mocked.assert_called_with('request.summary')
 

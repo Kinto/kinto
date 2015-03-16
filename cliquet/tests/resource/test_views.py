@@ -4,7 +4,7 @@ from cornice import Service
 from pyramid import testing
 
 from cliquet import set_auth, attach_http_objects
-from cliquet.logging import setup_logging
+from cliquet.logs import setup_logging
 from cliquet.errors import ERRORS
 from cliquet.session.redis import Redis
 from cliquet.storage.memory import Memory

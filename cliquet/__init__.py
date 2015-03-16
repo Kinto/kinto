@@ -5,19 +5,19 @@ import datetime
 
 from dateutil import parser as dateparser
 import pkg_resources
+import structlog
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid_multiauth import MultiAuthenticationPolicy
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from cliquet import logging as cliquet_logging
-
 # Main Cliquet logger.
-logger = cliquet_logging.logger
+logger = structlog.get_logger()
 
 from cliquet import authentication
 from cliquet import errors
+from cliquet import logs as cliquet_logs
 from cliquet.session import SessionCache
 
 from cornice import Service
@@ -144,7 +144,7 @@ def includeme(config):
     settings = config.get_settings()
 
     # Configure cliquet logging.
-    cliquet_logging.setup_logging(config)
+    cliquet_logs.setup_logging(config)
 
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")
