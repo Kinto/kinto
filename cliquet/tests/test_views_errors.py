@@ -60,6 +60,13 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
             response, 403, ERRORS.FORBIDDEN, "Forbidden",
             "This user cannot access this resource.")
 
+    def test_405_is_valid_formatted_error(self):
+        response = self.app.patch(self.sample_url,
+                                  headers=self.headers, status=405)
+        self.assertFormattedError(
+            response, 405, ERRORS.METHOD_NOT_ALLOWED, "Method Not Allowed",
+            "Method not allowed on this end point.")
+
     def test_500_is_valid_formatted_error(self):
         with mock.patch(
                 'cliquet.tests.testapp.views.Mushroom.get_records',
