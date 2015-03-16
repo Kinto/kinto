@@ -177,7 +177,7 @@ class CloudStorage(StorageBase):
     @wrap_http_error
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
-        url = self._build_url(self.collection_url.format(resource.name))
+        url = self.collection_url.format(resource.name)
 
         params = []
 
@@ -197,29 +197,51 @@ class CloudStorage(StorageBase):
         if limit:
             params.append(("_limit", limit))
 
-        resp = self._client.get(url,
-                                params=params,
-                                headers=self._build_headers(resource))
-        resp.raise_for_status()
-        count = resp.headers.get('Total-Records')
+        if not pagination_rules:
+            resp = self._client.get(self._build_url(url),
+                                    params=params,
+                                    headers=self._build_headers(resource))
+            resp.raise_for_status()
 
-        if pagination_rules:
-            records = {}
+            count = resp.headers['Total-Records']
+            records = resp.json()['items']
+
+        else:
+            batch_payload = {'defaults': {'body': {}}, 'requests': []}
+
+            querystring = '&'.join(['%s=%s' % (p, v) for p, v in params])
+            batch_payload['requests'].append({
+                'method': 'HEAD',
+                'path': url + '?%s' % querystring,
+            })
+
             for filters in pagination_rules:
-                request_params = list(params)
-                request_params += [("%s%s" % (FILTERS[op], k), v)
-                                   for k, v, op in filters]
-                resp = self._client.get(url,
-                                        params=request_params,
-                                        headers=self._build_headers(resource))
-                resp.raise_for_status()
-                for record in resp.json()['items']:
+                params_ = list(params)
+                params_ += [("%s%s" % (FILTERS[op], k), v)
+                              for k, v, op in filters]
+                querystring = '&'.join(['%s=%s' % (p, v) for p, v in params_])
+                batch_payload['requests'].append({
+                    'path': url + '?%s' % querystring,
+                })
+
+            resp = self._client.post(self._build_url('/batch'),
+                                     data=json.dumps(batch_payload),
+                                     headers=self._build_headers(resource))
+            resp.raise_for_status()
+            batch_responses = resp.json()['responses']
+
+            if any([r['status'] >= 400 for r in batch_responses]):
+                http_error = requests.HTTPError('Batch error', response=resp)
+                raise exceptions.BackendError(original=http_error)
+
+            count = batch_responses[0]['headers']['Total-Records']
+            records = {}
+            for batch_response in batch_responses[1:]:
+                for record in batch_response['body']['items']:
                     records[record[resource.id_field]] = record
 
             if sorting:
                 records = apply_sorting(records.values(), sorting)[:limit]
-        else:
-            records = resp.json()['items']
 
         return records, int(count)
 

@@ -285,10 +285,18 @@ class BatchServiceTest(unittest.TestCase):
                          '{"json": "\\ud83d\\ude02"}')
 
     def test_subrequests_paths_are_url_encoded(self):
-        request = {'path': u'/ð ® ©'}
+        request = {'path': u'/ð ®?param=©'}
         self.post({'requests': [request]})
         subrequest, = self.request.invoke_subrequest.call_args[0]
-        self.assertEqual(subrequest.path, '/v0/%C3%B0%20%C2%AE%20%C2%A9')
+        self.assertEqual(subrequest.path,
+                         '/v0/%C3%B0%20%C2%AE')
+        self.assertEqual(subrequest.GET['param'], u'©')
+
+    def test_subrequests_responses_paths_are_url_decoded(self):
+        request = {'path': u'/ð ®?param=©'}
+        resp = self.post({'requests': [request]})
+        path = resp['responses'][0]['path'].decode('utf8')
+        self.assertEqual(path, u'/v0/ð ®')
 
     def test_number_of_requests_is_not_limited_by_default(self):
         requests = {}
