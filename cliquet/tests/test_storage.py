@@ -627,7 +627,7 @@ class DeletedRecordsTest(object):
             else:
                 self.storage.create(self.resource, self.user_id, {})
 
-        pagination = [[Filter('last_modified', 0, utils.COMPARISON.GT)]]
+        pagination = [[Filter('last_modified', 314, utils.COMPARISON.GT)]]
         sorting = [Sort('last_modified', 1)]
         records, count = self.storage.get_all(self.resource, self.user_id,
                                               sorting=sorting,
