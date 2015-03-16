@@ -96,8 +96,8 @@ def post_batch(request):
     for subrequest_spec in requests:
         subrequest = build_request(request, subrequest_spec)
 
-        sublogger.new(path=subrequest.path,
-                      method=subrequest.method)
+        sublogger.bind(path=subrequest.path,
+                       method=subrequest.method)
 
         try:
             subresponse = request.invoke_subrequest(subrequest)

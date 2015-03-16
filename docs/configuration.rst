@@ -57,21 +57,17 @@ redirected to standard output:
     keys = console
 
     [formatters]
-    keys = generic, heka
+    keys = heka
 
     [logger_root]
     level = INFO
     handlers = console
-    formatter = generic
+    formatter = heka
 
     [handler_console]
     class = StreamHandler
     args = (sys.stderr,)
     level = NOTSET
-    formatter = heka
-
-    [formatter_generic]
-    format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
 
     [formatter_heka]
     format = %(message)s
