@@ -286,7 +286,7 @@ class BaseResource(object):
                 return record
 
         :raises: :class:`pyramid.httpexceptions.HTTPConflict` if a unique
-        field constraint is violated.
+            field constraint is violated.
 
         """
         try:
@@ -309,7 +309,7 @@ class BaseResource(object):
                 return record
 
         :raises: :class:`pyramid.httpexceptions.HTTPConflict` if a unique
-        field constraint is violated.
+            field constraint is violated.
 
         """
         if changes is not None:
@@ -358,6 +358,8 @@ class BaseResource(object):
                 return new
 
         Or add extra validation based on request:
+
+        .. code-block :: python
 
             def process_record(self, new, old=None):
                 if new['browser'] not in request.headers['User-Agent']:
