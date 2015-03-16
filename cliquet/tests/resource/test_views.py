@@ -4,10 +4,11 @@ from cornice import Service
 from pyramid import testing
 
 from cliquet import set_auth, attach_http_objects
+from cliquet.logging import setup_logging
+from cliquet.errors import ERRORS
 from cliquet.session.redis import Redis
 from cliquet.storage.memory import Memory
 from cliquet.storage import exceptions as storage_exceptions
-from cliquet.errors import ERRORS
 from cliquet.tests.support import unittest, FakeAuthentMixin
 
 
@@ -26,6 +27,8 @@ class BaseWebTest(unittest.TestCase):
         self.config.registry.project_version = "0.0.1"
 
         Service.cors_origins = ('*',)
+
+        setup_logging(self.config)
 
         set_auth(self.config)
 

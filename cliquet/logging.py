@@ -2,20 +2,13 @@ import os
 from datetime import datetime
 
 import structlog
-
 from pyramid.events import NewRequest, NewResponse
 from pyramid.settings import asbool
 
 from cliquet import utils
 
 
-structlog.configure_once(
-    # Share the logger context by thread
-    context_class=structlog.threadlocal.wrap_dict(dict),
-    # Integrate with Pyramid logging facilities
-    logger_factory=structlog.stdlib.LoggerFactory())
-
-logger = structlog.get_logger(__name__)
+logger = structlog.get_logger()
 
 
 def setup_logging(config):
@@ -34,6 +27,12 @@ def setup_logging(config):
         renderer = ClassicLogRenderer()
 
     structlog.configure(
+        # Share the logger context by thread.
+        context_class=structlog.threadlocal.wrap_dict(dict),
+        # Integrate with Pyramid logging facilities.
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        wrapper_class=structlog.stdlib.BoundLogger,
+        # Setup logger output format.
         processors=[
             structlog.stdlib.filter_by_level,
             structlog.processors.format_exc_info,
