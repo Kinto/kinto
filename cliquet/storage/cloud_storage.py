@@ -46,11 +46,14 @@ def wrap_http_error(func):
 
 class CloudStorage(StorageBase):
 
-    def __init__(self, *args, **kwargs):
-        super(CloudStorage, self).__init__()
+    collection_url = "/collections/{0}/records"
+    record_url = "/collections/{0}/records/{1}"
+
+    def __init__(self, server_url, *args, **kwargs):
+        super(CloudStorage, self).__init__(*args, **kwargs)
 
         self._client = requests.Session()
-        self.server_url = kwargs.get('server_url', DEFAULT_CLOUD_STORAGE_URL)
+        self.server_url = server_url
 
     def _build_url(self, resource):
         return self.server_url + API_PREFIX + resource
@@ -79,8 +82,7 @@ class CloudStorage(StorageBase):
 
     @wrap_http_error
     def collection_timestamp(self, resource, user_id):
-        """Return the last timestamp for the resource collection of the user"""
-        url = self._build_url("/collections/%s/records" % resource.name)
+        url = self._build_url(self.collection_url.format(resource.name))
         resp = self._client.head(url, headers=self._build_headers(resource))
         resp.raise_for_status()
         return int(resp.headers['Last-Modified'])
@@ -104,7 +106,7 @@ class CloudStorage(StorageBase):
     @wrap_http_error
     def create(self, resource, user_id, record):
         self.check_unicity(resource, user_id, record)
-        url = self._build_url("/collections/%s/records" % resource.name)
+        url = self._build_url(self.collection_url.format(resource.name))
         resp = self._client.post(url,
                                  data=json.dumps(record),
                                  headers=self._build_headers(resource))
@@ -113,8 +115,8 @@ class CloudStorage(StorageBase):
 
     @wrap_http_error
     def get(self, resource, user_id, record_id):
-        url = self._build_url("/collections/%s/records/%s" % (
-            resource.name, record_id))
+        url = self._build_url(self.record_url.format(resource.name,
+                                                     record_id))
         resp = self._client.get(url, headers=self._build_headers(resource))
         resp.raise_for_status()
         return resp.json()
@@ -122,8 +124,8 @@ class CloudStorage(StorageBase):
     @wrap_http_error
     def update(self, resource, user_id, record_id, record):
         self.check_unicity(resource, user_id, record)
-        url = self._build_url("/collections/%s/records/%s" % (
-            resource.name, record_id))
+        url = self._build_url(self.record_url.format(resource.name,
+                                                     record_id))
         try:
             self.get(resource, user_id, record_id)
         except exceptions.RecordNotFoundError:
@@ -141,15 +143,15 @@ class CloudStorage(StorageBase):
 
     @wrap_http_error
     def delete(self, resource, user_id, record_id):
-        url = self._build_url("/collections/%s/records/%s" % (
-            resource.name, record_id))
+        url = self._build_url(self.record_url.format(resource.name,
+                                                     record_id))
         resp = self._client.delete(url, headers=self._build_headers(resource))
         resp.raise_for_status()
         return resp.json()
 
     @wrap_http_error
     def delete_all(self, resource, user_id, filters=None):
-        url = self._build_url("/collections/%s/records" % resource.name)
+        url = self._build_url(self.collection_url.format(resource.name))
         params = []
         if filters:
             params += [("%s%s" % (FILTERS[op], k), v) for k, v, op in filters]
@@ -161,7 +163,7 @@ class CloudStorage(StorageBase):
     @wrap_http_error
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
-        url = self._build_url("/collections/%s/records" % resource.name)
+        url = self._build_url(self.collection_url.format(resource.name))
 
         params = []
 
@@ -210,5 +212,5 @@ class CloudStorage(StorageBase):
 
 def load_from_config(config):
     settings = config.registry.settings
-    server_url = settings.get('cliquet.storage_url')
+    server_url = settings.get('cliquet.storage_url', DEFAULT_CLOUD_STORAGE_URL)
     return CloudStorage(server_url=server_url)
