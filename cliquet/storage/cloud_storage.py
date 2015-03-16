@@ -39,15 +39,6 @@ def wrap_http_error(func):
             if status_code == 404:
                 record_id = '?'
                 raise exceptions.RecordNotFoundError(record_id)
-            if status_code == 409:
-                import re
-                m = re.search('Conflict of field (\w)', body['message'])
-                field = m.group(0)
-                record = body['existing']
-                raise exceptions.UnicityError(field, record)
-            if status_code == 412:
-                raise exceptions.IntegrityError()
-            # 304 ?
             logger.debug(body)
             raise exceptions.BackendError(original=e)
     return wrapped
