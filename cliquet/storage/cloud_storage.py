@@ -2,7 +2,7 @@ from functools import wraps
 
 import requests
 import six
-from requests.exceptions import HTTPError
+from requests.exceptions import RequestException
 
 from cliquet import logger
 from cliquet.storage import (StorageBase, exceptions, get_unicity_rules,
@@ -29,9 +29,13 @@ def wrap_http_error(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except HTTPError as e:
-            status_code = e.response.status_code
-            body = e.response.json()
+        except RequestException as e:
+            if e.response is not None:
+                status_code = e.response.status_code
+                body = e.response.json()
+            else:
+                status_code = body = None
+
             if status_code == 404:
                 record_id = '?'
                 raise exceptions.RecordNotFoundError(record_id)
@@ -45,7 +49,7 @@ def wrap_http_error(func):
                 raise exceptions.IntegrityError()
             # 304 ?
             logger.debug(body)
-            raise exceptions.BackendError()
+            raise exceptions.BackendError(original=e)
     return wrapped
 
 
@@ -76,8 +80,11 @@ class CloudStorage(StorageBase):
 
     def ping(self):
         url = self._build_url("/__heartbeat__")
-        resp = self._client.get(url)
-        return resp.status_code == 200
+        try:
+            resp = self._client.get(url)
+            return resp.status_code == 200
+        except:
+            return False
 
     @wrap_http_error
     def collection_timestamp(self, resource, user_id):
@@ -149,6 +156,7 @@ class CloudStorage(StorageBase):
         resp.raise_for_status()
         return resp.json()
 
+    @wrap_http_error
     def delete_all(self, resource, user_id, filters=None):
         url = self._build_url("/collections/%s/records" % resource.name)
         params = []

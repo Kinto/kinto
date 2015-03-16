@@ -1,16 +1,18 @@
-import mock
-import redis
-import six
 import time
 
+import mock
 import psycopg2
+import redis
+import requests
+import six
+
+from cliquet import utils
+from cliquet import schema
 from cliquet.storage import (
     exceptions, Filter, memory,
     redis as redisbackend, postgresql, cloud_storage,
     Sort, StorageBase
 )
-from cliquet import utils
-from cliquet import schema
 
 from .support import unittest, ThreadMixin, DummyRequest
 
@@ -827,3 +829,7 @@ class CloudStorageTest(StorageTest, unittest.TestCase):
     def setUp(self):
         super(CloudStorageTest, self).setUp()
         self.resource.request.headers = {'Authorization': 'Basic Ym9iOg=='}
+        self.client_error_patcher = mock.patch.object(
+            self.storage._client,
+            'request',
+            side_effect=requests.ConnectionError)
