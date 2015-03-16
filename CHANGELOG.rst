@@ -7,7 +7,26 @@ This document describes changes between each past release.
 1.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+* `cliquet.storage.postgresql` now uses UUID as record primary key (#70)
+* FxA user ids are not hashed anymore (#82)
+
+**New features**
+
+* Documentation was improved on various aspects (#64, #86)
+* New session backend for PostgreSQL (#44)
+* Handle every backend errors and return 503 errors (#21)
+
+**Bug fixes**
+
+* FxA OAuth views errors are now JSON formatted (#67)
+* Prevent error when pagination token has bad format (#72)
+
+**Internal changes**
+
+* Added a method in `cliquet.resource.Resource` to override known fields
+  (*required by Kinto*)
 
 
 1.1.4 (2015-03-03)
