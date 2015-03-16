@@ -142,24 +142,24 @@ class BaseTestStorage(object):
         )
 
     def test_update_creates_a_new_record_when_needed(self):
-        inexisting_record_id = utils.get_uuid()
+        unknown_record_id = memory.UUID4Generator()()
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.get,
             self.resource,
             self.user_id,
-            inexisting_record_id
+            unknown_record_id
         )
         record = self.storage.update(self.resource, self.user_id,
-                                     inexisting_record_id, self.record)
+                                     unknown_record_id, self.record)
         retrieved = self.storage.get(self.resource, self.user_id,
-                                     inexisting_record_id)
+                                     unknown_record_id)
         self.assertEquals(retrieved, record)
 
     def test_update_overwrites_record_id(self):
         stored = self.storage.create(self.resource, self.user_id, self.record)
         record_id = stored[self.resource.id_field]
-        self.record[self.resource.id_field] = utils.get_uuid()
+        self.record[self.resource.id_field] = memory.UUID4Generator()()
         self.storage.update(self.resource, self.user_id, record_id,
                             self.record)
         retrieved = self.storage.get(self.resource, self.user_id, record_id)

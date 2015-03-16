@@ -4,7 +4,6 @@ import ast
 import os
 import six
 import time
-import uuid
 from base64 import b64decode, b64encode
 from binascii import hexlify
 
@@ -119,8 +118,3 @@ def reapply_cors(request, response):
         request.info['cors_checked'] = False
         response = cors.ensure_origin(service, request, response)
     return response
-
-
-def get_uuid():
-    new_uuid = '%s' % uuid.uuid4()
-    return new_uuid.replace('-', '')
