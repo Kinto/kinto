@@ -55,6 +55,16 @@ care of running PostgreSQL:
     docker-compose up
 
 
+Authentication
+--------------
+
+By default, Kinto relies on Firefox Account OAuth2 Bearer tokens to authenticate
+users.
+
+See `cliquet documentation <http://cliquet.readthedocs.org/en/latest/configuration.html#authentication>`_
+to configure authentication options.
+
+
 Install and setup PostgreSQL
 ============================
 
