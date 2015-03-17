@@ -2,6 +2,7 @@
 import colander
 import mock
 
+from cliquet import DEFAULT_SETTINGS
 from cliquet.views.batch import BatchPayloadSchema, batch as batch_service
 from cliquet.tests.support import BaseWebTest, unittest, DummyRequest
 
@@ -51,6 +52,14 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         head = resp.json['responses'][0]
         self.assertEqual(head['body'], '')
         self.assertNotEqual(len(head['headers']), 0)
+
+    def test_api_errors_are_json_formatted(self):
+        request = {'path': '/unknown/'}
+        body = {'requests': [request]}
+        resp = self.app.post_json('/batch', body, headers=self.headers)
+        error = resp.json['responses'][0]
+        self.assertEqual(error['body']['code'], 404)
+        self.assertIn('message', error['body'])
 
     def test_internal_errors_are_returned_within_responses(self):
         request = {'path': '/v0/'}
@@ -218,7 +227,7 @@ class BatchServiceTest(unittest.TestCase):
     def setUp(self):
         self.method, self.view, self.options = batch_service.definitions[0]
         self.request = DummyRequest()
-        self.request.registry = mock.Mock(settings={})
+        self.request.registry = mock.Mock(settings=DEFAULT_SETTINGS)
 
     def post(self, validated):
         self.request.validated = validated

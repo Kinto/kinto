@@ -31,7 +31,7 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
     def test_backoff_header(self):
         with mock.patch.dict(
                 self.app.app.registry.settings,
-                [('cliquet.backoff', '10')]):
+                [('cliquet.backoff', 10)]):
             response = self.app.get(self.sample_url,
                                     headers=self.headers, status=200)
             self.assertIn('Backoff', response.headers)

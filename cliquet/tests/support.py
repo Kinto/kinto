@@ -10,6 +10,7 @@ import webtest
 
 from cornice import errors as cornice_errors
 
+from cliquet import DEFAULT_SETTINGS
 from cliquet.utils import random_bytes_hex
 from cliquet.tests.testapp import main as testapp
 
@@ -18,7 +19,7 @@ class DummyRequest(mock.MagicMock):
     def __init__(self, *args, **kwargs):
         super(DummyRequest, self).__init__(*args, **kwargs)
         self.upath_info = '/v0/'
-        self.registry = mock.MagicMock(settings={})
+        self.registry = mock.MagicMock(settings=DEFAULT_SETTINGS)
         self.GET = {}
         self.headers = {}
         self.errors = cornice_errors.Errors(request=self)
@@ -56,13 +57,8 @@ class FakeAuthentMixin(object):
 
         settings = self.app.app.registry.settings
 
-        settings.setdefault('fxa-oauth.oauth_uri', '')
-        settings.setdefault('fxa-oauth.scope', '')
         settings.setdefault('cliquet.userid_hmac_secret',
                             random_bytes_hex(16))
-
-        settings.setdefault('cliquet.project_name', 'cliquet')
-        settings.setdefault('cliquet.docs', 'https://cliquet.rtfd.org/')
 
         self.fxa_verify = self.patcher.start()
         self.fxa_verify.return_value = {
@@ -95,17 +91,11 @@ class BaseWebTest(FakeAuthentMixin):
         })
 
     def get_app_settings(self):
-        return {
-            'cliquet.project_name': 'cliquet',
-            'cliquet.project_docs': 'https://cliquet.rtfd.org/',
-            'cliquet.storage_backend': 'cliquet.storage.redis',
-            'cliquet.session_backend': 'cliquet.session.redis',
-            'fxa-oauth.client_id': '89513028159972bc',
-            'fxa-oauth.client_secret': '9aced230585cc0aa2932e2eb871c9a3a7d6458'
-                                       'e59ccf57eb610ea0a3467dd800',
-            'fxa-oauth.oauth_uri': 'https://oauth-stable.dev.lcip.org',
-            'fxa-oauth.scope': 'profile'
-        }
+        settings = DEFAULT_SETTINGS.copy()
+        settings['cliquet.project_name'] = 'cliquet'
+        settings['cliquet.project_docs'] = 'https://cliquet.rtfd.org/'
+        settings['fxa-oauth.oauth_uri'] = 'https://oauth-stable.dev.lcip.org'
+        return settings
 
     def tearDown(self):
         super(BaseWebTest, self).tearDown()

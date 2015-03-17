@@ -78,8 +78,8 @@ def post_batch(request):
     requests = request.validated['requests']
     batch_size = len(requests)
 
-    limit = request.registry.settings.get('cliquet.batch_max_requests')
-    if limit and batch_size > limit:
+    limit = request.registry.settings['cliquet.batch_max_requests']
+    if limit and len(requests) > int(limit):
         error_msg = 'Number of requests is limited to %s' % limit
         request.errors.add('body', 'requests', error_msg)
         return
@@ -103,7 +103,8 @@ def post_batch(request):
             subresponse = request.invoke_subrequest(subrequest)
 
         except httpexceptions.HTTPException as e:
-            subresponse = e
+            error_msg = 'Failed batch subrequest'
+            subresponse = errors.http_error(e, message=error_msg)
         except Exception as e:
             logger.error(e)
             subresponse = errors.http_error(

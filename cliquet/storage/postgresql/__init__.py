@@ -17,9 +17,6 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 
 
-DEFAULT_MAX_FETCH_SIZE = 10000
-
-
 class PostgreSQLClient(object):
 
     def __init__(self, *args, **kwargs):
@@ -564,10 +561,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 def load_from_config(config):
     settings = config.registry.settings
 
-    max_fetch_size = settings.get('storage.max_fetch_size',
-                                  DEFAULT_MAX_FETCH_SIZE)
-
-    uri = settings.get('cliquet.storage_url', '')
+    max_fetch_size = settings['cliquet.storage_max_fetch_size']
+    uri = settings['cliquet.storage_url']
     uri = urlparse.urlparse(uri)
     conn_kwargs = dict(host=uri.hostname,
                        port=uri.port,

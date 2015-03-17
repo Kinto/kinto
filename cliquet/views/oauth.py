@@ -13,6 +13,7 @@ from cliquet import errors
 from cliquet.schema import URL
 from cliquet.views.errors import authorization_required
 
+
 login = Service(name='fxa-oauth-login',
                 path='/fxa-oauth/login',
                 error_handler=errors.json_error_handler)
@@ -59,11 +60,10 @@ def fxa_oauth_login(request):
 @params.get(permission=NO_PERMISSION_REQUIRED)
 def fxa_oauth_params(request):
     """Helper to give Firefox Account configuration information."""
-    settings = request.registry.settings
     return {
-        "client_id": settings.get('fxa-oauth.client_id'),
-        "oauth_uri": settings.get('fxa-oauth.oauth_uri'),
-        "scope": settings.get('fxa-oauth.scope'),
+        'client_id': fxa_conf(request, 'client_id'),
+        'oauth_uri': fxa_conf(request, 'oauth_uri'),
+        'scope': fxa_conf(request, 'scope'),
     }
 
 

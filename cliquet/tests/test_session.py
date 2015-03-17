@@ -33,7 +33,9 @@ class SessionStorageBaseTest(unittest.TestCase):
 class BaseTestSessionStorage(object):
     backend = None
 
-    settings = {}
+    settings = {
+        'cliquet.session_url': ''
+    }
 
     def __init__(self, *args, **kwargs):
         super(BaseTestSessionStorage, self).__init__(*args, **kwargs)

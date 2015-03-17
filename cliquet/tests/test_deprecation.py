@@ -16,14 +16,11 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
     def test_returns_alert_if_eos_in_the_future(self):
         # Set an end of service date in the future.
         tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
-        with mock.patch.dict(
-                self.app.app.registry.settings,
-                [
-                    ('cliquet.eos', tomorrow.isoformat()),
-                    ('cliquet.eos_url', 'http://eos-url'),
-                    ('cliquet.eos_message',
-                     'This service will soon be decommissioned'),
-                ]):
+        with mock.patch.dict(self.app.app.registry.settings, [
+                             ('cliquet.eos', tomorrow.isoformat()),
+                             ('cliquet.eos_url', 'http://eos-url'),
+                             ('cliquet.eos_message',
+                              'This service will soon be decommissioned')]):
             response = self.app.get('/')
 
             # Requests should work as usual and contain an
@@ -38,14 +35,11 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
     def test_returns_410_if_eos_in_the_past(self):
         # Set an end of service date in the past.
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-        with mock.patch.dict(
-                self.app.app.registry.settings,
-                [
-                    ('cliquet.eos', yesterday.isoformat()),
-                    ('cliquet.eos_url', 'http://eos-url'),
-                    ('cliquet.eos_message',
-                     'This service had been decommissioned'),
-                ]):
+        with mock.patch.dict(self.app.app.registry.settings, [
+                             ('cliquet.eos', yesterday.isoformat()),
+                             ('cliquet.eos_url', 'http://eos-url'),
+                             ('cliquet.eos_message',
+                              'This service had been decommissioned')]):
             response = self.app.get('/', status=410)
             self.assertIn('Alert', response.headers)
             self.assertDictEqual(json.loads(response.headers['Alert']), {
