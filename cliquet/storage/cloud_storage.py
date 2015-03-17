@@ -12,7 +12,6 @@ from cliquet.utils import json, COMPARISON
 
 API_PREFIX = "/v0"
 
-DEFAULT_CLOUD_STORAGE_URL = 'https://cloud-storage.services.mozilla.com'
 
 FILTERS = {
     COMPARISON.LT: 'lt_',
@@ -45,6 +44,21 @@ def wrap_http_error(func):
 
 
 class CloudStorage(StorageBase):
+    """Storage backend implementation using `Kinto <http://kinto.rtfd.org>`_.
+
+    Enable in configuration::
+
+        cliquet.storage_backend = cliquet.storage.cloud_storage
+
+    Instance location URI should be customized::
+
+        cliquet.storage_url = https://cloud-storage.services.mozilla.com
+
+    :note:
+
+        In order to avoid double checking of OAuth tokens, the Kinto service
+        and the application can share the same cache.
+    """
 
     collection_url = "/collections/{0}/records"
     record_url = "/collections/{0}/records/{1}"
@@ -211,6 +225,5 @@ class CloudStorage(StorageBase):
 
 
 def load_from_config(config):
-    settings = config.registry.settings
-    server_url = settings.get('cliquet.storage_url', DEFAULT_CLOUD_STORAGE_URL)
+    server_url = config.registry.settings['cliquet.storage_url']
     return CloudStorage(server_url=server_url)
