@@ -132,8 +132,9 @@ class BaseResource(object):
     def collection_delete(self):
         """Collection `DELETE` endpoint."""
         settings = self.request.registry.settings
-        enabled = settings.get('cliquet.delete_collection_enabled', 'true')
-        if not native_value(enabled):
+        enabled = settings['cliquet.delete_collection_enabled']
+        if not enabled:
+            # XXX: https://github.com/mozilla-services/cliquet/issues/46
             raise HTTPMethodNotAllowed()
 
         self._raise_412_if_modified()
@@ -597,8 +598,7 @@ class BaseResource(object):
     def _extract_pagination_rules_from_token(self, sorting):
         """Get pagination params."""
         queryparams = self.request.GET
-        settings = self.request.registry.settings
-        paginate_by = settings.get('cliquet.paginate_by')
+        paginate_by = self.request.registry.settings['cliquet.paginate_by']
         limit = queryparams.get('_limit', paginate_by)
         if limit:
             try:

@@ -1,14 +1,11 @@
 import mock
 import webtest
-from cornice import Service
 from pyramid import testing
 
-from cliquet import set_auth, attach_http_objects
-from cliquet.session.redis import Redis
-from cliquet.storage.memory import Memory
+from cliquet import initialize_cliquet
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
-from cliquet.tests.support import unittest, FakeAuthentMixin
+from cliquet.tests.support import unittest, FakeAuthentMixin, get_request_class
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
@@ -19,23 +16,19 @@ class BaseWebTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.config = testing.setUp()
-        self.config.registry.storage = Memory()
-        self.config.registry.session = Redis()
-        self.config.registry.project_name = "cliquet"
-        self.config.registry.project_docs = "https://cliquet.rtfd.org/"
-        self.config.registry.project_version = "0.0.1"
 
-        Service.cors_origins = ('*',)
+        self.config.add_settings({
+            'cliquet.storage_backend': 'cliquet.storage.memory',
+            'cliquet.project_version': '0.0.1',
+            'cliquet.project_name': 'cliquet',
+            'cliquet.project_docs': 'https://cliquet.rtfd.org/',
+        })
 
-        set_auth(self.config)
-
-        self.config.include("cornice")
-        self.config.scan("cliquet.views")
+        initialize_cliquet(self.config)
         self.config.scan("cliquet.tests.testapp.views")
 
-        attach_http_objects(self.config)
-
         self.app = webtest.TestApp(self.config.make_wsgi_app())
+        self.app.RequestClass = get_request_class(self.config.route_prefix)
 
         self.collection_url = '/mushrooms'
         self.item_url = '/mushrooms/{id}'

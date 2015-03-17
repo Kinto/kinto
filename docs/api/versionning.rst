@@ -36,3 +36,5 @@ The value is JSON mapping with the following attributes:
 A ``410 Gone`` error response can be returned if the
 client version is too old, or the service had been remplaced with
 a new and better service using a new protocol version.
+
+See details in :ref:`configuration` to activate deprecation.

@@ -18,13 +18,12 @@ def check_credentials(username, password, request):
 
     """
     settings = request.registry.settings
-    is_enabled = settings.get('cliquet.basic_auth_enabled')
+    is_enabled = settings['cliquet.basic_auth_enabled']
 
     if not is_enabled or not username:
         return
 
-    hmac_secret = settings.get(
-        'cliquet.userid_hmac_secret').encode('utf-8')
+    hmac_secret = settings['cliquet.userid_hmac_secret'].encode('utf-8')
     credentials = '%s:%s' % (username, password)
     userid = hmac.new(hmac_secret,
                       credentials.encode('utf-8'),
@@ -65,6 +64,7 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         except (AssertionError, ValueError):
             return None
 
+        # Use PyFxa defaults if not specified
         server_url = settings['fxa-oauth.oauth_uri']
         scope = settings['fxa-oauth.scope']
 

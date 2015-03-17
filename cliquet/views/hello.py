@@ -8,11 +8,12 @@ hello = Service(name="hello", path='/', description="Welcome")
 @hello.get(permission=NO_PERMISSION_REQUIRED)
 def get_hello(request):
     """Return information regarding the current instance."""
+    settings = request.registry.settings
     data = dict(
-        hello=request.registry.project_name,
-        version=request.registry.project_version,
+        hello=settings['cliquet.project_name'],
+        version=settings['cliquet.project_version'],
         url=request.host_url,
-        documentation=request.registry.project_docs
+        documentation=settings['cliquet.project_docs']
     )
 
     eos = get_eos(request)
@@ -23,4 +24,4 @@ def get_hello(request):
 
 
 def get_eos(request):
-    return request.registry.settings.get('cliquet.eos', '').strip() or None
+    return request.registry.settings['cliquet.eos']

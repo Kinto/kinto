@@ -42,6 +42,8 @@ just add some extra initialization code:
 By doing that, basic endpoints are now available, as defined in
 the :ref:`API section <api-endpoints>`.
 
+.. autofunction:: cliquet.initialize_cliquet
+
 
 Configuration
 =============
