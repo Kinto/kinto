@@ -41,14 +41,14 @@ below about installation and setup of PostgreSQL.
 
 ::
 
-    $ make serve
+    make serve
 
 
 Using Docker
 ------------
 
 Kinto uses `Docker Compose <http://docs.docker.com/compose/>`_, which takes
-care of running PostgreSQL:
+care of running and connecting PostgreSQL:
 
 ::
 
@@ -89,8 +89,8 @@ On debian / ubuntu based systems:
     apt-get install postgresql postgresql-contrib
 
 
-By default, the `postgres` user has no password and can connect using the
-`postgres` system user. The following command will assign it as expected:
+By default, the `postgres` user has no password and can hence only connect
+if ran by the `postgres` system user. The following command will assign it:
 
 ::
 
