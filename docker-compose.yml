@@ -1,8 +1,11 @@
 web:
   build: .
   links:
-   - redis
+   - db
   ports:
    - "8888:8888"
-redis:
-  image: redis
+db:
+  image: postgres
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
