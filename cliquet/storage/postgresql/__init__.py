@@ -71,8 +71,40 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     :note:
 
+        During the first run of the application, some tables, functions and
+        casts are created. This requires ``SUPERUSER`` privileges, or
+        some error will be raised.
+        (`must be owner of type timestamp without time zone or type bigint`)
+
+        The easiest solution is to **temporarily** assign maximum privileges
+        to the user:
+
+        ::
+
+            postgres=# CREATE DATABASE kintodb OWNER kinto;
+            CREATE DATABASE
+            postgres=# ALTER USER kinto SUPERUSER;
+            ALTER ROLE
+
+        Run the application once, and revoke the privilege:
+
+        ::
+
+            postgres=# ALTER USER kinto NOSUPERUSER;
+            ALTER ROLE
+
+
+        **Alternatively**, the schema can be initialized outside the
+        application starting process, using the SQL file located in
+        :file:`cliquet/storage/postgresql/schema.sql`. This allows to tune
+        distinguish schema manipulation privileges from schema usage.
+
+
+    :note:
+
         Using a `connection pool <http://pgpool.net>`_ is highly recommended to
         boost performances and bound memory usage (*work_mem per connection*).
+
     """
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')

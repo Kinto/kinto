@@ -9,6 +9,16 @@ from cliquet.storage.redis import wrap_redis_error
 
 
 class Redis(SessionStorageBase):
+    """Session backend implementation using Redis.
+
+    Enable in configuration::
+
+        cliquet.session_backend = cliquet.session.redis
+
+    *(Optional)* Instance location URI can be customized::
+
+        cliquet.session_url = redis://localhost:6379/1
+    """
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
         self._client = redis.StrictRedis(

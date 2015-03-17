@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import os
+
 from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
@@ -8,31 +10,42 @@ from cliquet.session import SessionStorageBase
 
 
 class PostgreSQL(PostgreSQLClient, SessionStorageBase):
+    """Session backend using PostgreSQL.
 
+    Enable in configuration::
+
+        cliquet.session_backend = cliquet.session.postgresql
+
+    Database location URI can be customized::
+
+        cliquet.session_url = postgres://user:pass@db.server.lan:5432/dbname
+
+    Alternatively, username and password could also rely on system user ident
+    or even specified in ``~/.pgpass`` (*see PostgreSQL documentation*).
+
+    :note:
+
+        During the first run of the application, the tables are created.
+
+        **Alternatively**, the schema can be initialized outside the
+        application starting process, using the SQL file located in
+        :file:`cliquet/session/postgresql/schema.sql`. This allows to tune
+        distinguish schema manipulation privileges from schema usage.
+
+    :note:
+
+        Using a `connection pool <http://pgpool.net>`_ is highly recommended to
+        boost performances and bound memory usage (*work_mem per connection*).
+
+    """
     def __init__(self, **kwargs):
         super(PostgreSQL, self).__init__(**kwargs)
         self._init_schema()
 
     def _init_schema(self):
-        schema = """
-        CREATE TABLE IF NOT EXISTS session(
-            key VARCHAR(256) PRIMARY KEY,
-            value TEXT NOT NULL,
-            ttl TIMESTAMP DEFAULT NULL
-        );
-        DROP INDEX IF EXISTS idx_session_ttl;
-        CREATE INDEX idx_session_ttl ON session(ttl);
-
-        CREATE OR REPLACE FUNCTION sec2ttl(seconds FLOAT)
-        RETURNS TIMESTAMP AS $$
-        BEGIN
-            IF seconds IS NULL THEN
-                RETURN NULL;
-            END IF;
-            RETURN now() + (seconds || ' SECOND')::INTERVAL;
-        END;
-        $$ LANGUAGE plpgsql;
-        """
+        # Create schema
+        here = os.path.abspath(os.path.dirname(__file__))
+        schema = open(os.path.join(here, 'schema.sql')).read()
         with self.connect() as cursor:
             cursor.execute(schema)
         logger.info('Created PostgreSQL session tables')
