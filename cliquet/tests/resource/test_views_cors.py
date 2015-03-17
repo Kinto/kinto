@@ -119,6 +119,5 @@ class CORSExposeHeadersTest(FakeAuthentMixin, BaseWebTest):
             'Alert', 'Backoff', 'Retry-After', 'Last-Modified'])
 
     def test_record_post_exposes_only_minimal_set_of_headers(self):
-      self.assert_expose_headers('POST_JSON', '/mushrooms', [
-            'Alert', 'Backoff', 'Retry-After', 'Last-Modified'],
-            body=MINIMALIST_RECORD)
+        self.assert_expose_headers('POST_JSON', '/mushrooms', [
+            'Alert', 'Backoff', 'Retry-After'], body=MINIMALIST_RECORD)
