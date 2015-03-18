@@ -14,7 +14,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
     def setUp(self):
         super(SinceModifiedTest, self).setUp()
 
-        with mock.patch('cliquet.utils.msec_time') as msec_mocked:
+        with mock.patch.object(self.db, '_bump_timestamp') as msec_mocked:
             for i in range(6):
                 msec_mocked.return_value = i
                 self.resource.collection_post()

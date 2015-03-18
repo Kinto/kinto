@@ -46,9 +46,9 @@ def random_bytes_hex(bytes_length):
 def native_value(value):
     """Convert string value to native python values."""
     if isinstance(value, six.string_types):
-        if value.lower() in ['on', 'true', 'yes', '1']:
+        if value.lower() in ['on', 'true', 'yes']:
             value = True
-        elif value.lower() in ['off', 'false', 'no', '0']:
+        elif value.lower() in ['off', 'false', 'no']:
             value = False
         try:
             return ast.literal_eval(value)
