@@ -67,8 +67,8 @@ def service_unavailable(context, request):
                           errno=ERRORS.BACKEND,
                           message=error_msg)
 
-    retry_after = '%s' % request.registry.settings['cliquet.retry_after']
-    response.headers["Retry-After"] = retry_after.encode("utf-8")
+    retry_after = request.registry.settings['cliquet.retry_after_seconds']
+    response.headers["Retry-After"] = ('%s' % retry_after).encode("utf-8")
     return reapply_cors(request, response)
 
 

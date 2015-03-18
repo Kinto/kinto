@@ -49,7 +49,7 @@ DEFAULT_SETTINGS = {
     'cliquet.project_docs': '',
     'cliquet.project_name': '',
     'cliquet.project_version': '',
-    'cliquet.retry_after': 30,  # XXX: rename to retry_after_seconds
+    'cliquet.retry_after_seconds': 30,
     'cliquet.session_backend': 'cliquet.session.redis',
     'cliquet.session_url': '',
     'cliquet.storage_backend': 'cliquet.storage.redis',
