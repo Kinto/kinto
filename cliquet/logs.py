@@ -115,7 +115,7 @@ class MozillaHekaRenderer(structlog.processors.JSONRenderer):
     def __init__(self, settings):
         super(MozillaHekaRenderer, self).__init__()
         self.appname = settings['cliquet.project_name']
-        self.hostname = os.uname()[1]  # XXX + read env or conf
+        self.hostname = utils.read_env('HOSTNAME', os.uname()[1])
         self.pid = os.getpid()
 
     def __call__(self, logger, name, event_dict):

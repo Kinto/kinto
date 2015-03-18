@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 import mock
 import six
@@ -88,8 +89,8 @@ class ClassicLogRendererTest(unittest.TestCase):
 
 class MozillaHekaRendererTest(unittest.TestCase):
     def setUp(self):
-        settings = {'cliquet.project_name': ''}
-        self.renderer = cliquet_logs.MozillaHekaRenderer(settings)
+        self.settings = {'cliquet.project_name': ''}
+        self.renderer = cliquet_logs.MozillaHekaRenderer(self.settings)
         self.logger = logging.getLogger(__name__)
 
     def test_output_is_serialized_json(self):
@@ -97,8 +98,6 @@ class MozillaHekaRendererTest(unittest.TestCase):
         self.assertIsInstance(value, six.string_types)
 
     def test_standard_entries_are_filled(self):
-        import os
-
         with mock.patch('cliquet.utils.msec_time', return_value=12):
             value = self.renderer(self.logger, 'debug', {})
 
@@ -113,6 +112,12 @@ class MozillaHekaRendererTest(unittest.TestCase):
             'Type': '',
             'Fields': {}
         })
+
+    def test_hostname_can_be_specified_via_environment(self):
+        os.environ['HOSTNAME'] = 'abc'
+        renderer = cliquet_logs.MozillaHekaRenderer(self.settings)
+        os.environ.pop('HOSTNAME')
+        self.assertEqual(renderer.hostname, 'abc')
 
     def test_standard_entries_are_not_overwritten(self):
         value = self.renderer(self.logger, 'debug', {'Hostname': 'her'})
