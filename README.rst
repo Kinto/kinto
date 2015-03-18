@@ -86,7 +86,7 @@ On debian / ubuntu based systems:
 
 ::
 
-    apt-get install postgresql postgresql-contrib
+    apt-get install postgresql postgresql-contrib libpq-dev
 
 
 By default, the ``postgres`` user has no password and can hence only connect
