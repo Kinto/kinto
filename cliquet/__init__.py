@@ -41,7 +41,7 @@ DEFAULT_SETTINGS = {
     'fxa-oauth.scope': 'profile',
     'fxa-oauth.state.ttl_seconds': 3600,  # 1 hour
     'fxa-oauth.webapp.authorized_domains': '',
-    'fxa-oauth.relier.enabled': False,
+    'fxa-oauth.relier.enabled': True,
     'cliquet.backoff': None,
     'cliquet.basic_auth_enabled': False,
     'cliquet.batch_max_requests': 25,
