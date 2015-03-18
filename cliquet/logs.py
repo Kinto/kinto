@@ -3,7 +3,6 @@ from datetime import datetime
 
 import structlog
 from pyramid.events import NewRequest, NewResponse
-from pyramid.settings import asbool
 
 from cliquet import utils
 
@@ -20,11 +19,8 @@ def setup_logging(config):
     """
     settings = config.get_settings()
 
-    heka_enabled = settings.get('cliquet.mozlog_enabled', False)
-    if asbool(heka_enabled):
-        renderer = MozillaHekaRenderer(settings)
-    else:
-        renderer = ClassicLogRenderer()
+    renderer_klass = config.maybe_dotted(settings['cliquet.logging_renderer'])
+    renderer = renderer_klass(settings)
 
     structlog.configure(
         # Share the logger context by thread.
@@ -83,6 +79,9 @@ class ClassicLogRenderer(object):
         "GET   /v1/articles?_sort=title" 200 (3 ms) request.summary uid=234;
 
     """
+    def __init__(self, settings):
+        pass
+
     def __call__(self, logger, name, event_dict):
         if 'path' in event_dict:
             pattern = ('"{method: <5} {path}{querystring}" {code} ({t} ms)'
@@ -115,7 +114,7 @@ class MozillaHekaRenderer(structlog.processors.JSONRenderer):
 
     def __init__(self, settings):
         super(MozillaHekaRenderer, self).__init__()
-        self.appname = settings.get('cliquet.project_name')
+        self.appname = settings['cliquet.project_name']
         self.hostname = os.uname()[1]  # XXX + read env or conf
         self.pid = os.getpid()
 

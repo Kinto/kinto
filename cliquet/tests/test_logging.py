@@ -5,6 +5,7 @@ import mock
 import six
 from pyramid import testing
 
+from cliquet import DEFAULT_SETTINGS
 from cliquet import logs as cliquet_logs
 
 from .support import BaseWebTest, unittest
@@ -16,9 +17,11 @@ def logger_context():
 
 class LoggingSetupTest(BaseWebTest, unittest.TestCase):
     def test_classic_logger_is_used_by_default(self):
+        config = testing.setUp()
+        config.registry.settings = DEFAULT_SETTINGS
         classiclog_class = mock.patch('cliquet.logs.ClassicLogRenderer')
         with classiclog_class as mocked:
-            cliquet_logs.setup_logging(testing.setUp())
+            cliquet_logs.setup_logging(config)
             mocked.assert_called()
 
     def test_mozlog_logger_is_enabled_via_setting(self):
@@ -27,7 +30,8 @@ class LoggingSetupTest(BaseWebTest, unittest.TestCase):
 
         config = testing.setUp()
         with mock.patch.dict(config.registry.settings,
-                             [('cliquet.mozlog_enabled', 'true')]):
+                             [('cliquet.logging_renderer',
+                               'cliquet.logs.MozillaHekaRenderer')]):
             with mozlog_class as moz_mocked:
                 with classiclog_class as classic_mocked:
                     cliquet_logs.setup_logging(config)
@@ -37,7 +41,7 @@ class LoggingSetupTest(BaseWebTest, unittest.TestCase):
 
 class ClassicLogRendererTest(unittest.TestCase):
     def setUp(self):
-        self.renderer = cliquet_logs.ClassicLogRenderer()
+        self.renderer = cliquet_logs.ClassicLogRenderer({})
         self.logger = logging.getLogger(__name__)
 
     def test_output_is_serialized_as_string(self):
@@ -84,7 +88,8 @@ class ClassicLogRendererTest(unittest.TestCase):
 
 class MozillaHekaRendererTest(unittest.TestCase):
     def setUp(self):
-        self.renderer = cliquet_logs.MozillaHekaRenderer({})
+        settings = {'cliquet.project_name': ''}
+        self.renderer = cliquet_logs.MozillaHekaRenderer(settings)
         self.logger = logging.getLogger(__name__)
 
     def test_output_is_serialized_json(self):
@@ -101,7 +106,7 @@ class MozillaHekaRendererTest(unittest.TestCase):
         self.assertDictEqual(log, {
             'EnvVersion': '2.0',
             'Hostname': os.uname()[1],
-            'Logger': None,
+            'Logger': '',
             'Pid': os.getpid(),
             'Severity': 7,
             'Timestamp': 12000000,

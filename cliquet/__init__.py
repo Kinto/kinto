@@ -45,6 +45,7 @@ DEFAULT_SETTINGS = {
     'cliquet.eos': None,
     'cliquet.eos_message': None,
     'cliquet.eos_url': None,
+    'cliquet.logging_renderer': 'cliquet.logs.ClassicLogRenderer',
     'cliquet.http_scheme': None,
     'cliquet.paginate_by': None,
     'cliquet.project_docs': '',

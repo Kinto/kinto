@@ -73,7 +73,7 @@ Mozilla Services standard logging format can be enabled using:
 
 .. code-block :: ini
 
-    cliquet.mozlog_enabled = true
+    cliquet.logging_renderer = cliquet.logs.MozillaHekaRenderer
 
 
 With the following configuration, all logs to standard output are
