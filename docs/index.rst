@@ -1,18 +1,36 @@
-.. Kinto documentation master file, created by
-   sphinx-quickstart on Mon Feb  2 15:08:06 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. include:: ../README.rst
 
-Kinto documentation!
-====================
+.. figure :: images/logo.svg
+    :align: center
 
-Contents:
+    `Kinto-Un <http://dragonball.wikia.com/wiki/Flying_Nimbus>`_ is a magical,
+    yellow cloud that serves as a way of transportation.
+
+
+In short
+========
+
+It's as simple as that:
+
+1. Pick up a name for your records collection;
+2. Push the records on the server;
+3. Pull the records from the server (ordered, filtered, paginated)
+
+The server doesn't impose anything about the records data model.
+
+Kinto is based on top of `cliquet <http://cliquet.readthedocs.org>`_.
+
+
+Table of content
+================
 
 .. toctree::
    :maxdepth: 2
 
    api/index
+   installation
    configuration
+   contributing
    changelog
 
 

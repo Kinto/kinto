@@ -1,1 +1,1 @@
-include tox.ini
+include *.rst README.rst CHANGELOG.rst
