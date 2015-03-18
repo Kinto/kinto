@@ -1,8 +1,14 @@
+db:
+  image: postgres
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
 web:
   build: .
   links:
-   - redis
+   - db
   ports:
    - "8888:8888"
-redis:
-  image: redis
+  environment:
+    CLIQUET_SESSION_URL: postgres://postgres:postgres@db/postgres
+    CLIQUET_STORAGE_URL: postgres://postgres:postgres@db/postgres
