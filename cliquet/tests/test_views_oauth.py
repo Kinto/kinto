@@ -138,7 +138,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(url)
         self.app.get(url, status=401)
 
-    @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')
+    @mock.patch('cliquet.views.oauth.relier.OAuthClient.trade_code')
     def test_fails_if_state_has_expired(self, mocked_trade):
         mocked_trade.return_value = 'oauth-token'
         with mock.patch.dict(self.app.app.registry.settings,
