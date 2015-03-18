@@ -9,7 +9,7 @@ from .support import BaseWebTest, unittest
 class DeactivatedViewsTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self):
         settings = super(DeactivatedViewsTest, self).get_app_settings()
-        settings['fxa-oauth.enabled'] = False
+        settings['fxa-oauth.relier.enabled'] = False
         return settings
 
     def test_login_view_is_not_available(self):

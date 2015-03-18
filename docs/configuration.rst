@@ -202,6 +202,7 @@ If you're a Mozilla service, fill the settings with the values you were provided
 
 .. code-block :: ini
 
+    fxa-oauth.relier.enabled = true
     fxa-oauth.client_id = 89513028159972bc
     fxa-oauth.client_secret = 9aced230585cc0aaea0a3467dd800
     fxa-oauth.oauth_uri = https://oauth-stable.dev.lcip.org

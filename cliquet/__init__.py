@@ -41,7 +41,7 @@ DEFAULT_SETTINGS = {
     'fxa-oauth.scope': 'profile',
     'fxa-oauth.state.ttl_seconds': 3600,  # 1 hour
     'fxa-oauth.webapp.authorized_domains': '',
-    'fxa-oauth.enabled': False,
+    'fxa-oauth.relier.enabled': False,
     'cliquet.backoff': None,
     'cliquet.basic_auth_enabled': False,
     'cliquet.batch_max_requests': 25,
@@ -204,7 +204,7 @@ def includeme(config):
     kwargs = {}
 
     # Ignore FxA OAuth in case it's not activated (ignored by default).
-    if not asbool(settings['fxa-oauth.enabled']):
+    if not asbool(settings['fxa-oauth.relier.enabled']):
         kwargs['ignore'] = 'cliquet.views.oauth'
 
     # Include cornice and discover views.
