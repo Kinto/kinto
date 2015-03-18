@@ -63,18 +63,3 @@ class CacheBase(object):
         :type key: string
         """
         raise NotImplementedError
-
-
-class SessionCache(object):
-    def __init__(self, cache, ttl):
-        self.cache = cache
-        self.ttl = ttl
-
-    def get(self, key):
-        return self.cache.get(key)
-
-    def set(self, key, value):
-        self.cache.set(key, value, self.ttl)
-
-    def delete(self, key):
-        self.cache.delete(key)

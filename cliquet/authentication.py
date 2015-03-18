@@ -9,7 +9,6 @@ from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Authenticated
 from zope.interface import implementer
 
-from cliquet import cache
 from cliquet import logger
 
 
@@ -45,6 +44,25 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
                                                             **kwargs)
 
 
+class TokenVerificationCache(object):
+    """Verification cache class as expected by PyFxa library.
+
+    This basically wraps the cache backend instance to specify a constant ttl.
+    """
+    def __init__(self, cache, ttl):
+        self.cache = cache
+        self.ttl = ttl
+
+    def get(self, key):
+        return self.cache.get(key)
+
+    def set(self, key, value):
+        self.cache.set(key, value, self.ttl)
+
+    def delete(self, key):
+        self.cache.delete(key)
+
+
 @implementer(IAuthenticationPolicy)
 class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
     def __init__(self, config, realm='Realm'):
@@ -52,8 +70,8 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
 
         settings = config.get_settings()
         oauth_cache_ttl = int(settings['fxa-oauth.cache_ttl_seconds'])
-        oauth_cache = cache.SessionCache(config.registry.cache,
-                                         ttl=oauth_cache_ttl)
+        oauth_cache = TokenVerificationCache(config.registry.cache,
+                                             ttl=oauth_cache_ttl)
         self.cache = oauth_cache
 
     def unauthenticated_userid(self, request):

@@ -5,8 +5,7 @@ import psycopg2
 import redis
 
 from cliquet.storage import exceptions
-from cliquet.cache import CacheBase, SessionCache
-from cliquet.cache import (postgresql as postgresql_backend,
+from cliquet.cache import (CacheBase, postgresql as postgresql_backend,
                            redis as redis_backend)
 
 from .support import unittest
@@ -131,27 +130,3 @@ class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
         self.client_error_patcher = mock.patch(
             'cliquet.storage.postgresql.psycopg2.connect',
             side_effect=psycopg2.OperationalError)
-
-
-class SessionCacheTest(unittest.TestCase):
-    def setUp(self):
-        self.cache = SessionCache(redis_backend.Redis(), 0.05)
-        super(SessionCacheTest, self).setUp()
-
-    def test_set_adds_the_record(self):
-        stored = 'toto'
-        self.cache.set('foobar', stored)
-        retrieved = self.cache.get('foobar')
-        self.assertEquals(retrieved, stored)
-
-    def test_delete_removes_the_record(self):
-        self.cache.set('foobar', 'toto')
-        self.cache.delete('foobar')
-        retrieved = self.cache.get('foobar')
-        self.assertIsNone(retrieved)
-
-    def test_set_expires_the_value(self):
-        self.cache.set('foobar', 'toto')
-        time.sleep(0.1)
-        retrieved = self.cache.get('foobar')
-        self.assertIsNone(retrieved)
