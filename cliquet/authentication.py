@@ -9,6 +9,7 @@ from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Authenticated
 from zope.interface import implementer
 
+from cliquet import cache
 from cliquet import logger
 
 
@@ -46,9 +47,14 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
 @implementer(IAuthenticationPolicy)
 class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
-    def __init__(self, realm='Realm', cache=True):
+    def __init__(self, config, realm='Realm'):
         self.realm = realm
-        self.cache = cache
+
+        settings = config.get_settings()
+        oauth_cache_ttl = int(settings['fxa-oauth.cache_ttl_seconds'])
+        oauth_cache = cache.SessionCache(config.registry.cache,
+                                         ttl=oauth_cache_ttl)
+        self.cache = oauth_cache
 
     def unauthenticated_userid(self, request):
         user_id = self._get_credentials(request)
