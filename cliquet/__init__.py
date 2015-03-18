@@ -71,7 +71,8 @@ def load_default_settings(config):
     """
     settings = config.get_settings()
     for key, value in DEFAULT_SETTINGS.items():
-        settings.setdefault(key, utils.read_env(key, value))
+        configured = settings.get(key, value)
+        settings[key] = utils.read_env(key, configured)
     config.add_settings(settings)
 
 

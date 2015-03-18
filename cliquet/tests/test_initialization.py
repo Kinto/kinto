@@ -27,10 +27,10 @@ class InitializationTest(unittest.TestCase):
                          '0.0.1')
 
     def test_set_the_project_version_from_settings_even_if_specified(self):
-        config = Configurator(settings={'cliquet.project_version': '1.0'})
+        config = Configurator(settings={'cliquet.project_version': '1.0.0'})
         cliquet.initialize_cliquet(config, '0.0.1', 'name')
         self.assertEqual(config.registry.settings['cliquet.project_version'],
-                         '1.0')
+                         '1.0.0')
 
     def test_warns_if_project_name_is_empty(self):
         config = Configurator(settings={'cliquet.project_name': ''})
@@ -56,3 +56,17 @@ class InitializationTest(unittest.TestCase):
         cliquet.initialize_cliquet(config, '0.0.1', 'readinglist')
         self.assertEqual(config.registry.settings['cliquet.project_name'],
                          'kinto')
+
+    def test_environment_values_override_configuration(self):
+        import os
+
+        envkey = 'CLIQUET_PROJECT_NAME'
+        os.environ[envkey] = 'abc'
+
+        config = Configurator(settings={'cliquet.project_name': 'kinto'})
+        cliquet.initialize_cliquet(config, '0.0.1')
+
+        os.environ.pop(envkey)
+
+        project_used = config.registry.settings['cliquet.project_name']
+        self.assertEqual(project_used, 'abc')
