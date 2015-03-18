@@ -12,6 +12,7 @@ from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid_multiauth import MultiAuthenticationPolicy
 from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.settings import asbool
 
 # Main Cliquet logger.
 logger = structlog.get_logger()
@@ -40,6 +41,7 @@ DEFAULT_SETTINGS = {
     'fxa-oauth.scope': 'profile',
     'fxa-oauth.state.ttl_seconds': 3600,  # 1 hour
     'fxa-oauth.webapp.authorized_domains': '',
+    'fxa-oauth.enabled': False,
     'cliquet.backoff': None,
     'cliquet.basic_auth_enabled': False,
     'cliquet.batch_max_requests': 25,
@@ -199,9 +201,15 @@ def includeme(config):
     set_auth(config)
     attach_http_objects(config)
 
+    kwargs = {}
+
+    # Ignore FxA OAuth in case it's not activated (ignored by default).
+    if not asbool(settings['fxa-oauth.enabled']):
+        kwargs['ignore'] = 'cliquet.views.oauth'
+
     # Include cornice and discover views.
     config.include("cornice")
-    config.scan("cliquet.views")
+    config.scan("cliquet.views", **kwargs)
 
 
 def initialize_cliquet(config, version=None, project_name=None):

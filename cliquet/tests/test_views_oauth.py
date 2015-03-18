@@ -6,6 +6,22 @@ from time import sleep
 from .support import BaseWebTest, unittest
 
 
+class DeactivatedViewsTest(BaseWebTest, unittest.TestCase):
+    def get_app_settings(self):
+        settings = super(DeactivatedViewsTest, self).get_app_settings()
+        settings['fxa-oauth.enabled'] = False
+        return settings
+
+    def test_login_view_is_not_available(self):
+        self.app.get('/fxa-oauth/login', status=404)
+
+    def test_params_view_is_not_available(self):
+        self.app.get('/fxa-oauth/params', status=404)
+
+    def test_token_view_is_not_available(self):
+        self.app.get('/fxa-oauth/token', status=404)
+
+
 class LoginViewTest(BaseWebTest, unittest.TestCase):
     url = '/fxa-oauth/login?redirect=https://readinglist.firefox.com'
 
