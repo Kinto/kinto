@@ -151,7 +151,7 @@ def build_request(original, dict_obj):
         headers['Content-Type'] = 'application/json; charset=utf-8'
         payload = json.dumps(payload)
 
-    request = Request.blank(path=path,
+    request = Request.blank(path=path.decode('latin-1'),
                             headers=headers,
                             POST=payload,
                             method=method)
