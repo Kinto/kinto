@@ -334,8 +334,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             SELECT %%(deleted_field)s::json AS data
         ),
         filtered_deleted AS (
-            SELECT id, last_modified,
-                   fake_deleted.data AS data
+            SELECT id, last_modified, fake_deleted.data AS data
               FROM deleted, fake_deleted
              WHERE user_id = %%(user_id)s
                AND resource_name = %%(resource_name)s
