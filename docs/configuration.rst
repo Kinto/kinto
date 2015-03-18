@@ -49,7 +49,7 @@ Deployment
 
     # cliquet.backoff = 10
     cliquet.http_scheme = https
-    cliquet.retry_after = 30
+    cliquet.retry_after_seconds = 30
 
 Deprecation
 :::::::::::
