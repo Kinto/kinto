@@ -4,20 +4,20 @@ import time
 import redis
 from six.moves.urllib import parse as urlparse
 
-from cliquet.session import SessionStorageBase
+from cliquet.cache import CacheBase
 from cliquet.storage.redis import wrap_redis_error
 
 
-class Redis(SessionStorageBase):
-    """Session backend implementation using Redis.
+class Redis(CacheBase):
+    """Cache backend implementation using Redis.
 
     Enable in configuration::
 
-        cliquet.session_backend = cliquet.session.redis
+        cliquet.cache_backend = cliquet.cache.redis
 
     *(Optional)* Instance location URI can be customized::
 
-        cliquet.session_url = redis://localhost:6379/1
+        cliquet.cache_url = redis://localhost:6379/1
     """
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
@@ -64,7 +64,7 @@ class Redis(SessionStorageBase):
 
 
 def load_from_config(config):
-    uri = config.registry.settings['cliquet.session_url']
+    uri = config.registry.settings['cliquet.cache_url']
     uri = urlparse.urlparse(uri)
 
     return Redis(host=uri.hostname or 'localhost',

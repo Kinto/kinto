@@ -5,41 +5,41 @@ import psycopg2
 import redis
 
 from cliquet.storage import exceptions
-from cliquet.session import SessionStorageBase, SessionCache
-from cliquet.session import (postgresql as postgresql_backend,
+from cliquet.cache import CacheBase, SessionCache
+from cliquet.cache import (postgresql as postgresql_backend,
                              redis as redis_backend)
 
 from .support import unittest
 
 
-class SessionStorageBaseTest(unittest.TestCase):
+class CacheBaseTest(unittest.TestCase):
     def setUp(self):
-        self.session = SessionStorageBase()
+        self.cache = CacheBase()
 
     def test_mandatory_overrides(self):
         calls = [
-            (self.session.flush,),
-            (self.session.ping,),
-            (self.session.ttl, ''),
-            (self.session.expire, '', ''),
-            (self.session.get, ''),
-            (self.session.set, '', ''),
-            (self.session.delete, ''),
+            (self.cache.flush,),
+            (self.cache.ping,),
+            (self.cache.ttl, ''),
+            (self.cache.expire, '', ''),
+            (self.cache.get, ''),
+            (self.cache.set, '', ''),
+            (self.cache.delete, ''),
         ]
         for call in calls:
             self.assertRaises(NotImplementedError, *call)
 
 
-class BaseTestSessionStorage(object):
+class BaseTestCache(object):
     backend = None
 
     settings = {
-        'cliquet.session_url': ''
+        'cliquet.cache_url': ''
     }
 
     def __init__(self, *args, **kwargs):
-        super(BaseTestSessionStorage, self).__init__(*args, **kwargs)
-        self.session = self.backend.load_from_config(self._get_config())
+        super(BaseTestCache, self).__init__(*args, **kwargs)
+        self.cache = self.backend.load_from_config(self._get_config())
         self.client_error_patcher = None
 
     def _get_config(self, settings=None):
@@ -51,83 +51,83 @@ class BaseTestSessionStorage(object):
 
     def tearDown(self):
         mock.patch.stopall()
-        super(BaseTestSessionStorage, self).tearDown()
-        self.session.flush()
+        super(BaseTestCache, self).tearDown()
+        self.cache.flush()
 
     def test_backend_error_is_raised_anywhere(self):
         self.client_error_patcher.start()
         calls = [
-            (self.session.flush,),
-            (self.session.ttl, ''),
-            (self.session.expire, '', 0),
-            (self.session.get, ''),
-            (self.session.set, '', ''),
-            (self.session.delete, ''),
+            (self.cache.flush,),
+            (self.cache.ttl, ''),
+            (self.cache.expire, '', 0),
+            (self.cache.get, ''),
+            (self.cache.set, '', ''),
+            (self.cache.delete, ''),
         ]
         for call in calls:
             self.assertRaises(exceptions.BackendError, *call)
 
     def test_ping_returns_an_error_if_unavailable(self):
         self.client_error_patcher.start()
-        self.assertFalse(self.session.ping())
+        self.assertFalse(self.cache.ping())
 
     def test_ping_returns_true_if_available(self):
-        self.assertTrue(self.session.ping())
+        self.assertTrue(self.cache.ping())
 
     def test_set_adds_the_record(self):
         stored = 'toto'
-        self.session.set('foobar', stored)
-        retrieved = self.session.get('foobar')
+        self.cache.set('foobar', stored)
+        retrieved = self.cache.get('foobar')
         self.assertEquals(retrieved, stored)
 
     def test_delete_removes_the_record(self):
-        self.session.set('foobar', 'toto')
-        self.session.delete('foobar')
-        retrieved = self.session.get('foobar')
+        self.cache.set('foobar', 'toto')
+        self.cache.delete('foobar')
+        retrieved = self.cache.get('foobar')
         self.assertIsNone(retrieved)
 
     def test_expire_expires_the_value(self):
-        self.session.set('foobar', 'toto')
-        self.session.expire('foobar', 0.05)
+        self.cache.set('foobar', 'toto')
+        self.cache.expire('foobar', 0.05)
         time.sleep(0.1)
-        retrieved = self.session.get('foobar')
+        retrieved = self.cache.get('foobar')
         self.assertIsNone(retrieved)
 
     def test_set_with_ttl_expires_the_value(self):
-        self.session.set('foobar', 'toto', 0.05)
+        self.cache.set('foobar', 'toto', 0.05)
         time.sleep(0.1)
-        retrieved = self.session.get('foobar')
+        retrieved = self.cache.get('foobar')
         self.assertIsNone(retrieved)
 
     def test_ttl_return_the_time_to_live(self):
-        self.session.set('foobar', 'toto')
-        self.session.expire('foobar', 10)
-        ttl = self.session.ttl('foobar')
+        self.cache.set('foobar', 'toto')
+        self.cache.expire('foobar', 10)
+        ttl = self.cache.ttl('foobar')
         self.assertGreater(ttl, 0)
         self.assertLessEqual(ttl, 10)
 
 
-class RedisSessionStorageTest(BaseTestSessionStorage, unittest.TestCase):
+class RedisCacheTest(BaseTestCache, unittest.TestCase):
     backend = redis_backend
 
     def __init__(self, *args, **kwargs):
-        super(RedisSessionStorageTest, self).__init__(*args, **kwargs)
+        super(RedisCacheTest, self).__init__(*args, **kwargs)
         self.client_error_patcher = mock.patch.object(
-            self.session._client,
+            self.cache._client,
             'execute_command',
             side_effect=redis.RedisError)
 
 
-class PostgreSQLSessionStorageTest(BaseTestSessionStorage, unittest.TestCase):
+class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     backend = postgresql_backend
 
     settings = {
-        'cliquet.session_url':
+        'cliquet.cache_url':
             'postgres://postgres:postgres@localhost:5432/testdb'
     }
 
     def __init__(self, *args, **kwargs):
-        super(PostgreSQLSessionStorageTest, self).__init__(*args, **kwargs)
+        super(PostgreSQLCacheTest, self).__init__(*args, **kwargs)
         self.client_error_patcher = mock.patch(
             'cliquet.storage.postgresql.psycopg2.connect',
             side_effect=psycopg2.OperationalError)

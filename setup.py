@@ -19,7 +19,7 @@ REQUIREMENTS = [
     'python-dateutil',
     'pyfxa',
     'pyramid_multiauth',
-    'redis',  # Session backend
+    'redis',  # Default backend
     'requests',
     'six',
     'structlog',

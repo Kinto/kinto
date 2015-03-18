@@ -34,15 +34,14 @@ def fxa_conf(request, name):
 
 
 def persist_state(request):
-    """Persist arbitrary string in session.
+    """Persist arbitrary string in cache.
     It will be matched when the user returns from the OAuth server login
     page.
     """
     state = uuid.uuid4().hex
     redirect_url = request.validated['redirect']
-    request.registry.session.set(state, redirect_url)
     expiration = int(fxa_conf(request, 'state.ttl_seconds'))
-    request.registry.session.expire(state, expiration)
+    request.cache.set(state, redirect_url, expiration)
     return state
 
 
@@ -101,10 +100,10 @@ def fxa_oauth_token(request):
     code = request.validated['code']
 
     # Require on-going session
-    stored_redirect = request.registry.session.get(state)
+    stored_redirect = request.cache.get(state)
 
     # Make sure we cannot try twice with the same code
-    request.registry.session.delete(state)
+    request.registry.cache.delete(state)
 
     if not stored_redirect:
         return authorization_required(request)

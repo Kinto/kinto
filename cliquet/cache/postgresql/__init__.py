@@ -6,22 +6,22 @@ from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
 from cliquet.storage.postgresql import PostgreSQLClient
-from cliquet.session import SessionStorageBase
+from cliquet.cache import CacheBase
 
 
-class PostgreSQL(PostgreSQLClient, SessionStorageBase):
-    """Session backend using PostgreSQL.
+class PostgreSQL(PostgreSQLClient, CacheBase):
+    """Cache backend using PostgreSQL.
 
     Enable in configuration::
 
-        cliquet.session_backend = cliquet.session.postgresql
+        cliquet.cache_backend = cliquet.cache.postgresql
 
     Database location URI can be customized::
 
-        cliquet.session_url = postgres://user:pass@db.server.lan:5432/dbname
+        cliquet.cache_url = postgres://user:pass@db.server.lan:5432/dbname
 
     Alternatively, username and password could also rely on system user ident
-    or even specified in ``~/.pgpass`` (*see PostgreSQL documentation*).
+    or even specified in :file:`~/.pgpass` (*see PostgreSQL documentation*).
 
     :note:
 
@@ -29,7 +29,7 @@ class PostgreSQL(PostgreSQLClient, SessionStorageBase):
 
         **Alternatively**, the schema can be initialized outside the
         application starting process, using the SQL file located in
-        :file:`cliquet/session/postgresql/schema.sql`. This allows to tune
+        :file:`cliquet/cache/postgresql/schema.sql`. This allows to tune
         distinguish schema manipulation privileges from schema usage.
 
     :note:
@@ -48,15 +48,15 @@ class PostgreSQL(PostgreSQLClient, SessionStorageBase):
         schema = open(os.path.join(here, 'schema.sql')).read()
         with self.connect() as cursor:
             cursor.execute(schema)
-        logger.info('Created PostgreSQL session tables')
+        logger.info('Created PostgreSQL cache tables')
 
     def flush(self):
         query = """
-        DELETE FROM session;
+        DELETE FROM cache;
         """
         with self.connect() as cursor:
             cursor.execute(query)
-        logger.debug('Flushed PostgreSQL session tables')
+        logger.debug('Flushed PostgreSQL cache tables')
 
     def ping(self):
         try:
@@ -68,7 +68,7 @@ class PostgreSQL(PostgreSQLClient, SessionStorageBase):
     def ttl(self, key):
         query = """
         SELECT EXTRACT(SECOND FROM (ttl - now())) AS ttl
-          FROM session
+          FROM cache
          WHERE key = %s
            AND ttl IS NOT NULL;
         """
@@ -80,7 +80,7 @@ class PostgreSQL(PostgreSQLClient, SessionStorageBase):
 
     def expire(self, key, ttl):
         query = """
-        UPDATE session SET ttl = sec2ttl(%s) WHERE key = %s;
+        UPDATE cache SET ttl = sec2ttl(%s) WHERE key = %s;
         """
         with self.connect() as cursor:
             cursor.execute(query, (ttl, key,))
@@ -88,10 +88,10 @@ class PostgreSQL(PostgreSQLClient, SessionStorageBase):
     def set(self, key, value, ttl=None):
         query = """
         WITH upsert AS (
-            UPDATE session SET value = %(value)s, ttl = sec2ttl(%(ttl)s)
+            UPDATE cache SET value = %(value)s, ttl = sec2ttl(%(ttl)s)
              WHERE key=%(key)s
             RETURNING *)
-        INSERT INTO session (key, value, ttl)
+        INSERT INTO cache (key, value, ttl)
         SELECT %(key)s, %(value)s, sec2ttl(%(ttl)s)
         WHERE NOT EXISTS (SELECT * FROM upsert)
         """
@@ -99,8 +99,8 @@ class PostgreSQL(PostgreSQLClient, SessionStorageBase):
             cursor.execute(query, dict(key=key, value=value, ttl=ttl))
 
     def get(self, key):
-        purge = "DELETE FROM session WHERE ttl IS NOT NULL AND now() > ttl;"
-        query = "SELECT value FROM session WHERE key = %s;"
+        purge = "DELETE FROM cache WHERE ttl IS NOT NULL AND now() > ttl;"
+        query = "SELECT value FROM cache WHERE key = %s;"
         with self.connect() as cursor:
             cursor.execute(purge)
             cursor.execute(query, (key,))
@@ -108,13 +108,13 @@ class PostgreSQL(PostgreSQLClient, SessionStorageBase):
                 return cursor.fetchone()['value']
 
     def delete(self, key):
-        query = "DELETE FROM session WHERE key = %s"
+        query = "DELETE FROM cache WHERE key = %s"
         with self.connect() as cursor:
             cursor.execute(query, (key,))
 
 
 def load_from_config(config):
-    uri = config.registry.settings['cliquet.session_url']
+    uri = config.registry.settings['cliquet.cache_url']
     uri = urlparse.urlparse(uri)
     conn_kwargs = dict(host=uri.hostname,
                        port=uri.port,

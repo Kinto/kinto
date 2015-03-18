@@ -13,7 +13,7 @@ Table of content
    configuration
    resource
    storage
-   session
+   cache
    errors
    contributing
    glossary

@@ -261,9 +261,9 @@ class StorageErrorTest(FakeAuthentMixin, BaseWebTest):
                 self.assertEqual(type(mocked.call_args[0][0]), ValueError)
 
 
-class SessionErrorTest(FakeAuthentMixin, BaseWebTest):
-    def test_session_errors_are_served_as_503(self):
-        with mock.patch('cliquet.session.redis.Redis.get',
+class CacheErrorTest(FakeAuthentMixin, BaseWebTest):
+    def test_cache_errors_are_served_as_503(self):
+        with mock.patch('cliquet.cache.redis.Redis.get',
                         side_effect=storage_exceptions.BackendError(None)):
             self.app.get('/fxa-oauth/token?code=abc&state=xyz',
                          headers=self.headers,

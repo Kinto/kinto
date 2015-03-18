@@ -2,7 +2,7 @@ Installation
 ############
 
 
-By default, Cliquet persists the records and sessions in `Redis <http://redis.io/>`_.
+By default, Cliquet persists the records and cache in `Redis <http://redis.io/>`_.
 
 In-memory or `PostgreSQL <http://postgresql.org/>`_ storage backend can be enabled in
 :ref:`configuration`.

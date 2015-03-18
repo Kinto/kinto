@@ -109,8 +109,6 @@ Storage
 
 .. code-block :: ini
 
-    cliquet.session_backend = cliquet.session.redis
-    cliquet.session_url = redis://localhost:6379/0
     cliquet.storage_backend = cliquet.storage.redis
     cliquet.storage_url = redis://localhost:6379/1
 
@@ -118,6 +116,17 @@ Storage
     # cliquet.storage_max_fetch_size = 10000
 
 See :ref:`storage backend documentation <storage>` for more details.
+
+
+Cache
+=====
+
+.. code-block :: ini
+
+    cliquet.cache_backend = cliquet.cache.redis
+    cliquet.cache_url = redis://localhost:6379/0
+
+See :ref:`cache backend documentation <cache>` for more details.
 
 
 Authentication
