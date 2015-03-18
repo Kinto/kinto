@@ -1,5 +1,5 @@
 import uuid
-import urlparse
+from six.moves.urllib.parse import urlparse
 from fnmatch import fnmatch
 
 from cornice import Service
@@ -55,7 +55,7 @@ def authorized_redirect(req):
     if 'redirect' not in req.validated:
         return True
 
-    domain = urlparse.urlparse(req.validated['redirect']).netloc
+    domain = urlparse(req.validated['redirect']).netloc
 
     if not any((fnmatch(domain, auth) for auth in authorized)):
         req.errors.add('querystring', 'redirect',
