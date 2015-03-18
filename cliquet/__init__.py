@@ -17,10 +17,10 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 logger = structlog.get_logger()
 
 from cliquet import authentication
+from cliquet import cache
 from cliquet import errors
 from cliquet import logs as cliquet_logs
 from cliquet import utils
-from cliquet.session import SessionCache
 
 from cornice import Service
 
@@ -54,8 +54,8 @@ DEFAULT_SETTINGS = {
     'cliquet.project_name': '',
     'cliquet.project_version': '',
     'cliquet.retry_after_seconds': 30,
-    'cliquet.session_backend': 'cliquet.session.redis',
-    'cliquet.session_url': '',
+    'cliquet.cache_backend': 'cliquet.cache.redis',
+    'cliquet.cache_url': '',
     'cliquet.storage_backend': 'cliquet.storage.redis',
     'cliquet.storage_url': '',
     'cliquet.storage_max_fetch_size': 10000,
@@ -100,10 +100,10 @@ def set_auth(config):
     """
     settings = config.registry.settings
     oauth_cache_ttl = int(settings['fxa-oauth.cache_ttl_seconds'])
-
+    oauth_cache = cache.SessionCache(config.registry.cache,
+                                     ttl=oauth_cache_ttl)
     policies = [
-        authentication.Oauth2AuthenticationPolicy(
-            cache=SessionCache(config.registry.session, ttl=oauth_cache_ttl)),
+        authentication.Oauth2AuthenticationPolicy(oauth_cache),
         authentication.BasicAuthAuthenticationPolicy(),
     ]
     authn_policy = MultiAuthenticationPolicy(policies)
@@ -124,6 +124,7 @@ def attach_http_objects(config):
     def on_new_request(event):
         # Attach objects on requests for easier access.
         event.request.db = config.registry.storage
+        event.request.cache = config.registry.cache
 
         # Force request scheme from settings.
         http_scheme = config.registry.settings['cliquet.http_scheme']
@@ -192,8 +193,8 @@ def includeme(config):
     storage = config.maybe_dotted(settings['cliquet.storage_backend'])
     config.registry.storage = storage.load_from_config(config)
 
-    session = config.maybe_dotted(settings['cliquet.session_backend'])
-    config.registry.session = session.load_from_config(config)
+    cache = config.maybe_dotted(settings['cliquet.cache_backend'])
+    config.registry.cache = cache.load_from_config(config)
 
     set_auth(config)
     attach_http_objects(config)

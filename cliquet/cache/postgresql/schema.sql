@@ -1,10 +1,10 @@
-CREATE TABLE IF NOT EXISTS session(
+CREATE TABLE IF NOT EXISTS cache (
     key VARCHAR(256) PRIMARY KEY,
     value TEXT NOT NULL,
     ttl TIMESTAMP DEFAULT NULL
 );
-DROP INDEX IF EXISTS idx_session_ttl;
-CREATE INDEX idx_session_ttl ON session(ttl);
+DROP INDEX IF EXISTS idx_cache_ttl;
+CREATE INDEX idx_cache_ttl ON cache(ttl);
 
 CREATE OR REPLACE FUNCTION sec2ttl(seconds FLOAT)
 RETURNS TIMESTAMP AS $$

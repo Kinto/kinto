@@ -1,4 +1,4 @@
-class SessionStorageBase(object):
+class CacheBase(object):
     def __init__(self, *args, **kwargs):
         pass
 
@@ -7,7 +7,7 @@ class SessionStorageBase(object):
         raise NotImplementedError
 
     def ping(self):
-        """Test that session is operationnal.
+        """Test that cache backend is operationnal.
 
         :returns: `True` is everything is ok, `False` otherwise.
         :rtype: boolean
@@ -34,13 +34,15 @@ class SessionStorageBase(object):
         """
         raise NotImplementedError
 
-    def set(self, key, value):
+    def set(self, key, value, ttl=None):
         """Store a value with the specified key.
 
         :param key: key
         :type key: string
         :param value: value to store
         :type value: string
+        :param ttl: expire after number of seconds
+        :type ttl: float
         """
         raise NotImplementedError
 
@@ -64,9 +66,9 @@ class SessionStorageBase(object):
 
 
 class SessionCache(object):
-    def __init__(self, session, ttl):
+    def __init__(self, cache, ttl):
+        self.cache = cache
         self.ttl = ttl
-        self.cache = session
 
     def get(self, key):
         return self.cache.get(key)
