@@ -13,6 +13,7 @@ Table of content
    configuration
    resource
    storage
+   session
    errors
    contributing
    glossary
