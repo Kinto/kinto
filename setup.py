@@ -22,6 +22,7 @@ REQUIREMENTS = [
     'redis',  # Session backend
     'requests',
     'six',
+    'structlog',
 ]
 
 POSTGRESQL_REQUIRES = [

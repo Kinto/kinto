@@ -9,6 +9,8 @@ from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Authenticated
 from zope.interface import implementer
 
+from cliquet import logger
+
 
 def check_credentials(username, password, request):
     """Basic auth implementation.
@@ -28,6 +30,10 @@ def check_credentials(username, password, request):
     userid = hmac.new(hmac_secret,
                       credentials.encode('utf-8'),
                       hashlib.sha256).hexdigest()
+
+    # Log authentication context.
+    logger.bind(auth_type='Basic')
+
     return ["basicauth_%s" % userid]
 
 
@@ -76,6 +82,10 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
             raise httpexceptions.HTTPServiceUnavailable()
         except (fxa_errors.InProtocolError, fxa_errors.TrustError):
             return None
+
+        # Log authentication context.
+        logger.bind(auth_type='FxA')
+
         return 'fxa_%s' % user_id
 
 

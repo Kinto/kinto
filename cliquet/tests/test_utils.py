@@ -1,7 +1,7 @@
 import os
 
 import colander
-from six import text_type
+import six
 
 from cliquet.utils import (native_value, strip_whitespace, random_bytes_hex,
                            read_env)
@@ -65,7 +65,7 @@ class CryptographicRandomBytesTest(unittest.TestCase):
 
     def test_return_text_string(self):
         value = random_bytes_hex(16)
-        self.assertIsInstance(value, text_type)
+        self.assertIsInstance(value, six.text_type)
 
 
 class ReadEnvironmentTest(unittest.TestCase):

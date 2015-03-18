@@ -6,15 +6,19 @@ import warnings
 
 from dateutil import parser as dateparser
 import pkg_resources
-import logging
+import structlog
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid_multiauth import MultiAuthenticationPolicy
 from pyramid.security import NO_PERMISSION_REQUIRED
 
+# Main Cliquet logger.
+logger = structlog.get_logger()
+
 from cliquet import authentication
 from cliquet import errors
+from cliquet import logs as cliquet_logs
 from cliquet import utils
 from cliquet.session import SessionCache
 
@@ -26,9 +30,6 @@ __version__ = pkg_resources.get_distribution(__package__).version
 
 # The API version is derivated from the module version.
 API_VERSION = 'v%s' % __version__.split('.')[0]
-
-# Main cliquet logger
-logger = logging.getLogger(__name__)
 
 
 DEFAULT_SETTINGS = {
@@ -44,6 +45,7 @@ DEFAULT_SETTINGS = {
     'cliquet.eos': None,
     'cliquet.eos_message': None,
     'cliquet.eos_url': None,
+    'cliquet.logging_renderer': 'cliquet.logs.ClassicLogRenderer',
     'cliquet.http_scheme': None,
     'cliquet.paginate_by': None,
     'cliquet.project_docs': '',
@@ -118,12 +120,10 @@ def attach_http_objects(config):
     """
 
     def on_new_request(event):
-        # Save the time the request was received by the server.
-        event.request._received_at = utils.msec_time()
-
         # Attach objects on requests for easier access.
         event.request.db = config.registry.storage
 
+        # Force request scheme from settings.
         http_scheme = config.registry.settings['cliquet.http_scheme']
         if http_scheme:
             event.request.scheme = http_scheme
@@ -131,22 +131,6 @@ def attach_http_objects(config):
     config.add_subscriber(on_new_request, NewRequest)
 
     def on_new_response(event):
-        if hasattr(event.request, '_received_at'):
-            duration = (utils.msec_time() - event.request._received_at)
-        else:
-            duration = "unknown"
-
-        # Display the status of the request as well as the time spent
-        # on the server.
-        pattern = '"{method} {path}" {status} {size} ({duration} ms)'
-        msg = pattern.format(
-            method=event.request.method,
-            path=event.request.path,
-            status=event.response.status_code,
-            size=event.response.content_length,
-            duration=duration)
-        logger.debug(msg)
-
         # Add backoff in response headers.
         backoff = '%s' % config.registry.settings['cliquet.backoff']
         if backoff is not None:
@@ -196,6 +180,9 @@ def includeme(config):
 
     load_default_settings(config)
     settings = config.get_settings()
+
+    # Configure cliquet logging.
+    cliquet_logs.setup_logging(config)
 
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")

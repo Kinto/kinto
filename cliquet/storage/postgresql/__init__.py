@@ -42,7 +42,7 @@ class PostgreSQLClient(object):
         except psycopg2.Error as e:
             if cursor:
                 logger.debug(cursor.query)
-            logger.exception(e)
+            logger.error(e)
             if conn and not conn.closed:
                 conn.rollback()
             raise exceptions.BackendError(original=e)

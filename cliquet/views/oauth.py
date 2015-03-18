@@ -8,10 +8,10 @@ from fxa import errors as fxa_errors
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 
+from cliquet import logger
 from cliquet import errors
 from cliquet.schema import URL
 from cliquet.views.errors import authorization_required
-from cliquet import logger
 
 
 login = Service(name='fxa-oauth-login',
@@ -94,7 +94,7 @@ def fxa_oauth_token(request):
     except fxa_errors.OutOfProtocolError:
         raise httpexceptions.HTTPServiceUnavailable()
     except fxa_errors.InProtocolError as error:
-        logger.exception(error)
+        logger.error(error)
         error_details = {
             'name': 'code',
             'location': 'querystring',

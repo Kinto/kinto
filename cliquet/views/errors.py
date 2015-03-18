@@ -79,10 +79,10 @@ def error(context, request):
         return reapply_cors(request, context)
 
     if isinstance(context, storage_exceptions.BackendError):
-        logger.exception(context.original)
+        logger.critical(context.original, exc_info=True)
         return service_unavailable(context, request)
 
-    logger.exception(context)
+    logger.error(context, exc_info=True)
 
     error_msg = "A programmatic error occured, developers have been informed."
     info = "https://github.com/mozilla-services/cliquet/issues/"

@@ -65,6 +65,45 @@ the past, the service will be declared as decomissionned.
     # cliquet.eos_url = http://website/info-shutdown.html
 
 
+
+Logging with Heka
+:::::::::::::::::
+
+Mozilla Services standard logging format can be enabled using:
+
+.. code-block :: ini
+
+    cliquet.logging_renderer = cliquet.logs.MozillaHekaRenderer
+
+
+With the following configuration, all logs to standard output are
+redirected to standard output:
+
+.. code-block :: ini
+
+    [loggers]
+    keys = root
+
+    [handlers]
+    keys = console
+
+    [formatters]
+    keys = heka
+
+    [logger_root]
+    level = INFO
+    handlers = console
+    formatter = heka
+
+    [handler_console]
+    class = StreamHandler
+    args = (sys.stderr,)
+    level = NOTSET
+
+    [formatter_heka]
+    format = %(message)s
+
+
 Storage
 =======
 

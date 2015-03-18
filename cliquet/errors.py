@@ -1,6 +1,7 @@
 import six
 from pyramid import httpexceptions
 
+from cliquet import logger
 from cliquet.utils import Enum, json, reapply_cors
 
 
@@ -81,9 +82,14 @@ def http_error(httpexception, errno=None,
     :returns: the formatted response object
     :rtype: pyramid.httpexceptions.HTTPException
     """
+    errno = errno or ERRORS.UNDEFINED
+
+    # Track error number for request summary
+    logger.bind(errno=errno)
+
     body = {
         "code": code or httpexception.code,
-        "errno": errno or ERRORS.UNDEFINED,
+        "errno": errno,
         "error": error or httpexception.title
     }
 

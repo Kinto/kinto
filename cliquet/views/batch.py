@@ -8,8 +8,8 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid import httpexceptions
 from six.moves.urllib import parse as urlparse
 
-from cliquet import logger
 from cliquet import errors
+from cliquet import logger
 from cliquet.utils import merge_dicts
 
 
@@ -76,9 +76,10 @@ batch = Service(name="batch", path='/batch',
 @batch.post(schema=BatchPayloadSchema, permission=NO_PERMISSION_REQUIRED)
 def post_batch(request):
     requests = request.validated['requests']
+    batch_size = len(requests)
 
     limit = request.registry.settings['cliquet.batch_max_requests']
-    if limit and len(requests) > limit:
+    if limit and len(requests) > int(limit):
         error_msg = 'Number of requests is limited to %s' % limit
         request.errors.add('body', 'requests', error_msg)
         return
@@ -90,21 +91,36 @@ def post_batch(request):
 
     responses = []
 
+    sublogger = logger.new()
+
     for subrequest_spec in requests:
         subrequest = build_request(request, subrequest_spec)
 
+        sublogger.bind(path=subrequest.path,
+                       method=subrequest.method)
+
         try:
             subresponse = request.invoke_subrequest(subrequest)
+
         except httpexceptions.HTTPException as e:
             error_msg = 'Failed batch subrequest'
             subresponse = errors.http_error(e, message=error_msg)
         except Exception as e:
-            logger.exception(e)
+            logger.error(e)
             subresponse = errors.http_error(
                 httpexceptions.HTTPInternalServerError())
 
+        sublogger.bind(code=subresponse.status_code)
+        sublogger.info('subrequest.summary')
+
         subresponse = build_response(subresponse, subrequest)
         responses.append(subresponse)
+
+    # Rebing batch request for summary
+    logger.bind(path=batch.path,
+                method=request.method,
+                batch_size=batch_size,
+                agent=request.headers.get('User-Agent'),)
 
     return {
         'responses': responses

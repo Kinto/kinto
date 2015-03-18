@@ -9,6 +9,7 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 import six
 from six.moves.urllib.parse import urlencode
 
+from cliquet import logger
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.errors import (http_error, raise_invalid, ERRORS,
                             json_error_handler)
@@ -62,6 +63,8 @@ class BaseResource(object):
                               user_id=request.authenticated_userid)
         self.timestamp = self.db.collection_timestamp(**self.db_kwargs)
         self.record_id = self.request.matchdict.get('id')
+        # Log resource context.
+        logger.bind(resource_name=self.name, resource_timestamp=self.timestamp)
 
     @property
     def name(self):
@@ -111,7 +114,6 @@ class BaseResource(object):
 
         if next_page:
             headers['Next-Page'] = next_page.encode('utf-8')
-
         body = {
             'items': records,
         }
@@ -241,6 +243,10 @@ class BaseResource(object):
         next_page = None
         if limit and len(records) == limit and total_records > limit:
             next_page = self._next_page_url(sorting, limit, records[-1])
+
+        # Bind metric about response size.
+        logger.bind(nb_records=len(records), limit=limit)
+
         return records, total_records, next_page
 
     def delete_records(self):
