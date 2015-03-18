@@ -153,7 +153,7 @@ def build_request(original, dict_obj):
         payload = json.dumps(payload)
 
     if six.PY3:
-        path = path.decode('utf-8')
+        path = path.decode('latin-1')
 
     request = Request.blank(path=path,
                             headers=headers,

@@ -4,10 +4,12 @@ Changelog
 This document describes changes between each past release.
 
 
-1.3 (unreleased)
-----------------
+1.2.1 (2015-03-18)
+------------------
 
-- Nothing changed yet.
+- Fix tests about unicode characters in BATCH querystring patch
+- Remove CREATE CAST for the postgresql backend
+- Fix environment variable override
 
 
 1.2 (2015-03-18)
