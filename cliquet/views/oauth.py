@@ -35,7 +35,7 @@ def fxa_conf(request, name):
 
 def persist_state(request):
     """Persist arbitrary string in session.
-    It will be matched when the user return from the OAuth server login
+    It will be matched when the user returns from the OAuth server login
     page.
     """
     state = uuid.uuid4().hex
@@ -59,7 +59,7 @@ def authorized_redirect(req):
 
     if not any((fnmatch(domain, auth) for auth in authorized)):
         req.errors.add('querystring', 'redirect',
-                       'redirect URL is not whitelisted')
+                       'redirect URL is not authorized')
 
 
 @login.get(schema=FxALoginRequest, permission=NO_PERMISSION_REQUIRED,
