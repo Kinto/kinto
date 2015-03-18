@@ -1,6 +1,7 @@
 import mock
 from fxa import errors as fxa_errors
 from six.moves.urllib.parse import parse_qs, urlparse
+from time import sleep
 
 from .support import BaseWebTest, unittest
 
@@ -48,7 +49,7 @@ class LoginViewTest(BaseWebTest, unittest.TestCase):
         url_fragments = urlparse(url)
         queryparams = parse_qs(url_fragments.query)
         state = queryparams['state'][0]
-        self.assertEqual(self.app.app.registry.cache.ttl(state), 3600)
+        self.assertEqual(self.app.app.registry.cache.ttl(state), 300)
 
     def test_login_view_persists_state_with_expiration_from_settings(self):
         r = self.app.get(self.url)
@@ -56,7 +57,7 @@ class LoginViewTest(BaseWebTest, unittest.TestCase):
         url_fragments = urlparse(url)
         queryparams = parse_qs(url_fragments.query)
         state = queryparams['state'][0]
-        self.assertEqual(self.app.app.registry.cache.ttl(state), 3600)
+        self.assertEqual(self.app.app.registry.cache.ttl(state), 300)
 
     @mock.patch('cliquet.views.oauth.uuid.uuid4')
     def test_login_view_redirects_to_authorization(self, mocked_uuid):
@@ -121,15 +122,18 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(url)
         self.app.get(url, status=401)
 
-    def test_fails_if_state_has_expired(self):
+    @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')
+    def test_fails_if_state_has_expired(self, mocked_trade):
+        mocked_trade.return_value = 'oauth-token'
         with mock.patch.dict(self.app.app.registry.settings,
-                             [('fxa-oauth.state.ttl_seconds', 0.0005)]):
+                             [('fxa-oauth.cache_ttl_seconds', 1)]):
             r = self.app.get(self.login_url)
         url = r.headers['Location']
         url_fragments = urlparse(url)
         queryparams = parse_qs(url_fragments.query)
         state = queryparams['state'][0]
         url = '{url}?state={state}&code=1234'.format(state=state, url=self.url)
+        sleep(1)
         self.app.get(url, status=401)
 
     @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')

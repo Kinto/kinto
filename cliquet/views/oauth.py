@@ -40,7 +40,7 @@ def persist_state(request):
     """
     state = uuid.uuid4().hex
     redirect_url = request.validated['redirect']
-    expiration = int(fxa_conf(request, 'state.ttl_seconds'))
+    expiration = int(fxa_conf(request, 'cache_ttl_seconds'))
     request.cache.set(state, redirect_url, expiration)
     return state
 
@@ -104,7 +104,6 @@ def fxa_oauth_token(request):
 
     # Make sure we cannot try twice with the same code
     request.registry.cache.delete(state)
-
     if not stored_redirect:
         return authorization_required(request)
 
