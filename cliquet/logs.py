@@ -84,8 +84,12 @@ class ClassicLogRenderer(object):
 
     """
     def __call__(self, logger, name, event_dict):
-        pattern = ('"{method: <5} {path}{querystring}" {code} ({t} ms)'
-                   ' {event} {context}')
+        if 'path' in event_dict:
+            pattern = ('"{method: <5} {path}{querystring}" {code} ({t} ms)'
+                       ' {event} {context}')
+        else:
+            pattern = '{event} {context}'
+
         output = {}
         for field in ['method', 'path', 'code', 't', 'event']:
             output[field] = event_dict.pop(field, '?')

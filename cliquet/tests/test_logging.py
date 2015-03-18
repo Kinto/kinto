@@ -44,8 +44,12 @@ class ClassicLogRendererTest(unittest.TestCase):
         value = self.renderer(self.logger, 'debug', {})
         self.assertIsInstance(value, six.string_types)
 
+    def test_output_is_simple_if_no_request_is_bound(self):
+        value = self.renderer(self.logger, 'debug', {'event': ':)'})
+        self.assertNotIn('? ms', value)
+
     def test_values_are_defaulted_to_question_mark(self):
-        value = self.renderer(self.logger, 'debug', {})
+        value = self.renderer(self.logger, 'debug', {'path': '/'})
         self.assertIn('? ms', value)
 
     def test_querystring_is_rendered_as_string(self):
