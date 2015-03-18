@@ -218,7 +218,7 @@ class CloudStorage(StorageBase):
             for filters in pagination_rules:
                 params_ = list(params)
                 params_ += [("%s%s" % (FILTERS[op], k), v)
-                              for k, v, op in filters]
+                            for k, v, op in filters]
                 querystring = '&'.join(['%s=%s' % (p, v) for p, v in params_])
                 batch_payload['requests'].append({
                     'path': url + '?%s' % querystring,

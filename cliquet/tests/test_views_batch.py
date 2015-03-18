@@ -298,15 +298,14 @@ class BatchServiceTest(unittest.TestCase):
         path = resp['responses'][0]['path'].decode('utf8')
         self.assertEqual(path, u'/v0/ð ®')
 
-    def test_number_of_requests_is_not_limited_by_default(self):
+    def test_number_of_requests_is_not_limited_when_settings_set_to_none(self):
+        self.request.registry.settings['cliquet.batch_max_requests'] = None
         requests = {}
         for i in range(500):
             requests.setdefault('requests', []).append({'path': '/'})
-        self.post(requests)
+            self.post(requests)
 
-    def test_return_400_if_number_of_requests_is_greater_than_settings(self):
-        self.request.registry.settings['cliquet.batch_max_requests'] = 25
-
+    def test_number_of_requests_is_limited_to_25_by_default(self):
         requests = {}
         for i in range(26):
             requests.setdefault('requests', []).append({'path': '/'})
@@ -314,4 +313,16 @@ class BatchServiceTest(unittest.TestCase):
 
         self.assertEqual(self.request.errors[0]['description'],
                          'Number of requests is limited to 25')
+        self.assertIsNone(result)  # rest of view not executed
+
+    def test_return_400_if_number_of_requests_is_greater_than_settings(self):
+        self.request.registry.settings['cliquet.batch_max_requests'] = 22
+
+        requests = {}
+        for i in range(23):
+            requests.setdefault('requests', []).append({'path': '/'})
+        result = self.post(requests)
+
+        self.assertEqual(self.request.errors[0]['description'],
+                         'Number of requests is limited to 22')
         self.assertIsNone(result)  # rest of view not executed
