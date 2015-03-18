@@ -71,34 +71,14 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     :note:
 
-        During the first run of the application, some tables, functions and
-        casts are created. This requires ``SUPERUSER`` privileges, or
-        some error will be raised.
-        (`must be owner of type timestamp without time zone or type bigint`)
-
-        The easiest solution is to **temporarily** assign maximum privileges
-        to the user:
-
-        ::
-
-            postgres=# CREATE DATABASE kintodb OWNER kinto;
-            CREATE DATABASE
-            postgres=# ALTER USER kinto SUPERUSER;
-            ALTER ROLE
-
-        Run the application once, and revoke the privilege:
-
-        ::
-
-            postgres=# ALTER USER kinto NOSUPERUSER;
-            ALTER ROLE
-
+        During the first run of the application, some tables, indices and
+        functions are created. This requires some privileges on the database,
+        or some error will be raised.
 
         **Alternatively**, the schema can be initialized outside the
         application starting process, using the SQL file located in
         :file:`cliquet/storage/postgresql/schema.sql`. This allows to
         distinguish schema manipulation privileges from schema usage.
-
 
     :note:
 
@@ -177,20 +157,20 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     def collection_timestamp(self, resource, user_id):
         query = """
-        SELECT resource_timestamp(%(user_id)s, %(resource_name)s)::BIGINT
-            AS timestamp;
+        SELECT as_epoch(resource_timestamp(%(user_id)s, %(resource_name)s))
+            AS last_modified;
         """
         placeholders = dict(user_id=user_id, resource_name=resource.name)
         with self.connect() as cursor:
             cursor.execute(query, placeholders)
             result = cursor.fetchone()
-        return result['timestamp']
+        return result['last_modified']
 
     def create(self, resource, user_id, record):
         query = """
         INSERT INTO records (user_id, resource_name, data)
         VALUES (%(user_id)s, %(resource_name)s, %(data)s::json)
-        RETURNING id, last_modified::BIGINT
+        RETURNING id, as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(user_id=user_id,
                             resource_name=resource.name,
@@ -209,7 +189,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     def get(self, resource, user_id, record_id):
         query = """
-        SELECT last_modified::BIGINT, data
+        SELECT as_epoch(last_modified) AS last_modified, data
           FROM records
          WHERE id = %(record_id)s::uuid
            AND user_id = %(user_id)s
@@ -232,14 +212,14 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         INSERT INTO records (id, user_id, resource_name, data)
         VALUES (%(record_id)s::uuid, %(user_id)s,
                 %(resource_name)s, %(data)s::json)
-        RETURNING last_modified::BIGINT
+        RETURNING as_epoch(last_modified) AS last_modified;
         """
 
         query_update = """
         UPDATE records SET data=%(data)s::json
         WHERE id = %(record_id)s::uuid
            AND user_id = %(user_id)s
-        RETURNING last_modified::BIGINT
+        RETURNING as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(record_id=record_id,
                             user_id=user_id,
@@ -278,7 +258,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         INSERT INTO deleted (id, user_id, resource_name)
         SELECT id, %(user_id)s, %(resource_name)s
           FROM deleted_record
-        RETURNING last_modified::BIGINT;
+        RETURNING as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(record_id=record_id,
                             user_id=user_id,
@@ -310,7 +290,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         INSERT INTO deleted (id, user_id, resource_name)
         SELECT id, %%(user_id)s, %%(resource_name)s
           FROM deleted_records
-        RETURNING id, last_modified::BIGINT;
+        RETURNING id, as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(user_id=user_id,
                             resource_name=resource.name)
@@ -340,7 +320,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                 pagination_rules=None, limit=None, include_deleted=False):
         query = """
         WITH collection_filtered AS (
-            SELECT id, last_modified::BIGINT, data
+            SELECT id, last_modified, data
               FROM records
              WHERE user_id = %%(user_id)s
                AND resource_name = %%(resource_name)s
@@ -354,7 +334,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             SELECT %%(deleted_field)s::json AS data
         ),
         filtered_deleted AS (
-            SELECT id, last_modified::BIGINT, fake_deleted.data AS data
+            SELECT id, last_modified, fake_deleted.data AS data
               FROM deleted, fake_deleted
              WHERE user_id = %%(user_id)s
                AND resource_name = %%(resource_name)s
@@ -371,7 +351,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
               FROM all_records
               %(pagination_rules)s
         )
-        SELECT total_filtered.count AS count_total, a.*
+        SELECT total_filtered.count AS count_total,
+               a.id, as_epoch(a.last_modified) AS last_modified, a.data
           FROM paginated_records AS p JOIN all_records AS a ON (a.id = p.id),
                total_filtered
           %(sorting)s
@@ -453,7 +434,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             if filtr.field == resource.id_field:
                 sql_field = 'id'
             elif filtr.field == resource.modified_field:
-                sql_field = 'last_modified::BIGINT'
+                sql_field = 'as_epoch(last_modified)'
             else:
                 # Safely escape field name
                 field_holder = '%s_field_%s' % (prefix, i)
