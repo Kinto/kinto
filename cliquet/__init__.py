@@ -107,8 +107,7 @@ def set_auth(config):
 
     config.set_authorization_policy(authz_policy)
     config.set_authentication_policy(authn_policy)
-    # XXX: Should be restore as soon as Cornice is fixed (see #273)
-    # config.set_default_permission('readwrite')
+    config.set_default_permission('readwrite')
 
 
 def attach_http_objects(config):
