@@ -95,6 +95,7 @@ class BaseWebTest(FakeAuthentMixin):
         settings['cliquet.project_name'] = 'cliquet'
         settings['cliquet.project_docs'] = 'https://cliquet.rtfd.org/'
         settings['fxa-oauth.oauth_uri'] = 'https://oauth-stable.dev.lcip.org'
+        settings['fxa-oauth.webapp.authorized_domains'] = ['*.firefox.com', ]
         return settings
 
     def tearDown(self):

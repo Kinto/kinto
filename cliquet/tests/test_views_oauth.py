@@ -6,11 +6,31 @@ from .support import BaseWebTest, unittest
 
 
 class LoginViewTest(BaseWebTest, unittest.TestCase):
-    url = '/fxa-oauth/login?redirect=http://perdu.com/'
+    url = '/fxa-oauth/login?redirect=https://readinglist.firefox.com'
 
     def test_redirect_parameter_is_mandatory(self):
         url = '/fxa-oauth/login'
         r = self.app.get(url, status=400)
+        self.assertIn('redirect', r.json['message'])
+
+    def test_redirect_parameter_should_be_refused_if_not_whitelisted(self):
+        url = '/fxa-oauth/login?redirect=http://not-whitelisted.tld'
+        r = self.app.get(url, status=400)
+        self.assertIn('redirect', r.json['message'])
+
+    def test_redirect_parameter_should_be_accepted_if_whitelisted(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('fxa-oauth.webapp.authorized_domains',
+                               '*.whitelist.ed')]):
+            url = '/fxa-oauth/login?redirect=http://iam.whitelist.ed'
+            self.app.get(url)
+
+    def test_redirect_parameter_should_be_rejected_if_no_whitelist(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('fxa-oauth.webapp.authorized_domains',
+                               '')]):
+            url = '/fxa-oauth/login?redirect=http://iam.whitelist.ed'
+            r = self.app.get(url, status=400)
         self.assertIn('redirect', r.json['message'])
 
     def test_login_view_persists_state(self):
@@ -20,7 +40,23 @@ class LoginViewTest(BaseWebTest, unittest.TestCase):
         queryparams = parse_qs(url_fragments.query)
         state = queryparams['state'][0]
         self.assertEqual(self.app.app.registry.session.get(state),
-                         'http://perdu.com/')
+                         'https://readinglist.firefox.com')
+
+    def test_login_view_persists_state_with_expiration(self):
+        r = self.app.get(self.url)
+        url = r.headers['Location']
+        url_fragments = urlparse(url)
+        queryparams = parse_qs(url_fragments.query)
+        state = queryparams['state'][0]
+        self.assertEqual(self.app.app.registry.session.ttl(state), 3600)
+
+    def test_login_view_persists_state_with_expiration_from_settings(self):
+        r = self.app.get(self.url)
+        url = r.headers['Location']
+        url_fragments = urlparse(url)
+        queryparams = parse_qs(url_fragments.query)
+        state = queryparams['state'][0]
+        self.assertEqual(self.app.app.registry.session.ttl(state), 3600)
 
     @mock.patch('cliquet.views.oauth.uuid.uuid4')
     def test_login_view_redirects_to_authorization(self, mocked_uuid):
@@ -60,6 +96,7 @@ class ParamsViewTest(BaseWebTest, unittest.TestCase):
 
 class TokenViewTest(BaseWebTest, unittest.TestCase):
     url = '/fxa-oauth/token'
+    login_url = '/fxa-oauth/login?redirect=https://readinglist.firefox.com'
 
     def test_fails_if_no_ongoing_session(self):
         url = '{url}?state=abc&code=1234'.format(url=self.url)
@@ -74,6 +111,25 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
     def test_fails_if_state_does_not_match(self):
         self.app.app.registry.session.set('def', 'http://foobar')
         url = '{url}?state=abc&code=1234'.format(url=self.url)
+        self.app.get(url, status=401)
+
+    @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')
+    def test_fails_if_state_was_already_consumed(self, mocked_trade):
+        mocked_trade.return_value = 'oauth-token'
+        self.app.app.registry.session.set('abc', 'http://foobar')
+        url = '{url}?state=abc&code=1234'.format(url=self.url)
+        self.app.get(url)
+        self.app.get(url, status=401)
+
+    def test_fails_if_state_has_expired(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('fxa-oauth.state.ttl_seconds', 0.0005)]):
+            r = self.app.get(self.login_url)
+        url = r.headers['Location']
+        url_fragments = urlparse(url)
+        queryparams = parse_qs(url_fragments.query)
+        state = queryparams['state'][0]
+        url = '{url}?state={state}&code=1234'.format(state=state, url=self.url)
         self.app.get(url, status=401)
 
     @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')

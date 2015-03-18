@@ -1,12 +1,15 @@
 import uuid
+from six.moves.urllib.parse import urlparse
+from fnmatch import fnmatch
 
 from cornice import Service
-from colander import MappingSchema, SchemaNode, String
+import colander
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.settings import aslist
 
 from cliquet import logger
 from cliquet import errors
@@ -26,23 +29,41 @@ token = Service(name='fxa-oauth-token',
 
 
 def fxa_conf(request, name):
-    return request.registry.settings['fxa-oauth.' + name]
+    key = 'fxa-oauth.' + name
+    return request.registry.settings[key]
 
 
 def persist_state(request):
     """Persist arbitrary string in session.
-    It will be compared when return from login page on OAuth server.
+    It will be matched when the user returns from the OAuth server login
+    page.
     """
     state = uuid.uuid4().hex
-    request.registry.session.set(state, request.validated['redirect'])
+    redirect_url = request.validated['redirect']
+    request.registry.session.set(state, redirect_url)
+    expiration = int(fxa_conf(request, 'state.ttl_seconds'))
+    request.registry.session.expire(state, expiration)
     return state
 
 
-class FxALoginRequest(MappingSchema):
+class FxALoginRequest(colander.MappingSchema):
     redirect = URL(location="querystring")
 
 
-@login.get(schema=FxALoginRequest, permission=NO_PERMISSION_REQUIRED)
+def authorized_redirect(req):
+    authorized = aslist(fxa_conf(req, 'webapp.authorized_domains'))
+    if 'redirect' not in req.validated:
+        return True
+
+    domain = urlparse(req.validated['redirect']).netloc
+
+    if not any((fnmatch(domain, auth) for auth in authorized)):
+        req.errors.add('querystring', 'redirect',
+                       'redirect URL is not authorized')
+
+
+@login.get(schema=FxALoginRequest, permission=NO_PERMISSION_REQUIRED,
+           validators=authorized_redirect)
 def fxa_oauth_login(request):
     """Helper to redirect client towards FxA login form."""
     state = persist_state(request)
@@ -67,9 +88,9 @@ def fxa_oauth_params(request):
     }
 
 
-class OAuthRequest(MappingSchema):
-    code = SchemaNode(String(), location="querystring")
-    state = SchemaNode(String(), location="querystring")
+class OAuthRequest(colander.MappingSchema):
+    code = colander.SchemaNode(colander.String(), location="querystring")
+    state = colander.SchemaNode(colander.String(), location="querystring")
 
 
 @token.get(schema=OAuthRequest, permission=NO_PERMISSION_REQUIRED)
@@ -81,6 +102,9 @@ def fxa_oauth_token(request):
 
     # Require on-going session
     stored_redirect = request.registry.session.get(state)
+
+    # Make sure we cannot try twice with the same code
+    request.registry.session.delete(state)
 
     if not stored_redirect:
         return authorization_required(request)
