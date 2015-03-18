@@ -1,7 +1,7 @@
 import uuid
 
 from cornice import Service
-from colander import MappingSchema, SchemaNode, String
+import colander
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
 
@@ -9,6 +9,7 @@ from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from cliquet import errors
+from cliquet.schema import URL
 from cliquet.views.errors import authorization_required
 from cliquet import logger
 
@@ -31,17 +32,27 @@ def fxa_conf(request, name):
 
 def persist_state(request):
     """Persist arbitrary string in session.
-    It will be compared when return from login page on OAuth server.
+    It will be matched when the user return from the OAuth server login
+    page.
     """
     state = uuid.uuid4().hex
-    redirect_url = fxa_conf(request, 'webapp.redirect_url')
+    redirect_url = request.validated['redirect']
     request.registry.session.set(state, redirect_url)
     expiration = int(fxa_conf(request, 'state.ttl_seconds'))
     request.registry.session.expire(state, expiration)
     return state
 
 
-@login.get(permission=NO_PERMISSION_REQUIRED)
+class RedirectURL(URL):
+    """String representing a URL."""
+    validator = colander.All(colander.url, colander.Length(min=1, max=2048))
+
+
+class FxALoginRequest(colander.MappingSchema):
+    redirect = RedirectURL(location="querystring")
+
+
+@login.get(schema=FxALoginRequest, permission=NO_PERMISSION_REQUIRED)
 def fxa_oauth_login(request):
     """Helper to redirect client towards FxA login form."""
     state = persist_state(request)
@@ -66,9 +77,9 @@ def fxa_oauth_params(request):
     }
 
 
-class OAuthRequest(MappingSchema):
-    code = SchemaNode(String(), location="querystring")
-    state = SchemaNode(String(), location="querystring")
+class OAuthRequest(colander.MappingSchema):
+    code = colander.SchemaNode(colander.String(), location="querystring")
+    state = colander.SchemaNode(colander.String(), location="querystring")
 
 
 @token.get(schema=OAuthRequest, permission=NO_PERMISSION_REQUIRED)

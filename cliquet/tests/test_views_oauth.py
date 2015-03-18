@@ -6,16 +6,21 @@ from .support import BaseWebTest, unittest
 
 
 class LoginViewTest(BaseWebTest, unittest.TestCase):
-    url = '/fxa-oauth/login'
+    url = '/fxa-oauth/login?redirect=https://readinglist.firefox.com'
 
-    def test_login_view_persists_state_from_config(self):
+    def test_redirect_parameter_is_mandatory(self):
+        url = '/fxa-oauth/login'
+        r = self.app.get(url, status=400)
+        self.assertIn('redirect', r.json['message'])
+
+    def test_login_view_persists_state(self):
         r = self.app.get(self.url)
         url = r.headers['Location']
         url_fragments = urlparse(url)
         queryparams = parse_qs(url_fragments.query)
         state = queryparams['state'][0]
         self.assertEqual(self.app.app.registry.session.get(state),
-                         'https://readinglist.firefox.com/#token=')
+                         'https://readinglist.firefox.com')
 
     def test_login_view_persists_state_with_expiration(self):
         r = self.app.get(self.url)
@@ -71,6 +76,7 @@ class ParamsViewTest(BaseWebTest, unittest.TestCase):
 
 class TokenViewTest(BaseWebTest, unittest.TestCase):
     url = '/fxa-oauth/token'
+    login_url = '/fxa-oauth/login?redirect=https://readinglist.firefox.com'
 
     def test_fails_if_no_ongoing_session(self):
         url = '{url}?state=abc&code=1234'.format(url=self.url)
@@ -98,7 +104,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
     def test_fails_if_state_has_expired(self):
         with mock.patch.dict(self.app.app.registry.settings,
                              [('fxa-oauth.state.ttl_seconds', 0.0005)]):
-            r = self.app.get('/fxa-oauth/login')
+            r = self.app.get(self.login_url)
         url = r.headers['Location']
         url_fragments = urlparse(url)
         queryparams = parse_qs(url_fragments.query)
