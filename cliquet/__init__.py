@@ -39,7 +39,7 @@ DEFAULT_SETTINGS = {
     'fxa-oauth.scope': 'profile',
     'cliquet.backoff': None,
     'cliquet.basic_auth_enabled': False,
-    'cliquet.batch_max_requests': None,
+    'cliquet.batch_max_requests': 25,
     'cliquet.delete_collection_enabled': True,
     'cliquet.eos': None,
     'cliquet.eos_message': None,
