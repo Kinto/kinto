@@ -30,7 +30,7 @@ POSTGRESQL_REQUIRES = [
 ]
 
 setup(name='cliquet',
-      version='1.2.1',
+      version='1.3.dev0',
       description='cliquet',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',
@@ -49,5 +49,5 @@ setup(name='cliquet',
       zip_safe=False,
       install_requires=REQUIREMENTS,
       extras_require={
-        'postgresql': REQUIREMENTS + POSTGRESQL_REQUIRES,
+          'postgresql': REQUIREMENTS + POSTGRESQL_REQUIRES,
       })
