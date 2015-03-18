@@ -6,6 +6,22 @@ from time import sleep
 from .support import BaseWebTest, unittest
 
 
+class DeactivatedOAuthRelierTest(BaseWebTest, unittest.TestCase):
+    def get_app_settings(self):
+        settings = super(DeactivatedOAuthRelierTest, self).get_app_settings()
+        settings['fxa-oauth.relier.enabled'] = False
+        return settings
+
+    def test_login_view_is_not_available(self):
+        self.app.get('/fxa-oauth/login', status=404)
+
+    def test_params_view_is_still_available(self):
+        self.app.get('/fxa-oauth/params', status=200)
+
+    def test_token_view_is_not_available(self):
+        self.app.get('/fxa-oauth/token', status=404)
+
+
 class LoginViewTest(BaseWebTest, unittest.TestCase):
     url = '/fxa-oauth/login?redirect=https://readinglist.firefox.com'
 
@@ -59,7 +75,7 @@ class LoginViewTest(BaseWebTest, unittest.TestCase):
         state = queryparams['state'][0]
         self.assertEqual(self.app.app.registry.cache.ttl(state), 300)
 
-    @mock.patch('cliquet.views.oauth.uuid.uuid4')
+    @mock.patch('cliquet.views.oauth.relier.uuid.uuid4')
     def test_login_view_redirects_to_authorization(self, mocked_uuid):
         mocked_uuid.return_value = mock.MagicMock(hex='1234')
         settings = self.app.app.registry.settings
@@ -114,7 +130,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
         url = '{url}?state=abc&code=1234'.format(url=self.url)
         self.app.get(url, status=401)
 
-    @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')
+    @mock.patch('cliquet.views.oauth.relier.OAuthClient.trade_code')
     def test_fails_if_state_was_already_consumed(self, mocked_trade):
         mocked_trade.return_value = 'oauth-token'
         self.app.app.registry.cache.set('abc', 'http://foobar')
@@ -122,7 +138,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(url)
         self.app.get(url, status=401)
 
-    @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')
+    @mock.patch('cliquet.views.oauth.relier.OAuthClient.trade_code')
     def test_fails_if_state_has_expired(self, mocked_trade):
         mocked_trade.return_value = 'oauth-token'
         with mock.patch.dict(self.app.app.registry.settings,
@@ -136,7 +152,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
         sleep(1)
         self.app.get(url, status=401)
 
-    @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')
+    @mock.patch('cliquet.views.oauth.relier.OAuthClient.trade_code')
     def tests_redirects_with_token_traded_against_code(self, mocked_trade):
         mocked_trade.return_value = 'oauth-token'
         self.app.app.registry.cache.set('abc', 'http://foobar?token=')
@@ -146,7 +162,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(r.headers['Location'],
                          'http://foobar?token=oauth-token')
 
-    @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')
+    @mock.patch('cliquet.views.oauth.relier.OAuthClient.trade_code')
     def tests_return_503_if_fxa_server_behaves_badly(self, mocked_trade):
         mocked_trade.side_effect = fxa_errors.OutOfProtocolError
 
@@ -154,7 +170,7 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
         url = '{url}?state=abc&code=1234'.format(url=self.url)
         self.app.get(url, status=503)
 
-    @mock.patch('cliquet.views.oauth.OAuthClient.trade_code')
+    @mock.patch('cliquet.views.oauth.relier.OAuthClient.trade_code')
     def tests_return_400_if_client_error_detected(self, mocked_trade):
         mocked_trade.side_effect = fxa_errors.ClientError
 
