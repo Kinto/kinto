@@ -1,7 +1,11 @@
 import base64
+import time
 
 import mock
 from fxa import errors as fxa_errors
+
+from cliquet.authentication import TokenVerificationCache
+from cliquet.cache import redis as redis_backend
 
 from .support import BaseWebTest, unittest
 
@@ -51,3 +55,26 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
     def test_views_are_forbidden_if_oauth2_scope_mismatch(self):
         self.fxa_verify.side_effect = fxa_errors.TrustError
         self.app.get(self.sample_url, headers=self.headers, status=401)
+
+
+class TokenVerificationCacheTest(unittest.TestCase):
+    def setUp(self):
+        self.cache = TokenVerificationCache(redis_backend.Redis(), 0.05)
+
+    def test_set_adds_the_record(self):
+        stored = 'toto'
+        self.cache.set('foobar', stored)
+        retrieved = self.cache.get('foobar')
+        self.assertEquals(retrieved, stored)
+
+    def test_delete_removes_the_record(self):
+        self.cache.set('foobar', 'toto')
+        self.cache.delete('foobar')
+        retrieved = self.cache.get('foobar')
+        self.assertIsNone(retrieved)
+
+    def test_set_expires_the_value(self):
+        self.cache.set('foobar', 'toto')
+        time.sleep(0.1)
+        retrieved = self.cache.get('foobar')
+        self.assertIsNone(retrieved)
