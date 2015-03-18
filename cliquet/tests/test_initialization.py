@@ -68,5 +68,5 @@ class InitializationTest(unittest.TestCase):
 
         os.environ.pop(envkey)
 
-        self.assertEqual(config.registry.settings['cliquet.project_name'],
-                         'abc')
+        project_used = config.registry.settings['cliquet.project_name']
+        self.assertEqual(project_used, 'abc')
