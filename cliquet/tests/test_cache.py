@@ -7,7 +7,7 @@ import redis
 from cliquet.storage import exceptions
 from cliquet.cache import CacheBase, SessionCache
 from cliquet.cache import (postgresql as postgresql_backend,
-                             redis as redis_backend)
+                           redis as redis_backend)
 
 from .support import unittest
 
