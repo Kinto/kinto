@@ -50,23 +50,20 @@ Install and setup PostgreSQL
 
  (*requires PostgreSQL 9.3 or higher*).
 
+Client libraries only
+---------------------
 
-Using Docker
-------------
+Install PostgreSQL client headers::
 
-::
-
-    docker run -e POSTGRES_PASSWORD=postgres -p 5434:5432 postgres
+    sudo apt-get install libpq-dev
 
 
-Linux
------
+Full server
+-----------
 
-On debian / ubuntu based systems:
+In Ubuntu/Debian based::
 
-::
-
-    apt-get install postgresql postgresql-contrib libpq-dev
+    sudo apt-get install postgresql
 
 
 By default, the ``postgres`` user has no password and can hence only connect
@@ -75,6 +72,37 @@ if ran by the ``postgres`` system user. The following command will assign it:
 ::
 
     sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+
+
+Server using Docker
+-------------------
+
+Install docker:
+
+On Ubuntu you can do:
+
+::
+
+    sudo apt-get install docker.io
+
+Run the official PostgreSQL container locally:
+
+::
+
+    postgres=$(sudo docker run -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres)
+
+Tag and save the current state with::
+
+    sudo docker commit $postgres kinto-db
+
+
+In the future, run the tagged version of the container ::
+
+    kinto=$(sudo docker run -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 kinto-db)
+
+    ...
+
+    sudo docker stop $kinto
 
 
 OS X
