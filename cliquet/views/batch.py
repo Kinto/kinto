@@ -138,7 +138,8 @@ def build_request(original, dict_obj):
     path = dict_obj['path']
     if not path.startswith(api_prefix):
         path = api_prefix + path
-    path = path.encode('utf8')
+
+    path = path.encode('utf-8')
 
     method = dict_obj.get('method') or 'GET'
     headers = dict(original.headers)
@@ -151,7 +152,10 @@ def build_request(original, dict_obj):
         headers['Content-Type'] = 'application/json; charset=utf-8'
         payload = json.dumps(payload)
 
-    request = Request.blank(path=path.decode('latin-1'),
+    if six.PY3:
+        path = path.decode('utf-8')
+
+    request = Request.blank(path=path,
                             headers=headers,
                             POST=payload,
                             method=method)
