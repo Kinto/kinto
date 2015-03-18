@@ -35,9 +35,9 @@ For development
 By default, Kinto persists the records and internal cache in a PostgreSQL
 database.
 
-The default configuration will connect to the `postgres` database on
-`localhost:5432`, with user/password `postgres/postgres`. See more details
-below about installation and setup of PostgreSQL.
+The default configuration will connect to the ``postgres`` database on
+``localhost:5432``, with user/password ``postgres``/``postgres``.
+See more details below about installation and setup of PostgreSQL.
 
 ::
 
@@ -89,8 +89,8 @@ On debian / ubuntu based systems:
     apt-get install postgresql postgresql-contrib
 
 
-By default, the `postgres` user has no password and can hence only connect
-if ran by the `postgres` system user. The following command will assign it:
+By default, the ``postgres`` user has no password and can hence only connect
+if ran by the ``postgres`` system user. The following command will assign it:
 
 ::
 
