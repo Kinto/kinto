@@ -1,4 +1,6 @@
 import uuid
+import urlparse
+from fnmatch import fnmatch
 
 from cornice import Service
 import colander
@@ -7,6 +9,7 @@ from fxa import errors as fxa_errors
 
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.settings import aslist
 
 from cliquet import errors
 from cliquet.schema import URL
@@ -43,16 +46,24 @@ def persist_state(request):
     return state
 
 
-class RedirectURL(URL):
-    """String representing a URL."""
-    validator = colander.All(colander.url, colander.Length(min=1, max=2048))
-
-
 class FxALoginRequest(colander.MappingSchema):
-    redirect = RedirectURL(location="querystring")
+    redirect = URL(location="querystring")
 
 
-@login.get(schema=FxALoginRequest, permission=NO_PERMISSION_REQUIRED)
+def authorized_redirect(req):
+    authorized = aslist(fxa_conf(req, 'webapp.authorized_domains'))
+    if 'redirect' not in req.validated:
+        return True
+
+    domain = urlparse.urlparse(req.validated['redirect']).netloc
+
+    if not any((fnmatch(domain, auth) for auth in authorized)):
+        req.errors.add('querystring', 'redirect',
+                       'redirect URL is not whitelisted')
+
+
+@login.get(schema=FxALoginRequest, permission=NO_PERMISSION_REQUIRED,
+           validators=authorized_redirect)
 def fxa_oauth_login(request):
     """Helper to redirect client towards FxA login form."""
     state = persist_state(request)

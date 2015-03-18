@@ -13,6 +13,26 @@ class LoginViewTest(BaseWebTest, unittest.TestCase):
         r = self.app.get(url, status=400)
         self.assertIn('redirect', r.json['message'])
 
+    def test_redirect_parameter_should_be_refused_if_not_whitelisted(self):
+        url = '/fxa-oauth/login?redirect=http://not-whitelisted.tld'
+        r = self.app.get(url, status=400)
+        self.assertIn('redirect', r.json['message'])
+
+    def test_redirect_parameter_should_be_accepted_if_whitelisted(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('fxa-oauth.webapp.authorized_domains',
+                               '*.whitelist.ed')]):
+            url = '/fxa-oauth/login?redirect=http://iam.whitelist.ed'
+            self.app.get(url)
+
+    def test_redirect_parameter_should_be_rejected_if_no_whitelist(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('fxa-oauth.webapp.authorized_domains',
+                               '')]):
+            url = '/fxa-oauth/login?redirect=http://iam.whitelist.ed'
+            r = self.app.get(url, status=400)
+        self.assertIn('redirect', r.json['message'])
+
     def test_login_view_persists_state(self):
         r = self.app.get(self.url)
         url = r.headers['Location']
