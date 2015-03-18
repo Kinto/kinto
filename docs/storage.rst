@@ -21,6 +21,13 @@ Memory
 
 .. autoclass:: cliquet.storage.memory.Memory
 
+
+Cloud Storage
+=============
+
+.. autoclass:: cliquet.storage.cloud_storage.CloudStorage
+
+
 API
 ===
 

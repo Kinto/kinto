@@ -57,7 +57,7 @@ class CloudStorage(StorageBase):
     :note:
 
         In order to avoid double checking of OAuth tokens, the Kinto service
-        and the application can share the same cache.
+        and the application can share the same cache (``cliquet.session_url``).
     """
 
     collection_url = "/collections/{0}/records"
