@@ -208,5 +208,4 @@ If you're a Mozilla service, fill the settings with the values you were provided
     fxa-oauth.oauth_uri = https://oauth-stable.dev.lcip.org
     fxa-oauth.scope = profile
     fxa-oauth.webapp.authorized_domains = *.firefox.com
-    # fxa-oauth.cache_ttl_seconds = 300
-    # fxa-oauth.state.ttl_seconds = 3600
+    # fxa-oauth.state.ttl_seconds = 300

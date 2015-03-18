@@ -18,6 +18,7 @@ from pyramid.settings import asbool
 logger = structlog.get_logger()
 
 from cliquet import authentication
+from cliquet import cache
 from cliquet import errors
 from cliquet import logs as cliquet_logs
 from cliquet import utils
@@ -99,8 +100,12 @@ def handle_api_redirection(config):
 def set_auth(config):
     """Define the authentication and authorization policies.
     """
+    settings = config.registry.settings
+    oauth_cache_ttl = int(settings['fxa-oauth.cache_ttl_seconds'])
+    oauth_cache = cache.SessionCache(config.registry.cache,
+                                     ttl=oauth_cache_ttl)
     policies = [
-        authentication.Oauth2AuthenticationPolicy(config),
+        authentication.Oauth2AuthenticationPolicy(oauth_cache),
         authentication.BasicAuthAuthenticationPolicy(),
     ]
     authn_policy = MultiAuthenticationPolicy(policies)
