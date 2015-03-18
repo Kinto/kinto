@@ -27,11 +27,17 @@ virtualenv: $(PYTHON)
 $(PYTHON):
 	virtualenv $(VENV)
 
-tests-once: install-dev
+tests-once: install-dev need-kinto-running
 	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-package=cliquet
 
-tests:
+tests: need-kinto-running
 	tox
+
+need-kinto-running:
+	@curl http://localhost:8888/v0/ 2>/dev/null 1>&2 || (echo "Run 'make runkinto' before starting tests." && exit 1)
+
+runkinto:
+	$(VENV)/bin/pserve cliquet/tests/config/kinto.ini
 
 clean:
 	find . -name '*.pyc' -delete
