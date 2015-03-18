@@ -69,7 +69,7 @@ class Redis(MemoryBasedStorage):
             '{0}.{1}.timestamp'.format(resource.name, user_id))
         if timestamp:
             return int(timestamp)
-        return utils.msec_time()
+        return self._bump_timestamp(resource, user_id)
 
     @wrap_redis_error
     def _bump_timestamp(self, resource, user_id):

@@ -122,12 +122,12 @@ def build_request(original, dict_obj):
     path = dict_obj['path']
     if not path.startswith(api_prefix):
         path = api_prefix + path
-    path = urlparse.quote(path.encode('utf8'))
+    path = path.encode('utf8')
 
     method = dict_obj.get('method') or 'GET'
     headers = dict(original.headers)
     headers.update(**dict_obj.get('headers') or {})
-    payload = dict_obj.get('body') or None
+    payload = dict_obj.get('body') or ''
 
     # Payload is always a dict (from ``BatchRequestSchema.body``).
     # Send it as JSON for subrequests.
@@ -151,7 +151,7 @@ def build_response(response, request):
     :param request: the request that was used to get the response.
     """
     dict_obj = {}
-    dict_obj['path'] = request.path
+    dict_obj['path'] = urlparse.unquote(request.path)
     dict_obj['status'] = response.status_code
     dict_obj['headers'] = dict(response.headers)
 

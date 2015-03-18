@@ -10,10 +10,17 @@ env:
     - TOX_ENV=flake8
     - TOX_ENV=docs
 before_install:
-  - sudo apt-get install postgresql-contrib-9.3
+    - sudo apt-get install postgresql-contrib-9.3
+    # <Kinto>
+    - git clone https://github.com/mozilla-services/kinto.git kinto
+    - pushd kinto
+    - make install-dev
+    - pserve ../cliquet/tests/config/kinto.ini&
+    - popd
+    # </Kinto>
 install:
     - pip install tox
 before_script:
-  - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres ; psql -c 'CREATE EXTENSION "uuid-ossp";' -U postgres
+    - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
 script:
     - tox -e $TOX_ENV
