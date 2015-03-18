@@ -205,7 +205,7 @@ def includeme(config):
 
     # Ignore FxA OAuth in case it's not activated (ignored by default).
     if not asbool(settings['fxa-oauth.relier.enabled']):
-        kwargs['ignore'] = 'cliquet.views.oauth'
+        kwargs['ignore'] = 'cliquet.views.oauth.relier'
 
     # Include cornice and discover views.
     config.include("cornice")

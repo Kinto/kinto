@@ -15,22 +15,15 @@ from cliquet import logger
 from cliquet import errors
 from cliquet.schema import URL
 from cliquet.views.errors import authorization_required
-
+from cliquet.views.oauth import fxa_conf
 
 login = Service(name='fxa-oauth-login',
                 path='/fxa-oauth/login',
                 error_handler=errors.json_error_handler)
-params = Service(name='fxa-oauth-params',
-                 path='/fxa-oauth/params',
-                 error_handler=errors.json_error_handler)
+
 token = Service(name='fxa-oauth-token',
                 path='/fxa-oauth/token',
                 error_handler=errors.json_error_handler)
-
-
-def fxa_conf(request, name):
-    key = 'fxa-oauth.' + name
-    return request.registry.settings[key]
 
 
 def persist_state(request):
@@ -75,16 +68,6 @@ def fxa_oauth_login(request):
     request.response.status_code = 302
     request.response.headers['Location'] = form_url
     return {}
-
-
-@params.get(permission=NO_PERMISSION_REQUIRED)
-def fxa_oauth_params(request):
-    """Helper to give Firefox Account configuration information."""
-    return {
-        'client_id': fxa_conf(request, 'client_id'),
-        'oauth_uri': fxa_conf(request, 'oauth_uri'),
-        'scope': fxa_conf(request, 'scope'),
-    }
 
 
 class OAuthRequest(colander.MappingSchema):
