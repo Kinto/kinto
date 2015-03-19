@@ -3,35 +3,35 @@ import statsd as statsd_module
 
 
 def noop(f):
-    """Just call the given function."""
+    """Decorator calling the decorated function"""
     @wraps(f)
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
     return wrapper
 
 
-statsd = None
+class StatsdClient(object):
+    statsd = None
+
+    @classmethod
+    def setup_client(cls, settings):
+        if settings['cliquet.statsd_endpoint'] is not None:
+            host, port = settings['cliquet.statsd_endpoint'].split(':')
+            cls.statsd = statsd_module.StatsClient(host, port)
+
+    @classmethod
+    def timer(cls, key):
+        if cls.statsd:
+            return cls.statsd.timer(key)
+        return noop
+
+    @classmethod
+    def incr(cls, key):
+        if cls.statsd:
+            return cls.statsd.incr(key)
 
 
-def setup_client(settings):
-    global statsd
-    if settings['cliquet.statsd_endpoint'] is not None:
-        host, port = settings['cliquet.statsd_endpoint'].split(':')
-        statsd = statsd_module.StatsClient(host, port)
-
-
-def timer(key_name):
-    if statsd:
-        return statsd.timer(key_name)
-    return noop
-
-
-def incr(key_name):
-    if statsd:
-        return statsd.incr(key_name)
-
-
-def get_statsd_timer(prefix):
+def get_statsd_metaclass(prefix):
     """Returns a Metaclass decorating all public methods with a statsd timer.
     """
     class StatsdTimer(type):
@@ -41,7 +41,7 @@ def get_statsd_timer(prefix):
             for key, value in members.items():
                 if not key.startswith('_') and hasattr(value, '__call__'):
                     statsd_key = "%s.%s.%s" % (prefix, name.lower(), key)
-                    attrs[key] = timer(statsd_key)(value)
+                    attrs[key] = StatsdClient.timer(statsd_key)(value)
                 else:
                     attrs[key] = value
 
@@ -49,5 +49,6 @@ def get_statsd_timer(prefix):
 
     return StatsdTimer
 
-StorageTimer = get_statsd_timer('storage')
-CacheTimer = get_statsd_timer('cache')
+StorageTimer = get_statsd_metaclass('storage')
+CacheTimer = get_statsd_metaclass('cache')
+set_client = StatsdClient.setup_client
