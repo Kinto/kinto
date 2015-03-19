@@ -21,9 +21,7 @@ Install packages as usual, for example install needed packages:
 
 ::
 
-    $ pip install cliquet
-    $ pip install waitress
-    $ pip install tox
+    $ pip install -r dev-requirements.txt
 
 Clone Kinto:
 
