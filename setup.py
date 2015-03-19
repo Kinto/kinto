@@ -23,6 +23,7 @@ REQUIREMENTS = [
     'requests',
     'six',
     'structlog',
+    'ujson'
 ]
 
 POSTGRESQL_REQUIRES = [

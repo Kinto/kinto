@@ -1,4 +1,3 @@
-import json
 import colander
 import six
 
@@ -10,7 +9,7 @@ from six.moves.urllib import parse as urlparse
 
 from cliquet import errors
 from cliquet import logger
-from cliquet.utils import merge_dicts
+from cliquet.utils import json, merge_dicts
 
 
 valid_http_method = colander.OneOf(('GET', 'HEAD', 'DELETE', 'TRACE',

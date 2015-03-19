@@ -1,10 +1,11 @@
-import json
 import random
 from base64 import b64encode, b64decode
 from six.moves.urllib.parse import parse_qs, urlparse
 
 from pyramid.httpexceptions import HTTPBadRequest
+
 from cliquet.tests.resource import BaseTest
+from cliquet.utils import json
 
 
 class PaginationTest(BaseTest):

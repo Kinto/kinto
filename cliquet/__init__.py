@@ -1,7 +1,6 @@
 """Main entry point
 """
 import datetime
-import json
 import warnings
 
 from dateutil import parser as dateparser
@@ -168,7 +167,7 @@ def end_of_life_tween_factory(handler, registry):
             else:
                 response = deprecated_response
                 alert['code'] = "hard-eol"
-            response.headers['Alert'] = json.dumps(alert)
+            response.headers['Alert'] = utils.json.dumps(alert)
             return response
         return handler(request)
     return eos_tween

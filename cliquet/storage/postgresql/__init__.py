@@ -1,5 +1,4 @@
 import contextlib
-import json
 import os
 from collections import defaultdict
 
@@ -10,7 +9,7 @@ from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
 from cliquet.storage import StorageBase, exceptions, Filter
-from cliquet.utils import COMPARISON
+from cliquet.utils import COMPARISON, json
 
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)

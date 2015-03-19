@@ -1,5 +1,3 @@
-import json
-
 import ast
 import os
 import six
@@ -9,6 +7,7 @@ from binascii import hexlify
 
 from cornice import cors
 from colander import null
+import ujson as json
 
 
 def strip_whitespace(v):
