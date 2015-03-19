@@ -7,7 +7,26 @@ This document describes changes between each past release.
 1.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+**New features**
+
+- Add PostgreSQL connection pooling, with new settings
+  ``cliquet.storage_pool_maxconn`` and ``cliquet.cache_pool_maxconn``
+  (*Default: 50*) (#112)
+- Add `StatsD <https://github.com/etsy/statsd/>`_ support,
+  enabled with ``cliquet.statsd_dsn`` (#114)
+- Add `Sentry <http://sentry.readthedocs.org>`_ support,
+  enabled with ``cliquet.sentry_dsn`` (#110)
+
+**Bug fixes**
+
+- Fix FxA verification cache not being used (#103)
+- Fix heartbeat database check (#109)
+- Fix PATCH endpoint crash if request has no body (#115)
+
+**Internal changes**
+
+- Switch to `ujson <https://pypi.python.org/pypi/ujson>`_ for JSON
+  de/serialization optimizations (#108)
 
 
 1.2.1 (2015-03-18)
@@ -23,39 +42,39 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
-* `cliquet.storage.postgresql` now uses UUID as record primary key (#70)
-* Settings ``cliquet.session_backend`` and ``cliquet.session_url`` were
+- `cliquet.storage.postgresql` now uses UUID as record primary key (#70)
+- Settings ``cliquet.session_backend`` and ``cliquet.session_url`` were
   renamed ``cliquet.cache_backend`` and ``cliquet.cache_url`` respectively.
-* FxA user ids are not hashed anymore (#82)
-* Setting ``cliquet.retry_after`` was renamed ``cliquet.retry_after_seconds``
-* OAuth2 redirect url now requires to be listed in
+- FxA user ids are not hashed anymore (#82)
+- Setting ``cliquet.retry_after`` was renamed ``cliquet.retry_after_seconds``
+- OAuth2 redirect url now requires to be listed in
   ``fxa-oauth.webapp.authorized_domains`` (e.g. ``*.mozilla.com``)
-* Batch are now limited to 25 requests by default (#90)
+- Batch are now limited to 25 requests by default (#90)
 
 **New features**
 
-* Every setting can be specified via an environment variable
+- Every setting can be specified via an environment variable
   (e.g. ``cliquet.storage_url`` with ``CLIQUET_STORAGE_URL``)
-* Logging now relies on `structlog <http://structlog.org>`_ (#78)
-* Logging output can be configured to stream JSON (#78)
-* New cache backend for PostgreSQL (#44)
-* Documentation was improved on various aspects (#64, #86)
-* Handle every backend errors and return 503 errors (#21)
-* State verification for OAuth2 dance now expires after 1 hour (#83)
+- Logging now relies on `structlog <http://structlog.org>`_ (#78)
+- Logging output can be configured to stream JSON (#78)
+- New cache backend for PostgreSQL (#44)
+- Documentation was improved on various aspects (#64, #86)
+- Handle every backend errors and return 503 errors (#21)
+- State verification for OAuth2 dance now expires after 1 hour (#83)
 
 **Bug fixes**
 
-* FxA OAuth views errors are now JSON formatted (#67)
-* Prevent error when pagination token has bad format (#72)
-* List of CORS exposed headers were fixed in POST on collection (#54)
+- FxA OAuth views errors are now JSON formatted (#67)
+- Prevent error when pagination token has bad format (#72)
+- List of CORS exposed headers were fixed in POST on collection (#54)
 
 **Internal changes**
 
-* Added a method in `cliquet.resource.Resource` to override known fields
+- Added a method in `cliquet.resource.Resource` to override known fields
   (*required by Kinto*)
-* Every setting has a default value
-* Every end-point requires authentication by default
-* Session backend was renamed to cache (#96)
+- Every setting has a default value
+- Every end-point requires authentication by default
+- Session backend was renamed to cache (#96)
 
 
 1.1.4 (2015-03-03)
