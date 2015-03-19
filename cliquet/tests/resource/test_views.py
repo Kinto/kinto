@@ -189,6 +189,13 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
                               status=400)
         self.assertIn('escape sequence', resp.json['message'])
 
+    def test_modify_with_empty_returns_400(self):
+        resp = self.app.patch(self.get_item_url(),
+                              '',
+                              headers=self.headers,
+                              status=400)
+        self.assertIn('Empty body', resp.json['message'])
+
 
 class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
     def setUp(self):

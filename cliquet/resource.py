@@ -190,6 +190,12 @@ class BaseResource(object):
         record = self.get_record(self.record_id)
         self._raise_412_if_modified(record)
 
+        if not self.request.body:
+            error_details = {
+                'description': 'Empty body'
+            }
+            raise_invalid(self.request, **error_details)
+
         changes = self.request.json
 
         updated = self.apply_changes(record, changes=changes)
