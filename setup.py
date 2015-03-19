@@ -24,7 +24,7 @@ REQUIREMENTS = [
     'six',
     'statsd',
     'structlog',
-    'ujson'
+    'ujson',
     'raven',
 ]
 
