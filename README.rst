@@ -1,5 +1,5 @@
-Cliquet
-=======
+Kinto
+=====
 
 |travis| |readthedocs|
 

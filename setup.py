@@ -15,7 +15,7 @@ REQUIREMENTS = [
     'cornice',
     'six',
     'waitress',
-    'cliquet[postgresql] >= 1.2'
+    'cliquet[postgresql] >= 1.3.1'
 ]
 
 ENTRY_POINTS = {

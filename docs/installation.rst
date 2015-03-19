@@ -1,19 +1,15 @@
 Installation
 ############
 
+By default, Kinto persists the records and internal cache in a PostgreSQL
+database.
+
 
 Run locally
 ===========
 
-Kinto is based on top of the `cliquet <https://cliquet.rtfd.org>`_ project, and
-as such, please refer to cliquet's documentation regarding API and endpoints.
-
-
 For development
 ---------------
-
-By default, Kinto persists the records and internal cache in a PostgreSQL
-database.
 
 The default configuration will connect to the ``postgres`` database on
 ``localhost:5432``, with user/password ``postgres``/``postgres``.
