@@ -709,7 +709,7 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
     def test_backend_error_is_raised_anywhere(self):
         pass
 
-    def test_ping_returns_an_error_if_unavailable(self):
+    def test_ping_returns_false_if_unavailable(self):
         pass
 
     def test_default_generator(self):
@@ -732,8 +732,8 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
             'execute_command',
             side_effect=redis.RedisError)
 
-    def test_ping_returns_an_error_if_unavailable(self):
-        StorageTest.test_ping_returns_an_error_if_unavailable(self)
+    def test_ping_returns_false_if_unavailable(self):
+        StorageTest.test_ping_returns_false_if_unavailable(self)
 
     def test_backend_error_provides_original_exception(self):
         StorageTest.test_backend_error_provides_original_exception(self)
