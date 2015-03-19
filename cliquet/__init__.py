@@ -11,9 +11,10 @@ import webob
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
-from pyramid_multiauth import MultiAuthenticationPolicy
+from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool
+from pyramid_multiauth import MultiAuthenticationPolicy
 
 # Main Cliquet logger.
 logger = structlog.get_logger()
@@ -183,6 +184,10 @@ def includeme(config):
     # Monkey patch to use ujson
     webob.request.json = utils.json
     requests.models.json = utils.json
+
+    # Override json renderer using ujson
+    renderer = JSONRenderer(serializer=lambda v, **kw: utils.json.dumps(v))
+    config.add_renderer('json', renderer)
 
     load_default_settings(config)
     settings = config.get_settings()
