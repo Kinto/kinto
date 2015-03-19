@@ -67,7 +67,7 @@ DEFAULT_SETTINGS = {
     'cliquet.userid_hmac_secret': '',
     'cliquet.sentry_url': None,
     'cliquet.sentry_projects': '',
-    'cliquet.statsd_endpoint': None,
+    'cliquet.statsd_url': None,
 }
 
 
@@ -225,7 +225,9 @@ def includeme(config):
     # Handle sentry
     handle_sentry(config)
 
-    statsd.setup_client(settings)
+    # Handle StatsD
+    if settings['cliquet.statsd_url']:
+        statsd.setup_client(settings)
 
     storage = config.maybe_dotted(settings['cliquet.storage_backend'])
     config.registry.storage = storage.load_from_config(config)

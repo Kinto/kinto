@@ -35,13 +35,14 @@ class StatsdMetaclassTest(unittest.TestCase):
 
 
 class StatsdClientTest(unittest.TestCase):
+    settings = {'cliquet.statsd_url': 'udp://foo:1234'}
 
     @mock.patch('cliquet.statsd.statsd_module')
     def test_setup_client_reads_the_settings(self, module_mock):
-        statsd.Client.setup_client({'cliquet.statsd_endpoint': 'foo:bar'})
-        module_mock.StatsClient.assert_called_with('foo', 'bar')
+        statsd.Client.setup_client(self.settings)
+        module_mock.StatsClient.assert_called_with('foo', 1234)
 
     @mock.patch('cliquet.statsd.statsd_module')
     def test_setup_client_setups_a_class_argument(self, module_mock):
-        statsd.Client.setup_client({'cliquet.statsd_endpoint': 'foo:bar'})
+        statsd.Client.setup_client(self.settings)
         self.assertIsNotNone(statsd.Client.statsd)

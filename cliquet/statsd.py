@@ -1,5 +1,7 @@
 from functools import wraps
+
 import statsd as statsd_module
+from six.moves.urllib import parse as urlparse
 
 
 def noop(f):
@@ -15,9 +17,9 @@ class Client(object):
 
     @classmethod
     def setup_client(cls, settings):
-        if settings['cliquet.statsd_endpoint'] is not None:
-            host, port = settings['cliquet.statsd_endpoint'].split(':')
-            cls.statsd = statsd_module.StatsClient(host, port)
+        uri = settings['cliquet.statsd_url']
+        uri = urlparse.urlparse(uri)
+        cls.statsd = statsd_module.StatsClient(uri.hostname, uri.port)
 
     @classmethod
     def timer(cls, key):
