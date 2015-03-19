@@ -13,9 +13,9 @@ This document describes changes between each past release.
   ``cliquet.storage_pool_maxconn`` and ``cliquet.cache_pool_maxconn``
   (*Default: 50*) (#112)
 - Add `StatsD <https://github.com/etsy/statsd/>`_ support,
-  enabled with ``cliquet.statsd_dsn`` (#114)
+  enabled with ``cliquet.statsd_url = udp://server:port`` (#114)
 - Add `Sentry <http://sentry.readthedocs.org>`_ support,
-  enabled with ``cliquet.sentry_dsn`` (#110)
+  enabled with ``cliquet.sentry_url = http://user:pass@server/1`` (#110)
 
 **Bug fixes**
 
