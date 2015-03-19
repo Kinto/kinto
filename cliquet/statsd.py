@@ -10,7 +10,7 @@ def noop(f):
     return wrapper
 
 
-class StatsdClient(object):
+class Client(object):
     statsd = None
 
     @classmethod
@@ -31,7 +31,7 @@ class StatsdClient(object):
             return cls.statsd.incr(key)
 
 
-def get_statsd_metaclass(prefix):
+def get_metaclass(prefix):
     """Returns a Metaclass decorating all public methods with a statsd timer.
     """
     class StatsdTimer(type):
@@ -41,7 +41,7 @@ def get_statsd_metaclass(prefix):
             for key, value in members.items():
                 if not key.startswith('_') and hasattr(value, '__call__'):
                     statsd_key = "%s.%s.%s" % (prefix, name.lower(), key)
-                    attrs[key] = StatsdClient.timer(statsd_key)(value)
+                    attrs[key] = Client.timer(statsd_key)(value)
                 else:
                     attrs[key] = value
 
@@ -49,6 +49,6 @@ def get_statsd_metaclass(prefix):
 
     return StatsdTimer
 
-StorageTimer = get_statsd_metaclass('storage')
-CacheTimer = get_statsd_metaclass('cache')
-set_client = StatsdClient.setup_client
+StorageTimer = get_metaclass('storage')
+CacheTimer = get_metaclass('cache')
+setup_client = Client.setup_client
