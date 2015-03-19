@@ -12,7 +12,6 @@ from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.utils import COMPARISON, json
 
 
-psycopg2.extras.register_json(loads=json.loads)
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 
@@ -35,6 +34,8 @@ class PostgreSQLClient(object):
         cursor = None
         try:
             conn = psycopg2.connect(**self._conn_kwargs)
+            # Will use ujson
+            psycopg2.extras.register_json(conn, loads=json.loads)
             options = dict(cursor_factory=psycopg2.extras.DictCursor)
             cursor = conn.cursor(**options)
             yield cursor
