@@ -776,6 +776,11 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             side_effect=psycopg2.DatabaseError)
 
     def test_ping_updates_a_value_in_the_metadata_table(self):
+        with self.storage.connect() as cursor:
+            insert = "INSERT INTO metadata VALUES ('last_heartbeat', '')"
+            cursor.execute(insert)
+            cursor.connection.commit()
+
         query = "SELECT value FROM metadata WHERE name='last_heartbeat';"
         with self.storage.connect() as cursor:
             cursor.execute(query)

@@ -127,6 +127,7 @@ def load_from_config(config):
     pool_maxconn = int(settings['cliquet.cache_pool_maxconn'])
 
     conn_kwargs = dict(max_connections=pool_maxconn,
+                       host=uri.hostname,
                        port=uri.port,
                        user=uri.username,
                        password=uri.password,

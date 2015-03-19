@@ -203,7 +203,7 @@ def handle_sentry(config):
             include_paths=['cornice', 'cliquet'] + extra_projects,
             release=settings['cliquet.project_version'])
 
-        msg = "{cliquet.project_name} {cliquet.project_version} starting."
+        msg = "%(cliquet.project_name)s %(cliquet.project_version)s starting."
         raven_client.captureMessage(msg % settings)
 
 

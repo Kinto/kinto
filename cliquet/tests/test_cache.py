@@ -43,7 +43,7 @@ class BaseTestCache(object):
         """
         if settings is None:
             settings = self.settings
-        return mock.Mock(registry=mock.Mock(settings=settings))
+        return mock.Mock(get_settings=mock.Mock(return_value=settings))
 
     def tearDown(self):
         mock.patch.stopall()
@@ -128,6 +128,7 @@ class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(PostgreSQLCacheTest, self).__init__(*args, **kwargs)
-        self.client_error_patcher = mock.patch(
-            'cliquet.storage.postgresql.psycopg2.connect',
-            side_effect=psycopg2.OperationalError)
+        self.client_error_patcher = mock.patch.object(
+            self.cache.pool,
+            'getconn',
+            side_effect=psycopg2.DatabaseError)
