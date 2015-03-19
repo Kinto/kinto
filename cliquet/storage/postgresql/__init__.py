@@ -9,7 +9,7 @@ from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
 from cliquet.storage import StorageBase, exceptions, Filter
-from cliquet.statsd import StatsdClient
+from cliquet import statsd
 from cliquet.utils import COMPARISON, json
 
 
@@ -22,7 +22,7 @@ class PostgreSQLClient(object):
     def __init__(self, *args, **kwargs):
         self._conn_kwargs = kwargs
 
-    @StatsdClient.timer('storage.postgresql.connect')
+    @statsd.timer('storage.postgresql.connect')
     @contextlib.contextmanager
     def connect(self):
         """Connect to the database and instantiates a cursor.
@@ -94,7 +94,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         super(PostgreSQL, self).__init__(*args, **kwargs)
         self._init_schema()
 
-    @StatsdClient.timer('storage.postgresql._init_schema')
+    @statsd.timer('storage.postgresql._init_schema')
     def _init_schema(self):
         """Create PostgreSQL tables, only if not exists.
 
@@ -134,7 +134,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             cursor.execute(schema)
         logger.info('Created PostgreSQL storage tables')
 
-    @StatsdClient.timer('storage.postgresql.flush')
+    @statsd.timer('storage.postgresql.flush')
     def flush(self):
         """Delete records from tables without destroying schema. Mainly used
         in tests suites.
@@ -147,7 +147,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             cursor.execute(query)
         logger.debug('Flushed PostgreSQL storage tables')
 
-    @StatsdClient.timer('storage.postgresql.ping')
+    @statsd.timer('storage.postgresql.ping')
     def ping(self):
         query = """
         UPDATE metadata
@@ -161,7 +161,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         except:
             return False
 
-    @StatsdClient.timer('storage.postgresql.collection_timestamp')
+    @statsd.timer('storage.postgresql.collection_timestamp')
     def collection_timestamp(self, resource, user_id):
         query = """
         SELECT as_epoch(resource_timestamp(%(user_id)s, %(resource_name)s))
@@ -173,7 +173,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             result = cursor.fetchone()
         return result['last_modified']
 
-    @StatsdClient.timer('storage.postgresql.record_create')
+    @statsd.timer('storage.postgresql.record_create')
     def create(self, resource, user_id, record):
         query = """
         INSERT INTO records (user_id, resource_name, data)
@@ -195,7 +195,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         record[resource.modified_field] = inserted['last_modified']
         return record
 
-    @StatsdClient.timer('storage.postgresql.record_get')
+    @statsd.timer('storage.postgresql.record_get')
     def get(self, resource, user_id, record_id):
         query = """
         SELECT as_epoch(last_modified) AS last_modified, data
@@ -216,7 +216,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         record[resource.modified_field] = result['last_modified']
         return record
 
-    @StatsdClient.timer('storage.postgresql.record_update')
+    @statsd.timer('storage.postgresql.record_update')
     def update(self, resource, user_id, record_id, record):
         query_create = """
         INSERT INTO records (id, user_id, resource_name, data)
@@ -256,7 +256,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         record[resource.modified_field] = result['last_modified']
         return record
 
-    @StatsdClient.timer('storage.postgresql.record_delete')
+    @statsd.timer('storage.postgresql.record_delete')
     def delete(self, resource, user_id, record_id):
         query = """
         WITH deleted_record AS (
@@ -288,7 +288,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         record[resource.deleted_field] = True
         return record
 
-    @StatsdClient.timer('storage.postgresql.delete_all_records')
+    @statsd.timer('storage.postgresql.delete_all_records')
     def delete_all(self, resource, user_id, filters=None):
         query = """
         WITH deleted_records AS (
@@ -328,7 +328,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         return records
 
-    @StatsdClient.timer('storage.postgresql.get_all_records')
+    @statsd.timer('storage.postgresql.get_all_records')
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
         query = """

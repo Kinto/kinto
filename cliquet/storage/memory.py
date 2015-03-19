@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from cliquet import utils
 from cliquet.storage import StorageBase, exceptions, Filter
-from cliquet.statsd import StatsdClient
+from cliquet import statsd
 from cliquet.utils import COMPARISON
 
 
@@ -31,7 +31,7 @@ class MemoryBasedStorage(StorageBase):
             id_generator = UUID4Generator()
         self.id_generator = id_generator
 
-    @StatsdClient.timer('storage.memory.delete_all_records')
+    @statsd.timer('storage.memory.delete_all_records')
     def delete_all(self, resource, user_id, filters=None):
         records, count = self.get_all(resource, user_id, filters=filters)
         deleted = [self.delete(resource, user_id, r[resource.id_field])
@@ -57,7 +57,7 @@ class MemoryBasedStorage(StorageBase):
     def _bump_timestamp(self, resource, user_id):
         raise NotImplementedError
 
-    @StatsdClient.timer('storage.memory.check_unicity')
+    @statsd.timer('storage.memory.check_unicity')
     def check_unicity(self, resource, user_id, record):
         """Check that the specified record does not violates unicity
         constraints defined in the resource's mapping options.
@@ -136,17 +136,17 @@ class Memory(MemoryBasedStorage):
         super(Memory, self).__init__(*args, **kwargs)
         self.flush()
 
-    @StatsdClient.timer('storage.memory.flush')
+    @statsd.timer('storage.memory.flush')
     def flush(self):
         self._store = tree()
         self._cemetery = tree()
         self._timestamps = defaultdict(dict)
 
-    @StatsdClient.timer('storage.memory.ping')
+    @statsd.timer('storage.memory.ping')
     def ping(self):
         return True
 
-    @StatsdClient.timer('storage.memory.collection_timestamp')
+    @statsd.timer('storage.memory.collection_timestamp')
     def collection_timestamp(self, resource, user_id):
         ts = self._timestamps[resource.name].get(user_id)
         if ts is not None:
@@ -169,7 +169,7 @@ class Memory(MemoryBasedStorage):
         self._timestamps[resource.name][user_id] = current
         return current
 
-    @StatsdClient.timer('storage.memory.record_create')
+    @statsd.timer('storage.memory.record_create')
     def create(self, resource, user_id, record):
         self.check_unicity(resource, user_id, record)
 
@@ -179,14 +179,14 @@ class Memory(MemoryBasedStorage):
         self._store[resource.name][user_id][_id] = record
         return record
 
-    @StatsdClient.timer('storage.memory.record_get')
+    @statsd.timer('storage.memory.record_get')
     def get(self, resource, user_id, record_id):
         collection = self._store[resource.name][user_id]
         if record_id not in collection:
             raise exceptions.RecordNotFoundError(record_id)
         return collection[record_id]
 
-    @StatsdClient.timer('storage.memory.record_update')
+    @statsd.timer('storage.memory.record_update')
     def update(self, resource, user_id, record_id, record):
         record = record.copy()
         record[resource.id_field] = record_id
@@ -196,7 +196,7 @@ class Memory(MemoryBasedStorage):
         self._store[resource.name][user_id][record_id] = record
         return record
 
-    @StatsdClient.timer('storage.memory.record_delete')
+    @statsd.timer('storage.memory.record_delete')
     def delete(self, resource, user_id, record_id):
         existing = self.get(resource, user_id, record_id)
         self.set_record_timestamp(resource, user_id, existing)
@@ -208,7 +208,7 @@ class Memory(MemoryBasedStorage):
 
         return existing
 
-    @StatsdClient.timer('storage.memory.get_all_records')
+    @statsd.timer('storage.memory.get_all_records')
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
         records = list(self._store[resource.name][user_id].values())

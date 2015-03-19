@@ -1,5 +1,5 @@
 from functools import wraps
-import statsd
+import statsd as statsd_module
 
 
 def dummy_decorator(f):
@@ -10,23 +10,24 @@ def dummy_decorator(f):
     return wrapper
 
 
-class StatsdClient(object):
-    """This act as a proxy for statsd calls."""
-    statsd = None
+statsd = None
 
-    @classmethod
-    def setup_client(cls, settings):
-        if settings['cliquet.statsd_endpoint'] is not None:
-            host, port = settings['cliquet.statsd_endpoint'].split(':')
-            cls.statsd = statsd.StatsClient(host, port)
 
-    @classmethod
-    def timer(cls, key_name):
-        if cls.statsd:
-            return cls.statsd.timer(key_name)
-        return dummy_decorator
+def setup_client(settings):
+    global statsd
+    if settings['cliquet.statsd_endpoint'] is not None:
+        host, port = settings['cliquet.statsd_endpoint'].split(':')
+        statsd = statsd_module.StatsClient(host, port)
 
-    @classmethod
-    def incr(cls, key_name):
-        if cls.statsd:
-            return cls.statsd.incr(key_name)
+
+def timer(key_name):
+    global statsd
+    if statsd:
+        return statsd.timer(key_name)
+    return dummy_decorator
+
+
+def incr(key_name):
+    global statsd
+    if statsd:
+        return statsd.incr(key_name)

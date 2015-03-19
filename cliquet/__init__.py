@@ -23,7 +23,7 @@ logger = structlog.get_logger()
 from cliquet import authentication
 from cliquet import errors
 from cliquet import logs as cliquet_logs
-from cliquet.statsd import StatsdClient
+from cliquet import statsd
 from cliquet import utils
 
 from cornice import Service
@@ -225,7 +225,7 @@ def includeme(config):
     # Handle sentry
     handle_sentry(config)
 
-    StatsdClient.setup_client(settings)
+    statsd.setup_client(settings)
 
     storage = config.maybe_dotted(settings['cliquet.storage_backend'])
     config.registry.storage = storage.load_from_config(config)
