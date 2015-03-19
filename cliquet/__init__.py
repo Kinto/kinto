@@ -66,6 +66,16 @@ DEFAULT_SETTINGS = {
 }
 
 
+def monkey_patch_json(config):
+    # Monkey patch to use ujson
+    webob.request.json = utils.json
+    requests.models.json = utils.json
+
+    # Override json renderer using ujson
+    renderer = JSONRenderer(serializer=lambda v, **kw: utils.json.dumps(v))
+    config.add_renderer('json', renderer)
+
+
 def load_default_settings(config):
     """Read settings provided in Paste ini file, set default values and
     replace if defined as environment variable.
@@ -181,13 +191,7 @@ def includeme(config):
     Service.cors_origins = ('*',)
     Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
 
-    # Monkey patch to use ujson
-    webob.request.json = utils.json
-    requests.models.json = utils.json
-
-    # Override json renderer using ujson
-    renderer = JSONRenderer(serializer=lambda v, **kw: utils.json.dumps(v))
-    config.add_renderer('json', renderer)
+    monkey_patch_json(config)
 
     load_default_settings(config)
     settings = config.get_settings()
