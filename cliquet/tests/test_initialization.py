@@ -70,3 +70,43 @@ class InitializationTest(unittest.TestCase):
 
         project_used = config.registry.settings['cliquet.project_name']
         self.assertEqual(project_used, 'abc')
+
+
+class SentryConfigurationTest(unittest.TestCase):
+
+    @mock.patch('cliquet.raven.Client')
+    def test_sentry_isnt_called_if_sentry_dsn_is_not_set(self, mocked_raven):
+        config = Configurator(settings={
+            'cliquet.sentry_dsn': None
+        })
+        cliquet.handle_sentry(config)
+        mocked_raven.assert_not_called()
+
+    @mock.patch('cliquet.raven.Client')
+    def test_sentry_is_called_if_sentry_dsn_is_set(self, mocked_raven):
+        config = Configurator(settings={
+            'cliquet.sentry_dsn': 'xxx',
+            'cliquet.sentry_projects': 'foo,bar',
+            'cliquet.project_name': 'name',
+            'cliquet.project_version': 'x.y.z'
+        })
+        cliquet.handle_sentry(config)
+        mocked_raven.assert_called_with(
+            'xxx',
+            release='x.y.z',
+            include_paths=['cornice', 'cliquet', 'foo,bar']
+        )
+
+    @mock.patch('cliquet.raven.Client')
+    def test_sentry_sends_message_on_startup(self, mocked_raven):
+        mocked_client = mock.MagicMock()
+        mocked_raven.return_value = mocked_client
+        config = Configurator(settings={
+            'cliquet.sentry_dsn': 'xxx',
+            'cliquet.sentry_projects': 'foo,bar',
+            'cliquet.project_name': 'name',
+            'cliquet.project_version': 'x.y.z'
+        })
+        cliquet.handle_sentry(config)
+        mocked_client.captureMessage.assert_called_once_with(
+            'name x.y.z starting.')
