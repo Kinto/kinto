@@ -205,7 +205,7 @@ def includeme(config):
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")
 
-    if settings.get('cliquet.sentry_dsn') is not None:
+    if settings['cliquet.sentry_dsn']:
         raven.Client(
             settings['cliquet.sentry_dsn'],
             include_paths=['cornice', 'cliquet'] +
