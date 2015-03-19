@@ -5,8 +5,8 @@ import os
 from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
+from cliquet.statsd import CacheStatsdTimer
 from cliquet.cache import CacheBase
-from cliquet import statsd
 from cliquet.storage.postgresql import PostgreSQLClient
 
 
@@ -41,11 +41,13 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         boost performances and bound memory usage (*work_mem per connection*).
 
     """
+
+    __metaclass__ = CacheStatsdTimer
+
     def __init__(self, **kwargs):
         super(PostgreSQL, self).__init__(**kwargs)
         self._init_schema()
 
-    @statsd.timer('cache.postgresql.init_schema')
     def _init_schema(self):
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
@@ -54,7 +56,6 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
             cursor.execute(schema)
         logger.info('Created PostgreSQL cache tables')
 
-    @statsd.timer('cache.postgresql.flush')
     def flush(self):
         query = """
         DELETE FROM cache;
@@ -63,7 +64,6 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
             cursor.execute(query)
         logger.debug('Flushed PostgreSQL cache tables')
 
-    @statsd.timer('cache.postgresql.ping')
     def ping(self):
         try:
             self.set('heartbeat', True)
@@ -71,7 +71,6 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         except:
             return False
 
-    @statsd.timer('cache.postgresql.ttl')
     def ttl(self, key):
         query = """
         SELECT EXTRACT(SECOND FROM (ttl - now())) AS ttl
@@ -85,7 +84,6 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
                 return cursor.fetchone()['ttl']
         return -1
 
-    @statsd.timer('cache.postgresql.expire')
     def expire(self, key, ttl):
         query = """
         UPDATE cache SET ttl = sec2ttl(%s) WHERE key = %s;
@@ -93,7 +91,6 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         with self.connect() as cursor:
             cursor.execute(query, (ttl, key,))
 
-    @statsd.timer('cache.postgresql.set')
     def set(self, key, value, ttl=None):
         query = """
         WITH upsert AS (
@@ -107,7 +104,6 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         with self.connect() as cursor:
             cursor.execute(query, dict(key=key, value=value, ttl=ttl))
 
-    @statsd.timer('cache.postgresql.get')
     def get(self, key):
         purge = "DELETE FROM cache WHERE ttl IS NOT NULL AND now() > ttl;"
         query = "SELECT value FROM cache WHERE key = %s;"
@@ -117,7 +113,6 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
             if cursor.rowcount > 0:
                 return cursor.fetchone()['value']
 
-    @statsd.timer('cache.postgresql.delete')
     def delete(self, key):
         query = "DELETE FROM cache WHERE key = %s"
         with self.connect() as cursor:

@@ -20,6 +20,7 @@ class StorageBase(object):
 
     :raises: pyramid.httpexceptions.HTTPServiceUnavailable
     """
+
     def flush(self):
         """Remove every record from the storage.
         """

@@ -5,7 +5,7 @@ import redis
 from six.moves.urllib import parse as urlparse
 
 from cliquet.cache import CacheBase
-from cliquet import statsd
+from cliquet.statsd import CacheStatsdTimer
 from cliquet.storage.redis import wrap_redis_error
 
 
@@ -20,6 +20,9 @@ class Redis(CacheBase):
 
         cliquet.cache_url = redis://localhost:6379/1
     """
+
+    __metaclass__ = CacheStatsdTimer
+
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
         self._client = redis.StrictRedis(
@@ -28,11 +31,9 @@ class Redis(CacheBase):
         )
 
     @wrap_redis_error
-    @statsd.timer('cache.redis.flush')
     def flush(self):
         self._client.flushdb()
 
-    @statsd.timer('cache.redis.ping')
     def ping(self):
         try:
             self._client.setex('heartbeat', 3600, time.time())
@@ -41,12 +42,10 @@ class Redis(CacheBase):
             return False
 
     @wrap_redis_error
-    @statsd.timer('cache.redis.ttl')
     def ttl(self, key):
         return self._client.ttl(key)
 
     @wrap_redis_error
-    @statsd.timer('cache.redis.expire')
     def expire(self, key, value):
         self._client.pexpire(key, int(value * 1000))
 
@@ -58,14 +57,12 @@ class Redis(CacheBase):
             self._client.set(key, value)
 
     @wrap_redis_error
-    @statsd.timer('cache.redis.get')
     def get(self, key):
         value = self._client.get(key)
         if value:
             return value.decode('utf-8')
 
     @wrap_redis_error
-    @statsd.timer('cache.redis.delete')
     def delete(self, key):
         self._client.delete(key)
 
