@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 
@@ -8,6 +7,7 @@ from pyramid import testing
 
 from cliquet import DEFAULT_SETTINGS
 from cliquet import logs as cliquet_logs
+from cliquet.utils import json
 
 from .support import BaseWebTest, unittest
 

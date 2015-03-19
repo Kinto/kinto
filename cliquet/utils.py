@@ -1,5 +1,3 @@
-import json
-
 import ast
 import os
 import six
@@ -7,6 +5,7 @@ import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
 
+import ujson as json
 from cornice import cors
 from colander import null
 

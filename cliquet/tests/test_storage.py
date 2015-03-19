@@ -803,20 +803,23 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         self.assertEqual(len(results), 2)
 
     def test_connection_is_rolledback_if_error_occurs(self):
-        failing_execute = mock.Mock(side_effect=psycopg2.Error)
-        fake_cursor = mock.MagicMock(execute=failing_execute)
-        fake_get_cursor = mock.Mock(return_value=fake_cursor)
+        try:
+            with self.storage.connect() as cursor:
+                query = "INSERT INTO metadata VALUES ('roll', 'back');"
+                cursor.execute(query)
+                cursor.connection.commit()
 
-        fake_rollback = mock.MagicMock()
-        fake_connection = mock.MagicMock(closed=False,
-                                         cursor=fake_get_cursor,
-                                         rollback=fake_rollback)
-        with mock.patch('cliquet.storage.postgresql.psycopg2.connect',
-                        return_value=fake_connection):
-            self.assertRaises(Exception,
-                              self.storage.collection_timestamp,
-                              self.resource, 'bar')
-            self.assertTrue(fake_rollback.called)
+                query = "INSERT INTO metadata VALUES ('roll', 'rock');"
+                cursor.execute(query)
+
+                raise psycopg2.Error()
+        except exceptions.BackendError:
+            pass
+
+        with self.storage.connect() as cursor:
+            query = "SELECT COUNT(*) FROM metadata WHERE name = 'roll';"
+            cursor.execute(query)
+            self.assertEqual(cursor.fetchone()[0], 1)
 
 
 class CloudStorageTest(StorageTest, unittest.TestCase):

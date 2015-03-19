@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from functools import wraps
 
-import json
 import redis
 import time
 from six.moves.urllib import parse as urlparse
@@ -45,12 +44,12 @@ class Redis(MemoryBasedStorage):
         )
 
     def _encode(self, record):
-        return json.dumps(record)
+        return utils.json.dumps(record)
 
     def _decode(self, record):
         if record is None:
             return record
-        return json.loads(record.decode('utf-8'))
+        return utils.json.loads(record.decode('utf-8'))
 
     @wrap_redis_error
     def flush(self):

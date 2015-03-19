@@ -1,5 +1,4 @@
 import contextlib
-import json
 import os
 from collections import defaultdict
 
@@ -10,7 +9,7 @@ from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
 from cliquet.storage import StorageBase, exceptions, Filter
-from cliquet.utils import COMPARISON
+from cliquet.utils import COMPARISON, json
 
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
@@ -35,6 +34,8 @@ class PostgreSQLClient(object):
         cursor = None
         try:
             conn = psycopg2.connect(**self._conn_kwargs)
+            # Will use ujson
+            psycopg2.extras.register_json(conn, loads=json.loads)
             options = dict(cursor_factory=psycopg2.extras.DictCursor)
             cursor = conn.cursor(**options)
             yield cursor

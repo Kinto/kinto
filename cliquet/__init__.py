@@ -1,18 +1,20 @@
 """Main entry point
 """
 import datetime
-import json
 import warnings
 
 from dateutil import parser as dateparser
 import pkg_resources
+import requests
 import structlog
+import webob
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
-from pyramid_multiauth import MultiAuthenticationPolicy
+from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool
+from pyramid_multiauth import MultiAuthenticationPolicy
 
 # Main Cliquet logger.
 logger = structlog.get_logger()
@@ -62,6 +64,16 @@ DEFAULT_SETTINGS = {
     'cliquet.storage_max_fetch_size': 10000,
     'cliquet.userid_hmac_secret': '',
 }
+
+
+def monkey_patch_json(config):
+    # Monkey patch to use ujson
+    webob.request.json = utils.json
+    requests.models.json = utils.json
+
+    # Override json renderer using ujson
+    renderer = JSONRenderer(serializer=lambda v, **kw: utils.json.dumps(v))
+    config.add_renderer('json', renderer)
 
 
 def load_default_settings(config):
@@ -168,7 +180,7 @@ def end_of_life_tween_factory(handler, registry):
             else:
                 response = deprecated_response
                 alert['code'] = "hard-eol"
-            response.headers['Alert'] = json.dumps(alert)
+            response.headers['Alert'] = utils.json.dumps(alert)
             return response
         return handler(request)
     return eos_tween
@@ -178,6 +190,8 @@ def includeme(config):
     # Monkey Patch Cornice Service to setup the global CORS configuration.
     Service.cors_origins = ('*',)
     Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
+
+    monkey_patch_json(config)
 
     load_default_settings(config)
     settings = config.get_settings()
