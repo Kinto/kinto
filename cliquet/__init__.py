@@ -179,8 +179,11 @@ def includeme(config):
     Service.cors_origins = ('*',)
     Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
 
-    # Monkey Patch webob to use ujson
+    # Monkey patch webob to use ujson
     webob.request.json = utils.json
+
+    # Monkey patch structlog use ujson
+    structlog.processors.json = utils.json
 
     load_default_settings(config)
     settings = config.get_settings()
