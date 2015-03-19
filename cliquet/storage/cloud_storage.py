@@ -4,8 +4,7 @@ import requests
 import six
 from requests.exceptions import RequestException
 
-from cliquet import logger
-from cliquet.statsd import StorageStatsdTimer
+from cliquet import logger, statsd
 from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.storage.memory import apply_sorting, get_unicity_rules
 from cliquet.utils import json, COMPARISON
@@ -61,7 +60,7 @@ class CloudStorage(StorageBase):
         and the application can share the same cache (``cliquet.cache_url``).
     """
 
-    __metaclass__ = StorageStatsdTimer
+    __metaclass__ = statsd.StorageTimer
 
     collection_url = "/collections/{0}/records"
     record_url = "/collections/{0}/records/{1}"

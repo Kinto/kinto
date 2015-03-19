@@ -3,8 +3,7 @@ import six
 from collections import defaultdict
 from uuid import uuid4
 
-from cliquet import utils
-from cliquet.statsd import StorageStatsdTimer
+from cliquet import utils, statsd
 from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.utils import COMPARISON
 
@@ -27,7 +26,7 @@ class MemoryBasedStorage(StorageBase):
     methods for in-memory implementations of sorting and filtering.
     """
 
-    __metaclass__ = StorageStatsdTimer
+    __metaclass__ = statsd.StorageTimer
 
     def __init__(self, id_generator=None, *args, **kwargs):
         if id_generator is None:

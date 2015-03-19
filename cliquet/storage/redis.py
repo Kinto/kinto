@@ -5,8 +5,7 @@ import redis
 import time
 from six.moves.urllib import parse as urlparse
 
-from cliquet import utils
-from cliquet.statsd import StorageStatsdTimer
+from cliquet import utils, statsd
 from cliquet.storage import exceptions
 from cliquet.storage.memory import MemoryBasedStorage
 
@@ -37,7 +36,7 @@ class Redis(MemoryBasedStorage):
         cliquet.storage_url = redis://localhost:6379/0
     """
 
-    __metaclass__ = StorageStatsdTimer
+    __metaclass__ = statsd.StorageTimer
 
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)

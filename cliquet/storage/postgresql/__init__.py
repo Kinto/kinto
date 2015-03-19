@@ -8,7 +8,7 @@ import six
 from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
-from cliquet.statsd import StorageStatsdTimer
+from cliquet import statsd
 from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.utils import COMPARISON, json
 
@@ -89,7 +89,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     """
 
-    __metaclass__ = StorageStatsdTimer
+    __metaclass__ = statsd.StorageTimer
 
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')

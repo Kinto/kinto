@@ -2,7 +2,7 @@ from functools import wraps
 import statsd as statsd_module
 
 
-def dummy_decorator(f):
+def noop(f):
     """Just call the given function."""
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -23,7 +23,7 @@ def setup_client(settings):
 def timer(key_name):
     if statsd:
         return statsd.timer(key_name)
-    return dummy_decorator
+    return noop
 
 
 def incr(key_name):
@@ -31,16 +31,17 @@ def incr(key_name):
         return statsd.incr(key_name)
 
 
-def getStatsdTimer(prefix):
+def get_statsd_timer(prefix):
+    """Returns a Metaclass decorating all public methods with a statsd timer.
+    """
     class StatsdTimer(type):
-        """Decorate all methods with a statsd timer."""
 
         def __new__(cls, name, bases, members):
             attrs = {}
             for key, value in members.items():
                 if not key.startswith('_') and hasattr(value, '__call__'):
-                    attrs[key] = timer("%s.%s.%s" % (prefix,
-                                                     name.lower(), key))(value)
+                    statsd_key = "%s.%s.%s" % (prefix, name.lower(), key)
+                    attrs[key] = timer(statsd_key)(value)
                 else:
                     attrs[key] = value
 
@@ -48,5 +49,5 @@ def getStatsdTimer(prefix):
 
     return StatsdTimer
 
-StorageStatsdTimer = getStatsdTimer('storage')
-CacheStatsdTimer = getStatsdTimer('cache')
+StorageTimer = get_statsd_timer('storage')
+CacheTimer = get_statsd_timer('cache')

@@ -5,7 +5,7 @@ import os
 from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
-from cliquet.statsd import CacheStatsdTimer
+from cliquet import statsd
 from cliquet.cache import CacheBase
 from cliquet.storage.postgresql import PostgreSQLClient
 
@@ -42,7 +42,7 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
 
     """
 
-    __metaclass__ = CacheStatsdTimer
+    __metaclass__ = statsd.CacheTimer
 
     def __init__(self, **kwargs):
         super(PostgreSQL, self).__init__(**kwargs)
