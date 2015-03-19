@@ -22,6 +22,7 @@ REQUIREMENTS = [
     'redis',  # Default backend
     'requests',
     'six',
+    'statsd',
     'structlog',
     'ujson'
     'raven',

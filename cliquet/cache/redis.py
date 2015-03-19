@@ -19,6 +19,7 @@ class Redis(CacheBase):
 
         cliquet.cache_url = redis://localhost:6379/1
     """
+
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
         self._client = redis.StrictRedis(

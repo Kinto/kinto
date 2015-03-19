@@ -116,6 +116,17 @@ Sentry logging can be enabled (disabled by default):
 
 A basic message will be sent to sentry when the application starts.
 
+
+Monitoring with StatsD
+::::::::::::::::::::::
+
+StatsD metrics can be enabled (disabled by default):
+
+.. code-block :: ini
+
+    cliquet.statsd_url = udp://localhost:8125
+
+
 Storage
 =======
 

@@ -5,8 +5,8 @@ import os
 from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
-from cliquet.storage.postgresql import PostgreSQLClient
 from cliquet.cache import CacheBase
+from cliquet.storage.postgresql import PostgreSQLClient
 
 
 class PostgreSQL(PostgreSQLClient, CacheBase):
@@ -40,6 +40,7 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         boost performances and bound memory usage (*work_mem per connection*).
 
     """
+
     def __init__(self, **kwargs):
         super(PostgreSQL, self).__init__(**kwargs)
         self._init_schema()

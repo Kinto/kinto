@@ -87,6 +87,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         boost performances and bound memory usage (*work_mem per connection*).
 
     """
+
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')
         super(PostgreSQL, self).__init__(*args, **kwargs)
@@ -138,6 +139,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         query = """
         DELETE FROM deleted;
         DELETE FROM records;
+        DELETE FROM metadata;
         """
         with self.connect() as cursor:
             cursor.execute(query)

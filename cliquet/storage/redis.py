@@ -35,6 +35,7 @@ class Redis(MemoryBasedStorage):
 
         cliquet.storage_url = redis://localhost:6379/0
     """
+
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
         kwargs.pop('id_generator', None)

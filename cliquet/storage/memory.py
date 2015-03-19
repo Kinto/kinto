@@ -25,6 +25,7 @@ class MemoryBasedStorage(StorageBase):
     """Abstract storage class, providing basic operations and
     methods for in-memory implementations of sorting and filtering.
     """
+
     def __init__(self, id_generator=None, *args, **kwargs):
         if id_generator is None:
             id_generator = UUID4Generator()

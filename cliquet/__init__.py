@@ -23,6 +23,7 @@ logger = structlog.get_logger()
 from cliquet import authentication
 from cliquet import errors
 from cliquet import logs as cliquet_logs
+from cliquet import statsd
 from cliquet import utils
 
 from cornice import Service
@@ -66,6 +67,7 @@ DEFAULT_SETTINGS = {
     'cliquet.userid_hmac_secret': '',
     'cliquet.sentry_url': None,
     'cliquet.sentry_projects': '',
+    'cliquet.statsd_url': None,
 }
 
 
@@ -191,17 +193,25 @@ def end_of_life_tween_factory(handler, registry):
 
 def handle_sentry(config):
     settings = config.get_settings()
+
     if settings['cliquet.sentry_url']:
+        extra_projects = aslist(settings['cliquet.sentry_projects'])
         raven_client = raven.Client(
             settings['cliquet.sentry_url'],
-            include_paths=['cornice', 'cliquet'] +
-            aslist(settings['cliquet.sentry_projects']),
+            include_paths=['cornice', 'cliquet'] + extra_projects,
             release=settings['cliquet.project_version'])
 
-        raven_client.captureMessage("%s %s starting." % (
-            settings['cliquet.project_name'],
-            settings['cliquet.project_version']
-        ))
+        msg = "{cliquet.project_name} {cliquet.project_version} starting."
+        raven_client.captureMessage(msg % settings)
+
+
+def handle_statsd(config):
+    settings = config.get_settings()
+
+    if settings['cliquet.statsd_url']:
+        client = statsd.load_from_config(config)
+        client.watch_execution_time(config.registry.cache, prefix='cache')
+        client.watch_execution_time(config.registry.storage, prefix='storage')
 
 
 def includeme(config):
@@ -228,6 +238,9 @@ def includeme(config):
 
     cache = config.maybe_dotted(settings['cliquet.cache_backend'])
     config.registry.cache = cache.load_from_config(config)
+
+    # Handle StatsD
+    handle_statsd(config)
 
     set_auth(config)
     attach_http_objects(config)

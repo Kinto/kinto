@@ -65,7 +65,6 @@ class CloudStorage(StorageBase):
 
     def __init__(self, server_url, *args, **kwargs):
         super(CloudStorage, self).__init__(*args, **kwargs)
-
         self._client = requests.Session()
         self.server_url = server_url
 
