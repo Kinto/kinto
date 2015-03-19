@@ -817,7 +817,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             pass
 
         with self.storage.connect() as cursor:
-            query = "SELECT COUNT(*) FROM metadata WHERE name = 'roll';";
+            query = "SELECT COUNT(*) FROM metadata WHERE name = 'roll';"
             cursor.execute(query)
             self.assertEqual(cursor.fetchone()[0], 1)
 
