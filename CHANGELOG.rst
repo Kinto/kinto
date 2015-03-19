@@ -4,8 +4,8 @@ Changelog
 This document describes changes between each past release.
 
 
-1.3 (2015-03-19)
-----------------
+1.3.0 (2015-03-20)
+------------------
 
 **New features**
 
