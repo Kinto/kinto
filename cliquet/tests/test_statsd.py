@@ -35,12 +35,9 @@ class StatsdClientTest(unittest.TestCase):
         self.test_object._private_method()
         self.mocked_client.timer.assert_not_called()
 
-
     @mock.patch('cliquet.statsd.statsd_module')
     def test_load_from_config(self, module_mock):
         config = testing.setUp()
         config.registry.settings = self.settings
         statsd.load_from_config(config)
         module_mock.StatsClient.assert_called_with('foo', 1234)
-
-

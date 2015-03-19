@@ -3,7 +3,7 @@ import six
 from collections import defaultdict
 from uuid import uuid4
 
-from cliquet import utils, statsd
+from cliquet import utils
 from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.utils import COMPARISON
 

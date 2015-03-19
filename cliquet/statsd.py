@@ -11,8 +11,8 @@ class Client(object):
         self._client = statsd_module.StatsClient(host, port)
 
     def watch_execution_time(self, obj, prefix=''):
-        members = dir(obj)
         classname = utils.classname(obj)
+        members = dir(obj)
         for name in members:
             value = getattr(obj, name)
             if not name.startswith('_') and hasattr(value, '__call__'):
