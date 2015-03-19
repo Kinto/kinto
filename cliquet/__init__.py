@@ -61,6 +61,7 @@ DEFAULT_SETTINGS = {
     'cliquet.retry_after_seconds': 30,
     'cliquet.cache_backend': 'cliquet.cache.redis',
     'cliquet.cache_url': '',
+    'cliquet.cache_pool_maxconn': 50,
     'cliquet.storage_backend': 'cliquet.storage.redis',
     'cliquet.storage_url': '',
     'cliquet.storage_pool_maxconn': 50,
