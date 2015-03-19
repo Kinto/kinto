@@ -152,6 +152,9 @@ Cache
     cliquet.cache_backend = cliquet.cache.redis
     cliquet.cache_url = redis://localhost:6379/0
 
+    # Control number of pooled connections
+    # cliquet.cache_pool_maxconn = 50
+
 See :ref:`cache backend documentation <cache>` for more details.
 
 

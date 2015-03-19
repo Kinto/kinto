@@ -56,9 +56,7 @@ class TestResource(object):
 class BaseTestStorage(object):
     backend = None
 
-    settings = {
-        'cliquet.storage_url': ''
-    }
+    settings = {}
 
     def __init__(self, *args, **kwargs):
         super(BaseTestStorage, self).__init__(*args, **kwargs)
@@ -74,7 +72,7 @@ class BaseTestStorage(object):
         """
         if settings is None:
             settings = self.settings
-        return mock.Mock(registry=mock.Mock(settings=settings))
+        return mock.Mock(get_settings=mock.Mock(return_value=settings))
 
     def tearDown(self):
         mock.patch.stopall()
@@ -718,12 +716,16 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
     def test_custom_generator(self):
         def l(x):
             return x
-        storage = self.storage.__class__(id_generator=l)
+        storage = self.storage.__class__(id_generator=l, max_connections=0)
         self.assertEqual(storage.id_generator, l)
 
 
 class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
     backend = redisbackend
+    settings = {
+        'cliquet.storage_pool_maxconn': 50,
+        'cliquet.storage_url': ''
+    }
 
     def __init__(self, *args, **kwargs):
         super(RedisStorageTest, self).__init__(*args, **kwargs)
@@ -797,8 +799,9 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         results, count = self.storage.get_all(self.resource, self.user_id)
         self.assertEqual(len(results), 4)
 
-        config = self._get_config()
-        config.registry.settings['cliquet.storage_max_fetch_size'] = 2
+        settings = self.settings.copy()
+        settings['cliquet.storage_max_fetch_size'] = 2
+        config = self._get_config(settings=settings)
         limited = self.backend.load_from_config(config)
 
         results, count = limited.get_all(self.resource, self.user_id)

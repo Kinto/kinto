@@ -31,10 +31,7 @@ class CacheBaseTest(unittest.TestCase):
 
 class BaseTestCache(object):
     backend = None
-
-    settings = {
-        'cliquet.cache_url': ''
-    }
+    settings = {}
 
     def __init__(self, *args, **kwargs):
         super(BaseTestCache, self).__init__(*args, **kwargs)
@@ -108,6 +105,10 @@ class BaseTestCache(object):
 
 class RedisCacheTest(BaseTestCache, unittest.TestCase):
     backend = redis_backend
+    settings = {
+        'cliquet.cache_url': '',
+        'cliquet.cache_pool_maxconn': 50
+    }
 
     def __init__(self, *args, **kwargs):
         super(RedisCacheTest, self).__init__(*args, **kwargs)
@@ -119,8 +120,8 @@ class RedisCacheTest(BaseTestCache, unittest.TestCase):
 
 class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     backend = postgresql_backend
-
     settings = {
+        'cliquet.cache_pool_maxconn': 50,
         'cliquet.cache_url':
             'postgres://postgres:postgres@localhost:5432/testdb'
     }

@@ -586,10 +586,10 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
 
 def load_from_config(config):
-    settings = config.registry.settings
+    settings = config.get_settings()
 
     max_fetch_size = settings['cliquet.storage_max_fetch_size']
-    pool_maxconn = settings['cliquet.storage_pool_maxconn']
+    pool_maxconn = int(settings['cliquet.storage_pool_maxconn'])
     uri = settings['cliquet.storage_url']
     uri = urlparse.urlparse(uri)
     conn_kwargs = dict(max_connections=pool_maxconn,
