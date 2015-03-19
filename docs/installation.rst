@@ -95,7 +95,6 @@ In Ubuntu/Debian based::
     sudo apt-get install postgresql
 
 
-
 By default, the ``postgres`` user has no password and can hence only connect
 if ran by the ``postgres`` system user. The following command will assign it:
 

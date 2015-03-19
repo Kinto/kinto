@@ -23,6 +23,8 @@ Cliquet handles:
 * Errors formatting
 * API versioning and deprecation
 * Structured logging
+* StatsD metrics (*optional*)
+* Sentry reporting (*optional*)
 
 It is built around the notion of resources: resources are defined by sub-classing,
 and Cliquet handles the APIs out of that.
@@ -30,6 +32,8 @@ and Cliquet handles the APIs out of that.
 * KISS
 * No magic
 * Works with defaults
+* Easy customization
+* Straightforward component substitution
 
 Cliquet is built on the shoulders of giants: Pyramid is doing all the heavy
 HTTP stuff and PostgreSQL for the storage.
