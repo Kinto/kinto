@@ -206,11 +206,16 @@ def includeme(config):
     config.add_tween("cliquet.end_of_life_tween_factory")
 
     if settings['cliquet.sentry_dsn']:
-        raven.Client(
+        raven_client = raven.Client(
             settings['cliquet.sentry_dsn'],
             include_paths=['cornice', 'cliquet'] +
             settings['cliquet.sentry_projects'].split(','),
             release=settings['cliquet.project_version'])
+
+        raven_client.captureMessage("%s %s starting." % (
+            settings['cliquet.project_name'],
+            settings['cliquet.project_version']
+        ))
 
     storage = config.maybe_dotted(settings['cliquet.storage_backend'])
     config.registry.storage = storage.load_from_config(config)
