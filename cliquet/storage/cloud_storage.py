@@ -7,6 +7,7 @@ from requests.exceptions import RequestException
 from cliquet import logger
 from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.storage.memory import apply_sorting, get_unicity_rules
+from cliquet.statsd import StatsdClient
 from cliquet.utils import json, COMPARISON
 
 
@@ -65,7 +66,6 @@ class CloudStorage(StorageBase):
 
     def __init__(self, server_url, *args, **kwargs):
         super(CloudStorage, self).__init__(*args, **kwargs)
-
         self._client = requests.Session()
         self.server_url = server_url
 
@@ -81,11 +81,13 @@ class CloudStorage(StorageBase):
         }
 
     @wrap_http_error
+    @StatsdClient.timer('storage.cloud_storage.flush')
     def flush(self):
         url = self._build_url("/__flush__")
         resp = self._client.post(url)
         resp.raise_for_status()
 
+    @StatsdClient.timer('storage.cloud_storage.ping')
     def ping(self):
         url = self._build_url("/__heartbeat__")
         try:
@@ -95,12 +97,14 @@ class CloudStorage(StorageBase):
             return False
 
     @wrap_http_error
+    @StatsdClient.timer('storage.cloud_storage.collection_timestamp')
     def collection_timestamp(self, resource, user_id):
         url = self._build_url(self.collection_url.format(resource.name))
         resp = self._client.head(url, headers=self._build_headers(resource))
         resp.raise_for_status()
         return int(resp.headers['Last-Modified'])
 
+    @StatsdClient.timer('storage.cloud_storage.check_unicity')
     def check_unicity(self, resource, user_id, record):
         rules = get_unicity_rules(resource, user_id, record)
         for rule in rules:
@@ -118,6 +122,7 @@ class CloudStorage(StorageBase):
                                               result[0])
 
     @wrap_http_error
+    @StatsdClient.timer('storage.cloud_storage.record_create')
     def create(self, resource, user_id, record):
         self.check_unicity(resource, user_id, record)
         url = self._build_url(self.collection_url.format(resource.name))
@@ -128,6 +133,7 @@ class CloudStorage(StorageBase):
         return resp.json()
 
     @wrap_http_error
+    @StatsdClient.timer('storage.cloud_storage.record_get')
     def get(self, resource, user_id, record_id):
         url = self._build_url(self.record_url.format(resource.name,
                                                      record_id))
@@ -136,6 +142,7 @@ class CloudStorage(StorageBase):
         return resp.json()
 
     @wrap_http_error
+    @StatsdClient.timer('storage.cloud_storage.record_update')
     def update(self, resource, user_id, record_id, record):
         self.check_unicity(resource, user_id, record)
         url = self._build_url(self.record_url.format(resource.name,
@@ -156,6 +163,7 @@ class CloudStorage(StorageBase):
         return resp.json()
 
     @wrap_http_error
+    @StatsdClient.timer('storage.cloud_storage.record_delete')
     def delete(self, resource, user_id, record_id):
         url = self._build_url(self.record_url.format(resource.name,
                                                      record_id))
@@ -164,6 +172,7 @@ class CloudStorage(StorageBase):
         return resp.json()
 
     @wrap_http_error
+    @StatsdClient.timer('storage.cloud_storage.delete_all_records')
     def delete_all(self, resource, user_id, filters=None):
         url = self._build_url(self.collection_url.format(resource.name))
         params = []
@@ -175,6 +184,7 @@ class CloudStorage(StorageBase):
         resp.raise_for_status()
 
     @wrap_http_error
+    @StatsdClient.timer('storage.cloud_storage.get_all_records')
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
         url = self.collection_url.format(resource.name)
