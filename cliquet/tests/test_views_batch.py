@@ -266,7 +266,7 @@ class BatchServiceTest(unittest.TestCase):
         self.post({'requests': [request]})
         subrequest, = self.request.invoke_subrequest.call_args[0]
         self.assertEqual(subrequest.body.decode('utf8'),
-                         '{"json": "payload"}')
+                         '{"json":"payload"}')
 
     def test_subrequests_body_have_json_content_type(self):
         self.request.headers['Content-Type'] = 'text/xml'
@@ -282,7 +282,7 @@ class BatchServiceTest(unittest.TestCase):
         subrequest, = self.request.invoke_subrequest.call_args[0]
         self.assertIn('charset=utf-8', subrequest.headers['Content-Type'])
         self.assertEqual(subrequest.body.decode('utf8'),
-                         '{"json": "\\ud83d\\ude02"}')
+                         '{"json":"\\ud83d\\ude02"}')
 
     def test_subrequests_paths_are_url_encoded(self):
         request = {'path': u'/test?param=©'}
