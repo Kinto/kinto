@@ -24,6 +24,7 @@ REQUIREMENTS = [
     'six',
     'structlog',
     'ujson'
+    'raven',
 ]
 
 POSTGRESQL_REQUIRES = [

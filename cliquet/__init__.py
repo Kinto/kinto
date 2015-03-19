@@ -8,6 +8,7 @@ import pkg_resources
 import requests
 import structlog
 import webob
+from raven import Client
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
@@ -63,6 +64,7 @@ DEFAULT_SETTINGS = {
     'cliquet.storage_url': '',
     'cliquet.storage_max_fetch_size': 10000,
     'cliquet.userid_hmac_secret': '',
+    'cliquet.sentry_dsn': None,
 }
 
 
@@ -238,6 +240,9 @@ def initialize_cliquet(config, version=None, project_name=None):
     :type project_name: string
     """
     settings = config.registry.settings
+
+    if settings.get('cliquet.sentry_dsn') is not None:
+        client = Client(settings.get('cliquet.sentry_dsn'))
 
     # The API version is derivated from the module version.
     project_version = settings.get('cliquet.project_version') or version
