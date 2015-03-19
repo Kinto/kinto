@@ -104,7 +104,7 @@ class ClassicLogRenderer(object):
         return log_msg
 
 
-class MozillaHekaRenderer(structlog.processors.JSONRenderer):
+class MozillaHekaRenderer(object):
     """Build structured log entries as expected by Mozilla Services standard:
 
     * https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
@@ -153,6 +153,4 @@ class MozillaHekaRenderer(structlog.processors.JSONRenderer):
         for f in fields:
             event_dict['Fields'][f] = event_dict.pop(f)
 
-        return super(MozillaHekaRenderer, self).__call__(logger,
-                                                         name,
-                                                         event_dict)
+        return utils.json.dumps(event_dict)

@@ -183,7 +183,6 @@ def includeme(config):
     # Monkey patch to use ujson
     webob.request.json = utils.json
     requests.models.json = utils.json
-    structlog.processors.json = utils.json
 
     load_default_settings(config)
     settings = config.get_settings()
