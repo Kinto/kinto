@@ -34,15 +34,19 @@ class Redis(MemoryBasedStorage):
     *(Optional)* Instance location URI can be customized::
 
         cliquet.storage_url = redis://localhost:6379/0
+
+    A threaded connection pool is enabled by default::
+
+        cliquet.storage_pool_maxconn = 50
     """
 
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
         kwargs.pop('id_generator', None)
-        self._client = redis.StrictRedis(
-            connection_pool=redis.BlockingConnectionPool(),
-            **kwargs
-        )
+        maxconn = kwargs.pop('max_connections')
+        connection_pool = redis.BlockingConnectionPool(max_connections=maxconn)
+        self._client = redis.StrictRedis(connection_pool=connection_pool,
+                                         **kwargs)
 
     def _encode(self, record):
         return utils.json.dumps(record)
@@ -229,10 +233,13 @@ class Redis(MemoryBasedStorage):
 
 
 def load_from_config(config):
-    uri = config.registry.settings['cliquet.storage_url']
+    settings = config.get_settings()
+    uri = settings['cliquet.storage_url']
     uri = urlparse.urlparse(uri)
+    pool_maxconn = int(settings['cliquet.storage_pool_maxconn'])
 
-    return Redis(host=uri.hostname or 'localhost',
+    return Redis(max_connections=pool_maxconn,
+                 host=uri.hostname or 'localhost',
                  port=uri.port or 6739,
                  password=uri.password or None,
                  db=int(uri.path[1:]) if uri.path else 0)

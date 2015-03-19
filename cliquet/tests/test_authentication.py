@@ -59,7 +59,8 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
 class TokenVerificationCacheTest(unittest.TestCase):
     def setUp(self):
-        self.cache = TokenVerificationCache(redis_backend.Redis(), 0.05)
+        cache = redis_backend.Redis(max_connections=1)
+        self.cache = TokenVerificationCache(cache, 0.05)
 
     def test_set_adds_the_record(self):
         stored = 'toto'

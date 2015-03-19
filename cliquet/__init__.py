@@ -61,8 +61,10 @@ DEFAULT_SETTINGS = {
     'cliquet.retry_after_seconds': 30,
     'cliquet.cache_backend': 'cliquet.cache.redis',
     'cliquet.cache_url': '',
+    'cliquet.cache_pool_maxconn': 50,
     'cliquet.storage_backend': 'cliquet.storage.redis',
     'cliquet.storage_url': '',
+    'cliquet.storage_pool_maxconn': 50,
     'cliquet.storage_max_fetch_size': 10000,
     'cliquet.userid_hmac_secret': '',
     'cliquet.sentry_url': None,
@@ -201,7 +203,7 @@ def handle_sentry(config):
             include_paths=['cornice', 'cliquet'] + extra_projects,
             release=settings['cliquet.project_version'])
 
-        msg = "{cliquet.project_name} {cliquet.project_version} starting."
+        msg = "%(cliquet.project_name)s %(cliquet.project_version)s starting."
         raven_client.captureMessage(msg % settings)
 
 

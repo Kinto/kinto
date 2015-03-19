@@ -246,5 +246,6 @@ class CloudStorage(StorageBase):
 
 
 def load_from_config(config):
-    server_url = config.registry.settings['cliquet.storage_url']
+    settings = config.get_settings()
+    server_url = settings['cliquet.storage_url']
     return CloudStorage(server_url=server_url)

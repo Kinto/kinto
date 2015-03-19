@@ -31,10 +31,7 @@ class CacheBaseTest(unittest.TestCase):
 
 class BaseTestCache(object):
     backend = None
-
-    settings = {
-        'cliquet.cache_url': ''
-    }
+    settings = {}
 
     def __init__(self, *args, **kwargs):
         super(BaseTestCache, self).__init__(*args, **kwargs)
@@ -46,7 +43,7 @@ class BaseTestCache(object):
         """
         if settings is None:
             settings = self.settings
-        return mock.Mock(registry=mock.Mock(settings=settings))
+        return mock.Mock(get_settings=mock.Mock(return_value=settings))
 
     def tearDown(self):
         mock.patch.stopall()
@@ -108,6 +105,10 @@ class BaseTestCache(object):
 
 class RedisCacheTest(BaseTestCache, unittest.TestCase):
     backend = redis_backend
+    settings = {
+        'cliquet.cache_url': '',
+        'cliquet.cache_pool_maxconn': 50
+    }
 
     def __init__(self, *args, **kwargs):
         super(RedisCacheTest, self).__init__(*args, **kwargs)
@@ -119,14 +120,15 @@ class RedisCacheTest(BaseTestCache, unittest.TestCase):
 
 class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     backend = postgresql_backend
-
     settings = {
+        'cliquet.cache_pool_maxconn': 50,
         'cliquet.cache_url':
             'postgres://postgres:postgres@localhost:5432/testdb'
     }
 
     def __init__(self, *args, **kwargs):
         super(PostgreSQLCacheTest, self).__init__(*args, **kwargs)
-        self.client_error_patcher = mock.patch(
-            'cliquet.storage.postgresql.psycopg2.connect',
-            side_effect=psycopg2.OperationalError)
+        self.client_error_patcher = mock.patch.object(
+            self.cache.pool,
+            'getconn',
+            side_effect=psycopg2.DatabaseError)

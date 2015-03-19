@@ -138,6 +138,9 @@ Storage
     # Safety limit while fetching from storage
     # cliquet.storage_max_fetch_size = 10000
 
+    # Control number of pooled connections
+    # cliquet.storage_pool_maxconn = 50
+
 See :ref:`storage backend documentation <storage>` for more details.
 
 
@@ -148,6 +151,9 @@ Cache
 
     cliquet.cache_backend = cliquet.cache.redis
     cliquet.cache_url = redis://localhost:6379/0
+
+    # Control number of pooled connections
+    # cliquet.cache_pool_maxconn = 50
 
 See :ref:`cache backend documentation <cache>` for more details.
 

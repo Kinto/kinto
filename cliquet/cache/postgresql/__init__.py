@@ -34,11 +34,15 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         :file:`cliquet/cache/postgresql/schema.sql`. This allows to
         distinguish schema manipulation privileges from schema usage.
 
+
+    A threaded connection pool is enabled by default::
+
+        cliquet.cache_pool_maxconn = 50
+
     :note:
 
-        Using a `connection pool <http://pgpool.net>`_ is highly recommended to
-        boost performances and bound memory usage (*work_mem per connection*).
-
+        Using a `dedicated connection pool <http://pgpool.net>`_ is still
+        recommended to allow load balancing or replication.
     """
 
     def __init__(self, **kwargs):
@@ -117,9 +121,13 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
 
 
 def load_from_config(config):
-    uri = config.registry.settings['cliquet.cache_url']
+    settings = config.get_settings()
+    uri = settings['cliquet.cache_url']
     uri = urlparse.urlparse(uri)
-    conn_kwargs = dict(host=uri.hostname,
+    pool_maxconn = int(settings['cliquet.cache_pool_maxconn'])
+
+    conn_kwargs = dict(max_connections=pool_maxconn,
+                       host=uri.hostname,
                        port=uri.port,
                        user=uri.username,
                        password=uri.password,
