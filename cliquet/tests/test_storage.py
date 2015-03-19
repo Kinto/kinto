@@ -716,7 +716,7 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
     def test_custom_generator(self):
         def l(x):
             return x
-        storage = self.storage.__class__(id_generator=l, max_connections=0)
+        storage = self.storage.__class__(id_generator=l, max_connections=1)
         self.assertEqual(storage.id_generator, l)
 
 
