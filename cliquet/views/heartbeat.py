@@ -8,11 +8,7 @@ heartbeat = Service(name="heartbeat", path='/__heartbeat__',
 @heartbeat.get(permission=NO_PERMISSION_REQUIRED)
 def get_heartbeat(request):
     """Return information about server health."""
-    try:
-        request.db.ping()
-        database = True
-    except:
-        database = False
+    database = request.db.ping()
 
     status = dict(database=database)
     has_error = not all([v for v in status.values()])

@@ -111,7 +111,7 @@ class BaseTestStorage(object):
         for call in calls:
             self.assertRaises(exceptions.BackendError, *call)
 
-    def test_ping_returns_an_error_if_unavailable(self):
+    def test_ping_returns_false_if_unavailable(self):
         self.client_error_patcher.start()
         self.assertFalse(self.storage.ping())
 
