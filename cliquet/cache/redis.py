@@ -4,7 +4,6 @@ import time
 import redis
 from six.moves.urllib import parse as urlparse
 
-from cliquet import statsd
 from cliquet.cache import CacheBase
 from cliquet.storage.redis import wrap_redis_error
 
@@ -20,8 +19,6 @@ class Redis(CacheBase):
 
         cliquet.cache_url = redis://localhost:6379/1
     """
-
-    __metaclass__ = statsd.CacheTimer
 
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)

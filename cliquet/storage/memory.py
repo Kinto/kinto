@@ -26,8 +26,6 @@ class MemoryBasedStorage(StorageBase):
     methods for in-memory implementations of sorting and filtering.
     """
 
-    __metaclass__ = statsd.StorageTimer
-
     def __init__(self, id_generator=None, *args, **kwargs):
         if id_generator is None:
             id_generator = UUID4Generator()
