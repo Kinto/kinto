@@ -760,6 +760,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
+        'cliquet.storage_pool_maxconn': 50,
         'cliquet.storage_max_fetch_size': 10000,
         'cliquet.storage_url':
             'postgres://postgres:postgres@localhost:5432/testdb'
@@ -767,8 +768,9 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(PostgresqlStorageTest, self).__init__(*args, **kwargs)
-        self.client_error_patcher = mock.patch(
-            'cliquet.storage.postgresql.psycopg2.connect',
+        self.client_error_patcher = mock.patch.object(
+            self.storage.pool,
+            'getconn',
             side_effect=psycopg2.DatabaseError)
 
     def test_ping_updates_a_value_in_the_metadata_table(self):

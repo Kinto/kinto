@@ -4,6 +4,7 @@ from collections import defaultdict
 
 import psycopg2
 import psycopg2.extras
+import psycopg2.pool
 import six
 from six.moves.urllib import parse as urlparse
 
@@ -19,7 +20,12 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 class PostgreSQLClient(object):
 
     def __init__(self, *args, **kwargs):
+        minconn = kwargs.pop('min_connections', 1)
+        maxconn = kwargs.pop('max_connections')
         self._conn_kwargs = kwargs
+        self.pool = psycopg2.pool.ThreadedConnectionPool(minconn=minconn,
+                                                         maxconn=maxconn,
+                                                         **self._conn_kwargs)
 
     @contextlib.contextmanager
     def connect(self):
@@ -33,7 +39,7 @@ class PostgreSQLClient(object):
         conn = None
         cursor = None
         try:
-            conn = psycopg2.connect(**self._conn_kwargs)
+            conn = self.pool.getconn()
             # Will use ujson
             psycopg2.extras.register_json(conn, loads=json.loads)
             options = dict(cursor_factory=psycopg2.extras.DictCursor)
@@ -51,7 +57,7 @@ class PostgreSQLClient(object):
             if cursor:
                 cursor.close()
             if conn and not conn.closed:
-                conn.close()
+                self.pool.putconn(conn)
 
 
 class PostgreSQL(PostgreSQLClient, StorageBase):
@@ -81,10 +87,15 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         :file:`cliquet/storage/postgresql/schema.sql`. This allows to
         distinguish schema manipulation privileges from schema usage.
 
+
+    A threaded connection pool is enabled by default::
+
+        cliquet.storage_pool_maxconn = 50
+
     :note:
 
-        Using a `connection pool <http://pgpool.net>`_ is highly recommended to
-        boost performances and bound memory usage (*work_mem per connection*).
+        Using a `dedicated connection pool <http://pgpool.net>`_ is still
+        recommended to allow load balancing or replication.
 
     """
 
@@ -578,9 +589,11 @@ def load_from_config(config):
     settings = config.registry.settings
 
     max_fetch_size = settings['cliquet.storage_max_fetch_size']
+    pool_maxconn = settings['cliquet.storage_pool_maxconn']
     uri = settings['cliquet.storage_url']
     uri = urlparse.urlparse(uri)
-    conn_kwargs = dict(host=uri.hostname,
+    conn_kwargs = dict(max_connections=pool_maxconn,
+                       host=uri.hostname,
                        port=uri.port,
                        user=uri.username,
                        password=uri.password,

@@ -138,6 +138,9 @@ Storage
     # Safety limit while fetching from storage
     # cliquet.storage_max_fetch_size = 10000
 
+    # Control number of pooled connections
+    # cliquet.storage_pool_maxconn = 50
+
 See :ref:`storage backend documentation <storage>` for more details.
 
 

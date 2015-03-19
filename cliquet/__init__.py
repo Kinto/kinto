@@ -63,6 +63,7 @@ DEFAULT_SETTINGS = {
     'cliquet.cache_url': '',
     'cliquet.storage_backend': 'cliquet.storage.redis',
     'cliquet.storage_url': '',
+    'cliquet.storage_pool_maxconn': 50,
     'cliquet.storage_max_fetch_size': 10000,
     'cliquet.userid_hmac_secret': '',
     'cliquet.sentry_url': None,
