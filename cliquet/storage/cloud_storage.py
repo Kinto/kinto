@@ -10,6 +10,10 @@ from cliquet.storage.memory import apply_sorting, get_unicity_rules
 from cliquet.utils import json, COMPARISON
 
 
+# Use ujson for Response.json()
+requests.models.json = json
+
+
 API_PREFIX = "/v0"
 
 
