@@ -4,10 +4,18 @@ Changelog
 This document describes changes between each past release.
 
 
-1.3.1 (unreleased)
+1.3.2 (unreleased)
 ------------------
 
 - Nothing changed yet.
+
+
+1.3.1 (2015-03-20)
+------------------
+
+**Bug fixes**
+
+- Fix packaging (#118)
 
 
 1.3.0 (2015-03-20)
