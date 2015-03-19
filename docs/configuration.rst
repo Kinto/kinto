@@ -76,8 +76,8 @@ Mozilla Services standard logging format can be enabled using:
     cliquet.logging_renderer = cliquet.logs.MozillaHekaRenderer
 
 
-With the following configuration, all logs to standard output are
-redirected to standard output:
+With the following configuration, all logs are redirected to standard output
+(See `12factor app <http://12factor.net/logs>`_):
 
 .. code-block :: ini
 
@@ -97,7 +97,7 @@ redirected to standard output:
 
     [handler_console]
     class = StreamHandler
-    args = (sys.stderr,)
+    args = (sys.stdout,)
     level = NOTSET
 
     [formatter_heka]
