@@ -104,6 +104,17 @@ With the following configuration, all logs are redirected to standard output
     format = %(message)s
 
 
+Handling exceptions with Sentry
+:::::::::::::::::::::::::::::::
+
+Sentry logging can be enabled (disabled by default):
+
+.. code-block :: ini
+
+    cliquet.sentry_dsn = your dsn here
+    cliquet.sentry_project = sentry project name
+
+
 Storage
 =======
 
