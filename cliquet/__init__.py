@@ -8,13 +8,14 @@ import pkg_resources
 import requests
 import structlog
 import webob
+import raven
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
-from pyramid.settings import asbool
 from pyramid_multiauth import MultiAuthenticationPolicy
+from pyramid.settings import asbool, aslist
 
 # Main Cliquet logger.
 logger = structlog.get_logger()
@@ -63,6 +64,8 @@ DEFAULT_SETTINGS = {
     'cliquet.storage_url': '',
     'cliquet.storage_max_fetch_size': 10000,
     'cliquet.userid_hmac_secret': '',
+    'cliquet.sentry_url': None,
+    'cliquet.sentry_projects': '',
 }
 
 
@@ -186,6 +189,21 @@ def end_of_life_tween_factory(handler, registry):
     return eos_tween
 
 
+def handle_sentry(config):
+    settings = config.get_settings()
+    if settings['cliquet.sentry_url']:
+        raven_client = raven.Client(
+            settings['cliquet.sentry_url'],
+            include_paths=['cornice', 'cliquet'] +
+            aslist(settings['cliquet.sentry_projects']),
+            release=settings['cliquet.project_version'])
+
+        raven_client.captureMessage("%s %s starting." % (
+            settings['cliquet.project_name'],
+            settings['cliquet.project_version']
+        ))
+
+
 def includeme(config):
     # Monkey Patch Cornice Service to setup the global CORS configuration.
     Service.cors_origins = ('*',)
@@ -201,6 +219,9 @@ def includeme(config):
 
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")
+
+    # Handle sentry
+    handle_sentry(config)
 
     storage = config.maybe_dotted(settings['cliquet.storage_backend'])
     config.registry.storage = storage.load_from_config(config)
