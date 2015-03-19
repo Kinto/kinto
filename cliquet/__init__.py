@@ -64,7 +64,7 @@ DEFAULT_SETTINGS = {
     'cliquet.storage_url': '',
     'cliquet.storage_max_fetch_size': 10000,
     'cliquet.userid_hmac_secret': '',
-    'cliquet.sentry_dsn': None,
+    'cliquet.sentry_url': None,
     'cliquet.sentry_projects': '',
 }
 
@@ -191,9 +191,9 @@ def end_of_life_tween_factory(handler, registry):
 
 def handle_sentry(config):
     settings = config.get_settings()
-    if settings['cliquet.sentry_dsn']:
+    if settings['cliquet.sentry_url']:
         raven_client = raven.Client(
-            settings['cliquet.sentry_dsn'],
+            settings['cliquet.sentry_url'],
             include_paths=['cornice', 'cliquet'] +
             aslist(settings['cliquet.sentry_projects']),
             release=settings['cliquet.project_version'])

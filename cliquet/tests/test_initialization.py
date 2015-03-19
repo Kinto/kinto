@@ -75,24 +75,24 @@ class InitializationTest(unittest.TestCase):
 class SentryConfigurationTest(unittest.TestCase):
 
     @mock.patch('cliquet.raven.Client')
-    def test_sentry_isnt_called_if_sentry_dsn_is_not_set(self, mocked_raven):
+    def test_sentry_isnt_called_if_sentry_url_is_not_set(self, mocked_raven):
         config = Configurator(settings={
-            'cliquet.sentry_dsn': None
+            'cliquet.sentry_url': None
         })
         cliquet.handle_sentry(config)
         mocked_raven.assert_not_called()
 
     @mock.patch('cliquet.raven.Client')
-    def test_sentry_is_called_if_sentry_dsn_is_set(self, mocked_raven):
+    def test_sentry_is_called_if_sentry_url_is_set(self, mocked_raven):
         config = Configurator(settings={
-            'cliquet.sentry_dsn': 'xxx',
+            'cliquet.sentry_url': 'http://public:secret@example.org/1',
             'cliquet.sentry_projects': 'foo,bar',
             'cliquet.project_name': 'name',
             'cliquet.project_version': 'x.y.z'
         })
         cliquet.handle_sentry(config)
         mocked_raven.assert_called_with(
-            'xxx',
+            'http://public:secret@example.org/1',
             release='x.y.z',
             include_paths=['cornice', 'cliquet', 'foo,bar']
         )
@@ -102,7 +102,7 @@ class SentryConfigurationTest(unittest.TestCase):
         mocked_client = mock.MagicMock()
         mocked_raven.return_value = mocked_client
         config = Configurator(settings={
-            'cliquet.sentry_dsn': 'xxx',
+            'cliquet.sentry_url': 'http://public:secret@example.org/1',
             'cliquet.sentry_projects': 'foo,bar',
             'cliquet.project_name': 'name',
             'cliquet.project_version': 'x.y.z'
