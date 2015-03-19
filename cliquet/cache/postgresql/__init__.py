@@ -4,7 +4,7 @@ import os
 
 from six.moves.urllib import parse as urlparse
 
-from cliquet import logger, statsd
+from cliquet import logger
 from cliquet.cache import CacheBase
 from cliquet.storage.postgresql import PostgreSQLClient
 
@@ -40,8 +40,6 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         boost performances and bound memory usage (*work_mem per connection*).
 
     """
-
-    __metaclass__ = statsd.CacheTimer
 
     def __init__(self, **kwargs):
         super(PostgreSQL, self).__init__(**kwargs)

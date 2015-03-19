@@ -7,7 +7,7 @@ import psycopg2.extras
 import six
 from six.moves.urllib import parse as urlparse
 
-from cliquet import logger, statsd
+from cliquet import logger
 from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.utils import COMPARISON, json
 
@@ -87,8 +87,6 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         boost performances and bound memory usage (*work_mem per connection*).
 
     """
-
-    __metaclass__ = statsd.StorageTimer
 
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')
