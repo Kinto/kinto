@@ -95,6 +95,15 @@ In Ubuntu/Debian based::
     sudo apt-get install postgresql
 
 
+
+By default, the ``postgres`` user has no password and can hence only connect
+if ran by the ``postgres`` system user. The following command will assign it:
+
+::
+
+    sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+
+
 Server using Docker
 -------------------
 
@@ -109,15 +118,16 @@ On Ubuntu you can do:
 Run the official PostgreSQL container locally:
 
 ::
+
     postgres=$(sudo docker run -d -p 5432:5432 postgres)
 
-Create the test database::
+(*optional*) Create the test database::
 
     psql -h localhost -U postgres -W
     #> CREATE DATABASE "testdb";
 
 
-Tag and save the current state::
+Tag and save the current state with::
 
     sudo docker commit $postgres cliquet-empty
 
