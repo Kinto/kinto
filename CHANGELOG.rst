@@ -7,7 +7,9 @@ This document describes changes between each past release.
 1.3.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix packaging (#118)
 
 
 1.3.0 (2015-03-20)
