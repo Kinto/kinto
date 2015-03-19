@@ -4,8 +4,7 @@ import os
 
 from six.moves.urllib import parse as urlparse
 
-from cliquet import logger
-from cliquet import statsd
+from cliquet import logger, statsd
 from cliquet.cache import CacheBase
 from cliquet.storage.postgresql import PostgreSQLClient
 
