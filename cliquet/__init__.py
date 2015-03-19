@@ -6,6 +6,7 @@ import warnings
 from dateutil import parser as dateparser
 import pkg_resources
 import structlog
+import webob
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
@@ -177,6 +178,9 @@ def includeme(config):
     # Monkey Patch Cornice Service to setup the global CORS configuration.
     Service.cors_origins = ('*',)
     Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
+
+    # Monkey Patch webob to use ujson
+    webob.request.json = utils.json
 
     load_default_settings(config)
     settings = config.get_settings()
