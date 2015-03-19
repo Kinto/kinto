@@ -8,7 +8,7 @@ import pkg_resources
 import requests
 import structlog
 import webob
-from raven import Client
+import raven
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
@@ -65,6 +65,7 @@ DEFAULT_SETTINGS = {
     'cliquet.storage_max_fetch_size': 10000,
     'cliquet.userid_hmac_secret': '',
     'cliquet.sentry_dsn': None,
+    'cliquet.sentry_projects': '',
 }
 
 
@@ -204,6 +205,13 @@ def includeme(config):
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")
 
+    if settings.get('cliquet.sentry_dsn') is not None:
+        raven.Client(
+            settings['cliquet.sentry_dsn'],
+            include_paths=['cornice', 'cliquet'] +
+            settings['cliquet.sentry_projects'].split(','),
+            release=settings['cliquet.project_version'])
+
     storage = config.maybe_dotted(settings['cliquet.storage_backend'])
     config.registry.storage = storage.load_from_config(config)
 
@@ -240,9 +248,6 @@ def initialize_cliquet(config, version=None, project_name=None):
     :type project_name: string
     """
     settings = config.registry.settings
-
-    if settings.get('cliquet.sentry_dsn') is not None:
-        client = Client(settings.get('cliquet.sentry_dsn'))
 
     # The API version is derivated from the module version.
     project_version = settings.get('cliquet.project_version') or version
