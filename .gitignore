@@ -7,3 +7,4 @@
 .tox/
 loadtests/.env.install
 docs/_build/
+kinto
