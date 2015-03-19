@@ -141,6 +141,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         query = """
         DELETE FROM deleted;
         DELETE FROM records;
+        DELETE FROM metadata;
         """
         with self.connect() as cursor:
             cursor.execute(query)
