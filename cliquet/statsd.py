@@ -1,56 +1,32 @@
-from functools import wraps
+from __future__ import absolute_import
 
 import statsd as statsd_module
 from six.moves.urllib import parse as urlparse
 
-
-def noop(f):
-    """Decorator calling the decorated function"""
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        return f(*args, **kwargs)
-    return wrapper
+from cliquet import utils
 
 
 class Client(object):
-    statsd = None
+    def __init__(self, host, port):
+        self._client = statsd_module.StatsClient(host, port)
 
-    @classmethod
-    def setup_client(cls, settings):
-        uri = settings['cliquet.statsd_url']
-        uri = urlparse.urlparse(uri)
-        cls.statsd = statsd_module.StatsClient(uri.hostname, uri.port)
+    def watch_execution_time(self, obj, prefix=''):
+        members = dir(obj)
+        classname = utils.classname(obj)
+        for name in members:
+            value = getattr(obj, name)
+            if not name.startswith('_') and hasattr(value, '__call__'):
+                statsd_key = "%s.%s.%s" % (prefix, classname, name)
+                decorated_method = self.timer(statsd_key)(value)
+                setattr(obj, name, decorated_method)
 
-    @classmethod
-    def timer(cls, key):
-        if cls.statsd:
-            return cls.statsd.timer(key)
-        return noop
-
-    @classmethod
-    def incr(cls, key):
-        if cls.statsd:
-            return cls.statsd.incr(key)
+    def timer(self, key):
+        return self._client.timer(key)
 
 
-def get_metaclass(prefix):
-    """Returns a Metaclass decorating all public methods with a statsd timer.
-    """
-    class StatsdTimer(type):
+def load_from_config(config):
+    settings = config.get_settings()
+    uri = settings['cliquet.statsd_url']
+    uri = urlparse.urlparse(uri)
 
-        def __new__(cls, name, bases, members):
-            attrs = {}
-            for key, value in members.items():
-                if not key.startswith('_') and hasattr(value, '__call__'):
-                    statsd_key = "%s.%s.%s" % (prefix, name.lower(), key)
-                    attrs[key] = Client.timer(statsd_key)(value)
-                else:
-                    attrs[key] = value
-
-            return type.__new__(cls, name, bases, attrs)
-
-    return StatsdTimer
-
-StorageTimer = get_metaclass('storage')
-CacheTimer = get_metaclass('cache')
-setup_client = Client.setup_client
+    return Client(uri.hostname, uri.port)
