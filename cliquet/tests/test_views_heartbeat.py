@@ -13,6 +13,6 @@ class HeartBeatViewTest(BaseWebTest, unittest.TestCase):
     @mock.patch('cliquet.storage.redis.Redis.ping')
     def test_returns_database_false_if_ko(self, *mocked):
         for mock_instance in mocked:
-            mock_instance.side_effect = IndexError
+            mock_instance.return_value = False
         response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['database'], False)
