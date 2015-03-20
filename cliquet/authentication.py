@@ -73,7 +73,7 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         self.realm = realm
 
         settings = config.get_settings()
-        oauth_cache_ttl = int(settings['fxa-oauth.cache_ttl_seconds'])
+        oauth_cache_ttl = float(settings['fxa-oauth.cache_ttl_seconds'])
         oauth_cache = TokenVerificationCache(config.registry.cache,
                                              ttl=oauth_cache_ttl)
         self.cache = oauth_cache
