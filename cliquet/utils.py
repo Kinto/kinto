@@ -5,7 +5,10 @@ import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
 
-import ujson as json
+# XXX see https://github.com/mozilla-services/cliquet/issues/131
+#import ujson as json
+import json
+
 from cornice import cors
 from colander import null
 
