@@ -22,14 +22,17 @@ REQUIREMENTS = [
     'redis',  # Default backend
     'requests',
     'six',
-    'statsd',
     'structlog',
     'ujson',
-    'raven',
 ]
 
 POSTGRESQL_REQUIRES = [
     'psycopg2>2.5',
+]
+
+MONITORING_REQUIRES = [
+    'raven',
+    'statsd',
 ]
 
 setup(name='cliquet',
@@ -53,4 +56,5 @@ setup(name='cliquet',
       install_requires=REQUIREMENTS,
       extras_require={
           'postgresql': REQUIREMENTS + POSTGRESQL_REQUIRES,
+          'monitoring': REQUIREMENTS + MONITORING_REQUIRES,
       })
