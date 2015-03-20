@@ -4,10 +4,10 @@ Changelog
 This document describes changes between each past release.
 
 
-1.3.2 (unreleased)
+1.3.2 (2015-03-20)
 ------------------
 
-- Nothing changed yet.
+- Revert ujson usage (#132)
 
 
 1.3.1 (2015-03-20)
