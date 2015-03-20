@@ -47,8 +47,8 @@ class Redis(CacheBase):
         return self._client.ttl(key)
 
     @wrap_redis_error
-    def expire(self, key, value):
-        self._client.pexpire(key, int(value * 1000))
+    def expire(self, key, ttl):
+        self._client.pexpire(key, int(ttl * 1000))
 
     @wrap_redis_error
     def set(self, key, value, ttl=None):

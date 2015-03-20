@@ -6,7 +6,7 @@ import mock
 from fxa import errors as fxa_errors
 
 from cliquet import authentication
-from cliquet.cache import redis as redis_backend
+from cliquet.cache import memory as memory_backend
 
 from .support import BaseWebTest, unittest, DummyRequest
 
@@ -60,7 +60,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
 class TokenVerificationCacheTest(unittest.TestCase):
     def setUp(self):
-        cache = redis_backend.Redis(max_connections=1)
+        cache = memory_backend.Memory(max_connections=1)
         self.cache = authentication.TokenVerificationCache(cache, 0.05)
 
     def test_set_adds_the_record(self):

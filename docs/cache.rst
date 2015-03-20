@@ -16,6 +16,12 @@ Redis
 .. autoclass:: cliquet.cache.redis.Redis
 
 
+Memory
+=====
+
+.. autoclass:: cliquet.cache.memory.Memory
+
+
 API
 ===
 
