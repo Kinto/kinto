@@ -333,16 +333,20 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
         query = """
-        WITH collection_filtered AS (
-            SELECT id, last_modified, data
+        WITH total_filtered AS (
+            SELECT COUNT(id) AS count
               FROM records
              WHERE user_id = %%(user_id)s
                AND resource_name = %%(resource_name)s
                %(conditions_filter)s
         ),
-        total_filtered AS (
-            SELECT COUNT(*) AS count
-              FROM collection_filtered
+        collection_filtered AS (
+            SELECT id, last_modified, data
+              FROM records
+             WHERE user_id = %%(user_id)s
+               AND resource_name = %%(resource_name)s
+               %(conditions_filter)s
+             LIMIT %(max_fetch_size)s
         ),
         fake_deleted AS (
             SELECT %%(deleted_field)s::json AS data
@@ -381,6 +385,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         # Safe strings
         safeholders = defaultdict(six.text_type)
+        safeholders['max_fetch_size'] = self._max_fetch_size
 
         if filters:
             safe_sql, holders = self._format_conditions(resource, filters)
