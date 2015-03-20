@@ -25,7 +25,7 @@ $(DEV_STAMP): $(PYTHON) dev-requirements.txt
 
 virtualenv: $(PYTHON)
 $(PYTHON):
-	virtualenv $(VENV)
+	$(VIRTUALENV) $(VENV)
 
 tests-once: install-dev need-kinto-running
 	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-package=cliquet
