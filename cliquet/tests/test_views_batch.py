@@ -5,6 +5,7 @@ import mock
 from cliquet import DEFAULT_SETTINGS
 from cliquet.views.batch import BatchPayloadSchema, batch as batch_service
 from cliquet.tests.support import BaseWebTest, unittest, DummyRequest
+from cliquet.utils import json
 
 
 class BatchViewTest(BaseWebTest, unittest.TestCase):
@@ -264,9 +265,10 @@ class BatchServiceTest(unittest.TestCase):
     def test_subrequests_body_are_json_serialized(self):
         request = {'path': '/', 'body': {'json': 'payload'}}
         self.post({'requests': [request]})
+        wanted = {"json": "payload"}
         subrequest, = self.request.invoke_subrequest.call_args[0]
         self.assertEqual(subrequest.body.decode('utf8'),
-                         '{"json":"payload"}')
+                         json.dumps(wanted))
 
     def test_subrequests_body_have_json_content_type(self):
         self.request.headers['Content-Type'] = 'text/xml'
@@ -281,8 +283,9 @@ class BatchServiceTest(unittest.TestCase):
         self.post({'requests': [request]})
         subrequest, = self.request.invoke_subrequest.call_args[0]
         self.assertIn('charset=utf-8', subrequest.headers['Content-Type'])
+        wanted = {"json": "\ud83d\ude02"}
         self.assertEqual(subrequest.body.decode('utf8'),
-                         '{"json":"\\ud83d\\ude02"}')
+                         json.dumps(wanted))
 
     def test_subrequests_paths_are_url_encoded(self):
         request = {'path': u'/test?param=©'}
