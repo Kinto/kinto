@@ -44,7 +44,11 @@ class PostgreSQLClient(object):
             psycopg2.extras.register_json(conn, loads=json.loads)
             options = dict(cursor_factory=psycopg2.extras.DictCursor)
             cursor = conn.cursor(**options)
+            # Force timezone
+            cursor.execute("SET TIME ZONE 'UTC';")
+            # Start context
             yield cursor
+            # End context
             conn.commit()
         except psycopg2.Error as e:
             if cursor:
