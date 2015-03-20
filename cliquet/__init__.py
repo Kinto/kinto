@@ -12,7 +12,6 @@ import raven
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
-from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid_multiauth import MultiAuthenticationPolicy
 from pyramid.settings import asbool, aslist
@@ -79,8 +78,10 @@ def monkey_patch_json(config):
     requests.models.json = utils.json
 
     # Override json renderer using ujson
-    renderer = JSONRenderer(serializer=lambda v, **kw: utils.json.dumps(v))
-    config.add_renderer('json', renderer)
+    # deactivated, see https://github.com/mozilla-services/cliquet/pull/132
+    # from pyramid.renderers import JSON as JSONRenderer
+    # renderer = JSONRenderer(serializer=lambda v, **kw: utils.json.dumps(v))
+    # config.add_renderer('json', renderer)
 
 
 def load_default_settings(config):
