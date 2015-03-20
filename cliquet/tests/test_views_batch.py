@@ -283,7 +283,7 @@ class BatchServiceTest(unittest.TestCase):
         self.post({'requests': [request]})
         subrequest, = self.request.invoke_subrequest.call_args[0]
         self.assertIn('charset=utf-8', subrequest.headers['Content-Type'])
-        wanted = {"json": "\ud83d\ude02"}
+        wanted = {"json": u"\ud83d\ude02"}
         self.assertEqual(subrequest.body.decode('utf8'),
                          json.dumps(wanted))
 
