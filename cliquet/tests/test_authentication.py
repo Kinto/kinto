@@ -95,6 +95,13 @@ class BasicAuthenticationPolicyTest(unittest.TestCase):
 
     @mock.patch('cliquet.authentication.hmac.new')
     def test_userid_is_hashed(self, mocked):
-        mocked.return_value = hashlib.sha224('hashed')
+        mocked.return_value = hashlib.sha224('hashed'.encode('utf8'))
         user_id = self.policy.unauthenticated_userid(self.request)
         self.assertIn('fc04599e80aed4e56d3465', user_id)
+
+    def test_userid_is_built_using_password(self):
+        self.request.headers['Authorization'] = 'Basic bWF0OjE='
+        user_id1 = self.policy.unauthenticated_userid(self.request)
+        self.request.headers['Authorization'] = 'Basic bWF0OjI='
+        user_id2 = self.policy.unauthenticated_userid(self.request)
+        self.assertNotEqual(user_id1, user_id2)
