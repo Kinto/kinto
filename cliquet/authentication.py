@@ -12,36 +12,40 @@ from zope.interface import implementer
 from cliquet import logger
 
 
-def check_credentials(username, password, request):
+class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
     """Basic auth implementation.
 
     Allow any user with any credentials (e.g. there is no need to create an
     account).
 
     """
-    settings = request.registry.settings
-    is_enabled = settings['cliquet.basic_auth_enabled']
-
-    if not is_enabled or not username:
-        return
-
-    hmac_secret = settings['cliquet.userid_hmac_secret'].encode('utf-8')
-    credentials = '%s:%s' % (username, password)
-    userid = hmac.new(hmac_secret,
-                      credentials.encode('utf-8'),
-                      hashlib.sha256).hexdigest()
-
-    # Log authentication context.
-    logger.bind(auth_type='Basic')
-
-    return ["basicauth_%s" % userid]
-
-
-class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
     def __init__(self, *args, **kwargs):
-        super(BasicAuthAuthenticationPolicy, self).__init__(check_credentials,
+        noop_check = lambda *a: [Authenticated]  # NOQA
+        super(BasicAuthAuthenticationPolicy, self).__init__(noop_check,
                                                             *args,
                                                             **kwargs)
+
+    def unauthenticated_userid(self, request):
+        settings = request.registry.settings
+        is_enabled = settings['cliquet.basic_auth_enabled']
+        if not is_enabled:
+            return
+
+        credentials = self._get_credentials(request)
+        if credentials:
+            username, password = credentials
+            if not username:
+                return
+
+            hmac_secret = settings['cliquet.userid_hmac_secret']
+            credentials = '%s:%s' % credentials
+            userid = hmac.new(hmac_secret.encode('utf-8'),
+                              credentials.encode('utf-8'),
+                              hashlib.sha256).hexdigest()
+
+            # Log authentication context.
+            logger.bind(auth_type='Basic')
+            return "basicauth_%s" % userid
 
 
 class TokenVerificationCache(object):
