@@ -44,13 +44,13 @@ class PaginationTest(BaseTest):
 
     def test_handle_forced_limit(self):
         with mock.patch.dict(self.resource.request.registry.settings, [
-            ('cliquet.paginate_by', 10)]):
+                ('cliquet.paginate_by', 10)]):
             result = self.resource.collection_get()
             self.assertEqual(len(result['items']), 10)
 
     def test_forced_limit_has_precedence_over_provided_limit(self):
         with mock.patch.dict(self.resource.request.registry.settings, [
-            ('cliquet.paginate_by', 5)]):
+                ('cliquet.paginate_by', 5)]):
             self.resource.request.GET = {'_limit': '10'}
             result = self.resource.collection_get()
             self.assertEqual(len(result['items']), 5)
