@@ -383,6 +383,22 @@ class FieldsUnicityTest(object):
                           record['id'],
                           {'phone': 'number'})
 
+    def test_unicity_detection_supports_special_characters(self):
+        record = self.create_record()
+        values = ['b', 'http://moz.org', u"#131 \u2014 ujson", "C:\\\\win32"]
+        for value in values:
+            self.create_record({'phone': value})
+            try:
+                error = None
+                self.storage.update(self.resource,
+                                    self.user_id,
+                                    record['id'],
+                                    {'phone': value})
+            except exceptions.UnicityError as e:
+                error = e
+            msg = 'UnicityError not raised with %s' % value
+            self.assertIsNotNone(error, msg)
+
 
 class DeletedRecordsTest(object):
     def _get_last_modified_filters(self):
