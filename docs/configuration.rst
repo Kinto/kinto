@@ -39,8 +39,8 @@ Feature settings
     # Disable DELETE on collection
     # cliquet.delete_collection_enabled = false
 
-    # Force pagination
-    # cliquet.paginate_by = 20
+    # Force pagination *(recommended)*
+    # cliquet.paginate_by = 200
 
 Deployment
 ==========

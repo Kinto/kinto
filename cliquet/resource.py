@@ -622,6 +622,9 @@ class BaseResource(object):
                 }
                 raise_invalid(self.request, **error_details)
 
+        # If limit is higher than paginate_by setting, ignore it.
+        limit = min(limit, paginate_by or limit)
+
         token = queryparams.get('_token', None)
         filters = []
         if token:
