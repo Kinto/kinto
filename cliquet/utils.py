@@ -6,7 +6,7 @@ from base64 import b64decode, b64encode
 from binascii import hexlify
 
 # XXX see https://github.com/mozilla-services/cliquet/issues/131
-# import ujson as json
+#import ujson as json
 import json
 
 from cornice import cors
