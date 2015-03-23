@@ -162,9 +162,14 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     def ping(self):
         query = """
-        UPDATE metadata
-           SET value = NOW()::TEXT
-         WHERE name = 'last_heartbeat';
+        WITH upsert AS (
+            UPDATE metadata SET value = NOW()::TEXT
+            WHERE name = 'last_heartbeat'
+            RETURNING *
+        )
+        INSERT INTO metadata (name, value)
+          SELECT 'last_heartbeat', NOW()::TEXT
+           WHERE NOT EXISTS (SELECT * FROM upsert);
         """
         try:
             with self.connect() as cursor:
