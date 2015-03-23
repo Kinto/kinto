@@ -107,6 +107,8 @@ With the following configuration, all logs are redirected to standard output
 Handling exceptions with Sentry
 :::::::::::::::::::::::::::::::
 
+Requires the ``raven`` package, or *cliquet* installed with ``pip install cliquet[monitoring]``.
+
 Sentry logging can be enabled (disabled by default):
 
 .. code-block :: ini
@@ -119,6 +121,8 @@ A basic message will be sent to sentry when the application starts.
 
 Monitoring with StatsD
 ::::::::::::::::::::::
+
+Requires the ``statsd`` package, or *cliquet* installed with ``pip install cliquet[monitoring]``.
 
 StatsD metrics can be enabled (disabled by default):
 

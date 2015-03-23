@@ -8,8 +8,12 @@ import pkg_resources
 import requests
 import structlog
 import webob
-import raven
+try:
+    import raven
+except ImportError:
+    pass  # NOQA
 
+from cornice import Service
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -24,8 +28,6 @@ from cliquet import errors
 from cliquet import logs as cliquet_logs
 from cliquet import statsd
 from cliquet import utils
-
-from cornice import Service
 
 
 # Module version, as defined in PEP-0396.
