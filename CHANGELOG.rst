@@ -3,10 +3,41 @@ Changelog
 
 This document describes changes between each past release.
 
-1.3.3 (Unreleased)
+1.4.0 (2015-03-24)
 ------------------
 
-- XXX
+**Breaking changes**
+
+- Make monitoring dependencies optional (#121)
+
+**Bug fixes**
+
+- Force PostgreSQl session timezone to UTC (#122)
+- Fix basic auth ofuscation and prefix (#128)
+- Make sure the `paginate_by` setting overrides the passed `limit`
+  argument (#129)
+- Fix limit comparison under Python3 (#143)
+- Do not serialize using JSON if not necessary (#131)
+- Fix crash of classic logger with unicode (#142)
+- Fix crash of CloudStorage backend when remote returns 500 (#142)
+- Fix behaviour of CloudStorage with backslashes in querystring (#142)
+- Fix python3.4 segmentation fault (#142)
+- Add missing port in Next-Page header (#147)
+
+
+**Internal changes**
+
+- Use ujson again, it was removed in the 1.3.2 release (#132)
+- Add index for as_epoch(last_modified) (#130). Please add the following
+  statements to SQL for the migration::
+
+    CREATE INDEX idx_records_last_modified_epoch ON records(as_epoch(last_modified));
+    CREATE INDEX idx_deleted_last_modified_epoch ON deleted(as_epoch(last_modified));
+
+- Prevent fetching to many records for one user collection (#130)
+- Use UPSERT for the heartbeat (#141)
+- Add missing OpenSSL in installation docs (#146)
+- Improve tests of basic auth (#128)
 
 
 1.3.2 (2015-03-20)
