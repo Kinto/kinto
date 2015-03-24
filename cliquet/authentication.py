@@ -105,7 +105,7 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         auth_client = OAuthClient(server_url=server_url, cache=self.cache)
         try:
             profile = auth_client.verify_token(token=auth, scope=scope)
-            user_id = profile['user'].encode('utf-8')
+            user_id = profile['user']
         except fxa_errors.OutOfProtocolError:
             raise httpexceptions.HTTPServiceUnavailable()
         except (fxa_errors.InProtocolError, fxa_errors.TrustError):
