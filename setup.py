@@ -36,7 +36,7 @@ MONITORING_REQUIRES = [
 ]
 
 setup(name='cliquet',
-      version='1.4.0',
+      version='1.4.1-dev',
       description='cliquet',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',
