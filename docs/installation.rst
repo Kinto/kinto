@@ -118,22 +118,25 @@ Create the initial database:
     initdb /usr/local/var/postgres
 
 
-Install libffi
-==============
+Cryptography libraries
+======================
 
 Linux
 -----
 
-On debian / ubuntu based systems::
+On Debian / Ubuntu based systems::
 
-    apt-get install libffi-dev
+    apt-get install libffi-dev libssl-dev
 
+On RHEL-derivatives::
+
+    apt-get install libffi-devel openssl-devel
 
 OS X
 ----
 
-Assuming `brew <http://brew.sh/>`_ is installed, libffi installation becomes:
+Assuming `brew <http://brew.sh/>`_ is installed:
 
 ::
 
-    brew install libffi pkg-config
+    brew install libffi openssl pkg-config
