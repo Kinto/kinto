@@ -85,7 +85,7 @@ class ClassicLogRenderer(object):
     def __call__(self, logger, name, event_dict):
         if 'path' in event_dict:
             pattern = (u'"{method: <5} {path}{querystring}" {code} ({t} ms)'
-                        ' {event} {context}')
+                       ' {event} {context}')
         else:
             pattern = u'{event} {context}'
 
