@@ -6,6 +6,10 @@ This document describes changes between each past release.
 1.4.0 (2015-03-24)
 ------------------
 
+**Breaking changes**
+
+- Make monitoring dependencies optional (#121)
+
 **Bug fixes**
 
 - Force PostgreSQl session timezone to UTC (#122)
@@ -22,8 +26,12 @@ This document describes changes between each past release.
 
 **Internal changes**
 
-- Make monitoring dependencies optional (#121)
-- Add index for as_epoch(last_modified) (#130)
+- Add index for as_epoch(last_modified) (#130). Please add the following
+  statements to SQL for the migration::
+
+    CREATE INDEX idx_records_last_modified_epoch ON records(as_epoch(last_modified));
+    CREATE INDEX idx_deleted_last_modified_epoch ON deleted(as_epoch(last_modified));
+
 - Prevent fetching to many records for one user collection (#130)
 - Use UPSERT for the heartbeat (#141)
 - Add missing OpenSSL in installation docs (#146)
