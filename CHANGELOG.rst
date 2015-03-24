@@ -4,7 +4,7 @@ Changelog
 This document describes changes between each past release.
 
 
-0.2 (unreleased)
+0.2 (2015-03-24)
 ================
 
 - Upgraded to *cliquet* 1.4
