@@ -857,3 +857,15 @@ class CloudStorageTest(StorageTest, unittest.TestCase):
             self.storage._client,
             'request',
             side_effect=requests.ConnectionError)
+
+    def test_raises_backenderror_when_remote_returns_500(self):
+        with mock.patch.object(self.storage._client, 'request') as mocked:
+            error_response = requests.models.Response()
+            error_response.status_code = 500
+            error_response._content_consumed = True
+            error_response._content = 'Internal Error'
+            mocked.return_value = error_response
+            self.assertRaises(exceptions.BackendError,
+                              self.storage.get_all,
+                              self.resource,
+                              self.user_id)

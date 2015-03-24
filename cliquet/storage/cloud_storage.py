@@ -29,11 +29,13 @@ def wrap_http_error(func):
         try:
             return func(*args, **kwargs)
         except RequestException as e:
+            status_code = body = None
             if e.response is not None:
                 status_code = e.response.status_code
-                body = e.response.json()
-            else:
-                status_code = body = None
+                try:
+                    body = e.response.json()
+                except ValueError:
+                    body = e.response.content
 
             if status_code == 404:
                 record_id = '?'
