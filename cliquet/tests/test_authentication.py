@@ -1,13 +1,14 @@
 import base64
+import hashlib
 import time
 
 import mock
 from fxa import errors as fxa_errors
 
-from cliquet.authentication import TokenVerificationCache
+from cliquet import authentication
 from cliquet.cache import redis as redis_backend
 
-from .support import BaseWebTest, unittest
+from .support import BaseWebTest, unittest, DummyRequest
 
 
 class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
@@ -60,7 +61,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 class TokenVerificationCacheTest(unittest.TestCase):
     def setUp(self):
         cache = redis_backend.Redis(max_connections=1)
-        self.cache = TokenVerificationCache(cache, 0.05)
+        self.cache = authentication.TokenVerificationCache(cache, 0.05)
 
     def test_set_adds_the_record(self):
         stored = 'toto'
@@ -79,3 +80,28 @@ class TokenVerificationCacheTest(unittest.TestCase):
         time.sleep(0.1)
         retrieved = self.cache.get('foobar')
         self.assertIsNone(retrieved)
+
+
+class BasicAuthenticationPolicyTest(unittest.TestCase):
+    def setUp(self):
+        self.policy = authentication.BasicAuthAuthenticationPolicy()
+        self.request = DummyRequest()
+        self.request.headers['Authorization'] = 'Basic bWF0Og=='
+        self.request.registry.settings['cliquet.basic_auth_enabled'] = True
+
+    def test_prefixes_users_with_basicauth(self):
+        user_id = self.policy.unauthenticated_userid(self.request)
+        self.assertTrue(user_id.startswith('basicauth_'))
+
+    @mock.patch('cliquet.authentication.hmac.new')
+    def test_userid_is_hashed(self, mocked):
+        mocked.return_value = hashlib.sha224('hashed'.encode('utf8'))
+        user_id = self.policy.unauthenticated_userid(self.request)
+        self.assertIn('fc04599e80aed4e56d3465', user_id)
+
+    def test_userid_is_built_using_password(self):
+        self.request.headers['Authorization'] = 'Basic bWF0OjE='
+        user_id1 = self.policy.unauthenticated_userid(self.request)
+        self.request.headers['Authorization'] = 'Basic bWF0OjI='
+        user_id2 = self.policy.unauthenticated_userid(self.request)
+        self.assertNotEqual(user_id1, user_id2)
