@@ -649,8 +649,16 @@ class BaseResource(object):
         queryparams['_limit'] = limit
         queryparams['_token'] = self._build_pagination_token(
             sorting, last_record)
-        return '%s%s?%s' % (self.request.host_url, self.request.path_info,
-                            urlencode(queryparams))
+
+        port = ''
+        if self.request.server_port != 80:
+            port = ':%s' % self.request.server_port
+
+        next_page = '{host}{port}{path}?{querystring}'
+        return next_page.format(host=self.request.host_url,
+                                port=port,
+                                path=self.request.path_info,
+                                querystring=urlencode(queryparams))
 
     def _build_pagination_token(self, sorting, last_record):
         """Build a pagination token.

@@ -67,6 +67,20 @@ class PaginationTest(BaseTest):
         self.assertIn('_limit', queryparams)
         self.assertIn('_token', queryparams)
 
+    def test_next_page_url_has_got_port_number_if_different_than_80(self):
+        self.resource.request.server_port = 8000
+        self.resource.request.GET = {'_limit': '10'}
+        self.resource.collection_get()
+        next_page = self.last_response.headers['Next-Page'].decode('utf-8')
+        self.assertIn(':8000', next_page)
+
+    def test_next_page_url_has_not_port_number_if_80(self):
+        self.resource.request.server_port = 80
+        self.resource.request.GET = {'_limit': '10'}
+        self.resource.collection_get()
+        next_page = self.last_response.headers['Next-Page'].decode('utf-8')
+        self.assertNotIn(':80', next_page)
+
     def test_next_page_url_gives_next_page(self):
         self.resource.request.GET = {'_limit': '10'}
         results1 = self.resource.collection_get()
