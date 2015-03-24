@@ -864,7 +864,7 @@ class CloudStorageTest(StorageTest, unittest.TestCase):
             error_response = requests.models.Response()
             error_response.status_code = 500
             error_response._content_consumed = True
-            error_response._content = 'Internal Error'
+            error_response._content = u'Internal Error'.encode('utf8')
             mocked.return_value = error_response
             self.assertRaises(exceptions.BackendError,
                               self.storage.get_all,
