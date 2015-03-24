@@ -29,11 +29,13 @@ def wrap_http_error(func):
         try:
             return func(*args, **kwargs)
         except RequestException as e:
+            status_code = body = None
             if e.response is not None:
                 status_code = e.response.status_code
-                body = e.response.json()
-            else:
-                status_code = body = None
+                try:
+                    body = e.response.json()
+                except ValueError:
+                    body = e.response.content
 
             if status_code == 404:
                 record_id = '?'
@@ -173,6 +175,18 @@ class CloudStorage(StorageBase):
                                    headers=self._build_headers(resource))
         resp.raise_for_status()
 
+    def _filters_as_params(self, filters):
+        params = []
+        for k, v, op in filters:
+            if isinstance(v, six.string_types):
+                # Literals '\' should be preserved in querystring
+                v = v.replace("\\", "\\\\")
+            params.append(("%s%s" % (FILTERS[op], k), v))
+        return params
+
+    def _params_as_querystring(self, params):
+        return '&'.join(["%s=%s" % (p, v) for p, v in params])
+
     @wrap_http_error
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
@@ -190,8 +204,7 @@ class CloudStorage(StorageBase):
             params += [("_sort", ','.join(sort_fields))]
 
         if filters:
-            params += [("%s%s" % (FILTERS[op], k), v)
-                       for k, v, op in filters]
+            params += self._filters_as_params(filters)
 
         if limit:
             params.append(("_limit", limit))
@@ -208,7 +221,7 @@ class CloudStorage(StorageBase):
         else:
             batch_payload = {'defaults': {'body': {}}, 'requests': []}
 
-            querystring = '&'.join(['%s=%s' % (p, v) for p, v in params])
+            querystring = self._params_as_querystring(params)
             batch_payload['requests'].append({
                 'method': 'HEAD',
                 'path': url + '?%s' % querystring,
@@ -216,9 +229,8 @@ class CloudStorage(StorageBase):
 
             for filters in pagination_rules:
                 params_ = list(params)
-                params_ += [("%s%s" % (FILTERS[op], k), v)
-                            for k, v, op in filters]
-                querystring = '&'.join(['%s=%s' % (p, v) for p, v in params_])
+                params_ += self._filters_as_params(filters)
+                querystring = self._params_as_querystring(params_)
                 batch_payload['requests'].append({
                     'path': url + '?%s' % querystring,
                 })

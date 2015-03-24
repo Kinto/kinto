@@ -86,6 +86,10 @@ class ClassicLogRendererTest(unittest.TestCase):
         self.assertEqual(('"GET   /v1/?_sort=field" 200 (32 ms)'
                           ' app.event nb_records=5'), value)
 
+    def test_fields_values_support_unicode(self):
+        value = self.renderer(self.logger, 'critical', {'value': u'\u2014'})
+        self.assertIn(u'\u2014', value)
+
 
 class MozillaHekaRendererTest(unittest.TestCase):
     def setUp(self):

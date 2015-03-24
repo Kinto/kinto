@@ -383,6 +383,23 @@ class FieldsUnicityTest(object):
                           record['id'],
                           {'phone': 'number'})
 
+    def test_unicity_detection_supports_special_characters(self):
+        record = self.create_record()
+        values = ['b', 'http://moz.org', u"#131 \u2014 ujson",
+                  "C:\\\\win32\\hosts"]
+        for value in values:
+            self.create_record({'phone': value})
+            try:
+                error = None
+                self.storage.update(self.resource,
+                                    self.user_id,
+                                    record['id'],
+                                    {'phone': value})
+            except exceptions.UnicityError as e:
+                error = e
+            msg = 'UnicityError not raised with %s' % value
+            self.assertIsNotNone(error, msg)
+
 
 class DeletedRecordsTest(object):
     def _get_last_modified_filters(self):
@@ -841,3 +858,15 @@ class CloudStorageTest(StorageTest, unittest.TestCase):
             self.storage._client,
             'request',
             side_effect=requests.ConnectionError)
+
+    def test_raises_backenderror_when_remote_returns_500(self):
+        with mock.patch.object(self.storage._client, 'request') as mocked:
+            error_response = requests.models.Response()
+            error_response.status_code = 500
+            error_response._content_consumed = True
+            error_response._content = u'Internal Error'.encode('utf8')
+            mocked.return_value = error_response
+            self.assertRaises(exceptions.BackendError,
+                              self.storage.get_all,
+                              self.resource,
+                              self.user_id)
