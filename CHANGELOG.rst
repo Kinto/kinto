@@ -20,6 +20,7 @@ This document describes changes between each past release.
 - Do not serialize using JSON if not necessary (#131)
 - Fix crash of classic logger with unicode (#142)
 - Fix crash of CloudStorage backend when remote returns 500 (#142)
+- Fix behaviour of CloudStorage with backslashes in querystring (#142)
 - Fix python3.4 segmentation fault (#142)
 - Add missing port in Next-Page header (#147)
 
