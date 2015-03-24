@@ -385,7 +385,8 @@ class FieldsUnicityTest(object):
 
     def test_unicity_detection_supports_special_characters(self):
         record = self.create_record()
-        values = ['b', 'http://moz.org', u"#131 \u2014 ujson", "C:\\\\win32"]
+        values = ['b', 'http://moz.org', u"#131 \u2014 ujson",
+                  "C:\\\\win32\\hosts"]
         for value in values:
             self.create_record({'phone': value})
             try:
