@@ -26,6 +26,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
+- Use ujson again, it was removed in the 1.3.2 release (#132)
 - Add index for as_epoch(last_modified) (#130). Please add the following
   statements to SQL for the migration::
 
