@@ -1,6 +1,7 @@
 import random
 from base64 import b64encode, b64decode
 
+import mock
 from six.moves.urllib.parse import parse_qs, urlparse
 from pyramid.httpexceptions import HTTPBadRequest
 
@@ -40,6 +41,19 @@ class PaginationTest(BaseTest):
         self.resource.request.GET = {'_limit': '10'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['items']), 10)
+
+    def test_handle_forced_limit(self):
+        with mock.patch.dict(self.resource.request.registry.settings, [
+                ('cliquet.paginate_by', 10)]):
+            result = self.resource.collection_get()
+            self.assertEqual(len(result['items']), 10)
+
+    def test_forced_limit_has_precedence_over_provided_limit(self):
+        with mock.patch.dict(self.resource.request.registry.settings, [
+                ('cliquet.paginate_by', 5)]):
+            self.resource.request.GET = {'_limit': '10'}
+            result = self.resource.collection_get()
+            self.assertEqual(len(result['items']), 5)
 
     def test_return_next_page_url_is_given_in_headers(self):
         self.resource.request.GET = {'_limit': '10'}
