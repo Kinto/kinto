@@ -20,8 +20,8 @@ CREATE OR REPLACE FUNCTION as_epoch(ts TIMESTAMP) RETURNS BIGINT AS $$
 BEGIN
     RETURN (EXTRACT(EPOCH FROM ts) * 1000)::BIGINT;
 END;
-$$ LANGUAGE plpgsql;
-
+$$ LANGUAGE plpgsql
+IMMUTABLE;
 
 --
 -- Actual records
@@ -40,6 +40,8 @@ DROP INDEX IF EXISTS idx_records_resource_name;
 CREATE INDEX idx_records_resource_name ON records(resource_name);
 DROP INDEX IF EXISTS idx_records_last_modified;
 CREATE INDEX idx_records_last_modified ON records(last_modified);
+DROP INDEX IF EXISTS idx_records_last_modified_epoch;
+CREATE INDEX idx_records_last_modified_epoch ON records(as_epoch(last_modified));
 DROP INDEX IF EXISTS idx_records_id;
 CREATE INDEX idx_records_id ON records(id);
 
@@ -62,7 +64,8 @@ DROP INDEX IF EXISTS idx_deleted_resource_name;
 CREATE INDEX idx_deleted_resource_name ON deleted(resource_name);
 DROP INDEX IF EXISTS idx_deleted_last_modified;
 CREATE INDEX idx_deleted_last_modified ON deleted(last_modified);
-
+DROP INDEX IF EXISTS idx_deleted_last_modified_epoch;
+CREATE INDEX idx_deleted_last_modified_epoch ON deleted(as_epoch(last_modified));
 
 --
 -- Helpers
