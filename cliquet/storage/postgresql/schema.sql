@@ -127,4 +127,4 @@ FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
 
 -- Set storage schema version.
 -- Should match ``cliquet.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '1');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '2');
