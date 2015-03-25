@@ -6,6 +6,10 @@ This document describes changes between each past release.
 1.4.1 (unreleased)
 ------------------
 
+**Bug fixes**
+
+- Rely on Pyramid API to build pagination Next-Url (#147)
+
 
 1.4.0 (2015-03-24)
 ------------------
