@@ -7,7 +7,6 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPMethodNotAllowed,
                                     HTTPNotFound, HTTPConflict)
 import six
-from six.moves.urllib.parse import urlencode
 
 from cliquet import logger
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
@@ -15,7 +14,8 @@ from cliquet.errors import (http_error, raise_invalid, ERRORS,
                             json_error_handler)
 from cliquet.schema import ResourceSchema
 from cliquet.utils import (
-    COMPARISON, classname, native_value, decode_token, encode_token
+    COMPARISON, classname, native_value, decode_token, encode_token,
+    current_service
 )
 
 
@@ -645,20 +645,15 @@ class BaseResource(object):
 
     def _next_page_url(self, sorting, limit, last_record):
         """Build the Next-Page header from where we stopped."""
-        queryparams = self.request.GET.copy()
-        queryparams['_limit'] = limit
-        queryparams['_token'] = self._build_pagination_token(
-            sorting, last_record)
+        token = self._build_pagination_token(sorting, last_record)
 
-        port = ''
-        if self.request.server_port != 80:
-            port = ':%s' % self.request.server_port
+        params = self.request.GET.copy()
+        params['_limit'] = limit
+        params['_token'] = token
 
-        next_page = '{host}{port}{path}?{querystring}'
-        return next_page.format(host=self.request.host_url,
-                                port=port,
-                                path=self.request.path_info,
-                                querystring=urlencode(queryparams))
+        service = current_service(self.request)
+        next_page_url = self.request.route_url(service.name, _query=params)
+        return next_page_url
 
     def _build_pagination_token(self, sorting, last_record):
         """Build a pagination token.
