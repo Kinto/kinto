@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-1.4.1 (unreleased)
+1.4.1 (2015-03-25)
 ------------------
 
 **Bug fixes**
