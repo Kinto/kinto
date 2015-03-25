@@ -109,11 +109,21 @@ def reapply_cors(request, response):
     recreating the response from scratch.
 
     """
+    service = current_service(request)
+    if service:
+        request.info['cors_checked'] = False
+        response = cors.ensure_origin(service, request, response)
+    return response
+
+
+def current_service(request):
+    """Return the Cornice service matching the specified request.
+
+    :returns: the service or None if unmatched.
+    :rtype: cornice.Service
+    """
     if request.matched_route:
         services = request.registry.cornice_services
         pattern = request.matched_route.pattern
         service = services[pattern]
-
-        request.info['cors_checked'] = False
-        response = cors.ensure_origin(service, request, response)
-    return response
+        return service

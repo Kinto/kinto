@@ -9,6 +9,7 @@ except ImportError:
 import webtest
 
 from cornice import errors as cornice_errors
+from pyramid.url import parse_url_overrides
 
 from cliquet import DEFAULT_SETTINGS
 from cliquet.utils import random_bytes_hex
@@ -27,6 +28,13 @@ class DummyRequest(mock.MagicMock):
         self.validated = {}
         self.matchdict = {}
         self.response = mock.MagicMock(headers={})
+
+        def route_url(*a, **kw):
+            # XXX: refactor DummyRequest to take advantage of `pyramid.testing`
+            parts = parse_url_overrides(kw)
+            return ''.join([p for p in parts if p])
+
+        self.route_url = route_url
 
 
 def get_request_class(prefix):
