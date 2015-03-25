@@ -37,7 +37,7 @@ need-kinto-running:
 	@curl http://localhost:8888/v0/ 2>/dev/null 1>&2 || (echo "Run 'make runkinto' before starting tests." && exit 1)
 
 runkinto:
-	$(VENV)/bin/pserve cliquet/tests/config/kinto.ini
+	$(VENV)/bin/pserve cliquet/tests/config/kinto.ini --reload
 
 clean:
 	find . -name '*.pyc' -delete
