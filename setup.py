@@ -25,7 +25,7 @@ ENTRY_POINTS = {
 
 
 setup(name='kinto',
-      version='0.2.1',
+      version='0.2.2.dev0',
       description='kinto',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',
