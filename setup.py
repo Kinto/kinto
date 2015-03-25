@@ -15,7 +15,7 @@ REQUIREMENTS = [
     'cornice',
     'six',
     'waitress',
-    'cliquet[postgresql,monitoring] >= 1.4.0'
+    'cliquet[postgresql,monitoring] >= 1.4.1'
 ]
 
 ENTRY_POINTS = {
@@ -25,7 +25,7 @@ ENTRY_POINTS = {
 
 
 setup(name='kinto',
-      version='0.3.dev0',
+      version='0.2.2.dev0',
       description='kinto',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',

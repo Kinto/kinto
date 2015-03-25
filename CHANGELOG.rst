@@ -4,10 +4,20 @@ Changelog
 This document describes changes between each past release.
 
 
-0.3 (unreleased)
-================
+0.2.2 (unreleased)
+==================
 
 - Nothing changed yet.
+
+
+0.2.1 (2015-03-25)
+==================
+
+- Upgraded to *cliquet* 1.4.1
+
+**Bug fixes**
+
+- Rely on Pyramid API to build pagination Next-Url (#147)
 
 
 0.2 (2015-03-24)
