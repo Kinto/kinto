@@ -818,12 +818,6 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             after = cursor.fetchone()
         self.assertNotEqual(before, after)
 
-    def test_schema_is_not_recreated_from_scratch_if_already_exists(self):
-        with mock.patch('cliquet.storage.postgresql.logger.debug') as mocked:
-            self.storage.initialize_schema()
-            message, = mocked.call_args[0]
-            self.assertEqual(message, "Detected PostgreSQL storage tables")
-
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
         for i in range(4):
             self.create_record({'phone': 'tel-%s' % i})
@@ -885,6 +879,77 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         with mock.patch('cliquet.storage.postgresql.warnings.warn') as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
             mocked.assert_called_with(msg)
+
+
+class PostgresqlStorageMigrationTest(unittest.TestCase):
+    def setUp(self):
+        self.settings = PostgresqlStorageTest.settings.copy()
+        self.config = mock.Mock(get_settings=mock.Mock(
+            return_value=self.settings))
+
+        self.version = postgresql.PostgreSQL.schema_version
+
+        # Usual storage object to manipulate the db.
+        self.db = postgresql.load_from_config(self.config)
+
+        # Start empty.
+        q = """
+        DROP TABLE IF EXISTS records CASCADE;
+        DROP TABLE IF EXISTS deleted CASCADE;
+        DROP TABLE IF EXISTS metadata CASCADE;
+        """
+        with self.db.connect() as cursor:
+            cursor.execute(q)
+
+        # Create schema in its last version
+        self.db = postgresql.load_from_config(self.config)
+
+        # Patch to keep track of SQL files executed.
+        self.sql_execute_patcher = mock.patch(
+            'cliquet.storage.postgresql.PostgreSQL._execute_sql_file')
+        self.sql_execute_mocked = self.sql_execute_patcher.start()
+
+    def tearDown(self):
+        postgresql.PostgreSQL.schema_version = self.version
+        self.sql_execute_patcher.stop()
+
+    def test_schema_sets_the_current_version(self):
+        with self.db.connect() as cursor:
+            q = """
+            SELECT value
+              FROM metadata
+             WHERE name = 'storage_schema_version';
+            """
+            cursor.execute(q)
+            version = int(cursor.fetchone()[0])
+        self.assertEqual(version, self.version)
+
+    def test_schema_is_not_recreated_from_scratch_if_already_exists(self):
+        postgresql.load_from_config(self.config)
+        self.assertFalse(self.sql_execute_mocked.called)
+
+    def test_schema_is_considered_first_version_if_no_version_detected(self):
+        with self.db.connect() as cursor:
+            q = "DELETE FROM metadata WHERE name = 'storage_schema_version';"
+            cursor.execute(q)
+
+        postgresql.PostgreSQL.schema_version = 2
+        postgresql.load_from_config(self.config)
+        self.sql_execute_mocked.assert_any_call('migration_1_2.sql')
+
+    def test_migration_file_is_executed_for_every_intermediary_version(self):
+        with self.db.connect() as cursor:
+            q = """
+            UPDATE metadata SET value = '3'
+            WHERE name = 'storage_schema_version';
+            """
+            cursor.execute(q)
+
+        postgresql.PostgreSQL.schema_version = 6
+        postgresql.load_from_config(self.config)
+        self.sql_execute_mocked.assert_any_call('migration_3_4.sql')
+        self.sql_execute_mocked.assert_any_call('migration_4_5.sql')
+        self.sql_execute_mocked.assert_any_call('migration_5_6.sql')
 
 
 class CloudStorageTest(StorageTest, unittest.TestCase):

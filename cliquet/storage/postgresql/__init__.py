@@ -123,6 +123,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     """
 
+    schema_version = 1
+
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')
         super(PostgreSQL, self).__init__(*args, **kwargs)
@@ -140,22 +142,32 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             cursor.execute(schema)
 
     def initialize_schema(self):
-        """Create PostgreSQL tables, only if not exists.
+        """Create PostgreSQL tables, and run necessary schema migrations.
 
         :note:
             Relies on JSON fields, available in recent versions of PostgreSQL.
         """
         version = self._get_installed_version()
-        if version:
-            logger.debug('Detected PostgreSQL storage tables')
+        if not version:
+            # Create full schema.
+            self._check_database_encoding()
+            self._check_database_timezone()
+            # Create full schema.
+            self._execute_sql_file('schema.sql')
+            logger.info('Created PostgreSQL storage tables.')
             return
 
-        # Check database config.
-        self._check_database_encoding()
-        self._check_database_timezone()
-        # Create full schema.
-        self._execute_sql_file('schema.sql')
-        logger.info('Created PostgreSQL storage tables.')
+        logger.debug('Detected PostgreSQL schema version %s.' % version)
+        migrations = [(v, v + 1) for v in range(version, self.schema_version)]
+        if not migrations:
+            logger.info('Schema is up-to-date.')
+
+        for migration in migrations:
+            logger.info('Migrate schema from version %s to %s.' % migration)
+            filepath = 'migration_%s_%s.sql' % migration
+            self._execute_sql_file(filepath)
+
+        logger.info('Schema migration done.')
 
     def _check_database_timezone(self):
         # Make sure database has UTC timezone.
@@ -186,8 +198,19 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             cursor.execute(query)
             tables_exist = cursor.rowcount > 0
 
+        query = """
+        SELECT value AS version
+          FROM metadata
+         WHERE name = 'storage_schema_version';
+        """
         if tables_exist:
-            return 1
+            with self.connect() as cursor:
+                cursor.execute(query)
+                if cursor.rowcount > 0:
+                    return int(cursor.fetchone()['version'])
+                else:
+                    # In the first versions of cliquet, there was no migration.
+                    return 1
 
     def flush(self):
         """Delete records from tables without destroying schema. Mainly used
