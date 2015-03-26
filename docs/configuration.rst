@@ -50,6 +50,29 @@ Deployment
     # cliquet.backoff = 10
     cliquet.retry_after_seconds = 30
 
+
+Scheme, host and port
+:::::::::::::::::::::
+
+By default *cliquet* does not enforce requests scheme, host and port. It relies
+on WSGI specification and the related stack configuration. Tuning this becomes
+necessary when the application runs behind proxies or load balancers.
+
+Most implementations, like *uwsgi, provide configuration variables to adjust it
+properly.
+
+However if, for some reasons, this had to be enforced at the application level,
+the following settings can be set:
+
+.. code-block :: ini
+
+    # cliquet.http_scheme = https
+    # cliquet.http_host = production.server:7777
+
+
+Check the ``url`` value returned in the hello view.
+
+
 Deprecation
 :::::::::::
 
