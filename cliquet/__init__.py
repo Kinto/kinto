@@ -18,6 +18,7 @@ from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.interfaces import IAuthenticationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 from pyramid.settings import asbool, aslist
 
@@ -130,6 +131,7 @@ def set_auth(config):
     config.set_authorization_policy(authz_policy)
     config.set_authentication_policy(authn_policy)
     config.set_default_permission('readwrite')
+    config.commit()
 
 
 def attach_http_objects(config):
@@ -211,6 +213,9 @@ def handle_statsd(config):
         client.watch_execution_time(config.registry.cache, prefix='cache')
         client.watch_execution_time(config.registry.storage, prefix='storage')
 
+        policy = config.registry.queryUtility(IAuthenticationPolicy)
+        client.watch_execution_time(policy, prefix='authentication')
+
 
 def includeme(config):
     # Monkey Patch Cornice Service to setup the global CORS configuration.
@@ -237,11 +242,11 @@ def includeme(config):
     cache = config.maybe_dotted(settings['cliquet.cache_backend'])
     config.registry.cache = cache.load_from_config(config)
 
-    # Handle StatsD
-    handle_statsd(config)
-
     set_auth(config)
     attach_http_objects(config)
+
+    # Handle StatsD
+    handle_statsd(config)
 
     kwargs = {}
 
