@@ -2,6 +2,42 @@ Contributing
 ############
 
 
+Setup your development environment
+==================================
+
+To prepare your system with Postgres and Redis please refer to the Installation guide.
+
+Prepare your project virtualenv:
+
+::
+
+    $ pip install virtualenv
+    $ virtualenv .venv
+    $ source .venv/bin/activate
+
+(deactivate when finished)
+
+Install packages as usual, for example install needed packages:
+
+::
+
+    $ pip install -r dev-requirements.txt
+
+Clone Kinto:
+
+::
+
+    $ git clone https://github.com/mozilla-services/kinto.git
+
+
+Prepare Kinto to run:
+
+::
+
+    $ cd kinto
+    $ make serve
+
+
 Run tests
 =========
 
