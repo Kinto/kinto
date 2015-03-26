@@ -9,7 +9,8 @@ from cliquet import statsd
 class StatsdClientTest(unittest.TestCase):
     settings = {
         'cliquet.statsd_url': 'udp://foo:1234',
-        'cliquet.statsd_prefix': 'prefix'
+        'cliquet.statsd_prefix': 'prefix',
+        'cliquet.project_name': '',
     }
 
     def setUp(self):
