@@ -26,6 +26,10 @@ REQUIREMENTS = [
     'ujson',
 ]
 
+DEPENDENCY_LINKS = [
+    'https://github.com/mozilla/PyFxA/tarball/use_gevent_if_present#egg=PyFxA-0.0.5',
+]
+
 POSTGRESQL_REQUIRES = [
     'psycopg2>2.5',
 ]
@@ -57,4 +61,5 @@ setup(name='cliquet',
       extras_require={
           'postgresql': REQUIREMENTS + POSTGRESQL_REQUIRES,
           'monitoring': REQUIREMENTS + MONITORING_REQUIRES,
-      })
+      },
+      dependency_links=DEPENDENCY_LINKS)
