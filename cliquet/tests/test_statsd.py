@@ -32,7 +32,7 @@ class StatsdClientTest(unittest.TestCase):
         self.test_object.test_method()
 
         self.mocked_client.timer.assert_called_with(
-            'prefix.test.testedclass.test_method')
+            'test.testedclass.test_method')
 
     def test_private_methods_does_not_generates_statsd_calls(self):
         self.test_object._private_method()
@@ -43,4 +43,5 @@ class StatsdClientTest(unittest.TestCase):
         config = testing.setUp()
         config.registry.settings = self.settings
         statsd.load_from_config(config)
-        module_mock.StatsClient.assert_called_with('foo', 1234, 'prefix')
+        module_mock.StatsClient.assert_called_with('foo', 1234,
+                                                   prefix='prefix')
