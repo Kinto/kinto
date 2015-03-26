@@ -31,6 +31,10 @@ def load_from_config(config):
     settings = config.get_settings()
     uri = settings['cliquet.statsd_url']
     uri = urlparse.urlparse(uri)
-    prefix = settings['cliquet.statsd_prefix']
+
+    if settings['cliquet.project_name'] != '':
+        prefix = settings['cliquet.project_name']
+    else:
+        prefix = settings['cliquet.statsd_prefix']
 
     return Client(uri.hostname, uri.port, prefix)

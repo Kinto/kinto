@@ -45,3 +45,12 @@ class StatsdClientTest(unittest.TestCase):
         statsd.load_from_config(config)
         module_mock.StatsClient.assert_called_with('foo', 1234,
                                                    prefix='prefix')
+
+    @mock.patch('cliquet.statsd.statsd_module')
+    def test_load_from_config_uses_project_name_if_defined(self, module_mock):
+        config = testing.setUp()
+        config.registry.settings = self.settings.copy()
+        config.registry.settings['cliquet.project_name'] = 'projectname'
+        statsd.load_from_config(config)
+        module_mock.StatsClient.assert_called_with('foo', 1234,
+                                                   prefix='projectname')
