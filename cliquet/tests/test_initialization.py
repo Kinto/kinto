@@ -115,9 +115,9 @@ class SentryConfigurationTest(unittest.TestCase):
 
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
-        self.config = Configurator(settings={
-            'cliquet.statsd_url': 'udp://host:8080'
-        })
+        settings = cliquet.DEFAULT_SETTINGS.copy()
+        settings['cliquet.statsd_url'] = 'udp://host:8080'
+        self.config = Configurator(settings=settings)
         self.config.set_authorization_policy({})
         self.config.registry.storage = {}
         self.config.registry.cache = {}
@@ -133,7 +133,7 @@ class StatsDConfigurationTest(unittest.TestCase):
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_is_called_if_statsd_url_is_set(self, mocked):
         cliquet.handle_statsd(self.config)
-        mocked.assert_called_with('host', 8080)
+        mocked.assert_called_with('host', 8080, 'cliquet')
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_is_set_on_cache(self, mocked):

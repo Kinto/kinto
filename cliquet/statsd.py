@@ -2,8 +2,8 @@ from __future__ import absolute_import
 
 try:
     import statsd as statsd_module
-except ImportError:
-    pass  # NOQA
+except ImportError:  # pragma: no cover
+    pass
 from six.moves.urllib import parse as urlparse
 
 from cliquet import utils
