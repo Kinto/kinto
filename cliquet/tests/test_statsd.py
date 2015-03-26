@@ -7,10 +7,13 @@ from cliquet import statsd
 
 
 class StatsdClientTest(unittest.TestCase):
-    settings = {'cliquet.statsd_url': 'udp://foo:1234'}
+    settings = {
+        'cliquet.statsd_url': 'udp://foo:1234',
+        'cliquet.statsd_prefix': 'prefix'
+    }
 
     def setUp(self):
-        self.client = statsd.Client('localhost', 1234)
+        self.client = statsd.Client('localhost', 1234, 'prefix')
         with mock.patch.object(self.client, '_client') as mocked_client:
             class TestedClass(object):
                 attribute = 3.14
@@ -29,7 +32,7 @@ class StatsdClientTest(unittest.TestCase):
         self.test_object.test_method()
 
         self.mocked_client.timer.assert_called_with(
-            'test.testedclass.test_method')
+            'prefix.test.testedclass.test_method')
 
     def test_private_methods_does_not_generates_statsd_calls(self):
         self.test_object._private_method()
@@ -40,4 +43,4 @@ class StatsdClientTest(unittest.TestCase):
         config = testing.setUp()
         config.registry.settings = self.settings
         statsd.load_from_config(config)
-        module_mock.StatsClient.assert_called_with('foo', 1234)
+        module_mock.StatsClient.assert_called_with('foo', 1234, 'prefix')
