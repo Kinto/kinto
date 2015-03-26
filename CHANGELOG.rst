@@ -14,7 +14,9 @@ This document describes changes between each past release.
 
 - Prefix statsd metrics with the value of `cliquet.statsd_prefix` or
   `cliquet.project_name` (#162)
-- Get rid of useless `http_scheme` setting (#151)
+- Get rid of useless `http_scheme` setting (#151). It's been replaced by
+  `cliquet.http_scheme` and `cliquet.http_host` (#166)
+- Option to force scheme and host at application level
 - Use Pyramid URL api for the hello view  (#165)
 
 **Bug fixes**
@@ -23,7 +25,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
-- Use an unreleased version of PyFxA working with gevent monkey patching.
+- Use an unreleased version of PyFxA working with gevent monkey patching (#168)
 - Reload kinto on changes (#158)
 
 
