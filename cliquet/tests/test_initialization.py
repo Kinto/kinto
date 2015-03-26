@@ -1,4 +1,5 @@
 import mock
+import webtest
 
 from pyramid.config import Configurator
 
@@ -148,3 +149,55 @@ class StatsDConfigurationTest(unittest.TestCase):
     def test_statsd_is_set_on_authentication(self, mocked):
         c = cliquet.handle_statsd(self.config)
         c.watch_execution_time.assert_any_call(None, prefix='authentication')
+
+
+class RequestsConfigurationTest(unittest.TestCase):
+    def _get_app(self, settings={}):
+        app_settings = {
+            'cliquet.storage_backend': 'cliquet.storage.memory',
+            'cliquet.cache_backend': 'cliquet.cache.redis',
+        }
+        app_settings.update(**settings)
+        config = Configurator(settings=app_settings)
+        cliquet.initialize_cliquet(config, '0.0.1', 'name')
+        return webtest.TestApp(config.make_wsgi_app())
+
+    def test_by_default_relies_on_pyramid_application_url(self):
+        app = self._get_app()
+        resp = app.get('/v0/')
+        self.assertEqual(resp.json['url'], 'http://localhost/v0/')
+
+    def test_by_default_relies_on_incoming_headers(self):
+        app = self._get_app()
+        resp = app.get('/v0/', headers={'Host': 'server:8888'})
+        self.assertEqual(resp.json['url'], 'http://server:8888/v0/')
+
+    def test_by_default_relies_on_wsgi_environment(self):
+        app = self._get_app()
+        environ = {
+            'wsgi.url_scheme': 'https',
+            'HTTP_HOST': 'server:44311'
+        }
+        resp = app.get('/v0/', extra_environ=environ)
+        self.assertEqual(resp.json['url'], 'https://server:44311/v0/')
+
+    def test_http_scheme_overrides_the_wsgi_environment(self):
+        app = self._get_app({'cliquet.http_scheme': 'http2'})
+        environ = {
+            'wsgi.url_scheme': 'https'
+        }
+        resp = app.get('/v0/', extra_environ=environ)
+        self.assertEqual(resp.json['url'], 'http2://localhost:80/v0/')
+
+    def test_http_host_overrides_the_wsgi_environment(self):
+        app = self._get_app({'cliquet.http_host': 'server'})
+        environ = {
+            'HTTP_HOST': 'elb:44311'
+        }
+        resp = app.get('/v0/', extra_environ=environ)
+        self.assertEqual(resp.json['url'], 'http://server/v0/')
+
+    def test_http_host_overrides_the_request_headers(self):
+        app = self._get_app({'cliquet.http_host': 'server'})
+        resp = app.get('/v0/', headers={'Host': 'elb:8888'})
+        self.assertEqual(resp.json['url'], 'http://server/v0/')

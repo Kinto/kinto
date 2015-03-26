@@ -55,6 +55,8 @@ DEFAULT_SETTINGS = {
     'cliquet.eos': None,
     'cliquet.eos_message': None,
     'cliquet.eos_url': None,
+    'cliquet.http_scheme': None,
+    'cliquet.http_host': None,
     'cliquet.logging_renderer': 'cliquet.logs.ClassicLogRenderer',
     'cliquet.paginate_by': None,
     'cliquet.project_docs': '',
@@ -158,6 +160,23 @@ def attach_http_objects(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
+def force_requests_url(config):
+    """Force server scheme, host and port at the application level."""
+    settings = config.get_settings()
+
+    http_scheme = settings['cliquet.http_scheme']
+    http_host = settings['cliquet.http_host']
+
+    def on_new_request(event):
+        if http_scheme:
+            event.request.scheme = http_scheme
+        if http_host:
+            event.request.host = http_host
+
+    if http_scheme or http_host:
+        config.add_subscriber(on_new_request, NewRequest)
+
+
 def end_of_life_tween_factory(handler, registry):
     """Pyramid tween to handle service end of life."""
 
@@ -234,6 +253,7 @@ def includeme(config):
     # Configure cliquet logging.
     cliquet_logs.setup_logging(config)
 
+    force_requests_url(config)
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")
 
