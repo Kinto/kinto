@@ -6,7 +6,25 @@ This document describes changes between each past release.
 1.4.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**New features**
+
+- Mesure calls on the authentication policy (#167)
+
+**Breaking changes**
+
+- Prefix statsd metrics with the value of `cliquet.statsd_prefix` or
+  `cliquet.project_name` (#162)
+- Get rid of useless `http_scheme` setting (#151)
+- Use Pyramid URL api for the hello view  (#165)
+
+**Bug fixes**
+
+- Fix Next-Page url if service has key in url (#158)
+
+**Internal changes**
+
+- Use an unreleased version of PyFxA working with gevent monkey patching.
+- Reload kinto on changes (#158)
 
 
 1.4.1 (2015-03-25)
