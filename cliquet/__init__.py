@@ -71,6 +71,7 @@ DEFAULT_SETTINGS = {
     'cliquet.sentry_url': None,
     'cliquet.sentry_projects': '',
     'cliquet.statsd_url': None,
+    'cliquet.statsd_prefix': 'cliquet'
 }
 
 

@@ -10,8 +10,8 @@ from cliquet import utils
 
 
 class Client(object):
-    def __init__(self, host, port):
-        self._client = statsd_module.StatsClient(host, port)
+    def __init__(self, host, port, prefix):
+        self._client = statsd_module.StatsClient(host, port, prefix=prefix)
 
     def watch_execution_time(self, obj, prefix=''):
         classname = utils.classname(obj)
@@ -31,5 +31,6 @@ def load_from_config(config):
     settings = config.get_settings()
     uri = settings['cliquet.statsd_url']
     uri = urlparse.urlparse(uri)
+    prefix = settings['cliquet.statsd_prefix']
 
-    return Client(uri.hostname, uri.port)
+    return Client(uri.hostname, uri.port, prefix)
