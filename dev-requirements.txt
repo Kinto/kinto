@@ -6,3 +6,4 @@ mock
 Sphinx
 sphinx_rtd_theme
 psycopg2
+kinto
