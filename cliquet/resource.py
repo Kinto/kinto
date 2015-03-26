@@ -652,7 +652,8 @@ class BaseResource(object):
         params['_token'] = token
 
         service = current_service(self.request)
-        next_page_url = self.request.route_url(service.name, _query=params)
+        next_page_url = self.request.route_url(service.name, _query=params,
+                                               **self.request.matchdict)
         return next_page_url
 
     def _build_pagination_token(self, sorting, last_record):
