@@ -58,7 +58,7 @@ By default *cliquet* does not enforce requests scheme, host and port. It relies
 on WSGI specification and the related stack configuration. Tuning this becomes
 necessary when the application runs behind proxies or load balancers.
 
-Most implementations, like *uwsgi, provide configuration variables to adjust it
+Most implementations, like *uwsgi*, provide configuration variables to adjust it
 properly.
 
 However if, for some reasons, this had to be enforced at the application level,
