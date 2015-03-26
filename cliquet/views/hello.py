@@ -12,7 +12,7 @@ def get_hello(request):
     data = dict(
         hello=settings['cliquet.project_name'],
         version=settings['cliquet.project_version'],
-        url=request.host_url,
+        url=request.route_url(hello.name),
         documentation=settings['cliquet.project_docs']
     )
 
