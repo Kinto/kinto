@@ -7,10 +7,14 @@ from cliquet import statsd
 
 
 class StatsdClientTest(unittest.TestCase):
-    settings = {'cliquet.statsd_url': 'udp://foo:1234'}
+    settings = {
+        'cliquet.statsd_url': 'udp://foo:1234',
+        'cliquet.statsd_prefix': 'prefix',
+        'cliquet.project_name': '',
+    }
 
     def setUp(self):
-        self.client = statsd.Client('localhost', 1234)
+        self.client = statsd.Client('localhost', 1234, 'prefix')
         with mock.patch.object(self.client, '_client') as mocked_client:
             class TestedClass(object):
                 attribute = 3.14
@@ -40,4 +44,14 @@ class StatsdClientTest(unittest.TestCase):
         config = testing.setUp()
         config.registry.settings = self.settings
         statsd.load_from_config(config)
-        module_mock.StatsClient.assert_called_with('foo', 1234)
+        module_mock.StatsClient.assert_called_with('foo', 1234,
+                                                   prefix='prefix')
+
+    @mock.patch('cliquet.statsd.statsd_module')
+    def test_load_from_config_uses_project_name_if_defined(self, module_mock):
+        config = testing.setUp()
+        config.registry.settings = self.settings.copy()
+        config.registry.settings['cliquet.project_name'] = 'projectname'
+        statsd.load_from_config(config)
+        module_mock.StatsClient.assert_called_with('foo', 1234,
+                                                   prefix='projectname')

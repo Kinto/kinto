@@ -128,6 +128,7 @@ StatsD metrics can be enabled (disabled by default):
 .. code-block :: ini
 
     cliquet.statsd_url = udp://localhost:8125
+    # cliquet.statsd_prefix = cliquet.project_name
 
 
 Storage
