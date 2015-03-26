@@ -48,7 +48,6 @@ Deployment
 .. code-block :: ini
 
     # cliquet.backoff = 10
-    cliquet.http_scheme = https
     cliquet.retry_after_seconds = 30
 
 Deprecation

@@ -55,7 +55,6 @@ DEFAULT_SETTINGS = {
     'cliquet.eos_message': None,
     'cliquet.eos_url': None,
     'cliquet.logging_renderer': 'cliquet.logs.ClassicLogRenderer',
-    'cliquet.http_scheme': None,
     'cliquet.paginate_by': None,
     'cliquet.project_docs': '',
     'cliquet.project_name': '',
@@ -144,11 +143,6 @@ def attach_http_objects(config):
         # Attach objects on requests for easier access.
         event.request.db = config.registry.storage
         event.request.cache = config.registry.cache
-
-        # Force request scheme from settings.
-        http_scheme = config.registry.settings['cliquet.http_scheme']
-        if http_scheme:
-            event.request.scheme = http_scheme
 
     config.add_subscriber(on_new_request, NewRequest)
 
