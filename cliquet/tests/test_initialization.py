@@ -110,3 +110,41 @@ class SentryConfigurationTest(unittest.TestCase):
         cliquet.handle_sentry(config)
         mocked_client.captureMessage.assert_called_once_with(
             'name x.y.z starting.')
+
+
+class StatsDConfigurationTest(unittest.TestCase):
+    def setUp(self):
+        self.config = Configurator(settings={
+            'cliquet.statsd_url': 'udp://host:8080'
+        })
+        self.config.set_authorization_policy({})
+        self.config.registry.storage = {}
+        self.config.registry.cache = {}
+
+    @mock.patch('cliquet.statsd.Client')
+    def test_statsd_isnt_called_if_statsd_url_is_not_set(self, mocked):
+        self.config.add_settings({
+            'cliquet.statsd_url': None
+        })
+        cliquet.handle_statsd(self.config)
+        mocked.assert_not_called()
+
+    @mock.patch('cliquet.statsd.Client')
+    def test_statsd_is_called_if_statsd_url_is_set(self, mocked):
+        cliquet.handle_statsd(self.config)
+        mocked.assert_called_with('host', 8080)
+
+    @mock.patch('cliquet.statsd.Client')
+    def test_statsd_is_set_on_cache(self, mocked):
+        c = cliquet.handle_statsd(self.config)
+        c.watch_execution_time.assert_any_call({}, prefix='cache')
+
+    @mock.patch('cliquet.statsd.Client')
+    def test_statsd_is_set_on_storage(self, mocked):
+        c = cliquet.handle_statsd(self.config)
+        c.watch_execution_time.assert_any_call({}, prefix='storage')
+
+    @mock.patch('cliquet.statsd.Client')
+    def test_statsd_is_set_on_authentication(self, mocked):
+        c = cliquet.handle_statsd(self.config)
+        c.watch_execution_time.assert_any_call(None, prefix='authentication')

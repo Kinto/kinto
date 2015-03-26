@@ -210,11 +210,14 @@ def handle_statsd(config):
 
     if settings['cliquet.statsd_url']:
         client = statsd.load_from_config(config)
+
         client.watch_execution_time(config.registry.cache, prefix='cache')
         client.watch_execution_time(config.registry.storage, prefix='storage')
 
         policy = config.registry.queryUtility(IAuthenticationPolicy)
         client.watch_execution_time(policy, prefix='authentication')
+
+        return client
 
 
 def includeme(config):
