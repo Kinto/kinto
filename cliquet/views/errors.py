@@ -82,10 +82,6 @@ def error(context, request):
         logger.critical(context.original, exc_info=True)
         return service_unavailable(context, request)
 
-    if hasattr(request, 'raven'):
-        ident = request.raven.get_ident(request.raven.captureException())
-        print("Exception captured in event number: %s" % ident)
-
     logger.error(context, exc_info=True)
 
     error_msg = "A programmatic error occured, developers have been informed."

@@ -8,10 +8,6 @@ import pkg_resources
 import requests
 import structlog
 import webob
-try:
-    import raven
-except ImportError:
-    pass  # NOQA
 
 from cornice import Service
 from pyramid.events import NewRequest, NewResponse
@@ -20,7 +16,7 @@ from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.interfaces import IAuthenticationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
-from pyramid.settings import asbool, aslist
+from pyramid.settings import asbool
 
 # Main Cliquet logger.
 logger = structlog.get_logger()
@@ -71,8 +67,6 @@ DEFAULT_SETTINGS = {
     'cliquet.storage_pool_size': 10,
     'cliquet.storage_max_fetch_size': 10000,
     'cliquet.userid_hmac_secret': '',
-    'cliquet.sentry_dsn': None,
-    'cliquet.sentry_projects': '',
     'cliquet.statsd_url': None,
     'cliquet.statsd_prefix': 'cliquet'
 }
@@ -222,26 +216,6 @@ def end_of_life_tween_factory(handler, registry):
     return eos_tween
 
 
-def handle_sentry(config):
-    settings = config.get_settings()
-
-    if settings['cliquet.sentry_dsn']:
-        extra_projects = aslist(settings['cliquet.sentry_projects'])
-        raven_client = raven.Client(
-            dsn=settings['cliquet.sentry_dsn'],
-            include_paths=['cornice', 'cliquet'] + extra_projects,
-            release=settings['cliquet.project_version'])
-
-        def on_new_request(event):
-            # Attach objects on requests for easier access.
-            event.request.raven = raven_client
-
-        config.add_subscriber(on_new_request, NewRequest)
-
-        msg = "%(cliquet.project_name)s %(cliquet.project_version)s starting."
-        raven_client.captureMessage(msg % settings)
-
-
 def handle_statsd(config):
     settings = config.get_settings()
 
@@ -273,9 +247,6 @@ def includeme(config):
     force_requests_url(config)
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")
-
-    # Handle sentry
-    handle_sentry(config)
 
     storage = config.maybe_dotted(settings['cliquet.storage_backend'])
     config.registry.storage = storage.load_from_config(config)
