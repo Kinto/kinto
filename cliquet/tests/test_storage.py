@@ -53,7 +53,7 @@ class TestResource(object):
     request = DummyRequest()
 
 
-# Share backend instances across Nosetests test cases.
+# Share backend instances accross Nosetests test cases.
 _backends_instances = {}
 
 
@@ -832,6 +832,10 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         self.assertEqual(len(results), 2)
 
     def test_connection_is_rolledback_if_error_occurs(self):
+        with self.storage.connect() as cursor:
+            query = "DELETE FROM metadata WHERE name = 'roll';"
+            cursor.execute(query)
+
         try:
             with self.storage.connect() as cursor:
                 query = "INSERT INTO metadata VALUES ('roll', 'back');"
