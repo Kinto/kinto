@@ -71,7 +71,7 @@ DEFAULT_SETTINGS = {
     'cliquet.storage_pool_size': 10,
     'cliquet.storage_max_fetch_size': 10000,
     'cliquet.userid_hmac_secret': '',
-    'cliquet.sentry_url': None,
+    'cliquet.sentry_dsn': None,
     'cliquet.sentry_projects': '',
     'cliquet.statsd_url': None,
     'cliquet.statsd_prefix': 'cliquet'
@@ -225,12 +225,18 @@ def end_of_life_tween_factory(handler, registry):
 def handle_sentry(config):
     settings = config.get_settings()
 
-    if settings['cliquet.sentry_url']:
+    if settings['cliquet.sentry_dsn']:
         extra_projects = aslist(settings['cliquet.sentry_projects'])
         raven_client = raven.Client(
-            settings['cliquet.sentry_url'],
+            dsn=settings['cliquet.sentry_dsn'],
             include_paths=['cornice', 'cliquet'] + extra_projects,
             release=settings['cliquet.project_version'])
+
+        def on_new_request(event):
+            # Attach objects on requests for easier access.
+            event.request.raven = raven_client
+
+        config.add_subscriber(on_new_request, NewRequest)
 
         msg = "%(cliquet.project_name)s %(cliquet.project_version)s starting."
         raven_client.captureMessage(msg % settings)
