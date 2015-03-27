@@ -42,8 +42,6 @@ class PostgreSQLClient(object):
             conn = self.pool.getconn()
             options = dict(cursor_factory=psycopg2.extras.DictCursor)
             cursor = conn.cursor(**options)
-            # Force timezone
-            cursor.execute("SET TIME ZONE 'UTC';")
             # Start context
             yield cursor
             # End context
@@ -127,6 +125,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         with self.connect() as cursor:
             cursor.execute(query)
             exists = cursor.rowcount > 0
+
+        # Force user timezone
+        user = self._conn_kwargs.get('user')
+        if user:
+            with self.connect() as cursor:
+                cursor.execute("ALTER ROLE %s SET TIME ZONE 'UTC';" % user)
 
         if exists:
             logger.debug('Detected PostgreSQL storage tables')
