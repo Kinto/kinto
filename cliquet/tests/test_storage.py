@@ -792,6 +792,11 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             'getconn',
             side_effect=psycopg2.DatabaseError)
 
+
+    def tearDown(self):
+        super(PostgresqlStorageTest, self).tearDown()
+        self.storage.pool.closeall()
+
     def test_ping_updates_a_value_in_the_metadata_table(self):
         query = "SELECT value FROM metadata WHERE name='last_heartbeat';"
         with self.storage.connect() as cursor:

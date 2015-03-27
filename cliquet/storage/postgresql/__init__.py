@@ -28,7 +28,7 @@ class PostgreSQLClient(object):
                                                          **self._conn_kwargs)
 
     @contextlib.contextmanager
-    def connect(self):
+    def connect(self, readonly=False):
         """Connect to the database and instantiates a cursor.
         At exiting the context manager, a COMMIT is performed on the current
         transaction if everything went well. Otherwise transaction is ROLLBACK,
@@ -40,12 +40,14 @@ class PostgreSQLClient(object):
         cursor = None
         try:
             conn = self.pool.getconn()
+            conn.autocommit = readonly
             options = dict(cursor_factory=psycopg2.extras.DictCursor)
             cursor = conn.cursor(**options)
             # Start context
             yield cursor
             # End context
-            conn.commit()
+            if not readonly:
+                conn.commit()
         except psycopg2.Error as e:
             if cursor:
                 logger.debug(cursor.query)
@@ -192,7 +194,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             AS last_modified;
         """
         placeholders = dict(user_id=user_id, resource_name=resource.name)
-        with self.connect() as cursor:
+        with self.connect(readonly=True) as cursor:
             cursor.execute(query, placeholders)
             result = cursor.fetchone()
         return result['last_modified']
@@ -226,7 +228,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
            AND user_id = %(user_id)s
         """
         placeholders = dict(record_id=record_id, user_id=user_id)
-        with self.connect() as cursor:
+        with self.connect(readonly=True) as cursor:
             cursor.execute(query, placeholders)
             if cursor.rowcount == 0:
                 raise exceptions.RecordNotFoundError(record_id)
@@ -426,7 +428,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             assert isinstance(limit, six.integer_types)  # validated in view
             safeholders['pagination_limit'] = 'LIMIT %s' % limit
 
-        with self.connect() as cursor:
+        with self.connect(readonly=True) as cursor:
             cursor.execute(query % safeholders, placeholders)
             results = cursor.fetchmany(self._max_fetch_size)
 
