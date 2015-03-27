@@ -17,7 +17,7 @@ REQUIREMENTS = [
     'colander',
     'cornice >= 0.20',  # Fixes cors.
     'python-dateutil',
-    'pyfxa >= 0.0.3',  # Has cache support.
+    'pyfxa >= 0.0.6',  # Gevent support
     'pyramid_multiauth',
     'redis',  # Default backend
     'requests',

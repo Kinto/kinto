@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-1.4.2 (unreleased)
+1.5.0 (unreleased)
 ------------------
 
 **New features**
@@ -25,7 +25,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
-- Use an unreleased version of PyFxA working with gevent monkey patching (#168)
+- Update PyFxA to get it working with gevent monkey patching (#168)
 - Reload kinto on changes (#158)
 
 
