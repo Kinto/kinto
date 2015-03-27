@@ -20,8 +20,8 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 class PostgreSQLClient(object):
 
     def __init__(self, *args, **kwargs):
-        minconn = kwargs.pop('min_connections', 1)
         maxconn = kwargs.pop('max_connections')
+        minconn = kwargs.pop('min_connections', maxconn)
         self._conn_kwargs = kwargs
         self.pool = psycopg2.pool.ThreadedConnectionPool(minconn=minconn,
                                                          maxconn=maxconn,
