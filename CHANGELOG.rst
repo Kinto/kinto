@@ -14,18 +14,18 @@ This document describes changes between each past release.
 
 - Prefix statsd metrics with the value of `cliquet.statsd_prefix` or
   `cliquet.project_name` (#162)
-- Get rid of useless `http_scheme` setting (#151). It's been replaced by
-  `cliquet.http_scheme` and `cliquet.http_host` (#166)
-- Option to force scheme and host at application level
-- Use Pyramid URL api for the hello view  (#165)
+- `http_scheme` setting has been replaced by `cliquet.http_scheme` and
+  `cliquet.http_host` was introduced ((#151, #166)
+- URL in the hello view now has version prefix (#165)
 
 **Bug fixes**
 
 - Fix Next-Page url if service has key in url (#158)
+- Fix some PostgreSQL connection bottlenecks (#170)
 
 **Internal changes**
 
-- Update PyFxA to get it working with gevent monkey patching (#168)
+- Update of PyFxA to get it working with gevent monkey patching (#168)
 - Reload kinto on changes (#158)
 
 
