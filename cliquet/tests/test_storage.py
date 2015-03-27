@@ -53,6 +53,10 @@ class TestResource(object):
     request = DummyRequest()
 
 
+# Share backend instances across Nosetests test cases.
+_backends_instances = {}
+
+
 class BaseTestStorage(object):
     backend = None
 
@@ -60,7 +64,10 @@ class BaseTestStorage(object):
 
     def __init__(self, *args, **kwargs):
         super(BaseTestStorage, self).__init__(*args, **kwargs)
-        self.storage = self.backend.load_from_config(self._get_config())
+        self.storage = _backends_instances.get(self.backend)
+        if self.storage is None:
+            instance = self.backend.load_from_config(self._get_config())
+            self.storage = _backends_instances[self.backend] = instance
         self.resource = TestResource()
         self.user_id = '1234'
         self.other_user_id = '5678'
@@ -779,7 +786,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
-        'cliquet.storage_pool_maxconn': 50,
+        'cliquet.storage_pool_maxconn': 10,
         'cliquet.storage_max_fetch_size': 10000,
         'cliquet.storage_url':
             'postgres://postgres:postgres@localhost:5432/testdb'
@@ -791,11 +798,6 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             self.storage.pool,
             'getconn',
             side_effect=psycopg2.DatabaseError)
-
-
-    def tearDown(self):
-        super(PostgresqlStorageTest, self).tearDown()
-        self.storage.pool.closeall()
 
     def test_ping_updates_a_value_in_the_metadata_table(self):
         query = "SELECT value FROM metadata WHERE name='last_heartbeat';"
