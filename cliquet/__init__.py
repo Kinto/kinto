@@ -312,3 +312,7 @@ def initialize(config, version=None, project_name=None):
     # Include cliquet views with the correct api version prefix.
     config.include("cliquet", route_prefix=api_version)
     config.route_prefix = api_version
+
+    msg = "%(cliquet.project_name)s %(cliquet.project_version)s starting."
+    logger.info(msg % settings)
+

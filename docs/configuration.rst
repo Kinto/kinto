@@ -131,14 +131,7 @@ Handling exceptions with Sentry
 
 Requires the ``raven`` package, or *cliquet* installed with ``pip install cliquet[monitoring]``.
 
-Sentry logging can be enabled (disabled by default):
-
-.. code-block :: ini
-
-    cliquet.sentry_url = http://user:secret@example.org/1
-    cliquet.sentry_projects = readinglist,prod
-
-A basic message will be sent to sentry when the application starts.
+Sentry logging can be enabled as explained here: http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup
 
 
 Monitoring with StatsD
