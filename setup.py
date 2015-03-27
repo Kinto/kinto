@@ -27,7 +27,6 @@ REQUIREMENTS = [
 ]
 
 DEPENDENCY_LINKS = [
-    'https://github.com/mozilla/PyFxA/tarball/use_gevent_if_present#egg=PyFxA-0.0.5',
 ]
 
 POSTGRESQL_REQUIRES = [
