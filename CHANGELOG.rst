@@ -3,10 +3,30 @@ Changelog
 
 This document describes changes between each past release.
 
-1.4.2 (unreleased)
+1.5.0 (2015-03-27)
 ------------------
 
-- Nothing changed yet.
+**New features**
+
+- Mesure calls on the authentication policy (#167)
+
+**Breaking changes**
+
+- Prefix statsd metrics with the value of `cliquet.statsd_prefix` or
+  `cliquet.project_name` (#162)
+- `http_scheme` setting has been replaced by `cliquet.http_scheme` and
+  `cliquet.http_host` was introduced ((#151, #166)
+- URL in the hello view now has version prefix (#165)
+
+**Bug fixes**
+
+- Fix Next-Page url if service has key in url (#158)
+- Fix some PostgreSQL connection bottlenecks (#170)
+
+**Internal changes**
+
+- Update of PyFxA to get it working with gevent monkey patching (#168)
+- Reload kinto on changes (#158)
 
 
 1.4.1 (2015-03-25)

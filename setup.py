@@ -17,7 +17,7 @@ REQUIREMENTS = [
     'colander',
     'cornice >= 0.20',  # Fixes cors.
     'python-dateutil',
-    'pyfxa >= 0.0.3',  # Has cache support.
+    'pyfxa >= 0.0.6',  # Gevent support
     'pyramid_multiauth',
     'redis',  # Default backend
     'requests',
@@ -27,7 +27,6 @@ REQUIREMENTS = [
 ]
 
 DEPENDENCY_LINKS = [
-    'https://github.com/mozilla/PyFxA/tarball/use_gevent_if_present#egg=PyFxA-0.0.5',
 ]
 
 POSTGRESQL_REQUIRES = [
@@ -40,7 +39,7 @@ MONITORING_REQUIRES = [
 ]
 
 setup(name='cliquet',
-      version='1.4.2.dev0',
+      version='1.5.0',
       description='cliquet',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',
