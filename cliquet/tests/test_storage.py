@@ -53,6 +53,10 @@ class TestResource(object):
     request = DummyRequest()
 
 
+# Share backend instances accross Nosetests test cases.
+_backends_instances = {}
+
+
 class BaseTestStorage(object):
     backend = None
 
@@ -60,7 +64,10 @@ class BaseTestStorage(object):
 
     def __init__(self, *args, **kwargs):
         super(BaseTestStorage, self).__init__(*args, **kwargs)
-        self.storage = self.backend.load_from_config(self._get_config())
+        self.storage = _backends_instances.get(self.backend)
+        if self.storage is None:
+            instance = self.backend.load_from_config(self._get_config())
+            self.storage = _backends_instances[self.backend] = instance
         self.resource = TestResource()
         self.user_id = '1234'
         self.other_user_id = '5678'
@@ -779,7 +786,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
-        'cliquet.storage_pool_maxconn': 50,
+        'cliquet.storage_pool_maxconn': 10,
         'cliquet.storage_max_fetch_size': 10000,
         'cliquet.storage_url':
             'postgres://postgres:postgres@localhost:5432/testdb'
@@ -825,6 +832,10 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         self.assertEqual(len(results), 2)
 
     def test_connection_is_rolledback_if_error_occurs(self):
+        with self.storage.connect() as cursor:
+            query = "DELETE FROM metadata WHERE name = 'roll';"
+            cursor.execute(query)
+
         try:
             with self.storage.connect() as cursor:
                 query = "INSERT INTO metadata VALUES ('roll', 'back');"

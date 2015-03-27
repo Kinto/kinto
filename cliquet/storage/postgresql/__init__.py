@@ -20,15 +20,15 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 class PostgreSQLClient(object):
 
     def __init__(self, *args, **kwargs):
-        minconn = kwargs.pop('min_connections', 1)
         maxconn = kwargs.pop('max_connections')
+        minconn = kwargs.pop('min_connections', maxconn)
         self._conn_kwargs = kwargs
         self.pool = psycopg2.pool.ThreadedConnectionPool(minconn=minconn,
                                                          maxconn=maxconn,
                                                          **self._conn_kwargs)
 
     @contextlib.contextmanager
-    def connect(self):
+    def connect(self, readonly=False):
         """Connect to the database and instantiates a cursor.
         At exiting the context manager, a COMMIT is performed on the current
         transaction if everything went well. Otherwise transaction is ROLLBACK,
@@ -40,16 +40,14 @@ class PostgreSQLClient(object):
         cursor = None
         try:
             conn = self.pool.getconn()
-            # Will use ujson
-            psycopg2.extras.register_json(conn, loads=json.loads)
+            conn.autocommit = readonly
             options = dict(cursor_factory=psycopg2.extras.DictCursor)
             cursor = conn.cursor(**options)
-            # Force timezone
-            cursor.execute("SET TIME ZONE 'UTC';")
             # Start context
             yield cursor
             # End context
-            conn.commit()
+            if not readonly:
+                conn.commit()
         except psycopg2.Error as e:
             if cursor:
                 logger.debug(cursor.query)
@@ -108,6 +106,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         super(PostgreSQL, self).__init__(*args, **kwargs)
         self._init_schema()
 
+        # Register ujson, globally for all futur cursors
+        with self.connect() as cursor:
+            psycopg2.extras.register_json(cursor,
+                                          globally=True,
+                                          loads=json.loads)
+
     def _init_schema(self):
         """Create PostgreSQL tables, only if not exists.
 
@@ -123,6 +127,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         with self.connect() as cursor:
             cursor.execute(query)
             exists = cursor.rowcount > 0
+
+        # Force user timezone
+        user = self._conn_kwargs.get('user')
+        if user:
+            with self.connect() as cursor:
+                cursor.execute("ALTER ROLE %s SET TIME ZONE 'UTC';" % user)
 
         if exists:
             logger.debug('Detected PostgreSQL storage tables')
@@ -184,7 +194,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             AS last_modified;
         """
         placeholders = dict(user_id=user_id, resource_name=resource.name)
-        with self.connect() as cursor:
+        with self.connect(readonly=True) as cursor:
             cursor.execute(query, placeholders)
             result = cursor.fetchone()
         return result['last_modified']
@@ -218,7 +228,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
            AND user_id = %(user_id)s
         """
         placeholders = dict(record_id=record_id, user_id=user_id)
-        with self.connect() as cursor:
+        with self.connect(readonly=True) as cursor:
             cursor.execute(query, placeholders)
             if cursor.rowcount == 0:
                 raise exceptions.RecordNotFoundError(record_id)
@@ -418,7 +428,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             assert isinstance(limit, six.integer_types)  # validated in view
             safeholders['pagination_limit'] = 'LIMIT %s' % limit
 
-        with self.connect() as cursor:
+        with self.connect(readonly=True) as cursor:
             cursor.execute(query % safeholders, placeholders)
             results = cursor.fetchmany(self._max_fetch_size)
 
