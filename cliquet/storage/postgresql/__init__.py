@@ -40,8 +40,6 @@ class PostgreSQLClient(object):
         cursor = None
         try:
             conn = self.pool.getconn()
-            # Will use ujson
-            psycopg2.extras.register_json(conn, loads=json.loads)
             options = dict(cursor_factory=psycopg2.extras.DictCursor)
             cursor = conn.cursor(**options)
             # Force timezone
@@ -107,6 +105,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         self._max_fetch_size = kwargs.pop('max_fetch_size')
         super(PostgreSQL, self).__init__(*args, **kwargs)
         self._init_schema()
+
+        # Register ujson, globally for all futur cursors
+        with self.connect() as cursor:
+            psycopg2.extras.register_json(cursor,
+                                          globally=True,
+                                          loads=json.loads)
 
     def _init_schema(self):
         """Create PostgreSQL tables, only if not exists.
