@@ -21,6 +21,14 @@ class StorageBase(object):
     :raises: pyramid.httpexceptions.HTTPServiceUnavailable
     """
 
+    def initialize_schema(self):
+        """Create every necessary objects (like tables or indices) in the
+        backend.
+
+        This is excuted when the ``init_schema`` command is ran.
+        """
+        raise NotImplementedError
+
     def flush(self):
         """Remove every record from the storage.
         """

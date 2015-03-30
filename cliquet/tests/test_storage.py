@@ -25,6 +25,7 @@ class StorageBaseTest(unittest.TestCase):
 
     def test_mandatory_overrides(self):
         calls = [
+            (self.storage.initialize_schema,),
             (self.storage.flush,),
             (self.storage.ping,),
             (self.storage.collection_timestamp, '', ''),
@@ -68,6 +69,7 @@ class BaseTestStorage(object):
         if self.storage is None:
             instance = self.backend.load_from_config(self._get_config())
             self.storage = _backends_instances[self.backend] = instance
+            self.storage.initialize_schema()
         self.resource = TestResource()
         self.user_id = '1234'
         self.other_user_id = '5678'
@@ -812,7 +814,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
 
     def test_schema_is_not_recreated_from_scratch_if_already_exists(self):
         with mock.patch('cliquet.storage.postgresql.logger.debug') as mocked:
-            self.backend.load_from_config(self._get_config())
+            self.storage.initialize_schema()
             message, = mocked.call_args[0]
             self.assertEqual(message, "Detected PostgreSQL storage tables")
 

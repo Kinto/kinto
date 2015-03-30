@@ -36,6 +36,7 @@ class BaseTestCache(object):
     def __init__(self, *args, **kwargs):
         super(BaseTestCache, self).__init__(*args, **kwargs)
         self.cache = self.backend.load_from_config(self._get_config())
+        self.cache.initialize_schema()
         self.client_error_patcher = None
 
     def _get_config(self, settings=None):

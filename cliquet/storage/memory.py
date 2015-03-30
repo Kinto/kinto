@@ -31,6 +31,10 @@ class MemoryBasedStorage(StorageBase):
             id_generator = UUID4Generator()
         self.id_generator = id_generator
 
+    def initialize_schema(self):
+        # Nothing to do.
+        pass
+
     def delete_all(self, resource, user_id, filters=None):
         records, count = self.get_all(resource, user_id, filters=filters)
         deleted = [self.delete(resource, user_id, r[resource.id_field])

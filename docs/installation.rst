@@ -21,6 +21,17 @@ Installing Cliquet with pip:
     pip install cliquet
 
 
+Initialize backends
+===================
+
+With some backends, like PostgreSQL, some tables and indices have to be created.
+A command is provided to accomplish this:
+
+::
+
+    init_schema application.ini
+
+
 Cryptography libraries
 ======================
 

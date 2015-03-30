@@ -38,6 +38,13 @@ MONITORING_REQUIRES = [
     'statsd',
 ]
 
+ENTRY_POINTS = {
+    'console_scripts': [
+        'init_schema = cliquet.scripts.init_schema:main'
+    ]
+}
+
+
 setup(name='cliquet',
       version='1.5.1.dev0',
       description='cliquet',
@@ -61,4 +68,5 @@ setup(name='cliquet',
           'postgresql': REQUIREMENTS + POSTGRESQL_REQUIRES,
           'monitoring': REQUIREMENTS + MONITORING_REQUIRES,
       },
-      dependency_links=DEPENDENCY_LINKS)
+      dependency_links=DEPENDENCY_LINKS,
+      entry_points=ENTRY_POINTS)

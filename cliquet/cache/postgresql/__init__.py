@@ -48,9 +48,8 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
 
     def __init__(self, **kwargs):
         super(PostgreSQL, self).__init__(**kwargs)
-        self._init_schema()
 
-    def _init_schema(self):
+    def initialize_schema(self):
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, 'schema.sql')).read()
