@@ -19,13 +19,17 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 
 class PostgreSQLClient(object):
 
+    pool = None
+
     def __init__(self, *args, **kwargs):
         maxconn = kwargs.pop('max_connections')
         minconn = kwargs.pop('min_connections', maxconn)
         self._conn_kwargs = kwargs
-        self.pool = psycopg2.pool.ThreadedConnectionPool(minconn=minconn,
-                                                         maxconn=maxconn,
-                                                         **self._conn_kwargs)
+        if PostgreSQLClient.pool is None:
+            pool_klass = psycopg2.pool.ThreadedConnectionPool
+            PostgreSQLClient.pool = pool_klass(minconn=minconn,
+                                               maxconn=maxconn,
+                                               **self._conn_kwargs)
 
     @contextlib.contextmanager
     def connect(self, readonly=False):

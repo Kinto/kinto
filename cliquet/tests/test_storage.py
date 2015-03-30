@@ -854,6 +854,21 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             cursor.execute(query)
             self.assertEqual(cursor.fetchone()[0], 1)
 
+    def test_pool_object_is_shared_among_backend_instances(self):
+        config = self._get_config()
+        storage1 = self.backend.load_from_config(config)
+        storage2 = self.backend.load_from_config(config)
+        self.assertEqual(id(storage1.pool), id(storage2.pool))
+
+    def test_pool_object_is_shared_among_every_backends(self):
+        config = self._get_config()
+        storage1 = self.backend.load_from_config(config)
+        subclass = type('backend', (postgresql.PostgreSQLClient,), {})
+        storage2 = subclass(user='postgres', password='postgres',
+                            host='localhost', database='testdb',
+                            max_connections=5)
+        self.assertEqual(id(storage1.pool), id(storage2.pool))
+
 
 class CloudStorageTest(StorageTest, unittest.TestCase):
     backend = cloud_storage
