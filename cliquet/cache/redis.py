@@ -72,9 +72,9 @@ def load_from_config(config):
     settings = config.get_settings()
     uri = settings['cliquet.cache_url']
     uri = urlparse.urlparse(uri)
-    pool_maxconn = int(settings['cliquet.cache_pool_maxconn'])
+    pool_size = int(settings['cliquet.cache_pool_size'])
 
-    return Redis(max_connections=pool_maxconn,
+    return Redis(max_connections=pool_size,
                  host=uri.hostname or 'localhost',
                  port=uri.port or 6739,
                  password=uri.password or None,

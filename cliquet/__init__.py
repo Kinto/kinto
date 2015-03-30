@@ -65,10 +65,10 @@ DEFAULT_SETTINGS = {
     'cliquet.retry_after_seconds': 30,
     'cliquet.cache_backend': 'cliquet.cache.redis',
     'cliquet.cache_url': '',
-    'cliquet.cache_pool_maxconn': 50,
+    'cliquet.cache_pool_size': 10,
     'cliquet.storage_backend': 'cliquet.storage.redis',
     'cliquet.storage_url': '',
-    'cliquet.storage_pool_maxconn': 50,
+    'cliquet.storage_pool_size': 10,
     'cliquet.storage_max_fetch_size': 10000,
     'cliquet.userid_hmac_secret': '',
     'cliquet.sentry_url': None,
@@ -96,6 +96,17 @@ def load_default_settings(config):
     for key, value in DEFAULT_SETTINGS.items():
         configured = settings.get(key, value)
         settings[key] = utils.read_env(key, configured)
+
+    deprecated_settings = [
+        ('cliquet.cache_pool_maxconn', 'cliquet.cache_pool_size'),
+        ('cliquet.storage_pool_maxconn', 'cliquet.storage_pool_size'),
+    ]
+    for old, new in deprecated_settings:
+        if old in settings:
+            msg = "'%s' setting is deprecated. Use '%s' instead." % (old, new)
+            warnings.warn(msg, DeprecationWarning)
+            settings[new] = settings.pop(old)
+
     config.add_settings(settings)
 
 

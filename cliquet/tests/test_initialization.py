@@ -72,6 +72,12 @@ class InitializationTest(unittest.TestCase):
         project_used = config.registry.settings['cliquet.project_name']
         self.assertEqual(project_used, 'abc')
 
+    def test_warn_if_deprecated_settings_are_used(self):
+        config = Configurator(settings={'cliquet.cache_pool_maxconn': '1'})
+        with mock.patch('cliquet.warnings.warn') as mocked:
+            cliquet.initialize_cliquet(config, '0.0.1')
+            mocked.assert_called()
+
 
 class SentryConfigurationTest(unittest.TestCase):
 

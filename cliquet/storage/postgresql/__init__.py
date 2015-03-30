@@ -1,5 +1,6 @@
 import contextlib
 import os
+import warnings
 from collections import defaultdict
 
 import psycopg2
@@ -19,13 +20,20 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 
 class PostgreSQLClient(object):
 
+    pool = None
+
     def __init__(self, *args, **kwargs):
-        maxconn = kwargs.pop('max_connections')
-        minconn = kwargs.pop('min_connections', maxconn)
+        pool_size = kwargs.pop('pool_size')
         self._conn_kwargs = kwargs
-        self.pool = psycopg2.pool.ThreadedConnectionPool(minconn=minconn,
-                                                         maxconn=maxconn,
-                                                         **self._conn_kwargs)
+        pool_klass = psycopg2.pool.ThreadedConnectionPool
+        if PostgreSQLClient.pool is None:
+            PostgreSQLClient.pool = pool_klass(minconn=pool_size,
+                                               maxconn=pool_size,
+                                               **self._conn_kwargs)
+        elif pool_size != self.pool.minconn:
+            msg = ("Pool size %s ignored for PostgreSQL backend "
+                   "(Already set to %s).") % (pool_size, self.pool.minconn)
+            warnings.warn(msg)
 
     @contextlib.contextmanager
     def connect(self, readonly=False):
@@ -92,12 +100,13 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     A threaded connection pool is enabled by default::
 
-        cliquet.storage_pool_maxconn = 50
+        cliquet.storage_pool_size = 10
 
     :note:
 
         Using a `dedicated connection pool <http://pgpool.net>`_ is still
-        recommended to allow load balancing or replication.
+        recommended to allow load balancing, replication or limit the number
+        of connections used in a multi-process deployment.
 
     """
 
@@ -614,10 +623,10 @@ def load_from_config(config):
     settings = config.get_settings()
 
     max_fetch_size = settings['cliquet.storage_max_fetch_size']
-    pool_maxconn = int(settings['cliquet.storage_pool_maxconn'])
+    pool_size = int(settings['cliquet.storage_pool_size'])
     uri = settings['cliquet.storage_url']
     uri = urlparse.urlparse(uri)
-    conn_kwargs = dict(max_connections=pool_maxconn,
+    conn_kwargs = dict(pool_size=pool_size,
                        host=uri.hostname,
                        port=uri.port,
                        user=uri.username,
