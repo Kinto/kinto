@@ -25,7 +25,7 @@ class StorageBase(object):
         """Create every necessary objects (like tables or indices) in the
         backend.
 
-        This is excuted when the ``init_schema`` command is ran.
+        This is excuted when the ``cliquet init`` command is ran.
         """
         raise NotImplementedError
 

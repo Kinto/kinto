@@ -29,7 +29,7 @@ A command is provided to accomplish this:
 
 ::
 
-    init_schema application.ini
+    cliquet --ini application.ini init
 
 
 Cryptography libraries

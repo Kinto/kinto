@@ -40,7 +40,7 @@ MONITORING_REQUIRES = [
 
 ENTRY_POINTS = {
     'console_scripts': [
-        'init_schema = cliquet.scripts.init_schema:main'
+        'cliquet = cliquet.scripts.cliquet:main'
     ]
 }
 
