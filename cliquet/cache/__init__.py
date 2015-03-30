@@ -3,6 +3,14 @@ class CacheBase(object):
     def __init__(self, *args, **kwargs):
         pass
 
+    def initialize_schema(self):
+        """Create every necessary objects (like tables or indices) in the
+        backend.
+
+        This is excuted when the ``cliquet init`` command is ran.
+        """
+        raise NotImplementedError
+
     def flush(self):
         """Delete every values."""
         raise NotImplementedError

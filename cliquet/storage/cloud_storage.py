@@ -81,6 +81,10 @@ class CloudStorage(StorageBase):
             'Authorization': auth_token
         }
 
+    def initialize_schema(self):
+        # Nothing to do.
+        pass
+
     @wrap_http_error
     def flush(self):
         url = self._build_url("/__flush__")

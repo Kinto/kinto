@@ -113,7 +113,6 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')
         super(PostgreSQL, self).__init__(*args, **kwargs)
-        self._init_schema()
 
         # Register ujson, globally for all futur cursors
         with self.connect() as cursor:
@@ -127,7 +126,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         with self.connect() as cursor:
             cursor.execute(schema)
 
-    def _init_schema(self):
+    def initialize_schema(self):
         """Create PostgreSQL tables, only if not exists.
 
         :note:

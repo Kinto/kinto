@@ -31,6 +31,10 @@ class Redis(CacheBase):
         self._client = redis.StrictRedis(connection_pool=connection_pool,
                                          **kwargs)
 
+    def initialize_schema(self):
+        # Nothing to do.
+        pass
+
     @wrap_redis_error
     def flush(self):
         self._client.flushdb()

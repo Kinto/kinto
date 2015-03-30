@@ -191,11 +191,8 @@ def force_requests_url(config):
 def end_of_life_tween_factory(handler, registry):
     """Pyramid tween to handle service end of life."""
 
-    deprecated_response = errors.http_error(
-        HTTPGone(),
-        errno=errors.ERRORS.SERVICE_DEPRECATED,
-        message="The service you are trying to connect no longer exists "
-                "at this location.")
+    deprecation_msg = ("The service you are trying to connect no longer exists"
+                       " at this location.")
 
     def eos_tween(request):
         eos_date = registry.settings['cliquet.eos']
@@ -214,7 +211,10 @@ def end_of_life_tween_factory(handler, registry):
                 alert['code'] = "soft-eol"
                 response = handler(request)
             else:
-                response = deprecated_response
+                response = errors.http_error(
+                    HTTPGone(),
+                    errno=errors.ERRORS.SERVICE_DEPRECATED,
+                    message=deprecation_msg)
                 alert['code'] = "hard-eol"
             response.headers['Alert'] = utils.json.dumps(alert)
             return response
