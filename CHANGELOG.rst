@@ -3,10 +3,29 @@ Changelog
 
 This document describes changes between each past release.
 
-1.5.1 (unreleased)
+1.6.0 (2015-03-30)
 ------------------
 
-- Nothing changed yet.
+**New features**
+
+- Split schema initialization from application startup, using a command-line
+  tool.
+
+::
+
+    cliquet --ini production.ini init
+
+
+**Bug fixes**
+
+- Fix connection pool no being shared between cache and storage (#176)
+- Default connection pool size to 10 (instead of 50) (#176)
+- Warn if PostgreSQL session has not UTC timezone (#177)
+
+**Internal changes**
+
+- Deprecated ``cliquet.storage_pool_maxconn`` and ``cliquet.cache_pool_maxconn``
+  settings (renamed to ``cliquet.storage_pool_size`` and ``cliquet.cache_pool_size``)
 
 
 1.5.0 (2015-03-27)
