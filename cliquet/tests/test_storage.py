@@ -747,7 +747,7 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
 class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
     backend = redisbackend
     settings = {
-        'cliquet.storage_pool_maxconn': 50,
+        'cliquet.storage_pool_size': 50,
         'cliquet.storage_url': ''
     }
 
@@ -786,7 +786,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
-        'cliquet.storage_pool_maxconn': 10,
+        'cliquet.storage_pool_size': 10,
         'cliquet.storage_max_fetch_size': 10000,
         'cliquet.storage_url':
             'postgres://postgres:postgres@localhost:5432/testdb'
@@ -866,8 +866,16 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         subclass = type('backend', (postgresql.PostgreSQLClient,), {})
         storage2 = subclass(user='postgres', password='postgres',
                             host='localhost', database='testdb',
-                            max_connections=5)
+                            pool_size=10)
         self.assertEqual(id(storage1.pool), id(storage2.pool))
+
+    def test_warns_if_configured_pool_size_differs_for_same_backend_type(self):
+        self.backend.load_from_config(self._get_config())
+        settings = self.settings.copy()
+        settings['cliquet.storage_pool_size'] = 1
+        with mock.patch('cliquet.storage.postgresql.warnings.warn') as mocked:
+            self.backend.load_from_config(self._get_config(settings=settings))
+            mocked.assert_called()
 
 
 class CloudStorageTest(StorageTest, unittest.TestCase):

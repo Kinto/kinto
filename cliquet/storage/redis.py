@@ -37,7 +37,7 @@ class Redis(MemoryBasedStorage):
 
     A threaded connection pool is enabled by default::
 
-        cliquet.storage_pool_maxconn = 50
+        cliquet.storage_pool_size = 50
     """
 
     def __init__(self, *args, **kwargs):
@@ -236,9 +236,9 @@ def load_from_config(config):
     settings = config.get_settings()
     uri = settings['cliquet.storage_url']
     uri = urlparse.urlparse(uri)
-    pool_maxconn = int(settings['cliquet.storage_pool_maxconn'])
+    pool_size = int(settings['cliquet.storage_pool_size'])
 
-    return Redis(max_connections=pool_maxconn,
+    return Redis(max_connections=pool_size,
                  host=uri.hostname or 'localhost',
                  port=uri.port or 6739,
                  password=uri.password or None,

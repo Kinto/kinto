@@ -37,12 +37,13 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
 
     A threaded connection pool is enabled by default::
 
-        cliquet.cache_pool_maxconn = 50
+        cliquet.cache_pool_size = 10
 
     :note:
 
         Using a `dedicated connection pool <http://pgpool.net>`_ is still
-        recommended to allow load balancing or replication.
+        recommended to allow load balancing, replication or limit the number
+        of connections used in a multi-process deployment.
     """
 
     def __init__(self, **kwargs):
@@ -124,9 +125,9 @@ def load_from_config(config):
     settings = config.get_settings()
     uri = settings['cliquet.cache_url']
     uri = urlparse.urlparse(uri)
-    pool_maxconn = int(settings['cliquet.cache_pool_maxconn'])
+    pool_size = int(settings['cliquet.cache_pool_size'])
 
-    conn_kwargs = dict(max_connections=pool_maxconn,
+    conn_kwargs = dict(pool_size=pool_size,
                        host=uri.hostname,
                        port=uri.port,
                        user=uri.username,

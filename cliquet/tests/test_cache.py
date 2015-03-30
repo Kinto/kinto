@@ -107,7 +107,7 @@ class RedisCacheTest(BaseTestCache, unittest.TestCase):
     backend = redis_backend
     settings = {
         'cliquet.cache_url': '',
-        'cliquet.cache_pool_maxconn': 10
+        'cliquet.cache_pool_size': 10
     }
 
     def __init__(self, *args, **kwargs):
@@ -121,7 +121,7 @@ class RedisCacheTest(BaseTestCache, unittest.TestCase):
 class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     backend = postgresql_backend
     settings = {
-        'cliquet.cache_pool_maxconn': 5,
+        'cliquet.cache_pool_size': 10,
         'cliquet.cache_url':
             'postgres://postgres:postgres@localhost:5432/testdb'
     }
