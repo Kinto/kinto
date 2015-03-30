@@ -121,33 +121,42 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                                           globally=True,
                                           loads=json.loads)
 
+    def _execute_sql_file(self, filepath):
+        here = os.path.abspath(os.path.dirname(__file__))
+        schema = open(os.path.join(here, 'schema.sql')).read()
+        with self.connect() as cursor:
+            cursor.execute(schema)
+
     def _init_schema(self):
         """Create PostgreSQL tables, only if not exists.
 
         :note:
             Relies on JSON fields, available in recent versions of PostgreSQL.
         """
-        # Since indices cannot be created with IF NOT EXISTS, inspect.
-        query = """
-        SELECT *
-          FROM pg_tables
-         WHERE tablename = 'records';
-        """
-        with self.connect() as cursor:
-            cursor.execute(query)
-            exists = cursor.rowcount > 0
-
-        # Force user timezone
-        user = self._conn_kwargs.get('user')
-        if user:
-            with self.connect() as cursor:
-                cursor.execute("ALTER ROLE %s SET TIME ZONE 'UTC';" % user)
-
-        if exists:
+        version = self._get_installed_version()
+        if version:
             logger.debug('Detected PostgreSQL storage tables')
             return
 
-        # Make sure database is UTF-8
+        # Check database config.
+        self._check_database_encoding()
+        self._check_database_timezone()
+        # Create full schema.
+        self._execute_sql_file('schema.sql')
+        logger.info('Created PostgreSQL storage tables.')
+
+    def _check_database_timezone(self):
+        # Make sure database has UTC timezone.
+        query = "SELECT current_setting('TIMEZONE') AS timezone;"
+        with self.connect() as cursor:
+            cursor.execute(query)
+            result = cursor.fetchone()
+        timezone = result['timezone'].upper()
+        if timezone != 'UTC':
+            warnings.warn('Database timezone is not UTC (%s)' % timezone)
+
+    def _check_database_encoding(self):
+        # Make sure database is UTF-8.
         query = """
         SELECT pg_encoding_to_char(encoding) AS encoding
           FROM pg_database
@@ -159,12 +168,14 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         encoding = result['encoding'].lower()
         assert encoding == 'utf8', 'Unexpected database encoding %s' % encoding
 
-        # Create schema
-        here = os.path.abspath(os.path.dirname(__file__))
-        schema = open(os.path.join(here, 'schema.sql')).read()
+    def _get_installed_version(self):
+        query = "SELECT * FROM pg_tables WHERE tablename = 'records';"
         with self.connect() as cursor:
-            cursor.execute(schema)
-        logger.info('Created PostgreSQL storage tables')
+            cursor.execute(query)
+            tables_exist = cursor.rowcount > 0
+
+        if tables_exist:
+            return 1
 
     def flush(self):
         """Delete records from tables without destroying schema. Mainly used
