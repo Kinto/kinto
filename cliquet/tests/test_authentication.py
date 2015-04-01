@@ -61,7 +61,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
 class TokenVerificationCacheTest(unittest.TestCase):
     def setUp(self):
-        cache = memory_backend.Memory(max_connections=1)
+        cache = memory_backend.Memory()
         self.cache = authentication.TokenVerificationCache(cache, 0.05)
 
     def test_set_adds_the_record(self):
@@ -112,7 +112,7 @@ class Oauth2AuthenticationPolicyTest(unittest.TestCase):
     def setUp(self):
         config = testing.setUp()
         config.registry.settings['fxa-oauth.cache_ttl_seconds'] = '0.05'
-        self.backend = redis_backend.Redis(max_connections=1)
+        self.backend = memory_backend.Memory()
         config.registry.cache = self.backend
         self.policy = authentication.Oauth2AuthenticationPolicy(config)
         self.request = DummyRequest()
