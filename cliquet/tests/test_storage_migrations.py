@@ -45,22 +45,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         with self.db.connect() as cursor:
             cursor.execute(q)
 
-    def _get_installed_version(self):
-        version = 1
-        with self.db.connect() as cursor:
-            q = """
-            SELECT value
-              FROM metadata
-             WHERE name = 'storage_schema_version'
-             ORDER BY value DESC;
-            """
-            cursor.execute(q)
-            if cursor.rowcount > 0:
-                version = int(cursor.fetchone()[0])
-        return version
-
     def test_schema_sets_the_current_version(self):
-        version = self._get_installed_version()
+        version = self.db._get_installed_version()
         self.assertEqual(version, self.version)
 
     def test_schema_is_not_recreated_from_scratch_if_already_exists(self):
@@ -100,8 +86,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         """Test every migration available in cliquet code base since
         version 1.6.
 
-        Records migration is currently very naive, and should be elaborated
-        along future migrations.
+        Records migration test is currently very naive, and should be
+        elaborated along future migrations.
         """
         self._delete_everything()
 
@@ -116,14 +102,14 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.db.create(TestResource(), 'jean-louis', {'drink': 'cacao'})
 
         # In cliquet 1.6, version = 1.
-        version = self._get_installed_version()
+        version = self.db._get_installed_version()
         self.assertEqual(version, 1)
 
         # Run every migrations available.
         self.db.initialize_schema()
 
         # Version matches current one.
-        version = self._get_installed_version()
+        version = self.db._get_installed_version()
         self.assertEqual(version, self.version)
 
         migrated, count = self.db.get_all(TestResource(), 'jean-louis')
