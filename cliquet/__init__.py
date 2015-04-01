@@ -9,6 +9,11 @@ import requests
 import structlog
 import webob
 
+try:
+    import newrelic.agent
+except ImportError:
+    pass  # NOQA
+
 from cornice import Service
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
@@ -316,3 +321,16 @@ def initialize(config, version=None, project_name=None):
     # Include cliquet views with the correct api version prefix.
     config.include("cliquet", route_prefix=api_version)
     config.route_prefix = api_version
+
+
+def wrap_app(app, settings):
+    "Wraps the passed wsgi application with wsgi middlewares."
+
+    # Setup new-relic.
+    if settings.get('cliquet.newrelic_config', False):
+        ini_file = settings.get('cliquet.newrelic_config')
+        env = settings.get('cliquet.newrelic_env', 'dev')
+        newrelic.agent.initialize(ini_file, env)
+        app = newrelic.agent.WSGIApplicationWrapper(app)
+
+    return app

@@ -35,8 +35,8 @@ just add some extra initialization code:
         config = Configurator(settings=settings)
 
         cliquet.initialize(config, __version__)
-
-        return config.make_wsgi_app()
+        app = config.make_wsgi_app()
+        return cliquet.wrap_app(app)
 
 
 By doing that, basic endpoints are now available, as defined in

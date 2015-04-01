@@ -36,6 +36,7 @@ POSTGRESQL_REQUIRES = [
 MONITORING_REQUIRES = [
     'raven',
     'statsd',
+    'newrelic',
 ]
 
 ENTRY_POINTS = {
