@@ -193,24 +193,29 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         assert encoding == 'utf8', 'Unexpected database encoding %s' % encoding
 
     def _get_installed_version(self):
-        query = "SELECT * FROM pg_tables WHERE tablename = 'records';"
+        """Return current version of schema or None if not any found.
+        """
+        query = "SELECT tablename FROM pg_tables WHERE tablename = 'metadata';"
         with self.connect() as cursor:
             cursor.execute(query)
             tables_exist = cursor.rowcount > 0
 
+        if not tables_exist:
+            return
+
         query = """
         SELECT value AS version
           FROM metadata
-         WHERE name = 'storage_schema_version';
+         WHERE name = 'storage_schema_version'
+         ORDER BY value DESC;
         """
-        if tables_exist:
-            with self.connect() as cursor:
-                cursor.execute(query)
-                if cursor.rowcount > 0:
-                    return int(cursor.fetchone()['version'])
-                else:
-                    # In the first versions of cliquet, there was no migration.
-                    return 1
+        with self.connect() as cursor:
+            cursor.execute(query)
+            if cursor.rowcount > 0:
+                return int(cursor.fetchone()['version'])
+            else:
+                # In the first versions of cliquet, there was no migration.
+                return 1
 
     def flush(self):
         """Delete records from tables without destroying schema. Mainly used

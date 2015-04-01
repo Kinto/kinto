@@ -918,7 +918,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             q = """
             SELECT value
               FROM metadata
-             WHERE name = 'storage_schema_version';
+             WHERE name = 'storage_schema_version'
+             ORDER BY value DESC;
             """
             cursor.execute(q)
             version = int(cursor.fetchone()[0])
