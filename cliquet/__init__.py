@@ -294,7 +294,15 @@ def includeme(config):
     config.scan("cliquet.views", **kwargs)
 
 
-def initialize_cliquet(config, version=None, project_name=None):
+def initialize_cliquet(*args, **kwargs):
+    message = ('initialize_cliquet is now deprecated. '
+               'Please use "cliquet.initialize" instead')
+
+    warnings.warn(message, DeprecationWarning)
+    initialize(*args, **kwargs)
+
+
+def initialize(config, version=None, project_name=None):
     """Initialize Cliquet with the given configuration, version and project
     name.
 

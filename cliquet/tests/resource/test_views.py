@@ -2,7 +2,7 @@ import mock
 import webtest
 from pyramid import testing
 
-from cliquet import initialize_cliquet
+import cliquet
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
 from cliquet.tests.support import unittest, FakeAuthentMixin, get_request_class
@@ -24,7 +24,7 @@ class BaseWebTest(unittest.TestCase):
             'cliquet.project_docs': 'https://cliquet.rtfd.org/',
         })
 
-        initialize_cliquet(self.config)
+        cliquet.initialize(self.config)
         self.config.scan("cliquet.tests.testapp.views")
 
         self.app = webtest.TestApp(self.config.make_wsgi_app())

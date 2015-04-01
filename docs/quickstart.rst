@@ -34,7 +34,7 @@ just add some extra initialization code:
     def main(global_config, **settings):
         config = Configurator(settings=settings)
 
-        cliquet.initialize_cliquet(config, __version__)
+        cliquet.initialize(config, __version__)
 
         return config.make_wsgi_app()
 
@@ -42,7 +42,7 @@ just add some extra initialization code:
 By doing that, basic endpoints are now available, as defined in
 the :ref:`API section <api-endpoints>`.
 
-.. autofunction:: cliquet.initialize_cliquet
+.. autofunction:: cliquet.initialize
 
 
 Configuration

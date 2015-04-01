@@ -1,5 +1,5 @@
 from pyramid.config import Configurator
-from cliquet import initialize_cliquet
+import cliquet
 
 
 def includeme(config):
@@ -8,6 +8,6 @@ def includeme(config):
 
 def main(settings=None):
     config = Configurator(settings=settings)
-    initialize_cliquet(config, version='0.0.1')
+    cliquet.initialize(config, version='0.0.1')
     config.include(includeme)
     return config.make_wsgi_app()
