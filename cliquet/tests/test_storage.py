@@ -492,6 +492,14 @@ class DeletedRecordsTest(object):
         _, count = self.storage.get_all(self.resource, self.user_id)
         self.assertEqual(count, 0)
 
+    def test_delete_all_can_delete_partially(self):
+        self.storage.create(self.resource, self.user_id, {'foo': 'bar'})
+        self.storage.create(self.resource, self.user_id, {'bar': 'baz'})
+        filters = [Filter('foo', 'bar', utils.COMPARISON.EQ)]
+        self.storage.delete_all(self.resource, self.user_id, filters)
+        _, count = self.storage.get_all(self.resource, self.user_id)
+        self.assertEqual(count, 1)
+
     #
     # Sorting
     #

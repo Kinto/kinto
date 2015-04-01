@@ -364,7 +364,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         if filters:
             safe_sql, holders = self._format_conditions(resource, filters)
-            safeholders['conditions_filter'] = safe_sql
+            safeholders['conditions_filter'] = 'AND %s' % safe_sql
             placeholders.update(**holders)
 
         with self.connect() as cursor:
