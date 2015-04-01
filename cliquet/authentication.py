@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import requests
 
 from fxa.oauth import Client as OAuthClient
 from fxa import errors as fxa_errors
@@ -7,6 +8,7 @@ from pyramid import authentication as base_auth
 from pyramid import httpexceptions
 from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Authenticated
+from six.moves.urllib.parse import urljoin
 from zope.interface import implementer
 
 from cliquet import logger
@@ -132,3 +134,24 @@ class AuthorizationPolicy(object):
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER
+
+
+def fxa_ping(request):
+    """Verify if the OAuth server is ready."""
+    settings = request.registry.settings
+    server_url = settings['fxa-oauth.oauth_uri']
+
+    oauth = None
+    if server_url is not None:
+        auth_client = OAuthClient(server_url=server_url)
+        server_url = auth_client.server_url
+        oauth = False
+
+        try:
+            r = requests.get(urljoin(server_url, '/__heartbeat__'), timeout=10)
+            r.raise_for_status()
+            oauth = True
+        except requests.exceptions.HTTPError:
+            pass
+
+    return oauth
