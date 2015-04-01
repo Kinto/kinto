@@ -219,7 +219,7 @@ attribute to associate users to records.
     def main(global_config, **settings):
         config = Configurator(settings=settings)
 
-        cliquet.initialize_cliquet(config, __version__)
+        cliquet.initialize(config, __version__)
 
         config.include('velruse.providers.github')
 
@@ -237,7 +237,7 @@ Or set it up manually:
     def main(global_config, **settings):
         config = Configurator(settings=settings)
 
-        cliquet.initialize_cliquet(config, __version__)
+        cliquet.initialize(config, __version__)
 
         policies = [
             cliquet.authentication.BasicAuthAuthenticationPolicy(),
