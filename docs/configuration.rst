@@ -131,7 +131,11 @@ Handling exceptions with Sentry
 
 Requires the ``raven`` package, or *cliquet* installed with ``pip install cliquet[monitoring]``.
 
-Sentry logging can be enabled as explained here: http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup
+Sentry logging can be enabled, `as explained in official documentation <http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
+
+:note:
+
+    The application sends an *INFO* message on startup, mainly for setup check.
 
 
 Monitoring with StatsD
