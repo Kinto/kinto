@@ -163,6 +163,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             logger.info('Schema is up-to-date.')
 
         for migration in migrations:
+            # Check order of migrations.
+            expected = migration[0]
+            current = self._get_installed_version()
+            error_msg = "Expected version %s. Found version %s."
+            assert expected == current, error_msg % (expected, current)
+
             logger.info('Migrate schema from version %s to %s.' % migration)
             filepath = 'migration_%03d_%03d.sql' % migration
             self._execute_sql_file(os.path.join('migrations', filepath))
