@@ -72,6 +72,15 @@ def service_unavailable(context, request):
     return reapply_cors(request, response)
 
 
+@view_config(context=httpexceptions.HTTPMethodNotAllowed,
+             permission=NO_PERMISSION_REQUIRED)
+def method_not_allowed(context, request):
+    response = http_error(httpexceptions.HTTPMethodNotAllowed(),
+                          errno=ERRORS.METHOD_NOT_ALLOWED,
+                          message="Method not allowed on this endpoint.")
+    return reapply_cors(request, response)
+
+
 @view_config(context=Exception, permission=NO_PERMISSION_REQUIRED)
 def error(context, request):
     """Catch server errors and trace them."""

@@ -65,7 +65,7 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
                                   headers=self.headers, status=405)
         self.assertFormattedError(
             response, 405, ERRORS.METHOD_NOT_ALLOWED, "Method Not Allowed",
-            "Method not allowed on this end point.")
+            "Method not allowed on this endpoint.")
 
     def test_500_is_valid_formatted_error(self):
         with mock.patch(
