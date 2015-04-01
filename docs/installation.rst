@@ -29,7 +29,7 @@ A command is provided to accomplish this:
 
 ::
 
-    cliquet --ini application.ini init
+    cliquet --ini application.ini migrate
 
 
 Cryptography libraries

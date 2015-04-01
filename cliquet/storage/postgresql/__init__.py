@@ -101,12 +101,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     :note:
 
-        During the first run of the application, some tables, indices and
-        functions are created. This requires some privileges on the database,
-        or some error will be raised.
+        Some tables and indices are created when ``cliquet migrate`` is run.
+        This requires some privileges on the database, or some error will
+        be raised.
 
         **Alternatively**, the schema can be initialized outside the
-        application starting process, using the SQL file located in
+        python application, using the SQL file located in
         :file:`cliquet/storage/postgresql/schema.sql`. This allows to
         distinguish schema manipulation privileges from schema usage.
 
