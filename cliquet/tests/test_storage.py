@@ -910,3 +910,18 @@ class CloudStorageTest(StorageTest, unittest.TestCase):
                               self.storage.get_all,
                               self.resource,
                               self.user_id)
+
+    def test_returns_backend_error_when_batch_has_error_in_responses(self):
+        batch_responses = {
+            'responses': [
+                {'status': 400}
+            ]
+        }
+        rules = [[Filter('number', 1, utils.COMPARISON.GT)]]
+        with mock.patch.object(self.storage._client, 'post') as mocked:
+            response_body = mock.Mock(return_value=batch_responses)
+            mocked.return_value = mock.MagicMock(json=response_body)
+            self.assertRaises(exceptions.BackendError,
+                              self.storage.get_all,
+                              self.resource, self.user_id,
+                              limit=5, pagination_rules=rules)

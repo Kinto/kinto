@@ -75,7 +75,7 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         self.realm = realm
 
         settings = config.get_settings()
-        oauth_cache_ttl = int(settings['fxa-oauth.cache_ttl_seconds'])
+        oauth_cache_ttl = float(settings['fxa-oauth.cache_ttl_seconds'])
         oauth_cache = TokenVerificationCache(config.registry.cache,
                                              ttl=oauth_cache_ttl)
         self.cache = oauth_cache
@@ -107,7 +107,7 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         auth_client = OAuthClient(server_url=server_url, cache=self.cache)
         try:
             profile = auth_client.verify_token(token=auth, scope=scope)
-            user_id = profile['user'].encode('utf-8')
+            user_id = profile['user']
         except fxa_errors.OutOfProtocolError:
             raise httpexceptions.HTTPServiceUnavailable()
         except (fxa_errors.InProtocolError, fxa_errors.TrustError):

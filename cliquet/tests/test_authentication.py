@@ -4,11 +4,12 @@ import time
 
 import mock
 from fxa import errors as fxa_errors
+from pyramid import testing
 
 from cliquet import authentication
 from cliquet.cache import redis as redis_backend
 
-from .support import BaseWebTest, unittest, DummyRequest
+from .support import BaseWebTest, DummyRequest, unittest
 
 
 class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
@@ -105,3 +106,41 @@ class BasicAuthenticationPolicyTest(unittest.TestCase):
         self.request.headers['Authorization'] = 'Basic bWF0OjI='
         user_id2 = self.policy.unauthenticated_userid(self.request)
         self.assertNotEqual(user_id1, user_id2)
+
+
+class Oauth2AuthenticationPolicyTest(unittest.TestCase):
+    def setUp(self):
+        config = testing.setUp()
+        config.registry.settings['fxa-oauth.cache_ttl_seconds'] = '0.05'
+        self.backend = redis_backend.Redis(max_connections=1)
+        config.registry.cache = self.backend
+        self.policy = authentication.Oauth2AuthenticationPolicy(config)
+        self.request = DummyRequest()
+        self.request.headers['Authorization'] = 'Bearer foo'
+        self.profile_data = {
+            "user": "33", "scope": ["profile"], "client_id": ""
+        }
+
+    def tearDown(self):
+        self.backend.flush()
+
+    @mock.patch('fxa.oauth.APIClient.post')
+    def test_prefixes_users_with_fxa(self, api_mocked):
+        api_mocked.return_value = self.profile_data
+        user_id = self.policy.unauthenticated_userid(self.request)
+        self.assertEqual("fxa_33", user_id)
+
+    @mock.patch('fxa.oauth.APIClient.post')
+    def test_oauth_verification_uses_cache(self, api_mocked):
+        api_mocked.return_value = self.profile_data
+        self.policy.unauthenticated_userid(self.request)
+        self.policy.unauthenticated_userid(self.request)
+        self.assertEqual(1, api_mocked.call_count)
+
+    @mock.patch('fxa.oauth.APIClient.post')
+    def test_oauth_verification_cache_has_ttl(self, api_mocked):
+        api_mocked.return_value = self.profile_data
+        self.policy.unauthenticated_userid(self.request)
+        time.sleep(0.1)
+        self.policy.unauthenticated_userid(self.request)
+        self.assertEqual(2, api_mocked.call_count)
