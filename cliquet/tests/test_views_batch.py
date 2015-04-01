@@ -2,6 +2,8 @@
 import colander
 import mock
 
+from pyramid.response import Response
+
 from cliquet import DEFAULT_SETTINGS
 from cliquet.views.batch import BatchPayloadSchema, batch as batch_service
 from cliquet.tests.support import BaseWebTest, unittest, DummyRequest
@@ -299,6 +301,14 @@ class BatchServiceTest(unittest.TestCase):
         resp = self.post({'requests': [request]})
         path = resp['responses'][0]['path']
         self.assertEqual(path, u'/v0/test')
+
+    def test_response_body_is_string_if_remote_response_is_not_json(self):
+        response = Response(body='Internal Error')
+        self.request.invoke_subrequest.return_value = response
+        request = {'path': u'/test'}
+        resp = self.post({'requests': [request]})
+        body = resp['responses'][0]['body']
+        self.assertEqual(body, 'Internal Error')
 
     def test_number_of_requests_is_not_limited_when_settings_set_to_none(self):
         self.request.registry.settings['cliquet.batch_max_requests'] = None

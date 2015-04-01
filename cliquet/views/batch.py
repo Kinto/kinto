@@ -176,7 +176,7 @@ def build_response(response, request):
 
     body = ''
     if request.method != 'HEAD':
-        # XXX : Pyramid should not have built response body!
+        # XXX : Pyramid should not have built response body for HEAD!
         try:
             body = response.json
         except ValueError:

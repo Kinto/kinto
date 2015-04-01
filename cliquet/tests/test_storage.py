@@ -334,6 +334,11 @@ class FieldsUnicityTest(object):
         user_id = user_id or self.user_id
         return self.storage.create(self.resource, user_id, record)
 
+    def test_does_not_fail_if_no_unique_fields_at_all(self):
+        self.resource.mapping.Options.unique_fields = tuple()
+        self.create_record()
+        self.create_record()
+
     def test_cannot_insert_duplicate_field(self):
         self.create_record()
         self.assertRaises(exceptions.UnicityError,
