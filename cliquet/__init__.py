@@ -8,10 +8,6 @@ import pkg_resources
 import requests
 import structlog
 import webob
-try:
-    import raven
-except ImportError:
-    pass  # NOQA
 
 from cornice import Service
 from pyramid.events import NewRequest, NewResponse
@@ -20,7 +16,7 @@ from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.interfaces import IAuthenticationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
-from pyramid.settings import asbool, aslist
+from pyramid.settings import asbool
 
 # Main Cliquet logger.
 logger = structlog.get_logger()
@@ -71,8 +67,6 @@ DEFAULT_SETTINGS = {
     'cliquet.storage_pool_size': 10,
     'cliquet.storage_max_fetch_size': 10000,
     'cliquet.userid_hmac_secret': '',
-    'cliquet.sentry_url': None,
-    'cliquet.sentry_projects': '',
     'cliquet.statsd_url': None,
     'cliquet.statsd_prefix': 'cliquet'
 }
@@ -222,20 +216,6 @@ def end_of_life_tween_factory(handler, registry):
     return eos_tween
 
 
-def handle_sentry(config):
-    settings = config.get_settings()
-
-    if settings['cliquet.sentry_url']:
-        extra_projects = aslist(settings['cliquet.sentry_projects'])
-        raven_client = raven.Client(
-            settings['cliquet.sentry_url'],
-            include_paths=['cornice', 'cliquet'] + extra_projects,
-            release=settings['cliquet.project_version'])
-
-        msg = "%(cliquet.project_name)s %(cliquet.project_version)s starting."
-        raven_client.captureMessage(msg % settings)
-
-
 def handle_statsd(config):
     settings = config.get_settings()
 
@@ -268,9 +248,6 @@ def includeme(config):
     handle_api_redirection(config)
     config.add_tween("cliquet.end_of_life_tween_factory")
 
-    # Handle sentry
-    handle_sentry(config)
-
     storage = config.maybe_dotted(settings['cliquet.storage_backend'])
     config.registry.storage = storage.load_from_config(config)
 
@@ -293,8 +270,20 @@ def includeme(config):
     config.include("cornice")
     config.scan("cliquet.views", **kwargs)
 
+    # Give sign of life.
+    msg = "%(cliquet.project_name)s %(cliquet.project_version)s starting."
+    logger.info(msg % settings)
 
-def initialize_cliquet(config, version=None, project_name=None):
+
+def initialize_cliquet(*args, **kwargs):
+    message = ('cliquet.initialize_cliquet is now deprecated. '
+               'Please use "cliquet.initialize" instead')
+
+    warnings.warn(message, DeprecationWarning)
+    initialize(*args, **kwargs)
+
+
+def initialize(config, version=None, project_name=None):
     """Initialize Cliquet with the given configuration, version and project
     name.
 
@@ -309,18 +298,18 @@ def initialize_cliquet(config, version=None, project_name=None):
     :param project_name: Project name if not defined in application settings.
     :type project_name: string
     """
-    settings = config.registry.settings
+    settings = config.get_settings()
 
     # The API version is derivated from the module version.
     project_version = settings.get('cliquet.project_version') or version
-    settings['cliquet.project_version'] = project_version
+    config.add_settings({'cliquet.project_version': project_version})
     try:
         api_version = 'v%s' % project_version.split('.')[0]
     except (AttributeError, ValueError):
         raise ValueError('Invalid project version')
 
     project_name = settings.get('cliquet.project_name') or project_name
-    settings['cliquet.project_name'] = project_name
+    config.add_settings({'cliquet.project_name': project_name})
     if not project_name:
         warnings.warn('No value specified for `project_name`')
 

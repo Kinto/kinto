@@ -131,14 +131,11 @@ Handling exceptions with Sentry
 
 Requires the ``raven`` package, or *cliquet* installed with ``pip install cliquet[monitoring]``.
 
-Sentry logging can be enabled (disabled by default):
+Sentry logging can be enabled, `as explained in official documentation <http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
 
-.. code-block :: ini
+:note:
 
-    cliquet.sentry_url = http://user:secret@example.org/1
-    cliquet.sentry_projects = readinglist,prod
-
-A basic message will be sent to sentry when the application starts.
+    The application sends an *INFO* message on startup, mainly for setup check.
 
 
 Monitoring with StatsD
@@ -219,7 +216,7 @@ attribute to associate users to records.
     def main(global_config, **settings):
         config = Configurator(settings=settings)
 
-        cliquet.initialize_cliquet(config, __version__)
+        cliquet.initialize(config, __version__)
 
         config.include('velruse.providers.github')
 
@@ -237,7 +234,7 @@ Or set it up manually:
     def main(global_config, **settings):
         config = Configurator(settings=settings)
 
-        cliquet.initialize_cliquet(config, __version__)
+        cliquet.initialize(config, __version__)
 
         policies = [
             cliquet.authentication.BasicAuthAuthenticationPolicy(),
