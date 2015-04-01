@@ -35,6 +35,19 @@ class PostgreSQLClient(object):
                    "(Already set to %s).") % (pool_size, self.pool.minconn)
             warnings.warn(msg)
 
+        # When fsync setting is off, like on TravisCI or in during development,
+        # cliquet some storage tests fail because commits are not applied
+        # accross every opened connections.
+        # XXX: find a proper solution to support fsync off.
+        # Meanhwile, disable connection pooling to prevent test suite failures.
+        self._always_close = False
+        with self.connect(readonly=True) as cursor:
+            cursor.execute("SELECT current_setting('fsync');")
+            fsync = cursor.fetchone()[0]
+            if fsync == 'off':
+                logger.warn('Option fsync = off detected. Disable pooling.')
+                self._always_close = True
+
     @contextlib.contextmanager
     def connect(self, readonly=False):
         """Connect to the database and instantiates a cursor.
@@ -67,7 +80,7 @@ class PostgreSQLClient(object):
             if cursor:
                 cursor.close()
             if conn and not conn.closed:
-                self.pool.putconn(conn)
+                self.pool.putconn(conn, close=self._always_close)
 
 
 class PostgreSQL(PostgreSQLClient, StorageBase):
