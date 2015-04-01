@@ -6,7 +6,7 @@ import redis
 
 from cliquet.storage import exceptions
 from cliquet.cache import (CacheBase, postgresql as postgresql_backend,
-                           redis as redis_backend)
+                           redis as redis_backend, memory as memory_backend)
 
 from .support import unittest
 
@@ -102,6 +102,16 @@ class BaseTestCache(object):
         ttl = self.cache.ttl('foobar')
         self.assertGreater(ttl, 0)
         self.assertLessEqual(ttl, 10)
+
+
+class MemoryCacheTest(BaseTestCache, unittest.TestCase):
+    backend = memory_backend
+
+    def test_backend_error_is_raised_anywhere(self):
+        pass
+
+    def test_ping_returns_false_if_unavailable(self):
+        pass
 
 
 class RedisCacheTest(BaseTestCache, unittest.TestCase):
