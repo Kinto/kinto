@@ -892,9 +892,10 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         self.backend.load_from_config(self._get_config())
         settings = self.settings.copy()
         settings['cliquet.storage_pool_size'] = 1
+        msg = 'Pool size 1 ignored for PostgreSQL backend (Already set to 10).'
         with mock.patch('cliquet.storage.postgresql.warnings.warn') as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
-            mocked.assert_called()
+            mocked.assert_called_with(msg)
 
 
 class CloudStorageTest(StorageTest, unittest.TestCase):
