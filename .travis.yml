@@ -15,6 +15,7 @@ before_install:
     - git clone https://github.com/mozilla-services/kinto.git kinto
     - pushd kinto
     - make install-dev
+    - cliquet --ini ../cliquet/tests/config/kinto.ini init
     - pserve ../cliquet/tests/config/kinto.ini&
     - popd
     # </Kinto>
