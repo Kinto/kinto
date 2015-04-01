@@ -54,10 +54,6 @@ class TestResource(object):
     request = DummyRequest()
 
 
-# Share backend instances accross Nosetests test cases.
-_backends_instances = {}
-
-
 class BaseTestStorage(object):
     backend = None
 
@@ -65,11 +61,8 @@ class BaseTestStorage(object):
 
     def __init__(self, *args, **kwargs):
         super(BaseTestStorage, self).__init__(*args, **kwargs)
-        self.storage = _backends_instances.get(self.backend)
-        if self.storage is None:
-            instance = self.backend.load_from_config(self._get_config())
-            self.storage = _backends_instances[self.backend] = instance
-            self.storage.initialize_schema()
+        self.storage = self.backend.load_from_config(self._get_config())
+        self.storage.initialize_schema()
         self.resource = TestResource()
         self.user_id = '1234'
         self.other_user_id = '5678'
