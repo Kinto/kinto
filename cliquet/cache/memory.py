@@ -14,6 +14,10 @@ class Memory(CacheBase):
         super(Memory, self).__init__(*args, **kwargs)
         self.flush()
 
+    def initialize_schema(self):
+        # Nothing to do.
+        pass
+
     def flush(self):
         self._ttl = {}
         self._store = {}
