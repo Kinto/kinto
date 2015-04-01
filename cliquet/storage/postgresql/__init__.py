@@ -137,7 +137,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     def _execute_sql_file(self, filepath):
         here = os.path.abspath(os.path.dirname(__file__))
-        schema = open(os.path.join(here, 'schema.sql')).read()
+        schema = open(os.path.join(here, filepath)).read()
         with self.connect() as cursor:
             cursor.execute(schema)
 
@@ -164,8 +164,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         for migration in migrations:
             logger.info('Migrate schema from version %s to %s.' % migration)
-            filepath = 'migration_%s_%s.sql' % migration
-            self._execute_sql_file(filepath)
+            filepath = 'migration_%03d_%03d.sql' % migration
+            self._execute_sql_file(os.path.join('migrations', filepath))
 
         logger.info('Schema migration done.')
 

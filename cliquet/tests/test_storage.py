@@ -903,6 +903,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
         # Create schema in its last version
         self.db = postgresql.load_from_config(self.config)
+        self.db.initialize_schema()
 
         # Patch to keep track of SQL files executed.
         self.sql_execute_patcher = mock.patch(
@@ -929,7 +930,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
     def test_schema_is_not_recreated_from_scratch_if_already_exists(self):
         mocked = self.sql_execute_patcher.start()
-        postgresql.load_from_config(self.config)
+        self.db.initialize_schema()
         self.assertFalse(mocked.called)
 
     def test_schema_is_considered_first_version_if_no_version_detected(self):
@@ -939,8 +940,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
         mocked = self.sql_execute_patcher.start()
         postgresql.PostgreSQL.schema_version = 2
-        postgresql.load_from_config(self.config)
-        mocked.assert_any_call('migration_1_2.sql')
+        self.db.initialize_schema()
+        mocked.assert_any_call('migrations/migration_001_002.sql')
 
     def test_migration_file_is_executed_for_every_intermediary_version(self):
         with self.db.connect() as cursor:
@@ -952,10 +953,10 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
         mocked = self.sql_execute_patcher.start()
         postgresql.PostgreSQL.schema_version = 6
-        postgresql.load_from_config(self.config)
-        mocked.assert_any_call('migration_3_4.sql')
-        mocked.assert_any_call('migration_4_5.sql')
-        mocked.assert_any_call('migration_5_6.sql')
+        self.db.initialize_schema()
+        mocked.assert_any_call('migrations/migration_003_004.sql')
+        mocked.assert_any_call('migrations/migration_004_005.sql')
+        mocked.assert_any_call('migrations/migration_005_006.sql')
 
     def test_migration_1_2(self):
         version = self._get_installed_version()
@@ -969,7 +970,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             """
             cursor.execute(q)
 
-        postgresql.load_from_config(self.config)
+        self.db.initialize_schema()
 
         version = self._get_installed_version()
         self.assertNotEqual(version, 1)
