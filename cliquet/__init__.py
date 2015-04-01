@@ -295,7 +295,7 @@ def includeme(config):
 
 
 def initialize_cliquet(*args, **kwargs):
-    message = ('initialize_cliquet is now deprecated. '
+    message = ('cliquet.initialize_cliquet is now deprecated. '
                'Please use "cliquet.initialize" instead')
 
     warnings.warn(message, DeprecationWarning)
