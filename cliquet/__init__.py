@@ -298,18 +298,18 @@ def initialize(config, version=None, project_name=None):
     :param project_name: Project name if not defined in application settings.
     :type project_name: string
     """
-    settings = config.registry.settings
+    settings = config.get_settings()
 
     # The API version is derivated from the module version.
     project_version = settings.get('cliquet.project_version') or version
-    settings['cliquet.project_version'] = project_version
+    config.add_settings({'cliquet.project_version': project_version})
     try:
         api_version = 'v%s' % project_version.split('.')[0]
     except (AttributeError, ValueError):
         raise ValueError('Invalid project version')
 
     project_name = settings.get('cliquet.project_name') or project_name
-    settings['cliquet.project_name'] = project_name
+    config.add_settings({'cliquet.project_name': project_name})
     if not project_name:
         warnings.warn('No value specified for `project_name`')
 
