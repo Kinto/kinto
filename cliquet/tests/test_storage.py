@@ -824,17 +824,6 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             message, = mocked.call_args[0]
             self.assertEqual(message, "Detected PostgreSQL storage tables")
 
-    def test_warns_if_database_is_not_utc(self):
-        with self.storage.connect() as cursor:
-            cursor.execute("ALTER ROLE postgres SET TIME ZONE 'Europe/Paris';")
-
-        with mock.patch('cliquet.storage.postgresql.warnings.warn') as mocked:
-            self.backend.load_from_config(self._get_config())
-            mocked.assert_called()
-
-        with self.storage.connect() as cursor:
-            cursor.execute("ALTER ROLE postgres SET TIME ZONE 'UTC';")
-
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
         for i in range(4):
             self.create_record({'phone': 'tel-%s' % i})
