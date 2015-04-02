@@ -7,7 +7,6 @@ from fxa import errors as fxa_errors
 from pyramid import authentication as base_auth
 from pyramid import httpexceptions
 from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
-from pyramid.settings import asbool
 from pyramid.security import Authenticated
 from six.moves.urllib.parse import urljoin
 from zope.interface import implementer
@@ -30,9 +29,6 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
     def unauthenticated_userid(self, request):
         settings = request.registry.settings
-        is_enabled = asbool(settings['cliquet.basic_auth_enabled'])
-        if not is_enabled:
-            return
 
         credentials = self._get_credentials(request)
         if credentials:

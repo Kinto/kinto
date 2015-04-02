@@ -7,7 +7,7 @@ from .support import BaseWebTest, unittest
 
 
 class DeactivatedOAuthRelierTest(BaseWebTest, unittest.TestCase):
-    def get_app_settings(self):
+    def get_app_settings(self, additional_settings=None):
         settings = super(DeactivatedOAuthRelierTest, self).get_app_settings()
         settings['fxa-oauth.relier.enabled'] = False
         return settings

@@ -208,10 +208,8 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(event_dict['auth_type'], 'FxA')
 
     def test_basic_auth_type_is_bound(self):
-        with mock.patch.dict(self.app.app.registry.settings,
-                             [('cliquet.basic_auth_enabled', 'true')]):
-            self.app.get('/mushrooms',
-                         headers={'Authorization': 'Basic bmlrbzpuaWtv'})
+        app = self._get_test_app({'cliquet.basic_auth_enabled': True})
+        app.get('/mushrooms', headers={'Authorization': 'Basic bmlrbzpuaWtv'})
         event_dict = logger_context()
         self.assertEqual(event_dict['auth_type'], 'Basic')
 

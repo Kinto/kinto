@@ -90,22 +90,26 @@ class BaseWebTest(FakeAuthentMixin):
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.app = self._get_test_app()
-        self.app.RequestClass = get_request_class(self.api_prefix)
         self.db = self.app.app.registry.storage
         self.headers.update({
             'Content-Type': 'application/json',
         })
 
-    def _get_test_app(self):
-        return webtest.TestApp(testapp(self.get_app_settings()))
+    def _get_test_app(self, settings=None):
+        app = webtest.TestApp(testapp(self.get_app_settings(settings)))
+        app.RequestClass = get_request_class(self.api_prefix)
+        return app
 
-    def get_app_settings(self):
+    def get_app_settings(self, additional_settings=None):
         settings = DEFAULT_SETTINGS.copy()
         settings['cliquet.project_name'] = 'cliquet'
         settings['cliquet.project_docs'] = 'https://cliquet.rtfd.org/'
         settings['fxa-oauth.relier.enabled'] = True
         settings['fxa-oauth.oauth_uri'] = 'https://oauth-stable.dev.lcip.org'
         settings['fxa-oauth.webapp.authorized_domains'] = ['*.firefox.com', ]
+
+        if additional_settings is not None:
+            settings.update(additional_settings)
         return settings
 
     def tearDown(self):
