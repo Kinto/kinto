@@ -2,6 +2,71 @@ Contributing
 ############
 
 
+Setup your development environment
+==================================
+
+To prepare your system with Postgres and Redis please refer to the Installation guide.
+
+Make sure you have python3.4 installed on your system.
+
+To install, on linux run:
+
+::
+    $ sudo apt-get install python3.4-dev
+
+On OSX run:
+
+::
+    $ brew install python3.4
+
+Prepare your project environment by running:
+
+::
+
+    $ make install-dev
+
+You might need to install curl. On linux run:
+
+::
+
+    $ sudo apt-get install curl
+
+On OSX, you should have curl installed already. If for some reasons you don't, run:
+
+::
+
+    $ brew install curl
+
+Install packages as usual, for example install needed packages with:
+
+::
+
+    $ pip install -r dev-requirements.txt
+    $ pip install tox
+
+Prepare and run Kinto:
+
+::
+
+    $ make runkinto
+
+On OSX especially you might get the following error when running tests:
+
+::
+    $ ValueError: unknown locale: UTF-8
+
+If this is the case add the following to your ~/.bash_profile:
+
+::
+    export LC_ALL=en_US.UTF-8
+    export LANG=en_US.UTF-8
+
+Then run:
+
+::
+    $ source ~/.bash_profile
+
+
 Run tests
 =========
 
