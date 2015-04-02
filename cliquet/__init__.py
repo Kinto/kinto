@@ -59,6 +59,8 @@ DEFAULT_SETTINGS = {
     'cliquet.http_scheme': None,
     'cliquet.http_host': None,
     'cliquet.logging_renderer': 'cliquet.logs.ClassicLogRenderer',
+    'cliquet.newrelic_config': None,
+    'cliquet.newrelic_env': 'dev',
     'cliquet.paginate_by': None,
     'cliquet.project_docs': '',
     'cliquet.project_name': '',
@@ -328,8 +330,8 @@ def install_middlewares(app, settings):
 
     # Setup new-relic.
     if settings.get('cliquet.newrelic_config', False):
-        ini_file = settings.get('cliquet.newrelic_config')
-        env = settings.get('cliquet.newrelic_env', 'dev')
+        ini_file = settings['cliquet.newrelic_config']
+        env = settings['cliquet.newrelic_env']
         newrelic.agent.initialize(ini_file, env)
         app = newrelic.agent.WSGIApplicationWrapper(app)
 
