@@ -322,4 +322,4 @@ Render execution graphs using GraphViz:
 ::
 
     pip install gprof2dot
-    gprof2dot -f pstats file-to-read.prof | dot -Tpng -o output.png
+    gprof2dot -f pstats POST.v1.batch.000176ms.1427458675.prof | dot -Tpng -o output.png
