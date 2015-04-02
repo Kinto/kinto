@@ -307,7 +307,7 @@ class BatchServiceTest(unittest.TestCase):
         self.request.invoke_subrequest.return_value = response
         request = {'path': u'/test'}
         resp = self.post({'requests': [request]})
-        body = resp['responses'][0]['body']
+        body = resp['responses'][0]['body'].decode('utf-8')
         self.assertEqual(body, 'Internal Error')
 
     def test_number_of_requests_is_not_limited_when_settings_set_to_none(self):
