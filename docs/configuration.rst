@@ -132,7 +132,8 @@ Handling exceptions with Sentry
 Requires the ``raven`` package, or *cliquet* installed with
 ``pip install cliquet[monitoring]``.
 
-Sentry logging can be enabled, `as explained in official documentation <http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
+Sentry logging can be enabled, `as explained in official documentation
+<http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
 
 :note:
 
@@ -176,6 +177,7 @@ In your project ``main`` function:
       cliquet.initialize(config, __version__)
       app = config.make_wsgi_app()
       return cliquet.install_middlewares(app)
+
 
 Storage
 =======
@@ -271,8 +273,8 @@ Or set it up manually:
         config.set_authentication_policy(authn_policy)
 
 
-Firefox Account
-:::::::::::::::
+Firefox Accounts
+::::::::::::::::
 
 As `stated in the official documentation <https://developer.mozilla.org/en-US/Firefox_Accounts>`_,
 Firefox Accounts OAuth integration is currently limited to Mozilla relying services.
@@ -289,3 +291,35 @@ If you're a Mozilla service, fill the settings with the values you were provided
     fxa-oauth.webapp.authorized_domains = *.firefox.com
     # fxa-oauth.cache_ttl_seconds = 300
     # fxa-oauth.state.ttl_seconds = 3600
+
+
+Application profiling
+=====================
+
+It is possible to profile the application while its running. This is especially
+useful when trying to find slowness in the application.
+
+Update your configuration file with the following values:
+
+.. code-block :: ini
+
+    cliquet.profiler_enabled = true
+    cliquet.profiler_dir = /tmp/profiling
+
+Run a load test (*for example*):
+
+::
+
+    SERVER_URL=http://localhost:8000 make bench -e
+
+
+Render execution graphs using GraphViz:
+
+::
+
+    sudo apt-get install graphviz
+
+::
+
+    pip install gprof2dot
+    gprof2dot -f pstats file-to-read.prof | dot -Tpng -o output.png
