@@ -116,7 +116,7 @@ class BasicAuthenticationPolicyTest(unittest.TestCase):
 class Oauth2AuthenticationPolicyTest(unittest.TestCase):
     def setUp(self):
         config = testing.setUp()
-        config.registry.settings['fxa-oauth.cache_ttl_seconds'] = '0.05'
+        config.registry.settings['fxa-oauth.cache_ttl_seconds'] = '0.01'
         self.backend = memory_backend.Memory()
         config.registry.cache = self.backend
         self.policy = authentication.Oauth2AuthenticationPolicy(config)
@@ -146,6 +146,6 @@ class Oauth2AuthenticationPolicyTest(unittest.TestCase):
     def test_oauth_verification_cache_has_ttl(self, api_mocked):
         api_mocked.return_value = self.profile_data
         self.policy.unauthenticated_userid(self.request)
-        time.sleep(0.1)
+        time.sleep(0.02)
         self.policy.unauthenticated_userid(self.request)
         self.assertEqual(2, api_mocked.call_count)

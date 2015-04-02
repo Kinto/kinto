@@ -142,14 +142,14 @@ class TokenViewTest(BaseWebTest, unittest.TestCase):
     def test_fails_if_state_has_expired(self, mocked_trade):
         mocked_trade.return_value = 'oauth-token'
         with mock.patch.dict(self.app.app.registry.settings,
-                             [('fxa-oauth.cache_ttl_seconds', 1)]):
+                             [('fxa-oauth.cache_ttl_seconds', 0.01)]):
             r = self.app.get(self.login_url)
         url = r.headers['Location']
         url_fragments = urlparse(url)
         queryparams = parse_qs(url_fragments.query)
         state = queryparams['state'][0]
         url = '{url}?state={state}&code=1234'.format(state=state, url=self.url)
-        sleep(1)
+        sleep(0.02)
         self.app.get(url, status=401)
 
     @mock.patch('cliquet.views.oauth.relier.OAuthClient.trade_code')
