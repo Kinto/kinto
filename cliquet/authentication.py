@@ -148,7 +148,9 @@ def fxa_ping(request):
         oauth = False
 
         try:
-            r = requests.get(urljoin(server_url, '/__heartbeat__'), timeout=10)
+            heartbeat_url = urljoin(server_url, '/__heartbeat__')
+            timeout = float(settings['fxa-oauth.heartbeat_timeout_seconds'])
+            r = requests.get(heartbeat_url, timeout=timeout)
             r.raise_for_status()
             oauth = True
         except requests.exceptions.HTTPError:

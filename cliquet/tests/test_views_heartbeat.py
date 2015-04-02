@@ -16,8 +16,11 @@ class HeartBeatViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get('/__heartbeat__')
         self.assertEqual(response.json['cache'], True)
 
-    @mock.patch('cliquet.views.heartbeat.fxa_ping', return_value=True)
-    def test_returns_oauth_true_if_ok(self, *mocked):
+    @mock.patch('requests.get')
+    def test_returns_oauth_true_if_ok(self, get_mocked):
+        response = requests.models.Response()
+        response.status_code = 200
+        get_mocked.return_value = response
         response = self.app.get('/__heartbeat__')
         self.assertEqual(response.json['oauth'], True)
 

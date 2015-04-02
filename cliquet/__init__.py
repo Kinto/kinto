@@ -79,6 +79,7 @@ DEFAULT_SETTINGS = {
     'fxa-oauth.cache_ttl_seconds': 5 * 60,
     'fxa-oauth.client_id': None,
     'fxa-oauth.client_secret': None,
+    'fxa-oauth.heartbeat_timeout_seconds': 3,
     'fxa-oauth.oauth_uri': None,
     'fxa-oauth.relier.enabled': True,
     'fxa-oauth.scope': 'profile',
