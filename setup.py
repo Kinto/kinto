@@ -37,6 +37,7 @@ MONITORING_REQUIRES = [
     'raven',
     'statsd',
     'newrelic',
+    'werkzeug',
 ]
 
 ENTRY_POINTS = {
