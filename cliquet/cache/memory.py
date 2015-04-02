@@ -29,6 +29,7 @@ class Memory(CacheBase):
         ttl = self._ttl.get(key)
         if ttl is not None:
             return (ttl - utils.msec_time()) / 1000.0
+        return -1
 
     def expire(self, key, ttl):
         self._ttl[key] = utils.msec_time() + int(ttl * 1000.0)
