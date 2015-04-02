@@ -1,4 +1,5 @@
 import mock
+import os
 import threading
 
 try:
@@ -128,3 +129,6 @@ class ThreadMixin(object):
         thread = threading.Thread(*args, **kwargs)
         self._threads.append(thread)
         return thread
+
+
+skip_if_travis = unittest.skipIf('TRAVIS' in os.environ, "travis")
