@@ -27,6 +27,26 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
                              [('cliquet.basic_auth_enabled', 'true')]):
             self.app.get(self.sample_url, headers=headers, status=200)
 
+    def test_basic_auth_is_declined_if_disabled_in_settings(self):
+        auth_password = base64.b64encode('bob:secret'.encode('ascii'))
+        headers = {
+            'Authorization': 'Basic {0}'.format(auth_password.decode('ascii'))
+        }
+
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('cliquet.basic_auth_enabled', 'false')]):
+            self.app.get(self.sample_url, headers=headers, status=401)
+
+    def test_basic_auth_is_declined_if_unknown_value_in_settings(self):
+        auth_password = base64.b64encode('bob:secret'.encode('ascii'))
+        headers = {
+            'Authorization': 'Basic {0}'.format(auth_password.decode('ascii'))
+        }
+
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('cliquet.basic_auth_enabled', 'False')]):
+            self.app.get(self.sample_url, headers=headers, status=401)
+
     def test_views_are_forbidden_if_basic_is_wrong(self):
         headers = {
             'Authorization': 'Basic abc'
