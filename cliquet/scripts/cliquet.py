@@ -2,8 +2,15 @@ import logging
 import argparse
 import sys
 import textwrap
+import warnings
 
 from pyramid.paster import bootstrap
+
+
+def deprecated_init(env):
+    message = '"cliquet init" is deprecated. Use "cliquet migrate" instead.'
+    warnings.warn(message, DeprecationWarning)
+    init_schema(env)
 
 
 def init_schema(env):
@@ -27,7 +34,10 @@ def main():
                         required=True)
 
     subparsers = parser.add_subparsers()
-    parser_init_schema = subparsers.add_parser('init')
+
+    parser_deprecated_init = subparsers.add_parser('init')
+    parser_deprecated_init.set_defaults(func=deprecated_init)
+    parser_init_schema = subparsers.add_parser('migrate')
     parser_init_schema.set_defaults(func=init_schema)
 
     args = parser.parse_args(sys.argv[1:])

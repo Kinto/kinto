@@ -818,12 +818,6 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             after = cursor.fetchone()
         self.assertNotEqual(before, after)
 
-    def test_schema_is_not_recreated_from_scratch_if_already_exists(self):
-        with mock.patch('cliquet.storage.postgresql.logger.debug') as mocked:
-            self.storage.initialize_schema()
-            message, = mocked.call_args[0]
-            self.assertEqual(message, "Detected PostgreSQL storage tables")
-
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
         for i in range(4):
             self.create_record({'phone': 'tel-%s' % i})

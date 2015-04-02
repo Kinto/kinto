@@ -1,4 +1,11 @@
 --
+-- This is a copy of storage/postgresql/schema.sql from cliquet 1.6.0.
+-- It is used in schema migration tests to execute every migration scripts,
+-- starting from the first schema version.
+--
+
+
+--
 -- Load pgcrypto for UUID generation
 --
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -123,8 +130,3 @@ FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
 CREATE TRIGGER tgr_deleted_last_modified
 BEFORE INSERT OR UPDATE ON deleted
 FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
-
-
--- Set storage schema version.
--- Should match ``cliquet.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '2');

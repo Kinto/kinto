@@ -101,12 +101,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     :note:
 
-        During the first run of the application, some tables, indices and
-        functions are created. This requires some privileges on the database,
-        or some error will be raised.
+        Some tables and indices are created when ``cliquet migrate`` is run.
+        This requires some privileges on the database, or some error will
+        be raised.
 
         **Alternatively**, the schema can be initialized outside the
-        application starting process, using the SQL file located in
+        python application, using the SQL file located in
         :file:`cliquet/storage/postgresql/schema.sql`. This allows to
         distinguish schema manipulation privileges from schema usage.
 
@@ -123,6 +123,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     """
 
+    schema_version = 2
+
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')
         super(PostgreSQL, self).__init__(*args, **kwargs)
@@ -135,27 +137,43 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     def _execute_sql_file(self, filepath):
         here = os.path.abspath(os.path.dirname(__file__))
-        schema = open(os.path.join(here, 'schema.sql')).read()
+        schema = open(os.path.join(here, filepath)).read()
         with self.connect() as cursor:
             cursor.execute(schema)
 
     def initialize_schema(self):
-        """Create PostgreSQL tables, only if not exists.
+        """Create PostgreSQL tables, and run necessary schema migrations.
 
         :note:
             Relies on JSON fields, available in recent versions of PostgreSQL.
         """
         version = self._get_installed_version()
-        if version:
-            logger.debug('Detected PostgreSQL storage tables')
+        if not version:
+            # Create full schema.
+            self._check_database_encoding()
+            self._check_database_timezone()
+            # Create full schema.
+            self._execute_sql_file('schema.sql')
+            logger.info('Created PostgreSQL storage tables.')
             return
 
-        # Check database config.
-        self._check_database_encoding()
-        self._check_database_timezone()
-        # Create full schema.
-        self._execute_sql_file('schema.sql')
-        logger.info('Created PostgreSQL storage tables.')
+        logger.debug('Detected PostgreSQL schema version %s.' % version)
+        migrations = [(v, v + 1) for v in range(version, self.schema_version)]
+        if not migrations:
+            logger.info('Schema is up-to-date.')
+
+        for migration in migrations:
+            # Check order of migrations.
+            expected = migration[0]
+            current = self._get_installed_version()
+            error_msg = "Expected version %s. Found version %s."
+            assert expected == current, error_msg % (expected, current)
+
+            logger.info('Migrate schema from version %s to %s.' % migration)
+            filepath = 'migration_%03d_%03d.sql' % migration
+            self._execute_sql_file(os.path.join('migrations', filepath))
+
+        logger.info('Schema migration done.')
 
     def _check_database_timezone(self):
         # Make sure database has UTC timezone.
@@ -181,13 +199,29 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         assert encoding == 'utf8', 'Unexpected database encoding %s' % encoding
 
     def _get_installed_version(self):
-        query = "SELECT * FROM pg_tables WHERE tablename = 'records';"
+        """Return current version of schema or None if not any found.
+        """
+        query = "SELECT tablename FROM pg_tables WHERE tablename = 'metadata';"
         with self.connect() as cursor:
             cursor.execute(query)
             tables_exist = cursor.rowcount > 0
 
-        if tables_exist:
-            return 1
+        if not tables_exist:
+            return
+
+        query = """
+        SELECT value AS version
+          FROM metadata
+         WHERE name = 'storage_schema_version'
+         ORDER BY value DESC;
+        """
+        with self.connect() as cursor:
+            cursor.execute(query)
+            if cursor.rowcount > 0:
+                return int(cursor.fetchone()['version'])
+            else:
+                # In the first versions of cliquet, there was no migration.
+                return 1
 
     def flush(self):
         """Delete records from tables without destroying schema. Mainly used
