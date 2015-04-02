@@ -90,6 +90,27 @@ class InitializationTest(unittest.TestCase):
             mocked.assert_called_with(msg, DeprecationWarning)
 
 
+class ApplicationWrapperTest(unittest.TestCase):
+
+    @mock.patch('cliquet.newrelic.agent')
+    def test_newrelic_is_included_if_defined(self, mocked_newrelic):
+        settings = {
+            'cliquet.newrelic_config': '/foo/bar.ini',
+            'cliquet.newrelic_env': 'test'
+        }
+        mocked_newrelic.WSGIApplicationWrapper.return_value = 'wrappedApp'
+        app = cliquet.install_middlewares(mock.sentinel.app, settings)
+        mocked_newrelic.initialize.assert_called_with('/foo/bar.ini', 'test')
+        self.assertEquals(app, 'wrappedApp')
+
+    @mock.patch('cliquet.newrelic.agent')
+    def test_newrelic_is_not_included_by_default(self, mocked_newrelic):
+        settings = {}
+        app = cliquet.install_middlewares(mock.sentinel.app, settings)
+        mocked_newrelic.initialize.assert_not_called()
+        self.assertEquals(app, mock.sentinel.app)
+
+
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
         settings = cliquet.DEFAULT_SETTINGS.copy()

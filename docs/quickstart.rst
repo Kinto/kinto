@@ -35,7 +35,6 @@ just add some extra initialization code:
         config = Configurator(settings=settings)
 
         cliquet.initialize(config, __version__)
-
         return config.make_wsgi_app()
 
 

@@ -9,6 +9,11 @@ import requests
 import structlog
 import webob
 
+try:
+    import newrelic.agent
+except ImportError:
+    pass  # NOQA
+
 from cornice import Service
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
@@ -54,6 +59,8 @@ DEFAULT_SETTINGS = {
     'cliquet.http_scheme': None,
     'cliquet.http_host': None,
     'cliquet.logging_renderer': 'cliquet.logs.ClassicLogRenderer',
+    'cliquet.newrelic_config': None,
+    'cliquet.newrelic_env': 'dev',
     'cliquet.paginate_by': None,
     'cliquet.project_docs': '',
     'cliquet.project_name': '',
@@ -316,3 +323,16 @@ def initialize(config, version=None, project_name=None):
     # Include cliquet views with the correct api version prefix.
     config.include("cliquet", route_prefix=api_version)
     config.route_prefix = api_version
+
+
+def install_middlewares(app, settings):
+    "Install a set of middlewares defined in the ini file on the given app."
+
+    # Setup new-relic.
+    if settings.get('cliquet.newrelic_config', False):
+        ini_file = settings['cliquet.newrelic_config']
+        env = settings['cliquet.newrelic_env']
+        newrelic.agent.initialize(ini_file, env)
+        app = newrelic.agent.WSGIApplicationWrapper(app)
+
+    return app

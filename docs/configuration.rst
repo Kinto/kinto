@@ -129,7 +129,8 @@ With the following configuration, all logs are redirected to standard output
 Handling exceptions with Sentry
 :::::::::::::::::::::::::::::::
 
-Requires the ``raven`` package, or *cliquet* installed with ``pip install cliquet[monitoring]``.
+Requires the ``raven`` package, or *cliquet* installed with
+``pip install cliquet[monitoring]``.
 
 Sentry logging can be enabled, `as explained in official documentation <http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
 
@@ -141,7 +142,8 @@ Sentry logging can be enabled, `as explained in official documentation <http://r
 Monitoring with StatsD
 ::::::::::::::::::::::
 
-Requires the ``statsd`` package, or *cliquet* installed with ``pip install cliquet[monitoring]``.
+Requires the ``statsd`` package, or *cliquet* installed with
+``pip install cliquet[monitoring]``.
 
 StatsD metrics can be enabled (disabled by default):
 
@@ -150,6 +152,30 @@ StatsD metrics can be enabled (disabled by default):
     cliquet.statsd_url = udp://localhost:8125
     # cliquet.statsd_prefix = cliquet.project_name
 
+Monitoring with New Relic
+:::::::::::::::::::::::::
+
+Requires the ``newrelic`` package, or *cliquet* installed with
+``pip install cliquet[monitoring]``.
+
+New-Relic can be enabled (disabled by default):
+
+.. code-block :: ini
+
+    cliquet.newrelic_config = /location/of/newrelic.ini
+    cliquet.newrelic_env = prod
+
+This also requires your wsgi application to be wrapped by cliquet.
+In your project ``main`` function:
+
+.. code-block :: python
+  :emphasize-lines: 4,5
+
+  def main(global_config, **settings):
+      config = Configurator(settings=settings)
+      cliquet.initialize(config, __version__)
+      app = config.make_wsgi_app()
+      return cliquet.install_middlewares(app)
 
 Storage
 =======
