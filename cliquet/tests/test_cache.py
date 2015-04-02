@@ -86,14 +86,14 @@ class BaseTestCache(object):
 
     def test_expire_expires_the_value(self):
         self.cache.set('foobar', 'toto')
-        self.cache.expire('foobar', 0.05)
-        time.sleep(0.1)
+        self.cache.expire('foobar', 0.01)
+        time.sleep(0.02)
         retrieved = self.cache.get('foobar')
         self.assertIsNone(retrieved)
 
     def test_set_with_ttl_expires_the_value(self):
-        self.cache.set('foobar', 'toto', 0.05)
-        time.sleep(0.1)
+        self.cache.set('foobar', 'toto', 0.01)
+        time.sleep(0.02)
         retrieved = self.cache.get('foobar')
         self.assertIsNone(retrieved)
 

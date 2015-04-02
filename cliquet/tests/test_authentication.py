@@ -62,7 +62,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 class TokenVerificationCacheTest(unittest.TestCase):
     def setUp(self):
         cache = memory_backend.Memory()
-        self.cache = authentication.TokenVerificationCache(cache, 0.05)
+        self.cache = authentication.TokenVerificationCache(cache, 0.01)
 
     def test_set_adds_the_record(self):
         stored = 'toto'
@@ -78,7 +78,7 @@ class TokenVerificationCacheTest(unittest.TestCase):
 
     def test_set_expires_the_value(self):
         self.cache.set('foobar', 'toto')
-        time.sleep(0.1)
+        time.sleep(0.02)
         retrieved = self.cache.get('foobar')
         self.assertIsNone(retrieved)
 
