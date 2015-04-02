@@ -47,3 +47,9 @@ class HeartBeatViewTest(BaseWebTest, unittest.TestCase):
             mock_instance.side_effect = requests.exceptions.HTTPError()
         response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['oauth'], False)
+
+    def test_returns_oauth_none_if_oauth_deactivated(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('fxa-oauth.oauth_uri', None)]):
+            response = self.app.get('/__heartbeat__', status=200)
+            self.assertEqual(response.json['oauth'], None)
