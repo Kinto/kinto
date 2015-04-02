@@ -57,9 +57,6 @@ class MemoryBasedStorage(StorageBase):
         record[resource.modified_field] = timestamp
         return record
 
-    def _bump_timestamp(self, resource, user_id):
-        raise NotImplementedError
-
     def check_unicity(self, resource, user_id, record):
         """Check that the specified record does not violates unicity
         constraints defined in the resource's mapping options.

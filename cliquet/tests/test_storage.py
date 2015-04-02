@@ -334,6 +334,11 @@ class FieldsUnicityTest(object):
         user_id = user_id or self.user_id
         return self.storage.create(self.resource, user_id, record)
 
+    def test_does_not_fail_if_no_unique_fields_at_all(self):
+        self.resource.mapping.Options.unique_fields = tuple()
+        self.create_record()
+        self.create_record()
+
     def test_cannot_insert_duplicate_field(self):
         self.create_record()
         self.assertRaises(exceptions.UnicityError,
@@ -491,6 +496,14 @@ class DeletedRecordsTest(object):
         self.storage.delete_all(self.resource, self.user_id)
         _, count = self.storage.get_all(self.resource, self.user_id)
         self.assertEqual(count, 0)
+
+    def test_delete_all_can_delete_partially(self):
+        self.storage.create(self.resource, self.user_id, {'foo': 'bar'})
+        self.storage.create(self.resource, self.user_id, {'bar': 'baz'})
+        filters = [Filter('foo', 'bar', utils.COMPARISON.EQ)]
+        self.storage.delete_all(self.resource, self.user_id, filters)
+        _, count = self.storage.get_all(self.resource, self.user_id)
+        self.assertEqual(count, 1)
 
     #
     # Sorting
@@ -811,17 +824,6 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             message, = mocked.call_args[0]
             self.assertEqual(message, "Detected PostgreSQL storage tables")
 
-    def test_warns_if_database_is_not_utc(self):
-        with self.storage.connect() as cursor:
-            cursor.execute("ALTER ROLE postgres SET TIME ZONE 'Europe/Paris';")
-
-        with mock.patch('cliquet.storage.postgresql.warnings.warn') as mocked:
-            self.backend.load_from_config(self._get_config())
-            mocked.assert_called()
-
-        with self.storage.connect() as cursor:
-            cursor.execute("ALTER ROLE postgres SET TIME ZONE 'UTC';")
-
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
         for i in range(4):
             self.create_record({'phone': 'tel-%s' % i})
@@ -879,9 +881,10 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         self.backend.load_from_config(self._get_config())
         settings = self.settings.copy()
         settings['cliquet.storage_pool_size'] = 1
+        msg = 'Pool size 1 ignored for PostgreSQL backend (Already set to 10).'
         with mock.patch('cliquet.storage.postgresql.warnings.warn') as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
-            mocked.assert_called()
+            mocked.assert_called_with(msg)
 
 
 class CloudStorageTest(StorageTest, unittest.TestCase):

@@ -44,8 +44,8 @@ class PostgreSQLClient(object):
         with self.connect(readonly=True) as cursor:
             cursor.execute("SELECT current_setting('fsync');")
             fsync = cursor.fetchone()[0]
-            if fsync == 'off':
-                logger.warn('Option fsync = off detected. Disable pooling.')
+            if fsync == 'off':  # pragma: no cover
+                warnings.warn('Option fsync = off detected. Disable pooling.')
                 self._always_close = True
 
     @contextlib.contextmanager
@@ -164,7 +164,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             cursor.execute(query)
             result = cursor.fetchone()
         timezone = result['timezone'].upper()
-        if timezone != 'UTC':
+        if timezone != 'UTC':  # pragma: no cover
             warnings.warn('Database timezone is not UTC (%s)' % timezone)
 
     def _check_database_encoding(self):
@@ -364,7 +364,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         if filters:
             safe_sql, holders = self._format_conditions(resource, filters)
-            safeholders['conditions_filter'] = safe_sql
+            safeholders['conditions_filter'] = 'AND %s' % safe_sql
             placeholders.update(**holders)
 
         with self.connect() as cursor:

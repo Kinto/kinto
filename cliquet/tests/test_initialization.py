@@ -37,7 +37,8 @@ class InitializationTest(unittest.TestCase):
         config = Configurator(settings={'cliquet.project_name': ''})
         with mock.patch('cliquet.warnings.warn') as mocked:
             cliquet.initialize(config, '0.0.1')
-            mocked.assert_called()
+            error_msg = 'No value specified for `project_name`'
+            mocked.assert_called_with(error_msg)
 
     def test_warns_if_project_name_is_missing(self):
         config = Configurator()
@@ -76,13 +77,17 @@ class InitializationTest(unittest.TestCase):
         config = Configurator(settings={'cliquet.cache_pool_maxconn': '1'})
         with mock.patch('cliquet.warnings.warn') as mocked:
             cliquet.initialize(config, '0.0.1')
-            mocked.assert_called()
+            msg = ("'cliquet.cache_pool_maxconn' setting is deprecated. "
+                   "Use 'cliquet.cache_pool_size' instead.")
+            mocked.assert_called_with(msg, DeprecationWarning)
 
     def test_initialize_cliquet_is_deprecated(self):
         config = Configurator()
         with mock.patch('cliquet.warnings.warn') as mocked:
             cliquet.initialize_cliquet(config, '0.0.1', 'name')
-            mocked.assert_called()
+            msg = ('cliquet.initialize_cliquet is now deprecated. '
+                   'Please use "cliquet.initialize" instead')
+            mocked.assert_called_with(msg, DeprecationWarning)
 
 
 class StatsDConfigurationTest(unittest.TestCase):

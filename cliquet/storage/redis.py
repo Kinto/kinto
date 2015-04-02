@@ -52,8 +52,6 @@ class Redis(MemoryBasedStorage):
         return utils.json.dumps(record)
 
     def _decode(self, record):
-        if record is None:
-            return record
         return utils.json.loads(record.decode('utf-8'))
 
     @wrap_redis_error

@@ -107,6 +107,11 @@ class BasicAuthenticationPolicyTest(unittest.TestCase):
         user_id2 = self.policy.unauthenticated_userid(self.request)
         self.assertNotEqual(user_id1, user_id2)
 
+    def test_returns_none_if_username_is_empty(self):
+        self.request.headers['Authorization'] = 'Basic Og=='
+        user_id = self.policy.unauthenticated_userid(self.request)
+        self.assertIsNone(user_id)
+
 
 class Oauth2AuthenticationPolicyTest(unittest.TestCase):
     def setUp(self):

@@ -23,7 +23,7 @@ class LoggingSetupTest(BaseWebTest, unittest.TestCase):
         classiclog_class = mock.patch('cliquet.logs.ClassicLogRenderer')
         with classiclog_class as mocked:
             cliquet_logs.setup_logging(config)
-            mocked.assert_called()
+            mocked.assert_called_with(DEFAULT_SETTINGS)
 
     def test_mozlog_logger_is_enabled_via_setting(self):
         mozlog_class = mock.patch('cliquet.logs.MozillaHekaRenderer')

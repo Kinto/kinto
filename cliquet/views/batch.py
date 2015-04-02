@@ -151,7 +151,7 @@ def build_request(original, dict_obj):
         headers['Content-Type'] = 'application/json; charset=utf-8'
         payload = json.dumps(payload)
 
-    if six.PY3:
+    if six.PY3:  # pragma: no cover
         path = path.decode('latin-1')
 
     request = Request.blank(path=path,
@@ -176,7 +176,7 @@ def build_response(response, request):
 
     body = ''
     if request.method != 'HEAD':
-        # XXX : Pyramid should not have built response body!
+        # XXX : Pyramid should not have built response body for HEAD!
         try:
             body = response.json
         except ValueError:

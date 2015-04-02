@@ -17,6 +17,7 @@ class CacheBaseTest(unittest.TestCase):
 
     def test_mandatory_overrides(self):
         calls = [
+            (self.cache.initialize_schema,),
             (self.cache.flush,),
             (self.cache.ping,),
             (self.cache.ttl, ''),
@@ -102,6 +103,10 @@ class BaseTestCache(object):
         ttl = self.cache.ttl('foobar')
         self.assertGreater(ttl, 0)
         self.assertLessEqual(ttl, 10)
+
+    def test_ttl_return_none_if_unknown(self):
+        ttl = self.cache.ttl('unknown')
+        self.assertTrue(ttl < 0)
 
 
 class MemoryCacheTest(BaseTestCache, unittest.TestCase):
