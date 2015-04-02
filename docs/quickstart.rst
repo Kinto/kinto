@@ -36,7 +36,7 @@ just add some extra initialization code:
 
         cliquet.initialize(config, __version__)
         app = config.make_wsgi_app()
-        return cliquet.wrap_app(app)
+        return cliquet.install_middlewares(app)
 
 
 By doing that, basic endpoints are now available, as defined in

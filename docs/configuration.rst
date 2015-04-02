@@ -175,7 +175,7 @@ In your project ``main`` function:
       config = Configurator(settings=settings)
       cliquet.initialize(config, __version__)
       app = config.make_wsgi_app()
-      return cliquet.wrap_app(app)
+      return cliquet.install_middlewares(app)
 
 Storage
 =======

@@ -323,8 +323,8 @@ def initialize(config, version=None, project_name=None):
     config.route_prefix = api_version
 
 
-def wrap_app(app, settings):
-    "Wraps the passed wsgi application with wsgi middlewares."
+def install_middlewares(app, settings):
+    "Install a set of middlewares defined in the ini file on the given app."
 
     # Setup new-relic.
     if settings.get('cliquet.newrelic_config', False):
