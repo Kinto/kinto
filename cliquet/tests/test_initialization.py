@@ -104,11 +104,34 @@ class ApplicationWrapperTest(unittest.TestCase):
         self.assertEquals(app, 'wrappedApp')
 
     @mock.patch('cliquet.newrelic.agent')
-    def test_newrelic_is_not_included_by_default(self, mocked_newrelic):
-        settings = {}
+    def test_newrelic_is_not_included_if_set_to_false(self, mocked_newrelic):
+        settings = {'cliquet.newrelic_config': False}
         app = cliquet.install_middlewares(mock.sentinel.app, settings)
         mocked_newrelic.initialize.assert_not_called()
         self.assertEquals(app, mock.sentinel.app)
+
+    @mock.patch('cliquet.ProfilerMiddleware')
+    def test_profiler_is_not_installed_if_set_to_false(self, mocked_profiler):
+        settings = {'cliquet.profiler_enabled': False}
+        app = cliquet.install_middlewares(mock.sentinel.app, settings)
+        mocked_profiler.initialize.assert_not_called()
+        self.assertEquals(app, mock.sentinel.app)
+
+    @mock.patch('cliquet.ProfilerMiddleware')
+    def test_profiler_is_installed_if_set_to_true(self, mocked_profiler):
+        settings = {
+            'cliquet.profiler_enabled': True,
+            'cliquet.profiler_dir': '/tmp/path'
+        }
+        mocked_profiler.return_value = 'wrappedApp'
+        app = cliquet.install_middlewares(mock.sentinel.app, settings)
+
+        mocked_profiler.assert_called_with(
+            mock.sentinel.app,
+            restrictions='*cliquet*',
+            profile_dir=('/tmp/path',))
+
+        self.assertEquals(app, 'wrappedApp')
 
 
 class StatsDConfigurationTest(unittest.TestCase):

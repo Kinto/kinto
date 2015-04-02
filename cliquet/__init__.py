@@ -14,6 +14,12 @@ try:
 except ImportError:
     pass  # NOQA
 
+try:
+    from werkzeug.contrib.profiler import ProfilerMiddleware
+except ImportError:
+    pass  # NOQA
+
+
 from cornice import Service
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
@@ -41,41 +47,43 @@ API_VERSION = 'v%s' % __version__.split('.')[0]
 
 
 DEFAULT_SETTINGS = {
-    'fxa-oauth.cache_ttl_seconds': 5 * 60,
-    'fxa-oauth.client_id': None,
-    'fxa-oauth.client_secret': None,
-    'fxa-oauth.oauth_uri': None,
-    'fxa-oauth.scope': 'profile',
-    'fxa-oauth.state.ttl_seconds': 3600,  # 1 hour
-    'fxa-oauth.webapp.authorized_domains': '',
-    'fxa-oauth.relier.enabled': True,
     'cliquet.backoff': None,
     'cliquet.basic_auth_enabled': False,
     'cliquet.batch_max_requests': 25,
+    'cliquet.cache_backend': 'cliquet.cache.redis',
+    'cliquet.cache_pool_size': 10,
+    'cliquet.cache_url': '',
     'cliquet.delete_collection_enabled': True,
     'cliquet.eos': None,
     'cliquet.eos_message': None,
     'cliquet.eos_url': None,
-    'cliquet.http_scheme': None,
     'cliquet.http_host': None,
+    'cliquet.http_scheme': None,
     'cliquet.logging_renderer': 'cliquet.logs.ClassicLogRenderer',
     'cliquet.newrelic_config': None,
     'cliquet.newrelic_env': 'dev',
     'cliquet.paginate_by': None,
+    'cliquet.profiler_dir': '/tmp',
+    'cliquet.profiler_enabled': False,
     'cliquet.project_docs': '',
     'cliquet.project_name': '',
     'cliquet.project_version': '',
     'cliquet.retry_after_seconds': 30,
-    'cliquet.cache_backend': 'cliquet.cache.redis',
-    'cliquet.cache_url': '',
-    'cliquet.cache_pool_size': 10,
-    'cliquet.storage_backend': 'cliquet.storage.redis',
-    'cliquet.storage_url': '',
-    'cliquet.storage_pool_size': 10,
-    'cliquet.storage_max_fetch_size': 10000,
-    'cliquet.userid_hmac_secret': '',
+    'cliquet.statsd_prefix': 'cliquet',
     'cliquet.statsd_url': None,
-    'cliquet.statsd_prefix': 'cliquet'
+    'cliquet.storage_backend': 'cliquet.storage.redis',
+    'cliquet.storage_max_fetch_size': 10000,
+    'cliquet.storage_pool_size': 10,
+    'cliquet.storage_url': '',
+    'cliquet.userid_hmac_secret': '',
+    'fxa-oauth.cache_ttl_seconds': 5 * 60,
+    'fxa-oauth.client_id': None,
+    'fxa-oauth.client_secret': None,
+    'fxa-oauth.oauth_uri': None,
+    'fxa-oauth.relier.enabled': True,
+    'fxa-oauth.scope': 'profile',
+    'fxa-oauth.state.ttl_seconds': 3600,  # 1 hour
+    'fxa-oauth.webapp.authorized_domains': '',
 }
 
 
@@ -329,10 +337,16 @@ def install_middlewares(app, settings):
     "Install a set of middlewares defined in the ini file on the given app."
 
     # Setup new-relic.
-    if settings.get('cliquet.newrelic_config', False):
+    if settings.get('cliquet.newrelic_config'):
         ini_file = settings['cliquet.newrelic_config']
         env = settings['cliquet.newrelic_env']
         newrelic.agent.initialize(ini_file, env)
         app = newrelic.agent.WSGIApplicationWrapper(app)
+
+    # Adds the Werkzeug profiler.
+    if asbool(settings.get('cliquet.profiler_enabled')):
+        profile_dir = settings['cliquet.profiler_dir'],
+        app = ProfilerMiddleware(app, profile_dir=profile_dir,
+                                 restrictions=('*cliquet*'))
 
     return app
