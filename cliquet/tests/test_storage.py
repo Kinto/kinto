@@ -14,7 +14,7 @@ from cliquet.storage import (
     Sort, StorageBase
 )
 
-from .support import unittest, ThreadMixin, DummyRequest
+from .support import unittest, ThreadMixin, DummyRequest, skip_if_travis
 
 RECORD_ID = '472be9ec-26fe-461b-8282-9c4e4b207ab3'
 
@@ -267,6 +267,7 @@ class TimestampsTest(object):
         after = self.storage.collection_timestamp(self.resource, self.user_id)
         self.assertTrue(before < after)
 
+    @skip_if_travis
     def test_timestamps_are_unique(self):
         obtained = []
 
