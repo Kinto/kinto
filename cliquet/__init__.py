@@ -11,13 +11,13 @@ import webob
 
 try:
     import newrelic.agent
-except ImportError:
-    pass  # NOQA
+except ImportError:  # pragma: no cover
+    pass
 
 try:
     from werkzeug.contrib.profiler import ProfilerMiddleware
-except ImportError:
-    pass  # NOQA
+except ImportError:  # pragma: no cover
+    pass
 
 
 from cornice import Service
