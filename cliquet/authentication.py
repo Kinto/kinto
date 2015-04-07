@@ -29,9 +29,6 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
     def unauthenticated_userid(self, request):
         settings = request.registry.settings
-        is_enabled = settings['cliquet.basic_auth_enabled']
-        if not is_enabled:
-            return
 
         credentials = self._get_credentials(request)
         if credentials:

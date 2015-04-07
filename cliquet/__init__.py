@@ -145,10 +145,12 @@ def handle_api_redirection(config):
 def set_auth(config):
     """Define the authentication and authorization policies.
     """
-    policies = [
-        authentication.Oauth2AuthenticationPolicy(config),
-        authentication.BasicAuthAuthenticationPolicy(),
-    ]
+    settings = config.get_settings()
+    policies = [authentication.Oauth2AuthenticationPolicy(config), ]
+    basic_auth_enabled = asbool(settings['cliquet.basic_auth_enabled'])
+    if basic_auth_enabled:
+        policies.append(authentication.BasicAuthAuthenticationPolicy())
+
     authn_policy = MultiAuthenticationPolicy(policies)
     authz_policy = authentication.AuthorizationPolicy()
 
