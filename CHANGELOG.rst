@@ -6,7 +6,9 @@ This document describes changes between each past release.
 1.6.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix crash in DELETE on collection with PostgreSQL backend
 
 
 1.6.0 (2015-03-30)
