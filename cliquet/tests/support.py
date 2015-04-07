@@ -89,12 +89,15 @@ class BaseWebTest(FakeAuthentMixin):
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.app = webtest.TestApp(testapp(self.get_app_settings()))
+        self.app = self._get_test_app()
         self.app.RequestClass = get_request_class(self.api_prefix)
         self.db = self.app.app.registry.storage
         self.headers.update({
             'Content-Type': 'application/json',
         })
+
+    def _get_test_app(self):
+        return webtest.TestApp(testapp(self.get_app_settings()))
 
     def get_app_settings(self):
         settings = DEFAULT_SETTINGS.copy()
