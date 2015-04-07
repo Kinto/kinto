@@ -31,9 +31,12 @@ CREATE TABLE IF NOT EXISTS records (
     user_id VARCHAR(256) NOT NULL,
     resource_name  VARCHAR(256) NOT NULL,
     last_modified TIMESTAMP NOT NULL,
-    data JSON NOT NULL DEFAULT '{}',
-    UNIQUE (id, user_id, resource_name, last_modified)
+    data JSON NOT NULL DEFAULT '{}'
 );
+
+DROP INDEX IF EXISTS idx_records_user_id_resource_name_last_modified;
+CREATE UNIQUE INDEX idx_records_user_id_resource_name_last_modified
+    ON records(user_id, resource_name, last_modified DESC);
 DROP INDEX IF EXISTS idx_records_user_id;
 CREATE INDEX idx_records_user_id ON records(user_id);
 DROP INDEX IF EXISTS idx_records_resource_name;
@@ -53,9 +56,11 @@ CREATE TABLE IF NOT EXISTS deleted (
     id UUID,
     user_id VARCHAR(256) NOT NULL,
     resource_name  VARCHAR(256) NOT NULL,
-    last_modified TIMESTAMP NOT NULL,
-    UNIQUE (id, user_id, resource_name, last_modified)
+    last_modified TIMESTAMP NOT NULL
 );
+DROP INDEX IF EXISTS idx_records_user_id_resource_name_last_modified;
+CREATE UNIQUE INDEX idx_records_user_id_resource_name_last_modified
+    ON records(user_id, resource_name, last_modified DESC);
 DROP INDEX IF EXISTS idx_deleted_id;
 CREATE UNIQUE INDEX idx_deleted_id ON deleted(id);
 DROP INDEX IF EXISTS idx_deleted_user_id;
@@ -76,15 +81,17 @@ DECLARE
     ts_records TIMESTAMP;
     ts_deleted TIMESTAMP;
 BEGIN
-    SELECT MAX(last_modified) INTO ts_records
+    SELECT last_modified INTO ts_records
       FROM records
      WHERE user_id = uid
-       AND resource_name = resource;
+       AND resource_name = resource
+     ORDER BY last_modified DESC LIMIT 1;
 
-    SELECT MAX(last_modified) INTO ts_deleted
+    SELECT last_modified INTO ts_deleted
       FROM deleted
      WHERE user_id = uid
-       AND resource_name = resource;
+       AND resource_name = resource
+     ORDER BY last_modified DESC LIMIT 1;
 
     -- Latest of records/deleted or current if empty
     RETURN coalesce(greatest(ts_deleted, ts_records), localtimestamp);
@@ -127,4 +134,4 @@ FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
 
 -- Set storage schema version.
 -- Should match ``cliquet.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '2');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '3');
