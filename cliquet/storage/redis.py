@@ -89,9 +89,10 @@ class Redis(MemoryBasedStorage):
                     pipe.set(key, current)
                     pipe.execute()
                     return current
-                except redis.WatchError:
+                except redis.WatchError:  # pragma: no cover
                     # Our timestamp has been modified by someone else, let's
-                    # retry
+                    # retry.
+                    # XXX: untested.
                     continue
 
     @wrap_redis_error

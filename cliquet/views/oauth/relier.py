@@ -33,7 +33,7 @@ def persist_state(request):
     """
     state = uuid.uuid4().hex
     redirect_url = request.validated['redirect']
-    expiration = int(fxa_conf(request, 'cache_ttl_seconds'))
+    expiration = float(fxa_conf(request, 'cache_ttl_seconds'))
     request.cache.set(state, redirect_url, expiration)
     return state
 

@@ -28,7 +28,7 @@ $(PYTHON):
 	$(VIRTUALENV) $(VENV)
 
 tests-once: install-dev need-kinto-running
-	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-package=cliquet
+	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-min-percentage=100 --cover-package=cliquet
 
 tests: need-kinto-running
 	tox

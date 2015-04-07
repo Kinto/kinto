@@ -6,26 +6,34 @@ from .support import BaseWebTest, unittest
 
 class HeartBeatViewTest(BaseWebTest, unittest.TestCase):
 
-    def test_returns_database_true_if_ok(self):
+    @mock.patch('cliquet.views.heartbeat.fxa_ping')
+    def test_returns_database_true_if_ok(self, *mocked):
         response = self.app.get('/__heartbeat__')
         self.assertEqual(response.json['database'], True)
 
-    def test_returns_cache_true_if_ok(self):
+    @mock.patch('cliquet.views.heartbeat.fxa_ping')
+    def test_returns_cache_true_if_ok(self, *mocked):
         response = self.app.get('/__heartbeat__')
         self.assertEqual(response.json['cache'], True)
 
-    def test_returns_oauth_true_if_ok(self):
+    @mock.patch('requests.get')
+    def test_returns_oauth_true_if_ok(self, get_mocked):
+        response = requests.models.Response()
+        response.status_code = 200
+        get_mocked.return_value = response
         response = self.app.get('/__heartbeat__')
         self.assertEqual(response.json['oauth'], True)
 
-    @mock.patch('cliquet.storage.memory.Memory.ping')
+    @mock.patch('cliquet.views.heartbeat.fxa_ping')
     @mock.patch('cliquet.storage.redis.Redis.ping')
+    @mock.patch('cliquet.storage.memory.Memory.ping')
     def test_returns_database_false_if_ko(self, *mocked):
         for mock_instance in mocked:
             mock_instance.return_value = False
         response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['database'], False)
 
+    @mock.patch('cliquet.views.heartbeat.fxa_ping')
     @mock.patch('cliquet.cache.redis.Redis.ping')
     def test_returns_cache_false_if_ko(self, *mocked):
         for mock_instance in mocked:
@@ -39,3 +47,9 @@ class HeartBeatViewTest(BaseWebTest, unittest.TestCase):
             mock_instance.side_effect = requests.exceptions.HTTPError()
         response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['oauth'], False)
+
+    def test_returns_oauth_none_if_oauth_deactivated(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('fxa-oauth.oauth_uri', None)]):
+            response = self.app.get('/__heartbeat__', status=200)
+            self.assertEqual(response.json['oauth'], None)

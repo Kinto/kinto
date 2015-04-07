@@ -16,7 +16,11 @@ def logger_context():
     return cliquet_logs.logger._context._dict
 
 
-class LoggingSetupTest(BaseWebTest, unittest.TestCase):
+class LoggingSetupTest(unittest.TestCase):
+    def tearDown(self):
+        super(LoggingSetupTest, self).tearDown()
+        cliquet_logs.structlog.reset_defaults()
+
     def test_classic_logger_is_used_by_default(self):
         config = testing.setUp()
         config.registry.settings = DEFAULT_SETTINGS
@@ -150,6 +154,16 @@ class MozillaHekaRendererTest(unittest.TestCase):
 
 
 class RequestSummaryTest(BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super(RequestSummaryTest, self).setUp()
+        config = testing.setUp()
+        config.registry.settings = DEFAULT_SETTINGS
+        cliquet_logs.setup_logging(config)
+
+    def tearDown(self):
+        super(RequestSummaryTest, self).tearDown()
+        cliquet_logs.structlog.reset_defaults()
+
     def test_request_summary_is_sent_as_info(self):
         with mock.patch('cliquet.logs.logger.info') as mocked:
             self.app.get('/')
@@ -231,6 +245,16 @@ class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
 
 
 class ResourceInfoTest(BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super(ResourceInfoTest, self).setUp()
+        config = testing.setUp()
+        config.registry.settings = DEFAULT_SETTINGS
+        cliquet_logs.setup_logging(config)
+
+    def tearDown(self):
+        super(ResourceInfoTest, self).tearDown()
+        cliquet_logs.structlog.reset_defaults()
+
     def test_resource_name_is_bound(self):
         self.app.get('/mushrooms', headers=self.headers)
         event_dict = logger_context()

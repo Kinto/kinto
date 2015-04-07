@@ -16,7 +16,7 @@ def get_heartbeat(request):
 
     status = dict(database=database, cache=cache, oauth=oauth)
 
-    has_error = not all([v for v in status.values()])
+    has_error = not all([v or v is None for v in status.values()])
     if has_error:
         request.response.status = 503
 
