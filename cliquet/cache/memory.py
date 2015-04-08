@@ -22,9 +22,6 @@ class Memory(CacheBase):
         self._ttl = {}
         self._store = {}
 
-    def ping(self):
-        return True
-
     def ttl(self, key):
         ttl = self._ttl.get(key)
         if ttl is not None:
@@ -48,7 +45,7 @@ class Memory(CacheBase):
 
     def delete(self, key):
         self._ttl.pop(key, None)
-        self._store.pop(key)
+        self._store.pop(key, None)
 
 
 def load_from_config(config):

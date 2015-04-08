@@ -65,13 +65,6 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
             cursor.execute(query)
         logger.debug('Flushed PostgreSQL cache tables')
 
-    def ping(self):
-        try:
-            self.set('heartbeat', True)
-            return True
-        except:
-            return False
-
     def ttl(self, key):
         query = """
         SELECT EXTRACT(SECOND FROM (ttl - now())) AS ttl

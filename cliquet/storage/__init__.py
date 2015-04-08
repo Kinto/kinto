@@ -1,3 +1,4 @@
+import random
 from collections import namedtuple
 
 
@@ -6,6 +7,11 @@ Filter = namedtuple('Filter', ['field', 'value', 'operator'])
 
 Sort = namedtuple('Sort', ['field', 'direction'])
 """Sorting properties."""
+
+
+_HEARTBEAT_DELETE_RATE = 0.6
+_HEARTBEAT_USER_ID = '__heartbeat__'
+_HEARTBEAT_RECORD = {'__heartbeat__': True}
 
 
 class StorageBase(object):
@@ -34,13 +40,25 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
-    def ping(self):
+    def ping(self, request):
         """Test that storage is operationnal.
 
+        :param key: current request object
+        :type key: pyramid.request.Request
         :returns: `True` is everything is ok, `False` otherwise.
         :rtype: boolean
         """
-        raise NotImplementedError
+        from cliquet.resource import BaseResource
+
+        resource = BaseResource(request)
+        try:
+            if random.random() < _HEARTBEAT_DELETE_RATE:
+                self.delete_all(resource, _HEARTBEAT_USER_ID)
+            else:
+                self.create(resource, _HEARTBEAT_USER_ID, _HEARTBEAT_RECORD)
+            return True
+        except:
+            return False
 
     def collection_timestamp(self, resource, user_id):
         """Get the highest timestamp of every records in this resource for

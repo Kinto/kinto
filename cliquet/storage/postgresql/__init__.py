@@ -236,24 +236,6 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             cursor.execute(query)
         logger.debug('Flushed PostgreSQL storage tables')
 
-    def ping(self):
-        query = """
-        WITH upsert AS (
-            UPDATE metadata SET value = NOW()::TEXT
-            WHERE name = 'last_heartbeat'
-            RETURNING *
-        )
-        INSERT INTO metadata (name, value)
-          SELECT 'last_heartbeat', NOW()::TEXT
-           WHERE NOT EXISTS (SELECT * FROM upsert);
-        """
-        try:
-            with self.connect() as cursor:
-                cursor.execute(query)
-            return True
-        except:
-            return False
-
     def collection_timestamp(self, resource, user_id):
         query = """
         SELECT as_epoch(resource_timestamp(%(user_id)s, %(resource_name)s))
