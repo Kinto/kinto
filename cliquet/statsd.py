@@ -26,6 +26,12 @@ class Client(object):
     def timer(self, key):
         return self._client.timer(key)
 
+    def count(self, key, unique=None):
+        if unique is None:
+            return self._client.incr(key, count=1)
+        else:
+            return self._client.set(key, unique)
+
 
 def load_from_config(config):
     settings = config.get_settings()

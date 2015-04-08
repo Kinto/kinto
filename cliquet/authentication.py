@@ -11,8 +11,6 @@ from pyramid.security import Authenticated
 from six.moves.urllib.parse import urljoin
 from zope.interface import implementer
 
-from cliquet import logger
-
 
 class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
     """Basic auth implementation.
@@ -36,14 +34,15 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
             if not username:
                 return
 
+            # Trace authentication type.
+            request.auth_type = 'Basic'
+
             hmac_secret = settings['cliquet.userid_hmac_secret']
             credentials = '%s:%s' % credentials
             userid = hmac.new(hmac_secret.encode('utf-8'),
                               credentials.encode('utf-8'),
                               hashlib.sha256).hexdigest()
 
-            # Log authentication context.
-            logger.bind(auth_type='Basic')
             return "basicauth_%s" % userid
 
 
@@ -97,6 +96,9 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         except (AssertionError, ValueError):
             return None
 
+        # Trace authentication type.
+        request.auth_type = 'FxA'
+
         # Use PyFxa defaults if not specified
         server_url = settings['fxa-oauth.oauth_uri']
         scope = settings['fxa-oauth.scope']
@@ -109,9 +111,6 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
             raise httpexceptions.HTTPServiceUnavailable()
         except (fxa_errors.InProtocolError, fxa_errors.TrustError):
             return None
-
-        # Log authentication context.
-        logger.bind(auth_type='FxA')
 
         return 'fxa_%s' % user_id
 

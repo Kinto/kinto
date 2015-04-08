@@ -246,6 +246,27 @@ def handle_statsd(config):
         policy = config.registry.queryUtility(IAuthenticationPolicy)
         client.watch_execution_time(policy, prefix='authentication')
 
+        def on_new_response(event):
+            request = event.request
+
+            # Count unique users.
+            user_id = request.authenticated_userid
+            if user_id:
+                client.count('users', unique=user_id)
+
+            # Count authentication verifications.
+            if hasattr(request, 'auth_type'):
+                client.count('%s.%s' % ('auth_type', request.auth_type))
+
+            # Count view calls.
+            pattern = request.matched_route.pattern
+            services = request.registry.cornice_services
+            service = services.get(pattern)
+            if service:
+                client.count('view.%s.%s' % (service.name, request.method))
+
+        config.add_subscriber(on_new_response, NewResponse)
+
         return client
 
 

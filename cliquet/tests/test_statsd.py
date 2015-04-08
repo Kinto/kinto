@@ -6,6 +6,16 @@ from cliquet.tests.support import unittest
 from cliquet import statsd
 
 
+class TestedClass(object):
+    attribute = 3.14
+
+    def test_method(self):
+        pass
+
+    def _private_method(self):
+        pass
+
+
 class StatsdClientTest(unittest.TestCase):
     settings = {
         'cliquet.statsd_url': 'udp://foo:1234',
@@ -15,17 +25,9 @@ class StatsdClientTest(unittest.TestCase):
 
     def setUp(self):
         self.client = statsd.Client('localhost', 1234, 'prefix')
+        self.test_object = TestedClass()
+
         with mock.patch.object(self.client, '_client') as mocked_client:
-            class TestedClass(object):
-                attribute = 3.14
-
-                def test_method(self):
-                    pass
-
-                def _private_method(self):
-                    pass
-
-            self.test_object = TestedClass()
             self.client.watch_execution_time(self.test_object, prefix='test')
             self.mocked_client = mocked_client
 
@@ -38,6 +40,16 @@ class StatsdClientTest(unittest.TestCase):
     def test_private_methods_does_not_generates_statsd_calls(self):
         self.test_object._private_method()
         self.mocked_client.timer.assert_not_called()
+
+    def test_count_increments_the_counter_for_key(self):
+        with mock.patch.object(self.client, '_client') as mocked_client:
+            self.client.count('click')
+            mocked_client.incr.assert_called_with('click', count=1)
+
+    def test_count_with_unique_uses_sets_for_key(self):
+        with mock.patch.object(self.client, '_client') as mocked_client:
+            self.client.count('click', unique='menu')
+            mocked_client.set.assert_called_with('click', 'menu')
 
     @mock.patch('cliquet.statsd.statsd_module')
     def test_load_from_config(self, module_mock):

@@ -171,6 +171,37 @@ class StatsDConfigurationTest(unittest.TestCase):
         c = cliquet.handle_statsd(self.config)
         c.watch_execution_time.assert_any_call(None, prefix='authentication')
 
+    @mock.patch('cliquet.statsd.Client')
+    def test_statsd_counts_nothing_on_anonymous_requests(self, mocked):
+        cliquet.initialize(self.config, '0.0.1')
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get('/')
+        self.assertFalse(mocked.count.called)
+
+    @mock.patch('cliquet.statsd.Client')
+    def test_statsd_counts_views_and_methods(self, mocked):
+        cliquet.initialize(self.config, '0.0.1')
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get('/v0/__heartbeat__')
+        mocked().count.assert_any_call('view.heartbeat.GET')
+
+    @mock.patch('cliquet.views.oauth.relier.OAuthClient.verify_token')
+    @mock.patch('cliquet.statsd.Client')
+    def test_statsd_counts_unique_users(self, mocked, verify_mocked):
+        cliquet.initialize(self.config, '0.0.1')
+        verify_mocked.return_value = {'user': 'mat'}
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get('/v0/__heartbeat__', headers={'Authorization': 'Bearer abcde'})
+        mocked().count.assert_any_call('users', unique='fxa_mat')
+
+    @mock.patch('cliquet.views.oauth.relier.OAuthClient.verify_token')
+    @mock.patch('cliquet.statsd.Client')
+    def test_statsd_counts_authentication_types(self, mocked, verify_mocked):
+        cliquet.initialize(self.config, '0.0.1')
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get('/v0/__heartbeat__', headers={'Authorization': 'Bearer abcde'})
+        mocked().count.assert_any_call('auth_type.FxA')
+
 
 class RequestsConfigurationTest(unittest.TestCase):
     def _get_app(self, settings={}):
