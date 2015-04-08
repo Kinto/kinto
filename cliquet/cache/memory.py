@@ -45,7 +45,7 @@ class Memory(CacheBase):
 
     def delete(self, key):
         self._ttl.pop(key, None)
-        self._store.pop(key)
+        self._store.pop(key, None)
 
 
 def load_from_config(config):

@@ -90,6 +90,9 @@ class BaseTestCache(object):
         retrieved = self.cache.get('foobar')
         self.assertIsNone(retrieved)
 
+    def test_delete_does_not_fail_if_record_is_unknown(self):
+        self.cache.delete('foobar')
+
     def test_expire_expires_the_value(self):
         self.cache.set('foobar', 'toto')
         self.cache.expire('foobar', 0.01)
