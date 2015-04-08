@@ -59,6 +59,12 @@ class InitializationTest(unittest.TestCase):
         self.assertEqual(config.registry.settings['cliquet.project_name'],
                          'kinto')
 
+    def test_overriden_default_settings(self):
+        config = Configurator()
+        defaults = {'cliquet.paginate_by': 102}
+        cliquet.initialize(config, '0.0.1', default_settings=defaults)
+        self.assertEqual(config.registry.settings['cliquet.paginate_by'], 102)
+
     def test_environment_values_override_configuration(self):
         import os
 

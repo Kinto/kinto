@@ -301,7 +301,7 @@ def initialize_cliquet(*args, **kwargs):
     initialize(*args, **kwargs)
 
 
-def initialize(config, version=None, project_name=None):
+def initialize(config, version=None, project_name=None, default_settings=None):
     """Initialize Cliquet with the given configuration, version and project
     name.
 
@@ -315,7 +315,12 @@ def initialize(config, version=None, project_name=None):
     :type version: string
     :param project_name: Project name if not defined in application settings.
     :type project_name: string
+    :param default_settings: Override cliquet default settings values.
+    :type default_settings: dict
     """
+    if default_settings:
+        config.add_settings(default_settings)
+
     settings = config.get_settings()
 
     # The API version is derivated from the module version.
