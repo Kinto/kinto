@@ -4,17 +4,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 --
--- Metadata table
---
-CREATE TABLE IF NOT EXISTS metadata (
-    name VARCHAR(128) NOT NULL,
-    value VARCHAR(512) NOT NULL
-);
-INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
-
-
---
--- Convert timestamps to integer
+-- Convert timestamps to milliseconds epoch integer
 --
 CREATE OR REPLACE FUNCTION as_epoch(ts TIMESTAMP) RETURNS BIGINT AS $$
 BEGIN
@@ -30,7 +20,13 @@ CREATE TABLE IF NOT EXISTS records (
     id UUID NOT NULL DEFAULT uuid_generate_v4(),
     user_id VARCHAR(256) NOT NULL,
     resource_name  VARCHAR(256) NOT NULL,
+
+    -- Timestamp is relevant because adequate semantically.
+    -- Since the HTTP API manipulates integers, it could make sense
+    -- to replace the timestamp columns type by integer.
     last_modified TIMESTAMP NOT NULL,
+
+    -- Consider using binary JSON (JSONB, postgresql 9.4+, 2x faster).
     data JSON NOT NULL DEFAULT '{}'
 );
 
@@ -50,7 +46,7 @@ CREATE INDEX idx_records_id ON records(id);
 
 
 --
--- Deleted records
+-- Deleted records, without data.
 --
 CREATE TABLE IF NOT EXISTS deleted (
     id UUID,
@@ -73,7 +69,7 @@ DROP INDEX IF EXISTS idx_deleted_last_modified_epoch;
 CREATE INDEX idx_deleted_last_modified_epoch ON deleted(as_epoch(last_modified));
 
 --
--- Helpers
+-- Helper that returns the current collection timestamp.
 --
 CREATE OR REPLACE FUNCTION resource_timestamp(uid VARCHAR, resource VARCHAR)
 RETURNS TIMESTAMP AS $$
@@ -81,6 +77,10 @@ DECLARE
     ts_records TIMESTAMP;
     ts_deleted TIMESTAMP;
 BEGIN
+    --
+    -- This is fast because an index was created for ``user_id``,
+    -- ``resource_name``, and ``last_modified`` with descending sorting order.
+    --
     SELECT last_modified INTO ts_records
       FROM records
      WHERE user_id = uid
@@ -110,6 +110,15 @@ DECLARE
     previous TIMESTAMP;
     current TIMESTAMP;
 BEGIN
+    --
+    -- This bumps the current timestamp to 1 msec in the future if the previous
+    -- timestamp is equal to the current one (or higher if was bumped already).
+    --
+    -- If a bunch of requests from the same user on the same collection
+    -- arrive in the same millisecond, the unicity constraint can raise
+    -- an error (operation is cancelled).
+    -- See https://github.com/mozilla-services/cliquet/issues/25
+    --
     previous := resource_timestamp(NEW.user_id, NEW.resource_name);
     current := localtimestamp;
 
@@ -130,6 +139,15 @@ FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
 CREATE TRIGGER tgr_deleted_last_modified
 BEFORE INSERT OR UPDATE ON deleted
 FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
+
+--
+-- Metadata table
+--
+CREATE TABLE IF NOT EXISTS metadata (
+    name VARCHAR(128) NOT NULL,
+    value VARCHAR(512) NOT NULL
+);
+INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 
 -- Set storage schema version.

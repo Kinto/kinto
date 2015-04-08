@@ -183,7 +183,9 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             result = cursor.fetchone()
         timezone = result['timezone'].upper()
         if timezone != 'UTC':  # pragma: no cover
-            warnings.warn('Database timezone is not UTC (%s)' % timezone)
+            msg = 'Database timezone is not UTC (%s)' % timezone
+            warnings.warn(msg)
+            logger.warning(msg)
 
     def _check_database_encoding(self):
         # Make sure database is UTF-8.
@@ -258,6 +260,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                             data=json.dumps(record))
 
         with self.connect() as cursor:
+            # Check that it does violate the resource unicity rules.
             self._check_unicity(cursor, resource, user_id, record)
 
             cursor.execute(query, placeholders)
@@ -308,6 +311,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                             data=json.dumps(record))
 
         with self.connect() as cursor:
+            # Check that it does violate the resource unicity rules.
             self._check_unicity(cursor, resource, user_id, record)
 
             # Create or update ?
