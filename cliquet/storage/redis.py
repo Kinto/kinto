@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from functools import wraps
 
 import redis
-import time
 from six.moves.urllib import parse as urlparse
 
 from cliquet import utils
@@ -57,13 +56,6 @@ class Redis(MemoryBasedStorage):
     @wrap_redis_error
     def flush(self):
         self._client.flushdb()
-
-    def ping(self):
-        try:
-            self._client.setex('heartbeat', 3600, time.time())
-            return True
-        except redis.RedisError:
-            return False
 
     @wrap_redis_error
     def collection_timestamp(self, resource, user_id):

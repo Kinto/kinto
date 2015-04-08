@@ -91,14 +91,6 @@ class CloudStorage(StorageBase):
         resp = self._client.post(url)
         resp.raise_for_status()
 
-    def ping(self):
-        url = self._build_url("/__heartbeat__")
-        try:
-            resp = self._client.get(url)
-            return resp.status_code == 200
-        except:
-            return False
-
     @wrap_http_error
     def collection_timestamp(self, resource, user_id):
         url = self._build_url(self.collection_url.format(resource.name))

@@ -27,7 +27,6 @@ class StorageBaseTest(unittest.TestCase):
         calls = [
             (self.storage.initialize_schema,),
             (self.storage.flush,),
-            (self.storage.ping,),
             (self.storage.collection_timestamp, '', ''),
             (self.storage.create, '', '', {}),
             (self.storage.get, '', '', ''),
@@ -112,11 +111,25 @@ class BaseTestStorage(object):
             self.assertRaises(exceptions.BackendError, *call)
 
     def test_ping_returns_false_if_unavailable(self):
+        request = DummyRequest()
+        request.headers['Authorization'] = 'Basic bWF0OjI='
+
+        with mock.patch('cliquet.storage.random.random', return_value=0.7):
+            self.storage.ping(request)
+
         self.client_error_patcher.start()
-        self.assertFalse(self.storage.ping())
+        with mock.patch('cliquet.storage.random.random', return_value=0.7):
+            self.assertFalse(self.storage.ping(request))
+        with mock.patch('cliquet.storage.random.random', return_value=0.5):
+            self.assertFalse(self.storage.ping(request))
 
     def test_ping_returns_true_when_working(self):
-        self.assertTrue(self.storage.ping())
+        request = DummyRequest()
+        request.headers['Authorization'] = 'Basic bWF0OjI='
+        with mock.patch('cliquet.storage.random.random', return_value=0.7):
+            self.assertTrue(self.storage.ping(request))
+        with mock.patch('cliquet.storage.random.random', return_value=0.5):
+            self.assertTrue(self.storage.ping(request))
 
     def test_create_adds_the_record_id(self):
         record = self.storage.create(self.resource, self.user_id, self.record)
@@ -728,7 +741,9 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(MemoryStorageTest, self).__init__(*args, **kwargs)
-        self.client_error_patcher = mock.Mock(
+        self.client_error_patcher = mock.patch.object(
+            self.storage,
+            '_bump_timestamp',
             side_effect=exceptions.BackendError)
 
     def test_backend_error_provides_original_exception(self):
@@ -738,9 +753,6 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         pass
 
     def test_backend_error_is_raised_anywhere(self):
-        pass
-
-    def test_ping_returns_false_if_unavailable(self):
         pass
 
     def test_default_generator(self):
@@ -763,12 +775,9 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(RedisStorageTest, self).__init__(*args, **kwargs)
         self.client_error_patcher = mock.patch.object(
-            self.storage._client,
-            'execute_command',
+            self.storage._client.connection_pool,
+            'get_connection',
             side_effect=redis.RedisError)
-
-    def test_ping_returns_false_if_unavailable(self):
-        StorageTest.test_ping_returns_false_if_unavailable(self)
 
     def test_backend_error_provides_original_exception(self):
         StorageTest.test_backend_error_provides_original_exception(self)
@@ -807,17 +816,6 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             self.storage.pool,
             'getconn',
             side_effect=psycopg2.DatabaseError)
-
-    def test_ping_updates_a_value_in_the_metadata_table(self):
-        query = "SELECT value FROM metadata WHERE name='last_heartbeat';"
-        with self.storage.connect() as cursor:
-            cursor.execute(query)
-            before = cursor.fetchone()
-        self.storage.ping()
-        with self.storage.connect() as cursor:
-            cursor.execute(query)
-            after = cursor.fetchone()
-        self.assertNotEqual(before, after)
 
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
         for i in range(4):

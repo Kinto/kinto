@@ -140,9 +140,6 @@ class Memory(MemoryBasedStorage):
         self._cemetery = tree()
         self._timestamps = defaultdict(dict)
 
-    def ping(self):
-        return True
-
     def collection_timestamp(self, resource, user_id):
         ts = self._timestamps[resource.name].get(user_id)
         if ts is not None:

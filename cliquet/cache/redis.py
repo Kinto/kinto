@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-import time
 
 import redis
 from six.moves.urllib import parse as urlparse
@@ -38,13 +37,6 @@ class Redis(CacheBase):
     @wrap_redis_error
     def flush(self):
         self._client.flushdb()
-
-    def ping(self):
-        try:
-            self._client.setex('heartbeat', 3600, time.time())
-            return True
-        except redis.RedisError:
-            return False
 
     @wrap_redis_error
     def ttl(self, key):

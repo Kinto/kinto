@@ -19,7 +19,6 @@ class CacheBaseTest(unittest.TestCase):
         calls = [
             (self.cache.initialize_schema,),
             (self.cache.flush,),
-            (self.cache.ping,),
             (self.cache.ttl, ''),
             (self.cache.expire, '', ''),
             (self.cache.get, ''),
@@ -68,9 +67,16 @@ class BaseTestCache(object):
     def test_ping_returns_false_if_unavailable(self):
         self.client_error_patcher.start()
         self.assertFalse(self.cache.ping())
+        with mock.patch('cliquet.cache.random.random', return_value=0.6):
+            self.assertFalse(self.cache.ping())
+        with mock.patch('cliquet.cache.random.random', return_value=0.4):
+            self.assertFalse(self.cache.ping())
 
     def test_ping_returns_true_if_available(self):
-        self.assertTrue(self.cache.ping())
+        with mock.patch('cliquet.cache.random.random', return_value=0.6):
+            self.assertTrue(self.cache.ping())
+        with mock.patch('cliquet.cache.random.random', return_value=0.4):
+            self.assertTrue(self.cache.ping())
 
     def test_set_adds_the_record(self):
         stored = 'toto'

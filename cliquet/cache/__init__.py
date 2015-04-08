@@ -1,3 +1,11 @@
+import random
+
+
+_HEARTBEAT_DELETE_RATE = 0.5
+_HEARTBEAT_KEY = '__heartbeat__'
+_HEARTBEAT_TTL = 3600
+
+
 class CacheBase(object):
 
     def __init__(self, *args, **kwargs):
@@ -21,7 +29,14 @@ class CacheBase(object):
         :returns: `True` is everything is ok, `False` otherwise.
         :rtype: boolean
         """
-        raise NotImplementedError
+        try:
+            if random.random() > _HEARTBEAT_DELETE_RATE:
+                self.set(_HEARTBEAT_KEY, 'alive', _HEARTBEAT_TTL)
+            else:
+                self.delete(_HEARTBEAT_KEY)
+            return True
+        except:
+            return False
 
     def ttl(self, key):
         """Obtain the expiration value of the specified key.
