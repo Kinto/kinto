@@ -3,7 +3,7 @@ import random
 
 _HEARTBEAT_DELETE_RATE = 0.5
 _HEARTBEAT_KEY = '__heartbeat__'
-_HEARTBEAT_TTL = 3600
+_HEARTBEAT_TTL_SECONDS = 3600
 
 
 class CacheBase(object):
@@ -30,10 +30,10 @@ class CacheBase(object):
         :rtype: boolean
         """
         try:
-            if random.random() > _HEARTBEAT_DELETE_RATE:
-                self.set(_HEARTBEAT_KEY, 'alive', _HEARTBEAT_TTL)
-            else:
+            if random.random() < _HEARTBEAT_DELETE_RATE:
                 self.delete(_HEARTBEAT_KEY)
+            else:
+                self.set(_HEARTBEAT_KEY, 'alive', _HEARTBEAT_TTL_SECONDS)
             return True
         except:
             return False

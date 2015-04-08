@@ -52,10 +52,10 @@ class StorageBase(object):
 
         resource = BaseResource(request)
         try:
-            if random.random() > _HEARTBEAT_DELETE_RATE:
-                self.create(resource, _HEARTBEAT_USER_ID, _HEARTBEAT_RECORD)
-            else:
+            if random.random() < _HEARTBEAT_DELETE_RATE:
                 self.delete_all(resource, _HEARTBEAT_USER_ID)
+            else:
+                self.create(resource, _HEARTBEAT_USER_ID, _HEARTBEAT_RECORD)
             return True
         except:
             return False
