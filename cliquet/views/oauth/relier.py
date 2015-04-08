@@ -17,6 +17,7 @@ from cliquet.schema import URL
 from cliquet.views.errors import authorization_required
 from cliquet.views.oauth import fxa_conf
 
+
 login = Service(name='fxa-oauth-login',
                 path='/fxa-oauth/login',
                 error_handler=errors.json_error_handler)
@@ -67,6 +68,7 @@ def fxa_oauth_login(request):
                                state=state)
     request.response.status_code = 302
     request.response.headers['Location'] = form_url
+
     return {}
 
 

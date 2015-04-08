@@ -47,6 +47,7 @@ def setup_logging(config):
                    querystring=dict(request.GET),
                    uid=request.authenticated_userid,
                    lang=request.headers.get('Accept-Language'),
+                   auth_type=getattr(request, 'auth_type', None),
                    errno=None)
 
     config.add_subscriber(on_new_request, NewRequest)
