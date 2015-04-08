@@ -151,6 +151,12 @@ class MozillaHekaRenderer(object):
 
         fields = [k for k in event_dict.keys() if k not in defaults]
         for f in fields:
-            event_dict['Fields'][f] = event_dict.pop(f)
+            value = event_dict.pop(f)
+
+            # Heka relies on Protobuf, which doesn't support recursive objects.
+            if isinstance(value, (dict, list)):
+                value = utils.json.dumps(value)
+
+            event_dict['Fields'][f] = value
 
         return utils.json.dumps(event_dict)
