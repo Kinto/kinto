@@ -152,6 +152,18 @@ class MozillaHekaRendererTest(unittest.TestCase):
         log = json.loads(value)
         self.assertEqual(log['Fields'], {'win': 11})
 
+    def test_objects_values_are_serialized_as_string(self):
+        querystring = {'_sort': 'name'}
+        logged = self.renderer(self.logger, 'info', {'params': querystring})
+        log = json.loads(logged)
+        self.assertEqual(log['Fields']['params'], json.dumps(querystring))
+
+    def test_list_values_are_serialized_as_string(self):
+        list_values = ['life', 'of', 'pi', 3.14]
+        logged = self.renderer(self.logger, 'info', {'params': list_values})
+        log = json.loads(logged)
+        self.assertEqual(log['Fields']['params'], json.dumps(list_values))
+
 
 class RequestSummaryTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
