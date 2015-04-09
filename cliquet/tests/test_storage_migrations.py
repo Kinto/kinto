@@ -3,6 +3,7 @@ import os
 import mock
 
 from cliquet.storage import postgresql
+from cliquet.utils import json
 
 from .support import unittest
 from .test_storage import TestResource
@@ -98,9 +99,24 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             old_schema = open(os.path.join(here, filepath)).read()
             cursor.execute(old_schema)
 
-        # Create sample record.
-        record = {'drink': 'cacao'}
-        before = self.db.create(TestResource(), 'jean-louis', record)
+        resource = TestResource()
+
+        # Create a sample record using some code that is compatible with the
+        # schema in place in cliquet 1.6.
+        with self.db.connect() as cursor:
+            before = {'drink': 'cacao'}
+            query = """
+            INSERT INTO records (user_id, resource_name, data)
+            VALUES (%(user_id)s, %(resource_name)s, %(data)s::JSON)
+            RETURNING id, as_epoch(last_modified) AS last_modified;
+            """
+            placeholders = dict(user_id='jean-louis',
+                                resource_name=resource.name,
+                                data=json.dumps(before))
+            cursor.execute(query, placeholders)
+            inserted = cursor.fetchone()
+            before[resource.id_field] = inserted['id']
+            before[resource.modified_field] = inserted['last_modified']
 
         # In cliquet 1.6, version = 1.
         version = self.db._get_installed_version()
