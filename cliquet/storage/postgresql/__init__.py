@@ -123,7 +123,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     """
 
-    schema_version = 3
+    schema_version = 4
 
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')
@@ -261,11 +261,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     def create(self, resource, user_id, record):
         query = """
-        INSERT INTO records (user_id, resource_name, data)
-        VALUES (%(user_id)s, %(resource_name)s, %(data)s::json)
+        INSERT INTO records (id, user_id, resource_name, data)
+        VALUES (%(record_id)s, %(user_id)s, %(resource_name)s, %(data)s::json)
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
-        placeholders = dict(user_id=user_id,
+        placeholders = dict(record_id=resource.id_generator(),
+                            user_id=user_id,
                             resource_name=resource.name,
                             data=json.dumps(record))
 
@@ -285,7 +286,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         query = """
         SELECT as_epoch(last_modified) AS last_modified, data
           FROM records
-         WHERE id = %(record_id)s::uuid
+         WHERE id = %(record_id)s
            AND user_id = %(user_id)s
         """
         placeholders = dict(record_id=record_id, user_id=user_id)
@@ -304,14 +305,14 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def update(self, resource, user_id, record_id, record):
         query_create = """
         INSERT INTO records (id, user_id, resource_name, data)
-        VALUES (%(record_id)s::uuid, %(user_id)s,
+        VALUES (%(record_id)s, %(user_id)s,
                 %(resource_name)s, %(data)s::json)
         RETURNING as_epoch(last_modified) AS last_modified;
         """
 
         query_update = """
         UPDATE records SET data=%(data)s::json
-        WHERE id = %(record_id)s::uuid
+        WHERE id = %(record_id)s
            AND user_id = %(user_id)s
         RETURNING as_epoch(last_modified) AS last_modified;
         """
@@ -327,7 +328,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             # Create or update ?
             query = """
             SELECT id FROM records
-            WHERE id = %(record_id)s::uuid
+            WHERE id = %(record_id)s
               AND user_id = %(user_id)s
             """
             cursor.execute(query, placeholders)
@@ -346,7 +347,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         WITH deleted_record AS (
             DELETE
             FROM records
-            WHERE id = %(record_id)s::uuid
+            WHERE id = %(record_id)s
               AND user_id = %(user_id)s
             RETURNING id
         )
@@ -691,5 +692,5 @@ def load_from_config(config):
                        database=uri.path[1:] if uri.path else '')
     # Filter specified values only, to preserve PostgreSQL defaults
     conn_kwargs = dict([(k, v) for k, v in conn_kwargs.items() if v])
-
-    return PostgreSQL(max_fetch_size=int(max_fetch_size), **conn_kwargs)
+    return PostgreSQL(max_fetch_size=int(max_fetch_size),
+                      **conn_kwargs)

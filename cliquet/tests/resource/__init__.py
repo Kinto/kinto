@@ -1,6 +1,6 @@
 import mock
 
-from cliquet.storage.memory import Memory
+from cliquet.storage import memory
 from cliquet.tests.support import unittest, DummyRequest
 from cliquet.resource import BaseResource
 
@@ -8,7 +8,7 @@ from cliquet.resource import BaseResource
 class BaseTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(BaseTest, self).__init__(*args, **kwargs)
-        self.db = Memory()
+        self.db = memory.Memory()
 
     def setUp(self):
         self.resource = BaseResource(self.get_request())

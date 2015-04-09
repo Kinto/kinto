@@ -69,13 +69,19 @@ class BaseResource(object):
     deleted_field = 'deleted'
     """Name of `deleted` field in deleted records"""
 
+    id_generator = None
+    """Record id generator for this resource. By default, it uses the one
+    configured globally in settings."""
+
     def __init__(self, request):
         self.request = request
+        self.id_generator = self.request.registry.id_generator
         self.db = request.db
         self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
         self.timestamp = self.db.collection_timestamp(**self.db_kwargs)
         self.record_id = self.request.matchdict.get('id')
+
         # Log resource context.
         logger.bind(resource_name=self.name, resource_timestamp=self.timestamp)
 

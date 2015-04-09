@@ -10,7 +10,6 @@ env:
     - TOX_ENV=flake8
     - TOX_ENV=docs
 before_install:
-    - sudo apt-get install postgresql-contrib-9.3
     # <Kinto>
     - git clone https://github.com/mozilla-services/kinto.git kinto
     - pushd kinto

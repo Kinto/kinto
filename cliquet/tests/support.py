@@ -13,6 +13,7 @@ from cornice import errors as cornice_errors
 from pyramid.url import parse_url_overrides
 
 from cliquet import DEFAULT_SETTINGS
+from cliquet.storage import generators
 from cliquet.utils import random_bytes_hex
 from cliquet.tests.testapp import main as testapp
 
@@ -22,6 +23,7 @@ class DummyRequest(mock.MagicMock):
         super(DummyRequest, self).__init__(*args, **kwargs)
         self.upath_info = '/v0/'
         self.registry = mock.MagicMock(settings=DEFAULT_SETTINGS)
+        self.registry.id_generator = generators.UUID4()
         self.GET = {}
         self.headers = {}
         self.errors = cornice_errors.Errors(request=self)

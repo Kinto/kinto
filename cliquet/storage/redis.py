@@ -42,7 +42,6 @@ class Redis(MemoryBasedStorage):
 
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
-        kwargs.pop('id_generator', None)
         maxconn = kwargs.pop('max_connections')
         connection_pool = redis.BlockingConnectionPool(max_connections=maxconn)
         self._client = redis.StrictRedis(connection_pool=connection_pool,
@@ -93,7 +92,7 @@ class Redis(MemoryBasedStorage):
         self.check_unicity(resource, user_id, record)
 
         record = record.copy()
-        _id = record[resource.id_field] = self.id_generator()
+        _id = record[resource.id_field] = resource.id_generator()
         self.set_record_timestamp(resource, user_id, record)
 
         record_key = '{0}.{1}.{2}.records'.format(resource.name,

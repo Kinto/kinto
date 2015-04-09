@@ -4,19 +4,28 @@ import mock
 import psycopg2
 import redis
 import requests
-import six
 
 from cliquet import utils
 from cliquet import schema
 from cliquet.storage import (
-    exceptions, Filter, memory,
+    exceptions, Filter, generators, memory,
     redis as redisbackend, postgresql, cloud_storage,
     Sort, StorageBase
 )
 
 from .support import unittest, ThreadMixin, DummyRequest, skip_if_travis
 
-RECORD_ID = '472be9ec-26fe-461b-8282-9c4e4b207ab3'
+
+class GeneratorTest(unittest.TestCase):
+    def test_generic_has_mandatory_override(self):
+        self.assertRaises(NotImplementedError, generators.Generator)
+
+    def test_id_generator_must_respect_storage_backends(self):
+        class Dumb(generators.Generator):
+            def __call__(self):
+                return '*' * 80
+
+        self.assertRaises(AssertionError, Dumb)
 
 
 class StorageBaseTest(unittest.TestCase):
@@ -59,6 +68,7 @@ class TestResource(object):
     mapping = TestMapping()
     deleted_field = "deleted"
     request = DummyRequest()
+    id_generator = generators.UUID4()
 
 
 class BaseTestStorage(object):
@@ -152,18 +162,22 @@ class BaseTestStorage(object):
         self.storage.create(self.resource, self.user_id, self.record)
         self.assertEquals(self.record.get('id'), None)
 
+    def test_create_uses_the_resource_id_generator(self):
+        self.resource.id_generator = lambda: 'any-string'
+        record = self.storage.create(self.resource, self.user_id, self.record)
+        self.assertEquals(record['id'], 'any-string')
+
     def test_get_raise_on_record_not_found(self):
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.get,
             self.resource,
             self.user_id,
-            # This record id doesn't exist.
-            'af04add0-f2b1-431c-a7cc-11285a3be0e1'
+            'unknown-record-id'
         )
 
     def test_update_creates_a_new_record_when_needed(self):
-        unknown_record_id = memory.UUID4Generator()()
+        unknown_record_id = 'unknow-record-id'
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.get,
@@ -180,7 +194,7 @@ class BaseTestStorage(object):
     def test_update_overwrites_record_id(self):
         stored = self.storage.create(self.resource, self.user_id, self.record)
         record_id = stored[self.resource.id_field]
-        self.record[self.resource.id_field] = memory.UUID4Generator()()
+        self.record[self.resource.id_field] = 'this-will-be-ignored'
         self.storage.update(self.resource, self.user_id, record_id,
                             self.record)
         retrieved = self.storage.get(self.resource, self.user_id, record_id)
@@ -199,7 +213,7 @@ class BaseTestStorage(object):
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.delete,
-            self.resource, self.user_id, RECORD_ID
+            self.resource, self.user_id, 'unknown-record-id'
         )
 
     def test_get_all_return_all_values(self):
@@ -765,15 +779,6 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
 
     def test_backenderror_message_default_to_original_exception_message(self):
         pass
-
-    def test_default_generator(self):
-        self.assertEqual(type(self.storage.id_generator()), six.text_type)
-
-    def test_custom_generator(self):
-        def l(x):
-            return x
-        storage = self.storage.__class__(id_generator=l, max_connections=1)
-        self.assertEqual(storage.id_generator, l)
 
 
 class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
