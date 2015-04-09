@@ -1,6 +1,8 @@
 import six
 from uuid import uuid4
 
+from cliquet.storage import RECORD_ID_REGEXP
+
 
 class Generator(object):
     """Generate records ids.
@@ -9,6 +11,9 @@ class Generator(object):
     """
     def __init__(self, config=None):
         self.config = config
+
+        error_msg = "Generated record id does comply with cliquet format."
+        assert RECORD_ID_REGEXP.match(self()), error_msg
 
     def __call__(self):
         """
