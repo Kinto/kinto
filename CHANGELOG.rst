@@ -6,9 +6,40 @@ This document describes changes between each past release.
 1.6.1 (unreleased)
 ------------------
 
+**Breaking changes**
+
+- A **command must be ran during deployment** for database schema migration:
+
+    $ cliquet --ini production.ini migrate
+
+- Sentry custom code was removed. Sentry logging is now managed through the
+  logging configuration, as explained `in docs <http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
+
+**New features**
+
+- Add PostgreSQL schema migration system (#139)
+- Add cache and oauth in heartbeat view (#184)
+- Add monitoring features using NewRelic (#189)
+- Add profiling features using Werkzeug (#196)
+- Add ability to override default settings in initialization (#136)
+- Add more statsd counter for views and authentication (#200)
+- Add in-memory cache class (#127)
+
 **Bug fixes**
 
 - Fix crash in DELETE on collection with PostgreSQL backend
+- Fix Heka logging format of objects (#199)
+- Fix performance of record insertion using ordered index (#138)
+- Fix 405 errors not JSON formatted (#88)
+- Fix basic auth prompt when disabled (#182)
+
+**Internal changes**
+
+- Improve development setup documentation (thanks @hiromipaw)
+- Deprecated ``cliquet.initialize_cliquet``, renamed to ``cliquet.initialize``.
+- Code coverage of tests is now 100%
+- Skip unstable tests on TravisCI, caused by ``fsync = off`` in their PostgreSQL.
+- Perform random creation and deletion in heartbeat view (#202)
 
 
 1.6.0 (2015-03-30)
