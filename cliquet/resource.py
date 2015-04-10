@@ -9,8 +9,7 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 import six
 
 from cliquet import logger
-from cliquet.storage import (exceptions as storage_exceptions, Filter, Sort,
-                             RECORD_ID_REGEXP)
+from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.errors import (http_error, raise_invalid, ERRORS,
                             json_error_handler)
 from cliquet.schema import ResourceSchema
@@ -578,7 +577,7 @@ class BaseResource(object):
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        if not RECORD_ID_REGEXP.match(record_id):
+        if not self.id_generator.match(record_id):
             error_details = {
                 'location': 'path',
                 'description': "Invalid record id"

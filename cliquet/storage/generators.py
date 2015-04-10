@@ -1,7 +1,7 @@
-import six
+import re
 from uuid import uuid4
 
-from cliquet.storage import RECORD_ID_REGEXP
+import six
 
 
 class Generator(object):
@@ -9,11 +9,24 @@ class Generator(object):
 
     Used by storage backend during record creation.
     """
+
+    regexp = re.compile(r'^[a-z0-9\-]$', re.I)
+    """Default record id pattern."""
+
     def __init__(self, config=None):
         self.config = config
 
-        error_msg = "Generated record id does comply with cliquet format."
-        assert RECORD_ID_REGEXP.match(self()), error_msg
+        error_msg = "Generated record id does comply with regexp."
+        assert self.match(self()), error_msg
+
+    def match(self, record_id):
+        """Validate that record ids match the generator. This is used mainly
+        when a record id is picked arbitrarily (e.g with ``PUT`` requests).
+
+        :returns: `True` if the specified record id matches expected format.
+        :rtype: bool
+        """
+        return self.regexp.match(record_id)
 
     def __call__(self):
         """
@@ -24,5 +37,9 @@ class Generator(object):
 
 
 class UUID4(Generator):
+    regexp = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-'
+                        r'[89ab][0-9a-f]{3}-[0-9a-f]{12}$', re.I)
+    """UUID4 accurate pattern."""
+
     def __call__(self):
         return six.text_type(uuid4())

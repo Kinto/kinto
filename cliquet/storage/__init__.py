@@ -1,10 +1,6 @@
 import random
-import re
 from collections import namedtuple
 
-
-RECORD_ID_REGEXP = re.compile(r'^[a-zA-Z0-9\-_\.]{1,36}$')
-"""Record id validator. Max length comes from PostgreSQL backend schema."""
 
 Filter = namedtuple('Filter', ['field', 'value', 'operator'])
 """Filtering properties."""

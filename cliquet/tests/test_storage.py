@@ -27,6 +27,15 @@ class GeneratorTest(unittest.TestCase):
 
         self.assertRaises(AssertionError, Dumb)
 
+    def test_uuid4_generator_has_accurate_pattern(self):
+        generator = generators.UUID4()
+        uuid4 = '1cea99eb-5e3d-44ad-a53a-2fb68473b538'
+        self.assertTrue(generator.match(uuid4))
+        fake_uuid4 = '00000000-0000-5000-a000-000000000000'
+        self.assertFalse(generator.match(fake_uuid4))
+        fake_uuid4 = '00000000-0000-4000-e000-000000000000'
+        self.assertFalse(generator.match(fake_uuid4))
+
 
 class StorageBaseTest(unittest.TestCase):
     def setUp(self):
