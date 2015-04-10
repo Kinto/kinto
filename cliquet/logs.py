@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+import six
 import structlog
 from pyramid.events import NewRequest, NewResponse
 
@@ -155,8 +156,11 @@ class MozillaHekaRenderer(object):
             value = event_dict.pop(f)
 
             # Heka relies on Protobuf, which doesn't support recursive objects.
-            if isinstance(value, (dict, list)):
+            if isinstance(value, (dict)):
                 value = utils.json.dumps(value)
+            elif isinstance(value, (list, tuple)):
+                if not all([isinstance(i, six.string_types) for i in value]):
+                    value = utils.json.dumps(value)
 
             event_dict['Fields'][f] = value
 
