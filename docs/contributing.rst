@@ -17,7 +17,7 @@ To install, on linux run:
 On OSX run:
 
 ::
-    $ brew install python3.4
+    $ brew install python3
 
 Prepare your project environment by running:
 
