@@ -1,7 +1,7 @@
 Cliquet
 =======
 
-|travis| |readthedocs|
+|travis| |master-coverage| |readthedocs|
 
 .. |travis| image:: https://travis-ci.org/mozilla-services/cliquet.svg?branch=master
     :target: https://travis-ci.org/mozilla-services/cliquet
@@ -9,6 +9,12 @@ Cliquet
 .. |readthedocs| image:: https://readthedocs.org/projects/cliquet/badge/?version=latest
     :target: http://cliquet.readthedocs.org/en/latest/
     :alt: Documentation Status
+
+.. |master-coverage| image::
+    https://coveralls.io/repos/mozilla-services/cliquet/badge.png?branch=master
+    :alt: Coverage
+    :target: https://coveralls.io/r/mozilla-services/cliquet
+
 
 Cliquet is a `Cornice <https://cornice.rtfd.org>`_ application to ease
 the implementation of resource oriented REST APIs.
