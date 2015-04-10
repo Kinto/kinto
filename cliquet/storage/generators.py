@@ -7,7 +7,8 @@ import six
 class Generator(object):
     """Generate records ids.
 
-    Used by storage backend during record creation.
+    Used by storage backend during record creation, and at resource level to
+    validate record id in requests paths.
     """
 
     regexp = r'^[a-zA-Z0-9\-]+$'
@@ -15,6 +16,7 @@ class Generator(object):
 
     def __init__(self, config=None):
         self.config = config
+        self._regexp = None
 
         error_msg = "Generated record id does comply with regexp."
         assert self.match(self()), error_msg
@@ -26,7 +28,9 @@ class Generator(object):
         :returns: `True` if the specified record id matches expected format.
         :rtype: bool
         """
-        return self.regexp.match(record_id)
+        if self._regexp is None:
+            self._regexp = re.compile(self.regexp)
+        return self._regexp.match(record_id)
 
     def __call__(self):
         """
@@ -37,8 +41,18 @@ class Generator(object):
 
 
 class UUID4(Generator):
-    regexp = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-'
-                        r'[89ab][0-9a-f]{3}-[0-9a-f]{12}$', re.I)
+    """UUID4 record id generator.
+
+    UUID block are separated with ``-``.
+    (example: ``'472be9ec-26fe-461b-8282-9c4e4b207ab3'``)
+
+    UUIDs are very safe in term of unicity. If 1 billion of UUIDs are generated
+    every second for the next 100 years, the probability of creating just one
+    duplicate would be about 50% (`source <http://en.wikipedia.org/wiki/\
+Universally_unique_identifier#Random_UUID_probability_of_duplicates>`_).
+    """
+    regexp = (r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-'
+              r'[89ab][0-9a-f]{3}-[0-9a-f]{12}$')
     """UUID4 accurate pattern."""
 
     def __call__(self):
