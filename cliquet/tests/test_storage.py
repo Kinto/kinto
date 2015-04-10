@@ -16,6 +16,9 @@ from cliquet.storage import (
 from .support import unittest, ThreadMixin, DummyRequest, skip_if_travis
 
 
+RECORD_ID = '472be9ec-26fe-461b-8282-9c4e4b207ab3'
+
+
 class GeneratorTest(unittest.TestCase):
     def test_generic_has_mandatory_override(self):
         self.assertRaises(NotImplementedError, generators.Generator)
@@ -29,8 +32,7 @@ class GeneratorTest(unittest.TestCase):
 
     def test_uuid4_generator_has_accurate_pattern(self):
         generator = generators.UUID4()
-        uuid4 = '1cea99eb-5e3d-44ad-a53a-2fb68473b538'
-        self.assertTrue(generator.match(uuid4))
+        self.assertTrue(generator.match(RECORD_ID))
         fake_uuid4 = '00000000-0000-5000-a000-000000000000'
         self.assertFalse(generator.match(fake_uuid4))
         fake_uuid4 = '00000000-0000-4000-e000-000000000000'
@@ -172,9 +174,9 @@ class BaseTestStorage(object):
         self.assertEquals(self.record.get('id'), None)
 
     def test_create_uses_the_resource_id_generator(self):
-        self.resource.id_generator = lambda: 'any-string'
+        self.resource.id_generator = lambda: RECORD_ID
         record = self.storage.create(self.resource, self.user_id, self.record)
-        self.assertEquals(record['id'], 'any-string')
+        self.assertEquals(record['id'], RECORD_ID)
 
     def test_get_raise_on_record_not_found(self):
         self.assertRaises(
@@ -182,22 +184,21 @@ class BaseTestStorage(object):
             self.storage.get,
             self.resource,
             self.user_id,
-            'unknown-record-id'
+            RECORD_ID
         )
 
     def test_update_creates_a_new_record_when_needed(self):
-        unknown_record_id = 'unknow-record-id'
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.get,
             self.resource,
             self.user_id,
-            unknown_record_id
+            RECORD_ID
         )
         record = self.storage.update(self.resource, self.user_id,
-                                     unknown_record_id, self.record)
+                                     RECORD_ID, self.record)
         retrieved = self.storage.get(self.resource, self.user_id,
-                                     unknown_record_id)
+                                     RECORD_ID)
         self.assertEquals(retrieved, record)
 
     def test_update_overwrites_record_id(self):
@@ -222,7 +223,7 @@ class BaseTestStorage(object):
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.delete,
-            self.resource, self.user_id, 'unknown-record-id'
+            self.resource, self.user_id, RECORD_ID
         )
 
     def test_get_all_return_all_values(self):
