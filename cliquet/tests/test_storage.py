@@ -95,6 +95,20 @@ class BaseTestStorage(object):
             error = e
         self.assertTrue(isinstance(error.original, Exception))
 
+    def test_backenderror_message_default_to_original_exception_message(self):
+        self.client_error_patcher.start()
+        try:
+            self.storage.get_all(self.resource, self.user_id)
+        except exceptions.BackendError as e:
+            error = e
+        self.assertEqual(str(error), "%s: %s" % (
+            error.original.__class__.__name__,
+            error.original))
+
+    def test_backend_error_message_provides_given_message_if_defined(self):
+        error = exceptions.BackendError("Connection Error")
+        self.assertEqual(str(error), "Connection Error")
+
     def test_backend_error_is_raised_anywhere(self):
         self.client_error_patcher.start()
         calls = [
@@ -744,7 +758,7 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         self.client_error_patcher = mock.patch.object(
             self.storage,
             '_bump_timestamp',
-            side_effect=exceptions.BackendError)
+            side_effect=exceptions.BackendError("Segmentation fault."))
 
     def test_backend_error_provides_original_exception(self):
         pass
@@ -777,7 +791,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
         self.client_error_patcher = mock.patch.object(
             self.storage._client.connection_pool,
             'get_connection',
-            side_effect=redis.RedisError)
+            side_effect=redis.RedisError('connection error'))
 
     def test_backend_error_provides_original_exception(self):
         StorageTest.test_backend_error_provides_original_exception(self)
