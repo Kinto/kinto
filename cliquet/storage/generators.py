@@ -10,8 +10,8 @@ class Generator(object):
     Used by storage backend during record creation.
     """
 
-    regexp = re.compile(r'^[a-z0-9\-]$', re.I)
-    """Default record id pattern."""
+    regexp = r'^[a-zA-Z0-9\-]+$'
+    """Default record id pattern. Can be changed to comply with custom ids."""
 
     def __init__(self, config=None):
         self.config = config
