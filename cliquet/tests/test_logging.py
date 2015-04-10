@@ -158,11 +158,17 @@ class MozillaHekaRendererTest(unittest.TestCase):
         log = json.loads(logged)
         self.assertEqual(log['Fields']['params'], json.dumps(querystring))
 
-    def test_list_values_are_serialized_as_string(self):
+    def test_list_of_homogeneous_values_are_serialized_as_string(self):
         list_values = ['life', 'of', 'pi', 3.14]
         logged = self.renderer(self.logger, 'info', {'params': list_values})
         log = json.loads(logged)
         self.assertEqual(log['Fields']['params'], json.dumps(list_values))
+
+    def test_list_of_string_values_are_not_serialized(self):
+        list_values = ['life', 'of', 'pi']
+        logged = self.renderer(self.logger, 'info', {'params': list_values})
+        log = json.loads(logged)
+        self.assertEqual(log['Fields']['params'], list_values)
 
 
 class RequestSummaryTest(BaseWebTest, unittest.TestCase):
