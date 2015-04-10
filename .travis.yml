@@ -28,3 +28,7 @@ before_script:
     - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
 script:
     - tox -e $TOX_ENV
+after_success:
+    # Report coverage results to coveralls.io
+    - pip install coveralls
+    - coveralls
