@@ -8,15 +8,12 @@ class BackendError(Exception):
     :param original: the wrapped exception raised by underlying library.
     :type original: Exception
     """
-    def __init__(self, message=None, original=None, *args, **kwargs):
+    def __init__(self, original=None, message=None, *args, **kwargs):
         self.original = original
         if message is None:
             message = "%s: %s" % (original.__class__.__name__,
                                   original)
         super(BackendError, self).__init__(message, *args, **kwargs)
-
-    def __str__(self):
-        return self.message
 
 
 class RecordNotFoundError(Exception):

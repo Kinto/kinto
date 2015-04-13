@@ -38,6 +38,14 @@ class StorageBaseTest(unittest.TestCase):
         for call in calls:
             self.assertRaises(NotImplementedError, *call)
 
+    def test_backend_error_message_provides_given_message_if_defined(self):
+        error = exceptions.BackendError(message="Connection Error")
+        self.assertEqual(str(error), "Connection Error")
+
+    def test_backenderror_message_default_to_original_exception_message(self):
+        error = exceptions.BackendError(ValueError("Pool Error"))
+        self.assertEqual(str(error), "ValueError: Pool Error")
+
 
 class TestMapping(schema.ResourceSchema):
     class Options:
@@ -94,20 +102,6 @@ class BaseTestStorage(object):
         except exceptions.BackendError as e:
             error = e
         self.assertTrue(isinstance(error.original, Exception))
-
-    def test_backenderror_message_default_to_original_exception_message(self):
-        self.client_error_patcher.start()
-        try:
-            self.storage.get_all(self.resource, self.user_id)
-        except exceptions.BackendError as e:
-            error = e
-        self.assertEqual(str(error), "%s: %s" % (
-            error.original.__class__.__name__,
-            error.original))
-
-    def test_backend_error_message_provides_given_message_if_defined(self):
-        error = exceptions.BackendError("Connection Error")
-        self.assertEqual(str(error), "Connection Error")
 
     def test_backend_error_is_raised_anywhere(self):
         self.client_error_patcher.start()
@@ -767,6 +761,9 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         pass
 
     def test_backend_error_is_raised_anywhere(self):
+        pass
+
+    def test_backenderror_message_default_to_original_exception_message(self):
         pass
 
     def test_default_generator(self):
