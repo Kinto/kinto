@@ -24,7 +24,7 @@ class StorageBase(object):
     Configuration can be changed to choose which storage backend will
     persist the records.
 
-    :raises: pyramid.httpexceptions.HTTPServiceUnavailable
+    :raises: :class:`pyramid.httpexceptions.HTTPServiceUnavailable`
     """
 
     def initialize_schema(self):
@@ -36,7 +36,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def flush(self):
-        """Remove every record from the storage.
+        """Remove **every** record from this storage.
         """
         raise NotImplementedError
 
@@ -45,7 +45,7 @@ class StorageBase(object):
 
         :param key: current request object
         :type key: pyramid.request.Request
-        :returns: `True` is everything is ok, `False` otherwise.
+        :returns: ``True`` is everything is ok, ``False`` otherwise.
         :rtype: boolean
         """
         from cliquet.resource import BaseResource
@@ -61,8 +61,8 @@ class StorageBase(object):
             return False
 
     def collection_timestamp(self, resource, user_id):
-        """Get the highest timestamp of every records in this resource for
-        this user.
+        """Get the highest timestamp of every records in this `resource` for
+        this `user_id`.
 
         .. note::
 
@@ -80,14 +80,15 @@ class StorageBase(object):
         raise NotImplementedError
 
     def create(self, resource, user_id, record):
-        """Create the specified record in this resource for this user.
-        Assign the id to the record, using the `resource.id_field` attribute.
+        """Create the specified `record` in this `resource` for this `user_id`.
+        Assign the id to the record, using the attribute
+        :attr:`cliquet.resource.BaseResource.id_field`.
 
         .. note::
 
             This will update the collection timestamp.
 
-        :raises: cliquet.storage.exceptions.UnicityError
+        :raises: :class:`cliquet.storage.exceptions.UnicityError`
 
         :param resource: the record associated resource
         :type resource: :class:`cliquet.resource.BaseResource`
@@ -104,9 +105,10 @@ class StorageBase(object):
         raise NotImplementedError
 
     def get(self, resource, user_id, record_id):
-        """Retrieve the record with specified id, or raise error if not found.
+        """Retrieve the record with specified `record_id`, or raise error
+        if not found.
 
-        :raises: cliquet.storage.exceptions.RecordNotFoundError
+        :raises: :class:`cliquet.storage.exceptions.RecordNotFoundError`
 
         :param resource: the record associated resource
         :type resource: :class:`cliquet.resource.BaseResource`
@@ -123,7 +125,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def update(self, resource, user_id, record_id, record):
-        """Overwrite the record with the specified id.
+        """Overwrite the `record` with the specified `record_id`.
 
         If the specified id is not found, the record is created with the
         specified id.
@@ -132,7 +134,7 @@ class StorageBase(object):
 
             This will update the collection timestamp.
 
-        :raises: cliquet.storage.exceptions.UnicityError
+        :raises: :class:`cliquet.storage.exceptions.UnicityError`
 
         :param resource: the record associated resource
         :type resource: :class:`cliquet.resource.BaseResource`
@@ -152,7 +154,8 @@ class StorageBase(object):
         raise NotImplementedError
 
     def delete(self, resource, user_id, record_id):
-        """Delete the record with specified id, and raise error if not found.
+        """Delete the record with specified `record_id`, and raise error
+        if not found.
 
         Deleted records must be removed from the database, but their ids and
         timestamps of deletion must be tracked for synchronization purposes
@@ -162,7 +165,7 @@ class StorageBase(object):
 
             This will update the collection timestamp.
 
-        :raises: cliquet.storage.exceptions.RecordNotFoundError
+        :raises: :class:`cliquet.storage.exceptions.RecordNotFoundError`
 
         :param resource: the record associated resource
         :type resource: :class:`cliquet.resource.BaseResource`
@@ -179,7 +182,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def delete_all(self, resource, user_id, filters=None):
-        """Delete all records in this resource for this user.
+        """Delete all records in this `resource` for this `user_id`.
 
         :param resource: the record associated resource
         :type resource: :class:`cliquet.resource.BaseResource`
@@ -197,7 +200,7 @@ class StorageBase(object):
 
     def get_all(self, resource, user_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False):
-        """Retrieve all records in this resource for this user.
+        """Retrieve all records in this `resource` for this `user_id`.
 
         :param resource: the record associated resource
         :type resource: :class:`cliquet.resource.BaseResource`

@@ -26,7 +26,7 @@ class CacheBase(object):
     def ping(self):
         """Test that cache backend is operationnal.
 
-        :returns: `True` is everything is ok, `False` otherwise.
+        :returns: ``True`` is everything is ok, ``False`` otherwise.
         :rtype: boolean
         """
         try:
@@ -39,7 +39,7 @@ class CacheBase(object):
             return False
 
     def ttl(self, key):
-        """Obtain the expiration value of the specified key.
+        """Obtain the expiration value of the specified `key`.
 
         :param key: key
         :type key: string
@@ -49,7 +49,7 @@ class CacheBase(object):
         raise NotImplementedError
 
     def expire(self, key, ttl):
-        """Set the expiration value of the specified key.
+        """Set the expiration value `ttl` for the specified `key`.
 
         :param key: key
         :type key: string
@@ -59,7 +59,8 @@ class CacheBase(object):
         raise NotImplementedError
 
     def set(self, key, value, ttl=None):
-        """Store a value with the specified key.
+        """Store a value with the specified `key`. If `ttl` is provided,
+        set an expiration value.
 
         :param key: key
         :type key: string
@@ -71,7 +72,7 @@ class CacheBase(object):
         raise NotImplementedError
 
     def get(self, key):
-        """Obtain the value of the specified key.
+        """Obtain the value of the specified `key`.
 
         :param key: key
         :type key: string
@@ -81,7 +82,7 @@ class CacheBase(object):
         raise NotImplementedError
 
     def delete(self, key):
-        """Delete the value of the specified key.
+        """Delete the value of the specified `key`.
 
         :param key: key
         :type key: string

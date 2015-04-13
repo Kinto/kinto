@@ -61,10 +61,10 @@ class BaseResource(object):
     """HTTP verbs for which the schema must be validated"""
 
     id_field = 'id'
-    """Name of *id* field in resource schema"""
+    """Name of `id` field in resource schema"""
 
     modified_field = 'last_modified'
-    """Name of *last modified* field in resource schema"""
+    """Name of `last modified` field in resource schema"""
 
     deleted_field = 'deleted'
     """Field and value of deleted status in records"""
@@ -96,7 +96,7 @@ class BaseResource(object):
         return CorniceSchema.from_colander(colander_schema)
 
     def is_known_field(self, field):
-        """Return the `True` if the field is defined in the resource mapping.
+        """Return ``True`` if `field` is defined in the resource mapping.
 
         :param field: Field name
         :type field: string
@@ -192,7 +192,7 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def put(self):
-        """Record `PUT` endpoint.
+        """Record ``PUT`` endpoint.
 
         .. seealso::
             :meth:`cliquet.resource.process_record` and
@@ -222,7 +222,7 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def patch(self):
-        """Record `PATCH` endpoint.
+        """Record ``PATCH`` endpoint.
 
         .. seealso::
             :meth:`cliquet.resource.get_record`,
@@ -249,7 +249,7 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def delete(self):
-        """Record `DELETE` endpoint.
+        """Record ``DELETE`` endpoint.
 
         .. seealso::
             :meth:`cliquet.resource.get_record` and
@@ -438,7 +438,7 @@ class BaseResource(object):
         return new
 
     def apply_changes(self, record, changes):
-        """Merge changes into current record fields.
+        """Merge `changes` into `record` fields.
 
         .. note::
 

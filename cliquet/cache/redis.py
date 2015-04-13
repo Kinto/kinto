@@ -20,7 +20,7 @@ class Redis(CacheBase):
 
     A threaded connection pool is enabled by default::
 
-        cliquet.cache_pool_maxconn = 50
+        cliquet.cache_pool_size = 50
     """
 
     def __init__(self, *args, **kwargs):

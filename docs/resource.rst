@@ -45,6 +45,8 @@ See the :github:`ReadingList <mozilla-services/readinglist>` and
 :github:`Kinto <mozilla-services/kinto>` projects source code for real use cases.
 
 
+.. _resource-schema:
+
 Resource Schema
 ===============
 
@@ -59,11 +61,11 @@ Override the base schema to add extra fields using the `Colander API <http://doc
         genre = colander.SchemaNode(colander.String(),
                                     validator=colander.OneOf(['Sci-Fi', 'Comedy']))
 
-.. _resource-class:
-
 .. automodule:: cliquet.schema
     :members:
 
+
+.. _resource-class:
 
 Resource class
 ==============
@@ -71,7 +73,6 @@ Resource class
 In order to customize the resource URLs or behaviour on record
 processing or fetching from storage, the class
 
-.. _resource-class:
 
 .. automodule:: cliquet.resource
     :members:
