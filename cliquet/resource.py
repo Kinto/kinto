@@ -446,9 +446,8 @@ class BaseResource(object):
             if nothing_changed:
                 return new
 
-        record_id = new[self.id_field]
         try:
-            return self.db.update(record_id=record_id,
+            return self.db.update(record_id=self.record_id,
                                   record=new,
                                   **self.db_kwargs)
         except storage_exceptions.UnicityError as e:

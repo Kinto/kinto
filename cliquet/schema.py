@@ -50,8 +50,6 @@ class URL(SchemaNode):
 
 class ResourceSchema(colander.MappingSchema):
     """Base resource schema, with *Cliquet* specific built-in options."""
-    id = colander.SchemaNode(colander.String(), missing=colander.drop)
-    last_modified = TimeStamp()
 
     class Options:
         """
