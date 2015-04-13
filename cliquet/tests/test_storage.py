@@ -38,6 +38,14 @@ class StorageBaseTest(unittest.TestCase):
         for call in calls:
             self.assertRaises(NotImplementedError, *call)
 
+    def test_backend_error_message_provides_given_message_if_defined(self):
+        error = exceptions.BackendError(message="Connection Error")
+        self.assertEqual(str(error), "Connection Error")
+
+    def test_backenderror_message_default_to_original_exception_message(self):
+        error = exceptions.BackendError(ValueError("Pool Error"))
+        self.assertEqual(str(error), "ValueError: Pool Error")
+
 
 class TestMapping(schema.ResourceSchema):
     class Options:
@@ -744,7 +752,7 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         self.client_error_patcher = mock.patch.object(
             self.storage,
             '_bump_timestamp',
-            side_effect=exceptions.BackendError)
+            side_effect=exceptions.BackendError("Segmentation fault."))
 
     def test_backend_error_provides_original_exception(self):
         pass
@@ -753,6 +761,9 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         pass
 
     def test_backend_error_is_raised_anywhere(self):
+        pass
+
+    def test_backenderror_message_default_to_original_exception_message(self):
         pass
 
     def test_default_generator(self):
@@ -777,7 +788,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
         self.client_error_patcher = mock.patch.object(
             self.storage._client.connection_pool,
             'get_connection',
-            side_effect=redis.RedisError)
+            side_effect=redis.RedisError('connection error'))
 
     def test_backend_error_provides_original_exception(self):
         StorageTest.test_backend_error_provides_original_exception(self)
