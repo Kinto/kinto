@@ -11,6 +11,8 @@ Start a Pyramid project
 As detailed in `Pyramid documentation <http://docs.pylonsproject.org/projects/pyramid/>`_,
 create a minimal application, or use its scaffolding tool:
 
+::
+
     pcreate -s starter MyProject
 
 
@@ -21,6 +23,7 @@ In the application main file (e.g. :file:`MyProject/myproject/__init__.py`),
 just add some extra initialization code:
 
 .. code-block :: python
+    :emphasize-lines: 3,6,7,13
 
     import pkg_resources
 
@@ -38,10 +41,16 @@ just add some extra initialization code:
         return config.make_wsgi_app()
 
 
-By doing that, basic endpoints are now available, as defined in
-the :ref:`API section <api-endpoints>`.
-
 .. autofunction:: cliquet.initialize
+
+
+By doing that, basic features like authentication, monitoring, error formatting,
+deprecation are now available, as well as basic endpoints like the :ref:`utilities <api-utilities>`.
+
+The next steps will consist in building a custom application using :rtd:`Cornice <cornice>` or
+**the Pyramid ecosystem**.
+
+But most likely, it will consist in defining resources using Cliquet API!
 
 
 Configuration
@@ -50,12 +59,16 @@ Configuration
 See :ref:`configuration` to customize the project settings,
 such as the storage backend.
 
-In order to bypass Firefox Account setup, a ``Basic Auth`` authentication can be
-be enabled with::
+In order to get started quickly, and bypass the :term:`Firefox Accounts` setup,
+the ``Basic Auth`` authentication can be enabled with:
 
+.. code-block :: ini
+
+    # myproject.ini
     cliquet.basic_auth_enabled = true
 
 This will associate a unique :term:`user id` for every user/password combination.
+Obviously, any authentication system can be activated, see :ref:`configuration-authentication`.
 
 
 Define resources
@@ -70,21 +83,33 @@ in :file:`project/views.py` for example:
 
     @resource.crud()
     class Mushroom(resource.BaseResource):
+        # missing schema
         pass
-
 
 In application initialization, make Pyramid aware of it:
 
 .. code-block :: python
+    :emphasize-lines: 5
 
-    initialize_cliquet(config, __version__)
-    config.scan("project.views")
+    def main(global_config, **settings):
+        config = Configurator(settings=settings)
+
+        cliquet.initialize(config, __version__)
+        config.scan("project.views")
+        return config.make_wsgi_app()
 
 
-By doing that, a Mushroom resource is now available at the `/mushrooms/` endpoint.
+By doing that, a Mushroom resource API is now available at the ``/mushrooms/``
+endpoint.
 
 It will accept a bunch of REST operations, as defined in
 the :ref:`API section <api-endpoints>`.
+
+.. warning ::
+
+    Without schema, a resource will not store any field at all!
+
+The next step consists in defining what fields are accepted and stored.
 
 
 Schema validation
@@ -95,6 +120,7 @@ to the resource.
 
 
 .. code-block :: python
+    :emphasize-lines: 1,5,6,11
 
     import colander
     from cliquet import resource
@@ -112,5 +138,6 @@ to the resource.
 Advanced usage
 --------------
 
-See :ref:`the resource documentation <resource-class>`  to specify read-only fields,
-unicity constraints or record pre-processing...
+See :ref:`the resource documentation <resource>`  to specify custom URLs,
+schemaless resources, read-only fields, unicity constraints, record pre-processing...
+

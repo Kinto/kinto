@@ -1,25 +1,27 @@
 Resource
 ########
 
-.. _resource-class:
+.. _resource:
 
-.. automodule:: cliquet.resource
-    :members:
+*cliquet* provides a basic component to build resource oriented APIs.
+In most cases, the main customization consists in defining the schema of the
+records for this resource.
 
 
-Example
-=======
+Full example
+============
 
 .. code-block :: python
 
     import colander
 
     from cliquet import resource
+    from cliquet import schema
     from cliquet import utils
 
 
     class BookmarkSchema(resource.ResourceSchema):
-        url = colander.SchemaNode(colander.String(), validator=colander.url)
+        url = schema.URL()
         title = colander.SchemaNode(colander.String())
         favorite = colander.SchemaNode(colander.Boolean(), missing=False)
         device = colander.SchemaNode(colander.String(), missing='')
@@ -38,3 +40,38 @@ Example
                 new['device'] = self.request.headers.get('User-Agent')
 
             return new
+
+See the :github:`ReadingList <mozilla-services/readinglist>` and
+:github:`Kinto <mozilla-services/kinto>` projects source code for real use cases.
+
+
+Resource Schema
+===============
+
+Override the base schema to add extra fields using the `Colander API <http://docs.pylonsproject.org/projects/colander/>`_.
+
+.. code-block :: python
+
+    class Movie(ResourceSchema):
+        director = colander.SchemaNode(colander.String())
+        year = colander.SchemaNode(colander.Int(),
+                                   validator=colander.Range(min=1850))
+        genre = colander.SchemaNode(colander.String(),
+                                    validator=colander.OneOf(['Sci-Fi', 'Comedy']))
+
+.. _resource-class:
+
+.. automodule:: cliquet.schema
+    :members:
+
+
+Resource class
+==============
+
+In order to customize the resource URLs or behaviour on record
+processing or fetching from storage, the class
+
+.. _resource-class:
+
+.. automodule:: cliquet.resource
+    :members:

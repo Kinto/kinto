@@ -1,11 +1,13 @@
+.. _installation:
+
 Installation
 ############
 
 
-By default, Cliquet persists the records and cache in `Redis <http://redis.io/>`_.
+By default, *Cliquet* persists the records and cache in `Redis <http://redis.io/>`_.
 
 In-memory or `PostgreSQL <http://postgresql.org/>`_ storage backend can be enabled in
-:ref:`configuration`.
+:ref:`storage configuration <configuration-storage>`.
 
 See dedicated paragraphs below for more details about installation of these
 services.
@@ -30,6 +32,24 @@ A command is provided to accomplish this:
 ::
 
     cliquet --ini application.ini migrate
+
+
+Python 3.4
+==========
+
+Linux
+-----
+
+::
+
+    sudo apt-get install python3.4-dev
+
+OS X
+----
+
+::
+
+    brew install python3.4
 
 
 Cryptography libraries

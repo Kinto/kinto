@@ -23,7 +23,20 @@ def crud(**kwargs):
     """
     Decorator for resource classes.
 
-    This allows to bring default parameters for Cornice ``resource()``.
+    By default, the lower class name of the resource is used to build URLs.
+
+    This decorator accepts the same parameters as the :rtd:`Cornice <cornice>`
+    ``resource()`` decorator.
+
+    .. code-block :: python
+
+            from cliquet import resource
+
+            @resource.crud(collection_path='/stories',
+                           path='/stories/{id}',
+                           description='My favorite stories')
+            class Story(resource.BaseResource):
+                ...
     """
     def wrapper(klass):
         resource_name = klass.__name__.lower()
@@ -83,7 +96,8 @@ class BaseResource(object):
         return CorniceSchema.from_colander(colander_schema)
 
     def is_known_field(self, field):
-        """Return the True if the field is defined in the resource mapping.
+        """Return the `True` if the field is defined in the resource mapping.
+
         :param field: Field name
         :type field: string
         :rtype: boolean
@@ -102,7 +116,8 @@ class BaseResource(object):
         cors_headers=('Next-Page', 'Total-Records', 'Last-Modified')
     )
     def collection_get(self):
-        """Collection `GET` endpoint."""
+        """Collection `GET` endpoint. See :meth:`cliquet.resource.get_records`.
+        """
         self._add_timestamp_header(self.request.response)
         self._raise_304_if_not_modified()
         self._raise_412_if_modified()
@@ -122,7 +137,9 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_post(self):
-        """Collection `POST` endpoint."""
+        """Collection `POST` endpoint.
+        See :meth:`cliquet.resource.process_record` and
+        :meth:`cliquet.resource.create_record`"""
         self._raise_412_if_modified()
 
         new_record = self.process_record(self.request.validated)
@@ -372,6 +389,8 @@ class BaseResource(object):
         Or add extra validation based on request:
 
         .. code-block :: python
+
+            from cliquet.errors import raise_invalid
 
             def process_record(self, new, old=None):
                 if new['browser'] not in request.headers['User-Agent']:

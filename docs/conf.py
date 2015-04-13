@@ -40,6 +40,7 @@ sys.path.insert(0, os.path.abspath(os.path.join('..', 'cliquet')))
 # ones.
 extensions = [
   'sphinx.ext.autodoc',
+  'sphinx.ext.extlinks'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -81,6 +82,19 @@ html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Cliquetdoc'
+
+
+# -- Options for autodoc --------------------------------------------------
+
+autodoc_member_order = 'bysource'
+
+
+# -- Options of extlinks --------------------------------------------------
+
+extlinks = {
+  'github': ('https://github.com/%s/', ''),
+  'rtd': ('http://%s.readthedocs.org', '')
+}
 
 
 # -- Options for LaTeX output ---------------------------------------------

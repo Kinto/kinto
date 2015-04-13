@@ -16,7 +16,7 @@ Cliquet
     :target: https://coveralls.io/r/mozilla-services/cliquet
 
 
-Cliquet is a `Cornice <https://cornice.rtfd.org>`_ application to ease
+*Cliquet* is a `Cornice <http://cornice.readthedocs.org>`_ application to ease
 the implementation of resource oriented REST APIs.
 
 * `Online documentation <http://cliquet.readthedocs.org/en/latest/>`_

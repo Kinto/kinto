@@ -34,7 +34,7 @@ Error codes
 
 Errors are meant to be managed at the project level.
 
-However, a basic ref:`<set of errors codes <errors>`_ is provided in cliquet.
+However, a basic ref:`<set of errors codes <errors>`_ is provided in *Cliquet*.
 
 Validation errors
 =================

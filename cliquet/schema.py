@@ -5,13 +5,25 @@ from cliquet.utils import strip_whitespace, msec_time
 
 
 class TimeStamp(colander.SchemaNode):
-    """Basic integer field that takes current timestamp if no value
-    is provided.
+    """Basic integer schema field that can be set to current server timestamp
+    in milliseconds if no value is provided.
+
+    .. code-block :: python
+
+        class Book(ResourceSchema):
+            added_on = TimeStamp()
+            read_on = TimeStamp(auto_now=False, missing=-1)
     """
     schema_type = colander.Integer
+
     title = 'Epoch timestamp'
+    """Default field title."""
+
     auto_now = True
+    """Set to current server timestamp (*milliseconds*) if not provided."""
+
     missing = None
+    """Default field value if not provided in record."""
 
     def deserialize(self, cstruct=colander.null):
         if cstruct is colander.null and self.auto_now:
@@ -20,7 +32,14 @@ class TimeStamp(colander.SchemaNode):
 
 
 class URL(SchemaNode):
-    """String representing a URL."""
+    """String field representing a URL, with max length of 2048.
+    This is basically a shortcut for string field with colander url validator.
+
+    .. code-block :: python
+
+        class BookmarkSchema(ResourceSchema):
+            url = URL()
+    """
     schema_type = String
     validator = colander.All(colander.url, colander.Length(min=1, max=2048))
 
@@ -29,20 +48,7 @@ class URL(SchemaNode):
 
 
 class ResourceSchema(colander.MappingSchema):
-    """Base resource schema.
-
-    It brings common fields and behaviour for all inherited schemas:
-
-    * ``id``
-    * ``last_modified``
-
-    Override to add extra fields using the Colander API.
-
-    .. code-block :: python
-
-        class Movie(ResourceSchema):
-            director = colander.SchemaNode(colander.String())
-    """
+    """Base resource schema, with cliquet specific built-in options."""
     id = colander.SchemaNode(colander.String(), missing=colander.drop)
     last_modified = TimeStamp()
 
@@ -54,20 +60,37 @@ class ResourceSchema(colander.MappingSchema):
 
         .. code-block :: python
 
-            class Bookmark(ResourceSchema):
-                url = schema.URL()
+            class Product(ResourceSchema):
+                reference = colander.SchemaNode(colander.String())
 
                 class Options:
-                    unique_fields = ('url',)
+                    unique_fields = ('reference',)
         """
-        readonly_fields = ('id', 'last_modified')
-        """Fields that cannot be updated"""
-
         unique_fields = ('id', 'last_modified')
-        """Fields that must have unique values for the user collection"""
+        """Fields that must have unique values for the user collection.
+        During records creation and modification, a conflict error will be
+        raised if unicity is about to be violated."""
+
+        readonly_fields = ('id', 'last_modified')
+        """Fields that cannot be updated. Values for fields will have to be
+        provided either during record creation, through default values using
+        ``missing`` attribute or implementing a custom logic in
+        :meth:`cliquet.resource.BaseResource.process_record`.
+        """
 
         preserve_unknown = False
-        """Define if unknown fields should be preserved or not"""
+        """Define if unknown fields should be preserved or not.
+
+        For example, in order to define a schema-less resource, in other words
+        a resource that will accept any form of record, the following schema
+        definition is enough:
+
+        .. code-block :: python
+
+            class SchemaLess(ResourceSchema):
+                class Options:
+                    preserve_unknown = True
+        """
 
     def get_option(self, attr):
         default_value = getattr(ResourceSchema.Options, attr)

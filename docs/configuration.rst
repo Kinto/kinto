@@ -10,7 +10,7 @@ See `Pyramid settings documentation <http://docs.pylonsproject.org/docs/pyramid/
 Environment variables
 =====================
 
-In order to ease deployment or testing strategies, cliquet reads settings
+In order to ease deployment or testing strategies, *Cliquet* reads settings
 from environment variables, in addition to ``.ini`` files.
 
 For example, ``cliquet.storage_backend`` is read from environment variable
@@ -42,6 +42,7 @@ Feature settings
     # Force pagination *(recommended)*
     # cliquet.paginate_by = 200
 
+
 Deployment
 ==========
 
@@ -54,7 +55,7 @@ Deployment
 Scheme, host and port
 :::::::::::::::::::::
 
-By default *cliquet* does not enforce requests scheme, host and port. It relies
+By default *Cliquet* does not enforce requests scheme, host and port. It relies
 on WSGI specification and the related stack configuration. Tuning this becomes
 necessary when the application runs behind proxies or load balancers.
 
@@ -76,7 +77,7 @@ Check the ``url`` value returned in the hello view.
 Deprecation
 :::::::::::
 
-Activate the :ref:`service deprecation <versioning>`. If the date specified
+Activate the :ref:`service deprecation <api-versioning>`. If the date specified
 in ``eos`` is in the future, an alert will be sent to clients. If it's in
 the past, the service will be declared as decomissionned.
 
@@ -129,7 +130,7 @@ With the following configuration, all logs are redirected to standard output
 Handling exceptions with Sentry
 :::::::::::::::::::::::::::::::
 
-Requires the ``raven`` package, or *cliquet* installed with
+Requires the ``raven`` package, or *Cliquet* installed with
 ``pip install cliquet[monitoring]``.
 
 Sentry logging can be enabled, `as explained in official documentation
@@ -143,7 +144,7 @@ Sentry logging can be enabled, `as explained in official documentation
 Monitoring with StatsD
 ::::::::::::::::::::::
 
-Requires the ``statsd`` package, or *cliquet* installed with
+Requires the ``statsd`` package, or *Cliquet* installed with
 ``pip install cliquet[monitoring]``.
 
 StatsD metrics can be enabled (disabled by default):
@@ -153,11 +154,14 @@ StatsD metrics can be enabled (disabled by default):
     cliquet.statsd_url = udp://localhost:8125
     # cliquet.statsd_prefix = cliquet.project_name
 
+
 Monitoring with New Relic
 :::::::::::::::::::::::::
 
-Requires the ``newrelic`` package, or *cliquet* installed with
+Requires the ``newrelic`` package, or *Cliquet* installed with
 ``pip install cliquet[monitoring]``.
+
+Enable middlewares as described :ref:`here <configuration-middlewares>`.
 
 New-Relic can be enabled (disabled by default):
 
@@ -166,18 +170,9 @@ New-Relic can be enabled (disabled by default):
     cliquet.newrelic_config = /location/of/newrelic.ini
     cliquet.newrelic_env = prod
 
-This also requires your wsgi application to be wrapped by cliquet.
-In your project ``main`` function:
 
-.. code-block :: python
-  :emphasize-lines: 4,5
 
-  def main(global_config, **settings):
-      config = Configurator(settings=settings)
-      cliquet.initialize(config, __version__)
-      app = config.make_wsgi_app()
-      return cliquet.install_middlewares(app)
-
+.. _configuration-storage:
 
 Storage
 =======
@@ -191,7 +186,7 @@ Storage
     # cliquet.storage_max_fetch_size = 10000
 
     # Control number of pooled connections
-    # cliquet.storage_pool_maxconn = 50
+    # cliquet.storage_pool_size = 50
 
 See :ref:`storage backend documentation <storage>` for more details.
 
@@ -205,10 +200,12 @@ Cache
     cliquet.cache_url = redis://localhost:6379/0
 
     # Control number of pooled connections
-    # cliquet.cache_pool_maxconn = 50
+    # cliquet.storage_pool_size = 50
 
 See :ref:`cache backend documentation <cache>` for more details.
 
+
+.. _configuration-authentication:
 
 Authentication
 ==============
@@ -240,10 +237,10 @@ attribute to associate users to records.
 
 
 .. code-block :: python
+    :emphasize-lines: 5
 
     def main(global_config, **settings):
         config = Configurator(settings=settings)
-
         cliquet.initialize(config, __version__)
 
         config.include('velruse.providers.github')
@@ -252,6 +249,7 @@ attribute to associate users to records.
 Or set it up manually:
 
 .. code-block :: python
+    :emphasize-lines: 1,11-17
 
     import pyramid_multiauth
 
@@ -261,7 +259,6 @@ Or set it up manually:
 
     def main(global_config, **settings):
         config = Configurator(settings=settings)
-
         cliquet.initialize(config, __version__)
 
         policies = [
@@ -299,6 +296,8 @@ Application profiling
 It is possible to profile the application while its running. This is especially
 useful when trying to find slowness in the application.
 
+Enable middlewares as described :ref:`here <configuration-middlewares>`.
+
 Update your configuration file with the following values:
 
 .. code-block :: ini
@@ -323,3 +322,20 @@ Render execution graphs using GraphViz:
 
     pip install gprof2dot
     gprof2dot -f pstats POST.v1.batch.000176ms.1427458675.prof | dot -Tpng -o output.png
+
+
+.. _configuration-middlewares:
+
+Enable middleware
+=================
+
+In order to enable Cliquet middleware, wrap the application in the project ``main`` function:
+
+.. code-block :: python
+  :emphasize-lines: 4,5
+
+  def main(global_config, **settings):
+      config = Configurator(settings=settings)
+      cliquet.initialize(config, __version__)
+      app = config.make_wsgi_app()
+      return cliquet.install_middlewares(app)

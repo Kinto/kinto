@@ -1,23 +1,26 @@
 Contributing
 ############
 
+Thank you for considering to contribute to *Cliquet*!
+
+:note:
+
+    No contribution is too small; please submit as many fixes for typos and
+    grammar bloopers as you can!
+
+:note:
+
+    Open a pull-request even if your contribution is not ready yet! It can
+    be discussed and improved collaboratively!
+
 
 Setup your development environment
 ==================================
 
-To prepare your system with Postgres and Redis please refer to the Installation guide.
+To prepare your system with Python 3.4, PostgreSQL and Redis, please refer to the
+:ref:`installation` guide.
 
-Make sure you have python3.4 installed on your system.
-
-To install, on linux run:
-
-::
-    $ sudo apt-get install python3.4-dev
-
-On OSX run:
-
-::
-    $ brew install python3.4
+You might need to install `curl <http://curl.haxx.se>`_, if you don't have it already.
 
 Prepare your project environment by running:
 
@@ -25,23 +28,8 @@ Prepare your project environment by running:
 
     $ make install-dev
 
-You might need to install curl. On linux run:
-
 ::
 
-    $ sudo apt-get install curl
-
-On OSX, you should have curl installed already. If for some reasons you don't, run:
-
-::
-
-    $ brew install curl
-
-Install packages as usual, for example install needed packages with:
-
-::
-
-    $ pip install -r dev-requirements.txt
     $ pip install tox
 
 Prepare and run Kinto:
@@ -49,6 +37,10 @@ Prepare and run Kinto:
 ::
 
     $ make runkinto
+
+
+OS X
+----
 
 On OSX especially you might get the following error when running tests:
 
@@ -76,20 +68,14 @@ That means:
 
 * Run Redis on ``localhost:6379``
 * Run a PostgreSQL ``testdb`` database on ``localhost:5432`` with user ``postgres/postgres``
-* Run a Kinto instance on ``localhost:8888``
+* Run a Kinto instance using ``make runkinto``
 
 ::
 
     make tests
 
-
-.. note ::
-
-    For Kinto, a sample config file is provided in :file:`cliquet/tests/config/kinto.ini`.
-
-
 Run a single test
-'''''''''''''''''
+:::::::::::::::::
 
 For Test-Driven Development, it is a possible to run a single test case, in order
 to speed-up the execution:
@@ -99,10 +85,15 @@ to speed-up the execution:
     nosetests -s --with-mocha-reporter cliquet.tests.test_views_hello:HelloViewTest.test_returns_info_about_url_and_version
 
 
-
 Definition of done
 ==================
 
 * Tests pass;
 * Code added comes with tests;
 * Documentation is up to date.
+
+
+IRC channel
+===========
+
+Join ``#storage`` on ``irc.mozilla.org``!
