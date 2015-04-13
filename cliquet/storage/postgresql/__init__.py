@@ -222,7 +222,16 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             if cursor.rowcount > 0:
                 return int(cursor.fetchone()['version'])
             else:
-                # In the first versions of cliquet, there was no migration.
+                # Guess current version.
+                query = "SELECT COUNT(*) FROM metadata;"
+                cursor.execute(query)
+                was_flushed = int(cursor.fetchone()[0]) == 0
+                if was_flushed:
+                    error_msg = 'Missing schema history: consider version %s.'
+                    logger.warning(error_msg % self.schema_version)
+                    return self.schema_version
+
+                # In the first versions of Cliquet, there was no migration.
                 return 1
 
     def flush(self):
