@@ -27,7 +27,7 @@ class CacheBase(object):
         """Test that cache backend is operationnal.
 
         :returns: ``True`` is everything is ok, ``False`` otherwise.
-        :rtype: boolean
+        :rtype: bool
         """
         try:
             if random.random() < _HEARTBEAT_DELETE_RATE:
@@ -41,8 +41,7 @@ class CacheBase(object):
     def ttl(self, key):
         """Obtain the expiration value of the specified `key`.
 
-        :param key: key
-        :type key: string
+        :param str key: key
         :returns: number of seconds or negative if no TTL.
         :rtype: float
         """
@@ -51,10 +50,8 @@ class CacheBase(object):
     def expire(self, key, ttl):
         """Set the expiration value `ttl` for the specified `key`.
 
-        :param key: key
-        :type key: string
-        :param ttl: number of seconds
-        :type ttl: float
+        :param str key: key
+        :param float ttl: number of seconds
         """
         raise NotImplementedError
 
@@ -62,29 +59,24 @@ class CacheBase(object):
         """Store a value with the specified `key`. If `ttl` is provided,
         set an expiration value.
 
-        :param key: key
-        :type key: string
-        :param value: value to store
-        :type value: string
-        :param ttl: expire after number of seconds
-        :type ttl: float
+        :param str key: key
+        :param str value: value to store
+        :param float ttl: expire after number of seconds
         """
         raise NotImplementedError
 
     def get(self, key):
         """Obtain the value of the specified `key`.
 
-        :param key: key
-        :type key: string
+        :param str key: key
         :returns: the stored value or None if missing.
-        :rtype: string
+        :rtype: str
         """
         raise NotImplementedError
 
     def delete(self, key):
         """Delete the value of the specified `key`.
 
-        :param key: key
-        :type key: string
+        :param str key: key
         """
         raise NotImplementedError

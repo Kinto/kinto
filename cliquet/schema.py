@@ -33,7 +33,8 @@ class TimeStamp(colander.SchemaNode):
 
 class URL(SchemaNode):
     """String field representing a URL, with max length of 2048.
-    This is basically a shortcut for string field with colander url validator.
+    This is basically a shortcut for string field with
+    `~colander:colander.url`.
 
     .. code-block :: python
 
@@ -48,7 +49,7 @@ class URL(SchemaNode):
 
 
 class ResourceSchema(colander.MappingSchema):
-    """Base resource schema, with cliquet specific built-in options."""
+    """Base resource schema, with *Cliquet* specific built-in options."""
     id = colander.SchemaNode(colander.String(), missing=colander.drop)
     last_modified = TimeStamp()
 
@@ -99,11 +100,10 @@ class ResourceSchema(colander.MappingSchema):
     def is_readonly(self, field):
         """Return True if specified field name is read-only.
 
-        :param field: the field name in the schema
-        :type field: string
-        :returns: `True` if the specified field is read-only,
-            `False` otherwise.
-        :rtype: boolean
+        :param str field: the field name in the schema
+        :returns: ``True`` if the specified field is read-only,
+            ``False`` otherwise.
+        :rtype: bool
         """
         return field in self.get_option("readonly_fields")
 

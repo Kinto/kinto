@@ -75,7 +75,7 @@ That means:
     make tests
 
 Run a single test
-:::::::::::::::::
+-----------------
 
 For Test-Driven Development, it is a possible to run a single test case, in order
 to speed-up the execution:

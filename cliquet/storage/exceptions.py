@@ -5,8 +5,8 @@
 class BackendError(Exception):
     """A generic exception raised by storage on error.
 
-    :param original: the wrapped exception raised by underlying library.
-    :type original: Exception
+    :param Exception original: the wrapped exception raised by underlying
+        library.
     """
     def __init__(self, original=None, message=None, *args, **kwargs):
         self.original = original

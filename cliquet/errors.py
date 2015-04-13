@@ -73,7 +73,7 @@ def http_error(httpexception, errno=None,
                code=None, error=None, message=None, info=None):
     """Return a JSON formated response matching the error protocol.
 
-    :param httpexception: Instance of :mod:`pyramid.httpexceptions`
+    :param httpexception: Instance of :mod:`~pyramid:pyramid.httpexceptions`
     :param errno: stable application-level error number (e.g. 109)
     :param code: matches the HTTP status code (e.g 400)
     :param error: string description of error type (e.g. "Bad request")
@@ -152,7 +152,7 @@ def raise_invalid(request, location='body', name=None, description=None,
     :param name: field name
     :param description: detailed description of validation error
 
-    :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
+    :raises: :class:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
     """
     request.errors.add(location, name, description, **kwargs)
     response = json_error_handler(request.errors)

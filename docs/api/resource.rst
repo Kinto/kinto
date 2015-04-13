@@ -202,7 +202,8 @@ HTTP Status Codes
 -----------------
 
 .. * ``200 OK``: This record already exists, here is the one stored on the database;
-* ``201 Created``: The request have been processed, the record created
+
+* ``201 Created``: The request have been processed, the record created;
 * ``400 Bad Request``: The request body is invalid;
 * ``409 Conflict``: Unicity constraint on fields is violated;
 * ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value;

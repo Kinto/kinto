@@ -44,6 +44,8 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         Using a `dedicated connection pool <http://pgpool.net>`_ is still
         recommended to allow load balancing, replication or limit the number
         of connections used in a multi-process deployment.
+
+    :noindex:
     """
 
     def __init__(self, **kwargs):

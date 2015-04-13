@@ -40,7 +40,8 @@ sys.path.insert(0, os.path.abspath(os.path.join('..', 'cliquet')))
 # ones.
 extensions = [
   'sphinx.ext.autodoc',
-  'sphinx.ext.extlinks'
+  'sphinx.ext.extlinks',
+  'sphinx.ext.intersphinx'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -96,6 +97,14 @@ extlinks = {
   'rtd': ('http://%s.readthedocs.org', '')
 }
 
+
+# -- Options for intersphinx --------------------------------------------------
+
+intersphinx_mapping = {
+  'colander': ('http://colander.readthedocs.org/en/latest/', None),
+  'cornice': ('http://cornice.readthedocs.org/en/latest/', None),
+  'pyramid': ('http://pyramid.readthedocs.org/en/latest/', None)
+}
 
 # -- Options for LaTeX output ---------------------------------------------
 
