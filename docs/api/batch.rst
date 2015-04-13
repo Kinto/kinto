@@ -106,12 +106,12 @@ HTTP Status Codes
 * ``400 Bad Request``: The request body is invalid
 
 
-:warning:
+.. warning::
 
     Since the requests bodies are necessarily mappings, posting arbitrary data
     (*like raw text or binary*)is not supported.
 
-:note:
+.. note::
 
      Responses are provided in the same order than requests.
 
@@ -125,6 +125,6 @@ Pros & Cons
 * Payload of response can be heavy, especially while importing huge collections
 * Payload of response must all be iterated to look-up errors
 
-:note:
+.. note::
 
     A form of payload optimization for massive operations is planned.

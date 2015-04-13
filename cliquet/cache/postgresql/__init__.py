@@ -23,7 +23,7 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
     Alternatively, username and password could also rely on system user ident
     or even specified in :file:`~/.pgpass` (*see PostgreSQL documentation*).
 
-    :note:
+    .. note::
 
         Some tables and indices are created when ``cliquet migrate`` is run.
         This requires some privileges on the database, or some error will
@@ -39,7 +39,7 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
 
         cliquet.cache_pool_size = 10
 
-    :note:
+    .. note::
 
         Using a `dedicated connection pool <http://pgpool.net>`_ is still
         recommended to allow load balancing, replication or limit the number

@@ -136,7 +136,7 @@ Requires the ``raven`` package, or *Cliquet* installed with
 Sentry logging can be enabled, `as explained in official documentation
 <http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
 
-:note:
+.. note::
 
     The application sends an *INFO* message on startup, mainly for setup check.
 

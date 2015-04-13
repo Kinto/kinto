@@ -116,7 +116,7 @@ def json_error_handler(errors):
         upload = Service(name="upload", path='/upload',
                          error_handler=errors.json_error_handler)
 
-    :warning:
+    .. warning::
 
         Only the first error of the list is formatted in the response.
         (c.f. protocol).

@@ -116,7 +116,10 @@ class BaseResource(object):
         cors_headers=('Next-Page', 'Total-Records', 'Last-Modified')
     )
     def collection_get(self):
-        """Collection `GET` endpoint. See :meth:`cliquet.resource.get_records`.
+        """Collection ``GET`` endpoint.
+
+        .. seealso::
+            :meth:`cliquet.resource.get_records`.
         """
         self._add_timestamp_header(self.request.response)
         self._raise_304_if_not_modified()
@@ -137,9 +140,12 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_post(self):
-        """Collection `POST` endpoint.
-        See :meth:`cliquet.resource.process_record` and
-        :meth:`cliquet.resource.create_record`"""
+        """Collection ``POST`` endpoint.
+
+        .. seealso::
+            :meth:`cliquet.resource.process_record` and
+            :meth:`cliquet.resource.create_record`
+        """
         self._raise_412_if_modified()
 
         new_record = self.process_record(self.request.validated)
@@ -149,7 +155,11 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_delete(self):
-        """Collection `DELETE` endpoint."""
+        """Collection ``DELETE`` endpoint.
+
+        .. seealso::
+            :meth:`cliquet.resource.delete_records`.
+        """
         settings = self.request.registry.settings
         enabled = settings['cliquet.delete_collection_enabled']
         if not enabled:
@@ -168,7 +178,11 @@ class BaseResource(object):
 
     @resource.view(permission='readonly', cors_headers=('Last-Modified',))
     def get(self):
-        """Record `GET` endpoint."""
+        """Record ``GET`` endpoint.
+
+        .. seealso::
+            :meth:`cliquet.resource.get_record`.
+        """
         self._add_timestamp_header(self.request.response)
         record = self.get_record(self.record_id)
         self._raise_304_if_not_modified(record)
@@ -178,7 +192,12 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def put(self):
-        """Record `PUT` endpoint."""
+        """Record `PUT` endpoint.
+
+        .. seealso::
+            :meth:`cliquet.resource.process_record` and
+            :meth:`cliquet.resource.update_record`.
+        """
         try:
             existing = self.get_record(self.record_id)
             self._raise_412_if_modified(existing)
@@ -203,7 +222,14 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def patch(self):
-        """Record `PATCH` endpoint."""
+        """Record `PATCH` endpoint.
+
+        .. seealso::
+            :meth:`cliquet.resource.get_record`,
+            :meth:`cliquet.resource.apply_changes`,
+            :meth:`cliquet.resource.process_record` and
+            :meth:`cliquet.resource.update_record`.
+        """
         record = self.get_record(self.record_id)
         self._raise_412_if_modified(record)
 
@@ -223,7 +249,12 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def delete(self):
-        """Record `DELETE` endpoint."""
+        """Record `DELETE` endpoint.
+
+        .. seealso::
+            :meth:`cliquet.resource.get_record` and
+            :meth:`cliquet.resource.delete_record`,
+        """
         record = self.get_record(self.record_id)
         self._raise_412_if_modified(record)
 
@@ -281,6 +312,7 @@ class BaseResource(object):
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if filters or
             sorting are invalid.
+        :returns: The list of deleted records from storage.
         """
         filters = self._extract_filters()
         return self.db.delete_all(filters=filters, **self.db_kwargs)
@@ -408,7 +440,8 @@ class BaseResource(object):
     def apply_changes(self, record, changes):
         """Merge changes into current record fields.
 
-        :note:
+        .. note::
+
             This is used in the context of PATCH only.
 
         Override this to control field changes at record level, for example:

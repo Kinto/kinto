@@ -64,7 +64,8 @@ class StorageBase(object):
         """Get the highest timestamp of every records in this resource for
         this user.
 
-        :note:
+        .. note::
+
             This should take deleted records into account.
 
         :param resource: the record associated resource
@@ -82,7 +83,8 @@ class StorageBase(object):
         """Create the specified record in this resource for this user.
         Assign the id to the record, using the `resource.id_field` attribute.
 
-        :note:
+        .. note::
+
             This will update the collection timestamp.
 
         :raises: cliquet.storage.exceptions.UnicityError
@@ -126,7 +128,8 @@ class StorageBase(object):
         If the specified id is not found, the record is created with the
         specified id.
 
-        :note:
+        .. note::
+
             This will update the collection timestamp.
 
         :raises: cliquet.storage.exceptions.UnicityError
@@ -155,7 +158,8 @@ class StorageBase(object):
         timestamps of deletion must be tracked for synchronization purposes
         (see `Storage.get_all()`).
 
-        :note:
+        .. note::
+
             This will update the collection timestamp.
 
         :raises: cliquet.storage.exceptions.RecordNotFoundError

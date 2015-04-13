@@ -17,10 +17,12 @@ requests.
 
     Backoff: 30
 
-:note:
+.. note::
+
     The back-off time is configurable on the server.
 
-:note:
+.. note::
+
     In other implementations at Mozilla, there was
     ``X-Weave-Backoff`` and ``X-Backoff`` but the ``X-`` prefix for
     header `has been deprecated since

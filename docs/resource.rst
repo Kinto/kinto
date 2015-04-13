@@ -3,7 +3,7 @@ Resource
 
 .. _resource:
 
-*cliquet* provides a basic component to build resource oriented APIs.
+*Cliquet* provides a basic component to build resource oriented APIs.
 In most cases, the main customization consists in defining the schema of the
 records for this resource.
 

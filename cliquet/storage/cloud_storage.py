@@ -56,7 +56,7 @@ class CloudStorage(StorageBase):
 
         cliquet.storage_url = https://cloud-storage.services.mozilla.com
 
-    :note:
+    .. note::
 
         In order to avoid double checking of OAuth tokens, the Kinto service
         and the application can share the same cache (``cliquet.cache_url``).
