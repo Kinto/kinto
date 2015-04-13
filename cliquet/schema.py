@@ -65,13 +65,13 @@ class ResourceSchema(colander.MappingSchema):
                 class Options:
                     unique_fields = ('reference',)
         """
-        unique_fields = ('id', 'last_modified')
+        unique_fields = tuple()
         """Fields that must have unique values for the user collection.
         During records creation and modification, a conflict error will be
         raised if unicity is about to be violated.
         """
 
-        readonly_fields = ('id', 'last_modified')
+        readonly_fields = tuple()
         """Fields that cannot be updated. Values for fields will have to be
         provided either during record creation, through default values using
         ``missing`` attribute or implementing a custom logic in
