@@ -14,7 +14,7 @@ from cliquet.errors import (http_error, raise_invalid, ERRORS,
                             json_error_handler)
 from cliquet.schema import ResourceSchema
 from cliquet.utils import (
-    COMPARISON, classname, native_value, decode_token, encode_token,
+    COMPARISON, classname, native_value, decode64, encode64, json,
     current_service
 )
 
@@ -630,7 +630,7 @@ class BaseResource(object):
         filters = []
         if token:
             try:
-                last_record = decode_token(token)
+                last_record = json.loads(decode64(token))
                 assert isinstance(last_record, dict)
             except (ValueError, TypeError, AssertionError):
                 error_msg = '_token has invalid content'
@@ -668,4 +668,4 @@ class BaseResource(object):
         for field, _ in sorting:
             token[field] = last_record[field]
 
-        return encode_token(token)
+        return encode64(json.dumps(token))

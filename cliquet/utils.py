@@ -5,7 +5,7 @@ import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
 
-import ujson as json
+import ujson as json  # NOQA
 from cornice import cors
 from colander import null
 
@@ -65,17 +65,6 @@ def read_env(key, value):
     """
     envkey = key.replace('.', '_').replace('-', '_').upper()
     return native_value(os.getenv(envkey, value))
-
-
-def decode_token(token):
-    """Take a token and return the decoded base64 JSON."""
-    return json.loads(decode64(token))
-
-
-def encode_token(pagination_rules):
-    """Take a list of rules and return a base64-ed JSON."""
-    json_rules = json.dumps(pagination_rules)
-    return encode64(json_rules)
 
 
 def encode64(content):
