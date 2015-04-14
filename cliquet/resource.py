@@ -145,8 +145,6 @@ class BaseResource(object):
         headers['Total-Records'] = ('%s' % total_records)
 
         if next_page:
-            if not isinstance(next_page, str):
-                next_page = next_page.encode('utf-8')
             headers['Next-Page'] = next_page
         body = {
             'items': records,
