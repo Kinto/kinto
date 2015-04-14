@@ -1,5 +1,12 @@
 .. include:: ../README.rst
 
+.. figure :: images/logo.svg
+    :align: center
+
+    A cliquet, or ratchet, is a mechanical device that allows continuous linear
+    or rotary motion in only one direction while preventing motion in the
+    opposite direction.
+
 
 Table of content
 ================
