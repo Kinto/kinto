@@ -4,50 +4,6 @@ from colander import SchemaNode, String
 from cliquet.utils import strip_whitespace, msec_time
 
 
-class TimeStamp(colander.SchemaNode):
-    """Basic integer schema field that can be set to current server timestamp
-    in milliseconds if no value is provided.
-
-    .. code-block:: python
-
-        class Book(ResourceSchema):
-            added_on = TimeStamp()
-            read_on = TimeStamp(auto_now=False, missing=-1)
-    """
-    schema_type = colander.Integer
-
-    title = 'Epoch timestamp'
-    """Default field title."""
-
-    auto_now = True
-    """Set to current server timestamp (*milliseconds*) if not provided."""
-
-    missing = None
-    """Default field value if not provided in record."""
-
-    def deserialize(self, cstruct=colander.null):
-        if cstruct is colander.null and self.auto_now:
-            cstruct = msec_time()
-        return super(TimeStamp, self).deserialize(cstruct)
-
-
-class URL(SchemaNode):
-    """String field representing a URL, with max length of 2048.
-    This is basically a shortcut for string field with
-    `~colander:colander.url`.
-
-    .. code-block:: python
-
-        class BookmarkSchema(ResourceSchema):
-            url = URL()
-    """
-    schema_type = String
-    validator = colander.All(colander.url, colander.Length(min=1, max=2048))
-
-    def preparer(self, appstruct):
-        return strip_whitespace(appstruct)
-
-
 class ResourceSchema(colander.MappingSchema):
     """Base resource schema, with *Cliquet* specific built-in options."""
 
@@ -112,3 +68,47 @@ class ResourceSchema(colander.MappingSchema):
         else:
             unknown = 'ignore'
         return colander.Mapping(unknown=unknown)
+
+
+class TimeStamp(colander.SchemaNode):
+    """Basic integer schema field that can be set to current server timestamp
+    in milliseconds if no value is provided.
+
+    .. code-block:: python
+
+        class Book(ResourceSchema):
+            added_on = TimeStamp()
+            read_on = TimeStamp(auto_now=False, missing=-1)
+    """
+    schema_type = colander.Integer
+
+    title = 'Epoch timestamp'
+    """Default field title."""
+
+    auto_now = True
+    """Set to current server timestamp (*milliseconds*) if not provided."""
+
+    missing = None
+    """Default field value if not provided in record."""
+
+    def deserialize(self, cstruct=colander.null):
+        if cstruct is colander.null and self.auto_now:
+            cstruct = msec_time()
+        return super(TimeStamp, self).deserialize(cstruct)
+
+
+class URL(SchemaNode):
+    """String field representing a URL, with max length of 2048.
+    This is basically a shortcut for string field with
+    `~colander:colander.url`.
+
+    .. code-block:: python
+
+        class BookmarkSchema(ResourceSchema):
+            url = URL()
+    """
+    schema_type = String
+    validator = colander.All(colander.url, colander.Length(min=1, max=2048))
+
+    def preparer(self, appstruct):
+        return strip_whitespace(appstruct)
