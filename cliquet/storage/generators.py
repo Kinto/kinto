@@ -5,10 +5,10 @@ import six
 
 
 class Generator(object):
-    """Generate records ids.
+    """Base generator for records ids.
 
-    Used by storage backend during record creation, and at resource level to
-    validate record id in requests paths.
+    Id generators are used by storage backend during record creation, and at
+    resource level to validate record id in requests paths.
     """
 
     regexp = r'^[a-zA-Z0-9\-]+$'
