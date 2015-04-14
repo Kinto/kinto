@@ -1,8 +1,7 @@
-import mock
 import random
-import six
-
 from base64 import b64encode, b64decode
+
+import mock
 from six.moves.urllib.parse import parse_qs, urlparse
 from pyramid.httpexceptions import HTTPBadRequest
 
@@ -27,8 +26,6 @@ class PaginationTest(BaseTest):
 
     def _setup_next_page(self):
         next_page = self.last_response.headers['Next-Page']
-        if next_page.__class__ is not six.text_type:
-            next_page = next_page.decode('utf8')
         url_fragments = urlparse(next_page)
         queryparams = parse_qs(url_fragments.query)
         self.resource.request.GET['_token'] = queryparams['_token'][0]
