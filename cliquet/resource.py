@@ -103,7 +103,7 @@ class BaseResource(object):
             # No-op since payload is not validated against schema
             colander_schema = colander.MappingSchema(unknown='preserve')
 
-        return CorniceSchema.from_colander(colander_schema)
+        return CorniceSchema.from_colander(colander_schema, bind_request=False)
 
     def is_known_field(self, field):
         """Return ``True`` if `field` is defined in the resource mapping.
