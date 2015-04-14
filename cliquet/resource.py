@@ -55,7 +55,7 @@ def crud(**kwargs):
 class BaseResource(object):
     """Base resource class providing every endpoint."""
     mapping = ResourceSchema()
-    """Schema to validate records"""
+    """Schema to validate records."""
 
     validate_schema_for = ('POST', 'PUT')
     """HTTP verbs for which the schema must be validated"""
@@ -86,7 +86,11 @@ class BaseResource(object):
 
     @property
     def schema(self):
-        """Resource schema, depending on HTTP verb."""
+        """Resource schema, depending on HTTP verb.
+
+        :returns: a :class:`~cornice:cornice.schemas.CorniceSchema` object
+            built from this resource :attr:`mapping <.BaseResource.mapping>`.
+        """
         colander_schema = self.mapping
 
         if self.request.method not in self.validate_schema_for:
@@ -97,6 +101,7 @@ class BaseResource(object):
 
     def is_known_field(self, field):
         """Return ``True`` if `field` is defined in the resource mapping.
+
         :param str field: Field name
         :rtype: bool
 
@@ -114,7 +119,16 @@ class BaseResource(object):
         cors_headers=('Next-Page', 'Total-Records', 'Last-Modified')
     )
     def collection_get(self):
-        """Collection ``GET`` endpoint.
+        """Collection ``GET`` endpoint: retrieve multiple records.
+
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
+            ``If-Modified-Since`` header is provided and collection not
+            modified in the interim.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and collection modified
+            in the iterim.
 
         .. seealso::
 
@@ -140,7 +154,12 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_post(self):
-        """Collection ``POST`` endpoint.
+        """Collection ``POST`` endpoint: create a record.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and collection modified
+            in the iterim.
 
         .. seealso::
 
@@ -157,7 +176,14 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_delete(self):
-        """Collection ``DELETE`` endpoint.
+        """Collection ``DELETE`` endpoint: delete multiple records.
+
+        Can be disabled via ``cliquet.delete_collection_enabled`` setting.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and collection modified
+            in the iterim.
 
         .. seealso::
 
@@ -182,7 +208,16 @@ class BaseResource(object):
 
     @resource.view(permission='readonly', cors_headers=('Last-Modified',))
     def get(self):
-        """Record ``GET`` endpoint.
+        """Record ``GET`` endpoint: retrieve a record.
+
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
+            ``If-Modified-Since`` header is provided and record not
+            modified in the interim.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and record modified
+            in the iterim.
 
         .. seealso::
 
@@ -198,11 +233,17 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def put(self):
-        """Record ``PUT`` endpoint.
+        """Record ``PUT`` endpoint: create or replace the provided record and
+        return it.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and record modified
+            in the iterim.
 
         .. seealso::
-            Add custom behaviour by overriding
 
+            Add custom behaviour by overriding
             :meth:`cliquet.resource.BaseResource.process_record` or
             :meth:`cliquet.resource.BaseResource.update_record`.
         """
@@ -230,7 +271,13 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def patch(self):
-        """Record ``PATCH`` endpoint.
+        """Record ``PATCH`` endpoint: modify a record and return its
+        new version.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and record modified
+            in the iterim.
 
         .. seealso::
             Add custom behaviour by overriding
@@ -258,7 +305,12 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def delete(self):
-        """Record ``DELETE`` endpoint.
+        """Record ``DELETE`` endpoint: delete a record and return it.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and record modified
+            in the iterim.
 
         .. seealso::
             Add custom behaviour by overriding
