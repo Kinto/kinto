@@ -1,7 +1,7 @@
+.. _cache:
+
 Cache
 #####
-
-.. _cache:
 
 
 PostgreSQL
@@ -17,7 +17,7 @@ Redis
 
 
 Memory
-=====
+======
 
 .. autoclass:: cliquet.cache.memory.Memory
 

@@ -36,3 +36,10 @@ interface:
 
 .. automodule:: cliquet.storage
     :members:
+
+
+Exceptions
+----------
+
+.. automodule:: cliquet.storage.exceptions
+    :members:

@@ -1,8 +1,8 @@
+.. _api-versioning:
+
 ##############
 API versioning
 ##############
-
-.. _versioning:
 
 Versionning
 ===========

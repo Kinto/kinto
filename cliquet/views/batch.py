@@ -19,7 +19,7 @@ valid_http_method = colander.OneOf(('GET', 'HEAD', 'DELETE', 'TRACE',
 def string_values(node, cstruct):
     """Validate that a ``colander.Mapping`` only has strings in its values.
 
-    :warning:
+    .. warning::
 
         Should be associated to a ``colander.Mapping`` schema node.
     """

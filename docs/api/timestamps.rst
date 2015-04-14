@@ -17,7 +17,8 @@ user will be given on collection and record GET endpoints.
 
     Last-Modified: 1422375916186
 
-:note:
+.. note::
+
     Both fields ``added_on`` and ``marked_on`` will contain actual timestamps
     (from device perspective), used for calendar year information display.
 

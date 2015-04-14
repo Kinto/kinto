@@ -22,7 +22,8 @@ def wrap_redis_error(func):
 class Redis(MemoryBasedStorage):
     """Storage backend implementation using Redis.
 
-    :warning:
+    .. warning::
+
         Useful for very low server load, but won't scale since records sorting
         and filtering are performed in memory.
 

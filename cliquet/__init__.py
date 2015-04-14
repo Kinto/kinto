@@ -330,14 +330,12 @@ def initialize(config, version=None, project_name=None, default_settings=None):
     on the specified version.
 
     :param config: Pyramid configuration
-    :type config: pyramid.config.Configurator
-    :param version: Current project version (e.g. '0.0.1') if not defined
+    :type config: ~pyramid:pyramid.config.Configurator
+    :param str version: Current project version (e.g. '0.0.1') if not defined
         in application settings.
-    :type version: string
-    :param project_name: Project name if not defined in application settings.
-    :type project_name: string
-    :param default_settings: Override cliquet default settings values.
-    :type default_settings: dict
+    :param str project_name: Project name if not defined
+        in application settings.
+    :param dict default_settings: Override cliquet default settings values.
     """
     if default_settings:
         config.add_settings(default_settings)

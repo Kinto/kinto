@@ -99,7 +99,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     Alternatively, username and password could also rely on system user ident
     or even specified in :file:`~/.pgpass` (*see PostgreSQL documentation*).
 
-    :note:
+    .. note::
 
         Some tables and indices are created when ``cliquet migrate`` is run.
         This requires some privileges on the database, or some error will
@@ -115,7 +115,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         cliquet.storage_pool_size = 10
 
-    :note:
+    .. note::
 
         Using a `dedicated connection pool <http://pgpool.net>`_ is still
         recommended to allow load balancing, replication or limit the number
@@ -144,7 +144,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def initialize_schema(self):
         """Create PostgreSQL tables, and run necessary schema migrations.
 
-        :note:
+        .. note::
+
             Relies on JSON fields, available in recent versions of PostgreSQL.
         """
         version = self._get_installed_version()
@@ -501,10 +502,11 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def _format_conditions(self, resource, filters, prefix='filters'):
         """Format the filters list in SQL, with placeholders for safe escaping.
 
-        :note:
+        .. note::
             All conditions are combined using AND.
 
-        :note:
+        .. note::
+
             Field name and value are escaped as they come from HTTP API.
 
         :returns: A SQL string with placeholders, and a dict mapping
@@ -551,10 +553,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         """Format the pagination rules in SQL, with placeholders for
         safe escaping.
 
-        :note:
+        .. note::
+
             All rules are combined using OR.
 
-        :note:
+        .. note::
+
             Field names are escaped as they come from HTTP API.
 
         :returns: A SQL string with placeholders, and a dict mapping
@@ -577,7 +581,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def _format_sorting(self, resource, sorting):
         """Format the sorting in SQL, with placeholders for safe escaping.
 
-        :note:
+        .. note::
+
             Field names are escaped as they come from HTTP API.
 
         :returns: A SQL string with placeholders, and a dict mapping
