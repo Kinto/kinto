@@ -263,15 +263,8 @@ class BaseResource(object):
 
         new_record = self.request.validated
 
-        new_id = new_record.setdefault(self.id_field, self.record_id)
-        if new_id != self.record_id:
-            error_msg = 'Record id does not match existing record'
-            error_details = {
-                'name': self.id_field,
-                'location': 'querystring',
-                'description': error_msg
-            }
-            raise_invalid(self.request, **error_details)
+        record_id = new_record.setdefault(self.id_field, self.record_id)
+        self._raise_400_if_id_mismatch(record_id, self.record_id)
 
         new_record = self.process_record(new_record, old=existing)
         record = self.update_record(existing, new_record)
@@ -307,6 +300,10 @@ class BaseResource(object):
         changes = self.request.json
 
         updated = self.apply_changes(record, changes=changes)
+
+        record_id = updated.setdefault(self.id_field, self.record_id)
+        self._raise_400_if_id_mismatch(record_id, self.record_id)
+
         updated = self.process_record(updated, old=record)
 
         record = self.update_record(record, updated, changes)
@@ -647,6 +644,20 @@ class BaseResource(object):
                               message=message)
         response.existing = exception.record
         raise response
+
+    def _raise_400_if_id_mismatch(self, new_id, record_id):
+        """Raise 400 if the `new_id`, within the request body, does not match
+        the `record_id`, obtained from request path.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
+        """
+        if new_id != record_id:
+            error_msg = 'Record id does not match existing record'
+            error_details = {
+                'name': self.id_field,
+                'description': error_msg
+            }
+            raise_invalid(self.request, **error_details)
 
     def _extract_filters(self, queryparams=None):
         """Extracts filters from QueryString parameters."""

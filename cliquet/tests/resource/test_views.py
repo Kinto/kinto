@@ -126,6 +126,46 @@ class InvalidRecordTest(FakeAuthentMixin, BaseWebTest):
                           status=400)
 
 
+class IgnoredFieldsTest(FakeAuthentMixin, BaseWebTest):
+    def setUp(self):
+        super(IgnoredFieldsTest, self).setUp()
+        resp = self.app.post_json(self.collection_url,
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers)
+        self.record = resp.json
+
+    def test_id_is_not_validated_and_overwritten(self):
+        record = MINIMALIST_RECORD.copy()
+        record['id'] = 3.14
+        resp = self.app.post_json(self.collection_url,
+                                  record,
+                                  headers=self.headers)
+        self.assertNotEqual(resp.json['id'], 3.14)
+
+    def test_last_modified_is_not_validated_and_overwritten(self):
+        record = MINIMALIST_RECORD.copy()
+        record['last_modified'] = 'abc'
+        resp = self.app.post_json(self.collection_url,
+                                  record,
+                                  headers=self.headers)
+        self.assertNotEqual(resp.json['last_modified'], 'abc')
+
+    def test_modify_works_with_invalid_last_modified(self):
+        body = {'last_modified': 'abc'}
+        resp = self.app.patch_json(self.get_item_url(),
+                                   body,
+                                   headers=self.headers)
+        self.assertNotEqual(resp.json['last_modified'], 'abc')
+
+    def test_replace_works_with_invalid_last_modified(self):
+        record = MINIMALIST_RECORD.copy()
+        record['last_modified'] = 'abc'
+        resp = self.app.put_json(self.get_item_url(),
+                                 record,
+                                 headers=self.headers)
+        self.assertNotEqual(resp.json['last_modified'], 'abc')
+
+
 class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
     def __init__(self, *args, **kwargs):
         super(InvalidBodyTest, self).__init__(*args, **kwargs)
