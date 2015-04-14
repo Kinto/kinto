@@ -22,7 +22,7 @@ Include Cliquet
 In the application main file (e.g. :file:`MyProject/myproject/__init__.py`),
 just add some extra initialization code:
 
-.. code-block :: python
+.. code-block:: python
     :emphasize-lines: 3,6,7,13
 
     import pkg_resources
@@ -62,7 +62,7 @@ such as the storage backend.
 In order to get started quickly, and bypass the :term:`Firefox Accounts` setup,
 the ``Basic Auth`` authentication can be enabled with:
 
-.. code-block :: ini
+.. code-block:: ini
 
     # myproject.ini
     cliquet.basic_auth_enabled = true
@@ -77,7 +77,7 @@ Define resources
 In order to define a resource, just inherit from :class:`cliquet.resource.BaseResource`,
 in :file:`project/views.py` for example:
 
-.. code-block :: python
+.. code-block:: python
 
     from cliquet import resource
 
@@ -88,7 +88,7 @@ in :file:`project/views.py` for example:
 
 In application initialization, make Pyramid aware of it:
 
-.. code-block :: python
+.. code-block:: python
     :emphasize-lines: 5
 
     def main(global_config, **settings):
@@ -119,7 +119,7 @@ It is possible to validate records against a predefined schema, associated
 to the resource.
 
 
-.. code-block :: python
+.. code-block:: python
     :emphasize-lines: 1,5,6,11
 
     import colander

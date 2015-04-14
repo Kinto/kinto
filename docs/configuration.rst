@@ -21,7 +21,7 @@ from internal defaults.
 Project info
 ============
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.project_name = project
     cliquet.project_docs = https://project.rtfd.org/
@@ -31,7 +31,7 @@ Project info
 Feature settings
 ================
 
-.. code-block :: ini
+.. code-block:: ini
 
     # Limit number of batch operations per request
     # cliquet.batch_max_requests = 25
@@ -46,7 +46,7 @@ Feature settings
 Deployment
 ==========
 
-.. code-block :: ini
+.. code-block:: ini
 
     # cliquet.backoff = 10
     cliquet.retry_after_seconds = 30
@@ -65,7 +65,7 @@ properly.
 However if, for some reasons, this had to be enforced at the application level,
 the following settings can be set:
 
-.. code-block :: ini
+.. code-block:: ini
 
     # cliquet.http_scheme = https
     # cliquet.http_host = production.server:7777
@@ -81,7 +81,7 @@ Activate the :ref:`service deprecation <api-versioning>`. If the date specified
 in ``eos`` is in the future, an alert will be sent to clients. If it's in
 the past, the service will be declared as decomissionned.
 
-.. code-block :: ini
+.. code-block:: ini
 
     # cliquet.eos = 2015-01-22
     # cliquet.eos_message = "Client is too old"
@@ -94,7 +94,7 @@ Logging with Heka
 
 Mozilla Services standard logging format can be enabled using:
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.logging_renderer = cliquet.logs.MozillaHekaRenderer
 
@@ -102,7 +102,7 @@ Mozilla Services standard logging format can be enabled using:
 With the following configuration, all logs are redirected to standard output
 (See `12factor app <http://12factor.net/logs>`_):
 
-.. code-block :: ini
+.. code-block:: ini
 
     [loggers]
     keys = root
@@ -149,7 +149,7 @@ Requires the ``statsd`` package, or *Cliquet* installed with
 
 StatsD metrics can be enabled (disabled by default):
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.statsd_url = udp://localhost:8125
     # cliquet.statsd_prefix = cliquet.project_name
@@ -165,7 +165,7 @@ Enable middlewares as described :ref:`here <configuration-middlewares>`.
 
 New-Relic can be enabled (disabled by default):
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.newrelic_config = /location/of/newrelic.ini
     cliquet.newrelic_env = prod
@@ -177,7 +177,7 @@ New-Relic can be enabled (disabled by default):
 Storage
 =======
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.storage_backend = cliquet.storage.redis
     cliquet.storage_url = redis://localhost:6379/1
@@ -194,7 +194,7 @@ See :ref:`storage backend documentation <storage>` for more details.
 Cache
 =====
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.cache_backend = cliquet.cache.redis
     cliquet.cache_url = redis://localhost:6379/0
@@ -213,7 +213,7 @@ Authentication
 Since user identification is hashed in storage, a secret key is required
 in configuration:
 
-.. code-block :: ini
+.. code-block:: ini
 
     # cliquet.userid_hmac_secret = b4c96a8692291d88fe5a97dd91846eb4
 
@@ -221,7 +221,7 @@ in configuration:
 Basic Auth
 ::::::::::
 
-.. code-block :: ini
+.. code-block:: ini
 
     # cliquet.basic_auth_enabled = true
 
@@ -236,7 +236,7 @@ Internally, Cliquet relies on Pyramid ``authenticated_userid`` request
 attribute to associate users to records.
 
 
-.. code-block :: python
+.. code-block:: python
     :emphasize-lines: 5
 
     def main(global_config, **settings):
@@ -248,7 +248,7 @@ attribute to associate users to records.
 
 Or set it up manually:
 
-.. code-block :: python
+.. code-block:: python
     :emphasize-lines: 1,11-17
 
     import pyramid_multiauth
@@ -278,7 +278,7 @@ Firefox Accounts OAuth integration is currently limited to Mozilla relying servi
 
 If you're a Mozilla service, fill the settings with the values you were provided:
 
-.. code-block :: ini
+.. code-block:: ini
 
     fxa-oauth.relier.enabled = true
     fxa-oauth.client_id = 89513028159972bc
@@ -300,7 +300,7 @@ Enable middlewares as described :ref:`here <configuration-middlewares>`.
 
 Update your configuration file with the following values:
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.profiler_enabled = true
     cliquet.profiler_dir = /tmp/profiling
@@ -331,7 +331,7 @@ Enable middleware
 
 In order to enable Cliquet middleware, wrap the application in the project ``main`` function:
 
-.. code-block :: python
+.. code-block:: python
   :emphasize-lines: 4,5
 
   def main(global_config, **settings):

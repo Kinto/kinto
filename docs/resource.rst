@@ -11,7 +11,7 @@ records for this resource.
 Full example
 ============
 
-.. code-block :: python
+.. code-block:: python
 
     import colander
 
@@ -52,7 +52,7 @@ Resource Schema
 
 Override the base schema to add extra fields using the `Colander API <http://docs.pylonsproject.org/projects/colander/>`_.
 
-.. code-block :: python
+.. code-block:: python
 
     class Movie(ResourceSchema):
         director = colander.SchemaNode(colander.String())

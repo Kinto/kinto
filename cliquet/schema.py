@@ -8,7 +8,7 @@ class TimeStamp(colander.SchemaNode):
     """Basic integer schema field that can be set to current server timestamp
     in milliseconds if no value is provided.
 
-    .. code-block :: python
+    .. code-block:: python
 
         class Book(ResourceSchema):
             added_on = TimeStamp()
@@ -36,7 +36,7 @@ class URL(SchemaNode):
     This is basically a shortcut for string field with
     `~colander:colander.url`.
 
-    .. code-block :: python
+    .. code-block:: python
 
         class BookmarkSchema(ResourceSchema):
             url = URL()
@@ -59,7 +59,7 @@ class ResourceSchema(colander.MappingSchema):
 
         This is meant to be overriden for changing values:
 
-        .. code-block :: python
+        .. code-block:: python
 
             class Product(ResourceSchema):
                 reference = colander.SchemaNode(colander.String())
@@ -70,7 +70,8 @@ class ResourceSchema(colander.MappingSchema):
         unique_fields = ('id', 'last_modified')
         """Fields that must have unique values for the user collection.
         During records creation and modification, a conflict error will be
-        raised if unicity is about to be violated."""
+        raised if unicity is about to be violated.
+        """
 
         readonly_fields = ('id', 'last_modified')
         """Fields that cannot be updated. Values for fields will have to be
@@ -86,7 +87,7 @@ class ResourceSchema(colander.MappingSchema):
         a resource that will accept any form of record, the following schema
         definition is enough:
 
-        .. code-block :: python
+        .. code-block:: python
 
             class SchemaLess(ResourceSchema):
                 class Options:

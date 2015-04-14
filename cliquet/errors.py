@@ -111,7 +111,7 @@ def json_error_handler(errors):
 
     This is meant to be used is custom services in your applications.
 
-    .. code-block :: python
+    .. code-block:: python
 
         upload = Service(name="upload", path='/upload',
                          error_handler=errors.json_error_handler)

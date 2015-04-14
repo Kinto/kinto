@@ -28,7 +28,7 @@ def crud(**kwargs):
     This decorator accepts the same parameters as the :rtd:`Cornice <cornice>`
     :meth:`~cornice:cornice.resource.resource` decorator.
 
-    .. code-block :: python
+    .. code-block:: python
 
             from cliquet import resource
 
@@ -401,7 +401,7 @@ class BaseResource(object):
         Override to perform actions or post-process records after their
         creation in storage.
 
-        .. code-block :: python
+        .. code-block:: python
 
             def create_record(self, record):
                 record = super(MyResource, self).create_record(record)
@@ -426,7 +426,7 @@ class BaseResource(object):
         Override to perform actions or post-process records after their
         modification in storage.
 
-        .. code-block :: python
+        .. code-block:: python
 
             def update_record(self, record, old=None):
                 record = super(MyResource, self).update_record(record, old)
@@ -460,7 +460,7 @@ class BaseResource(object):
         Override to perform actions or post-process records after deletion
         from storage for example:
 
-        .. code-block :: python
+        .. code-block:: python
 
             def delete_record(self, record):
                 deleted = super(Resource, self).delete_record(record)
@@ -480,7 +480,7 @@ class BaseResource(object):
         """Hook for processing records before they reach storage, to introduce
         specific logics on fields for example.
 
-        .. code-block :: python
+        .. code-block:: python
 
             def process_record(self, new, old=None):
                 version = old['version'] if old else 0
@@ -489,7 +489,7 @@ class BaseResource(object):
 
         Or add extra validation based on request:
 
-        .. code-block :: python
+        .. code-block:: python
 
             from cliquet.errors import raise_invalid
 
@@ -516,7 +516,7 @@ class BaseResource(object):
 
         Override this to control field changes at record level, for example:
 
-        .. code-block :: python
+        .. code-block:: python
 
             def apply_changes(self, record, changes):
                 # Ignore value change if inferior
