@@ -26,7 +26,6 @@ class StorageBase(object):
 
     :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPServiceUnavailable`
     """
-
     def initialize_schema(self):
         """Create every necessary objects (like tables or indices) in the
         backend.

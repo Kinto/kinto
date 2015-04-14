@@ -59,6 +59,7 @@ DEFAULT_SETTINGS = {
     'cliquet.eos_url': None,
     'cliquet.http_host': None,
     'cliquet.http_scheme': None,
+    'cliquet.id_generator': 'cliquet.storage.generators.UUID4',
     'cliquet.logging_renderer': 'cliquet.logs.ClassicLogRenderer',
     'cliquet.newrelic_config': None,
     'cliquet.newrelic_env': 'dev',
@@ -292,6 +293,9 @@ def includeme(config):
 
     cache = config.maybe_dotted(settings['cliquet.cache_backend'])
     config.registry.cache = cache.load_from_config(config)
+
+    id_generator = config.maybe_dotted(settings['cliquet.id_generator'])
+    config.registry.id_generator = id_generator()
 
     set_auth(config)
     attach_http_objects(config)

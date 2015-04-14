@@ -108,7 +108,8 @@ class PatchTest(BaseTest):
 class UnknownRecordTest(BaseTest):
     def setUp(self):
         super(UnknownRecordTest, self).setUp()
-        self.resource.record_id = 'foo'
+        self.unknown_id = '1cea99eb-5e3d-44ad-a53a-2fb68473b538'
+        self.resource.record_id = self.unknown_id
 
     def test_get_record_unknown_raises_404(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.get)
@@ -118,10 +119,28 @@ class UnknownRecordTest(BaseTest):
 
     def test_replace_record_unknown_creates_it(self):
         self.resource.put()
-        self.db.get(self.resource, 'bob', 'foo')
+        self.db.get(self.resource, 'bob', self.unknown_id)
 
     def test_delete_record_unknown_raises_404(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.delete)
+
+
+class InvalidIdTest(BaseTest):
+    def setUp(self):
+        super(InvalidIdTest, self).setUp()
+        self.resource.record_id = 'a*b'
+
+    def test_get_with_invalid_id_raises_400(self):
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.get)
+
+    def test_patch_with_invalid_id_raises_400(self):
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+
+    def test_put_with_invalid_id_raises_400(self):
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.put)
+
+    def test_delete_with_invalid_id_raises_400(self):
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.delete)
 
 
 class ReadonlyFieldsTest(BaseTest):

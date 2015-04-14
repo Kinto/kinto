@@ -1,9 +1,4 @@
 --
--- Load pgcrypto for UUID generation
---
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
---
 -- Convert timestamps to milliseconds epoch integer
 --
 CREATE OR REPLACE FUNCTION as_epoch(ts TIMESTAMP) RETURNS BIGINT AS $$
@@ -17,9 +12,9 @@ IMMUTABLE;
 -- Actual records
 --
 CREATE TABLE IF NOT EXISTS records (
-    id UUID NOT NULL DEFAULT uuid_generate_v4(),
-    user_id VARCHAR(256) NOT NULL,
-    resource_name  VARCHAR(256) NOT NULL,
+    id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    resource_name TEXT NOT NULL,
 
     -- Timestamp is relevant because adequate semantically.
     -- Since the HTTP API manipulates integers, it could make sense
@@ -49,9 +44,9 @@ CREATE INDEX idx_records_id ON records(id);
 -- Deleted records, without data.
 --
 CREATE TABLE IF NOT EXISTS deleted (
-    id UUID,
-    user_id VARCHAR(256) NOT NULL,
-    resource_name  VARCHAR(256) NOT NULL,
+    id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    resource_name TEXT NOT NULL,
     last_modified TIMESTAMP NOT NULL
 );
 DROP INDEX IF EXISTS idx_records_user_id_resource_name_last_modified;
@@ -152,4 +147,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``cliquet.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '3');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '4');

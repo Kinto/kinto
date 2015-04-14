@@ -99,7 +99,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             cursor.execute(old_schema)
 
         # Create sample record.
-        self.db.create(TestResource(), 'jean-louis', {'drink': 'cacao'})
+        record = {'drink': 'cacao'}
+        before = self.db.create(TestResource(), 'jean-louis', record)
 
         # In cliquet 1.6, version = 1.
         version = self.db._get_installed_version()
@@ -113,7 +114,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.assertEqual(version, self.version)
 
         migrated, count = self.db.get_all(TestResource(), 'jean-louis')
-        self.assertEqual(migrated[0]['drink'], 'cacao')
+        self.assertEqual(migrated[0], before)
 
     def test_every_available_migration_succeeds_if_tables_were_flushed(self):
         # During tests, tables can be flushed.

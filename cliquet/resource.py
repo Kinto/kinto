@@ -69,13 +69,19 @@ class BaseResource(object):
     deleted_field = 'deleted'
     """Name of `deleted` field in deleted records"""
 
+    id_generator = None
+    """Record id generator for this resource. By default, it uses the one
+    configured globally in settings."""
+
     def __init__(self, request):
         self.request = request
+        self.id_generator = self.request.registry.id_generator
         self.db = request.db
         self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
         self.timestamp = self.db.collection_timestamp(**self.db_kwargs)
         self.record_id = self.request.matchdict.get('id')
+
         # Log resource context.
         logger.bind(resource_name=self.name, resource_timestamp=self.timestamp)
 
@@ -224,6 +230,7 @@ class BaseResource(object):
             Add custom behaviour by overriding
             :meth:`cliquet.resource.BaseResource.get_record`.
         """
+        self._raise_400_if_invalid_id(self.record_id)
         self._add_timestamp_header(self.request.response)
         record = self.get_record(self.record_id)
         self._raise_304_if_not_modified(record)
@@ -247,6 +254,7 @@ class BaseResource(object):
             :meth:`cliquet.resource.BaseResource.process_record` or
             :meth:`cliquet.resource.BaseResource.update_record`.
         """
+        self._raise_400_if_invalid_id(self.record_id)
         try:
             existing = self.get_record(self.record_id)
             self._raise_412_if_modified(existing)
@@ -286,6 +294,7 @@ class BaseResource(object):
             :meth:`cliquet.resource.BaseResource.process_record` or
             :meth:`cliquet.resource.BaseResource.update_record`.
         """
+        self._raise_400_if_invalid_id(self.record_id)
         record = self.get_record(self.record_id)
         self._raise_412_if_modified(record)
 
@@ -317,6 +326,7 @@ class BaseResource(object):
             :meth:`cliquet.resource.BaseResource.get_record` or
             :meth:`cliquet.resource.BaseResource.delete_record`,
         """
+        self._raise_400_if_invalid_id(self.record_id)
         record = self.get_record(self.record_id)
         self._raise_412_if_modified(record)
 
@@ -560,6 +570,19 @@ class BaseResource(object):
         """
         timestamp = six.text_type(self.timestamp).encode('utf-8')
         response.headers['Last-Modified'] = timestamp
+
+    def _raise_400_if_invalid_id(self, record_id):
+        """Raise 400 if specified record id does not match the format excepted
+        by storage backends.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
+        """
+        if not self.id_generator.match(record_id):
+            error_details = {
+                'location': 'path',
+                'description': "Invalid record id"
+            }
+            raise_invalid(self.request, **error_details)
 
     def _raise_304_if_not_modified(self, record=None):
         """Raise 304 if current timestamp is inferior to the one specified
