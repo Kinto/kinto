@@ -114,3 +114,11 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
         migrated, count = self.db.get_all(TestResource(), 'jean-louis')
         self.assertEqual(migrated[0]['drink'], 'cacao')
+
+    def test_every_available_migration_succeeds_if_tables_were_flushed(self):
+        # During tests, tables can be flushed.
+        self.db.flush()
+        self.db.initialize_schema()
+        # Version matches current one.
+        version = self.db._get_installed_version()
+        self.assertEqual(version, self.version)
