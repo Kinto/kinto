@@ -148,10 +148,10 @@ class BaseResource(object):
         records, total_records, next_page = self.get_records()
 
         headers = self.request.response.headers
-        headers['Total-Records'] = ('%s' % total_records).encode('utf-8')
+        headers['Total-Records'] = ('%s' % total_records)
 
         if next_page:
-            headers['Next-Page'] = next_page.encode('utf-8')
+            headers['Next-Page'] = next_page
         body = {
             'items': records,
         }

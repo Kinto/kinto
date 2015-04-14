@@ -294,27 +294,23 @@ class PaginationNextURLTest(FakeAuthentMixin, BaseWebTest):
         resp = self.app.get(self.collection_url + '?_limit=1',
                             extra_environ={'HTTP_HOST': 'localhost:8000'},
                             headers=self.headers)
-        next_page = resp.headers['Next-Page'].decode('utf8')
-        self.assertIn(':8000', next_page)
+        self.assertIn(':8000', resp.headers['Next-Page'])
 
     def test_next_page_url_has_not_port_number_if_80(self):
         resp = self.app.get(self.collection_url + '?_limit=1',
                             extra_environ={'HTTP_HOST': 'localhost:80'},
                             headers=self.headers)
-        next_page = resp.headers['Next-Page'].decode('utf8')
-        self.assertNotIn(':80', next_page)
+        self.assertNotIn(':80', resp.headers['Next-Page'])
 
     def test_next_page_url_relies_on_pyramid_url_system(self):
         resp = self.app.get(self.collection_url + '?_limit=1',
                             extra_environ={'wsgi.url_scheme': 'https'},
                             headers=self.headers)
-        next_page = resp.headers['Next-Page'].decode('utf8')
-        self.assertIn('https://', next_page)
+        self.assertIn('https://', resp.headers['Next-Page'])
 
     def test_next_page_url_relies_on_headers_information(self):
         headers = self.headers.copy()
         headers['Host'] = 'https://server.name:443'
         resp = self.app.get(self.collection_url + '?_limit=1',
                             headers=headers)
-        next_page = resp.headers['Next-Page'].decode('utf8')
-        self.assertIn('https://server.name:443', next_page)
+        self.assertIn('https://server.name:443', resp.headers['Next-Page'])
