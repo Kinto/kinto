@@ -1,7 +1,7 @@
+.. _storage:
+
 Storage
 #######
-
-.. _storage:
 
 
 PostgreSQL
@@ -21,6 +21,8 @@ Memory
 
 .. autoclass:: cliquet.storage.memory.Memory
 
+
+.. _cloud-storage:
 
 Cloud Storage
 =============

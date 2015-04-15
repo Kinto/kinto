@@ -3,6 +3,9 @@ Glossary
 
 .. glossary::
 
+    CRUD
+        Acronym for Create, Read, Update, Delete
+
     endpoint
         An endpoint handles a particular HTTP verb at a particular URL.
 
@@ -16,4 +19,7 @@ Glossary
         A string that identifies a user. By default, *Cliquet* uses a HMAC on
         authentication credentials to generate users identifications strings.
 
-        See `Pyramid authentication <http://docs.pylonsproject.org/docs/pyramid/en/latest/narr/security.html>`_.
+        See `Pyramid authentication`_.
+
+
+.. _Pyramid authentication: http://docs.pylonsproject.org/docs/pyramid/en/latest/narr/security.html

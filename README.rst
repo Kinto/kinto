@@ -16,8 +16,8 @@ Cliquet
     :target: https://coveralls.io/r/mozilla-services/cliquet
 
 
-*Cliquet* is a `Cornice <https://cornice.readthedocs.org>`_ application to ease
-the implementation of resource oriented REST APIs.
+*Cliquet* is a toolkit to ease the implementation of HTTP microservices,
+such as resource oriented REST APIs.
 
 * `Online documentation <http://cliquet.readthedocs.org/en/latest/>`_
 * `Issue tracker <https://github.com/mozilla-services/cliquet/issues>`_

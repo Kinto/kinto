@@ -1,33 +1,14 @@
 Rationale
 #########
 
+*Cliquet* is a toolkit to ease the implementation HTTP `microservices`_.
+Its mainly focused on resource oriented REST APIs (aka :term:`CRUD`).
+
+.. _microservices: http://en.wikipedia.org/wiki/Microservices
+
+
 Philosophy
 ==========
-
-*Cliquet* doesn't try to be a framework: the generated APIs are well defined and
-follow a specific protocol.
-
-This protocol is an implementation of a series of opinionated good practices
-we follow at Mozilla. The goal is to produce APIs which are easy to consume
-for the clients and follow some well known patterns.
-
-*Cliquet* handles:
-
-* Records validation
-* Storage by user
-* Pagination
-* Sorting and filtering
-* Record race conditions handling using preconditions headers
-* Batch operations
-* Polling for collection changes
-* Errors formatting
-* API versioning and deprecation
-* Structured logging
-* StatsD metrics (*optional*)
-* Sentry reporting (*optional*)
-
-It is built around the notion of resources: resources are defined by sub-classing,
-and *Cliquet* handles the APIs out of that.
 
 * KISS
 * No magic
@@ -35,15 +16,95 @@ and *Cliquet* handles the APIs out of that.
 * Easy customization
 * Straightforward component substitution
 
-*Cliquet* is built on the shoulders of giants: Pyramid is doing all the heavy
-HTTP stuff and PostgreSQL for the storage.
+*Cliquet* doesn't try to be a framework: any project built with *Cliquet* will
+expose a well defined HTTP protocol for:
+
+* Collection and records manipulation;
+* HTTP status and headers handling;
+* API versioning and deprecation;
+* Errors formatting.
+
+:ref:`This protocol <api-endpoints>` is an implementation of a series of good practices we follow at
+`Mozilla Services`_. The goal is to produce standardized APIs, which follow some
+well known patterns, encouraging genericity in clients code.
+
+Of course, *Cliquet* can be extended and customized in many ways. It can also
+be used in any kind of project, for its tooling, utilities and helpers.
+
+.. _Mozilla Services: https://wiki.mozilla.org/CloudServices
+
+
+Features
+========
+
+It is built around the notion of resources: resources are defined by sub-classing,
+and *Cliquet* handles the APIs out of that.
+
+Records and synchronization
+---------------------------
+
+* Collection of records by user
+* Optional validation from schema
+* Sorting and filtering
+* Pagination using continuation tokens
+* Polling for collection changes
+* Record race conditions handling using preconditions headers
+
+Generic endpoints
+-----------------
+
+* Hello view at root url
+* Heartbeat for monitoring
+* Batch operations
+* API versioning and deprecation
+* Errors formatting
+* Backoff and retry-after headers
+
+Toolkit
+-------
+
+* Configuration through INI files
+* Pluggable storage and cache backends
+* Pluggable authentication schemes
+* Structured logging
+* StatsD metrics (*optional*)
+* Sentry reporting (*optional*)
+* NewRelic profiling (*optional*)
+* Python code profiling (*optional*)
+
+
+Dependencies
+============
+
+*Cliquet* is built on the shoulders of giants:
+
+* :rtd:`Cornice <cornice>` for the REST helpers;
+* :rtd:`Pyramid <pyramid>` for the heavy HTTP stuff;
+* Redis or PostgreSQL for the cache and/or storage.
 
 Currently, default authentication relies on Firefox Account, but any
-authentication backend supported by Pyramid can be used.
+:ref:`authentication backend supported by Pyramid can be used <configuration-authentication>`.
+
+
+Built with Cliquet
+==================
+
+Some applications in the wild built with *Cliquet*:
+
+* :rtd:`Reading List <readinglist>`, a service to synchronize articles between
+  devices;
+* :rtd:`Kinto <kinto>`, a service to store and synchronize schema-less data.
+
+.. note::
+
+    A *Kinto* instance can be used as a storage backend for a *Cliquet*
+    application! :ref:`See cloud storage <cloud-storage>`.
 
 
 Context
 =======
+
+(*to be done*)
 
 * Cloud Services team at Mozilla
 * :rtd:`ReadingList <readinglist>` project story
@@ -52,32 +113,50 @@ Context
 * Firefox OS User Data synchronization and backup
 
 
-Vision
-======
+Long term
+=========
 
 General
 -------
 
-* A global protocol : *Cliquet* is the reference implementation in Python
-* JavaScript client: implementation of reference
+An offline-first JavaScript library will be published [#]_, with the aim of providing
+some reusable code for any client that interacts with a *Cliquet*-based API.
 
-Features
---------
+Server applications built with *Cliquet* can store their data in several kinds of
+storage backends. Since backends are pluggable, and since *Kinto* is one of
+them, storing data «in the cloud» is built-in! In the long term, we envision
+a world where client and server applications are decorrelated from their data [#]_!
 
-* Notifications channel
-* Pluggable authentication backends (from configuration, just like storage)
+Since the protocol is language independant and follows HTTP/REST principles,
+in the long term *Cliquet* should become only one among several implementations.
+We encourage you to implement a clone of this project using Node.js, Asyncio,
+Go, Twisted or even Django !
 
 
-Built with Cliquet
-==================
+Roadmap
+-------
 
-Some applications in the wild built with *Cliquet*:
+The future features we plan to implement in *Cliquet* are currently driven by the
+use-cases we meet internally at Mozilla. Most notable are:
 
-* :rtd:`ReadingList <readinglist>`
-* :rtd:`Kinto <kinto>`
+* Permissions system (e.g. read-only and record sharing)
+* Notifications channel (e.g. run asynchronous tasks on events)
+* ... come and discuss `enhancements in the issue tracker`_!
+
+.. _enhancements in the issue tracker: https://github.com/mozilla-services/cliquet/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement
 
 
 Similar projects
 ================
 
-* `Python Eve <http://python-eve.org/>`_
+* `Python Eve <http://python-eve.org/>`_, built on Flask and MongoDB.
+
+
+.. [#] Currently, the code was not extracted from the client projects, such as
+    `RL Web client`_ (React.js), `Android RL sync`_ (Java) or `Firefox RL client`_ (asm.js).
+
+.. [#] See https://unhosted.org.
+
+.. _RL Web client: https://github.com/n1k0/readinglist-client/
+.. _Android RL Sync: https://hg.mozilla.org/releases/mozilla-beta/file/default/mobile/android/base/reading/
+.. _Firefox RL client: https://hg.mozilla.org/releases/mozilla-aurora/file/default/browser/components/readinglist
