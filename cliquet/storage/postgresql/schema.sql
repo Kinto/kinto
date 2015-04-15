@@ -22,22 +22,16 @@ CREATE TABLE IF NOT EXISTS records (
     last_modified TIMESTAMP NOT NULL,
 
     -- Consider using binary JSON (JSONB, postgresql 9.4+, 2x faster).
-    data JSON NOT NULL DEFAULT '{}'
+    data JSON NOT NULL DEFAULT '{}',
+
+    PRIMARY KEY (id, user_id, resource_name)
 );
 
 DROP INDEX IF EXISTS idx_records_user_id_resource_name_last_modified;
 CREATE UNIQUE INDEX idx_records_user_id_resource_name_last_modified
     ON records(user_id, resource_name, last_modified DESC);
-DROP INDEX IF EXISTS idx_records_user_id;
-CREATE INDEX idx_records_user_id ON records(user_id);
-DROP INDEX IF EXISTS idx_records_resource_name;
-CREATE INDEX idx_records_resource_name ON records(resource_name);
-DROP INDEX IF EXISTS idx_records_last_modified;
-CREATE INDEX idx_records_last_modified ON records(last_modified);
 DROP INDEX IF EXISTS idx_records_last_modified_epoch;
 CREATE INDEX idx_records_last_modified_epoch ON records(as_epoch(last_modified));
-DROP INDEX IF EXISTS idx_records_id;
-CREATE INDEX idx_records_id ON records(id);
 
 
 --
@@ -47,21 +41,16 @@ CREATE TABLE IF NOT EXISTS deleted (
     id TEXT NOT NULL,
     user_id TEXT NOT NULL,
     resource_name TEXT NOT NULL,
-    last_modified TIMESTAMP NOT NULL
+    last_modified TIMESTAMP NOT NULL,
+
+    PRIMARY KEY (id, user_id, resource_name)
 );
 DROP INDEX IF EXISTS idx_records_user_id_resource_name_last_modified;
 CREATE UNIQUE INDEX idx_records_user_id_resource_name_last_modified
     ON records(user_id, resource_name, last_modified DESC);
-DROP INDEX IF EXISTS idx_deleted_id;
-CREATE UNIQUE INDEX idx_deleted_id ON deleted(id);
-DROP INDEX IF EXISTS idx_deleted_user_id;
-CREATE INDEX idx_deleted_user_id ON deleted(user_id);
-DROP INDEX IF EXISTS idx_deleted_resource_name;
-CREATE INDEX idx_deleted_resource_name ON deleted(resource_name);
-DROP INDEX IF EXISTS idx_deleted_last_modified;
-CREATE INDEX idx_deleted_last_modified ON deleted(last_modified);
 DROP INDEX IF EXISTS idx_deleted_last_modified_epoch;
 CREATE INDEX idx_deleted_last_modified_epoch ON deleted(as_epoch(last_modified));
+
 
 --
 -- Helper that returns the current collection timestamp.
@@ -147,4 +136,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``cliquet.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '4');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '5');
