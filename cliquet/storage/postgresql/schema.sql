@@ -8,6 +8,13 @@ END;
 $$ LANGUAGE plpgsql
 IMMUTABLE;
 
+CREATE OR REPLACE FUNCTION from_epoch(ts BIGINT) RETURNS TIMESTAMP AS $$
+BEGIN
+    RETURN to_timestamp(ts / 1000.0) AT TIME ZONE 'UTC';
+END;
+$$ LANGUAGE plpgsql
+IMMUTABLE;
+
 --
 -- Actual records
 --
@@ -30,8 +37,6 @@ CREATE TABLE IF NOT EXISTS records (
 DROP INDEX IF EXISTS idx_records_user_id_resource_name_last_modified;
 CREATE UNIQUE INDEX idx_records_user_id_resource_name_last_modified
     ON records(user_id, resource_name, last_modified DESC);
-DROP INDEX IF EXISTS idx_records_last_modified_epoch;
-CREATE INDEX idx_records_last_modified_epoch ON records(as_epoch(last_modified));
 
 
 --
@@ -48,8 +53,6 @@ CREATE TABLE IF NOT EXISTS deleted (
 DROP INDEX IF EXISTS idx_records_user_id_resource_name_last_modified;
 CREATE UNIQUE INDEX idx_records_user_id_resource_name_last_modified
     ON records(user_id, resource_name, last_modified DESC);
-DROP INDEX IF EXISTS idx_deleted_last_modified_epoch;
-CREATE INDEX idx_deleted_last_modified_epoch ON deleted(as_epoch(last_modified));
 
 
 --

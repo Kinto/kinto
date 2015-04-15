@@ -538,11 +538,19 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         holders = {}
         for i, filtr in enumerate(filters):
             value = filtr.value
+            sql_operator = operators.setdefault(filtr.operator, filtr.operator)
+
+            if filtr.field == resource.modified_field:
+                # Value is integer (asserted in resource).
+                assert isinstance(filtr.value, six.integer_types)
+                # Bypass field and value escaping in order to use a function.
+                cond = "last_modified %s from_epoch(%s)" % (sql_operator,
+                                                            filtr.value)
+                conditions.append(cond)
+                continue
 
             if filtr.field == resource.id_field:
                 sql_field = 'id'
-            elif filtr.field == resource.modified_field:
-                sql_field = 'as_epoch(last_modified)'
             else:
                 # Safely escape field name
                 field_holder = '%s_field_%s' % (prefix, i)
@@ -558,7 +566,6 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             value_holder = '%s_value_%s' % (prefix, i)
             holders[value_holder] = value
 
-            sql_operator = operators.setdefault(filtr.operator, filtr.operator)
             cond = "%s %s %%(%s)s" % (sql_field, sql_operator, value_holder)
             conditions.append(cond)
 
