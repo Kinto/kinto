@@ -25,6 +25,13 @@ class FilteringTest(BaseTest):
         self.assertEqual(len(result['items']), 1)
         self.assertTrue(result['items'][0]['deleted'])
 
+    def test_filter_on_id_is_supported(self):
+        self.patch_known_field.stop()
+        r = self.db.create(self.resource, 'bob', {})
+        self.resource.request.GET = {'id': '%s' % r['id']}
+        result = self.resource.collection_get()
+        self.assertEqual(result['items'][0], r)
+
     def test_list_cannot_be_filtered_on_deleted_without_since(self):
         r = self.db.create(self.resource, 'bob', {})
         self.db.delete(self.resource, 'bob', r['id'])

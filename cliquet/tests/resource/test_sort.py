@@ -47,6 +47,13 @@ class SortingTest(BaseTest):
             'code': 400,
             'error': 'Invalid parameters'})
 
+    def test_sort_on_last_modified_is_supported(self):
+        self.patch_known_field.stop()
+        self.resource.request.GET = {'_sort': '-last_modified'}
+        result = self.resource.collection_get()
+        timestamp = self.db.collection_timestamp(self.resource, 'bob')
+        self.assertEqual(result['items'][0]['last_modified'], timestamp)
+
     def test_single_basic_sort_by_attribute(self):
         self.resource.request.GET = {'_sort': 'title'}
         result = self.resource.collection_get()

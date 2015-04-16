@@ -113,7 +113,7 @@ class BaseResource(object):
 
         """
         known_fields = [c.name for c in self.mapping.children] + \
-                       [self.deleted_field]
+                       [self.id_field, self.modified_field, self.deleted_field]
         return field in known_fields
 
     #
