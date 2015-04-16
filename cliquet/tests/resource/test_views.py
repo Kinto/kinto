@@ -267,6 +267,10 @@ class StorageErrorTest(FakeAuthentMixin, BaseWebTest):
                 self.assertTrue(mocked.called)
                 self.assertEqual(type(mocked.call_args[0][0]), ValueError)
 
+class RedirectionTest():
+    def test_redirect_to_the_current_version():
+
+    def test_do_not_redirect_if_version_prefix_redirect_enabled_is_false():
 
 class CacheErrorTest(FakeAuthentMixin, BaseWebTest):
     def test_cache_errors_are_served_as_503(self):

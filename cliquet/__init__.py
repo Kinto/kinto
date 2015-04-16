@@ -68,7 +68,7 @@ DEFAULT_SETTINGS = {
     'cliquet.project_docs': '',
     'cliquet.project_name': '',
     'cliquet.project_version': '',
-    'cliquet.version_prefix_redirect_enabled':True,
+    'cliquet.version_prefix_redirect_enabled': True,
     'cliquet.retry_after_seconds': 30,
     'cliquet.statsd_prefix': 'cliquet',
     'cliquet.statsd_url': None,
@@ -133,15 +133,21 @@ def handle_api_redirection(config):
             '/%s/%s' % (route_prefix, request.matchdict['path']))
 
     # Redirect to the current version of the API if the prefix isn't used.
-    # Do not redirect if cliquet.version_prefix_redirect_enabled is set to False.
-    config.add_route(name='redirect_to_version',
-                     pattern='/{path:(?!%s).*}' % route_prefix)
+    # Do not redirect if cliquet.version_prefix_redirect_enabled is set to
+    # False.
+    settings = config.get_settings()
+    version_prefix_redirection_enabled = asbool(
+        settings['cliquet.version_prefix_redirect_enabled'])
 
-    config.add_view(view=_redirect_to_version_view,
-                    route_name='redirect_to_version',
-                    permission=NO_PERMISSION_REQUIRED)
+    if version_prefix_redirection_enabled:
+        config.add_route(name='redirect_to_version',
+                         pattern='/{path:(?!%s).*}' % route_prefix)
 
-    config.route_prefix = route_prefix
+        config.add_view(view=_redirect_to_version_view,
+                        route_name='redirect_to_version',
+                        permission=NO_PERMISSION_REQUIRED)
+
+        config.route_prefix = route_prefix
 
 
 def set_auth(config):
