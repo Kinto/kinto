@@ -1,8 +1,7 @@
-API Endpoints
-#############
-
 .. _api-endpoints:
 
+API Endpoints
+#############
 
 .. toctree::
    authentication

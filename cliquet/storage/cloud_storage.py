@@ -56,6 +56,14 @@ class CloudStorage(StorageBase):
 
         cliquet.storage_url = https://cloud-storage.services.mozilla.com
 
+    A first implementation of this service was published as
+    :rtd:`Kinto <kinto>`. In order to run an instance locally, run this
+    command:
+
+    ::
+
+        make runkinto
+
     .. note::
 
         In order to avoid double checking of OAuth tokens, the Kinto service
