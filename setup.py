@@ -15,7 +15,7 @@ with open(os.path.join(here, 'CONTRIBUTORS.rst')) as f:
 
 REQUIREMENTS = [
     'colander',
-    'cornice >= 0.20',  # Fixes cors.
+    'cornice >= 1.0',  # Disable request binding.
     'python-dateutil',
     'pyfxa >= 0.0.6',  # Gevent support
     'pyramid_multiauth',
