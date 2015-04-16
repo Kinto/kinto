@@ -12,6 +12,10 @@ Glossary
     Firefox Accounts
         Account account system run by Mozilla (https://accounts.firefox.com).
 
+    KISS
+        «Keep it simple, stupid» is a design priciple which states that most
+        systems work best if they are kept simple rather than made complicated.
+
     resource
         A resource is a collection of records.
 

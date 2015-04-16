@@ -1,7 +1,7 @@
 Rationale
 #########
 
-*Cliquet* is a toolkit to ease the implementation HTTP `microservices`_.
+*Cliquet* is a toolkit to ease the implementation of HTTP `microservices`_.
 Its mainly focused on resource oriented REST APIs (aka :term:`CRUD`).
 
 .. _microservices: http://en.wikipedia.org/wiki/Microservices
@@ -10,11 +10,11 @@ Its mainly focused on resource oriented REST APIs (aka :term:`CRUD`).
 Philosophy
 ==========
 
-* KISS
-* No magic
-* Works with defaults
-* Easy customization
-* Straightforward component substitution
+* :term:`KISS`;
+* No magic;
+* Works with defaults;
+* Easy customization;
+* Straightforward component substitution.
 
 *Cliquet* doesn't try to be a framework: any project built with *Cliquet* will
 expose a well defined HTTP protocol for:
@@ -38,7 +38,7 @@ Features
 ========
 
 It is built around the notion of resources: resources are defined by sub-classing,
-and *Cliquet* handles the APIs out of that.
+and *Cliquet* brings up the HTTP endpoints automatically.
 
 Records and synchronization
 ---------------------------
