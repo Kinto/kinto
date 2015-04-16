@@ -58,7 +58,7 @@ Generic endpoints
 * Batch operations
 * API versioning and deprecation
 * Errors formatting
-* Backoff and retry-after headers
+* ``Backoff`` and ``Retry-After`` headers
 
 Toolkit
 -------
