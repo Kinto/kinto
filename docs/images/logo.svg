@@ -346,16 +346,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.4194751"
-     inkscape:cx="215.30349"
-     inkscape:cy="129.02585"
+     inkscape:zoom="3.4216545"
+     inkscape:cx="260.46616"
+     inkscape:cy="87.303266"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1025"
+     inkscape:window-width="2560"
+     inkscape:window-height="1385"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
@@ -412,7 +412,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -503,7 +503,7 @@
        inkscape:export-xdpi="115.37"
        inkscape:export-ydpi="115.37"
        inkscape:export-filename="/home/mathieu/Pictures/2015/20150413-cliquet-logo/rect3052-29.png"
-       style="color:#000000;fill:none;stroke:#000000;stroke-width:0.30000001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1.2, 0.6, 0.3, 0.6;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       style="color:#000000;fill:none;stroke:#7c7c7c;stroke-width:0.30000000999999998;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1.19999999999999996, 0.59999999999999998, 0.29999999999999999, 0.59999999999999998;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        transform="matrix(1.300431,0,0,1.300431,-55.436308,-19.472434)">
       <path
          inkscape:export-ydpi="180"
@@ -512,7 +512,7 @@
          inkscape:connector-curvature="0"
          id="path3067-5"
          d="m 297.4375,87.71875 c -11.34882,2.172487 -19.31674,11.606316 -28.9375,16.6875 -6.08791,-0.0184 -9.87268,-6.064421 -11.71875,-11.1875 -8.93051,8.74871 -10.96213,21.4591 -15.375,32.5 -4.68379,3.99908 -11.60285,1.29416 -16.3125,-1.3125 -2.16284,12.00737 4.52329,22.95693 6.53125,34.28125 -1.18098,6.44287 -8.91601,8.66206 -14.75,7.875 5.20943,11.68529 17.3416,17.1352 26.34375,25.21875 2.20923,5.85648 -2.9429,11.2185 -6.78125,15 10.93839,5.72432 23.85609,3.18725 35.46875,4.8125 5.19009,3.50667 4.10649,10.82428 3.40625,16.1875 12.26433,-1.80716 21.03768,-11.29829 31.3125,-17.15625 6.21261,-0.37006 9.83712,5.84776 12.25,10.6875 8.58654,-8.5853 10.61904,-21.10156 15.15625,-31.78125 4.56033,-4.38527 11.75199,-2.07317 16.3125,1.125 2.27293,-12.51135 -5.53711,-23.76192 -6.1875,-35.75 2.09263,-5.42467 9.01581,-6.35371 13.9375,-7.75 -5.62937,-11.07324 -17.71677,-16.17348 -25.84375,-24.6875 -1.87448,-5.78776 2.86431,-10.90007 7,-14.28125 -10.94858,-5.68061 -23.53135,-3.67267 -35.28125,-4.65625 -5.58004,-3.31739 -4.92072,-11.056363 -3.59375,-16.5 -0.97917,0.229167 -1.95833,0.458333 -2.9375,0.6875 z"
-         style="color:#000000;fill:none;stroke:#000000;stroke-width:0.30000001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1.2, 0.6, 0.3, 0.6;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+         style="color:#000000;fill:none;stroke:#7c7c7c;stroke-width:0.30000000999999998;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1.19999999999999996, 0.59999999999999998, 0.29999999999999999, 0.59999999999999998;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <path
          inkscape:export-filename="/home/mathieu/Pictures/2015/20150413-cliquet-logo/rect3052-6.png"
          inkscape:export-ydpi="180"
@@ -520,11 +520,11 @@
          inkscape:connector-curvature="0"
          id="rect3052-5"
          d="m 370.875,123 c 13.65237,11.04654 20.42518,27.802 28.84375,42.5 7.41398,5.10721 20.12546,-3.23247 15.75,-12.0625 -7.57314,-20.80376 -29.27414,-32.58063 -50.3125,-35.5 1.90625,1.6875 3.8125,3.375 5.71875,5.0625 z"
-         style="color:#000000;fill:none;stroke:#000000;stroke-width:0.30000001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1.2, 0.6, 0.3, 0.6;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+         style="color:#000000;fill:none;stroke:#7c7c7c;stroke-width:0.30000000999999998;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1.19999999999999996, 0.59999999999999998, 0.29999999999999999, 0.59999999999999998;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
     </g>
     <path
        sodipodi:type="arc"
-       style="color:#000000;fill:none;stroke:#000000;stroke-width:0.30000001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1.2, 0.6, 0.3, 0.6;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       style="color:#000000;fill:none;stroke:#7c7c7c;stroke-width:0.30000000999999998;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.65098041;stroke-dasharray:1.19999999999999996, 0.59999999999999998, 0.29999999999999999, 0.59999999999999998;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        id="path3846"
        sodipodi:cx="306.04984"
        sodipodi:cy="151.89874"
@@ -650,5 +650,14 @@
          d="m 430.08091,172.40495 -1.39106,-4.93138 -5.95622,0.96627"
          style="color:#000000;fill:none;stroke:#4e4e4e;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:0.38431373;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
     </g>
+    <path
+       inkscape:export-ydpi="115"
+       inkscape:export-xdpi="115"
+       inkscape:export-filename="/home/mathieu/Pictures/2015/20150413-cliquet-logo/rect3052-26.png"
+       sodipodi:nodetypes="ccc"
+       inkscape:connector-curvature="0"
+       id="path6902-7-5"
+       d="m 490.24597,218.57251 0.0178,-6.66315 -7.79346,-0.91431"
+       style="color:#000000;fill:none;stroke:#4e4e4e;stroke-width:1.30043101px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:0.38431373;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
   </g>
 </svg>
