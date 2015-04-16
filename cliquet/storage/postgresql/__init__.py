@@ -123,7 +123,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     """
 
-    schema_version = 4
+    schema_version = 5
 
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')
@@ -288,8 +288,11 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
           FROM records
          WHERE id = %(record_id)s
            AND user_id = %(user_id)s
+           AND resource_name = %(resource_name)s;
         """
-        placeholders = dict(record_id=record_id, user_id=user_id)
+        placeholders = dict(record_id=record_id,
+                            user_id=user_id,
+                            resource_name=resource.name)
         with self.connect(readonly=True) as cursor:
             cursor.execute(query, placeholders)
             if cursor.rowcount == 0:
@@ -314,6 +317,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         UPDATE records SET data=%(data)s::json
         WHERE id = %(record_id)s
            AND user_id = %(user_id)s
+           AND resource_name = %(resource_name)s
         RETURNING as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(record_id=record_id,
@@ -330,6 +334,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             SELECT id FROM records
             WHERE id = %(record_id)s
               AND user_id = %(user_id)s
+              AND resource_name = %(resource_name)s;
             """
             cursor.execute(query, placeholders)
             query = query_update if cursor.rowcount > 0 else query_create
@@ -349,6 +354,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             FROM records
             WHERE id = %(record_id)s
               AND user_id = %(user_id)s
+              AND resource_name = %(resource_name)s
             RETURNING id
         )
         INSERT INTO deleted (id, user_id, resource_name)
@@ -488,7 +494,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             placeholders.update(**holders)
 
         if limit:
-            assert isinstance(limit, six.integer_types)  # validated in view
+            assert isinstance(limit, six.integer_types)  # asserted in resource
             safeholders['pagination_limit'] = 'LIMIT %s' % limit
 
         with self.connect(readonly=True) as cursor:
