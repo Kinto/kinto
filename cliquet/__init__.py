@@ -124,9 +124,6 @@ def load_default_settings(config):
 def handle_api_redirection(config):
     """Add a view which redirects to the current version of the API.
     """
-    # Disable the route prefix passed by the app.
-    route_prefix = config.route_prefix
-    config.route_prefix = None
 
     def _redirect_to_version_view(request):
         raise HTTPTemporaryRedirect(
@@ -140,6 +137,10 @@ def handle_api_redirection(config):
         settings['cliquet.version_prefix_redirect_enabled'])
 
     if version_prefix_redirection_enabled:
+        # Disable the route prefix passed by the app.
+        route_prefix = config.route_prefix
+        config.route_prefix = None
+
         config.add_route(name='redirect_to_version',
                          pattern='/{path:(?!%s).*}' % route_prefix)
 

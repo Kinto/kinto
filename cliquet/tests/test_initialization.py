@@ -59,6 +59,14 @@ class InitializationTest(unittest.TestCase):
         self.assertEqual(config.registry.settings['cliquet.project_name'],
                          'kinto')
 
+    def test_set_version_prefix_redirect_to_false(self):
+        config = Configurator(
+            settings={'cliquet.version_prefix_redirect_enabled': False})
+        cliquet.initialize(config, '0.0.1', 'kinto')
+        self.assertEqual(
+            config.registry.settings[
+                'cliquet.version_prefix_redirect_enabled'], False)
+
     def test_overriden_default_settings(self):
         config = Configurator()
         defaults = {'cliquet.paginate_by': 102}
