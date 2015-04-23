@@ -69,7 +69,6 @@ DEFAULT_SETTINGS = {
     'cliquet.project_docs': '',
     'cliquet.project_name': '',
     'cliquet.project_version': '',
-    'cliquet.version_prefix_redirect_enabled': True,
     'cliquet.retry_after_seconds': 30,
     'cliquet.statsd_prefix': 'cliquet',
     'cliquet.statsd_url': None,
@@ -78,6 +77,7 @@ DEFAULT_SETTINGS = {
     'cliquet.storage_pool_size': 10,
     'cliquet.storage_url': '',
     'cliquet.userid_hmac_secret': '',
+    'cliquet.version_prefix_redirect_enabled': True,
     'fxa-oauth.cache_ttl_seconds': 5 * 60,
     'fxa-oauth.client_id': None,
     'fxa-oauth.client_secret': None,
@@ -125,31 +125,33 @@ def load_default_settings(config):
 def handle_api_redirection(config):
     """Add a view which redirects to the current version of the API.
     """
+    settings = config.get_settings()
+    redirect_enabled = settings['cliquet.version_prefix_redirect_enabled']
+    version_prefix_redirection_enabled = asbool(redirect_enabled)
+
+    # Redirect to the current version of the API if the prefix isn't used.
+    # Do not redirect if cliquet.version_prefix_redirect_enabled is set to
+    # False.
+    if not version_prefix_redirection_enabled:
+        return
 
     def _redirect_to_version_view(request):
         raise HTTPTemporaryRedirect(
             '/%s/%s' % (route_prefix, request.matchdict['path']))
 
-    # Redirect to the current version of the API if the prefix isn't used.
-    # Do not redirect if cliquet.version_prefix_redirect_enabled is set to
-    # False.
-    settings = config.get_settings()
-    version_prefix_redirection_enabled = asbool(
-        settings['cliquet.version_prefix_redirect_enabled'])
+    # Disable the route prefix passed by the app.
+    route_prefix = config.route_prefix
+    config.route_prefix = None
 
-    if version_prefix_redirection_enabled:
-        # Disable the route prefix passed by the app.
-        route_prefix = config.route_prefix
-        config.route_prefix = None
+    config.add_route(name='redirect_to_version',
+                     pattern='/{path:(?!%s).*}' %
+                     route_prefix)
 
-        config.add_route(name='redirect_to_version',
-                         pattern='/{path:(?!%s).*}' % route_prefix)
+    config.add_view(view=_redirect_to_version_view,
+                    route_name='redirect_to_version',
+                    permission=NO_PERMISSION_REQUIRED)
 
-        config.add_view(view=_redirect_to_version_view,
-                        route_name='redirect_to_version',
-                        permission=NO_PERMISSION_REQUIRED)
-
-        config.route_prefix = route_prefix
+    config.route_prefix = route_prefix
 
 
 def set_auth(config):

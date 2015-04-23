@@ -47,10 +47,11 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         finally:
             self.app.RequestClass = original_request_class
 
-    def test_do_not_redirect_to_version(self):
+    def test_do_not_redirect_to_version_if_disabled_in_settings(self):
         # GET on the hello view.
-        with mock.patch.dict(self.app.app.registry.settings,
-                [('cliquet.version_prefix_redirect_enabled', False)]):
-            response = self.app.get('/')
-            self.assertEqual(response.status_int, 200)
-            self.assertEqual(response.location, None)
+        app = self._get_test_app({
+            'cliquet.version_prefix_redirect_enabled': False
+        })
+        response = app.get('/')
+        self.assertEqual(response.status_int, 200)
+        self.assertEqual(response.location, None)
