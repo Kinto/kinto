@@ -8,6 +8,8 @@ class Memory(CacheBase):
     Enable in configuration::
 
         cliquet.cache_backend = cliquet.cache.memory
+
+    :noindex:
     """
 
     def __init__(self, *args, **kwargs):

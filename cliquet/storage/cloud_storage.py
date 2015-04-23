@@ -56,7 +56,15 @@ class CloudStorage(StorageBase):
 
         cliquet.storage_url = https://cloud-storage.services.mozilla.com
 
-    :note:
+    A first implementation of this service was published as
+    :rtd:`Kinto <kinto>`. In order to run an instance locally, run this
+    command:
+
+    ::
+
+        make runkinto
+
+    .. note::
 
         In order to avoid double checking of OAuth tokens, the Kinto service
         and the application can share the same cache (``cliquet.cache_url``).
@@ -117,10 +125,12 @@ class CloudStorage(StorageBase):
     @wrap_http_error
     def create(self, resource, user_id, record):
         self.check_unicity(resource, user_id, record)
-        url = self._build_url(self.collection_url.format(resource.name))
-        resp = self._client.post(url,
-                                 data=json.dumps(record),
-                                 headers=self._build_headers(resource))
+        record_id = resource.id_generator()
+        url = self._build_url(self.record_url.format(resource.name,
+                                                     record_id))
+        resp = self._client.put(url,
+                                data=json.dumps(record),
+                                headers=self._build_headers(resource))
         resp.raise_for_status()
         return resp.json()
 

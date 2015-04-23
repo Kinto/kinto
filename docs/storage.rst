@@ -1,7 +1,7 @@
+.. _storage:
+
 Storage
 #######
-
-.. _storage:
 
 
 PostgreSQL
@@ -22,6 +22,8 @@ Memory
 .. autoclass:: cliquet.storage.memory.Memory
 
 
+.. _cloud-storage:
+
 Cloud Storage
 =============
 
@@ -35,4 +37,11 @@ Implementing a custom storage backend consists in implementating the following
 interface:
 
 .. automodule:: cliquet.storage
+    :members:
+
+
+Exceptions
+----------
+
+.. automodule:: cliquet.storage.exceptions
     :members:

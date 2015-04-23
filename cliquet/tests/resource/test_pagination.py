@@ -25,7 +25,7 @@ class PaginationTest(BaseTest):
             self.db.create(self.resource, 'bob', record)
 
     def _setup_next_page(self):
-        next_page = self.last_response.headers['Next-Page'].decode('utf-8')
+        next_page = self.last_response.headers['Next-Page']
         url_fragments = urlparse(next_page)
         queryparams = parse_qs(url_fragments.query)
         self.resource.request.GET['_token'] = queryparams['_token'][0]

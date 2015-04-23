@@ -34,7 +34,7 @@ class CORSOriginHeadersTest(FakeAuthentMixin, BaseWebTest):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_unknown_record(self):
-        url = self.get_item_url('unknown')
+        url = self.get_item_url('1cea99eb-5e3d-44ad-a53a-2fb68473b538')
         response = self.app.get(url,
                                 headers=self.headers,
                                 status=404)

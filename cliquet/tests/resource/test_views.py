@@ -126,6 +126,46 @@ class InvalidRecordTest(FakeAuthentMixin, BaseWebTest):
                           status=400)
 
 
+class IgnoredFieldsTest(FakeAuthentMixin, BaseWebTest):
+    def setUp(self):
+        super(IgnoredFieldsTest, self).setUp()
+        resp = self.app.post_json(self.collection_url,
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers)
+        self.record = resp.json
+
+    def test_id_is_not_validated_and_overwritten(self):
+        record = MINIMALIST_RECORD.copy()
+        record['id'] = 3.14
+        resp = self.app.post_json(self.collection_url,
+                                  record,
+                                  headers=self.headers)
+        self.assertNotEqual(resp.json['id'], 3.14)
+
+    def test_last_modified_is_not_validated_and_overwritten(self):
+        record = MINIMALIST_RECORD.copy()
+        record['last_modified'] = 'abc'
+        resp = self.app.post_json(self.collection_url,
+                                  record,
+                                  headers=self.headers)
+        self.assertNotEqual(resp.json['last_modified'], 'abc')
+
+    def test_modify_works_with_invalid_last_modified(self):
+        body = {'last_modified': 'abc'}
+        resp = self.app.patch_json(self.get_item_url(),
+                                   body,
+                                   headers=self.headers)
+        self.assertNotEqual(resp.json['last_modified'], 'abc')
+
+    def test_replace_works_with_invalid_last_modified(self):
+        record = MINIMALIST_RECORD.copy()
+        record['last_modified'] = 'abc'
+        resp = self.app.put_json(self.get_item_url(),
+                                 record,
+                                 headers=self.headers)
+        self.assertNotEqual(resp.json['last_modified'], 'abc')
+
+
 class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
     def __init__(self, *args, **kwargs):
         super(InvalidBodyTest, self).__init__(*args, **kwargs)
@@ -294,27 +334,23 @@ class PaginationNextURLTest(FakeAuthentMixin, BaseWebTest):
         resp = self.app.get(self.collection_url + '?_limit=1',
                             extra_environ={'HTTP_HOST': 'localhost:8000'},
                             headers=self.headers)
-        next_page = resp.headers['Next-Page'].decode('utf8')
-        self.assertIn(':8000', next_page)
+        self.assertIn(':8000', resp.headers['Next-Page'])
 
     def test_next_page_url_has_not_port_number_if_80(self):
         resp = self.app.get(self.collection_url + '?_limit=1',
                             extra_environ={'HTTP_HOST': 'localhost:80'},
                             headers=self.headers)
-        next_page = resp.headers['Next-Page'].decode('utf8')
-        self.assertNotIn(':80', next_page)
+        self.assertNotIn(':80', resp.headers['Next-Page'])
 
     def test_next_page_url_relies_on_pyramid_url_system(self):
         resp = self.app.get(self.collection_url + '?_limit=1',
                             extra_environ={'wsgi.url_scheme': 'https'},
                             headers=self.headers)
-        next_page = resp.headers['Next-Page'].decode('utf8')
-        self.assertIn('https://', next_page)
+        self.assertIn('https://', resp.headers['Next-Page'])
 
     def test_next_page_url_relies_on_headers_information(self):
         headers = self.headers.copy()
         headers['Host'] = 'https://server.name:443'
         resp = self.app.get(self.collection_url + '?_limit=1',
                             headers=headers)
-        next_page = resp.headers['Next-Page'].decode('utf8')
-        self.assertIn('https://server.name:443', next_page)
+        self.assertIn('https://server.name:443', resp.headers['Next-Page'])

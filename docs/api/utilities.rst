@@ -1,4 +1,5 @@
-##################################
+.. _api-utilities:
+
 Utility endpoints for OPS and Devs
 ##################################
 
@@ -21,6 +22,8 @@ Return the status of each service the your application depends on. The
 returned value is a JSON mapping containing:
 
 - ``database`` true if operational
+- ``cache`` true if operational
+- ``oauth`` true if operational, or `null` if not enabled
 
 Return ``200`` if the connection with each service is working properly
 and ``503`` if something doesn't work.

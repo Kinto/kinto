@@ -40,6 +40,8 @@ sys.path.insert(0, os.path.abspath(os.path.join('..', 'cliquet')))
 # ones.
 extensions = [
   'sphinx.ext.autodoc',
+  'sphinx.ext.extlinks',
+  'sphinx.ext.intersphinx'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -63,9 +65,9 @@ copyright = u'2015, Mozilla Services — Da French Team'
 # built documents.
 #
 # The short X.Y version.
-version = '1.6'
+version = '1.7'
 # The full version, including alpha/beta/rc tags.
-release = '1.6.0'
+release = '1.7.0'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -82,6 +84,27 @@ html_static_path = ['_static']
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Cliquetdoc'
 
+
+# -- Options for autodoc --------------------------------------------------
+
+autodoc_member_order = 'bysource'
+
+
+# -- Options of extlinks --------------------------------------------------
+
+extlinks = {
+  'github': ('https://github.com/%s/', ''),
+  'rtd': ('http://%s.readthedocs.org', '')
+}
+
+
+# -- Options for intersphinx --------------------------------------------------
+
+intersphinx_mapping = {
+  'colander': ('http://colander.readthedocs.org/en/latest/', None),
+  'cornice': ('http://cornice.readthedocs.org/en/latest/', None),
+  'pyramid': ('http://pyramid.readthedocs.org/en/latest/', None)
+}
 
 # -- Options for LaTeX output ---------------------------------------------
 

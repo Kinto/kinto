@@ -10,7 +10,7 @@ See `Pyramid settings documentation <http://docs.pylonsproject.org/docs/pyramid/
 Environment variables
 =====================
 
-In order to ease deployment or testing strategies, cliquet reads settings
+In order to ease deployment or testing strategies, *Cliquet* reads settings
 from environment variables, in addition to ``.ini`` files.
 
 For example, ``cliquet.storage_backend`` is read from environment variable
@@ -21,7 +21,7 @@ from internal defaults.
 Project info
 ============
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.project_name = project
     cliquet.project_docs = https://project.rtfd.org/
@@ -31,7 +31,7 @@ Project info
 Feature settings
 ================
 
-.. code-block :: ini
+.. code-block:: ini
 
     # Limit number of batch operations per request
     # cliquet.batch_max_requests = 25
@@ -42,10 +42,14 @@ Feature settings
     # Force pagination *(recommended)*
     # cliquet.paginate_by = 200
 
+    # Custom record id generator class
+    # cliquet.id_generator = cliquet.storage.generators.UUID4
+
+
 Deployment
 ==========
 
-.. code-block :: ini
+.. code-block:: ini
 
     # cliquet.backoff = 10
     cliquet.retry_after_seconds = 30
@@ -54,7 +58,7 @@ Deployment
 Scheme, host and port
 :::::::::::::::::::::
 
-By default *cliquet* does not enforce requests scheme, host and port. It relies
+By default *Cliquet* does not enforce requests scheme, host and port. It relies
 on WSGI specification and the related stack configuration. Tuning this becomes
 necessary when the application runs behind proxies or load balancers.
 
@@ -64,7 +68,7 @@ properly.
 However if, for some reasons, this had to be enforced at the application level,
 the following settings can be set:
 
-.. code-block :: ini
+.. code-block:: ini
 
     # cliquet.http_scheme = https
     # cliquet.http_host = production.server:7777
@@ -76,11 +80,11 @@ Check the ``url`` value returned in the hello view.
 Deprecation
 :::::::::::
 
-Activate the :ref:`service deprecation <versioning>`. If the date specified
+Activate the :ref:`service deprecation <api-versioning>`. If the date specified
 in ``eos`` is in the future, an alert will be sent to clients. If it's in
 the past, the service will be declared as decomissionned.
 
-.. code-block :: ini
+.. code-block:: ini
 
     # cliquet.eos = 2015-01-22
     # cliquet.eos_message = "Client is too old"
@@ -93,7 +97,7 @@ Logging with Heka
 
 Mozilla Services standard logging format can be enabled using:
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.logging_renderer = cliquet.logs.MozillaHekaRenderer
 
@@ -101,7 +105,7 @@ Mozilla Services standard logging format can be enabled using:
 With the following configuration, all logs are redirected to standard output
 (See `12factor app <http://12factor.net/logs>`_):
 
-.. code-block :: ini
+.. code-block:: ini
 
     [loggers]
     keys = root
@@ -129,13 +133,13 @@ With the following configuration, all logs are redirected to standard output
 Handling exceptions with Sentry
 :::::::::::::::::::::::::::::::
 
-Requires the ``raven`` package, or *cliquet* installed with
+Requires the ``raven`` package, or *Cliquet* installed with
 ``pip install cliquet[monitoring]``.
 
 Sentry logging can be enabled, `as explained in official documentation
 <http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
 
-:note:
+.. note::
 
     The application sends an *INFO* message on startup, mainly for setup check.
 
@@ -143,46 +147,40 @@ Sentry logging can be enabled, `as explained in official documentation
 Monitoring with StatsD
 ::::::::::::::::::::::
 
-Requires the ``statsd`` package, or *cliquet* installed with
+Requires the ``statsd`` package, or *Cliquet* installed with
 ``pip install cliquet[monitoring]``.
 
 StatsD metrics can be enabled (disabled by default):
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.statsd_url = udp://localhost:8125
     # cliquet.statsd_prefix = cliquet.project_name
 
+
 Monitoring with New Relic
 :::::::::::::::::::::::::
 
-Requires the ``newrelic`` package, or *cliquet* installed with
+Requires the ``newrelic`` package, or *Cliquet* installed with
 ``pip install cliquet[monitoring]``.
+
+Enable middlewares as described :ref:`here <configuration-middlewares>`.
 
 New-Relic can be enabled (disabled by default):
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.newrelic_config = /location/of/newrelic.ini
     cliquet.newrelic_env = prod
 
-This also requires your wsgi application to be wrapped by cliquet.
-In your project ``main`` function:
 
-.. code-block :: python
-  :emphasize-lines: 4,5
 
-  def main(global_config, **settings):
-      config = Configurator(settings=settings)
-      cliquet.initialize(config, __version__)
-      app = config.make_wsgi_app()
-      return cliquet.install_middlewares(app)
-
+.. _configuration-storage:
 
 Storage
 =======
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.storage_backend = cliquet.storage.redis
     cliquet.storage_url = redis://localhost:6379/1
@@ -191,7 +189,7 @@ Storage
     # cliquet.storage_max_fetch_size = 10000
 
     # Control number of pooled connections
-    # cliquet.storage_pool_maxconn = 50
+    # cliquet.storage_pool_size = 50
 
 See :ref:`storage backend documentation <storage>` for more details.
 
@@ -199,16 +197,18 @@ See :ref:`storage backend documentation <storage>` for more details.
 Cache
 =====
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.cache_backend = cliquet.cache.redis
     cliquet.cache_url = redis://localhost:6379/0
 
     # Control number of pooled connections
-    # cliquet.cache_pool_maxconn = 50
+    # cliquet.storage_pool_size = 50
 
 See :ref:`cache backend documentation <cache>` for more details.
 
+
+.. _configuration-authentication:
 
 Authentication
 ==============
@@ -216,7 +216,7 @@ Authentication
 Since user identification is hashed in storage, a secret key is required
 in configuration:
 
-.. code-block :: ini
+.. code-block:: ini
 
     # cliquet.userid_hmac_secret = b4c96a8692291d88fe5a97dd91846eb4
 
@@ -224,7 +224,7 @@ in configuration:
 Basic Auth
 ::::::::::
 
-.. code-block :: ini
+.. code-block:: ini
 
     # cliquet.basic_auth_enabled = true
 
@@ -239,11 +239,11 @@ Internally, Cliquet relies on Pyramid ``authenticated_userid`` request
 attribute to associate users to records.
 
 
-.. code-block :: python
+.. code-block:: python
+    :emphasize-lines: 5
 
     def main(global_config, **settings):
         config = Configurator(settings=settings)
-
         cliquet.initialize(config, __version__)
 
         config.include('velruse.providers.github')
@@ -251,7 +251,8 @@ attribute to associate users to records.
 
 Or set it up manually:
 
-.. code-block :: python
+.. code-block:: python
+    :emphasize-lines: 1,11-17
 
     import pyramid_multiauth
 
@@ -261,7 +262,6 @@ Or set it up manually:
 
     def main(global_config, **settings):
         config = Configurator(settings=settings)
-
         cliquet.initialize(config, __version__)
 
         policies = [
@@ -281,7 +281,7 @@ Firefox Accounts OAuth integration is currently limited to Mozilla relying servi
 
 If you're a Mozilla service, fill the settings with the values you were provided:
 
-.. code-block :: ini
+.. code-block:: ini
 
     fxa-oauth.relier.enabled = true
     fxa-oauth.client_id = 89513028159972bc
@@ -299,9 +299,11 @@ Application profiling
 It is possible to profile the application while its running. This is especially
 useful when trying to find slowness in the application.
 
+Enable middlewares as described :ref:`here <configuration-middlewares>`.
+
 Update your configuration file with the following values:
 
-.. code-block :: ini
+.. code-block:: ini
 
     cliquet.profiler_enabled = true
     cliquet.profiler_dir = /tmp/profiling
@@ -323,3 +325,20 @@ Render execution graphs using GraphViz:
 
     pip install gprof2dot
     gprof2dot -f pstats POST.v1.batch.000176ms.1427458675.prof | dot -Tpng -o output.png
+
+
+.. _configuration-middlewares:
+
+Enable middleware
+=================
+
+In order to enable Cliquet middleware, wrap the application in the project ``main`` function:
+
+.. code-block:: python
+  :emphasize-lines: 4,5
+
+  def main(global_config, **settings):
+      config = Configurator(settings=settings)
+      cliquet.initialize(config, __version__)
+      app = config.make_wsgi_app()
+      return cliquet.install_middlewares(app)

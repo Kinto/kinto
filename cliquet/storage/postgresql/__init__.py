@@ -99,7 +99,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     Alternatively, username and password could also rely on system user ident
     or even specified in :file:`~/.pgpass` (*see PostgreSQL documentation*).
 
-    :note:
+    .. note::
 
         Some tables and indices are created when ``cliquet migrate`` is run.
         This requires some privileges on the database, or some error will
@@ -115,7 +115,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         cliquet.storage_pool_size = 10
 
-    :note:
+    .. note::
 
         Using a `dedicated connection pool <http://pgpool.net>`_ is still
         recommended to allow load balancing, replication or limit the number
@@ -123,7 +123,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     """
 
-    schema_version = 2
+    schema_version = 5
 
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')
@@ -144,7 +144,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def initialize_schema(self):
         """Create PostgreSQL tables, and run necessary schema migrations.
 
-        :note:
+        .. note::
+
             Relies on JSON fields, available in recent versions of PostgreSQL.
         """
         version = self._get_installed_version()
@@ -183,7 +184,9 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             result = cursor.fetchone()
         timezone = result['timezone'].upper()
         if timezone != 'UTC':  # pragma: no cover
-            warnings.warn('Database timezone is not UTC (%s)' % timezone)
+            msg = 'Database timezone is not UTC (%s)' % timezone
+            warnings.warn(msg)
+            logger.warning(msg)
 
     def _check_database_encoding(self):
         # Make sure database is UTF-8.
@@ -220,7 +223,16 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             if cursor.rowcount > 0:
                 return int(cursor.fetchone()['version'])
             else:
-                # In the first versions of cliquet, there was no migration.
+                # Guess current version.
+                query = "SELECT COUNT(*) FROM metadata;"
+                cursor.execute(query)
+                was_flushed = int(cursor.fetchone()[0]) == 0
+                if was_flushed:
+                    error_msg = 'Missing schema history: consider version %s.'
+                    logger.warning(error_msg % self.schema_version)
+                    return self.schema_version
+
+                # In the first versions of Cliquet, there was no migration.
                 return 1
 
     def flush(self):
@@ -249,15 +261,17 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     def create(self, resource, user_id, record):
         query = """
-        INSERT INTO records (user_id, resource_name, data)
-        VALUES (%(user_id)s, %(resource_name)s, %(data)s::json)
+        INSERT INTO records (id, user_id, resource_name, data)
+        VALUES (%(record_id)s, %(user_id)s, %(resource_name)s, %(data)s::json)
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
-        placeholders = dict(user_id=user_id,
+        placeholders = dict(record_id=resource.id_generator(),
+                            user_id=user_id,
                             resource_name=resource.name,
                             data=json.dumps(record))
 
         with self.connect() as cursor:
+            # Check that it does violate the resource unicity rules.
             self._check_unicity(cursor, resource, user_id, record)
 
             cursor.execute(query, placeholders)
@@ -272,10 +286,13 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         query = """
         SELECT as_epoch(last_modified) AS last_modified, data
           FROM records
-         WHERE id = %(record_id)s::uuid
+         WHERE id = %(record_id)s
            AND user_id = %(user_id)s
+           AND resource_name = %(resource_name)s;
         """
-        placeholders = dict(record_id=record_id, user_id=user_id)
+        placeholders = dict(record_id=record_id,
+                            user_id=user_id,
+                            resource_name=resource.name)
         with self.connect(readonly=True) as cursor:
             cursor.execute(query, placeholders)
             if cursor.rowcount == 0:
@@ -291,15 +308,16 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def update(self, resource, user_id, record_id, record):
         query_create = """
         INSERT INTO records (id, user_id, resource_name, data)
-        VALUES (%(record_id)s::uuid, %(user_id)s,
+        VALUES (%(record_id)s, %(user_id)s,
                 %(resource_name)s, %(data)s::json)
         RETURNING as_epoch(last_modified) AS last_modified;
         """
 
         query_update = """
         UPDATE records SET data=%(data)s::json
-        WHERE id = %(record_id)s::uuid
+        WHERE id = %(record_id)s
            AND user_id = %(user_id)s
+           AND resource_name = %(resource_name)s
         RETURNING as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(record_id=record_id,
@@ -308,13 +326,15 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                             data=json.dumps(record))
 
         with self.connect() as cursor:
+            # Check that it does violate the resource unicity rules.
             self._check_unicity(cursor, resource, user_id, record)
 
             # Create or update ?
             query = """
             SELECT id FROM records
-            WHERE id = %(record_id)s::uuid
+            WHERE id = %(record_id)s
               AND user_id = %(user_id)s
+              AND resource_name = %(resource_name)s;
             """
             cursor.execute(query, placeholders)
             query = query_update if cursor.rowcount > 0 else query_create
@@ -332,8 +352,9 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         WITH deleted_record AS (
             DELETE
             FROM records
-            WHERE id = %(record_id)s::uuid
+            WHERE id = %(record_id)s
               AND user_id = %(user_id)s
+              AND resource_name = %(resource_name)s
             RETURNING id
         )
         INSERT INTO deleted (id, user_id, resource_name)
@@ -473,7 +494,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             placeholders.update(**holders)
 
         if limit:
-            assert isinstance(limit, six.integer_types)  # validated in view
+            assert isinstance(limit, six.integer_types)  # asserted in resource
             safeholders['pagination_limit'] = 'LIMIT %s' % limit
 
         with self.connect(readonly=True) as cursor:
@@ -497,10 +518,11 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def _format_conditions(self, resource, filters, prefix='filters'):
         """Format the filters list in SQL, with placeholders for safe escaping.
 
-        :note:
+        .. note::
             All conditions are combined using AND.
 
-        :note:
+        .. note::
+
             Field name and value are escaped as they come from HTTP API.
 
         :returns: A SQL string with placeholders, and a dict mapping
@@ -547,10 +569,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         """Format the pagination rules in SQL, with placeholders for
         safe escaping.
 
-        :note:
+        .. note::
+
             All rules are combined using OR.
 
-        :note:
+        .. note::
+
             Field names are escaped as they come from HTTP API.
 
         :returns: A SQL string with placeholders, and a dict mapping
@@ -573,7 +597,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def _format_sorting(self, resource, sorting):
         """Format the sorting in SQL, with placeholders for safe escaping.
 
-        :note:
+        .. note::
+
             Field names are escaped as they come from HTTP API.
 
         :returns: A SQL string with placeholders, and a dict mapping
@@ -673,5 +698,5 @@ def load_from_config(config):
                        database=uri.path[1:] if uri.path else '')
     # Filter specified values only, to preserve PostgreSQL defaults
     conn_kwargs = dict([(k, v) for k, v in conn_kwargs.items() if v])
-
-    return PostgreSQL(max_fetch_size=int(max_fetch_size), **conn_kwargs)
+    return PostgreSQL(max_fetch_size=int(max_fetch_size),
+                      **conn_kwargs)

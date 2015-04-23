@@ -10,7 +10,6 @@ env:
     - TOX_ENV=flake8
     - TOX_ENV=docs
 before_install:
-    - sudo apt-get install postgresql-contrib-9.3
     # <Kinto>
     - git clone https://github.com/mozilla-services/kinto.git kinto
     - pushd kinto
@@ -28,3 +27,7 @@ before_script:
     - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
 script:
     - tox -e $TOX_ENV
+after_success:
+    # Report coverage results to coveralls.io
+    - pip install coveralls
+    - coveralls

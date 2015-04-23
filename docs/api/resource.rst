@@ -41,11 +41,13 @@ Prefix attribute name with ``min_`` or ``max_``:
 
 * ``/resource?min_field=4000``
 
-:note:
+.. note::
+
     The lower and upper bounds are inclusive (*i.e equivalent to
     greater or equal*).
 
-:note:
+.. note::
+
    ``lt_`` and ``gt_`` can also be used to exclude the bound.
 
 **Exclude**
@@ -54,10 +56,12 @@ Prefix attribute name with ``not_``:
 
 * ``/resource?not_field=0``
 
-:note:
+.. note::
+
     Will return an error if a field is unknown.
 
-:note:
+.. note::
+
     The ``Last-Modified`` response header will always be the same as
     the unfiltered collection.
 
@@ -66,10 +70,12 @@ Sorting
 
 * ``/resource?_sort=-last_modified,field``
 
-:note:
+.. note::
+
     Ordering on a boolean field gives ``true`` values first.
 
-:note:
+.. note::
+
     Will return an error if a field is unknown.
 
 
@@ -102,7 +108,8 @@ If the request header ``If-Modified-Since`` is provided, and if the
 collection has not suffered changes meanwhile, a ``304 Not Modified``
 response is returned.
 
-:note:
+.. note::
+
    The ``_to`` parameter is also available, and is an alias for
    ``lt_last_modified`` (*strictly inferior*).
 
@@ -179,10 +186,12 @@ Conflicts
 Since field can be :ref:`defined as unique <resource-class>` per user, some
 conflicts may appear when creating records.
 
-:note:
+.. note::
+
     Empty values are not taken into account for field unicity.
 
-:note:
+.. note::
+
     Deleted records are not taken into account for field unicity.
 
 If a conflict occurs, an error response is returned with status ``409``.
@@ -193,7 +202,8 @@ HTTP Status Codes
 -----------------
 
 .. * ``200 OK``: This record already exists, here is the one stored on the database;
-* ``201 Created``: The request have been processed, the record created
+
+* ``201 Created``: The request have been processed, the record created;
 * ``400 Bad Request``: The request body is invalid;
 * ``409 Conflict``: Unicity constraint on fields is violated;
 * ``412 Precondition Failed``: Collection items changed since provided ``If-Unmodified-Since`` header value;
@@ -260,7 +270,8 @@ decide to ignore it.
 If the request header ``If-Unmodified-Since`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
-:note:
+.. note::
+
     Once deleted, a record will appear in the collection when polling for changes,
     with a deleted status (``delete=true``) and will have most of its fields empty.
 
@@ -313,7 +324,8 @@ decide to ignore it.
 If the request header ``If-Unmodified-Since`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
-:note:
+.. note::
+
     ``last_modified`` is updated to the current server timestamp, only if a
     field value was changed.
 

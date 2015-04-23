@@ -15,7 +15,7 @@ with open(os.path.join(here, 'CONTRIBUTORS.rst')) as f:
 
 REQUIREMENTS = [
     'colander',
-    'cornice >= 0.20',  # Fixes cors.
+    'cornice >= 1.0',  # Disable request binding.
     'python-dateutil',
     'pyfxa >= 0.0.6',  # Gevent support
     'pyramid_multiauth',
@@ -48,7 +48,7 @@ ENTRY_POINTS = {
 
 
 setup(name='cliquet',
-      version='1.6.1.dev0',
+      version='1.7.1.dev0',
       description='cliquet',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',

@@ -1,20 +1,9 @@
 import operator
-import six
 from collections import defaultdict
-from uuid import uuid4
 
 from cliquet import utils
 from cliquet.storage import StorageBase, exceptions, Filter
 from cliquet.utils import COMPARISON
-
-
-class UUID4Generator(object):
-
-    def __init__(self, config=None):
-        pass
-
-    def __call__(self, key_exist=None):
-        return six.text_type(uuid4()).replace('-', '')
 
 
 def tree():
@@ -25,11 +14,8 @@ class MemoryBasedStorage(StorageBase):
     """Abstract storage class, providing basic operations and
     methods for in-memory implementations of sorting and filtering.
     """
-
-    def __init__(self, id_generator=None, *args, **kwargs):
-        if id_generator is None:
-            id_generator = UUID4Generator()
-        self.id_generator = id_generator
+    def __init__(self, *args, **kwargs):
+        pass
 
     def initialize_schema(self):
         # Nothing to do.
@@ -166,7 +152,7 @@ class Memory(MemoryBasedStorage):
         self.check_unicity(resource, user_id, record)
 
         record = record.copy()
-        _id = record[resource.id_field] = self.id_generator()
+        _id = record[resource.id_field] = resource.id_generator()
         self.set_record_timestamp(resource, user_id, record)
         self._store[resource.name][user_id][_id] = record
         return record

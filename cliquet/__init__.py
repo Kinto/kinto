@@ -59,6 +59,7 @@ DEFAULT_SETTINGS = {
     'cliquet.eos_url': None,
     'cliquet.http_host': None,
     'cliquet.http_scheme': None,
+    'cliquet.id_generator': 'cliquet.storage.generators.UUID4',
     'cliquet.logging_renderer': 'cliquet.logs.ClassicLogRenderer',
     'cliquet.newrelic_config': None,
     'cliquet.newrelic_env': 'dev',
@@ -302,6 +303,9 @@ def includeme(config):
     cache = config.maybe_dotted(settings['cliquet.cache_backend'])
     config.registry.cache = cache.load_from_config(config)
 
+    id_generator = config.maybe_dotted(settings['cliquet.id_generator'])
+    config.registry.id_generator = id_generator()
+
     set_auth(config)
     attach_http_objects(config)
 
@@ -339,14 +343,12 @@ def initialize(config, version=None, project_name=None, default_settings=None):
     on the specified version.
 
     :param config: Pyramid configuration
-    :type config: pyramid.config.Configurator
-    :param version: Current project version (e.g. '0.0.1') if not defined
+    :type config: ~pyramid:pyramid.config.Configurator
+    :param str version: Current project version (e.g. '0.0.1') if not defined
         in application settings.
-    :type version: string
-    :param project_name: Project name if not defined in application settings.
-    :type project_name: string
-    :param default_settings: Override cliquet default settings values.
-    :type default_settings: dict
+    :param str project_name: Project name if not defined
+        in application settings.
+    :param dict default_settings: Override cliquet default settings values.
     """
     if default_settings:
         config.add_settings(default_settings)

@@ -14,7 +14,7 @@ from cliquet.errors import (http_error, raise_invalid, ERRORS,
                             json_error_handler)
 from cliquet.schema import ResourceSchema
 from cliquet.utils import (
-    COMPARISON, classname, native_value, decode_token, encode_token,
+    COMPARISON, classname, native_value, decode64, encode64, json,
     current_service
 )
 
@@ -23,7 +23,20 @@ def crud(**kwargs):
     """
     Decorator for resource classes.
 
-    This allows to bring default parameters for Cornice ``resource()``.
+    By default, the lower class name of the resource is used to build URLs.
+
+    This decorator accepts the same parameters as the :rtd:`Cornice <cornice>`
+    :meth:`~cornice:cornice.resource.resource` decorator.
+
+    .. code-block:: python
+
+            from cliquet import resource
+
+            @resource.crud(collection_path='/stories',
+                           path='/stories/{id}',
+                           description='My favorite stories')
+            class Story(resource.BaseResource):
+                ...
     """
     def wrapper(klass):
         resource_name = klass.__name__.lower()
@@ -42,27 +55,33 @@ def crud(**kwargs):
 class BaseResource(object):
     """Base resource class providing every endpoint."""
     mapping = ResourceSchema()
-    """Schema to validate records"""
+    """Schema to validate records."""
 
     validate_schema_for = ('POST', 'PUT')
     """HTTP verbs for which the schema must be validated"""
 
     id_field = 'id'
-    """Name of *id* field in resource schema"""
+    """Name of `id` field in resource schema"""
 
     modified_field = 'last_modified'
-    """Name of *last modified* field in resource schema"""
+    """Name of `last modified` field in resource schema"""
 
     deleted_field = 'deleted'
-    """Field and value of deleted status in records"""
+    """Name of `deleted` field in deleted records"""
+
+    id_generator = None
+    """Record id generator for this resource. By default, it uses the one
+    configured globally in settings."""
 
     def __init__(self, request):
         self.request = request
+        self.id_generator = self.request.registry.id_generator
         self.db = request.db
         self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
         self.timestamp = self.db.collection_timestamp(**self.db_kwargs)
         self.record_id = self.request.matchdict.get('id')
+
         # Log resource context.
         logger.bind(resource_name=self.name, resource_timestamp=self.timestamp)
 
@@ -73,24 +92,28 @@ class BaseResource(object):
 
     @property
     def schema(self):
-        """Resource schema, depending on HTTP verb."""
+        """Resource schema, depending on HTTP verb.
+
+        :returns: a :class:`~cornice:cornice.schemas.CorniceSchema` object
+            built from this resource :attr:`mapping <.BaseResource.mapping>`.
+        """
         colander_schema = self.mapping
 
         if self.request.method not in self.validate_schema_for:
             # No-op since payload is not validated against schema
             colander_schema = colander.MappingSchema(unknown='preserve')
 
-        return CorniceSchema.from_colander(colander_schema)
+        return CorniceSchema.from_colander(colander_schema, bind_request=False)
 
     def is_known_field(self, field):
-        """Return the True if the field is defined in the resource mapping.
-        :param field: Field name
-        :type field: string
-        :rtype: boolean
+        """Return ``True`` if `field` is defined in the resource mapping.
+
+        :param str field: Field name
+        :rtype: bool
 
         """
         known_fields = [c.name for c in self.mapping.children] + \
-                       [self.deleted_field]
+                       [self.id_field, self.modified_field, self.deleted_field]
         return field in known_fields
 
     #
@@ -102,7 +125,22 @@ class BaseResource(object):
         cors_headers=('Next-Page', 'Total-Records', 'Last-Modified')
     )
     def collection_get(self):
-        """Collection `GET` endpoint."""
+        """Collection ``GET`` endpoint: retrieve multiple records.
+
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
+            ``If-Modified-Since`` header is provided and collection not
+            modified in the interim.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and collection modified
+            in the iterim.
+
+        .. seealso::
+
+            Add custom behaviour by overriding
+            :meth:`cliquet.resource.BaseResource.get_records`
+        """
         self._add_timestamp_header(self.request.response)
         self._raise_304_if_not_modified()
         self._raise_412_if_modified()
@@ -110,10 +148,10 @@ class BaseResource(object):
         records, total_records, next_page = self.get_records()
 
         headers = self.request.response.headers
-        headers['Total-Records'] = ('%s' % total_records).encode('utf-8')
+        headers['Total-Records'] = ('%s' % total_records)
 
         if next_page:
-            headers['Next-Page'] = next_page.encode('utf-8')
+            headers['Next-Page'] = next_page
         body = {
             'items': records,
         }
@@ -122,7 +160,19 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_post(self):
-        """Collection `POST` endpoint."""
+        """Collection ``POST`` endpoint: create a record.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and collection modified
+            in the iterim.
+
+        .. seealso::
+
+            Add custom behaviour by overriding
+            :meth:`cliquet.resource.BaseResource.process_record` or
+            :meth:`cliquet.resource.BaseResource.create_record`
+        """
         self._raise_412_if_modified()
 
         new_record = self.process_record(self.request.validated)
@@ -132,7 +182,20 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def collection_delete(self):
-        """Collection `DELETE` endpoint."""
+        """Collection ``DELETE`` endpoint: delete multiple records.
+
+        Can be disabled via ``cliquet.delete_collection_enabled`` setting.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and collection modified
+            in the iterim.
+
+        .. seealso::
+
+            Add custom behaviour by overriding
+            :meth:`cliquet.resource.BaseResource.delete_records`.
+        """
         settings = self.request.registry.settings
         enabled = settings['cliquet.delete_collection_enabled']
         if not enabled:
@@ -151,7 +214,23 @@ class BaseResource(object):
 
     @resource.view(permission='readonly', cors_headers=('Last-Modified',))
     def get(self):
-        """Record `GET` endpoint."""
+        """Record ``GET`` endpoint: retrieve a record.
+
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
+            ``If-Modified-Since`` header is provided and record not
+            modified in the interim.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and record modified
+            in the iterim.
+
+        .. seealso::
+
+            Add custom behaviour by overriding
+            :meth:`cliquet.resource.BaseResource.get_record`.
+        """
+        self._raise_400_if_invalid_id(self.record_id)
         self._add_timestamp_header(self.request.response)
         record = self.get_record(self.record_id)
         self._raise_304_if_not_modified(record)
@@ -161,7 +240,21 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def put(self):
-        """Record `PUT` endpoint."""
+        """Record ``PUT`` endpoint: create or replace the provided record and
+        return it.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and record modified
+            in the iterim.
+
+        .. seealso::
+
+            Add custom behaviour by overriding
+            :meth:`cliquet.resource.BaseResource.process_record` or
+            :meth:`cliquet.resource.BaseResource.update_record`.
+        """
+        self._raise_400_if_invalid_id(self.record_id)
         try:
             existing = self.get_record(self.record_id)
             self._raise_412_if_modified(existing)
@@ -170,15 +263,8 @@ class BaseResource(object):
 
         new_record = self.request.validated
 
-        new_id = new_record.setdefault(self.id_field, self.record_id)
-        if new_id != self.record_id:
-            error_msg = 'Record id does not match existing record'
-            error_details = {
-                'name': self.id_field,
-                'location': 'querystring',
-                'description': error_msg
-            }
-            raise_invalid(self.request, **error_details)
+        record_id = new_record.setdefault(self.id_field, self.record_id)
+        self._raise_400_if_id_mismatch(record_id, self.record_id)
 
         new_record = self.process_record(new_record, old=existing)
         record = self.update_record(existing, new_record)
@@ -186,7 +272,22 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def patch(self):
-        """Record `PATCH` endpoint."""
+        """Record ``PATCH`` endpoint: modify a record and return its
+        new version.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and record modified
+            in the iterim.
+
+        .. seealso::
+            Add custom behaviour by overriding
+            :meth:`cliquet.resource.BaseResource.get_record`,
+            :meth:`cliquet.resource.BaseResource.apply_changes`,
+            :meth:`cliquet.resource.BaseResource.process_record` or
+            :meth:`cliquet.resource.BaseResource.update_record`.
+        """
+        self._raise_400_if_invalid_id(self.record_id)
         record = self.get_record(self.record_id)
         self._raise_412_if_modified(record)
 
@@ -199,6 +300,10 @@ class BaseResource(object):
         changes = self.request.json
 
         updated = self.apply_changes(record, changes=changes)
+
+        record_id = updated.setdefault(self.id_field, self.record_id)
+        self._raise_400_if_id_mismatch(record_id, self.record_id)
+
         updated = self.process_record(updated, old=record)
 
         record = self.update_record(record, updated, changes)
@@ -206,7 +311,19 @@ class BaseResource(object):
 
     @resource.view(permission='readwrite')
     def delete(self):
-        """Record `DELETE` endpoint."""
+        """Record ``DELETE`` endpoint: delete a record and return it.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Unmodified-Since`` header is provided and record modified
+            in the iterim.
+
+        .. seealso::
+            Add custom behaviour by overriding
+            :meth:`cliquet.resource.BaseResource.get_record` or
+            :meth:`cliquet.resource.BaseResource.delete_record`,
+        """
+        self._raise_400_if_invalid_id(self.record_id)
         record = self.get_record(self.record_id)
         self._raise_412_if_modified(record)
 
@@ -224,8 +341,8 @@ class BaseResource(object):
         Override to implement custom querystring parsing, or post-process
         records after their retrieval from storage.
 
-        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if filters or
-            sorting are invalid.
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
+            if filters or sorting are invalid.
         :returns: A tuple with the list of records in the current page,
             the total number of records in the result set, and the next page
             url.
@@ -262,8 +379,10 @@ class BaseResource(object):
         Override to implement custom querystring parsing, or post-process
         records after their deletion from storage.
 
-        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if filters or
-            sorting are invalid.
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
+            if filters or sorting are invalid.
+        :returns: The list of deleted records from storage.
+
         """
         filters = self._extract_filters()
         return self.db.delete_all(filters=filters, **self.db_kwargs)
@@ -271,7 +390,7 @@ class BaseResource(object):
     def get_record(self, record_id):
         """Fetch current view related record, and raise 404 if missing.
 
-        :raises: :class:`pyramid.httpexceptions.HTTPNotFound`
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound`
         :returns: the record from storage
         :rtype: dict
         """
@@ -289,7 +408,7 @@ class BaseResource(object):
         Override to perform actions or post-process records after their
         creation in storage.
 
-        .. code-block :: python
+        .. code-block:: python
 
             def create_record(self, record):
                 record = super(MyResource, self).create_record(record)
@@ -297,9 +416,11 @@ class BaseResource(object):
                 record['index'] = idx
                 return record
 
-        :raises: :class:`pyramid.httpexceptions.HTTPConflict` if a unique
-            field constraint is violated.
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
+            if a unique field constraint is violated.
 
+        :returns: the newly created record.
+        :rtype: dict
         """
         try:
             return self.db.create(record=record, **self.db_kwargs)
@@ -312,7 +433,7 @@ class BaseResource(object):
         Override to perform actions or post-process records after their
         modification in storage.
 
-        .. code-block :: python
+        .. code-block:: python
 
             def update_record(self, record, old=None):
                 record = super(MyResource, self).update_record(record, old)
@@ -320,9 +441,11 @@ class BaseResource(object):
                 send_email(subject)
                 return record
 
-        :raises: :class:`pyramid.httpexceptions.HTTPConflict` if a unique
-            field constraint is violated.
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
+            if a unique field constraint is violated.
 
+        :returns: the updated record.
+        :rtype: dict
         """
         if changes is not None:
             nothing_changed = not any([old.get(k) != new.get(k)
@@ -344,7 +467,7 @@ class BaseResource(object):
         Override to perform actions or post-process records after deletion
         from storage for example:
 
-        .. code-block :: python
+        .. code-block:: python
 
             def delete_record(self, record):
                 deleted = super(Resource, self).delete_record(record)
@@ -352,8 +475,10 @@ class BaseResource(object):
                 deleted['media'] = 0
                 return deleted
 
-        :param record: the record to delete
-        :type record: dict
+        :param dict record: the record to delete
+
+        :returns: the deleted record.
+        :rtype: dict
         """
         record_id = record[self.id_field]
         return self.db.delete(record_id=record_id, **self.db_kwargs)
@@ -362,7 +487,7 @@ class BaseResource(object):
         """Hook for processing records before they reach storage, to introduce
         specific logics on fields for example.
 
-        .. code-block :: python
+        .. code-block:: python
 
             def process_record(self, new, old=None):
                 version = old['version'] if old else 0
@@ -371,30 +496,34 @@ class BaseResource(object):
 
         Or add extra validation based on request:
 
-        .. code-block :: python
+        .. code-block:: python
+
+            from cliquet.errors import raise_invalid
 
             def process_record(self, new, old=None):
                 if new['browser'] not in request.headers['User-Agent']:
                     raise_invalid(self.request, name='browser', error='Wrong')
                 return new
 
-        :param new: the validated record to be created or updated.
-        :type new: dict
-        :param old: the old record to be updated,
+        :param dict new: the validated record to be created or updated.
+        :param dict old: the old record to be updated,
             ``None`` for creation endpoints.
-        :type old: dict
+
+        :returns: the processed record.
+        :rtype: dict
         """
         return new
 
     def apply_changes(self, record, changes):
-        """Merge changes into current record fields.
+        """Merge `changes` into `record` fields.
 
-        :note:
+        .. note::
+
             This is used in the context of PATCH only.
 
         Override this to control field changes at record level, for example:
 
-        .. code-block :: python
+        .. code-block:: python
 
             def apply_changes(self, record, changes):
                 # Ignore value change if inferior
@@ -402,8 +531,11 @@ class BaseResource(object):
                     changes.pop('position', None)
                 return super(MyResource, self).apply_changes(record, changes)
 
-        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest` if result does
-            not comply with resource schema.
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
+            if result does not comply with resource schema.
+
+        :returns: the new record with `changes` applied.
+        :rtype: dict
         """
         for field, value in changes.items():
             has_changed = record.get(field, value) != value
@@ -436,11 +568,24 @@ class BaseResource(object):
         timestamp = six.text_type(self.timestamp).encode('utf-8')
         response.headers['Last-Modified'] = timestamp
 
+    def _raise_400_if_invalid_id(self, record_id):
+        """Raise 400 if specified record id does not match the format excepted
+        by storage backends.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
+        """
+        if not self.id_generator.match(record_id):
+            error_details = {
+                'location': 'path',
+                'description': "Invalid record id"
+            }
+            raise_invalid(self.request, **error_details)
+
     def _raise_304_if_not_modified(self, record=None):
         """Raise 304 if current timestamp is inferior to the one specified
         in headers.
 
-        :raises: :class:`pyramid.httpexceptions.HTTPNotModified`
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified`
         """
         modified_since = self.request.headers.get('If-Modified-Since')
 
@@ -462,7 +607,8 @@ class BaseResource(object):
         """Raise 412 if current timestamp is superior to the one
         specified in headers.
 
-        :raises: :class:`pyramid.httpexceptions.HTTPPreconditionFailed`
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed`
         """
         unmodified_since = self.request.headers.get('If-Unmodified-Since')
 
@@ -488,7 +634,7 @@ class BaseResource(object):
 
         :param exception: the original unicity error
         :type exception: :class:`cliquet.storage.exceptions.UnicityError`
-        :raises: :class:`pyramid.httpexceptions.HTTPConflict`
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
         """
         field = exception.field
         existing = exception.record[self.id_field]
@@ -498,6 +644,20 @@ class BaseResource(object):
                               message=message)
         response.existing = exception.record
         raise response
+
+    def _raise_400_if_id_mismatch(self, new_id, record_id):
+        """Raise 400 if the `new_id`, within the request body, does not match
+        the `record_id`, obtained from request path.
+
+        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
+        """
+        if new_id != record_id:
+            error_msg = 'Record id does not match existing record'
+            error_details = {
+                'name': self.id_field,
+                'description': error_msg
+            }
+            raise_invalid(self.request, **error_details)
 
     def _extract_filters(self, queryparams=None):
         """Extracts filters from QueryString parameters."""
@@ -630,7 +790,7 @@ class BaseResource(object):
         filters = []
         if token:
             try:
-                last_record = decode_token(token)
+                last_record = json.loads(decode64(token))
                 assert isinstance(last_record, dict)
             except (ValueError, TypeError, AssertionError):
                 error_msg = '_token has invalid content'
@@ -668,4 +828,4 @@ class BaseResource(object):
         for field, _ in sorting:
             token[field] = last_record[field]
 
-        return encode_token(token)
+        return encode64(json.dumps(token))
