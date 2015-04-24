@@ -312,7 +312,14 @@ PATCH /{resource}/<id>
 Modify a specific record by its id. The PATCH body is a JSON
 mapping containing a subset of the resource schema fields.
 
-The PATCH response is the modified record (full).
+The PATCH response is the modified record (*full*).
+
+If a request header ``Response-Behavior`` is set to ``light``,
+only the fields whose value was changed are returned. If set to
+``diff``, only the fields whose value became different than
+the one provided are returned.
+
+
 
 **Errors**
 

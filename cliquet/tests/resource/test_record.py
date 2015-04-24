@@ -104,6 +104,22 @@ class PatchTest(BaseTest):
             self.assertEquals(self.result['last_modified'],
                               result['last_modified'])
 
+    def test_returns_changed_fields_among_provided_if_behaviour_is_diff(self):
+        self.resource.request.json = {'unread': True, 'position': 10}
+        self.resource.request.headers['Response-Behavior'] = 'diff'
+        with mock.patch.object(self.resource, 'update_record',
+                               return_value={'unread': True, 'position': 0}):
+            result = self.resource.patch()
+        self.assertDictEqual(result, {'position': 0})
+
+    def test_returns_changed_fields_if_behaviour_is_light(self):
+        self.resource.request.json = {'unread': True, 'position': 10}
+        self.resource.request.headers['Response-Behavior'] = 'light'
+        with mock.patch.object(self.resource, 'update_record',
+                               return_value={'unread': True, 'position': 0}):
+            result = self.resource.patch()
+        self.assertDictEqual(result, {'unread': True, 'position': 0})
+
 
 class UnknownRecordTest(BaseTest):
     def setUp(self):
