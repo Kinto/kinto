@@ -17,5 +17,5 @@ Firefox Account
 '''''''''''''''
 
 In order to avoid double-verification of FxA OAuth tokens, the ``cliquet.cache_url``
-should be the same in Kinto and in the application. This way
+should be the same in *Kinto* and in the application. This way
 the verification cache will be shared between the two components.

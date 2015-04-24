@@ -1,10 +1,11 @@
+.. _api-endpoints:
+
 API Endpoints
 #############
 
-.. _api-endpoints:
 
 See `cliquet API documentation <http://cliquet.readthedocs.org/en/latest/api/index.html>`_
-for an exhaustive list of features and endpoints of the Kinto API.
+for an exhaustive list of features and endpoints of the *Kinto* API.
 
 
 /collections/<collection_id>/records

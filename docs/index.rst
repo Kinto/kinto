@@ -18,7 +18,7 @@ It's as simple as that:
 
 The server doesn't impose anything about the records data model.
 
-Kinto is based on top of `cliquet <http://cliquet.readthedocs.org>`_.
+*Kinto* is based on top of `cliquet <http://cliquet.readthedocs.org>`_.
 
 
 Table of content
