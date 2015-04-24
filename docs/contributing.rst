@@ -26,3 +26,23 @@ IRC channel
 ===========
 
 Join ``#storage`` on ``irc.mozilla.org``!
+
+
+Run load tests
+==============
+
+From the :file:`loadtests` folder:
+
+::
+
+    make test SERVER_URL=http://localhost:8888
+
+
+Run a particular type of action instead of random:
+
+::
+
+    LOAD_ACTION=batch_create make test SERVER_URL=http://localhost:8888
+
+(*See loadtests source code for an exhaustive list of available actions and
+their respective randomness.*)

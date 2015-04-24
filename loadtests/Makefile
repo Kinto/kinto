@@ -1,4 +1,4 @@
-SERVER_URL = https://readinglist.stage.mozaws.net:443
+SERVER_URL = https://kinto.stage.mozaws.net:443
 VIRTUALENV=virtualenv
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON=$(VENV)/bin/python

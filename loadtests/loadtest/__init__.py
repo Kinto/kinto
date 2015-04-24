@@ -7,18 +7,12 @@ from requests.auth import HTTPBasicAuth, AuthBase
 from loads.case import TestCase
 from konfig import Config
 
+
 ACTIONS_FREQUENCIES = [
     ('create', 20),
     ('batch_create', 50),
     ('update', 50),
     ('filter_sort', 60),
-    ('read_further', 80),
-    ('batch_read_further', 80),
-    ('mark_as_read', 40),
-    ('create_conflict', 10),
-    ('update_conflict', 10),
-    ('archive', 10),
-    ('batch_archive', 30),
     ('delete', 10),
     ('batch_delete', 10),
     ('poll_changes', 90),
@@ -85,7 +79,13 @@ class TestBasic(TestCase):
         return Config(config_file).get_map('loads')
 
     def api_url(self, path):
-        return "{0}/v1/{1}".format(self.server_url, path)
+        return "{0}/v0/{1}".format(self.server_url, path)
+
+    def collection_url(self, collection):
+        return self.api_url('collections/%s/records' % collection)
+
+    def record_url(self, collection, record):
+        return self.api_url('collections/%s/records/%s' % (collection, record))
 
     def setUp(self):
         """Choose some random records in the whole collection.
@@ -99,19 +99,19 @@ class TestBasic(TestCase):
             self.create()
             nb_initial_records -= 1
 
-        resp = self.session.get(self.api_url('articles'), auth=self.auth)
+        resp = self.session.get(self.collection_url('articles'), auth=self.auth)
         records = resp.json()['items']
 
         # Pick a random record
         self.random_record = random.choice(records)
         self.random_id = self.random_record['id']
-        self.random_url = self.api_url('articles/%s' % self.random_id)
+        self.random_url = self.record_url('articles', self.random_id)
 
         # Pick another random, different
         records.remove(self.random_record)
         self.random_record_2 = random.choice(records)
         self.random_id_2 = self.random_record_2['id']
-        self.random_url_2 = self.api_url('articles/%s' % self.random_id_2)
+        self.random_url_2 = self.record_url('articles', self.random_id_2)
 
     def test_all(self):
         """Choose a random action among available, if not frequent enough,
@@ -146,7 +146,7 @@ class TestBasic(TestCase):
     def create(self):
         data = build_article()
         resp = self.session.post(
-            self.api_url('articles'),
+            self.collection_url('articles'),
             data,
             auth=self.auth)
         self.incr_counter(resp.status_code)
@@ -156,7 +156,7 @@ class TestBasic(TestCase):
         data = {
             "defaults": {
                 "method": "POST",
-                "path": "/articles"
+                "path": "/collections/articles/records"
             }
         }
         for i in range(25):
@@ -164,16 +164,6 @@ class TestBasic(TestCase):
             data.setdefault("requests", []).append(request)
 
         self._run_batch(data)
-
-    def create_conflict(self):
-        data = self.random_record.copy()
-        data.pop('id')
-        resp = self.session.post(
-            self.api_url('articles'),
-            data,
-            auth=self.auth)
-        self.incr_counter(resp.status_code)
-        self.assertEqual(resp.status_code, 200)
 
     def filter_sort(self):
         queries = [
@@ -185,7 +175,7 @@ class TestBasic(TestCase):
         ]
         queryparams = random.choice(queries)
         query_url = '&'.join(['='.join(param) for param in queryparams])
-        url = self.api_url('articles?{}'.format(query_url))
+        url = self.collection_url('articles') + '?' + query_url
         resp = self.session.get(url, auth=self.auth)
         self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, 200)
@@ -205,69 +195,6 @@ class TestBasic(TestCase):
         }
         self._patch(self.random_url, data)
 
-    def read_further(self):
-        data = {
-            "read_position": random.randint(0, 10000)
-        }
-        self._patch(self.random_url, data)
-
-    def batch_read_further(self):
-        # Get some random articles on which the batch will be applied
-        url = self.api_url('articles?_limit=5&_sort=title')
-        resp = self.session.get(url, auth=self.auth)
-        articles = resp.json()['items']
-        urls = ['/articles/{}'.format(a['id']) for a in articles]
-
-        data = {
-            "defaults": {
-                "method": "PATCH",
-            }
-        }
-        for i in range(25):
-            request = {
-                "path": urls[i % len(urls)],
-                "body": {
-                    "read_position": random.randint(0, 10000)
-                }
-            }
-            data.setdefault("requests", []).append(request)
-
-        self._run_batch(data)
-
-    def mark_as_read(self):
-        data = {
-            "marked_read_by": "Desktop",
-            "marked_read_on": 12345,
-            "unread": False,
-        }
-        self._patch(self.random_url, data)
-
-    def update_conflict(self):
-        random_resolved_url = self.random_record_2['resolved_url']
-        data = {
-            "resolved_url": random_resolved_url
-        }
-        self._patch(self.random_url, data, status=409)
-
-    def archive(self):
-        data = {
-            "archived": "true"
-        }
-        self._patch(self.random_url, data)
-
-    def batch_archive(self):
-        data = {
-            "defaults": {
-                "method": "PATCH",
-                "body": {"archived": "true"}
-            },
-            "requests": [
-                {"path": '/articles/%s' % self.random_id},
-                {"path": '/articles/%s' % self.random_id_2}
-            ]
-        }
-        self._run_batch(data)
-
     def delete(self):
         resp = self.session.delete(self.random_url, auth=self.auth)
         self.incr_counter(resp.status_code)
@@ -275,10 +202,10 @@ class TestBasic(TestCase):
 
     def batch_delete(self):
         # Get some random articles on which the batch will be applied
-        url = self.api_url('articles?_limit=5&_sort=title')
+        url = self.collection_url('articles') + '?_limit=5&_sort=title'
         resp = self.session.get(url, auth=self.auth)
         articles = resp.json()['items']
-        urls = ['/articles/{}'.format(a['id']) for a in articles]
+        urls = ['/collections/articles/records/%s' % a['id'] for a in articles]
 
         data = {
             "defaults": {
@@ -293,12 +220,13 @@ class TestBasic(TestCase):
 
     def poll_changes(self):
         last_modified = self.random_record['last_modified']
-        modified_url = self.api_url('articles?_since=%s' % last_modified)
+        filters = '?_since=%s' % last_modified
+        modified_url = self.collection_url('articles') + filters
         resp = self.session.get(modified_url, auth=self.auth)
         self.assertEqual(resp.status_code, 200)
 
     def list_archived(self):
-        archived_url = self.api_url('articles?archived=true')
+        archived_url = self.collection_url('articles') + '?archived=true'
         resp = self.session.get(archived_url, auth=self.auth)
         self.assertEqual(resp.status_code, 200)
 
@@ -308,23 +236,24 @@ class TestBasic(TestCase):
                 "method": "HEAD",
             },
             "requests": [
-                {"path": "/articles?archived=true"},
-                {"path": "/articles?is_article=true"},
-                {"path": "/articles?favorite=true"},
-                {"path": "/articles?unread=false"},
-                {"path": "/articles?min_read_position=100"}
+                {"path": "/collections/articles/records?archived=true"},
+                {"path": "/collections/articles/records?is_article=true"},
+                {"path": "/collections/articles/records?favorite=true"},
+                {"path": "/collections/articles/records?unread=false"},
+                {"path": "/collections/articles/records?min_read_position=100"}
             ]
         }
         self._run_batch(data)
 
     def list_deleted(self):
         modif = self.random_record['last_modified']
-        deleted_url = self.api_url('articles?_since=%s&deleted=true' % modif)
+        filters = '?_since=%s&deleted=true' % modif
+        deleted_url = self.collection_url('articles') + filters
         resp = self.session.get(deleted_url, auth=self.auth)
         self.assertEqual(resp.status_code, 200)
 
     def list_continuated_pagination(self):
-        paginated_url = self.api_url('articles?_limit=20')
+        paginated_url = self.collection_url('articles') + '?_limit=20'
 
         while paginated_url:
             resp = self.session.get(paginated_url, auth=self.auth)
