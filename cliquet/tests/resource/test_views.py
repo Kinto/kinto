@@ -262,21 +262,11 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
                                       side_effect=unicity_failure)
             patch.start()
 
-    def test_409_error_gives_detail_about_field_and_record(self):
+    def test_post_returns_200_with_existing_record(self):
         resp = self.app.post_json(self.collection_url,
                                   MINIMALIST_RECORD,
-                                  headers=self.headers,
-                                  status=409)
-        self.assertEqual(resp.json['message'],
-                         'Conflict of field city on record 42')
-        self.assertEqual(resp.json['details']['field'], 'city')
-        self.assertEqual(resp.json['details']['existing'], {'id': 42})
-
-    def test_post_returns_409(self):
-        self.app.post_json(self.collection_url,
-                           MINIMALIST_RECORD,
-                           headers=self.headers,
-                           status=409)
+                                  headers=self.headers)
+        self.assertEqual(resp.json, {'id': 42})
 
     def test_put_returns_409(self):
         self.app.put_json(self.get_item_url(),
@@ -290,6 +280,16 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
                             body,
                             headers=self.headers,
                             status=409)
+
+    def test_409_error_gives_detail_about_field_and_record(self):
+        resp = self.app.put_json(self.get_item_url(),
+                                 MINIMALIST_RECORD,
+                                 headers=self.headers,
+                                 status=409)
+        self.assertEqual(resp.json['message'],
+                         'Conflict of field city on record 42')
+        self.assertEqual(resp.json['details']['field'], 'city')
+        self.assertEqual(resp.json['details']['existing'], {'id': 42})
 
 
 class StorageErrorTest(FakeAuthentMixin, BaseWebTest):
