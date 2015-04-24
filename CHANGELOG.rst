@@ -16,7 +16,7 @@ This document describes changes between each past release.
 
 ::
 
-    cliquet --ini config/kinto.ini init
+    cliquet --ini config/kinto.ini migrate
 
 
 
