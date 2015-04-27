@@ -70,7 +70,7 @@ ERRORS = Enum(
 
 
 def http_error(httpexception, errno=None,
-               code=None, error=None, message=None, info=None):
+               code=None, error=None, message=None, info=None, details=None):
     """Return a JSON formated response matching the error protocol.
 
     :param httpexception: Instance of :mod:`~pyramid:pyramid.httpexceptions`
@@ -78,7 +78,8 @@ def http_error(httpexception, errno=None,
     :param code: matches the HTTP status code (e.g 400)
     :param error: string description of error type (e.g. "Bad request")
     :param message: context information (e.g. "Invalid request parameters")
-    :param info: additional details (e.g. URL to error details)
+    :param info: information about error (e.g. URL to troubleshooting)
+    :param details: additional structured details (conflicting record)
     :returns: the formatted response object
     :rtype: pyramid.httpexceptions.HTTPException
     """
@@ -98,6 +99,9 @@ def http_error(httpexception, errno=None,
 
     if info is not None:
         body['info'] = info
+
+    if details is not None:
+        body['details'] = details
 
     response = httpexception
     response.body = json.dumps(body).encode("utf-8")

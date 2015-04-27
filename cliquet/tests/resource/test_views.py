@@ -261,6 +261,8 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
                                   status=409)
         self.assertEqual(resp.json['message'],
                          'Conflict of field city on record 42')
+        self.assertEqual(resp.json['details']['field'], 'city')
+        self.assertEqual(resp.json['details']['existing'], {'id': 42})
 
     def test_post_returns_409(self):
         self.app.post_json(self.collection_url,

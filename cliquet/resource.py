@@ -660,12 +660,16 @@ class BaseResource(object):
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
         """
         field = exception.field
-        existing = exception.record[self.id_field]
-        message = 'Conflict of field {0} on record {1}'.format(field, existing)
+        record_id = exception.record[self.id_field]
+        message = 'Conflict of field %s on record %s' % (field, record_id)
+        details = {
+            "field": field,
+            "existing": exception.record,
+        }
         response = http_error(HTTPConflict(),
                               errno=ERRORS.CONSTRAINT_VIOLATED,
-                              message=message)
-        response.existing = exception.record
+                              message=message,
+                              details=details)
         raise response
 
     def _raise_400_if_id_mismatch(self, new_id, record_id):
