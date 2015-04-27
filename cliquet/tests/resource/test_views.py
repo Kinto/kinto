@@ -97,8 +97,10 @@ class InvalidRecordTest(FakeAuthentMixin, BaseWebTest):
             'errno': ERRORS.INVALID_PARAMETERS,
             'message': "42 is not a string: {'name': ''}",  # XXX: weird msg
             'code': 400,
-            'error': 'Invalid parameters'
-        })
+            'error': 'Invalid parameters',
+            'details': [{'description': "42 is not a string: {'name': ''}",
+                         'location': 'body',
+                         'name': 'name'}]})
 
     def test_empty_body_returns_400(self):
         resp = self.app.post(self.collection_url,
@@ -186,14 +188,20 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
                              self.invalid_body,
                              headers=self.headers,
                              status=400)
-        error_msg = ("body: Invalid JSON request body: Expecting property name"
+        error_msg = ("Invalid JSON request body: Expecting property name"
                      " enclosed in double quotes: line 1 column 2 (char 1)")
         self.assertDictEqual(resp.json, {
             'errno': ERRORS.INVALID_PARAMETERS,
-            'message': error_msg,
+            'message': "body: %s" % error_msg,
             'code': 400,
-            'error': 'Invalid parameters'
-        })
+            'error': 'Invalid parameters',
+            'details': [
+                {'description': error_msg,
+                 'location': 'body',
+                 'name': None},
+                {'description': 'name is missing',
+                 'location': 'body',
+                 'name': 'name'}]})
 
     def test_create_invalid_body_returns_400(self):
         self.app.post(self.collection_url,

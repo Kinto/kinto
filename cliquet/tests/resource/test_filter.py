@@ -73,7 +73,10 @@ class FilteringTest(BaseTest):
             'errno': ERRORS.INVALID_PARAMETERS,
             'message': "querystring: Unknown filter field 'foo'",
             'code': 400,
-            'error': 'Invalid parameters'})
+            'error': 'Invalid parameters',
+            'details': [{'description': "Unknown filter field 'foo'",
+                         'location': 'querystring',
+                         'name': None}]})
 
     def test_regexp_is_strict_for_min_and_max(self):
         self.patch_known_field.stop()

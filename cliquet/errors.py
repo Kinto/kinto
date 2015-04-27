@@ -126,6 +126,7 @@ def json_error_handler(errors):
         (c.f. protocol).
     """
     assert len(errors) != 0
+
     sorted_errors = sorted(errors, key=lambda x: six.text_type(x['name']))
     error = sorted_errors[0]
     name = error['name']
@@ -142,7 +143,8 @@ def json_error_handler(errors):
     response = http_error(httpexceptions.HTTPBadRequest(),
                           errno=ERRORS.INVALID_PARAMETERS,
                           error='Invalid parameters',
-                          message=message)
+                          message=message,
+                          details=errors)
     response.status = errors.status
     response = reapply_cors(errors.request, response)
     return response
