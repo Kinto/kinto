@@ -45,17 +45,20 @@ OS X
 On OSX especially you might get the following error when running tests:
 
 ::
+
     $ ValueError: unknown locale: UTF-8
 
 If this is the case add the following to your ~/.bash_profile:
 
 ::
+
     export LC_ALL=en_US.UTF-8
     export LANG=en_US.UTF-8
 
 Then run:
 
 ::
+
     $ source ~/.bash_profile
 
 
