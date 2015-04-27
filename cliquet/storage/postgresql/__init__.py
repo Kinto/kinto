@@ -155,7 +155,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             self._check_database_timezone()
             # Create full schema.
             self._execute_sql_file('schema.sql')
-            logger.info('Created PostgreSQL storage tables.')
+            logger.info('Created PostgreSQL storage tables '
+                        '(version %s).' % self.schema_version)
             return
 
         logger.debug('Detected PostgreSQL schema version %s.' % version)
