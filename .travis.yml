@@ -11,15 +11,14 @@ env:
     - TOX_ENV=docs
 before_install:
     # <Kinto>
+    # Use this cliquet.
+    - pip install -e ".[postgresql,monitoring]"
     - git clone https://github.com/mozilla-services/kinto.git kinto
     - pushd kinto
     - make install-dev
-    # Use this cliquet.
-    - pip install --ignore-installed -e "..[postgresql,monitoring]"
-    # Run in background.
-    - cliquet --ini ../cliquet/tests/config/kinto.ini migrate
-    - pserve ../cliquet/tests/config/kinto.ini&
     - popd
+    # Run in background.
+    - make runkinto &
     # </Kinto>
 install:
     - pip install tox
