@@ -4,7 +4,7 @@
 --
 ALTER TABLE records
     ALTER COLUMN data DROP DEFAULT,
-    ALTER COLUMN data SET DATA TYPE JSONB USING data::text::jsonb,
+    ALTER COLUMN data SET DATA TYPE JSONB USING data::TEXT::JSONB,
     ALTER COLUMN data SET DEFAULT '{}'::JSONB;
 
 -- Bump storage schema version.

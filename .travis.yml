@@ -17,7 +17,7 @@ before_install:
     # Use this cliquet.
     - pip install --ignore-installed -e "..[postgresql,monitoring]"
     # Run in background.
-    - cliquet --ini ../cliquet/tests/config/kinto.ini init
+    - cliquet --ini ../cliquet/tests/config/kinto.ini migrate
     - pserve ../cliquet/tests/config/kinto.ini&
     - popd
     # </Kinto>
