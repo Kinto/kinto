@@ -144,8 +144,7 @@ def handle_api_redirection(config):
     config.route_prefix = None
 
     config.add_route(name='redirect_to_version',
-                     pattern='/{path:(?!%s).*}' %
-                     route_prefix)
+                     pattern='/{path:(?!%s).*}' % route_prefix)
 
     config.add_view(view=_redirect_to_version_view,
                     route_name='redirect_to_version',
