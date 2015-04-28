@@ -28,7 +28,12 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
         else:
             self.assertNotIn('info', response.json)
 
-    def test_backoff_header(self):
+    def test_backoff_headers_is_not_present_if_no_error(self):
+        response = self.app.get(self.sample_url,
+                                headers=self.headers, status=200)
+        self.assertNotIn('Backoff', response.headers)
+
+    def test_backoff_header_is_present_on_error_responses(self):
         with mock.patch.dict(
                 self.app.app.registry.settings,
                 [('cliquet.backoff', 10)]):
