@@ -23,6 +23,46 @@ collection (see :ref:`section about timestamps <server-timestamps>`).
 It is likely to be used by consumer to provide ``If-Modified-Since`` or
 ``If-Unmodified-Since`` headers in subsequent requests.
 
+
+**Request**:
+
+.. code-block:: http
+
+    GET /articles HTTP/1.1
+    Accept: application/json
+    Authorization: Basic bWF0Og==
+    Host: localhost:8000
+
+**Response**:
+
+.. code-block:: http
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified
+    Content-Length: 436
+    Content-Type: application/json; charset=UTF-8
+    Date: Tue, 28 Apr 2015 12:08:11 GMT
+    Last-Modified: 1430222877724
+    Total-Records: 2
+
+    {
+        "items": [
+            {
+                "id": "dc86afa9-a839-4ce1-ae02-3d538b75496f",
+                "last_modified": 1430222877724,
+                "title": "MoCo",
+                "url": "https://mozilla.com",
+            },
+            {
+                "id": "23160c47-27a5-41f6-9164-21d46141804d",
+                "last_modified": 1430140411480,
+                "title": "MoFo",
+                "url": "https://mozilla.org",
+            }
+        ]
+    }
+
+
 Filtering
 ---------
 
@@ -164,11 +204,43 @@ POST /{collection}
 Used to create a record in the collection. The POST body is a JSON
 mapping containing the values of the resource schema fields.
 
-
 The POST response body is the newly created record, if all posted values are valid.
 
 If the request header ``If-Unmodified-Since`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
+
+
+**Request**:
+
+.. code-block:: http
+
+    POST /articles HTTP/1.1
+    Accept: application/json
+    Authorization: Basic bWF0Og==
+    Content-Type: application/json; charset=utf-8
+    Host: localhost:8000
+
+    {
+        "title": "Wikipedia FR",
+        "url": "http://fr.wikipedia.org"
+    }
+
+**Response**:
+
+.. code-block:: http
+
+    HTTP/1.1 201 Created
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+    Content-Length: 422
+    Content-Type: application/json; charset=UTF-8
+    Date: Tue, 28 Apr 2015 12:35:02 GMT
+
+    {
+        "id": "cd30c031-c208-4fb9-ad65-1582d2a7ad5e",
+        "last_modified": 1430224502529,
+        "title": "Wikipedia FR",
+        "url": "http://fr.wikipedia.org"
+    }
 
 
 Validation
@@ -225,6 +297,41 @@ If the request header ``If-Unmodified-Since`` is provided, and if the collection
 has changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 
+**Request**:
+
+.. code-block:: http
+
+    DELETE /articles HTTP/1.1
+    Accept: application/json
+    Authorization: Basic bWF0Og==
+    Host: localhost:8000
+
+**Response**:
+
+.. code-block:: http
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+    Content-Length: 193
+    Content-Type: application/json; charset=UTF-8
+    Date: Tue, 28 Apr 2015 12:38:36 GMT
+
+    {
+        "items": [
+            {
+                "deleted": true,
+                "id": "cd30c031-c208-4fb9-ad65-1582d2a7ad5e",
+                "last_modified": 1430224716097
+            },
+            {
+                "deleted": true,
+                "id": "dc86afa9-a839-4ce1-ae02-3d538b75496f",
+                "last_modified": 1430224716098
+            }
+        ]
+    }
+
+
 HTTP Status Codes
 -----------------
 
@@ -245,6 +352,33 @@ value of the ``last_modified`` field.
 
 If the request header ``If-Modified-Since`` is provided, and if the record has not
 changed meanwhile, a ``304 Not Modified`` is returned.
+
+**Request**:
+
+.. code-block:: http
+
+    GET /articles/d10405bf-8161-46a1-ac93-a1893d160e62 HTTP/1.1
+    Accept: application/json
+    Authorization: Basic bWF0Og==
+    Host: localhost:8000
+
+**Response**:
+
+.. code-block:: http
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified
+    Content-Length: 438
+    Content-Type: application/json; charset=UTF-8
+    Date: Tue, 28 Apr 2015 12:42:42 GMT
+    Last-Modified: 1430224945242
+
+    {
+        "id": "d10405bf-8161-46a1-ac93-a1893d160e62",
+        "last_modified": 1430224945242,
+        "title": "No backend",
+        "url": "http://nobackend.org"
+    }
 
 
 HTTP Status Code
@@ -295,6 +429,40 @@ Validation and conflicts behaviour is similar to creating records (``POST``).
 If the request header ``If-Unmodified-Since`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
+
+**Request**:
+
+.. code-block:: http
+
+    PUT /articles/d10405bf-8161-46a1-ac93-a1893d160e62 HTTP/1.1
+    Accept: application/json
+    Authorization: Basic bWF0Og==
+    Content-Type: application/json; charset=utf-8
+    Host: localhost:8000
+
+    {
+        "title": "Static apps",
+        "url": "http://www.staticapps.org"
+    }
+
+**Response**:
+
+.. code-block:: http
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+    Content-Length: 439
+    Content-Type: application/json; charset=UTF-8
+    Date: Tue, 28 Apr 2015 12:46:36 GMT
+
+    {
+        "id": "d10405bf-8161-46a1-ac93-a1893d160e62",
+        "last_modified": 1430225196396,
+        "title": "Static apps",
+        "url": "http://www.staticapps.org"
+    }
+
+
 HTTP Status Code
 ----------------
 
@@ -314,9 +482,38 @@ mapping containing a subset of the resource schema fields.
 
 The PATCH response is the modified record (full).
 
-**Errors**
 
-If a read-only field is modified, a ``400 Bad request`` error is returned.
+**Request**:
+
+.. code-block:: http
+
+    PATCH /articles/d10405bf-8161-46a1-ac93-a1893d160e62 HTTP/1.1
+    Accept: application/json
+    Authorization: Basic bWF0Og==
+    Content-Type: application/json; charset=utf-8
+    Host: localhost:8000
+
+    {
+        "title": "No Backend"
+    }
+
+**Response**:
+
+.. code-block:: http
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+    Content-Length: 439
+    Content-Type: application/json; charset=UTF-8
+    Date: Tue, 28 Apr 2015 12:46:36 GMT
+
+    {
+        "id": "d10405bf-8161-46a1-ac93-a1893d160e62",
+        "last_modified": 1430225196396,
+        "title": "No Backend",
+        "url": "http://nobackend.org"
+    }
+
 
 If the record is missing (or already deleted), a ``404 Not Found`` error is returned.
 The consumer might decide to ignore it.
@@ -328,6 +525,12 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 
     ``last_modified`` is updated to the current server timestamp, only if a
     field value was changed.
+
+
+Read-only fields
+----------------
+
+If a read-only field is modified, a ``400 Bad request`` error is returned.
 
 
 Conflicts
