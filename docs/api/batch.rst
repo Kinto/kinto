@@ -102,7 +102,7 @@ The response body is a list of all responses:
 HTTP Status Codes
 -----------------
 
-* ``200 OK``: The request have been processed
+* ``200 OK``: The request has been processed
 * ``400 Bad Request``: The request body is invalid
 
 
