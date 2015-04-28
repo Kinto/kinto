@@ -6,7 +6,11 @@ This document describes changes between each past release.
 1.7.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- ``cliquet.storage.postgresql`` now requires version PostgreSQL 9.4, since it
+  now relies on *JSONB*. Data will be migrated automatically using the ``migrate``
+  command.
 
 
 1.7.0 (2015-04-10)
