@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS records (
     -- to replace the timestamp columns type by integer.
     last_modified TIMESTAMP NOT NULL,
 
-    -- Consider using binary JSON (JSONB, postgresql 9.4+, 2x faster).
-    data JSON NOT NULL DEFAULT '{}',
+    -- JSONB, 2x faster than JSON.
+    data JSONB NOT NULL DEFAULT '{}'::JSONB,
 
     PRIMARY KEY (id, user_id, resource_name)
 );
@@ -136,4 +136,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``cliquet.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '5');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '6');

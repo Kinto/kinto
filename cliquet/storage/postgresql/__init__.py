@@ -86,7 +86,7 @@ class PostgreSQLClient(object):
 class PostgreSQL(PostgreSQLClient, StorageBase):
     """Storage backend using PostgreSQL.
 
-    Recommended in production (*requires PostgreSQL 9.3 or higher*).
+    Recommended in production (*requires PostgreSQL 9.4 or higher*).
 
     Enable in configuration::
 
@@ -123,7 +123,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     """
 
-    schema_version = 5
+    schema_version = 6
 
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')
@@ -146,7 +146,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         .. note::
 
-            Relies on JSON fields, available in recent versions of PostgreSQL.
+            Relies on JSONB fields, available in recent versions of PostgreSQL.
         """
         version = self._get_installed_version()
         if not version:
@@ -155,7 +155,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             self._check_database_timezone()
             # Create full schema.
             self._execute_sql_file('schema.sql')
-            logger.info('Created PostgreSQL storage tables.')
+            logger.info('Created PostgreSQL storage tables '
+                        '(version %s).' % self.schema_version)
             return
 
         logger.debug('Detected PostgreSQL schema version %s.' % version)
@@ -262,7 +263,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def create(self, resource, user_id, record):
         query = """
         INSERT INTO records (id, user_id, resource_name, data)
-        VALUES (%(record_id)s, %(user_id)s, %(resource_name)s, %(data)s::json)
+        VALUES (%(record_id)s, %(user_id)s, %(resource_name)s, %(data)s::JSONB)
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(record_id=resource.id_generator(),
@@ -309,12 +310,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         query_create = """
         INSERT INTO records (id, user_id, resource_name, data)
         VALUES (%(record_id)s, %(user_id)s,
-                %(resource_name)s, %(data)s::json)
+                %(resource_name)s, %(data)s::JSONB)
         RETURNING as_epoch(last_modified) AS last_modified;
         """
 
         query_update = """
-        UPDATE records SET data=%(data)s::json
+        UPDATE records SET data=%(data)s::JSONB
         WHERE id = %(record_id)s
            AND user_id = %(user_id)s
            AND resource_name = %(resource_name)s
@@ -437,7 +438,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
              LIMIT %(max_fetch_size)s
         ),
         fake_deleted AS (
-            SELECT %%(deleted_field)s::json AS data
+            SELECT %%(deleted_field)s::JSONB AS data
         ),
         filtered_deleted AS (
             SELECT id, last_modified, fake_deleted.data AS data
