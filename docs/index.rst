@@ -8,6 +8,10 @@
     opposite direction.
 
 
+*Cliquet* provides some basic but essential functionality — efficient in a
+variety of contexts, from bikes rear wheels to most advanced clockmaking !
+
+
 Table of content
 ================
 
@@ -17,6 +21,7 @@ Table of content
    rationale
    installation
    quickstart
+   api/index
    configuration
    resource
    storage
@@ -24,7 +29,6 @@ Table of content
    errors
    contributing
    glossary
-   api/index
    changelog
    contributors
 

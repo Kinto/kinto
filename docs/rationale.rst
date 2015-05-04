@@ -24,14 +24,17 @@ expose a well defined HTTP protocol for:
 * API versioning and deprecation;
 * Errors formatting.
 
-:ref:`This protocol <api-endpoints>` is an implementation of a series of good practices we follow at
-`Mozilla Services`_. The goal is to produce standardized APIs, which follow some
+:ref:`This protocol <api-endpoints>` is an implementation of a series of good
+practices (followed at `Mozilla Services`_ and `elsewhere`_).
+
+.. _Mozilla Services: https://wiki.mozilla.org/CloudServices
+.. _elsewhere: http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api
+
+The goal is to produce standardized APIs, which follow some
 well known patterns, encouraging genericity in clients code.
 
 Of course, *Cliquet* can be extended and customized in many ways. It can also
 be used in any kind of project, for its tooling, utilities and helpers.
-
-.. _Mozilla Services: https://wiki.mozilla.org/CloudServices
 
 
 Features
@@ -124,7 +127,7 @@ some reusable code for any client that interacts with a *Cliquet*-based API.
 
 Server applications built with *Cliquet* can store their data in several kinds of
 storage backends. Since backends are pluggable, and since *Kinto* is one of
-them, storing data «in the cloud» is built-in! In the long term, we envision
+them, storing data «in the cloud» is built-in ! In the long term, we envision
 a world where client and server applications are decorrelated from their data [#]_!
 
 Since the protocol is language independant and follows HTTP/REST principles,
