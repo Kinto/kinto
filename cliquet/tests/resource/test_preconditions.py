@@ -9,7 +9,7 @@ from cliquet.tests.resource import BaseTest
 class NotModifiedTest(BaseTest):
     def setUp(self):
         super(NotModifiedTest, self).setUp()
-        self.stored = self.db.create(self.resource, 'bob', {})
+        self.stored = self.storage.create(self.resource, 'bob', {})
 
         self.resource = BaseResource(self.get_request())
         self.resource.collection_get()
@@ -37,7 +37,7 @@ class NotModifiedTest(BaseTest):
 class ModifiedMeanwhileTest(BaseTest):
     def setUp(self):
         super(ModifiedMeanwhileTest, self).setUp()
-        self.stored = self.db.create(self.resource, 'bob', {})
+        self.stored = self.storage.create(self.resource, 'bob', {})
         self.resource.collection_get()
         current = self.last_response.headers['Last-Modified']
         previous = six.text_type(int(current) - 10).encode('utf-8')

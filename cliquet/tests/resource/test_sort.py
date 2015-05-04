@@ -20,10 +20,10 @@ class SortingTest(BaseTest):
                 'status': i % 4,
                 'unread': (i % 2 == 0)
             }
-            self.db.create(self.resource, 'bob', record)
+            self.storage.create(self.resource, 'bob', record)
 
     def test_sort_works_with_empty_list(self):
-        self.resource.db_kwargs['user_id'] = 'alice'
+        self.resource.storage_kw['user_id'] = 'alice'
         self.resource.request.GET = {'_sort': 'unread'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['items']), 0)
@@ -54,7 +54,7 @@ class SortingTest(BaseTest):
         self.patch_known_field.stop()
         self.resource.request.GET = {'_sort': '-last_modified'}
         result = self.resource.collection_get()
-        timestamp = self.db.collection_timestamp(self.resource, 'bob')
+        timestamp = self.storage.collection_timestamp(self.resource, 'bob')
         self.assertEqual(result['items'][0]['last_modified'], timestamp)
 
     def test_single_basic_sort_by_attribute(self):

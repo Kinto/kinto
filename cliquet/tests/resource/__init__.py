@@ -8,7 +8,7 @@ from cliquet.resource import BaseResource
 class BaseTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(BaseTest, self).__init__(*args, **kwargs)
-        self.db = memory.Memory()
+        self.storage = memory.Memory()
 
     def setUp(self):
         self.resource = BaseResource(self.get_request())
@@ -20,7 +20,7 @@ class BaseTest(unittest.TestCase):
 
     def get_request(self):
         request = DummyRequest()
-        request.db = self.db
+        request.registry.storage = self.storage
         return request
 
     @property

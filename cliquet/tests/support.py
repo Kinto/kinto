@@ -92,7 +92,7 @@ class BaseWebTest(FakeAuthentMixin):
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.app = self._get_test_app()
-        self.db = self.app.app.registry.storage
+        self.storage = self.app.app.registry.storage
         self.headers.update({
             'Content-Type': 'application/json',
         })
@@ -116,7 +116,7 @@ class BaseWebTest(FakeAuthentMixin):
 
     def tearDown(self):
         super(BaseWebTest, self).tearDown()
-        self.db.flush()
+        self.storage.flush()
 
 
 class ThreadMixin(object):

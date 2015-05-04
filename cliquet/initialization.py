@@ -99,14 +99,6 @@ def setup_backoff(config):
     This is useful to attach objects to the request object for easier
     access, and to pre-process responses.
     """
-
-    def on_new_request(event):
-        # Attach objects on requests for easier access.
-        event.request.db = config.registry.storage
-        event.request.cache = config.registry.cache
-
-    config.add_subscriber(on_new_request, NewRequest)
-
     def on_new_response(event):
         # Add backoff in response headers.
         backoff = config.registry.settings['cliquet.backoff']
