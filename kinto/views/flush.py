@@ -17,5 +17,5 @@ def flush_post(request):
     if not asbool(flush_enabled):
         raise httpexceptions.HTTPMethodNotAllowed()
 
-    request.db.flush()
+    request.registry.storage.flush()
     return httpexceptions.HTTPAccepted()
