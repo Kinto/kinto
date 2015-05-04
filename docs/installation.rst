@@ -140,9 +140,7 @@ if ran by the ``postgres`` system user. The following command will assign it:
 Server using Docker
 -------------------
 
-Install docker:
-
-On Ubuntu you can do:
+Install docker, for example on Ubuntu:
 
 ::
 
