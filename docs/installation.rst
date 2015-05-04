@@ -4,13 +4,11 @@ Installation
 ############
 
 
-By default, *Cliquet* persists the records and cache in `Redis <http://redis.io/>`_.
+By default, a *Cliquet* application persists the records and cache in a local
+ `Redis <http://redis.io/>`_.
 
-In-memory or `PostgreSQL <http://postgresql.org/>`_ storage backend can be enabled in
-:ref:`storage configuration <configuration-storage>`.
-
-See dedicated paragraphs below for more details about installation of these
-services.
+Later, using the :ref:`application configuration <configuration-storage>`,
+other backends can be enabled, like « in-memory » or `PostgreSQL <http://postgresql.org/>`_
 
 
 Distribute & Pip
@@ -23,15 +21,15 @@ Installing Cliquet with pip:
     pip install cliquet
 
 
-Initialize backends
-===================
-
-With some backends, like PostgreSQL, some tables and indices have to be created.
-A command is provided to accomplish this:
+For *PostgreSQL* and *monitoring* support:
 
 ::
 
-    cliquet --ini application.ini migrate
+    pip install cliquet[postgresql,monitoring]
+
+
+If everything is under control *python*-wise, jump to the next chapter.
+Otherwise please find more details below.
 
 
 Python 3.4
