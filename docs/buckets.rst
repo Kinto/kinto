@@ -1,10 +1,11 @@
 Buckets
 #######
 
-Buckets are a way to group users around some data.
+Buckets are a group of collections, shared between users, with fined
+permissions on the data stored inside.
 
-Basically has got an and a list of principals that can administrate
-it.
+Basically a bucket have got an id and a list of people identifier that
+can administrate it.
 
 A bucket can be created using a PUT on the bucket URI:
 
@@ -15,7 +16,7 @@ A bucket can be created using a PUT on the bucket URI:
 
     {
       "id": "servicedenuages",
-      "principals": ["email:natim@example.com"]
+      "owners": ["email:natim@example.com"]
     }
 
 
@@ -28,7 +29,7 @@ There are two kinds of data linked to a bucket:
 Collections
 ===========
 
-Creating a collection inside a bucket enable all buckets principals to
+Creating a collection inside a bucket enable all buckets owners to
 administrate the collection.
 
 The collection is not linked to a user anymore but to the bucket.
@@ -49,13 +50,13 @@ Creating a group inside a bucket ease user permission management.
 
     > PUT /buckets/servicedenuages/groups/seekers HTTP/1.1
 
-    { "principals": ["email:alexis@example.com"] }
+    { "members": ["email:alexis@example.com"] }
 
     < 201 Created
 
     {
       "id": "seekers",
-      "principals": ["email:alexis@example.com"]
+      "members": ["email:alexis@example.com"]
     }
 
 It is now possible to use the ``groups:seekers`` principal to describe
@@ -73,7 +74,7 @@ To understand objects imbrication and properties we have the following:
                | Buckets      |
                +--------------+
         +----->+ - id         +<-----+
-        |      | - principals |      |
+        |      | - owners     |      |
         |      +--------------+      |
         |                            |
         |                            |
@@ -84,7 +85,7 @@ To understand objects imbrication and properties we have the following:
     | Collections   |       | Groups        |
     +---------------+       +---------------+
     | - id          |       |  - id         |
-    | - permissions |       |  - principals |
+    | - permissions |       |  - members    |
     +---------------+       +---------------+
            ^
            |
@@ -94,5 +95,5 @@ To understand objects imbrication and properties we have the following:
     +---------------+
     |  - id         |
     |  - data       |
-    |  - principals |
+    |  - members    |
     +---------------+
