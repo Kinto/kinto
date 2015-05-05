@@ -60,3 +60,39 @@ Creating a group inside a bucket ease user permission management.
 
 It is now possible to use the ``groups:seekers`` principal to describe
 permissions inside the ``servicedenuages`` bucket.
+
+
+Schema
+======
+
+To understand objects imbrication and properties we have the following:
+
+.. code-block:: text
+
+               +--------------+
+               | Buckets      |
+               +--------------+
+        +----->+ - id         +<-----+
+        |      | - principals |      |
+        |      +--------------+      |
+        |                            |
+        |                            |
+        |                            |
+        |                            |
+        |                            |
+    +---------------+       +---------------+
+    | Collections   |       | Groups        |
+    +---------------+       +---------------+
+    | - id          |       |  - id         |
+    | - permissions |       |  - principals |
+    +---------------+       +---------------+
+           ^
+           |
+           |
+    +---------------+
+    | Records       |
+    +---------------+
+    |  - id         |
+    |  - data       |
+    |  - principals |
+    +---------------+
