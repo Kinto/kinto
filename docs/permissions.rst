@@ -6,10 +6,10 @@ Objects
 
 There are three kind of objects that you can have rights on:
 
- - **Buckets**
- - **Groups**
- - **Collections**
- - **Records**
+- **Buckets**
+- **Groups**
+- **Collections**
+- **Records**
 
 
 Permissions
@@ -17,10 +17,10 @@ Permissions
 
 They are two kind of permissions on an object:
 
- - **readonly**: It means that the given user or group of users have
-   got read only access to the object
- - **readwrite**: It means that the given user or group of users have
-   got read and write access to the object.
+- **readonly**: It means that the given user or group of users have
+  got read only access to the object
+- **readwrite**: It means that the given user or group of users have
+  got read and write access to the object.
 
 A **readonly** access let the user read all the attributes of the object.
 
@@ -41,15 +41,15 @@ inside this bucket.
 
 Basically a bucket owner have full access on it:
 
- - She can manage the bucket's owners list
- - She can create and manage any bucket's groups
- - She can create and manage any bucket's collections
- - She can create and manage any bucket's collections records
+- She can manage the bucket's owners list
+- She can create and manage any bucket's groups
+- She can create and manage any bucket's collections
+- She can create and manage any bucket's collections records
 
 There are two other permissions on a bucket:
 
- - **create_group**: It gives the permission for some users to create groups
- - **create_collection**: It gives the permission for some users to create collections
+- **create_group**: It gives the permission for some users to create groups
+- **create_collection**: It gives the permission for some users to create collections
 
 
 Groups
@@ -57,8 +57,8 @@ Groups
 
 A group have got a few permissions:
 
- - **readonly_group**: It gives read access to the group member list
- - **readwrite_group**: It gives write access to update the group member list
+- **readonly_group**: It gives read access to the group member list
+- **readwrite_group**: It gives write access to update the group member list
 
 
 Collections
@@ -66,13 +66,13 @@ Collections
 
 A collection have got a few permissions:
 
- - **readonly_collection**: It is a read access to the collection
-   attributes (schema and permissions)
- - **readwrite_collection**: It is a write access to the collection
-   attributes (schema and permissions)
- - **create_collection_records**: It is a permission that let one create new records
- - **readonly_collection_records**: It is a read access to any collection record
- - **readwrite_collection_records**: It is a permission that let one update any collection record
+- **readonly_collection**: It is a read access to the collection
+  attributes (schema and permissions)
+- **readwrite_collection**: It is a write access to the collection
+  attributes (schema and permissions)
+- **create_collection_records**: It is a permission that let one create new records
+- **readonly_collection_records**: It is a read access to any collection record
+- **readwrite_collection_records**: It is a permission that let one update any collection record
 
 
 Records
@@ -80,8 +80,8 @@ Records
 
 A record have got two permissions:
 
- - **readonly_collection_record**: Give a read access to this specific record
- - **readwrite_collection_record**: Give a write access to this specific record
+- **readonly_collection_record**: Give a read access to this specific record
+- **readwrite_collection_record**: Give a write access to this specific record
 
 
 Examples
@@ -95,9 +95,9 @@ The Payments use case
 
 For the payment use case we have three players involved:
 
- - The **payment app** that stores payments for users for an app
- - The **selling app** that can read records of the given app
- - The **user** that can read records of the given user
+- The **payment app** that stores payments for users for an app
+- The **selling app** that can read records of the given app
+- The **user** that can read records of the given user
 
 
 The ``payments`` bucket
@@ -137,7 +137,7 @@ we will add the following permissions on each records:
 
     {
         "id": "<record_id>",
-        "data": {<record_data>},
+        "data": {"records": "data"},
         "permissions": {
             "readonly_record": ["email:<user_email>", "app:<app_id>"]
         }
@@ -154,9 +154,9 @@ The Blog use case
 What do we want?
 ''''''''''''''''
 
- - A list of administrators can CRUD everything.
- - Some moderators can create_articles and update existing ones.
- - Anybody can read.
+- A list of administrators can CRUD everything.
+- Some moderators can create_articles and update existing ones.
+- Anybody can read.
 
 
 The ``servicedenuages_blog`` bucket
@@ -201,8 +201,8 @@ In this bucket we will create an **articles** collection:
         "permissions": {
             "readonly_collection": ["Everyone"],
             "readonly_collection_records": ["Everyone"],
-			"create_collection_records": ["group:moderators"],
-			"readwrite_collection_records": ["group:moderators"]
+            "create_collection_records": ["group:moderators"],
+            "readwrite_collection_records": ["group:moderators"]
         }
     }
 
@@ -215,8 +215,8 @@ The Twitter use case
 What do we want?
 ''''''''''''''''
 
- - Collection is isolated (CRUD your own records).
- - Anybody can read anything.
+- Collection is isolated (CRUD your own records).
+- Anybody can read anything.
 
 
 The ``twitter`` bucket
@@ -226,7 +226,7 @@ The ``twitter`` bucket
 
     {
         "id": "twitter",
-        "owners": ["email:sysadmins@twitter.com"]
+        "owners": ["email:sysadmins@twitter.com"],
         "permissions": {
             "create_groups": ["Authenticated"]
         }
@@ -244,7 +244,7 @@ In this bucket we will create a **tweets** collection:
         "id": "tweets",
         "permissions": {
             "readonly_collection": ["Everyone"],
-			"create_collection_records": ["Authenticated"]
+            "create_collection_records": ["Authenticated"]
         }
     }
 
@@ -259,9 +259,9 @@ permissions on each records:
 
     {
         "id": "<record_id>",
-        "data": {<record_data>},
+        "data": {"records": "data"},
         "permissions": {
-		    "readonly_record": ["Everyone"],
+            "readonly_record": ["Everyone"],
             "readwrite_record": ["email:<user_email>"]
         }
     }
@@ -273,9 +273,9 @@ If one want to restrict read access to its tweets, he can create a
 
     {
         "id": "<record_id>",
-        "data": {<record_data>},
+        "data": {"records": "data"},
         "permissions": {
-		    "readonly_record": ["group:<username>:authorized_followers"],
+            "readonly_record": ["group:<username>:authorized_followers"],
             "readwrite_record": ["email:<user_email>"]
         }
     }
@@ -290,7 +290,7 @@ The Wiki use case
 What do we want?
 ''''''''''''''''
 
- - Authenticated users can CRUD anything.
+- Authenticated users can CRUD anything.
 
 
 The ``wiki`` bucket
@@ -316,8 +316,8 @@ In this bucket we will create an **articles** collection:
         "permissions": {
             "readonly_collection": ["Everyone"],
             "readonly_collection_records": ["Everyone"],
-			"create_collection_records": ["Authenticated"],
-			"readwrite_collection_records": ["Authenticated"]
+            "create_collection_records": ["Authenticated"],
+            "readwrite_collection_records": ["Authenticated"]
         }
     }
 
@@ -330,9 +330,9 @@ The Company Wiki use case
 What do we want?
 ''''''''''''''''
 
- - Employee of the company to users can CRUD anything.
- - Managers can add employees to the wiki.
- - Other people doesn't have access.
+- Employee of the company to users can CRUD anything.
+- Managers can add employees to the wiki.
+- Other people doesn't have access.
 
 
 The ``companywiki`` bucket
@@ -354,8 +354,8 @@ In this bucket we will create a **managers** group:
 
     {
         "id": "managers",
-        "members": ["email:tarek@company.com"]
-		"permissions": {
+        "members": ["email:tarek@company.com"],
+        "permissions": {
              "readwrite_group": ["email:cto@company.com"]
         }
     }
@@ -373,8 +373,8 @@ In this bucket we will create an **employees** group:
         "id": "employees",
         "members": ["group:managers", "email:natim@company.com",
                      "email:nicolas@company.com", "email:mathieu@company.com",
-					 "email:alexis@company.com"],
-		"permissions": {
+                     "email:alexis@company.com"],
+        "permissions": {
              "readwrite_group": ["group:managers"]
         }
     }
@@ -391,8 +391,8 @@ In this bucket we will create an **articles** collection:
         "id": "articles",
         "permissions": {
             "readonly_collection": ["group:employees"],
-			"create_collection_records": ["group:employees"],
-			"readwrite_collection_records": ["group:employees"]
+            "create_collection_records": ["group:employees"],
+            "readwrite_collection_records": ["group:employees"]
         }
     }
 
