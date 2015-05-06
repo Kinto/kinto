@@ -1,6 +1,8 @@
 Buckets
 #######
 
+.. _buckets:
+
 Buckets are a group of collections, shared between users, with fined-grained
 permissions on the data stored inside.
 

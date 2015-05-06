@@ -1,6 +1,8 @@
 Permissions
 ###########
 
+.. _permissions:
+
 Objects
 =======
 
