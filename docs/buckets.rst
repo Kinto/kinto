@@ -1,7 +1,7 @@
 Buckets
 #######
 
-Buckets are a group of collections, shared between users, with fined
+Buckets are a group of collections, shared between users, with fined-grained
 permissions on the data stored inside.
 
 Basically a bucket have got an id and a list of people identifier that
@@ -30,7 +30,8 @@ Collections
 ===========
 
 Creating a collection inside a bucket enable all buckets owners to
-administrate the collection.
+have all permissions on all bucket collections and bucket collections
+items.
 
 The collection is not linked to a user anymore but to the bucket.
 
