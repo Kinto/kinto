@@ -134,7 +134,7 @@ Polling for changes
 
 The ``_since`` parameter is provided as an alias for ``gt_last_modified``.
 
-* ``/collection?_since=123456``
+* ``/collection?_since=1234567890123``
 
 When filtering on ``last_modified`` every deleted records will appear in the
 list with a deleted status (``deleted=true``).
