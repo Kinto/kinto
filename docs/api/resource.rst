@@ -413,7 +413,7 @@ HTTP Status Code
 ----------------
 
 * ``200 OK``: The record was deleted
-* ``412 Precondition Failed``: Collection changed since value in ``If-Unmodified-Since`` header
+* ``412 Precondition Failed``: Record changed since value in ``If-Unmodified-Since`` header
 
 
 PUT /{collection}/<id>
@@ -469,7 +469,7 @@ HTTP Status Code
 * ``200 OK``: The record was replaced
 * ``400 Bad Request``: The record is invalid
 * ``409 Conflict``: If replacing this record violates a field unicity constraint
-* ``412 Precondition Failed``: Collection changed since value in ``If-Unmodified-Since`` header
+* ``412 Precondition Failed``: Record changed since value in ``If-Unmodified-Since`` header
 
 
 PATCH /{collection}/<id>
@@ -547,4 +547,4 @@ HTTP Status Code
 * ``400 Bad Request``: The request body is invalid, or a read-only field was
   modified
 * ``409 Conflict``: If modifying this record violates a field unicity constraint
-* ``412 Precondition Failed``: Collection changed since value in ``If-Unmodified-Since`` header
+* ``412 Precondition Failed``: Record changed since value in ``If-Unmodified-Since`` header
