@@ -10,7 +10,9 @@ or to work with the same collection, the solution is to create a :ref:`bucket <b
 :ref:`Buckets <buckets>` gives a public unique name to the collection.
 
 The data is not anymore linked to a specific user that only has access
-to her private data but is linked to the bucket and managed by bucket's owners.
+to her private data but is linked to the bucket and managed by
+bucket's owners (those who have the ``write_bucket`` permission on the
+bucket.
 
 Access to buckets, groups, collections and records are granted using
 :ref:`permissions <permissions>`.
@@ -37,9 +39,11 @@ By default the user id is used as the only owner.
 
 **Optional parameters**
 
-- ``owners``: The list of users principals that have administration
-  permissions on the bucket, the creator is automatically added to the owner list.
-- ``permissions``: A mapping object that defines the list of user for each permission
+- ``permissions``: A mapping object that defines the list of user for
+  each permission
+ - ``write_bucket``: The list of users principals that have
+   administration permissions on the bucket, the creator is
+   automatically added to the owner list.
  - ``create_groups``: Permission to create new groups
  - ``create_collections``: Permission to create new collections
 
@@ -61,8 +65,8 @@ By default the user id is used as the only owner.
 
     {
         "id": "fe66cdd5-07c0-40fa-b99d-3a30b779358c",
-        "owners": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756"],
         "permissions": {
+            "write_bucket": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756"],
             "create_groups": [],
             "create_collections": [],
         }
@@ -94,8 +98,8 @@ If the id is already taken, then a ``409 Conflict`` http error will be returned.
 
     {
         "id": "servicedenuages",
-        "owners": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756"],
         "permissions": {
+            "write_bucket": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756"],
             "create_groups": [],
             "create_collections": [],
         }
@@ -116,9 +120,10 @@ If you are not owner of the bucket you will get a ``403 Forbidden`` http error.
 
 .. code-block:: http
 
-    $ echo '{"owners": ["+email:alexis@example.com"],
+    $ echo '{
               "permissions": {
-                "create_groups": ["email:natim@example.com"]
+                "write_bucket": ["+email:alexis@example.com"],
+                "create_groups": ["+email:natim@example.com"]
               }
             }' | http PATCH http://localhost:8000/v1/buckets/servicedenuages --auth "admin:"
 
@@ -130,10 +135,10 @@ If you are not owner of the bucket you will get a ``403 Forbidden`` http error.
     User-Agent: HTTPie/0.9.2
 
     {
-        "owners": [
-            "+email:alexis@example.com"
-        ], 
         "permissions": {
+            "write_bucket": [
+                "+email:alexis@example.com"
+            ], 
             "create_groups": [
                 "+email:natim@example.com"
             ]
@@ -147,17 +152,17 @@ If you are not owner of the bucket you will get a ``403 Forbidden`` http error.
 
     {
         "id": "servicedenuages",
-        "owners": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756",
-                   "email:alexis@example.com"],
         "permissions": {
+            "write_bucket": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756",
+                             "email:alexis@example.com"],
             "create_groups": ["email:natim@example.com"],
             "create_collections": [],
         }
     }
 
-The PATCH endpoint let you add or remove users principals from the
-owner or permissions sets. In case you want to override the set, you
-can use the PUT endpoint.
+The PATCH endpoint let you add or remove users principals from
+permissions sets. In case you want to override the set, you can use
+the PUT endpoint.
 
 You can use ``+principal`` to add one and ``-principal`` to remove one.
 
@@ -185,9 +190,9 @@ This endpoint lets you get bucket informations.
 
     {
         "id": "servicedenuages",
-        "owners": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756",
-                   "email:alexis@example.com"],
         "permissions": {
+            "write_bucket": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756",
+                             "email:alexis@example.com"],
             "create_groups": ["email:natim@example.com"],
             "create_collections": [],
         }

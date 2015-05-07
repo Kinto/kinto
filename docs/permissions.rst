@@ -6,7 +6,7 @@ Permissions
 Objects
 =======
 
-There are three kind of objects that you can have rights on:
+There are four kinds of objects that you can have rights on:
 
 - **Buckets**
 - **Groups**
@@ -19,15 +19,15 @@ Permissions
 
 They are two kind of permissions on an object:
 
-- **readonly**: It means that the given user or group of users have
+- **read**: It means that the given user or group of users have
   got read only access to the object
-- **readwrite**: It means that the given user or group of users have
+- **write**: It means that the given user or group of users have
   got read and write access to the object.
 
-A **readonly** access let the user read all the attributes of the object.
+A **read** access let the user read all the attributes of the object.
 
-A **readwrite** access let the user read, update and delete any
-attributes of the object.
+A **write** access let the user read, update and delete any attributes
+of the object.
 
 
 Buckets
@@ -36,14 +36,12 @@ Buckets
 Permissions to create a bucket are defined in the kinto configuration.
 By default **Authenticated users** can create one.
 
-Permission on buckets are really simple because there is only one.
+Permission **write_bucket** let the user do anything she want inside
+this bucket.
 
-By adding someone as a bucket's owner she can do anything she want
-inside this bucket.
+She basically become a bucket owner with full access on it:
 
-Basically a bucket owner have full access on it:
-
-- She can manage the bucket's owners list
+- She can manage the bucket's permissions
 - She can create and manage any bucket's groups
 - She can create and manage any bucket's collections
 - She can create and manage any bucket's collections records
@@ -59,8 +57,8 @@ Groups
 
 A group have got a few permissions:
 
-- **readonly_group**: It gives read access to the group member list
-- **readwrite_group**: It gives write access to update the group member list
+- **read_group**: It gives read access to the group member list
+- **write_group**: It gives write access to update the group member list
 
 
 Collections
@@ -68,13 +66,13 @@ Collections
 
 A collection have got a few permissions:
 
-- **readonly_collection**: It is a read access to the collection
+- **read_collection**: It is a read access to the collection
   attributes (schema and permissions)
-- **readwrite_collection**: It is a write access to the collection
+- **write_collection**: It is a write access to the collection
   attributes (schema and permissions)
-- **create_collection_records**: It is a permission that let one create new records
-- **readonly_collection_records**: It is a read access to any collection record
-- **readwrite_collection_records**: It is a permission that let one update any collection record
+- **create_records**: It is a permission that let one create new records
+- **read_records**: It is a read access to any collection record
+- **write_records**: It is a permission that let one update any collection record
 
 
 Records
@@ -82,8 +80,8 @@ Records
 
 A record have got two permissions:
 
-- **readonly_collection_record**: Give a read access to this specific record
-- **readwrite_collection_record**: Give a write access to this specific record
+- **read_record**: Give a read access to this specific record
+- **write_record**: Give a write access to this specific record
 
 
 Examples
@@ -111,7 +109,9 @@ In that case we will create a bucket **payments** owned by the payment app:
 
     {
         "id": "payments",
-        "owners": ["scope:paymentapp"]
+        "permissions": {
+            "write_bucket": ["scope:paymentapp"]
+        }
     }
 
 
@@ -125,7 +125,7 @@ In this bucket we will create a **operations** collection:
     {
         "id": "operations",
         "permissions": {
-            "readonly_collection": ["Authenticated"]
+            "read_collection": ["Authenticated"]
         }
     }
 
@@ -141,7 +141,7 @@ we will add the following permissions on each records:
         "id": "<record_id>",
         "data": {"records": "data"},
         "permissions": {
-            "readonly_record": ["email:<user_email>", "app:<app_id>"]
+            "read_record": ["email:<user_email>", "app:<app_id>"]
         }
     }
 
@@ -171,7 +171,9 @@ In that case we will create a bucket for the blog
 
     {
         "id": "servicedenuages_blog",
-        "owners": ["email:mathieu@example.com", "email:alexis@example.com"]
+        "permissions": {
+            "write_bucket": ["email:mathieu@example.com", "email:alexis@example.com"]
+        }
     }
 
 
@@ -201,10 +203,10 @@ In this bucket we will create an **articles** collection:
     {
         "id": "articles",
         "permissions": {
-            "readonly_collection": ["Everyone"],
-            "readonly_collection_records": ["Everyone"],
-            "create_collection_records": ["group:moderators"],
-            "readwrite_collection_records": ["group:moderators"]
+            "read_collection": ["Everyone"],
+            "read_records": ["Everyone"],
+            "create_records": ["group:moderators"],
+            "write_records": ["group:moderators"]
         }
     }
 
@@ -228,8 +230,8 @@ The ``twitter`` bucket
 
     {
         "id": "twitter",
-        "owners": ["email:sysadmins@twitter.com"],
         "permissions": {
+            "write_bucket": ["email:sysadmins@twitter.com"],
             "create_groups": ["Authenticated"]
         }
     }
@@ -245,8 +247,8 @@ In this bucket we will create a **tweets** collection:
     {
         "id": "tweets",
         "permissions": {
-            "readonly_collection": ["Everyone"],
-            "create_collection_records": ["Authenticated"]
+            "read_collection": ["Everyone"],
+            "create_records": ["Authenticated"]
         }
     }
 
@@ -263,8 +265,8 @@ permissions on each records:
         "id": "<record_id>",
         "data": {"records": "data"},
         "permissions": {
-            "readonly_record": ["Everyone"],
-            "readwrite_record": ["email:<user_email>"]
+            "read_record": ["Everyone"],
+            "write_record": ["email:<user_email>"]
         }
     }
 
@@ -277,13 +279,13 @@ If one want to restrict read access to its tweets, he can create a
         "id": "<record_id>",
         "data": {"records": "data"},
         "permissions": {
-            "readonly_record": ["group:<username>:authorized_followers"],
-            "readwrite_record": ["email:<user_email>"]
+            "read_record": ["group:<username>:authorized_followers"],
+            "write_record": ["email:<user_email>"]
         }
     }
 
 With this model it is also possible to setup a shared twitter account
-giving ``readwrite_record`` access to a group of users.
+giving ``write_record`` access to a group of users.
 
 
 The Wiki use case
@@ -302,7 +304,9 @@ The ``wiki`` bucket
 
     {
         "id": "wiki",
-        "owners": ["email:natim@example.com"]
+        "permissions": {
+            "write_bucket": ["email:natim@example.com"]
+        }
     }
 
 
@@ -316,10 +320,10 @@ In this bucket we will create an **articles** collection:
     {
         "id": "articles",
         "permissions": {
-            "readonly_collection": ["Everyone"],
-            "readonly_collection_records": ["Everyone"],
-            "create_collection_records": ["Authenticated"],
-            "readwrite_collection_records": ["Authenticated"]
+            "read_collection": ["Everyone"],
+            "read_records": ["Everyone"],
+            "create_records": ["Authenticated"],
+            "write_records": ["Authenticated"]
         }
     }
 
@@ -344,7 +348,9 @@ The ``companywiki`` bucket
 
     {
         "id": "companywiki",
-        "owners": ["email:sysadmin@company.com"]
+        "permissions": {
+            "write_bucket": ["email:sysadmin@company.com"]
+        }
     }
 
 The ``managers`` group
@@ -358,7 +364,7 @@ In this bucket we will create a **managers** group:
         "id": "managers",
         "members": ["email:tarek@company.com"],
         "permissions": {
-             "readwrite_group": ["email:cto@company.com"]
+             "write_group": ["email:cto@company.com"]
         }
     }
 
@@ -377,7 +383,7 @@ In this bucket we will create an **employees** group:
                      "email:nicolas@company.com", "email:mathieu@company.com",
                      "email:alexis@company.com"],
         "permissions": {
-             "readwrite_group": ["group:managers"]
+             "write_group": ["group:managers"]
         }
     }
 
@@ -392,9 +398,9 @@ In this bucket we will create an **articles** collection:
     {
         "id": "articles",
         "permissions": {
-            "readonly_collection": ["group:employees"],
-            "create_collection_records": ["group:employees"],
-            "readwrite_collection_records": ["group:employees"]
+            "read_collection": ["group:employees"],
+            "create_records": ["group:employees"],
+            "write_records": ["group:employees"]
         }
     }
 

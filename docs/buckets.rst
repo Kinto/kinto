@@ -18,7 +18,9 @@ A bucket can be created using a PUT on the bucket URI:
 
     {
       "id": "servicedenuages",
-      "owners": ["email:natim@example.com"]
+      "permissions": {
+          "write_bucket": ["email:natim@example.com"]
+      }
     }
 
 
@@ -31,9 +33,9 @@ There are two kinds of data linked to a bucket:
 Collections
 ===========
 
-Creating a collection inside a bucket enable all buckets owners to
-have all permissions on all bucket collections and bucket collections
-items.
+Creating a collection inside a bucket enable all buckets users with
+the ``write_bucket`` permission to have all permissions on all bucket
+collections and bucket collections records.
 
 The collection is not linked to a user anymore but to the bucket.
 
@@ -77,7 +79,6 @@ To understand objects imbrication and properties we have the following:
                | Buckets       |
                +---------------+
         +----->+ - id          +<-----+
-        |      | - owners      |      |
         |      | - permissions |      |
         |      +---------------+      |
         |                             |
