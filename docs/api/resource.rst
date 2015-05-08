@@ -38,6 +38,7 @@ It is likely to be used by consumer to provide ``If-Modified-Since`` or
 .. code-block:: http
 
     HTTP/1.1 200 OK
+    Access-Control-Allow-Origin: *
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified
     Content-Length: 436
     Content-Type: application/json; charset=UTF-8
@@ -230,6 +231,7 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 .. code-block:: http
 
     HTTP/1.1 201 Created
+    Access-Control-Allow-Origin: *
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
     Content-Length: 422
     Content-Type: application/json; charset=UTF-8
@@ -311,6 +313,7 @@ has changed meanwhile, a ``412 Precondition failed`` error is returned.
 .. code-block:: http
 
     HTTP/1.1 200 OK
+    Access-Control-Allow-Origin: *
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
     Content-Length: 193
     Content-Type: application/json; charset=UTF-8
@@ -367,6 +370,7 @@ changed meanwhile, a ``304 Not Modified`` is returned.
 .. code-block:: http
 
     HTTP/1.1 200 OK
+    Access-Control-Allow-Origin: *
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified
     Content-Length: 438
     Content-Type: application/json; charset=UTF-8
@@ -450,6 +454,7 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 .. code-block:: http
 
     HTTP/1.1 200 OK
+    Access-Control-Allow-Origin: *
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
     Content-Length: 439
     Content-Type: application/json; charset=UTF-8
@@ -502,6 +507,7 @@ The PATCH response is the modified record (full).
 .. code-block:: http
 
     HTTP/1.1 200 OK
+    Access-Control-Allow-Origin: *
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
     Content-Length: 439
     Content-Type: application/json; charset=UTF-8
