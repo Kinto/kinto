@@ -7,9 +7,8 @@
     or rotary motion in only one direction while preventing motion in the
     opposite direction.
 
-
-*Cliquet* provides some basic but essential functionality — efficient in a
-variety of contexts, from bikes rear wheels to most advanced clockmaking !
+    A cliquet provides some basic but essential functionality — efficient in a
+    variety of contexts, from bikes rear wheels to most advanced clockmaking!
 
 
 Table of content
