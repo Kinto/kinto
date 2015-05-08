@@ -187,9 +187,10 @@ def attach_http_objects(config):
 
     def on_new_response(event):
         # Add backoff in response headers.
-        backoff = '%s' % config.registry.settings['cliquet.backoff']
+        backoff = config.registry.settings['cliquet.backoff']
         if backoff is not None:
-            event.request.response.headers['Backoff'] = backoff.encode('utf-8')
+            backoff = ('%s' % backoff).encode('utf-8')
+            event.request.response.headers['Backoff'] = backoff
 
     config.add_subscriber(on_new_response, NewResponse)
 
