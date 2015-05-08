@@ -5,12 +5,11 @@ import pkg_resources
 
 import structlog
 from cornice import Service
-from pyramid.settings import asbool
+from pyramid.settings import asbool, aslist
 
 # Main Cliquet logger.
 logger = structlog.get_logger()
 
-from cliquet import initialization
 from cliquet import utils
 from cliquet.initialization import (  # NOQA
     initialize, initialize_cliquet, install_middlewares)
@@ -38,6 +37,18 @@ DEFAULT_SETTINGS = {
     'cliquet.http_host': None,
     'cliquet.http_scheme': None,
     'cliquet.id_generator': 'cliquet.storage.generators.UUID4',
+    'cliquet.initialization_steps': (
+        'cliquet.initialization.setup_json_serializer',
+        'cliquet.initialization.setup_logging',
+        'cliquet.initialization.setup_storage',
+        'cliquet.initialization.setup_cache',
+        'cliquet.initialization.setup_requests_scheme',
+        'cliquet.initialization.setup_version_redirection',
+        'cliquet.initialization.setup_deprecation',
+        'cliquet.initialization.setup_authentication',
+        'cliquet.initialization.setup_backoff',
+        'cliquet.initialization.setup_statsd'
+    ),
     'cliquet.logging_renderer': 'cliquet.logs.ClassicLogRenderer',
     'cliquet.newrelic_config': None,
     'cliquet.newrelic_env': 'dev',
@@ -101,17 +112,9 @@ def includeme(config):
     Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
 
     # Setup components.
-    # XXX: Startup sequence could be a setting.
-    initialization.setup_json_serializer(config)
-    initialization.setup_logging(config)
-    initialization.setup_storage(config)
-    initialization.setup_cache(config)
-    initialization.setup_requests_scheme(config)
-    initialization.setup_version_redirection(config)
-    initialization.setup_deprecation(config)
-    initialization.setup_authentication(config)
-    initialization.setup_backoff(config)
-    initialization.setup_statsd(config)
+    for step in aslist(settings['cliquet.initialization_steps']):
+        setup_func = config.maybe_dotted(step)
+        setup_func(config)
 
     # Setup cornice.
     config.include("cornice")
