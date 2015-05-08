@@ -275,6 +275,11 @@ class BaseResource(object):
         """Record ``PATCH`` endpoint: modify a record and return its
         new version.
 
+        If a request header ``Response-Behavior`` is set to ``light``,
+        only the fields whose value was changed are returned.
+        If set to ``diff``, only the fields whose value became different than
+        the one provided are returned.
+
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
             ``If-Unmodified-Since`` header is provided and record modified
@@ -288,9 +293,10 @@ class BaseResource(object):
             :meth:`cliquet.resource.BaseResource.update_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
-        record = self.get_record(self.record_id)
-        self._raise_412_if_modified(record)
+        old_record = self.get_record(self.record_id)
+        self._raise_412_if_modified(old_record)
 
+        # Empty body for patch is invalid.
         if not self.request.body:
             error_details = {
                 'description': 'Empty body'
@@ -299,15 +305,32 @@ class BaseResource(object):
 
         changes = self.request.json
 
-        updated = self.apply_changes(record, changes=changes)
+        updated = self.apply_changes(old_record, changes=changes)
 
         record_id = updated.setdefault(self.id_field, self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
 
-        updated = self.process_record(updated, old=record)
+        updated = self.process_record(updated, old=old_record)
 
-        record = self.update_record(record, updated, changes)
-        return record
+        # Save in storage.
+        new_record = self.update_record(old_record, updated, changes)
+
+        # Adjust response according to ``Response-Behavior`` header
+        changed = [k for k in changes.keys()
+                   if old_record.get(k) != new_record.get(k)]
+
+        body_behavior = self.request.headers.get('Response-Behavior', 'full')
+
+        if body_behavior.lower() == 'light':
+            # Only fields that were changed.
+            return {k: new_record[k] for k in changed}
+
+        if body_behavior.lower() == 'diff':
+            # Only fields that are different from those provided.
+            return {k: new_record[k] for k in changed
+                    if changes.get(k) != new_record.get(k)}
+
+        return new_record
 
     @resource.view(permission='readwrite')
     def delete(self):
