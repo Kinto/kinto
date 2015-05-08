@@ -111,26 +111,30 @@ Adding features
 
 Another use-case would be to add extra-features, like indexing for example.
 
-* Initialize an indexer ;
-* Add a ``/search`` view.
-* Index records manipulated by resources ;
+* Initialize an indexer on startup;
+* Add a ``/search/{collection}/`` end-point;
+* Index records manipulated by resources.
 
 
-:file:`cliquet_indexing/__init__.py`:
+Inclusion and startup in :file:`cliquet_indexing/__init__.py`:
 
 .. code-block:: python
 
+    DEFAULT_BACKEND = 'cliquet_indexing.elasticsearch'
+
     def includeme(config):
         settings = config.get_settings()
-        backend = settings.get('cliquet.indexing_backend',
-                               'cliquet_indexing.elasticsearch')
+        backend = settings.get('cliquet.indexing_backend', DEFAULT_BACKEND)
         indexer = config.maybe_dotted(backend)
+
+        # Store indexer instance in registry.
         config.registry.indexer = indexer.load_from_config(config)
 
-        config.scan('cliquet_indexing.views', **kwargs)
+        # Activate end-points.
+        config.scan('cliquet_indexing.views')
 
 
-:file:`cliquet_indexing/views.py`:
+End-point definitions in :file:`cliquet_indexing/views.py`:
 
 .. code-block:: python
 
@@ -142,15 +146,49 @@ Another use-case would be to add extra-features, like indexing for example.
 
     @search.post()
     def get_search(request):
-        query = request.body
         resource_name = request.matchdict['resource_name']
+        query = request.body
+
+        # Access indexer from views using registry.
         indexer = request.registry.indexer
         results = indexer.search(resource_name, query)
 
         return results
 
 
-:file:`cliquet_indexing/resource.py`:
+Example indexer class in :file:`cliquet_indexing/elasticsearch.py`:
+
+.. code-block:: python
+
+    class Indexer(...):
+        def __init__(self, hosts):
+            self.client = elasticsearch.Elasticsearch(hosts)
+
+        def search(self, resource_name, query, **kwargs):
+            try:
+                return self.client.search(index=resource_name,
+                                          doc_type=resource_name,
+                                          body=query,
+                                          **kwargs)
+            except ElasticsearchException as e:
+                logger.error(e)
+                raise
+
+        def index_record(self, resource, record):
+            record_id = record[resource.id_field]
+            try:
+                index = self.client.index(index=resource.name,
+                                          doc_type=resource.name,
+                                          id=record_id,
+                                          body=record,
+                                          refresh=True)
+                return index
+            except ElasticsearchException as e:
+                logger.error(e)
+                raise
+
+
+Indexed resource in :file:`cliquet_indexing/resource.py`:
 
 .. code-block:: python
 
