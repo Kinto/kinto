@@ -4,6 +4,7 @@ import webtest
 from pyramid.config import Configurator
 
 import cliquet
+from cliquet import initialization
 from .support import unittest
 
 
@@ -98,7 +99,7 @@ class InitializationTest(unittest.TestCase):
 
 class ApplicationWrapperTest(unittest.TestCase):
 
-    @mock.patch('cliquet.newrelic.agent')
+    @mock.patch('cliquet.initialization.newrelic.agent')
     def test_newrelic_is_included_if_defined(self, mocked_newrelic):
         settings = {
             'cliquet.newrelic_config': '/foo/bar.ini',
@@ -109,21 +110,21 @@ class ApplicationWrapperTest(unittest.TestCase):
         mocked_newrelic.initialize.assert_called_with('/foo/bar.ini', 'test')
         self.assertEquals(app, 'wrappedApp')
 
-    @mock.patch('cliquet.newrelic.agent')
+    @mock.patch('cliquet.initialization.newrelic.agent')
     def test_newrelic_is_not_included_if_set_to_false(self, mocked_newrelic):
         settings = {'cliquet.newrelic_config': False}
         app = cliquet.install_middlewares(mock.sentinel.app, settings)
         mocked_newrelic.initialize.assert_not_called()
         self.assertEquals(app, mock.sentinel.app)
 
-    @mock.patch('cliquet.ProfilerMiddleware')
+    @mock.patch('cliquet.initialization.ProfilerMiddleware')
     def test_profiler_is_not_installed_if_set_to_false(self, mocked_profiler):
         settings = {'cliquet.profiler_enabled': False}
         app = cliquet.install_middlewares(mock.sentinel.app, settings)
         mocked_profiler.initialize.assert_not_called()
         self.assertEquals(app, mock.sentinel.app)
 
-    @mock.patch('cliquet.ProfilerMiddleware')
+    @mock.patch('cliquet.initialization.ProfilerMiddleware')
     def test_profiler_is_installed_if_set_to_true(self, mocked_profiler):
         settings = {
             'cliquet.profiler_enabled': True,
@@ -154,27 +155,27 @@ class StatsDConfigurationTest(unittest.TestCase):
         self.config.add_settings({
             'cliquet.statsd_url': None
         })
-        cliquet.handle_statsd(self.config)
+        initialization.setup_statsd(self.config)
         mocked.assert_not_called()
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_is_called_if_statsd_url_is_set(self, mocked):
-        cliquet.handle_statsd(self.config)
+        initialization.setup_statsd(self.config)
         mocked.assert_called_with('host', 8080, 'cliquet')
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_is_set_on_cache(self, mocked):
-        c = cliquet.handle_statsd(self.config)
+        c = initialization.setup_statsd(self.config)
         c.watch_execution_time.assert_any_call({}, prefix='cache')
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_is_set_on_storage(self, mocked):
-        c = cliquet.handle_statsd(self.config)
+        c = initialization.setup_statsd(self.config)
         c.watch_execution_time.assert_any_call({}, prefix='storage')
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_is_set_on_authentication(self, mocked):
-        c = cliquet.handle_statsd(self.config)
+        c = initialization.setup_statsd(self.config)
         c.watch_execution_time.assert_any_call(None, prefix='authentication')
 
     @mock.patch('cliquet.statsd.Client')
