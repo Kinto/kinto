@@ -4,7 +4,7 @@ Ecosystem
 .. note::
 
     If you build a package that you would like to see listed here, just
-    get in touch with us !
+    get in touch with us!
 
 
 Basics about Pyramid apps
@@ -14,15 +14,19 @@ Include external packages
 -------------------------
 
 Appart from usual python «*import and use*», *Pyramid* can include external
-packages, that can bring views, event listeners etc.
+packages, which can bring views, event listeners etc.
 
 .. code-block:: python
-    :emphasize-lines: 7
+    :emphasize-lines: 11
+
+    import cliquet
+    from pyramid.config import Configurator
+
 
     def main(global_config, **settings):
         config = Configurator(settings=settings)
 
-        cliquet.initialize(config, __version__)
+        cliquet.initialize(config, '0.0.1')
         config.scan("myproject.views")
 
         config.include('cliquet_elasticsearch')
@@ -41,7 +45,7 @@ Alternatively, packages can also be included via configuration:
 Include me
 ----------
 
-In order to be included, a package must define an ``includeme`` function.
+In order to be included, a package must define an ``includeme(config)`` function.
 
 For example, in :file:`cliquet_elasticsearch/init.py`:
 
@@ -59,6 +63,8 @@ Custom backend
 As a simple example, let's add add another kind of cache backend to *Cliquet*.
 
 :file:`cliquet_riak/cache.py`:
+
+.. code-block:: python
 
     from cliquet.cache import CacheBase
     from riak import RiakClient
@@ -153,17 +159,17 @@ Another use-case would be to add extra-features, like indexing for example.
             r = super(IndexedResource, self).create_record(self, record)
 
             indexer = self.request.registry.indexer
-            indexer.index_record(self.name, record)
+            indexer.index_record(self, record)
 
             return r
 
 .. note::
 
     In this example, ``IndexedResource`` is inherited, and must hence be
-    used explicitly as base resource class in applications.
+    used explicitly as a base resource class in applications.
     A nicer pattern would be to trigger *Pyramid* events in *Cliquet* and
     let packages like this one plug listeners. If you're interested,
-    `we started to discuss it <https://github.com/mozilla-services/cliquet/issues/32>`_ !
+    `we started to discuss it <https://github.com/mozilla-services/cliquet/issues/32>`_!
 
 
 JavaScript client
@@ -185,7 +191,7 @@ A client could look like this:
 
     articles.create({title: "Hello world"})
       .then(function (result) {
-        // success !
+        // success!
       });
 
     articles.get('id-1234')
@@ -194,7 +200,7 @@ A client could look like this:
       });
 
     articles.filter({
-        'title': {'$eq': 'Hello'}
+        title: {'$eq': 'Hello'}
       })
       .then(function (results) {
         // List of records.
@@ -203,4 +209,8 @@ A client could look like this:
     articles.sync()
       .then(function (result) {
         // Synchronize offline store with server.
+      })
+      .catch(function (err) {
+        // Error happened.
+        console.error(err);
       });
