@@ -108,7 +108,7 @@ def includeme(config):
     # Monkey Patch Cornice Service to setup the global CORS configuration.
     # XXX: Refactor @crud decorator and inherit Service instead.
     cors_origins = settings['cliquet.cors_origins']
-    Service.cors_origins = (cors_origins,)
+    Service.cors_origins = aslist(cors_origins)
     Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
 
     # Setup components.
