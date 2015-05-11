@@ -7,6 +7,9 @@
     or rotary motion in only one direction while preventing motion in the
     opposite direction.
 
+    A cliquet provides some basic but essential functionality — efficient in a
+    variety of contexts, from bikes rear wheels to most advanced clockmaking!
+
 
 Table of content
 ================
@@ -17,6 +20,7 @@ Table of content
    rationale
    installation
    quickstart
+   api/index
    configuration
    resource
    storage
@@ -24,7 +28,6 @@ Table of content
    errors
    contributing
    glossary
-   api/index
    changelog
    contributors
 

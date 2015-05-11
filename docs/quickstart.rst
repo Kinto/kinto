@@ -13,7 +13,7 @@ create a minimal application, or use its scaffolding tool:
 
 ::
 
-    pcreate -s starter MyProject
+    $ pcreate -s starter MyProject
 
 
 Include Cliquet
@@ -41,41 +41,42 @@ just add some extra initialization code:
         return config.make_wsgi_app()
 
 
-.. autofunction:: cliquet.initialize
-
-
 By doing that, basic features like authentication, monitoring, error formatting,
-deprecation are now available, as well as basic endpoints like the :ref:`utilities <api-utilities>`.
+deprecation indicators are now available.
+
+
+Run !
+-----
+
+With some backends, like *PostgreSQL*, some tables and indices have to be created.
+A command is provided to accomplish this:
+
+::
+
+    $ cliquet --ini myproject.ini migrate
+
+
+Like any *Pyramid* application, it can be served locally with:
+
+::
+
+    $ pserve myproject.ini --reload
+
+A *hello* view is now available at **http://localhost:8000** (As well as basic
+endpoints like the :ref:`utilities <api-utilities>`).
 
 The next steps will consist in building a custom application using :rtd:`Cornice <cornice>` or
 **the Pyramid ecosystem**.
 
-But most likely, it will consist in defining resources using Cliquet API!
-
-
-Configuration
-=============
-
-See :ref:`configuration` to customize the project settings,
-such as the storage backend.
-
-In order to get started quickly, and bypass the :term:`Firefox Accounts` setup,
-the ``Basic Auth`` authentication can be enabled with:
-
-.. code-block:: ini
-
-    # myproject.ini
-    cliquet.basic_auth_enabled = true
-
-This will associate a unique :term:`user id` for every user/password combination.
-Obviously, any authentication system can be activated, see :ref:`configuration-authentication`.
+But most likely, it will consist in **defining REST resources** using *Cliquet*
+python API !
 
 
 Define resources
 ================
 
 In order to define a resource, just inherit from :class:`cliquet.resource.BaseResource`,
-in :file:`project/views.py` for example:
+in :file:`myproject/views.py` for example:
 
 .. code-block:: python
 
@@ -83,10 +84,10 @@ in :file:`project/views.py` for example:
 
     @resource.crud()
     class Mushroom(resource.BaseResource):
-        # missing schema
+        # No schema yet.
         pass
 
-In application initialization, make Pyramid aware of it:
+In application initialization, make *Pyramid* aware of it:
 
 .. code-block:: python
     :emphasize-lines: 5
@@ -95,7 +96,7 @@ In application initialization, make Pyramid aware of it:
         config = Configurator(settings=settings)
 
         cliquet.initialize(config, __version__)
-        config.scan("project.views")
+        config.scan("myproject.views")
         return config.make_wsgi_app()
 
 
@@ -109,7 +110,8 @@ the :ref:`API section <api-endpoints>`.
 
     Without schema, a resource will not store any field at all!
 
-The next step consists in defining what fields are accepted and stored.
+The next step consists in attaching a schema to the resource, to control
+what fields are accepted and stored.
 
 
 Schema validation
@@ -117,6 +119,8 @@ Schema validation
 
 It is possible to validate records against a predefined schema, associated
 to the resource.
+
+Currently, only :rtd:`Colander <colander>`_ is supported, and it looks like this:
 
 
 .. code-block:: python
@@ -135,9 +139,44 @@ to the resource.
         mapping = MushroomSchema()
 
 
-Advanced usage
---------------
+What's next ?
+=============
 
-See :ref:`the resource documentation <resource>`  to specify custom URLs,
+Configuration
+-------------
+
+See :ref:`configuration` to customize the application settings, such as storage
+or cache backends.
+
+In order to get started quickly, and bypass the :term:`Firefox Accounts` setup,
+the ``Basic Auth`` authentication can be enabled with:
+
+.. code-block:: ini
+
+    # myproject.ini
+    cliquet.basic_auth_enabled = true
+
+This will associate a unique :term:`user id` for every user/password combination.
+Obviously, any authentication system can be activated, see :ref:`configuration-authentication`.
+
+
+Resource customization
+----------------------
+
+See :ref:`the resource documentation <resource>` to specify custom URLs,
 schemaless resources, read-only fields, unicity constraints, record pre-processing...
 
+
+Advanced initialization
+-----------------------
+
+.. autofunction:: cliquet.initialize
+
+
+Beyond Cliquet
+--------------
+
+*Cliquet* is just a component ! The application can still be built and
+extended using the full *Pyramid* ecosystem.
+
+See :ref:`the dedicated section <ecosystem>` for examples of *Cliquet* extensions.

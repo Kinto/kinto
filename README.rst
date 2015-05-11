@@ -17,7 +17,7 @@ Cliquet
 
 
 *Cliquet* is a toolkit to ease the implementation of HTTP microservices,
-such as resource oriented REST APIs.
+such as data-driven REST APIs.
 
 * `Online documentation <http://cliquet.readthedocs.org/en/latest/>`_
 * `Issue tracker <https://github.com/mozilla-services/cliquet/issues>`_

@@ -301,7 +301,7 @@ useful when trying to find slowness in the application.
 
 Enable middlewares as described :ref:`here <configuration-middlewares>`.
 
-Update your configuration file with the following values:
+Update the configuration file with the following values:
 
 .. code-block:: ini
 

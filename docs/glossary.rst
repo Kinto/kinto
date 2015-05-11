@@ -9,12 +9,20 @@ Glossary
     endpoint
         An endpoint handles a particular HTTP verb at a particular URL.
 
+    extensible
+        «Extensible» means that the component behaviour can be overriden via
+        lines of code. It differs from «:term:`pluggable`».
+
     Firefox Accounts
         Account account system run by Mozilla (https://accounts.firefox.com).
 
     KISS
         «Keep it simple, stupid» is a design priciple which states that most
         systems work best if they are kept simple rather than made complicated.
+
+    pluggable
+        «Pluggable» means that the component can be replaced via configuration.
+        It differs from «:term:`extensible`».
 
     resource
         A resource is a collection of records.
