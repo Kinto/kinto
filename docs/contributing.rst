@@ -99,4 +99,4 @@ Definition of done
 IRC channel
 ===========
 
-Join ``#storage`` on ``irc.mozilla.org`` !
+Join ``#storage`` on ``irc.mozilla.org``!

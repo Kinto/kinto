@@ -31,7 +31,7 @@ practices (followed at `Mozilla Services`_ and `elsewhere`_).
 .. _elsewhere: http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api
 
 The goal is to produce standardized APIs, which follow some
-well known patterns, encouraging genericity in clients code.
+well known patterns, encouraging genericity in clients code [#]_.
 
 Of course, *Cliquet* can be :term:`extended <extensible>` and customized in
 many ways. It can also be used in any kind of project, for its tooling, utilities
@@ -156,7 +156,7 @@ some reusable code for any client that interacts with any *Cliquet*-based API.
     :align: center
 
 In the long term, we envision a world where client and server applications are
-decorrelated from their data [#]_!
+decorrelated from the location of their data [#]_!
 
 .. figure:: images/self-hostable.png
     :align: center
@@ -167,7 +167,7 @@ in the long term *Cliquet* should become only one among several server implement
 .. note::
 
     We encourage you to implement a clone of this project — using Node.js, Asyncio,
-    Go, Twisted or even Django — following :ref:`the same protocol <api-endpoints>`!
+    Go, Twisted, Django or anything else — following :ref:`the same protocol <api-endpoints>`!
 
 
 Roadmap
@@ -192,6 +192,12 @@ Similar projects
 
 * `Python Eve <http://python-eve.org/>`_, built on Flask and MongoDB;
 * *Please contact us to add more if any*.
+
+
+.. [#] Switch from custom protocol to `JSON-API spec`_ is `being discussed`_.
+
+.. _JSON-API spec: http://jsonapi.org/
+.. _being discussed: https://github.com/mozilla-services/cliquet/issues/254
 
 
 .. [#] Currently, the clients code was not extracted from the client projects, such as

@@ -42,7 +42,7 @@ just add some extra initialization code:
 
 
 By doing that, basic features like authentication, monitoring, error formatting,
-deprecation are now available.
+deprecation indicators are now available.
 
 
 Run !
