@@ -11,6 +11,8 @@ This document describes changes between each past release.
 - ``cliquet.storage.postgresql`` now requires version PostgreSQL 9.4, since it
   now relies on *JSONB*. Data will be migrated automatically using the ``migrate``
   command.
+- Conflict errors responses ``existing`` attribute was moved inside a generic
+  ``details`` attribute that is also used to list validation errors.
 
 
 1.7.0 (2015-04-10)

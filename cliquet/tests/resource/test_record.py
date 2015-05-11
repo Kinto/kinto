@@ -176,7 +176,10 @@ class ReadonlyFieldsTest(BaseTest):
             'errno': ERRORS.INVALID_PARAMETERS,
             'message': 'Cannot modify {0}'.format(field),
             'code': 400,
-            'error': 'Invalid parameters'})
+            'error': 'Invalid parameters',
+            'details': [{'description': 'Cannot modify age',
+                         'location': 'body',
+                         'name': 'age'}]})
 
     def test_can_specify_readonly_fields_if_not_changed(self):
         self.resource.request.json = {

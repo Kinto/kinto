@@ -45,7 +45,10 @@ class SortingTest(BaseTest):
             'errno': ERRORS.INVALID_PARAMETERS,
             'message': "querystring: Unknown sort field 'foo'",
             'code': 400,
-            'error': 'Invalid parameters'})
+            'error': 'Invalid parameters',
+            'details': [{'description': "Unknown sort field 'foo'",
+                         'location': 'querystring',
+                         'name': None}]})
 
     def test_sort_on_last_modified_is_supported(self):
         self.patch_known_field.stop()
