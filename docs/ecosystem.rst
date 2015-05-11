@@ -1,14 +1,34 @@
 Ecosystem
 #########
 
+This section gathers information about extending *Cliquet*, and upcoming
+third-party packages.
+
 .. note::
 
     If you build a package that you would like to see listed here, just
     get in touch with us!
 
 
-Basics about Pyramid apps
-=========================
+Extending Cliquet
+=================
+
+Pluggable components
+--------------------
+
+:term:`Pluggable` components can be substituted from configuration files,
+as long as the replacement follows the original component API.
+
+.. code-block:: ini
+
+    # myproject.ini
+    cliquet.logging_renderer = cliquet_fluent.FluentRenderer
+
+This is the simplest way to extend *Cliquet*, but will be limited to its
+existing components (cache, storage, log renderer, ...).
+
+In order to add extra features, including external packages is the way to go!
+
 
 Include external packages
 -------------------------
@@ -41,6 +61,12 @@ Alternatively, packages can also be included via configuration:
     # myproject.ini
     pyramid.includes = cliquet_elasticsearch
                        pyramid_debugtoolbar
+
+
+There are `many available packages`_, and it is straightforward to build one.
+
+.. _curated list: https://github.com/ITCase/awesome-pyramid
+
 
 Include me
 ----------
@@ -98,7 +124,8 @@ As a simple example, let's add add another kind of cache backend to *Cliquet*.
         return Riak(pb_port=uri.port or 8087)
 
 
-This new backend type can now be specified in application configuration:
+Once its package installed and available in Python path, this new backend type
+can be specified in application configuration:
 
 .. code-block:: ini
 
