@@ -37,7 +37,7 @@ DEFAULT_SETTINGS = {
     'cliquet.http_host': None,
     'cliquet.http_scheme': None,
     'cliquet.id_generator': 'cliquet.storage.generators.UUID4',
-    'cliquet.initialization_steps': (
+    'cliquet.initialization_sequence': (
         'cliquet.initialization.setup_json_serializer',
         'cliquet.initialization.setup_logging',
         'cliquet.initialization.setup_storage',
@@ -108,13 +108,13 @@ def includeme(config):
     # Monkey Patch Cornice Service to setup the global CORS configuration.
     # XXX: Refactor @crud decorator and inherit Service instead.
     cors_origins = settings['cliquet.cors_origins']
-    Service.cors_origins = aslist(cors_origins)
+    Service.cors_origins = tuple(aslist(cors_origins))
     Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
 
     # Setup components.
-    for step in aslist(settings['cliquet.initialization_steps']):
-        setup_func = config.maybe_dotted(step)
-        setup_func(config)
+    for step in aslist(settings['cliquet.initialization_sequence']):
+        step_func = config.maybe_dotted(step)
+        step_func(config)
 
     # Setup cornice.
     config.include("cornice")
