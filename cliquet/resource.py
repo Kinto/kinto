@@ -259,9 +259,18 @@ class BaseResource(object):
         self._raise_400_if_invalid_id(self.record_id)
         try:
             existing = self.get_record(self.record_id)
-            self._raise_412_if_modified(existing)
         except HTTPNotFound:
             existing = None
+            # Look if this record used to exist (for preconditions check).
+            deleted = Filter(self.id_field, self.record_id, COMPARISON.EQ)
+            result, _ = self.db.get_all(filters=[deleted],
+                                        include_deleted=True,
+                                        **self.db_kwargs)
+            if len(result) > 0:
+                existing = result[0]
+
+        if existing:
+            self._raise_412_if_modified(existing)
 
         new_record = self.request.validated
 
