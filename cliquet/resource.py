@@ -76,6 +76,7 @@ class BaseResource(object):
     def __init__(self, request):
         self.request = request
         self.id_generator = self.request.registry.id_generator
+        self.name = classname(self)
         self.db = request.db
         self.db_kwargs = dict(resource=self,
                               user_id=request.authenticated_userid)
@@ -84,11 +85,6 @@ class BaseResource(object):
 
         # Log resource context.
         logger.bind(resource_name=self.name, resource_timestamp=self.timestamp)
-
-    @property
-    def name(self):
-        """Resource name, unique."""
-        return classname(self)
 
     @property
     def schema(self):

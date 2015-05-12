@@ -10,7 +10,8 @@ Sort = namedtuple('Sort', ['field', 'direction'])
 
 
 _HEARTBEAT_DELETE_RATE = 0.6
-_HEARTBEAT_USER_ID = '__heartbeat__'
+_HEARTBEAT_RESOURCE_NAME = '__heartbeat__'
+_HEARTBEAT_USER_ID = _HEARTBEAT_RESOURCE_NAME
 _HEARTBEAT_RECORD = {'__heartbeat__': True}
 
 
@@ -50,6 +51,7 @@ class StorageBase(object):
         from cliquet.resource import BaseResource
 
         resource = BaseResource(request)
+        resource.name = _HEARTBEAT_RESOURCE_NAME
         try:
             if random.random() < _HEARTBEAT_DELETE_RATE:
                 self.delete_all(resource, _HEARTBEAT_USER_ID)
