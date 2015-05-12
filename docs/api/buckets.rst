@@ -1,23 +1,6 @@
 Working with buckets
 ====================
 
-:ref:`Buckets <buckets>` enable the creation of collections handled by
-a group of users.
-
-As soon as there is a need to let people work on the same records set
-or to work with the same collection, the solution is to create a :ref:`bucket <buckets>`.
-
-:ref:`Buckets <buckets>` gives a public unique name to the collection.
-
-The data is not anymore linked to a specific user that only has access
-to her private data but is linked to the bucket and managed by
-bucket's owners (those who have the ``write_bucket`` permission on the
-bucket.
-
-Access to buckets, groups, collections and records are granted using
-:ref:`permissions <permissions>`.
-
-
 Creating a new bucket
 ---------------------
 
@@ -39,39 +22,6 @@ By default the user id is used as the only owner.
 
 **Optional parameters**
 
-- ``permissions``: A mapping object that defines the list of user for
-  each permission
- - ``write_bucket``: The list of users principals that have
-   administration permissions on the bucket, the creator is
-   automatically added to the owner list.
- - ``create_groups``: Permission to create new groups
- - ``create_collections``: Permission to create new collections
-
-.. code-block:: http
-
-    $ http POST http://localhost:8000/v1/buckets --auth "admin:"
-
-    POST /v1/buckets HTTP/1.1
-    Authorization: Basic YWRtaW46
-    Content-Length: 0
-    Host: localhost:8000
-    User-Agent: HTTPie/0.9.2
-
-
-    HTTP/1.1 201 Created
-    Content-Type: application/json; charset=UTF-8
-    Date: Wed, 5 May 2015 18:24:37 GMT
-    Server: waitress
-
-    {
-        "id": "fe66cdd5-07c0-40fa-b99d-3a30b779358c",
-        "permissions": {
-            "write_bucket": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756"],
-            "create_groups": [],
-            "create_collections": [],
-        }
-    }
-    
 
 
 PUT /buckets/<bucket_id>

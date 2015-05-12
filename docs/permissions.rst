@@ -1,87 +1,139 @@
-Permissions
-###########
+Access Control Lists
+####################
 
-.. _permissions:
+.. _acls:
 
 Objects
 =======
 
-There are four kinds of objects that you can have rights on:
+Any set of objects defined in Kinto can be given a number of permissions.
 
-- **Buckets**
-- **Groups**
-- **Collections**
-- **Records**
++-----------------+---------------------------------------------------------+
+| Object          | Description                                             |
++=================+=========================================================+
+| **bucket**      | :ref:`Buckets <buckets>` can be seen as namespaces: you |
+|                 | can have different collections using the same name, but |
+|                 | stored in different buckets, so their names don't       |
+|                 | collide.                                                |
++-----------------+---------------------------------------------------------+
+| **collection**  | A collection of records                                 |
++-----------------+---------------------------------------------------------+
+| **record**      | The data handled by the server                          |
++-----------------+---------------------------------------------------------+
+| **schema**      | Validation rules for collection's records               |
++-----------------+---------------------------------------------------------+
+| **group**       | A group of other principals.                            |
++-----------------+---------------------------------------------------------+
+
+There is a notion of hierarchy among all these objects:
+
+.. code-block:: text
+
+               +---------------+
+               | Buckets       |
+               +---------------+
+        +----->+ - id          +<--------------------------+
+        |      | - acls        |                           |
+        |      +---------------+                           |
+        |                                                  |
+        |                                                  |
+        |       +------------------+                       |
+        |       |                  |                       |
+        |       v                  |                       |
+    +---------------+        +----------------+     +----------------+ 
+    | Collections   |        | Schema         |     | Groups         | 
+    +---------------+        +----------------+     +----------------+ 
+    | - id          |        |  - fields      |     |  - id          | 
+    | - acls        |        |  - acls        |     |  - members     | 
+    +---------------+        +----------------+     |  - acls        | 
+           ^                                        +----------------+ 
+           |
+           |
+    +----------------+
+    | Records        |
+    +----------------+
+    |  - id          |
+    |  - data        |
+    |  - acls        |
+    +----------------+
 
 
 Permissions
 ===========
 
-They are two kind of permissions on an object:
+On each of these objects, the set of permissions can be:
 
-- **read**: It means that the given user or group of users have
-  got read only access to the object
-- **write**: It means that the given user or group of users have
-  got read and write access to the object.
++------------+-----------------------------------------+
+| Permission | Description                             |
++============+=========================================+
+| **read**   | Any listed :ref:`principal` can read    |
+|            | the object.                             |
++------------+-----------------------------------------+
+| **write**  | Any listed :ref:`principal` can write   |
+|            | the object. Whoever has the permission  |
+|            | to write an object can read, update and |
+|            | delete it.                              |
++------------+-----------------------------------------+
+| **create** | Any listed :ref:`principal` can create  |
+|            | a new *child object*.                   |
++------------+-----------------------------------------+
 
-A **read** access let the user read all the attributes of the object.
+ACLs are defined with the following formalism:
+``{permission}_{object}: {list of principals}``.
 
-A **write** access let the user read, update and delete any attributes
-of the object.
+For instance, to describe the list of principals which can write to a bucket,
+the ``write_bucket`` ACL would be used.
 
++----------------+------------------------+----------------------------------+
+| Object         | Associated permissions | Description                      |
++================+========================+==================================+
+| Configuration  | `create_bucket`        | Ability to create a new bucket.  |
+|                |                        |                                  |
++----------------+------------------------+----------------------------------+
+| ``bucket``     | `write_bucket`         | Ability to write + read on the   |
+|                |                        | bucket and all children objects. |
+|                +------------------------+----------------------------------+
+|                | `read_bucket`          | Ability to read all objects in   |
+|                |                        | the bucket.                      |
+|                +------------------------+----------------------------------+
+|                | `create_collection`    | Ability to create a new          |
+|                |                        | collection in the bucket.        |
+|                +------------------------+----------------------------------+
+|                | `create_group`         | Ability to create a new group    |
+|                |                        | in the bucket.                   |
++----------------+------------------------+----------------------------------+
+| ``collection`` | `write_collection`     | Ability to write and read all    |
+|                |                        | objects in the collection.       |
+|                +------------------------+----------------------------------+
+|                | `read_collection`      | Ability to read all objects in   |
+|                |                        | the collection.                  |
+|                +------------------------+----------------------------------+
+|                | `create_record`        | Ability to create a new record   |
+|                |                        | in the collection.               |
++----------------+------------------------+----------------------------------+
+| ``record``     | `write_record`         |                                  |
+|                |                        |                                  |
+|                +------------------------+----------------------------------+
+|                | `read_record`          |                                  |
+|                |                        |                                  |
++----------------+------------------------+----------------------------------+
+| ``schema``     | `write_schema`         |                                  |
+|                |                        |                                  |
+|                +------------------------+----------------------------------+
+|                | `read_schema`          |                                  |
+|                |                        |                                  |
++----------------+------------------------+----------------------------------+
+| ``group``      | `write_group`          |                                  |
+|                |                        |                                  |
+|                +------------------------+----------------------------------+
+|                | `read_group`           |                                  |
+|                |                        |                                  |
++----------------+------------------------+----------------------------------+
+             
+.. note::
 
-Buckets
-=======
-
-Permissions to create a bucket are defined in the kinto configuration.
-By default **Authenticated users** can create one.
-
-Permission **write_bucket** let the user do anything she want inside
-this bucket.
-
-She basically become a bucket owner with full access on it:
-
-- She can manage the bucket's permissions
-- She can create and manage any bucket's groups
-- She can create and manage any bucket's collections
-- She can create and manage any bucket's collections records
-
-There are two other permissions on a bucket:
-
-- **create_group**: It gives the permission for some users to create groups
-- **create_collection**: It gives the permission for some users to create collections
-
-
-Groups
-======
-
-A group have got a few permissions:
-
-- **read_group**: It gives read access to the group member list
-- **write_group**: It gives write access to update the group member list
-
-
-Collections
-===========
-
-A collection have got a few permissions:
-
-- **read_collection**: It is a read access to the collection
-  attributes (schema and permissions)
-- **write_collection**: It is a write access to the collection
-  attributes (schema and permissions)
-- **create_records**: It is a permission that let one create new records
-- **read_records**: It is a read access to any collection record
-- **write_records**: It is a permission that let one update any collection record
-
-
-Records
-=======
-
-A record have got two permissions:
-
-- **read_record**: Give a read access to this specific record
-- **write_record**: Give a write access to this specific record
+  Anyone with the `write` permission on an object can also edit its associated
+  permissions.
 
 
 Examples
@@ -95,45 +147,36 @@ The Payments use case
 
 For the payment use case we have three players involved:
 
-- The **payment app** that stores payments for users for an app
-- The **selling app** that can read records of the given app
-- The **user** that can read records of the given user
+- The **payment app**, storing receipts for buyers and sellers;
+- The **selling app**, reading receipts for a given seller.
+- The **buyer app** reading receipts for a given buyer.
 
-
-The ``payments`` bucket
-'''''''''''''''''''''''
-
-In that case we will create a bucket **payments** owned by the payment app:
+In this case, the ``payments`` bucket will be created with the following ACLs:
 
 .. code-block:: json
 
     {
         "id": "payments",
-        "permissions": {
-            "write_bucket": ["scope:paymentapp"]
+        "acls": {
+            "write_bucket": ["appid:<payment-appid>"]
         }
     }
 
 
-The ``operations`` collection
-'''''''''''''''''''''''''''''
-
-In this bucket we will create a **operations** collection:
+Receipts will be stored inside a "receipts" collection, stored inside the
+"payments" bucket. No specific ACL will be defined for this collection: only
+the "payment" app should be able to write receipt records there.
 
 .. code-block:: json
 
     {
-        "id": "operations",
-        "permissions": {
-            "read_collection": ["Authenticated"]
-        }
+        "id": "receipts",
+        "acls": {}
     }
 
-Records access
-''''''''''''''
 
-Finally to give user and sellingapp access to the records they need,
-we will add the following permissions on each records:
+Finally to give buyers and sellers app read access on their related records,
+each record should be created with an associated ACL.
 
 .. code-block::
 
@@ -141,13 +184,13 @@ we will add the following permissions on each records:
         "id": "<record_id>",
         "data": {"records": "data"},
         "permissions": {
-            "read_record": ["email:<user_email>", "app:<app_id>"]
+            "read_record": ["userid:<buyer-id>", "appid:<seller-appid>"]
         }
     }
 
-By doing this, we will make sure that every app can access all the
-records related to it, same for the users that can access their
-records and the payment app can administrate everything.
+This ensures every app can access its related records, and that each buyer can
+also access their receipts. However, only the payment application can create
+/ edit new ones.
 
 
 The Blog use case
