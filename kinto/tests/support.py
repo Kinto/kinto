@@ -1,38 +1,30 @@
-from cliquet import utils
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest  # NOQA
 
-from cliquet.tests import support as cliquet_support
 import webtest
-import kinto
+from cliquet import utils
+from cliquet.tests import support as cliquet_support
 
 
-class BaseWebTest(cliquet_support.BaseWebTest):
+class BaseWebTest(cliquet_support.FakeAuthentMixin):
 
-    api_prefix = kinto.API_VERSION
+    app = webtest.TestApp("config:config/kinto.ini",
+                          relative_to='.')
 
-    def get_test_app(self):
-        return webtest.TestApp(kinto.main({}, **self.get_app_settings()))
+    def __init__(self, *args, **kwargs):
+        super(BaseWebTest, self).__init__(*args, **kwargs)
+        self.app.RequestClass = cliquet_support.get_request_class(prefix="v0")
+        self.db = self.app.app.registry.storage
+        self.db.initialize_schema()
+        self.headers.update({
+            'Content-Type': 'application/json',
+        })
 
-    def get_app_settings(self):
-        return {
-            'cliquet.project_name': 'cloud storage',
-            'cliquet.project_docs': 'https://kinto.rtfd.org/',
-            'cliquet.basic_auth_enabled': 'true',
-            'cliquet.userid_hmac_secret': 'b4c96a8692291d88fe5a97dd91846eb4',
-            'cliquet.storage_backend': 'cliquet.storage.postgresql',
-            'cliquet.storage_url':
-                'postgres://postgres:postgres@localhost/testdb',
-            'cliquet.cache_backend': 'cliquet.cache.redis',
-            'fxa-oauth.client_id': '89513028159972bc',
-            'fxa-oauth.client_secret':
-                '9aced230585cc0aa2932e2eb871c9a3a7d6458'
-                'e59ccf57eb610ea0a3467dd800',
-            'fxa-oauth.oauth_uri': 'https://oauth-stable.dev.lcip.org',
-            'fxa-oauth.scope': 'profile'
-        }
+    def tearDown(self):
+        super(BaseWebTest, self).tearDown()
+        self.db.flush()
 
 
 def get_user_headers(user):

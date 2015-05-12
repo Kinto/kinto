@@ -7,7 +7,17 @@ This document describes changes between each past release.
 0.2.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Upgraded to *cliquet* 1.7.0
+
+**Breaking changes**
+
+- PostgreSQL database initialization process is not run automatically in
+  production. Add this command to deployment procedure:
+
+::
+
+    cliquet --ini config/kinto.ini migrate
+
 
 
 0.2.1 (2015-03-25)

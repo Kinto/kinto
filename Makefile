@@ -28,10 +28,11 @@ $(PYTHON):
 	virtualenv $(VENV)
 
 serve: install-dev
+	$(VENV)/bin/cliquet --ini $(SERVER_CONFIG) migrate
 	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
 
 tests-once: install-dev
-	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-package=kinto
+	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-min-percentage=100 --cover-package=kinto
 
 tests:
 	tox

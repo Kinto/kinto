@@ -6,7 +6,6 @@ from cliquet import initialize_cliquet
 
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution(__package__).version
-API_VERSION = "v%s" % __version__.split('.')[0]
 
 # Main kinto logger
 logger = logging.getLogger(__name__)

@@ -3,7 +3,7 @@ python: 2.7
 sudo: true
 services: redis-server
 addons:
-  postgresql: "9.3"
+  postgresql: "9.4"
 env:
     - TOX_ENV=py27
     - TOX_ENV=py34
@@ -18,3 +18,7 @@ install:
 script:
     - if [[ $ACTION != loadtest ]]; then tox -e $TOX_ENV; fi
     - if [[ $ACTION == loadtest ]]; then make loadtest-check; fi
+after_success:
+    # Report coverage results to coveralls.io
+    - pip install coveralls
+    - coveralls
