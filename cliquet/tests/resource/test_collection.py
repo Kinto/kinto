@@ -1,7 +1,20 @@
 import mock
 from pyramid import httpexceptions
 
+from cliquet.resource import BaseResource
 from cliquet.tests.resource import BaseTest
+
+
+class CustomNameTest(BaseTest):
+    def test_resource_name_can_be_defined_as_property(self):
+        class Custom(BaseResource):
+            @property
+            def name(self):
+                return 'foo'
+
+        custom = Custom(self.resource.request)
+        with self.assertRaises(AttributeError):
+            custom.name = 'bar'
 
 
 class CollectionTest(BaseTest):
