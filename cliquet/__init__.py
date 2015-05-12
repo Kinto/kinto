@@ -111,6 +111,9 @@ def includeme(config):
     Service.cors_origins = tuple(aslist(cors_origins))
     Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
 
+    # Heartbeat registry.
+    config.registry.heartbeats = {}
+
     # Setup components.
     for step in aslist(settings['cliquet.initialization_sequence']):
         step_func = config.maybe_dotted(step)

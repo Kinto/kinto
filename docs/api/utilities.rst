@@ -21,7 +21,7 @@ GET /__heartbeat__
 Return the status of each service the application depends on. The
 returned value is a JSON mapping containing:
 
-- ``database`` true if operational
+- ``storage`` true if operational
 - ``cache`` true if operational
 - ``oauth`` true if operational, or `null` if not enabled
 

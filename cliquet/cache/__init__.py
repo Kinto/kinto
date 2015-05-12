@@ -23,9 +23,11 @@ class CacheBase(object):
         """Delete every values."""
         raise NotImplementedError
 
-    def ping(self):
+    def ping(self, request):
         """Test that cache backend is operationnal.
 
+        :param request: current request object
+        :type request: :class:`~pyramid:pyramid.request.Request`
         :returns: ``True`` is everything is ok, ``False`` otherwise.
         :rtype: bool
         """

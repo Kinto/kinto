@@ -37,6 +37,7 @@ class BaseTestCache(object):
         super(BaseTestCache, self).__init__(*args, **kwargs)
         self.cache = self.backend.load_from_config(self._get_config())
         self.cache.initialize_schema()
+        self.request = None
         self.client_error_patcher = None
 
     def _get_config(self, settings=None):
@@ -66,17 +67,17 @@ class BaseTestCache(object):
 
     def test_ping_returns_false_if_unavailable(self):
         self.client_error_patcher.start()
-        self.assertFalse(self.cache.ping())
+        self.assertFalse(self.cache.ping(self.request))
         with mock.patch('cliquet.cache.random.random', return_value=0.6):
-            self.assertFalse(self.cache.ping())
+            self.assertFalse(self.cache.ping(self.request))
         with mock.patch('cliquet.cache.random.random', return_value=0.4):
-            self.assertFalse(self.cache.ping())
+            self.assertFalse(self.cache.ping(self.request))
 
     def test_ping_returns_true_if_available(self):
         with mock.patch('cliquet.cache.random.random', return_value=0.6):
-            self.assertTrue(self.cache.ping())
+            self.assertTrue(self.cache.ping(self.request))
         with mock.patch('cliquet.cache.random.random', return_value=0.4):
-            self.assertTrue(self.cache.ping())
+            self.assertTrue(self.cache.ping(self.request))
 
     def test_set_adds_the_record(self):
         stored = 'toto'
