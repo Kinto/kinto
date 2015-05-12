@@ -3,6 +3,28 @@ Access Control Lists
 
 .. _acls:
 
+Terminology
+===========
+
+Objects:
+  Anything that can be interracted with. Collections, records, schemas, buckets
+  are all objects.
+
+Principals:
+  An entity that can be authenticated.  Principals can be individual people,
+  applications, services, or any group of such things.
+
+Groups:
+  A group of already existing principals.
+
+Permissions:
+  An action that can be done on an object. Example of permissions are "read",
+  "write", and "create".
+
+ACLs:
+  A list of permissions associated to objects and principals. For instance,
+  `write_bucket: [list, of, principals]`.
+
 Objects
 =======
 
@@ -22,7 +44,7 @@ Any set of objects defined in Kinto can be given a number of permissions.
 +-----------------+---------------------------------------------------------+
 | **schema**      | Validation rules for collection's records               |
 +-----------------+---------------------------------------------------------+
-| **group**       | A group of other principals.                            |
+| **group**       | A group of other :ref:`principals <principals>`.        |
 +-----------------+---------------------------------------------------------+
 
 There is a notion of hierarchy among all these objects:
@@ -135,12 +157,17 @@ the ``write_bucket`` ACL would be used.
   Anyone with the `write` permission on an object can also edit its associated
   permissions.
 
+Principals
+==========
+
+XXX Describe how principals are used.
+
 
 Examples
 ========
 
-To better understand how this will work, let's take some common use cases.
-
+To better understand how this works, here is a handful of examples which expose
+how the permission model works.
 
 The Payments use case
 ---------------------
@@ -150,6 +177,9 @@ For the payment use case we have three players involved:
 - The **payment app**, storing receipts for buyers and sellers;
 - The **selling app**, reading receipts for a given seller.
 - The **buyer app** reading receipts for a given buyer.
+
+Users shouldn't be able to write receipts themselves, sellers and users should
+only be able to read their owns.
 
 In this case, the ``payments`` bucket will be created with the following ACLs:
 
@@ -196,35 +226,27 @@ also access their receipts. However, only the payment application can create
 The Blog use case
 -----------------
 
-What do we want?
-''''''''''''''''
+Consider a blog where:
 
 - A list of administrators can CRUD everything.
-- Some moderators can create_articles and update existing ones.
+- Some moderators can create articles and update existing ones.
 - Anybody can read.
 
-
-The ``servicedenuages_blog`` bucket
-''''''''''''''''''''''''''''''''''
-
-In that case we will create a bucket for the blog
-**servicedenuages_blog** owned by the blog administrators:
+Creating a <blogbucket> bucket where the list of admins are defined with the
+`write_permission`.
 
 .. code-block:: json
 
     {
-        "id": "servicedenuages_blog",
-        "permissions": {
+        "id": "<blogname>",
+        "acls": {
             "write_bucket": ["email:mathieu@example.com", "email:alexis@example.com"]
         }
     }
 
-
-The ``moderators`` group
-''''''''''''''''''''''''
-
-We will create a moderators group with the list of people having the
-ability to create and manage content.
+Moderators are special persons with special rights. Rather than adding
+moderators to each object they can moderate, it is easier to create a group of
+such persons:
 
 .. code-block:: json
 
@@ -234,73 +256,59 @@ ability to create and manage content.
                     "email:tarek@example.com"]
     }
    
-
-
-The ``articles`` collection
-'''''''''''''''''''''''''''
-
-In this bucket we will create an **articles** collection:
+The created bucket contains an **article** collection, with a defined set of
+ACLs:
 
 .. code-block:: json
 
     {
         "id": "articles",
-        "permissions": {
+        "acls": {
             "read_collection": ["Everyone"],
-            "read_records": ["Everyone"],
-            "create_records": ["group:moderators"],
-            "write_records": ["group:moderators"]
+            "read_record": ["Everyone"],
+            "create_record": ["group:moderators"],
+            "write_record": ["group:moderators"]
         }
     }
-
-And we don't need to setup specific records access.
 
 
 The Twitter use case
 --------------------
 
-What do we want?
-''''''''''''''''
+- Each collection is isolated from the others, and only one person have all
+  permissions on all records.
+- Anybody can read everything.
 
-- Collection is isolated (CRUD your own records).
-- Anybody can read anything.
-
-
-The ``twitter`` bucket
-''''''''''''''''''''''
+A "microblog" bucket is created, where new groups can be created by
+authenticated users.
 
 .. code-block:: json
 
     {
         "id": "twitter",
-        "permissions": {
+        "acls": {
             "write_bucket": ["email:sysadmins@twitter.com"],
             "create_groups": ["Authenticated"]
         }
     }
 
 
-The ``tweets`` collection
-'''''''''''''''''''''''''
-
-In this bucket we will create a **tweets** collection:
+This bucket handles a **tweets** collection where everyone can read and only
+authenticated users can create records.
 
 .. code-block:: json
 
     {
         "id": "tweets",
-        "permissions": {
+        "acls": {
             "read_collection": ["Everyone"],
             "create_records": ["Authenticated"]
         }
     }
 
 
-Record access
-'''''''''''''
-
-Finally to let users manage their tweets we will add the following
-permissions on each records:
+Each time a user creates a new record, it needs to setup the ACLs attached to
+it.
 
 .. code-block::
 
@@ -334,35 +342,27 @@ giving ``write_record`` access to a group of users.
 The Wiki use case
 -----------------
 
-What do we want?
-''''''''''''''''
+- Authenticated users can create, retrieve, update and delete anything;
+- Everyone can read articles.
 
-- Authenticated users can CRUD anything.
-
-
-The ``wiki`` bucket
-'''''''''''''''''''
+By default, the creator of the bucket will get write access to the bucket:
 
 .. code-block:: json
 
     {
         "id": "wiki",
-        "permissions": {
+        "acls": {
             "write_bucket": ["email:natim@example.com"]
         }
     }
 
-
-The ``articles`` collection
-'''''''''''''''''''''''''
-
-In this bucket we will create an **articles** collection:
+This bucket contains an **articles** collection, where every
 
 .. code-block:: json
 
     {
         "id": "articles",
-        "permissions": {
+        "acls": {
             "read_collection": ["Everyone"],
             "read_records": ["Everyone"],
             "create_records": ["Authenticated"],
@@ -370,81 +370,62 @@ In this bucket we will create an **articles** collection:
         }
     }
 
-And that's about all.
-
 
 The Company Wiki use case
 -------------------------
 
-What do we want?
-''''''''''''''''
-
-- Employee of the company to users can CRUD anything.
+- Employees of the company can CRUD anything.
 - Managers can add employees to the wiki.
-- Other people doesn't have access.
+- Other people dont have access.
 
 
-The ``companywiki`` bucket
-'''''''''''''''''''
+First, create a "companywiki" bucket:
 
 .. code-block:: json
 
     {
         "id": "companywiki",
-        "permissions": {
+        "acls": {
             "write_bucket": ["email:sysadmin@company.com"]
         }
     }
 
-The ``managers`` group
-''''''''''''''''''''''
-
-In this bucket we will create a **managers** group:
+This bucket contains a **managers** group:
 
 .. code-block:: json
 
     {
         "id": "managers",
         "members": ["email:tarek@company.com"],
-        "permissions": {
+        "acls": {
              "write_group": ["email:cto@company.com"]
         }
     }
 
-
-
-The ``employees`` group
-'''''''''''''''''''''''
-
-In this bucket we will create an **employees** group:
+In this bucket we have an **employees** group:
 
 .. code-block:: json
 
     {
         "id": "employees",
         "members": ["group:managers", "email:natim@company.com",
-                     "email:nicolas@company.com", "email:mathieu@company.com",
-                     "email:alexis@company.com"],
-        "permissions": {
+                    "email:nicolas@company.com", "email:mathieu@company.com",
+                    "email:alexis@company.com"],
+        "acls": {
              "write_group": ["group:managers"]
         }
     }
 
 
-The ``articles`` collection
-'''''''''''''''''''''''''
-
-In this bucket we will create an **articles** collection:
+The bucket contains an **articles** collection:
 
 .. code-block:: json
 
     {
         "id": "articles",
-        "permissions": {
+        "acls": {
             "read_collection": ["group:employees"],
             "create_records": ["group:employees"],
             "write_records": ["group:employees"]
         }
     }
-
-And that's about all.
