@@ -11,6 +11,8 @@ from pyramid.security import Authenticated
 from six.moves.urllib.parse import urljoin
 from zope.interface import implementer
 
+from cliquet import logger
+
 
 class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
     """Basic auth implementation.
@@ -107,9 +109,11 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         try:
             profile = auth_client.verify_token(token=auth, scope=scope)
             user_id = profile['user']
-        except fxa_errors.OutOfProtocolError:
+        except fxa_errors.OutOfProtocolError as e:
+            logger.error(e)
             raise httpexceptions.HTTPServiceUnavailable()
-        except (fxa_errors.InProtocolError, fxa_errors.TrustError):
+        except (fxa_errors.InProtocolError, fxa_errors.TrustError) as e:
+            logger.info(e)
             return None
 
         return 'fxa_%s' % user_id
