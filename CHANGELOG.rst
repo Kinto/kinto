@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-1.7.1 (unreleased)
+1.8.0 (2015-05-13)
 ------------------
 
 **Breaking changes**
