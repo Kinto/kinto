@@ -1,15 +1,17 @@
+import codecs
 import os
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-with open(os.path.join(here, 'README.rst')) as f:
+with codecs.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     README = f.read()
 
-with open(os.path.join(here, 'CHANGELOG.rst')) as f:
+with codecs.open(os.path.join(here, 'CHANGELOG.rst'), encoding='utf-8') as f:
     CHANGELOG = f.read()
 
-with open(os.path.join(here, 'CONTRIBUTORS.rst')) as f:
+with codecs.open(os.path.join(here, 'CONTRIBUTORS.rst'),
+                 encoding='utf-8') as f:
     CONTRIBUTORS = f.read()
 
 
