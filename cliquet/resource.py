@@ -164,6 +164,10 @@ class BaseResource(object):
     def collection_post(self):
         """Collection ``POST`` endpoint: create a record.
 
+        If the new record conflicts against a unique field constraint, the
+        posted record is ignored, and the existing record is returned, with
+        a ``200`` status.
+
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
             ``If-Unmodified-Since`` header is provided and collection modified
@@ -178,7 +182,12 @@ class BaseResource(object):
         self._raise_412_if_modified()
 
         new_record = self.process_record(self.request.validated)
-        record = self.create_record(new_record)
+
+        try:
+            record = self.create_record(new_record)
+        except storage_exceptions.UnicityError as e:
+            return e.record
+
         self.request.response.status_code = 201
         return record
 
@@ -441,16 +450,10 @@ class BaseResource(object):
                 record['index'] = idx
                 return record
 
-        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
-            if a unique field constraint is violated.
-
         :returns: the newly created record.
         :rtype: dict
         """
-        try:
-            return self.db.create(record=record, **self.db_kwargs)
-        except storage_exceptions.UnicityError as e:
-            self._raise_conflict(e)
+        return self.db.create(record=record, **self.db_kwargs)
 
     def update_record(self, old, new, changes=None):
         """Update a record in the collection.
