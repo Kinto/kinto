@@ -83,6 +83,28 @@ For example, in :file:`cliquet_elasticsearch/init.py`:
         config.add_view(...)
 
 
+In order to ease the management of settings, *Cliquet* provides a helper to
+read values from environment variables and default application values.
+
+.. code-block:: python
+    :emphasize-lines: 1,3-5,8,11
+
+    import cliquet
+
+    DEFAULT_SETTINGS = {
+        'cliquet_elasticsearch.refresh_enabled': False
+    }
+
+    def includeme(config):
+        cliquet.load_default_settings(config, DEFAULT_SETTINGS)
+        settings = config.get_settings()
+
+        refresh_enabled = settings['cliquet_elasticsearch.refresh_enabled']
+
+        config.add_view(...)
+
+
+
 Custom backend
 ==============
 
