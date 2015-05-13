@@ -89,7 +89,6 @@ class ModifiedMeanwhileTest(BaseTest):
                           self.resource.put)
 
     def test_put_returns_412_if_deleted_meanwhile(self):
-
         self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)

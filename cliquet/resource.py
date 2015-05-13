@@ -268,9 +268,9 @@ class BaseResource(object):
                                         **self.db_kwargs)
             if len(result) > 0:
                 existing = result[0]
-
-        if existing:
-            self._raise_412_if_modified(existing)
+        finally:
+            if existing:
+                self._raise_412_if_modified(existing)
 
         new_record = self.request.validated
 
