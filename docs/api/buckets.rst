@@ -1,6 +1,9 @@
 Working with buckets
 ====================
 
+.. _buckets:
+
+
 Creating a new bucket
 ---------------------
 
@@ -121,13 +124,13 @@ You can use ``+principal`` to add one and ``-principal`` to remove one.
     }
 
 
-Getting bucket informations
----------------------------
+Getting bucket information
+--------------------------
 
 GET /buckets/<bucket_id>
 ''''''''''''''''''''''''
 
-This endpoint lets you get bucket informations.
+This endpoint lets you get bucket information.
 
 .. code-block:: http
 
@@ -148,8 +151,7 @@ This endpoint lets you get bucket informations.
             "groups:create": [
                 "fxa:70a9335eecfe440fa445ba752a750f3d"
             ]
-        },
-        "collections": []
+        }
     }
 
 
@@ -166,16 +168,3 @@ This endpoint lets you delete a bucket and everything inside.
 
     HTTP/1.1 204 No Content
     Content-Type: application/json; charset=UTF-8
-
-    {
-        "id": "servicedenuages",
-        "permissions": {
-            "write": [
-                "basicauth:5d127220922673e346c0ebee46c23e6739dfa756",
-                "fxa:af3e077eb9f5444a949ad65aa86e82ff"
-            ],
-            "groups:create": [
-                "fxa:70a9335eecfe440fa445ba752a750f3d"
-            ]
-        }
-    }
