@@ -6,9 +6,9 @@ Creating a new bucket
 
 ``/buckets/<bucket_id>``
 
-This endpoint defines the bucket resource.
+This endpoint defines the bucket resource:
 
-* Handle the owner list as well as the buckets permissions
+* Its permissions
 
 
 POST /buckets
@@ -18,10 +18,22 @@ POST /buckets
 
 This endpoint creates a new bucket with a generated unique id.
 
-By default the user id is used as the only owner.
+By default the user id is used for its write permission.
 
-**Optional parameters**
+.. code-block:: http
 
+    $ http POST http://localhost:8000/v1/buckets --auth "admin:"
+    POST /v1/buckets HTTP/1.1
+    Authorization: Basic YWRtaW46
+
+    HTTP/1.1 201 Created
+
+    {
+        "id": "857d952b-e9fa-4b9f-b60e-cb633a557ced",
+        "permissions": {
+            "write": ["basicauth:5d127220922673e346c0ebee46c23e6739dfa756"]
+        }
+    }
 
 
 PUT /buckets/<bucket_id>
@@ -31,27 +43,22 @@ PUT /buckets/<bucket_id>
 
 This endpoint creates a new bucket with a chosen id.
 
-If the id is already taken, then a ``409 Conflict`` http error will be returned.
+If the bucket exists and you don't have the ``write`` permission on
+it, you will get a ``403 Forbidden`` http response.
+
+.. code-block:: http
 
     $ http PUT http://localhost:8000/v1/buckets/servicedenuages --auth "admin:"
 
     PUT /v1/buckets/servicedenuages HTTP/1.1
     Authorization: Basic YWRtaW46
-    Content-Length: 0
-    Host: localhost:8000
-    User-Agent: HTTPie/0.9.2
 
     HTTP/1.1 201 Created
-    Content-Type: application/json; charset=UTF-8
-    Date: Wed, 5 May 2015 18:30:37 GMT
-    Server: waitress
 
     {
         "id": "servicedenuages",
         "permissions": {
-            "write_bucket": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756"],
-            "create_groups": [],
-            "create_collections": [],
+            "write": ["basicauth:5d127220922673e346c0ebee46c23e6739dfa756"]
         }
     }
 
@@ -66,49 +73,7 @@ PATCH /buckets/<bucket_id>
 
 This endpoint lets you update an existing bucket.
 
-If you are not owner of the bucket you will get a ``403 Forbidden`` http error.
-
-.. code-block:: http
-
-    $ echo '{
-              "permissions": {
-                "write_bucket": ["+email:alexis@example.com"],
-                "create_groups": ["+email:natim@example.com"]
-              }
-            }' | http PATCH http://localhost:8000/v1/buckets/servicedenuages --auth "admin:"
-
-    PATCH /v1/buckets/servicedenuages HTTP/1.1
-    Authorization: Basic YWRtaW46
-    Content-Length: 160
-    Content-Type: application/json
-    Host: localhost:8000
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "permissions": {
-            "write_bucket": [
-                "+email:alexis@example.com"
-            ], 
-            "create_groups": [
-                "+email:natim@example.com"
-            ]
-        }
-    }
-
-    HTTP/1.1 200 OK
-    Content-Type: application/json; charset=UTF-8
-    Date: Wed, 5 May 2015 18:34:37 GMT
-    Server: waitress
-
-    {
-        "id": "servicedenuages",
-        "permissions": {
-            "write_bucket": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756",
-                             "email:alexis@example.com"],
-            "create_groups": ["email:natim@example.com"],
-            "create_collections": [],
-        }
-    }
+If you are not owner of the bucket you will get a ``403 Forbidden`` http response.
 
 The PATCH endpoint let you add or remove users principals from
 permissions sets. In case you want to override the set, you can use
@@ -116,12 +81,51 @@ the PUT endpoint.
 
 You can use ``+principal`` to add one and ``-principal`` to remove one.
 
+.. code-block:: http
+
+    $ echo '{
+              "permissions": {
+                "write": ["+fxa:af3e077eb9f5444a949ad65aa86e82ff"],
+                "groups:create": ["+fxa:70a9335eecfe440fa445ba752a750f3d"]
+              }
+            }' | http PATCH http://localhost:8000/v1/buckets/servicedenuages --auth "admin:"
+
+    PATCH /v1/buckets/servicedenuages HTTP/1.1
+    Authorization: Basic YWRtaW46
+
+    {
+        "permissions": {
+            "write_bucket": [
+                "+fxa:af3e077eb9f5444a949ad65aa86e82ff"
+            ], 
+            "create_groups": [
+                "+fxa:70a9335eecfe440fa445ba752a750f3d"
+            ]
+        }
+    }
+
+    HTTP/1.1 200 OK
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "id": "servicedenuages",
+        "permissions": {
+            "write": [
+                "basicauth:5d127220922673e346c0ebee46c23e6739dfa756",
+                "fxa:af3e077eb9f5444a949ad65aa86e82ff"
+            ],
+            "groups:create": [
+                "fxa:70a9335eecfe440fa445ba752a750f3d"
+            ]
+        }
+    }
+
 
 Getting bucket informations
 ---------------------------
 
-PATCH /buckets/<bucket_id>
-''''''''''''''''''''''''''
+GET /buckets/<bucket_id>
+''''''''''''''''''''''''
 
 This endpoint lets you get bucket informations.
 
@@ -130,20 +134,48 @@ This endpoint lets you get bucket informations.
     $ http GET http://localhost:8000/v1/buckets/servicedenuages
 
     GET /v1/buckets/servicedenuages HTTP/1.1
-    Host: localhost:8000
-    User-Agent: HTTPie/0.9.2
 
     HTTP/1.1 200 OK
     Content-Type: application/json; charset=UTF-8
-    Date: Wed, 5 May 2015 18:42:37 GMT
-    Server: waitress
 
     {
         "id": "servicedenuages",
         "permissions": {
-            "write_bucket": ["uid:basicauth_5d127220922673e346c0ebee46c23e6739dfa756",
-                             "email:alexis@example.com"],
-            "create_groups": ["email:natim@example.com"],
-            "create_collections": [],
+            "write": [
+                "basicauth:5d127220922673e346c0ebee46c23e6739dfa756",
+                "fxa:af3e077eb9f5444a949ad65aa86e82ff"
+            ],
+            "groups:create": [
+                "fxa:70a9335eecfe440fa445ba752a750f3d"
+            ]
+        },
+        "collections": []
+    }
+
+
+Removing a bucket
+-----------------
+
+This endpoint lets you delete a bucket and everything inside.
+
+.. code-block:: http
+
+    $ http DELETE http://localhost:8000/v1/buckets/servicedenuages
+
+    DELETE /v1/buckets/servicedenuages HTTP/1.1
+
+    HTTP/1.1 204 No Content
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "id": "servicedenuages",
+        "permissions": {
+            "write": [
+                "basicauth:5d127220922673e346c0ebee46c23e6739dfa756",
+                "fxa:af3e077eb9f5444a949ad65aa86e82ff"
+            ],
+            "groups:create": [
+                "fxa:70a9335eecfe440fa445ba752a750f3d"
+            ]
         }
     }
