@@ -7,23 +7,23 @@ Terminology
 ===========
 
 Objects:
-  Anything that can be interracted with. Collections, records, schemas, buckets
+  Anything that can be interracted with. Collections, records, buckets, groups
   are all objects.
 
 Principals:
-  An entity that can be authenticated.  Principals can be individual people,
+  An entity that can be authenticated. Principals can be individual people,
   applications, services, or any group of such things.
 
 Groups:
   A group of already existing principals.
 
 Permissions:
-  An action that can be done on an object. Example of permissions are "read",
+  An action that can be done on an object. Permissions are "read",
   "write", and "create".
 
 ACLs:
   A list of permissions associated to objects and principals. For instance,
-  `write_bucket: [list, of, principals]`.
+  `collections:create = [list, of, principals]`.
 
 Objects
 =======
@@ -42,8 +42,6 @@ Any set of objects defined in Kinto can be given a number of permissions.
 +-----------------+---------------------------------------------------------+
 | **record**      | The data handled by the server                          |
 +-----------------+---------------------------------------------------------+
-| **schema**      | Validation rules for collection's records               |
-+-----------------+---------------------------------------------------------+
 | **group**       | A group of other :ref:`principals <principals>`.        |
 +-----------------+---------------------------------------------------------+
 
@@ -54,29 +52,29 @@ There is a notion of hierarchy among all these objects:
                +---------------+
                | Buckets       |
                +---------------+
-        +----->+ - id          +<--------------------------+
-        |      | - acls        |                           |
-        |      +---------------+                           |
-        |                                                  |
-        |                                                  |
-        |       +------------------+                       |
-        |       |                  |                       |
-        |       v                  |                       |
-    +---------------+        +----------------+     +----------------+ 
-    | Collections   |        | Schema         |     | Groups         | 
-    +---------------+        +----------------+     +----------------+ 
-    | - id          |        |  - fields      |     |  - id          | 
-    | - acls        |        |  - acls        |     |  - members     | 
-    +---------------+        +----------------+     |  - acls        | 
-           ^                                        +----------------+ 
+        +----->+ - id          +<---+
+        |      | - permissions |    |
+        |      +---------------+    |
+        |                           |
+        |                           |
+        |                           |
+        |                           |
+        |                           |
+    +---+-----------+        +------+---------+ 
+    | Collections   |        | Groups         | 
+    +---------------+        +----------------+ 
+    | - id          |        |  - id          | 
+    | - permissions |        |  - members     | 
+    +------+--------+        |  - permissions | 
+           ^                 +----------------+ 
            |
            |
-    +----------------+
+    +------+---------+
     | Records        |
     +----------------+
     |  - id          |
     |  - data        |
-    |  - acls        |
+    |  - permissions |
     +----------------+
 
 
@@ -100,67 +98,83 @@ On each of these objects, the set of permissions can be:
 |            | a new *child object*.                   |
 +------------+-----------------------------------------+
 
-ACLs are defined with the following formalism:
-``{permission}_{object}: {list of principals}``.
+Permissions are defined on an object following formalism:
+``{permission}: {list of principals}``.
 
-For instance, to describe the list of principals which can write to a bucket,
-the ``write_bucket`` ACL would be used.
+For the create case, since an object can have different child, a
+namespace is used: ``{child_type}:create: {list of principals}``
+
+For instance, to describe the list of principals which can create
+collection in a bucket, the ``collections:create`` ACL would be used.
+
+Here is an exaustive list of all the permission that you can manage
+and the objet that handle them:
 
 +----------------+------------------------+----------------------------------+
 | Object         | Associated permissions | Description                      |
 +================+========================+==================================+
-| Configuration  | `create_bucket`        | Ability to create a new bucket.  |
+| Configuration  | `buckets:create`       | Ability to create a new bucket.  |
 |                |                        |                                  |
 +----------------+------------------------+----------------------------------+
-| ``bucket``     | `write_bucket`         | Ability to write + read on the   |
+| ``bucket``     | `write`                | Ability to write + read on the   |
 |                |                        | bucket and all children objects. |
 |                +------------------------+----------------------------------+
-|                | `read_bucket`          | Ability to read all objects in   |
+|                | `read`                 | Ability to read all objects in   |
 |                |                        | the bucket.                      |
 |                +------------------------+----------------------------------+
-|                | `create_collection`    | Ability to create a new          |
+|                | `collections:create`   | Ability to create a new          |
 |                |                        | collection in the bucket.        |
 |                +------------------------+----------------------------------+
-|                | `create_group`         | Ability to create a new group    |
+|                | `groups:create`        | Ability to create a new group    |
 |                |                        | in the bucket.                   |
 +----------------+------------------------+----------------------------------+
-| ``collection`` | `write_collection`     | Ability to write and read all    |
+| ``collection`` | `write`                | Ability to write and read all    |
 |                |                        | objects in the collection.       |
 |                +------------------------+----------------------------------+
-|                | `read_collection`      | Ability to read all objects in   |
+|                | `read`                 | Ability to read all objects in   |
 |                |                        | the collection.                  |
 |                +------------------------+----------------------------------+
-|                | `create_record`        | Ability to create a new record   |
+|                | `records:create`       | Ability to create a new record   |
 |                |                        | in the collection.               |
 +----------------+------------------------+----------------------------------+
-| ``record``     | `write_record`         |                                  |
-|                |                        |                                  |
+| ``record``     | `write`                | Ability to write and read the    |
+|                |                        | record.                          |
 |                +------------------------+----------------------------------+
-|                | `read_record`          |                                  |
+|                | `read`                 | Ability to read the record.      |
 |                |                        |                                  |
 +----------------+------------------------+----------------------------------+
-| ``schema``     | `write_schema`         |                                  |
-|                |                        |                                  |
+| ``group``      | `write`                | Ability to write and read the    |
+|                |                        | group.                           |
 |                +------------------------+----------------------------------+
-|                | `read_schema`          |                                  |
-|                |                        |                                  |
-+----------------+------------------------+----------------------------------+
-| ``group``      | `write_group`          |                                  |
-|                |                        |                                  |
-|                +------------------------+----------------------------------+
-|                | `read_group`           |                                  |
+|                | `read`                 | Ability to read the group.       |
 |                |                        |                                  |
 +----------------+------------------------+----------------------------------+
              
 .. note::
 
   Anyone with the `write` permission on an object can also edit its associated
-  permissions.
+  permissions and delete it.
+
 
 Principals
 ==========
 
-XXX Describe how principals are used.
+The main principal is set during the login phase, the Authentication
+Policy is responsible to generate the user or app principal.
+
+A principal is using the following formalism:
+``{type}:{identifier}`` ie for Firefox Account: ``fxa:32aa95a474c984d41d395e2d0b614aa2``
+
+Inside a bucket, groups can be created.. Members of this group will have
+it as a principal for the context of the bucket.
+
+When creating the following group, I am adding a new
+``group:moderators`` principal for its members:
+
+There are also two other global principals:
+
+- ``Authenticated``: All users that are authenticated.
+- ``Everyone``: Anyone that calls the endpoint authenticated or not.
 
 
 Examples
@@ -168,6 +182,7 @@ Examples
 
 To better understand how this works, here is a handful of examples which expose
 how the permission model works.
+
 
 The Payments use case
 ---------------------
@@ -181,46 +196,32 @@ For the payment use case we have three players involved:
 Users shouldn't be able to write receipts themselves, sellers and users should
 only be able to read their owns.
 
-In this case, the ``payments`` bucket will be created with the following ACLs:
-
-.. code-block:: json
-
-    {
-        "id": "payments",
-        "acls": {
-            "write_bucket": ["appid:<payment-appid>"]
-        }
-    }
+In this case, the ``payments`` bucket will be created with a ``receipts`` collection.
 
 
-Receipts will be stored inside a "receipts" collection, stored inside the
-"payments" bucket. No specific ACL will be defined for this collection: only
-the "payment" app should be able to write receipt records there.
+Here are the principals:
 
-.. code-block:: json
-
-    {
-        "id": "receipts",
-        "acls": {}
-    }
+- **payment app**: ``hawk:f5c766ab3bf5022ec4776339bf8e197c``
+- **seller app**: ``hawk:507e4eb9e3a28ded33ae950d89f61c21``
+- **buyer**: ``fxa:32aa95a474c984d41d395e2d0b614aa2``
 
 
-Finally to give buyers and sellers app read access on their related records,
-each record should be created with an associated ACL.
+Here is the permission table:
 
-.. code-block::
++---------------------------------------------+-------------+-------------------------------------------+
+| Object                                      | Permissions | Principals                                |
++=============================================+=============+===========================================+
+| ``bucket:payments``                         | `write`     | ``hawk:f5c766ab3bf5022ec4776339bf8e197c`` |
++---------------------------------------------+-------------+-------------------------------------------+
+| ``collection:receipts``                     | None        |                                           |
++---------------------------------------------+-------------+-------------------------------------------+
+| ``record:de17f0f24b49f8364187891f8550ffbb`` | `read`      | ``hawk:507e4eb9e3a28ded33ae950d89f61c21`` |
+|                                             |             | ``fxa:32aa95a474c984d41d395e2d0b614aa2``  |
++---------------------------------------------+-------------+-------------------------------------------+
 
-    {
-        "id": "<record_id>",
-        "data": {"records": "data"},
-        "permissions": {
-            "read_record": ["userid:<buyer-id>", "appid:<seller-appid>"]
-        }
-    }
-
-This ensures every app can access its related records, and that each buyer can
-also access their receipts. However, only the payment application can create
-/ edit new ones.
+This ensures every app can access its related records, and that each
+buyer can also access their receipts. However, only the payment
+application can create / edit new ones.
 
 
 The Blog use case
@@ -232,111 +233,89 @@ Consider a blog where:
 - Some moderators can create articles and update existing ones.
 - Anybody can read.
 
-Creating a <blogbucket> bucket where the list of admins are defined with the
-`write_permission`.
+Creating a ``servicedenuages_blog`` bucket with an ``article`` collection.
 
-.. code-block:: json
+Our users have the following principals:
 
-    {
-        "id": "<blogname>",
-        "acls": {
-            "write_bucket": ["email:mathieu@example.com", "email:alexis@example.com"]
-        }
-    }
+- Alexis: ``fxa:<alexis id>``
+- Mathieu: ``fxa:<mathieu id>``
+- Rémy: ``fxa:<remy id>``
+- Tarek: ``fxa:<tarek id>``
 
-Moderators are special persons with special rights. Rather than adding
-moderators to each object they can moderate, it is easier to create a group of
-such persons:
+Here is the permission table:
 
-.. code-block:: json
-
-    {
-        "id": "moderators",
-        "members": ["email:natim@example.com", "email:nicolas@example.com",
-                    "email:tarek@example.com"]
-    }
-   
-The created bucket contains an **article** collection, with a defined set of
-ACLs:
-
-.. code-block:: json
-
-    {
-        "id": "articles",
-        "acls": {
-            "read_collection": ["Everyone"],
-            "read_record": ["Everyone"],
-            "create_record": ["group:moderators"],
-            "write_record": ["group:moderators"]
-        }
-    }
++---------------------------------+-------------+-------------------------------------------+
+| Object                          | Permissions | Principals                                |
++=================================+=============+===========================================+
+| ``bucket:servicedenuages_blog`` | `write`     | ``fxa:<alexis id>``                       |
+|                                 |             | ``fxa:<mathieu id>``                      |
++---------------------------------+-------------+-------------------------------------------+
+| ``group:moderators``            | members     | ``fxa:<remy id>``                         |
+|                                 |             | ``fxa:<tarek id>``                        |
++---------------------------------+-------------+-------------------------------------------+
+| ``collection:article``          | `write`     | ``group:moderators``                      |
+|                                 +-------------+-------------------------------------------+
+|                                 | `read`      | ``Everyone``                              |
++---------------------------------+-------------+-------------------------------------------+
 
 
-The Twitter use case
---------------------
+The microblogging use case
+--------------------------
 
+A microblog is a service to share short articles with people such as
+Twitter, Google+ or Facebook.
+
+- The microblog administrator creates the bucket.
 - Each collection is isolated from the others, and only one person have all
   permissions on all records.
 - Anybody can read everything.
 
-A "microblog" bucket is created, where new groups can be created by
-authenticated users.
+A ``microblog`` bucket is created, where new groups can be created by authenticated users.
+An ``article`` collection is created.
 
-.. code-block:: json
+Our users have the following principals:
 
-    {
-        "id": "twitter",
-        "acls": {
-            "write_bucket": ["email:sysadmins@twitter.com"],
-            "create_groups": ["Authenticated"]
-        }
-    }
+- Microblog administrator: ``fxa:<microblog administrator id>``
+- Alexis: ``fxa:<alexis id>``
+- Mathieu: ``fxa:<mathieu id>``
+- Rémy: ``fxa:<remy id>``
+- Tarek: ``fxa:<tarek id>``
 
++--------------------------------------------------+---------------------+-------------------------------------------+
+| Object                                           | Permissions         | Principals                                |
++==================================================+=====================+===========================================+
+| ``bucket:microblog``                             | `write`             | ``fxa:<microblog administrator id>``      |
+|                                                  +---------------------+-------------------------------------------+
+|                                                  | `group:create`      | ``Authenticated``                         |
++--------------------------------------------------+---------------------+-------------------------------------------+
+| ``collection:articles``                          | `records:create`    | ``Authenticated``                         |
++--------------------------------------------------+---------------------+-------------------------------------------+
+| ``group:alexis_buddies``                         | members             | ``fxa:<mathieu id>``                      |
+|                                                  |                     | ``fxa:<tarek id>``                        |
+|                                                  |                     | ``fxa:<remy id>``                         |
+|                                                  +---------------------+-------------------------------------------+
+|                                                  | `write`             | ``fxa:<alexis id>``                       |
+|                                                  +---------------------+-------------------------------------------+
+|                                                  | `read`              | ``Authenticated``                         |
++--------------------------------------------------+---------------------+-------------------------------------------+
+| ``record:14dc5627-010a-4d39-bd88-c28c28bf37a5``  | `write`             | ``fxa:<alexis id>``                       |
+|                                                  +---------------------+-------------------------------------------+
+|   In case of a public record                     | `read`              | ``Everyone``                              |
++--------------------------------------------------+---------------------+-------------------------------------------+
+| ``record:ffdb6deb-111c-40c4-a395-ce669798d72b``  | `write`             | ``fxa:<alexis id>``                       |
+|                                                  +---------------------+-------------------------------------------+
+|   In case of a direct message for tarek          | `read`              | ``fxa:<tarek id>``                        |
++--------------------------------------------------+---------------------+-------------------------------------------+
+| ``record:8cc0def1-e19d-4334-9fd4-b968c95d7d0a``  | `write`             | ``fxa:<alexis id>``                       |
+|                                                  +---------------------+-------------------------------------------+
+|   In case of an article to people alexis follow  | `read`              | ``group:alexis_following``                |
++--------------------------------------------------+---------------------+-------------------------------------------+
 
-This bucket handles a **tweets** collection where everyone can read and only
-authenticated users can create records.
+Each time a user creates a new record, it needs to setup the ACLs
+attached to it.
 
-.. code-block:: json
-
-    {
-        "id": "tweets",
-        "acls": {
-            "read_collection": ["Everyone"],
-            "create_records": ["Authenticated"]
-        }
-    }
-
-
-Each time a user creates a new record, it needs to setup the ACLs attached to
-it.
-
-.. code-block::
-
-    {
-        "id": "<record_id>",
-        "data": {"records": "data"},
-        "permissions": {
-            "read_record": ["Everyone"],
-            "write_record": ["email:<user_email>"]
-        }
-    }
-
-If one want to restrict read access to its tweets, he can create a
-``<username>:authorized_followers`` group and use it like so:
-
-.. code-block:: json
-
-    {
-        "id": "<record_id>",
-        "data": {"records": "data"},
-        "permissions": {
-            "read_record": ["group:<username>:authorized_followers"],
-            "write_record": ["email:<user_email>"]
-        }
-    }
-
-With this model it is also possible to setup a shared twitter account
-giving ``write_record`` access to a group of users.
+With this model it is also possible to setup a shared microblogging
+account giving record's ``write`` permission to a group of users.
 
 
 The Wiki use case
@@ -345,30 +324,29 @@ The Wiki use case
 - Authenticated users can create, retrieve, update and delete anything;
 - Everyone can read articles.
 
-By default, the creator of the bucket will get write access to the bucket:
+A ``wiki`` bucket is created, where new groups can be created by authenticated users.
+An ``article`` collection is created.
 
-.. code-block:: json
+Our users have the following principals:
 
-    {
-        "id": "wiki",
-        "acls": {
-            "write_bucket": ["email:natim@example.com"]
-        }
-    }
+- Wiki administrator: ``fxa:<wiki administrator id>``
+- Alexis: ``fxa:<alexis id>``
+- Mathieu: ``fxa:<mathieu id>``
+- Rémy: ``fxa:<remy id>``
+- Tarek: ``fxa:<tarek id>``
 
-This bucket contains an **articles** collection, where every
++--------------------------------------------------+---------------------+-------------------------------------------+
+| Object                                           | Permissions         | Principals                                |
++==================================================+=====================+===========================================+
+| ``bucket:wiki``                                  | `write`             | ``fxa:<wiki administrator id>``           |
++--------------------------------------------------+---------------------+-------------------------------------------+
+| ``collection:articles``                          | `write`             | ``Authenticated``                         |
+|                                                  +---------------------+-------------------------------------------+
+|                                                  | `read`              | ``Everyone``                              |
++--------------------------------------------------+---------------------+-------------------------------------------+
 
-.. code-block:: json
-
-    {
-        "id": "articles",
-        "acls": {
-            "read_collection": ["Everyone"],
-            "read_records": ["Everyone"],
-            "create_records": ["Authenticated"],
-            "write_records": ["Authenticated"]
-        }
-    }
+The bias is that kinto doesn't have revision nor history of
+modification, but we are just providing a permission setup example.
 
 
 The Company Wiki use case
@@ -379,53 +357,34 @@ The Company Wiki use case
 - Other people dont have access.
 
 
-First, create a "companywiki" bucket:
+A ``companywiki`` bucket is created.
+An ``article`` collection is created.
 
-.. code-block:: json
+Our users have the following principals:
 
-    {
-        "id": "companywiki",
-        "acls": {
-            "write_bucket": ["email:sysadmin@company.com"]
-        }
-    }
+- Wiki administrator: ``fxa:<wiki administrator id>``
+- Employees are:
+ - Alexis: ``fxa:<alexis id>``
+ - Mathieu: ``fxa:<mathieu id>``
+ - Rémy: ``fxa:<remy id>``
+ - Tarek: ``fxa:<tarek id>``
 
-This bucket contains a **managers** group:
-
-.. code-block:: json
-
-    {
-        "id": "managers",
-        "members": ["email:tarek@company.com"],
-        "acls": {
-             "write_group": ["email:cto@company.com"]
-        }
-    }
-
-In this bucket we have an **employees** group:
-
-.. code-block:: json
-
-    {
-        "id": "employees",
-        "members": ["group:managers", "email:natim@company.com",
-                    "email:nicolas@company.com", "email:mathieu@company.com",
-                    "email:alexis@company.com"],
-        "acls": {
-             "write_group": ["group:managers"]
-        }
-    }
+Tarek is the manager.
 
 
-The bucket contains an **articles** collection:
-
-.. code-block:: json
-
-    {
-        "id": "articles",
-        "acls": {
-            "read_collection": ["group:employees"],
-            "create_records": ["group:employees"],
-            "write_records": ["group:employees"]
-        }
-    }
++--------------------------------------------------+---------------------+-------------------------------------------+
+| Object                                           | Permissions         | Principals                                |
++==================================================+=====================+===========================================+
+| ``bucket:companywiki``                           | `write`             | ``fxa:<wiki administrator id>``           |
++--------------------------------------------------+---------------------+-------------------------------------------+
+| ``group:managers``                               | members             | ``fxa:<tarek id>``                        |
++--------------------------------------------------+---------------------+-------------------------------------------+
+| ``group:employees``                              | members             | ``fxa:<alexis id>``                       |
+|                                                  |                     | ``fxa:<mathieu id>``                      |
+|                                                  |                     | ``fxa:<remy id>``                         |
+|                                                  |                     | ``group:managers``                        |
+|                                                  +---------------------+-------------------------------------------+
+|                                                  | `write`             | ``group:managers``                        |
++--------------------------------------------------+---------------------+-------------------------------------------+
+| ``collection:articles``                          | `write`             | ``group:employees``                       |
++--------------------------------------------------+---------------------+-------------------------------------------+
