@@ -8,12 +8,41 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
+- Switch PostgreSQL storage to JSONB: requires 9.4+ (#104)
+- Resource name is not a Python property anymore (ref #243)
+- Return existing record instead of raising 409 on POST (fixes #75)
 - ``cliquet.storage.postgresql`` now requires version PostgreSQL 9.4, since it
   now relies on *JSONB*. Data will be migrated automatically using the ``migrate``
   command.
 - Conflict errors responses ``existing`` attribute was moved inside a generic
   ``details`` attribute that is also used to list validation errors.
 - In heartbeat end-point response, ``database`` attribute was renamed to ``storage``
+
+**New features**
+
+- Storage records ids are now managed in python (fixes #71, #208)
+- Add setting to disable version redirection (#107, thanks @hiromipaw)
+- Add response behaviour headers for PATCH on record (#234)
+- Provide details in error responses (#233)
+
+**Bug fixes**
+
+- Fix migration behaviour when metadata table is flushed (#221)
+- Fix backoff header presence if disabled in settings (#238)
+
+**Internal changes**
+
+- Require 100% of coverage for tests to pass
+- Add original error message to storage backend error
+- A lots of improvements in documentation (#212, #225, #228, #229, #237, #246,
+  #247, #248, #256, thanks Michiel De Jong)
+- Migrate *Kinto* storage schema on startup (#218)
+- Fields ``id`` and ``last_modified`` are not part of resource schema anymore
+  (#217, mozilla-services/readinlist#170)
+- Got rid of redundant indices in storage schema (#208, ref #138)
+- Disable Cornice schema request binding (#172)
+- Do not hide FxA errors (fixes mozilla-services/readinglist#70)
+- Move initialization functions to dedicated module (ref #137)
 
 
 1.7.0 (2015-04-10)
