@@ -6,6 +6,7 @@ import six
 from pyramid import testing
 
 from cliquet import DEFAULT_SETTINGS
+from cliquet import initialization
 from cliquet import logs as cliquet_logs
 from cliquet.utils import json
 
@@ -26,7 +27,7 @@ class LoggingSetupTest(unittest.TestCase):
         config.registry.settings = DEFAULT_SETTINGS
         classiclog_class = mock.patch('cliquet.logs.ClassicLogRenderer')
         with classiclog_class as mocked:
-            cliquet_logs.setup_logging(config)
+            initialization.setup_logging(config)
             mocked.assert_called_with(DEFAULT_SETTINGS)
 
     def test_mozlog_logger_is_enabled_via_setting(self):
@@ -39,7 +40,7 @@ class LoggingSetupTest(unittest.TestCase):
                                'cliquet.logs.MozillaHekaRenderer')]):
             with mozlog_class as moz_mocked:
                 with classiclog_class as classic_mocked:
-                    cliquet_logs.setup_logging(config)
+                    initialization.setup_logging(config)
                     self.assertTrue(moz_mocked.called)
                     self.assertFalse(classic_mocked.called)
 
@@ -176,14 +177,14 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         super(RequestSummaryTest, self).setUp()
         config = testing.setUp()
         config.registry.settings = DEFAULT_SETTINGS
-        cliquet_logs.setup_logging(config)
+        initialization.setup_logging(config)
 
     def tearDown(self):
         super(RequestSummaryTest, self).tearDown()
         cliquet_logs.structlog.reset_defaults()
 
     def test_request_summary_is_sent_as_info(self):
-        with mock.patch('cliquet.logs.logger.info') as mocked:
+        with mock.patch('cliquet.logger.info') as mocked:
             self.app.get('/')
             mocked.assert_called_with('request.summary')
 
@@ -265,7 +266,7 @@ class ResourceInfoTest(BaseWebTest, unittest.TestCase):
         super(ResourceInfoTest, self).setUp()
         config = testing.setUp()
         config.registry.settings = DEFAULT_SETTINGS
-        cliquet_logs.setup_logging(config)
+        initialization.setup_logging(config)
 
     def tearDown(self):
         super(ResourceInfoTest, self).tearDown()

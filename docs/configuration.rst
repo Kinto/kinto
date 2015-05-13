@@ -342,3 +342,33 @@ In order to enable Cliquet middleware, wrap the application in the project ``mai
       cliquet.initialize(config, __version__)
       app = config.make_wsgi_app()
       return cliquet.install_middlewares(app)
+
+
+Initialization sequence
+=======================
+
+In order to control what part of *Cliquet* should be run during application
+startup, or add custom initialization steps from configuration, it is
+possible to change the ``initialization_sequence`` setting.
+
+.. warning::
+
+    This is considered as a dangerous zone and should be used with caution.
+
+    Later, a better formalism should be introduced to easily allow addition
+    or removal of steps, without repeating the whole list and without relying
+    on internal functions location.
+
+
+.. code-block:: ini
+
+    cliquet.initialization_sequence = cliquet.initialization.setup_json_serializer
+                                      cliquet.initialization.setup_logging
+                                      cliquet.initialization.setup_storage
+                                      cliquet.initialization.setup_cache
+                                      cliquet.initialization.setup_requests_scheme
+                                      cliquet.initialization.setup_version_redirection
+                                      cliquet.initialization.setup_deprecation
+                                      cliquet.initialization.setup_authentication
+                                      cliquet.initialization.setup_backoff
+                                      cliquet.initialization.setup_stats
