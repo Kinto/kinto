@@ -5,5 +5,5 @@ Contributors
 * hiromipaw <silvia@nopressure.co.uk>
 * Mathieu Leplatre <mathieu@mozilla.com>
 * Nicolas Perriault <nperriault@mozilla.com>
-* Rémy Hubscher <rhubscher@mozilla.com>
+* Remy Hubscher <rhubscher@mozilla.com>
 * Tarek Ziade <tarek@mozilla.com>
