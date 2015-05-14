@@ -16,7 +16,6 @@ try:
 except ImportError:  # pragma: no cover
     pass
 
-from cliquet import authentication
 from cliquet import errors
 from cliquet import logger
 from cliquet import utils
@@ -27,7 +26,6 @@ from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.interfaces import IAuthenticationPolicy
-from pyramid_multiauth import MultiAuthenticationPolicy
 from pyramid.settings import asbool
 
 
@@ -73,19 +71,10 @@ def setup_version_redirection(config):
 
 
 def setup_authentication(config):
-    """Define the authentication and authorization policies.
+    """Let pyramid_multiauth manage authentication and authorization
+    from configuration.
     """
-    settings = config.get_settings()
-    policies = [authentication.Oauth2AuthenticationPolicy(config), ]
-    basic_auth_enabled = asbool(settings['cliquet.basic_auth_enabled'])
-    if basic_auth_enabled:
-        policies.append(authentication.BasicAuthAuthenticationPolicy())
-
-    authn_policy = MultiAuthenticationPolicy(policies)
-    authz_policy = authentication.AuthorizationPolicy()
-
-    config.set_authorization_policy(authz_policy)
-    config.set_authentication_policy(authn_policy)
+    config.include('pyramid_multiauth')
     config.set_default_permission('readwrite')
 
     config.registry.heartbeats['oauth'] = authentication.fxa_ping

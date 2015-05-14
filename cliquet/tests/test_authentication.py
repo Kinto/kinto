@@ -4,7 +4,6 @@ import time
 
 import mock
 from fxa import errors as fxa_errors
-from pyramid import testing
 
 from cliquet import authentication
 from cliquet.cache import memory as memory_backend
@@ -21,7 +20,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         headers = {
             'Authorization': 'Basic {0}'.format(auth_password.decode('ascii'))
         }
-        app = self._get_test_app({'cliquet.basic_auth_enabled': True})
+        app = self._get_test_app({'multiauth.policies': 'fxa basicauth'})
         app.get(self.sample_url, headers=headers, status=200)
 
     def test_basic_auth_is_declined_if_disabled_in_settings(self):
@@ -29,35 +28,30 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         headers = {
             'Authorization': 'Basic {0}'.format(auth_password.decode('ascii'))
         }
-        app = self._get_test_app({'cliquet.basic_auth_enabled': False})
-        app.get(self.sample_url, headers=headers, status=401)
-
-    def test_basic_auth_is_declined_if_unknown_value_in_settings(self):
-        auth_password = base64.b64encode('bob:secret'.encode('ascii'))
-        headers = {
-            'Authorization': 'Basic {0}'.format(auth_password.decode('ascii'))
-        }
-        app = self._get_test_app({'cliquet.basic_auth_enabled': 'unknown'})
+        app = self._get_test_app({'multiauth.policies': 'fxa'})
         app.get(self.sample_url, headers=headers, status=401)
 
     def test_views_are_forbidden_if_basic_is_wrong(self):
         headers = {
             'Authorization': 'Basic abc'
         }
-        self.app.get(self.sample_url, headers=headers, status=401)
+        app = self._get_test_app({'multiauth.policies': 'basicauth'})
+        app.get(self.sample_url, headers=headers, status=401)
 
     def test_providing_empty_username_is_not_enough(self):
         auth_password = base64.b64encode(':secret'.encode('ascii'))
         headers = {
             'Authorization': 'Basic {0}'.format(auth_password.decode('ascii'))
         }
-        self.app.get(self.sample_url, headers=headers, status=401)
+        app = self._get_test_app({'multiauth.policies': 'basicauth'})
+        app.get(self.sample_url, headers=headers, status=401)
 
     def test_views_are_forbidden_if_unknown_auth_method(self):
+        app = self._get_test_app({'multiauth.policies': 'fxa basicauth'})
         self.headers['Authorization'] = 'Carrier'
-        self.app.get(self.sample_url, headers=self.headers, status=401)
+        app.get(self.sample_url, headers=self.headers, status=401)
         self.headers['Authorization'] = 'Carrier pigeon'
-        self.app.get(self.sample_url, headers=self.headers, status=401)
+        app.get(self.sample_url, headers=self.headers, status=401)
 
     def test_views_are_503_if_oauth2_server_misbehaves(self):
         self.fxa_verify.side_effect = fxa_errors.OutOfProtocolError
@@ -101,7 +95,6 @@ class BasicAuthenticationPolicyTest(unittest.TestCase):
         self.policy = authentication.BasicAuthAuthenticationPolicy()
         self.request = DummyRequest()
         self.request.headers['Authorization'] = 'Basic bWF0Og=='
-        self.request.registry.settings['cliquet.basic_auth_enabled'] = True
 
     def test_prefixes_users_with_basicauth(self):
         user_id = self.policy.unauthenticated_userid(self.request)
@@ -128,12 +121,12 @@ class BasicAuthenticationPolicyTest(unittest.TestCase):
 
 class Oauth2AuthenticationPolicyTest(unittest.TestCase):
     def setUp(self):
-        config = testing.setUp()
-        config.registry.settings['fxa-oauth.cache_ttl_seconds'] = '0.01'
+        self.policy = authentication.FxAOAuthAuthenticationPolicy()
         self.backend = memory_backend.Memory()
-        config.registry.cache = self.backend
-        self.policy = authentication.Oauth2AuthenticationPolicy(config)
+
         self.request = DummyRequest()
+        self.request.registry.cache = self.backend
+        self.request.registry.settings['fxa-oauth.cache_ttl_seconds'] = '0.01'
         self.request.headers['Authorization'] = 'Bearer foo'
         self.profile_data = {
             "user": "33", "scope": ["profile"], "client_id": ""

@@ -146,7 +146,6 @@ class StatsDConfigurationTest(unittest.TestCase):
         settings = cliquet.DEFAULT_SETTINGS.copy()
         settings['cliquet.statsd_url'] = 'udp://host:8080'
         self.config = Configurator(settings=settings)
-        self.config.set_authorization_policy({})
         self.config.registry.storage = {}
         self.config.registry.cache = {}
 
