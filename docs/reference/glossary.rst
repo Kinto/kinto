@@ -28,6 +28,8 @@ Glossary
         A resource is a collection of records.
 
     user id
+    user identifier
+    user identifiers
         A string that identifies a user. By default, *Cliquet* uses a HMAC on
         authentication credentials to generate users identifications strings.
 

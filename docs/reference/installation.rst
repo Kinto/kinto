@@ -5,7 +5,7 @@ Installation
 
 
 By default, a *Cliquet* application persists the records and cache in a local
- `Redis <http://redis.io/>`_.
+`Redis <http://redis.io/>`_.
 
 Using the :ref:`application configuration <configuration-storage>`,
 other backends like « in-memory » or `PostgreSQL <http://postgresql.org/>`_

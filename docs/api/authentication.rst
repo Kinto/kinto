@@ -10,42 +10,48 @@ the HTTP method to authenticate requests may differ.
 
 A policy based on *OAuth2 bearer tokens* is recommended, but not mandatory.
 
-A *Basic Auth* can also be enabled in :ref:`configuration` for the convenience
-of clients or testing.
+A *Basic Auth* can also be enabled in :ref:`configuration <configuration-authentication>`.
 
-By default, we propose a setup using :term:`Firefox Accounts`, that verifies
-the *OAuth2 bearer tokens* on a remote server, and provides some API endpoints
-to perform the *OAuth* dance.
+In the current implementation, when multiple policies are configured,
+:term:`user identifiers` are isolated by policy. In other words, there is no way to
+access the same set of records using different authentication methods.
 
 
 Basic Auth
 ==========
 
-If enabled in settings, using a *Basic Auth* token will associate a unique
-user id for any username/password combination.
+If enabled in configuration, using a *Basic Auth* token will associate a unique
+:term:`user identifier` for any username/password combination.
 
 ::
 
     Authorization: Basic <basic_token>
 
+The token shall be built using this formula ``base64("username:password")``.
 
-The token is built using this formula ``base64("username:password")``.
+Empty passwords are accepted, and usernames can be anything (UUID, etc.)
 
-:notes:
+If the token has an invalid format, or if *Basic Auth* is not enabled,
+this will result to a ``401`` error response.
 
-    If not enabled in :ref:`configuration` (**default**) this will result
-    in a ``401`` error response.
+.. warning::
+
+    Since :term:`user id` is derived from username and password, there is no way
+    to change the password without loosing access to existing records.
 
 
 OAuth Bearer token
 ==================
 
-Use the OAuth token with this header:
+If the configured authentication policy uses OAuth2 bearer tokens, authentication
+shall be done using this header:
 
 ::
 
     Authorization: Bearer <oauth_token>
 
+
+The policy will verify the provided *OAuth2 bearer token* on a remote server.
 
 :notes:
 
@@ -55,11 +61,21 @@ Use the OAuth token with this header:
 Firefox Account
 ===============
 
+Currently, the default authentication relies on :term:`Firefox Accounts`, but any
+-:ref:`authentication backend supported by Pyramid can be used <configuration-authentication>`.
+
+By default, if no policy is configured, a policy for :term:`Firefox Accounts` is
+setup.
+
 Obtain the token
 ----------------
 
 Using the Web UI
 ::::::::::::::::
+
+If *OAuth Relier* endpoints are enabled :ref:`in configuration <configuration-authentication>`,
+this policy provides some API endpoints to perform the *OAuth* dance, and
+obtain the token using HTTP redirections.
 
 * Navigate the client to ``GET /v1/fxa-oauth/login?redirect=http://app-endpoint/#``. There, a session
   cookie will be set, and the client will be redirected to a login
