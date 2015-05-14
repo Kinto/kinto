@@ -36,9 +36,6 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
             if not username:
                 return
 
-            # Trace authentication type.
-            request.auth_type = 'Basic'
-
             hmac_secret = settings['cliquet.userid_hmac_secret']
             credentials = '%s:%s' % credentials
             userid = hmac.new(hmac_secret.encode('utf-8'),
@@ -106,9 +103,6 @@ class FxAOAuthAuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
             assert authmeth.lower() == 'bearer'
         except (AssertionError, ValueError):
             return None
-
-        # Trace authentication type.
-        request.auth_type = 'FxA'
 
         # Use PyFxa defaults if not specified
         server_url = settings['fxa-oauth.oauth_uri']

@@ -27,6 +27,7 @@ from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.settings import asbool
+from pyramid_multiauth import MultiAuthPolicySelected
 
 
 def setup_json_serializer(config):
@@ -77,9 +78,15 @@ def setup_authentication(config):
     config.include('pyramid_multiauth')
     config.set_default_permission('readwrite')
 
-    config.registry.heartbeats['oauth'] = authentication.fxa_ping
+    # Track policy for logging.
+    def on_policy_selected(event):
+        value = event.policy.__class__.__name__
+        value = value.replace('Authentication', '').replace('Policy', '')
+        event.request.authn_type = value
 
-    config.commit()
+    config.add_subscriber(on_policy_selected, MultiAuthPolicySelected)
+
+    config.registry.heartbeats['oauth'] = authentication.fxa_ping
 
 
 def setup_backoff(config):
@@ -177,6 +184,8 @@ def setup_statsd(config):
         client.watch_execution_time(config.registry.cache, prefix='cache')
         client.watch_execution_time(config.registry.storage, prefix='storage')
 
+        # Commit so that configured policy can be queried.
+        config.commit()
         policy = config.registry.queryUtility(IAuthenticationPolicy)
         client.watch_execution_time(policy, prefix='authentication')
 
@@ -189,8 +198,8 @@ def setup_statsd(config):
                 client.count('users', unique=user_id)
 
             # Count authentication verifications.
-            if hasattr(request, 'auth_type'):
-                client.count('%s.%s' % ('auth_type', request.auth_type))
+            if hasattr(request, 'authn_type'):
+                client.count('%s.%s' % ('authn_type', request.authn_type))
 
             # Count view calls.
             pattern = request.matched_route.pattern
@@ -260,7 +269,7 @@ def setup_logging(config):
                    querystring=dict(request.GET),
                    uid=request.authenticated_userid,
                    lang=request.headers.get('Accept-Language'),
-                   auth_type=getattr(request, 'auth_type', None),
+                   authn_type=getattr(request, 'authn_type', None),
                    errno=None)
 
     config.add_subscriber(on_new_request, NewRequest)

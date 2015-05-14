@@ -16,11 +16,15 @@ This document describes changes between each past release.
 - Setting ``cliquet.basic_auth_enabled`` is now deprecated.
   Use `pyramid_multiauth <https://github.com/mozilla-services/pyramid_multiauth>`_
   configuration instead to specify authentication policies.
+- Logging value for authentication type is now ``authn_type`` (with ``FxAOAuth``
+  or ``BasicAuth`` as default values).
 
 **New features**
 
 - Authentication and authorization policies, as well as group finder function
   can now be specified via configuration (fixes #40)
+- Logging value for authentication type is now available for any kind of
+  authentication policy.
 
 
 1.8.0 (2015-05-13)
