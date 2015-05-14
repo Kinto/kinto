@@ -18,17 +18,11 @@ Table of content
    :maxdepth: 1
 
    rationale
-   installation
    quickstart
    api/index
-   configuration
-   resource
-   storage
-   cache
-   errors
+   reference/index
    ecosystem
    contributing
-   glossary
    changelog
    contributors
 

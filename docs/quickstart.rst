@@ -1,8 +1,16 @@
 Getting started
 ###############
 
-Once storage engines and python dependencies have been installed, it's is
-easy to get started!
+Installation
+============
+
+::
+
+    $ pip install cliquet
+
+
+More details about installation and storage backend is provided in
+:ref:`a dedicated section <installation>`.
 
 
 Start a Pyramid project
@@ -44,12 +52,25 @@ just add some extra initialization code:
 By doing that, basic features like authentication, monitoring, error formatting,
 deprecation indicators are now available.
 
+.. note::
 
-Run !
------
+    **Shortcut!**
+
+    In order to bypass the installation and configuration of *Redis* required by the
+    default storage and cache, use the «in-memory» backend in :file:`myproject.ini`:
+
+    .. code-block:: ini
+
+        # myproject.ini
+        cliquet.cache_backend = cliquet.cache.memory
+        cliquet.storage_backend = cliquet.storage.memory
+
+
+Run!
+----
 
 With some backends, like *PostgreSQL*, some tables and indices have to be created.
-A command is provided to accomplish this:
+A generic command is provided to accomplish this:
 
 ::
 
@@ -120,7 +141,7 @@ Schema validation
 It is possible to validate records against a predefined schema, associated
 to the resource.
 
-Currently, only :rtd:`Colander <colander>`_ is supported, and it looks like this:
+Currently, only :rtd:`Colander <colander>` is supported, and it looks like this:
 
 
 .. code-block:: python
