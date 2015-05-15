@@ -87,6 +87,9 @@ def setup_authentication(config):
     config.set_authorization_policy(authz_policy)
     config.set_authentication_policy(authn_policy)
     config.set_default_permission('readwrite')
+
+    config.registry.heartbeats['oauth'] = authentication.fxa_ping
+
     config.commit()
 
 
@@ -172,6 +175,7 @@ def setup_storage(config):
     settings = config.get_settings()
     storage = config.maybe_dotted(settings['cliquet.storage_backend'])
     config.registry.storage = storage.load_from_config(config)
+    config.registry.heartbeats['storage'] = config.registry.storage.ping
     id_generator = config.maybe_dotted(settings['cliquet.id_generator'])
     config.registry.id_generator = id_generator()
 
@@ -180,6 +184,7 @@ def setup_cache(config):
     settings = config.get_settings()
     cache = config.maybe_dotted(settings['cliquet.cache_backend'])
     config.registry.cache = cache.load_from_config(config)
+    config.registry.heartbeats['cache'] = config.registry.cache.ping
 
 
 def setup_statsd(config):

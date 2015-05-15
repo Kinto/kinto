@@ -13,6 +13,7 @@ This document describes changes between each past release.
   command.
 - Conflict errors responses ``existing`` attribute was moved inside a generic
   ``details`` attribute that is also used to list validation errors.
+- In heartbeat end-point response, ``database`` attribute was renamed to ``storage``
 
 
 1.7.0 (2015-04-10)

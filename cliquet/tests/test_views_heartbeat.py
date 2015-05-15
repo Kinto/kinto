@@ -4,23 +4,27 @@ import requests
 from .support import BaseWebTest, unittest
 
 
+httpOK = requests.models.Response()
+httpOK.status_code = 200
+
+
 class SuccessTest(BaseWebTest, unittest.TestCase):
 
-    @mock.patch('cliquet.views.heartbeat.fxa_ping')
-    def test_returns_storage_true_if_ok(self, *mocked):
+    @mock.patch('requests.get')
+    def test_returns_storage_true_if_ok(self, get_mocked):
+        get_mocked.return_value = httpOK
         response = self.app.get('/__heartbeat__')
-        self.assertEqual(response.json['database'], True)
+        self.assertEqual(response.json['storage'], True)
 
-    @mock.patch('cliquet.views.heartbeat.fxa_ping')
-    def test_returns_cache_true_if_ok(self, *mocked):
+    @mock.patch('requests.get')
+    def test_returns_cache_true_if_ok(self, get_mocked):
+        get_mocked.return_value = httpOK
         response = self.app.get('/__heartbeat__')
         self.assertEqual(response.json['cache'], True)
 
     @mock.patch('requests.get')
     def test_returns_oauth_true_if_ok(self, get_mocked):
-        response = requests.models.Response()
-        response.status_code = 200
-        get_mocked.return_value = response
+        get_mocked.return_value = httpOK
         response = self.app.get('/__heartbeat__')
         self.assertEqual(response.json['oauth'], True)
 
@@ -33,26 +37,22 @@ class SuccessTest(BaseWebTest, unittest.TestCase):
 
 class FailureTest(BaseWebTest, unittest.TestCase):
 
-    @mock.patch('cliquet.views.heartbeat.fxa_ping')
-    @mock.patch('cliquet.storage.redis.Redis.ping')
-    @mock.patch('cliquet.storage.memory.Memory.ping')
-    def test_returns_storage_false_if_ko(self, *mocked):
-        for mock_instance in mocked:
-            mock_instance.return_value = False
+    @mock.patch('requests.get')
+    def test_returns_storage_false_if_ko(self, get_mocked):
+        self.app.app.registry.heartbeats['storage'] = lambda r: False
+        get_mocked.return_value = httpOK
         response = self.app.get('/__heartbeat__', status=503)
-        self.assertEqual(response.json['database'], False)
+        self.assertEqual(response.json['storage'], False)
 
-    @mock.patch('cliquet.views.heartbeat.fxa_ping')
-    @mock.patch('cliquet.cache.redis.Redis.ping')
-    def test_returns_cache_false_if_ko(self, *mocked):
-        for mock_instance in mocked:
-            mock_instance.return_value = False
+    @mock.patch('requests.get')
+    def test_returns_cache_false_if_ko(self, get_mocked):
+        self.app.app.registry.heartbeats['cache'] = lambda r: False
+        get_mocked.return_value = httpOK
         response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['cache'], False)
 
     @mock.patch('requests.get')
-    def test_returns_oauth_false_if_ko(self, *mocked):
-        for mock_instance in mocked:
-            mock_instance.side_effect = requests.exceptions.HTTPError()
+    def test_returns_oauth_false_if_ko(self, get_mocked):
+        get_mocked.side_effect = requests.exceptions.HTTPError()
         response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['oauth'], False)

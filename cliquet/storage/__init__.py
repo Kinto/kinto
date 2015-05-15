@@ -43,8 +43,8 @@ class StorageBase(object):
     def ping(self, request):
         """Test that storage is operationnal.
 
-        :param key: current request object
-        :type key: :class:`~pyramid:pyramid.request.Request`
+        :param request: current request object
+        :type request: :class:`~pyramid:pyramid.request.Request`
         :returns: ``True`` is everything is ok, ``False`` otherwise.
         :rtype: bool
         """

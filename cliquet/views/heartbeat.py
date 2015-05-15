@@ -1,7 +1,6 @@
 from cornice import Service
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from cliquet.authentication import fxa_ping
 
 heartbeat = Service(name="heartbeat", path='/__heartbeat__',
                     description="Server health")
@@ -10,11 +9,11 @@ heartbeat = Service(name="heartbeat", path='/__heartbeat__',
 @heartbeat.get(permission=NO_PERMISSION_REQUIRED)
 def get_heartbeat(request):
     """Return information about server health."""
-    database = request.db.ping(request)
-    cache = request.cache.ping()
-    oauth = fxa_ping(request)
+    status = {}
 
-    status = dict(database=database, cache=cache, oauth=oauth)
+    heartbeats = request.registry.heartbeats
+    for name, callable in heartbeats.items():
+        status[name] = callable(request)
 
     has_error = not all([v or v is None for v in status.values()])
     if has_error:
