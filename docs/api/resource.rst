@@ -475,7 +475,8 @@ HTTP Status Code
 * ``200 OK``: The record was replaced
 * ``400 Bad Request``: The record is invalid
 * ``409 Conflict``: If replacing this record violates a field unicity constraint
-* ``412 Precondition Failed``: Record changed since value in ``If-Unmodified-Since`` header
+* ``412 Precondition Failed``: Record was changed or deleted since value
+  in ``If-Unmodified-Since`` header
 
 
 PATCH /{collection}/<id>
