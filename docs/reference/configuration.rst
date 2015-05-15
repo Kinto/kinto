@@ -7,6 +7,8 @@ Configuration
 See `Pyramid settings documentation <http://docs.pylonsproject.org/docs/pyramid/en/latest/narr/environment.html>`_.
 
 
+.. _configuration-environment:
+
 Environment variables
 =====================
 
@@ -172,7 +174,6 @@ New-Relic can be enabled (disabled by default):
 
     cliquet.newrelic_config = /location/of/newrelic.ini
     cliquet.newrelic_env = prod
-
 
 
 .. _configuration-storage:

@@ -83,6 +83,40 @@ For example, in :file:`cliquet_elasticsearch/init.py`:
         config.add_view(...)
 
 
+Configuration
+-------------
+
+In order to ease the management of settings, *Cliquet* provides a helper that
+reads values from :ref:`environment variables <configuration-environment>`
+and uses default application values.
+
+.. code-block:: python
+    :emphasize-lines: 1,2,5-7,11,14,15
+
+    import cliquet
+    from pyramid.settings import asbool
+
+
+    DEFAULT_SETTINGS = {
+        'cliquet_elasticsearch.refresh_enabled': False
+    }
+
+
+    def includeme(config):
+        cliquet.load_default_settings(config, DEFAULT_SETTINGS)
+        settings = config.get_settings()
+
+        refresh_enabled = settings['cliquet_elasticsearch.refresh_enabled']
+        if asbool(refresh_enabled):
+            ...
+
+        config.add_view(...)
+
+
+In this example, if the environment variable ``CLIQUET_ELASTICSEARCH_REFRESH_ENABLED``
+is set to ``true``, the value present in configuration file is ignored.
+
+
 Custom backend
 ==============
 

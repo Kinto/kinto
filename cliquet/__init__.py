@@ -79,12 +79,12 @@ DEFAULT_SETTINGS = {
 }
 
 
-def load_default_settings(config):
+def load_default_settings(config, default_settings):
     """Read settings provided in Paste ini file, set default values and
     replace if defined as environment variable.
     """
     settings = config.get_settings()
-    for key, value in DEFAULT_SETTINGS.items():
+    for key, value in default_settings.items():
         configured = settings.get(key, value)
         settings[key] = utils.read_env(key, configured)
 
@@ -102,7 +102,7 @@ def load_default_settings(config):
 
 
 def includeme(config):
-    load_default_settings(config)
+    load_default_settings(config, DEFAULT_SETTINGS)
     settings = config.get_settings()
 
     # Monkey Patch Cornice Service to setup the global CORS configuration.
