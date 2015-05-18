@@ -46,6 +46,7 @@ This document describes changes between each past release.
 - Disable Cornice schema request binding (#172)
 - Do not hide FxA errors (fixes mozilla-services/readinglist#70)
 - Move initialization functions to dedicated module (ref #137)
+- Got rid of request custom attributes for storage and cache (#245)
 
 
 1.7.0 (2015-04-10)
