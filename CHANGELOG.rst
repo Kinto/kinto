@@ -24,6 +24,9 @@ This document describes changes between each past release.
 - Add setting to disable version redirection (#107, thanks @hiromipaw)
 - Add response behaviour headers for PATCH on record (#234)
 - Provide details in error responses (#233)
+- Expose new function ``cliquet.load_default_settings()`` to ease reading of
+  settings from defaults and environment (#264)
+- Heartbeat callback functions can now be registered during startup (#261)
 
 **Bug fixes**
 
@@ -35,7 +38,7 @@ This document describes changes between each past release.
 - Require 100% of coverage for tests to pass
 - Add original error message to storage backend error
 - A lots of improvements in documentation (#212, #225, #228, #229, #237, #246,
-  #247, #248, #256, thanks Michiel De Jong)
+  #247, #248, #256, #266, thanks Michiel De Jong)
 - Migrate *Kinto* storage schema on startup (#218)
 - Fields ``id`` and ``last_modified`` are not part of resource schema anymore
   (#217, mozilla-services/readinlist#170)
