@@ -272,9 +272,9 @@ class BaseResource(object):
             existing = None
             # Look if this record used to exist (for preconditions check).
             deleted = Filter(self.id_field, self.record_id, COMPARISON.EQ)
-            result, _ = self.db.get_all(filters=[deleted],
-                                        include_deleted=True,
-                                        **self.db_kwargs)
+            result, _ = self.storage.get_all(filters=[deleted],
+                                             include_deleted=True,
+                                             **self.storage_kw)
             if len(result) > 0:
                 existing = result[0]
         finally:
