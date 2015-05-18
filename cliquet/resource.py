@@ -83,10 +83,10 @@ class BaseResource(object):
             # Retrocompatibilty with former readonly @property.
             pass
 
-        self.db = request.db
-        self.db_kwargs = dict(resource=self,
-                              user_id=request.authenticated_userid)
-        self.timestamp = self.db.collection_timestamp(**self.db_kwargs)
+        self.storage = request.registry.storage
+        self.storage_kw = dict(resource=self,
+                               user_id=request.authenticated_userid)
+        self.timestamp = self.storage.collection_timestamp(**self.storage_kw)
         self.record_id = self.request.matchdict.get('id')
 
         # Log resource context.
@@ -272,9 +272,9 @@ class BaseResource(object):
             existing = None
             # Look if this record used to exist (for preconditions check).
             deleted = Filter(self.id_field, self.record_id, COMPARISON.EQ)
-            result, _ = self.db.get_all(filters=[deleted],
-                                        include_deleted=True,
-                                        **self.db_kwargs)
+            result, _ = self.storage.get_all(filters=[deleted],
+                                             include_deleted=True,
+                                             **self.storage_kw)
             if len(result) > 0:
                 existing = result[0]
         finally:
@@ -398,13 +398,13 @@ class BaseResource(object):
 
         include_deleted = self.modified_field in [f.field for f in filters]
 
-        records, total_records = self.db.get_all(
+        records, total_records = self.storage.get_all(
             filters=filters,
             sorting=sorting,
             pagination_rules=pagination_rules,
             limit=limit,
             include_deleted=include_deleted,
-            **self.db_kwargs)
+            **self.storage_kw)
 
         next_page = None
         if limit and len(records) == limit and total_records > limit:
@@ -428,7 +428,7 @@ class BaseResource(object):
 
         """
         filters = self._extract_filters()
-        return self.db.delete_all(filters=filters, **self.db_kwargs)
+        return self.storage.delete_all(filters=filters, **self.storage_kw)
 
     def get_record(self, record_id):
         """Fetch current view related record, and raise 404 if missing.
@@ -438,8 +438,7 @@ class BaseResource(object):
         :rtype: dict
         """
         try:
-            return self.db.get(record_id=record_id,
-                               **self.db_kwargs)
+            return self.storage.get(record_id=record_id, **self.storage_kw)
         except storage_exceptions.RecordNotFoundError:
             response = http_error(HTTPNotFound(),
                                   errno=ERRORS.INVALID_RESOURCE_ID)
@@ -462,7 +461,7 @@ class BaseResource(object):
         :returns: the newly created record.
         :rtype: dict
         """
-        return self.db.create(record=record, **self.db_kwargs)
+        return self.storage.create(record=record, **self.storage_kw)
 
     def update_record(self, old, new, changes=None):
         """Update a record in the collection.
@@ -492,9 +491,9 @@ class BaseResource(object):
 
         record_id = new[self.id_field]
         try:
-            return self.db.update(record_id=record_id,
-                                  record=new,
-                                  **self.db_kwargs)
+            return self.storage.update(record_id=record_id,
+                                       record=new,
+                                       **self.storage_kw)
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
@@ -518,7 +517,7 @@ class BaseResource(object):
         :rtype: dict
         """
         record_id = record[self.id_field]
-        return self.db.delete(record_id=record_id, **self.db_kwargs)
+        return self.storage.delete(record_id=record_id, **self.storage_kw)
 
     def process_record(self, new, old=None):
         """Hook for processing records before they reach storage, to introduce
@@ -632,8 +631,8 @@ class BaseResource(object):
             if record:
                 current_timestamp = record[self.modified_field]
             else:
-                current_timestamp = self.db.collection_timestamp(
-                    **self.db_kwargs)
+                current_timestamp = self.storage.collection_timestamp(
+                    **self.storage_kw)
 
             if current_timestamp <= modified_since:
                 response = HTTPNotModified()
@@ -655,8 +654,8 @@ class BaseResource(object):
             if record:
                 current_timestamp = record[self.modified_field]
             else:
-                current_timestamp = self.db.collection_timestamp(
-                    **self.db_kwargs)
+                current_timestamp = self.storage.collection_timestamp(
+                    **self.storage_kw)
 
             if current_timestamp > unmodified_since:
                 error_msg = 'Resource was modified meanwhile'
