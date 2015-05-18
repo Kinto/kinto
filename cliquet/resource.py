@@ -20,37 +20,113 @@ from cliquet.utils import (
 )
 
 
-def crud(**kwargs):
-    """
-    Decorator for resource classes.
+class ViewSet(object):
+    collection_path = "/{resource_name}"
+    record_path = "/{resource_name}/{{id}}"
 
-    By default, the lower class name of the resource is used to build URLs.
+    collection_methods = ('GET', 'POST', 'DELETE')
+    record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
+    readonly_methods = ('GET',)
+    validate_schema_for = ('POST', 'PUT')
 
-    This decorator accepts the same parameters as the :rtd:`Cornice <cornice>`
-    :meth:`~cornice:cornice.resource.resource` decorator.
+    default_arguments = {
+        description: 'Collection of {resource_name}',
+        cors_headers: ('Backoff', 'Retry-After', 'Alert'),
+        cors_origins: ('*',),
+        error_handler: json_error_handler
+    }
+    default_collection_arguments = {}
+    default_collection_get_arguments = {
+        cors_headers: (('Backoff', 'Retry-After', 'Alert') +
+                       ('Next-Page', 'Total-Records', 'Last-Modified'))
+    }
+    default_record_arguments = {}
+    default_record_get_arguments = {
+        cors_headers: (('Backoff', 'Retry-After', 'Alert') +
+                       ('Last-Modified',))
+    }
 
-    .. code-block:: python
+    def __init__(self, **kwargs):
+        self.update(**kwargs)
 
-            from cliquet import resource
+    def update(self, **kwargs):
+        self.__dict__.update(**kwargs)
 
-            @resource.crud(collection_path='/stories',
-                           path='/stories/{id}',
-                           description='My favorite stories')
-            class Story(resource.BaseResource):
-                ...
-    """
-    def wrapper(klass):
-        resource_name = klass.__name__.lower()
-        params = dict(collection_path='/{0}s'.format(resource_name),
-                      path='/{0}s/{{id}}'.format(resource_name),
-                      description='Collection of {0}'.format(resource_name),
-                      error_handler=json_error_handler,
-                      cors_origins=('*',),
-                      depth=2)
-        params.update(**kwargs)
+    def collection_arguments(self, resource, method):
+        args = self.default_arguments().copy()
+        args.update(**self.default_collection_arguments)
 
-        return resource.resource(**params)(klass)
-    return wrapper
+        by_method = 'default_collection_%s_arguments' % method.lower()
+        method_args = getattr(self, by_method, {})
+        args.update(**method_args)
+
+        if method in self.readonly_methods:
+            perm = '%s:readonly' % resource.name
+        else:
+            perm = '%s:readwrite' % resource.name
+        args['permission'] = perm
+
+        if method in self.validate_schema_for:
+            args['schema'] = CorniceSchema.from_colander(resource.mapping,
+                                                         bind_request=False)
+        return args
+
+    def record_arguments(self, resource, method):
+        args = self.default_arguments().copy()
+        args.update(**self.default_record_arguments)
+
+        by_method = 'default_record_%s_arguments' % method.lower()
+        method_args = getattr(self, by_method, {})
+        args.update(**method_args)
+
+        if method in self.readonly_methods:
+            perm = '%s:readonly' % resource.name
+        else:
+            perm = '%s:readwrite' % resource.name
+        args['permission'] = perm
+
+        if method in self.validate_schema_for:
+            args['schema'] = CorniceSchema.from_colander(resource.mapping,
+                                                         bind_request=False)
+        return args
+
+
+def register(resource, viewset=None, **kwargs):
+    # config.add_directive('register') ?
+    settings = {}  # XXX:
+    #cors_origins = tuple(aslist(settings['cliquet.cors_origins']))
+    cors_origins = ('*',)
+
+    if viewset is None:
+        viewset = ViewSet(**kwargs)
+    else:
+        viewset.update(**kwargs)
+
+    for method in viewset.collection_methods:
+        setting_enabled = 'cliquet.collection_%s_%s_enabled' % (resource.name,
+                                                                method.lower())
+        if not settings.get(setting_enabled, True):
+            continue
+
+        view_args = viewset.collection_arguments(resource, method)
+        view = getattr(resource, 'collection_%s' % method.lower())
+        # register using Cornice
+        service = Service()
+        service.cors_origins = cors_origins
+        service.definitions.append((method, view, view_args))
+
+    for method in viewset.record_methods:
+        setting_enabled = 'cliquet.%s_%s_enabled' % (resource.name,
+                                                     method.lower())
+        if not settings.get(setting_enabled, True):
+            continue
+
+        view_args = viewset.record_arguments(resource, method)
+        view = getattr(resource, '%s' % method.lower())
+        # register using Cornice
+        service = Service()
+        service.cors_origins = cors_origins
+        service.definitions.append((method, view, view_args))
 
 
 class BaseResource(object):
@@ -58,9 +134,6 @@ class BaseResource(object):
 
     mapping = ResourceSchema()
     """Schema to validate records."""
-
-    validate_schema_for = ('POST', 'PUT')
-    """HTTP verbs for which the schema must be validated"""
 
     def __init__(self, request):
         # Collections are isolated by user.
@@ -83,21 +156,6 @@ class BaseResource(object):
         logger.bind(collection_id=self.collection.collection_id,
                     collection_timestamp=self.timestamp)
 
-    @property
-    def schema(self):
-        """Resource schema, depending on HTTP verb.
-
-        :returns: a :class:`~cornice:cornice.schemas.CorniceSchema` object
-            built from this resource :attr:`mapping <.BaseResource.mapping>`.
-        """
-        colander_schema = self.mapping
-
-        if self.request.method not in self.validate_schema_for:
-            # No-op since payload is not validated against schema
-            colander_schema = colander.MappingSchema(unknown='preserve')
-
-        return CorniceSchema.from_colander(colander_schema, bind_request=False)
-
     def is_known_field(self, field):
         """Return ``True`` if `field` is defined in the resource mapping.
 
@@ -115,10 +173,6 @@ class BaseResource(object):
     # End-points
     #
 
-    @resource.view(
-        permission='readonly',
-        cors_headers=('Next-Page', 'Total-Records', 'Last-Modified')
-    )
     def collection_get(self):
         """Collection ``GET`` endpoint: retrieve multiple records.
 
@@ -169,7 +223,6 @@ class BaseResource(object):
 
         return body
 
-    @resource.view(permission='readwrite')
     def collection_post(self):
         """Collection ``POST`` endpoint: create a record.
 
@@ -201,7 +254,6 @@ class BaseResource(object):
         self.request.response.status_code = 201
         return record
 
-    @resource.view(permission='readwrite')
     def collection_delete(self):
         """Collection ``DELETE`` endpoint: delete multiple records.
 
@@ -232,7 +284,6 @@ class BaseResource(object):
 
         return body
 
-    @resource.view(permission='readonly', cors_headers=('Last-Modified',))
     def get(self):
         """Record ``GET`` endpoint: retrieve a record.
 
@@ -255,7 +306,6 @@ class BaseResource(object):
         self._raise_412_if_modified(record)
         return record
 
-    @resource.view(permission='readwrite')
     def put(self):
         """Record ``PUT`` endpoint: create or replace the provided record and
         return it.
@@ -302,7 +352,6 @@ class BaseResource(object):
 
         return record
 
-    @resource.view(permission='readwrite')
     def patch(self):
         """Record ``PATCH`` endpoint: modify a record and return its
         new version.
@@ -373,7 +422,6 @@ class BaseResource(object):
 
         return new_record
 
-    @resource.view(permission='readwrite')
     def delete(self):
         """Record ``DELETE`` endpoint: delete a record and return it.
 

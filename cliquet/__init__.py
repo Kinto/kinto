@@ -108,12 +108,6 @@ def includeme(config):
     load_default_settings(config, DEFAULT_SETTINGS)
     settings = config.get_settings()
 
-    # Monkey Patch Cornice Service to setup the global CORS configuration.
-    # XXX: Refactor @crud decorator and inherit Service instead.
-    cors_origins = settings['cliquet.cors_origins']
-    Service.cors_origins = tuple(aslist(cors_origins))
-    Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
-
     # Heartbeat registry.
     config.registry.heartbeats = {}
 
