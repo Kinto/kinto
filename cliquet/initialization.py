@@ -16,6 +16,7 @@ try:
 except ImportError:  # pragma: no cover
     pass
 
+from cliquet import authentication
 from cliquet import errors
 from cliquet import logger
 from cliquet import utils
