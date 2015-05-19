@@ -1,5 +1,5 @@
 import mock
-from fxa import errors as fxa_errors
+from pyramid import httpexceptions
 
 from cliquet.errors import ERRORS
 
@@ -84,9 +84,11 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
             "https://github.com/mozilla-services/cliquet/issues/")
 
     def test_503_is_valid_formatted_error(self):
-        self.fxa_verify.side_effect = fxa_errors.OutOfProtocolError
-        response = self.app.get(self.sample_url, headers=self.headers,
-                                status=503)
+        with mock.patch(
+                'cliquet.tests.testapp.views.Mushroom.get_records',
+                side_effect=httpexceptions.HTTPServiceUnavailable):
+            response = self.app.get(self.sample_url,
+                                    headers=self.headers, status=503)
         self.assertFormattedError(
             response, 503, ERRORS.BACKEND, "Service Unavailable",
             "Service unavailable due to high load, please retry later.")

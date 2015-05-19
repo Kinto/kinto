@@ -66,18 +66,7 @@ DEFAULT_SETTINGS = {
     'cliquet.storage_url': '',
     'cliquet.userid_hmac_secret': '',
     'cliquet.version_prefix_redirect_enabled': True,
-    'fxa-oauth.cache_ttl_seconds': 5 * 60,
-    'fxa-oauth.client_id': None,
-    'fxa-oauth.client_secret': None,
-    'fxa-oauth.heartbeat_timeout_seconds': 3,
-    'fxa-oauth.oauth_uri': None,
-    'fxa-oauth.relier.enabled': True,
-    'fxa-oauth.scope': 'profile',
-    'fxa-oauth.state.ttl_seconds': 3600,  # 1 hour
-    'fxa-oauth.webapp.authorized_domains': '',
-    'multiauth.policies': 'fxa',
-    'multiauth.policy.fxa.use': ('cliquet.authentication.'
-                                 'FxAOAuthAuthenticationPolicy'),
+    'multiauth.policies': 'basicauth',
     'multiauth.policy.basicauth.use': ('cliquet.authentication.'
                                        'BasicAuthAuthenticationPolicy'),
     'multiauth.authorization_policy': ('cliquet.authentication.'
@@ -136,11 +125,7 @@ def includeme(config):
     config.include("cornice")
 
     # Scan views.
-    # Ignore FxA OAuth in case it's not activated (ignored by default).
-    kwargs = {}
-    if not asbool(settings['fxa-oauth.relier.enabled']):
-        kwargs['ignore'] = 'cliquet.views.oauth.relier'
-    config.scan("cliquet.views", **kwargs)
+    config.scan("cliquet.views")
 
     # Give sign of life.
     msg = "%(cliquet.project_name)s %(cliquet.project_version)s starting."

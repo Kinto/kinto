@@ -19,7 +19,6 @@ REQUIREMENTS = [
     'colander',
     'cornice >= 1.0',  # Disable request binding.
     'python-dateutil',
-    'pyfxa >= 0.0.6',  # Gevent support
     'pyramid_multiauth >= 0.5',  # Pluggable authz
     'redis',  # Default backend
     'requests',

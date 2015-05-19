@@ -221,11 +221,6 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         event_dict = logger_context()
         self.assertEqual(event_dict['errno'], 111)
 
-    def test_fxa_authn_type_is_bound(self):
-        self.app.get('/mushrooms', headers=self.headers)
-        event_dict = logger_context()
-        self.assertEqual(event_dict['authn_type'], 'FxAOAuth')
-
     def test_basic_authn_type_is_bound(self):
         app = self._get_test_app({'multiauth.policies': 'basicauth'})
         app.get('/mushrooms', headers={'Authorization': 'Basic bmlrbzpuaWtv'})

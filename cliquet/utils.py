@@ -1,4 +1,6 @@
 import ast
+import hashlib
+import hmac
 import os
 import six
 import time
@@ -75,6 +77,13 @@ def encode64(content):
 def decode64(encoded_content):
     """Decode some base64 encoded content."""
     return b64decode(encoded_content.encode('utf-8')).decode('utf-8')
+
+
+def hmac_digest(secret, message):
+    """Return hex digest of a message HMAC using secret"""
+    return hmac.new(secret.encode('utf-8'),
+                    message.encode('utf-8'),
+                    hashlib.sha256).hexdigest()
 
 
 def Enum(**enums):

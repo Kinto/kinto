@@ -5,7 +5,7 @@ from pyramid import testing
 import cliquet
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
-from cliquet.tests.support import unittest, FakeAuthentMixin, get_request_class
+from cliquet.tests.support import unittest, get_request_class
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
@@ -32,6 +32,11 @@ class BaseWebTest(unittest.TestCase):
 
         self.collection_url = '/mushrooms'
         self.item_url = '/mushrooms/{id}'
+
+        self.headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic bWF0OjE='
+        }
 
     def get_item_url(self, id=None):
         """Return the URL of the item using self.item_url."""
@@ -78,7 +83,7 @@ class AuthzAuthnTest(BaseWebTest):
         self.assertEqual(permission_required(), 'readwrite')
 
 
-class InvalidRecordTest(FakeAuthentMixin, BaseWebTest):
+class InvalidRecordTest(BaseWebTest):
     def setUp(self):
         super(InvalidRecordTest, self).setUp()
         resp = self.app.post_json(self.collection_url,
@@ -128,7 +133,7 @@ class InvalidRecordTest(FakeAuthentMixin, BaseWebTest):
                           status=400)
 
 
-class IgnoredFieldsTest(FakeAuthentMixin, BaseWebTest):
+class IgnoredFieldsTest(BaseWebTest):
     def setUp(self):
         super(IgnoredFieldsTest, self).setUp()
         resp = self.app.post_json(self.collection_url,
@@ -168,12 +173,9 @@ class IgnoredFieldsTest(FakeAuthentMixin, BaseWebTest):
         self.assertNotEqual(resp.json['last_modified'], 'abc')
 
 
-class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
+class InvalidBodyTest(BaseWebTest):
     def __init__(self, *args, **kwargs):
         super(InvalidBodyTest, self).__init__(*args, **kwargs)
-        self.headers.update({
-            'Content-Type': 'application/json',
-        })
         self.invalid_body = "{'foo>}"
 
     def setUp(self):
@@ -245,7 +247,7 @@ class InvalidBodyTest(FakeAuthentMixin, BaseWebTest):
         self.assertIn('Empty body', resp.json['message'])
 
 
-class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
+class ConflictErrorsTest(BaseWebTest):
     def setUp(self):
         super(ConflictErrorsTest, self).setUp()
 
@@ -292,7 +294,7 @@ class ConflictErrorsTest(FakeAuthentMixin, BaseWebTest):
         self.assertEqual(resp.json['details']['existing'], {'id': 42})
 
 
-class StorageErrorTest(FakeAuthentMixin, BaseWebTest):
+class StorageErrorTest(BaseWebTest):
     def __init__(self, *args, **kwargs):
         super(StorageErrorTest, self).__init__(*args, **kwargs)
         self.error = storage_exceptions.BackendError(ValueError())
@@ -318,16 +320,7 @@ class StorageErrorTest(FakeAuthentMixin, BaseWebTest):
                 self.assertEqual(type(mocked.call_args[0][0]), ValueError)
 
 
-class CacheErrorTest(FakeAuthentMixin, BaseWebTest):
-    def test_cache_errors_are_served_as_503(self):
-        with mock.patch('cliquet.cache.redis.Redis.get',
-                        side_effect=storage_exceptions.BackendError(None)):
-            self.app.get('/fxa-oauth/token?code=abc&state=xyz',
-                         headers=self.headers,
-                         status=503)
-
-
-class PaginationNextURLTest(FakeAuthentMixin, BaseWebTest):
+class PaginationNextURLTest(BaseWebTest):
     """Extra tests for `cliquet.tests.resource.test_pagination`
     """
 

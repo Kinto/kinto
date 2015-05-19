@@ -14,7 +14,6 @@ from pyramid.url import parse_url_overrides
 
 from cliquet import DEFAULT_SETTINGS
 from cliquet.storage import generators
-from cliquet.utils import random_bytes_hex
 from cliquet.tests.testapp import main as testapp
 
 
@@ -52,36 +51,7 @@ def get_request_class(prefix):
     return PrefixedRequestClass
 
 
-class FakeAuthentMixin(object):
-    def __init__(self, *args, **kwargs):
-        super(FakeAuthentMixin, self).__init__(*args, **kwargs)
-
-        self.patcher = mock.patch('cliquet.authentication.'
-                                  'OAuthClient.verify_token')
-        access_token = 'secret'
-        self.headers = {
-            'Authorization': 'Bearer {0}'.format(access_token),
-        }
-
-    def setUp(self):
-        super(FakeAuthentMixin, self).setUp()
-
-        settings = self.app.app.registry.settings
-
-        settings.setdefault('cliquet.userid_hmac_secret',
-                            random_bytes_hex(16))
-
-        self.fxa_verify = self.patcher.start()
-        self.fxa_verify.return_value = {
-            'user': 'bob'
-        }
-
-    def tearDown(self):
-        super(FakeAuthentMixin, self).tearDown()
-        self.patcher.stop()
-
-
-class BaseWebTest(FakeAuthentMixin):
+class BaseWebTest(object):
     """Base Web Test to test your cornice service.
 
     It setups the database before each test and delete it after.
@@ -93,9 +63,10 @@ class BaseWebTest(FakeAuthentMixin):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.app = self._get_test_app()
         self.storage = self.app.app.registry.storage
-        self.headers.update({
+        self.headers = {
             'Content-Type': 'application/json',
-        })
+            'Authorization': 'Basic bWF0OjE='
+        }
 
     def _get_test_app(self, settings=None):
         app = webtest.TestApp(testapp(self.get_app_settings(settings)))
@@ -104,11 +75,9 @@ class BaseWebTest(FakeAuthentMixin):
 
     def get_app_settings(self, additional_settings=None):
         settings = DEFAULT_SETTINGS.copy()
+        settings['multiauth.policies'] = 'basicauth'
         settings['cliquet.project_name'] = 'cliquet'
         settings['cliquet.project_docs'] = 'https://cliquet.rtfd.org/'
-        settings['fxa-oauth.relier.enabled'] = True
-        settings['fxa-oauth.oauth_uri'] = 'https://oauth-stable.dev.lcip.org'
-        settings['fxa-oauth.webapp.authorized_domains'] = ['*.firefox.com', ]
 
         if additional_settings is not None:
             settings.update(additional_settings)

@@ -1,12 +1,12 @@
 import mock
 
-from .test_views import BaseWebTest, FakeAuthentMixin
+from .test_views import BaseWebTest
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
 
 
-class CORSOriginHeadersTest(FakeAuthentMixin, BaseWebTest):
+class CORSOriginHeadersTest(BaseWebTest):
     def setUp(self):
         super(CORSOriginHeadersTest, self).setUp()
         self.headers['Origin'] = 'notmyidea.org'
@@ -91,7 +91,7 @@ class CORSOriginHeadersTest(FakeAuthentMixin, BaseWebTest):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
 
-class CORSExposeHeadersTest(FakeAuthentMixin, BaseWebTest):
+class CORSExposeHeadersTest(BaseWebTest):
     def assert_expose_headers(self, method, path, allowed_headers, body=None):
         self.headers.update({'Origin': 'lolnet.org'})
         http_method = getattr(self.app, method.lower())
