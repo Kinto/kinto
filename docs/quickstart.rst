@@ -57,13 +57,18 @@ deprecation indicators are now available.
     **Shortcut!**
 
     In order to bypass the installation and configuration of *Redis* required by the
-    default storage and cache, use the «in-memory» backend in :file:`myproject.ini`:
+    default storage and cache, use the «in-memory» backend in :file:`development.ini`:
 
     .. code-block:: ini
 
-        # myproject.ini
+        # development.ini
         cliquet.cache_backend = cliquet.cache.memory
         cliquet.storage_backend = cliquet.storage.memory
+
+
+Now is a good time to install the project::
+
+    $ python setup.py develop
 
 
 Run!
@@ -74,16 +79,16 @@ A generic command is provided to accomplish this:
 
 ::
 
-    $ cliquet --ini myproject.ini migrate
+    $ cliquet --ini development.ini migrate
 
 
 Like any *Pyramid* application, it can be served locally with:
 
 ::
 
-    $ pserve myproject.ini --reload
+    $ pserve development.ini --reload
 
-A *hello* view is now available at **http://localhost:8000** (As well as basic
+A *hello* view is now available at **http://localhost:6543** (As well as basic
 endpoints like the :ref:`utilities <api-utilities>`).
 
 The next steps will consist in building a custom application using :rtd:`Cornice <cornice>` or
@@ -174,7 +179,7 @@ the ``Basic Auth`` authentication can be enabled with:
 
 .. code-block:: ini
 
-    # myproject.ini
+    # development.ini
     cliquet.basic_auth_enabled = true
 
 This will associate a unique :term:`user id` for every user/password combination.
