@@ -23,6 +23,14 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         app = self._get_test_app({'multiauth.policies': 'fxa basicauth'})
         app.get(self.sample_url, headers=headers, status=200)
 
+    def test_basic_auth_is_accepted_if_enabled_with_old_setting(self):
+        auth_password = base64.b64encode('bob:secret'.encode('ascii'))
+        headers = {
+            'Authorization': 'Basic {0}'.format(auth_password.decode('ascii'))
+        }
+        app = self._get_test_app({'cliquet.basic_auth_enabled': 'true'})
+        app.get(self.sample_url, headers=headers, status=200)
+
     def test_basic_auth_is_declined_if_disabled_in_settings(self):
         auth_password = base64.b64encode('bob:secret'.encode('ascii'))
         headers = {
