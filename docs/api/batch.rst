@@ -54,7 +54,7 @@ The POST body is a mapping, with the following attributes:
           }
         }
       ]
-    ]
+    }
 
 
 The response body is a list of all responses:
