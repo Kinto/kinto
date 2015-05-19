@@ -97,7 +97,7 @@ The response body is a list of all responses:
           },
         },
       ]
-    ]
+    }
 
 HTTP Status Codes
 -----------------
