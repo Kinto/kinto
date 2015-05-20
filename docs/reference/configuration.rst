@@ -251,8 +251,7 @@ handling and authorizations.
 Basic Auth
 ::::::::::
 
-``basicauth`` should be mentioned among ``multiauth.policies`` in order to
-be enabled.
+``basicauth`` is mentioned among ``multiauth.policies`` by default.
 
 .. code-block:: ini
 
@@ -281,22 +280,11 @@ to plug any kind of authentication.
 Firefox Accounts
 ::::::::::::::::
 
-As `stated in the official documentation <https://developer.mozilla.org/en-US/Firefox_Accounts>`_,
-Firefox Accounts OAuth integration is currently limited to Mozilla relying services.
+Enabling :term:`Firefox Accounts` consists in including ``cliquet_fxa`` in
+configuration, mentioning ``fxa`` among policies and providing appropriate
+values for OAuth2 client settings.
 
-If you're a Mozilla service, just fill the settings with the values provided
-during activation:
-
-.. code-block:: ini
-
-    fxa-oauth.relier.enabled = true
-    fxa-oauth.client_id = 89513028159972bc
-    fxa-oauth.client_secret = 9aced230585cc0aaea0a3467dd800
-    fxa-oauth.oauth_uri = https://oauth-stable.dev.lcip.org
-    fxa-oauth.scope = profile
-    fxa-oauth.webapp.authorized_domains = *.firefox.com
-    # fxa-oauth.cache_ttl_seconds = 300
-    # fxa-oauth.state.ttl_seconds = 3600
+See :github:`mozilla-services/cliquet-fxa`.
 
 
 Application profiling
