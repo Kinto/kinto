@@ -26,7 +26,6 @@ class ViewSet(object):
 
     collection_methods = ('GET', 'POST', 'DELETE')
     record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
-    readonly_methods = ('GET',)
     validate_schema_for = ('POST', 'PUT')
 
     default_arguments = {
@@ -36,12 +35,12 @@ class ViewSet(object):
         error_handler: json_error_handler
     }
     default_collection_arguments = {}
-    default_collection_get_arguments = {
+    collection_get_arguments = {
         cors_headers: (('Backoff', 'Retry-After', 'Alert') +
                        ('Next-Page', 'Total-Records', 'Last-Modified'))
     }
     default_record_arguments = {}
-    default_record_get_arguments = {
+    record_get_arguments = {
         cors_headers: (('Backoff', 'Retry-After', 'Alert') +
                        ('Last-Modified',))
     }
@@ -53,18 +52,12 @@ class ViewSet(object):
         self.__dict__.update(**kwargs)
 
     def collection_arguments(self, resource, method):
-        args = self.default_arguments().copy()
+        args = self.default_arguments.copy()
         args.update(**self.default_collection_arguments)
 
-        by_method = 'default_collection_%s_arguments' % method.lower()
+        by_method = 'collection_%s_arguments' % method.lower()
         method_args = getattr(self, by_method, {})
         args.update(**method_args)
-
-        if method in self.readonly_methods:
-            perm = '%s:readonly' % resource.name
-        else:
-            perm = '%s:readwrite' % resource.name
-        args['permission'] = perm
 
         if method in self.validate_schema_for:
             args['schema'] = CorniceSchema.from_colander(resource.mapping,
@@ -75,15 +68,9 @@ class ViewSet(object):
         args = self.default_arguments().copy()
         args.update(**self.default_record_arguments)
 
-        by_method = 'default_record_%s_arguments' % method.lower()
+        by_method = 'record_%s_arguments' % method.lower()
         method_args = getattr(self, by_method, {})
         args.update(**method_args)
-
-        if method in self.readonly_methods:
-            perm = '%s:readonly' % resource.name
-        else:
-            perm = '%s:readwrite' % resource.name
-        args['permission'] = perm
 
         if method in self.validate_schema_for:
             args['schema'] = CorniceSchema.from_colander(resource.mapping,
@@ -91,16 +78,27 @@ class ViewSet(object):
         return args
 
 
-def register(resource, viewset=None, **kwargs):
+def register(resource, settings, viewset=None, **kwargs):
     # config.add_directive('register') ?
-    settings = {}  # XXX:
+    if settings is None:
+        settings = {}
+
     #cors_origins = tuple(aslist(settings['cliquet.cors_origins']))
-    cors_origins = ('*',)
+    cors_policy = {
+        'origins': ('*',),
+    }
 
     if viewset is None:
         viewset = ViewSet(**kwargs)
     else:
         viewset.update(**kwargs)
+
+    path_formatters = {
+        'resource_name': resource.name
+    }
+    collection_path = viewset.collection_path.format(**path_formatters)
+    collection_service = Service(resource.name, collection_path,
+                                 cors_policy=cors_policy)
 
     for method in viewset.collection_methods:
         setting_enabled = 'cliquet.collection_%s_%s_enabled' % (resource.name,
@@ -110,10 +108,12 @@ def register(resource, viewset=None, **kwargs):
 
         view_args = viewset.collection_arguments(resource, method)
         view = getattr(resource, 'collection_%s' % method.lower())
-        # register using Cornice
-        service = Service()
-        service.cors_origins = cors_origins
-        service.definitions.append((method, view, view_args))
+        collection_service.add_view(method, view, view_args)
+
+    # Rince and repeat. XXX factorize.
+    record_path = viewset.record_path.format(**path_formatters)
+    record_service = Service(resource.name, record_path,
+                             cors_policy=cors_policy)
 
     for method in viewset.record_methods:
         setting_enabled = 'cliquet.%s_%s_enabled' % (resource.name,
@@ -123,10 +123,7 @@ def register(resource, viewset=None, **kwargs):
 
         view_args = viewset.record_arguments(resource, method)
         view = getattr(resource, '%s' % method.lower())
-        # register using Cornice
-        service = Service()
-        service.cors_origins = cors_origins
-        service.definitions.append((method, view, view_args))
+        record_service.add_view(method, view, view_args)
 
 
 class BaseResource(object):
