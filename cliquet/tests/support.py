@@ -75,7 +75,6 @@ class BaseWebTest(object):
 
     def get_app_settings(self, additional_settings=None):
         settings = DEFAULT_SETTINGS.copy()
-        settings['multiauth.policies'] = 'basicauth'
         settings['cliquet.project_name'] = 'cliquet'
         settings['cliquet.project_docs'] = 'https://cliquet.rtfd.org/'
 
