@@ -66,9 +66,9 @@ deprecation indicators are now available.
         cliquet.storage_backend = cliquet.storage.memory
 
 
-Now is a good time to install the project::
+Now is a good time to install the project locally::
 
-    $ python setup.py develop
+    $ pip install -e .
 
 
 Run!
