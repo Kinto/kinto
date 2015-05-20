@@ -13,8 +13,8 @@ class NotModifiedTest(BaseTest):
 
         self.resource = BaseResource(self.get_request())
         self.resource.collection_get()
-        current = self.last_response.headers['Last-Modified']
-        self.resource.request.headers['If-Modified-Since'] = current
+        current = self.last_response.headers['ETag']
+        self.resource.request.headers['If-None-Match'] = current
 
     def test_collection_returns_304_if_no_change_meanwhile(self):
         try:
@@ -22,6 +22,7 @@ class NotModifiedTest(BaseTest):
         except httpexceptions.HTTPNotModified as e:
             error = e
         self.assertEqual(error.code, 304)
+        self.assertIsNotNone(error.headers.get('ETag'))
         self.assertIsNotNone(error.headers.get('Last-Modified'))
 
     def test_single_record_returns_304_if_no_change_meanwhile(self):
@@ -31,7 +32,32 @@ class NotModifiedTest(BaseTest):
         except httpexceptions.HTTPNotModified as e:
             error = e
         self.assertEqual(error.code, 304)
+        self.assertIsNotNone(error.headers.get('ETag'))
         self.assertIsNotNone(error.headers.get('Last-Modified'))
+
+    def test_single_record_last_modified_is_returned(self):
+        self.resource.timestamp = 0
+        self.resource.record_id = self.stored['id']
+        try:
+            self.resource.get()
+        except httpexceptions.HTTPNotModified as e:
+            error = e
+        self.assertNotIn('1970', error.headers['Last-Modified'])
+
+    def test_if_none_match_empty_raises_invalid(self):
+        self.resource.request.headers['If-None-Match'] = '""'
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
+
+    def test_if_none_match_without_quotes_raises_invalid(self):
+        self.resource.request.headers['If-None-Match'] = '12345'
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
+
+    def test_if_none_match_not_integer_raises_invalid(self):
+        self.resource.request.headers['If-None-Match'] = '"abc"'
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
 
 
 class ModifiedMeanwhileTest(BaseTest):
@@ -39,9 +65,9 @@ class ModifiedMeanwhileTest(BaseTest):
         super(ModifiedMeanwhileTest, self).setUp()
         self.stored = self.collection.create_record({})
         self.resource.collection_get()
-        current = self.last_response.headers['Last-Modified']
+        current = self.last_response.headers['ETag'][1:-1]
         previous = six.text_type(int(current) - 10).encode('utf-8')
-        self.resource.request.headers['If-Unmodified-Since'] = previous
+        self.resource.request.headers['If-Match'] = '"%s"' % previous
 
     def test_preconditions_errors_are_json_formatted(self):
         try:
@@ -63,6 +89,7 @@ class ModifiedMeanwhileTest(BaseTest):
             self.resource.collection_get()
         except httpexceptions.HTTPPreconditionFailed as e:
             error = e
+        self.assertIsNotNone(error.headers.get('ETag'))
         self.assertIsNotNone(error.headers.get('Last-Modified'))
 
     def test_single_record_returns_412_if_changed_meanwhile(self):
@@ -76,6 +103,7 @@ class ModifiedMeanwhileTest(BaseTest):
             self.resource.get()
         except httpexceptions.HTTPPreconditionFailed as e:
             error = e
+        self.assertIsNotNone(error.headers.get('ETag'))
         self.assertIsNotNone(error.headers.get('Last-Modified'))
 
     def test_create_returns_412_if_changed_meanwhile(self):
@@ -88,7 +116,22 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
+    def test_put_returns_last_modified_if_changed_meanwhile(self):
+        self.resource.timestamp = 0
+        self.resource.record_id = self.stored['id']
+        try:
+            self.resource.put()
+        except httpexceptions.HTTPPreconditionFailed as e:
+            error = e
+        self.assertNotIn('1970', error.headers['Last-Modified'])
+
     def test_put_returns_412_if_deleted_meanwhile(self):
+        self.resource.record_id = self.stored['id']
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed,
+                          self.resource.put)
+
+    def test_if_none_match_star_is_equivalent_to_zero(self):
+        self.resource.request.headers['If-None-Match'] = '*'
         self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
@@ -98,6 +141,15 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.patch)
 
+    def test_patch_returns_last_modified_if_changed_meanwhile(self):
+        self.resource.timestamp = 0
+        self.resource.record_id = self.stored['id']
+        try:
+            self.resource.patch()
+        except httpexceptions.HTTPPreconditionFailed as e:
+            error = e
+        self.assertNotIn('1970', error.headers['Last-Modified'])
+
     def test_delete_returns_412_if_changed_meanwhile(self):
         self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
@@ -106,3 +158,18 @@ class ModifiedMeanwhileTest(BaseTest):
     def test_delete_all_returns_412_if_changed_meanwhile(self):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.collection_delete)
+
+    def test_if_match_without_quotes_raises_invalid(self):
+        self.resource.request.headers['If-Match'] = '123456'
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
+
+    def test_if_match_empty_raises_invalid(self):
+        self.resource.request.headers['If-Match'] = '""'
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
+
+    def test_if_match_not_integer_raises_invalid(self):
+        self.resource.request.headers['If-Match'] = '"abc"'
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)

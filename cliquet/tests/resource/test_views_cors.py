@@ -105,7 +105,7 @@ class CORSExposeHeadersTest(BaseWebTest):
 
     def test_collection_get_exposes_every_possible_header(self):
         self.assert_expose_headers('GET', self.collection_url, [
-            'Alert', 'Backoff', 'Last-Modified', 'Next-Page',
+            'Alert', 'Backoff', 'ETag', 'Last-Modified', 'Next-Page',
             'Retry-After', 'Total-Records'])
 
     def test_hello_endpoint_exposes_only_minimal_set_of_headers(self):
@@ -120,7 +120,7 @@ class CORSExposeHeadersTest(BaseWebTest):
                                   status=201)
         record_url = self.get_item_url(resp.json['data']['id'])
         self.assert_expose_headers('GET', record_url, [
-            'Alert', 'Backoff', 'Retry-After', 'Last-Modified'])
+            'Alert', 'Backoff', 'ETag', 'Retry-After', 'Last-Modified'])
 
     def test_record_post_exposes_only_minimal_set_of_headers(self):
         body = {'data': MINIMALIST_RECORD}

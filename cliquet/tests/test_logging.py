@@ -276,7 +276,7 @@ class ResourceInfoTest(BaseWebTest, unittest.TestCase):
         r = self.app.get('/mushrooms', headers=self.headers)
         event_dict = logger_context()
         self.assertEqual(event_dict['collection_timestamp'],
-                         int(r.headers['Last-Modified']))
+                         int(r.headers['ETag'][1:-1]))
 
     def test_result_size_and_limit_are_bound(self):
         for name in ['a', 'b', 'c']:

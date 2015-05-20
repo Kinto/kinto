@@ -37,7 +37,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         modification = result['last_modified']
         self.resource = BaseResource(self.get_request())
         self.resource.collection_get()
-        header = int(self.last_response.headers['Last-Modified'])
+        header = int(self.last_response.headers['ETag'][1:-1])
         self.assertEqual(header, modification)
 
     def test_filter_with_since_accepts_numeric_value(self):
@@ -79,7 +79,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
     def test_filter_from_last_header_value_is_exclusive(self):
         self.resource.collection_get()
-        current = int(self.last_response.headers['Last-Modified'])
+        current = int(self.last_response.headers['ETag'][1:-1])
 
         self.resource.request.GET = {'_since': six.text_type(current)}
         result = self.resource.collection_get()
@@ -95,7 +95,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
         def read_timestamp():
             self.resource.collection_get()
-            return int(self.last_response.headers['Last-Modified'])
+            return int(self.last_response.headers['ETag'][1:-1])
 
         before = read_timestamp()
         now = read_timestamp()
@@ -128,7 +128,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
             with mock.patch.object(self.collection.storage,
                                    'get_all', delayed_get):
                 self.resource.collection_get()
-                fetch_at = self.last_response.headers['Last-Modified']
+                fetch_at = self.last_response.headers['ETag'][1:-1]
                 timestamps['fetch'] = int(fetch_at)
 
         # Create a real record with no patched timestamp
