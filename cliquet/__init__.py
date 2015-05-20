@@ -95,7 +95,8 @@ def load_default_settings(config, default_settings):
 
             if old == 'cliquet.basic_auth_enabled':
                 # Transform former setting into pyramid_multiauth config:
-                if asbool(settings.pop(old)):
+                is_already_set = 'basicauth' in settings['multiauth.policies']
+                if asbool(settings.pop(old)) and not is_already_set:
                     settings['multiauth.policies'] += ' basicauth'
             else:
                 settings[new] = settings.pop(old)

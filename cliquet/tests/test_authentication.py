@@ -24,6 +24,18 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         headers = {
             'Authorization': 'Basic {0}'.format(auth_password.decode('ascii'))
         }
+        app = self._get_test_app({
+            'multiauth.policies': 'dummy',
+            'multiauth.policy.dummy.use': ('pyramid.authentication.'
+                                           'RepozeWho1AuthenticationPolicy'),
+            'cliquet.basic_auth_enabled': 'true'})
+        app.get(self.sample_url, headers=headers, status=200)
+
+    def test_basic_auth_is_accepted_if_default_with_old_setting(self):
+        auth_password = base64.b64encode('bob:secret'.encode('ascii'))
+        headers = {
+            'Authorization': 'Basic {0}'.format(auth_password.decode('ascii'))
+        }
         app = self._get_test_app({'cliquet.basic_auth_enabled': 'true'})
         app.get(self.sample_url, headers=headers, status=200)
 
@@ -35,8 +47,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         app = self._get_test_app({
             'multiauth.policies': 'dummy',
             'multiauth.policy.dummy.use': ('pyramid.authentication.'
-                                           'RepozeWho1AuthenticationPolicy')
-        })
+                                           'RepozeWho1AuthenticationPolicy')})
         app.get(self.sample_url, headers=headers, status=401)
 
     def test_views_are_forbidden_if_basic_is_wrong(self):
