@@ -1,5 +1,3 @@
-import base64
-
 import mock
 
 from cliquet import authentication
