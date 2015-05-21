@@ -1,4 +1,5 @@
 import re
+from functools import partial
 
 import colander
 from cornice import resource, Service
@@ -47,29 +48,21 @@ class ViewSet(object):
 
     def __init__(self, **kwargs):
         self.update(**kwargs)
+        self.record_arguments = partial(self.get_arguments, 'record')
+        self.collection_arguments = partial(self.get_arguments, 'collection')
 
     def update(self, **kwargs):
         self.__dict__.update(**kwargs)
 
-    # XXX Factorize these two methods, they're doing the same things.
-    def collection_arguments(self, resource, method):
+    def get_arguments(self, typ_, resource, method):
+        """Returns the arguments for the given type, where `typ_` can be
+        either "collection" or "record".
+        """
         args = self.default_arguments.copy()
-        args.update(**self.default_collection_arguments)
+        default_arguments = getattr(self, 'default_%s_arguments' % typ_)
+        args.update(**default_arguments)
 
-        by_method = 'collection_%s_arguments' % method.lower()
-        method_args = getattr(self, by_method, {})
-        args.update(**method_args)
-
-        if method.lower() in map(str.lower, self.validate_schema_for):
-            args['schema'] = CorniceSchema.from_colander(resource.mapping,
-                                                         bind_request=False)
-        return args
-
-    def record_arguments(self, resource, method):
-        args = self.default_arguments.copy()
-        args.update(**self.default_record_arguments)
-
-        by_method = 'record_%s_arguments' % method.lower()
+        by_method = '%s_%s_arguments' % (typ_, method.lower())
         method_args = getattr(self, by_method, {})
         args.update(**method_args)
 
