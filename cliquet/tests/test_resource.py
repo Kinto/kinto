@@ -192,7 +192,7 @@ class RegisterTest(unittest.TestCase):
     def test_collection_views_are_registered_in_cornice(self, service_class):
         register(self.resource, viewset=self.viewset)
 
-        service_class.assert_any_call(self.resource.name, '/fake')
+        service_class.assert_any_call('fake-collection', '/fake')
         service_class().add_view.assert_any_call(
             'GET', sentinel.collection_get)
 
@@ -200,7 +200,7 @@ class RegisterTest(unittest.TestCase):
     def test_record_views_are_registered_in_cornice(self, service_class):
         register(self.resource, viewset=self.viewset)
 
-        service_class.assert_any_call(self.resource.name, '/fake/{id}')
+        service_class.assert_any_call('fake-record', '/fake/{id}')
         service_class().add_view.assert_any_call(
             'PUT', sentinel.record_put)
 
@@ -215,7 +215,7 @@ class RegisterTest(unittest.TestCase):
         # 3 calls: two registering the service classes,
         # one for the collection_get
         self.assertEquals(len(service_class.mock_calls), 3)
-        service_class.assert_any_call(self.resource.name, '/fake')
+        service_class.assert_any_call('fake-collection', '/fake')
         service_class().add_view.assert_any_call(
             'GET', sentinel.collection_get)
 
@@ -230,7 +230,7 @@ class RegisterTest(unittest.TestCase):
         # 3 calls: two registering the service classes,
         # one for the collection_get
         self.assertEquals(len(service_class.mock_calls), 3)
-        service_class.assert_any_call(self.resource.name, '/fake/{id}')
+        service_class.assert_any_call('fake-record', '/fake/{id}')
         service_class().add_view.assert_any_call(
             'PUT', sentinel.record_put)
 

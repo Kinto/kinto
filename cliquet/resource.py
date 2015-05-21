@@ -90,32 +90,33 @@ def register(resource, settings=None, viewset=None, **kwargs):
     path_formatters = {
         'resource_name': resource.name
     }
-    collection_path = viewset.collection_path.format(**path_formatters)
-    collection_service = Service(resource.name, collection_path)
 
-    for method in viewset.collection_methods:
-        setting_enabled = 'cliquet.collection_%s_%s_enabled' % (resource.name,
-                                                                method.lower())
-        if not settings.get(setting_enabled, True):
-            continue
+    def register_service(typ_):
+        """Registers a service in cornice, for the given type."""
+        path = getattr(viewset, '%s_path' % typ_).format(**path_formatters)
 
-        view_args = viewset.collection_arguments(resource, method)
-        view = getattr(resource, 'collection_%s' % method.lower())
-        collection_service.add_view(method, view, **view_args)
+        # XXX Don't do that and ask the viewset for service name instead.
+        name = '-'.join((resource.name, typ_))
+        service = Service(name, path)
 
-    # Rince and repeat. XXX factorize.
-    record_path = viewset.record_path.format(**path_formatters)
-    record_service = Service(resource.name, record_path)
-
-    for method in viewset.record_methods:
-        setting_enabled = 'cliquet.record_%s_%s_enabled' % (resource.name,
+        methods = getattr(viewset, '%s_methods' % typ_)
+        for method in methods:
+            setting_enabled = 'cliquet.%s_%s_%s_enabled' % (typ_,
+                                                            resource.name,
                                                             method.lower())
-        if not settings.get(setting_enabled, True):
-            continue
+            if not settings.get(setting_enabled, True):
+                continue
 
-        view_args = viewset.record_arguments(resource, method)
-        view = getattr(resource, 'record_%s' % method.lower())
-        record_service.add_view(method, view, **view_args)
+            # XXX use viewset.get_arguments() directly.
+            argument_getter = getattr(viewset, '%s_arguments' % typ_)
+            view_args = argument_getter(resource, method)
+
+            # XXX don't guess what the view is, ask the viewset instead?
+            view = getattr(resource, '%s_%s' % (typ_, method.lower()))
+            service.add_view(method, view, **view_args)
+
+    register_service('collection')
+    register_service('record')
 
 
 class BaseResource(object):
