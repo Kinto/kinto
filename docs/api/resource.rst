@@ -18,11 +18,12 @@ The returned value is a JSON mapping containing:
 A ``Total-Records`` response header indicates the total number of records
 of the collection.
 
-A ``Last-Modified`` response header provides the current timestamp of the
-collection (see :ref:`section about timestamps <server-timestamps>`).
-It is likely to be used by consumer to provide ``If-Modified-Since`` or
-``If-Unmodified-Since`` headers in subsequent requests.
+A ``Last-Modified`` response header provides a human-readable (rounded to second)
+of the current collection timestamp.
 
+For cache and concurrency control, a ``ETag`` response header gives the
+value that consumers can provide in subsequent requests using ``If-Match``
+and ``If-None-Match`` headers (see :ref:`section about timestamps <server-timestamps>`).
 
 **Request**:
 
@@ -39,11 +40,12 @@ It is likely to be used by consumer to provide ``If-Modified-Since`` or
 
     HTTP/1.1 200 OK
     Access-Control-Allow-Origin: *
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, ETag, Next-Page, Total-Records, Last-Modified
     Content-Length: 436
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 28 Apr 2015 12:08:11 GMT
-    Last-Modified: 1430222877724
+    Last-Modified: Mon, 12 Apr 2015 11:12:07 GMT
+    ETag: "1430222877724"
     Total-Records: 2
 
     {
@@ -102,7 +104,7 @@ Prefix attribute name with ``not_``:
 
 .. note::
 
-    The ``Last-Modified`` response header will always be the same as
+    The ``ETag`` and ``Last-Modified`` response headers will always be the same as
     the unfiltered collection.
 
 Sorting
@@ -140,7 +142,7 @@ The ``_since`` parameter is provided as an alias for ``gt_last_modified``.
 When filtering on ``last_modified`` every deleted records will appear in the
 list with a deleted status (``deleted=true``).
 
-If the request header ``If-Modified-Since`` is provided, and if the
+If the request header ``If-None-Match`` is provided, and if the
 collection has not suffered changes meanwhile, a ``304 Not Modified``
 response is returned.
 
@@ -168,8 +170,8 @@ Pagination works with sorting and filtering.
 
     The ``Next-Page`` URL will contain a continuation token (``_token``).
 
-    It is recommended to add precondition headers (``If-Modified-Since`` or
-    ``If-Unmodified-Since``), in order to detect changes on collection while
+    It is recommended to add precondition headers (``If-Match`` or
+    ``If-None-Match``), in order to detect changes on collection while
     iterating through the pages.
 
 
@@ -192,9 +194,9 @@ HTTP Status Codes
 -----------------
 
 * ``200 OK``: The request was processed
-* ``304 Not Modified``: Collection did not change since value in ``If-Modified-Since`` header
+* ``304 Not Modified``: Collection did not change since value in ``If-None-Match`` header
 * ``400 Bad Request``: The request querystring is invalid
-* ``412 Precondition Failed``: Collection changed since value in ``If-Unmodified-Since`` header
+* ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
 
 
 POST /{collection}
@@ -211,7 +213,7 @@ The POST response body is a JSON mapping containing:
 
 - ``data``: the newly created record, if all posted values are valid.
 
-If the request header ``If-Unmodified-Since`` is provided, and if the record has
+If the request header ``If-Match`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 
@@ -289,7 +291,7 @@ HTTP Status Codes
 * ``201 Created``: The record was created
 * ``400 Bad Request``: The request body is invalid
 * ``409 Conflict``: Unicity constraint on fields is violated
-* ``412 Precondition Failed``: Collection changed since value in ``If-Unmodified-Since`` header
+* ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
 
 
 DELETE /{collection}
@@ -305,7 +307,7 @@ The DELETE response is a JSON mapping containing:
 
 It supports the same filtering capabilities as GET.
 
-If the request header ``If-Unmodified-Since`` is provided, and if the collection
+If the request header ``If-Match`` is provided, and if the collection
 has changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 
@@ -350,7 +352,7 @@ HTTP Status Codes
 
 * ``200 OK``: The records were deleted;
 * ``405 Method Not Allowed``: This endpoint is not available;
-* ``412 Precondition Failed``: Collection changed since value in ``If-Unmodified-Since`` header
+* ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
 
 
 GET /{collection}/<id>
@@ -363,10 +365,10 @@ containing:
 
 - ``data``: the record with exhaustive schema fields.
 
-For convenience and consistency, a header ``Last-Modified`` will also repeat the
+For convenience and consistency, a header ``ETag`` will also repeat the
 value of the ``last_modified`` field.
 
-If the request header ``If-Modified-Since`` is provided, and if the record has not
+If the request header ``If-None-Match`` is provided, and if the record has not
 changed meanwhile, a ``304 Not Modified`` is returned.
 
 **Request**:
@@ -384,11 +386,11 @@ changed meanwhile, a ``304 Not Modified`` is returned.
 
     HTTP/1.1 200 OK
     Access-Control-Allow-Origin: *
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, ETag, Last-Modified
     Content-Length: 438
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 28 Apr 2015 12:42:42 GMT
-    Last-Modified: 1430224945242
+    ETag: "1430224945242"
 
     {
         "data": {
@@ -404,8 +406,8 @@ HTTP Status Code
 ----------------
 
 * ``200 OK``: The request was processed
-* ``304 Not Modified``: Record did not change since value in ``If-Modified-Since`` header
-* ``412 Precondition Failed``: Record changed since value in ``If-Unmodified-Since`` header
+* ``304 Not Modified``: Record did not change since value in ``If-None-Match`` header
+* ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
 
 
 DELETE /{collection}/<id>
@@ -422,7 +424,7 @@ The DELETE response is the record that was deleted. The DELETE response is a JSO
 If the record is missing (or already deleted), a ``404 Not Found`` is returned.
 The consumer might decide to ignore it.
 
-If the request header ``If-Unmodified-Since`` is provided, and if the record has
+If the request header ``If-Match`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 .. note::
@@ -434,7 +436,7 @@ HTTP Status Code
 ----------------
 
 * ``200 OK``: The record was deleted
-* ``412 Precondition Failed``: Record changed since value in ``If-Unmodified-Since`` header
+* ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
 
 
 PUT /{collection}/<id>
@@ -452,7 +454,7 @@ The PUT response body is a JSON mapping containing:
 
 Validation and conflicts behaviour is similar to creating records (``POST``).
 
-If the request header ``If-Unmodified-Since`` is provided, and if the record has
+If the request header ``If-Match`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 
@@ -502,7 +504,12 @@ HTTP Status Code
 * ``400 Bad Request``: The record is invalid
 * ``409 Conflict``: If replacing this record violates a field unicity constraint
 * ``412 Precondition Failed``: Record was changed or deleted since value
-  in ``If-Unmodified-Since`` header
+  in ``If-Match`` header.
+
+.. note::
+
+    A ``If-None-Match: *`` request header can be used to make sure the ``PUT``
+    won't overwrite any record.
 
 
 PATCH /{collection}/<id>
@@ -564,7 +571,7 @@ the one provided are returned.
 If the record is missing (or already deleted), a ``404 Not Found`` error is returned.
 The consumer might decide to ignore it.
 
-If the request header ``If-Unmodified-Since`` is provided, and if the record has
+If the request header ``If-Match`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 .. note::
@@ -593,4 +600,4 @@ HTTP Status Code
 * ``400 Bad Request``: The request body is invalid, or a read-only field was
   modified
 * ``409 Conflict``: If modifying this record violates a field unicity constraint
-* ``412 Precondition Failed``: Record changed since value in ``If-Unmodified-Since`` header
+* ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
