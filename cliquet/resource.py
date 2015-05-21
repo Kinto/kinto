@@ -1,7 +1,7 @@
 import re
 
 import colander
-from cornice import resource
+from cornice import resource, Service
 from cornice.schemas import CorniceSchema
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPMethodNotAllowed,
@@ -29,20 +29,20 @@ class ViewSet(object):
     validate_schema_for = ('POST', 'PUT')
 
     default_arguments = {
-        description: 'Collection of {resource_name}',
-        cors_headers: ('Backoff', 'Retry-After', 'Alert'),
-        cors_origins: ('*',),
-        error_handler: json_error_handler
+        'description': 'Collection of {resource_name}',
+        'cors_headers': ('Backoff', 'Retry-After', 'Alert'),
+        'cors_origins': ('*',),
+        'error_handler': json_error_handler
     }
     default_collection_arguments = {}
     collection_get_arguments = {
-        cors_headers: (('Backoff', 'Retry-After', 'Alert') +
-                       ('Next-Page', 'Total-Records', 'Last-Modified'))
+        'cors_headers': (('Backoff', 'Retry-After', 'Alert') +
+                        ('Next-Page', 'Total-Records', 'Last-Modified'))
     }
     default_record_arguments = {}
     record_get_arguments = {
-        cors_headers: (('Backoff', 'Retry-After', 'Alert') +
-                       ('Last-Modified',))
+        'cors_headers': (('Backoff', 'Retry-After', 'Alert') +
+                        ('Last-Modified',))
     }
 
     def __init__(self, **kwargs):
@@ -51,6 +51,7 @@ class ViewSet(object):
     def update(self, **kwargs):
         self.__dict__.update(**kwargs)
 
+    # XXX Factorize these two methods, they're doing the same things.
     def collection_arguments(self, resource, method):
         args = self.default_arguments.copy()
         args.update(**self.default_collection_arguments)
@@ -59,34 +60,34 @@ class ViewSet(object):
         method_args = getattr(self, by_method, {})
         args.update(**method_args)
 
-        if method in self.validate_schema_for:
+        if method.lower() in map(str.lower, self.validate_schema_for):
             args['schema'] = CorniceSchema.from_colander(resource.mapping,
                                                          bind_request=False)
         return args
 
     def record_arguments(self, resource, method):
-        args = self.default_arguments().copy()
+        args = self.default_arguments.copy()
         args.update(**self.default_record_arguments)
 
         by_method = 'record_%s_arguments' % method.lower()
         method_args = getattr(self, by_method, {})
         args.update(**method_args)
 
-        if method in self.validate_schema_for:
+        if method.lower() in map(str.lower, self.validate_schema_for):
             args['schema'] = CorniceSchema.from_colander(resource.mapping,
                                                          bind_request=False)
         return args
 
 
-def register(resource, settings, viewset=None, **kwargs):
+def register(resource, settings=None, viewset=None, **kwargs):
     # config.add_directive('register') ?
     if settings is None:
         settings = {}
 
     #cors_origins = tuple(aslist(settings['cliquet.cors_origins']))
-    cors_policy = {
-        'origins': ('*',),
-    }
+    # cors_policy = {
+    #     'origins': ('*',),
+    # }
 
     if viewset is None:
         viewset = ViewSet(**kwargs)
@@ -97,8 +98,7 @@ def register(resource, settings, viewset=None, **kwargs):
         'resource_name': resource.name
     }
     collection_path = viewset.collection_path.format(**path_formatters)
-    collection_service = Service(resource.name, collection_path,
-                                 cors_policy=cors_policy)
+    collection_service = Service(resource.name, collection_path)
 
     for method in viewset.collection_methods:
         setting_enabled = 'cliquet.collection_%s_%s_enabled' % (resource.name,
@@ -108,22 +108,21 @@ def register(resource, settings, viewset=None, **kwargs):
 
         view_args = viewset.collection_arguments(resource, method)
         view = getattr(resource, 'collection_%s' % method.lower())
-        collection_service.add_view(method, view, view_args)
+        collection_service.add_view(method, view, **view_args)
 
     # Rince and repeat. XXX factorize.
     record_path = viewset.record_path.format(**path_formatters)
-    record_service = Service(resource.name, record_path,
-                             cors_policy=cors_policy)
+    record_service = Service(resource.name, record_path)
 
     for method in viewset.record_methods:
-        setting_enabled = 'cliquet.%s_%s_enabled' % (resource.name,
-                                                     method.lower())
+        setting_enabled = 'cliquet.record_%s_%s_enabled' % (resource.name,
+                                                            method.lower())
         if not settings.get(setting_enabled, True):
             continue
 
         view_args = viewset.record_arguments(resource, method)
-        view = getattr(resource, '%s' % method.lower())
-        record_service.add_view(method, view, view_args)
+        view = getattr(resource, 'record_%s' % method.lower())
+        record_service.add_view(method, view, **view_args)
 
 
 class BaseResource(object):
