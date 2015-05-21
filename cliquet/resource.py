@@ -712,9 +712,7 @@ class BaseResource(object):
             assert if_none_match[0] == if_none_match[-1] == '"'
             modified_since = int(if_none_match[1:-1])
         except (IndexError, AssertionError, ValueError):
-            if if_none_match == '*':
-                modified_since = -1  # Always true.
-            else:
+            if if_none_match != '*':
                 error_details = {
                     'location': 'headers',
                     'description': "Invalid value for If-None-Match"
@@ -739,25 +737,28 @@ class BaseResource(object):
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed`
         """
         if_match = self.request.headers.get('If-Match')
+        if_none_match = self.request.headers.get('If-None-Match')
 
-        if not if_match:
+        if not if_match and not if_none_match:
             return
 
-        try:
-            assert if_match[0] == if_match[-1] == '"'
-            modified_since = int(if_match[1:-1])
-        except (IndexError, AssertionError, ValueError):
-            error_details = {
-                'location': 'headers',
-                'description': "Invalid value for If-Match"
-            }
-            raise_invalid(self.request, **error_details)
+        if if_none_match == '*':
+            modified_since = -1  # Always raise.
+        elif if_match:
+            try:
+                assert if_match[0] == if_match[-1] == '"'
+                modified_since = int(if_match[1:-1])
+            except (IndexError, AssertionError, ValueError):
+                error_details = {
+                    'location': 'headers',
+                    'description': "Invalid value for If-Match"
+                }
+                raise_invalid(self.request, **error_details)
 
         if record:
-            current_timestamp = record[self.modified_field]
+            current_timestamp = record[self.collection.modified_field]
         else:
-            current_timestamp = self.storage.collection_timestamp(
-                **self.storage_kw)
+            current_timestamp = self.collection.timestamp()
 
         if current_timestamp > modified_since:
             error_msg = 'Resource was modified meanwhile'
