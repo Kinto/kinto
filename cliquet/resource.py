@@ -681,8 +681,7 @@ class BaseResource(object):
         # Pyramid takes care of converting.
         response.last_modified = timestamp / 1000.0
         # Return timestamp as ETag.
-        timestamp = six.text_type(timestamp).encode('utf-8')
-        response.headers['ETag'] = '"%s"' % timestamp
+        response.headers['ETag'] = ('"%s"' % timestamp).encode('utf-8')
 
     def _raise_400_if_invalid_id(self, record_id):
         """Raise 400 if specified record id does not match the format excepted
@@ -707,6 +706,8 @@ class BaseResource(object):
 
         if not if_none_match:
             return
+
+        if_none_match = if_none_match.decode('utf-8')
 
         try:
             assert if_none_match[0] == if_none_match[-1] == '"'
@@ -742,7 +743,9 @@ class BaseResource(object):
         if not if_match and not if_none_match:
             return
 
-        if if_none_match == '*':
+        if_match = if_match.decode('utf-8') if if_match else None
+
+        if if_none_match and if_none_match.decode('utf-8') == '*':
             modified_since = -1  # Always raise.
         elif if_match:
             try:

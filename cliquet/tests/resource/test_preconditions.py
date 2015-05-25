@@ -1,4 +1,3 @@
-import six
 from pyramid import httpexceptions
 
 from cliquet.errors import ERRORS
@@ -45,17 +44,17 @@ class NotModifiedTest(BaseTest):
         self.assertNotIn('1970', error.headers['Last-Modified'])
 
     def test_if_none_match_empty_raises_invalid(self):
-        self.resource.request.headers['If-None-Match'] = '""'
+        self.resource.request.headers['If-None-Match'] = '""'.encode('utf-8')
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_if_none_match_without_quotes_raises_invalid(self):
-        self.resource.request.headers['If-None-Match'] = '12345'
+        self.resource.request.headers['If-None-Match'] = '1234'.encode('utf-8')
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_if_none_match_not_integer_raises_invalid(self):
-        self.resource.request.headers['If-None-Match'] = '"abc"'
+        self.resource.request.headers['If-None-Match'] = '"ab"'.encode('utf-8')
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
@@ -65,9 +64,10 @@ class ModifiedMeanwhileTest(BaseTest):
         super(ModifiedMeanwhileTest, self).setUp()
         self.stored = self.collection.create_record({})
         self.resource.collection_get()
-        current = self.last_response.headers['ETag'][1:-1]
-        previous = six.text_type(int(current) - 10).encode('utf-8')
-        self.resource.request.headers['If-Match'] = '"%s"' % previous
+        current = self.last_response.headers['ETag'][1:-1].decode('utf-8')
+        previous = int(current) - 10
+        if_match = ('"%s"' % previous).encode('utf-8')
+        self.resource.request.headers['If-Match'] = if_match
 
     def test_preconditions_errors_are_json_formatted(self):
         try:
@@ -132,7 +132,7 @@ class ModifiedMeanwhileTest(BaseTest):
 
     def test_if_none_match_star_fails_if_record_exists(self):
         self.resource.request.headers.pop('If-Match')
-        self.resource.request.headers['If-None-Match'] = '*'
+        self.resource.request.headers['If-None-Match'] = '*'.encode('utf-8')
         self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
@@ -164,16 +164,16 @@ class ModifiedMeanwhileTest(BaseTest):
                           self.resource.collection_delete)
 
     def test_if_match_without_quotes_raises_invalid(self):
-        self.resource.request.headers['If-Match'] = '123456'
+        self.resource.request.headers['If-Match'] = '123456'.encode('utf-8')
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_if_match_empty_raises_invalid(self):
-        self.resource.request.headers['If-Match'] = '""'
+        self.resource.request.headers['If-Match'] = '""'.encode('utf-8')
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_if_match_not_integer_raises_invalid(self):
-        self.resource.request.headers['If-Match'] = '"abc"'
+        self.resource.request.headers['If-Match'] = '"abc"'.encode('utf-8')
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
