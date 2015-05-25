@@ -7,6 +7,7 @@ from six.moves.urllib import parse as urlparse
 from cliquet import logger
 from cliquet.cache import CacheBase
 from cliquet.storage.postgresql import PostgreSQLClient
+from cliquet.utils import json
 
 
 class PostgreSQL(PostgreSQLClient, CacheBase):
@@ -97,6 +98,7 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         SELECT %(key)s, %(value)s, sec2ttl(%(ttl)s)
         WHERE NOT EXISTS (SELECT * FROM upsert)
         """
+        value = json.dumps(value)
         with self.connect() as cursor:
             cursor.execute(query, dict(key=key, value=value, ttl=ttl))
 
@@ -107,7 +109,8 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
             cursor.execute(purge)
             cursor.execute(query, (key,))
             if cursor.rowcount > 0:
-                return cursor.fetchone()['value']
+                value = cursor.fetchone()['value']
+                return json.loads(value)
 
     def delete(self, key):
         query = "DELETE FROM cache WHERE key = %s"

@@ -5,6 +5,7 @@ from six.moves.urllib import parse as urlparse
 
 from cliquet.cache import CacheBase
 from cliquet.storage.redis import wrap_redis_error
+from cliquet.utils import json
 
 
 class Redis(CacheBase):
@@ -50,6 +51,7 @@ class Redis(CacheBase):
 
     @wrap_redis_error
     def set(self, key, value, ttl=None):
+        value = json.dumps(value)
         if ttl:
             self._client.psetex(key, int(ttl * 1000), value)
         else:
@@ -59,7 +61,8 @@ class Redis(CacheBase):
     def get(self, key):
         value = self._client.get(key)
         if value:
-            return value.decode('utf-8')
+            value = value.decode('utf-8')
+            return json.loads(value)
 
     @wrap_redis_error
     def delete(self, key):

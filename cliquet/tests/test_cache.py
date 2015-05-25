@@ -85,6 +85,16 @@ class BaseTestCache(object):
         retrieved = self.cache.get('foobar')
         self.assertEquals(retrieved, stored)
 
+    def test_values_remains_python_dict(self):
+        def setget(k, v):
+            self.cache.set(k, v)
+            return (self.cache.get(k), v)
+
+        self.assertEqual(*setget('foobar', 3))
+        self.assertEqual(*setget('foobar', ['a']))
+        self.assertEqual(*setget('foobar', {'b': [1, 2]}))
+        self.assertEqual(*setget('foobar', 3.14))
+
     def test_delete_removes_the_record(self):
         self.cache.set('foobar', 'toto')
         self.cache.delete('foobar')
