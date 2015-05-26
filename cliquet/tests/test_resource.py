@@ -4,7 +4,7 @@ from cliquet.resource import ViewSet, register
 
 from .support import unittest
 
-class FakeViewSet(object):
+class FakeViewSet(ViewSet):
     """Fake viewset class used for tests."""
     collection_path = "/{resource_name}"
     record_path = "/{resource_name}/{{id}}"
@@ -31,7 +31,10 @@ class FakeResource(object):
         # {type}_{method} will map to the sentinel with the same name.
         for typ_ in ('collection', 'record'):
             for method in ('get', 'put', 'patch', 'delete'):
-                view_name = '_'.join((typ_, method))
+                if typ_ == 'record':
+                    view_name = method
+                else:
+                    view_name = '_'.join((typ_, method))
                 setattr(self, view_name, getattr(sentinel, view_name))
 
 
@@ -202,7 +205,7 @@ class RegisterTest(unittest.TestCase):
 
         service_class.assert_any_call('fake-record', '/fake/{id}')
         service_class().add_view.assert_any_call(
-            'PUT', sentinel.record_put)
+            'PUT', sentinel.put)
 
 
     @patch('cliquet.resource.Service')
@@ -232,5 +235,5 @@ class RegisterTest(unittest.TestCase):
         self.assertEquals(len(service_class.mock_calls), 3)
         service_class.assert_any_call('fake-record', '/fake/{id}')
         service_class().add_view.assert_any_call(
-            'PUT', sentinel.record_put)
+            'PUT', sentinel.put)
 

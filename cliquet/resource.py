@@ -71,6 +71,12 @@ class ViewSet(object):
                                                          bind_request=False)
         return args
 
+    def get_view(self, typ_, method):
+        if typ_ == 'record':
+            return method
+        else:
+            return '%s_%s' % (typ_, method)
+
 
 def register(resource, settings=None, viewset=None, **kwargs):
     # config.add_directive('register') ?
@@ -87,8 +93,10 @@ def register(resource, settings=None, viewset=None, **kwargs):
     else:
         viewset.update(**kwargs)
 
+    resource_name = getattr(resource, 'name', classname(resource))
+
     path_formatters = {
-        'resource_name': resource.name
+        'resource_name': resource_name
     }
 
     def register_service(typ_):
@@ -96,13 +104,13 @@ def register(resource, settings=None, viewset=None, **kwargs):
         path = getattr(viewset, '%s_path' % typ_).format(**path_formatters)
 
         # XXX Don't do that and ask the viewset for service name instead.
-        name = '-'.join((resource.name, typ_))
+        name = '-'.join((resource_name, typ_))
         service = Service(name, path)
 
         methods = getattr(viewset, '%s_methods' % typ_)
         for method in methods:
             setting_enabled = 'cliquet.%s_%s_%s_enabled' % (typ_,
-                                                            resource.name,
+                                                            resource_name,
                                                             method.lower())
             if not settings.get(setting_enabled, True):
                 continue
@@ -111,8 +119,8 @@ def register(resource, settings=None, viewset=None, **kwargs):
             argument_getter = getattr(viewset, '%s_arguments' % typ_)
             view_args = argument_getter(resource, method)
 
-            # XXX don't guess what the view is, ask the viewset instead?
-            view = getattr(resource, '%s_%s' % (typ_, method.lower()))
+            view_location = viewset.get_view(typ_, method.lower())
+            view = getattr(resource, view_location)
             service.add_view(method, view, **view_args)
 
     register_service('collection')
