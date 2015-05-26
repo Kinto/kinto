@@ -34,16 +34,17 @@ def main(global_config, **settings):
                        version=__version__,
                        default_settings=DEFAULT_SETTINGS)
 
-    settings = config.get_settings()
-    kwargs = {}
-    flush_enabled = asbool(settings.get('kinto.flush_endpoint_enabled'))
-    if not flush_enabled:
-        kwargs['ignore'] = 'kinto.views.flush'
-
     # Redirect default to the right endpoint
     config.add_route('default_bucket_collection',
                      '/buckets/default/{subpath:.*}')
     config.add_route('default_bucket', '/buckets/default')
 
+    # Scan Kinto views.
+    settings = config.get_settings()
+    kwargs = {}
+    flush_enabled = asbool(settings.get('kinto.flush_endpoint_enabled'))
+    if not flush_enabled:
+        kwargs['ignore'] = 'kinto.views.flush'
     config.scan("kinto.views", **kwargs)
+
     return config.make_wsgi_app()

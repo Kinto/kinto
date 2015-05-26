@@ -27,8 +27,10 @@ class BaseWebTest(object):
         self.app = self._get_test_app()
         self.storage = self.app.app.registry.storage
         self.permission = self.app.app.registry.permission
-        self.permission.initialize_schema()
+        self.cache = self.app.app.registry.cache
         self.storage.initialize_schema()
+        self.permission.initialize_schema()
+        self.cache.initialize_schema()
         self.headers = {
             'Content-Type': 'application/json',
         }
@@ -54,6 +56,7 @@ class BaseWebTest(object):
     def tearDown(self):
         super(BaseWebTest, self).tearDown()
         self.storage.flush()
+        self.cache.flush()
         self.permission.flush()
 
     def create_group(self, bucket_id, group_id, members=None):
