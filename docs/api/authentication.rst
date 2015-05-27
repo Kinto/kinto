@@ -21,7 +21,7 @@ Basic Auth
 ==========
 
 If enabled in configuration, using a *Basic Auth* token will associate a unique
-:term:`user identifier` for any username/password combination.
+:term:`user identifier` to an username/password combination.
 
 ::
 
