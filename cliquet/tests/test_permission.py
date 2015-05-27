@@ -39,7 +39,7 @@ class BaseTestPermission(object):
         self.permission = self.backend.load_from_config(self._get_config())
         self.permission.initialize_schema()
         self.request = None
-        self.client_error_patcher = None
+        self.client_error_patcher = []
 
     def _get_config(self, settings=None):
         """Mock Pyramid config object.
@@ -54,7 +54,8 @@ class BaseTestPermission(object):
         self.permission.flush()
 
     def test_backend_error_is_raised_anywhere(self):
-        self.client_error_patcher.start()
+        for patch in self.client_error_patcher:
+            patch.start()
         calls = [
             (self.permission.flush,),
             (self.permission.add_user_principal, '', ''),
@@ -73,7 +74,8 @@ class BaseTestPermission(object):
                 raise
 
     def test_ping_returns_false_if_unavailable(self):
-        self.client_error_patcher.start()
+        for patch in self.client_error_patcher:
+            patch.start()
         self.assertFalse(self.permission.ping(self.request))
 
     def test_ping_returns_true_if_available(self):
@@ -174,10 +176,15 @@ class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(RedisPermissionTest, self).__init__(*args, **kwargs)
-        self.client_error_patcher = mock.patch.object(
-            self.permission._client,
-            'execute_command',
-            side_effect=redis.RedisError)
+        self.client_error_patcher = [
+            mock.patch.object(
+                self.permission._client,
+                'execute_command',
+                side_effect=redis.RedisError),
+            mock.patch.object(
+                self.permission._client,
+                'pipeline',
+                side_effect=redis.RedisError)]
 
 
 # class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
@@ -190,7 +197,7 @@ class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
 #
 #     def __init__(self, *args, **kwargs):
 #         super(PostgreSQLPermissionTest, self).__init__(*args, **kwargs)
-#         self.client_error_patcher = mock.patch.object(
+#         self.client_error_patcher = [mock.patch.object(
 #             self.permission.pool,
 #             'getconn',
-#             side_effect=psycopg2.DatabaseError)
+#             side_effect=psycopg2.DatabaseError)]
