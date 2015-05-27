@@ -1,7 +1,8 @@
 import re
-from functools import partial
+import functools
 
 import colander
+import venusian
 from cornice import resource, Service
 from cornice.schemas import CorniceSchema
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
@@ -22,16 +23,19 @@ from cliquet.utils import (
 
 
 class ViewSet(object):
-    collection_path = "/{resource_name}"
-    record_path = "/{resource_name}/{{id}}"
+    collection_path = "/{resource_name}s"
+    record_path = "/{resource_name}s/{{id}}"
 
     collection_methods = ('GET', 'POST', 'DELETE')
     record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
     validate_schema_for = ('POST', 'PUT')
 
     default_arguments = {
-        'description': 'Collection of {resource_name}',
         'cors_headers': ('Backoff', 'Retry-After', 'Alert'),
+    }
+
+    service_arguments = {
+        'description': 'Collection of {resource_name}',
         'cors_origins': ('*',),
         'error_handler': json_error_handler
     }
@@ -48,8 +52,10 @@ class ViewSet(object):
 
     def __init__(self, **kwargs):
         self.update(**kwargs)
-        self.record_arguments = partial(self.get_arguments, 'record')
-        self.collection_arguments = partial(self.get_arguments, 'collection')
+        self.record_arguments = functools.partial(
+                                        self.get_arguments, 'record')
+        self.collection_arguments = functools.partial(
+                                        self.get_arguments, 'collection')
 
     def update(self, **kwargs):
         self.__dict__.update(**kwargs)
@@ -67,8 +73,8 @@ class ViewSet(object):
         args.update(**method_args)
 
         if method.lower() in map(str.lower, self.validate_schema_for):
-            args['schema'] = CorniceSchema.from_colander(resource.mapping,
-                                                         bind_request=False)
+            args['schema'] = resource.mapping
+
         return args
 
     def get_view(self, typ_, method):
@@ -78,7 +84,15 @@ class ViewSet(object):
             return '%s_%s' % (typ_, method)
 
 
-def register(resource, settings=None, viewset=None, **kwargs):
+def register(depth=1, **kwargs):
+    def wrapped(resource):
+        register_resource(resource, depth=depth + 1, **kwargs)
+        return resource
+    return wrapped
+
+
+def register_resource(resource, settings=None, viewset=None, depth=1,
+                      **kwargs):
     # config.add_directive('register') ?
     if settings is None:
         settings = {}
@@ -93,7 +107,7 @@ def register(resource, settings=None, viewset=None, **kwargs):
     else:
         viewset.update(**kwargs)
 
-    resource_name = getattr(resource, 'name', classname(resource))
+    resource_name = getattr(resource, 'name', resource.__name__.lower())
 
     path_formatters = {
         'resource_name': resource_name
@@ -105,7 +119,10 @@ def register(resource, settings=None, viewset=None, **kwargs):
 
         # XXX Don't do that and ask the viewset for service name instead.
         name = '-'.join((resource_name, typ_))
-        service = Service(name, path)
+        service = Service(name, path, depth=depth)
+
+        # XXX service description should not be merged into view arguments.
+        # And should be part of the service creation.
 
         methods = getattr(viewset, '%s_methods' % typ_)
         for method in methods:
@@ -119,12 +136,26 @@ def register(resource, settings=None, viewset=None, **kwargs):
             argument_getter = getattr(viewset, '%s_arguments' % typ_)
             view_args = argument_getter(resource, method)
 
-            view_location = viewset.get_view(typ_, method.lower())
-            view = getattr(resource, view_location)
-            service.add_view(method, view, **view_args)
+            view = viewset.get_view(typ_, method.lower())
+            service.add_view(method, view, klass=resource, **view_args)
+        return service
 
-    register_service('collection')
-    register_service('record')
+    services = []
+    services.append(register_service('collection'))
+    services.append(register_service('record'))
+
+    def callback(context, name, ob):
+        # get the callbacks registred by the inner services
+        # and call them from here when the @resource classes are being
+        # scanned by venusian.
+        for service in services:
+            config = context.config.with_package(info.module)
+            config.add_cornice_service(service)
+
+    info = venusian.attach(resource, callback, category='pyramid',
+                           depth=depth)
+    return services
+
 
 
 class BaseResource(object):
