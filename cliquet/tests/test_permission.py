@@ -4,7 +4,8 @@ import mock
 import redis
 
 from cliquet.storage import exceptions
-from cliquet.permission import (PermissionBase, redis as redis_backend)
+from cliquet.permission import (PermissionBase, redis as redis_backend,
+                                memory as memory_backend)
 
 from .support import unittest
 
@@ -154,14 +155,14 @@ class BaseTestPermission(object):
             lambda object_id, permission: permissions)
 
 
-# class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):
-#     backend = memory_backend
-#
-#     def test_backend_error_is_raised_anywhere(self):
-#         pass
-#
-#     def test_ping_returns_false_if_unavailable(self):
-#         pass
+class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):
+    backend = memory_backend
+
+    def test_backend_error_is_raised_anywhere(self):
+        pass
+
+    def test_ping_returns_false_if_unavailable(self):
+        pass
 
 
 class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
