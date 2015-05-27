@@ -143,6 +143,16 @@ class BaseTestPermission(object):
                                                         user_id)
         self.assertTrue(has_permission)
 
+    def test_object_inherit_userid_permissions(self):
+        object_id = 'foo'
+        permissions = [(object_id, 'write'), (object_id, 'read')]
+        user_id = 'bar'
+        self.permission.add_object_permission_principal(object_id, 'write',
+                                                        user_id)
+        self.permission.has_permission(
+            object_id, 'read', user_id,
+            lambda object_id, permission: permissions)
+
 
 # class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):
 #     backend = memory_backend
