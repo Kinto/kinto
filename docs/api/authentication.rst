@@ -32,7 +32,7 @@ The token shall be built using this formula ``base64("username:password")``.
 Empty passwords are accepted, and usernames can be anything (UUID, etc.)
 
 If the token has an invalid format, or if *Basic Auth* is not enabled,
-this will result to a ``401`` error response.
+this will result in a ``401`` error response.
 
 .. warning::
 
