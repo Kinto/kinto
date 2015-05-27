@@ -85,12 +85,13 @@ class Redis(PermissionBase):
                              _get_perm_keys=None):
         if _get_perm_keys is None:
             def _get_perm_keys(object_id, permission):
-                return ['permission:%s:%s' % (object_id, permission)]
+                return [(object_id, permission)]
 
         user_key = 'user:%s' % user_id
         temp_key = 'temp_permission:%s:%s' % (object_id, permission)
 
         keys = _get_perm_keys(object_id, permission)
+        keys = ['permission:%s:%s' % key for key in keys]
         with self._client.pipeline() as multi:
             multi.sadd(user_key, user_id)  # results[0]
             if len(keys) == 1:
