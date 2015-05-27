@@ -222,56 +222,60 @@ in configuration:
     # cliquet.userid_hmac_secret = b4c96a8692291d88fe5a97dd91846eb4
 
 
-Basic Auth
-::::::::::
+Authentication setup
+::::::::::::::::::::
+
+*Cliquet* relies on :github:`pyramid multiauth <mozilla-service/pyramid_multiauth>`_
+to initialize authentication.
+
+Therefore, any authentication policy can be specified through configuration.
+
+For example, using the following example, *Basic Auth*, *Persona* and *IP Auth*
+are enabled:
 
 .. code-block:: ini
 
-    # cliquet.basic_auth_enabled = true
+    multiauth.policies = basicauth pyramid_persona ipauth
+
+    multiauth.policy.ipauth.use = pyramid_ipauth.IPAuthentictionPolicy
+    multiauth.policy.ipauth.ipaddrs = 192.168.0.*
+    multiauth.policy.ipauth.userid = LAN-user
+    multiauth.policy.ipauth.principals = trusted
+
+
+Similarly, any authorization policies and group finder function can be
+specified through configuration in order to deeply customize permissions
+handling and authorizations.
+
+
+Basic Auth
+::::::::::
+
+``basicauth`` should be mentioned among ``multiauth.policies`` in order to
+be enabled.
+
+.. code-block:: ini
+
+    multiauth.policies = basicauth
+
+By default, it uses an internal *Basic Auth* policy bundled with *Cliquet*.
+
+In order to replace it by another one:
+
+.. code-block:: ini
+
+    multiauth.policies = basicauth
+    multiauth.policy.basicauth.use = myproject.authn.BasicAuthPolicy
 
 
 Custom Authentication
 :::::::::::::::::::::
 
-Is is possible to overwrite the Cliquet initialization in order to replace
-the default authentication backend.
+Using the various `Pyramid authentication packages
+<https://github.com/ITCase/awesome-pyramid#authentication>`_, it is possible
+to plug any kind of authentication.
 
-Internally, Cliquet relies on Pyramid ``authenticated_userid`` request
-attribute to associate users to records.
-
-
-.. code-block:: python
-    :emphasize-lines: 5
-
-    def main(global_config, **settings):
-        config = Configurator(settings=settings)
-        cliquet.initialize(config, __version__)
-
-        config.include('velruse.providers.github')
-
-
-Or set it up manually:
-
-.. code-block:: python
-    :emphasize-lines: 1,11-17
-
-    import pyramid_multiauth
-
-    #
-    # ... (see quickstart example)
-    #
-
-    def main(global_config, **settings):
-        config = Configurator(settings=settings)
-        cliquet.initialize(config, __version__)
-
-        policies = [
-            cliquet.authentication.BasicAuthAuthenticationPolicy(),
-            myproject.authentication.MyPolicy()
-        ]
-        authn_policy = pyramid_multiauth.MultiAuthenticationPolicy(policies)
-
-        config.set_authentication_policy(authn_policy)
+(*Github/Twitter example to be done*)
 
 
 Firefox Accounts
@@ -280,7 +284,8 @@ Firefox Accounts
 As `stated in the official documentation <https://developer.mozilla.org/en-US/Firefox_Accounts>`_,
 Firefox Accounts OAuth integration is currently limited to Mozilla relying services.
 
-If you're a Mozilla service, fill the settings with the values you were provided:
+If you're a Mozilla service, just fill the settings with the values provided
+during activation:
 
 .. code-block:: ini
 

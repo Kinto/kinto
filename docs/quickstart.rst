@@ -50,7 +50,8 @@ just add some extra initialization code:
 
 
 By doing that, basic features like authentication, monitoring, error formatting,
-deprecation indicators are now available.
+deprecation indicators are now available, and rely on configuration present
+in ``myproject.ini``.
 
 .. note::
 
@@ -98,6 +99,23 @@ But most likely, it will consist in **defining REST resources** using *Cliquet*
 python API !
 
 
+Authentication
+--------------
+
+Currently, if no authentication is set in settings, *Cliquet* relies on
+:term:`Firefox Accounts`, whose setup is tedious.
+
+Of course, any :ref:`authentication backend supported by Pyramid can be used <configuration-authentication>`,
+but in order to get started quickly, it is recommended to enable ``Basic Auth``:
+
+.. code-block:: ini
+
+    # myproject.ini
+    multiauth.policies = basicauth
+
+This will associate a unique :term:`user id` for every user/password combination.
+
+
 Define resources
 ================
 
@@ -129,8 +147,8 @@ In application initialization, make *Pyramid* aware of it:
 By doing that, a Mushroom resource API is now available at the ``/mushrooms/``
 endpoint.
 
-It will accept a bunch of REST operations, as defined in
-the :ref:`API section <api-endpoints>`.
+It will accept a bunch of REST operations, as defined in the :ref:`API section
+<api-endpoints>`.
 
 .. warning ::
 
@@ -171,19 +189,8 @@ What's next ?
 Configuration
 -------------
 
-See :ref:`configuration` to customize the application settings, such as storage
-or cache backends.
-
-In order to get started quickly, and bypass the :term:`Firefox Accounts` setup,
-the ``Basic Auth`` authentication can be enabled with:
-
-.. code-block:: ini
-
-    # development.ini
-    cliquet.basic_auth_enabled = true
-
-This will associate a unique :term:`user id` for every user/password combination.
-Obviously, any authentication system can be activated, see :ref:`configuration-authentication`.
+See :ref:`configuration` to customize the application settings, such as
+authentication, storage or cache backends.
 
 
 Resource customization
@@ -202,7 +209,7 @@ Advanced initialization
 Beyond Cliquet
 --------------
 
-*Cliquet* is just a component ! The application can still be built and
+*Cliquet* is just a component! The application can still be built and
 extended using the full *Pyramid* ecosystem.
 
 See :ref:`the dedicated section <ecosystem>` for examples of *Cliquet* extensions.

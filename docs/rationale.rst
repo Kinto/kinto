@@ -72,12 +72,15 @@ Toolkit
 
     *Cliquet* brings a set of simple but essential features to build APIs.
 
-* Configuration through INI files;
-* :term:`Pluggable` storage and cache backends;
-* :term:`Pluggable` authentication schemes;
+* Configuration through INI files or environment variables;
+* Pluggable storage and cache backends;
+* Pluggable authentication and user groups management;
+* Pluggable authorization and permissions management;
 * Structured logging;
 * Monitoring tools;
 * Profiling tools.
+
+:term:`Pluggable` components can be replaced by another one via configuration.
 
 
 Dependencies
@@ -95,15 +98,16 @@ Everything else is meant to be **pluggable and optional**.
 
     Examples of configuration for a *Cliquet* application in production.
 
+* *Basic Auth*, *FxA OAuth2* or any other source of authentication;
+* *Default* or custom class for authorization logics;
 * *PostgreSQL* for storage;
 * *Redis* for key-value cache with expiration;
 * *StatsD* metrics;
 * *Sentry* reporting via logging;
-* *NewRelic* database profiling (*development*);
-* *Werkzeug* Python code profiling (*development*).
+* *NewRelic* database profiling (*for development*);
+* *Werkzeug* Python code profiling (*for development*).
 
-Currently, the default authentication relies on :term:`Firefox Accounts`, but any
-:ref:`authentication backend supported by Pyramid can be used <configuration-authentication>`.
+A *Cliquet* application can change or force default values for any setting.
 
 
 Built with Cliquet
@@ -114,6 +118,7 @@ Some applications in the wild built with *Cliquet*:
 * :rtd:`Reading List <readinglist>`, a service to synchronize articles between
   devices;
 * :rtd:`Kinto <kinto>`, a service to store and synchronize schema-less data.
+* *Please contact us to add yours*.
 
 .. note::
 
@@ -140,6 +145,18 @@ Vision
 
 General
 -------
+
+Any application built with *Cliquet*:
+
+* follows the same conventions regarding the HTTP API;
+* takes advantage of its component :term:`pluggability <pluggable>`;
+* can be :term:`extended <extensible>` using custom code or Pyramid external
+  packages;
+
+Let's build a :ref:`sane ecosystem <ecosystem>` for microservices in Python!
+
+Generic storage
+---------------
 
 Server applications built with *Cliquet* can store their data in several kinds of
 storage backends. Since backends are pluggable, and since *Kinto* is one of
@@ -176,11 +193,11 @@ Roadmap
 The future features we plan to implement in *Cliquet* are currently driven by the
 use-cases we meet internally at Mozilla. Most notable are:
 
-* Cleanup of authentication code;
 * Permissions system (e.g. read-only and record sharing);
 * Notifications channel (e.g. run asynchronous tasks on events or listen for
   changes);
-* Attachments on records (e.g. *Remote Storage* compatibility).
+* Attachments on records (e.g. *Remote Storage* compatibility);
+* Records generic indexing (e.g. streaming records to *ElasticSearch*).
 
 * ... come and discuss `enhancements in the issue tracker`_!
 

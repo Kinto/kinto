@@ -146,7 +146,6 @@ class StatsDConfigurationTest(unittest.TestCase):
         settings = cliquet.DEFAULT_SETTINGS.copy()
         settings['cliquet.statsd_url'] = 'udp://host:8080'
         self.config = Configurator(settings=settings)
-        self.config.set_authorization_policy({})
         self.config.registry.storage = {}
         self.config.registry.cache = {}
 
@@ -207,7 +206,7 @@ class StatsDConfigurationTest(unittest.TestCase):
         cliquet.initialize(self.config, '0.0.1')
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get('/v0/__heartbeat__', headers={'Authorization': 'Bearer abcde'})
-        mocked().count.assert_any_call('auth_type.FxA')
+        mocked().count.assert_any_call('authn_type.FxAOAuth')
 
 
 class RequestsConfigurationTest(unittest.TestCase):

@@ -36,9 +36,6 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
             if not username:
                 return
 
-            # Trace authentication type.
-            request.auth_type = 'Basic'
-
             hmac_secret = settings['cliquet.userid_hmac_secret']
             credentials = '%s:%s' % credentials
             userid = hmac.new(hmac_secret.encode('utf-8'),
@@ -68,15 +65,24 @@ class TokenVerificationCache(object):
 
 
 @implementer(IAuthenticationPolicy)
-class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
-    def __init__(self, config, realm='Realm'):
+class FxAOAuthAuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
+    def __init__(self, realm='Realm'):
         self.realm = realm
+        self._cache = None
 
-        settings = config.get_settings()
-        oauth_cache_ttl = float(settings['fxa-oauth.cache_ttl_seconds'])
-        oauth_cache = TokenVerificationCache(config.registry.cache,
-                                             ttl=oauth_cache_ttl)
-        self.cache = oauth_cache
+    def _get_cache(self, request):
+        """Instantiate cache when first request comes in.
+        This way, the policy instantiation is decoupled from registry object.
+        """
+        if self._cache is None:
+            if hasattr(request.registry, 'cache'):
+                settings = request.registry.settings
+                cache_ttl = float(settings['fxa-oauth.cache_ttl_seconds'])
+                oauth_cache = TokenVerificationCache(request.registry.cache,
+                                                     ttl=cache_ttl)
+                self._cache = oauth_cache
+
+        return self._cache
 
     def unauthenticated_userid(self, request):
         user_id = self._get_credentials(request)
@@ -98,14 +104,12 @@ class Oauth2AuthenticationPolicy(base_auth.CallbackAuthenticationPolicy):
         except (AssertionError, ValueError):
             return None
 
-        # Trace authentication type.
-        request.auth_type = 'FxA'
-
         # Use PyFxa defaults if not specified
         server_url = settings['fxa-oauth.oauth_uri']
         scope = settings['fxa-oauth.scope']
 
-        auth_client = OAuthClient(server_url=server_url, cache=self.cache)
+        auth_cache = self._get_cache(request)
+        auth_client = OAuthClient(server_url=server_url, cache=auth_cache)
         try:
             profile = auth_client.verify_token(token=auth, scope=scope)
             user_id = profile['user']

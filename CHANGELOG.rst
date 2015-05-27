@@ -6,7 +6,25 @@ This document describes changes between each past release.
 1.8.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- ``cliquet.storage.postgresql`` now requires PostgreSQL version 9.4, since it
+  now relies on *JSONB*. Data will be migrated automatically using the ``migrate``
+  command.
+- ``existing`` attribute of conflict errors responses was moved inside a generic
+  ``details`` attribute that is also used to list validation errors.
+- Setting ``cliquet.basic_auth_enabled`` is now deprecated.
+  Use `pyramid_multiauth <https://github.com/mozilla-services/pyramid_multiauth>`_
+  configuration instead to specify authentication policies.
+- Logging value for authentication type is now ``authn_type`` (with ``FxAOAuth``
+  or ``BasicAuth`` as default values).
+
+**New features**
+
+- Authentication and authorization policies, as well as group finder function
+  can now be specified via configuration (fixes #40)
+- Logging value for authentication type is now available for any kind of
+  authentication policy.
 
 
 1.8.0 (2015-05-13)

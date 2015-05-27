@@ -24,7 +24,6 @@ API_VERSION = 'v%s' % __version__.split('.')[0]
 
 DEFAULT_SETTINGS = {
     'cliquet.backoff': None,
-    'cliquet.basic_auth_enabled': False,
     'cliquet.batch_max_requests': 25,
     'cliquet.cache_backend': 'cliquet.cache.redis',
     'cliquet.cache_pool_size': 10,
@@ -76,6 +75,13 @@ DEFAULT_SETTINGS = {
     'fxa-oauth.scope': 'profile',
     'fxa-oauth.state.ttl_seconds': 3600,  # 1 hour
     'fxa-oauth.webapp.authorized_domains': '',
+    'multiauth.policies': 'fxa',
+    'multiauth.policy.fxa.use': ('cliquet.authentication.'
+                                 'FxAOAuthAuthenticationPolicy'),
+    'multiauth.policy.basicauth.use': ('cliquet.authentication.'
+                                       'BasicAuthAuthenticationPolicy'),
+    'multiauth.authorization_policy': ('cliquet.authentication.'
+                                       'AuthorizationPolicy')
 }
 
 
@@ -91,12 +97,19 @@ def load_default_settings(config, default_settings):
     deprecated_settings = [
         ('cliquet.cache_pool_maxconn', 'cliquet.cache_pool_size'),
         ('cliquet.storage_pool_maxconn', 'cliquet.storage_pool_size'),
+        ('cliquet.basic_auth_enabled', 'multiauth.policies')
     ]
     for old, new in deprecated_settings:
         if old in settings:
             msg = "'%s' setting is deprecated. Use '%s' instead." % (old, new)
             warnings.warn(msg, DeprecationWarning)
-            settings[new] = settings.pop(old)
+
+            if old == 'cliquet.basic_auth_enabled':
+                # Transform former setting into pyramid_multiauth config:
+                if asbool(settings.pop(old)):
+                    settings['multiauth.policies'] += ' basicauth'
+            else:
+                settings[new] = settings.pop(old)
 
     config.add_settings(settings)
 
