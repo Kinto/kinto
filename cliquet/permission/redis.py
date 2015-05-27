@@ -42,25 +42,30 @@ class Redis(PermissionBase):
 
     @wrap_redis_error
     def add_user_principal(self, user_id, principal):
-        self._client.sadd('user:%s' % user_id, principal)
+        user_key = 'user:%s' % user_id
+        with self._client.pipeline() as multi:
+            multi.sadd(user_key, principal)
+            multi.sadd(user_key, user_id)
+            multi.execute()
 
     @wrap_redis_error
     def remove_user_principal(self, user_id, principal):
         user_key = 'user:%s' % user_id
         self._client.srem(user_key, principal)
-        if self._client.scard(user_key) == 0:
+        if self._client.scard(user_key) <= 1:
             self._client.delete(user_key)
 
     @wrap_redis_error
     def get_user_principals(self, user_id):
-        members = self._client.smembers('user:%s' % user_id)
+        user_key = 'user:%s' % user_id
+        members = self._client.smembers(user_key)
         return members
 
     @wrap_redis_error
     def add_object_permission_principal(self, object_id, permission,
                                         principal):
-        self._client.sadd('permission:%s:%s' % (object_id, permission),
-                          principal)
+        permission_key = 'permission:%s:%s' % (object_id, permission)
+        self._client.sadd(permission_key, principal)
 
     @wrap_redis_error
     def remove_object_permission_principal(self, object_id, permission,
@@ -69,6 +74,12 @@ class Redis(PermissionBase):
         self._client.srem(permission_key, principal)
         if self._client.scard(permission_key) == 0:
             self._client.delete(permission_key)
+
+    @wrap_redis_error
+    def get_object_permission_principals(self, object_id, permission):
+        permission_key = 'permission:%s:%s' % (object_id, permission)
+        members = self._client.smembers(permission_key)
+        return members
 
     def _get_user_permission(self, object_id, permission, user_id,
                              _get_perm_keys=None):
@@ -80,18 +91,18 @@ class Redis(PermissionBase):
         temp_key = 'temp_permission:%s:%s' % (object_id, permission)
 
         keys = _get_perm_keys(object_id, permission)
-        multi = self._client.pipeline()
-        multi.sadd(user_key, user_id)  # results[0]
-        if len(keys) == 1:
-            multi.sinter(keys[0], user_key)  # results[1]
-            results = multi.execute()
-            return results[1]
-        else:
-            multi.sunionstore(temp_key, *list(keys))  # results[1]
-            multi.sinter(temp_key, user_key)  # results[2]
-            multi.delete(temp_key)  # results[3]
-            results = multi.execute()
-            return results[2]
+        with self._client.pipeline() as multi:
+            multi.sadd(user_key, user_id)  # results[0]
+            if len(keys) == 1:
+                multi.sinter(keys[0], user_key)  # results[1]
+                results = multi.execute()
+                return results[1]
+            else:
+                multi.sunionstore(temp_key, *list(keys))  # results[1]
+                multi.sinter(temp_key, user_key)  # results[2]
+                multi.delete(temp_key)  # results[3]
+                results = multi.execute()
+                return results[2]
 
     @wrap_redis_error
     def has_permission(self, object_id, permission, user_id,
