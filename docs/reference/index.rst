@@ -9,5 +9,6 @@ Reference
    resource
    storage
    cache
+   permission
    errors
    glossary
