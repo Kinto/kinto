@@ -8,10 +8,10 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
-- ``cliquet.storage.postgresql`` now requires version PostgreSQL 9.4, since it
+- ``cliquet.storage.postgresql`` now requires PostgreSQL version 9.4, since it
   now relies on *JSONB*. Data will be migrated automatically using the ``migrate``
   command.
-- Conflict errors responses ``existing`` attribute was moved inside a generic
+- ``existing`` attribute of conflict errors responses was moved inside a generic
   ``details`` attribute that is also used to list validation errors.
 - Setting ``cliquet.basic_auth_enabled`` is now deprecated.
   Use `pyramid_multiauth <https://github.com/mozilla-services/pyramid_multiauth>`_
