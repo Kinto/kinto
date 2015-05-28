@@ -14,12 +14,12 @@ class FilteringTest(BaseTest):
                 'status': i % 3,
                 'favorite': (i % 4 == 0)
             }
-            self.storage.create(self.resource, 'bob', record)
+            self.storage.create(self.resource.name, 'bob', record)
 
     def test_list_can_be_filtered_on_deleted_with_since(self):
-        since = self.storage.collection_timestamp(self.resource, 'bob')
-        r = self.storage.create(self.resource, 'bob', {})
-        self.storage.delete(self.resource, 'bob', r['id'])
+        since = self.storage.collection_timestamp(self.resource.name, 'bob')
+        r = self.storage.create(self.resource.name, 'bob', {})
+        self.storage.delete(self.resource.name, 'bob', r['id'])
         self.resource.request.GET = {'_since': '%s' % since, 'deleted': 'true'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['items']), 1)
@@ -27,14 +27,14 @@ class FilteringTest(BaseTest):
 
     def test_filter_on_id_is_supported(self):
         self.patch_known_field.stop()
-        r = self.storage.create(self.resource, 'bob', {})
+        r = self.storage.create(self.resource.name, 'bob', {})
         self.resource.request.GET = {'id': '%s' % r['id']}
         result = self.resource.collection_get()
         self.assertEqual(result['items'][0], r)
 
     def test_list_cannot_be_filtered_on_deleted_without_since(self):
-        r = self.storage.create(self.resource, 'bob', {})
-        self.storage.delete(self.resource, 'bob', r['id'])
+        r = self.storage.create(self.resource.name, 'bob', {})
+        self.storage.delete(self.resource.name, 'bob', r['id'])
         self.resource.request.GET = {'deleted': 'true'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['items']), 0)

@@ -5,7 +5,9 @@ import redis
 from six.moves.urllib import parse as urlparse
 
 from cliquet import utils
-from cliquet.storage import exceptions
+from cliquet.storage import (
+    exceptions, DEFAULT_ID_FIELD,
+    DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from cliquet.storage.memory import MemoryBasedStorage
 
 
@@ -58,16 +60,16 @@ class Redis(MemoryBasedStorage):
         self._client.flushdb()
 
     @wrap_redis_error
-    def collection_timestamp(self, resource, user_id):
+    def collection_timestamp(self, resource_name, user_id):
         timestamp = self._client.get(
-            '{0}.{1}.timestamp'.format(resource.name, user_id))
+            '{0}.{1}.timestamp'.format(resource_name, user_id))
         if timestamp:
             return int(timestamp)
-        return self._bump_timestamp(resource, user_id)
+        return self._bump_timestamp(resource_name, user_id)
 
     @wrap_redis_error
-    def _bump_timestamp(self, resource, user_id):
-        key = '{0}.{1}.timestamp'.format(resource.name, user_id)
+    def _bump_timestamp(self, resource_name, user_id):
+        key = '{0}.{1}.timestamp'.format(resource_name, user_id)
         while 1:
             with self._client.pipeline() as pipe:
                 try:
@@ -88,14 +90,20 @@ class Redis(MemoryBasedStorage):
                     continue
 
     @wrap_redis_error
-    def create(self, resource, user_id, record):
-        self.check_unicity(resource, user_id, record)
+    def create(self, resource_name, user_id, record, id_generator=None,
+               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               modified_field=DEFAULT_MODIFIED_FIELD):
+        id_generator = id_generator or self.id_generator
+
+        self.check_unicity(resource_name, user_id, record,
+                           unique_fields=unique_fields, id_field=id_field)
 
         record = record.copy()
-        _id = record[resource.id_field] = resource.id_generator()
-        self.set_record_timestamp(resource, user_id, record)
+        _id = record[id_field] = id_generator()
+        self.set_record_timestamp(resource_name, user_id, record,
+                                  modified_field=modified_field)
 
-        record_key = '{0}.{1}.{2}.records'.format(resource.name,
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
                                                   user_id,
                                                   _id)
         with self._client.pipeline() as multi:
@@ -104,7 +112,7 @@ class Redis(MemoryBasedStorage):
                 self._encode(record)
             )
             multi.sadd(
-                '{0}.{1}.records'.format(resource.name, user_id),
+                '{0}.{1}.records'.format(resource_name, user_id),
                 _id
             )
             multi.execute()
@@ -112,8 +120,10 @@ class Redis(MemoryBasedStorage):
         return record
 
     @wrap_redis_error
-    def get(self, resource, user_id, record_id):
-        record_key = '{0}.{1}.{2}.records'.format(resource.name,
+    def get(self, resource_name, user_id, record_id,
+            id_field=DEFAULT_ID_FIELD,
+            modified_field=DEFAULT_MODIFIED_FIELD):
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
                                                   user_id,
                                                   record_id)
         encoded_item = self._client.get(record_key)
@@ -123,14 +133,18 @@ class Redis(MemoryBasedStorage):
         return self._decode(encoded_item)
 
     @wrap_redis_error
-    def update(self, resource, user_id, record_id, record):
+    def update(self, resource_name, user_id, record_id, record,
+               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               modified_field=DEFAULT_MODIFIED_FIELD):
         record = record.copy()
-        record[resource.id_field] = record_id
-        self.check_unicity(resource, user_id, record)
+        record[id_field] = record_id
+        self.check_unicity(resource_name, user_id, record,
+                           unique_fields=unique_fields, id_field=id_field)
 
-        self.set_record_timestamp(resource, user_id, record)
+        self.set_record_timestamp(resource_name, user_id, record,
+                                  modified_field=modified_field)
 
-        record_key = '{0}.{1}.{2}.records'.format(resource.name,
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
                                                   user_id,
                                                   record_id)
         with self._client.pipeline() as multi:
@@ -139,7 +153,7 @@ class Redis(MemoryBasedStorage):
                 self._encode(record)
             )
             multi.sadd(
-                '{0}.{1}.records'.format(resource.name, user_id),
+                '{0}.{1}.records'.format(resource_name, user_id),
                 record_id
             )
             multi.execute()
@@ -147,15 +161,18 @@ class Redis(MemoryBasedStorage):
         return record
 
     @wrap_redis_error
-    def delete(self, resource, user_id, record_id):
-        record_key = '{0}.{1}.{2}.records'.format(resource.name,
+    def delete(self, resource_name, user_id, record_id,
+               id_field=DEFAULT_ID_FIELD,
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               deleted_field=DEFAULT_DELETED_FIELD):
+        record_key = '{0}.{1}.{2}.records'.format(resource_name,
                                                   user_id,
                                                   record_id)
         with self._client.pipeline() as multi:
             multi.get(record_key)
             multi.delete(record_key)
             multi.srem(
-                '{0}.{1}.records'.format(resource.name, user_id),
+                '{0}.{1}.records'.format(resource_name, user_id),
                 record_id
             )
             responses = multi.execute()
@@ -165,10 +182,12 @@ class Redis(MemoryBasedStorage):
             raise exceptions.RecordNotFoundError(record_id)
 
         existing = self._decode(encoded_item)
-        self.set_record_timestamp(resource, user_id, existing)
-        existing = self.strip_deleted_record(resource, user_id, existing)
+        self.set_record_timestamp(resource_name, user_id, existing,
+                                  modified_field=modified_field)
+        existing = self.strip_deleted_record(resource_name, user_id,
+                                             existing)
 
-        deleted_record_key = '{0}.{1}.{2}.deleted'.format(resource.name,
+        deleted_record_key = '{0}.{1}.{2}.deleted'.format(resource_name,
                                                           user_id,
                                                           record_id)
         with self._client.pipeline() as multi:
@@ -177,7 +196,7 @@ class Redis(MemoryBasedStorage):
                 self._encode(existing)
             )
             multi.sadd(
-                '{0}.{1}.deleted'.format(resource.name, user_id),
+                '{0}.{1}.deleted'.format(resource_name, user_id),
                 record_id
             )
             multi.execute()
@@ -185,12 +204,15 @@ class Redis(MemoryBasedStorage):
         return existing
 
     @wrap_redis_error
-    def get_all(self, resource, user_id, filters=None, sorting=None,
-                pagination_rules=None, limit=None, include_deleted=False):
-        records_ids_key = '{0}.{1}.records'.format(resource.name, user_id)
+    def get_all(self, resource_name, user_id, filters=None, sorting=None,
+                pagination_rules=None, limit=None, include_deleted=False,
+                id_field=DEFAULT_ID_FIELD,
+                modified_field=DEFAULT_MODIFIED_FIELD,
+                deleted_field=DEFAULT_DELETED_FIELD):
+        records_ids_key = '{0}.{1}.records'.format(resource_name, user_id)
         ids = self._client.smembers(records_ids_key)
 
-        keys = ('{0}.{1}.{2}.records'.format(resource.name, user_id,
+        keys = ('{0}.{1}.{2}.records'.format(resource_name, user_id,
                                              _id.decode('utf-8'))
                 for _id in ids)
 
@@ -202,10 +224,10 @@ class Redis(MemoryBasedStorage):
 
         deleted = []
         if include_deleted:
-            deleted_ids_key = '{0}.{1}.deleted'.format(resource.name, user_id)
+            deleted_ids_key = '{0}.{1}.deleted'.format(resource_name, user_id)
             ids = self._client.smembers(deleted_ids_key)
 
-            keys = ['{0}.{1}.{2}.deleted'.format(resource.name, user_id,
+            keys = ['{0}.{1}.{2}.deleted'.format(resource_name, user_id,
                                                  _id.decode('utf-8'))
                     for _id in ids]
 
@@ -215,9 +237,10 @@ class Redis(MemoryBasedStorage):
                 encoded_results = self._client.mget(keys)
                 deleted = [self._decode(r) for r in encoded_results if r]
 
-        records, count = self.extract_record_set(resource,
+        records, count = self.extract_record_set(resource_name,
                                                  records + deleted,
                                                  filters, sorting,
+                                                 id_field, deleted_field,
                                                  pagination_rules, limit)
 
         return records, count

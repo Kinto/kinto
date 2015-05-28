@@ -1,6 +1,8 @@
 import random
 from collections import namedtuple
 
+from . import generators
+
 
 Filter = namedtuple('Filter', ['field', 'value', 'operator'])
 """Filtering properties."""
@@ -8,6 +10,9 @@ Filter = namedtuple('Filter', ['field', 'value', 'operator'])
 Sort = namedtuple('Sort', ['field', 'direction'])
 """Sorting properties."""
 
+DEFAULT_ID_FIELD = 'id'
+DEFAULT_MODIFIED_FIELD = 'last_modified'
+DEFAULT_DELETED_FIELD = 'deleted'
 
 _HEARTBEAT_DELETE_RATE = 0.6
 _HEARTBEAT_RESOURCE_NAME = '__heartbeat__'
@@ -27,6 +32,9 @@ class StorageBase(object):
 
     :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPServiceUnavailable`
     """
+
+    id_generator = generators.UUID4()
+
     def initialize_schema(self):
         """Create every necessary objects (like tables or indices) in the
         backend.
@@ -48,15 +56,12 @@ class StorageBase(object):
         :returns: ``True`` is everything is ok, ``False`` otherwise.
         :rtype: bool
         """
-        from cliquet.resource import BaseResource
-
-        resource = BaseResource(request)
-        resource.name = _HEARTBEAT_RESOURCE_NAME
         try:
             if random.random() < _HEARTBEAT_DELETE_RATE:
-                self.delete_all(resource, _HEARTBEAT_USER_ID)
+                self.delete_all(_HEARTBEAT_RESOURCE_NAME, _HEARTBEAT_USER_ID)
             else:
-                self.create(resource, _HEARTBEAT_USER_ID, _HEARTBEAT_RECORD)
+                self.create(_HEARTBEAT_RESOURCE_NAME, _HEARTBEAT_USER_ID,
+                            _HEARTBEAT_RECORD)
             return True
         except:
             return False

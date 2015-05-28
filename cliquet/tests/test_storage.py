@@ -6,7 +6,6 @@ import redis
 import requests
 
 from cliquet import utils
-from cliquet import schema
 from cliquet.storage import (
     exceptions, Filter, generators, memory,
     redis as redisbackend, postgresql, cloud_storage,
@@ -67,21 +66,6 @@ class StorageBaseTest(unittest.TestCase):
         self.assertEqual(str(error), "ValueError: Pool Error")
 
 
-class TestMapping(schema.ResourceSchema):
-    class Options:
-        pass
-
-
-class TestResource(object):
-    id_field = "id"
-    name = "test"
-    modified_field = "last_modified"
-    mapping = TestMapping()
-    deleted_field = "deleted"
-    request = DummyRequest()
-    id_generator = generators.UUID4()
-
-
 class BaseTestStorage(object):
     backend = None
 
@@ -91,10 +75,8 @@ class BaseTestStorage(object):
         super(BaseTestStorage, self).__init__(*args, **kwargs)
         self.storage = self.backend.load_from_config(self._get_config())
         self.storage.initialize_schema()
-        self.resource = TestResource()
-        self.user_id = '1234'
-        self.other_user_id = '5678'
-        self.record = {'foo': 'bar'}
+        self.id_field = 'id'
+        self.modified_field = 'last_modified'
         self.client_error_patcher = None
 
     def _get_config(self, settings=None):
@@ -104,11 +86,25 @@ class BaseTestStorage(object):
             settings = self.settings
         return mock.Mock(get_settings=mock.Mock(return_value=settings))
 
+    def create_record(self, record=None, user_id=None, id_generator=None,
+                      unique_fields=None):
+        record = record or self.record
+        user_id = user_id or self.user_id
+        return self.storage.create(self.resource, user_id, record,
+                                   id_generator=id_generator,
+                                   unique_fields=unique_fields)
+
+    def setUp(self):
+        super(BaseTestStorage, self).setUp()
+        self.resource = 'test'
+        self.user_id = '1234'
+        self.other_user_id = '5678'
+        self.record = {'foo': 'bar'}
+
     def tearDown(self):
         mock.patch.stopall()
         super(BaseTestStorage, self).tearDown()
         self.storage.flush()
-        self.resource.mapping = TestMapping()
 
     def test_raises_backend_error_if_error_occurs_on_client(self):
         self.client_error_patcher.start()
@@ -161,21 +157,20 @@ class BaseTestStorage(object):
             self.assertTrue(self.storage.ping(request))
 
     def test_create_adds_the_record_id(self):
-        record = self.storage.create(self.resource, self.user_id, self.record)
+        record = self.create_record()
         self.assertIsNotNone(record['id'])
 
     def test_create_works_as_expected(self):
-        stored = self.storage.create(self.resource, self.user_id, self.record)
+        stored = self.create_record()
         retrieved = self.storage.get(self.resource, self.user_id, stored['id'])
         self.assertEquals(retrieved, stored)
 
     def test_create_copies_the_record_before_modifying_it(self):
-        self.storage.create(self.resource, self.user_id, self.record)
+        self.create_record()
         self.assertEquals(self.record.get('id'), None)
 
     def test_create_uses_the_resource_id_generator(self):
-        self.resource.id_generator = lambda: RECORD_ID
-        record = self.storage.create(self.resource, self.user_id, self.record)
+        record = self.create_record(id_generator=lambda: RECORD_ID)
         self.assertEquals(record['id'], RECORD_ID)
 
     def test_get_raise_on_record_not_found(self):
@@ -195,23 +190,22 @@ class BaseTestStorage(object):
             self.user_id,
             RECORD_ID
         )
-        record = self.storage.update(self.resource, self.user_id,
-                                     RECORD_ID, self.record)
-        retrieved = self.storage.get(self.resource, self.user_id,
-                                     RECORD_ID)
+        record = self.storage.update(self.resource, self.user_id, RECORD_ID,
+                                     self.record)
+        retrieved = self.storage.get(self.resource, self.user_id, RECORD_ID)
         self.assertEquals(retrieved, record)
 
     def test_update_overwrites_record_id(self):
-        stored = self.storage.create(self.resource, self.user_id, self.record)
-        record_id = stored[self.resource.id_field]
-        self.record[self.resource.id_field] = 'this-will-be-ignored'
+        stored = self.create_record()
+        record_id = stored[self.id_field]
+        self.record[self.id_field] = 'this-will-be-ignored'
         self.storage.update(self.resource, self.user_id, record_id,
                             self.record)
         retrieved = self.storage.get(self.resource, self.user_id, record_id)
-        self.assertEquals(retrieved[self.resource.id_field], record_id)
+        self.assertEquals(retrieved[self.id_field], record_id)
 
     def test_delete_works_properly(self):
-        stored = self.storage.create(self.resource, self.user_id, self.record)
+        stored = self.create_record()
         self.storage.delete(self.resource, self.user_id, stored['id'])
         self.assertRaises(
             exceptions.RecordNotFoundError,
@@ -230,7 +224,7 @@ class BaseTestStorage(object):
         for x in range(10):
             record = dict(self.record)
             record["number"] = x
-            self.storage.create(self.resource, self.user_id, record)
+            self.create_record(record)
 
         records, total_records = self.storage.get_all(self.resource,
                                                       self.user_id)
@@ -241,7 +235,7 @@ class BaseTestStorage(object):
         for x in range(10):
             record = dict(self.record)
             record["number"] = x
-            self.storage.create(self.resource, self.user_id, record)
+            self.create_record(record)
 
         records, total_records = self.storage.get_all(self.resource,
                                                       self.user_id,
@@ -252,7 +246,7 @@ class BaseTestStorage(object):
 
     def test_get_all_handle_sorting_on_id(self):
         for x in range(3):
-            self.storage.create(self.resource, self.user_id, self.record)
+            self.create_record()
         sorting = [Sort('id', 1)]
         records, _ = self.storage.get_all(self.resource,
                                           self.user_id,
@@ -263,7 +257,7 @@ class BaseTestStorage(object):
         for x in range(10):
             record = dict(self.record)
             record["number"] = x % 3
-            self.storage.create(self.resource, self.user_id, record)
+            self.create_record(record)
 
         records, total_records = self.storage.get_all(
             self.resource, self.user_id, limit=5, pagination_rules=[
@@ -276,8 +270,7 @@ class BaseTestStorage(object):
         for x in range(10):
             record = dict(self.record)
             record["number"] = x % 3
-            last_record = self.storage.create(self.resource, self.user_id,
-                                              record)
+            last_record = self.create_record(record)
 
         records, total_records = self.storage.get_all(
             self.resource, self.user_id, limit=5, pagination_rules=[
@@ -290,14 +283,14 @@ class BaseTestStorage(object):
 
 class TimestampsTest(object):
     def test_timestamp_are_incremented_on_create(self):
-        self.storage.create(self.resource, self.user_id, self.record)  # init
+        self.create_record()  # init
         before = self.storage.collection_timestamp(self.resource, self.user_id)
-        self.storage.create(self.resource, self.user_id, self.record)
+        self.create_record()
         after = self.storage.collection_timestamp(self.resource, self.user_id)
         self.assertTrue(before < after)
 
     def test_timestamp_are_incremented_on_update(self):
-        stored = self.storage.create(self.resource, self.user_id, self.record)
+        stored = self.create_record()
         _id = stored['id']
         before = self.storage.collection_timestamp(self.resource, self.user_id)
         self.storage.update(self.resource, self.user_id, _id, {'bar': 'foo'})
@@ -305,7 +298,7 @@ class TimestampsTest(object):
         self.assertTrue(before < after)
 
     def test_timestamp_are_incremented_on_delete(self):
-        stored = self.storage.create(self.resource, self.user_id, self.record)
+        stored = self.create_record()
         _id = stored['id']
         before = self.storage.collection_timestamp(self.resource, self.user_id)
         self.storage.delete(self.resource, self.user_id, _id)
@@ -318,8 +311,7 @@ class TimestampsTest(object):
 
         def create_item():
             for i in range(100):
-                record = self.storage.create(
-                    self.resource, self.user_id, self.record)
+                record = self.create_record()
                 obtained.append((record['last_modified'], record['id']))
 
         thread1 = self._create_thread(target=create_item)
@@ -346,7 +338,7 @@ class TimestampsTest(object):
     def test_the_timestamp_are_based_on_real_time_milliseconds(self):
         before = utils.msec_time()
         time.sleep(0.001)  # 1 msec
-        record = self.storage.create(self.resource, self.user_id, {})
+        record = self.create_record()
         now = record['last_modified']
         time.sleep(0.001)  # 1 msec
         after = utils.msec_time()
@@ -355,14 +347,14 @@ class TimestampsTest(object):
 
     def test_timestamp_are_always_incremented_above_existing_value(self):
         # Create a record with normal clock
-        record = self.storage.create(self.resource, self.user_id, {})
+        record = self.create_record()
         current = record['last_modified']
 
         # Patch the clock to return a time in the past, before the big bang
         with mock.patch('cliquet.utils.msec_time') as time_mocked:
             time_mocked.return_value = -1
 
-            record = self.storage.create(self.resource, self.user_id, {})
+            record = self.create_record()
             after = record['last_modified']
 
         # Expect the last one to be based on the highest value
@@ -371,70 +363,65 @@ class TimestampsTest(object):
 
 
 class FieldsUnicityTest(object):
-    def setUp(self):
-        super(FieldsUnicityTest, self).setUp()
-        self.resource.mapping.Options.unique_fields = ('phone',)
-
-    def create_record(self, record=None, user_id=None):
-        record = record or {'phone': '0033677'}
-        user_id = user_id or self.user_id
-        return self.storage.create(self.resource, user_id, record)
-
     def test_does_not_fail_if_no_unique_fields_at_all(self):
-        self.resource.mapping.Options.unique_fields = tuple()
-        self.create_record()
-        self.create_record()
+        self.create_record({'phone': '0033677'})
+        self.create_record({'phone': '0033677'}, unique_fields=tuple())
 
     def test_cannot_insert_duplicate_field(self):
-        self.create_record()
+        self.create_record({'phone': '0033677'})
         self.assertRaises(exceptions.UnicityError,
-                          self.create_record)
+                          self.create_record,
+                          {'phone': '0033677'},
+                          unique_fields=('phone',))
 
     def test_unicity_exception_gives_record_and_field(self):
-        record = self.create_record()
+        record = self.create_record({'phone': '0033677'})
         try:
-            self.create_record()
+            self.create_record({'phone': '0033677'},
+                               unique_fields=('phone',))
         except exceptions.UnicityError as e:
             error = e
         self.assertEqual(error.field, 'phone')
         self.assertDictEqual(error.record, record)
 
     def test_unicity_is_by_user(self):
-        self.create_record()
-        self.resource.request.headers['Authorization'] = 'Basic %s' % (
-            utils.encode64('alice:')
-        )
-        self.create_record(user_id='alice')  # not raising
+        self.create_record({'phone': '0033677'})
+        self.create_record({'phone': '0033677'},
+                           unique_fields=('phone',),
+                           user_id='alice')  # not raising
 
     def test_unicity_is_for_non_null_values(self):
-        self.create_record({'phone': None})
-        self.create_record({'phone': None})  # not raising
+        self.create_record({'phone': None}, unique_fields=('phone',))
+        # not raising with None value
+        self.create_record({'phone': None}, unique_fields=('phone',))
 
     def test_unicity_does_not_apply_to_deleted_records(self):
-        record = self.create_record()
+        record = self.create_record({'phone': '0033677'})
         self.storage.delete(self.resource, self.user_id, record['id'])
-        self.create_record()  # not raising
+        self.create_record({'phone': None}, unique_fields=('phone',))
 
     def test_unicity_applies_to_one_of_all_fields_specified(self):
-        self.resource.mapping.Options.unique_fields = ('phone', 'line')
         self.create_record({'phone': 'abc', 'line': '1'})
         self.assertRaises(exceptions.UnicityError,
                           self.create_record,
-                          {'phone': 'efg', 'line': '1'})
+                          {'phone': 'efg', 'line': '1'},
+                          unique_fields=('phone', 'line'))
 
     def test_updating_with_same_id_does_not_raise_unicity_error(self):
-        record = self.create_record()
-        self.storage.update(self.resource, self.user_id, record['id'], record)
+        record = self.create_record({'phone': '0033677'})
+        self.storage.update(self.resource, self.user_id, record['id'],
+                            record, unique_fields=('phone',))
 
     def test_updating_raises_unicity_error(self):
         self.create_record({'phone': 'number'})
-        record = self.create_record()
+        record = self.create_record({'phone': '0033677'})
         self.assertRaises(exceptions.UnicityError,
                           self.storage.update,
                           self.resource,
                           self.user_id,
                           record['id'],
-                          {'phone': 'number'})
+                          {'phone': 'number'},
+                          unique_fields=('phone',))
 
     def test_unicity_detection_supports_special_characters(self):
         record = self.create_record()
@@ -447,7 +434,8 @@ class FieldsUnicityTest(object):
                 self.storage.update(self.resource,
                                     self.user_id,
                                     record['id'],
-                                    {'phone': value})
+                                    {'phone': value},
+                                    unique_fields=('phone',))
             except exceptions.UnicityError as e:
                 error = e
             msg = 'UnicityError not raised with %s' % value
@@ -458,13 +446,13 @@ class DeletedRecordsTest(object):
     def _get_last_modified_filters(self):
         start = self.storage.collection_timestamp(self.resource, self.user_id)
         return [
-            Filter(self.resource.modified_field, start, utils.COMPARISON.GT)
+            Filter(self.modified_field, start, utils.COMPARISON.GT)
         ]
 
     def create_and_delete_record(self, record=None):
         """Helper to create and delete a record."""
         record = record or {'challenge': 'accepted'}
-        record = self.storage.create(self.resource, self.user_id, record)
+        record = self.create_record(record)
         return self.storage.delete(self.resource, self.user_id, record['id'])
 
     def test_get_should_not_return_deleted_items(self):
@@ -537,15 +525,15 @@ class DeletedRecordsTest(object):
         self.assertEqual(count, 0)
 
     def test_delete_all_deletes_records(self):
-        self.storage.create(self.resource, self.user_id, {'foo': 'bar'})
-        self.storage.create(self.resource, self.user_id, {'bar': 'baz'})
+        self.create_record()
+        self.create_record()
         self.storage.delete_all(self.resource, self.user_id)
         _, count = self.storage.get_all(self.resource, self.user_id)
         self.assertEqual(count, 0)
 
     def test_delete_all_can_delete_partially(self):
-        self.storage.create(self.resource, self.user_id, {'foo': 'bar'})
-        self.storage.create(self.resource, self.user_id, {'bar': 'baz'})
+        self.create_record({'foo': 'po'})
+        self.create_record()
         filters = [Filter('foo', 'bar', utils.COMPARISON.EQ)]
         self.storage.delete_all(self.resource, self.user_id, filters)
         _, count = self.storage.get_all(self.resource, self.user_id)
@@ -574,7 +562,7 @@ class DeletedRecordsTest(object):
     def test_sorting_on_last_modified_mixes_deleted_records(self):
         filters = self._get_last_modified_filters()
         self.create_and_delete_record()
-        self.storage.create(self.resource, self.user_id, {})
+        self.create_record()
         self.create_and_delete_record()
 
         sorting = [Sort('last_modified', 1)]
@@ -588,7 +576,7 @@ class DeletedRecordsTest(object):
 
     def test_sorting_on_arbitrary_field_groups_deleted_at_last(self):
         filters = self._get_last_modified_filters()
-        self.storage.create(self.resource, self.user_id, {'status': 0})
+        self.create_record({'status': 0})
         self.create_and_delete_record({'status': 1})
         self.create_and_delete_record({'status': 2})
 
@@ -604,7 +592,7 @@ class DeletedRecordsTest(object):
         filters = self._get_last_modified_filters()
         # Respect boolean sort order
         self.create_and_delete_record()
-        self.storage.create(self.resource, self.user_id, {})
+        self.create_record()
         self.create_and_delete_record()
 
         sorting = [Sort('deleted', 1)]
@@ -622,7 +610,7 @@ class DeletedRecordsTest(object):
     def test_filtering_on_last_modified_applies_to_deleted_items(self):
         self.create_and_delete_record()
         filters = self._get_last_modified_filters()
-        self.storage.create(self.resource, self.user_id, {})
+        self.create_record()
         self.create_and_delete_record()
 
         records, count = self.storage.get_all(self.resource, self.user_id,
@@ -633,7 +621,7 @@ class DeletedRecordsTest(object):
 
     def test_filtering_on_arbitrary_field_excludes_deleted_records(self):
         filters = self._get_last_modified_filters()
-        self.storage.create(self.resource, self.user_id, {'status': 0})
+        self.create_record({'status': 0})
         self.create_and_delete_record({'status': 0})
 
         filters += [Filter('status', 0, utils.COMPARISON.EQ)]
@@ -645,7 +633,7 @@ class DeletedRecordsTest(object):
 
     def test_support_filtering_on_deleted_field(self):
         filters = self._get_last_modified_filters()
-        self.storage.create(self.resource, self.user_id, {})
+        self.create_record()
         self.create_and_delete_record()
 
         filters += [Filter('deleted', True, utils.COMPARISON.EQ)]
@@ -658,7 +646,7 @@ class DeletedRecordsTest(object):
 
     def test_support_filtering_out_on_deleted_field(self):
         filters = self._get_last_modified_filters()
-        self.storage.create(self.resource, self.user_id, {})
+        self.create_record()
         self.create_and_delete_record()
 
         filters += [Filter('deleted', True, utils.COMPARISON.NOT)]
@@ -671,7 +659,7 @@ class DeletedRecordsTest(object):
 
     def test_return_empty_set_if_filtering_on_deleted_false(self):
         filters = self._get_last_modified_filters()
-        self.storage.create(self.resource, self.user_id, {})
+        self.create_record()
         self.create_and_delete_record()
 
         filters += [Filter('deleted', False, utils.COMPARISON.EQ)]
@@ -682,7 +670,7 @@ class DeletedRecordsTest(object):
         self.assertEqual(count, 0)
 
     def test_return_empty_set_if_filtering_on_deleted_without_include(self):
-        self.storage.create(self.resource, self.user_id, {})
+        self.create_record()
         self.create_and_delete_record()
 
         filters = [Filter('deleted', True, utils.COMPARISON.EQ)]
@@ -701,7 +689,7 @@ class DeletedRecordsTest(object):
             if i % 2 == 0:
                 self.create_and_delete_record()
             else:
-                self.storage.create(self.resource, self.user_id, {})
+                self.create_record()
 
         pagination = [[Filter('last_modified', 314, utils.COMPARISON.GT)]]
         sorting = [Sort('last_modified', 1)]
@@ -717,18 +705,8 @@ class DeletedRecordsTest(object):
 
 
 class UserRecordAccessTest(object):
-    def create_record(self):
-        return self.storage.create(self.resource, self.user_id,
-                                   {'foo': 'bar'})
-
-    def authenticate_as(self, user_id):
-        self.resource.request.headers['Authorization'] = 'Basic %s' % (
-            utils.encode64('%s:' % user_id)
-        )
-
     def test_users_cannot_access_other_users_record(self):
         record = self.create_record()
-        self.authenticate_as(self.other_user_id)
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.get,
@@ -736,22 +714,16 @@ class UserRecordAccessTest(object):
 
     def test_users_cannot_delete_other_users_record(self):
         record = self.create_record()
-        self.authenticate_as(self.other_user_id)
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.delete,
             self.resource, self.other_user_id, record['id'])
 
     def test_users_cannot_update_other_users_record(self):
-        self.authenticate_as(self.user_id)
         record = self.create_record()
         new_record = {"another": "record"}
-        # Cloud storage backend ignores the passer userid and read it from the
-        # resource request.
-        self.authenticate_as(self.other_user_id)
         self.storage.update(self.resource, self.other_user_id, record['id'],
                             new_record)
-        self.authenticate_as(self.user_id)
         not_updated = self.storage.get(self.resource, self.user_id,
                                        record['id'])
 
@@ -824,7 +796,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
                                         return_value=[record, None])
         with mocked_smember:
             with mocked_mget:
-                self.storage.get_all(TestResource(), "alexis")  # not raising
+                self.storage.get_all(self.resource, "alexis")  # not raising
 
 
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
@@ -909,13 +881,11 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
 class CloudStorageTest(StorageTest, unittest.TestCase):
     backend = cloud_storage
     settings = {
-        'cliquet.storage_url':
-            'http://localhost:8888'
+        'cliquet.storage_url': 'http://localhost:8888'
     }
 
     def setUp(self):
         super(CloudStorageTest, self).setUp()
-        self.resource.request.headers = {'Authorization': 'Basic Ym9iOg=='}
         self.client_error_patcher = mock.patch.object(
             self.storage._client,
             'request',

@@ -7,7 +7,8 @@ from cliquet.tests.resource import BaseTest
 
 class GetTest(BaseTest):
     def test_get_record_returns_all_fields(self):
-        record = self.storage.create(self.resource, 'bob', {'field': 'value'})
+        record = self.storage.create(self.resource.name, 'bob',
+                                     {'field': 'value'})
         self.resource.record_id = record['id']
         result = self.resource.get()
         self.assertIn(self.resource.id_field, result)
@@ -18,8 +19,7 @@ class GetTest(BaseTest):
 class PutTest(BaseTest):
     def setUp(self):
         super(PutTest, self).setUp()
-        self.record = self.storage.create(self.resource,
-                                          'bob',
+        self.record = self.storage.create(self.resource.name, 'bob',
                                           {'field': 'old'})
         self.resource.record_id = self.record['id']
 
@@ -45,13 +45,14 @@ class PutTest(BaseTest):
 class DeleteTest(BaseTest):
     def test_delete_record_returns_last_timestamp(self):
         record = {'field': 'value'}
-        record = self.storage.create(self.resource, 'bob', record).copy()
+        record = self.storage.create(self.resource.name, 'bob', record).copy()
         self.resource.record_id = record['id']
         result = self.resource.delete()
         self.assertNotEqual(result['last_modified'], record['last_modified'])
 
     def test_delete_record_returns_stripped_record(self):
-        record = self.storage.create(self.resource, 'bob', {'field': 'value'})
+        record = self.storage.create(self.resource.name, 'bob',
+                                     {'field': 'value'})
         self.resource.record_id = record['id']
         result = self.resource.delete()
         self.assertEqual(result['id'], record['id'])
@@ -62,7 +63,7 @@ class DeleteTest(BaseTest):
 class PatchTest(BaseTest):
     def setUp(self):
         super(PatchTest, self).setUp()
-        self.stored = self.storage.create(self.resource, 'bob', {})
+        self.stored = self.storage.create(self.resource.name, 'bob', {})
         self.resource.record_id = self.stored['id']
         self.resource.request.json = {'some': 'change'}
         self.resource.mapping.typ.unknown = 'preserve'
@@ -137,7 +138,7 @@ class UnknownRecordTest(BaseTest):
 
     def test_replace_record_unknown_creates_it(self):
         self.resource.put()
-        self.storage.get(self.resource, 'bob', self.unknown_id)
+        self.storage.get(self.resource.name, 'bob', self.unknown_id)
 
     def test_delete_record_unknown_raises_404(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.delete)
@@ -164,7 +165,8 @@ class InvalidIdTest(BaseTest):
 class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
         super(ReadonlyFieldsTest, self).setUp()
-        self.stored = self.storage.create(self.resource, 'bob', {'age': 32})
+        self.stored = self.storage.create(self.resource.name, 'bob',
+                                          {'age': 32})
         self.resource.mapping.Options.readonly_fields = ('age',)
         self.resource.record_id = self.stored['id']
 

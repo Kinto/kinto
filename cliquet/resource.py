@@ -6,7 +6,6 @@ from cornice.schemas import CorniceSchema
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPMethodNotAllowed,
                                     HTTPNotFound, HTTPConflict)
-from pyramid.request import Request
 import six
 
 from cliquet import logger
@@ -53,29 +52,40 @@ def crud(**kwargs):
     return wrapper
 
 
-class StoredResource(object):
-    """
+class Collection(object):
+    """A collection stores and manipulate records in its attached storage.
 
-    """
-    mapping = ResourceSchema()
-    """Schema to validate records."""
+    It is not aware of HTTP environment nor protocol.
 
+    Records are isolated according to the provided `name` and `parent_id`.
+
+    Those notions have no particular semantic and can be represent anything.
+    For example, the resource `name` can be the *type* of objects stored, and
+    `parent_id` can be the current *user id* or *a group* where the collections
+    belongs. If left empty, the resource records are global.
+    """
     id_field = 'id'
-    """Name of `id` field in resource schema"""
+    """Name of `id` field in records"""
 
     modified_field = 'last_modified'
-    """Name of `last modified` field in resource schema"""
+    """Name of `last modified` field in records"""
 
     deleted_field = 'deleted'
     """Name of `deleted` field in deleted records"""
 
-    id_generator = None
-    """Record id generator for this resource."""
+    def __init__(self, storage, id_generator, name='', parent_id=''):
+        """
+        :param storage: an instance of storage
+        :type storage: :class:`cliquet.storage.Storage`
+        :param id_generator: an instance of id generator, used by storage
+            on record creation.
 
-    def __init__(self, storage, id_generator, name, parent_id=''):
+        :param str name: the resource name
+        :param str parent_id: the default parent id
+        """
         self.storage = storage
-        self.parent_id = parent_id
         self.id_generator = id_generator or self.id_generator
+        self.parent_id = parent_id
         try:
             self.name = name
         except AttributeError:
@@ -83,66 +93,102 @@ class StoredResource(object):
             pass
 
     def collection_timestamp(self, parent_id=None):
+        """Fetch the collection current timestamp.
+
+        :param str parent_id: optional filter for parent id
+        :rtype: integer
+        """
         parent_id = parent_id or self.parent_id
-        return self.storage.collection_timestamp(resource=self,
+        return self.storage.collection_timestamp(resource_name=self.name,
                                                  user_id=parent_id)  # XXX
 
     def get_records(self, filters=None, sorting=None, pagination_rules=None,
                     limit=None, include_deleted=False, parent_id=None):
-        """Fetch the collection records, using querystring arguments for
-        sorting, filtering and pagination.
+        """Fetch the collection records.
 
-        Override to implement custom querystring parsing, or post-process
-        records after their retrieval from storage.
+        Override to post-process records after feching them from storage.
 
-        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
-            if filters or sorting are invalid.
+        :param filters: Optionally filter the records by their attribute.
+            Each filter in this list is a tuple of a field, a value and a
+            comparison (see `cliquet.utils.COMPARISON`). All filters
+            are combined using *AND*.
+        :type filters: list of :class:`cliquet.storage.Filter`
+
+        :param sorting: Optionnally sort the records by attribute.
+            Each sort instruction in this list refers to a field and a
+            direction (negative means descending). All sort instructions are
+            cumulative.
+        :type sorting: list of :class:`cliquet.storage.Sort`
+
+        :param pagination_rules: Optionnally paginate the list of records.
+            This list of rules aims to reduce the set of records to the current
+            page. A rule is a list of filters (see `filters` parameter),
+            and all rules are combined using *OR*.
+        :type pagination_rules: list of list of :class:`cliquet.storage.Filter`
+
+        :param int limit: Optionnally limit the number of records to be
+            retrieved.
+
+        :param bool include_deleted: Optionnally include the deleted records
+            that match the filters.
+        :param str parent_id: optional filter for parent id
+
         :returns: A tuple with the list of records in the current page,
-            the total number of records in the result set, and the next page
-            url.
+            the total number of records in the result set.
         :rtype: tuple
         """
         parent_id = parent_id or self.parent_id
         records, total_records = self.storage.get_all(
-            resource=self,
+            resource_name=self.name,
             user_id=parent_id,  # XXX: rename.
             filters=filters,
             sorting=sorting,
             pagination_rules=pagination_rules,
             limit=limit,
-            include_deleted=include_deleted)
+            include_deleted=include_deleted,
+            id_field=self.id_field,
+            modified_field=self.modified_field,
+            deleted_field=self.deleted_field)
         return records, total_records
 
     def delete_records(self, filters=None, parent_id=None):
-        """Delete the collection records, using request querystring for
-        filtering.
+        """Delete multiple collection records.
 
-        Override to implement custom querystring parsing, or post-process
-        records after their deletion from storage.
+        Override to post-process records after their deletion from storage.
 
-        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
-            if filters or sorting are invalid.
+        :param filters: Optionally filter the records by their attribute.
+            Each filter in this list is a tuple of a field, a value and a
+            comparison (see `cliquet.utils.COMPARISON`). All filters
+            are combined using *AND*.
+        :type filters: list of :class:`cliquet.storage.Filter`
+
         :returns: The list of deleted records from storage.
-
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.delete_all(resource=self,
+        return self.storage.delete_all(resource_name=self.name,
                                        user_id=parent_id,  # XXX: merge.
-                                       filters=filters)
+                                       filters=filters,
+                                       id_field=self.id_field,
+                                       modified_field=self.modified_field,
+                                       deleted_field=self.deleted_field)
 
     def get_record(self, record_id, parent_id=None):
         """Fetch current view related record, and raise 404 if missing.
 
-        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound`
+        :param str record_id: record identifier
+        :param str parent_id: optional filter for parent id
+
         :returns: the record from storage
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.get(resource=self,
+        return self.storage.get(resource_name=self.name,
                                 user_id=parent_id,  # XXX: rename.
-                                record_id=record_id)
+                                record_id=record_id,
+                                id_field=self.id_field,
+                                modified_field=self.modified_field)
 
-    def create_record(self, record, parent_id=None):
+    def create_record(self, record, parent_id=None, unique_fields=None):
         """Create a record in the collection.
 
         Override to perform actions or post-process records after their
@@ -160,11 +206,16 @@ class StoredResource(object):
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.create(resource=self,
+        return self.storage.create(resource_name=self.name,
                                    user_id=parent_id,  # XXX: rename.
-                                   record=record)
+                                   record=record,
+                                   id_generator=self.id_generator,
+                                   unique_fields=unique_fields,
+                                   id_field=self.id_field,
+                                   modified_field=self.modified_field)
 
-    def update_record(self, old, new, changes=None, parent_id=None):
+    def update_record(self, old, new, changes=None, parent_id=None,
+                      unique_fields=None):
         """Update a record in the collection.
 
         Override to perform actions or post-process records after their
@@ -193,10 +244,13 @@ class StoredResource(object):
                 return new
 
         record_id = new[self.id_field]
-        return self.storage.update(resource=self,
+        return self.storage.update(resource_name=self.name,
                                    user_id=parent_id,  # XXX: rename.
                                    record_id=record_id,
-                                   record=new)
+                                   record=new,
+                                   unique_fields=unique_fields,
+                                   id_field=self.id_field,
+                                   modified_field=self.modified_field)
 
     def delete_record(self, record, parent_id=None):
         """Delete a record in the collection.
@@ -219,13 +273,19 @@ class StoredResource(object):
         """
         parent_id = parent_id or self.parent_id
         record_id = record[self.id_field]
-        return self.storage.delete(resource=self,
+        return self.storage.delete(resource_name=self.name,
                                    user_id=parent_id,  # XXX: rename.
-                                   record_id=record_id)
+                                   record_id=record_id,
+                                   id_field=self.id_field,
+                                   modified_field=self.modified_field,
+                                   deleted_field=self.deleted_field)
 
 
-class BaseResource(StoredResource):
+class BaseResource(Collection):
     """Base resource class providing every endpoint."""
+
+    mapping = ResourceSchema()
+    """Schema to validate records."""
 
     validate_schema_for = ('POST', 'PUT')
     """HTTP verbs for which the schema must be validated"""
@@ -289,6 +349,8 @@ class BaseResource(StoredResource):
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
             ``If-Unmodified-Since`` header is provided and collection modified
             in the iterim.
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
+            if filters or sorting are invalid.
 
         .. seealso::
 
@@ -354,7 +416,9 @@ class BaseResource(StoredResource):
         new_record = self.process_record(self.request.validated)
 
         try:
-            record = self.create_record(new_record)
+            unique_fields = self.mapping.get_option('unique_fields')
+            record = self.create_record(new_record,
+                                        unique_fields=unique_fields)
         except storage_exceptions.UnicityError as e:
             return e.record
 
@@ -371,6 +435,8 @@ class BaseResource(StoredResource):
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
             ``If-Unmodified-Since`` header is provided and collection modified
             in the iterim.
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
+            if filters are invalid.
 
         .. seealso::
 
@@ -397,6 +463,9 @@ class BaseResource(StoredResource):
     @resource.view(permission='readonly', cors_headers=('Last-Modified',))
     def get(self):
         """Record ``GET`` endpoint: retrieve a record.
+
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
+            the record is not found.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
             ``If-Modified-Since`` header is provided and record not
@@ -458,7 +527,9 @@ class BaseResource(StoredResource):
         new_record = self.process_record(new_record, old=existing)
 
         try:
-            record = self.update_record(existing, new_record)
+            unique_fields = self.mapping.get_option('unique_fields')
+            record = self.update_record(existing, new_record,
+                                        unique_fields=unique_fields)
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 

@@ -20,7 +20,7 @@ class CustomNameTest(BaseTest):
 class CollectionTest(BaseTest):
     def setUp(self):
         super(CollectionTest, self).setUp()
-        self.record = self.storage.create(self.resource,
+        self.record = self.storage.create(self.resource.name,
                                           'bob',
                                           {'field': 'value'})
 
@@ -41,7 +41,7 @@ class CreateTest(BaseTest):
     def test_new_records_are_linked_to_owner(self):
         resp = self.resource.collection_post()
         record_id = resp['id']
-        self.storage.get(self.resource, 'bob', record_id)  # not raising
+        self.storage.get(self.resource.name, 'bob', record_id)  # not raising
 
     def test_create_record_returns_at_least_id_and_last_modified(self):
         self.resource.request.validated = {'field': 'value'}
@@ -55,8 +55,8 @@ class DeleteCollectionTest(BaseTest):
     def setUp(self):
         super(DeleteCollectionTest, self).setUp()
         self.patch_known_field.start()
-        self.storage.create(self.resource, 'bob', {'field': 'a'})
-        self.storage.create(self.resource, 'bob', {'field': 'b'})
+        self.storage.create(self.resource.name, 'bob', {'field': 'a'})
+        self.storage.create(self.resource.name, 'bob', {'field': 'b'})
 
     def test_delete_on_list_removes_all_records(self):
         self.resource.collection_delete()
@@ -87,7 +87,7 @@ class DeleteCollectionTest(BaseTest):
 class IsolatedCollectionsTest(BaseTest):
     def setUp(self):
         super(IsolatedCollectionsTest, self).setUp()
-        self.stored = self.storage.create(self.resource, 'bob', {})
+        self.stored = self.storage.create(self.resource.name, 'bob', {})
         self.resource.record_id = self.stored['id']
 
     def get_request(self):
@@ -103,7 +103,7 @@ class IsolatedCollectionsTest(BaseTest):
     def test_update_record_of_another_user_will_create_it(self):
         self.resource.request.validated = {'some': 'record'}
         self.resource.put()
-        self.storage.get(self.resource,
+        self.storage.get(self.resource.name,
                          'alice',
                          self.stored['id'])  # not raising
 
