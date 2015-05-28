@@ -58,8 +58,11 @@ class Redis(PermissionBase):
     @wrap_redis_error
     def get_user_principals(self, user_id):
         user_key = 'user:%s' % user_id
-        members = self._client.smembers(user_key)
-        return members
+        with self._client.pipeline() as multi:
+            multi.sadd(user_key, user_id)
+            multi.smembers(user_key)
+            results = multi.execute()
+        return results[1]
 
     @wrap_redis_error
     def add_object_permission_principal(self, object_id, permission,

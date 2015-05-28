@@ -32,9 +32,13 @@ class Memory(PermissionBase):
     def remove_user_principal(self, user_id, principal):
         user_key = 'user:%s' % user_id
         user_principals = self._store.get(user_key, set([]))
-        user_principals.remove(principal)
+        try:
+            user_principals.remove(principal)
+        except KeyError:
+            pass
         if len(user_principals) <= 1:
-            del self._store[user_key]
+            if user_key in self._store:
+                del self._store[user_key]
         else:
             self._store[user_key] = user_principals
 
@@ -54,9 +58,13 @@ class Memory(PermissionBase):
                                            principal):
         permission_key = 'permission:%s:%s' % (object_id, permission)
         object_permission_principals = self._store.get(permission_key, set([]))
-        object_permission_principals.remove(principal)
+        try:
+            object_permission_principals.remove(principal)
+        except KeyError:
+            pass
         if len(object_permission_principals) == 0:
-            del self._store[permission_key]
+            if permission_key in self._store:
+                del self._store[permission_key]
         else:
             self._store[permission_key] = object_permission_principals
 
