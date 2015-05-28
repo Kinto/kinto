@@ -6,6 +6,7 @@ from cornice.schemas import CorniceSchema
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPMethodNotAllowed,
                                     HTTPNotFound, HTTPConflict)
+from pyramid.request import Request
 import six
 
 from cliquet import logger
@@ -52,13 +53,12 @@ def crud(**kwargs):
     return wrapper
 
 
-class BaseResource(object):
-    """Base resource class providing every endpoint."""
+class StoredResource(object):
+    """
+
+    """
     mapping = ResourceSchema()
     """Schema to validate records."""
-
-    validate_schema_for = ('POST', 'PUT')
-    """HTTP verbs for which the schema must be validated"""
 
     id_field = 'id'
     """Name of `id` field in resource schema"""
@@ -70,23 +70,175 @@ class BaseResource(object):
     """Name of `deleted` field in deleted records"""
 
     id_generator = None
-    """Record id generator for this resource. By default, it uses the one
-    configured globally in settings."""
+    """Record id generator for this resource."""
 
-    def __init__(self, request):
-        self.request = request
-        self.id_generator = self.request.registry.id_generator
-
+    def __init__(self, storage, id_generator, name, parent_id=''):
+        self.storage = storage
+        self.parent_id = parent_id
+        self.id_generator = id_generator or self.id_generator
         try:
-            self.name = classname(self)
+            self.name = name
         except AttributeError:
             # Retrocompatibilty with former readonly @property.
             pass
 
-        self.storage = request.registry.storage
-        self.storage_kw = dict(resource=self,
-                               user_id=request.authenticated_userid)
-        self.timestamp = self.storage.collection_timestamp(**self.storage_kw)
+    def collection_timestamp(self, parent_id=None):
+        parent_id = parent_id or self.parent_id
+        return self.storage.collection_timestamp(resource=self,
+                                                 user_id=parent_id)  # XXX
+
+    def get_records(self, filters=None, sorting=None, pagination_rules=None,
+                    limit=None, include_deleted=False, parent_id=None):
+        """Fetch the collection records, using querystring arguments for
+        sorting, filtering and pagination.
+
+        Override to implement custom querystring parsing, or post-process
+        records after their retrieval from storage.
+
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
+            if filters or sorting are invalid.
+        :returns: A tuple with the list of records in the current page,
+            the total number of records in the result set, and the next page
+            url.
+        :rtype: tuple
+        """
+        parent_id = parent_id or self.parent_id
+        records, total_records = self.storage.get_all(
+            resource=self,
+            user_id=parent_id,  # XXX: rename.
+            filters=filters,
+            sorting=sorting,
+            pagination_rules=pagination_rules,
+            limit=limit,
+            include_deleted=include_deleted)
+        return records, total_records
+
+    def delete_records(self, filters=None, parent_id=None):
+        """Delete the collection records, using request querystring for
+        filtering.
+
+        Override to implement custom querystring parsing, or post-process
+        records after their deletion from storage.
+
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
+            if filters or sorting are invalid.
+        :returns: The list of deleted records from storage.
+
+        """
+        parent_id = parent_id or self.parent_id
+        return self.storage.delete_all(resource=self,
+                                       user_id=parent_id,  # XXX: merge.
+                                       filters=filters)
+
+    def get_record(self, record_id, parent_id=None):
+        """Fetch current view related record, and raise 404 if missing.
+
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound`
+        :returns: the record from storage
+        :rtype: dict
+        """
+        parent_id = parent_id or self.parent_id
+        return self.storage.get(resource=self,
+                                user_id=parent_id,  # XXX: rename.
+                                record_id=record_id)
+
+    def create_record(self, record, parent_id=None):
+        """Create a record in the collection.
+
+        Override to perform actions or post-process records after their
+        creation in storage.
+
+        .. code-block:: python
+
+            def create_record(self, record):
+                record = super(MyResource, self).create_record(record)
+                idx = index.store(record)
+                record['index'] = idx
+                return record
+
+        :returns: the newly created record.
+        :rtype: dict
+        """
+        parent_id = parent_id or self.parent_id
+        return self.storage.create(resource=self,
+                                   user_id=parent_id,  # XXX: rename.
+                                   record=record)
+
+    def update_record(self, old, new, changes=None, parent_id=None):
+        """Update a record in the collection.
+
+        Override to perform actions or post-process records after their
+        modification in storage.
+
+        .. code-block:: python
+
+            def update_record(self, record, old=None):
+                record = super(MyResource, self).update_record(record, old)
+                subject = 'Record {} was changed'.format(record[self.id_field])
+                send_email(subject)
+                return record
+
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
+            if a unique field constraint is violated.
+
+        :returns: the updated record.
+        :rtype: dict
+        """
+        parent_id = parent_id or self.parent_id
+
+        if changes is not None:
+            nothing_changed = not any([old.get(k) != new.get(k)
+                                       for k in changes.keys()])
+            if nothing_changed:
+                return new
+
+        record_id = new[self.id_field]
+        return self.storage.update(resource=self,
+                                   user_id=parent_id,  # XXX: rename.
+                                   record_id=record_id,
+                                   record=new)
+
+    def delete_record(self, record, parent_id=None):
+        """Delete a record in the collection.
+
+        Override to perform actions or post-process records after deletion
+        from storage for example:
+
+        .. code-block:: python
+
+            def delete_record(self, record):
+                deleted = super(Resource, self).delete_record(record)
+                erase_media(record)
+                deleted['media'] = 0
+                return deleted
+
+        :param dict record: the record to delete
+
+        :returns: the deleted record.
+        :rtype: dict
+        """
+        parent_id = parent_id or self.parent_id
+        record_id = record[self.id_field]
+        return self.storage.delete(resource=self,
+                                   user_id=parent_id,  # XXX: rename.
+                                   record_id=record_id)
+
+
+class BaseResource(StoredResource):
+    """Base resource class providing every endpoint."""
+
+    validate_schema_for = ('POST', 'PUT')
+    """HTTP verbs for which the schema must be validated"""
+
+    def __init__(self, request):
+        super(BaseResource, self).__init__(
+            storage=request.registry.storage,
+            id_generator=request.registry.id_generator,
+            name=classname(self),
+            parent_id=request.authenticated_userid)
+
+        self.request = request
+        self.timestamp = self.collection_timestamp()
         self.record_id = self.request.matchdict.get('id')
 
         # Log resource context.
@@ -147,13 +299,31 @@ class BaseResource(object):
         self._raise_304_if_not_modified()
         self._raise_412_if_modified()
 
-        records, total_records, next_page = self.get_records()
-
         headers = self.request.response.headers
+        filters = self._extract_filters()
+        sorting = self._extract_sorting()
+        limit = self._extract_limit()
+        include_deleted = self.modified_field in [f.field for f in filters]
+
+        pagination_rules = self._extract_pagination_rules_from_token(
+            limit, sorting)
+
+        records, total_records = self.get_records(
+            filters=filters,
+            sorting=sorting,
+            limit=limit,
+            pagination_rules=pagination_rules,
+            include_deleted=include_deleted)
+
+        next_page = None
+        if limit and len(records) == limit and total_records > limit:
+            next_page = self._next_page_url(sorting, limit, records[-1])
+            headers['Next-Page'] = next_page
+
+        # Bind metric about response size.
+        logger.bind(nb_records=len(records), limit=limit)
         headers['Total-Records'] = ('%s' % total_records)
 
-        if next_page:
-            headers['Next-Page'] = next_page
         body = {
             'items': records,
         }
@@ -215,7 +385,8 @@ class BaseResource(object):
 
         self._raise_412_if_modified()
 
-        deleted = self.delete_records()
+        filters = self._extract_filters()
+        deleted = self.delete_records(filters=filters)
 
         body = {
             'items': deleted,
@@ -243,10 +414,9 @@ class BaseResource(object):
         """
         self._raise_400_if_invalid_id(self.record_id)
         self._add_timestamp_header(self.request.response)
-        record = self.get_record(self.record_id)
+        record = self._get_record_or_404(self.record_id)
         self._raise_304_if_not_modified(record)
         self._raise_412_if_modified(record)
-
         return record
 
     @resource.view(permission='readwrite')
@@ -266,15 +436,14 @@ class BaseResource(object):
             :meth:`cliquet.resource.BaseResource.update_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
+        existing = None
         try:
-            existing = self.get_record(self.record_id)
+            existing = self._get_record_or_404(self.record_id)
         except HTTPNotFound:
-            existing = None
             # Look if this record used to exist (for preconditions check).
             deleted = Filter(self.id_field, self.record_id, COMPARISON.EQ)
-            result, _ = self.storage.get_all(filters=[deleted],
-                                             include_deleted=True,
-                                             **self.storage_kw)
+            result, _ = self.get_records(filters=[deleted],
+                                         include_deleted=True)
             if len(result) > 0:
                 existing = result[0]
         finally:
@@ -287,7 +456,12 @@ class BaseResource(object):
         self._raise_400_if_id_mismatch(record_id, self.record_id)
 
         new_record = self.process_record(new_record, old=existing)
-        record = self.update_record(existing, new_record)
+
+        try:
+            record = self.update_record(existing, new_record)
+        except storage_exceptions.UnicityError as e:
+            self._raise_conflict(e)
+
         return record
 
     @resource.view(permission='readwrite')
@@ -313,7 +487,7 @@ class BaseResource(object):
             :meth:`cliquet.resource.BaseResource.update_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
-        old_record = self.get_record(self.record_id)
+        old_record = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(old_record)
 
         # Empty body for patch is invalid.
@@ -333,7 +507,10 @@ class BaseResource(object):
         updated = self.process_record(updated, old=old_record)
 
         # Save in storage.
-        new_record = self.update_record(old_record, updated, changes)
+        try:
+            new_record = self.update_record(old_record, updated, changes)
+        except storage_exceptions.UnicityError as e:
+            self._raise_conflict(e)
 
         # Adjust response according to ``Response-Behavior`` header
         changed = [k for k in changes.keys()
@@ -367,157 +544,15 @@ class BaseResource(object):
             :meth:`cliquet.resource.BaseResource.delete_record`,
         """
         self._raise_400_if_invalid_id(self.record_id)
-        record = self.get_record(self.record_id)
+        record = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(record)
 
         deleted = self.delete_record(record)
         return deleted
 
     #
-    # Storage
+    # Data processing
     #
-
-    def get_records(self):
-        """Fetch the collection records, using querystring arguments for
-        sorting, filtering and pagination.
-
-        Override to implement custom querystring parsing, or post-process
-        records after their retrieval from storage.
-
-        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
-            if filters or sorting are invalid.
-        :returns: A tuple with the list of records in the current page,
-            the total number of records in the result set, and the next page
-            url.
-        :rtype: tuple
-        """
-        filters = self._extract_filters()
-        sorting = self._extract_sorting()
-        pagination_rules, limit = self._extract_pagination_rules_from_token(
-            sorting)
-
-        include_deleted = self.modified_field in [f.field for f in filters]
-
-        records, total_records = self.storage.get_all(
-            filters=filters,
-            sorting=sorting,
-            pagination_rules=pagination_rules,
-            limit=limit,
-            include_deleted=include_deleted,
-            **self.storage_kw)
-
-        next_page = None
-        if limit and len(records) == limit and total_records > limit:
-            next_page = self._next_page_url(sorting, limit, records[-1])
-
-        # Bind metric about response size.
-        logger.bind(nb_records=len(records), limit=limit)
-
-        return records, total_records, next_page
-
-    def delete_records(self):
-        """Delete the collection records, using request querystring for
-        filtering.
-
-        Override to implement custom querystring parsing, or post-process
-        records after their deletion from storage.
-
-        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
-            if filters or sorting are invalid.
-        :returns: The list of deleted records from storage.
-
-        """
-        filters = self._extract_filters()
-        return self.storage.delete_all(filters=filters, **self.storage_kw)
-
-    def get_record(self, record_id):
-        """Fetch current view related record, and raise 404 if missing.
-
-        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound`
-        :returns: the record from storage
-        :rtype: dict
-        """
-        try:
-            return self.storage.get(record_id=record_id, **self.storage_kw)
-        except storage_exceptions.RecordNotFoundError:
-            response = http_error(HTTPNotFound(),
-                                  errno=ERRORS.INVALID_RESOURCE_ID)
-            raise response
-
-    def create_record(self, record):
-        """Create a record in the collection.
-
-        Override to perform actions or post-process records after their
-        creation in storage.
-
-        .. code-block:: python
-
-            def create_record(self, record):
-                record = super(MyResource, self).create_record(record)
-                idx = index.store(record)
-                record['index'] = idx
-                return record
-
-        :returns: the newly created record.
-        :rtype: dict
-        """
-        return self.storage.create(record=record, **self.storage_kw)
-
-    def update_record(self, old, new, changes=None):
-        """Update a record in the collection.
-
-        Override to perform actions or post-process records after their
-        modification in storage.
-
-        .. code-block:: python
-
-            def update_record(self, record, old=None):
-                record = super(MyResource, self).update_record(record, old)
-                subject = 'Record {} was changed'.format(record[self.id_field])
-                send_email(subject)
-                return record
-
-        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
-            if a unique field constraint is violated.
-
-        :returns: the updated record.
-        :rtype: dict
-        """
-        if changes is not None:
-            nothing_changed = not any([old.get(k) != new.get(k)
-                                       for k in changes.keys()])
-            if nothing_changed:
-                return new
-
-        record_id = new[self.id_field]
-        try:
-            return self.storage.update(record_id=record_id,
-                                       record=new,
-                                       **self.storage_kw)
-        except storage_exceptions.UnicityError as e:
-            self._raise_conflict(e)
-
-    def delete_record(self, record):
-        """Delete a record in the collection.
-
-        Override to perform actions or post-process records after deletion
-        from storage for example:
-
-        .. code-block:: python
-
-            def delete_record(self, record):
-                deleted = super(Resource, self).delete_record(record)
-                erase_media(record)
-                deleted['media'] = 0
-                return deleted
-
-        :param dict record: the record to delete
-
-        :returns: the deleted record.
-        :rtype: dict
-        """
-        record_id = record[self.id_field]
-        return self.storage.delete(record_id=record_id, **self.storage_kw)
 
     def process_record(self, new, old=None):
         """Hook for processing records before they reach storage, to introduce
@@ -598,6 +633,16 @@ class BaseResource(object):
     # Internals
     #
 
+    def _get_record_or_404(self, record_id):
+        """Retrieve record from storage and raise ``404 Not found`` if missing.
+        """
+        try:
+            return self.get_record(self.record_id)
+        except storage_exceptions.RecordNotFoundError:
+            response = http_error(HTTPNotFound(),
+                                  errno=ERRORS.INVALID_RESOURCE_ID)
+            raise response
+
     def _add_timestamp_header(self, response):
         """Add current timestamp in response headers, when request comes in.
         """
@@ -631,8 +676,7 @@ class BaseResource(object):
             if record:
                 current_timestamp = record[self.modified_field]
             else:
-                current_timestamp = self.storage.collection_timestamp(
-                    **self.storage_kw)
+                current_timestamp = self.collection_timestamp()
 
             if current_timestamp <= modified_since:
                 response = HTTPNotModified()
@@ -654,8 +698,7 @@ class BaseResource(object):
             if record:
                 current_timestamp = record[self.modified_field]
             else:
-                current_timestamp = self.storage.collection_timestamp(
-                    **self.storage_kw)
+                current_timestamp = self.collection_timestamp()
 
             if current_timestamp > unmodified_since:
                 error_msg = 'Resource was modified meanwhile'
@@ -698,6 +741,25 @@ class BaseResource(object):
                 'description': error_msg
             }
             raise_invalid(self.request, **error_details)
+
+    def _extract_limit(self):
+        paginate_by = self.request.registry.settings['cliquet.paginate_by']
+        limit = self.request.GET.get('_limit', paginate_by)
+        if limit:
+            try:
+                limit = int(limit)
+            except ValueError:
+                error_details = {
+                    'location': 'querystring',
+                    'description': "_limit should be an integer"
+                }
+                raise_invalid(self.request, **error_details)
+
+        # If limit is higher than paginate_by setting, ignore it.
+        if limit and paginate_by:
+            limit = min(limit, paginate_by)
+
+        return limit
 
     def _extract_filters(self, queryparams=None):
         """Extracts filters from QueryString parameters."""
@@ -807,25 +869,9 @@ class BaseResource(object):
 
         return self._build_pagination_rules(next_sorting, last_record, rules)
 
-    def _extract_pagination_rules_from_token(self, sorting):
+    def _extract_pagination_rules_from_token(self, limit, sorting):
         """Get pagination params."""
         queryparams = self.request.GET
-        paginate_by = self.request.registry.settings['cliquet.paginate_by']
-        limit = queryparams.get('_limit', paginate_by)
-        if limit:
-            try:
-                limit = int(limit)
-            except ValueError:
-                error_details = {
-                    'location': 'querystring',
-                    'description': "_limit should be an integer"
-                }
-                raise_invalid(self.request, **error_details)
-
-        # If limit is higher than paginate_by setting, ignore it.
-        if limit and paginate_by:
-            limit = min(limit, paginate_by)
-
         token = queryparams.get('_token', None)
         filters = []
         if token:
@@ -841,7 +887,7 @@ class BaseResource(object):
                 raise_invalid(self.request, **error_details)
 
             filters = self._build_pagination_rules(sorting, last_record)
-        return filters, limit
+        return filters
 
     def _next_page_url(self, sorting, limit, last_record):
         """Build the Next-Page header from where we stopped."""

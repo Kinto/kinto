@@ -108,3 +108,33 @@ Generators objects
 
 .. automodule:: cliquet.storage.generators
     :members:
+
+
+Custom Usage
+============
+
+.. code-block :: python
+
+    from cliquet import resource
+
+
+    def get_registry(request=None):
+        if request:
+            return request.registry
+
+        from pyramid.threadlocal import get_current_registry
+        return get_current_registry()
+
+
+    registry = get_registry()
+
+    flowers = resource.StoredResource(storage=registry.storage,
+                                      name='app:flowers')
+
+    flowers.create_record({'name': 'Jonquille', 'size': 30})
+    flowers.create_record({'name': 'Amapola', 'size': 18})
+
+    min_size = resource.Filter('size', 20, resource.COMPARISON.MIN)
+    records, total = flowers.get_records(filters=[min_size])
+
+    flowers.delete_record(records[0])
