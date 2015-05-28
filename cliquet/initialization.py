@@ -166,6 +166,13 @@ def setup_storage(config):
     config.registry.id_generator = id_generator()
 
 
+def setup_permission(config):
+    settings = config.get_settings()
+    permission = config.maybe_dotted(settings['cliquet.permission_backend'])
+    config.registry.permission = permission.load_from_config(config)
+    config.registry.heartbeats['permission'] = config.registry.permission.ping
+
+
 def setup_cache(config):
     settings = config.get_settings()
     cache = config.maybe_dotted(settings['cliquet.cache_backend'])

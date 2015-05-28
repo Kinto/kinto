@@ -40,6 +40,7 @@ DEFAULT_SETTINGS = {
         'cliquet.initialization.setup_json_serializer',
         'cliquet.initialization.setup_logging',
         'cliquet.initialization.setup_storage',
+        'cliquet.initialization.setup_permission',
         'cliquet.initialization.setup_cache',
         'cliquet.initialization.setup_requests_scheme',
         'cliquet.initialization.setup_version_redirection',
