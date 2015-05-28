@@ -59,10 +59,10 @@ class Collection(object):
 
     Records are isolated according to the provided `name` and `parent_id`.
 
-    Those notions have no particular semantic and can be represent anything.
+    Those notions have no particular semantic and can represent anything.
     For example, the resource `name` can be the *type* of objects stored, and
-    `parent_id` can be the current *user id* or *a group* where the collections
-    belongs. If left empty, the resource records are global.
+    `parent_id` can be the current *user id* or *a group* where the collection
+    belongs. If left empty, the collection records are not isolated.
     """
     id_field = 'id'
     """Name of `id` field in records"""
@@ -579,7 +579,9 @@ class BaseResource(Collection):
 
         # Save in storage.
         try:
-            new_record = self.update_record(old_record, updated, changes)
+            unique_fields = self.mapping.get_option('unique_fields')
+            new_record = self.update_record(old_record, updated, changes,
+                                            unique_fields=unique_fields)
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
