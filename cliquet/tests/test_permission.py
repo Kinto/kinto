@@ -165,7 +165,7 @@ class BaseTestPermission(object):
             object_id, permission)
         self.assertEquals(retrieved, set([principal2]))
 
-    def test_can_verify_userid_have_got_a_permission(self):
+    def test_has_permission_returns_true_for_userid(self):
         object_id = 'foo'
         permission = 'write'
         principal = 'bar'
@@ -175,7 +175,7 @@ class BaseTestPermission(object):
                                                         principal)
         self.assertTrue(has_permission)
 
-    def test_can_verify_userid_group_have_got_a_permission(self):
+    def test_has_permission_returns_true_for_userid_group(self):
         object_id = 'foo'
         permission = 'write'
         group_id = 'bar'
@@ -187,15 +187,24 @@ class BaseTestPermission(object):
                                                         user_id)
         self.assertTrue(has_permission)
 
-    def test_can_verify_object_inherited_userid_permissions(self):
+    def test_has_permission_returns_true_for_object_inherited(self):
         object_id = 'foo'
         permissions = [(object_id, 'write'), (object_id, 'read')]
         user_id = 'bar'
         self.permission.add_object_permission_principal(object_id, 'write',
                                                         user_id)
-        self.permission.has_permission(
+        has_permission = self.permission.has_permission(
             object_id, 'read', user_id,
             lambda object_id, permission: permissions)
+        self.assertTrue(has_permission)
+
+    def test_has_permission_return_false_for_unknown_principal(self):
+        object_id = 'foo'
+        permission = 'write'
+        principal = 'bar'
+        has_permission = self.permission.has_permission(object_id, permission,
+                                                        principal)
+        self.assertFalse(has_permission)
 
 
 class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):
