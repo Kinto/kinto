@@ -85,6 +85,10 @@ class ViewSet(object):
         if method.lower() in map(str.lower, self.validate_schema_for):
             args['schema'] = resource.mapping
 
+        permission = self.get_view_permission(typ_, resource, method)
+        if permission is not None:
+            args['permission'] = permission
+
         return args
 
     def get_view(self, typ_, method):

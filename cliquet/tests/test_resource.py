@@ -82,6 +82,18 @@ class ViewSetTest(unittest.TestCase):
         patched.from_colander.assert_not_called()
         self.assertNotIn('schema', arguments)
 
+    def test_permission_is_added_when_needed(self):
+        viewset = ViewSet(readonly_methods=('GET',))
+        arguments = viewset.collection_arguments(MagicMock(), 'GET')
+        self.assertIn('permission', arguments)
+        self.assertEquals(arguments['permission'], 'readonly')
+
+    def test_permission_is_ignored_when_not_needed(self):
+        viewset = ViewSet(readonly_methods=())
+        viewset.get_view_permission = lambda *args: None
+        arguments = viewset.collection_arguments(MagicMock(), 'GET')
+        self.assertNotIn('permission', arguments)
+
     def test_class_parameters_are_used_for_collection_arguments(self):
         default_arguments = {
             'cors_headers': sentinel.cors_headers,
@@ -106,7 +118,8 @@ class ViewSetTest(unittest.TestCase):
             {
                 'cors_headers': sentinel.cors_headers,
                 'cors_origins': sentinel.cors_origins,
-                'error_handler': sentinel.error_handler
+                'error_handler': sentinel.error_handler,
+                'permission': 'readonly'
             }
         )
 
@@ -134,7 +147,8 @@ class ViewSetTest(unittest.TestCase):
             {
                 'cors_headers': sentinel.cors_headers,
                 'cors_origins': sentinel.record_cors_origins,
-                'error_handler': sentinel.error_handler
+                'error_handler': sentinel.error_handler,
+                'permission': 'readonly'
             }
         )
 
@@ -169,6 +183,7 @@ class ViewSetTest(unittest.TestCase):
                 'cors_headers': sentinel.default_cors_headers,
                 'error_handler': sentinel.default_record_error_handler,
                 'cors_origins': sentinel.record_get_cors_origin,
+                'permission': 'readonly'
             }
         )
 
@@ -194,6 +209,7 @@ class ViewSetTest(unittest.TestCase):
             arguments,
             {
                 'cors_headers': sentinel.cors_headers,
+                'permission': 'readonly'
             }
         )
 
