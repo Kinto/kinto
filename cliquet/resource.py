@@ -23,6 +23,11 @@ from cliquet.utils import (
 
 
 class ViewSet(object):
+    """The default ViewSet object.
+
+    A viewset contains all the information needed to register
+    any resource in the  cornice registry.
+    """
     collection_path = "/{resource_name}s"
     record_path = "/{resource_name}s/{{id}}"
 
@@ -88,6 +93,12 @@ class ViewSet(object):
 
 
 def register(depth=1, **kwargs):
+    """Ressource class decorator.
+
+    Registers the decorated class in the cornice registry.
+    Passes all its keyword arguments to the register_resource
+    function.
+    """
     def wrapped(resource):
         register_resource(resource, depth=depth + 1, **kwargs)
         return resource
@@ -96,6 +107,27 @@ def register(depth=1, **kwargs):
 
 def register_resource(resource, settings=None, viewset=None, depth=1,
                       **kwargs):
+    """Register a resource in the cornice registry.
+
+    :param resource:
+        The resource class to register.
+        It should be a class or have a "name" attribute.
+
+    :param settings:
+        A dict of settings. It will be used to check if views aren't disabled
+        before registering them.
+
+    :param viewset:
+        A ViewSet object, which will be used to find out which arguments should
+        be appended to the views, and where the views are.
+
+    :param depth:
+        A depth offset. It will be used to determine what is the level of depth
+        in the call tree. (set to 1 by default.)
+
+    Any additional keyword parameters will be used to override the viewset
+    attributes.
+    """
     # config.add_directive('register') ?
     if settings is None:
         settings = {}
