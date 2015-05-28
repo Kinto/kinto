@@ -12,4 +12,5 @@ Reference
    cache
    permission
    errors
+   utils
    glossary
