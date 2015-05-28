@@ -6,10 +6,10 @@ PERMISSIONS_INHERITANCE = {
     'bucket:read': {
         'bucket': ['write', 'read']
     },
-    'groups:create': {
+    'bucket:groups:create': {
         'bucket': ['write', 'groups:create']
     },
-    'collections:create': {
+    'bucket:collections:create': {
         'bucket': ['write', 'collections:create']
     },
     'group:write': {
@@ -28,7 +28,7 @@ PERMISSIONS_INHERITANCE = {
         'bucket': ['write', 'read'],
         'collection': ['write', 'read'],
     },
-    'records:create': {
+    'collection:records:create': {
         'bucket': ['write'],
         'collection': ['write', 'records:create']
     },
@@ -51,6 +51,8 @@ def get_object_type(object_id):
         obj_type = 'record'
     elif 'collections' in object_id:
         obj_type = 'collection'
+    elif 'groups' in object_id:
+        obj_type = 'group'
     elif 'buckets' in object_id:
         obj_type = 'bucket'
     else:
@@ -62,12 +64,17 @@ def build_perm_set_id(obj_type, perm, obj_parts):
     PARTS_LENGTH = {
         'bucket': 3,
         'collection': 5,
+        'group': 5,
         'record': 7
     }
-    return 'permission:%s:%s' % (
-        '/'.join(obj_parts[:PARTS_LENGTH[obj_type]]),
-        perm
-    )
+    if obj_type not in PARTS_LENGTH:
+        raise ValueError('Invalid object type: %s' % obj_type)
+
+    if PARTS_LENGTH[obj_type] > len(obj_parts):
+        raise ValueError('You cannot build children keys from its parent key.'
+                         'Trying to build type "%s" from object key "%s".' % (
+                             obj_type, '/'.join(obj_parts)))
+    return ('/'.join(obj_parts[:PARTS_LENGTH[obj_type]]), perm)
 
 
 def get_perm_keys(object_id, permission):
