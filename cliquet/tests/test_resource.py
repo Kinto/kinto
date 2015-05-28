@@ -1,6 +1,6 @@
 from mock import sentinel, MagicMock, patch
 
-from cliquet.resource import ViewSet, register
+from cliquet.resource import ViewSet, register_resource
 
 from .support import unittest
 
@@ -60,23 +60,17 @@ class ViewSetTest(unittest.TestCase):
             validate_schema_for=('GET', )
         )
         resource = MagicMock()
-        patched.from_colander.return_value = sentinel.schema
         arguments = viewset.collection_arguments(resource, 'GET')
-        patched.from_colander.assert_called_with(resource.mapping,
-                                                 bind_request=False)
-        self.assertEquals(arguments['schema'], sentinel.schema)
+        self.assertEquals(arguments['schema'], resource.mapping)
 
     @patch('cliquet.resource.CorniceSchema')
-    def test_schema_is_added_when_case_doesnt_match(self, patched):
+    def test_schema_is_added_when_method_is_uppercase(self, patched):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
         resource = MagicMock()
-        patched.from_colander.return_value = sentinel.schema
         arguments = viewset.collection_arguments(resource, 'get')
-        patched.from_colander.assert_called_with(resource.mapping,
-                                                 bind_request=False)
-        self.assertEquals(arguments['schema'], sentinel.schema)
+        self.assertEquals(arguments['schema'], resource.mapping)
 
     @patch('cliquet.resource.CorniceSchema')
     def test_schema_is_not_added_when_method_does_not_match(self, patched):
@@ -90,10 +84,10 @@ class ViewSetTest(unittest.TestCase):
 
     def test_class_parameters_are_used_for_collection_arguments(self):
         default_arguments = {
-            'description': 'This is one description of {resource_name}',
+            'cors_headers': sentinel.cors_headers,
         }
         default_collection_arguments = {
-            'cors_origins': ('example.org',),
+            'cors_origins': sentinel.cors_origins,
         }
 
         collection_get_arguments = {
@@ -110,18 +104,18 @@ class ViewSetTest(unittest.TestCase):
         self.assertDictEqual(
             arguments,
             {
-                'description': 'This is one description of {resource_name}',
-                'cors_origins': ('example.org',),
+                'cors_headers': sentinel.cors_headers,
+                'cors_origins': sentinel.cors_origins,
                 'error_handler': sentinel.error_handler
             }
         )
 
-    def test_class_parameters_are_used_for_record_arguments(self):
+    def test_default_arguments_are_used_for_record_arguments(self):
         default_arguments = {
-            'description': 'This is one description of {resource_name}',
+            'cors_headers': sentinel.cors_headers,
         }
         default_record_arguments = {
-            'cors_origins': ('example.org',),
+            'cors_origins': sentinel.record_cors_origins,
         }
 
         record_get_arguments = {
@@ -138,8 +132,8 @@ class ViewSetTest(unittest.TestCase):
         self.assertDictEqual(
             arguments,
             {
-                'description': 'This is one description of {resource_name}',
-                'cors_origins': ('example.org',),
+                'cors_headers': sentinel.cors_headers,
+                'cors_origins': sentinel.record_cors_origins,
                 'error_handler': sentinel.error_handler
             }
         )
@@ -151,7 +145,7 @@ class ViewSetTest(unittest.TestCase):
         default_arguments = {
             'cors_origins': sentinel.default_cors_origins,
             'error_handler': sentinel.default_error_handler,
-            'description': sentinel.default_description,  # <<
+            'cors_headers': sentinel.default_cors_headers,  # <<
         }
         default_record_arguments = {
             'cors_origins': sentinel.default_record_cors_origin,
@@ -172,45 +166,71 @@ class ViewSetTest(unittest.TestCase):
         self.assertDictEqual(
             arguments,
             {
-                'description': sentinel.default_description,
+                'cors_headers': sentinel.default_cors_headers,
                 'error_handler': sentinel.default_record_error_handler,
                 'cors_origins': sentinel.record_get_cors_origin,
             }
         )
 
+    def test_service_arguments_arent_inherited_by_record_arguments(self):
+        service_arguments = {
+            'description': 'The little book of calm',
+        }
+
+        default_arguments = {
+            'cors_headers': sentinel.cors_headers,
+        }
+
+
+        viewset = ViewSet(
+            default_arguments=default_arguments,
+            service_arguments=service_arguments,
+            default_record_arguments={},
+            record_get_arguments={}
+        )
+
+        arguments = viewset.record_arguments(MagicMock, 'get')
+        self.assertDictEqual(
+            arguments,
+            {
+                'cors_headers': sentinel.cors_headers,
+            }
+        )
+
+
 
 class RegisterTest(unittest.TestCase):
 
     def setUp(self):
-        self.resource = FakeResource()
+        self.resource = FakeResource
         self.viewset = FakeViewSet()
 
     @patch('cliquet.resource.Service')
     def test_viewset_is_updated_if_provided(self, service_class):
         additional_params = {'foo': 'bar'}
-        register(self.resource, viewset=self.viewset, **additional_params)
+        register_resource(self.resource, viewset=self.viewset, **additional_params)
         self.viewset.update.assert_called_with(**additional_params)
 
     @patch('cliquet.resource.Service')
     def test_collection_views_are_registered_in_cornice(self, service_class):
-        register(self.resource, viewset=self.viewset)
+        register_resource(self.resource, viewset=self.viewset)
 
-        service_class.assert_any_call('fake-collection', '/fake')
+        service_class.assert_any_call('fake-collection', '/fake', depth=1)
         service_class().add_view.assert_any_call(
-            'GET', sentinel.collection_get)
+            'GET', 'collection_get', klass=self.resource)
 
     @patch('cliquet.resource.Service')
     def test_record_views_are_registered_in_cornice(self, service_class):
-        register(self.resource, viewset=self.viewset)
+        register_resource(self.resource, viewset=self.viewset)
 
-        service_class.assert_any_call('fake-record', '/fake/{id}')
+        service_class.assert_any_call('fake-record', '/fake/{id}', depth=1)
         service_class().add_view.assert_any_call(
-            'PUT', sentinel.put)
+            'PUT', 'put', klass=self.resource)
 
 
     @patch('cliquet.resource.Service')
     def test_record_methods_are_skipped_if_not_enabled(self, service_class):
-        register(self.resource, viewset=self.viewset, settings={
+        register_resource(self.resource, viewset=self.viewset, settings={
             'cliquet.record_fake_put_enabled': False
         })
 
@@ -218,14 +238,14 @@ class RegisterTest(unittest.TestCase):
         # 3 calls: two registering the service classes,
         # one for the collection_get
         self.assertEquals(len(service_class.mock_calls), 3)
-        service_class.assert_any_call('fake-collection', '/fake')
+        service_class.assert_any_call('fake-collection', '/fake', depth=1)
         service_class().add_view.assert_any_call(
-            'GET', sentinel.collection_get)
+            'GET', 'collection_get', klass=self.resource)
 
 
     @patch('cliquet.resource.Service')
     def test_record_methods_are_skipped_if_not_enabled(self, service_class):
-        register(self.resource, viewset=self.viewset, settings={
+        register_resource(self.resource, viewset=self.viewset, settings={
             'cliquet.collection_fake_get_enabled': False
         })
 
@@ -233,7 +253,7 @@ class RegisterTest(unittest.TestCase):
         # 3 calls: two registering the service classes,
         # one for the collection_get
         self.assertEquals(len(service_class.mock_calls), 3)
-        service_class.assert_any_call('fake-record', '/fake/{id}')
+        service_class.assert_any_call('fake-record', '/fake/{id}', depth=1)
         service_class().add_view.assert_any_call(
-            'PUT', sentinel.put)
+            'PUT', 'put', klass=self.resource)
 

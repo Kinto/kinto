@@ -30,20 +30,23 @@ class ViewSet(object):
     record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
     validate_schema_for = ('POST', 'PUT')
 
-    default_arguments = {
-        'cors_headers': ('Backoff', 'Retry-After', 'Alert'),
-    }
-
     service_arguments = {
         'description': 'Collection of {resource_name}',
         'cors_origins': ('*',),
         'error_handler': json_error_handler
     }
+
+    default_arguments = {
+        'cors_headers': ('Backoff', 'Retry-After', 'Alert'),
+    }
+
+
     default_collection_arguments = {}
     collection_get_arguments = {
         'cors_headers': (('Backoff', 'Retry-After', 'Alert') +
                         ('Next-Page', 'Total-Records', 'Last-Modified'))
     }
+
     default_record_arguments = {}
     record_get_arguments = {
         'cors_headers': (('Backoff', 'Retry-After', 'Alert') +
