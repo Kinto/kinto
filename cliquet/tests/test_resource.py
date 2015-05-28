@@ -220,6 +220,18 @@ class ViewSetTest(unittest.TestCase):
             viewset.get_service_name('record', resource),
             'fakename-record')
 
+    def test_get_view_permission_returns_readwrite_by_default(self):
+        viewset = ViewSet(readonly_methods=())
+        permission = viewset.get_view_permission("collection", MagicMock,
+                                                 "get")
+        self.assertEquals(permission, "readwrite")
+
+    def test_get_view_permissions_can_return_readonly(self):
+        viewset = ViewSet(readonly_methods=('GET',))
+        permission = viewset.get_view_permission("collection", MagicMock,
+                                                 "get")
+        self.assertEquals(permission, "readonly")
+
 
 class RegisterTest(unittest.TestCase):
 

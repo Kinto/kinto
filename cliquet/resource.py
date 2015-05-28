@@ -35,6 +35,8 @@ class ViewSet(object):
     record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
     validate_schema_for = ('POST', 'PUT')
 
+    readonly_methods = ('GET',)
+
     service_arguments = {
         'description': 'Collection of {resource_name}',
         'cors_origins': ('*',),
@@ -115,6 +117,14 @@ class ViewSet(object):
         name = self.get_name(resource)
         return '-'.join((name, typ_))
 
+    def get_view_permission(self, typ_, resource, method):
+        """Returns the permission associated with the given type,
+        resource and method"""
+        if method.lower() in map(str.lower, self.readonly_methods):
+            permission = "readonly"
+        else:
+            permission = "readwrite"
+        return permission
 
 
 def register(depth=1, **kwargs):
