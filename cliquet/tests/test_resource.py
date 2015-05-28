@@ -237,7 +237,8 @@ class RegisterTest(unittest.TestCase):
     def test_collection_views_are_registered_in_cornice(self, service_class):
         register_resource(self.resource, viewset=self.viewset)
 
-        service_class.assert_any_call('fake-collection', '/fake', depth=1)
+        service_class.assert_any_call('fake-collection', '/fake', depth=1,
+                                      **self.viewset.service_arguments)
         service_class().add_view.assert_any_call(
             'GET', 'collection_get', klass=self.resource)
 
@@ -245,7 +246,8 @@ class RegisterTest(unittest.TestCase):
     def test_record_views_are_registered_in_cornice(self, service_class):
         register_resource(self.resource, viewset=self.viewset)
 
-        service_class.assert_any_call('fake-record', '/fake/{id}', depth=1)
+        service_class.assert_any_call('fake-record', '/fake/{id}', depth=1,
+                                      **self.viewset.service_arguments)
         service_class().add_view.assert_any_call(
             'PUT', 'put', klass=self.resource)
 
@@ -260,7 +262,8 @@ class RegisterTest(unittest.TestCase):
         # 3 calls: two registering the service classes,
         # one for the collection_get
         self.assertEquals(len(service_class.mock_calls), 3)
-        service_class.assert_any_call('fake-collection', '/fake', depth=1)
+        service_class.assert_any_call('fake-collection', '/fake', depth=1,
+                                      **self.viewset.service_arguments)
         service_class().add_view.assert_any_call(
             'GET', 'collection_get', klass=self.resource)
 
@@ -275,7 +278,8 @@ class RegisterTest(unittest.TestCase):
         # 3 calls: two registering the service classes,
         # one for the collection_get
         self.assertEquals(len(service_class.mock_calls), 3)
-        service_class.assert_any_call('fake-record', '/fake/{id}', depth=1)
+        service_class.assert_any_call('fake-record', '/fake/{id}', depth=1,
+                                      **self.viewset.service_arguments)
         service_class().add_view.assert_any_call(
             'PUT', 'put', klass=self.resource)
 

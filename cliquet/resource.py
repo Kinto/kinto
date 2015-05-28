@@ -178,7 +178,8 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         path = getattr(viewset, '%s_path' % typ_).format(**path_formatters)
 
         name = viewset.get_service_name(typ_, resource)
-        service = Service(name, path, depth=depth)
+        service = Service(name, path, depth=depth,
+                          **viewset.service_arguments or {})
 
         methods = getattr(viewset, '%s_methods' % typ_)
         for method in methods:
