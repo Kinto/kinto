@@ -197,6 +197,28 @@ class ViewSetTest(unittest.TestCase):
             }
         )
 
+    def test_get_service_name_returns_the_viewset_name_if_defined(self):
+        viewset = ViewSet(name='fakename')
+        self.assertEquals(
+            viewset.get_service_name('record', MagicMock),
+            'fakename-record')
+
+    def test_get_service_name_returns_resource_att_if_not_callable(self):
+        viewset = ViewSet()
+        resource = MagicMock()
+        resource.name = 'fakename'
+        self.assertEquals(
+            viewset.get_service_name('record', resource),
+            'fakename-record')
+
+    def test_get_service_name_doesnt_use_callable_as_a_name(self):
+        viewset = ViewSet()
+        resource = MagicMock()
+        resource.name = lambda x: 'should not be called'
+        resource.__name__ = "FakeName"
+        self.assertEquals(
+            viewset.get_service_name('record', resource),
+            'fakename-record')
 
 
 class RegisterTest(unittest.TestCase):

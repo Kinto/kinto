@@ -86,10 +86,35 @@ class ViewSet(object):
         return args
 
     def get_view(self, typ_, method):
+        """Returns the view location for the given type and method.
+
+        For collections, this will be "collection_{method|lower}
+        For records, this will be "{method|lower}.
+        """
         if typ_ == 'record':
-            return method
+            return method.lower()
         else:
-            return '%s_%s' % (typ_, method)
+            return '%s_%s' % (typ_, method.lower())
+
+    def get_name(self, resource):
+        """Returns the name of the resource.
+        """
+        if 'name' in self.__dict__:
+            name = self.__dict__['name']
+        elif hasattr(resource, 'name') and not callable(resource.name):
+            name = resource.name
+        else:
+            name = resource.__name__.lower()
+
+        return name
+
+    def get_service_name(self, typ_, resource):
+        """Returns the name of the service, depending a given type and
+        resource.
+        """
+        name = self.get_name(resource)
+        return '-'.join((name, typ_))
+
 
 
 def register(depth=1, **kwargs):
@@ -128,7 +153,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
     Any additional keyword parameters will be used to override the viewset
     attributes.
     """
-    # config.add_directive('register') ?
+    # XXX config.add_directive('register') ?
     if settings is None:
         settings = {}
 
@@ -142,7 +167,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
     else:
         viewset.update(**kwargs)
 
-    resource_name = getattr(resource, 'name', resource.__name__.lower())
+    resource_name = viewset.get_name(resource)
 
     path_formatters = {
         'resource_name': resource_name
@@ -152,12 +177,8 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         """Registers a service in cornice, for the given type."""
         path = getattr(viewset, '%s_path' % typ_).format(**path_formatters)
 
-        # XXX Don't do that and ask the viewset for service name instead.
-        name = '-'.join((resource_name, typ_))
+        name = viewset.get_service_name(typ_, resource)
         service = Service(name, path, depth=depth)
-
-        # XXX service description should not be merged into view arguments.
-        # And should be part of the service creation.
 
         methods = getattr(viewset, '%s_methods' % typ_)
         for method in methods:
@@ -167,7 +188,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
             if not settings.get(setting_enabled, True):
                 continue
 
-            # XXX use viewset.get_arguments() directly.
+            # XXX use viewset.get_arguments() directly ?
             argument_getter = getattr(viewset, '%s_arguments' % typ_)
             view_args = argument_getter(resource, method)
 
