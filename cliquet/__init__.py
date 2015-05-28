@@ -4,7 +4,7 @@ import warnings
 import pkg_resources
 
 import structlog
-from cornice import Service
+from cornice import Service as CorniceService
 from pyramid.settings import asbool, aslist
 
 # Main Cliquet logger.
@@ -74,6 +74,14 @@ DEFAULT_SETTINGS = {
 }
 
 
+class Service(CorniceService):
+    """Subclass of the default cornice service.
+
+    This is useful in order to attach specific behaviours without monkey
+    patching the default cornice service (which would impact other uses of it)
+    """
+
+
 def load_default_settings(config, default_settings):
     """Read settings provided in Paste ini file, set default values and
     replace if defined as environment variable.
@@ -107,6 +115,11 @@ def load_default_settings(config, default_settings):
 def includeme(config):
     load_default_settings(config, DEFAULT_SETTINGS)
     settings = config.get_settings()
+
+    # Add CORS settings to the base cliquet Service class.
+    cors_origins = settings['cliquet.cors_origins']
+    Service.cors_origins = tuple(aslist(cors_origins))
+    Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
 
     # Heartbeat registry.
     config.registry.heartbeats = {}

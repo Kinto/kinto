@@ -1,7 +1,6 @@
 import colander
 import six
 
-from cornice import Service
 from pyramid.request import Request
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid import httpexceptions
@@ -9,6 +8,7 @@ from six.moves.urllib import parse as urlparse
 
 from cliquet import errors
 from cliquet import logger
+from cliquet import Service
 from cliquet.utils import json, merge_dicts
 
 

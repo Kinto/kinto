@@ -3,7 +3,7 @@ import functools
 
 import colander
 import venusian
-from cornice import resource, Service
+from cornice import resource
 from cornice.schemas import CorniceSchema
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPMethodNotAllowed,
@@ -11,6 +11,7 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 import six
 
 from cliquet import logger
+from cliquet import Service
 from cliquet.collection import Collection
 from cliquet.errors import (http_error, raise_invalid, ERRORS,
                             json_error_handler)
@@ -171,11 +172,6 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
     if settings is None:
         settings = {}
 
-    #cors_origins = tuple(aslist(settings['cliquet.cors_origins']))
-    # cors_policy = {
-    #     'origins': ('*',),
-    # }
-
     if viewset is None:
         viewset = ViewSet(**kwargs)
     else:
@@ -192,6 +188,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         path = getattr(viewset, '%s_path' % typ_).format(**path_formatters)
 
         name = viewset.get_service_name(typ_, resource)
+
         service = Service(name, path, depth=depth,
                           **viewset.service_arguments or {})
 

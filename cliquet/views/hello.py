@@ -1,6 +1,6 @@
-from cornice import Service
 from pyramid.security import NO_PERMISSION_REQUIRED
 
+from cliquet import Service
 
 hello = Service(name="hello", path='/', description="Welcome")
 
