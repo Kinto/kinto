@@ -420,8 +420,7 @@ class BaseResource(object):
         .. seealso::
 
             Add custom behaviour by overriding
-            :meth:`cliquet.resource.BaseResource.process_record` or
-            :meth:`cliquet.resource.BaseResource.create_record`
+            :meth:`cliquet.resource.BaseResource.process_record`
         """
         self._raise_412_if_modified()
 
@@ -450,11 +449,6 @@ class BaseResource(object):
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters are invalid.
-
-        .. seealso::
-
-            Add custom behaviour by overriding
-            :meth:`cliquet.resource.BaseResource.delete_records`.
         """
         settings = self.request.registry.settings
         enabled = settings['cliquet.delete_collection_enabled']
@@ -488,11 +482,6 @@ class BaseResource(object):
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
             ``If-Unmodified-Since`` header is provided and record modified
             in the iterim.
-
-        .. seealso::
-
-            Add custom behaviour by overriding
-            :meth:`cliquet.resource.BaseResource.get_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
         self._add_timestamp_header(self.request.response)

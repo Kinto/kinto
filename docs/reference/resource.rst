@@ -71,10 +71,42 @@ Resource class
 ==============
 
 In order to customize the resource URLs or behaviour on record
-processing or fetching from storage, the class
+processing, the resource class can be extended:
+
+.. autoclass:: cliquet.resource.BaseResource
+    :members:
+
+Interaction with storage
+------------------------
+
+In order to customize the interaction of a HTTP resource with its storage,
+a custom collection can be plugged-in:
+
+.. code-block:: python
+
+    from cliquet import resource
 
 
-.. automodule:: cliquet.resource
+    class TrackedCollection(resource.Collection):
+        def create_record(self, record):
+            record = super(TrackedCollection, self).create_record(record)
+            trackid = index.track(record)
+            record['trackid'] = trackid
+            return record
+
+
+    class Payment(resource.BaseResource):
+        def __init__(request):
+            super(Mushroom, self).__init__(request)
+            self.collection = TrackedCollection(
+                storage=self.collection.storage,
+                id_generator=self.collection.id_generator,
+                name=self.collection.name,
+                parent_id=self.collection.parent_id,
+                auth=self.collection.auth)
+
+
+.. autoclass:: cliquet.resource.Collection
     :members:
 
 
@@ -100,11 +132,13 @@ or at the resource level:
 
     @resource.crud()
     class Mushroom(resource.BaseResource):
-        id_generator = MsecId()
+        def __init__(request):
+            super(Mushroom, self).__init__(request)
+            self.collection.id_generator = MsecId()
 
 
 Generators objects
-::::::::::::::::::
+------------------
 
 .. automodule:: cliquet.storage.generators
     :members:
