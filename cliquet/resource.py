@@ -210,8 +210,7 @@ class Collection(object):
                                    id_field=self.id_field,
                                    modified_field=self.modified_field)
 
-    def update_record(self, old, new, changes=None, parent_id=None,
-                      unique_fields=None):
+    def update_record(self, record, parent_id=None, unique_fields=None):
         """Update a record in the collection.
 
         Override to perform actions or post-process records after their
@@ -219,8 +218,10 @@ class Collection(object):
 
         .. code-block:: python
 
-            def update_record(self, record, old=None):
-                record = super(MyResource, self).update_record(record, old)
+            def update_record(self, record, parent_id=None,unique_fields=None):
+                record = super(MyCollection, self).update_record(record,
+                                                                 parent_id,
+                                                                 unique_fields)
                 subject = 'Record {} was changed'.format(record[self.id_field])
                 send_email(subject)
                 return record
@@ -232,18 +233,11 @@ class Collection(object):
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-
-        if changes is not None:
-            nothing_changed = not any([old.get(k) != new.get(k)
-                                       for k in changes.keys()])
-            if nothing_changed:
-                return new
-
-        record_id = new[self.id_field]
+        record_id = record[self.id_field]
         return self.storage.update(resource_name=self.name,
                                    user_id=parent_id,  # XXX: rename.
                                    record_id=record_id,
-                                   record=new,
+                                   record=record,
                                    unique_fields=unique_fields,
                                    id_field=self.id_field,
                                    modified_field=self.modified_field)
@@ -531,7 +525,7 @@ class BaseResource(object):
 
         try:
             unique_fields = self.mapping.get_option('unique_fields')
-            record = self.collection.update_record(existing, new_record,
+            record = self.collection.update_record(new_record,
                                                    unique_fields=unique_fields)
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
@@ -579,29 +573,31 @@ class BaseResource(object):
                                        self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
 
-        updated = self.process_record(updated, old=old_record)
+        new_record = self.process_record(updated, old=old_record)
 
-        # Save in storage.
-        try:
-            unique_fields = self.mapping.get_option('unique_fields')
-            new_record = self.collection.update_record(
-                old_record, updated, changes, unique_fields=unique_fields)
-        except storage_exceptions.UnicityError as e:
-            self._raise_conflict(e)
+        changed_fields = [k for k in changes.keys()
+                          if old_record.get(k) != new_record.get(k)]
+
+        # Save in storage if necessary.
+        if changed_fields:
+            try:
+                unique_fields = self.mapping.get_option('unique_fields')
+                new_record = self.collection.update_record(
+                    updated,
+                    unique_fields=unique_fields)
+            except storage_exceptions.UnicityError as e:
+                self._raise_conflict(e)
 
         # Adjust response according to ``Response-Behavior`` header
-        changed = [k for k in changes.keys()
-                   if old_record.get(k) != new_record.get(k)]
-
         body_behavior = self.request.headers.get('Response-Behavior', 'full')
 
         if body_behavior.lower() == 'light':
             # Only fields that were changed.
-            return {k: new_record[k] for k in changed}
+            return {k: new_record[k] for k in changed_fields}
 
         if body_behavior.lower() == 'diff':
             # Only fields that are different from those provided.
-            return {k: new_record[k] for k in changed
+            return {k: new_record[k] for k in changed_fields
                     if changes.get(k) != new_record.get(k)}
 
         return new_record
