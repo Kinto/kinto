@@ -85,6 +85,9 @@ class ViewSet(object):
 
         if method.lower() in map(str.lower, self.validate_schema_for):
             args['schema'] = resource.mapping
+        else:
+            # Simply validate that posted body is a mapping.
+            args['schema'] = colander.MappingSchema(unknown='preserve')
 
         permission = self.get_view_permission(typ_, resource, method)
         if permission is not None:
