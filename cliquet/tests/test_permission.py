@@ -20,11 +20,11 @@ class PermissionBaseTest(unittest.TestCase):
             (self.permission.flush,),
             (self.permission.add_user_principal, '', ''),
             (self.permission.remove_user_principal, '', ''),
-            (self.permission.get_user_principals, ''),
+            (self.permission.user_principals, ''),
             (self.permission.add_object_permission_principal, '', '', ''),
             (self.permission.remove_object_permission_principal, '', '', ''),
-            (self.permission.get_object_permission_principals, '', ''),
-            (self.permission.has_permission, '', '', '')
+            (self.permission.object_permission_principals, '', ''),
+            (self.permission.object_permission_authorized_principals, '', ''),
         ]
         for call in calls:
             self.assertRaises(NotImplementedError, *call)
@@ -60,11 +60,11 @@ class BaseTestPermission(object):
             (self.permission.flush,),
             (self.permission.add_user_principal, '', ''),
             (self.permission.remove_user_principal, '', ''),
-            (self.permission.get_user_principals, ''),
+            (self.permission.user_principals, ''),
             (self.permission.add_object_permission_principal, '', '', ''),
             (self.permission.remove_object_permission_principal, '', '', ''),
-            (self.permission.get_object_permission_principals, '', ''),
-            (self.permission.has_permission, '', '', ''),
+            (self.permission.object_permission_principals, '', ''),
+            (self.permission.object_permission_authorized_principals, '', ''),
         ]
         for call in calls:
             try:
@@ -85,16 +85,16 @@ class BaseTestPermission(object):
         user_id = 'foo'
         principal = 'bar'
         self.permission.add_user_principal(user_id, principal)
-        retrieved = self.permission.get_user_principals(user_id)
-        self.assertEquals(retrieved, set([user_id, principal]))
+        retrieved = self.permission.user_principals(user_id)
+        self.assertEquals(retrieved, {principal})
 
     def test_add_twice_a_principal_to_a_user_add_it_once(self):
         user_id = 'foo'
         principal = 'bar'
         self.permission.add_user_principal(user_id, principal)
         self.permission.add_user_principal(user_id, principal)
-        retrieved = self.permission.get_user_principals(user_id)
-        self.assertEquals(retrieved, set([user_id, principal]))
+        retrieved = self.permission.user_principals(user_id)
+        self.assertEquals(retrieved, {principal})
 
     def test_can_remove_a_principal_for_a_user(self):
         user_id = 'foo'
@@ -103,15 +103,15 @@ class BaseTestPermission(object):
         self.permission.add_user_principal(user_id, principal)
         self.permission.add_user_principal(user_id, principal2)
         self.permission.remove_user_principal(user_id, principal)
-        retrieved = self.permission.get_user_principals(user_id)
-        self.assertEquals(retrieved, set([user_id, principal2]))
+        retrieved = self.permission.user_principals(user_id)
+        self.assertEquals(retrieved, {principal2})
 
     def test_can_remove_a_unexisting_principal_to_a_user(self):
         user_id = 'foo'
         principal = 'bar'
         self.permission.remove_user_principal(user_id, principal)
-        retrieved = self.permission.get_user_principals(user_id)
-        self.assertEquals(retrieved, set([user_id]))
+        retrieved = self.permission.user_principals(user_id)
+        self.assertEquals(retrieved, set([]))
 
     def test_can_add_a_principal_to_an_object_permission(self):
         object_id = 'foo'
@@ -119,9 +119,9 @@ class BaseTestPermission(object):
         principal = 'bar'
         self.permission.add_object_permission_principal(object_id, permission,
                                                         principal)
-        retrieved = self.permission.get_object_permission_principals(
+        retrieved = self.permission.object_permission_principals(
             object_id, permission)
-        self.assertEquals(retrieved, set([principal]))
+        self.assertEquals(retrieved, {principal})
 
     def test_add_twice_a_principal_to_an_object_permission_add_it_once(self):
         object_id = 'foo'
@@ -131,9 +131,9 @@ class BaseTestPermission(object):
                                                         principal)
         self.permission.add_object_permission_principal(object_id, permission,
                                                         principal)
-        retrieved = self.permission.get_object_permission_principals(
+        retrieved = self.permission.object_permission_principals(
             object_id, permission)
-        self.assertEquals(retrieved, set([principal]))
+        self.assertEquals(retrieved, {principal})
 
     def test_can_remove_a_principal_from_an_object_permission(self):
         object_id = 'foo'
@@ -147,9 +147,9 @@ class BaseTestPermission(object):
         self.permission.remove_object_permission_principal(object_id,
                                                            permission,
                                                            principal)
-        retrieved = self.permission.get_object_permission_principals(
+        retrieved = self.permission.object_permission_principals(
             object_id, permission)
-        self.assertEquals(retrieved, set([principal2]))
+        self.assertEquals(retrieved, {principal2})
 
     def test_can_remove_an_unexisting_principal_to_an_object_permission(self):
         object_id = 'foo'
@@ -161,9 +161,9 @@ class BaseTestPermission(object):
         self.permission.remove_object_permission_principal(object_id,
                                                            permission,
                                                            principal)
-        retrieved = self.permission.get_object_permission_principals(
+        retrieved = self.permission.object_permission_principals(
             object_id, permission)
-        self.assertEquals(retrieved, set([principal2]))
+        self.assertEquals(retrieved, {principal2})
 
     def test_has_permission_returns_true_for_userid(self):
         object_id = 'foo'
@@ -172,7 +172,7 @@ class BaseTestPermission(object):
         self.permission.add_object_permission_principal(object_id, permission,
                                                         principal)
         has_permission = self.permission.has_permission(object_id, permission,
-                                                        principal)
+                                                        {principal})
         self.assertTrue(has_permission)
 
     def test_has_permission_returns_true_for_userid_group(self):
@@ -184,7 +184,7 @@ class BaseTestPermission(object):
         self.permission.add_object_permission_principal(object_id, permission,
                                                         group_id)
         has_permission = self.permission.has_permission(object_id, permission,
-                                                        user_id)
+                                                        {user_id, group_id})
         self.assertTrue(has_permission)
 
     def test_has_permission_returns_true_for_object_inherited(self):
@@ -194,16 +194,26 @@ class BaseTestPermission(object):
         self.permission.add_object_permission_principal(object_id, 'write',
                                                         user_id)
         has_permission = self.permission.has_permission(
-            object_id, 'read', user_id,
+            object_id, 'read', {user_id},
             lambda object_id, permission: permissions)
         self.assertTrue(has_permission)
+
+    def test_object_permission_authorized_principals_inherit_principals(self):
+        object_id = 'foo'
+        permissions = [(object_id, 'write'), (object_id, 'read')]
+        user_id = 'bar'
+        self.permission.add_object_permission_principal(object_id, 'write',
+                                                        user_id)
+        principals = self.permission.object_permission_authorized_principals(
+            object_id, 'read', lambda object_id, permission: permissions)
+        self.assertEquals(principals, {user_id})
 
     def test_has_permission_return_false_for_unknown_principal(self):
         object_id = 'foo'
         permission = 'write'
         principal = 'bar'
         has_permission = self.permission.has_permission(object_id, permission,
-                                                        principal)
+                                                        {principal})
         self.assertFalse(has_permission)
 
 

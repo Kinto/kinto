@@ -26,7 +26,6 @@ class Memory(PermissionBase):
         user_key = 'user:%s' % user_id
         user_principals = self._store.get(user_key, set([]))
         user_principals.add(principal)
-        user_principals.add(user_id)
         self._store[user_key] = user_principals
 
     def remove_user_principal(self, user_id, principal):
@@ -36,15 +35,15 @@ class Memory(PermissionBase):
             user_principals.remove(principal)
         except KeyError:
             pass
-        if len(user_principals) <= 1:
+        if len(user_principals) == 0:
             if user_key in self._store:
                 del self._store[user_key]
         else:
             self._store[user_key] = user_principals
 
-    def get_user_principals(self, user_id):
+    def user_principals(self, user_id):
         user_key = 'user:%s' % user_id
-        members = self._store.get(user_key, set([user_id]))
+        members = self._store.get(user_key, set([]))
         return members
 
     def add_object_permission_principal(self, object_id, permission,
@@ -68,23 +67,21 @@ class Memory(PermissionBase):
         else:
             self._store[permission_key] = object_permission_principals
 
-    def get_object_permission_principals(self, object_id, permission):
+    def object_permission_principals(self, object_id, permission):
         permission_key = 'permission:%s:%s' % (object_id, permission)
         members = self._store.get(permission_key, set([]))
         return members
 
-    def has_permission(self, object_id, permission, user_id,
-                       _get_perm_keys=None):
-
+    def object_permission_authorized_principals(self, object_id, permission,
+                                                _get_perm_keys=None):
         if _get_perm_keys is None:
             keys = [(object_id, permission)]
         else:
             keys = _get_perm_keys(object_id, permission)
-
         permissions = set([])
         for obj_id, perm in keys:
-            permissions |= self.get_object_permission_principals(obj_id, perm)
-        return bool(permissions & self.get_user_principals(user_id))
+            permissions |= self.object_permission_principals(obj_id, perm)
+        return permissions
 
 
 def load_from_config(config):
