@@ -73,7 +73,7 @@ class Collection(object):
     deleted_field = 'deleted'
     """Name of `deleted` field in deleted records"""
 
-    def __init__(self, storage, id_generator, name='', parent_id=''):
+    def __init__(self, storage, id_generator=None, name='', parent_id=''):
         """
         :param storage: an instance of storage
         :type storage: :class:`cliquet.storage.Storage`
@@ -86,11 +86,7 @@ class Collection(object):
         self.storage = storage
         self.id_generator = id_generator
         self.parent_id = parent_id
-        try:
-            self.name = name
-        except AttributeError:
-            # Retrocompatibilty with former readonly @property.
-            pass
+        self.name = name
 
     def timestamp(self, parent_id=None):
         """Fetch the collection current timestamp.
