@@ -40,12 +40,12 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def get_user_principals(self, user_id):
-        """Return the list of principal for a given user.
+    def user_principals(self, user_id):
+        """Return the list of additionnal principals given to a user.
 
-        :param user_id: The user_id to remove the principal to.
+        :param user_id: The user_id to get the list of groups for.
         :type user_id: string
-        :returns: The list of user principals
+        :returns: The list of group principals the user is in.
         :rtype: set
 
         """
@@ -77,7 +77,7 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def get_object_permission_principals(self, object_id, permission):
+    def object_permission_principals(self, object_id, permission):
         """Return the list of principal set for a given permission.
 
         :param object_id: The object_id the permission is set to.
@@ -90,7 +90,26 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def has_permission(self, object_id, permission, user_id,
+    def object_permission_authorized_principals(self, object_id, permission,
+                                                _get_perm_keys=None):
+        """Return the full list of authorized principal set for a given
+        permission.
+
+        :param object_id: The object_id the permission is set to.
+        :type object_id: string
+        :param permission: The permission object to remove the principal to.
+        :type permission: string
+        :param _get_perm_keys: The methods to call in order to generate the
+                               list of permission to verify against.
+                               (ie: if you can write, you can read)
+        :type _get_perm_keys: function
+        :returns: The list of user principals
+        :rtype: set
+
+        """
+        raise NotImplementedError
+
+    def has_permission(self, object_id, permission, principals,
                        _get_perm_keys=None):
         """Test if a principal set have got a permission on an object.
 
@@ -98,14 +117,19 @@ class PermissionBase(object):
         :type object_id: string
         :param permission: The permission on the object.
         :type permission: string
-        :param user_id: The user_id to test the permission against.
-        :type user_id: string
+        :param principals: The list of user principals to test the
+                           permission against.
+        :type principals: set
         :param _get_perm_keys: The methods to call in order to generate the
                                list of permission to verify against.
                                (ie: if you can write, you can read)
-        :type user_id: function
+        :type _get_perm_keys: function
+
         """
-        raise NotImplementedError
+        principals = set(principals)
+        authorized_principals = self.object_permission_authorized_principals(
+            object_id, permission, _get_perm_keys)
+        return len(authorized_principals & principals) > 0
 
     def ping(self, request):
         """Test that cache backend is operationnal.
