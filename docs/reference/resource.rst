@@ -203,7 +203,8 @@ collection into a local storage:
     })
     remote = resource.Collection(storage=config_remote.registry.storage,
                                  parent_id='browsing',
-                                 name='history')
+                                 name='history',
+                                 auth='Basic bWF0Og==')
 
     records, total = in remote.get_records():
     for record in records:
