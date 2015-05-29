@@ -26,7 +26,8 @@ class MemoryBasedStorage(StorageBase):
     def delete_all(self, resource_name, user_id, filters=None,
                    id_field=DEFAULT_ID_FIELD,
                    modified_field=DEFAULT_MODIFIED_FIELD,
-                   deleted_field=DEFAULT_DELETED_FIELD):
+                   deleted_field=DEFAULT_DELETED_FIELD,
+                   auth=None):
         records, count = self.get_all(resource_name, user_id,
                                       filters=filters,
                                       id_field=id_field,
@@ -146,12 +147,12 @@ class Memory(MemoryBasedStorage):
         super(Memory, self).__init__(*args, **kwargs)
         self.flush()
 
-    def flush(self):
+    def flush(self, auth=None):
         self._store = tree()
         self._cemetery = tree()
         self._timestamps = defaultdict(dict)
 
-    def collection_timestamp(self, resource_name, user_id):
+    def collection_timestamp(self, resource_name, user_id, auth=None):
         ts = self._timestamps[resource_name].get(user_id)
         if ts is not None:
             return ts
@@ -175,7 +176,7 @@ class Memory(MemoryBasedStorage):
 
     def create(self, resource_name, user_id, record, id_generator=None,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD):
+               modified_field=DEFAULT_MODIFIED_FIELD, auth=None):
         id_generator = id_generator or self.id_generator
         self.check_unicity(resource_name, user_id, record,
                            unique_fields=unique_fields,
@@ -189,7 +190,8 @@ class Memory(MemoryBasedStorage):
 
     def get(self, resource_name, user_id, record_id,
             id_field=DEFAULT_ID_FIELD,
-            modified_field=DEFAULT_MODIFIED_FIELD):
+            modified_field=DEFAULT_MODIFIED_FIELD,
+            auth=None):
         collection = self._store[resource_name][user_id]
         if record_id not in collection:
             raise exceptions.RecordNotFoundError(record_id)
@@ -197,7 +199,8 @@ class Memory(MemoryBasedStorage):
 
     def update(self, resource_name, user_id, record_id, record,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD):
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               auth=None):
         record = record.copy()
         record[id_field] = record_id
 
@@ -213,7 +216,8 @@ class Memory(MemoryBasedStorage):
     def delete(self, resource_name, user_id, record_id,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
-               deleted_field=DEFAULT_DELETED_FIELD):
+               deleted_field=DEFAULT_DELETED_FIELD,
+               auth=None):
         existing = self.get(resource_name, user_id, record_id)
         self.set_record_timestamp(resource_name, user_id, existing,
                                   modified_field=modified_field)
@@ -229,7 +233,8 @@ class Memory(MemoryBasedStorage):
                 pagination_rules=None, limit=None, include_deleted=False,
                 id_field=DEFAULT_ID_FIELD,
                 modified_field=DEFAULT_MODIFIED_FIELD,
-                deleted_field=DEFAULT_DELETED_FIELD):
+                deleted_field=DEFAULT_DELETED_FIELD,
+                auth=None):
         records = list(self._store[resource_name][user_id].values())
 
         deleted = []

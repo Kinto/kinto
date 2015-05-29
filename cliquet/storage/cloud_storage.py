@@ -83,32 +83,35 @@ class CloudStorage(StorageBase):
     def _build_url(self, resource):
         return self.server_url + API_PREFIX + resource
 
-    def _build_headers(self, user_id):
-        auth_token = 'Basic %s' % encode64('%s:' % user_id)
-        return {
+    def _headers(self, auth=None):
+        """Build list of headers to be sent to remote server.
+        """
+        headers = {
             'Content-Type': 'application/json',
-            'Authorization': auth_token
         }
+        if auth:
+            headers['Authorization'] = auth
+        return headers
 
     def initialize_schema(self):
         # Nothing to do.
         pass
 
     @wrap_http_error
-    def flush(self):
+    def flush(self, auth=None):
         url = self._build_url("/__flush__")
-        resp = self._client.post(url)
+        resp = self._client.post(url, headers=self._headers(auth))
         resp.raise_for_status()
 
     @wrap_http_error
-    def collection_timestamp(self, resource_name, user_id):
+    def collection_timestamp(self, resource_name, user_id, auth=None):
         url = self._build_url(self.collection_url.format(resource_name))
-        resp = self._client.head(url, headers=self._build_headers(user_id))
+        resp = self._client.head(url, headers=self._headers(auth))
         resp.raise_for_status()
         return int(resp.headers['Last-Modified'])
 
     def check_unicity(self, resource_name, user_id, record, unique_fields,
-                      id_field):
+                      id_field, auth):
         rules = get_unicity_rules(resource_name, user_id, record,
                                   unique_fields=unique_fields,
                                   id_field=id_field)
@@ -121,7 +124,8 @@ class CloudStorage(StorageBase):
                                      filter_.operator)
                 new_rule.append(filter_)
 
-            result, count = self.get_all(resource_name, user_id, new_rule)
+            result, count = self.get_all(resource_name, user_id, new_rule,
+                                         auth=auth)
             if count != 0:
                 raise exceptions.UnicityError(rule[0].field,
                                               result[0])
@@ -129,51 +133,55 @@ class CloudStorage(StorageBase):
     @wrap_http_error
     def create(self, resource_name, user_id, record, id_generator=None,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD):
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               auth=None):
         id_generator = id_generator or self.id_generator
         if unique_fields:
             self.check_unicity(resource_name, user_id, record,
-                               unique_fields, id_field)
+                               unique_fields, id_field, auth)
         record_id = id_generator()
         url = self._build_url(self.record_url.format(resource_name,
                                                      record_id))
         resp = self._client.put(url,
                                 data=json.dumps(record),
-                                headers=self._build_headers(user_id))
+                                headers=self._headers(auth))
         resp.raise_for_status()
         return resp.json()
 
     @wrap_http_error
     def get(self, resource_name, user_id, record_id,
             id_field=DEFAULT_ID_FIELD,
-            modified_field=DEFAULT_MODIFIED_FIELD):
+            modified_field=DEFAULT_MODIFIED_FIELD,
+            auth=None):
         url = self._build_url(self.record_url.format(resource_name,
                                                      record_id))
-        resp = self._client.get(url, headers=self._build_headers(user_id))
+        resp = self._client.get(url, headers=self._headers(auth))
         resp.raise_for_status()
         return resp.json()
 
     @wrap_http_error
     def update(self, resource_name, user_id, record_id, record,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD):
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               auth=None):
         if unique_fields:
             self.check_unicity(resource_name, user_id, record,
-                               unique_fields, id_field)
+                               unique_fields, id_field, auth)
         url = self._build_url(self.record_url.format(resource_name,
                                                      record_id))
         try:
-            self.get(resource_name, user_id, record_id, id_field=id_field)
+            self.get(resource_name, user_id, record_id,
+                     id_field=id_field, auth=auth)
         except exceptions.RecordNotFoundError:
             resp = self._client.put(url,
                                     data=json.dumps(record),
-                                    headers=self._build_headers(user_id))
+                                    headers=self._headers(auth))
         else:
             if id_field in record:
                 del record[id_field]
             resp = self._client.patch(url,
                                       data=json.dumps(record),
-                                      headers=self._build_headers(user_id))
+                                      headers=self._headers(auth))
         resp.raise_for_status()
         return resp.json()
 
@@ -181,10 +189,11 @@ class CloudStorage(StorageBase):
     def delete(self, resource_name, user_id, record_id,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
-               deleted_field=DEFAULT_DELETED_FIELD):
+               deleted_field=DEFAULT_DELETED_FIELD,
+               auth=None):
         url = self._build_url(self.record_url.format(resource_name,
                                                      record_id))
-        resp = self._client.delete(url, headers=self._build_headers(user_id))
+        resp = self._client.delete(url, headers=self._headers(auth))
         resp.raise_for_status()
         return resp.json()
 
@@ -192,14 +201,15 @@ class CloudStorage(StorageBase):
     def delete_all(self, resource_name, user_id, filters=None,
                    id_field=DEFAULT_ID_FIELD,
                    modified_field=DEFAULT_MODIFIED_FIELD,
-                   deleted_field=DEFAULT_DELETED_FIELD):
+                   deleted_field=DEFAULT_DELETED_FIELD,
+                   auth=None):
         url = self._build_url(self.collection_url.format(resource_name))
         params = []
         if filters:
             params += [("%s%s" % (FILTERS[op], k), v) for k, v, op in filters]
         resp = self._client.delete(url,
                                    params=params,
-                                   headers=self._build_headers(user_id))
+                                   headers=self._headers(auth))
         resp.raise_for_status()
 
     def _filters_as_params(self, filters):
@@ -219,7 +229,8 @@ class CloudStorage(StorageBase):
                 pagination_rules=None, limit=None, include_deleted=False,
                 id_field=DEFAULT_ID_FIELD,
                 modified_field=DEFAULT_MODIFIED_FIELD,
-                deleted_field=DEFAULT_DELETED_FIELD):
+                deleted_field=DEFAULT_DELETED_FIELD,
+                auth=None):
         url = self.collection_url.format(resource_name)
 
         params = []
@@ -242,7 +253,7 @@ class CloudStorage(StorageBase):
         if not pagination_rules:
             resp = self._client.get(self._build_url(url),
                                     params=params,
-                                    headers=self._build_headers(user_id))
+                                    headers=self._headers(auth))
             resp.raise_for_status()
 
             count = resp.headers['Total-Records']
@@ -267,7 +278,7 @@ class CloudStorage(StorageBase):
 
             resp = self._client.post(self._build_url('/batch'),
                                      data=json.dumps(batch_payload),
-                                     headers=self._build_headers(user_id))
+                                     headers=self._headers(auth))
             resp.raise_for_status()
             batch_responses = resp.json()['responses']
 

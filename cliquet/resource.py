@@ -73,7 +73,8 @@ class Collection(object):
     deleted_field = 'deleted'
     """Name of `deleted` field in deleted records"""
 
-    def __init__(self, storage, id_generator=None, name='', parent_id=''):
+    def __init__(self, storage, id_generator=None, name='', parent_id='',
+                 auth=None):
         """
         :param storage: an instance of storage
         :type storage: :class:`cliquet.storage.Storage`
@@ -87,6 +88,7 @@ class Collection(object):
         self.id_generator = id_generator
         self.parent_id = parent_id
         self.name = name
+        self.auth = auth
 
     def timestamp(self, parent_id=None):
         """Fetch the collection current timestamp.
@@ -96,7 +98,8 @@ class Collection(object):
         """
         parent_id = parent_id or self.parent_id
         return self.storage.collection_timestamp(resource_name=self.name,
-                                                 user_id=parent_id)  # XXX
+                                                 user_id=parent_id,  # XXX
+                                                 auth=self.auth)
 
     def get_records(self, filters=None, sorting=None, pagination_rules=None,
                     limit=None, include_deleted=False, parent_id=None):
@@ -145,7 +148,8 @@ class Collection(object):
             include_deleted=include_deleted,
             id_field=self.id_field,
             modified_field=self.modified_field,
-            deleted_field=self.deleted_field)
+            deleted_field=self.deleted_field,
+            auth=self.auth)
         return records, total_records
 
     def delete_records(self, filters=None, parent_id=None):
@@ -169,7 +173,8 @@ class Collection(object):
                                        filters=filters,
                                        id_field=self.id_field,
                                        modified_field=self.modified_field,
-                                       deleted_field=self.deleted_field)
+                                       deleted_field=self.deleted_field,
+                                       auth=self.auth)
 
     def get_record(self, record_id, parent_id=None):
         """Fetch current view related record, and raise 404 if missing.
@@ -185,7 +190,8 @@ class Collection(object):
                                 user_id=parent_id,  # XXX: rename.
                                 record_id=record_id,
                                 id_field=self.id_field,
-                                modified_field=self.modified_field)
+                                modified_field=self.modified_field,
+                                auth=self.auth)
 
     def create_record(self, record, parent_id=None, unique_fields=None):
         """Create a record in the collection.
@@ -215,7 +221,8 @@ class Collection(object):
                                    id_generator=self.id_generator,
                                    unique_fields=unique_fields,
                                    id_field=self.id_field,
-                                   modified_field=self.modified_field)
+                                   modified_field=self.modified_field,
+                                   auth=self.auth)
 
     def update_record(self, record, parent_id=None, unique_fields=None):
         """Update a record in the collection.
@@ -247,7 +254,8 @@ class Collection(object):
                                    record=record,
                                    unique_fields=unique_fields,
                                    id_field=self.id_field,
-                                   modified_field=self.modified_field)
+                                   modified_field=self.modified_field,
+                                   auth=self.auth)
 
     def delete_record(self, record, parent_id=None):
         """Delete a record in the collection.
@@ -276,7 +284,8 @@ class Collection(object):
                                    record_id=record_id,
                                    id_field=self.id_field,
                                    modified_field=self.modified_field,
-                                   deleted_field=self.deleted_field)
+                                   deleted_field=self.deleted_field,
+                                   auth=self.auth)
 
 
 class BaseResource(object):
@@ -288,14 +297,18 @@ class BaseResource(object):
     validate_schema_for = ('POST', 'PUT')
     """HTTP verbs for which the schema must be validated"""
 
-    id_generator = None
-
     def __init__(self, request):
+        # Collections are isolated by user.
+        parent_id = request.authenticated_userid
+        # Authentication to storage is transmitted as is (cf. cloud_storage).
+        auth = request.headers.get('Authorization')
+
         self.collection = Collection(
             storage=request.registry.storage,
-            id_generator=self.id_generator or request.registry.id_generator,
+            id_generator=request.registry.id_generator,
             name=classname(self),
-            parent_id=request.authenticated_userid)
+            parent_id=parent_id,
+            auth=auth)
 
         self.request = request
         self.timestamp = self.collection.timestamp()
@@ -354,11 +367,6 @@ class BaseResource(object):
             in the iterim.
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters or sorting are invalid.
-
-        .. seealso::
-
-            Add custom behaviour by overriding
-            :meth:`cliquet.resource.BaseResource.get_records`
         """
         self._add_timestamp_header(self.request.response)
         self._raise_304_if_not_modified()

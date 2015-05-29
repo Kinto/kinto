@@ -238,7 +238,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                 # In the first versions of Cliquet, there was no migration.
                 return 1
 
-    def flush(self):
+    def flush(self, auth=None):
         """Delete records from tables without destroying schema. Mainly used
         in tests suites.
         """
@@ -251,7 +251,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             cursor.execute(query)
         logger.debug('Flushed PostgreSQL storage tables')
 
-    def collection_timestamp(self, resource_name, user_id):
+    def collection_timestamp(self, resource_name, user_id, auth=None):
         query = """
         SELECT as_epoch(resource_timestamp(%(user_id)s, %(resource_name)s))
             AS last_modified;
@@ -264,7 +264,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     def create(self, resource_name, user_id, record, id_generator=None,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD):
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               auth=None):
         query = """
         INSERT INTO records (id, user_id, resource_name, data)
         VALUES (%(record_id)s, %(user_id)s, %(resource_name)s, %(data)s::JSONB)
@@ -290,7 +291,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     def get(self, resource_name, user_id, record_id,
             id_field=DEFAULT_ID_FIELD,
-            modified_field=DEFAULT_MODIFIED_FIELD):
+            modified_field=DEFAULT_MODIFIED_FIELD,
+            auth=None):
         query = """
         SELECT as_epoch(last_modified) AS last_modified, data
           FROM records
@@ -315,7 +317,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     def update(self, resource_name, user_id, record_id, record,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD):
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               auth=None):
         query_create = """
         INSERT INTO records (id, user_id, resource_name, data)
         VALUES (%(record_id)s, %(user_id)s,
@@ -360,7 +363,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def delete(self, resource_name, user_id, record_id,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
-               deleted_field=DEFAULT_DELETED_FIELD):
+               deleted_field=DEFAULT_DELETED_FIELD,
+               auth=None):
         query = """
         WITH deleted_record AS (
             DELETE
@@ -395,7 +399,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def delete_all(self, resource_name, user_id, filters=None,
                    id_field=DEFAULT_ID_FIELD,
                    modified_field=DEFAULT_MODIFIED_FIELD,
-                   deleted_field=DEFAULT_DELETED_FIELD):
+                   deleted_field=DEFAULT_DELETED_FIELD,
+                   auth=None):
         query = """
         WITH deleted_records AS (
             DELETE
@@ -442,7 +447,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                 pagination_rules=None, limit=None, include_deleted=False,
                 id_field=DEFAULT_ID_FIELD,
                 modified_field=DEFAULT_MODIFIED_FIELD,
-                deleted_field=DEFAULT_DELETED_FIELD):
+                deleted_field=DEFAULT_DELETED_FIELD,
+                auth=None):
         query = """
         WITH total_filtered AS (
             SELECT COUNT(id) AS count

@@ -56,11 +56,11 @@ class Redis(MemoryBasedStorage):
         return utils.json.loads(record.decode('utf-8'))
 
     @wrap_redis_error
-    def flush(self):
+    def flush(self, auth=None):
         self._client.flushdb()
 
     @wrap_redis_error
-    def collection_timestamp(self, resource_name, user_id):
+    def collection_timestamp(self, resource_name, user_id, auth=None):
         timestamp = self._client.get(
             '{0}.{1}.timestamp'.format(resource_name, user_id))
         if timestamp:
@@ -92,7 +92,8 @@ class Redis(MemoryBasedStorage):
     @wrap_redis_error
     def create(self, resource_name, user_id, record, id_generator=None,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD):
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               auth=None):
         id_generator = id_generator or self.id_generator
 
         self.check_unicity(resource_name, user_id, record,
@@ -122,7 +123,8 @@ class Redis(MemoryBasedStorage):
     @wrap_redis_error
     def get(self, resource_name, user_id, record_id,
             id_field=DEFAULT_ID_FIELD,
-            modified_field=DEFAULT_MODIFIED_FIELD):
+            modified_field=DEFAULT_MODIFIED_FIELD,
+            auth=None):
         record_key = '{0}.{1}.{2}.records'.format(resource_name,
                                                   user_id,
                                                   record_id)
@@ -135,7 +137,8 @@ class Redis(MemoryBasedStorage):
     @wrap_redis_error
     def update(self, resource_name, user_id, record_id, record,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD):
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               auth=None):
         record = record.copy()
         record[id_field] = record_id
         self.check_unicity(resource_name, user_id, record,
@@ -164,7 +167,8 @@ class Redis(MemoryBasedStorage):
     def delete(self, resource_name, user_id, record_id,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
-               deleted_field=DEFAULT_DELETED_FIELD):
+               deleted_field=DEFAULT_DELETED_FIELD,
+               auth=None):
         record_key = '{0}.{1}.{2}.records'.format(resource_name,
                                                   user_id,
                                                   record_id)
@@ -208,7 +212,8 @@ class Redis(MemoryBasedStorage):
                 pagination_rules=None, limit=None, include_deleted=False,
                 id_field=DEFAULT_ID_FIELD,
                 modified_field=DEFAULT_MODIFIED_FIELD,
-                deleted_field=DEFAULT_DELETED_FIELD):
+                deleted_field=DEFAULT_DELETED_FIELD,
+                auth=None):
         records_ids_key = '{0}.{1}.records'.format(resource_name, user_id)
         ids = self._client.smembers(records_ids_key)
 

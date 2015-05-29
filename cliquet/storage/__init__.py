@@ -43,7 +43,7 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
-    def flush(self):
+    def flush(self, auth=None):
         """Remove **every** record from this storage.
         """
         raise NotImplementedError
@@ -57,16 +57,18 @@ class StorageBase(object):
         :rtype: bool
         """
         try:
+            auth = request.headers.get('Authorization')
             if random.random() < _HEARTBEAT_DELETE_RATE:
-                self.delete_all(_HEARTBEAT_RESOURCE_NAME, _HEARTBEAT_USER_ID)
+                self.delete_all(_HEARTBEAT_RESOURCE_NAME, _HEARTBEAT_USER_ID,
+                                auth=auth)
             else:
                 self.create(_HEARTBEAT_RESOURCE_NAME, _HEARTBEAT_USER_ID,
-                            _HEARTBEAT_RECORD)
+                            _HEARTBEAT_RECORD, auth=auth)
             return True
         except:
             return False
 
-    def collection_timestamp(self, resource, user_id):
+    def collection_timestamp(self, resource_name, user_id, auth=None):
         """Get the highest timestamp of every records in this `resource` for
         this `user_id`.
 
@@ -84,7 +86,10 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
-    def create(self, resource, user_id, record):
+    def create(self, resource_name, user_id, record, id_generator=None,
+               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               auth=None):
         """Create the specified `record` in this `resource` for this `user_id`.
         Assign the id to the record, using the attribute
         :attr:`cliquet.resource.BaseResource.id_field`.
@@ -106,7 +111,10 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
-    def get(self, resource, user_id, record_id):
+    def get(self, resource_name, user_id, record_id,
+            id_field=DEFAULT_ID_FIELD,
+            modified_field=DEFAULT_MODIFIED_FIELD,
+            auth=None):
         """Retrieve the record with specified `record_id`, or raise error
         if not found.
 
@@ -123,7 +131,10 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
-    def update(self, resource, user_id, record_id, record):
+    def update(self, resource_name, user_id, record_id, record,
+               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               auth=None):
         """Overwrite the `record` with the specified `record_id`.
 
         If the specified id is not found, the record is created with the
@@ -147,7 +158,11 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
-    def delete(self, resource, user_id, record_id):
+    def delete(self, resource_name, user_id, record_id,
+               id_field=DEFAULT_ID_FIELD,
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               deleted_field=DEFAULT_DELETED_FIELD,
+               auth=None):
         """Delete the record with specified `record_id`, and raise error
         if not found.
 
@@ -172,7 +187,11 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
-    def delete_all(self, resource, user_id, filters=None):
+    def delete_all(self, resource_name, user_id, filters=None,
+                   id_field=DEFAULT_ID_FIELD,
+                   modified_field=DEFAULT_MODIFIED_FIELD,
+                   deleted_field=DEFAULT_DELETED_FIELD,
+                   auth=None):
         """Delete all records in this `resource` for this `user_id`.
 
         :param resource: the record associated resource
@@ -188,8 +207,12 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
-    def get_all(self, resource, user_id, filters=None, sorting=None,
-                pagination_rules=None, limit=None, include_deleted=False):
+    def get_all(self, resource_name, user_id, filters=None, sorting=None,
+                pagination_rules=None, limit=None, include_deleted=False,
+                id_field=DEFAULT_ID_FIELD,
+                modified_field=DEFAULT_MODIFIED_FIELD,
+                deleted_field=DEFAULT_DELETED_FIELD,
+                auth=None):
         """Retrieve all records in this `resource` for this `user_id`.
 
         :param resource: the record associated resource
