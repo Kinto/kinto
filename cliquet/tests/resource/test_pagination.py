@@ -22,7 +22,7 @@ class PaginationTest(BaseTest):
                 'status': i % 4,
                 'unread': (i % 2 == 0)
             }
-            self.storage.create(self.resource.name, 'bob', record)
+            self.storage.create(self.resource_name, 'bob', record)
 
     def _setup_next_page(self):
         next_page = self.last_response.headers['Next-Page']

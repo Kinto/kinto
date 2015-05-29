@@ -12,6 +12,7 @@ class BaseTest(unittest.TestCase):
 
     def setUp(self):
         self.resource = BaseResource(self.get_request())
+        self.resource_name = self.resource.collection.name
         self.patch_known_field = mock.patch.object(self.resource,
                                                    'is_known_field')
 

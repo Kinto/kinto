@@ -84,7 +84,7 @@ class Collection(object):
         :param str parent_id: the default parent id
         """
         self.storage = storage
-        self.id_generator = id_generator or self.id_generator
+        self.id_generator = id_generator
         self.parent_id = parent_id
         try:
             self.name = name
@@ -92,7 +92,7 @@ class Collection(object):
             # Retrocompatibilty with former readonly @property.
             pass
 
-    def collection_timestamp(self, parent_id=None):
+    def timestamp(self, parent_id=None):
         """Fetch the collection current timestamp.
 
         :param str parent_id: optional filter for parent id
@@ -281,7 +281,7 @@ class Collection(object):
                                    deleted_field=self.deleted_field)
 
 
-class BaseResource(Collection):
+class BaseResource(object):
     """Base resource class providing every endpoint."""
 
     mapping = ResourceSchema()
@@ -290,19 +290,22 @@ class BaseResource(Collection):
     validate_schema_for = ('POST', 'PUT')
     """HTTP verbs for which the schema must be validated"""
 
+    id_generator = None
+
     def __init__(self, request):
-        super(BaseResource, self).__init__(
+        self.collection = Collection(
             storage=request.registry.storage,
-            id_generator=request.registry.id_generator,
+            id_generator=self.id_generator or request.registry.id_generator,
             name=classname(self),
             parent_id=request.authenticated_userid)
 
         self.request = request
-        self.timestamp = self.collection_timestamp()
+        self.timestamp = self.collection.timestamp()
         self.record_id = self.request.matchdict.get('id')
 
         # Log resource context.
-        logger.bind(resource_name=self.name, resource_timestamp=self.timestamp)
+        logger.bind(resource_name=self.collection.name,
+                    resource_timestamp=self.timestamp)
 
     @property
     def schema(self):
@@ -327,7 +330,9 @@ class BaseResource(Collection):
 
         """
         known_fields = [c.name for c in self.mapping.children] + \
-                       [self.id_field, self.modified_field, self.deleted_field]
+                       [self.collection.id_field,
+                        self.collection.modified_field,
+                        self.collection.deleted_field]
         return field in known_fields
 
     #
@@ -365,12 +370,13 @@ class BaseResource(Collection):
         filters = self._extract_filters()
         sorting = self._extract_sorting()
         limit = self._extract_limit()
-        include_deleted = self.modified_field in [f.field for f in filters]
+        filter_fields = [f.field for f in filters]
+        include_deleted = self.collection.modified_field in filter_fields
 
         pagination_rules = self._extract_pagination_rules_from_token(
             limit, sorting)
 
-        records, total_records = self.get_records(
+        records, total_records = self.collection.get_records(
             filters=filters,
             sorting=sorting,
             limit=limit,
@@ -417,8 +423,8 @@ class BaseResource(Collection):
 
         try:
             unique_fields = self.mapping.get_option('unique_fields')
-            record = self.create_record(new_record,
-                                        unique_fields=unique_fields)
+            record = self.collection.create_record(new_record,
+                                                   unique_fields=unique_fields)
         except storage_exceptions.UnicityError as e:
             return e.record
 
@@ -452,7 +458,7 @@ class BaseResource(Collection):
         self._raise_412_if_modified()
 
         filters = self._extract_filters()
-        deleted = self.delete_records(filters=filters)
+        deleted = self.collection.delete_records(filters=filters)
 
         body = {
             'items': deleted,
@@ -505,14 +511,15 @@ class BaseResource(Collection):
             :meth:`cliquet.resource.BaseResource.update_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
+        id_field = self.collection.id_field
         existing = None
         try:
             existing = self._get_record_or_404(self.record_id)
         except HTTPNotFound:
             # Look if this record used to exist (for preconditions check).
-            deleted = Filter(self.id_field, self.record_id, COMPARISON.EQ)
-            result, _ = self.get_records(filters=[deleted],
-                                         include_deleted=True)
+            deleted = Filter(id_field, self.record_id, COMPARISON.EQ)
+            result, _ = self.collection.get_records(filters=[deleted],
+                                                    include_deleted=True)
             if len(result) > 0:
                 existing = result[0]
         finally:
@@ -521,15 +528,15 @@ class BaseResource(Collection):
 
         new_record = self.request.validated
 
-        record_id = new_record.setdefault(self.id_field, self.record_id)
+        record_id = new_record.setdefault(id_field, self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
 
         new_record = self.process_record(new_record, old=existing)
 
         try:
             unique_fields = self.mapping.get_option('unique_fields')
-            record = self.update_record(existing, new_record,
-                                        unique_fields=unique_fields)
+            record = self.collection.update_record(existing, new_record,
+                                                   unique_fields=unique_fields)
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
@@ -572,7 +579,8 @@ class BaseResource(Collection):
 
         updated = self.apply_changes(old_record, changes=changes)
 
-        record_id = updated.setdefault(self.id_field, self.record_id)
+        record_id = updated.setdefault(self.collection.id_field,
+                                       self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
 
         updated = self.process_record(updated, old=old_record)
@@ -580,8 +588,8 @@ class BaseResource(Collection):
         # Save in storage.
         try:
             unique_fields = self.mapping.get_option('unique_fields')
-            new_record = self.update_record(old_record, updated, changes,
-                                            unique_fields=unique_fields)
+            new_record = self.collection.update_record(
+                old_record, updated, changes, unique_fields=unique_fields)
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
@@ -620,7 +628,7 @@ class BaseResource(Collection):
         record = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(record)
 
-        deleted = self.delete_record(record)
+        deleted = self.collection.delete_record(record)
         return deleted
 
     #
@@ -710,7 +718,7 @@ class BaseResource(Collection):
         """Retrieve record from storage and raise ``404 Not found`` if missing.
         """
         try:
-            return self.get_record(self.record_id)
+            return self.collection.get_record(self.record_id)
         except storage_exceptions.RecordNotFoundError:
             response = http_error(HTTPNotFound(),
                                   errno=ERRORS.INVALID_RESOURCE_ID)
@@ -728,7 +736,7 @@ class BaseResource(Collection):
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        if not self.id_generator.match(record_id):
+        if not self.collection.id_generator.match(record_id):
             error_details = {
                 'location': 'path',
                 'description': "Invalid record id"
@@ -747,9 +755,9 @@ class BaseResource(Collection):
             modified_since = int(modified_since)
 
             if record:
-                current_timestamp = record[self.modified_field]
+                current_timestamp = record[self.collection.modified_field]
             else:
-                current_timestamp = self.collection_timestamp()
+                current_timestamp = self.collection.timestamp()
 
             if current_timestamp <= modified_since:
                 response = HTTPNotModified()
@@ -769,9 +777,9 @@ class BaseResource(Collection):
             unmodified_since = int(unmodified_since)
 
             if record:
-                current_timestamp = record[self.modified_field]
+                current_timestamp = record[self.collection.modified_field]
             else:
-                current_timestamp = self.collection_timestamp()
+                current_timestamp = self.collection.timestamp()
 
             if current_timestamp > unmodified_since:
                 error_msg = 'Resource was modified meanwhile'
@@ -789,7 +797,7 @@ class BaseResource(Collection):
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
         """
         field = exception.field
-        record_id = exception.record[self.id_field]
+        record_id = exception.record[self.collection.id_field]
         message = 'Conflict of field %s on record %s' % (field, record_id)
         details = {
             "field": field,
@@ -810,7 +818,7 @@ class BaseResource(Collection):
         if new_id != record_id:
             error_msg = 'Record id does not match existing record'
             error_details = {
-                'name': self.id_field,
+                'name': self.collection.id_field,
                 'description': error_msg
             }
             raise_invalid(self.request, **error_details)
@@ -864,7 +872,7 @@ class BaseResource(Collection):
                 else:
                     operator = COMPARISON.LT
                 filters.append(
-                    Filter(self.modified_field, value, operator)
+                    Filter(self.collection.modified_field, value, operator)
                 )
                 continue
 
@@ -891,7 +899,7 @@ class BaseResource(Collection):
         specified = self.request.GET.get('_sort', '').split(',')
         limit = '_limit' in self.request.GET
         sorting = []
-        modified_field_used = self.modified_field in specified
+        modified_field_used = self.collection.modified_field in specified
         for field in specified:
             field = field.strip()
             m = re.match(r'^([\-+]?)(\w+)$', field)
@@ -911,7 +919,7 @@ class BaseResource(Collection):
         if not modified_field_used and limit:
             # Add a sort by the ``modified_field`` in descending order
             # useful for pagination
-            sorting.append(Sort(self.modified_field, -1))
+            sorting.append(Sort(self.collection.modified_field, -1))
         return sorting
 
     def _build_pagination_rules(self, sorting, last_record, rules=None):

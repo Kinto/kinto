@@ -85,7 +85,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.assertEqual(len(result['items']), 0)
 
     def test_filter_works_with_empty_list(self):
-        self.resource.parent_id = 'alice'
+        self.resource.collection.parent_id = 'alice'
         self.resource.request.GET = {'_since': '3'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['items']), 0)
