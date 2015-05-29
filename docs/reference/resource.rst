@@ -113,28 +113,64 @@ Generators objects
 Custom Usage
 ============
 
+Within views
+------------
+
+In views, a ``request`` object is available and allows to use the storage
+configured in the application:
+
 .. code-block :: python
 
     from cliquet import resource
 
 
-    def get_registry(request=None):
-        if request:
-            return request.registry
+    def view(request):
+        registry = request.registry
 
-        from pyramid.threadlocal import get_current_registry
-        return get_current_registry()
-
-
-    registry = get_registry()
-
-    flowers = resource.StoredResource(storage=registry.storage,
+        flowers = resource.Collection(storage=registry.storage,
                                       name='app:flowers')
 
-    flowers.create_record({'name': 'Jonquille', 'size': 30})
-    flowers.create_record({'name': 'Amapola', 'size': 18})
+        flowers.create_record({'name': 'Jonquille', 'size': 30})
+        flowers.create_record({'name': 'Amapola', 'size': 18})
 
-    min_size = resource.Filter('size', 20, resource.COMPARISON.MIN)
-    records, total = flowers.get_records(filters=[min_size])
+        min_size = resource.Filter('size', 20, resource.COMPARISON.MIN)
+        records, total = flowers.get_records(filters=[min_size])
 
-    flowers.delete_record(records[0])
+        flowers.delete_record(records[0])
+
+
+Outside views
+-------------
+
+Outside views, an application context has to be built from scratch.
+
+As an example, let's build a code that will copy a remote *Kinto*
+collection into a local storage:
+
+.. code-block :: python
+
+    from cliquet import resource, DEFAULT_SETTINGS
+    from pyramid import Configurator
+
+
+    config_local = Configurator(settings=DEFAULT_SETTINGS)
+    config_local.add_settings({
+        'cliquet.storage_backend': 'cliquet.storage.postgresql'
+        'cliquet.storage_url': 'postgres://user:pass@db.server.lan:5432/dbname'
+    })
+    local = resource.Collection(storage=config_local.registry.storage,
+                                parent_id='browsing',
+                                name='history')
+
+    config_remote = Configurator(settings=DEFAULT_SETTINGS)
+    config_remote.add_settings({
+        'cliquet.storage_backend': 'cliquet.storage.cloud_storage',
+        'cliquet.storage_url': 'https://cloud-storage.services.mozilla.com'
+    })
+    remote = resource.Collection(storage=config_remote.registry.storage,
+                                 parent_id='browsing',
+                                 name='history')
+
+    records, total = in remote.get_records():
+    for record in records:
+        local.create_record(record)

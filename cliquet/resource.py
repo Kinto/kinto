@@ -127,6 +127,7 @@ class Collection(object):
 
         :param bool include_deleted: Optionnally include the deleted records
             that match the filters.
+
         :param str parent_id: optional filter for parent id
 
         :returns: A tuple with the list of records in the current page,
@@ -157,6 +158,8 @@ class Collection(object):
             comparison (see `cliquet.utils.COMPARISON`). All filters
             are combined using *AND*.
         :type filters: list of :class:`cliquet.storage.Filter`
+
+        :param str parent_id: optional filter for parent id
 
         :returns: The list of deleted records from storage.
         """
@@ -198,6 +201,10 @@ class Collection(object):
                 record['index'] = idx
                 return record
 
+        :param dict record: record to store
+        :param str parent_id: optional filter for parent id
+        :param tuple unique_fields: list of fields that should remain unique
+
         :returns: the newly created record.
         :rtype: dict
         """
@@ -226,9 +233,9 @@ class Collection(object):
                 send_email(subject)
                 return record
 
-        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
-            if a unique field constraint is violated.
-
+        :param dict record: record to store
+        :param str parent_id: optional filter for parent id
+        :param tuple unique_fields: list of fields that should remain unique
         :returns: the updated record.
         :rtype: dict
         """
@@ -251,13 +258,14 @@ class Collection(object):
         .. code-block:: python
 
             def delete_record(self, record):
-                deleted = super(Resource, self).delete_record(record)
+                deleted = super(MyCollection, self).delete_record(record)
                 erase_media(record)
                 deleted['media'] = 0
                 return deleted
 
         :param dict record: the record to delete
-
+        :param dict record: record to store
+        :param str parent_id: optional filter for parent id
         :returns: the deleted record.
         :rtype: dict
         """
@@ -431,6 +439,7 @@ class BaseResource(object):
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
             ``If-Unmodified-Since`` header is provided and collection modified
             in the iterim.
+
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters are invalid.
 
@@ -497,8 +506,7 @@ class BaseResource(object):
         .. seealso::
 
             Add custom behaviour by overriding
-            :meth:`cliquet.resource.BaseResource.process_record` or
-            :meth:`cliquet.resource.BaseResource.update_record`.
+            :meth:`cliquet.resource.BaseResource.process_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
         id_field = self.collection.id_field
@@ -542,6 +550,9 @@ class BaseResource(object):
         If set to ``diff``, only the fields whose value became different than
         the one provided are returned.
 
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
+            the record is not found.
+
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
             ``If-Unmodified-Since`` header is provided and record modified
@@ -549,10 +560,8 @@ class BaseResource(object):
 
         .. seealso::
             Add custom behaviour by overriding
-            :meth:`cliquet.resource.BaseResource.get_record`,
-            :meth:`cliquet.resource.BaseResource.apply_changes`,
-            :meth:`cliquet.resource.BaseResource.process_record` or
-            :meth:`cliquet.resource.BaseResource.update_record`.
+            :meth:`cliquet.resource.BaseResource.apply_changes` or
+            :meth:`cliquet.resource.BaseResource.process_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
         old_record = self._get_record_or_404(self.record_id)
@@ -606,15 +615,13 @@ class BaseResource(object):
     def delete(self):
         """Record ``DELETE`` endpoint: delete a record and return it.
 
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
+            the record is not found.
+
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
             ``If-Unmodified-Since`` header is provided and record modified
             in the iterim.
-
-        .. seealso::
-            Add custom behaviour by overriding
-            :meth:`cliquet.resource.BaseResource.get_record` or
-            :meth:`cliquet.resource.BaseResource.delete_record`,
         """
         self._raise_400_if_invalid_id(self.record_id)
         record = self._get_record_or_404(self.record_id)
@@ -708,6 +715,9 @@ class BaseResource(object):
 
     def _get_record_or_404(self, record_id):
         """Retrieve record from storage and raise ``404 Not found`` if missing.
+
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
+            the record is not found.
         """
         try:
             return self.collection.get_record(self.record_id)
@@ -718,6 +728,7 @@ class BaseResource(object):
 
     def _add_timestamp_header(self, response):
         """Add current timestamp in response headers, when request comes in.
+
         """
         timestamp = six.text_type(self.timestamp).encode('utf-8')
         response.headers['Last-Modified'] = timestamp
@@ -816,6 +827,7 @@ class BaseResource(object):
             raise_invalid(self.request, **error_details)
 
     def _extract_limit(self):
+        """Extract limit value from QueryString parameters."""
         paginate_by = self.request.registry.settings['cliquet.paginate_by']
         limit = self.request.GET.get('_limit', paginate_by)
         if limit:
