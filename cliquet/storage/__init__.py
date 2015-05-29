@@ -15,8 +15,8 @@ DEFAULT_MODIFIED_FIELD = 'last_modified'
 DEFAULT_DELETED_FIELD = 'deleted'
 
 _HEARTBEAT_DELETE_RATE = 0.6
-_HEARTBEAT_RESOURCE_NAME = '__heartbeat__'
-_HEARTBEAT_USER_ID = _HEARTBEAT_RESOURCE_NAME
+_HEARTBEAT_COLLECTION_ID = '__heartbeat__'
+_HEART_PARENT_ID = _HEARTBEAT_COLLECTION_ID
 _HEARTBEAT_RECORD = {'__heartbeat__': True}
 
 
@@ -28,7 +28,7 @@ class StorageBase(object):
     occurs with the underlying service.
 
     Configuration can be changed to choose which storage backend will
-    persist the records.
+    persist the objects.
 
     :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPServiceUnavailable`
     """
@@ -44,7 +44,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def flush(self, auth=None):
-        """Remove **every** record from this storage.
+        """Remove **every** object from this storage.
         """
         raise NotImplementedError
 
@@ -59,39 +59,37 @@ class StorageBase(object):
         try:
             auth = request.headers.get('Authorization')
             if random.random() < _HEARTBEAT_DELETE_RATE:
-                self.delete_all(_HEARTBEAT_RESOURCE_NAME, _HEARTBEAT_USER_ID,
+                self.delete_all(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
                                 auth=auth)
             else:
-                self.create(_HEARTBEAT_RESOURCE_NAME, _HEARTBEAT_USER_ID,
+                self.create(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
                             _HEARTBEAT_RECORD, auth=auth)
             return True
         except:
             return False
 
-    def collection_timestamp(self, resource_name, user_id, auth=None):
-        """Get the highest timestamp of every records in this `resource` for
-        this `user_id`.
+    def collection_timestamp(self, collection_id, parent_id, auth=None):
+        """Get the highest timestamp of every objects in this `collection_id` for
+        this `parent_id`.
 
         .. note::
 
-            This should take deleted records into account.
+            This should take deleted objects into account.
 
-        :param resource: the record associated resource
-        :type resource: :class:`cliquet.resource.BaseResource`
-
-        :param str user_id: the owner of the record
+        :param str collection_id: the collection id.
+        :param str parent_id: the collection parent.
 
         :returns: the latest timestamp of the collection.
         :rtype: int
         """
         raise NotImplementedError
 
-    def create(self, resource_name, user_id, record, id_generator=None,
+    def create(self, collection_id, parent_id, object, id_generator=None,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
-        """Create the specified `record` in this `resource` for this `user_id`.
-        Assign the id to the record, using the attribute
+        """Create the specified `object` in this `collection_id` for this `parent_id`.
+        Assign the id to the object, using the attribute
         :attr:`cliquet.resource.BaseResource.id_field`.
 
         .. note::
@@ -100,44 +98,42 @@ class StorageBase(object):
 
         :raises: :exc:`cliquet.storage.exceptions.UnicityError`
 
-        :param resource: the record associated resource
-        :type resource: :class:`cliquet.resource.BaseResource`
+        :param str collection_id: the collection id.
+        :param str parent_id: the collection parent.
 
-        :param str user_id: the owner of the record
-        :param dict record: the record to create.
+        :param dict object: the object to create.
 
-        :returns: the newly created record.
+        :returns: the newly created object.
         :rtype: dict
         """
         raise NotImplementedError
 
-    def get(self, resource_name, user_id, record_id,
+    def get(self, collection_id, parent_id, object_id,
             id_field=DEFAULT_ID_FIELD,
             modified_field=DEFAULT_MODIFIED_FIELD,
             auth=None):
-        """Retrieve the record with specified `record_id`, or raise error
+        """Retrieve the object with specified `object_id`, or raise error
         if not found.
 
         :raises: :exc:`cliquet.storage.exceptions.RecordNotFoundError`
 
-        :param resource: the record associated resource
-        :type resource: :class:`cliquet.resource.BaseResource`
+        :param str collection_id: the collection id.
+        :param str parent_id: the collection parent.
 
-        :param str user_id: the owner of the record
-        :param str record_id: unique identifier of the record
+        :param str object_id: unique identifier of the object
 
-        :returns: the record object.
+        :returns: the object object.
         :rtype: dict
         """
         raise NotImplementedError
 
-    def update(self, resource_name, user_id, record_id, record,
+    def update(self, collection_id, parent_id, object_id, object,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
-        """Overwrite the `record` with the specified `record_id`.
+        """Overwrite the `object` with the specified `object_id`.
 
-        If the specified id is not found, the record is created with the
+        If the specified id is not found, the object is created with the
         specified id.
 
         .. note::
@@ -146,27 +142,26 @@ class StorageBase(object):
 
         :raises: :exc:`cliquet.storage.exceptions.UnicityError`
 
-        :param resource: the record associated resource
-        :type resource: :class:`cliquet.resource.BaseResource`
+        :param str collection_id: the collection id.
+        :param str parent_id: the collection parent.
 
-        :param str user_id: the owner of the record
-        :param str record_id: unique identifier of the record
-        :param dict record: the record to update or create.
+        :param str object_id: unique identifier of the object
+        :param dict object: the object to update or create.
 
-        :returns: the updated record.
+        :returns: the updated object.
         :rtype: dict
         """
         raise NotImplementedError
 
-    def delete(self, resource_name, user_id, record_id,
+    def delete(self, collection_id, parent_id, object_id,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                deleted_field=DEFAULT_DELETED_FIELD,
                auth=None):
-        """Delete the record with specified `record_id`, and raise error
+        """Delete the object with specified `object_id`, and raise error
         if not found.
 
-        Deleted records must be removed from the database, but their ids and
+        Deleted objects must be removed from the database, but their ids and
         timestamps of deletion must be tracked for synchronization purposes.
         (See :meth:`cliquet.storage.StorageBase.get_all`)
 
@@ -176,76 +171,71 @@ class StorageBase(object):
 
         :raises: :exc:`cliquet.storage.exceptions.RecordNotFoundError`
 
-        :param resource: the record associated resource
-        :type resource: :class:`cliquet.resource.BaseResource`
+        :param str collection_id: the collection id.
+        :param str parent_id: the collection parent.
 
-        :param str user_id: the owner of the record
-        :param str record_id: unique identifier of the record
+        :param str object_id: unique identifier of the object
 
-        :returns: the deleted record, with minimal set of attributes.
+        :returns: the deleted object, with minimal set of attributes.
         :rtype: dict
         """
         raise NotImplementedError
 
-    def delete_all(self, resource_name, user_id, filters=None,
+    def delete_all(self, collection_id, parent_id, filters=None,
                    id_field=DEFAULT_ID_FIELD,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
                    auth=None):
-        """Delete all records in this `resource` for this `user_id`.
+        """Delete all objects in this `collection_id` for this `parent_id`.
 
-        :param resource: the record associated resource
-        :type resource: :class:`cliquet.resource.BaseResource`
+        :param str collection_id: the collection id.
+        :param str parent_id: the collection parent.
 
-        :param str user_id: the owner of the record
-
-        :param filters: Optionnally filter the records to delete.
+        :param filters: Optionnally filter the objects to delete.
         :type filters: list of :class:`cliquet.storage.Filter`
 
-        :returns: the list of deleted records, with minimal set of attributes.
+        :returns: the list of deleted objects, with minimal set of attributes.
         :rtype: list of dict
         """
         raise NotImplementedError
 
-    def get_all(self, resource_name, user_id, filters=None, sorting=None,
+    def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,
                 id_field=DEFAULT_ID_FIELD,
                 modified_field=DEFAULT_MODIFIED_FIELD,
                 deleted_field=DEFAULT_DELETED_FIELD,
                 auth=None):
-        """Retrieve all records in this `resource` for this `user_id`.
+        """Retrieve all objects in this `collection_id` for this `parent_id`.
 
-        :param resource: the record associated resource
-        :type resource: :class:`cliquet.resource.BaseResource`
+        :param str collection_id: the collection id.
+        :param str parent_id: the collection parent.
 
-        :param str user_id: the owner of the record
-
-        :param filters: Optionally filter the records by their attribute.
+        :param filters: Optionally filter the objects by their attribute.
             Each filter in this list is a tuple of a field, a value and a
             comparison (see `cliquet.utils.COMPARISON`). All filters
             are combined using *AND*.
         :type filters: list of :class:`cliquet.storage.Filter`
 
-        :param sorting: Optionnally sort the records by attribute.
+        :param sorting: Optionnally sort the objects by attribute.
             Each sort instruction in this list refers to a field and a
             direction (negative means descending). All sort instructions are
             cumulative.
         :type sorting: list of :class:`cliquet.storage.Sort`
 
-        :param pagination_rules: Optionnally paginate the list of records.
-            This list of rules aims to reduce the set of records to the current
+        :param pagination_rules: Optionnally paginate the list of objects.
+            This list of rules aims to reduce the set of objects to the current
             page. A rule is a list of filters (see `filters` parameter),
             and all rules are combined using *OR*.
         :type pagination_rules: list of list of :class:`cliquet.storage.Filter`
 
-        :param int limit: Optionnally limit the number of records to be
+        :param int limit: Optionnally limit the number of objects to be
             retrieved.
 
-        :param bool include_deleted: Optionnally include the deleted records
+        :param bool include_deleted: Optionnally include the deleted objects
             that match the filters.
 
-        :returns: the limited list of records, and the total number of
-            matching records in the collection (deleted ones excluded).
+        :returns: the limited list of objects, and the total number of
+            matching objects in the collection (deleted ones excluded).
         :rtype: tuple (list, integer)
         """
         raise NotImplementedError

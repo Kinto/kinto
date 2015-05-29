@@ -267,15 +267,15 @@ class ResourceInfoTest(BaseWebTest, unittest.TestCase):
         super(ResourceInfoTest, self).tearDown()
         cliquet_logs.structlog.reset_defaults()
 
-    def test_resource_name_is_bound(self):
+    def test_collection_id_is_bound(self):
         self.app.get('/mushrooms', headers=self.headers)
         event_dict = logger_context()
-        self.assertEqual(event_dict['resource_name'], 'mushroom')
+        self.assertEqual(event_dict['collection_id'], 'mushroom')
 
-    def test_resource_timestamp_is_bound(self):
+    def test_collection_timestamp_is_bound(self):
         r = self.app.get('/mushrooms', headers=self.headers)
         event_dict = logger_context()
-        self.assertEqual(event_dict['resource_timestamp'],
+        self.assertEqual(event_dict['collection_timestamp'],
                          int(r.headers['Last-Modified']))
 
     def test_result_size_and_limit_are_bound(self):

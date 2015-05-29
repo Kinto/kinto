@@ -14,7 +14,8 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
     def setUp(self):
         super(SinceModifiedTest, self).setUp()
 
-        with mock.patch.object(self.storage, '_bump_timestamp') as msec_mocked:
+        with mock.patch.object(self.collection.storage,
+                               '_bump_timestamp') as msec_mocked:
             for i in range(6):
                 msec_mocked.return_value = i
                 self.resource.collection_post()
@@ -124,7 +125,8 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
                 time.sleep(.100)  # 100 msec
                 return [], 0
 
-            with mock.patch.object(self.storage, 'get_all', delayed_get):
+            with mock.patch.object(self.collection.storage,
+                                   'get_all', delayed_get):
                 self.resource.collection_get()
                 fetch_at = self.last_response.headers['Last-Modified']
                 timestamps['fetch'] = int(fetch_at)

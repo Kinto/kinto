@@ -80,8 +80,8 @@ class BaseResource(object):
         self.record_id = self.request.matchdict.get('id')
 
         # Log resource context.
-        logger.bind(resource_name=self.collection.name,
-                    resource_timestamp=self.timestamp)
+        logger.bind(collection_id=self.collection.name,
+                    collection_timestamp=self.timestamp)
 
     @property
     def schema(self):
@@ -482,7 +482,7 @@ class BaseResource(object):
             the record is not found.
         """
         try:
-            return self.collection.get_record(self.record_id)
+            return self.collection.get_record(record_id)
         except storage_exceptions.RecordNotFoundError:
             response = http_error(HTTPNotFound(),
                                   errno=ERRORS.INVALID_RESOURCE_ID)

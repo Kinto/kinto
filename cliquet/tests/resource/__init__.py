@@ -6,13 +6,9 @@ from cliquet.resource import BaseResource
 
 
 class BaseTest(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super(BaseTest, self).__init__(*args, **kwargs)
-        self.storage = memory.Memory()
-
     def setUp(self):
         self.resource = BaseResource(self.get_request())
-        self.resource_name = self.resource.collection.name
+        self.collection = self.resource.collection
         self.patch_known_field = mock.patch.object(self.resource,
                                                    'is_known_field')
 
@@ -21,7 +17,7 @@ class BaseTest(unittest.TestCase):
 
     def get_request(self):
         request = DummyRequest()
-        request.registry.storage = self.storage
+        request.registry.storage = memory.Memory()
         return request
 
     @property

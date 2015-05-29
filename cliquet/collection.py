@@ -6,7 +6,7 @@ class Collection(object):
     Records are isolated according to the provided `name` and `parent_id`.
 
     Those notions have no particular semantic and can represent anything.
-    For example, the resource `name` can be the *type* of objects stored, and
+    For example, the collection `name` can be the *type* of objects stored, and
     `parent_id` can be the current *user id* or *a group* where the collection
     belongs. If left empty, the collection records are not isolated.
     """
@@ -27,7 +27,7 @@ class Collection(object):
         :param id_generator: an instance of id generator, used by storage
             on record creation.
 
-        :param str name: the resource name
+        :param str name: the collection name
         :param str parent_id: the default parent id
         """
         self.storage = storage
@@ -43,8 +43,8 @@ class Collection(object):
         :rtype: integer
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.collection_timestamp(resource_name=self.name,
-                                                 user_id=parent_id,  # XXX
+        return self.storage.collection_timestamp(collection_id=self.name,
+                                                 parent_id=parent_id,
                                                  auth=self.auth)
 
     def get_records(self, filters=None, sorting=None, pagination_rules=None,
@@ -85,8 +85,8 @@ class Collection(object):
         """
         parent_id = parent_id or self.parent_id
         records, total_records = self.storage.get_all(
-            resource_name=self.name,
-            user_id=parent_id,  # XXX: rename.
+            collection_id=self.name,
+            parent_id=parent_id,
             filters=filters,
             sorting=sorting,
             pagination_rules=pagination_rules,
@@ -114,8 +114,8 @@ class Collection(object):
         :returns: The list of deleted records from storage.
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.delete_all(resource_name=self.name,
-                                       user_id=parent_id,  # XXX: merge.
+        return self.storage.delete_all(collection_id=self.name,
+                                       parent_id=parent_id,
                                        filters=filters,
                                        id_field=self.id_field,
                                        modified_field=self.modified_field,
@@ -132,9 +132,9 @@ class Collection(object):
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.get(resource_name=self.name,
-                                user_id=parent_id,  # XXX: rename.
-                                record_id=record_id,
+        return self.storage.get(collection_id=self.name,
+                                parent_id=parent_id,
+                                object_id=record_id,
                                 id_field=self.id_field,
                                 modified_field=self.modified_field,
                                 auth=self.auth)
@@ -148,7 +148,7 @@ class Collection(object):
         .. code-block:: python
 
             def create_record(self, record):
-                record = super(MyResource, self).create_record(record)
+                record = super(MyCollection, self).create_record(record)
                 idx = index.store(record)
                 record['index'] = idx
                 return record
@@ -161,8 +161,8 @@ class Collection(object):
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.create(resource_name=self.name,
-                                   user_id=parent_id,  # XXX: rename.
+        return self.storage.create(collection_id=self.name,
+                                   parent_id=parent_id,
                                    record=record,
                                    id_generator=self.id_generator,
                                    unique_fields=unique_fields,
@@ -194,9 +194,9 @@ class Collection(object):
         """
         parent_id = parent_id or self.parent_id
         record_id = record[self.id_field]
-        return self.storage.update(resource_name=self.name,
-                                   user_id=parent_id,  # XXX: rename.
-                                   record_id=record_id,
+        return self.storage.update(collection_id=self.name,
+                                   parent_id=parent_id,
+                                   object_id=record_id,
                                    record=record,
                                    unique_fields=unique_fields,
                                    id_field=self.id_field,
@@ -225,9 +225,9 @@ class Collection(object):
         """
         parent_id = parent_id or self.parent_id
         record_id = record[self.id_field]
-        return self.storage.delete(resource_name=self.name,
-                                   user_id=parent_id,  # XXX: rename.
-                                   record_id=record_id,
+        return self.storage.delete(collection_id=self.name,
+                                   parent_id=parent_id,
+                                   object_id=record_id,
                                    id_field=self.id_field,
                                    modified_field=self.modified_field,
                                    deleted_field=self.deleted_field,

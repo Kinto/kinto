@@ -90,11 +90,11 @@ class BaseTestStorage(object):
         super(BaseTestStorage, self).setUp()
         self.record = {'foo': 'bar'}
         self.storage_kw = {
-            'resource_name': 'test',
-            'user_id': '1234',
+            'collection_id': 'test',
+            'parent_id': '1234',
             'auth': 'Basic bWF0OjI='
         }
-        self.other_user_id = '5678'
+        self.other_parent_id = '5678'
         self.other_auth = 'Basic bWF0OjE='
 
     def tearDown(self):
@@ -131,9 +131,9 @@ class BaseTestStorage(object):
         calls = [
             (self.storage.collection_timestamp, {}),
             (self.storage.create, dict(record={})),
-            (self.storage.get, dict(record_id={})),
-            (self.storage.update, dict(record_id='', record={})),
-            (self.storage.delete, dict(record_id='')),
+            (self.storage.get, dict(object_id={})),
+            (self.storage.update, dict(object_id='', record={})),
+            (self.storage.delete, dict(object_id='')),
             (self.storage.delete_all, {}),
             (self.storage.get_all, {}),
         ]
@@ -171,7 +171,7 @@ class BaseTestStorage(object):
 
     def test_create_works_as_expected(self):
         stored = self.create_record()
-        retrieved = self.storage.get(record_id=stored['id'], **self.storage_kw)
+        retrieved = self.storage.get(object_id=stored['id'], **self.storage_kw)
         self.assertEquals(retrieved, stored)
 
     def test_create_copies_the_record_before_modifying_it(self):
@@ -186,7 +186,7 @@ class BaseTestStorage(object):
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.get,
-            record_id=RECORD_ID,
+            object_id=RECORD_ID,
             **self.storage_kw
         )
 
@@ -194,13 +194,13 @@ class BaseTestStorage(object):
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.get,
-            record_id=RECORD_ID,
+            object_id=RECORD_ID,
             **self.storage_kw
         )
-        record = self.storage.update(record_id=RECORD_ID,
+        record = self.storage.update(object_id=RECORD_ID,
                                      record=self.record,
                                      **self.storage_kw)
-        retrieved = self.storage.get(record_id=RECORD_ID,
+        retrieved = self.storage.get(object_id=RECORD_ID,
                                      **self.storage_kw)
         self.assertEquals(retrieved, record)
 
@@ -208,18 +208,18 @@ class BaseTestStorage(object):
         stored = self.create_record()
         record_id = stored[self.id_field]
         self.record[self.id_field] = 'this-will-be-ignored'
-        self.storage.update(record_id=record_id, record=self.record,
+        self.storage.update(object_id=record_id, record=self.record,
                             **self.storage_kw)
-        retrieved = self.storage.get(record_id=record_id, **self.storage_kw)
+        retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
         self.assertEquals(retrieved[self.id_field], record_id)
 
     def test_delete_works_properly(self):
         stored = self.create_record()
-        self.storage.delete(record_id=stored['id'], **self.storage_kw)
+        self.storage.delete(object_id=stored['id'], **self.storage_kw)
         self.assertRaises(  # Shouldn't exist.
             exceptions.RecordNotFoundError,
             self.storage.get,
-            record_id=stored['id'],
+            object_id=stored['id'],
             **self.storage_kw
         )
 
@@ -227,7 +227,7 @@ class BaseTestStorage(object):
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.delete,
-            record_id=RECORD_ID,
+            object_id=RECORD_ID,
             **self.storage_kw
         )
 
@@ -302,7 +302,7 @@ class TimestampsTest(object):
         stored = self.create_record()
         _id = stored['id']
         before = self.storage.collection_timestamp(**self.storage_kw)
-        self.storage.update(record_id=_id, record={'bar': 'foo'},
+        self.storage.update(object_id=_id, record={'bar': 'foo'},
                             **self.storage_kw)
         after = self.storage.collection_timestamp(**self.storage_kw)
         self.assertTrue(before < after)
@@ -311,7 +311,7 @@ class TimestampsTest(object):
         stored = self.create_record()
         _id = stored['id']
         before = self.storage.collection_timestamp(**self.storage_kw)
-        self.storage.delete(record_id=_id, **self.storage_kw)
+        self.storage.delete(object_id=_id, **self.storage_kw)
         after = self.storage.collection_timestamp(**self.storage_kw)
         self.assertTrue(before < after)
 
@@ -394,11 +394,11 @@ class FieldsUnicityTest(object):
         self.assertEqual(error.field, 'phone')
         self.assertDictEqual(error.record, record)
 
-    def test_unicity_is_by_user_id(self):
+    def test_unicity_is_by_parent_id(self):
         self.create_record({'phone': '0033677'})
         self.create_record({'phone': '0033677'},
                            unique_fields=('phone',),
-                           user_id=self.other_user_id,
+                           parent_id=self.other_parent_id,
                            auth=self.other_auth)  # not raising
 
     def test_unicity_is_for_non_null_values(self):
@@ -408,7 +408,7 @@ class FieldsUnicityTest(object):
 
     def test_unicity_does_not_apply_to_deleted_records(self):
         record = self.create_record({'phone': '0033677'})
-        self.storage.delete(record_id=record['id'], **self.storage_kw)
+        self.storage.delete(object_id=record['id'], **self.storage_kw)
         self.create_record({'phone': None}, unique_fields=('phone',))
 
     def test_unicity_applies_to_one_of_all_fields_specified(self):
@@ -420,7 +420,7 @@ class FieldsUnicityTest(object):
 
     def test_updating_with_same_id_does_not_raise_unicity_error(self):
         record = self.create_record({'phone': '0033677'})
-        self.storage.update(record_id=record['id'],
+        self.storage.update(object_id=record['id'],
                             record=record,
                             unique_fields=('phone',),
                             **self.storage_kw)
@@ -430,7 +430,7 @@ class FieldsUnicityTest(object):
         record = self.create_record({'phone': '0033677'})
         self.assertRaises(exceptions.UnicityError,
                           self.storage.update,
-                          record_id=record['id'],
+                          object_id=record['id'],
                           record={'phone': 'number'},
                           unique_fields=('phone',),
                           **self.storage_kw)
@@ -443,7 +443,7 @@ class FieldsUnicityTest(object):
             self.create_record({'phone': value})
             try:
                 error = None
-                self.storage.update(record_id=record['id'],
+                self.storage.update(object_id=record['id'],
                                     record={'phone': value},
                                     unique_fields=('phone',),
                                     **self.storage_kw)
@@ -464,20 +464,20 @@ class DeletedRecordsTest(object):
         """Helper to create and delete a record."""
         record = record or {'challenge': 'accepted'}
         record = self.create_record(record)
-        return self.storage.delete(record_id=record['id'], **self.storage_kw)
+        return self.storage.delete(object_id=record['id'], **self.storage_kw)
 
     def test_get_should_not_return_deleted_items(self):
         record = self.create_and_delete_record()
         self.assertRaises(exceptions.RecordNotFoundError,
                           self.storage.get,
-                          record_id=record['id'],
+                          object_id=record['id'],
                           **self.storage_kw)
 
     def test_deleting_a_deleted_item_should_raise_not_found(self):
         record = self.create_and_delete_record()
         self.assertRaises(exceptions.RecordNotFoundError,
                           self.storage.delete,
-                          record_id=record['id'],
+                          object_id=record['id'],
                           **self.storage_kw)
 
     def test_deleted_items_have_deleted_set_to_true(self):
@@ -713,37 +713,37 @@ class DeletedRecordsTest(object):
         self.assertNotIn('deleted', records[1])
 
 
-class UserRecordAccessTest(object):
-    def test_users_cannot_access_other_users_record(self):
+class ParentRecordAccessTest(object):
+    def test_parent_cannot_access_other_parent_record(self):
         record = self.create_record()
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.get,
-            resource_name=self.storage_kw['resource_name'],
-            user_id=self.other_user_id,
-            record_id=record['id'],
+            collection_id=self.storage_kw['collection_id'],
+            parent_id=self.other_parent_id,
+            object_id=record['id'],
             auth=self.other_auth)
 
-    def test_users_cannot_delete_other_users_record(self):
+    def test_parent_cannot_delete_other_parent_record(self):
         record = self.create_record()
         self.assertRaises(
             exceptions.RecordNotFoundError,
             self.storage.delete,
-            resource_name=self.storage_kw['resource_name'],
-            user_id=self.other_user_id,
-            record_id=record['id'],
+            collection_id=self.storage_kw['collection_id'],
+            parent_id=self.other_parent_id,
+            object_id=record['id'],
             auth=self.other_auth)
 
-    def test_users_cannot_update_other_users_record(self):
+    def test_parent_cannot_update_other_parent_record(self):
         record = self.create_record()
 
         new_record = {"another": "record"}
         kw = self.storage_kw.copy()
-        kw['user_id'] = self.other_user_id
+        kw['parent_id'] = self.other_parent_id
         kw['auth'] = self.other_auth
-        self.storage.update(record_id=record['id'], record=new_record, **kw)
+        self.storage.update(object_id=record['id'], record=new_record, **kw)
 
-        not_updated = self.storage.get(record_id=record['id'],
+        not_updated = self.storage.get(object_id=record['id'],
                                        **self.storage_kw)
         self.assertNotIn("another", not_updated)
 
@@ -752,7 +752,7 @@ class StorageTest(ThreadMixin,
                   FieldsUnicityTest,
                   TimestampsTest,
                   DeletedRecordsTest,
-                  UserRecordAccessTest,
+                  ParentRecordAccessTest,
                   BaseTestStorage):
     """Compound of all storage tests."""
     pass

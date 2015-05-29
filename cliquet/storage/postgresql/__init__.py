@@ -125,7 +125,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     """
 
-    schema_version = 6
+    schema_version = 7
 
     def __init__(self, *args, **kwargs):
         self._max_fetch_size = kwargs.pop('max_fetch_size')
@@ -251,35 +251,35 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             cursor.execute(query)
         logger.debug('Flushed PostgreSQL storage tables')
 
-    def collection_timestamp(self, resource_name, user_id, auth=None):
+    def collection_timestamp(self, collection_id, parent_id, auth=None):
         query = """
-        SELECT as_epoch(resource_timestamp(%(user_id)s, %(resource_name)s))
+        SELECT as_epoch(collection_timestamp(%(parent_id)s, %(collection_id)s))
             AS last_modified;
         """
-        placeholders = dict(user_id=user_id, resource_name=resource_name)
+        placeholders = dict(parent_id=parent_id, collection_id=collection_id)
         with self.connect(readonly=True) as cursor:
             cursor.execute(query, placeholders)
             result = cursor.fetchone()
         return result['last_modified']
 
-    def create(self, resource_name, user_id, record, id_generator=None,
+    def create(self, collection_id, parent_id, record, id_generator=None,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
         query = """
-        INSERT INTO records (id, user_id, resource_name, data)
-        VALUES (%(record_id)s, %(user_id)s, %(resource_name)s, %(data)s::JSONB)
+        INSERT INTO records (id, parent_id, collection_id, data)
+        VALUES (%(object_id)s, %(parent_id)s, %(collection_id)s, %(data)s::JSONB)
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
         id_generator = id_generator or self.id_generator
-        placeholders = dict(record_id=id_generator(),
-                            user_id=user_id,
-                            resource_name=resource_name,
+        placeholders = dict(object_id=id_generator(),
+                            parent_id=parent_id,
+                            collection_id=collection_id,
                             data=json.dumps(record))
 
         with self.connect() as cursor:
             # Check that it does violate the resource unicity rules.
-            self._check_unicity(cursor, resource_name, user_id, record,
+            self._check_unicity(cursor, collection_id, parent_id, record,
                                 unique_fields, id_field, modified_field)
             cursor.execute(query, placeholders)
             inserted = cursor.fetchone()
@@ -289,65 +289,65 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         record[modified_field] = inserted['last_modified']
         return record
 
-    def get(self, resource_name, user_id, record_id,
+    def get(self, collection_id, parent_id, object_id,
             id_field=DEFAULT_ID_FIELD,
             modified_field=DEFAULT_MODIFIED_FIELD,
             auth=None):
         query = """
         SELECT as_epoch(last_modified) AS last_modified, data
           FROM records
-         WHERE id = %(record_id)s
-           AND user_id = %(user_id)s
-           AND resource_name = %(resource_name)s;
+         WHERE id = %(object_id)s
+           AND parent_id = %(parent_id)s
+           AND collection_id = %(collection_id)s;
         """
-        placeholders = dict(record_id=record_id,
-                            user_id=user_id,
-                            resource_name=resource_name)
+        placeholders = dict(object_id=object_id,
+                            parent_id=parent_id,
+                            collection_id=collection_id)
         with self.connect(readonly=True) as cursor:
             cursor.execute(query, placeholders)
             if cursor.rowcount == 0:
-                raise exceptions.RecordNotFoundError(record_id)
+                raise exceptions.RecordNotFoundError(object_id)
             else:
                 result = cursor.fetchone()
 
         record = result['data']
-        record[id_field] = record_id
+        record[id_field] = object_id
         record[modified_field] = result['last_modified']
         return record
 
-    def update(self, resource_name, user_id, record_id, record,
+    def update(self, collection_id, parent_id, object_id, record,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
         query_create = """
-        INSERT INTO records (id, user_id, resource_name, data)
-        VALUES (%(record_id)s, %(user_id)s,
-                %(resource_name)s, %(data)s::JSONB)
+        INSERT INTO records (id, parent_id, collection_id, data)
+        VALUES (%(object_id)s, %(parent_id)s,
+                %(collection_id)s, %(data)s::JSONB)
         RETURNING as_epoch(last_modified) AS last_modified;
         """
 
         query_update = """
         UPDATE records SET data=%(data)s::JSONB
-        WHERE id = %(record_id)s
-           AND user_id = %(user_id)s
-           AND resource_name = %(resource_name)s
+        WHERE id = %(object_id)s
+           AND parent_id = %(parent_id)s
+           AND collection_id = %(collection_id)s
         RETURNING as_epoch(last_modified) AS last_modified;
         """
-        placeholders = dict(record_id=record_id,
-                            user_id=user_id,
-                            resource_name=resource_name,
+        placeholders = dict(object_id=object_id,
+                            parent_id=parent_id,
+                            collection_id=collection_id,
                             data=json.dumps(record))
 
         with self.connect() as cursor:
             # Check that it does violate the resource unicity rules.
-            self._check_unicity(cursor, resource_name, user_id, record,
+            self._check_unicity(cursor, collection_id, parent_id, record,
                                 unique_fields, id_field, modified_field)
             # Create or update ?
             query = """
             SELECT id FROM records
-            WHERE id = %(record_id)s
-              AND user_id = %(user_id)s
-              AND resource_name = %(resource_name)s;
+            WHERE id = %(object_id)s
+              AND parent_id = %(parent_id)s
+              AND collection_id = %(collection_id)s;
             """
             cursor.execute(query, placeholders)
             query = query_update if cursor.rowcount > 0 else query_create
@@ -356,11 +356,11 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             result = cursor.fetchone()
 
         record = record.copy()
-        record[id_field] = record_id
+        record[id_field] = object_id
         record[modified_field] = result['last_modified']
         return record
 
-    def delete(self, resource_name, user_id, record_id,
+    def delete(self, collection_id, parent_id, object_id,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                deleted_field=DEFAULT_DELETED_FIELD,
@@ -369,34 +369,34 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         WITH deleted_record AS (
             DELETE
             FROM records
-            WHERE id = %(record_id)s
-              AND user_id = %(user_id)s
-              AND resource_name = %(resource_name)s
+            WHERE id = %(object_id)s
+              AND parent_id = %(parent_id)s
+              AND collection_id = %(collection_id)s
             RETURNING id
         )
-        INSERT INTO deleted (id, user_id, resource_name)
-        SELECT id, %(user_id)s, %(resource_name)s
+        INSERT INTO deleted (id, parent_id, collection_id)
+        SELECT id, %(parent_id)s, %(collection_id)s
           FROM deleted_record
         RETURNING as_epoch(last_modified) AS last_modified;
         """
-        placeholders = dict(record_id=record_id,
-                            user_id=user_id,
-                            resource_name=resource_name)
+        placeholders = dict(object_id=object_id,
+                            parent_id=parent_id,
+                            collection_id=collection_id)
 
         with self.connect() as cursor:
             cursor.execute(query, placeholders)
             if cursor.rowcount == 0:
-                raise exceptions.RecordNotFoundError(record_id)
+                raise exceptions.RecordNotFoundError(object_id)
             inserted = cursor.fetchone()
 
         record = {}
         record[modified_field] = inserted['last_modified']
-        record[id_field] = record_id
+        record[id_field] = object_id
 
         record[deleted_field] = True
         return record
 
-    def delete_all(self, resource_name, user_id, filters=None,
+    def delete_all(self, collection_id, parent_id, filters=None,
                    id_field=DEFAULT_ID_FIELD,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
@@ -405,20 +405,20 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         WITH deleted_records AS (
             DELETE
             FROM records
-            WHERE user_id = %%(user_id)s
-              AND resource_name = %%(resource_name)s
+            WHERE parent_id = %%(parent_id)s
+              AND collection_id = %%(collection_id)s
               %(conditions_filter)s
             RETURNING id
         )
-        INSERT INTO deleted (id, user_id, resource_name)
-        SELECT id, %%(user_id)s, %%(resource_name)s
+        INSERT INTO deleted (id, parent_id, collection_id)
+        SELECT id, %%(parent_id)s, %%(collection_id)s
           FROM deleted_records
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
-        placeholders = dict(user_id=user_id,
-                            resource_name=resource_name)
+        placeholders = dict(parent_id=parent_id,
+                            collection_id=collection_id)
         # Safe strings
         safeholders = defaultdict(six.text_type)
 
@@ -443,7 +443,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         return records
 
-    def get_all(self, resource_name, user_id, filters=None, sorting=None,
+    def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,
                 id_field=DEFAULT_ID_FIELD,
                 modified_field=DEFAULT_MODIFIED_FIELD,
@@ -453,15 +453,15 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         WITH total_filtered AS (
             SELECT COUNT(id) AS count
               FROM records
-             WHERE user_id = %%(user_id)s
-               AND resource_name = %%(resource_name)s
+             WHERE parent_id = %%(parent_id)s
+               AND collection_id = %%(collection_id)s
                %(conditions_filter)s
         ),
         collection_filtered AS (
             SELECT id, last_modified, data
               FROM records
-             WHERE user_id = %%(user_id)s
-               AND resource_name = %%(resource_name)s
+             WHERE parent_id = %%(parent_id)s
+               AND collection_id = %%(collection_id)s
                %(conditions_filter)s
              LIMIT %(max_fetch_size)s
         ),
@@ -471,8 +471,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         filtered_deleted AS (
             SELECT id, last_modified, fake_deleted.data AS data
               FROM deleted, fake_deleted
-             WHERE user_id = %%(user_id)s
-               AND resource_name = %%(resource_name)s
+             WHERE parent_id = %%(parent_id)s
+               AND collection_id = %%(collection_id)s
                %(conditions_filter)s
                %(deleted_limit)s
         ),
@@ -496,8 +496,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         deleted_field = json.dumps(dict([(deleted_field, True)]))
 
         # Unsafe strings escaped by PostgreSQL
-        placeholders = dict(user_id=user_id,
-                            resource_name=resource_name,
+        placeholders = dict(parent_id=parent_id,
+                            collection_id=collection_id,
                             deleted_field=deleted_field)
 
         # Safe strings
@@ -661,7 +661,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         safe_sql = 'ORDER BY %s' % (', '.join(sorts))
         return safe_sql, holders
 
-    def _check_unicity(self, cursor, resource_name, user_id, record,
+    def _check_unicity(self, cursor, collection_id, parent_id, record,
                        unique_fields, id_field, modified_field):
         """Check that no existing record (in the current transaction snapshot)
         violates the resource unicity rules.
@@ -672,15 +672,15 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         query = """
         SELECT id
           FROM records
-         WHERE user_id = %%(user_id)s
-           AND resource_name = %%(resource_name)s
+         WHERE parent_id = %%(parent_id)s
+           AND collection_id = %%(collection_id)s
            AND (%(conditions_filter)s)
            AND %(condition_record)s
          LIMIT 1;
         """
         safeholders = dict()
-        placeholders = dict(user_id=user_id,
-                            resource_name=resource_name)
+        placeholders = dict(parent_id=parent_id,
+                            collection_id=collection_id)
 
         # Transform each field unicity into a query condition.
         filters = []
@@ -703,10 +703,10 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         safeholders['conditions_filter'] = ' OR '.join(filters)
 
         # If record is in database, then exclude it of unicity check.
-        record_id = record.get(id_field)
-        if record_id:
+        object_id = record.get(id_field)
+        if object_id:
             sql, holders = self._format_conditions(
-                [Filter(id_field, record_id, COMPARISON.NOT)],
+                [Filter(id_field, object_id, COMPARISON.NOT)],
                 id_field,
                 modified_field)
             safeholders['condition_record'] = sql
@@ -717,7 +717,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         cursor.execute(query % safeholders, placeholders)
         if cursor.rowcount > 0:
             result = cursor.fetchone()
-            existing = self.get(resource_name, user_id, result['id'])
+            existing = self.get(collection_id, parent_id, result['id'])
             raise exceptions.UnicityError(field, existing)
 
 

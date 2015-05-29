@@ -13,8 +13,8 @@ IMMUTABLE;
 --
 CREATE TABLE IF NOT EXISTS records (
     id TEXT NOT NULL,
-    user_id TEXT NOT NULL,
-    resource_name TEXT NOT NULL,
+    parent_id TEXT NOT NULL,
+    collection_id TEXT NOT NULL,
 
     -- Timestamp is relevant because adequate semantically.
     -- Since the HTTP API manipulates integers, it could make sense
@@ -24,12 +24,12 @@ CREATE TABLE IF NOT EXISTS records (
     -- JSONB, 2x faster than JSON.
     data JSONB NOT NULL DEFAULT '{}'::JSONB,
 
-    PRIMARY KEY (id, user_id, resource_name)
+    PRIMARY KEY (id, parent_id, collection_id)
 );
 
-DROP INDEX IF EXISTS idx_records_user_id_resource_name_last_modified;
-CREATE UNIQUE INDEX idx_records_user_id_resource_name_last_modified
-    ON records(user_id, resource_name, last_modified DESC);
+DROP INDEX IF EXISTS idx_records_parent_id_collection_id_last_modified;
+CREATE UNIQUE INDEX idx_records_parent_id_collection_id_last_modified
+    ON records(parent_id, collection_id, last_modified DESC);
 DROP INDEX IF EXISTS idx_records_last_modified_epoch;
 CREATE INDEX idx_records_last_modified_epoch ON records(as_epoch(last_modified));
 
@@ -39,15 +39,15 @@ CREATE INDEX idx_records_last_modified_epoch ON records(as_epoch(last_modified))
 --
 CREATE TABLE IF NOT EXISTS deleted (
     id TEXT NOT NULL,
-    user_id TEXT NOT NULL,
-    resource_name TEXT NOT NULL,
+    parent_id TEXT NOT NULL,
+    collection_id TEXT NOT NULL,
     last_modified TIMESTAMP NOT NULL,
 
-    PRIMARY KEY (id, user_id, resource_name)
+    PRIMARY KEY (id, parent_id, collection_id)
 );
-DROP INDEX IF EXISTS idx_records_user_id_resource_name_last_modified;
-CREATE UNIQUE INDEX idx_records_user_id_resource_name_last_modified
-    ON records(user_id, resource_name, last_modified DESC);
+DROP INDEX IF EXISTS idx_deleted_parent_id_collection_id_last_modified;
+CREATE UNIQUE INDEX idx_deleted_parent_id_collection_id_last_modified
+    ON deleted(parent_id, collection_id, last_modified DESC);
 DROP INDEX IF EXISTS idx_deleted_last_modified_epoch;
 CREATE INDEX idx_deleted_last_modified_epoch ON deleted(as_epoch(last_modified));
 
@@ -55,26 +55,26 @@ CREATE INDEX idx_deleted_last_modified_epoch ON deleted(as_epoch(last_modified))
 --
 -- Helper that returns the current collection timestamp.
 --
-CREATE OR REPLACE FUNCTION resource_timestamp(uid VARCHAR, resource VARCHAR)
+CREATE OR REPLACE FUNCTION collection_timestamp(uid VARCHAR, resource VARCHAR)
 RETURNS TIMESTAMP AS $$
 DECLARE
     ts_records TIMESTAMP;
     ts_deleted TIMESTAMP;
 BEGIN
     --
-    -- This is fast because an index was created for ``user_id``,
-    -- ``resource_name``, and ``last_modified`` with descending sorting order.
+    -- This is fast because an index was created for ``parent_id``,
+    -- ``collection_id``, and ``last_modified`` with descending sorting order.
     --
     SELECT last_modified INTO ts_records
       FROM records
-     WHERE user_id = uid
-       AND resource_name = resource
+     WHERE parent_id = uid
+       AND collection_id = resource
      ORDER BY last_modified DESC LIMIT 1;
 
     SELECT last_modified INTO ts_deleted
       FROM deleted
-     WHERE user_id = uid
-       AND resource_name = resource
+     WHERE parent_id = uid
+       AND collection_id = resource
      ORDER BY last_modified DESC LIMIT 1;
 
     -- Latest of records/deleted or current if empty
@@ -103,7 +103,7 @@ BEGIN
     -- an error (operation is cancelled).
     -- See https://github.com/mozilla-services/cliquet/issues/25
     --
-    previous := resource_timestamp(NEW.user_id, NEW.resource_name);
+    previous := collection_timestamp(NEW.parent_id, NEW.collection_id);
     current := localtimestamp;
 
     IF previous >= current THEN
@@ -136,4 +136,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``cliquet.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '6');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '7');

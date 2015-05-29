@@ -9,7 +9,7 @@ from cliquet.tests.resource import BaseTest
 class NotModifiedTest(BaseTest):
     def setUp(self):
         super(NotModifiedTest, self).setUp()
-        self.stored = self.storage.create(self.resource_name, 'bob', {})
+        self.stored = self.collection.create_record({})
 
         self.resource = BaseResource(self.get_request())
         self.resource.collection_get()
@@ -37,7 +37,7 @@ class NotModifiedTest(BaseTest):
 class ModifiedMeanwhileTest(BaseTest):
     def setUp(self):
         super(ModifiedMeanwhileTest, self).setUp()
-        self.stored = self.storage.create(self.resource_name, 'bob', {})
+        self.stored = self.collection.create_record({})
         self.resource.collection_get()
         current = self.last_response.headers['Last-Modified']
         previous = six.text_type(int(current) - 10).encode('utf-8')
@@ -84,7 +84,7 @@ class ModifiedMeanwhileTest(BaseTest):
 
     def test_put_returns_412_if_changed_meanwhile(self):
         self.resource.record_id = self.stored['id']
-        self.storage.delete(self.resource_name, 'bob', self.resource.record_id)
+        self.collection.delete_record(self.stored)
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
