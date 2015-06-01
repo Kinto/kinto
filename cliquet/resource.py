@@ -29,6 +29,7 @@ class ViewSet(object):
     A viewset contains all the information needed to register
     any resource in the  cornice registry.
     """
+    service_name = "{resource_name}-{endpoint_type}"
     collection_path = "/{resource_name}s"
     record_path = "/{resource_name}s/{{id}}"
 
@@ -122,8 +123,9 @@ class ViewSet(object):
         """Returns the name of the service, depending a given type and
         resource.
         """
-        name = self.get_name(resource)
-        return '-'.join((name, typ_))
+        return self.service_name.format(
+            resource_name=self.get_name(resource),
+            endpoint_type=typ_)
 
     def get_view_permission(self, typ_, resource, method):
         """Returns the permission associated with the given type,
