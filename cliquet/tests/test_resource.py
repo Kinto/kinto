@@ -72,15 +72,23 @@ class ViewSetTest(unittest.TestCase):
         arguments = viewset.collection_arguments(resource, 'get')
         self.assertEquals(arguments['schema'], resource.mapping)
 
+    @patch('cliquet.resource.colander')
     @patch('cliquet.resource.CorniceSchema')
-    def test_schema_is_not_added_when_method_does_not_match(self, patched):
+    def test_a_default_schema_is_added_when_method_doesnt_match(self,
+            cornice_schema, colander):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
         resource = MagicMock()
+        colander.MappingSchema.return_value = sentinel.default_schema
+
         arguments = viewset.collection_arguments(resource, 'POST')
-        patched.from_colander.assert_not_called()
-        self.assertNotIn('schema', arguments)
+        self.assertEquals(arguments['schema'], sentinel.default_schema)
+
+        cornice_schema.from_colander.assert_not_called()
+        self.assertNotEqual(arguments['schema'], resource.mapping)
+
+        colander.MappingSchema.assert_called_with(unknown='preserve')
 
     def test_permission_is_added_when_needed(self):
         viewset = ViewSet(readonly_methods=('GET',))
@@ -113,6 +121,7 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.collection_arguments(MagicMock, 'get')
+        schema = arguments.pop('schema')
         self.assertDictEqual(
             arguments,
             {
@@ -142,6 +151,8 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.record_arguments(MagicMock, 'get')
+        schema = arguments.pop('schema')
+
         self.assertDictEqual(
             arguments,
             {
@@ -177,6 +188,8 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.record_arguments(MagicMock, 'get')
+        schema = arguments.pop('schema')
+
         self.assertDictEqual(
             arguments,
             {
@@ -205,11 +218,12 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.record_arguments(MagicMock, 'get')
+        schema = arguments.pop('schema')
         self.assertDictEqual(
             arguments,
             {
                 'cors_headers': sentinel.cors_headers,
-                'permission': 'readonly'
+                'permission': 'readonly',
             }
         )
 
