@@ -72,15 +72,16 @@ class ViewSet(object):
     def update(self, **kwargs):
         self.__dict__.update(**kwargs)
 
-    def get_arguments(self, typ_, resource, method):
-        """Returns the arguments for the given type, where `typ_` can be
-        either "collection" or "record".
+    def get_arguments(self, endpoint_type, resource, method):
+        """Returns the arguments for the given type, where `endpoint_type` can
+        be either "collection" or "record".
         """
         args = self.default_arguments.copy()
-        default_arguments = getattr(self, 'default_%s_arguments' % typ_)
+        default_arguments = getattr(self,
+                                    'default_%s_arguments' % endpoint_type)
         args.update(**default_arguments)
 
-        by_method = '%s_%s_arguments' % (typ_, method.lower())
+        by_method = '%s_%s_arguments' % (endpoint_type, method.lower())
         method_args = getattr(self, by_method, {})
         args.update(**method_args)
 
@@ -90,22 +91,22 @@ class ViewSet(object):
             # Simply validate that posted body is a mapping.
             args['schema'] = colander.MappingSchema(unknown='preserve')
 
-        permission = self.get_view_permission(typ_, resource, method)
+        permission = self.get_view_permission(endpoint_type, resource, method)
         if permission is not None:
             args['permission'] = permission
 
         return args
 
-    def get_view(self, typ_, method):
+    def get_view(self, endpoint_type, method):
         """Returns the view location for the given type and method.
 
         For collections, this will be "collection_{method|lower}
         For records, this will be "{method|lower}.
         """
-        if typ_ == 'record':
+        if endpoint_type == 'record':
             return method.lower()
         else:
-            return '%s_%s' % (typ_, method.lower())
+            return '%s_%s' % (endpoint_type, method.lower())
 
     def get_name(self, resource):
         """Returns the name of the resource.
@@ -119,15 +120,15 @@ class ViewSet(object):
 
         return name
 
-    def get_service_name(self, typ_, resource):
+    def get_service_name(self, endpoint_type, resource):
         """Returns the name of the service, depending a given type and
         resource.
         """
         return self.service_name.format(
             resource_name=self.get_name(resource),
-            endpoint_type=typ_)
+            endpoint_type=endpoint_type)
 
-    def get_view_permission(self, typ_, resource, method):
+    def get_view_permission(self, endpoint_type, resource, method):
         """Returns the permission associated with the given type,
         resource and method"""
         if method.lower() in map(str.lower, self.readonly_methods):
@@ -188,28 +189,29 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         'resource_name': resource_name
     }
 
-    def register_service(typ_):
+    def register_service(endpoint_type):
         """Registers a service in cornice, for the given type."""
-        path = getattr(viewset, '%s_path' % typ_).format(**path_formatters)
+        path_pattern = getattr(viewset, '%s_path' % endpoint_type)
+        path = path_pattern.format(**path_formatters)
 
-        name = viewset.get_service_name(typ_, resource)
+        name = viewset.get_service_name(endpoint_type, resource)
 
         service = Service(name, path, depth=depth,
                           **viewset.service_arguments or {})
 
-        methods = getattr(viewset, '%s_methods' % typ_)
+        methods = getattr(viewset, '%s_methods' % endpoint_type)
         for method in methods:
-            setting_enabled = 'cliquet.%s_%s_%s_enabled' % (typ_,
+            setting_enabled = 'cliquet.%s_%s_%s_enabled' % (endpoint_type,
                                                             resource_name,
                                                             method.lower())
             if not settings.get(setting_enabled, True):
                 continue
 
             # XXX use viewset.get_arguments() directly ?
-            argument_getter = getattr(viewset, '%s_arguments' % typ_)
+            argument_getter = getattr(viewset, '%s_arguments' % endpoint_type)
             view_args = argument_getter(resource, method)
 
-            view = viewset.get_view(typ_, method.lower())
+            view = viewset.get_view(endpoint_type, method.lower())
             service.add_view(method, view, klass=resource, **view_args)
         return service
 

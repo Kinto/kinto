@@ -29,12 +29,12 @@ class FakeResource(object):
     def __init__(self):
         # Create fake views which are in fact mock sentinels.
         # {type}_{method} will map to the sentinel with the same name.
-        for typ_ in ('collection', 'record'):
+        for endpoint_type in ('collection', 'record'):
             for method in ('get', 'put', 'patch', 'delete'):
-                if typ_ == 'record':
+                if endpoint_type == 'record':
                     view_name = method
                 else:
-                    view_name = '_'.join((typ_, method))
+                    view_name = '_'.join((endpoint_type, method))
                 setattr(self, view_name, getattr(sentinel, view_name))
 
 
