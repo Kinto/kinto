@@ -6,8 +6,10 @@ class RecordSchema(schema.ResourceSchema):
         preserve_unknown = True
 
 
-@resource.crud(path="/collections/{collection_id}/records/{id}",
-               collection_path="/collections/{collection_id}/records")
+@resource.register(
+    record_path="/collections/{{collection_id}}/records/{{id}}",
+    collection_path="/collections/{{collection_id}}/records",
+    name="collection")
 class Collection(resource.BaseResource):
 
     mapping = RecordSchema()
