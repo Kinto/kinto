@@ -229,8 +229,8 @@ class Redis(MemoryBasedStorage):
 
         deleted = []
         if include_deleted:
-            deleted_ids_key = '{0}.{1}.deleted'.format(collection_id, parent_id)
-            ids = self._client.smembers(deleted_ids_key)
+            deleted_ids = '{0}.{1}.deleted'.format(collection_id, parent_id)
+            ids = self._client.smembers(deleted_ids)
 
             keys = ['{0}.{1}.{2}.deleted'.format(collection_id, parent_id,
                                                  _id.decode('utf-8'))

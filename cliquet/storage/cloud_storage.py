@@ -9,7 +9,7 @@ from cliquet.storage import (
     StorageBase, exceptions, Filter,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from cliquet.storage.memory import apply_sorting, get_unicity_rules
-from cliquet.utils import json, COMPARISON, encode64
+from cliquet.utils import json, COMPARISON
 
 
 API_PREFIX = "/v0"

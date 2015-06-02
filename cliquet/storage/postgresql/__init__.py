@@ -268,7 +268,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                auth=None):
         query = """
         INSERT INTO records (id, parent_id, collection_id, data)
-        VALUES (%(object_id)s, %(parent_id)s, %(collection_id)s, %(data)s::JSONB)
+        VALUES (%(object_id)s, %(parent_id)s,
+                %(collection_id)s, %(data)s::JSONB)
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
         id_generator = id_generator or self.id_generator

@@ -221,7 +221,9 @@ class Memory(MemoryBasedStorage):
         existing = self.get(collection_id, parent_id, object_id)
         self.set_record_timestamp(collection_id, parent_id, existing,
                                   modified_field=modified_field)
-        existing = self.strip_deleted_record(collection_id, parent_id, existing)
+        existing = self.strip_deleted_record(collection_id,
+                                             parent_id,
+                                             existing)
 
         # Add to deleted items, remove from store.
         self._cemetery[collection_id][parent_id][object_id] = existing.copy()
