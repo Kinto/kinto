@@ -6,7 +6,6 @@ from cliquet.storage import postgresql
 from cliquet.utils import json
 
 from .support import unittest
-from .test_storage import TestResource
 
 
 class PostgresqlStorageMigrationTest(unittest.TestCase):
@@ -42,6 +41,9 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         DROP TABLE IF EXISTS records CASCADE;
         DROP TABLE IF EXISTS deleted CASCADE;
         DROP TABLE IF EXISTS metadata CASCADE;
+        DROP FUNCTION IF EXISTS resource_timestamp(VARCHAR, VARCHAR);
+        DROP FUNCTION IF EXISTS collection_timestamp(VARCHAR, VARCHAR);
+        DROP FUNCTION IF EXISTS bump_timestamp();
         """
         with self.storage.connect() as cursor:
             cursor.execute(q)
@@ -100,8 +102,6 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             old_schema = open(os.path.join(here, filepath)).read()
             cursor.execute(old_schema)
 
-        resource = TestResource()
-
         # Create a sample record using some code that is compatible with the
         # schema in place in cliquet 1.6.
         with self.storage.connect() as cursor:
@@ -112,12 +112,12 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             RETURNING id, as_epoch(last_modified) AS last_modified;
             """
             placeholders = dict(user_id='jean-louis',
-                                resource_name=resource.name,
+                                resource_name='test',
                                 data=json.dumps(before))
             cursor.execute(query, placeholders)
             inserted = cursor.fetchone()
-            before[resource.id_field] = inserted['id']
-            before[resource.modified_field] = inserted['last_modified']
+            before['id'] = inserted['id']
+            before['last_modified'] = inserted['last_modified']
 
         # In cliquet 1.6, version = 1.
         version = self.storage._get_installed_version()
@@ -130,7 +130,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         version = self.storage._get_installed_version()
         self.assertEqual(version, self.version)
 
-        migrated, count = self.storage.get_all(TestResource(), 'jean-louis')
+        migrated, count = self.storage.get_all('test', 'jean-louis')
         self.assertEqual(migrated[0], before)
 
     def test_every_available_migration_succeeds_if_tables_were_flushed(self):

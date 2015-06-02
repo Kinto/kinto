@@ -71,10 +71,46 @@ Resource class
 ==============
 
 In order to customize the resource URLs or behaviour on record
-processing or fetching from storage, the class
+processing, the resource class can be extended:
+
+.. autoclass:: cliquet.resource.BaseResource
+    :members:
+
+Interaction with storage
+------------------------
+
+In order to customize the interaction of a HTTP resource with its storage,
+a custom collection can be plugged-in:
+
+.. code-block:: python
+
+    from cliquet import resource
 
 
-.. automodule:: cliquet.resource
+    class TrackedCollection(resource.Collection):
+        def create_record(self, record, parent_id=None, unique_fields=None):
+            record = super(TrackedCollection, self).create_record(record,
+                                                                  parent_id,
+                                                                  unique_fields)
+            trackid = index.track(record)
+            record['trackid'] = trackid
+            return record
+
+
+    class Payment(resource.BaseResource):
+        def __init__(request):
+            super(Payment, self).__init__(request)
+            self.collection = TrackedCollection(
+                storage=self.collection.storage,
+                id_generator=self.collection.id_generator,
+                collection_id=self.collection.collection_id,
+                parent_id=self.collection.parent_id,
+                auth=self.collection.auth)
+
+
+.. _collection:
+
+.. autoclass:: cliquet.resource.Collection
     :members:
 
 
@@ -100,11 +136,80 @@ or at the resource level:
 
     @resource.crud()
     class Mushroom(resource.BaseResource):
-        id_generator = MsecId()
+        def __init__(request):
+            super(Mushroom, self).__init__(request)
+            self.collection.id_generator = MsecId()
 
 
 Generators objects
-::::::::::::::::::
+------------------
 
 .. automodule:: cliquet.storage.generators
     :members:
+
+
+Custom Usage
+============
+
+Within views
+------------
+
+In views, a ``request`` object is available and allows to use the storage
+configured in the application:
+
+.. code-block :: python
+
+    from cliquet import resource
+
+
+    def view(request):
+        registry = request.registry
+
+        flowers = resource.Collection(storage=registry.storage,
+                                      name='app:flowers')
+
+        flowers.create_record({'name': 'Jonquille', 'size': 30})
+        flowers.create_record({'name': 'Amapola', 'size': 18})
+
+        min_size = resource.Filter('size', 20, resource.COMPARISON.MIN)
+        records, total = flowers.get_records(filters=[min_size])
+
+        flowers.delete_record(records[0])
+
+
+Outside views
+-------------
+
+Outside views, an application context has to be built from scratch.
+
+As an example, let's build a code that will copy a remote *Kinto*
+collection into a local storage:
+
+.. code-block :: python
+
+    from cliquet import resource, DEFAULT_SETTINGS
+    from pyramid import Configurator
+
+
+    config_local = Configurator(settings=DEFAULT_SETTINGS)
+    config_local.add_settings({
+        'cliquet.storage_backend': 'cliquet.storage.postgresql'
+        'cliquet.storage_url': 'postgres://user:pass@db.server.lan:5432/dbname'
+    })
+    local = resource.Collection(storage=config_local.registry.storage,
+                                parent_id='browsing',
+                                name='history')
+
+    config_remote = Configurator(settings=DEFAULT_SETTINGS)
+    config_remote.add_settings({
+        'cliquet.storage_backend': 'cliquet.storage.cloud_storage',
+        'cliquet.storage_url': 'https://cloud-storage.services.mozilla.com'
+    })
+    remote = resource.Collection(storage=config_remote.registry.storage,
+                                 parent_id='browsing',
+                                 name='history',
+                                 auth='Basic bWF0Og==')
+
+    records, total = in remote.get_records():
+    for record in records:
+        local.create_record(record)

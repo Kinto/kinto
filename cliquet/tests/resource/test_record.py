@@ -1,26 +1,25 @@
 import mock
 from pyramid import httpexceptions
 
+from cliquet.resource import BaseResource
 from cliquet.errors import ERRORS
 from cliquet.tests.resource import BaseTest
 
 
 class GetTest(BaseTest):
     def test_get_record_returns_all_fields(self):
-        record = self.storage.create(self.resource, 'bob', {'field': 'value'})
+        record = self.collection.create_record({'field': 'value'})
         self.resource.record_id = record['id']
         result = self.resource.get()
-        self.assertIn(self.resource.id_field, result)
-        self.assertIn(self.resource.modified_field, result)
+        self.assertIn(self.resource.collection.id_field, result)
+        self.assertIn(self.resource.collection.modified_field, result)
         self.assertIn('field', result)
 
 
 class PutTest(BaseTest):
     def setUp(self):
         super(PutTest, self).setUp()
-        self.record = self.storage.create(self.resource,
-                                          'bob',
-                                          {'field': 'old'})
+        self.record = self.collection.create_record({'field': 'old'})
         self.resource.record_id = self.record['id']
 
     def test_replace_record_returns_updated_fields(self):
@@ -45,13 +44,13 @@ class PutTest(BaseTest):
 class DeleteTest(BaseTest):
     def test_delete_record_returns_last_timestamp(self):
         record = {'field': 'value'}
-        record = self.storage.create(self.resource, 'bob', record).copy()
+        record = self.collection.create_record(record).copy()
         self.resource.record_id = record['id']
         result = self.resource.delete()
         self.assertNotEqual(result['last_modified'], record['last_modified'])
 
     def test_delete_record_returns_stripped_record(self):
-        record = self.storage.create(self.resource, 'bob', {'field': 'value'})
+        record = self.collection.create_record({'field': 'value'})
         self.resource.record_id = record['id']
         result = self.resource.delete()
         self.assertEqual(result['id'], record['id'])
@@ -62,7 +61,7 @@ class DeleteTest(BaseTest):
 class PatchTest(BaseTest):
     def setUp(self):
         super(PatchTest, self).setUp()
-        self.stored = self.storage.create(self.resource, 'bob', {})
+        self.stored = self.collection.create_record({})
         self.resource.record_id = self.stored['id']
         self.resource.request.json = {'some': 'change'}
         self.resource.mapping.typ.unknown = 'preserve'
@@ -92,8 +91,7 @@ class PatchTest(BaseTest):
     def test_collection_timestamp_is_not_updated_if_no_field_changed(self):
         self.resource.request.json = {'some': 'change'}
         self.resource.patch()
-        # Reset
-        BaseTest.setUp(self)
+        self.resource = BaseResource(self.get_request())
         self.resource.collection_get()
         last_modified = self.last_response.headers['Last-Modified']
         self.assertEquals(self.result['last_modified'], int(last_modified))
@@ -109,7 +107,7 @@ class PatchTest(BaseTest):
     def test_returns_changed_fields_among_provided_if_behaviour_is_diff(self):
         self.resource.request.json = {'unread': True, 'position': 10}
         self.resource.request.headers['Response-Behavior'] = 'diff'
-        with mock.patch.object(self.resource, 'update_record',
+        with mock.patch.object(self.resource.collection, 'update_record',
                                return_value={'unread': True, 'position': 0}):
             result = self.resource.patch()
         self.assertDictEqual(result, {'position': 0})
@@ -117,7 +115,7 @@ class PatchTest(BaseTest):
     def test_returns_changed_fields_if_behaviour_is_light(self):
         self.resource.request.json = {'unread': True, 'position': 10}
         self.resource.request.headers['Response-Behavior'] = 'light'
-        with mock.patch.object(self.resource, 'update_record',
+        with mock.patch.object(self.resource.collection, 'update_record',
                                return_value={'unread': True, 'position': 0}):
             result = self.resource.patch()
         self.assertDictEqual(result, {'unread': True, 'position': 0})
@@ -137,7 +135,7 @@ class UnknownRecordTest(BaseTest):
 
     def test_replace_record_unknown_creates_it(self):
         self.resource.put()
-        self.storage.get(self.resource, 'bob', self.unknown_id)
+        self.collection.get_record(self.unknown_id)
 
     def test_delete_record_unknown_raises_404(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.delete)
@@ -164,7 +162,7 @@ class InvalidIdTest(BaseTest):
 class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
         super(ReadonlyFieldsTest, self).setUp()
-        self.stored = self.storage.create(self.resource, 'bob', {'age': 32})
+        self.stored = self.collection.create_record({'age': 32})
         self.resource.mapping.Options.readonly_fields = ('age',)
         self.resource.record_id = self.stored['id']
 

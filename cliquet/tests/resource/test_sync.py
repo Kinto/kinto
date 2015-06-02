@@ -14,7 +14,8 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
     def setUp(self):
         super(SinceModifiedTest, self).setUp()
 
-        with mock.patch.object(self.storage, '_bump_timestamp') as msec_mocked:
+        with mock.patch.object(self.collection.storage,
+                               '_bump_timestamp') as msec_mocked:
             for i in range(6):
                 msec_mocked.return_value = i
                 self.resource.collection_post()
@@ -33,7 +34,6 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
     def test_the_timestamp_header_is_equal_to_last_modification(self):
         result = self.resource.collection_post()
         modification = result['last_modified']
-
         self.resource = BaseResource(self.get_request())
         self.resource.collection_get()
         header = int(self.last_response.headers['Last-Modified'])
@@ -85,7 +85,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.assertEqual(len(result['items']), 0)
 
     def test_filter_works_with_empty_list(self):
-        self.resource.storage_kw['user_id'] = 'alice'
+        self.resource.collection.parent_id = 'alice'
         self.resource.request.GET = {'_since': '3'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['items']), 0)
@@ -124,7 +124,8 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
                 time.sleep(.100)  # 100 msec
                 return [], 0
 
-            with mock.patch.object(self.storage, 'get_all', delayed_get):
+            with mock.patch.object(self.collection.storage,
+                                   'get_all', delayed_get):
                 self.resource.collection_get()
                 fetch_at = self.last_response.headers['Last-Modified']
                 timestamps['fetch'] = int(fetch_at)

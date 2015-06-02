@@ -84,7 +84,7 @@ class CORSOriginHeadersTest(BaseWebTest):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_internal_error(self):
-        with mock.patch('cliquet.resource.BaseResource.get_records',
+        with mock.patch('cliquet.resource.BaseResource._extract_filters',
                         side_effect=ValueError):
             response = self.app.get('/mushrooms',
                                     headers=self.headers, status=500)

@@ -1,28 +1,13 @@
 import mock
 from pyramid import httpexceptions
 
-from cliquet.resource import BaseResource
 from cliquet.tests.resource import BaseTest
-
-
-class CustomNameTest(BaseTest):
-    def test_resource_name_can_be_defined_as_property(self):
-        class Custom(BaseResource):
-            @property
-            def name(self):
-                return 'foo'
-
-        custom = Custom(self.resource.request)
-        with self.assertRaises(AttributeError):
-            custom.name = 'bar'
 
 
 class CollectionTest(BaseTest):
     def setUp(self):
         super(CollectionTest, self).setUp()
-        self.record = self.storage.create(self.resource,
-                                          'bob',
-                                          {'field': 'value'})
+        self.record = self.collection.create_record({'field': 'value'})
 
     def test_list_gives_number_of_results_in_headers(self):
         self.resource.collection_get()
@@ -41,13 +26,13 @@ class CreateTest(BaseTest):
     def test_new_records_are_linked_to_owner(self):
         resp = self.resource.collection_post()
         record_id = resp['id']
-        self.storage.get(self.resource, 'bob', record_id)  # not raising
+        self.collection.get_record(record_id)  # not raising
 
     def test_create_record_returns_at_least_id_and_last_modified(self):
         self.resource.request.validated = {'field': 'value'}
         record = self.resource.collection_post()
-        self.assertIn(self.resource.id_field, record)
-        self.assertIn(self.resource.modified_field, record)
+        self.assertIn(self.resource.collection.id_field, record)
+        self.assertIn(self.resource.collection.modified_field, record)
         self.assertIn('field', record)
 
 
@@ -55,8 +40,8 @@ class DeleteCollectionTest(BaseTest):
     def setUp(self):
         super(DeleteCollectionTest, self).setUp()
         self.patch_known_field.start()
-        self.storage.create(self.resource, 'bob', {'field': 'a'})
-        self.storage.create(self.resource, 'bob', {'field': 'b'})
+        self.collection.create_record({'field': 'a'})
+        self.collection.create_record({'field': 'b'})
 
     def test_delete_on_list_removes_all_records(self):
         self.resource.collection_delete()
@@ -87,7 +72,7 @@ class DeleteCollectionTest(BaseTest):
 class IsolatedCollectionsTest(BaseTest):
     def setUp(self):
         super(IsolatedCollectionsTest, self).setUp()
-        self.stored = self.storage.create(self.resource, 'bob', {})
+        self.stored = self.collection.create_record({}, parent_id='bob')
         self.resource.record_id = self.stored['id']
 
     def get_request(self):
@@ -103,9 +88,8 @@ class IsolatedCollectionsTest(BaseTest):
     def test_update_record_of_another_user_will_create_it(self):
         self.resource.request.validated = {'some': 'record'}
         self.resource.put()
-        self.storage.get(self.resource,
-                         'alice',
-                         self.stored['id'])  # not raising
+        self.collection.get_record(record_id=self.stored['id'],
+                                   parent_id='alice')  # not raising
 
     def test_cannot_modify_record_of_other_user(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.patch)

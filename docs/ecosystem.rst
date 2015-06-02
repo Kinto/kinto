@@ -210,17 +210,17 @@ End-point definitions in :file:`cliquet_indexing/views.py`:
     from cornice import Service
 
     search = Service(name="search",
-                     path='/search/{resource_name}/',
+                     path='/search/{collection_id}/',
                      description="Search")
 
     @search.post()
     def get_search(request):
-        resource_name = request.matchdict['resource_name']
+        collection_id = request.matchdict['collection_id']
         query = request.body
 
         # Access indexer from views using registry.
         indexer = request.registry.indexer
-        results = indexer.search(resource_name, query)
+        results = indexer.search(collection_id, query)
 
         return results
 
@@ -233,21 +233,21 @@ Example indexer class in :file:`cliquet_indexing/elasticsearch.py`:
         def __init__(self, hosts):
             self.client = elasticsearch.Elasticsearch(hosts)
 
-        def search(self, resource_name, query, **kwargs):
+        def search(self, collection_id, query, **kwargs):
             try:
-                return self.client.search(index=resource_name,
-                                          doc_type=resource_name,
+                return self.client.search(index=collection_id,
+                                          doc_type=collection_id,
                                           body=query,
                                           **kwargs)
             except ElasticsearchException as e:
                 logger.error(e)
                 raise
 
-        def index_record(self, resource, record):
-            record_id = record[resource.id_field]
+        def index_record(self, collection_id, record, id_field):
+            record_id = record[id_field]
             try:
-                index = self.client.index(index=resource.name,
-                                          doc_type=resource.name,
+                index = self.client.index(index=collection_id,
+                                          doc_type=collection_id,
                                           id=record_id,
                                           body=record,
                                           refresh=True)
@@ -261,19 +261,23 @@ Indexed resource in :file:`cliquet_indexing/resource.py`:
 
 .. code-block:: python
 
-    class IndexedResource(cliquet.resource.BaseResource):
+    class IndexedCollection(cliquet.resource.Collection):
         def create_record(self, record):
-            r = super(IndexedResource, self).create_record(self, record)
+            r = super(IndexedCollection, self).create_record(self, record)
 
-            indexer = self.request.registry.indexer
-            indexer.index_record(self, record)
+            self.indexer.index_record(self, record)
 
             return r
 
+    class IndexedResource(cliquet.resource.BaseResource):
+        def __init__(self, request):
+            super(IndexedResource, self).__init__(request)
+            self.collection.indexer = request.registry.indexer
+
 .. note::
 
-    In this example, ``IndexedResource`` is inherited, and must hence be
-    used explicitly as a base resource class in applications.
+    In this example, ``IndexedResource`` must be used explicitly as a
+    base resource class in applications.
     A nicer pattern would be to trigger *Pyramid* events in *Cliquet* and
     let packages like this one plug listeners. If you're interested,
     `we started to discuss it <https://github.com/mozilla-services/cliquet/issues/32>`_!

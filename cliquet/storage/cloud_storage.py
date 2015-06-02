@@ -5,7 +5,9 @@ import six
 from requests.exceptions import RequestException
 
 from cliquet import logger
-from cliquet.storage import StorageBase, exceptions, Filter
+from cliquet.storage import (
+    StorageBase, exceptions, Filter,
+    DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from cliquet.storage.memory import apply_sorting, get_unicity_rules
 from cliquet.utils import json, COMPARISON
 
@@ -38,8 +40,8 @@ def wrap_http_error(func):
                     body = e.response.content
 
             if status_code == 404:
-                record_id = '?'
-                raise exceptions.RecordNotFoundError(record_id)
+                object_id = '?'
+                raise exceptions.RecordNotFoundError(object_id)
             logger.debug(body)
             raise exceptions.BackendError(original=e)
     return wrapped
@@ -70,6 +72,7 @@ class CloudStorage(StorageBase):
         and the application can share the same cache (``cliquet.cache_url``).
     """
 
+    # XXX: todo: use parent_id for bucket
     collection_url = "/collections/{0}/records"
     record_url = "/collections/{0}/records/{1}"
 
@@ -81,33 +84,38 @@ class CloudStorage(StorageBase):
     def _build_url(self, resource):
         return self.server_url + API_PREFIX + resource
 
-    def _build_headers(self, resource):
-        original = resource.request
-        auth_token = original.headers['Authorization']
-        return {
+    def _headers(self, auth=None):
+        """Build list of headers to be sent to remote server.
+        """
+        headers = {
             'Content-Type': 'application/json',
-            'Authorization': auth_token
         }
+        if auth:
+            headers['Authorization'] = auth
+        return headers
 
     def initialize_schema(self):
         # Nothing to do.
         pass
 
     @wrap_http_error
-    def flush(self):
+    def flush(self, auth=None):
         url = self._build_url("/__flush__")
-        resp = self._client.post(url)
+        resp = self._client.post(url, headers=self._headers(auth))
         resp.raise_for_status()
 
     @wrap_http_error
-    def collection_timestamp(self, resource, user_id):
-        url = self._build_url(self.collection_url.format(resource.name))
-        resp = self._client.head(url, headers=self._build_headers(resource))
+    def collection_timestamp(self, collection_id, parent_id, auth=None):
+        url = self._build_url(self.collection_url.format(collection_id))
+        resp = self._client.head(url, headers=self._headers(auth))
         resp.raise_for_status()
         return int(resp.headers['Last-Modified'])
 
-    def check_unicity(self, resource, user_id, record):
-        rules = get_unicity_rules(resource, user_id, record)
+    def check_unicity(self, collection_id, parent_id, record, unique_fields,
+                      id_field, auth):
+        rules = get_unicity_rules(collection_id, parent_id, record,
+                                  unique_fields=unique_fields,
+                                  id_field=id_field)
         for rule in rules:
             new_rule = []
             for filter_ in rule:
@@ -117,68 +125,92 @@ class CloudStorage(StorageBase):
                                      filter_.operator)
                 new_rule.append(filter_)
 
-            result, count = self.get_all(resource, user_id, new_rule)
+            result, count = self.get_all(collection_id, parent_id, new_rule,
+                                         auth=auth)
             if count != 0:
                 raise exceptions.UnicityError(rule[0].field,
                                               result[0])
 
     @wrap_http_error
-    def create(self, resource, user_id, record):
-        self.check_unicity(resource, user_id, record)
-        record_id = resource.id_generator()
-        url = self._build_url(self.record_url.format(resource.name,
-                                                     record_id))
+    def create(self, collection_id, parent_id, record, id_generator=None,
+               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               auth=None):
+        id_generator = id_generator or self.id_generator
+        if unique_fields:
+            self.check_unicity(collection_id, parent_id, record,
+                               unique_fields, id_field, auth)
+        object_id = id_generator()
+        url = self._build_url(self.record_url.format(collection_id,
+                                                     object_id))
         resp = self._client.put(url,
                                 data=json.dumps(record),
-                                headers=self._build_headers(resource))
+                                headers=self._headers(auth))
         resp.raise_for_status()
         return resp.json()
 
     @wrap_http_error
-    def get(self, resource, user_id, record_id):
-        url = self._build_url(self.record_url.format(resource.name,
-                                                     record_id))
-        resp = self._client.get(url, headers=self._build_headers(resource))
+    def get(self, collection_id, parent_id, object_id,
+            id_field=DEFAULT_ID_FIELD,
+            modified_field=DEFAULT_MODIFIED_FIELD,
+            auth=None):
+        url = self._build_url(self.record_url.format(collection_id,
+                                                     object_id))
+        resp = self._client.get(url, headers=self._headers(auth))
         resp.raise_for_status()
         return resp.json()
 
     @wrap_http_error
-    def update(self, resource, user_id, record_id, record):
-        self.check_unicity(resource, user_id, record)
-        url = self._build_url(self.record_url.format(resource.name,
-                                                     record_id))
+    def update(self, collection_id, parent_id, object_id, record,
+               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               auth=None):
+        if unique_fields:
+            self.check_unicity(collection_id, parent_id, record,
+                               unique_fields, id_field, auth)
+        url = self._build_url(self.record_url.format(collection_id,
+                                                     object_id))
         try:
-            self.get(resource, user_id, record_id)
+            self.get(collection_id, parent_id, object_id,
+                     id_field=id_field, auth=auth)
         except exceptions.RecordNotFoundError:
             resp = self._client.put(url,
                                     data=json.dumps(record),
-                                    headers=self._build_headers(resource))
+                                    headers=self._headers(auth))
         else:
-            if resource.id_field in record:
-                del record[resource.id_field]
+            if id_field in record:
+                del record[id_field]
             resp = self._client.patch(url,
                                       data=json.dumps(record),
-                                      headers=self._build_headers(resource))
+                                      headers=self._headers(auth))
         resp.raise_for_status()
         return resp.json()
 
     @wrap_http_error
-    def delete(self, resource, user_id, record_id):
-        url = self._build_url(self.record_url.format(resource.name,
-                                                     record_id))
-        resp = self._client.delete(url, headers=self._build_headers(resource))
+    def delete(self, collection_id, parent_id, object_id,
+               id_field=DEFAULT_ID_FIELD,
+               modified_field=DEFAULT_MODIFIED_FIELD,
+               deleted_field=DEFAULT_DELETED_FIELD,
+               auth=None):
+        url = self._build_url(self.record_url.format(collection_id,
+                                                     object_id))
+        resp = self._client.delete(url, headers=self._headers(auth))
         resp.raise_for_status()
         return resp.json()
 
     @wrap_http_error
-    def delete_all(self, resource, user_id, filters=None):
-        url = self._build_url(self.collection_url.format(resource.name))
+    def delete_all(self, collection_id, parent_id, filters=None,
+                   id_field=DEFAULT_ID_FIELD,
+                   modified_field=DEFAULT_MODIFIED_FIELD,
+                   deleted_field=DEFAULT_DELETED_FIELD,
+                   auth=None):
+        url = self._build_url(self.collection_url.format(collection_id))
         params = []
         if filters:
             params += [("%s%s" % (FILTERS[op], k), v) for k, v, op in filters]
         resp = self._client.delete(url,
                                    params=params,
-                                   headers=self._build_headers(resource))
+                                   headers=self._headers(auth))
         resp.raise_for_status()
 
     def _filters_as_params(self, filters):
@@ -194,9 +226,13 @@ class CloudStorage(StorageBase):
         return '&'.join(["%s=%s" % (p, v) for p, v in params])
 
     @wrap_http_error
-    def get_all(self, resource, user_id, filters=None, sorting=None,
-                pagination_rules=None, limit=None, include_deleted=False):
-        url = self.collection_url.format(resource.name)
+    def get_all(self, collection_id, parent_id, filters=None, sorting=None,
+                pagination_rules=None, limit=None, include_deleted=False,
+                id_field=DEFAULT_ID_FIELD,
+                modified_field=DEFAULT_MODIFIED_FIELD,
+                deleted_field=DEFAULT_DELETED_FIELD,
+                auth=None):
+        url = self.collection_url.format(collection_id)
 
         params = []
 
@@ -218,7 +254,7 @@ class CloudStorage(StorageBase):
         if not pagination_rules:
             resp = self._client.get(self._build_url(url),
                                     params=params,
-                                    headers=self._build_headers(resource))
+                                    headers=self._headers(auth))
             resp.raise_for_status()
 
             count = resp.headers['Total-Records']
@@ -243,7 +279,7 @@ class CloudStorage(StorageBase):
 
             resp = self._client.post(self._build_url('/batch'),
                                      data=json.dumps(batch_payload),
-                                     headers=self._build_headers(resource))
+                                     headers=self._headers(auth))
             resp.raise_for_status()
             batch_responses = resp.json()['responses']
 
@@ -255,7 +291,7 @@ class CloudStorage(StorageBase):
             records = {}
             for batch_response in batch_responses[1:]:
                 for record in batch_response['body']['items']:
-                    records[record[resource.id_field]] = record
+                    records[record[id_field]] = record
 
             if sorting:
                 records = apply_sorting(records.values(), sorting)[:limit]

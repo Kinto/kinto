@@ -56,11 +56,10 @@ Storage can be used to store arbitrary data.
 
 .. code-block:: python
 
-    custom = BaseResource(request)
-    custom.name = '__custom'
-
     data = {'subscribed': datetime.now()}
     user_id = request.authenticated_userid
 
     storage = request.registry.storage
-    storage.create(resource=custom, user_id=user_id, record=data)
+    storage.create(collection_id='__custom', parent_id='', record=data)
+
+See the :ref:`collection` class to manipulate collections of records.
