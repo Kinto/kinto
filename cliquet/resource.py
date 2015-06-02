@@ -65,14 +65,14 @@ class ViewSet(object):
     def __init__(self, **kwargs):
         self.update(**kwargs)
         self.record_arguments = functools.partial(
-                                        self.get_arguments, 'record')
+                                        self.get_view_args, 'record')
         self.collection_arguments = functools.partial(
-                                        self.get_arguments, 'collection')
+                                        self.get_view_args, 'collection')
 
     def update(self, **kwargs):
         self.__dict__.update(**kwargs)
 
-    def get_arguments(self, endpoint_type, resource, method):
+    def get_view_args(self, endpoint_type, resource, method):
         """Returns the arguments for the given type, where `endpoint_type` can
         be either "collection" or "record".
         """
@@ -207,7 +207,6 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
             if not settings.get(setting_enabled, True):
                 continue
 
-            # XXX use viewset.get_arguments() directly ?
             argument_getter = getattr(viewset, '%s_arguments' % endpoint_type)
             view_args = argument_getter(resource, method)
 
