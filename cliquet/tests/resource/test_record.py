@@ -1,6 +1,7 @@
 import mock
 from pyramid import httpexceptions
 
+from cliquet.resource import BaseResource
 from cliquet.errors import ERRORS
 from cliquet.tests.resource import BaseTest
 
@@ -90,8 +91,7 @@ class PatchTest(BaseTest):
     def test_collection_timestamp_is_not_updated_if_no_field_changed(self):
         self.resource.request.json = {'some': 'change'}
         self.resource.patch()
-        # Reset
-        BaseTest.setUp(self)
+        self.resource = BaseResource(self.get_request())
         self.resource.collection_get()
         last_modified = self.last_response.headers['Last-Modified']
         self.assertEquals(self.result['last_modified'], int(last_modified))

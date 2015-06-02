@@ -41,6 +41,9 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         DROP TABLE IF EXISTS records CASCADE;
         DROP TABLE IF EXISTS deleted CASCADE;
         DROP TABLE IF EXISTS metadata CASCADE;
+        DROP FUNCTION IF EXISTS resource_timestamp(VARCHAR, VARCHAR);
+        DROP FUNCTION IF EXISTS collection_timestamp(VARCHAR, VARCHAR);
+        DROP FUNCTION IF EXISTS bump_timestamp();
         """
         with self.storage.connect() as cursor:
             cursor.execute(q)

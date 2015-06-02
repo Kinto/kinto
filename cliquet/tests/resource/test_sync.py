@@ -34,7 +34,6 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
     def test_the_timestamp_header_is_equal_to_last_modification(self):
         result = self.resource.collection_post()
         modification = result['last_modified']
-
         self.resource = BaseResource(self.get_request())
         self.resource.collection_get()
         header = int(self.last_response.headers['Last-Modified'])
