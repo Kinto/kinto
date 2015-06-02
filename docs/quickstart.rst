@@ -123,7 +123,7 @@ in :file:`myproject/views.py` for example:
 
     from cliquet import resource
 
-    @resource.crud()
+    @resource.register()
     class Mushroom(resource.BaseResource):
         # No schema yet.
         pass
@@ -175,7 +175,7 @@ Currently, only :rtd:`Colander <colander>` is supported, and it looks like this:
         name = colander.SchemaNode(colander.String())
 
 
-    @resource.crud()
+    @resource.register()
     class Mushroom(resource.BaseResource):
         mapping = MushroomSchema()
 

@@ -31,7 +31,7 @@ Full example
             unique_fields = ('url',)
 
 
-    @resource.crud()
+    @resource.register()
     class Bookmark(resource.BaseResource):
         mapping = BookmarkSchema()
 
@@ -134,7 +134,7 @@ or at the resource level:
             return '%s' % utils.msec_time()
 
 
-    @resource.crud()
+    @resource.register()
     class Mushroom(resource.BaseResource):
         def __init__(request):
             super(Mushroom, self).__init__(request)

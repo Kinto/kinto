@@ -27,7 +27,10 @@ class ViewSet(object):
     """The default ViewSet object.
 
     A viewset contains all the information needed to register
-    any resource in the  cornice registry.
+    any resource in the Cornice registry.
+
+    It provides the same features as ``cornice.resource.crud()``, except
+    that it is much more flexible and extensible.
     """
     service_name = "{resource_name}-{endpoint_type}"
     collection_path = "/{resource_name}s"
@@ -69,11 +72,16 @@ class ViewSet(object):
             self.get_view_args, 'collection')
 
     def update(self, **kwargs):
+        """Update viewset attributes with provided values."""
         self.__dict__.update(**kwargs)
 
     def get_view_args(self, endpoint_type, resource, method):
-        """Returns the arguments for the given type, where `endpoint_type` can
-        be either "collection" or "record".
+        """Return the Pyramid/Cornice view arguments for the given endpoint
+        type and method.
+
+        :param str endpoint_type: either "collection" or "record".
+        :param resource: the resource object.
+        :param str method: the HTTP method.
         """
         args = self.default_arguments.copy()
         default_arguments = getattr(self,
@@ -97,10 +105,11 @@ class ViewSet(object):
         return args
 
     def get_view(self, endpoint_type, method):
-        """Returns the view location for the given type and method.
+        """Return the view method name located on the resource object, for the
+        given type and method.
 
-        For collections, this will be "collection_{method|lower}
-        For records, this will be "{method|lower}.
+        * For collections, this will be "collection_{method|lower}
+        * For records, this will be "{method|lower}.
         """
         if endpoint_type == 'record':
             return method.lower()
@@ -127,7 +136,7 @@ class ViewSet(object):
             endpoint_type=endpoint_type)
 
     def get_view_permission(self, endpoint_type, resource, method):
-        """Returns the permission associated with the given type,
+        """Return the permission associated with the given type,
         resource and method"""
         if method.lower() in map(str.lower, self.readonly_methods):
             permission = "readonly"
@@ -139,8 +148,8 @@ class ViewSet(object):
 def register(depth=1, **kwargs):
     """Ressource class decorator.
 
-    Registers the decorated class in the cornice registry.
-    Passes all its keyword arguments to the register_resource
+    Register the decorated class in the cornice registry.
+    Pass all its keyword arguments to the register_resource
     function.
     """
     def wrapped(resource):
@@ -210,6 +219,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
 
             view = viewset.get_view(endpoint_type, method.lower())
             service.add_view(method, view, klass=resource, **view_args)
+
         return service
 
     services = []
