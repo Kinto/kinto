@@ -105,8 +105,7 @@ class ViewSet(object):
         """
         if endpoint_type == 'record':
             return method.lower()
-        else:
-            return '%s_%s' % (endpoint_type, method.lower())
+        return '%s_%s' % (endpoint_type, method.lower())
 
     def get_name(self, resource):
         """Returns the name of the resource.

@@ -1,4 +1,4 @@
-from mock import sentinel, MagicMock, patch
+import mock
 
 from cliquet.resource import ViewSet, register_resource
 
@@ -15,7 +15,7 @@ class FakeViewSet(ViewSet):
     def __init__(self):
         self.collection_arguments = self.arguments
         self.record_arguments = self.arguments
-        self.update = MagicMock()
+        self.update = mock.MagicMock()
 
     def arguments(self, resource, method):
         # By default, returns an empty dict of arguments.
@@ -35,15 +35,15 @@ class FakeResource(object):
                     view_name = method
                 else:
                     view_name = '_'.join((endpoint_type, method))
-                setattr(self, view_name, getattr(sentinel, view_name))
+                setattr(self, view_name, getattr(mock.sentinel, view_name))
 
 
 class ViewSetTest(unittest.TestCase):
 
     def test_arguments_are_merged_on_initialization(self):
-        viewset = ViewSet(collection_path=sentinel.collection_path)
+        viewset = ViewSet(collection_path=mock.sentinel.collection_path)
         self.assertEquals(viewset.collection_path,
-                          sentinel.collection_path)
+                          mock.sentinel.collection_path)
 
     def test_default_arguments_are_copied_before_being_returned(self):
         original_arguments = {}
@@ -51,67 +51,56 @@ class ViewSetTest(unittest.TestCase):
             collection_get_arguments=original_arguments,
             validate_schema_for=()
         )
-        arguments = viewset.collection_arguments(sentinel.resource, 'GET')
+        arguments = viewset.collection_arguments(mock.sentinel.resource, 'GET')
         self.assertEquals(original_arguments, {})
+        self.assertNotEquals(original_arguments, arguments)
 
-    @patch('cliquet.resource.CorniceSchema')
+    @mock.patch('cliquet.resource.CorniceSchema')
     def test_schema_is_added_when_method_matches(self, patched):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
-        resource = MagicMock()
+        resource = mock.MagicMock()
         arguments = viewset.collection_arguments(resource, 'GET')
         self.assertEquals(arguments['schema'], resource.mapping)
 
-    @patch('cliquet.resource.CorniceSchema')
-    def test_schema_is_added_when_method_is_uppercase(self, patched):
+    @mock.patch('cliquet.resource.CorniceSchema')
+    def test_schema_is_added_when_uppercase_method_matches(self, patched):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
-        resource = MagicMock()
+        resource = mock.MagicMock()
         arguments = viewset.collection_arguments(resource, 'get')
         self.assertEquals(arguments['schema'], resource.mapping)
 
-    @patch('cliquet.resource.colander')
-    @patch('cliquet.resource.CorniceSchema')
+    @mock.patch('cliquet.resource.colander')
+    @mock.patch('cliquet.resource.CorniceSchema')
     def test_a_default_schema_is_added_when_method_doesnt_match(self,
             cornice_schema, colander):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
-        resource = MagicMock()
-        colander.MappingSchema.return_value = sentinel.default_schema
+        resource = mock.MagicMock()
+        colander.MappingSchema.return_value = mock.sentinel.default_schema
 
         arguments = viewset.collection_arguments(resource, 'POST')
-        self.assertEquals(arguments['schema'], sentinel.default_schema)
+        self.assertEquals(arguments['schema'], mock.sentinel.default_schema)
 
         cornice_schema.from_colander.assert_not_called()
         self.assertNotEqual(arguments['schema'], resource.mapping)
 
         colander.MappingSchema.assert_called_with(unknown='preserve')
 
-    def test_permission_is_added_when_needed(self):
-        viewset = ViewSet(readonly_methods=('GET',))
-        arguments = viewset.collection_arguments(MagicMock(), 'GET')
-        self.assertIn('permission', arguments)
-        self.assertEquals(arguments['permission'], 'readonly')
-
-    def test_permission_is_ignored_when_not_needed(self):
-        viewset = ViewSet(readonly_methods=())
-        viewset.get_view_permission = lambda *args: None
-        arguments = viewset.collection_arguments(MagicMock(), 'GET')
-        self.assertNotIn('permission', arguments)
-
     def test_class_parameters_are_used_for_collection_arguments(self):
         default_arguments = {
-            'cors_headers': sentinel.cors_headers,
+            'cors_headers': mock.sentinel.cors_headers,
         }
         default_collection_arguments = {
-            'cors_origins': sentinel.cors_origins,
+            'cors_origins': mock.sentinel.cors_origins,
         }
 
         collection_get_arguments = {
-            'error_handler': sentinel.error_handler
+            'error_handler': mock.sentinel.error_handler
         }
 
         viewset = ViewSet(
@@ -120,28 +109,28 @@ class ViewSetTest(unittest.TestCase):
             collection_get_arguments=collection_get_arguments
         )
 
-        arguments = viewset.collection_arguments(MagicMock, 'get')
+        arguments = viewset.collection_arguments(mock.MagicMock, 'get')
         schema = arguments.pop('schema')
         self.assertDictEqual(
             arguments,
             {
-                'cors_headers': sentinel.cors_headers,
-                'cors_origins': sentinel.cors_origins,
-                'error_handler': sentinel.error_handler,
+                'cors_headers': mock.sentinel.cors_headers,
+                'cors_origins': mock.sentinel.cors_origins,
+                'error_handler': mock.sentinel.error_handler,
                 'permission': 'readonly'
             }
         )
 
     def test_default_arguments_are_used_for_record_arguments(self):
         default_arguments = {
-            'cors_headers': sentinel.cors_headers,
+            'cors_headers': mock.sentinel.cors_headers,
         }
         default_record_arguments = {
-            'cors_origins': sentinel.record_cors_origins,
+            'cors_origins': mock.sentinel.record_cors_origins,
         }
 
         record_get_arguments = {
-            'error_handler': sentinel.error_handler
+            'error_handler': mock.sentinel.error_handler
         }
 
         viewset = ViewSet(
@@ -150,15 +139,15 @@ class ViewSetTest(unittest.TestCase):
             record_get_arguments=record_get_arguments
         )
 
-        arguments = viewset.record_arguments(MagicMock, 'get')
+        arguments = viewset.record_arguments(mock.MagicMock, 'get')
         schema = arguments.pop('schema')
 
         self.assertDictEqual(
             arguments,
             {
-                'cors_headers': sentinel.cors_headers,
-                'cors_origins': sentinel.record_cors_origins,
-                'error_handler': sentinel.error_handler,
+                'cors_headers': mock.sentinel.cors_headers,
+                'cors_origins': mock.sentinel.record_cors_origins,
+                'error_handler': mock.sentinel.error_handler,
                 'permission': 'readonly'
             }
         )
@@ -168,17 +157,17 @@ class ViewSetTest(unittest.TestCase):
         # The more specifics should prevail over the more generics.
         # Items annoted with a "<<" are the one that should prevail.
         default_arguments = {
-            'cors_origins': sentinel.default_cors_origins,
-            'error_handler': sentinel.default_error_handler,
-            'cors_headers': sentinel.default_cors_headers,  # <<
+            'cors_origins': mock.sentinel.default_cors_origins,
+            'error_handler': mock.sentinel.default_error_handler,
+            'cors_headers': mock.sentinel.default_cors_headers,  # <<
         }
         default_record_arguments = {
-            'cors_origins': sentinel.default_record_cors_origin,
-            'error_handler': sentinel.default_record_error_handler,  # <<
+            'cors_origins': mock.sentinel.default_record_cors_origin,
+            'error_handler': mock.sentinel.default_record_error_handler,  # <<
         }
 
         record_get_arguments = {
-            'cors_origins': sentinel.record_get_cors_origin,  # <<
+            'cors_origins': mock.sentinel.record_get_cors_origin,  # <<
         }
 
         viewset = ViewSet(
@@ -187,15 +176,15 @@ class ViewSetTest(unittest.TestCase):
             record_get_arguments=record_get_arguments,
         )
 
-        arguments = viewset.record_arguments(MagicMock, 'get')
+        arguments = viewset.record_arguments(mock.MagicMock, 'get')
         schema = arguments.pop('schema')
 
         self.assertDictEqual(
             arguments,
             {
-                'cors_headers': sentinel.default_cors_headers,
-                'error_handler': sentinel.default_record_error_handler,
-                'cors_origins': sentinel.record_get_cors_origin,
+                'cors_headers': mock.sentinel.default_cors_headers,
+                'error_handler': mock.sentinel.default_record_error_handler,
+                'cors_origins': mock.sentinel.record_get_cors_origin,
                 'permission': 'readonly'
             }
         )
@@ -206,7 +195,7 @@ class ViewSetTest(unittest.TestCase):
         }
 
         default_arguments = {
-            'cors_headers': sentinel.cors_headers,
+            'cors_headers': mock.sentinel.cors_headers,
         }
 
 
@@ -217,12 +206,12 @@ class ViewSetTest(unittest.TestCase):
             record_get_arguments={}
         )
 
-        arguments = viewset.record_arguments(MagicMock, 'get')
+        arguments = viewset.record_arguments(mock.MagicMock, 'get')
         schema = arguments.pop('schema')
         self.assertDictEqual(
             arguments,
             {
-                'cors_headers': sentinel.cors_headers,
+                'cors_headers': mock.sentinel.cors_headers,
                 'permission': 'readonly',
             }
         )
@@ -230,12 +219,12 @@ class ViewSetTest(unittest.TestCase):
     def test_get_service_name_returns_the_viewset_name_if_defined(self):
         viewset = ViewSet(name='fakename')
         self.assertEquals(
-            viewset.get_service_name('record', MagicMock),
+            viewset.get_service_name('record', mock.MagicMock),
             'fakename-record')
 
     def test_get_service_name_returns_resource_att_if_not_callable(self):
         viewset = ViewSet()
-        resource = MagicMock()
+        resource = mock.MagicMock()
         resource.name = 'fakename'
         self.assertEquals(
             viewset.get_service_name('record', resource),
@@ -243,24 +232,39 @@ class ViewSetTest(unittest.TestCase):
 
     def test_get_service_name_doesnt_use_callable_as_a_name(self):
         viewset = ViewSet()
-        resource = MagicMock()
+        resource = mock.MagicMock()
         resource.name = lambda x: 'should not be called'
         resource.__name__ = "FakeName"
         self.assertEquals(
             viewset.get_service_name('record', resource),
             'fakename-record')
 
+
+class ViewPermissionTest(unittest.TestCase):
+
     def test_get_view_permission_returns_readwrite_by_default(self):
         viewset = ViewSet(readonly_methods=())
-        permission = viewset.get_view_permission("collection", MagicMock,
+        permission = viewset.get_view_permission("collection", mock.MagicMock,
                                                  "get")
         self.assertEquals(permission, "readwrite")
 
     def test_get_view_permissions_can_return_readonly(self):
         viewset = ViewSet(readonly_methods=('GET',))
-        permission = viewset.get_view_permission("collection", MagicMock,
+        permission = viewset.get_view_permission("collection", mock.MagicMock,
                                                  "get")
         self.assertEquals(permission, "readonly")
+
+    def test_permission_is_added_when_needed(self):
+        viewset = ViewSet(readonly_methods=('GET',))
+        arguments = viewset.collection_arguments(mock.MagicMock(), 'GET')
+        self.assertIn('permission', arguments)
+        self.assertEquals(arguments['permission'], 'readonly')
+
+    def test_permission_is_ignored_when_not_needed(self):
+        viewset = ViewSet(readonly_methods=())
+        viewset.get_view_permission = lambda *args: None
+        arguments = viewset.collection_arguments(mock.MagicMock(), 'GET')
+        self.assertNotIn('permission', arguments)
 
 
 class RegisterTest(unittest.TestCase):
@@ -269,13 +273,13 @@ class RegisterTest(unittest.TestCase):
         self.resource = FakeResource
         self.viewset = FakeViewSet()
 
-    @patch('cliquet.resource.Service')
+    @mock.patch('cliquet.resource.Service')
     def test_viewset_is_updated_if_provided(self, service_class):
         additional_params = {'foo': 'bar'}
         register_resource(self.resource, viewset=self.viewset, **additional_params)
         self.viewset.update.assert_called_with(**additional_params)
 
-    @patch('cliquet.resource.Service')
+    @mock.patch('cliquet.resource.Service')
     def test_collection_views_are_registered_in_cornice(self, service_class):
         register_resource(self.resource, viewset=self.viewset)
 
@@ -284,7 +288,7 @@ class RegisterTest(unittest.TestCase):
         service_class().add_view.assert_any_call(
             'GET', 'collection_get', klass=self.resource)
 
-    @patch('cliquet.resource.Service')
+    @mock.patch('cliquet.resource.Service')
     def test_record_views_are_registered_in_cornice(self, service_class):
         register_resource(self.resource, viewset=self.viewset)
 
@@ -294,7 +298,7 @@ class RegisterTest(unittest.TestCase):
             'PUT', 'put', klass=self.resource)
 
 
-    @patch('cliquet.resource.Service')
+    @mock.patch('cliquet.resource.Service')
     def test_record_methods_are_skipped_if_not_enabled(self, service_class):
         register_resource(self.resource, viewset=self.viewset, settings={
             'cliquet.record_fake_put_enabled': False
@@ -310,7 +314,7 @@ class RegisterTest(unittest.TestCase):
             'GET', 'collection_get', klass=self.resource)
 
 
-    @patch('cliquet.resource.Service')
+    @mock.patch('cliquet.resource.Service')
     def test_record_methods_are_skipped_if_not_enabled(self, service_class):
         register_resource(self.resource, viewset=self.viewset, settings={
             'cliquet.collection_fake_get_enabled': False
