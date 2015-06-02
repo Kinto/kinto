@@ -22,122 +22,128 @@ class PermissionTest(unittest.TestCase):
     def test_build_perm_set_id_can_construct_parents_set_ids(self):
         obj_parts = self.record_id.split('/')
         # Can build record_id from obj_parts
-        self.assertEqual(permission.build_perm_set_id('record', 'write',
-                                                      obj_parts),
-                         (self.record_id, 'write'))
+        self.assertEqual(
+            permission.build_permission_tuple('record', 'write', obj_parts),
+            (self.record_id, 'write'))
 
         # Can build collection_id from obj_parts
-        self.assertEqual(permission.build_perm_set_id('collection',
-                                                      'records:create',
-                                                      obj_parts),
-                         (self.collection_id, 'records:create'))
+        self.assertEqual(
+            permission.build_permission_tuple('collection', 'records:create',
+                                              obj_parts),
+            (self.collection_id, 'records:create'))
 
         # Can build bucket_id from obj_parts
-        self.assertEqual(permission.build_perm_set_id('bucket',
-                                                      'groups:create',
-                                                      obj_parts),
-                         (self.bucket_id, 'groups:create'))
+        self.assertEqual(permission.build_permission_tuple(
+            'bucket', 'groups:create', obj_parts),
+            (self.bucket_id, 'groups:create'))
 
         # Can build group_id from group obj_parts
         obj_parts = self.group_id.split('/')
-        self.assertEqual(permission.build_perm_set_id('group',
-                                                      'read',
-                                                      obj_parts),
-                         (self.group_id, 'read'))
+        self.assertEqual(permission.build_permission_tuple(
+            'group', 'read', obj_parts),
+            (self.group_id, 'read'))
 
         # Can build bucket_id from group obj_parts
         obj_parts = self.group_id.split('/')
-        self.assertEqual(permission.build_perm_set_id('bucket',
-                                                      'write',
-                                                      obj_parts),
-                         (self.bucket_id, 'write'))
+        self.assertEqual(permission.build_permission_tuple(
+            'bucket', 'write', obj_parts),
+            (self.bucket_id, 'write'))
 
-    def test_build_perm_set_id_fail_construct_children_set_ids(self):
+    def test_build_permission_tuple_fail_construct_children_set_ids(self):
         obj_parts = self.bucket_id.split('/')
         # Cannot build record_id from bucket obj_parts
         self.assertRaises(ValueError,
-                          permission.build_perm_set_id,
+                          permission.build_permission_tuple,
                           'record', 'write', obj_parts)
 
         # Cannot build collection_id from obj_parts
         self.assertRaises(ValueError,
-                          permission.build_perm_set_id,
+                          permission.build_permission_tuple,
                           'collection', 'write', obj_parts)
 
         # Cannot build bucket_id from empty obj_parts
         self.assertRaises(ValueError,
-                          permission.build_perm_set_id,
+                          permission.build_permission_tuple,
                           'collection', 'write', [])
 
-    def test_build_perm_set_id_fail_on_wrong_type(self):
+    def test_build_permission_tuple_fail_on_wrong_type(self):
         obj_parts = self.record_id.split('/')
         self.assertRaises(ValueError,
-                          permission.build_perm_set_id,
+                          permission.build_permission_tuple,
                           'schema', 'write', obj_parts)
 
     def test_get_perm_keys_for_bucket_permission(self):
         # write
-        self.assertEquals(permission.get_perm_keys(self.bucket_id, 'write'),
-                          set([(self.bucket_id, 'write')]))
+        self.assertEquals(
+            permission.build_permissions_set(self.bucket_id, 'write'),
+            set([(self.bucket_id, 'write')]))
         # read
-        self.assertEquals(permission.get_perm_keys(self.bucket_id, 'read'),
-                          set([(self.bucket_id, 'write'),
-                               (self.bucket_id, 'read')]))
+        self.assertEquals(
+            permission.build_permissions_set(self.bucket_id, 'read'),
+            set([(self.bucket_id, 'write'), (self.bucket_id, 'read')]))
+
         # groups:create
-        self.assertEquals(permission.get_perm_keys(self.bucket_id,
-                                                   'groups:create'),
-                          set([(self.bucket_id, 'write'),
-                               (self.bucket_id, 'groups:create')]))
+        self.assertEquals(
+            permission.build_permissions_set(self.bucket_id, 'groups:create'),
+            set(
+                [(self.bucket_id, 'write'), (self.bucket_id, 'groups:create')])
+            )
 
         # collections:create
-        self.assertEquals(permission.get_perm_keys(self.bucket_id,
-                                                   'collections:create'),
-                          set([(self.bucket_id, 'write'),
-                               (self.bucket_id, 'collections:create')]))
+        self.assertEquals(
+            permission.build_permissions_set(self.bucket_id,
+                                             'collections:create'),
+            set([(self.bucket_id, 'write'),
+                 (self.bucket_id, 'collections:create')]))
 
-    def test_get_perm_keys_for_group_permission(self):
+    def test_build_permissions_set_for_group_permission(self):
         # write
-        self.assertEquals(permission.get_perm_keys(self.group_id, 'write'),
-                          set([(self.bucket_id, 'write'),
-                               (self.group_id, 'write')]))
+        self.assertEquals(
+            permission.build_permissions_set(self.group_id, 'write'),
+            set([(self.bucket_id, 'write'),
+                 (self.group_id, 'write')]))
         # read
-        self.assertEquals(permission.get_perm_keys(self.group_id, 'read'),
-                          set([(self.bucket_id, 'write'),
-                               (self.bucket_id, 'read'),
-                               (self.group_id, 'write'),
-                               (self.group_id, 'read')]))
+        self.assertEquals(
+            permission.build_permissions_set(self.group_id, 'read'),
+            set([(self.bucket_id, 'write'),
+                 (self.bucket_id, 'read'),
+                 (self.group_id, 'write'),
+                 (self.group_id, 'read')]))
 
-    def test_get_perm_keys_for_collection_permission(self):
+    def test_build_permissions_set_for_collection_permission(self):
         # write
-        self.assertEquals(permission.get_perm_keys(self.collection_id,
-                                                   'write'),
-                          set([(self.bucket_id, 'write'),
-                               (self.collection_id, 'write')]))
+        self.assertEquals(
+            permission.build_permissions_set(self.collection_id, 'write'),
+            set([(self.bucket_id, 'write'),
+                 (self.collection_id, 'write')]))
         # read
-        self.assertEquals(permission.get_perm_keys(self.collection_id, 'read'),
-                          set([(self.bucket_id, 'write'),
-                               (self.bucket_id, 'read'),
-                               (self.collection_id, 'write'),
-                               (self.collection_id, 'read')]))
+        self.assertEquals(
+            permission.build_permissions_set(self.collection_id, 'read'),
+            set([(self.bucket_id, 'write'),
+                 (self.bucket_id, 'read'),
+                 (self.collection_id, 'write'),
+                 (self.collection_id, 'read')]))
         # records:create
-        self.assertEquals(permission.get_perm_keys(self.collection_id,
-                                                   'records:create'),
-                          set([(self.bucket_id, 'write'),
-                               (self.collection_id, 'write'),
-                               (self.collection_id, 'records:create')]))
+        self.assertEquals(
+            permission.build_permissions_set(self.collection_id,
+                                             'records:create'),
+            set([(self.bucket_id, 'write'),
+                 (self.collection_id, 'write'),
+                 (self.collection_id, 'records:create')]))
 
-    def test_get_perm_keys_for_record_permission(self):
+    def test_build_permissions_set_for_record_permission(self):
         # write
-        self.assertEquals(permission.get_perm_keys(self.record_id,
-                                                   'write'),
-                          set([(self.bucket_id, 'write'),
-                               (self.collection_id, 'write'),
-                               (self.record_id, 'write')]))
+        self.assertEquals(
+            permission.build_permissions_set(self.record_id, 'write'),
+            set([(self.bucket_id, 'write'),
+                 (self.collection_id, 'write'),
+                 (self.record_id, 'write')]))
         # read
-        self.assertEquals(permission.get_perm_keys(self.record_id, 'read'),
-                          set([(self.bucket_id, 'write'),
-                               (self.bucket_id, 'read'),
-                               (self.collection_id, 'write'),
-                               (self.collection_id, 'read'),
-                               (self.record_id, 'write'),
-                               (self.record_id, 'read')]))
+        self.assertEquals(
+            permission.build_permissions_set(self.record_id, 'read'),
+            set([(self.bucket_id, 'write'),
+                 (self.bucket_id, 'read'),
+                 (self.collection_id, 'write'),
+                 (self.collection_id, 'read'),
+                 (self.record_id, 'write'),
+                 (self.record_id, 'read')]))

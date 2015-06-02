@@ -1,5 +1,21 @@
-# List of permissions that gives us this permission
-PERMISSIONS_INHERITANCE = {
+# Vocab really matters when you deal with permissions. Let's do a quick recap
+# of the terms used here:
+#
+# Object URI:
+#    An unique identifier for an object.
+#    for instance, /buckets/blog/collections/articles/records/article1
+#
+# Object:
+#    A common denomination of an object (e.g. "collection" or "record")
+#
+# Unbound permission:
+#    A permission not bound to an object (e.g. "create")
+#
+# Bound permission:
+#    A permission bound to an object (e.g. "collection:create")
+
+# Dictionary which list all permissions a given permission enables.
+PERMISSIONS_INHERITANCE_TREE = {
     'bucket:write': {
         'bucket': ['write']
     },
@@ -45,22 +61,25 @@ PERMISSIONS_INHERITANCE = {
 }
 
 
-def get_object_type(object_id):
+def get_object_type(object_uri):
     """Return the type of an object from its id."""
-    if 'records' in object_id:
+
+    # Order matters here. More precise is tested first.
+    if 'records' in object_uri:
         obj_type = 'record'
-    elif 'collections' in object_id:
+    elif 'collections' in object_uri:
         obj_type = 'collection'
-    elif 'groups' in object_id:
+    elif 'groups' in object_uri:
         obj_type = 'group'
-    elif 'buckets' in object_id:
+    elif 'buckets' in object_uri:
         obj_type = 'bucket'
     else:
-        raise ValueError('`%s` key is an invalid object id.' % object_id)
+        raise ValueError('`%s` key is an invalid object id.' % object_uri)
     return obj_type
 
 
-def build_perm_set_id(obj_type, perm, obj_parts):
+def build_permission_tuple(obj_type, unbound_permission, obj_parts):
+    """Returns a tuple of (object_uri, unbound_permission)"""
     PARTS_LENGTH = {
         'bucket': 3,
         'collection': 5,
@@ -74,18 +93,31 @@ def build_perm_set_id(obj_type, perm, obj_parts):
         raise ValueError('You cannot build children keys from its parent key.'
                          'Trying to build type "%s" from object key "%s".' % (
                              obj_type, '/'.join(obj_parts)))
-    return ('/'.join(obj_parts[:PARTS_LENGTH[obj_type]]), perm)
+    length = PARTS_LENGTH[obj_type]
+    return ('/'.join(obj_parts[:length]), unbound_permission)
 
 
-def get_perm_keys(object_id, permission):
-    obj_parts = object_id.split('/')
-    obj_type = get_object_type(object_id)
+def build_permissions_set(object_uri, unbound_permission,
+                          inheritance_tree=None):
+    """Build a set of all permissions that can grant access to the given
+    object URI and unbound permission.
 
-    permission_type = '%s:%s' % (obj_type, permission)
-    keys = set([])
+    >>> build_required_permissions('/buckets/blog', 'write')
+    set(('/buckets/blog', 'write'))
 
-    for perm_obj_type, permissions in \
-            PERMISSIONS_INHERITANCE[permission_type].items():
-        for other_perm in permissions:
-            keys.add(build_perm_set_id(perm_obj_type, other_perm, obj_parts))
-    return keys
+    """
+
+    if inheritance_tree is None:
+        inheritance_tree = PERMISSIONS_INHERITANCE_TREE
+
+    obj_type = get_object_type(object_uri)
+
+    bound_permission = '%s:%s' % (obj_type, unbound_permission)
+    granters = set()
+
+    obj_parts = object_uri.split('/')
+    for obj, permission_list in inheritance_tree[bound_permission].items():
+        for permission in permission_list:
+            granters.add(build_permission_tuple(obj, permission, obj_parts))
+
+    return granters
