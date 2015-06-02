@@ -85,7 +85,7 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
 
     def test_503_is_valid_formatted_error(self):
         with mock.patch(
-                'cliquet.tests.testapp.views.Mushroom.get_records',
+                'cliquet.tests.testapp.views.Mushroom._extract_filters',
                 side_effect=httpexceptions.HTTPServiceUnavailable):
             response = self.app.get(self.sample_url,
                                     headers=self.headers, status=503)
