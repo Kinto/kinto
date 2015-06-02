@@ -29,7 +29,7 @@ class ViewSet(object):
     A viewset contains all the information needed to register
     any resource in the Cornice registry.
 
-    It provides the same features as ``cornice.resource.crud()``, except
+    It provides the same features as ``cornice.resource()``, except
     that it is much more flexible and extensible.
     """
     service_name = "{resource_name}-{endpoint_type}"
