@@ -19,8 +19,8 @@ class Collection(object):
     deleted_field = 'deleted'
     """Name of `deleted` field in deleted records"""
 
-    def __init__(self, storage, id_generator=None, name='', parent_id='',
-                 auth=None):
+    def __init__(self, storage, id_generator=None, collection_id='',
+                 parent_id='', auth=None):
         """
         :param storage: an instance of storage
         :type storage: :class:`cliquet.storage.Storage`
@@ -33,7 +33,7 @@ class Collection(object):
         self.storage = storage
         self.id_generator = id_generator
         self.parent_id = parent_id
-        self.name = name
+        self.collection_id = collection_id
         self.auth = auth
 
     def timestamp(self, parent_id=None):
@@ -43,9 +43,10 @@ class Collection(object):
         :rtype: integer
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.collection_timestamp(collection_id=self.name,
-                                                 parent_id=parent_id,
-                                                 auth=self.auth)
+        return self.storage.collection_timestamp(
+            collection_id=self.collection_id,
+            parent_id=parent_id,
+            auth=self.auth)
 
     def get_records(self, filters=None, sorting=None, pagination_rules=None,
                     limit=None, include_deleted=False, parent_id=None):
@@ -85,7 +86,7 @@ class Collection(object):
         """
         parent_id = parent_id or self.parent_id
         records, total_records = self.storage.get_all(
-            collection_id=self.name,
+            collection_id=self.collection_id,
             parent_id=parent_id,
             filters=filters,
             sorting=sorting,
@@ -114,7 +115,7 @@ class Collection(object):
         :returns: The list of deleted records from storage.
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.delete_all(collection_id=self.name,
+        return self.storage.delete_all(collection_id=self.collection_id,
                                        parent_id=parent_id,
                                        filters=filters,
                                        id_field=self.id_field,
@@ -132,7 +133,7 @@ class Collection(object):
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.get(collection_id=self.name,
+        return self.storage.get(collection_id=self.collection_id,
                                 parent_id=parent_id,
                                 object_id=record_id,
                                 id_field=self.id_field,
@@ -161,7 +162,7 @@ class Collection(object):
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.create(collection_id=self.name,
+        return self.storage.create(collection_id=self.collection_id,
                                    parent_id=parent_id,
                                    record=record,
                                    id_generator=self.id_generator,
@@ -194,7 +195,7 @@ class Collection(object):
         """
         parent_id = parent_id or self.parent_id
         record_id = record[self.id_field]
-        return self.storage.update(collection_id=self.name,
+        return self.storage.update(collection_id=self.collection_id,
                                    parent_id=parent_id,
                                    object_id=record_id,
                                    record=record,
@@ -225,7 +226,7 @@ class Collection(object):
         """
         parent_id = parent_id or self.parent_id
         record_id = record[self.id_field]
-        return self.storage.delete(collection_id=self.name,
+        return self.storage.delete(collection_id=self.collection_id,
                                    parent_id=parent_id,
                                    object_id=record_id,
                                    id_field=self.id_field,

@@ -243,11 +243,11 @@ Example indexer class in :file:`cliquet_indexing/elasticsearch.py`:
                 logger.error(e)
                 raise
 
-        def index_record(self, record, id_field):
+        def index_record(self, collection_id, record, id_field):
             record_id = record[id_field]
             try:
-                index = self.client.index(index=resource.name,
-                                          doc_type=resource.name,
+                index = self.client.index(index=collection_id,
+                                          doc_type=collection_id,
                                           id=record_id,
                                           body=record,
                                           refresh=True)

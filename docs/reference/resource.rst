@@ -88,8 +88,10 @@ a custom collection can be plugged-in:
 
 
     class TrackedCollection(resource.Collection):
-        def create_record(self, record):
-            record = super(TrackedCollection, self).create_record(record)
+        def create_record(self, record, parent_id=None, unique_fields=None):
+            record = super(TrackedCollection, self).create_record(record,
+                                                                  parent_id,
+                                                                  unique_fields)
             trackid = index.track(record)
             record['trackid'] = trackid
             return record
@@ -101,10 +103,12 @@ a custom collection can be plugged-in:
             self.collection = TrackedCollection(
                 storage=self.collection.storage,
                 id_generator=self.collection.id_generator,
-                name=self.collection.name,
+                collection_id=self.collection.collection_id,
                 parent_id=self.collection.parent_id,
                 auth=self.collection.auth)
 
+
+.. _collection:
 
 .. autoclass:: cliquet.resource.Collection
     :members:

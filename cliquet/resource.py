@@ -71,7 +71,7 @@ class BaseResource(object):
         self.collection = Collection(
             storage=request.registry.storage,
             id_generator=request.registry.id_generator,
-            name=classname(self),
+            collection_id=classname(self),
             parent_id=parent_id,
             auth=auth)
 
@@ -80,7 +80,7 @@ class BaseResource(object):
         self.record_id = self.request.matchdict.get('id')
 
         # Log resource context.
-        logger.bind(collection_id=self.collection.name,
+        logger.bind(collection_id=self.collection.collection_id,
                     collection_timestamp=self.timestamp)
 
     @property
