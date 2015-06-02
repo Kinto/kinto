@@ -16,7 +16,6 @@ try:
 except ImportError:  # pragma: no cover
     pass
 
-from cliquet import authentication
 from cliquet import errors
 from cliquet import logger
 from cliquet import utils
@@ -86,8 +85,6 @@ def setup_authentication(config):
         event.request.authn_type = value
 
     config.add_subscriber(on_policy_selected, MultiAuthPolicySelected)
-
-    config.registry.heartbeats['oauth'] = authentication.fxa_ping
 
 
 def setup_backoff(config):

@@ -7,7 +7,7 @@ Batch operations
 POST /batch
 ===========
 
-**Requires an FxA OAuth authentication**
+**Requires authentication**
 
 The POST body is a mapping, with the following attributes:
 

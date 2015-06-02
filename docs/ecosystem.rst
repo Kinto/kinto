@@ -3,8 +3,14 @@
 Ecosystem
 #########
 
-This section gathers information about extending *Cliquet*, and upcoming
-third-party packages.
+This section gathers information about extending *Cliquet*, and third-party packages.
+
+Packages
+========
+
+* :github:`mozilla-services/cliquet-fxa`:
+  Add support of :term:`Firefox Accounts` OAuth2 authentication in *Cliquet*
+
 
 .. note::
 

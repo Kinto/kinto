@@ -191,22 +191,23 @@ class StatsDConfigurationTest(unittest.TestCase):
         app.get('/v0/__heartbeat__')
         mocked().count.assert_any_call('view.heartbeat.GET')
 
-    @mock.patch('cliquet.views.oauth.relier.OAuthClient.verify_token')
+    @mock.patch('cliquet.utils.hmac_digest')
     @mock.patch('cliquet.statsd.Client')
-    def test_statsd_counts_unique_users(self, mocked, verify_mocked):
+    def test_statsd_counts_unique_users(self, mocked, digest_mocked):
+        digest_mocked.return_value = u'mat'
         cliquet.initialize(self.config, '0.0.1')
-        verify_mocked.return_value = {'user': 'mat'}
         app = webtest.TestApp(self.config.make_wsgi_app())
-        app.get('/v0/__heartbeat__', headers={'Authorization': 'Bearer abcde'})
-        mocked().count.assert_any_call('users', unique='fxa_mat')
+        headers = {'Authorization': 'Basic bWF0Og=='}
+        app.get('/v0/__heartbeat__', headers=headers)
+        mocked().count.assert_any_call('users', unique='basicauth_mat')
 
-    @mock.patch('cliquet.views.oauth.relier.OAuthClient.verify_token')
     @mock.patch('cliquet.statsd.Client')
-    def test_statsd_counts_authentication_types(self, mocked, verify_mocked):
+    def test_statsd_counts_authentication_types(self, mocked):
         cliquet.initialize(self.config, '0.0.1')
         app = webtest.TestApp(self.config.make_wsgi_app())
-        app.get('/v0/__heartbeat__', headers={'Authorization': 'Bearer abcde'})
-        mocked().count.assert_any_call('authn_type.FxAOAuth')
+        headers = {'Authorization': 'Basic bWF0Og=='}
+        app.get('/v0/__heartbeat__', headers=headers)
+        mocked().count.assert_any_call('authn_type.BasicAuth')
 
 
 class RequestsConfigurationTest(unittest.TestCase):

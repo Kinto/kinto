@@ -102,18 +102,15 @@ python API !
 Authentication
 --------------
 
-Currently, if no authentication is set in settings, *Cliquet* relies on
-:term:`Firefox Accounts`, whose setup is tedious.
+Currently, if no :ref:`authentication is set in settings <configuration-authentication>`,
+*Cliquet* relies on *Basic Auth*. It will associate a unique :term:`user id`
+for every user/password combination.
 
-Of course, any :ref:`authentication backend supported by Pyramid can be used <configuration-authentication>`,
-but in order to get started quickly, it is recommended to enable ``Basic Auth``:
+Using `HTTPie <http://httpie.org>`_, it is as easy as:
 
-.. code-block:: ini
+::
 
-    # myproject.ini
-    multiauth.policies = basicauth
-
-This will associate a unique :term:`user id` for every user/password combination.
+    $ http -v http://localhost:8000/v0/ --auth user:pass
 
 
 Define resources
