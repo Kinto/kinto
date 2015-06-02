@@ -4,6 +4,7 @@ from cliquet.resource import ViewSet, register_resource
 
 from .support import unittest
 
+
 class FakeViewSet(ViewSet):
     """Fake viewset class used for tests."""
     collection_path = "/{resource_name}"
@@ -75,8 +76,8 @@ class ViewSetTest(unittest.TestCase):
 
     @mock.patch('cliquet.resource.colander')
     @mock.patch('cliquet.resource.CorniceSchema')
-    def test_a_default_schema_is_added_when_method_doesnt_match(self,
-            cornice_schema, colander):
+    def test_a_default_schema_is_added_when_method_doesnt_match(
+            self, cornice_schema, colander):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
@@ -198,7 +199,6 @@ class ViewSetTest(unittest.TestCase):
             'cors_headers': mock.sentinel.cors_headers,
         }
 
-
         viewset = ViewSet(
             default_arguments=default_arguments,
             service_arguments=service_arguments,
@@ -276,7 +276,8 @@ class RegisterTest(unittest.TestCase):
     @mock.patch('cliquet.resource.Service')
     def test_viewset_is_updated_if_provided(self, service_class):
         additional_params = {'foo': 'bar'}
-        register_resource(self.resource, viewset=self.viewset, **additional_params)
+        register_resource(self.resource, viewset=self.viewset,
+                          **additional_params)
         self.viewset.update.assert_called_with(**additional_params)
 
     @mock.patch('cliquet.resource.Service')
@@ -297,7 +298,6 @@ class RegisterTest(unittest.TestCase):
         service_class().add_view.assert_any_call(
             'PUT', 'put', klass=self.resource)
 
-
     @mock.patch('cliquet.resource.Service')
     def test_record_methods_are_skipped_if_not_enabled(self, service_class):
         register_resource(self.resource, viewset=self.viewset, settings={
@@ -313,7 +313,6 @@ class RegisterTest(unittest.TestCase):
         service_class().add_view.assert_any_call(
             'GET', 'collection_get', klass=self.resource)
 
-
     @mock.patch('cliquet.resource.Service')
     def test_record_methods_are_skipped_if_not_enabled(self, service_class):
         register_resource(self.resource, viewset=self.viewset, settings={
@@ -328,4 +327,3 @@ class RegisterTest(unittest.TestCase):
                                       **self.viewset.service_arguments)
         service_class().add_view.assert_any_call(
             'PUT', 'put', klass=self.resource)
-

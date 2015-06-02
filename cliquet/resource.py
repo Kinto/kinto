@@ -49,25 +49,24 @@ class ViewSet(object):
         'cors_headers': ('Backoff', 'Retry-After', 'Alert'),
     }
 
-
     default_collection_arguments = {}
     collection_get_arguments = {
         'cors_headers': (('Backoff', 'Retry-After', 'Alert') +
-                        ('Next-Page', 'Total-Records', 'Last-Modified'))
+                         ('Next-Page', 'Total-Records', 'Last-Modified'))
     }
 
     default_record_arguments = {}
     record_get_arguments = {
         'cors_headers': (('Backoff', 'Retry-After', 'Alert') +
-                        ('Last-Modified',))
+                         ('Last-Modified',))
     }
 
     def __init__(self, **kwargs):
         self.update(**kwargs)
         self.record_arguments = functools.partial(
-                                        self.get_view_args, 'record')
+            self.get_view_args, 'record')
         self.collection_arguments = functools.partial(
-                                        self.get_view_args, 'collection')
+            self.get_view_args, 'collection')
 
     def update(self, **kwargs):
         self.__dict__.update(**kwargs)
@@ -228,7 +227,6 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
     info = venusian.attach(resource, callback, category='pyramid',
                            depth=depth)
     return services
-
 
 
 class BaseResource(object):
