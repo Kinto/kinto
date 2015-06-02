@@ -99,7 +99,7 @@ a custom collection can be plugged-in:
 
     class Payment(resource.BaseResource):
         def __init__(request):
-            super(Mushroom, self).__init__(request)
+            super(Payment, self).__init__(request)
             self.collection = TrackedCollection(
                 storage=self.collection.storage,
                 id_generator=self.collection.id_generator,
