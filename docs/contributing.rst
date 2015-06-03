@@ -32,12 +32,6 @@ Prepare your project environment by running:
 
     $ pip install tox
 
-Prepare and run Kinto:
-
-::
-
-    $ make runkinto
-
 
 OS X
 ----
@@ -71,7 +65,6 @@ That means:
 
 * Run Redis on ``localhost:6379``
 * Run a PostgreSQL ``testdb`` database on ``localhost:5432`` with user ``postgres/postgres``
-* Run a Kinto instance using ``make runkinto``
 
 ::
 

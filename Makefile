@@ -27,18 +27,11 @@ virtualenv: $(PYTHON)
 $(PYTHON):
 	$(VIRTUALENV) $(VENV)
 
-tests-once: install-dev need-kinto-running
+tests-once: install-dev
 	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-min-percentage=100 --cover-package=cliquet
 
-tests: need-kinto-running
+tests:
 	tox
-
-need-kinto-running:
-	@curl http://localhost:8888/v0/ 2>/dev/null 1>&2 || (echo "Run 'make runkinto' before starting tests." && exit 1)
-
-runkinto:
-	$(VENV)/bin/cliquet --ini cliquet/tests/config/kinto.ini migrate
-	$(VENV)/bin/pserve cliquet/tests/config/kinto.ini --reload
 
 clean:
 	find . -name '*.pyc' -delete

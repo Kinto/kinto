@@ -202,7 +202,7 @@ collection into a local storage:
 
     config_remote = Configurator(settings=DEFAULT_SETTINGS)
     config_remote.add_settings({
-        'cliquet.storage_backend': 'cliquet.storage.cloud_storage',
+        'cliquet.storage_backend': 'kinto.storage',
         'cliquet.storage_url': 'https://cloud-storage.services.mozilla.com'
     })
     remote = resource.Collection(storage=config_remote.registry.storage,
