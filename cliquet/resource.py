@@ -86,15 +86,25 @@ class ViewSet(object):
         method_args = getattr(self, by_method, {})
         args.update(**method_args)
 
-        if method.lower() in map(str.lower, self.validate_schema_for):
-            class RecordPayload(colander.MappingSchema):
-                data = resource.mapping
-            args['schema'] = RecordPayload()
-        else:
-            # Simply validate that posted body is a mapping.
-            args['schema'] = colander.MappingSchema(unknown='preserve')
+        args['schema'] = self.get_record_schema(resource, method)
 
         return args
+
+    def get_record_schema(self, resource, method):
+        """Return the Cornice schema for the given method.
+        """
+        if method.lower() not in map(str.lower, self.validate_schema_for):
+            # Simply validate that posted body is a mapping.
+            return colander.MappingSchema(unknown='preserve')
+
+        class RecordPayload(colander.MappingSchema):
+            data = resource.mapping
+            # XXX: permissions = PermissionSchema()
+
+            def schema_type(self, **kw):
+                return colander.Mapping(unknown='raise')
+
+        return RecordPayload()
 
     def get_view(self, endpoint_type, method):
         """Return the view method name located on the resource object, for the
