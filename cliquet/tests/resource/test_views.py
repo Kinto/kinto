@@ -118,6 +118,13 @@ class InvalidRecordTest(BaseWebTest):
                              status=400)
         self.assertEqual(resp.json['message'], 'data is missing')
 
+    def test_unknown_attribute_returns_400(self):
+        resp = self.app.post(self.collection_url,
+                             '{"data": {"name": "ML"}, "datta": {}}',
+                             headers=self.headers,
+                             status=400)
+        self.assertEqual(resp.json['message'], 'datta is not allowed')
+
     def test_create_invalid_record_returns_400(self):
         self.app.post_json(self.collection_url,
                            self.invalid_record,
