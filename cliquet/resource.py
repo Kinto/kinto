@@ -944,3 +944,37 @@ class BaseResource(object):
             token[field] = last_record[field]
 
         return encode64(json.dumps(token))
+
+
+class ProtectedResource(BaseResource):
+    permissions = ('read', 'write')
+
+    def _build_permissions(self):
+        object_id = self.request.path
+        registry = self.request.registry
+        get_perm_principals = registry.permission.object_permission_principals
+
+        permissions = {}
+        for perm in self.permissions:
+            permissions[perm] = get_perm_principals(object_id, perm)
+        return permissions
+
+    def collection_get(self):
+        result = super(ProtectedResource, self).collection_get()
+        result['permissions'] = self._build_permissions()
+        return result
+
+    def get(self):
+        result = super(ProtectedResource, self).get()
+        result['permissions'] = self._build_permissions()
+        return result
+
+    def put(self):
+        result = super(ProtectedResource, self).put()
+        result['permissions'] = self._build_permissions()
+        return result
+
+    def patch(self):
+        result = super(ProtectedResource, self).patch()
+        result['permissions'] = self._build_permissions()
+        return result
