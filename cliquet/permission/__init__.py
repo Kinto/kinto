@@ -12,39 +12,34 @@ class PermissionBase(object):
         """Create every necessary objects (like tables or indices) in the
         backend.
 
-        This is excuted when the ``cliquet migrate`` command is ran.
+        This is excuted with the ``cliquet migrate`` command.
         """
         raise NotImplementedError
 
     def flush(self):
-        """Delete every values."""
+        """Delete all data stored in the permission backend."""
         raise NotImplementedError
 
     def add_user_principal(self, user_id, principal):
-        """Add a principal to a user.
+        """Add an additional principal to a user.
 
-        :param user_id: The user_id to add the principal to.
-        :type user_id: string
-        :param principal: The principal to add to the user.
-        :type user_id: string
+        :param str user_id: The user_id to add the principal to.
+        :param str principal: The principal to add to the user.
         """
         raise NotImplementedError
 
     def remove_user_principal(self, user_id, principal):
-        """Remove a principal to a user.
+        """Remove an additional principal from a user.
 
-        :param user_id: The user_id to remove the principal to.
-        :type user_id: string
-        :param principal: The principal to remove to the user.
-        :type user_id: string
+        :param str user_id: The user_id to remove the principal to.
+        :param str principal: The principal to remove to the user.
         """
         raise NotImplementedError
 
     def user_principals(self, user_id):
         """Return the list of additionnal principals given to a user.
 
-        :param user_id: The user_id to get the list of groups for.
-        :type user_id: string
+        :param str user_id: The user_id to get the list of groups for.
         :returns: The list of group principals the user is in.
         :rtype: set
 
@@ -55,12 +50,9 @@ class PermissionBase(object):
                                         principal):
         """Add a principal to an Access Control Entry.
 
-        :param object_id: The object to add the permission principal to.
-        :type object_id: string
-        :param permission: The permission object to add the principal to.
-        :type permission: string
-        :param principal: The principal to add to the ACE.
-        :type user_id: string
+        :param str object_id: The object to add the permission principal to.
+        :param str permission: The permission object to add the principal to.
+        :param str principal: The principal to add to the ACE.
         """
         raise NotImplementedError
 
@@ -68,22 +60,17 @@ class PermissionBase(object):
                                            principal):
         """Remove a principal to an Access Control Entry.
 
-        :param object_id: The object to remove the permission principal to.
-        :type object_id: string
-        :param permission: The permission object to remove the principal to.
-        :type permission: string
-        :param principal: The principal to remove to the ACE.
-        :type user_id: string
+        :param str object_id: The object to remove the permission principal to.
+        :param str permission: The permission object to remove the principal to.
+        :param str principal: The principal to remove to the ACE.
         """
         raise NotImplementedError
 
     def object_permission_principals(self, object_id, permission):
-        """Return the list of principal set for a given permission.
+        """Return the set of principals of a bound permission.
 
-        :param object_id: The object_id the permission is set to.
-        :type object_id: string
-        :param permission: The permission object to remove the principal to.
-        :type permission: string
+        :param str object_id: The object_id the permission is set to.
+        :param str permission: The permission object to remove the principal to.
         :returns: The list of user principals
         :rtype: set
 
@@ -92,17 +79,15 @@ class PermissionBase(object):
 
     def object_permission_authorized_principals(self, object_id, permission,
                                                 _get_perm_keys=None):
-        """Return the full list of authorized principal set for a given
+        """Return the full set of authorized principals for a given
         permission.
 
-        :param object_id: The object_id the permission is set to.
-        :type object_id: string
-        :param permission: The permission object to remove the principal to.
-        :type permission: string
-        :param _get_perm_keys: The methods to call in order to generate the
-                               list of permission to verify against.
-                               (ie: if you can write, you can read)
-        :type _get_perm_keys: function
+        :param str object_id: The object_id the permission is set to.
+        :param str permission: The permission object to remove the principal to.
+        :param function _get_perm_keys:
+            The methods to call in order to generate the list of permission to
+            verify against. (ie: if you can write, you can read)
+            
         :returns: The list of user principals
         :rtype: set
 
@@ -113,17 +98,14 @@ class PermissionBase(object):
                        _get_perm_keys=None):
         """Test if a principal set have got a permission on an object.
 
-        :param object_id: The object concerned by the permission.
-        :type object_id: string
-        :param permission: The permission on the object.
-        :type permission: string
-        :param principals: The list of user principals to test the
-                           permission against.
-        :type principals: set
-        :param _get_perm_keys: The methods to call in order to generate the
-                               list of permission to verify against.
-                               (ie: if you can write, you can read)
-        :type _get_perm_keys: function
+        :param str object_id:
+            The identifier of the object concerned by the permission.
+        :param str permission: The permission on the object.
+        :param set principals:
+            A set of user principals to test the permission against.
+        :param function _get_perm_keys:
+            The method to call in order to generate the set of
+            permission to verify against. (ie: if you can write, you can read)
 
         """
         principals = set(principals)
@@ -132,7 +114,7 @@ class PermissionBase(object):
         return len(authorized_principals & principals) > 0
 
     def ping(self, request):
-        """Test that cache backend is operationnal.
+        """Test the permission backend is operationnal.
 
         :param request: current request object
         :type request: :class:`~pyramid:pyramid.request.Request`
