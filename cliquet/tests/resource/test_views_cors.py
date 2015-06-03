@@ -11,11 +11,12 @@ class CORSOriginHeadersTest(BaseWebTest):
         super(CORSOriginHeadersTest, self).setUp()
         self.headers['Origin'] = 'notmyidea.org'
 
+        body = {'data': MINIMALIST_RECORD}
         response = self.app.post_json(self.collection_url,
-                                      MINIMALIST_RECORD,
+                                      body,
                                       headers=self.headers,
                                       status=201)
-        self.record = response.json
+        self.record = response.json['data']
 
     def test_present_on_hello(self):
         response = self.app.get('/',
@@ -41,7 +42,7 @@ class CORSOriginHeadersTest(BaseWebTest):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_invalid_record_update(self):
-        body = {'name': 42}
+        body = {'data': {'name': 42}}
         response = self.app.patch_json(self.get_item_url(),
                                        body,
                                        headers=self.headers,
@@ -49,8 +50,9 @@ class CORSOriginHeadersTest(BaseWebTest):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_successful_creation(self):
+        body = {'data': MINIMALIST_RECORD}
         response = self.app.post_json(self.collection_url,
-                                      MINIMALIST_RECORD,
+                                      body,
                                       headers=self.headers,
                                       status=201)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
@@ -67,7 +69,7 @@ class CORSOriginHeadersTest(BaseWebTest):
         with mock.patch('cliquet.tests.testapp.views.'
                         'MushroomSchema.is_readonly',
                         return_value=True):
-            body = {'name': 'Amanite'}
+            body = {'data': {'name': 'Amanite'}}
             response = self.app.patch_json(self.get_item_url(),
                                            body,
                                            headers=self.headers,
@@ -77,8 +79,9 @@ class CORSOriginHeadersTest(BaseWebTest):
 
     def test_present_on_unauthorized(self):
         self.headers.pop('Authorization', None)
+        body = {'data': MINIMALIST_RECORD}
         response = self.app.post_json(self.collection_url,
-                                      MINIMALIST_RECORD,
+                                      body,
                                       headers=self.headers,
                                       status=401)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
@@ -110,14 +113,16 @@ class CORSExposeHeadersTest(BaseWebTest):
             'Alert', 'Backoff', 'Retry-After'])
 
     def test_record_get_exposes_only_used_headers(self):
+        body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_RECORD,
+                                  body,
                                   headers=self.headers,
                                   status=201)
-        record_url = self.get_item_url(resp.json['id'])
+        record_url = self.get_item_url(resp.json['data']['id'])
         self.assert_expose_headers('GET', record_url, [
             'Alert', 'Backoff', 'Retry-After', 'Last-Modified'])
 
     def test_record_post_exposes_only_minimal_set_of_headers(self):
+        body = {'data': MINIMALIST_RECORD}
         self.assert_expose_headers('POST_JSON', '/mushrooms', [
-            'Alert', 'Backoff', 'Retry-After'], body=MINIMALIST_RECORD)
+            'Alert', 'Backoff', 'Retry-After'], body=body)

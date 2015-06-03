@@ -49,11 +49,12 @@ class AuthzAuthnTest(BaseWebTest):
     def test_all_views_require_authentication(self):
         self.app.get(self.collection_url, status=401)
 
-        self.app.post_json(self.collection_url, MINIMALIST_RECORD, status=401)
+        body = {'data': MINIMALIST_RECORD}
+        self.app.post_json(self.collection_url, body, status=401)
 
         url = self.get_item_url('abc')
         self.app.get(url, status=401)
-        self.app.patch_json(url, MINIMALIST_RECORD, status=401)
+        self.app.patch_json(url, body, status=401)
         self.app.delete(url, status=401)
 
     @mock.patch('cliquet.authentication.AuthorizationPolicy.permits')
@@ -65,11 +66,12 @@ class AuthzAuthnTest(BaseWebTest):
         self.app.get(self.collection_url)
         self.assertEqual(permission_required(), 'readonly')
 
+        body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_RECORD)
+                                  body)
         self.assertEqual(permission_required(), 'readwrite')
 
-        url = self.item_url.format(id=resp.json['id'])
+        url = self.item_url.format(id=resp.json['data']['id'])
         self.app.get(url)
         self.assertEqual(permission_required(), 'readonly')
 
@@ -86,33 +88,35 @@ class AuthzAuthnTest(BaseWebTest):
 class InvalidRecordTest(BaseWebTest):
     def setUp(self):
         super(InvalidRecordTest, self).setUp()
+        body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_RECORD,
+                                  body,
                                   headers=self.headers)
-        self.record = resp.json
+        self.record = resp.json['data']
 
-        self.invalid_record = {'name': 42}
+        self.invalid_record = {'data': {'name': 42}}
 
     def test_invalid_record_returns_json_formatted_error(self):
         resp = self.app.post_json(self.collection_url,
                                   self.invalid_record,
                                   headers=self.headers,
                                   status=400)
+        # XXX: weird resp.json['message']
         self.assertDictEqual(resp.json, {
             'errno': ERRORS.INVALID_PARAMETERS,
-            'message': "42 is not a string: {'name': ''}",  # XXX: weird msg
+            'message': "data.name in body: 42 is not a string: {'name': ''}",
             'code': 400,
             'error': 'Invalid parameters',
             'details': [{'description': "42 is not a string: {'name': ''}",
                          'location': 'body',
-                         'name': 'name'}]})
+                         'name': 'data.name'}]})
 
     def test_empty_body_returns_400(self):
         resp = self.app.post(self.collection_url,
                              '',
                              headers=self.headers,
                              status=400)
-        self.assertEqual(resp.json['message'], 'name is missing')
+        self.assertEqual(resp.json['message'], 'data is missing')
 
     def test_create_invalid_record_returns_400(self):
         self.app.post_json(self.collection_url,
@@ -136,41 +140,45 @@ class InvalidRecordTest(BaseWebTest):
 class IgnoredFieldsTest(BaseWebTest):
     def setUp(self):
         super(IgnoredFieldsTest, self).setUp()
+        body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_RECORD,
+                                  body,
                                   headers=self.headers)
-        self.record = resp.json
+        self.record = resp.json['data']
 
     def test_id_is_not_validated_and_overwritten(self):
         record = MINIMALIST_RECORD.copy()
         record['id'] = 3.14
+        body = {'data': record}
         resp = self.app.post_json(self.collection_url,
-                                  record,
+                                  body,
                                   headers=self.headers)
-        self.assertNotEqual(resp.json['id'], 3.14)
+        self.assertNotEqual(resp.json['data']['id'], 3.14)
 
     def test_last_modified_is_not_validated_and_overwritten(self):
         record = MINIMALIST_RECORD.copy()
         record['last_modified'] = 'abc'
+        body = {'data': record}
         resp = self.app.post_json(self.collection_url,
-                                  record,
+                                  body,
                                   headers=self.headers)
-        self.assertNotEqual(resp.json['last_modified'], 'abc')
+        self.assertNotEqual(resp.json['data']['last_modified'], 'abc')
 
     def test_modify_works_with_invalid_last_modified(self):
-        body = {'last_modified': 'abc'}
+        body = {'data': {'last_modified': 'abc'}}
         resp = self.app.patch_json(self.get_item_url(),
                                    body,
                                    headers=self.headers)
-        self.assertNotEqual(resp.json['last_modified'], 'abc')
+        self.assertNotEqual(resp.json['data']['last_modified'], 'abc')
 
     def test_replace_works_with_invalid_last_modified(self):
         record = MINIMALIST_RECORD.copy()
         record['last_modified'] = 'abc'
+        body = {'data': record}
         resp = self.app.put_json(self.get_item_url(),
-                                 record,
+                                 body,
                                  headers=self.headers)
-        self.assertNotEqual(resp.json['last_modified'], 'abc')
+        self.assertNotEqual(resp.json['data']['last_modified'], 'abc')
 
 
 class InvalidBodyTest(BaseWebTest):
@@ -180,10 +188,11 @@ class InvalidBodyTest(BaseWebTest):
 
     def setUp(self):
         super(InvalidBodyTest, self).setUp()
+        body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_RECORD,
+                                  body,
                                   headers=self.headers)
-        self.record = resp.json
+        self.record = resp.json['data']
 
     def test_invalid_body_returns_json_formatted_error(self):
         resp = self.app.post(self.collection_url,
@@ -201,9 +210,9 @@ class InvalidBodyTest(BaseWebTest):
                 {'description': error_msg,
                  'location': 'body',
                  'name': None},
-                {'description': 'name is missing',
+                {'description': 'data is missing',
                  'location': 'body',
-                 'name': 'name'}]})
+                 'name': 'data'}]})
 
     def test_create_invalid_body_returns_400(self):
         self.app.post(self.collection_url,
@@ -251,10 +260,11 @@ class ConflictErrorsTest(BaseWebTest):
     def setUp(self):
         super(ConflictErrorsTest, self).setUp()
 
+        body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_RECORD,
+                                  body,
                                   headers=self.headers)
-        self.record = resp.json
+        self.record = resp.json['data']
 
         def unicity_failure(*args, **kwargs):
             raise storage_exceptions.UnicityError('city', {'id': 42})
@@ -265,27 +275,30 @@ class ConflictErrorsTest(BaseWebTest):
             patch.start()
 
     def test_post_returns_200_with_existing_record(self):
+        body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_RECORD,
+                                  body,
                                   headers=self.headers)
         self.assertEqual(resp.json, {'id': 42})
 
     def test_put_returns_409(self):
+        body = {'data': MINIMALIST_RECORD}
         self.app.put_json(self.get_item_url(),
-                          MINIMALIST_RECORD,
+                          body,
                           headers=self.headers,
                           status=409)
 
     def test_patch_returns_409(self):
-        body = {'name': 'Psylo'}
+        body = {'data': {'name': 'Psylo'}}
         self.app.patch_json(self.get_item_url(),
                             body,
                             headers=self.headers,
                             status=409)
 
     def test_409_error_gives_detail_about_field_and_record(self):
+        body = {'data': MINIMALIST_RECORD}
         resp = self.app.put_json(self.get_item_url(),
-                                 MINIMALIST_RECORD,
+                                 body,
                                  headers=self.headers,
                                  status=409)
         self.assertEqual(resp.json['message'],
@@ -303,17 +316,19 @@ class StorageErrorTest(BaseWebTest):
             side_effect=self.error)
 
     def test_backend_errors_are_served_as_503(self):
+        body = {'data': MINIMALIST_RECORD}
         with self.storage_error_patcher:
             self.app.post_json(self.collection_url,
-                               MINIMALIST_RECORD,
+                               body,
                                headers=self.headers,
                                status=503)
 
     def test_backend_errors_original_error_is_logged(self):
+        body = {'data': MINIMALIST_RECORD}
         with mock.patch('cliquet.views.errors.logger.critical') as mocked:
             with self.storage_error_patcher:
                 self.app.post_json(self.collection_url,
-                                   MINIMALIST_RECORD,
+                                   body,
                                    headers=self.headers,
                                    status=503)
                 self.assertTrue(mocked.called)
@@ -326,11 +341,12 @@ class PaginationNextURLTest(BaseWebTest):
 
     def setUp(self):
         super(PaginationNextURLTest, self).setUp()
+        body = {'data': MINIMALIST_RECORD}
         self.app.post_json(self.collection_url,
-                           MINIMALIST_RECORD,
+                           body,
                            headers=self.headers)
         self.app.post_json(self.collection_url,
-                           MINIMALIST_RECORD,
+                           body,
                            headers=self.headers)
 
     def test_next_page_url_has_got_port_number_if_different_than_80(self):
