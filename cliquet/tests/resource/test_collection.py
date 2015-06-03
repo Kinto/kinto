@@ -15,22 +15,25 @@ class CollectionTest(BaseTest):
         count = headers['Total-Records']
         self.assertEquals(int(count), 1)
 
-    def test_list_returns_all_records_in_items(self):
+    def test_list_returns_all_records_in_data(self):
         result = self.resource.collection_get()
-        records = result['items']
+        records = result['data']
         self.assertEqual(len(records), 1)
         self.assertDictEqual(records[0], self.record)
 
 
 class CreateTest(BaseTest):
+    def setUp(self):
+        super(CreateTest, self).setUp()
+        self.resource.request.validated = {'data': {'field': 'new'}}
+
     def test_new_records_are_linked_to_owner(self):
-        resp = self.resource.collection_post()
+        resp = self.resource.collection_post()['data']
         record_id = resp['id']
         self.collection.get_record(record_id)  # not raising
 
     def test_create_record_returns_at_least_id_and_last_modified(self):
-        self.resource.request.validated = {'field': 'value'}
-        record = self.resource.collection_post()
+        record = self.resource.collection_post()['data']
         self.assertIn(self.resource.collection.id_field, record)
         self.assertIn(self.resource.collection.modified_field, record)
         self.assertIn('field', record)
@@ -46,12 +49,12 @@ class DeleteCollectionTest(BaseTest):
     def test_delete_on_list_removes_all_records(self):
         self.resource.collection_delete()
         result = self.resource.collection_get()
-        records = result['items']
+        records = result['data']
         self.assertEqual(len(records), 0)
 
     def test_delete_returns_deleted_version_of_records(self):
         result = self.resource.collection_delete()
-        deleted = result['items'][0]
+        deleted = result['data'][0]
         self.assertIn('deleted', deleted)
 
     def test_delete_supports_collection_filters(self):
@@ -59,7 +62,7 @@ class DeleteCollectionTest(BaseTest):
         self.resource.collection_delete()
         self.resource.request.GET = {}
         result = self.resource.collection_get()
-        records = result['items']
+        records = result['data']
         self.assertEqual(len(records), 1)
 
     def test_delete_on_collection_can_be_disabled_via_settings(self):
@@ -82,11 +85,11 @@ class IsolatedCollectionsTest(BaseTest):
 
     def test_list_is_filtered_by_user(self):
         resp = self.resource.collection_get()
-        records = resp['items']
+        records = resp['data']
         self.assertEquals(len(records), 0)
 
     def test_update_record_of_another_user_will_create_it(self):
-        self.resource.request.validated = {'some': 'record'}
+        self.resource.request.validated = {'data': {'some': 'record'}}
         self.resource.put()
         self.collection.get_record(record_id=self.stored['id'],
                                    parent_id='alice')  # not raising

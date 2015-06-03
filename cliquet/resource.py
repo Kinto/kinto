@@ -87,7 +87,9 @@ class ViewSet(object):
         args.update(**method_args)
 
         if method.lower() in map(str.lower, self.validate_schema_for):
-            args['schema'] = resource.mapping
+            class RecordPayload(colander.MappingSchema):
+                data = resource.mapping
+            args['schema'] = RecordPayload()
         else:
             # Simply validate that posted body is a mapping.
             args['schema'] = colander.MappingSchema(unknown='preserve')
@@ -323,9 +325,8 @@ class BaseResource(object):
         headers['Total-Records'] = ('%s' % total_records)
 
         body = {
-            'items': records,
+            'data': records,
         }
-
         return body
 
     def collection_post(self):
@@ -347,7 +348,7 @@ class BaseResource(object):
         """
         self._raise_412_if_modified()
 
-        new_record = self.process_record(self.request.validated)
+        new_record = self.process_record(self.request.validated['data'])
 
         try:
             unique_fields = self.mapping.get_option('unique_fields')
@@ -357,7 +358,11 @@ class BaseResource(object):
             return e.record
 
         self.request.response.status_code = 201
-        return record
+
+        body = {
+            'data': record,
+        }
+        return body
 
     def collection_delete(self):
         """Collection ``DELETE`` endpoint: delete multiple records.
@@ -384,9 +389,8 @@ class BaseResource(object):
         deleted = self.collection.delete_records(filters=filters)
 
         body = {
-            'items': deleted,
+            'data': deleted,
         }
-
         return body
 
     def get(self):
@@ -409,7 +413,11 @@ class BaseResource(object):
         record = self._get_record_or_404(self.record_id)
         self._raise_304_if_not_modified(record)
         self._raise_412_if_modified(record)
-        return record
+
+        body = {
+            'data': record,
+        }
+        return body
 
     def put(self):
         """Record ``PUT`` endpoint: create or replace the provided record and
@@ -441,7 +449,7 @@ class BaseResource(object):
             if existing:
                 self._raise_412_if_modified(existing)
 
-        new_record = self.request.validated
+        new_record = self.request.validated['data']
 
         record_id = new_record.setdefault(id_field, self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
@@ -455,7 +463,10 @@ class BaseResource(object):
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
-        return record
+        body = {
+            'data': record,
+        }
+        return body
 
     def patch(self):
         """Record ``PATCH`` endpoint: modify a record and return its
@@ -490,7 +501,7 @@ class BaseResource(object):
             }
             raise_invalid(self.request, **error_details)
 
-        changes = self.request.json
+        changes = self.request.json.get('data', {})  # May patch only perms.
 
         updated = self.apply_changes(old_record, changes=changes)
 
@@ -518,14 +529,19 @@ class BaseResource(object):
 
         if body_behavior.lower() == 'light':
             # Only fields that were changed.
-            return {k: new_record[k] for k in changed_fields}
+            data = {k: new_record[k] for k in changed_fields}
 
-        if body_behavior.lower() == 'diff':
+        elif body_behavior.lower() == 'diff':
             # Only fields that are different from those provided.
-            return {k: new_record[k] for k in changed_fields
+            data = {k: new_record[k] for k in changed_fields
                     if changes.get(k) != new_record.get(k)}
+        else:
+            data = new_record
 
-        return new_record
+        body = {
+            'data': data,
+        }
+        return body
 
     def delete(self):
         """Record ``DELETE`` endpoint: delete a record and return it.
@@ -543,7 +559,11 @@ class BaseResource(object):
         self._raise_412_if_modified(record)
 
         deleted = self.collection.delete_record(record)
-        return deleted
+
+        body = {
+            'data': deleted,
+        }
+        return body
 
     #
     # Data processing

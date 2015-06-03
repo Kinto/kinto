@@ -33,27 +33,27 @@ class PaginationTest(BaseTest):
         self.last_response.headers = {}
         return queryparams
 
-    def test_return_items(self):
+    def test_return_data(self):
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 20)
+        self.assertEqual(len(result['data']), 20)
 
     def test_handle_limit(self):
         self.resource.request.GET = {'_limit': '10'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 10)
+        self.assertEqual(len(result['data']), 10)
 
     def test_handle_forced_limit(self):
         with mock.patch.dict(self.resource.request.registry.settings, [
                 ('cliquet.paginate_by', 10)]):
             result = self.resource.collection_get()
-            self.assertEqual(len(result['items']), 10)
+            self.assertEqual(len(result['data']), 10)
 
     def test_forced_limit_has_precedence_over_provided_limit(self):
         with mock.patch.dict(self.resource.request.registry.settings, [
                 ('cliquet.paginate_by', 5)]):
             self.resource.request.GET = {'_limit': '10'}
             result = self.resource.collection_get()
-            self.assertEqual(len(result['items']), 5)
+            self.assertEqual(len(result['data']), 5)
 
     def test_return_next_page_url_is_given_in_headers(self):
         self.resource.request.GET = {'_limit': '10'}
@@ -72,8 +72,8 @@ class PaginationTest(BaseTest):
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
-        results_id1 = set([x['id'] for x in results1['items']])
-        results_id2 = set([x['id'] for x in results2['items']])
+        results_id1 = set([x['id'] for x in results1['data']])
+        results_id2 = set([x['id'] for x in results2['data']])
         self.assertFalse(results_id1.intersection(results_id2))
 
     def test_twice_the_same_next_page(self):
@@ -109,8 +109,8 @@ class PaginationTest(BaseTest):
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
-        self.assertEqual(expected_results['items'],
-                         results1['items'] + results2['items'])
+        self.assertEqual(expected_results['data'],
+                         results1['data'] + results2['data'])
 
     def test_handle_multiple_sorting(self):
         self.resource.request.GET = {'_sort': '-status,title', '_limit': '20'}
@@ -119,8 +119,8 @@ class PaginationTest(BaseTest):
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
-        self.assertEqual(expected_results['items'],
-                         results1['items'] + results2['items'])
+        self.assertEqual(expected_results['data'],
+                         results1['data'] + results2['data'])
 
     def test_handle_filtering_sorting(self):
         self.resource.request.GET = {'_sort': '-status,title', 'status': '2',
@@ -130,8 +130,8 @@ class PaginationTest(BaseTest):
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
-        self.assertEqual(expected_results['items'],
-                         results1['items'] + results2['items'])
+        self.assertEqual(expected_results['data'],
+                         results1['data'] + results2['data'])
 
     def test_handle_sorting_desc(self):
         self.resource.request.GET = {'_sort': 'status,-title', '_limit': '20'}
@@ -140,8 +140,8 @@ class PaginationTest(BaseTest):
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
-        self.assertEqual(expected_results['items'],
-                         results1['items'] + results2['items'])
+        self.assertEqual(expected_results['data'],
+                         results1['data'] + results2['data'])
 
     def test_handle_since(self):
         self.resource.request.GET = {'_since': '123', '_limit': '20'}
@@ -150,8 +150,8 @@ class PaginationTest(BaseTest):
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
-        self.assertEqual(expected_results['items'],
-                         results1['items'] + results2['items'])
+        self.assertEqual(expected_results['data'],
+                         results1['data'] + results2['data'])
 
     def test_wrong_limit_raise_400(self):
         self.resource.request.GET = {'_since': '123', '_limit': 'toto'}

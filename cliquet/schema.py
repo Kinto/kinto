@@ -47,7 +47,6 @@ class ResourceSchema(colander.MappingSchema):
                 class Options:
                     preserve_unknown = True
         """
-
     def get_option(self, attr):
         default_value = getattr(ResourceSchema.Options, attr)
         return getattr(self.Options, attr,  default_value)

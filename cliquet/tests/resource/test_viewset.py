@@ -63,7 +63,8 @@ class ViewSetTest(unittest.TestCase):
         )
         resource = mock.MagicMock(mapping=colander.SchemaNode(colander.Int()))
         arguments = viewset.collection_arguments(resource, 'GET')
-        self.assertEquals(arguments['schema'], resource.mapping)
+        schema = arguments['schema']
+        self.assertEquals(schema.children[0], resource.mapping)
 
     def test_schema_is_added_when_uppercase_method_matches(self):
         viewset = ViewSet(
@@ -71,7 +72,8 @@ class ViewSetTest(unittest.TestCase):
         )
         resource = mock.MagicMock(mapping=colander.SchemaNode(colander.Int()))
         arguments = viewset.collection_arguments(resource, 'get')
-        self.assertEquals(arguments['schema'], resource.mapping)
+        schema = arguments['schema']
+        self.assertEquals(schema.children[0], resource.mapping)
 
     @mock.patch('cliquet.resource.colander')
     def test_a_default_schema_is_added_when_method_doesnt_match(self, mocked):

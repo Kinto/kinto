@@ -22,28 +22,28 @@ class FilteringTest(BaseTest):
         self.collection.delete_record(r)
         self.resource.request.GET = {'_since': '%s' % since, 'deleted': 'true'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 1)
-        self.assertTrue(result['items'][0]['deleted'])
+        self.assertEqual(len(result['data']), 1)
+        self.assertTrue(result['data'][0]['deleted'])
 
     def test_filter_on_id_is_supported(self):
         self.patch_known_field.stop()
         r = self.collection.create_record({})
         self.resource.request.GET = {'id': '%s' % r['id']}
         result = self.resource.collection_get()
-        self.assertEqual(result['items'][0], r)
+        self.assertEqual(result['data'][0], r)
 
     def test_list_cannot_be_filtered_on_deleted_without_since(self):
         r = self.collection.create_record({})
         self.collection.delete_record(r)
         self.resource.request.GET = {'deleted': 'true'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 0)
+        self.assertEqual(len(result['data']), 0)
 
     def test_filter_works_with_empty_list(self):
         self.resource.collection.parent_id = 'alice'
         self.resource.request.GET = {'status': '1'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 0)
+        self.assertEqual(len(result['data']), 0)
 
     def test_number_of_records_matches_filter(self):
         self.resource.request.GET = {'status': '1'}
@@ -54,7 +54,7 @@ class FilteringTest(BaseTest):
     def test_single_basic_filter_by_attribute(self):
         self.resource.request.GET = {'status': '1'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 2)
+        self.assertEqual(len(result['data']), 2)
 
     def test_filter_on_unknown_attribute_raises_error(self):
         self.patch_known_field.stop()
@@ -87,52 +87,52 @@ class FilteringTest(BaseTest):
     def test_double_basic_filter_by_attribute(self):
         self.resource.request.GET = {'status': '1', 'favorite': 'true'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 1)
+        self.assertEqual(len(result['data']), 1)
 
     def test_string_filters_naively_by_value(self):
         self.resource.request.GET = {'title': 'MoF'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 0)
+        self.assertEqual(len(result['data']), 0)
         self.resource.request.GET = {'title': 'MoFo'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 6)
+        self.assertEqual(len(result['data']), 6)
 
     def test_filter_considers_string_if_syntaxically_invalid(self):
         self.resource.request.GET = {'status': '1.2.3'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 0)
+        self.assertEqual(len(result['data']), 0)
 
     def test_filter_does_not_fail_with_complex_type_syntax(self):
         self.resource.request.GET = {'status': '(1,2,3)'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 0)
+        self.assertEqual(len(result['data']), 0)
 
     def test_different_value(self):
         self.resource.request.GET = {'not_status': '2'}
         result = self.resource.collection_get()
-        values = [item['status'] for item in result['items']]
+        values = [item['status'] for item in result['data']]
         self.assertTrue(all([value != 2 for value in values]))
 
     def test_minimal_value(self):
         self.resource.request.GET = {'min_status': '2'}
         result = self.resource.collection_get()
-        values = [item['status'] for item in result['items']]
+        values = [item['status'] for item in result['data']]
         self.assertTrue(all([value >= 2 for value in values]))
 
     def test_gt_value(self):
         self.resource.request.GET = {'gt_status': '2'}
         result = self.resource.collection_get()
-        values = [item['status'] for item in result['items']]
+        values = [item['status'] for item in result['data']]
         self.assertTrue(all([value > 2 for value in values]))
 
     def test_maximal_value(self):
         self.resource.request.GET = {'max_status': '2'}
         result = self.resource.collection_get()
-        values = [item['status'] for item in result['items']]
+        values = [item['status'] for item in result['data']]
         self.assertTrue(all([value <= 2 for value in values]))
 
     def test_lt_value(self):
         self.resource.request.GET = {'lt_status': '2'}
         result = self.resource.collection_get()
-        values = [item['status'] for item in result['items']]
+        values = [item['status'] for item in result['data']]
         self.assertTrue(all([value < 2 for value in values]))
