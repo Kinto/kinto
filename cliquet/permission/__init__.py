@@ -24,7 +24,7 @@ class PermissionBase(object):
         """Add an additional principal to a user.
 
         :param str user_id: The user_id to add the principal to.
-        :param str principal: The principal to add to the user.
+        :param str principal: The principal to add.
         """
         raise NotImplementedError
 
@@ -32,12 +32,12 @@ class PermissionBase(object):
         """Remove an additional principal from a user.
 
         :param str user_id: The user_id to remove the principal to.
-        :param str principal: The principal to remove to the user.
+        :param str principal: The principal to remove.
         """
         raise NotImplementedError
 
     def user_principals(self, user_id):
-        """Return the list of additionnal principals given to a user.
+        """Return the set of additionnal principals given to a user.
 
         :param str user_id: The user_id to get the list of groups for.
         :returns: The list of group principals the user is in.
@@ -46,8 +46,7 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def add_object_permission_principal(self, object_id, permission,
-                                        principal):
+    def add_principal_to_ace(self, object_id, permission, principal):
         """Add a principal to an Access Control Entry.
 
         :param str object_id: The object to add the permission principal to.
@@ -56,18 +55,18 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def remove_object_permission_principal(self, object_id, permission,
-                                           principal):
+    def remove_principal_from_ace(self, object_id, permission, principal):
         """Remove a principal to an Access Control Entry.
 
         :param str object_id: The object to remove the permission principal to.
-        :param str permission: The permission to remove the principal from.
+        :param str permission: The permission that should be removed.
         :param str principal: The principal to remove to the ACE.
         """
         raise NotImplementedError
 
     def object_permission_principals(self, object_id, permission):
-        """Return the set of principals of a bound permission.
+        """Return the set of principals of a bound permission
+        (unbound permission + object id).
 
         :param str object_id: The object_id the permission is set to.
         :param str permission: The permission to query.
@@ -78,13 +77,13 @@ class PermissionBase(object):
         raise NotImplementedError
 
     def object_permission_authorized_principals(self, object_id, permission,
-                                                _get_perm_keys=None):
+                                                get_perm_keys=None):
         """Return the full set of authorized principals for a given
-        permission.
+        permission + object (bound permission).
 
         :param str object_id: The object_id the permission is set to.
         :param str permission: The permission to query.
-        :param function _get_perm_keys:
+        :param function get_perm_keys:
             The methods to call in order to generate the list of permission to
             verify against. (ie: if you can write, you can read)
 
@@ -95,7 +94,7 @@ class PermissionBase(object):
         raise NotImplementedError
 
     def has_permission(self, object_id, permission, principals,
-                       _get_perm_keys=None):
+                       get_perm_keys=None):
         """Test if a principal set have got a permission on an object.
 
         :param str object_id:
@@ -103,14 +102,14 @@ class PermissionBase(object):
         :param str permission: The permission to test.
         :param set principals:
             A set of user principals to test the permission against.
-        :param function _get_perm_keys:
+        :param function get_perm_keys:
             The method to call in order to generate the set of
             permission to verify against. (ie: if you can write, you can read)
 
         """
         principals = set(principals)
         authorized_principals = self.object_permission_authorized_principals(
-            object_id, permission, _get_perm_keys)
+            object_id, permission, get_perm_keys)
         return len(authorized_principals & principals) > 0
 
     def ping(self, request):

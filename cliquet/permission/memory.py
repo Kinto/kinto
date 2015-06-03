@@ -46,15 +46,13 @@ class Memory(PermissionBase):
         members = self._store.get(user_key, set([]))
         return members
 
-    def add_object_permission_principal(self, object_id, permission,
-                                        principal):
+    def add_principal_to_ace(self, object_id, permission, principal):
         permission_key = 'permission:%s:%s' % (object_id, permission)
         object_permission_principals = self._store.get(permission_key, set([]))
         object_permission_principals.add(principal)
         self._store[permission_key] = object_permission_principals
 
-    def remove_object_permission_principal(self, object_id, permission,
-                                           principal):
+    def remove_principal_from_ace(self, object_id, permission, principal):
         permission_key = 'permission:%s:%s' % (object_id, permission)
         object_permission_principals = self._store.get(permission_key, set([]))
         try:
@@ -73,11 +71,11 @@ class Memory(PermissionBase):
         return members
 
     def object_permission_authorized_principals(self, object_id, permission,
-                                                _get_perm_keys=None):
-        if _get_perm_keys is None:
+                                                get_perm_keys=None):
+        if get_perm_keys is None:
             keys = [(object_id, permission)]
         else:
-            keys = _get_perm_keys(object_id, permission)
+            keys = get_perm_keys(object_id, permission)
         permissions = set([])
         for obj_id, perm in keys:
             permissions |= self.object_permission_principals(obj_id, perm)

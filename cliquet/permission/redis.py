@@ -58,14 +58,12 @@ class Redis(PermissionBase):
         return self._client.smembers(user_key)
 
     @wrap_redis_error
-    def add_object_permission_principal(self, object_id, permission,
-                                        principal):
+    def add_principal_to_ace(self, object_id, permission, principal):
         permission_key = 'permission:%s:%s' % (object_id, permission)
         self._client.sadd(permission_key, principal)
 
     @wrap_redis_error
-    def remove_object_permission_principal(self, object_id, permission,
-                                           principal):
+    def remove_principal_from_ace(self, object_id, permission, principal):
         permission_key = 'permission:%s:%s' % (object_id, permission)
         self._client.srem(permission_key, principal)
         if self._client.scard(permission_key) == 0:
@@ -79,12 +77,12 @@ class Redis(PermissionBase):
 
     @wrap_redis_error
     def object_permission_authorized_principals(self, object_id, permission,
-                                                _get_perm_keys=None):
-        if _get_perm_keys is None:
-            def _get_perm_keys(object_id, permission):
+                                                get_perm_keys=None):
+        if get_perm_keys is None:
+            def get_perm_keys(object_id, permission):
                 return [(object_id, permission)]
 
-        keys = _get_perm_keys(object_id, permission)
+        keys = get_perm_keys(object_id, permission)
         keys = ['permission:%s:%s' % key for key in keys]
         return self._client.sunion(*list(keys))
 
