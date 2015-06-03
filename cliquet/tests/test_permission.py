@@ -151,6 +151,19 @@ class BaseTestPermission(object):
             object_id, permission)
         self.assertEquals(retrieved, {principal2})
 
+    def test_principals_is_empty_if_no_permission(self):
+        object_id = 'foo'
+        permission = 'write'
+        principal = 'bar'
+        self.permission.add_object_permission_principal(object_id, permission,
+                                                        principal)
+        self.permission.remove_object_permission_principal(object_id,
+                                                           permission,
+                                                           principal)
+        retrieved = self.permission.object_permission_principals(
+            object_id, permission)
+        self.assertEquals(retrieved, set([]))
+
     def test_can_remove_an_unexisting_principal_to_an_object_permission(self):
         object_id = 'foo'
         permission = 'write'
