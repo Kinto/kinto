@@ -111,7 +111,7 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.collection_arguments(mock.MagicMock, 'get')
-        schema = arguments.pop('schema')
+        arguments.pop('schema')
         self.assertDictEqual(
             arguments,
             {
@@ -141,7 +141,7 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.record_arguments(mock.MagicMock, 'get')
-        schema = arguments.pop('schema')
+        arguments.pop('schema')
 
         self.assertDictEqual(
             arguments,
@@ -178,7 +178,7 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.record_arguments(mock.MagicMock, 'get')
-        schema = arguments.pop('schema')
+        arguments.pop('schema')
 
         self.assertDictEqual(
             arguments,
@@ -207,7 +207,7 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.record_arguments(mock.MagicMock, 'get')
-        schema = arguments.pop('schema')
+        arguments.pop('schema')
         self.assertDictEqual(
             arguments,
             {
@@ -299,7 +299,7 @@ class RegisterTest(unittest.TestCase):
             'PUT', 'put', klass=self.resource)
 
     @mock.patch('cliquet.resource.Service')
-    def test_record_methods_are_skipped_if_not_enabled(self, service_class):
+    def test_collection_methods_are_skipped_if_not_enabled(self, service_cls):
         register_resource(self.resource, viewset=self.viewset, settings={
             'cliquet.record_fake_put_enabled': False
         })
@@ -307,10 +307,10 @@ class RegisterTest(unittest.TestCase):
         # Only the collection views should have been added.
         # 3 calls: two registering the service classes,
         # one for the collection_get
-        self.assertEquals(len(service_class.mock_calls), 3)
-        service_class.assert_any_call('fake-collection', '/fake', depth=1,
-                                      **self.viewset.service_arguments)
-        service_class().add_view.assert_any_call(
+        self.assertEquals(len(service_cls.mock_calls), 3)
+        service_cls.assert_any_call('fake-collection', '/fake', depth=1,
+                                    **self.viewset.service_arguments)
+        service_cls().add_view.assert_any_call(
             'GET', 'collection_get', klass=self.resource)
 
     @mock.patch('cliquet.resource.Service')

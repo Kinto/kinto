@@ -3,8 +3,6 @@ import functools
 
 import colander
 import venusian
-from cornice import resource
-from cornice.schemas import CorniceSchema
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPMethodNotAllowed,
                                     HTTPNotFound, HTTPConflict)

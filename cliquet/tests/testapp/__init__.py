@@ -1,6 +1,5 @@
 from pyramid.config import Configurator
 import cliquet
-from cliquet.tests.testapp import views
 
 
 def includeme(config):
