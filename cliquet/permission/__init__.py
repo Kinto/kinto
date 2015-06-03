@@ -51,7 +51,7 @@ class PermissionBase(object):
         """Add a principal to an Access Control Entry.
 
         :param str object_id: The object to add the permission principal to.
-        :param str permission: The permission object to add the principal to.
+        :param str permission: The permission to add the principal to.
         :param str principal: The principal to add to the ACE.
         """
         raise NotImplementedError
@@ -61,7 +61,7 @@ class PermissionBase(object):
         """Remove a principal to an Access Control Entry.
 
         :param str object_id: The object to remove the permission principal to.
-        :param str permission: The permission object to remove the principal to.
+        :param str permission: The permission to remove the principal from.
         :param str principal: The principal to remove to the ACE.
         """
         raise NotImplementedError
@@ -70,7 +70,7 @@ class PermissionBase(object):
         """Return the set of principals of a bound permission.
 
         :param str object_id: The object_id the permission is set to.
-        :param str permission: The permission object to remove the principal to.
+        :param str permission: The permission to query.
         :returns: The list of user principals
         :rtype: set
 
@@ -83,11 +83,11 @@ class PermissionBase(object):
         permission.
 
         :param str object_id: The object_id the permission is set to.
-        :param str permission: The permission object to remove the principal to.
+        :param str permission: The permission to query.
         :param function _get_perm_keys:
             The methods to call in order to generate the list of permission to
             verify against. (ie: if you can write, you can read)
-            
+
         :returns: The list of user principals
         :rtype: set
 
@@ -100,7 +100,7 @@ class PermissionBase(object):
 
         :param str object_id:
             The identifier of the object concerned by the permission.
-        :param str permission: The permission on the object.
+        :param str permission: The permission to test.
         :param set principals:
             A set of user principals to test the permission against.
         :param function _get_perm_keys:
