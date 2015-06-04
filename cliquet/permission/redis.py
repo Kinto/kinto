@@ -77,12 +77,12 @@ class Redis(PermissionBase):
 
     @wrap_redis_error
     def object_permission_authorized_principals(self, object_id, permission,
-                                                get_perm_keys=None):
-        if get_perm_keys is None:
-            def get_perm_keys(object_id, permission):
+                                                get_bound_permissions=None):
+        if get_bound_permissions is None:
+            def get_bound_permissions(object_id, permission):
                 return [(object_id, permission)]
 
-        keys = get_perm_keys(object_id, permission)
+        keys = get_bound_permissions(object_id, permission)
         keys = ['permission:%s:%s' % key for key in keys]
         return self._client.sunion(*list(keys))
 
