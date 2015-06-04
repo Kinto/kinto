@@ -71,11 +71,11 @@ class Memory(PermissionBase):
         return members
 
     def object_permission_authorized_principals(self, object_id, permission,
-                                                get_perm_keys=None):
-        if get_perm_keys is None:
+                                                get_bound_permissions=None):
+        if get_bound_permissions is None:
             keys = [(object_id, permission)]
         else:
-            keys = get_perm_keys(object_id, permission)
+            keys = get_bound_permissions(object_id, permission)
         permissions = set([])
         for obj_id, perm in keys:
             permissions |= self.object_permission_principals(obj_id, perm)

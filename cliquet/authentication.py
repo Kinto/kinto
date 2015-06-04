@@ -43,9 +43,10 @@ class AuthorizationPolicy(object):
         # XXX: todo once context is build.
         # object_id = context.object_id
         # user_id = context.user_id
-        # get_perm_keys = context.get_perm_keys
+        # get_bound_permissions = context.get_bound_permissions
         # has_permission = context.permission.has_permission
-        # return has_permission(object_id, permission, user_id, get_perm_keys)
+        # return has_permission(object_id, permission, user_id,
+        #                       get_bound_permissions)
 
         PERMISSIONS = {
             'readonly': Authenticated,

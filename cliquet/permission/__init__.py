@@ -77,13 +77,13 @@ class PermissionBase(object):
         raise NotImplementedError
 
     def object_permission_authorized_principals(self, object_id, permission,
-                                                get_perm_keys=None):
+                                                get_bound_permissions=None):
         """Return the full set of authorized principals for a given
         permission + object (bound permission).
 
         :param str object_id: The object_id the permission is set to.
         :param str permission: The permission to query.
-        :param function get_perm_keys:
+        :param function get_bound_permissions:
             The methods to call in order to generate the list of permission to
             verify against. (ie: if you can write, you can read)
 
@@ -94,7 +94,7 @@ class PermissionBase(object):
         raise NotImplementedError
 
     def has_permission(self, object_id, permission, principals,
-                       get_perm_keys=None):
+                       get_bound_permissions=None):
         """Test if a principal set have got a permission on an object.
 
         :param str object_id:
@@ -102,14 +102,14 @@ class PermissionBase(object):
         :param str permission: The permission to test.
         :param set principals:
             A set of user principals to test the permission against.
-        :param function get_perm_keys:
+        :param function get_bound_permissions:
             The method to call in order to generate the set of
             permission to verify against. (ie: if you can write, you can read)
 
         """
         principals = set(principals)
         authorized_principals = self.object_permission_authorized_principals(
-            object_id, permission, get_perm_keys)
+            object_id, permission, get_bound_permissions)
         return len(authorized_principals & principals) > 0
 
     def ping(self, request):
