@@ -239,7 +239,8 @@ class BaseResource(object):
     mapping = ResourceSchema()
     """Schema to validate records."""
 
-    def __init__(self, request):
+    def __init__(self, request, context=None):
+
         # Collections are isolated by user.
         parent_id = request.authenticated_userid
         # Authentication to storage is transmitted as is (cf. cloud_storage).
@@ -253,6 +254,7 @@ class BaseResource(object):
             auth=auth)
 
         self.request = request
+        self.context = context
         self.timestamp = self.collection.timestamp()
         self.record_id = self.request.matchdict.get('id')
 

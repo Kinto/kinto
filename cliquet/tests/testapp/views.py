@@ -1,11 +1,16 @@
-from cliquet.resource import BaseResource, ResourceSchema, register
+from cliquet import resource
+from cliquet import authorization
 import colander
 
 
-class MushroomSchema(ResourceSchema):
+class MushroomSchema(resource.ResourceSchema):
     name = colander.SchemaNode(colander.String())
 
 
-@register()
-class Mushroom(BaseResource):
+service_arguments = {'factory': authorization.RouteFactory}
+service_arguments.update(resource.ViewSet.service_arguments)
+
+
+@resource.register(service_arguments=service_arguments)
+class Mushroom(resource.BaseResource):
     mapping = MushroomSchema()
