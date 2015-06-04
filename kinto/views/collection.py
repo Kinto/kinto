@@ -14,9 +14,9 @@ class Collection(resource.BaseResource):
 
     mapping = RecordSchema()
 
-    @property
-    def name(self):
-        return self.request.matchdict['collection_id']
+    def __init__(self, *args, **kwargs):
+        super(Collection, self).__init__(*args, **kwargs)
+        self.collection.collection_id = self.request.matchdict['collection_id']
 
     def is_known_field(self, field_name):
         """Without schema, any field is considered as known."""
