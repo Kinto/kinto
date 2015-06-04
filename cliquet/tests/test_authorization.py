@@ -43,3 +43,6 @@ class RouteFactoryTest(unittest.TestCase):
 
     def test_http_put_existing_record_resolves_in_a_write_permission(self):
         self.assert_request_resolves_to("put", "write")
+
+    def test_http_patch_resolves_in_a_write_permission(self):
+        self.assert_request_resolves_to("patch", "write")

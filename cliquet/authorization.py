@@ -7,8 +7,8 @@ class RouteFactory(object):
         "head": "read",
         "get": "read",
         "post": "create",
-        # "put": "write",  # or create, depending if something exists or not.
         "delete": "write",
+        "patch": "write"
     }
 
     def __init__(self, request):
@@ -21,7 +21,8 @@ class RouteFactory(object):
         if request.method.lower() == "put":
             # In the case of a "PUT", check if the associated record already
             # exists, return "write" if it does, "create" otherwise.
-            pass
+            # For now, consider whoever puts should have "create" access.
+            permission = "create"
         else:
             permission = self.method_permissions[request.method.lower()]
 
