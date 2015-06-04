@@ -67,11 +67,7 @@ class BaseTestPermission(object):
             (self.permission.object_permission_authorized_principals, '', ''),
         ]
         for call in calls:
-            try:
-                self.assertRaises(exceptions.BackendError, *call)
-            except:
-                print call[0]
-                raise
+            self.assertRaises(exceptions.BackendError, *call)
 
     def test_ping_returns_false_if_unavailable(self):
         for patch in self.client_error_patcher:
