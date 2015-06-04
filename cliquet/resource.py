@@ -983,30 +983,41 @@ class ProtectedResource(BaseResource):
                 permissions[perm] = list(principals)
         return permissions
 
-    def _unprefixed_path(self):
-        return re.sub(r'^(/v\d+)?', '', self.request.path)
+    def _get_object_id(self, record_id=None):
+        if record_id is None:
+            record_uri = self.request.path
+        else:
+            # Obtain record URI from Pyramid routes.
+            service = current_service(self.request)
+            # See pattern of ViewSet.service_name.
+            record_service = service.name.replace('-collection', '-record')
+            matchdict = self.request.matchdict.copy()
+            matchdict['id'] = record_id
+            record_uri = self.request.route_path(record_service, **matchdict)
+
+        # Remove potential version prefix in URI.
+        object_id = re.sub(r'^(/v\d+)?', '', six.text_type(record_uri))
+        return object_id
 
     def collection_post(self):
         result = super(ProtectedResource, self).collection_post()
 
-        object_id = result['data'][self.collection.id_field]
-
-        # XXX: request.route_url() for record service ?
-        object_id = self._unprefixed_path() + '/' + object_id
+        record_id = result['data'][self.collection.id_field]
+        object_id = self._get_object_id(record_id)
         result['permissions'] = self._store_permissions(object_id=object_id)
         return result
 
     def get(self):
         result = super(ProtectedResource, self).get()
 
-        object_id = self._unprefixed_path()
+        object_id = self._get_object_id()
         result['permissions'] = self._build_permissions(object_id=object_id)
         return result
 
     def put(self):
         result = super(ProtectedResource, self).put()
 
-        object_id = self._unprefixed_path()
+        object_id = self._get_object_id()
         self._store_permissions(object_id=object_id, replace=True)
         result['permissions'] = self._build_permissions(object_id=object_id)
         return result
@@ -1014,7 +1025,7 @@ class ProtectedResource(BaseResource):
     def patch(self):
         result = super(ProtectedResource, self).patch()
 
-        object_id = self._unprefixed_path()
+        object_id = self._get_object_id()
         self._store_permissions(object_id=object_id)
         result['permissions'] = self._build_permissions(object_id=object_id)
         return result
