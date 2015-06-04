@@ -60,3 +60,43 @@ class ResourceSchemaTest(unittest.TestCase):
         schema_instance = PreserveSchema()
         deserialized = schema_instance.deserialize({'foo': 'bar'})
         self.assertNotIn('foo', deserialized)
+
+
+class PermissionsSchemaTest(unittest.TestCase):
+
+    def setUp(self):
+        self.schema = schema.PermissionsSchema()
+
+    def test_works_with_any_permission_name_by_default(self):
+        perms = {'can_cook': ['mat']}
+        deserialized = self.schema.deserialize(perms)
+        self.assertEqual(deserialized, perms)
+
+    def test_works_with_empty_mapping(self):
+        perms = {}
+        deserialized = self.schema.deserialize(perms)
+        self.assertEqual(deserialized, perms)
+
+    def test_works_with_empty_list_of_principals(self):
+        perms = {'can_cook': []}
+        deserialized = self.schema.deserialize(perms)
+        self.assertEqual(deserialized, perms)
+
+    def test_raises_invalid_if_permission_is_unknown(self):
+        self.schema.known_perms = ('can_sleep',)
+        perms = {'can_work': ['mat']}
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          perms)
+
+    def test_raises_invalid_if_not_list(self):
+        perms = {'can_cook': 3.14}
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          perms)
+
+    def test_raises_invalid_if_not_list_of_strings(self):
+        perms = {'can_cook': ['pi', 3.14]}
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          perms)

@@ -69,6 +69,50 @@ class ResourceSchema(colander.MappingSchema):
         return colander.Mapping(unknown=unknown)
 
 
+class PermissionsSchema(colander.SchemaNode):
+    """A permission mapping defines ACEs.
+
+    It has permission names as keys and principals as values.
+
+    ::
+
+        {
+            "write": ["fxa:af3e077eb9f5444a949ad65aa86e82ff"],
+            "groups:create": ["fxa:70a9335eecfe440fa445ba752a750f3d"]
+        }
+
+    """
+    known_perms = tuple()
+
+    def schema_type(self, **kw):
+        return colander.Mapping(unknown='preserve')
+
+    def deserialize(self, cstruct=colander.null):
+        # Start by deserializing a simple mapping.
+        permissions = super(PermissionsSchema, self).deserialize(cstruct)
+
+        # In case it is optional in parent schema.
+        if permissions in (colander.null, colander.drop):
+            return permissions
+
+        # Remove potential extra children from previous deserialization.
+        self.children = []
+        for perm in permissions.keys():
+            # If know permissions is limited, then validate inline.
+            if self.known_perms:
+                colander.OneOf(choices=self.known_perms)(self, perm)
+
+            # Add a String list child node with the name of ``perm``.
+            self.add(self._get_node_principals(perm))
+
+        # End up by deserializing a mapping whose keys are now known.
+        return super(PermissionsSchema, self).deserialize(permissions)
+
+    def _get_node_principals(self, perm):
+        principal = colander.SchemaNode(colander.String())
+        return colander.SchemaNode(colander.Sequence(), principal, name=perm)
+
+
 class TimeStamp(colander.SchemaNode):
     """Basic integer schema field that can be set to current server timestamp
     in milliseconds if no value is provided.
