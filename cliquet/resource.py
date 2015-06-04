@@ -46,20 +46,16 @@ class ViewSet(object):
         'error_handler': json_error_handler
     }
 
-    default_arguments = {
-        'cors_headers': ('Backoff', 'Retry-After', 'Alert'),
-    }
+    default_arguments = {}
 
     default_collection_arguments = {}
     collection_get_arguments = {
-        'cors_headers': (('Backoff', 'Retry-After', 'Alert') +
-                         ('Next-Page', 'Total-Records', 'Last-Modified'))
+        'cors_headers': ('Next-Page', 'Total-Records', 'Last-Modified')
     }
 
     default_record_arguments = {}
     record_get_arguments = {
-        'cors_headers': (('Backoff', 'Retry-After', 'Alert') +
-                         ('Last-Modified',))
+        'cors_headers': ('Last-Modified',)
     }
 
     def __init__(self, **kwargs):
