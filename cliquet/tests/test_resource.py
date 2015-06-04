@@ -1,3 +1,4 @@
+import colander
 import mock
 
 from cliquet.resource import ViewSet, register_resource
@@ -56,41 +57,35 @@ class ViewSetTest(unittest.TestCase):
         self.assertEquals(original_arguments, {})
         self.assertNotEquals(original_arguments, arguments)
 
-    @mock.patch('cliquet.resource.CorniceSchema')
-    def test_schema_is_added_when_method_matches(self, patched):
+    def test_schema_is_added_when_method_matches(self):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
-        resource = mock.MagicMock()
+        resource = mock.MagicMock(mapping=colander.SchemaNode(colander.Int()))
         arguments = viewset.collection_arguments(resource, 'GET')
         self.assertEquals(arguments['schema'], resource.mapping)
 
-    @mock.patch('cliquet.resource.CorniceSchema')
-    def test_schema_is_added_when_uppercase_method_matches(self, patched):
+    def test_schema_is_added_when_uppercase_method_matches(self):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
-        resource = mock.MagicMock()
+        resource = mock.MagicMock(mapping=colander.SchemaNode(colander.Int()))
         arguments = viewset.collection_arguments(resource, 'get')
         self.assertEquals(arguments['schema'], resource.mapping)
 
     @mock.patch('cliquet.resource.colander')
-    @mock.patch('cliquet.resource.CorniceSchema')
-    def test_a_default_schema_is_added_when_method_doesnt_match(
-            self, cornice_schema, colander):
+    def test_a_default_schema_is_added_when_method_doesnt_match(self, mocked):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
         resource = mock.MagicMock()
-        colander.MappingSchema.return_value = mock.sentinel.default_schema
+        mocked.MappingSchema.return_value = mock.sentinel.default_schema
 
         arguments = viewset.collection_arguments(resource, 'POST')
         self.assertEquals(arguments['schema'], mock.sentinel.default_schema)
-
-        cornice_schema.from_colander.assert_not_called()
         self.assertNotEqual(arguments['schema'], resource.mapping)
 
-        colander.MappingSchema.assert_called_with(unknown='preserve')
+        mocked.MappingSchema.assert_called_with(unknown='preserve')
 
     def test_class_parameters_are_used_for_collection_arguments(self):
         default_arguments = {
