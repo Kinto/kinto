@@ -955,11 +955,11 @@ class ProtectedResource(BaseResource):
             return {}
 
         registry = self.request.registry
-        add_principal = registry.permission.add_object_permission_principal
+        add_principal = registry.permission.add_principal_to_ace
 
         # XXX: change permissions API.
         get_perm_principals = registry.permission.object_permission_principals
-        del_principal = registry.permission.remove_object_permission_principal
+        del_principal = registry.permission.remove_principal_from_ace
 
         if replace:
             for permission in self.permissions:
@@ -982,12 +982,6 @@ class ProtectedResource(BaseResource):
             if principals:
                 permissions[perm] = list(principals)
         return permissions
-
-    def collection_get(self):
-        result = super(ProtectedResource, self).collection_get()
-        object_id = self.request.path
-        result['permissions'] = self._build_permissions(object_id=object_id)
-        return result
 
     def collection_post(self):
         result = super(ProtectedResource, self).collection_post()
