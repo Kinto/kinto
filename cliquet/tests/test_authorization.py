@@ -1,5 +1,6 @@
 import mock
 
+from pyramid.security import Allow
 from .support import DummyRequest, unittest
 from cliquet.authorization import RouteFactory
 
@@ -17,8 +18,13 @@ class RouteFactoryTest(unittest.TestCase):
         request.upath_info = uri
         get_principals = (request.registry.permission.
                           object_permission_authorized_principals)
-        RouteFactory(request)
+
+        get_principals.return_value = [('user', permission), ]
+        context = RouteFactory(request)
         get_principals.assert_called_with(uri, permission, None)
+
+        expected_acls = [(Allow, 'user', permission)]
+        self.assertEquals(context.__acl__, expected_acls)
 
     def test_http_get_resolves_in_a_read_permission(self):
         self.assert_request_resolves_to("get", "read")
