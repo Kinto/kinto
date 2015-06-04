@@ -6,24 +6,34 @@ from cliquet.authorization import RouteFactory
 
 class RouteFactoryTest(unittest.TestCase):
 
-    def test_http_get_resolves_in_a_read_permission(self):
-        request = DummyRequest(method="get")
+    def setUp(self):
+        self.record_uri = "/foo/bar"
+
+    def assert_request_resolves_to(self, method, permission, uri=None):
+        if uri is None:
+            uri = self.record_uri
+
+        request = DummyRequest(method=method)
+        request.upath_info = uri
         get_principals = (request.registry.permission.
                           object_permission_authorized_principals)
         RouteFactory(request)
-        get_principals.assert_called_with()
+        get_principals.assert_called_with(uri, permission, None)
+
+    def test_http_get_resolves_in_a_read_permission(self):
+        self.assert_request_resolves_to("get", "read")
 
     def test_http_post_resolves_in_a_create_permission(self):
-        pass
+        self.assert_request_resolves_to("post", "create")
 
     def test_http_delete_resolves_in_a_write_permission(self):
-        pass
+        self.assert_request_resolves_to("delete", "write")
 
     def test_http_post_resolves_in_a_create_permission(self):
-        pass
+        self.assert_request_resolves_to("post", "create")
 
     def test_http_put_unexisting_record_resolves_in_a_create_permission(self):
-        pass
+        self.assert_request_resolves_to("put", "create")
 
     def test_http_put_existing_record_resolves_in_a_write_permission(self):
-        pass
+        self.assert_request_resolves_to("put", "write")
