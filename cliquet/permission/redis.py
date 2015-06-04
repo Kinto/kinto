@@ -36,6 +36,9 @@ class Redis(PermissionBase):
         # Nothing to do.
         pass
 
+    def _decode_set(self, results):
+        return set([r.decode('utf-8') for r in results])
+
     @wrap_redis_error
     def flush(self):
         self._client.flushdb()
@@ -55,7 +58,7 @@ class Redis(PermissionBase):
     @wrap_redis_error
     def user_principals(self, user_id):
         user_key = 'user:%s' % user_id
-        return self._client.smembers(user_key)
+        return self._decode_set(self._client.smembers(user_key))
 
     @wrap_redis_error
     def add_principal_to_ace(self, object_id, permission, principal):
@@ -73,7 +76,7 @@ class Redis(PermissionBase):
     def object_permission_principals(self, object_id, permission):
         permission_key = 'permission:%s:%s' % (object_id, permission)
         members = self._client.smembers(permission_key)
-        return members
+        return self._decode_set(members)
 
     @wrap_redis_error
     def object_permission_authorized_principals(self, object_id, permission,
@@ -84,7 +87,7 @@ class Redis(PermissionBase):
 
         keys = get_bound_permissions(object_id, permission)
         keys = ['permission:%s:%s' % key for key in keys]
-        return self._client.sunion(*list(keys))
+        return self._decode_set(self._client.sunion(*list(keys)))
 
 
 def load_from_config(config):
