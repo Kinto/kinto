@@ -31,14 +31,19 @@ class ObtainCollectionPermissionTest(PermissionTest):
     def test_permissions_are_provided_in_collection_get(self):
         self.assertIn('permissions', self.result)
 
+    def test_permissions_are_provided_in_collection_post(self):
+        self.resource.request.validated = {'data': {}}
+        result = self.resource.collection_post()
+        self.assertIn('permissions', result)
+
     def test_permissions_are_not_provided_in_collection_delete(self):
         result = self.resource.collection_delete()
         self.assertNotIn('permissions', result)
 
     def test_permissions_gives_lists_of_principals_per_ace(self):
         permissions = self.result['permissions']
-        self.assertEqual(permissions['read'], {'fxa:user'})
-        self.assertEqual(permissions['write'], {'fxa:user'})
+        self.assertEqual(permissions['read'], ['fxa:user'])
+        self.assertEqual(permissions['write'], ['fxa:user'])
 
 
 class ObtainRecordPermissionTest(PermissionTest):
@@ -76,5 +81,46 @@ class ObtainRecordPermissionTest(PermissionTest):
     def test_permissions_gives_lists_of_principals_per_ace(self):
         result = self.resource.get()
         permissions = result['permissions']
-        self.assertEqual(permissions['read'], {'fxa:user'})
-        self.assertEqual(permissions['write'], {'fxa:user'})
+        self.assertEqual(permissions['read'], ['fxa:user'])
+        self.assertEqual(permissions['write'], ['fxa:user'])
+
+
+class SpecifyCollectionPermissionTest(PermissionTest):
+    def setUp(self):
+        super(SpecifyCollectionPermissionTest, self).setUp()
+        self.resource.request.path = '/articles'
+
+    def test_permissions_can_be_specified_in_collection_post(self):
+        perms = {'write': ['jean-louis']}
+        self.resource.request.validated = {'data': {}, 'permissions': perms}
+        result = self.resource.collection_post()
+        self.assertEqual(result['permissions'],
+                         {'write': ['jean-louis']})
+
+
+class SpecifyRecordPermissionTest(PermissionTest):
+    def setUp(self):
+        super(SpecifyRecordPermissionTest, self).setUp()
+        record = self.resource.collection.create_record({})
+        record_id = record['id']
+        record_uri = '/articles/%s' % record_id
+        self.permission.add_object_permission_principal(record_uri,
+                                                        'read',
+                                                        'fxa:user')
+        self.resource.record_id = record_id
+        self.resource.request.validated = {'data': {}}
+        self.resource.request.path = record_uri
+
+    def test_permissions_are_replaced_with_put(self):
+        perms = {'write': ['jean-louis']}
+        self.resource.request.validated['permissions'] = perms
+        result = self.resource.put()
+        self.assertEqual(result['permissions'], perms)
+
+    def test_permissions_are_modified_with_patch(self):
+        perms = {'write': ['jean-louis']}
+        self.resource.request.validated['permissions'] = perms
+        result = self.resource.patch()
+        self.assertEqual(result['permissions'],
+                         {'write': ['jean-louis'],
+                          'read': ['fxa:user']})

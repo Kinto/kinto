@@ -13,7 +13,7 @@ from cliquet import Service
 from cliquet.collection import Collection
 from cliquet.errors import (http_error, raise_invalid, ERRORS,
                             json_error_handler)
-from cliquet.schema import ResourceSchema
+from cliquet.schema import ResourceSchema, PermissionsSchema
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
@@ -99,7 +99,7 @@ class ViewSet(object):
 
         class RecordPayload(colander.MappingSchema):
             data = resource.mapping
-            # XXX: permissions = PermissionSchema()
+            permissions = PermissionsSchema(missing=colander.drop)
 
             def schema_type(self, **kw):
                 return colander.Mapping(unknown='raise')
@@ -949,32 +949,72 @@ class BaseResource(object):
 class ProtectedResource(BaseResource):
     permissions = ('read', 'write')
 
-    def _build_permissions(self):
-        object_id = self.request.path
+    def _store_permissions(self, object_id, replace=False):
+        permissions = self.request.validated.get('permissions')
+        if not permissions:
+            return {}
+
+        registry = self.request.registry
+        add_principal = registry.permission.add_object_permission_principal
+
+        # XXX: change permissions API.
+        get_perm_principals = registry.permission.object_permission_principals
+        del_principal = registry.permission.remove_object_permission_principal
+
+        if replace:
+            for permission in self.permissions:
+                existing = list(get_perm_principals(object_id, permission))
+                for principal in existing:
+                    del_principal(object_id, permission, principal)
+
+        for permission, principals in permissions.items():
+            for principal in principals:
+                add_principal(object_id, permission, principal)
+        return permissions
+
+    def _build_permissions(self, object_id):
         registry = self.request.registry
         get_perm_principals = registry.permission.object_permission_principals
 
         permissions = {}
         for perm in self.permissions:
-            permissions[perm] = get_perm_principals(object_id, perm)
+            principals = get_perm_principals(object_id, perm)
+            if principals:
+                permissions[perm] = list(principals)
         return permissions
 
     def collection_get(self):
         result = super(ProtectedResource, self).collection_get()
-        result['permissions'] = self._build_permissions()
+        object_id = self.request.path
+        result['permissions'] = self._build_permissions(object_id=object_id)
+        return result
+
+    def collection_post(self):
+        result = super(ProtectedResource, self).collection_post()
+
+        object_id = result['data'][self.collection.id_field]
+        result['permissions'] = self._store_permissions(object_id=object_id)
         return result
 
     def get(self):
         result = super(ProtectedResource, self).get()
-        result['permissions'] = self._build_permissions()
+
+        object_id = self.request.path
+        result['permissions'] = self._build_permissions(object_id=object_id)
         return result
 
     def put(self):
         result = super(ProtectedResource, self).put()
-        result['permissions'] = self._build_permissions()
+
+        object_id = self.request.path
+        result['permissions'] = self._store_permissions(object_id=object_id,
+                                                        replace=True)
         return result
 
     def patch(self):
         result = super(ProtectedResource, self).patch()
-        result['permissions'] = self._build_permissions()
+
+        object_id = self.request.path
+        self._store_permissions(object_id=object_id)
+        result['permissions'] = self._build_permissions(object_id=object_id)
         return result
