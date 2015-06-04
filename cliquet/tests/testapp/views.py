@@ -10,3 +10,8 @@ class MushroomSchema(resource.ResourceSchema):
 @resource.register(factory=authorization.RouteFactory)
 class Mushroom(resource.BaseResource):
     mapping = MushroomSchema()
+
+
+@resource.register(factory=authorization.RouteFactory)
+class Toadstool(resource.ProtectedResource):
+    mapping = MushroomSchema()

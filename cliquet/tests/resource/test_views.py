@@ -15,6 +15,8 @@ MINIMALIST_RECORD = {'name': 'Champignon'}
 class BaseWebTest(unittest.TestCase):
     authorization_policy = 'cliquet.tests.support.AllowAuthorizationPolicy'
 
+    collection_url = '/mushrooms'
+
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.config = testing.setUp()
@@ -32,7 +34,6 @@ class BaseWebTest(unittest.TestCase):
 
         self.app = webtest.TestApp(self.config.make_wsgi_app())
         self.app.RequestClass = get_request_class(self.config.route_prefix)
-
         self.collection_url = '/mushrooms'
         self.item_url = '/mushrooms/{id}'
         self.principal = USER_PRINCIPAL
@@ -49,11 +50,14 @@ class BaseWebTest(unittest.TestCase):
         """Return the URL of the item using self.item_url."""
         if id is None:
             id = self.record['id']
-        return self.item_url.format(id=id)
+        return self.collection_url + '/' + id
 
 
 class AuthzAuthnTest(BaseWebTest):
     authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
+
+    # Protected resource.
+    collection_url = '/toadstools'
 
     def test_all_views_require_authentication(self):
         self.app.get(self.collection_url, status=401)
@@ -65,6 +69,27 @@ class AuthzAuthnTest(BaseWebTest):
         self.app.get(url, status=401)
         self.app.patch_json(url, body, status=401)
         self.app.delete(url, status=401)
+
+    def test_permissions_are_associated_to_object_uri_without_prefix(self):
+        body = {'data': MINIMALIST_RECORD,
+                'permissions': {'read': ['group:readers']}}
+        resp = self.app.post_json(self.collection_url, body,
+                                  headers=self.headers)
+        object_uri = '/toadstools/%s' % resp.json['data']['id']
+        backend = self.app.app.registry.permission
+        stored_perms = backend.object_permission_principals(object_uri, 'read')
+        self.assertEqual(stored_perms, {'group:readers'})
+
+    def test_permissions_are_not_modified_if_not_specified(self):
+        body = {'data': MINIMALIST_RECORD,
+                'permissions': {'read': ['group:readers']}}
+        resp = self.app.post_json(self.collection_url, body,
+                                  headers=self.headers)
+        object_uri = self.get_item_url(resp.json['data']['id'])
+
+        body.pop('permissions')
+        resp = self.app.put_json(object_uri, body, headers=self.headers)
+        self.assertEqual(resp.json['permissions']['read'], ['group:readers'])
 
 
 class CollectionAuthzGrantedTest(AuthzAuthnTest):
@@ -358,6 +383,39 @@ class InvalidBodyTest(BaseWebTest):
                               headers=self.headers,
                               status=400)
         self.assertIn('Empty body', resp.json['message'])
+
+
+class InvalidPermissionsTest(BaseWebTest):
+    def setUp(self):
+        super(InvalidPermissionsTest, self).setUp()
+        body = {'data': MINIMALIST_RECORD}
+        resp = self.app.post_json(self.collection_url,
+                                  body,
+                                  headers=self.headers)
+        self.record = resp.json['data']
+        self.invalid_body = {'data': MINIMALIST_RECORD,
+                             'permissions': {'read': 'book'}}
+
+    def test_create_invalid_body_returns_400(self):
+        self.app.post_json(self.collection_url,
+                           self.invalid_body,
+                           headers=self.headers,
+                           status=400)
+
+    def test_invalid_body_returns_json_formatted_error(self):
+        resp = self.app.post_json(self.collection_url,
+                                  self.invalid_body,
+                                  headers=self.headers,
+                                  status=400)
+        self.assertDictEqual(resp.json, {
+            'errno': ERRORS.INVALID_PARAMETERS,
+            'message': 'permissions.read in body: "book" is not iterable',
+            'code': 400,
+            'error': 'Invalid parameters',
+            'details': [
+                {'description': '"book" is not iterable',
+                 'location': 'body',
+                 'name': 'permissions.read'}]})
 
 
 class ConflictErrorsTest(BaseWebTest):

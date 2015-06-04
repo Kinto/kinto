@@ -983,32 +983,38 @@ class ProtectedResource(BaseResource):
                 permissions[perm] = list(principals)
         return permissions
 
+    def _unprefixed_path(self):
+        return re.sub(r'^(/v\d+)?', '', self.request.path)
+
     def collection_post(self):
         result = super(ProtectedResource, self).collection_post()
 
         object_id = result['data'][self.collection.id_field]
+
+        # XXX: request.route_url() for record service ?
+        object_id = self._unprefixed_path() + '/' + object_id
         result['permissions'] = self._store_permissions(object_id=object_id)
         return result
 
     def get(self):
         result = super(ProtectedResource, self).get()
 
-        object_id = self.request.path
+        object_id = self._unprefixed_path()
         result['permissions'] = self._build_permissions(object_id=object_id)
         return result
 
     def put(self):
         result = super(ProtectedResource, self).put()
 
-        object_id = self.request.path
-        result['permissions'] = self._store_permissions(object_id=object_id,
-                                                        replace=True)
+        object_id = self._unprefixed_path()
+        self._store_permissions(object_id=object_id, replace=True)
+        result['permissions'] = self._build_permissions(object_id=object_id)
         return result
 
     def patch(self):
         result = super(ProtectedResource, self).patch()
 
-        object_id = self.request.path
+        object_id = self._unprefixed_path()
         self._store_permissions(object_id=object_id)
         result['permissions'] = self._build_permissions(object_id=object_id)
         return result
