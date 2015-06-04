@@ -383,7 +383,7 @@ class ConflictErrorsTest(BaseWebTest):
         resp = self.app.post_json(self.collection_url,
                                   body,
                                   headers=self.headers)
-        self.assertEqual(resp.json, {'id': 42})
+        self.assertEqual(resp.json['data'], {'id': 42})
 
     def test_put_returns_409(self):
         body = {'data': MINIMALIST_RECORD}

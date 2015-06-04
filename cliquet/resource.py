@@ -364,10 +364,9 @@ class BaseResource(object):
             unique_fields = self.mapping.get_option('unique_fields')
             record = self.collection.create_record(new_record,
                                                    unique_fields=unique_fields)
+            self.request.response.status_code = 201
         except storage_exceptions.UnicityError as e:
-            return e.record
-
-        self.request.response.status_code = 201
+            record = e.record
 
         body = {
             'data': record,
