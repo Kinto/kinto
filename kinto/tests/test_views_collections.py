@@ -20,7 +20,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(response.json['id'], 'barley')
 
     def test_collections_name_should_be_simple(self):
-        self.app.put_json('/buckets/__beers__',
+        self.app.put_json('/buckets/beers/collections/__barley__',
                           MINIMALIST_ITEM,
                           headers=self.headers,
                           status=400)
