@@ -31,11 +31,14 @@ serve: install-dev
 	$(VENV)/bin/cliquet --ini $(SERVER_CONFIG) migrate
 	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
 
-tests-once: install-dev
+tests-once: install-dev need-kinto-running
 	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-min-percentage=100 --cover-package=kinto
 
-tests:
+tests: need-kinto-running
 	tox
+
+need-kinto-running:
+	@curl http://localhost:8888/v0/ 2>/dev/null 1>&2 || (echo "Run 'make serve' before starting tests." && exit 1)
 
 clean:
 	find . -name '*.pyc' -delete
