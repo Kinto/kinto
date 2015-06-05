@@ -9,6 +9,19 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
     collection_url = '/buckets/beers/groups'
     record_url = '/buckets/beers/groups/moderators'
 
+    def setUp(self):
+        super(GroupViewTest, self).setUp()
+        resp = self.app.put_json(self.record_url,
+                                 MINIMALIST_ITEM,
+                                 headers=self.headers)
+        self.record = resp.json  # XXX: ['data']
+
+    def test_collection_endpoint_lists_them_all(self):
+        resp = self.app.get(self.collection_url, headers=self.headers)
+        records = resp.json['items']  # XXX: ['data']
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]['members'], ['fxa:user'])
+
     def test_groups_can_be_posted_without_id(self):
         resp = self.app.post_json(self.collection_url,
                                   MINIMALIST_ITEM,
@@ -18,10 +31,7 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(resp.json['members'], ['fxa:user'])
 
     def test_groups_can_be_put_with_simple_name(self):
-        response = self.app.put_json(self.record_url,
-                                     MINIMALIST_ITEM,
-                                     headers=self.headers)
-        self.assertEqual(response.json['id'], 'moderators')
+        self.assertEqual(self.record['id'], 'moderators')
 
     def test_groups_name_should_be_simple(self):
         self.app.put_json('/buckets/beers/groups/__moderator__',
@@ -30,9 +40,6 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
                           status=400)
 
     def test_groups_are_isolated_by_bucket(self):
-        self.app.put_json(self.record_url,
-                          MINIMALIST_ITEM,
-                          headers=self.headers)
         other_bucket = self.record_url.replace('beers', 'water')
         self.app.get(other_bucket, headers=self.headers, status=404)
 

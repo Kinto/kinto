@@ -9,15 +9,25 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
     collection_url = '/buckets'
     record_url = '/buckets/beers'
 
+    def setUp(self):
+        super(BucketViewTest, self).setUp()
+        resp = self.app.put_json(self.record_url,
+                                 MINIMALIST_ITEM,
+                                 headers=self.headers)
+        self.record = resp.json  # XXX: ['data']
+
     def test_buckets_do_not_support_post(self):
         self.app.post(self.collection_url, headers=self.headers,
                       status=405)
 
     def test_buckets_can_be_put_with_simple_name(self):
-        response = self.app.put_json(self.record_url,
-                                     MINIMALIST_ITEM,
-                                     headers=self.headers)
-        self.assertEqual(response.json['id'], 'beers')
+        self.assertEqual(self.record['id'], 'beers')
+
+    def test_collection_endpoint_lists_them_all(self):
+        resp = self.app.get(self.collection_url, headers=self.headers)
+        records = resp.json['items']  # XXX: ['data']
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]['id'], 'beers')
 
     def test_buckets_name_should_be_simple(self):
         self.app.put_json('/buckets/__beers__',
