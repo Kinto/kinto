@@ -63,7 +63,7 @@ copyright = u'2015, Mozilla Services — Da French Team'
 # The short X.Y version.
 version = '0.2'
 # The full version, including alpha/beta/rc tags.
-release = '0.2.1'
+release = '0.2.2'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

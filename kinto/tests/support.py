@@ -8,7 +8,7 @@ from cliquet import utils
 from cliquet.tests import support as cliquet_support
 
 
-class BaseWebTest(cliquet_support.FakeAuthentMixin):
+class BaseWebTest(object):
 
     app = webtest.TestApp("config:config/kinto.ini",
                           relative_to='.')
@@ -16,15 +16,16 @@ class BaseWebTest(cliquet_support.FakeAuthentMixin):
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.app.RequestClass = cliquet_support.get_request_class(prefix="v0")
-        self.db = self.app.app.registry.storage
-        self.db.initialize_schema()
-        self.headers.update({
+        self.storage = self.app.app.registry.storage
+        self.storage.initialize_schema()
+        self.headers = {
             'Content-Type': 'application/json',
-        })
+        }
+        self.headers.update(get_user_headers('mat'))
 
     def tearDown(self):
         super(BaseWebTest, self).tearDown()
-        self.db.flush()
+        self.storage.flush()
 
 
 def get_user_headers(user):
