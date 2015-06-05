@@ -21,8 +21,9 @@ class Record(resource.BaseResource):
 
     def __init__(self, *args, **kwargs):
         super(Record, self).__init__(*args, **kwargs)
-        self.collection.collection_id = self.request.matchdict['collection_id']
-        self.collection.parent_id = self.request.matchdict['bucket_id']
+        collection_uri = '/buckets/{bucket_id}/collections/{collection_id}'
+        parent_id = collection_uri.format(**self.request.matchdict)
+        self.collection.parent_id = parent_id
 
     def is_known_field(self, field_name):
         """Without schema, any field is considered as known."""

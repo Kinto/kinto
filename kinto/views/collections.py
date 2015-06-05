@@ -15,5 +15,6 @@ class Collection(resource.BaseResource):
 
     def __init__(self, *args, **kwargs):
         super(Collection, self).__init__(*args, **kwargs)
-        self.collection.parent_id = self.request.matchdict['bucket_id']
+        parent_id = '/buckets/{bucket_id}'.format(**self.request.matchdict)
+        self.collection.parent_id = parent_id
         self.collection.id_generator = NameGenerator()

@@ -29,6 +29,13 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
+    def test_groups_are_isolated_by_bucket(self):
+        self.app.put_json(self.record_url,
+                          MINIMALIST_ITEM,
+                          headers=self.headers)
+        other_bucket = self.record_url.replace('beers', 'water')
+        self.app.get(other_bucket, headers=self.headers, status=404)
+
     def test_groups_creation_fails_if_bucket_is_not_found(self):
         pass
 

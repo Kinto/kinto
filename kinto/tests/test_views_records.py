@@ -1,4 +1,4 @@
-from .support import BaseWebTest, unittest, get_user_headers
+from .support import BaseWebTest, unittest
 
 
 MINIMALIST_ITEM = dict(name="Hulled Barley",
@@ -31,14 +31,34 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         del item['last_modified']
         self.assertEquals(item, MINIMALIST_ITEM)
 
-    def test_collections_are_bound_by_bucket(self):
-        # Add items in the collections.
+    def test_records_are_isolated_by_bucket_and_by_collection(self):
         response = self.app.post_json(self.collection_url,
                                       MINIMALIST_ITEM,
                                       headers=self.headers)
-        collection_url = self.record_url % response.json['id']
-        self.app.get(collection_url.replace('beers', 'sodas'),
-                     headers=get_user_headers("alice"), status=404)
+        record_url = self.record_url % response.json['id']
+
+        other_collection = record_url.replace('barley', 'pills')
+        self.app.get(other_collection, headers=self.headers, status=404)
+
+        other_bucket = record_url.replace('beers', 'sodas')
+        self.app.get(other_bucket, headers=self.headers, status=404)
+
+        other = record_url.replace('barley', 'pills').replace('beers', 'sodas')
+        self.app.get(other, headers=self.headers, status=404)
+
+    def test_a_collection_named_group_do_not_interfere_with_groups(self):
+        # Create a group.
+        self.app.put_json('/buckets/beers/groups/test',
+                          {'members': ['fxa:user']},
+                          headers=self.headers)
+        # Create a record in a collection named "group".
+        collection_group = self.collection_url.replace('barley', 'groups')
+        self.app.post_json(collection_group,
+                           MINIMALIST_ITEM,
+                           headers=self.headers)
+        # There is still only one group.
+        resp = self.app.get('/buckets/beers/groups', headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 1)
 
     def test_records_can_be_accessed_by_id(self):
         response = self.app.post_json(self.collection_url,
