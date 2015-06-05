@@ -1,4 +1,4 @@
-from .support import BaseWebTest, unittest
+from .support import BaseWebTest, unittest, get_user_headers
 
 
 MINIMALIST_ITEM = dict()
@@ -15,6 +15,9 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                                  MINIMALIST_ITEM,
                                  headers=self.headers)
         self.record = resp.json  # XXX: ['data']
+
+    def test_buckets_are_global_to_every_users(self):
+        self.app.get(self.record_url, headers=get_user_headers('alice'))
 
     def test_buckets_do_not_support_post(self):
         self.app.post(self.collection_url, headers=self.headers,
