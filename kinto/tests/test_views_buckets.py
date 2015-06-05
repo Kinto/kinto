@@ -25,9 +25,29 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
+    def test_current_user_receives_write_permission_on_creation(self):
+        pass
+
+
+class BucketDeletionTest(BaseWebTest, unittest.TestCase):
+
+    record_url = '/buckets/beers/collections/barley'
+
     def test_buckets_can_be_deleted(self):
         self.app.put_json(self.record_url, MINIMALIST_ITEM,
                           headers=self.headers)
         self.app.delete(self.record_url, headers=self.headers)
         self.app.get(self.record_url, headers=self.headers,
                      status=404)
+
+    def test_every_collections_are_deleted_too(self):
+        pass
+
+    def test_every_groups_are_deleted_too(self):
+        pass
+
+    def test_every_records_are_deleted_too(self):
+        pass
+
+    def test_permissions_associated_are_deleted_too(self):
+        pass
