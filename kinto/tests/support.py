@@ -15,7 +15,7 @@ class BaseWebTest(object):
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.app.RequestClass = cliquet_support.get_request_class(prefix="v0")
+        self.app.RequestClass = cliquet_support.get_request_class(prefix="v1")
         self.storage = self.app.app.registry.storage
         self.storage.initialize_schema()
         self.headers = {
