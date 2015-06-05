@@ -7,17 +7,17 @@ class RecordSchema(schema.ResourceSchema):
 
 
 @resource.register(
-    name="collection",
+    name="record",
     record_path=("/buckets/{{bucket_id}}"
                  "/collections/{{collection_id}}/records/{{id}}"),
     collection_path=("/buckets/{{bucket_id}}"
                      "/collections/{{collection_id}}/records"))
-class Collection(resource.BaseResource):
+class Record(resource.BaseResource):
 
     mapping = RecordSchema()
 
     def __init__(self, *args, **kwargs):
-        super(Collection, self).__init__(*args, **kwargs)
+        super(Record, self).__init__(*args, **kwargs)
         self.collection.collection_id = self.request.matchdict['collection_id']
         self.collection.parent_id = self.request.matchdict['bucket_id']
 

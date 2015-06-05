@@ -5,7 +5,7 @@ MINIMALIST_ITEM = dict(name="Hulled Barley",
                        type="Whole Grain")
 
 
-class CollectionViewTest(BaseWebTest, unittest.TestCase):
+class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
     record_url = '/buckets/beers/collections/barley/records/%s'
@@ -18,7 +18,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         self.app.post(self.collection_url, headers=self.headers)
         self.app.delete(self.collection_url, headers=self.headers)
 
-    def test_items_can_be_added_to_collections(self):
+    def test_records_can_be_added_to_collections(self):
         response = self.app.post_json(self.collection_url,
                                       MINIMALIST_ITEM,
                                       headers=self.headers)
@@ -40,14 +40,14 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(collection_url.replace('beers', 'sodas'),
                      headers=get_user_headers("alice"), status=404)
 
-    def test_collection_items_can_be_accessed_by_id(self):
+    def test_records_can_be_accessed_by_id(self):
         response = self.app.post_json(self.collection_url,
                                       MINIMALIST_ITEM,
                                       headers=self.headers)
         self.app.get(self.record_url % response.json['id'],
                      headers=self.headers)
 
-    def test_collection_items_can_be_filtered_on_any_field(self):
+    def test_records_can_be_filtered_on_any_field(self):
         self.app.post_json(self.collection_url,
                            MINIMALIST_ITEM,
                            headers=self.headers)
@@ -55,7 +55,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
                                 headers=self.headers)
         self.assertEqual(len(response.json['items']), 0)
 
-    def test_collection_items_can_be_sorted_on_any_field(self):
+    def test_records_can_be_sorted_on_any_field(self):
         for i in range(3):
             record = MINIMALIST_ITEM.copy()
             record['name'] = 'Stout %s' % i
