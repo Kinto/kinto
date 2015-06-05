@@ -85,9 +85,9 @@ class PermissionTest(unittest.TestCase):
         # groups:create
         self.assertEquals(
             permission.build_permissions_set(self.bucket_uri, 'groups:create'),
-            set(
-                [(self.bucket_uri, 'write'), (self.bucket_uri, 'groups:create')])
-            )
+            set([(self.bucket_uri, 'write'),
+                 (self.bucket_uri, 'groups:create')])
+        )
 
         # collections:create
         self.assertEquals(
