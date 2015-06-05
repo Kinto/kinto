@@ -24,3 +24,10 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
                           MINIMALIST_ITEM,
                           headers=self.headers,
                           status=400)
+
+    def test_collections_can_be_deleted(self):
+        self.app.put_json(self.record_url, MINIMALIST_ITEM,
+                          headers=self.headers)
+        self.app.delete(self.record_url, headers=self.headers)
+        self.app.get(self.record_url, headers=self.headers,
+                     status=404)
