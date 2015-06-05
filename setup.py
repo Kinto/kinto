@@ -15,7 +15,7 @@ REQUIREMENTS = [
     'cornice',
     'six',
     'waitress',
-    'cliquet[postgresql,monitoring] < 2.0'
+    'cliquet[postgresql,monitoring]'  # > 2.0 once released.
 ]
 
 ENTRY_POINTS = {
@@ -23,6 +23,10 @@ ENTRY_POINTS = {
         'main = kinto:main',
     ]}
 
+DEPENDENCY_LINKS = [
+    # Pre-release of Cliquet.
+    'https://github.com/mozilla-services/cliquet/tarball/#egg=Cliquet-2.0dev0',
+]
 
 setup(name='kinto',
       version='1.0.0.dev0',
@@ -43,4 +47,5 @@ setup(name='kinto',
       include_package_data=True,
       zip_safe=False,
       install_requires=REQUIREMENTS,
-      entry_points=ENTRY_POINTS)
+      entry_points=ENTRY_POINTS,
+      dependency_links=DEPENDENCY_LINKS)
