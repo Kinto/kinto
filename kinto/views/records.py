@@ -6,12 +6,15 @@ class RecordSchema(schema.ResourceSchema):
         preserve_unknown = True
 
 
-@resource.register(
-    name="record",
-    record_path=("/buckets/{{bucket_id}}"
-                 "/collections/{{collection_id}}/records/{{id}}"),
-    collection_path=("/buckets/{{bucket_id}}"
-                     "/collections/{{collection_id}}/records"))
+records_options = {
+    'collection_path': ("/buckets/{{bucket_id}}"
+                        "/collections/{{collection_id}}/records"),
+    'record_path': ("/buckets/{{bucket_id}}"
+                    "/collections/{{collection_id}}/records/{{id}}")
+}
+
+
+@resource.register(name="record", **records_options)
 class Record(resource.BaseResource):
 
     mapping = RecordSchema()
