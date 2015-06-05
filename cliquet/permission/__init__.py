@@ -125,5 +125,5 @@ class PermissionBase(object):
             self.remove_user_principal(__HEARTBEAT_KEY__, 'alive')
         except BackendError:
             return False
-        else:
-            return True
+
+        return True
