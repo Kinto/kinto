@@ -234,8 +234,19 @@ class ViewSetTest(unittest.TestCase):
             viewset.get_service_name('record', resource),
             'fakename-record')
 
+    def test_get_service_arguments_returns_factory_if_exists(self):
+        viewset = ViewSet(factory=mock.sentinel.factory)
+        service_arguments = viewset.get_service_arguments()
+        self.assertIn("factory", service_arguments)
+        self.assertEquals(service_arguments["factory"], mock.sentinel.factory)
 
-class ViewPermissionTest(unittest.TestCase):
+    def test_get_service_arguments_ignore_factory_if_not_exists(self):
+        viewset = ViewSet()  # Don't provide a factory here.
+        service_arguments = viewset.get_service_arguments()
+        self.assertNotIn("factory", service_arguments)
+
+
+class ViewSetPermissionTest(unittest.TestCase):
 
     def test_get_view_permission_returns_readwrite_by_default(self):
         viewset = ViewSet(readonly_methods=())

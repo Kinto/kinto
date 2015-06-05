@@ -138,6 +138,13 @@ class ViewSet(object):
             permission = "readwrite"
         return permission
 
+    def get_service_arguments(self):
+        service_arguments = {}
+        if hasattr(self, 'factory'):
+            service_arguments['factory'] = self.factory
+        service_arguments.update(self.service_arguments)
+        return service_arguments
+
 
 def register(depth=1, **kwargs):
     """Ressource class decorator.
@@ -198,7 +205,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         name = viewset.get_service_name(endpoint_type, resource)
 
         service = Service(name, path, depth=depth,
-                          **viewset.service_arguments or {})
+                          **viewset.get_service_arguments())
 
         methods = getattr(viewset, '%s_methods' % endpoint_type)
         for method in methods:
