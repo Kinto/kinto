@@ -1,5 +1,7 @@
 from pyramid.security import Allow
 
+from cliquet import utils
+
 
 class RouteFactory(object):
     get_bound_permissions = None
@@ -22,6 +24,11 @@ class RouteFactory(object):
             # In the case of a "PUT", check if the associated record already
             # exists, return "write" if it does, "create" otherwise.
             # For now, consider whoever puts should have "create" access.
+            view = utils.current_view(request)
+
+            # If the view exists, call it with the request and catch an
+            # eventual NotFound.
+            if view
             permission = "create"
         else:
             permission = self.method_permissions[request.method.lower()]
