@@ -30,6 +30,8 @@ Table of content
    api/index
    installation
    configuration
+   buckets
+   permissions
    contributing
    changelog
 
