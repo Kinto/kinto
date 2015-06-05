@@ -13,4 +13,5 @@ class Bucket(resource.BaseResource):
 
     def __init__(self, *args, **kwargs):
         super(Bucket, self).__init__(*args, **kwargs)
+        self.collection.parent_id = ''
         self.collection.id_generator = NameGenerator()

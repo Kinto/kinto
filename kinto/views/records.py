@@ -1,5 +1,7 @@
 from cliquet import resource, schema
 
+from kinto.views import object_exists_or_404
+
 
 class RecordSchema(schema.ResourceSchema):
     class Options():
@@ -21,8 +23,19 @@ class Record(resource.BaseResource):
 
     def __init__(self, *args, **kwargs):
         super(Record, self).__init__(*args, **kwargs)
-        collection_uri = '/buckets/{bucket_id}/collections/{collection_id}'
-        parent_id = collection_uri.format(**self.request.matchdict)
+
+        bucket_id = self.request.matchdict['bucket_id']
+        object_exists_or_404(self.request,
+                             collection_id='bucket',
+                             object_id=bucket_id)
+
+        collection_id = self.request.matchdict['collection_id']
+        object_exists_or_404(self.request,
+                             collection_id='collection',
+                             parent_id='/buckets/%s' % bucket_id,
+                             object_id=collection_id)
+
+        parent_id = '/buckets/%s/collections/%s' % (bucket_id, collection_id)
         self.collection.parent_id = parent_id
 
     def is_known_field(self, field_name):

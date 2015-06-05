@@ -11,6 +11,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(CollectionViewTest, self).setUp()
+        self.app.put_json('/buckets/beers', {}, headers=self.headers)
         resp = self.app.put_json(self.record_url,
                                  MINIMALIST_ITEM,
                                  headers=self.headers)
@@ -35,6 +36,10 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
+    def test_unknown_bucket_raises_404(self):
+        other_bucket = self.collection_url.replace('beers', 'sodas')
+        self.app.get(other_bucket, headers=self.headers, status=404)
+
     def test_collections_are_isolated_by_bucket(self):
         other_bucket = self.record_url.replace('beers', 'water')
         self.app.get(other_bucket, headers=self.headers, status=404)
@@ -46,6 +51,10 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
 class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
 
     record_url = '/buckets/beers/collections/barley'
+
+    def setUp(self):
+        super(CollectionDeletionTest, self).setUp()
+        self.app.put_json('/buckets/beers', {}, headers=self.headers)
 
     def test_collections_can_be_deleted(self):
         self.app.put_json(self.record_url, MINIMALIST_ITEM,

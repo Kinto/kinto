@@ -12,6 +12,9 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(RecordsViewTest, self).setUp()
+        self.app.put_json('/buckets/beers', {}, headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley', {},
+                          headers=self.headers)
         resp = self.app.post_json(self.collection_url,
                                   MINIMALIST_ITEM,
                                   headers=self.headers)
@@ -21,10 +24,13 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     def test_records_can_be_accessed_by_id(self):
         self.app.get(self.record_url, headers=self.headers)
 
-    def test_unknown_collection_returns_an_empty_list(self):
+    def test_unknown_bucket_raises_404(self):
+        other_bucket = self.collection_url.replace('beers', 'sodas')
+        self.app.get(other_bucket, headers=self.headers, status=404)
+
+    def test_unknown_collection_raises_404(self):
         other_collection = self.collection_url.replace('barley', 'pills')
-        response = self.app.get(other_collection, headers=self.headers)
-        self.assertEqual(response.json['items'], [])
+        self.app.get(other_collection, headers=self.headers, status=404)
 
     def test_individual_collections_can_be_deleted(self):
         resp = self.app.get(self.collection_url, headers=self.headers)
@@ -56,6 +62,8 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                           {'members': ['fxa:user']},
                           headers=self.headers)
         # Create a record in a collection named "group".
+        self.app.put_json('/buckets/beers/collections/groups', {},
+                          headers=self.headers)
         collection_group = self.collection_url.replace('barley', 'groups')
         self.app.post_json(collection_group,
                            MINIMALIST_ITEM,

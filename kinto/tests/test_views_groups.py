@@ -11,6 +11,7 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(GroupViewTest, self).setUp()
+        self.app.put_json('/buckets/beers', {}, headers=self.headers)
         resp = self.app.put_json(self.record_url,
                                  MINIMALIST_ITEM,
                                  headers=self.headers)
@@ -39,6 +40,10 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
+    def test_unknown_bucket_raises_404(self):
+        other_bucket = self.collection_url.replace('beers', 'sodas')
+        self.app.get(other_bucket, headers=self.headers, status=404)
+
     def test_groups_are_isolated_by_bucket(self):
         other_bucket = self.record_url.replace('beers', 'water')
         self.app.get(other_bucket, headers=self.headers, status=404)
@@ -50,6 +55,10 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 class GroupDeletionTest(BaseWebTest, unittest.TestCase):
 
     record_url = '/buckets/beers/groups/moderators'
+
+    def setUp(self):
+        super(GroupDeletionTest, self).setUp()
+        self.app.put_json('/buckets/beers', {}, headers=self.headers)
 
     def test_groups_can_be_deleted(self):
         self.app.put_json(self.record_url, MINIMALIST_ITEM,
@@ -65,6 +74,10 @@ class GroupDeletionTest(BaseWebTest, unittest.TestCase):
 class InvalidGroupTest(BaseWebTest, unittest.TestCase):
 
     record_url = '/buckets/beers/groups/moderators'
+
+    def setUp(self):
+        super(InvalidGroupTest, self).setUp()
+        self.app.put_json('/buckets/beers', {}, headers=self.headers)
 
     def test_groups_must_have_members_attribute(self):
         invalid = {}

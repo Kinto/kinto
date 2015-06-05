@@ -41,7 +41,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
 class BucketDeletionTest(BaseWebTest, unittest.TestCase):
 
-    record_url = '/buckets/beers/collections/barley'
+    record_url = '/buckets/beers'
 
     def test_buckets_can_be_deleted(self):
         self.app.put_json(self.record_url, MINIMALIST_ITEM,
