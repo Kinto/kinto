@@ -24,3 +24,14 @@ class Collection(resource.BaseResource):
         parent_id = '/buckets/%s' % bucket_id
         self.collection.parent_id = parent_id
         self.collection.id_generator = NameGenerator()
+
+    def delete(self):
+        result = super(Collection, self).delete()
+
+        # Delete records.
+        storage = self.collection.storage
+        parent_id = '%s/collections/%s' % (self.collection.parent_id,
+                                           self.record_id)
+        storage.delete_all(collection_id='record', parent_id=parent_id)
+
+        return result

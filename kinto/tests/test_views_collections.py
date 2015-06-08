@@ -1,30 +1,29 @@
-from .support import BaseWebTest, unittest
-
-
-MINIMALIST_ITEM = dict()
+from .support import (BaseWebTest, unittest, MINIMALIST_BUCKET,
+                      MINIMALIST_COLLECTION, MINIMALIST_RECORD)
 
 
 class CollectionViewTest(BaseWebTest, unittest.TestCase):
 
-    collection_url = '/buckets/beers/collections'
-    record_url = '/buckets/beers/collections/barley'
+    collections_url = '/buckets/beers/collections'
+    collection_url = '/buckets/beers/collections/barley'
 
     def setUp(self):
         super(CollectionViewTest, self).setUp()
-        self.app.put_json('/buckets/beers', {}, headers=self.headers)
-        resp = self.app.put_json(self.record_url,
-                                 MINIMALIST_ITEM,
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        resp = self.app.put_json(self.collection_url,
+                                 MINIMALIST_COLLECTION,
                                  headers=self.headers)
         self.record = resp.json  # XXX: ['data']
 
     def test_collection_endpoint_lists_them_all(self):
-        resp = self.app.get(self.collection_url, headers=self.headers)
+        resp = self.app.get(self.collections_url, headers=self.headers)
         records = resp.json['items']  # XXX: ['data']
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]['id'], 'barley')
 
     def test_collections_do_not_support_post(self):
-        self.app.post(self.collection_url, headers=self.headers,
+        self.app.post(self.collections_url, headers=self.headers,
                       status=405)
 
     def test_collections_can_be_put_with_simple_name(self):
@@ -32,39 +31,43 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
 
     def test_collections_name_should_be_simple(self):
         self.app.put_json('/buckets/beers/collections/__barley__',
-                          MINIMALIST_ITEM,
+                          MINIMALIST_COLLECTION,
                           headers=self.headers,
                           status=400)
 
     def test_unknown_bucket_raises_404(self):
-        other_bucket = self.collection_url.replace('beers', 'sodas')
+        other_bucket = self.collections_url.replace('beers', 'sodas')
         self.app.get(other_bucket, headers=self.headers, status=404)
 
     def test_collections_are_isolated_by_bucket(self):
-        other_bucket = self.record_url.replace('beers', 'water')
+        other_bucket = self.collection_url.replace('beers', 'water')
         self.app.get(other_bucket, headers=self.headers, status=404)
-
-    def test_collections_creation_fails_if_bucket_is_not_found(self):
-        pass
 
 
 class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
 
-    record_url = '/buckets/beers/collections/barley'
+    collection_url = '/buckets/beers/collections/barley'
 
     def setUp(self):
         super(CollectionDeletionTest, self).setUp()
-        self.app.put_json('/buckets/beers', {}, headers=self.headers)
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        r = self.app.post_json(self.collection_url + '/records',
+                               MINIMALIST_RECORD,
+                               headers=self.headers)
+        self.record_url = self.collection_url + '/records/%s' % r.json['id']
+        self.app.delete(self.collection_url, headers=self.headers)
 
     def test_collections_can_be_deleted(self):
-        self.app.put_json(self.record_url, MINIMALIST_ITEM,
-                          headers=self.headers)
-        self.app.delete(self.record_url, headers=self.headers)
-        self.app.get(self.record_url, headers=self.headers,
+        self.app.get(self.collection_url, headers=self.headers,
                      status=404)
 
     def test_records_of_collection_are_deleted_too(self):
-        pass
+        self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        self.app.get(self.record_url, headers=self.headers, status=404)
 
     def test_permissions_associated_are_deleted_too(self):
         pass

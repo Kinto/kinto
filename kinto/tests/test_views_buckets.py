@@ -1,7 +1,6 @@
-from .support import BaseWebTest, unittest, get_user_headers
-
-
-MINIMALIST_ITEM = dict()
+from .support import (BaseWebTest, unittest, get_user_headers,
+                      MINIMALIST_BUCKET, MINIMALIST_GROUP,
+                      MINIMALIST_COLLECTION, MINIMALIST_RECORD)
 
 
 class BucketViewTest(BaseWebTest, unittest.TestCase):
@@ -12,7 +11,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(BucketViewTest, self).setUp()
         resp = self.app.put_json(self.record_url,
-                                 MINIMALIST_ITEM,
+                                 MINIMALIST_BUCKET,
                                  headers=self.headers)
         self.record = resp.json  # XXX: ['data']
 
@@ -34,7 +33,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
     def test_buckets_name_should_be_simple(self):
         self.app.put_json('/buckets/__beers__',
-                          MINIMALIST_ITEM,
+                          MINIMALIST_BUCKET,
                           headers=self.headers,
                           status=400)
 
@@ -44,23 +43,45 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
 class BucketDeletionTest(BaseWebTest, unittest.TestCase):
 
-    record_url = '/buckets/beers'
+    bucket_url = '/buckets/beers'
+    collection_url = '/buckets/beers/collections/barley'
+    group_url = '/buckets/beers/groups/moderators'
+
+    def setUp(self):
+        # Create a bucket with some objects.
+        self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json(self.group_url, MINIMALIST_GROUP,
+                          headers=self.headers)
+        self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        r = self.app.post_json(self.collection_url + '/records',
+                               MINIMALIST_RECORD,
+                               headers=self.headers)
+        self.record_url = self.collection_url + '/records/%s' % r.json['id']
+        # Delete the bucket.
+        self.app.delete(self.bucket_url, headers=self.headers)
 
     def test_buckets_can_be_deleted(self):
-        self.app.put_json(self.record_url, MINIMALIST_ITEM,
-                          headers=self.headers)
-        self.app.delete(self.record_url, headers=self.headers)
-        self.app.get(self.record_url, headers=self.headers,
+        self.app.get(self.bucket_url, headers=self.headers,
                      status=404)
 
     def test_every_collections_are_deleted_too(self):
-        pass
+        self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.get(self.collection_url, headers=self.headers, status=404)
 
     def test_every_groups_are_deleted_too(self):
-        pass
+        self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.get(self.group_url, headers=self.headers, status=404)
 
     def test_every_records_are_deleted_too(self):
-        pass
+        self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        self.app.get(self.record_url, headers=self.headers, status=404)
 
     def test_permissions_associated_are_deleted_too(self):
         pass

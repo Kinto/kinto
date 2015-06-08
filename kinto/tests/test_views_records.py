@@ -1,8 +1,4 @@
-from .support import BaseWebTest, unittest
-
-
-MINIMALIST_ITEM = dict(name="Hulled Barley",
-                       type="Whole Grain")
+from .support import BaseWebTest, unittest, MINIMALIST_RECORD
 
 
 class RecordsViewTest(BaseWebTest, unittest.TestCase):
@@ -16,7 +12,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         self.app.put_json('/buckets/beers/collections/barley', {},
                           headers=self.headers)
         resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_ITEM,
+                                  MINIMALIST_RECORD,
                                   headers=self.headers)
         self.record = resp.json  # XXX: ['data']
         self.record_url = self._record_url % self.record['id']
@@ -44,7 +40,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         record = response.json  # XXX: ['data']
         del record['id']
         del record['last_modified']
-        self.assertEquals(record, MINIMALIST_ITEM)
+        self.assertEquals(record, MINIMALIST_RECORD)
 
     def test_records_are_isolated_by_bucket_and_by_collection(self):
         other_collection = self.record_url.replace('barley', 'pills')
@@ -66,7 +62,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers)
         collection_group = self.collection_url.replace('barley', 'groups')
         self.app.post_json(collection_group,
-                           MINIMALIST_ITEM,
+                           MINIMALIST_RECORD,
                            headers=self.headers)
         # There is still only one group.
         resp = self.app.get('/buckets/beers/groups', headers=self.headers)
@@ -74,7 +70,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     def test_records_can_be_filtered_on_any_field(self):
         self.app.post_json(self.collection_url,
-                           MINIMALIST_ITEM,
+                           MINIMALIST_RECORD,
                            headers=self.headers)
         response = self.app.get(self.collection_url + '?unknown=1',
                                 headers=self.headers)
@@ -82,7 +78,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     def test_records_can_be_sorted_on_any_field(self):
         for i in range(3):
-            record = MINIMALIST_ITEM.copy()
+            record = MINIMALIST_RECORD.copy()
             record['name'] = 'Stout %s' % i
             self.app.post_json(self.collection_url,
                                record,

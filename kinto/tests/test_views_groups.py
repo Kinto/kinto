@@ -1,7 +1,4 @@
-from .support import BaseWebTest, unittest
-
-
-MINIMALIST_ITEM = dict(members=['fxa:user'])
+from .support import BaseWebTest, unittest, MINIMALIST_GROUP
 
 
 class GroupViewTest(BaseWebTest, unittest.TestCase):
@@ -13,7 +10,7 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
         super(GroupViewTest, self).setUp()
         self.app.put_json('/buckets/beers', {}, headers=self.headers)
         resp = self.app.put_json(self.record_url,
-                                 MINIMALIST_ITEM,
+                                 MINIMALIST_GROUP,
                                  headers=self.headers)
         self.record = resp.json  # XXX: ['data']
 
@@ -25,7 +22,7 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 
     def test_groups_can_be_posted_without_id(self):
         resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_ITEM,
+                                  MINIMALIST_GROUP,
                                   headers=self.headers,
                                   status=201)
         self.assertIn('id', resp.json)
@@ -36,7 +33,7 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 
     def test_groups_name_should_be_simple(self):
         self.app.put_json('/buckets/beers/groups/__moderator__',
-                          MINIMALIST_ITEM,
+                          MINIMALIST_GROUP,
                           headers=self.headers,
                           status=400)
 
@@ -48,9 +45,6 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
         other_bucket = self.record_url.replace('beers', 'water')
         self.app.get(other_bucket, headers=self.headers, status=404)
 
-    def test_groups_creation_fails_if_bucket_is_not_found(self):
-        pass
-
 
 class GroupDeletionTest(BaseWebTest, unittest.TestCase):
 
@@ -61,7 +55,7 @@ class GroupDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.put_json('/buckets/beers', {}, headers=self.headers)
 
     def test_groups_can_be_deleted(self):
-        self.app.put_json(self.record_url, MINIMALIST_ITEM,
+        self.app.put_json(self.record_url, MINIMALIST_GROUP,
                           headers=self.headers)
         self.app.delete(self.record_url, headers=self.headers)
         self.app.get(self.record_url, headers=self.headers,
