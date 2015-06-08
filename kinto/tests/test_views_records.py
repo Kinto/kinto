@@ -1,4 +1,6 @@
-from .support import BaseWebTest, unittest, MINIMALIST_RECORD
+from .support import (BaseWebTest, unittest, MINIMALIST_RECORD,
+                      MINIMALIST_GROUP, MINIMALIST_BUCKET,
+                      MINIMALIST_COLLECTION)
 
 
 class RecordsViewTest(BaseWebTest, unittest.TestCase):
@@ -8,8 +10,10 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(RecordsViewTest, self).setUp()
-        self.app.put_json('/buckets/beers', {}, headers=self.headers)
-        self.app.put_json('/buckets/beers/collections/barley', {},
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley',
+                          MINIMALIST_COLLECTION,
                           headers=self.headers)
         resp = self.app.post_json(self.collection_url,
                                   MINIMALIST_RECORD,
@@ -55,10 +59,11 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     def test_a_collection_named_group_do_not_interfere_with_groups(self):
         # Create a group.
         self.app.put_json('/buckets/beers/groups/test',
-                          {'members': ['fxa:user']},
+                          MINIMALIST_GROUP,
                           headers=self.headers)
         # Create a record in a collection named "group".
-        self.app.put_json('/buckets/beers/collections/groups', {},
+        self.app.put_json('/buckets/beers/collections/groups',
+                          MINIMALIST_COLLECTION,
                           headers=self.headers)
         collection_group = self.collection_url.replace('barley', 'groups')
         self.app.post_json(collection_group,

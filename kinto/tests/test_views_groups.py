@@ -1,4 +1,5 @@
-from .support import BaseWebTest, unittest, MINIMALIST_GROUP
+from .support import (BaseWebTest, unittest, MINIMALIST_BUCKET,
+                      MINIMALIST_GROUP)
 
 
 class GroupViewTest(BaseWebTest, unittest.TestCase):
@@ -8,7 +9,8 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(GroupViewTest, self).setUp()
-        self.app.put_json('/buckets/beers', {}, headers=self.headers)
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
         resp = self.app.put_json(self.record_url,
                                  MINIMALIST_GROUP,
                                  headers=self.headers)
@@ -52,7 +54,8 @@ class GroupDeletionTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(GroupDeletionTest, self).setUp()
-        self.app.put_json('/buckets/beers', {}, headers=self.headers)
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
 
     def test_groups_can_be_deleted(self):
         self.app.put_json(self.record_url, MINIMALIST_GROUP,
@@ -71,7 +74,8 @@ class InvalidGroupTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(InvalidGroupTest, self).setUp()
-        self.app.put_json('/buckets/beers', {}, headers=self.headers)
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
 
     def test_groups_must_have_members_attribute(self):
         invalid = {}

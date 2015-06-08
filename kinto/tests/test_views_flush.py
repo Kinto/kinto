@@ -1,6 +1,8 @@
 import mock
 
-from .support import BaseWebTest, unittest, get_user_headers
+from .support import (BaseWebTest, unittest, get_user_headers,
+                      MINIMALIST_BUCKET, MINIMALIST_COLLECTION,
+                      MINIMALIST_RECORD)
 
 
 class FlushViewTest(BaseWebTest, unittest.TestCase):
@@ -10,15 +12,23 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(FlushViewTest, self).setUp()
 
-        self.app.put_json('/buckets/beers', {}, headers=self.headers)
-        self.app.put_json('/buckets/beers/collections/barley', {},
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley',
+                          MINIMALIST_COLLECTION,
                           headers=self.headers)
 
         headers = self.headers.copy()
         headers.update(**get_user_headers('bob'))
-        self.app.post(self.collection_url, headers=headers, status=201)
+        self.app.post_json(self.collection_url,
+                           MINIMALIST_RECORD,
+                           headers=headers,
+                           status=201)
         headers.update(**get_user_headers('alice'))
-        self.app.post(self.collection_url, headers=headers, status=201)
+        self.app.post_json(self.collection_url,
+                           MINIMALIST_RECORD,
+                           headers=headers,
+                           status=201)
 
     def test_returns_405_if_not_enabled_in_configuration(self):
         self.app.post('/__flush__', headers=self.headers, status=405)
