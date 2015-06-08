@@ -13,7 +13,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.put_json(self.record_url,
                                  MINIMALIST_BUCKET,
                                  headers=self.headers)
-        self.record = resp.json  # XXX: ['data']
+        self.record = resp.json['data']
 
     def test_buckets_are_global_to_every_users(self):
         self.app.get(self.record_url, headers=get_user_headers('alice'))
@@ -27,7 +27,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
     def test_collection_endpoint_lists_them_all(self):
         resp = self.app.get(self.collection_url, headers=self.headers)
-        records = resp.json['items']  # XXX: ['data']
+        records = resp.json['data']
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]['id'], 'beers')
 
@@ -58,7 +58,8 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         r = self.app.post_json(self.collection_url + '/records',
                                MINIMALIST_RECORD,
                                headers=self.headers)
-        self.record_url = self.collection_url + '/records/%s' % r.json['id']
+        record_id = r.json['data']['id']
+        self.record_url = self.collection_url + '/records/%s' % record_id
         # Delete the bucket.
         self.app.delete(self.bucket_url, headers=self.headers)
 

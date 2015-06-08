@@ -8,11 +8,11 @@ from cliquet import utils
 from cliquet.tests import support as cliquet_support
 
 
-MINIMALIST_BUCKET = dict()
-MINIMALIST_COLLECTION = dict()
-MINIMALIST_GROUP = dict(members=['fxa:user'])
-MINIMALIST_RECORD = dict(name="Hulled Barley",
-                         type="Whole Grain")
+MINIMALIST_BUCKET = {'data': {}}
+MINIMALIST_COLLECTION = {'data': {}}
+MINIMALIST_GROUP = {'data': {'members': ['fxa:user']}}
+MINIMALIST_RECORD = {'data': {'name': 'Hulled Barley',
+                              'type': 'Whole Grain'}}
 
 
 class BaseWebTest(object):

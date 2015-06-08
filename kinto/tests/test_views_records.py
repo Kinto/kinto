@@ -18,7 +18,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json(self.collection_url,
                                   MINIMALIST_RECORD,
                                   headers=self.headers)
-        self.record = resp.json  # XXX: ['data']
+        self.record = resp.json['data']
         self.record_url = self._record_url % self.record['id']
 
     def test_records_can_be_accessed_by_id(self):
@@ -34,17 +34,17 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     def test_individual_collections_can_be_deleted(self):
         resp = self.app.get(self.collection_url, headers=self.headers)
-        self.assertEqual(len(resp.json['items']), 1)
+        self.assertEqual(len(resp.json['data']), 1)
         self.app.delete(self.collection_url, headers=self.headers)
         resp = self.app.get(self.collection_url, headers=self.headers)
-        self.assertEqual(len(resp.json['items']), 0)
+        self.assertEqual(len(resp.json['data']), 0)
 
     def test_records_can_be_added_to_collections(self):
         response = self.app.get(self.record_url, headers=self.headers)
-        record = response.json  # XXX: ['data']
+        record = response.json['data']
         del record['id']
         del record['last_modified']
-        self.assertEquals(record, MINIMALIST_RECORD)
+        self.assertEquals(record, MINIMALIST_RECORD['data'])
 
     def test_records_are_isolated_by_bucket_and_by_collection(self):
         other_collection = self.record_url.replace('barley', 'pills')
@@ -71,7 +71,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                            headers=self.headers)
         # There is still only one group.
         resp = self.app.get('/buckets/beers/groups', headers=self.headers)
-        self.assertEqual(len(resp.json['items']), 1)
+        self.assertEqual(len(resp.json['data']), 1)
 
     def test_records_can_be_filtered_on_any_field(self):
         self.app.post_json(self.collection_url,
@@ -79,18 +79,18 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                            headers=self.headers)
         response = self.app.get(self.collection_url + '?unknown=1',
                                 headers=self.headers)
-        self.assertEqual(len(response.json['items']), 0)
+        self.assertEqual(len(response.json['data']), 0)
 
     def test_records_can_be_sorted_on_any_field(self):
         for i in range(3):
             record = MINIMALIST_RECORD.copy()
-            record['name'] = 'Stout %s' % i
+            record['data']['name'] = 'Stout %s' % i
             self.app.post_json(self.collection_url,
                                record,
                                headers=self.headers)
 
         response = self.app.get(self.collection_url + '?_sort=-name',
                                 headers=self.headers)
-        names = [i['name'] for i in response.json['items']]
+        names = [i['name'] for i in response.json['data']]
         self.assertEqual(names,
                          ['Stout 2', 'Stout 1', 'Stout 0', 'Hulled Barley'])
