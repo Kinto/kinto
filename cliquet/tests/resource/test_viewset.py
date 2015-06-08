@@ -113,7 +113,6 @@ class ViewSetTest(unittest.TestCase):
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.cors_origins,
                 'error_handler': mock.sentinel.error_handler,
-                'permission': 'readonly'
             }
         )
 
@@ -144,7 +143,6 @@ class ViewSetTest(unittest.TestCase):
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.record_cors_origins,
                 'error_handler': mock.sentinel.error_handler,
-                'permission': 'readonly'
             }
         )
 
@@ -181,7 +179,6 @@ class ViewSetTest(unittest.TestCase):
                 'cors_headers': mock.sentinel.default_cors_headers,
                 'error_handler': mock.sentinel.default_record_error_handler,
                 'cors_origins': mock.sentinel.record_get_cors_origin,
-                'permission': 'readonly'
             }
         )
 
@@ -207,7 +204,6 @@ class ViewSetTest(unittest.TestCase):
             arguments,
             {
                 'cors_headers': mock.sentinel.cors_headers,
-                'permission': 'readonly',
             }
         )
 
@@ -244,33 +240,6 @@ class ViewSetTest(unittest.TestCase):
         viewset = ViewSet()  # Don't provide a factory here.
         service_arguments = viewset.get_service_arguments()
         self.assertNotIn("factory", service_arguments)
-
-
-class ViewSetPermissionTest(unittest.TestCase):
-
-    def test_get_view_permission_returns_readwrite_by_default(self):
-        viewset = ViewSet(readonly_methods=())
-        permission = viewset.get_view_permission("collection", mock.MagicMock,
-                                                 "get")
-        self.assertEquals(permission, "readwrite")
-
-    def test_get_view_permissions_can_return_readonly(self):
-        viewset = ViewSet(readonly_methods=('GET',))
-        permission = viewset.get_view_permission("collection", mock.MagicMock,
-                                                 "get")
-        self.assertEquals(permission, "readonly")
-
-    def test_permission_is_added_when_needed(self):
-        viewset = ViewSet(readonly_methods=('GET',))
-        arguments = viewset.collection_arguments(mock.MagicMock(), 'GET')
-        self.assertIn('permission', arguments)
-        self.assertEquals(arguments['permission'], 'readonly')
-
-    def test_permission_is_ignored_when_not_needed(self):
-        viewset = ViewSet(readonly_methods=())
-        viewset.get_view_permission = lambda *args: None
-        arguments = viewset.collection_arguments(mock.MagicMock(), 'GET')
-        self.assertNotIn('permission', arguments)
 
 
 class RegisterTest(unittest.TestCase):

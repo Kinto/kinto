@@ -76,7 +76,8 @@ def setup_authentication(config):
     from configuration.
     """
     config.include('pyramid_multiauth')
-    config.set_default_permission('readwrite')
+    # By default, permissions are handled dynamically.
+    config.set_default_permission('dynamic')
 
     # Track policy for logging.
     def on_policy_selected(event):

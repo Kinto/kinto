@@ -92,10 +92,6 @@ class ViewSet(object):
             # Simply validate that posted body is a mapping.
             args['schema'] = colander.MappingSchema(unknown='preserve')
 
-        permission = self.get_view_permission(endpoint_type, resource, method)
-        if permission is not None:
-            args['permission'] = permission
-
         return args
 
     def get_view(self, endpoint_type, method):
@@ -128,15 +124,6 @@ class ViewSet(object):
         return self.service_name.format(
             resource_name=self.get_name(resource),
             endpoint_type=endpoint_type)
-
-    def get_view_permission(self, endpoint_type, resource, method):
-        """Return the permission associated with the given type,
-        resource and method"""
-        if method.lower() in map(str.lower, self.readonly_methods):
-            permission = "readonly"
-        else:
-            permission = "readwrite"
-        return permission
 
     def get_service_arguments(self):
         service_arguments = {}

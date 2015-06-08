@@ -73,7 +73,7 @@ DEFAULT_SETTINGS = {
     'multiauth.policies': 'basicauth',
     'multiauth.policy.basicauth.use': ('cliquet.authentication.'
                                        'BasicAuthAuthenticationPolicy'),
-    'multiauth.authorization_policy': ('cliquet.authentication.'
+    'multiauth.authorization_policy': ('cliquet.authorization.'
                                        'AuthorizationPolicy')
 }
 

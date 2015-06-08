@@ -57,7 +57,7 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
 
     def test_403_is_valid_formatted_error(self):
         with mock.patch(
-                'cliquet.authentication.AuthorizationPolicy.permits',
+                'cliquet.authorization.AuthorizationPolicy.permits',
                 return_value=False):
             response = self.app.get(self.sample_url,
                                     headers=self.headers, status=403)

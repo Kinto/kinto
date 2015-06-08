@@ -56,32 +56,6 @@ class AuthzAuthnTest(BaseWebTest):
         self.app.patch_json(url, MINIMALIST_RECORD, status=401)
         self.app.delete(url, status=401)
 
-    @mock.patch('cliquet.authentication.AuthorizationPolicy.permits')
-    def test_view_permissions(self, permits_mocked):
-
-        def permission_required():
-            return permits_mocked.call_args[0][-1]
-
-        self.app.get(self.collection_url)
-        self.assertEqual(permission_required(), 'readonly')
-
-        resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_RECORD)
-        self.assertEqual(permission_required(), 'readwrite')
-
-        url = self.item_url.format(id=resp.json['id'])
-        self.app.get(url)
-        self.assertEqual(permission_required(), 'readonly')
-
-        self.app.patch_json(url, {})
-        self.assertEqual(permission_required(), 'readwrite')
-
-        self.app.delete(url)
-        self.assertEqual(permission_required(), 'readwrite')
-
-        self.app.delete(self.collection_url)
-        self.assertEqual(permission_required(), 'readwrite')
-
 
 class InvalidRecordTest(BaseWebTest):
     def setUp(self):
