@@ -14,11 +14,11 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.put_json(self.record_url,
                                  MINIMALIST_GROUP,
                                  headers=self.headers)
-        self.record = resp.json  # XXX: ['data']
+        self.record = resp.json['data']
 
     def test_collection_endpoint_lists_them_all(self):
         resp = self.app.get(self.collection_url, headers=self.headers)
-        records = resp.json['items']  # XXX: ['data']
+        records = resp.json['data']
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]['members'], ['fxa:user'])
 
@@ -27,8 +27,8 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
                                   MINIMALIST_GROUP,
                                   headers=self.headers,
                                   status=201)
-        self.assertIn('id', resp.json)
-        self.assertEqual(resp.json['members'], ['fxa:user'])
+        self.assertIn('id', resp.json['data'])
+        self.assertEqual(resp.json['data']['members'], ['fxa:user'])
 
     def test_groups_can_be_put_with_simple_name(self):
         self.assertEqual(self.record['id'], 'moderators')
