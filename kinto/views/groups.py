@@ -11,13 +11,9 @@ class GroupSchema(schema.ResourceSchema):
                                   colander.SchemaNode(colander.String()))
 
 
-groups_options = {
-    'collection_path': "/buckets/{{bucket_id}}/groups",
-    'record_path': "/buckets/{{bucket_id}}/groups/{{id}}"
-}
-
-
-@resource.register(name="group", **groups_options)
+@resource.register(name='group',
+                   collection_path='/buckets/{{bucket_id}}/groups',
+                   record_path='/buckets/{{bucket_id}}/groups/{{id}}')
 class Group(resource.BaseResource):
 
     mapping = GroupSchema()

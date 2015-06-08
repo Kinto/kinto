@@ -3,14 +3,10 @@ from cliquet import resource
 from kinto.views import NameGenerator, object_exists_or_404
 
 
-collections_options = {
-    'collection_methods': ('GET',),
-    'collection_path': "/buckets/{{bucket_id}}/collections",
-    'record_path': "/buckets/{{bucket_id}}/collections/{{id}}"
-}
-
-
-@resource.register(name="collection", **collections_options)
+@resource.register(name='collection',
+                   collection_methods=('GET',),
+                   collection_path='/buckets/{{bucket_id}}/collections',
+                   record_path='/buckets/{{bucket_id}}/collections/{{id}}')
 class Collection(resource.BaseResource):
 
     def __init__(self, *args, **kwargs):
