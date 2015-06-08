@@ -1,4 +1,5 @@
 from pyramid.security import Allow, IAuthorizationPolicy
+from zope.interface import implementer
 
 from cliquet import utils
 from cliquet.storage import exceptions as storage_exceptions
