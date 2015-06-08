@@ -3,6 +3,7 @@ import mock
 from pyramid.security import Allow
 from .support import DummyRequest, unittest
 from cliquet.authorization import RouteFactory
+from cliquet.storage import exceptions as storage_exceptions
 
 
 class RouteFactoryTest(unittest.TestCase):
@@ -10,21 +11,28 @@ class RouteFactoryTest(unittest.TestCase):
     def setUp(self):
         self.record_uri = "/foo/bar"
 
-    def assert_request_resolves_to(self, method, permission, uri=None):
+    def assert_request_resolves_to(self, method, permission, uri=None,
+                                   record_not_found=False):
         if uri is None:
             uri = self.record_uri
 
-        request = DummyRequest(method=method)
-        request.upath_info = uri
-        get_principals = (request.registry.permission.
-                          object_permission_authorized_principals)
+        with mock.patch('cliquet.utils.current_service') as current_service:
+            # Patch current service.
+            resource = mock.MagicMock()
+            resource.record_id = 1
+            if record_not_found:
+                resource.collection.get_record.side_effect = \
+                    storage_exceptions.RecordNotFoundError
+            else:
+                resource.collection.get_record.return_value = 1
+            current_service().resource.return_value = resource
 
-        get_principals.return_value = [('user', permission), ]
-        context = RouteFactory(request)
-        get_principals.assert_called_with(uri, permission, None)
+            # Do the actual call.
+            request = DummyRequest(method=method)
+            request.upath_info = uri
+            context = RouteFactory(request)
 
-        expected_acls = [(Allow, 'user', permission)]
-        self.assertEquals(context.__acl__, expected_acls)
+            self.assertEquals(context.required_permission, permission)
 
     def test_http_get_resolves_in_a_read_permission(self):
         self.assert_request_resolves_to("get", "read")
@@ -39,7 +47,7 @@ class RouteFactoryTest(unittest.TestCase):
         self.assert_request_resolves_to("post", "create")
 
     def test_http_put_unexisting_record_resolves_in_a_create_permission(self):
-        self.assert_request_resolves_to("put", "create")
+        self.assert_request_resolves_to("put", "create", record_not_found=True)
 
     def test_http_put_existing_record_resolves_in_a_write_permission(self):
         self.assert_request_resolves_to("put", "write")

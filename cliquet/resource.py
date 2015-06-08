@@ -207,6 +207,10 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         service = Service(name, path, depth=depth,
                           **viewset.get_service_arguments())
 
+        # Attach viewset and resource to the service for later reference.
+        service.viewset = viewset
+        service.resource = resource
+
         methods = getattr(viewset, '%s_methods' % endpoint_type)
         for method in methods:
             setting_enabled = 'cliquet.%s_%s_%s_enabled' % (endpoint_type,
@@ -223,9 +227,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
 
         return service
 
-    services = []
-    services.append(register_service('collection'))
-    services.append(register_service('record'))
+    services = [register_service('collection'), register_service('record')]
 
     def callback(context, name, ob):
         # get the callbacks registred by the inner services
