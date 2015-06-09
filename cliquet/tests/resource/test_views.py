@@ -5,13 +5,14 @@ from pyramid import testing
 import cliquet
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
-from cliquet.tests.support import unittest, get_request_class, authorize
+from cliquet.tests.support import unittest, get_request_class
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
 
 
 class BaseWebTest(unittest.TestCase):
+    authorization_policy = 'cliquet.tests.support.AllowAuthorizationPolicy'
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
@@ -22,8 +23,7 @@ class BaseWebTest(unittest.TestCase):
             'cliquet.project_version': '0.0.1',
             'cliquet.project_name': 'cliquet',
             'cliquet.project_docs': 'https://cliquet.rtfd.org/',
-            'multiauth.authorization_policy': (
-                'cliquet.tests.support.AllowAuthorizationPolicy')
+            'multiauth.authorization_policy': self.authorization_policy
         })
 
         cliquet.initialize(self.config)
@@ -34,6 +34,8 @@ class BaseWebTest(unittest.TestCase):
 
         self.collection_url = '/mushrooms'
         self.item_url = '/mushrooms/{id}'
+        self.principal = ('basicauth_9f2d363f98418b13253d6d7193fc88690302'
+                          'ab0ae21295521f6029dffe9dc3b0')
 
         self.headers = {
             'Content-Type': 'application/json',
@@ -48,6 +50,8 @@ class BaseWebTest(unittest.TestCase):
 
 
 class AuthzAuthnTest(BaseWebTest):
+    authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
+
     def test_all_views_require_authentication(self):
         self.app.get(self.collection_url, status=401)
 
@@ -57,6 +61,30 @@ class AuthzAuthnTest(BaseWebTest):
         self.app.get(url, status=401)
         self.app.patch_json(url, MINIMALIST_RECORD, status=401)
         self.app.delete(url, status=401)
+
+    def test_access_is_denied_when_not_authorized(self):
+        self.app.get(self.collection_url, headers=self.headers, status=403)
+
+    def test_collection_get_is_granted_when_authorized(self):
+        object_id = self.collection_url
+        self.app.app.registry.permission.add_principal_to_ace(
+            object_id, 'read', self.principal)
+
+        self.app.get(self.collection_url, headers=self.headers, status=200)
+
+    def test_collection_post_is_granted_when_authorized(self):
+        object_id = self.collection_url
+        self.app.app.registry.permission.add_principal_to_ace(
+            object_id, 'records:create', self.principal)
+
+        self.app.post(self.collection_url, headers=self.headers, status=201)
+
+    def test_collection_delete_is_granted_when_authorized(self):
+        object_id = self.collection_url
+        self.app.app.registry.permission.add_principal_to_ace(
+            object_id, 'write', self.principal)
+
+        self.app.delete(self.collection_url, headers=self.headers, status=200)
 
 
 class InvalidRecordTest(BaseWebTest):

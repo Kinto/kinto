@@ -1,6 +1,5 @@
 import mock
 
-from pyramid.security import Allow
 from .support import DummyRequest, unittest
 from cliquet.authorization import RouteFactory, AuthorizationPolicy
 from cliquet.storage import exceptions as storage_exceptions
@@ -42,9 +41,6 @@ class RouteFactoryTest(unittest.TestCase):
 
     def test_http_delete_resolves_in_a_write_permission(self):
         self.assert_request_resolves_to("delete", "write")
-
-    def test_http_post_resolves_in_a_create_permission(self):
-        self.assert_request_resolves_to("post", "create")
 
     def test_http_put_unexisting_record_resolves_in_a_create_permission(self):
         self.assert_request_resolves_to("put", "create", record_not_found=True)

@@ -1,7 +1,4 @@
 from pyramid import authentication as base_auth
-from pyramid.interfaces import IAuthorizationPolicy
-from pyramid.security import Authenticated
-from zope.interface import implementer
 
 from cliquet import utils
 

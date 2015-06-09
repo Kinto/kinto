@@ -12,7 +12,7 @@ import webtest
 
 from cornice import errors as cornice_errors
 from pyramid.url import parse_url_overrides
-from pyramid.security import Allow, IAuthorizationPolicy
+from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 
 from cliquet import DEFAULT_SETTINGS

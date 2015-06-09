@@ -1,6 +1,6 @@
 import re
 import six
-from pyramid.security import Allow, IAuthorizationPolicy
+from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 
 from cliquet import utils
@@ -70,7 +70,7 @@ def get_object_id(request, record_id=None):
         record_uri = request.path
     else:
         # Obtain record URI from Pyramid routes.
-        service = current_service(request)
+        service = utils.current_service(request)
         # See pattern of ViewSet.service_name.
         record_service = service.name.replace('-collection', '-record')
         matchdict = request.matchdict.copy()
