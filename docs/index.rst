@@ -30,9 +30,9 @@ Table of content
    api/index
    installation
    configuration
+   api/index
+   access-control-lists
    deployment
-   buckets
-   permissions
    contributing
    changelog
 
