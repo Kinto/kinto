@@ -11,7 +11,8 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
     """
     def __init__(self, *args, **kwargs):
-        noop_check = lambda *a: []  # NOQA
+        def noop_check(*a):
+            return []
         super(BasicAuthAuthenticationPolicy, self).__init__(noop_check,
                                                             *args,
                                                             **kwargs)
