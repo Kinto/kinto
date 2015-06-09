@@ -65,6 +65,9 @@ class TestBasic(TestCase):
         # Create at least some records for this user
         self.nb_initial_records = random.randint(3, 100)
 
+        # TODO: improve load tests with shared buckets.
+        self.bucket_id = self.random_user
+
     def _get_configuration(self):
         # Loads is removing the extra information contained in the ini files,
         # so we need to parse it again.
@@ -79,13 +82,18 @@ class TestBasic(TestCase):
         return Config(config_file).get_map('loads')
 
     def api_url(self, path):
-        return "{0}/v0/{1}".format(self.server_url, path)
+        return "{0}/v1/{1}".format(self.server_url, path)
 
-    def collection_url(self, collection):
-        return self.api_url('collections/%s/records' % collection)
+    def bucket_url(self, bucket, prefix=True):
+        url = 'buckets/%s' % bucket
+        return self.api_url(url) if prefix else '/' + url
 
-    def record_url(self, collection, record):
-        return self.api_url('collections/%s/records/%s' % (collection, record))
+    def collection_url(self, collection, prefix=True):
+        return (self.bucket_url(self.bucket_id, prefix) +
+                '/collections/%s/records' % collection)
+
+    def record_url(self, collection, record, prefix=True):
+        return self.collection_url(collection, prefix) + '/%s' % record
 
     def setUp(self):
         """Choose some random records in the whole collection.
@@ -156,7 +164,7 @@ class TestBasic(TestCase):
         data = {
             "defaults": {
                 "method": "POST",
-                "path": "/collections/articles/records"
+                "path": self.collection_url('articles', prefix=False)
             }
         }
         for i in range(25):
@@ -205,7 +213,8 @@ class TestBasic(TestCase):
         url = self.collection_url('articles') + '?_limit=5&_sort=title'
         resp = self.session.get(url, auth=self.auth)
         articles = resp.json()['items']
-        urls = ['/collections/articles/records/%s' % a['id'] for a in articles]
+        urls = [self.record_url('articles', a['id'], prefix=False)
+                for a in articles]
 
         data = {
             "defaults": {
@@ -231,16 +240,17 @@ class TestBasic(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def batch_count(self):
+        base_url = self.collection_url('articles', prefix=False)
         data = {
             "defaults": {
                 "method": "HEAD",
             },
             "requests": [
-                {"path": "/collections/articles/records?archived=true"},
-                {"path": "/collections/articles/records?is_article=true"},
-                {"path": "/collections/articles/records?favorite=true"},
-                {"path": "/collections/articles/records?unread=false"},
-                {"path": "/collections/articles/records?min_read_position=100"}
+                {"path": base_url + "?archived=true"},
+                {"path": base_url + "?is_article=true"},
+                {"path": base_url + "?favorite=true"},
+                {"path": base_url + "?unread=false"},
+                {"path": base_url + "?min_read_position=100"}
             ]
         }
         self._run_batch(data)
