@@ -3,7 +3,7 @@ import mock
 
 from cliquet.resource import ViewSet, register_resource
 
-from .support import unittest
+from cliquet.tests.support import unittest
 
 
 class FakeViewSet(ViewSet):
