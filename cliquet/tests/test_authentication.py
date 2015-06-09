@@ -9,7 +9,7 @@ from .support import BaseWebTest, DummyRequest, unittest
 class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
     sample_url = '/mushrooms'
-    sample_basicauth = {'Authorization': 'Basic bWF0Og=='}
+    sample_basicauth = {'Authorization': 'Basic bWF0OjE='}
 
     def test_basic_auth_is_accepted_by_default(self):
         app = self._get_test_app()

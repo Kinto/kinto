@@ -5,7 +5,7 @@ from pyramid import testing
 import cliquet
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
-from cliquet.tests.support import unittest, get_request_class
+from cliquet.tests.support import unittest, get_request_class, authorize
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
@@ -22,6 +22,8 @@ class BaseWebTest(unittest.TestCase):
             'cliquet.project_version': '0.0.1',
             'cliquet.project_name': 'cliquet',
             'cliquet.project_docs': 'https://cliquet.rtfd.org/',
+            'multiauth.authorization_policy': (
+                'cliquet.tests.support.AllowAuthorizationPolicy')
         })
 
         cliquet.initialize(self.config)

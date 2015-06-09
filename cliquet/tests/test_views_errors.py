@@ -3,7 +3,7 @@ from pyramid import httpexceptions
 
 from cliquet.errors import ERRORS
 
-from .support import BaseWebTest, unittest
+from .support import BaseWebTest, unittest, authorize
 
 
 class ErrorViewTest(BaseWebTest, unittest.TestCase):
@@ -55,12 +55,10 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
             response, 401, ERRORS.MISSING_AUTH_TOKEN, "Unauthorized",
             "Please authenticate yourself to use this endpoint.")
 
+    @authorize(False)
     def test_403_is_valid_formatted_error(self):
-        with mock.patch(
-                'cliquet.authorization.AuthorizationPolicy.permits',
-                return_value=False):
-            response = self.app.get(self.sample_url,
-                                    headers=self.headers, status=403)
+        response = self.app.get(self.sample_url,
+                                headers=self.headers, status=403)
         self.assertFormattedError(
             response, 403, ERRORS.FORBIDDEN, "Forbidden",
             "This user cannot access this resource.")
