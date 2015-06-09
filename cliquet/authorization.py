@@ -39,6 +39,8 @@ class RouteFactory(object):
 
     def __init__(self, request):
         service = utils.current_service(request)
+        object_id = get_object_id(request)
+        self.object_type = service.viewset.get_name(service.resource)
         # Decide what the required unbound permission is depending on the
         # method that's being requested.
         if request.method.lower() == "put":
@@ -53,6 +55,7 @@ class RouteFactory(object):
                 try:
                     resource.collection.get_record(resource.record_id)
                 except storage_exceptions.RecordNotFoundError:
+                    object_id = service.collection_path
                     permission = "create"
                 else:
                     permission = "write"
@@ -60,8 +63,7 @@ class RouteFactory(object):
             permission = self.method_permissions[request.method.lower()]
 
         self.required_permission = permission
-        self.object_id = get_object_id(request)
-        self.object_type = service.viewset.get_name(service.resource)
+        self.object_id = object_id
         self.has_permission = request.registry.permission.has_permission
 
 
