@@ -3,10 +3,10 @@ import functools
 
 import colander
 import venusian
+import six
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPMethodNotAllowed,
                                     HTTPNotFound, HTTPConflict)
-import six
 
 from cliquet import logger
 from cliquet import Service
@@ -358,7 +358,17 @@ class BaseResource(object):
         """
         self._raise_412_if_modified()
 
-        new_record = self.process_record(self.request.validated['data'])
+        new_record = self.request.validated['data']
+
+        # Since ``id`` does not belong to schema, it can only be found in body.
+        try:
+            id_field = self.collection.id_field
+            new_record[id_field] = _id = self.request.json['data'][id_field]
+            self._raise_400_if_invalid_id(_id)
+        except KeyError:
+            pass
+
+        new_record = self.process_record(new_record)
 
         try:
             unique_fields = self.mapping.get_option('unique_fields')
@@ -685,7 +695,7 @@ class BaseResource(object):
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        if not self.collection.id_generator.match(record_id):
+        if not self.collection.id_generator.match(six.text_type(record_id)):
             error_details = {
                 'location': 'path',
                 'description': "Invalid record id"

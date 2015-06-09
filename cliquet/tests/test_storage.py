@@ -181,6 +181,12 @@ class BaseTestStorage(object):
         record = self.create_record(id_generator=lambda: RECORD_ID)
         self.assertEquals(record['id'], RECORD_ID)
 
+    def test_create_does_not_overwrite_the_provided_id(self):
+        record = self.record.copy()
+        record[self.id_field] = RECORD_ID
+        stored = self.create_record(record=record)
+        self.assertEqual(stored[self.id_field], RECORD_ID)
+
     def test_get_raise_on_record_not_found(self):
         self.assertRaises(
             exceptions.RecordNotFoundError,

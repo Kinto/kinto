@@ -100,7 +100,7 @@ class Redis(MemoryBasedStorage):
                            unique_fields=unique_fields, id_field=id_field)
 
         record = record.copy()
-        _id = record[id_field] = id_generator()
+        _id = record.setdefault(id_field, id_generator())
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
 

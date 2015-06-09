@@ -273,11 +273,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
         id_generator = id_generator or self.id_generator
-        placeholders = dict(object_id=id_generator(),
+        record = record.copy()
+        record_id = record.setdefault(id_field, id_generator())
+        placeholders = dict(object_id=record_id,
                             parent_id=parent_id,
                             collection_id=collection_id,
                             data=json.dumps(record))
-
         with self.connect() as cursor:
             # Check that it does violate the resource unicity rules.
             self._check_unicity(cursor, collection_id, parent_id, record,
@@ -285,8 +286,6 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             cursor.execute(query, placeholders)
             inserted = cursor.fetchone()
 
-        record = record.copy()
-        record[id_field] = inserted['id']
         record[modified_field] = inserted['last_modified']
         return record
 
