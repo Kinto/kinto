@@ -1,22 +1,16 @@
-Working with groups
-===================
-
 .. _groups:
 
+Groups
+######
 
-Creating a new group
----------------------
+A group is a mapping with the following attributes:
 
-``/buckets/<bucket_id>/groups/<group_id>``
-
-This endpoint defines the group resource:
-
-* Its permissions
-* Its members
+* ``members``: a list of :term:`principals`
+* ``permissions``: the permission for the group object
 
 
 POST /buckets/<bucket_id>/groups
-''''''''''''''''''''''''''''''''
+================================
 
 **Requires authentication**
 
@@ -39,7 +33,7 @@ This endpoint creates a new bucket's group with a generated unique id.
 
 
 PUT /buckets/<bucket_id>/groups/<group_id>
-''''''''''''''''''''''''''''''''''''''''''
+==========================================
 
 **Requires authentication**
 
@@ -67,20 +61,17 @@ This endpoint creates a new group with a chosen id.
     }
 
 
-Updating a group
-----------------
-
 PATCH /buckets/<bucket_id>/groups/<group_id>
-''''''''''''''''''''''''''''''''''''''''''''
+============================================
 
 **Requires authentication**
 
-This endpoint lets you update an existing bucket.
+Modifies a specific group.
 
 The PATCH endpoint let you add or remove users principals from
-permissions and member sets. 
+permissions and member sets.
 
-In case you want to override the set, you can use the PUT endpoint.
+In case you want to override the set, you can use the ``PUT`` endpoint.
 
 You can use ``+principal`` to add one and ``-principal`` to remove one.
 
@@ -121,13 +112,12 @@ You can use ``+principal`` to add one and ``-principal`` to remove one.
     }
 
 
-Getting group information
--------------------------
-
 GET /buckets/<bucket_id>/groups/<group_id>
-''''''''''''''''''''''''''''''''''''''''''
+==========================================
 
-This endpoint lets you get groups information.
+**Requires authentication**
+
+Returns the group object.
 
 .. code-block:: http
 
@@ -149,10 +139,12 @@ This endpoint lets you get groups information.
     }
 
 
-Removing a group
-----------------
+DELETE /buckets/<bucket_id>/groups/<group_id>
+=============================================
 
-This endpoint lets you delete a group.
+**Requires authentication**
+
+Deletes a specific group.
 
 .. code-block:: http
 

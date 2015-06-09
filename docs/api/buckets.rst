@@ -1,50 +1,14 @@
-Working with buckets
-====================
-
 .. _buckets:
 
-
-Creating a new bucket
----------------------
-
-``/buckets/<bucket_id>``
-
-This endpoint defines the bucket resource:
-
-* Its permissions
-
-
-POST /buckets
-'''''''''''''
-
-**Requires authentication**
-
-This endpoint creates a new bucket with a generated unique id.
-
-By default the user id is used for its write permission.
-
-.. code-block:: http
-
-    $ http POST http://localhost:8000/v1/buckets --auth "admin:"
-    POST /v1/buckets HTTP/1.1
-    Authorization: Basic YWRtaW46
-
-    HTTP/1.1 201 Created
-
-    {
-        "id": "857d952b-e9fa-4b9f-b60e-cb633a557ced",
-        "permissions": {
-            "write": ["basicauth:5d127220922673e346c0ebee46c23e6739dfa756"]
-        }
-    }
-
+Buckets
+#######
 
 PUT /buckets/<bucket_id>
-''''''''''''''''''''''''
+========================
 
 **Requires authentication**
 
-This endpoint creates a new bucket with a chosen id.
+Creates or replaces a bucket with a specific id.
 
 If the bucket exists and you don't have the ``write`` permission on
 it, you will get a ``403 Forbidden`` http response.
@@ -66,15 +30,12 @@ it, you will get a ``403 Forbidden`` http response.
     }
 
 
-Updating a bucket
------------------
-
 PATCH /buckets/<bucket_id>
-''''''''''''''''''''''''''
+==========================
 
 **Requires authentication**
 
-This endpoint lets you update an existing bucket.
+Modifies an existing bucket.
 
 If you are not owner of the bucket you will get a ``403 Forbidden`` http response.
 
@@ -100,7 +61,7 @@ You can use ``+principal`` to add one and ``-principal`` to remove one.
         "permissions": {
             "write_bucket": [
                 "+fxa:af3e077eb9f5444a949ad65aa86e82ff"
-            ], 
+            ],
             "create_groups": [
                 "+fxa:70a9335eecfe440fa445ba752a750f3d"
             ]
@@ -124,13 +85,12 @@ You can use ``+principal`` to add one and ``-principal`` to remove one.
     }
 
 
-Getting bucket information
---------------------------
-
 GET /buckets/<bucket_id>
-''''''''''''''''''''''''
+========================
 
-This endpoint lets you get bucket information.
+**Requires authentication**
+
+Returns a specific bucket by its id.
 
 .. code-block:: http
 
@@ -155,10 +115,12 @@ This endpoint lets you get bucket information.
     }
 
 
-Removing a bucket
------------------
+DELETE /buckets/<bucket_id>
+===========================
 
-This endpoint lets you delete a bucket and everything inside.
+**Requires authentication**
+
+Deletes a specific bucket, and **everything under it**.
 
 .. code-block:: http
 
