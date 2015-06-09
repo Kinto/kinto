@@ -2,7 +2,7 @@ import mock
 
 from pyramid.security import Allow
 from .support import DummyRequest, unittest
-from cliquet.authorization import RouteFactory
+from cliquet.authorization import RouteFactory, AuthorizationPolicy
 from cliquet.storage import exceptions as storage_exceptions
 
 
@@ -54,3 +54,45 @@ class RouteFactoryTest(unittest.TestCase):
 
     def test_http_patch_resolves_in_a_write_permission(self):
         self.assert_request_resolves_to("patch", "write")
+
+
+class AuthorizationPolicyTest(unittest.TestCase):
+    def setUp(self):
+        self.authz = AuthorizationPolicy()
+        self.context = mock.MagicMock()
+        self.context.object_id = mock.sentinel.object_id
+        self.context.required_permission = 'read'
+        self.context.get_bound_permissions = mock.sentinel.get_bound_perms
+        self.principals = mock.sentinel.principals
+        self.permission = 'dynamic'
+
+    def test_permits_refers_to_context_to_check_permissions(self):
+        self.context.has_permission.return_value = True
+        allowed = self.authz.permits(self.context, self.principals, 'dynamic')
+        self.assertTrue(allowed)
+
+    def test_permits_reads_the_context_when_permission_is_dynamic(self):
+        self.authz.permits(self.context, self.principals, 'dynamic')
+        self.context.has_permission.assert_called_with(
+            mock.sentinel.object_id,
+            'read',
+            mock.sentinel.principals,
+            mock.sentinel.get_bound_perms)
+
+    def test_permits_consider_permission_when_not_dynamic(self):
+        self.authz.permits(self.context, self.principals, 'foobar')
+        self.context.has_permission.assert_called_with(
+            mock.sentinel.object_id,
+            'foobar',
+            mock.sentinel.principals,
+            mock.sentinel.get_bound_perms)
+
+    def test_permits_prepend_obj_type_to_permission_on_create(self):
+        self.context.required_permission = 'create'
+        self.context.object_type = 'record'
+        self.authz.permits(self.context, self.principals, 'dynamic')
+        self.context.has_permission.assert_called_with(
+            mock.sentinel.object_id,
+            'record:create',
+            mock.sentinel.principals,
+            mock.sentinel.get_bound_perms)
