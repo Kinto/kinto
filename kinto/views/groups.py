@@ -3,6 +3,8 @@ import colander
 from cliquet import resource
 from cliquet import schema
 
+from cliquet.authorization import get_object_id
+
 from kinto.views import NameGenerator, object_exists_or_404
 
 
@@ -29,3 +31,38 @@ class Group(resource.BaseResource):
         parent_id = '/buckets/%s' % bucket_id
         self.collection.parent_id = parent_id
         self.collection.id_generator = NameGenerator()
+
+    def collection_delete(self):
+        body = super(Group, self).collection_delete()
+        permission = self.request.registry.permission
+        # For each deleted group, remove it from members principals
+        for group in body['items']:
+            for member in group['members']:
+                group_id = '%s/%s' % (get_object_id(self.request), group)
+                permission.remove_user_principal(
+                    self.request.authenticated_userid,
+                    group_id)
+        return body
+
+    def process_record(self, new, old=None):
+        if old is not None:
+            existing_record_members = set([])
+        else:
+            existing_record_members = set(old['members'])
+        new_record_members = set(new['members'])
+        new_members = new_record_members - existing_record_members
+        removed_members = existing_record_members - new_record_members
+
+        user_id = self.request.authenticated_userid
+        permission = self.request.registry.permission
+        for member in new_members:
+            # Add the group to the member principal
+            group_id = get_object_id(self.request)
+            permission.add_user_principal(user_id, group_id)
+
+        for member in removed_members:
+            # Remove the group from the member principal
+            group_id = get_object_id(self.request)
+            permission.remove_user_principal(user_id, group_id)
+
+        return new
