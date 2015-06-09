@@ -67,18 +67,8 @@ class RouteFactory(object):
         self.has_permission = request.registry.permission.has_permission
 
 
-def get_object_id(request, record_id=None):
-    if record_id is None:
-        record_uri = request.path
-    else:
-        # Obtain record URI from Pyramid routes.
-        service = utils.current_service(request)
-        # See pattern of ViewSet.service_name.
-        record_service = service.name.replace('-collection', '-record')
-        matchdict = request.matchdict.copy()
-        matchdict['id'] = record_id
-        record_uri = request.route_path(record_service, **matchdict)
+def get_object_id(request):
+    record_uri = request.path
 
     # Remove potential version prefix in URI.
-    object_id = re.sub(r'^(/v\d+)?', '', six.text_type(record_uri))
-    return object_id
+    return re.sub(r'^(/v\d+)?', '', six.text_type(record_uri))

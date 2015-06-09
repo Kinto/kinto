@@ -125,23 +125,3 @@ def current_service(request):
         pattern = request.matched_route.pattern
         service = services[pattern]
         return service
-
-
-def current_view(request):
-    """Return the view matching the specific request.
-
-    :returns: the view, or None if unmatched.
-    :rtype: function
-    """
-    service = current_service(request)
-    # Short-circuit if the service doesn't define the request's method.
-    if request.method.lower() not in map(str.lower, service.defined_methods):
-        return None
-
-    views = [view for method, view, _ in service.definitions
-             if method.lower() == request.method.lower()]
-
-    # Always return the first one.
-    if len(views > 0):
-        return views[0]
-    return None
