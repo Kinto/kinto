@@ -93,8 +93,8 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def has_permission(self, object_id, permission, principals,
-                       get_bound_permissions=None):
+    def check_permission(self, object_id, permission, principals,
+                         get_bound_permissions=None):
         """Test if a principal set have got a permission on an object.
 
         :param str object_id:
@@ -125,5 +125,4 @@ class PermissionBase(object):
             self.remove_user_principal(__HEARTBEAT_KEY__, 'alive')
         except BackendError:
             return False
-        else:
-            return True
+        return True

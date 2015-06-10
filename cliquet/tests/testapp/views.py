@@ -1,11 +1,17 @@
-from cliquet.resource import BaseResource, ResourceSchema, register
+from cliquet import resource
+from cliquet import authorization
 import colander
 
 
-class MushroomSchema(ResourceSchema):
+class MushroomSchema(resource.ResourceSchema):
     name = colander.SchemaNode(colander.String())
 
 
-@register()
-class Mushroom(BaseResource):
+@resource.register(factory=authorization.RouteFactory)
+class Mushroom(resource.BaseResource):
+    mapping = MushroomSchema()
+
+
+@resource.register(factory=authorization.RouteFactory)
+class Toadstool(resource.ProtectedResource):
     mapping = MushroomSchema()

@@ -3,7 +3,7 @@ import mock
 
 from cliquet.resource import ViewSet, register_resource
 
-from .support import unittest
+from cliquet.tests.support import unittest
 
 
 class FakeViewSet(ViewSet):
@@ -115,7 +115,6 @@ class ViewSetTest(unittest.TestCase):
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.cors_origins,
                 'error_handler': mock.sentinel.error_handler,
-                'permission': 'readonly'
             }
         )
 
@@ -146,7 +145,6 @@ class ViewSetTest(unittest.TestCase):
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.record_cors_origins,
                 'error_handler': mock.sentinel.error_handler,
-                'permission': 'readonly'
             }
         )
 
@@ -183,7 +181,6 @@ class ViewSetTest(unittest.TestCase):
                 'cors_headers': mock.sentinel.default_cors_headers,
                 'error_handler': mock.sentinel.default_record_error_handler,
                 'cors_origins': mock.sentinel.record_get_cors_origin,
-                'permission': 'readonly'
             }
         )
 
@@ -209,7 +206,6 @@ class ViewSetTest(unittest.TestCase):
             arguments,
             {
                 'cors_headers': mock.sentinel.cors_headers,
-                'permission': 'readonly',
             }
         )
 
@@ -236,32 +232,16 @@ class ViewSetTest(unittest.TestCase):
             viewset.get_service_name('record', resource),
             'fakename-record')
 
+    def test_get_service_arguments_returns_factory_if_exists(self):
+        viewset = ViewSet(factory=mock.sentinel.factory)
+        service_arguments = viewset.get_service_arguments()
+        self.assertIn("factory", service_arguments)
+        self.assertEquals(service_arguments["factory"], mock.sentinel.factory)
 
-class ViewPermissionTest(unittest.TestCase):
-
-    def test_get_view_permission_returns_readwrite_by_default(self):
-        viewset = ViewSet(readonly_methods=())
-        permission = viewset.get_view_permission("collection", mock.MagicMock,
-                                                 "get")
-        self.assertEquals(permission, "readwrite")
-
-    def test_get_view_permissions_can_return_readonly(self):
-        viewset = ViewSet(readonly_methods=('GET',))
-        permission = viewset.get_view_permission("collection", mock.MagicMock,
-                                                 "get")
-        self.assertEquals(permission, "readonly")
-
-    def test_permission_is_added_when_needed(self):
-        viewset = ViewSet(readonly_methods=('GET',))
-        arguments = viewset.collection_arguments(mock.MagicMock(), 'GET')
-        self.assertIn('permission', arguments)
-        self.assertEquals(arguments['permission'], 'readonly')
-
-    def test_permission_is_ignored_when_not_needed(self):
-        viewset = ViewSet(readonly_methods=())
-        viewset.get_view_permission = lambda *args: None
-        arguments = viewset.collection_arguments(mock.MagicMock(), 'GET')
-        self.assertNotIn('permission', arguments)
+    def test_get_service_arguments_ignore_factory_if_not_exists(self):
+        viewset = ViewSet()  # Don't provide a factory here.
+        service_arguments = viewset.get_service_arguments()
+        self.assertNotIn("factory", service_arguments)
 
 
 class RegisterTest(unittest.TestCase):

@@ -13,7 +13,7 @@ from cliquet import Service
 from cliquet.collection import Collection
 from cliquet.errors import (http_error, raise_invalid, ERRORS,
                             json_error_handler)
-from cliquet.schema import ResourceSchema
+from cliquet.schema import ResourceSchema, PermissionsSchema
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
@@ -88,10 +88,6 @@ class ViewSet(object):
 
         args['schema'] = self.get_record_schema(resource, method)
 
-        permission = self.get_view_permission(endpoint_type, resource, method)
-        if permission is not None:
-            args['permission'] = permission
-
         return args
 
     def get_record_schema(self, resource, method):
@@ -103,7 +99,7 @@ class ViewSet(object):
 
         class RecordPayload(colander.MappingSchema):
             data = resource.mapping
-            # XXX: permissions = PermissionSchema()
+            permissions = PermissionsSchema(missing=colander.drop)
 
             def schema_type(self, **kw):
                 return colander.Mapping(unknown='raise')
@@ -141,14 +137,12 @@ class ViewSet(object):
             resource_name=self.get_name(resource),
             endpoint_type=endpoint_type)
 
-    def get_view_permission(self, endpoint_type, resource, method):
-        """Return the permission associated with the given type,
-        resource and method"""
-        if method.lower() in map(str.lower, self.readonly_methods):
-            permission = "readonly"
-        else:
-            permission = "readwrite"
-        return permission
+    def get_service_arguments(self):
+        service_arguments = {}
+        if hasattr(self, 'factory'):
+            service_arguments['factory'] = self.factory
+        service_arguments.update(self.service_arguments)
+        return service_arguments
 
 
 def register(depth=1, **kwargs):
@@ -210,7 +204,14 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         name = viewset.get_service_name(endpoint_type, resource)
 
         service = Service(name, path, depth=depth,
-                          **viewset.service_arguments or {})
+                          **viewset.get_service_arguments())
+
+        # Attach viewset and resource to the service for later reference.
+        service.viewset = viewset
+        service.resource = resource
+        service.collection_path = viewset.collection_path.format(
+            **path_formatters)
+        service.record_path = viewset.record_path.format(**path_formatters)
 
         methods = getattr(viewset, '%s_methods' % endpoint_type)
         for method in methods:
@@ -228,9 +229,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
 
         return service
 
-    services = []
-    services.append(register_service('collection'))
-    services.append(register_service('record'))
+    services = [register_service('collection'), register_service('record')]
 
     def callback(context, name, ob):
         # get the callbacks registred by the inner services
@@ -251,7 +250,8 @@ class BaseResource(object):
     mapping = ResourceSchema()
     """Schema to validate records."""
 
-    def __init__(self, request):
+    def __init__(self, request, context=None):
+
         # Collections are isolated by user.
         parent_id = request.authenticated_userid
         # Authentication to storage is transmitted as is (cf. cloud_storage).
@@ -265,6 +265,7 @@ class BaseResource(object):
             auth=auth)
 
         self.request = request
+        self.context = context
         self.timestamp = self.collection.timestamp()
         self.record_id = self.request.matchdict.get('id')
 
@@ -456,6 +457,8 @@ class BaseResource(object):
         finally:
             if existing:
                 self._raise_412_if_modified(existing)
+            else:
+                self.request.response.status_code = 201
 
         new_record = self.request.validated['data']
 
@@ -943,3 +946,88 @@ class BaseResource(object):
             token[field] = last_record[field]
 
         return encode64(json.dumps(token))
+
+
+class ProtectedResource(BaseResource):
+    permissions = ('read', 'write')
+
+    def _store_permissions(self, object_id, replace=False):
+        permissions = self.request.validated.get('permissions')
+        if not permissions:
+            return {}
+
+        registry = self.request.registry
+        add_principal = registry.permission.add_principal_to_ace
+
+        # XXX: change permissions API.
+        get_perm_principals = registry.permission.object_permission_principals
+        del_principal = registry.permission.remove_principal_from_ace
+
+        if replace:
+            for permission in self.permissions:
+                existing = list(get_perm_principals(object_id, permission))
+                for principal in existing:
+                    del_principal(object_id, permission, principal)
+
+        for permission, principals in permissions.items():
+            for principal in principals:
+                add_principal(object_id, permission, principal)
+        return permissions
+
+    def _build_permissions(self, object_id):
+        registry = self.request.registry
+        get_perm_principals = registry.permission.object_permission_principals
+
+        permissions = {}
+        for perm in self.permissions:
+            principals = get_perm_principals(object_id, perm)
+            if principals:
+                permissions[perm] = list(principals)
+        return permissions
+
+    def _get_object_id(self, record_id=None):
+        if record_id is None:
+            record_uri = self.request.path
+        else:
+            # Obtain record URI from Pyramid routes.
+            service = current_service(self.request)
+            # See pattern of ViewSet.service_name.
+            record_service = service.name.replace('-collection', '-record')
+            matchdict = self.request.matchdict.copy()
+            matchdict['id'] = record_id
+            record_uri = self.request.route_path(record_service, **matchdict)
+
+        # Remove potential version prefix in URI.
+        object_id = re.sub(r'^(/v\d+)?', '', six.text_type(record_uri))
+        return object_id
+
+    def collection_post(self):
+        result = super(ProtectedResource, self).collection_post()
+
+        record_id = result['data'][self.collection.id_field]
+        object_id = self._get_object_id(record_id)
+        result['permissions'] = self._store_permissions(object_id=object_id)
+        return result
+
+    def get(self):
+        result = super(ProtectedResource, self).get()
+
+        object_id = self._get_object_id()
+        result['permissions'] = self._build_permissions(object_id=object_id)
+        return result
+
+    def put(self):
+        result = super(ProtectedResource, self).put()
+
+        object_id = self._get_object_id()
+        self._store_permissions(object_id=object_id, replace=True)
+        result['permissions'] = self._build_permissions(object_id=object_id)
+        return result
+
+    def patch(self):
+        result = super(ProtectedResource, self).patch()
+
+        object_id = self._get_object_id()
+        self._store_permissions(object_id=object_id)
+        result['permissions'] = self._build_permissions(object_id=object_id)
+        return result

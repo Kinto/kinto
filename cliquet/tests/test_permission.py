@@ -164,36 +164,36 @@ class BaseTestPermission(object):
             object_id, permission)
         self.assertEquals(retrieved, {principal2})
 
-    def test_has_permission_returns_true_for_userid(self):
+    def test_check_permission_returns_true_for_userid(self):
         object_id = 'foo'
         permission = 'write'
         principal = 'bar'
         self.permission.add_principal_to_ace(object_id, permission, principal)
-        has_permission = self.permission.has_permission(object_id, permission,
-                                                        {principal})
-        self.assertTrue(has_permission)
+        check_permission = self.permission.check_permission(
+            object_id, permission, {principal})
+        self.assertTrue(check_permission)
 
-    def test_has_permission_returns_true_for_userid_group(self):
+    def test_check_permission_returns_true_for_userid_group(self):
         object_id = 'foo'
         permission = 'write'
         group_id = 'bar'
         user_id = 'foobar'
         self.permission.add_user_principal(user_id, group_id)
         self.permission.add_principal_to_ace(object_id, permission, group_id)
-        has_permission = self.permission.has_permission(object_id, permission,
-                                                        {user_id, group_id})
-        self.assertTrue(has_permission)
+        check_permission = self.permission.check_permission(
+            object_id, permission, {user_id, group_id})
+        self.assertTrue(check_permission)
 
-    def test_has_permission_returns_true_for_object_inherited(self):
+    def test_check_permission_returns_true_for_object_inherited(self):
         object_id = 'foo'
         permissions = [(object_id, 'write'), (object_id, 'read')]
         user_id = 'bar'
         self.permission.add_principal_to_ace(object_id, 'write',
                                                         user_id)
-        has_permission = self.permission.has_permission(
+        check_permission = self.permission.check_permission(
             object_id, 'read', {user_id},
             lambda object_id, permission: permissions)
-        self.assertTrue(has_permission)
+        self.assertTrue(check_permission)
 
     def test_object_permission_authorized_principals_inherit_principals(self):
         object_id = 'foo'
@@ -205,13 +205,13 @@ class BaseTestPermission(object):
             object_id, 'read', lambda object_id, permission: permissions)
         self.assertEquals(principals, {user_id})
 
-    def test_has_permission_return_false_for_unknown_principal(self):
+    def test_check_permission_return_false_for_unknown_principal(self):
         object_id = 'foo'
         permission = 'write'
         principal = 'bar'
-        has_permission = self.permission.has_permission(object_id, permission,
-                                                        {principal})
-        self.assertFalse(has_permission)
+        check_permission = self.permission.check_permission(
+            object_id, permission, {principal})
+        self.assertFalse(check_permission)
 
 
 class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):

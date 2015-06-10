@@ -7,10 +7,11 @@ import structlog
 from cornice import Service as CorniceService
 from pyramid.settings import asbool, aslist
 
+from cliquet import utils
+
 # Main Cliquet logger.
 logger = structlog.get_logger()
 
-from cliquet import utils
 from cliquet.initialization import (  # NOQA
     initialize, initialize_cliquet, install_middlewares)
 
@@ -73,7 +74,7 @@ DEFAULT_SETTINGS = {
     'multiauth.policies': 'basicauth',
     'multiauth.policy.basicauth.use': ('cliquet.authentication.'
                                        'BasicAuthAuthenticationPolicy'),
-    'multiauth.authorization_policy': ('cliquet.authentication.'
+    'multiauth.authorization_policy': ('cliquet.authorization.'
                                        'AuthorizationPolicy')
 }
 

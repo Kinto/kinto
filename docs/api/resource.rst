@@ -497,6 +497,7 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 HTTP Status Code
 ----------------
 
+* ``201 Created``: The record was created
 * ``200 OK``: The record was replaced
 * ``400 Bad Request``: The record is invalid
 * ``409 Conflict``: If replacing this record violates a field unicity constraint
