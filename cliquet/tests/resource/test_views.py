@@ -14,7 +14,6 @@ MINIMALIST_RECORD = {'name': 'Champignon'}
 
 class BaseWebTest(unittest.TestCase):
     authorization_policy = 'cliquet.tests.support.AllowAuthorizationPolicy'
-
     collection_url = '/mushrooms'
 
     def __init__(self, *args, **kwargs):
@@ -34,7 +33,6 @@ class BaseWebTest(unittest.TestCase):
 
         self.app = webtest.TestApp(self.config.make_wsgi_app())
         self.app.RequestClass = get_request_class(self.config.route_prefix)
-        self.collection_url = '/mushrooms'
         self.item_url = '/mushrooms/{id}'
         self.principal = USER_PRINCIPAL
 
@@ -50,25 +48,23 @@ class BaseWebTest(unittest.TestCase):
         """Return the URL of the item using self.item_url."""
         if id is None:
             id = self.record['id']
-        return self.collection_url + '/' + id
+        return self.collection_url + '/' + str(id)
 
 
 class AuthzAuthnTest(BaseWebTest):
     authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
 
+    def add_permission(self, object_id, permission):
+        self.app.app.registry.permission.add_principal_to_ace(
+            object_id, permission, self.principal)
+
+
+class ProtectedResourcePermissionTest(AuthzAuthnTest):
     # Protected resource.
     collection_url = '/toadstools'
 
-    def test_all_views_require_authentication(self):
-        self.app.get(self.collection_url, status=401)
-
-        body = {'data': MINIMALIST_RECORD}
-        self.app.post_json(self.collection_url, body, status=401)
-
-        url = self.get_item_url('abc')
-        self.app.get(url, status=401)
-        self.app.patch_json(url, body, status=401)
-        self.app.delete(url, status=401)
+    def setUp(self):
+        self.add_permission(self.collection_url, 'toadstool:create')
 
     def test_permissions_are_associated_to_object_uri_without_prefix(self):
         body = {'data': MINIMALIST_RECORD,
@@ -86,42 +82,40 @@ class AuthzAuthnTest(BaseWebTest):
         resp = self.app.post_json(self.collection_url, body,
                                   headers=self.headers)
         object_uri = self.get_item_url(resp.json['data']['id'])
-
         body.pop('permissions')
+
+        self.add_permission(object_uri, 'write')
         resp = self.app.put_json(object_uri, body, headers=self.headers)
         self.assertEqual(resp.json['permissions']['read'], ['group:readers'])
 
 
 class CollectionAuthzGrantedTest(AuthzAuthnTest):
     def test_collection_get_is_granted_when_authorized(self):
-        object_id = self.collection_url
-        self.app.app.registry.permission.add_principal_to_ace(
-            object_id, 'read', self.principal)
-
+        self.add_permission(self.collection_url, 'read')
         self.app.get(self.collection_url, headers=self.headers, status=200)
 
     def test_collection_post_is_granted_when_authorized(self):
-        object_id = self.collection_url
-        self.app.app.registry.permission.add_principal_to_ace(
-            object_id, 'mushroom:create', self.principal)
-
-        self.app.post_json(self.collection_url, MINIMALIST_RECORD,
+        self.add_permission(self.collection_url, 'mushroom:create')
+        self.app.post_json(self.collection_url, {'data': MINIMALIST_RECORD},
                            headers=self.headers, status=201)
 
     def test_collection_delete_is_granted_when_authorized(self):
-        object_id = self.collection_url
-        self.app.app.registry.permission.add_principal_to_ace(
-            object_id, 'write', self.principal)
-
+        self.add_permission(self.collection_url, 'write')
         self.app.delete(self.collection_url, headers=self.headers, status=200)
 
 
 class CollectionAuthzDeniedTest(AuthzAuthnTest):
+    def test_views_require_authentication(self):
+        self.app.get(self.collection_url, status=401)
+
+        body = {'data': MINIMALIST_RECORD}
+        self.app.post_json(self.collection_url, body, status=401)
+
     def test_collection_get_is_denied_when_not_authorized(self):
         self.app.get(self.collection_url, headers=self.headers, status=403)
 
     def test_collection_post_is_denied_when_not_authorized(self):
-        self.app.post_json(self.collection_url, MINIMALIST_RECORD,
+        self.app.post_json(self.collection_url, {'data': MINIMALIST_RECORD},
                            headers=self.headers, status=403)
 
     def test_collection_delete_is_denied_when_not_authorized(self):
@@ -131,66 +125,67 @@ class CollectionAuthzDeniedTest(AuthzAuthnTest):
 class RecordAuthzGrantedTest(AuthzAuthnTest):
     def setUp(self):
         super(RecordAuthzGrantedTest, self).setUp()
-        self.app.app.registry.permission.add_principal_to_ace(
-            self.collection_url, 'mushroom:create', self.principal)
+        self.add_permission(self.collection_url, 'mushroom:create')
 
-        body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_RECORD,
+                                  {'data': MINIMALIST_RECORD},
                                   headers=self.headers)
-        self.record = resp.json
+        self.record = resp.json['data']
         self.record_url = self.get_item_url()
         self.unknown_record_url = self.get_item_url(uuid.uuid4())
 
     def test_record_get_is_granted_when_authorized(self):
-        object_id = self.record_url
-        self.app.app.registry.permission.add_principal_to_ace(
-            object_id, 'read', self.principal)
-
+        self.add_permission(self.record_url, 'read')
         self.app.get(self.record_url, headers=self.headers, status=200)
 
     def test_record_patch_is_granted_when_authorized(self):
-        object_id = self.record_url
-        self.app.app.registry.permission.add_principal_to_ace(
-            object_id, 'write', self.principal)
-
-        self.app.patch_json(self.record_url, MINIMALIST_RECORD,
+        self.add_permission(self.record_url, 'write')
+        self.app.patch_json(self.record_url, {'data': MINIMALIST_RECORD},
                             headers=self.headers, status=200)
 
     def test_record_delete_is_granted_when_authorized(self):
-        object_id = self.record_url
-        self.app.app.registry.permission.add_principal_to_ace(
-            object_id, 'write', self.principal)
-
+        self.add_permission(self.record_url, 'write')
         self.app.delete(self.record_url, headers=self.headers, status=200)
 
     def test_record_put_on_existing_record_is_granted_when_authorized(self):
-        object_id = self.record_url
-        self.app.app.registry.permission.add_principal_to_ace(
-            object_id, 'write', self.principal)
-
-        self.app.put_json(self.record_url, MINIMALIST_RECORD,
+        self.add_permission(self.record_url, 'write')
+        self.app.put_json(self.record_url, {'data': MINIMALIST_RECORD},
                           headers=self.headers, status=200)
 
     def test_record_put_on_unexisting_record_is_granted_when_authorized(self):
-        object_id = self.collection_url
-        self.app.app.registry.permission.add_principal_to_ace(
-            object_id, 'mushroom:create', self.principal)
-
-        self.app.put_json(self.unknown_record_url, MINIMALIST_RECORD,
+        self.add_permission(self.collection_url, 'mushroom:create')
+        self.app.put_json(self.unknown_record_url, {'data': MINIMALIST_RECORD},
                           headers=self.headers, status=200)  # XXX 201 !
 
 
-class RecordAuthzDeniedTest(RecordAuthzGrantedTest):
+class RecordAuthzDeniedTest(AuthzAuthnTest):
+    def setUp(self):
+        super(RecordAuthzDeniedTest, self).setUp()
+        self.app.app.registry.permission.add_principal_to_ace(
+            self.collection_url, 'mushroom:create', self.principal)
+
+        resp = self.app.post_json(self.collection_url,
+                                  {'data': MINIMALIST_RECORD},
+                                  headers=self.headers)
+        self.record = resp.json['data']
+        self.record_url = self.get_item_url()
+        self.unknown_record_url = self.get_item_url(uuid.uuid4())
+
+    def test_views_require_authentication(self):
+        url = self.get_item_url('abc')
+        self.app.get(url, status=401)
+        self.app.patch_json(url, {'data': MINIMALIST_RECORD}, status=401)
+        self.app.delete(url, status=401)
+
     def test_record_get_is_denied_when_not_authorized(self):
         self.app.get(self.record_url, headers=self.headers, status=403)
 
     def test_record_patch_is_denied_when_not_authorized(self):
-        self.app.patch_json(self.record_url, MINIMALIST_RECORD,
+        self.app.patch_json(self.record_url, {'data': MINIMALIST_RECORD},
                             headers=self.headers, status=403)
 
     def test_record_put_is_denied_when_not_authorized(self):
-        self.app.put_json(self.record_url, MINIMALIST_RECORD,
+        self.app.put_json(self.record_url, {'data': MINIMALIST_RECORD},
                           headers=self.headers, status=403)
 
     def test_record_delete_is_denied_when_not_authorized(self):
@@ -203,7 +198,7 @@ class RecordAuthzDeniedTest(RecordAuthzGrantedTest):
 
         self.app.app.registry.permission.add_principal_to_ace(
             object_id, 'write', self.principal)
-        self.app.put_json(self.unknown_record_url, MINIMALIST_RECORD,
+        self.app.put_json(self.unknown_record_url, {'data': MINIMALIST_RECORD},
                           headers=self.headers, status=403)
 
 
