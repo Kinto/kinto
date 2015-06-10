@@ -13,7 +13,7 @@ Returns all records of the current user for this collection.
 
 The returned value is a JSON mapping containing:
 
-- ``items``: the list of records, with exhaustive attributes
+- ``data``: the list of records, with exhaustive fields
 
 A ``Total-Records`` response header indicates the total number of records
 of the collection.
@@ -47,7 +47,7 @@ It is likely to be used by consumer to provide ``If-Modified-Since`` or
     Total-Records: 2
 
     {
-        "items": [
+        "data": [
             {
                 "id": "dc86afa9-a839-4ce1-ae02-3d538b75496f",
                 "last_modified": 1430222877724,
@@ -202,10 +202,14 @@ POST /{collection}
 
 **Requires authentication**
 
-Used to create a record in the collection. The POST body is a JSON
-mapping containing the values of the resource schema fields.
+Used to create a record in the collection. The POST body is a JSON mapping
+containing:
 
-The POST response body is the newly created record, if all posted values are valid.
+- ``data``: the values of the resource schema fields
+
+The POST response body is a JSON mapping containing:
+
+- ``data``: the newly created record, if all posted values are valid.
 
 If the request header ``If-Unmodified-Since`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
@@ -222,8 +226,10 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
     Host: localhost:8000
 
     {
-        "title": "Wikipedia FR",
-        "url": "http://fr.wikipedia.org"
+        "data": {
+            "title": "Wikipedia FR",
+            "url": "http://fr.wikipedia.org"
+        }
     }
 
 **Response**:
@@ -238,10 +244,12 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
     Date: Tue, 28 Apr 2015 12:35:02 GMT
 
     {
-        "id": "cd30c031-c208-4fb9-ad65-1582d2a7ad5e",
-        "last_modified": 1430224502529,
-        "title": "Wikipedia FR",
-        "url": "http://fr.wikipedia.org"
+        "data": {
+            "id": "cd30c031-c208-4fb9-ad65-1582d2a7ad5e",
+            "last_modified": 1430224502529,
+            "title": "Wikipedia FR",
+            "url": "http://fr.wikipedia.org"
+        }
     }
 
 
@@ -291,8 +299,9 @@ DELETE /{collection}
 
 Delete multiple records. **Disabled by default**, see :ref:`configuration`.
 
-The DELETE response is a JSON mapping with an ``items`` attribute, returning
-the list of records that were deleted.
+The DELETE response is a JSON mapping containing:
+
+- ``data``: list of records that were deleted, without schema fields.
 
 It supports the same filtering capabilities as GET.
 
@@ -321,7 +330,7 @@ has changed meanwhile, a ``412 Precondition failed`` error is returned.
     Date: Tue, 28 Apr 2015 12:38:36 GMT
 
     {
-        "items": [
+        "data": [
             {
                 "deleted": true,
                 "id": "cd30c031-c208-4fb9-ad65-1582d2a7ad5e",
@@ -349,7 +358,10 @@ GET /{collection}/<id>
 
 **Requires authentication**
 
-Returns a specific record by its id.
+Returns a specific record by its id. The GET response body is a JSON mapping
+containing:
+
+- ``data``: the record with exhaustive schema fields.
 
 For convenience and consistency, a header ``Last-Modified`` will also repeat the
 value of the ``last_modified`` field.
@@ -379,10 +391,12 @@ changed meanwhile, a ``304 Not Modified`` is returned.
     Last-Modified: 1430224945242
 
     {
-        "id": "d10405bf-8161-46a1-ac93-a1893d160e62",
-        "last_modified": 1430224945242,
-        "title": "No backend",
-        "url": "http://nobackend.org"
+        "data": {
+            "id": "d10405bf-8161-46a1-ac93-a1893d160e62",
+            "last_modified": 1430224945242,
+            "title": "No backend",
+            "url": "http://nobackend.org"
+        }
     }
 
 
@@ -401,7 +415,9 @@ DELETE /{collection}/<id>
 
 Delete a specific record by its id.
 
-The DELETE response is the record that was deleted.
+The DELETE response is the record that was deleted. The DELETE response is a JSON mapping containing:
+
+- ``data``: the record that was deleted, without schema fields.
 
 If the record is missing (or already deleted), a ``404 Not Found`` is returned.
 The consumer might decide to ignore it.
@@ -426,8 +442,13 @@ PUT /{collection}/<id>
 
 **Requires authentication**
 
-Create or replace a record with its id. The PUT body is a JSON
-mapping validating the resource schema fields.
+Create or replace a record with its id. The PUT body is a JSON mapping containing:
+
+- ``data``: the values of the resource schema fields
+
+The PUT response body is a JSON mapping containing:
+
+- ``data``: the newly created/updated record, if all posted values are valid.
 
 Validation and conflicts behaviour is similar to creating records (``POST``).
 
@@ -446,8 +467,10 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
     Host: localhost:8000
 
     {
-        "title": "Static apps",
-        "url": "http://www.staticapps.org"
+        "data": {
+            "title": "Static apps",
+            "url": "http://www.staticapps.org"
+        }
     }
 
 **Response**:
@@ -462,10 +485,12 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
     Date: Tue, 28 Apr 2015 12:46:36 GMT
 
     {
-        "id": "d10405bf-8161-46a1-ac93-a1893d160e62",
-        "last_modified": 1430225196396,
-        "title": "Static apps",
-        "url": "http://www.staticapps.org"
+        "data": {
+            "id": "d10405bf-8161-46a1-ac93-a1893d160e62",
+            "last_modified": 1430225196396,
+            "title": "Static apps",
+            "url": "http://www.staticapps.org"
+        }
     }
 
 
@@ -485,17 +510,18 @@ PATCH /{collection}/<id>
 
 **Requires authentication**
 
-Modify a specific record by its id. The PATCH body is a JSON
-mapping containing a subset of the resource schema fields.
+Modify a specific record by its id. The PATCH body is a JSON mapping containing:
 
-The PATCH response is the modified record (*full*).
+- ``data``: a subset of the resource schema fields.
+
+The PATCH response body is a JSON mapping containing:
+
+- ``data``: the modified record (*full by default*)
 
 If a request header ``Response-Behavior`` is set to ``light``,
 only the fields whose value was changed are returned. If set to
 ``diff``, only the fields whose value became different than
 the one provided are returned.
-
-
 
 
 **Request**:
@@ -509,7 +535,9 @@ the one provided are returned.
     Host: localhost:8000
 
     {
-        "title": "No Backend"
+        "data": {
+            "title": "No Backend"
+        }
     }
 
 **Response**:
@@ -524,10 +552,12 @@ the one provided are returned.
     Date: Tue, 28 Apr 2015 12:46:36 GMT
 
     {
-        "id": "d10405bf-8161-46a1-ac93-a1893d160e62",
-        "last_modified": 1430225196396,
-        "title": "No Backend",
-        "url": "http://nobackend.org"
+        "data": {
+            "id": "d10405bf-8161-46a1-ac93-a1893d160e62",
+            "last_modified": 1430225196396,
+            "title": "No Backend",
+            "url": "http://nobackend.org"
+        }
     }
 
 

@@ -13,7 +13,7 @@ from cliquet import Service
 from cliquet.collection import Collection
 from cliquet.errors import (http_error, raise_invalid, ERRORS,
                             json_error_handler)
-from cliquet.schema import ResourceSchema
+from cliquet.schema import ResourceSchema, PermissionsSchema
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
@@ -86,13 +86,25 @@ class ViewSet(object):
         method_args = getattr(self, by_method, {})
         args.update(**method_args)
 
-        if method.lower() in map(str.lower, self.validate_schema_for):
-            args['schema'] = resource.mapping
-        else:
-            # Simply validate that posted body is a mapping.
-            args['schema'] = colander.MappingSchema(unknown='preserve')
+        args['schema'] = self.get_record_schema(resource, method)
 
         return args
+
+    def get_record_schema(self, resource, method):
+        """Return the Cornice schema for the given method.
+        """
+        if method.lower() not in map(str.lower, self.validate_schema_for):
+            # Simply validate that posted body is a mapping.
+            return colander.MappingSchema(unknown='preserve')
+
+        class RecordPayload(colander.MappingSchema):
+            data = resource.mapping
+            permissions = PermissionsSchema(missing=colander.drop)
+
+            def schema_type(self, **kw):
+                return colander.Mapping(unknown='raise')
+
+        return RecordPayload()
 
     def get_view(self, endpoint_type, method):
         """Return the view method name located on the resource object, for the
@@ -323,9 +335,8 @@ class BaseResource(object):
         headers['Total-Records'] = ('%s' % total_records)
 
         body = {
-            'items': records,
+            'data': records,
         }
-
         return body
 
     def collection_post(self):
@@ -347,17 +358,20 @@ class BaseResource(object):
         """
         self._raise_412_if_modified()
 
-        new_record = self.process_record(self.request.validated)
+        new_record = self.process_record(self.request.validated['data'])
 
         try:
             unique_fields = self.mapping.get_option('unique_fields')
             record = self.collection.create_record(new_record,
                                                    unique_fields=unique_fields)
+            self.request.response.status_code = 201
         except storage_exceptions.UnicityError as e:
-            return e.record
+            record = e.record
 
-        self.request.response.status_code = 201
-        return record
+        body = {
+            'data': record,
+        }
+        return body
 
     def collection_delete(self):
         """Collection ``DELETE`` endpoint: delete multiple records.
@@ -384,9 +398,8 @@ class BaseResource(object):
         deleted = self.collection.delete_records(filters=filters)
 
         body = {
-            'items': deleted,
+            'data': deleted,
         }
-
         return body
 
     def get(self):
@@ -409,7 +422,11 @@ class BaseResource(object):
         record = self._get_record_or_404(self.record_id)
         self._raise_304_if_not_modified(record)
         self._raise_412_if_modified(record)
-        return record
+
+        body = {
+            'data': record,
+        }
+        return body
 
     def put(self):
         """Record ``PUT`` endpoint: create or replace the provided record and
@@ -443,7 +460,7 @@ class BaseResource(object):
             else:
                 self.request.response.status_code = 201
 
-        new_record = self.request.validated
+        new_record = self.request.validated['data']
 
         record_id = new_record.setdefault(id_field, self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
@@ -457,7 +474,10 @@ class BaseResource(object):
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
-        return record
+        body = {
+            'data': record,
+        }
+        return body
 
     def patch(self):
         """Record ``PATCH`` endpoint: modify a record and return its
@@ -492,7 +512,7 @@ class BaseResource(object):
             }
             raise_invalid(self.request, **error_details)
 
-        changes = self.request.json
+        changes = self.request.json.get('data', {})  # May patch only perms.
 
         updated = self.apply_changes(old_record, changes=changes)
 
@@ -520,14 +540,19 @@ class BaseResource(object):
 
         if body_behavior.lower() == 'light':
             # Only fields that were changed.
-            return {k: new_record[k] for k in changed_fields}
+            data = {k: new_record[k] for k in changed_fields}
 
-        if body_behavior.lower() == 'diff':
+        elif body_behavior.lower() == 'diff':
             # Only fields that are different from those provided.
-            return {k: new_record[k] for k in changed_fields
+            data = {k: new_record[k] for k in changed_fields
                     if changes.get(k) != new_record.get(k)}
+        else:
+            data = new_record
 
-        return new_record
+        body = {
+            'data': data,
+        }
+        return body
 
     def delete(self):
         """Record ``DELETE`` endpoint: delete a record and return it.
@@ -545,7 +570,11 @@ class BaseResource(object):
         self._raise_412_if_modified(record)
 
         deleted = self.collection.delete_record(record)
-        return deleted
+
+        body = {
+            'data': deleted,
+        }
+        return body
 
     #
     # Data processing
@@ -917,3 +946,88 @@ class BaseResource(object):
             token[field] = last_record[field]
 
         return encode64(json.dumps(token))
+
+
+class ProtectedResource(BaseResource):
+    permissions = ('read', 'write')
+
+    def _store_permissions(self, object_id, replace=False):
+        permissions = self.request.validated.get('permissions')
+        if not permissions:
+            return {}
+
+        registry = self.request.registry
+        add_principal = registry.permission.add_principal_to_ace
+
+        # XXX: change permissions API.
+        get_perm_principals = registry.permission.object_permission_principals
+        del_principal = registry.permission.remove_principal_from_ace
+
+        if replace:
+            for permission in self.permissions:
+                existing = list(get_perm_principals(object_id, permission))
+                for principal in existing:
+                    del_principal(object_id, permission, principal)
+
+        for permission, principals in permissions.items():
+            for principal in principals:
+                add_principal(object_id, permission, principal)
+        return permissions
+
+    def _build_permissions(self, object_id):
+        registry = self.request.registry
+        get_perm_principals = registry.permission.object_permission_principals
+
+        permissions = {}
+        for perm in self.permissions:
+            principals = get_perm_principals(object_id, perm)
+            if principals:
+                permissions[perm] = list(principals)
+        return permissions
+
+    def _get_object_id(self, record_id=None):
+        if record_id is None:
+            record_uri = self.request.path
+        else:
+            # Obtain record URI from Pyramid routes.
+            service = current_service(self.request)
+            # See pattern of ViewSet.service_name.
+            record_service = service.name.replace('-collection', '-record')
+            matchdict = self.request.matchdict.copy()
+            matchdict['id'] = record_id
+            record_uri = self.request.route_path(record_service, **matchdict)
+
+        # Remove potential version prefix in URI.
+        object_id = re.sub(r'^(/v\d+)?', '', six.text_type(record_uri))
+        return object_id
+
+    def collection_post(self):
+        result = super(ProtectedResource, self).collection_post()
+
+        record_id = result['data'][self.collection.id_field]
+        object_id = self._get_object_id(record_id)
+        result['permissions'] = self._store_permissions(object_id=object_id)
+        return result
+
+    def get(self):
+        result = super(ProtectedResource, self).get()
+
+        object_id = self._get_object_id()
+        result['permissions'] = self._build_permissions(object_id=object_id)
+        return result
+
+    def put(self):
+        result = super(ProtectedResource, self).put()
+
+        object_id = self._get_object_id()
+        self._store_permissions(object_id=object_id, replace=True)
+        result['permissions'] = self._build_permissions(object_id=object_id)
+        return result
+
+    def patch(self):
+        result = super(ProtectedResource, self).patch()
+
+        object_id = self._get_object_id()
+        self._store_permissions(object_id=object_id)
+        result['permissions'] = self._build_permissions(object_id=object_id)
+        return result

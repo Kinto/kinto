@@ -279,9 +279,9 @@ class ResourceInfoTest(BaseWebTest, unittest.TestCase):
                          int(r.headers['Last-Modified']))
 
     def test_result_size_and_limit_are_bound(self):
-        self.app.post_json('/mushrooms', {'name': 'a'}, headers=self.headers)
-        self.app.post_json('/mushrooms', {'name': 'b'}, headers=self.headers)
-        self.app.post_json('/mushrooms', {'name': 'c'}, headers=self.headers)
+        for name in ['a', 'b', 'c']:
+            body = {'data': {'name': name}}
+            self.app.post_json('/mushrooms', body, headers=self.headers)
 
         self.app.get('/mushrooms?_limit=5', headers=self.headers)
         event_dict = logger_context()

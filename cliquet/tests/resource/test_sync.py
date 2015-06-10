@@ -14,25 +14,26 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
     def setUp(self):
         super(SinceModifiedTest, self).setUp()
 
+        self.resource.request.validated = {'data': {}}
+
         with mock.patch.object(self.collection.storage,
                                '_bump_timestamp') as msec_mocked:
             for i in range(6):
                 msec_mocked.return_value = i
                 self.resource.collection_post()
-                self.resource.request.validated = {}  # reset next
 
     def test_filter_with_since_is_exclusive(self):
         self.resource.request.GET = {'_since': '3'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 2)
+        self.assertEqual(len(result['data']), 2)
 
     def test_filter_with_to_is_exclusive(self):
         self.resource.request.GET = {'_to': '3'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 3)
+        self.assertEqual(len(result['data']), 3)
 
     def test_the_timestamp_header_is_equal_to_last_modification(self):
-        result = self.resource.collection_post()
+        result = self.resource.collection_post()['data']
         modification = result['last_modified']
         self.resource = BaseResource(self.get_request())
         self.resource.collection_get()
@@ -43,7 +44,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.resource.request.GET = {'_since': '6'}
         self.resource.collection_post()
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 1)
+        self.assertEqual(len(result['data']), 1)
 
     def test_filter_with_since_rejects_non_numeric_value(self):
         self.resource.request.GET = {'_since': 'abc'}
@@ -56,16 +57,16 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
                           self.resource.collection_get)
 
     def test_filter_from_last_modified_is_exclusive(self):
-        result = self.resource.collection_post()
+        result = self.resource.collection_post()['data']
         current = result['last_modified']
 
         self.resource.request.GET = {'_since': six.text_type(current)}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 0)
+        self.assertEqual(len(result['data']), 0)
 
-    def test_filter_with_last_modified_includes_deleted_items(self):
+    def test_filter_with_last_modified_includes_deleted_data(self):
         self.resource.collection_post()
-        result = self.resource.collection_post()
+        result = self.resource.collection_post()['data']
         current = result['last_modified']
 
         self.resource.record_id = result['id']
@@ -73,22 +74,22 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
         self.resource.request.GET = {'_since': six.text_type(current)}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 1)
-        self.assertTrue(result['items'][0]['deleted'])
+        self.assertEqual(len(result['data']), 1)
+        self.assertTrue(result['data'][0]['deleted'])
 
     def test_filter_from_last_header_value_is_exclusive(self):
-        result = self.resource.collection_get()
+        self.resource.collection_get()
         current = int(self.last_response.headers['Last-Modified'])
 
         self.resource.request.GET = {'_since': six.text_type(current)}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 0)
+        self.assertEqual(len(result['data']), 0)
 
     def test_filter_works_with_empty_list(self):
         self.resource.collection.parent_id = 'alice'
         self.resource.request.GET = {'_since': '3'}
         result = self.resource.collection_get()
-        self.assertEqual(len(result['items']), 0)
+        self.assertEqual(len(result['data']), 0)
 
     def test_timestamp_are_always_identical_on_read(self):
 
@@ -105,7 +106,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
     def test_timestamp_are_always_incremented_on_creation(self):
 
         def read_timestamp():
-            record = self.resource.collection_post()
+            record = self.resource.collection_post()['data']
             return record['last_modified']
 
         before = read_timestamp()
@@ -139,7 +140,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
         # Create record while other is fetching
         time.sleep(.020)  # 20 msec
-        record = self.resource.collection_post()
+        record = self.resource.collection_post()['data']
         timestamps['post'] = record['last_modified']
 
         # Wait for the fetch to finish
