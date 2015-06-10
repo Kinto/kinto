@@ -91,15 +91,15 @@ class CollectionAuthzGrantedTest(AuthzAuthnTest):
 
 
 class CollectionAuthzDeniedTest(AuthzAuthnTest):
-  def test_collection_get_is_denied_when_not_authorized(self):
-      self.app.get(self.collection_url, headers=self.headers, status=403)
+    def test_collection_get_is_denied_when_not_authorized(self):
+        self.app.get(self.collection_url, headers=self.headers, status=403)
 
-  def test_collection_post_is_denied_when_not_authorized(self):
-      self.app.post_json(self.collection_url, MINIMALIST_RECORD,
-                         headers=self.headers, status=403)
+    def test_collection_post_is_denied_when_not_authorized(self):
+        self.app.post_json(self.collection_url, MINIMALIST_RECORD,
+                           headers=self.headers, status=403)
 
-  def test_collection_delete_is_denied_when_not_authorized(self):
-      self.app.delete(self.collection_url, headers=self.headers, status=403)
+    def test_collection_delete_is_denied_when_not_authorized(self):
+        self.app.delete(self.collection_url, headers=self.headers, status=403)
 
 
 class RecordAuthzGrantedTest(AuthzAuthnTest):
@@ -148,7 +148,7 @@ class RecordAuthzGrantedTest(AuthzAuthnTest):
     def test_record_put_on_unexisting_record_is_granted_when_authorized(self):
         object_id = self.collection_url
         self.app.app.registry.permission.add_principal_to_ace(
-                object_id, 'mushroom:create', self.principal)
+            object_id, 'mushroom:create', self.principal)
 
         self.app.put_json(self.unknown_record_url, MINIMALIST_RECORD,
                           headers=self.headers, status=200)  # XXX 201 !

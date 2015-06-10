@@ -198,7 +198,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         service.viewset = viewset
         service.resource = resource
         service.collection_path = viewset.collection_path.format(
-                **path_formatters)
+            **path_formatters)
         service.record_path = viewset.record_path.format(**path_formatters)
 
         methods = getattr(viewset, '%s_methods' % endpoint_type)
