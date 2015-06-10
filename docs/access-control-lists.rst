@@ -6,24 +6,27 @@ Access Control Lists
 Terminology
 ===========
 
-Objects:
-  Anything that can be interacted with. Collections, records, buckets, groups
-  are all objects.
+.. glossary::
 
-Principals:
-  An entity that can be authenticated. Principals can be individual people,
-  applications, services, or any group of such things.
+    Object
+        Anything that can be interacted with. Collections, records, buckets, groups
+        are all objects.
 
-Groups:
-  A group of already existing principals.
+    Principal
+        An entity that can be authenticated. Principals can be individual people,
+        applications, services, or any group of such things.
 
-Permissions:
-  An action that can be done on an object. Examples of permissions are "read",
-  "write", and "create".
+    Group
+        A group associates a name to a list of principals.
 
-ACLs:
-  A list of permissions associated to objects and principals. For instance,
-  ``collections:create = [list, of, principals]``.
+    Permission
+        A permission is an action that can be performed on an object.
+        Examples of permissions are «read», «write», or «create».
+
+    ACL
+        An ACL associates a permission to objects and principals, and allows
+        to describe rules like «*Members of group admins can create collections*».
+        Using a pseudo-code syntax: ``collections:create = ['group:admins',]``.
 
 Objects
 =======
@@ -41,7 +44,7 @@ Any set of objects defined in *Kinto* can be given a number of permissions.
 +-----------------+---------------------------------------------------------+
 | **record**      | The data handled by the server                          |
 +-----------------+---------------------------------------------------------+
-| **group**       | A group of other :ref:`principals <principals>`.        |
+| **group**       | A group of other :term:`principals <principal>`.        |
 +-----------------+---------------------------------------------------------+
 
 There is a notion of hierarchy among all these objects:
@@ -175,11 +178,12 @@ There are two specific principals:
 - ``system.Everyone``: Anyone (authenticated or anonymous).
 
 
-Examples
-========
+Use-cases Examples
+==================
 
 In order to better understand how permission model works, here is a handful of
 use-cases examples.
+
 
 A Blog
 ------
@@ -238,6 +242,7 @@ A Company Wiki
 - Other people don't have access.
 
 The following objects are created:
+
 - A ``companywiki`` bucket;
 - An ``articles`` collection;
 - An ``employees`` group.
@@ -266,6 +271,7 @@ Twitter, Google+ or Facebook.
 - Records are private by default, and published to specific audiences.
 
 The following objects are created:
+
 - A ``microblog`` bucket, where groups can be created by authenticated users;
 - A single ``article`` collection;
 - A group ``alexis_buddies``, whose members are chosen by *Alexis* (a.k.a circle);
@@ -321,6 +327,7 @@ Users shouldn't be able to write receipts themselves, sellers and users should
 only be able to read their owns.
 
 The following objects are created:
+
 - the ``mozilla`` bucket;
 - the ``payment`` collection.
 
