@@ -67,18 +67,7 @@ class AuthzAuthnTest(BaseWebTest):
         self.app.delete(url, status=401)
 
 
-class CollectionAuthzTest(AuthzAuthnTest):
-
-    def test_collection_get_is_denied_when_not_authorized(self):
-        self.app.get(self.collection_url, headers=self.headers, status=403)
-
-    def test_collection_post_is_denied_when_not_authorized(self):
-        self.app.post_json(self.collection_url, MINIMALIST_RECORD,
-                           headers=self.headers, status=403)
-
-    def test_collection_delete_is_denied_when_not_authorized(self):
-        self.app.delete(self.collection_url, headers=self.headers, status=403)
-
+class CollectionAuthzGrantedTest(AuthzAuthnTest):
     def test_collection_get_is_granted_when_authorized(self):
         object_id = self.collection_url
         self.app.app.registry.permission.add_principal_to_ace(
@@ -102,10 +91,21 @@ class CollectionAuthzTest(AuthzAuthnTest):
         self.app.delete(self.collection_url, headers=self.headers, status=200)
 
 
-class RecordAuthzTest(AuthzAuthnTest):
+class CollectionAuthzDeniedTest(AuthzAuthnTest):
+  def test_collection_get_is_denied_when_not_authorized(self):
+      self.app.get(self.collection_url, headers=self.headers, status=403)
 
+  def test_collection_post_is_denied_when_not_authorized(self):
+      self.app.post_json(self.collection_url, MINIMALIST_RECORD,
+                         headers=self.headers, status=403)
+
+  def test_collection_delete_is_denied_when_not_authorized(self):
+      self.app.delete(self.collection_url, headers=self.headers, status=403)
+
+
+class RecordAuthzGrantedTest(AuthzAuthnTest):
     def setUp(self):
-        super(RecordAuthzTest, self).setUp()
+        super(RecordAuthzGrantedTest, self).setUp()
         self.app.app.registry.permission.add_principal_to_ace(
             self.collection_url, 'mushroom:create', self.principal)
 
@@ -115,20 +115,6 @@ class RecordAuthzTest(AuthzAuthnTest):
         self.record = resp.json
         self.record_url = self.get_item_url()
         self.unknown_record_url = self.get_item_url(uuid.uuid4())
-
-    def test_record_get_is_denied_when_not_authorized(self):
-        self.app.get(self.record_url, headers=self.headers, status=403)
-
-    def test_record_patch_is_denied_when_not_authorized(self):
-        self.app.patch_json(self.record_url, MINIMALIST_RECORD,
-                            headers=self.headers, status=403)
-
-    def test_record_put_is_denied_when_not_authorized(self):
-        self.app.put_json(self.record_url, MINIMALIST_RECORD,
-                          headers=self.headers, status=403)
-
-    def test_record_delete_is_denied_when_not_authorized(self):
-        self.app.delete(self.record_url, headers=self.headers, status=403)
 
     def test_record_get_is_granted_when_authorized(self):
         object_id = self.record_url
@@ -167,6 +153,22 @@ class RecordAuthzTest(AuthzAuthnTest):
 
         self.app.put_json(self.unknown_record_url, MINIMALIST_RECORD,
                           headers=self.headers, status=200)  # XXX 201 !
+
+
+class RecordAuthzDeniedTest(RecordAuthzGrantedTest):
+    def test_record_get_is_denied_when_not_authorized(self):
+        self.app.get(self.record_url, headers=self.headers, status=403)
+
+    def test_record_patch_is_denied_when_not_authorized(self):
+        self.app.patch_json(self.record_url, MINIMALIST_RECORD,
+                            headers=self.headers, status=403)
+
+    def test_record_put_is_denied_when_not_authorized(self):
+        self.app.put_json(self.record_url, MINIMALIST_RECORD,
+                          headers=self.headers, status=403)
+
+    def test_record_delete_is_denied_when_not_authorized(self):
+        self.app.delete(self.record_url, headers=self.headers, status=403)
 
     def test_record_put_on_unexisting_record_is_rejected_if_write_perm(self):
         object_id = self.collection_url
