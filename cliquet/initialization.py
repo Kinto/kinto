@@ -20,6 +20,7 @@ from cliquet import errors
 from cliquet import logger
 from cliquet import utils
 from cliquet import statsd
+from cliquet import authorization
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
@@ -77,7 +78,7 @@ def setup_authentication(config):
     """
     config.include('pyramid_multiauth')
     # By default, permissions are handled dynamically.
-    config.set_default_permission('dynamic')
+    config.set_default_permission(authorization.DYNAMIC)
 
     # Track policy for logging.
     def on_policy_selected(event):

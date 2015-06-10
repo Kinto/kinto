@@ -7,11 +7,14 @@ from zope.interface import implementer
 from cliquet import utils
 from cliquet.storage import exceptions as storage_exceptions
 
+# A permission is called "dynamic" when it's computed at request time.
+DYNAMIC = 'dynamic'
+
 
 @implementer(IAuthorizationPolicy)
 class AuthorizationPolicy(object):
     def permits(self, context, principals, permission):
-        if permission == 'dynamic':
+        if permission == DYNAMIC:
             permission = context.required_permission
 
         if permission == 'create':
