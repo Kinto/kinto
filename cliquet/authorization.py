@@ -15,7 +15,7 @@ class AuthorizationPolicy(object):
             permission = context.required_permission
 
         if permission == 'create':
-            permission = '%s:%s' % (context.object_type, permission)
+            permission = '%s:%s' % (context.resource_name, permission)
         return context.check_permission(permission, principals)
 
     def principals_allowed_by_permission(self, context, permission):
@@ -37,7 +37,8 @@ class RouteFactory(object):
     def __init__(self, request):
         service = utils.current_service(request)
         object_id = get_object_id(request)
-        self.object_type = service.viewset.get_name(service.resource)
+
+        self.resource_name = service.viewset.get_name(service.resource)
         # Decide what the required unbound permission is depending on the
         # method that's being requested.
         if request.method.lower() == "put":
@@ -62,7 +63,7 @@ class RouteFactory(object):
         self.required_permission = permission
         self.object_id = object_id
 
-        self.object_type = service.viewset.get_name(service.resource)
+        self.resource_name = service.viewset.get_name(service.resource)
         self.check_permission = functools.partial(
             request.registry.permission.check_permission,
             self.object_id,

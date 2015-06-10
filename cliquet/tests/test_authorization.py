@@ -81,7 +81,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
 
     def test_permits_prepend_obj_type_to_permission_on_create(self):
         self.context.required_permission = 'create'
-        self.context.object_type = 'record'
+        self.context.resource_name = 'record'
         self.authz.permits(self.context, self.principals, 'dynamic')
         self.context.check_permission.assert_called_with(
             'record:create',
