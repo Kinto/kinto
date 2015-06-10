@@ -1,55 +1,81 @@
-from .support import BaseWebTest, unittest, get_user_headers
-
-
-MINIMALIST_ITEM = dict(name="Hulled Barley",
-                       type="Whole Grain")
+from .support import (BaseWebTest, unittest, MINIMALIST_RECORD,
+                      MINIMALIST_GROUP, MINIMALIST_BUCKET,
+                      MINIMALIST_COLLECTION)
 
 
 class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
-    record_url = '/buckets/beers/collections/barley/records/%s'
+    _record_url = '/buckets/beers/collections/barley/records/%s'
 
-    def test_empty_collection_returns_an_empty_list(self):
-        response = self.app.get(self.collection_url, headers=self.headers)
-        self.assertEqual(response.json['items'], [])
-
-    def test_individual_collections_can_be_deleted(self):
-        self.app.post(self.collection_url, headers=self.headers)
-        self.app.delete(self.collection_url, headers=self.headers)
-
-    def test_records_can_be_added_to_collections(self):
-        response = self.app.post_json(self.collection_url,
-                                      MINIMALIST_ITEM,
-                                      headers=self.headers)
-        _id = response.json.get('id')
-        self.assertIsNotNone(_id)
-        response = self.app.get(self.record_url % _id, headers=self.headers)
-
-        item = response.json
-        del item['id']
-        del item['last_modified']
-        self.assertEquals(item, MINIMALIST_ITEM)
-
-    def test_collections_are_bound_by_bucket(self):
-        # Add items in the collections.
-        response = self.app.post_json(self.collection_url,
-                                      MINIMALIST_ITEM,
-                                      headers=self.headers)
-        collection_url = self.record_url % response.json['id']
-        self.app.get(collection_url.replace('beers', 'sodas'),
-                     headers=get_user_headers("alice"), status=404)
+    def setUp(self):
+        super(RecordsViewTest, self).setUp()
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley',
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        resp = self.app.post_json(self.collection_url,
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers)
+        self.record = resp.json  # XXX: ['data']
+        self.record_url = self._record_url % self.record['id']
 
     def test_records_can_be_accessed_by_id(self):
-        response = self.app.post_json(self.collection_url,
-                                      MINIMALIST_ITEM,
-                                      headers=self.headers)
-        self.app.get(self.record_url % response.json['id'],
-                     headers=self.headers)
+        self.app.get(self.record_url, headers=self.headers)
+
+    def test_unknown_bucket_raises_404(self):
+        other_bucket = self.collection_url.replace('beers', 'sodas')
+        self.app.get(other_bucket, headers=self.headers, status=404)
+
+    def test_unknown_collection_raises_404(self):
+        other_collection = self.collection_url.replace('barley', 'pills')
+        self.app.get(other_collection, headers=self.headers, status=404)
+
+    def test_individual_collections_can_be_deleted(self):
+        resp = self.app.get(self.collection_url, headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 1)
+        self.app.delete(self.collection_url, headers=self.headers)
+        resp = self.app.get(self.collection_url, headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 0)
+
+    def test_records_can_be_added_to_collections(self):
+        response = self.app.get(self.record_url, headers=self.headers)
+        record = response.json  # XXX: ['data']
+        del record['id']
+        del record['last_modified']
+        self.assertEquals(record, MINIMALIST_RECORD)
+
+    def test_records_are_isolated_by_bucket_and_by_collection(self):
+        other_collection = self.record_url.replace('barley', 'pills')
+        self.app.get(other_collection, headers=self.headers, status=404)
+
+        other_bucket = self.record_url.replace('beers', 'sodas')
+        self.app.get(other_bucket, headers=self.headers, status=404)
+
+        other = self.record_url.replace('barley', 'ba').replace('beers', 'be')
+        self.app.get(other, headers=self.headers, status=404)
+
+    def test_a_collection_named_group_do_not_interfere_with_groups(self):
+        # Create a group.
+        self.app.put_json('/buckets/beers/groups/test',
+                          MINIMALIST_GROUP,
+                          headers=self.headers)
+        # Create a record in a collection named "group".
+        self.app.put_json('/buckets/beers/collections/groups',
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        collection_group = self.collection_url.replace('barley', 'groups')
+        self.app.post_json(collection_group,
+                           MINIMALIST_RECORD,
+                           headers=self.headers)
+        # There is still only one group.
+        resp = self.app.get('/buckets/beers/groups', headers=self.headers)
+        self.assertEqual(len(resp.json['items']), 1)
 
     def test_records_can_be_filtered_on_any_field(self):
         self.app.post_json(self.collection_url,
-                           MINIMALIST_ITEM,
+                           MINIMALIST_RECORD,
                            headers=self.headers)
         response = self.app.get(self.collection_url + '?unknown=1',
                                 headers=self.headers)
@@ -57,7 +83,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     def test_records_can_be_sorted_on_any_field(self):
         for i in range(3):
-            record = MINIMALIST_ITEM.copy()
+            record = MINIMALIST_RECORD.copy()
             record['name'] = 'Stout %s' % i
             self.app.post_json(self.collection_url,
                                record,
@@ -66,4 +92,5 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get(self.collection_url + '?_sort=-name',
                                 headers=self.headers)
         names = [i['name'] for i in response.json['items']]
-        self.assertEqual(names, ['Stout 2', 'Stout 1', 'Stout 0'])
+        self.assertEqual(names,
+                         ['Stout 2', 'Stout 1', 'Stout 0', 'Hulled Barley'])
