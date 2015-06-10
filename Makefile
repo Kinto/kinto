@@ -42,6 +42,7 @@ clean:
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
 
 loadtest-check: install
+	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\
 	$(VENV)/bin/pserve loadtests/server.ini > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \
 	  sleep 1 && cd loadtests && \
