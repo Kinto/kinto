@@ -6,6 +6,7 @@ Deployment
 *Kinto* is a python Web application that provides storage as a service.
 
 It relies on 3 vital components:
+
 * A Web stack;
 * A database;
 * An authentication service.
@@ -31,10 +32,12 @@ High-availability
 * Each node runs a HTTP reverse proxy that spreads requests across the workers (e.g. Nginx)
 
 Vertical scaling:
+
 * Increase size of nodes
 * Increase number of WSGI processes
 
 Horizontal scaling:
+
 * Increase number of nodes
 
 
@@ -45,7 +48,7 @@ WSGI process crash:
 
 * 503 error + ``Retry-After`` response header
 * Sentry report
-* Uwsgi respawns a process (or Systemd?)
+* Uwsgi respawns a process (via Systemd for example)
 
 Reverse proxy crash:
 
@@ -67,25 +70,25 @@ Configuration change
 
 Application:
 
-# Modify configuration file
-# Reload workers gracefully
+* Modify configuration file
+* Reload workers gracefully
 
 Reverse proxy:
 
-# Disable node in load balancer
-# Restart reverse proxy
-# Enable node in load balancer
+* Disable node in load balancer
+* Restart reverse proxy
+* Enable node in load balancer
 
 Load balancer:
 
-# See scheduled down time
+* See scheduled down time
 
 
 Change application configuration
 --------------------------------
 
-# Modify configuration file
-# Reload workers gracefully
+* Modify configuration file
+* Reload workers gracefully
 
 
 Database
@@ -94,6 +97,7 @@ Database
 *Kinto* can be configured to persist data in several kinds of storage.
 
 *PostgreSQL* is the one that we chose at Mozilla, mainly because:
+
 * It is a mature and standard solution;
 * It supports sorting and filtering of JSONB fields;
 * It has an excellent reputation for data integrity.
@@ -103,6 +107,7 @@ High-availability
 -----------------
 
 Deploy a PostgreSQL cluster:
+
 * a leader («*master*»);
 * one or more replication followers («*slaves*»).
 * A load balancer, that routes queries to take advantage of the cluster (pgPool)
@@ -110,10 +115,12 @@ Deploy a PostgreSQL cluster:
 Writes are sent to the master, and reads are sent to the master and slaves that up-to-date.
 
 Vertical scaling:
+
 * Increase size of nodes (RAM+#CPU)
 * Increase shared_buffers and work_mem
 
 Horizontal scaling:
+
 * Increase number of nodes
 
 
@@ -127,6 +134,7 @@ Performance
 * work_mem is like caching joins (per connection)
 
 Connection pooling:
+
 * via load balancer
 * via Kinto
 
@@ -137,6 +145,7 @@ Fail safe
 If the master fails, one slave can be promoted to be the new master.
 
 Database crash:
+
 * Restore database from last scheduled backup
 * Restore WAL files since last backup
 
@@ -168,10 +177,12 @@ Sharding
 * Use buckets+collections or userid to shard ?
 
 Via pgPool:
+
 * Flexible
 * Tedious to configure
 
 Via Kinto code:
+
 * not implemented yet
 * battery-included (via INI configuration)
 
@@ -179,7 +190,10 @@ Via Kinto code:
 Using Amazon RDS
 ----------------
 
-*TODO*
+* Consistency/Availability/Durability are handled by Postgresql RDS
+* Use Elasticcache for Redis
+* Use a EC2 Instance with uwsgi and nginx deployed
+* Use Route53 for loadbalancing
 
 
 Authentication service
