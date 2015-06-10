@@ -22,9 +22,14 @@ class PutTest(BaseTest):
         self.record = self.collection.create_record({'field': 'old'})
         self.resource.record_id = self.record['id']
 
+    def test_returns_201_if_created(self):
+        self.resource.record_id = self.resource.collection.id_generator()
+        self.resource.request.validated = {'field': 'new'}
+        self.resource.put()
+        self.assertEqual(self.last_response.status_code, 201)
+
     def test_replace_record_returns_updated_fields(self):
         self.resource.request.validated = {'field': 'new'}
-
         result = self.resource.put()
         self.assertEqual(self.record['id'], result['id'])
         self.assertNotEqual(self.record['last_modified'],

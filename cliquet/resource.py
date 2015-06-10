@@ -440,6 +440,8 @@ class BaseResource(object):
         finally:
             if existing:
                 self._raise_412_if_modified(existing)
+            else:
+                self.request.response.status_code = 201
 
         new_record = self.request.validated
 

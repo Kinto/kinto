@@ -151,7 +151,7 @@ class RecordAuthzGrantedTest(AuthzAuthnTest):
             object_id, 'mushroom:create', self.principal)
 
         self.app.put_json(self.unknown_record_url, MINIMALIST_RECORD,
-                          headers=self.headers, status=200)  # XXX 201 !
+                          headers=self.headers, status=201)
 
 
 class RecordAuthzDeniedTest(RecordAuthzGrantedTest):
