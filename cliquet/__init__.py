@@ -7,10 +7,11 @@ import structlog
 from cornice import Service as CorniceService
 from pyramid.settings import asbool, aslist
 
+from cliquet import utils
+
 # Main Cliquet logger.
 logger = structlog.get_logger()
 
-from cliquet import utils
 from cliquet.initialization import (  # NOQA
     initialize, initialize_cliquet, install_middlewares)
 
@@ -40,6 +41,7 @@ DEFAULT_SETTINGS = {
         'cliquet.initialization.setup_json_serializer',
         'cliquet.initialization.setup_logging',
         'cliquet.initialization.setup_storage',
+        'cliquet.initialization.setup_permission',
         'cliquet.initialization.setup_cache',
         'cliquet.initialization.setup_requests_scheme',
         'cliquet.initialization.setup_version_redirection',
@@ -52,6 +54,9 @@ DEFAULT_SETTINGS = {
     'cliquet.newrelic_config': None,
     'cliquet.newrelic_env': 'dev',
     'cliquet.paginate_by': None,
+    'cliquet.permission_backend': 'cliquet.permission.redis',
+    'cliquet.permission_url': '',
+    'cliquet.permission_pool_size': 10,
     'cliquet.profiler_dir': '/tmp',
     'cliquet.profiler_enabled': False,
     'cliquet.project_docs': '',
@@ -69,7 +74,7 @@ DEFAULT_SETTINGS = {
     'multiauth.policies': 'basicauth',
     'multiauth.policy.basicauth.use': ('cliquet.authentication.'
                                        'BasicAuthAuthenticationPolicy'),
-    'multiauth.authorization_policy': ('cliquet.authentication.'
+    'multiauth.authorization_policy': ('cliquet.authorization.'
                                        'AuthorizationPolicy')
 }
 

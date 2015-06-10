@@ -92,10 +92,6 @@ class ViewSet(object):
             # Simply validate that posted body is a mapping.
             args['schema'] = colander.MappingSchema(unknown='preserve')
 
-        permission = self.get_view_permission(endpoint_type, resource, method)
-        if permission is not None:
-            args['permission'] = permission
-
         return args
 
     def get_view(self, endpoint_type, method):
@@ -129,14 +125,12 @@ class ViewSet(object):
             resource_name=self.get_name(resource),
             endpoint_type=endpoint_type)
 
-    def get_view_permission(self, endpoint_type, resource, method):
-        """Return the permission associated with the given type,
-        resource and method"""
-        if method.lower() in map(str.lower, self.readonly_methods):
-            permission = "readonly"
-        else:
-            permission = "readwrite"
-        return permission
+    def get_service_arguments(self):
+        service_arguments = {}
+        if hasattr(self, 'factory'):
+            service_arguments['factory'] = self.factory
+        service_arguments.update(self.service_arguments)
+        return service_arguments
 
 
 def register(depth=1, **kwargs):
@@ -198,7 +192,14 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         name = viewset.get_service_name(endpoint_type, resource)
 
         service = Service(name, path, depth=depth,
-                          **viewset.service_arguments or {})
+                          **viewset.get_service_arguments())
+
+        # Attach viewset and resource to the service for later reference.
+        service.viewset = viewset
+        service.resource = resource
+        service.collection_path = viewset.collection_path.format(
+            **path_formatters)
+        service.record_path = viewset.record_path.format(**path_formatters)
 
         methods = getattr(viewset, '%s_methods' % endpoint_type)
         for method in methods:
@@ -216,9 +217,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
 
         return service
 
-    services = []
-    services.append(register_service('collection'))
-    services.append(register_service('record'))
+    services = [register_service('collection'), register_service('record')]
 
     def callback(context, name, ob):
         # get the callbacks registred by the inner services
@@ -239,7 +238,8 @@ class BaseResource(object):
     mapping = ResourceSchema()
     """Schema to validate records."""
 
-    def __init__(self, request):
+    def __init__(self, request, context=None):
+
         # Collections are isolated by user.
         parent_id = request.authenticated_userid
         # Authentication to storage is transmitted as is (cf. cloud_storage).
@@ -253,6 +253,7 @@ class BaseResource(object):
             auth=auth)
 
         self.request = request
+        self.context = context
         self.timestamp = self.collection.timestamp()
         self.record_id = self.request.matchdict.get('id')
 

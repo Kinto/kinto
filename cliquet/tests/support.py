@@ -1,6 +1,7 @@
 import mock
 import os
 import threading
+import functools
 
 try:
     import unittest2 as unittest
@@ -11,10 +12,16 @@ import webtest
 
 from cornice import errors as cornice_errors
 from pyramid.url import parse_url_overrides
+from pyramid.security import IAuthorizationPolicy
+from zope.interface import implementer
 
 from cliquet import DEFAULT_SETTINGS
 from cliquet.storage import generators
 from cliquet.tests.testapp import main as testapp
+
+# This is the principal a connected user should have (in the tests).
+USER_PRINCIPAL = ('basicauth_9f2d363f98418b13253d6d7193fc88690302'
+                  'ab0ae21295521f6029dffe9dc3b0')
 
 
 class DummyRequest(mock.MagicMock):
@@ -77,6 +84,8 @@ class BaseWebTest(object):
         settings = DEFAULT_SETTINGS.copy()
         settings['cliquet.project_name'] = 'cliquet'
         settings['cliquet.project_docs'] = 'https://cliquet.rtfd.org/'
+        settings['multiauth.authorization_policy'] = (
+            'cliquet.tests.support.AllowAuthorizationPolicy')
 
         if additional_settings is not None:
             settings.update(additional_settings)
@@ -104,5 +113,30 @@ class ThreadMixin(object):
         self._threads.append(thread)
         return thread
 
+
+@implementer(IAuthorizationPolicy)
+class AllowAuthorizationPolicy(object):
+    def permits(self, context, principals, permission):
+        if USER_PRINCIPAL in principals:
+            return True
+        return False
+
+    def principals_allowed_by_permission(self, context, permission):
+        raise NotImplementedError()  # PRAGMA NOCOVER
+
+
+def authorize(permits=True):
+    """Patch the default authorization policy to return what is specified
+    in :param:permits.
+    """
+    def wrapper(f):
+        @functools.wraps(f)
+        def wrapped(*args, **kwargs):
+            with mock.patch(
+                    'cliquet.tests.support.AllowAuthorizationPolicy.permits',
+                    return_value=permits):
+                return f(*args, **kwargs)
+        return wrapped
+    return wrapper
 
 skip_if_travis = unittest.skipIf('TRAVIS' in os.environ, "travis")

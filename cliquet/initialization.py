@@ -20,6 +20,7 @@ from cliquet import errors
 from cliquet import logger
 from cliquet import utils
 from cliquet import statsd
+from cliquet import authorization
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
@@ -76,7 +77,8 @@ def setup_authentication(config):
     from configuration.
     """
     config.include('pyramid_multiauth')
-    config.set_default_permission('readwrite')
+    # By default, permissions are handled dynamically.
+    config.set_default_permission(authorization.DYNAMIC)
 
     # Track policy for logging.
     def on_policy_selected(event):
@@ -164,6 +166,13 @@ def setup_storage(config):
     config.registry.heartbeats['storage'] = config.registry.storage.ping
     id_generator = config.maybe_dotted(settings['cliquet.id_generator'])
     config.registry.id_generator = id_generator()
+
+
+def setup_permission(config):
+    settings = config.get_settings()
+    permission = config.maybe_dotted(settings['cliquet.permission_backend'])
+    config.registry.permission = permission.load_from_config(config)
+    config.registry.heartbeats['permission'] = config.registry.permission.ping
 
 
 def setup_cache(config):
