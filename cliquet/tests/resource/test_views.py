@@ -6,7 +6,7 @@ from pyramid import testing
 import cliquet
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
-from cliquet.tests.support import unittest, get_request_class
+from cliquet.tests.support import unittest, get_request_class, USER_PRINCIPAL
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
@@ -35,8 +35,7 @@ class BaseWebTest(unittest.TestCase):
 
         self.collection_url = '/mushrooms'
         self.item_url = '/mushrooms/{id}'
-        self.principal = ('basicauth_9f2d363f98418b13253d6d7193fc88690302'
-                          'ab0ae21295521f6029dffe9dc3b0')
+        self.principal = USER_PRINCIPAL
 
         self.headers = {
             'Content-Type': 'application/json',

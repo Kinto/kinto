@@ -19,6 +19,10 @@ from cliquet import DEFAULT_SETTINGS
 from cliquet.storage import generators
 from cliquet.tests.testapp import main as testapp
 
+# This is the principal a connected user should have (in the tests).
+USER_PRINCIPAL = ('basicauth_9f2d363f98418b13253d6d7193fc88690302'
+                  'ab0ae21295521f6029dffe9dc3b0')
+
 
 class DummyRequest(mock.MagicMock):
     def __init__(self, *args, **kwargs):
@@ -113,8 +117,7 @@ class ThreadMixin(object):
 @implementer(IAuthorizationPolicy)
 class AllowAuthorizationPolicy(object):
     def permits(self, context, principals, permission):
-        if ('basicauth_9f2d363f98418b13253d6d7193fc88690302'
-                'ab0ae21295521f6029dffe9dc3b0') in principals:
+        if USER_PRINCIPAL in principals:
             return True
         return False
 
