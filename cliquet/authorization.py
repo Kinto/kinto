@@ -16,7 +16,7 @@ class AuthorizationPolicy(object):
 
         if permission == 'create':
             permission = '%s:%s' % (context.object_type, permission)
-        return context.has_permission(permission, principals)
+        return context.check_permission(permission, principals)
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER
@@ -63,8 +63,8 @@ class RouteFactory(object):
         self.object_id = object_id
 
         self.object_type = service.viewset.get_name(service.resource)
-        self.has_permission = functools.partial(
-            request.registry.permission.has_permission,
+        self.check_permission = functools.partial(
+            request.registry.permission.check_permission,
             self.object_id,
             get_bound_permissions=self.get_bound_permissions)
 

@@ -63,19 +63,19 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.permission = 'dynamic'
 
     def test_permits_refers_to_context_to_check_permissions(self):
-        self.context.has_permission.return_value = True
+        self.context.check_permission.return_value = True
         allowed = self.authz.permits(self.context, self.principals, 'dynamic')
         self.assertTrue(allowed)
 
     def test_permits_reads_the_context_when_permission_is_dynamic(self):
         self.authz.permits(self.context, self.principals, 'dynamic')
-        self.context.has_permission.assert_called_with(
+        self.context.check_permission.assert_called_with(
             'read',
             mock.sentinel.principals)
 
     def test_permits_consider_permission_when_not_dynamic(self):
         self.authz.permits(self.context, self.principals, 'foobar')
-        self.context.has_permission.assert_called_with(
+        self.context.check_permission.assert_called_with(
             'foobar',
             mock.sentinel.principals)
 
@@ -83,6 +83,6 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.context.required_permission = 'create'
         self.context.object_type = 'record'
         self.authz.permits(self.context, self.principals, 'dynamic')
-        self.context.has_permission.assert_called_with(
+        self.context.check_permission.assert_called_with(
             'record:create',
             mock.sentinel.principals)
