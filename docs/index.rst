@@ -30,6 +30,7 @@ Table of content
    api/index
    installation
    configuration
+   deployment
    buckets
    permissions
    contributing
