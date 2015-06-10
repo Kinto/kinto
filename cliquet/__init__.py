@@ -8,11 +8,13 @@ from cornice import Service as CorniceService
 from pyramid.settings import asbool, aslist
 
 from cliquet import utils
-from cliquet.initialization import (  # NOQA
-    initialize, initialize_cliquet, install_middlewares)
 
 # Main Cliquet logger.
 logger = structlog.get_logger()
+
+from cliquet.initialization import (  # NOQA
+    initialize, initialize_cliquet, install_middlewares)
+
 
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution(__package__).version

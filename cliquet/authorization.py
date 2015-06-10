@@ -1,5 +1,6 @@
 import re
 import six
+import functools
 from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 
@@ -12,14 +13,10 @@ class AuthorizationPolicy(object):
     def permits(self, context, principals, permission):
         if permission == 'dynamic':
             permission = context.required_permission
-        object_id = context.object_id
-        get_bound_permissions = context.get_bound_permissions
-        has_permission = context.has_permission
 
         if permission == 'create':
             permission = '%s:%s' % (context.object_type, permission)
-        return has_permission(object_id, permission, principals,
-                              get_bound_permissions)
+        return context.has_permission(permission, principals)
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER
@@ -64,7 +61,12 @@ class RouteFactory(object):
 
         self.required_permission = permission
         self.object_id = object_id
-        self.has_permission = request.registry.permission.has_permission
+
+        self.object_type = service.viewset.get_name(service.resource)
+        self.has_permission = functools.partial(
+            request.registry.permission.has_permission,
+            self.object_id,
+            get_bound_permissions=self.get_bound_permissions)
 
 
 def get_object_id(request):
