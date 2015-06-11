@@ -140,24 +140,56 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
 
     def object_permission_authorized_principals(self, object_id, permission,
                                                 get_bound_permissions=None):
+        # XXX: this method is not used, except in test suites :(
         if get_bound_permissions is None:
             perms = [(object_id, permission)]
         else:
             perms = get_bound_permissions(object_id, permission)
 
-        perms = ','.join(["('%s', '%s')" % p for p in perms])
+        perms_values = ','.join(["('%s', '%s')" % p for p in perms])
         query = """
         WITH required_perms AS (
           VALUES %s
         )
         SELECT principal
           FROM required_perms JOIN access_control_entries
-            ON (object_id = column1 AND permission = column2)
-        ;""" % perms
+            ON (object_id = column1 AND permission = column2);
+        """ % perms_values
         with self.connect() as cursor:
             cursor.execute(query)
             results = cursor.fetchall()
         return set([r['principal'] for r in results])
+
+    def check_permission(self, object_id, permission, principals,
+                         get_bound_permissions=None):
+        if get_bound_permissions is None:
+            perms = [(object_id, permission)]
+        else:
+            perms = get_bound_permissions(object_id, permission)
+
+        perms_values = ','.join(["('%s', '%s')" % p for p in perms])
+        principals_values = ','.join(["('%s')" % p for p in principals])
+        query = """
+        WITH required_perms AS (
+          VALUES %(perms)s
+        ),
+        allowed_principals AS (
+          SELECT principal
+            FROM required_perms JOIN access_control_entries
+              ON (object_id = column1 AND permission = column2)
+        ),
+        required_principals AS (
+          VALUES %(principals)s
+        )
+        SELECT COUNT(*) AS matched
+          FROM required_principals JOIN allowed_principals
+            ON (required_principals.column1 = principal);
+        """ % dict(perms=perms_values, principals=principals_values)
+
+        with self.connect() as cursor:
+            cursor.execute(query)
+            result = cursor.fetchone()
+        return result['matched'] > 0
 
 
 def load_from_config(config):
