@@ -46,6 +46,7 @@ class BaseWebTest(object):
         settings['cliquet.storage_backend'] = 'cliquet.storage.memory'
         settings['cliquet.permission_backend'] = 'cliquet.permission.memory'
         settings['cliquet.project_name'] = 'cloud storage'
+        settings['cliquet.project_name'] = 'kinto'
         settings['cliquet.project_docs'] = 'https://kinto.rtfd.org/'
         settings['multiauth.authorization_policy'] = (
             'kinto.tests.support.AllowAuthorizationPolicy')
