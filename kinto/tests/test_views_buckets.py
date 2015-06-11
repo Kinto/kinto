@@ -1,6 +1,7 @@
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_BUCKET, MINIMALIST_GROUP,
                       MINIMALIST_COLLECTION, MINIMALIST_RECORD)
+from cliquet.tests.support import authorize
 
 
 class BucketViewTest(BaseWebTest, unittest.TestCase):
@@ -15,6 +16,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                                  headers=self.headers)
         self.record = resp.json['data']
 
+    @authorize(True, 'kinto.tests.support.AllowAuthorizationPolicy')
     def test_buckets_are_global_to_every_users(self):
         self.app.get(self.record_url, headers=get_user_headers('alice'))
 
