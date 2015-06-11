@@ -13,22 +13,29 @@ DYNAMIC = 'dynamic'
 
 @implementer(IAuthorizationPolicy)
 class AuthorizationPolicy(object):
+    # Callable that takes an object id and a permission and returns
+    # a list of tuples (<object id>, <permission>).
+    get_bound_permissions = None
+
     def permits(self, context, principals, permission):
         if permission == DYNAMIC:
             permission = context.required_permission
 
         if permission == 'create':
             permission = '%s:%s' % (context.resource_name, permission)
-        return context.check_permission(permission, principals)
+
+        allowed = context.check_permission(
+            permission,
+            principals,
+            get_bound_permissions=self.get_bound_permissions)
+
+        return allowed
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER
 
 
 class RouteFactory(object):
-    # Callable which return a set of bound permissions for the given
-    # object id and unbound permission.
-    get_bound_permissions = None
     method_permissions = {
         "head": "read",
         "get": "read",
@@ -75,8 +82,7 @@ class RouteFactory(object):
             resource_name = service.viewset.get_name(service.resource)
             check_permission = functools.partial(
                 request.registry.permission.check_permission,
-                object_id,
-                get_bound_permissions=self.get_bound_permissions)
+                object_id)
 
         self.object_id = object_id
         self.required_permission = permission
