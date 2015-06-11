@@ -39,6 +39,11 @@ class RouteFactory(object):
 
     def __init__(self, request):
         service = utils.current_service(request)
+
+        # Handle blank requests
+        if service is None:
+            return
+
         object_id = get_object_id(request)
 
         self.resource_name = service.viewset.get_name(service.resource)
