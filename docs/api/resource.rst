@@ -365,9 +365,6 @@ containing:
 
 - ``data``: the record with exhaustive schema fields.
 
-For convenience and consistency, a header ``ETag`` will also repeat the
-value of the ``last_modified`` field.
-
 If the request header ``If-None-Match`` is provided, and if the record has not
 changed meanwhile, a ``304 Not Modified`` is returned.
 

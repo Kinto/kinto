@@ -37,6 +37,11 @@ in the ``Last-Modified`` response headers:
 
     (*see `original discussion <https://github.com/mozilla-services/cliquet/issues/251>`_*)
 
+.. note::
+
+    The client may send ``If-Unmodified-Since`` or ``If-Modified-Since`` requests
+    headers, but in the current implementation, they will be ignored.
+
 
 Cache control
 =============
