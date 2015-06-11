@@ -5,7 +5,7 @@ except ImportError:
 import logging.config
 import os
 
-from readinglist import main
+from kinto import main
 
 here = os.path.dirname(__file__)
 

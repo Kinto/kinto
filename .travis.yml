@@ -9,6 +9,7 @@ env:
     - TOX_ENV=py34
     - TOX_ENV=flake8
     - TOX_ENV=docs
+    - ACTION=loadtest
 before_script:
     - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
 before_install:

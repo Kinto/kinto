@@ -27,9 +27,11 @@ virtualenv: $(PYTHON)
 $(PYTHON):
 	virtualenv $(VENV)
 
-serve: install-dev
-	$(VENV)/bin/cliquet --ini $(SERVER_CONFIG) migrate
+serve: install-dev migrate
 	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
+
+migrate: install
+	$(VENV)/bin/cliquet --ini $(SERVER_CONFIG) migrate
 
 tests-once: install-dev
 	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-min-percentage=100 --cover-package=kinto
@@ -42,6 +44,7 @@ clean:
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
 
 loadtest-check: install
+	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\
 	$(VENV)/bin/pserve loadtests/server.ini > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \
 	  sleep 1 && cd loadtests && \
