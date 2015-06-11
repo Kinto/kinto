@@ -98,8 +98,8 @@ class PatchTest(BaseTest):
         self.resource.patch()
         self.resource = BaseResource(self.get_request())
         self.resource.collection_get()['data']
-        last_modified = self.last_response.headers['Last-Modified']
-        self.assertEquals(self.result['last_modified'], int(last_modified))
+        last_modified = int(self.last_response.headers['ETag'][1:-1])
+        self.assertEquals(self.result['last_modified'], last_modified)
 
     def test_timestamp_is_not_updated_if_no_change_after_preprocessed(self):
         with mock.patch.object(self.resource, 'process_record') as mocked:

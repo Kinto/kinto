@@ -50,12 +50,12 @@ class ViewSet(object):
 
     default_collection_arguments = {}
     collection_get_arguments = {
-        'cors_headers': ('Next-Page', 'Total-Records', 'Last-Modified')
+        'cors_headers': ('Next-Page', 'Total-Records', 'Last-Modified', 'ETag')
     }
 
     default_record_arguments = {}
     record_get_arguments = {
-        'cors_headers': ('Last-Modified',)
+        'cors_headers': ('Last-Modified', 'ETag')
     }
 
     def __init__(self, **kwargs):
@@ -682,12 +682,16 @@ class BaseResource(object):
                                   errno=ERRORS.INVALID_RESOURCE_ID)
             raise response
 
-    def _add_timestamp_header(self, response):
+    def _add_timestamp_header(self, response, timestamp=None):
         """Add current timestamp in response headers, when request comes in.
 
         """
-        timestamp = six.text_type(self.timestamp).encode('utf-8')
-        response.headers['Last-Modified'] = timestamp
+        if timestamp is None:
+            timestamp = self.timestamp
+        # Pyramid takes care of converting.
+        response.last_modified = timestamp / 1000.0
+        # Return timestamp as ETag.
+        response.headers['ETag'] = ('"%s"' % timestamp).encode('utf-8')
 
     def _raise_400_if_invalid_id(self, record_id):
         """Raise 400 if specified record id does not match the format excepted
@@ -708,20 +712,33 @@ class BaseResource(object):
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified`
         """
-        modified_since = self.request.headers.get('If-Modified-Since')
+        if_none_match = self.request.headers.get('If-None-Match')
 
-        if modified_since:
-            modified_since = int(modified_since)
+        if not if_none_match:
+            return
 
-            if record:
-                current_timestamp = record[self.collection.modified_field]
-            else:
-                current_timestamp = self.collection.timestamp()
+        if_none_match = if_none_match.decode('utf-8')
 
-            if current_timestamp <= modified_since:
-                response = HTTPNotModified()
-                self._add_timestamp_header(response)
-                raise response
+        try:
+            assert if_none_match[0] == if_none_match[-1] == '"'
+            modified_since = int(if_none_match[1:-1])
+        except (IndexError, AssertionError, ValueError):
+            if if_none_match != '*':
+                error_details = {
+                    'location': 'headers',
+                    'description': "Invalid value for If-None-Match"
+                }
+                raise_invalid(self.request, **error_details)
+
+        if record:
+            current_timestamp = record[self.collection.modified_field]
+        else:
+            current_timestamp = self.collection.timestamp()
+
+        if current_timestamp <= modified_since:
+            response = HTTPNotModified()
+            self._add_timestamp_header(response, timestamp=current_timestamp)
+            raise response
 
     def _raise_412_if_modified(self, record=None):
         """Raise 412 if current timestamp is superior to the one
@@ -730,23 +747,39 @@ class BaseResource(object):
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed`
         """
-        unmodified_since = self.request.headers.get('If-Unmodified-Since')
+        if_match = self.request.headers.get('If-Match')
+        if_none_match = self.request.headers.get('If-None-Match')
 
-        if unmodified_since:
-            unmodified_since = int(unmodified_since)
+        if not if_match and not if_none_match:
+            return
 
-            if record:
-                current_timestamp = record[self.collection.modified_field]
-            else:
-                current_timestamp = self.collection.timestamp()
+        if_match = if_match.decode('utf-8') if if_match else None
 
-            if current_timestamp > unmodified_since:
-                error_msg = 'Resource was modified meanwhile'
-                response = http_error(HTTPPreconditionFailed(),
-                                      errno=ERRORS.MODIFIED_MEANWHILE,
-                                      message=error_msg)
-                self._add_timestamp_header(response)
-                raise response
+        if if_none_match and if_none_match.decode('utf-8') == '*':
+            modified_since = -1  # Always raise.
+        elif if_match:
+            try:
+                assert if_match[0] == if_match[-1] == '"'
+                modified_since = int(if_match[1:-1])
+            except (IndexError, AssertionError, ValueError):
+                error_details = {
+                    'location': 'headers',
+                    'description': "Invalid value for If-Match"
+                }
+                raise_invalid(self.request, **error_details)
+
+        if record:
+            current_timestamp = record[self.collection.modified_field]
+        else:
+            current_timestamp = self.collection.timestamp()
+
+        if current_timestamp > modified_since:
+            error_msg = 'Resource was modified meanwhile'
+            response = http_error(HTTPPreconditionFailed(),
+                                  errno=ERRORS.MODIFIED_MEANWHILE,
+                                  message=error_msg)
+            self._add_timestamp_header(response, timestamp=current_timestamp)
+            raise response
 
     def _raise_conflict(self, exception):
         """Helper to raise conflict responses.
