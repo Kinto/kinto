@@ -62,7 +62,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
     def flush(self):
         query = """
         DELETE FROM user_principals;
-        DELETE FROM aces;
+        DELETE FROM access_control_entries;
         """
         with self.connect() as cursor:
             cursor.execute(query)
@@ -101,11 +101,11 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
 
     def add_principal_to_ace(self, object_id, permission, principal):
         query = """
-        INSERT INTO aces (object_id, permission, principal)
+        INSERT INTO access_control_entries (object_id, permission, principal)
         SELECT %(object_id)s, %(permission)s, %(principal)s
          WHERE NOT EXISTS (
             SELECT principal
-              FROM aces
+              FROM access_control_entries
              WHERE object_id = %(object_id)s
                AND permission = %(permission)s
                AND principal = %(principal)s
@@ -117,7 +117,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
 
     def remove_principal_from_ace(self, object_id, permission, principal):
         query = """
-        DELETE FROM aces
+        DELETE FROM access_control_entries
          WHERE object_id = %(object_id)s
            AND permission = %(permission)s
            AND principal = %(principal)s;"""
@@ -129,7 +129,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
     def object_permission_principals(self, object_id, permission):
         query = """
         SELECT principal
-          FROM aces
+          FROM access_control_entries
          WHERE object_id = %(object_id)s
            AND permission = %(permission)s;"""
         with self.connect() as cursor:
@@ -151,7 +151,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
           VALUES %s
         )
         SELECT principal
-          FROM required_perms JOIN aces
+          FROM required_perms JOIN access_control_entries
             ON (object_id = column1 AND permission = column2)
         ;""" % perms
         with self.connect() as cursor:

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS user_principals (
     PRIMARY KEY (user_id, principal)
 );
 
-CREATE TABLE IF NOT EXISTS aces (
+CREATE TABLE IF NOT EXISTS access_control_entries (
     object_id TEXT,
     permission TEXT,
     principal TEXT,
