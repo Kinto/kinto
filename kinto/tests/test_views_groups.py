@@ -55,28 +55,53 @@ class GroupDeletionTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(GroupDeletionTest, self).setUp()
         self.add_permission('/buckets', 'bucket:create')
-        self.add_permission('/buckets/beers', 'write')
-        self.app.put_json('/buckets/beers', {'data': MINIMALIST_BUCKET},
+        self.create_bucket('beers')
+
+    def create_bucket(self, bucket_id):
+        self.add_permission('/buckets/' + bucket_id, 'write')
+        self.app.put_json('/buckets/' + bucket_id, {'data': MINIMALIST_BUCKET},
+                          headers=self.headers, status=201)
+
+    def create_group(self, bucket_id, group_id, members=None):
+        if members is None:
+            group = MINIMALIST_GROUP
+        else:
+            group = {'members': members}
+        self.add_permission('/buckets/%s/groups' % bucket_id, 'group:create')
+        self.add_permission('/buckets/%s/groups' % bucket_id, 'write')
+        group_url = '/buckets/%s/groups/%s' % (bucket_id, group_id)
+        self.add_permission(group_url, 'write')
+        self.add_permission(group_url, 'read')
+        self.app.put_json(group_url, {'data': group},
                           headers=self.headers, status=201)
 
     def test_groups_can_be_deleted(self):
-        self.app.put_json(self.group_url, {'data': MINIMALIST_GROUP},
-                          headers=self.headers)
+        self.create_group('beers', 'moderators')
         self.app.delete(self.group_url, headers=self.headers)
         self.app.get(self.group_url, headers=self.headers,
                      status=404)
 
-    def test_principal_is_removed_from_users_when_group_deleted(self):
+    def test_principal_is_removed_from_users_on_group_deletion(self):
         self.add_permission('/buckets/beers/groups', 'group:create')
         self.app.put_json(self.group_url, {'data': MINIMALIST_GROUP},
                           headers=self.headers, status=201)
         self.assertIn(self.group_url,
                       self.permission.user_principals('fxa:user'))
-
         self.add_permission('/buckets/beers/groups/moderators', 'write')
         self.app.delete(self.group_url, headers=self.headers, status=200)
         self.assertNotIn(self.group_url,
                          self.permission.user_principals('fxa:user'))
+
+    def test_principal_is_removed_from_users_on_all_groups_deletion(self):
+        self.create_group('beers', 'moderators', ['natim', 'fxa:user'])
+        self.create_group('beers', 'reviewers', ['natim', 'alexis'])
+
+        self.app.delete('/buckets/beers/groups', headers=self.headers,
+                        status=200)
+
+        self.assertEquals(self.permission.user_principals('fxa:user'), set())
+        self.assertEquals(self.permission.user_principals('natim'), set())
+        self.assertEquals(self.permission.user_principals('alexis'), set())
 
 
 class InvalidGroupTest(BaseWebTest, unittest.TestCase):

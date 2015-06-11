@@ -33,27 +33,27 @@ class Group(resource.BaseResource):
         self.collection.id_generator = NameGenerator()
 
     def collection_delete(self):
+        filters = self._extract_filters()
+        groups, _ = self.collection.get_records(filters=filters)
         body = super(Group, self).collection_delete()
         permission = self.request.registry.permission
         # For each deleted group, remove it from members principals
-        for group in body['items']:
+        for group in groups:
             for member in group['members']:
-                group_id = '%s/%s' % (get_object_id(self.request), group)
+                group_id = '%s/%s' % (get_object_id(self.request), group['id'])
                 permission.remove_user_principal(
-                    self.request.authenticated_userid,
+                    member,
                     group_id)
         return body
 
     def delete(self):
-        body = super(Group, self).delete()
+        group = self._get_record_or_404(self.record_id)
         permission = self.request.registry.permission
+        body = super(Group, self).delete()
         # For each deleted group, remove it from members principals
-        for group in body['items']:
-            for member in group['members']:
-                group_id = '%s/%s' % (get_object_id(self.request), group)
-                permission.remove_user_principal(
-                    self.request.authenticated_userid,
-                    group_id)
+        object_id = get_object_id(self.request)
+        for member in group['members']:
+            permission.remove_user_principal(member, object_id)
         return body
 
     def process_record(self, new, old=None):
