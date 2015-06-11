@@ -5,13 +5,14 @@ Thank you for considering to contribute to *Cliquet*!
 
 .. note::
 
-    No contribution is too small; please submit as many fixes for typos and
-    grammar bloopers as you can!
+    No contribution is too small; we welcome fixes about typos and grammar
+    bloopers. Don't hesitate to send us a pull request!
 
 .. note::
 
     Open a pull-request even if your contribution is not ready yet! It can
-    be discussed and improved collaboratively!
+    be discussed and improved collaboratively, and avoid having you doing a lot
+    of work without getting feedback.
 
 
 Setup your development environment
@@ -84,12 +85,28 @@ to speed-up the execution:
 Definition of done
 ==================
 
-* Tests pass;
-* Code added comes with tests;
-* Documentation is up to date.
+In order to have your changes incorporated, you need to respect these rules:
+
+* **Tests pass**; Travis-CI will build the tests for you on the branch when you
+  push it.
+* **Code added comes with tests**; We try to have a 100% coverage on the codebase to avoid
+  surprises. No code should be untested :) If you fail to see how to test your
+  changes, feel welcome to say so in the pull request, we'll gladly help you to
+  find out.
+* **Documentation is up to date**;
 
 
 IRC channel
 ===========
 
-Join ``#storage`` on ``irc.mozilla.org``!
+If you want to discuss with the team behind *Cliquet*, please come and join us
+on ``#storage`` on ``irc.mozilla.org``.
+
+* Because of differing time zones, you may not get an immediate response to
+  your question, but please be patient and stay logged into IRC — someone will
+  almost always respond if you wait long enough (it may take a few hours).
+* If you don’t have an IRC client handy, use `the webchat
+  <https://kiwiirc.com/client/irc.mozilla.org/?#storage>`_ for quick feedback.
+* You can direct your IRC client to the channel using `this IRC link
+  <irc://irc.mozilla.org/storage>`_ or you can manually join the #storage IRC
+  channel on the mozilla IRC network.
