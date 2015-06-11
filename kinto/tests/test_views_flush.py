@@ -1,10 +1,12 @@
 import mock
+from cliquet.tests.support import authorize
 
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_BUCKET, MINIMALIST_COLLECTION,
                       MINIMALIST_RECORD)
 
 
+@authorize(authz_class='kinto.tests.support.AllowAuthorizationPolicy')
 class FlushViewTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
