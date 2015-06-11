@@ -28,7 +28,7 @@ class BaseWebTest(object):
         self.principal = USER_PRINCIPAL
         self.storage = self.app.app.registry.storage
         self.permission = self.app.app.registry.permission
-        self.permission.flush()
+        self.permission.initialize_schema()
         self.storage.initialize_schema()
         self.headers = {
             'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ class BaseWebTest(object):
 
     def get_app_settings(self, additional_settings=None):
         settings = cliquet_support.DEFAULT_SETTINGS.copy()
-        settings['cliquet.project_name'] = 'kinto'
+        settings['cliquet.project_name'] = 'cloud storage'
         settings['cliquet.project_docs'] = 'https://kinto.rtfd.org/'
         settings['multiauth.authorization_policy'] = (
             'kinto.tests.support.AllowAuthorizationPolicy')

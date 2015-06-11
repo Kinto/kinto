@@ -6,6 +6,7 @@ from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_RECORD)
 
 
+@authorize(authz_class='kinto.tests.support.AllowAuthorizationPolicy')
 class FlushViewTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
@@ -34,7 +35,6 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
     def test_returns_405_if_not_enabled_in_configuration(self):
         self.app.post('/__flush__', headers=self.headers, status=405)
 
-    @authorize(True, 'kinto.tests.support.AllowAuthorizationPolicy')
     def test_removes_every_records_of_everykind(self):
         headers = self.headers.copy()
         with mock.patch.dict(self.app.app.registry.settings,
