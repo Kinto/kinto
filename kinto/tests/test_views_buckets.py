@@ -39,9 +39,6 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
-    def test_current_user_receives_write_permission_on_creation(self):
-        pass
-
 
 class BucketDeletionTest(BaseWebTest, unittest.TestCase):
 
