@@ -125,15 +125,18 @@ class AllowAuthorizationPolicy(object):
         raise NotImplementedError()  # PRAGMA NOCOVER
 
 
-def authorize(permits=True):
+def authorize(permits=True, authz_class=None):
     """Patch the default authorization policy to return what is specified
     in :param:permits.
     """
+    if authz_class is None:
+        authz_class = 'cliquet.tests.support.AllowAuthorizationPolicy'
+
     def wrapper(f):
         @functools.wraps(f)
         def wrapped(*args, **kwargs):
             with mock.patch(
-                    'cliquet.tests.support.AllowAuthorizationPolicy.permits',
+                    '%s.permits' % authz_class,
                     return_value=permits):
                 return f(*args, **kwargs)
         return wrapped

@@ -40,23 +40,27 @@ class RouteFactory(object):
     def __init__(self, request):
         service = utils.current_service(request)
 
-        # Handle blank requests
-        if service is None:
-            return
+        is_on_resource = (service is not None and
+                          hasattr(service, 'viewset') and
+                          hasattr(service, 'resource'))
 
-        object_id = get_object_id(request)
+        if not is_on_resource:
+            object_id = None
+            permission = None
+            resource_name = None
+            check_permission = None
 
-        self.resource_name = service.viewset.get_name(service.resource)
-        # Decide what the required unbound permission is depending on the
-        # method that's being requested.
-        if request.method.lower() == "put":
-            # In the case of a "PUT", check if the associated record already
-            # exists, return "write" if it does, "create" otherwise.
-            # For now, consider whoever puts should have "create" access.
+        else:
+            object_id = get_object_id(request)
 
-            # If the view exists, call it with the request and catch an
-            # eventual NotFound.
-            if service is not None:
+            # Decide what the required unbound permission is depending on the
+            # method that's being requested.
+            if request.method.lower() == "put":
+                # In the case of a "PUT", check if the targetted record already
+                # exists, return "write" if it does, "create" otherwise.
+
+                # If the view exists, call it with the request and catch an
+                # eventual NotFound.
                 resource = service.resource(request)
                 try:
                     resource.collection.get_record(resource.record_id)
@@ -65,17 +69,19 @@ class RouteFactory(object):
                     permission = "create"
                 else:
                     permission = "write"
-        else:
-            permission = self.method_permissions[request.method.lower()]
+            else:
+                permission = self.method_permissions[request.method.lower()]
 
-        self.required_permission = permission
+            resource_name = service.viewset.get_name(service.resource)
+            check_permission = functools.partial(
+                request.registry.permission.check_permission,
+                object_id,
+                get_bound_permissions=self.get_bound_permissions)
+
         self.object_id = object_id
-
-        self.resource_name = service.viewset.get_name(service.resource)
-        self.check_permission = functools.partial(
-            request.registry.permission.check_permission,
-            self.object_id,
-            get_bound_permissions=self.get_bound_permissions)
+        self.required_permission = permission
+        self.resource_name = resource_name
+        self.check_permission = check_permission
 
 
 def get_object_id(request):

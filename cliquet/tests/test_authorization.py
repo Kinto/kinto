@@ -1,5 +1,7 @@
 import mock
 
+from pyramid.request import Request
+
 from .support import DummyRequest, unittest
 from cliquet.authorization import RouteFactory, AuthorizationPolicy
 from cliquet.storage import exceptions as storage_exceptions
@@ -50,6 +52,26 @@ class RouteFactoryTest(unittest.TestCase):
 
     def test_http_patch_resolves_in_a_write_permission(self):
         self.assert_request_resolves_to("patch", "write")
+
+    def test_attributes_are_none_with_blank_requests(self):
+        request = Request.blank(path='/')
+        context = RouteFactory(request)
+        self.assertIsNone(context.object_id)
+        self.assertIsNone(context.required_permission)
+        self.assertIsNone(context.resource_name)
+        self.assertIsNone(context.check_permission)
+
+    def test_attributes_are_none_with_non_resource_requests(self):
+        basic_service = object()
+        request = Request.blank(path='/')
+        request.matched_route = mock.Mock(pattern='foo')
+        request.registry = mock.Mock(cornice_services={'foo': basic_service})
+
+        context = RouteFactory(request)
+        self.assertIsNone(context.object_id)
+        self.assertIsNone(context.required_permission)
+        self.assertIsNone(context.resource_name)
+        self.assertIsNone(context.check_permission)
 
 
 class AuthorizationPolicyTest(unittest.TestCase):
