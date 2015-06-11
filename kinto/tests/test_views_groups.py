@@ -9,10 +9,10 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(GroupViewTest, self).setUp()
-        self.app.put_json('/buckets/beers', {'data': MINIMALIST_BUCKET},
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         resp = self.app.put_json(self.record_url,
-                                 {'data': MINIMALIST_GROUP},
+                                 MINIMALIST_GROUP,
                                  headers=self.headers)
         self.record = resp.json['data']
 
@@ -24,7 +24,7 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 
     def test_groups_can_be_posted_without_id(self):
         resp = self.app.post_json(self.collection_url,
-                                  {'data': MINIMALIST_GROUP},
+                                  MINIMALIST_GROUP,
                                   headers=self.headers,
                                   status=201)
         self.assertIn('id', resp.json['data'])
@@ -35,7 +35,7 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 
     def test_groups_name_should_be_simple(self):
         self.app.put_json('/buckets/beers/groups/__moderator__',
-                          {'data': MINIMALIST_GROUP},
+                          MINIMALIST_GROUP,
                           headers=self.headers,
                           status=400)
 
@@ -57,25 +57,16 @@ class GroupDeletionTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(GroupDeletionTest, self).setUp()
-        self.add_permission('/buckets', 'bucket:create')
-        self.create_bucket('beers')
-
-    def create_bucket(self, bucket_id):
-        self.add_permission('/buckets/' + bucket_id, 'write')
-        self.app.put_json('/buckets/' + bucket_id, {'data': MINIMALIST_BUCKET},
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers, status=201)
 
     def create_group(self, bucket_id, group_id, members=None):
         if members is None:
             group = MINIMALIST_GROUP
         else:
-            group = {'members': members}
-        self.add_permission('/buckets/%s/groups' % bucket_id, 'group:create')
-        self.add_permission('/buckets/%s/groups' % bucket_id, 'write')
+            group = {'data': {'members': members}}
         group_url = '/buckets/%s/groups/%s' % (bucket_id, group_id)
-        self.add_permission(group_url, 'write')
-        self.add_permission(group_url, 'read')
-        self.app.put_json(group_url, {'data': group},
+        self.app.put_json(group_url, group,
                           headers=self.headers, status=201)
 
     def test_groups_can_be_deleted(self):
@@ -85,12 +76,10 @@ class GroupDeletionTest(BaseWebTest, unittest.TestCase):
                      status=404)
 
     def test_principal_is_removed_from_users_on_group_deletion(self):
-        self.add_permission('/buckets/beers/groups', 'group:create')
-        self.app.put_json(self.group_url, {'data': MINIMALIST_GROUP},
+        self.app.put_json(self.group_url, MINIMALIST_GROUP,
                           headers=self.headers, status=201)
         self.assertIn(self.group_url,
                       self.permission.user_principals('fxa:user'))
-        self.add_permission('/buckets/beers/groups/moderators', 'write')
         self.app.delete(self.group_url, headers=self.headers, status=200)
         self.assertNotIn(self.group_url,
                          self.permission.user_principals('fxa:user'))
@@ -113,21 +102,12 @@ class InvalidGroupTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(InvalidGroupTest, self).setUp()
-        self.app.put_json('/buckets/beers', {'data': MINIMALIST_BUCKET},
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
 
     def test_groups_must_have_members_attribute(self):
         invalid = {}
-        self.app.put_json(self.record_url,
+        self.app.put_json(self.group_url,
                           invalid,
                           headers=self.headers,
                           status=400)
-
-
-class GroupPrincipalsTest(BaseWebTest, unittest.TestCase):
-
-    def test_principal_is_added_to_user_when_added_to_members(self):
-        pass
-
-    def test_principal_is_removed_from_user_when_removed_from_members(self):
-        pass
