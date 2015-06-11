@@ -264,7 +264,7 @@ class InvalidRecordTest(BaseWebTest):
         record = MINIMALIST_RECORD.copy()
         record['id'] = 3.14
         self.app.post_json(self.collection_url,
-                           record,
+                           {'data': record},
                            headers=self.headers,
                            status=400)
 
@@ -272,9 +272,17 @@ class InvalidRecordTest(BaseWebTest):
         record = MINIMALIST_RECORD.copy()
         record_id = record['id'] = '472be9ec-26fe-461b-8282-9c4e4b207ab3'
         resp = self.app.post_json(self.collection_url,
-                                  record,
+                                  {'data': record},
                                   headers=self.headers)
-        self.assertEqual(resp.json['id'], record_id)
+        self.assertEqual(resp.json['data']['id'], record_id)
+
+    def test_200_is_returned_if_id_matches_existing_record(self):
+        record = MINIMALIST_RECORD.copy()
+        record['id'] = self.record['id']
+        self.app.post_json(self.collection_url,
+                           {'data': record},
+                           headers=self.headers,
+                           status=200)
 
 
 class IgnoredFieldsTest(BaseWebTest):

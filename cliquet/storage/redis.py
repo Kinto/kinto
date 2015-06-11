@@ -94,12 +94,12 @@ class Redis(MemoryBasedStorage):
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
-        id_generator = id_generator or self.id_generator
-
         self.check_unicity(collection_id, parent_id, record,
-                           unique_fields=unique_fields, id_field=id_field)
+                           unique_fields=unique_fields, id_field=id_field,
+                           for_creation=True)
 
         record = record.copy()
+        id_generator = id_generator or self.id_generator
         _id = record.setdefault(id_field, id_generator())
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)

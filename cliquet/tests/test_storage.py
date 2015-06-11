@@ -187,6 +187,16 @@ class BaseTestStorage(object):
         stored = self.create_record(record=record)
         self.assertEqual(stored[self.id_field], RECORD_ID)
 
+    def test_create_raise_unicity_error_if_provided_id_exists(self):
+        record = self.record.copy()
+        record[self.id_field] = RECORD_ID
+        self.create_record(record=record)
+        record = self.record.copy()
+        record[self.id_field] = RECORD_ID
+        self.assertRaises(exceptions.UnicityError,
+                          self.create_record,
+                          record=record)
+
     def test_get_raise_on_record_not_found(self):
         self.assertRaises(
             exceptions.RecordNotFoundError,
@@ -407,9 +417,11 @@ class FieldsUnicityTest(object):
                            auth=self.other_auth)  # not raising
 
     def test_unicity_is_for_non_null_values(self):
-        self.create_record({'phone': None}, unique_fields=('phone',))
+        r = self.create_record({'phone': None}, unique_fields=('phone',))
         # not raising with None value
         self.create_record({'phone': None}, unique_fields=('phone',))
+        self.storage.update(object_id=r['id'], record={'phone': None},
+                            unique_fields=('phone',), **self.storage_kw)
 
     def test_unicity_does_not_apply_to_deleted_records(self):
         record = self.create_record({'phone': '0033677'})
