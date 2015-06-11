@@ -76,10 +76,10 @@ class Memory(PermissionBase):
             keys = [(object_id, permission)]
         else:
             keys = get_bound_permissions(object_id, permission)
-        permissions = set([])
+        principals = set([])
         for obj_id, perm in keys:
-            permissions |= self.object_permission_principals(obj_id, perm)
-        return permissions
+            principals |= self.object_permission_principals(obj_id, perm)
+        return principals
 
 
 def load_from_config(config):
