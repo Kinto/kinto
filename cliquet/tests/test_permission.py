@@ -1,11 +1,12 @@
 import mock
 
-# import psycopg2
+import psycopg2
 import redis
 
 from cliquet.storage import exceptions
 from cliquet.permission import (PermissionBase, redis as redis_backend,
-                                memory as memory_backend)
+                                memory as memory_backend,
+                                postgresql as postgresql_backend)
 
 from .support import unittest
 
@@ -244,17 +245,17 @@ class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
                 side_effect=redis.RedisError)]
 
 
-# class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
-#     backend = postgresql_backend
-#     settings = {
-#         'cliquet.permission_pool_size': 10,
-#         'cliquet.permission_url':
-#             'postgres://postgres:postgres@localhost:5432/testdb'
-#     }
-#
-#     def __init__(self, *args, **kwargs):
-#         super(PostgreSQLPermissionTest, self).__init__(*args, **kwargs)
-#         self.client_error_patcher = [mock.patch.object(
-#             self.permission.pool,
-#             'getconn',
-#             side_effect=psycopg2.DatabaseError)]
+class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
+    backend = postgresql_backend
+    settings = {
+        'cliquet.permission_pool_size': 10,
+        'cliquet.permission_url':
+            'postgres://postgres:postgres@localhost:5432/testdb'
+    }
+
+    def __init__(self, *args, **kwargs):
+        super(PostgreSQLPermissionTest, self).__init__(*args, **kwargs)
+        self.client_error_patcher = [mock.patch.object(
+            self.permission.pool,
+            'getconn',
+            side_effect=psycopg2.DatabaseError)]
