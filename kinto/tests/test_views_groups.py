@@ -51,23 +51,13 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(other_bucket, headers=self.headers, status=404)
 
 
-class GroupDeletionTest(BaseWebTest, unittest.TestCase):
+class GroupManagementTest(BaseWebTest, unittest.TestCase):
 
     group_url = '/buckets/beers/groups/moderators'
 
     def setUp(self):
-        super(GroupDeletionTest, self).setUp()
-        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
-                          headers=self.headers, status=201)
-
-    def create_group(self, bucket_id, group_id, members=None):
-        if members is None:
-            group = MINIMALIST_GROUP
-        else:
-            group = {'data': {'members': members}}
-        group_url = '/buckets/%s/groups/%s' % (bucket_id, group_id)
-        self.app.put_json(group_url, group,
-                          headers=self.headers, status=201)
+        super(GroupManagementTest, self).setUp()
+        self.create_bucket('beers')
 
     def test_groups_can_be_deleted(self):
         self.create_group('beers', 'moderators')
@@ -95,6 +85,14 @@ class GroupDeletionTest(BaseWebTest, unittest.TestCase):
         self.assertEquals(self.permission.user_principals('natim'), set())
         self.assertEquals(self.permission.user_principals('alexis'), set())
 
+    def test_principal_is_added_to_user_when_added_to_members(self):
+        self.create_group('beers', 'moderators', ['natim', 'mat'])
+
+        group = self.app.get('/buckets/beers/groups', headers=self.headers,
+                             status=200).json['data'][0]
+        self.assertIn('natim', group['members'])
+        self.assertIn('mat', group['members'])
+
 
 class InvalidGroupTest(BaseWebTest, unittest.TestCase):
 
@@ -102,8 +100,7 @@ class InvalidGroupTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(InvalidGroupTest, self).setUp()
-        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
-                          headers=self.headers)
+        self.create_bucket('beers')
 
     def test_groups_must_have_members_attribute(self):
         invalid = {}
