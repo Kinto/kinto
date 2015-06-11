@@ -44,8 +44,20 @@ class Group(resource.ProtectedResource):
                     group_id)
         return body
 
+    def delete(self):
+        body = super(Group, self).delete()
+        permission = self.request.registry.permission
+        # For each deleted group, remove it from members principals
+        for group in body['items']:
+            for member in group['members']:
+                group_id = '%s/%s' % (get_object_id(self.request), group)
+                permission.remove_user_principal(
+                    self.request.authenticated_userid,
+                    group_id)
+        return body
+
     def process_record(self, new, old=None):
-        if old is not None:
+        if old is None:
             existing_record_members = set([])
         else:
             existing_record_members = set(old['members'])
@@ -53,16 +65,15 @@ class Group(resource.ProtectedResource):
         new_members = new_record_members - existing_record_members
         removed_members = existing_record_members - new_record_members
 
-        user_id = self.request.authenticated_userid
         permission = self.request.registry.permission
         for member in new_members:
             # Add the group to the member principal
             group_id = get_object_id(self.request)
-            permission.add_user_principal(user_id, group_id)
+            permission.add_user_principal(member, group_id)
 
         for member in removed_members:
             # Remove the group from the member principal
             group_id = get_object_id(self.request)
-            permission.remove_user_principal(user_id, group_id)
+            permission.remove_user_principal(member, group_id)
 
         return new

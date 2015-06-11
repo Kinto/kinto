@@ -9,10 +9,10 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(GroupViewTest, self).setUp()
-        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+        self.app.put_json('/buckets/beers', {'data': MINIMALIST_BUCKET},
                           headers=self.headers)
         resp = self.app.put_json(self.record_url,
-                                 MINIMALIST_GROUP,
+                                 {'data': MINIMALIST_GROUP},
                                  headers=self.headers)
         self.record = resp.json['data']
 
@@ -24,7 +24,7 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 
     def test_groups_can_be_posted_without_id(self):
         resp = self.app.post_json(self.collection_url,
-                                  MINIMALIST_GROUP,
+                                  {'data': MINIMALIST_GROUP},
                                   headers=self.headers,
                                   status=201)
         self.assertIn('id', resp.json['data'])
@@ -35,7 +35,7 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 
     def test_groups_name_should_be_simple(self):
         self.app.put_json('/buckets/beers/groups/__moderator__',
-                          MINIMALIST_GROUP,
+                          {'data': MINIMALIST_GROUP},
                           headers=self.headers,
                           status=400)
 
@@ -53,31 +53,42 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
 
 class GroupDeletionTest(BaseWebTest, unittest.TestCase):
 
-    record_url = '/buckets/beers/groups/moderators'
+    group_url = '/buckets/beers/groups/moderators'
 
     def setUp(self):
         super(GroupDeletionTest, self).setUp()
-        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
-                          headers=self.headers)
+        self.add_permission('/buckets', 'bucket:create')
+        self.add_permission('/buckets/beers', 'write')
+        self.app.put_json('/buckets/beers', {'data': MINIMALIST_BUCKET},
+                          headers=self.headers, status=201)
 
     def test_groups_can_be_deleted(self):
-        self.app.put_json(self.record_url, MINIMALIST_GROUP,
+        self.app.put_json(self.group_url, {'data': MINIMALIST_GROUP},
                           headers=self.headers)
-        self.app.delete(self.record_url, headers=self.headers)
-        self.app.get(self.record_url, headers=self.headers,
+        self.app.delete(self.group_url, headers=self.headers)
+        self.app.get(self.group_url, headers=self.headers,
                      status=404)
 
     def test_principal_is_removed_from_users_when_group_deleted(self):
-        pass
+        self.add_permission('/buckets/beers/groups', 'group:create')
+        self.app.put_json(self.group_url, {'data': MINIMALIST_GROUP},
+                          headers=self.headers, status=201)
+        self.assertIn(self.group_url,
+                      self.permission.user_principals('fxa:user'))
+
+        self.add_permission('/buckets/beers/groups/moderators', 'write')
+        self.app.delete(self.group_url, headers=self.headers, status=200)
+        self.assertNotIn(self.group_url,
+                         self.permission.user_principals('fxa:user'))
 
 
 class InvalidGroupTest(BaseWebTest, unittest.TestCase):
 
-    record_url = '/buckets/beers/groups/moderators'
+    group_url = '/buckets/beers/groups/moderators'
 
     def setUp(self):
         super(InvalidGroupTest, self).setUp()
-        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+        self.app.put_json('/buckets/beers', {'data': MINIMALIST_BUCKET},
                           headers=self.headers)
 
     def test_groups_must_have_members_attribute(self):
