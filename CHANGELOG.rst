@@ -6,6 +6,11 @@ This document describes changes between each past release.
 1.8.1 (unreleased)
 ------------------
 
+**New features**
+
+- Preserve provided ``id`` field of records using POST on collection (fixes #293)
+
+
 **Breaking changes**
 
 - ``cliquet.storage.postgresql`` now requires PostgreSQL version 9.4, since it

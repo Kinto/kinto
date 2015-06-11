@@ -61,16 +61,21 @@ class MemoryBasedStorage(StorageBase):
         return record
 
     def check_unicity(self, collection_id, parent_id, record,
-                      unique_fields, id_field):
+                      unique_fields, id_field, for_creation=False):
         """Check that the specified record does not violates unicity
         constraints defined in the resource's mapping options.
         """
+        if for_creation and id_field in record:
+            # If id is provided by client, check that no record conflicts.
+            unique_fields = (unique_fields or tuple()) + (id_field,)
+
         if not unique_fields:
             return
 
         unicity_rules = get_unicity_rules(collection_id, parent_id, record,
                                           unique_fields=unique_fields,
-                                          id_field=id_field)
+                                          id_field=id_field,
+                                          for_creation=for_creation)
         for filters in unicity_rules:
             existing, count = self.get_all(collection_id, parent_id,
                                            filters=filters,
@@ -177,12 +182,14 @@ class Memory(MemoryBasedStorage):
     def create(self, collection_id, parent_id, record, id_generator=None,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD, auth=None):
-        id_generator = id_generator or self.id_generator
         self.check_unicity(collection_id, parent_id, record,
                            unique_fields=unique_fields,
-                           id_field=id_field)
+                           id_field=id_field,
+                           for_creation=True)
+
+        id_generator = id_generator or self.id_generator
         record = record.copy()
-        _id = record[id_field] = id_generator()
+        _id = record.setdefault(id_field, id_generator())
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
         self._store[collection_id][parent_id][_id] = record
@@ -253,26 +260,27 @@ class Memory(MemoryBasedStorage):
 
 
 def get_unicity_rules(collection_id, parent_id, record, unique_fields,
-                      id_field):
+                      id_field, for_creation):
     """Build filter to target existing records that violate the resource
     unicity rules on fields.
 
     :returns: a list of list of filters
     """
-    object_id = record.get(id_field)
-
     rules = []
-    for field in unique_fields:
+    for field in set(unique_fields):
         value = record.get(field)
 
-        # None values cannot be considered unique
+        # None values cannot be considered unique.
         if value is None:
             continue
 
         filters = [Filter(field, value, COMPARISON.EQ)]
-        if object_id:
+
+        if not for_creation:
+            object_id = record[id_field]
             exclude = Filter(id_field, object_id, COMPARISON.NOT)
             filters.append(exclude)
+
         rules.append(filters)
 
     return rules

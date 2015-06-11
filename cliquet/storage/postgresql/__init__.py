@@ -266,27 +266,28 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
+        id_generator = id_generator or self.id_generator
+        record = record.copy()
+        record_id = record.setdefault(id_field, id_generator())
+
         query = """
         INSERT INTO records (id, parent_id, collection_id, data)
         VALUES (%(object_id)s, %(parent_id)s,
                 %(collection_id)s, %(data)s::JSONB)
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
-        id_generator = id_generator or self.id_generator
-        placeholders = dict(object_id=id_generator(),
+        placeholders = dict(object_id=record_id,
                             parent_id=parent_id,
                             collection_id=collection_id,
                             data=json.dumps(record))
-
         with self.connect() as cursor:
             # Check that it does violate the resource unicity rules.
             self._check_unicity(cursor, collection_id, parent_id, record,
-                                unique_fields, id_field, modified_field)
+                                unique_fields, id_field, modified_field,
+                                for_creation=True)
             cursor.execute(query, placeholders)
             inserted = cursor.fetchone()
 
-        record = record.copy()
-        record[id_field] = inserted['id']
         record[modified_field] = inserted['last_modified']
         return record
 
@@ -339,6 +340,9 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                             collection_id=collection_id,
                             data=json.dumps(record))
 
+        record = record.copy()
+        record[id_field] = object_id
+
         with self.connect() as cursor:
             # Check that it does violate the resource unicity rules.
             self._check_unicity(cursor, collection_id, parent_id, record,
@@ -356,8 +360,6 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             cursor.execute(query, placeholders)
             result = cursor.fetchone()
 
-        record = record.copy()
-        record[id_field] = object_id
         record[modified_field] = result['last_modified']
         return record
 
@@ -663,10 +665,15 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         return safe_sql, holders
 
     def _check_unicity(self, cursor, collection_id, parent_id, record,
-                       unique_fields, id_field, modified_field):
+                       unique_fields, id_field, modified_field,
+                       for_creation=False):
         """Check that no existing record (in the current transaction snapshot)
         violates the resource unicity rules.
         """
+        # If id is provided by client, check that no record conflicts.
+        if for_creation and id_field in record:
+            unique_fields = (unique_fields or tuple()) + (id_field,)
+
         if not unique_fields:
             return
 
@@ -685,7 +692,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         # Transform each field unicity into a query condition.
         filters = []
-        for field in unique_fields:
+        for field in set(unique_fields):
             value = record.get(field)
             if value is None:
                 continue
@@ -704,8 +711,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         safeholders['conditions_filter'] = ' OR '.join(filters)
 
         # If record is in database, then exclude it of unicity check.
-        object_id = record.get(id_field)
-        if object_id:
+        if not for_creation:
+            object_id = record[id_field]
             sql, holders = self._format_conditions(
                 [Filter(id_field, object_id, COMPARISON.NOT)],
                 id_field,
@@ -719,7 +726,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         if cursor.rowcount > 0:
             result = cursor.fetchone()
             existing = self.get(collection_id, parent_id, result['id'])
-            raise exceptions.UnicityError(field, existing)
+            raise exceptions.UnicityError(unique_fields[0], existing)
 
 
 def load_from_config(config):
