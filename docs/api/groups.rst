@@ -65,6 +65,12 @@ Creates or replaces a group with a chosen id.
         ]
     }
 
+.. note::
+
+    In order to create only if does not exist yet, a ``If-None-Match: *``
+    request header can be provided. A ``412 Precondition Failed`` error response
+    will be returned if the record already exists.
+
 
 GET /buckets/<bucket_id>/groups/<group_id>
 ==========================================
@@ -77,7 +83,7 @@ Returns the group object.
 
     $ http GET http://localhost:8888/v1/buckets/blog/groups/moderators --auth "admin:"
     HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified, ETag
     Content-Length: 100
     Content-Type: application/json; charset=UTF-8
     Date: Wed, 10 Jun 2015 13:19:46 GMT

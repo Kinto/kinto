@@ -44,6 +44,12 @@ Creates or replaces a collection object.
         }
     }
 
+.. note::
+
+    In order to create only if does not exist yet, a ``If-None-Match: *``
+    request header can be provided. A ``412 Precondition Failed`` error response
+    will be returned if the record already exists.
+
 
 GET /buckets/<bucket_id>/collections/<collection_id>
 ====================================================
@@ -56,7 +62,7 @@ Returns the collection object.
 
     $ http GET http://localhost:8888/v1/buckets/blog/collections/articles  --auth "admin:"
     HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified, ETag
     Content-Length: 47
     Content-Type: application/json; charset=UTF-8
     Date: Wed, 10 Jun 2015 13:11:25 GMT

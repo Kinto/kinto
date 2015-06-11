@@ -38,6 +38,12 @@ it, you will get a ``403 Forbidden`` http response.
         }
     }
 
+.. note::
+
+    In order to create only if does not exist yet, a ``If-None-Match: *``
+    request header can be provided. A ``412 Precondition Failed`` error response
+    will be returned if the record already exists.
+
 
 GET /buckets/<bucket_id>
 ========================
@@ -50,7 +56,7 @@ Returns a specific bucket by its id.
 
     $ http GET http://localhost:8888/v1/buckets/blog  --auth "admin:"
     HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified, ETag
     Content-Length: 43
     Content-Type: application/json; charset=UTF-8
     Date: Wed, 10 Jun 2015 13:03:26 GMT
