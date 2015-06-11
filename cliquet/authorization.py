@@ -58,7 +58,7 @@ class RouteFactory(object):
             check_permission = None
 
         else:
-            object_id = get_object_id(request)
+            object_id = get_object_id(request.path)
 
             # Decide what the required unbound permission is depending on the
             # method that's being requested.
@@ -90,8 +90,6 @@ class RouteFactory(object):
         self.check_permission = check_permission
 
 
-def get_object_id(request):
-    record_uri = request.path
-
+def get_object_id(object_uri):
     # Remove potential version prefix in URI.
-    return re.sub(r'^(/v\d+)?', '', six.text_type(record_uri))
+    return re.sub(r'^(/v\d+)?', '', six.text_type(object_uri))

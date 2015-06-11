@@ -8,6 +8,7 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPMethodNotAllowed,
                                     HTTPNotFound, HTTPConflict)
 
+from cliquet import authorization
 from cliquet import logger
 from cliquet import Service
 from cliquet.collection import Collection
@@ -995,18 +996,26 @@ class ProtectedResource(BaseResource):
     permissions = ('read', 'write')
 
     def _store_permissions(self, object_id, replace=False):
+        """Go through the permissions from request body, and store them
+        for the specified `object_id`.
+
+        :param bool replace: If ``True`` any existing permission will be
+            erased.
+        :returns: the resulting mapping of permissions.
+        """
         permissions = self.request.validated.get('permissions')
+
+        # Do nothing if not specified in request body.
         if not permissions:
             return {}
 
         registry = self.request.registry
         add_principal = registry.permission.add_principal_to_ace
-
-        # XXX: change permissions API.
         get_perm_principals = registry.permission.object_permission_principals
         del_principal = registry.permission.remove_principal_from_ace
 
         if replace:
+            # XXX: add replace method to permissions API.
             for permission in self.permissions:
                 existing = list(get_perm_principals(object_id, permission))
                 for principal in existing:
@@ -1015,9 +1024,13 @@ class ProtectedResource(BaseResource):
         for permission, principals in permissions.items():
             for principal in principals:
                 add_principal(object_id, permission, principal)
+
         return permissions
 
     def _build_permissions(self, object_id):
+        """Fetch the stored permissions for the specified `object_id` and
+        returns a mapping representing ACLs.
+        """
         registry = self.request.registry
         get_perm_principals = registry.permission.object_permission_principals
 
@@ -1028,41 +1041,38 @@ class ProtectedResource(BaseResource):
                 permissions[perm] = list(principals)
         return permissions
 
-    def _get_object_id(self, record_id=None):
-        if record_id is None:
-            record_uri = self.request.path
-        else:
-            # Obtain record URI from Pyramid routes.
-            service = current_service(self.request)
-            # See pattern of ViewSet.service_name.
-            record_service = service.name.replace('-collection', '-record')
-            matchdict = self.request.matchdict.copy()
-            matchdict['id'] = record_id
-            record_uri = self.request.route_path(record_service, **matchdict)
-
-        # Remove potential version prefix in URI.
-        object_id = re.sub(r'^(/v\d+)?', '', six.text_type(record_uri))
-        return object_id
-
     def collection_post(self):
+        """Override the collection POST endpoint to store the permissions
+        specified for the newly created record.
+        """
         result = super(ProtectedResource, self).collection_post()
 
         record_id = result['data'][self.collection.id_field]
-        object_id = self._get_object_id(record_id)
+
+        # Since the current request is on a collection, the record URI must
+        # be found out by inspecting the collection service and its sibling
+        # record service.
+        service = current_service(self.request)
+        record_service = service.name.replace('-collection', '-record')
+        matchdict = self.request.matchdict.copy()
+        matchdict['id'] = record_id
+        record_uri = self.request.route_path(record_service, **matchdict)
+
+        object_id = authorization.get_object_id(record_uri)
         result['permissions'] = self._store_permissions(object_id=object_id)
         return result
 
     def get(self):
         result = super(ProtectedResource, self).get()
 
-        object_id = self._get_object_id()
+        object_id = authorization.get_object_id(self.request.path)
         result['permissions'] = self._build_permissions(object_id=object_id)
         return result
 
     def put(self):
         result = super(ProtectedResource, self).put()
 
-        object_id = self._get_object_id()
+        object_id = authorization.get_object_id(self.request.path)
         self._store_permissions(object_id=object_id, replace=True)
         result['permissions'] = self._build_permissions(object_id=object_id)
         return result
@@ -1070,7 +1080,7 @@ class ProtectedResource(BaseResource):
     def patch(self):
         result = super(ProtectedResource, self).patch()
 
-        object_id = self._get_object_id()
+        object_id = authorization.get_object_id(self.request.path)
         self._store_permissions(object_id=object_id)
         result['permissions'] = self._build_permissions(object_id=object_id)
         return result
