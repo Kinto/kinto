@@ -14,11 +14,11 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.put_json(self.collection_url,
                                  MINIMALIST_COLLECTION,
                                  headers=self.headers)
-        self.record = resp.json  # XXX: ['data']
+        self.record = resp.json['data']
 
     def test_collection_endpoint_lists_them_all(self):
         resp = self.app.get(self.collections_url, headers=self.headers)
-        records = resp.json['items']  # XXX: ['data']
+        records = resp.json['data']
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]['id'], 'barley')
 
@@ -57,7 +57,8 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
         r = self.app.post_json(self.collection_url + '/records',
                                MINIMALIST_RECORD,
                                headers=self.headers)
-        self.record_url = self.collection_url + '/records/%s' % r.json['id']
+        record_id = r.json['data']['id']
+        self.record_url = self.collection_url + '/records/%s' % record_id
         self.app.delete(self.collection_url, headers=self.headers)
 
     def test_collections_can_be_deleted(self):
