@@ -22,10 +22,10 @@ PERMISSIONS_INHERITANCE_TREE = {
     'bucket:read': {
         'bucket': ['write', 'read']
     },
-    'group:group:create': {
+    'bucket:group:create': {
         'bucket': ['write', 'group:create']
     },
-    'collection:collection:create': {
+    'bucket:collection:create': {
         'bucket': ['write', 'collection:create']
     },
     'group:write': {
@@ -44,7 +44,7 @@ PERMISSIONS_INHERITANCE_TREE = {
         'bucket': ['write', 'read'],
         'collection': ['write', 'read'],
     },
-    'record:record:create': {
+    'collection:record:create': {
         'bucket': ['write'],
         'collection': ['write', 'record:create']
     },
@@ -63,6 +63,10 @@ PERMISSIONS_INHERITANCE_TREE = {
 
 def get_object_type(object_uri):
     """Return the type of an object from its id."""
+
+    obj_parts = object_uri.split('/')
+    if len(obj_parts) % 2 == 0:
+        object_uri = '/'.join(obj_parts[:-1])
 
     # Order matters here. More precise is tested first.
     if 'records' in object_uri:

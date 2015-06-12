@@ -19,6 +19,17 @@ class PermissionTest(unittest.TestCase):
         self.assertRaises(ValueError, permission.get_object_type,
                           self.invalid_uri)
 
+    def test_get_object_type_return_right_type_for_children_collection(self):
+        self.assertEqual(
+            permission.get_object_type(self.collection_uri + '/records'),
+            'collection')
+        self.assertEqual(
+            permission.get_object_type(self.bucket_uri + '/collections'),
+            'bucket')
+        self.assertEqual(
+            permission.get_object_type(self.bucket_uri + '/groups'),
+            'bucket')
+
     def test_build_perm_set_uri_can_construct_parents_set_uris(self):
         obj_parts = self.record_uri.split('/')
         # Can build record_uri from obj_parts
