@@ -70,6 +70,7 @@ class RouteFactoryTest(unittest.TestCase):
 
     def test_attributes_are_none_with_blank_requests(self):
         request = Request.blank(path='/')
+        request.registry = mock.Mock(settings={})
         context = RouteFactory(request)
         self.assertIsNone(context.object_id)
         self.assertIsNone(context.required_permission)
@@ -81,6 +82,7 @@ class RouteFactoryTest(unittest.TestCase):
         request = Request.blank(path='/')
         request.matched_route = mock.Mock(pattern='foo')
         request.registry = mock.Mock(cornice_services={'foo': basic_service})
+        request.registry.settings = {}
 
         context = RouteFactory(request)
         self.assertIsNone(context.object_id)
@@ -94,9 +96,10 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.authz = AuthorizationPolicy()
         self.authz.get_bound_permissions = mock.sentinel.get_bound_perms
         self.context = mock.MagicMock()
+        self.context.allowed_principals = []
         self.context.object_id = mock.sentinel.object_id
         self.context.required_permission = 'read'
-        self.principals = mock.sentinel.principals
+        self.principals = []
         self.permission = 'dynamic'
 
     def test_permits_refers_to_context_to_check_permissions(self):
@@ -108,14 +111,14 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.authz.permits(self.context, self.principals, 'dynamic')
         self.context.check_permission.assert_called_with(
             'read',
-            mock.sentinel.principals,
+            self.principals,
             get_bound_permissions=mock.sentinel.get_bound_perms)
 
     def test_permits_consider_permission_when_not_dynamic(self):
         self.authz.permits(self.context, self.principals, 'foobar')
         self.context.check_permission.assert_called_with(
             'foobar',
-            mock.sentinel.principals,
+            self.principals,
             get_bound_permissions=mock.sentinel.get_bound_perms)
 
     def test_permits_prepend_obj_type_to_permission_on_create(self):
@@ -124,5 +127,5 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.authz.permits(self.context, self.principals, 'dynamic')
         self.context.check_permission.assert_called_with(
             'record:create',
-            mock.sentinel.principals,
+            self.principals,
             get_bound_permissions=mock.sentinel.get_bound_perms)
