@@ -1005,9 +1005,17 @@ class ProtectedResource(BaseResource):
         """
         permissions = self.request.validated.get('permissions')
 
+        add_write_perm = (self.request.method.lower() in ('put', 'post'))
+
         # Do nothing if not specified in request body.
         if not permissions:
-            return {}
+            permissions = self._build_permissions(object_id)
+
+        if add_write_perm:
+            write_principals = permissions.setdefault('write', [])
+            user_principal = self.request.authenticated_userid
+            if user_principal not in write_principals:
+                write_principals.insert(0, user_principal)
 
         registry = self.request.registry
         add_principal = registry.permission.add_principal_to_ace

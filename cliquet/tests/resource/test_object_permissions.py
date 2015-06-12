@@ -72,26 +72,44 @@ class SpecifyRecordPermissionTest(PermissionTest):
         record_uri = '/articles/%s' % record_id
         self.permission.add_principal_to_ace(record_uri, 'read', 'fxa:user')
         self.resource.record_id = record_id
+        self.resource.request.authenticated_userid = 'basic:userid'
         self.resource.request.validated = {'data': {}}
         self.resource.request.path = record_uri
 
+    def test_write_permission_is_given_to_creator_on_post(self):
+        self.resource.request.path = '/articles'
+        self.resource.request.method = 'POST'
+        result = self.resource.collection_post()
+        self.assertEqual(result['permissions'], {'write': ['basic:userid']})
+
+    def test_write_permission_is_given_to_put(self):
+        self.resource.request.method = 'PUT'
+        result = self.resource.put()
+        self.assertEqual(result['permissions'],
+                         {'read': ['fxa:user'], 'write': ['basic:userid']})
+
     def test_permissions_can_be_specified_in_collection_post(self):
         perms = {'write': ['jean-louis']}
+        self.resource.request.method = 'POST'
         self.resource.request.path = '/articles'
         self.resource.request.validated = {'data': {}, 'permissions': perms}
         result = self.resource.collection_post()
         self.assertEqual(result['permissions'],
-                         {'write': ['jean-louis']})
+                         {'write': ['basic:userid', 'jean-louis']})
 
     def test_permissions_are_replaced_with_put(self):
         perms = {'write': ['jean-louis']}
         self.resource.request.validated['permissions'] = perms
+        self.resource.request.method = 'PUT'
         result = self.resource.put()
-        self.assertEqual(result['permissions'], perms)
+        # In setUp() 'read' was set on this record.
+        # PUT had got rid of it:
+        self.assertNotIn('read', result['permissions'])
 
     def test_permissions_are_modified_with_patch(self):
         perms = {'write': ['jean-louis']}
         self.resource.request.validated['permissions'] = perms
+        self.resource.request.method = 'PATCH'
         result = self.resource.patch()
         self.assertEqual(result['permissions'],
                          {'write': ['jean-louis'],
