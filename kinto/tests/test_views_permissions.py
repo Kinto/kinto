@@ -27,8 +27,10 @@ class BucketPermissionsTest(PermissionsTest):
 class CollectionPermissionsTest(PermissionsTest):
 
     def setUp(self):
+        bucket = MINIMALIST_BUCKET.copy()
+        bucket['permissions'] = {'write': [self.principal]}
         self.app.put_json('/buckets/beer',
-                          MINIMALIST_BUCKET,
+                          bucket,
                           headers=self.headers)
 
     def test_creation_is_allowed_if_write_on_bucket(self):
