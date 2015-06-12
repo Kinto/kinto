@@ -1017,23 +1017,28 @@ class ProtectedResource(BaseResource):
             if user_principal not in write_principals:
                 write_principals.insert(0, user_principal)
 
-        registry = self.request.registry
-        add_principal = registry.permission.add_principal_to_ace
-        get_perm_principals = registry.permission.object_permission_principals
-        del_principal = registry.permission.remove_principal_from_ace
-
         if replace:
             # XXX: add replace method to permissions API.
-            for permission in self.permissions:
-                existing = list(get_perm_principals(object_id, permission))
-                for principal in existing:
-                    del_principal(object_id, permission, principal)
+            self._delete_permissions(object_id)
+
+        registry = self.request.registry
+        add_principal = registry.permission.add_principal_to_ace
 
         for permission, principals in permissions.items():
             for principal in principals:
                 add_principal(object_id, permission, principal)
 
         return permissions
+
+    def _delete_permissions(self, object_id):
+        registry = self.request.registry
+        del_principal = registry.permission.remove_principal_from_ace
+        get_perm_principals = registry.permission.object_permission_principals
+
+        for permission in self.permissions:
+            existing = list(get_perm_principals(object_id, permission))
+            for principal in existing:
+                del_principal(object_id, permission, principal)
 
     def _build_permissions(self, object_id):
         """Fetch the stored permissions for the specified `object_id` and
@@ -1070,6 +1075,28 @@ class ProtectedResource(BaseResource):
         result['permissions'] = self._store_permissions(object_id=object_id)
         return result
 
+    def collection_delete(self):
+        """Override the collection DELETE endpoint to clear the permissions
+        of the delete records.
+        """
+        result = super(ProtectedResource, self).collection_delete()
+
+        for record in result['data']:
+            # Since the current request is on a collection, the record URI must
+            # be found out by inspecting the collection service and its sibling
+            # record service.
+            service = current_service(self.request)
+            record_service = service.name.replace('-collection', '-record')
+            matchdict = self.request.matchdict.copy()
+            matchdict['id'] = record[self.collection.id_field]
+            record_uri = self.request.route_path(record_service, **matchdict)
+
+            # XXX: inefficient within loop.
+            object_id = authorization.get_object_id(record_uri)
+            self._delete_permissions(object_id)
+
+        return result
+
     def get(self):
         result = super(ProtectedResource, self).get()
 
@@ -1091,4 +1118,11 @@ class ProtectedResource(BaseResource):
         object_id = authorization.get_object_id(self.request.path)
         self._store_permissions(object_id=object_id)
         result['permissions'] = self._build_permissions(object_id=object_id)
+        return result
+
+    def delete(self):
+        result = super(ProtectedResource, self).delete()
+
+        object_id = authorization.get_object_id(self.request.path)
+        self._delete_permissions(object_id=object_id)
         return result
