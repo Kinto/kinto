@@ -25,7 +25,7 @@ ENTRY_POINTS = {
 
 DEPENDENCY_LINKS = [
     # Pre-release of Cliquet.
-    'https://github.com/mozilla-services/cliquet/tarball/2.0.dev2#egg=Cliquet-2.0dev2',
+    'https://github.com/mozilla-services/cliquet/tarball/2.0.dev3#egg=Cliquet-2.0dev3',
 ]
 
 setup(name='kinto',
