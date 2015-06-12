@@ -11,10 +11,8 @@ class AuthorizationPolicy(CliquetAuthorization):
         return build_permissions_set(*args, **kwargs)
 
     def permits(self, context, principals, permission):
-        is_bucket_creation = (context.resource_name == 'bucket' and
-                              context.required_permission == 'create')
-
-        if is_bucket_creation:
+        is_bucket = (context.resource_name == 'bucket')
+        if is_bucket:
             # XXX: Read settings.
             return Authenticated in principals
 

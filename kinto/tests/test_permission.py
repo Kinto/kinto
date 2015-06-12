@@ -16,8 +16,7 @@ class PermissionTest(unittest.TestCase):
                          'collection')
         self.assertEqual(permission.get_object_type(self.bucket_uri), 'bucket')
         self.assertEqual(permission.get_object_type(self.group_uri), 'group')
-        self.assertRaises(ValueError, permission.get_object_type,
-                          self.invalid_uri)
+        self.assertIsNone(permission.get_object_type(self.invalid_uri))
 
     def test_get_object_type_return_right_type_for_children_collection(self):
         self.assertEqual(

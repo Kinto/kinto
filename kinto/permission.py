@@ -78,7 +78,7 @@ def get_object_type(object_uri):
     elif 'buckets' in object_uri:
         obj_type = 'bucket'
     else:
-        raise ValueError('`%s` key is an invalid object id.' % object_uri)
+        obj_type = None
     return obj_type
 
 
