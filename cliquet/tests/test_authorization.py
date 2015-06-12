@@ -90,6 +90,25 @@ class RouteFactoryTest(unittest.TestCase):
         self.assertIsNone(context.resource_name)
         self.assertIsNone(context.check_permission)
 
+    def test_route_factory_adds_allowed_principals_from_settings(self):
+        with mock.patch('cliquet.utils.current_service') as current_service:
+            # Patch current service.
+            resource = mock.MagicMock()
+            current_service().resource.return_value = resource
+            current_service().collection_path = '/buckets'
+            current_service().viewset.get_name.return_value = 'bucket'
+            # Do the actual call.
+            request = DummyRequest(method='post')
+            request.upath_info = '/buckets'
+            request.matchdict = {}
+            request.registry = mock.Mock()
+            request.registry.settings = {
+                'cliquet.bucket_create_principals': ['fxa:user']
+            }
+            context = RouteFactory(request)
+
+            self.assertEquals(context.allowed_principals, ['fxa:user'])
+
 
 class AuthorizationPolicyTest(unittest.TestCase):
     def setUp(self):
@@ -129,3 +148,12 @@ class AuthorizationPolicyTest(unittest.TestCase):
             'record:create',
             self.principals,
             get_bound_permissions=mock.sentinel.get_bound_perms)
+
+    def test_permits_takes_route_factory_allowed_principals_into_account(self):
+        self.context.resource_name = 'record'
+        self.context.required_permission = 'create'
+        self.allowed_principals = ['fxa:user']
+        has_permission = self.authz.permits(
+            self.context, ['fxa:user'], 'dynamic')
+        self.context.check_permission.assert_not_called()
+        self.assertTrue(has_permission)
