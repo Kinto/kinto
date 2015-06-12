@@ -24,9 +24,9 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     def test_records_can_be_accessed_by_id(self):
         self.app.get(self.record_url, headers=self.headers)
 
-    def test_unknown_bucket_raises_404(self):
+    def test_unknown_bucket_raises_403(self):
         other_bucket = self.collection_url.replace('beers', 'sodas')
-        self.app.get(other_bucket, headers=self.headers, status=404)
+        self.app.get(other_bucket, headers=self.headers, status=403)
 
     def test_unknown_collection_raises_404(self):
         other_collection = self.collection_url.replace('barley', 'pills')
@@ -47,12 +47,30 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         self.assertEquals(record, MINIMALIST_RECORD['data'])
 
     def test_records_are_isolated_by_bucket_and_by_collection(self):
+        # By collection.
+        self.app.put_json('/buckets/beers/collections/pills',
+                          MINIMALIST_BUCKET,
+                          headers=self.headers)
         other_collection = self.record_url.replace('barley', 'pills')
         self.app.get(other_collection, headers=self.headers, status=404)
 
+        # By bucket.
+        self.app.put_json('/buckets/sodas',
+                          MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/sodas/collections/barley',
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
         other_bucket = self.record_url.replace('beers', 'sodas')
         self.app.get(other_bucket, headers=self.headers, status=404)
 
+        # By bucket and by collection.
+        self.app.put_json('/buckets/be',
+                          MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/be/collections/ba',
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
         other = self.record_url.replace('barley', 'ba').replace('beers', 'be')
         self.app.get(other, headers=self.headers, status=404)
 

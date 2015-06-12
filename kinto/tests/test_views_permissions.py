@@ -1,7 +1,5 @@
 from .support import (BaseWebTest, unittest, get_user_headers,
-                      MINIMALIST_BUCKET, MINIMALIST_GROUP,
-                      MINIMALIST_COLLECTION, MINIMALIST_RECORD)
-from cliquet.tests.support import authorize
+                      MINIMALIST_BUCKET, MINIMALIST_COLLECTION)
 
 
 class PermissionsTest(BaseWebTest, unittest.TestCase):
