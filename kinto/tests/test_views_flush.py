@@ -6,11 +6,11 @@ from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_RECORD)
 
 
-@authorize(authz_class='kinto.tests.support.AllowAuthorizationPolicy')
 class FlushViewTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
 
+    @authorize(authz_class='kinto.tests.support.AllowAuthorizationPolicy')
     def setUp(self):
         super(FlushViewTest, self).setUp()
 
