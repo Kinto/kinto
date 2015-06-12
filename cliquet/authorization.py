@@ -72,7 +72,8 @@ class RouteFactory(object):
                 try:
                     resource.collection.get_record(resource.record_id)
                 except storage_exceptions.RecordNotFoundError:
-                    object_id = service.collection_path
+                    object_id = service.collection_path.format(
+                        **request.matchdict)
                     permission = "create"
                 else:
                     permission = "write"

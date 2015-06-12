@@ -45,7 +45,22 @@ class RouteFactoryTest(unittest.TestCase):
         self.assert_request_resolves_to("delete", "write")
 
     def test_http_put_unexisting_record_resolves_in_a_create_permission(self):
-        self.assert_request_resolves_to("put", "create", record_not_found=True)
+        with mock.patch('cliquet.utils.current_service') as current_service:
+            # Patch current service.
+            resource = mock.MagicMock()
+            resource.record_id = 1
+            resource.collection.get_record.side_effect = \
+                storage_exceptions.RecordNotFoundError
+            current_service().resource.return_value = resource
+            current_service().collection_path = '/buckets/{bucket_id}'
+            # Do the actual call.
+            request = DummyRequest(method='put')
+            request.upath_info = '/buckets/abc/collections/1'
+            request.matchdict = {'bucket_id': 'abc'}
+            context = RouteFactory(request)
+
+            self.assertEquals(context.object_id, '/buckets/abc')
+            self.assertEquals(context.required_permission, 'create')
 
     def test_http_put_existing_record_resolves_in_a_write_permission(self):
         self.assert_request_resolves_to("put", "write")
