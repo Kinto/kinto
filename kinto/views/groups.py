@@ -40,7 +40,8 @@ class Group(resource.ProtectedResource):
         for group in groups:
             # Remove the group's principal from all members of the group.
             for member in group['members']:
-                group_id = '%s/%s' % (get_object_id(self.request), group['id'])
+                group_id = '%s/%s' % (get_object_id(self.request.path),
+                                      group['id'])
                 permission.remove_user_principal(
                     member,
                     group_id)
@@ -50,7 +51,8 @@ class Group(resource.ProtectedResource):
         group = self._get_record_or_404(self.record_id)
         permission = self.request.registry.permission
         body = super(Group, self).delete()
-        object_id = get_object_id(self.request)
+        object_id = get_object_id(self.request.path)
+        import pdb; pdb.set_trace()
         for member in group['members']:
             # Remove the group's principal from all members of the group.
             permission.remove_user_principal(member, object_id)
@@ -68,12 +70,12 @@ class Group(resource.ProtectedResource):
         permission = self.request.registry.permission
         for member in new_members:
             # Add the group to the member principal.
-            group_id = get_object_id(self.request)
+            group_id = get_object_id(self.request.path)
             permission.add_user_principal(member, group_id)
 
         for member in removed_members:
             # Remove the group from the member principal.
-            group_id = get_object_id(self.request)
+            group_id = get_object_id(self.request.path)
             permission.remove_user_principal(member, group_id)
 
         return new
