@@ -8,6 +8,7 @@ from kinto.views import NameGenerator
                    collection_path='/buckets',
                    record_path='/buckets/{{id}}')
 class Bucket(resource.ProtectedResource):
+    permissions = ('read', 'write', 'collection:create', 'group:create')
 
     def __init__(self, *args, **kwargs):
         super(Bucket, self).__init__(*args, **kwargs)
