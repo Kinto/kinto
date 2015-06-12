@@ -73,7 +73,7 @@ class RouteFactoryTest(unittest.TestCase):
         self.assertIsNone(context.resource_name)
         self.assertIsNone(context.check_permission)
 
-    def test_service_collection_path_is_correct(self):
+    def test_service_collection_path_resolve_on_matchdict(self):
         with mock.patch('cliquet.utils.current_service') as current_service:
             # Patch current service.
             resource = mock.MagicMock()
