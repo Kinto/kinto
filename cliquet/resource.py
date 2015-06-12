@@ -1009,10 +1009,7 @@ class ProtectedResource(BaseResource):
 
         # Do nothing if not specified in request body.
         if not permissions:
-            if add_write_perm:
-                permissions = {}  # XXX: existing perms instead of {}.
-            else:
-                return {}
+            permissions = self._build_permissions(object_id)
 
         if add_write_perm:
             write_principals = permissions.setdefault('write', [])

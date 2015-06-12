@@ -86,7 +86,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.method = 'PUT'
         result = self.resource.put()
         self.assertEqual(result['permissions'],
-                         {'write': ['basic:userid']})
+                         {'read': ['fxa:user'], 'write': ['basic:userid']})
 
     def test_permissions_can_be_specified_in_collection_post(self):
         perms = {'write': ['jean-louis']}
