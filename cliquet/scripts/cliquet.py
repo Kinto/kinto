@@ -20,6 +20,9 @@ def init_schema(env):
     storage_backend = env['registry'].storage
     storage_backend.initialize_schema()
 
+    permission_backend = env['registry'].permission
+    permission_backend.initialize_schema()
+
 
 def main():
     description = """\
