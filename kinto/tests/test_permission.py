@@ -82,19 +82,19 @@ class PermissionTest(unittest.TestCase):
             permission.build_permissions_set(self.bucket_uri, 'read'),
             set([(self.bucket_uri, 'write'), (self.bucket_uri, 'read')]))
 
-        # groups:create
+        # group:create
         self.assertEquals(
-            permission.build_permissions_set(self.bucket_uri, 'groups:create'),
+            permission.build_permissions_set(self.bucket_uri + '/groups', 'group:create'),
             set(
-                [(self.bucket_uri, 'write'), (self.bucket_uri, 'groups:create')])
+                [(self.bucket_uri, 'write'), (self.bucket_uri, 'group:create')])
             )
 
-        # collections:create
+        # collection:create
         self.assertEquals(
-            permission.build_permissions_set(self.bucket_uri,
-                                             'collections:create'),
+            permission.build_permissions_set(self.bucket_uri + '/collections',
+                                             'collection:create'),
             set([(self.bucket_uri, 'write'),
-                 (self.bucket_uri, 'collections:create')]))
+                 (self.bucket_uri, 'collection:create')]))
 
     def test_build_permissions_set_for_group_permission(self):
         # write
@@ -125,11 +125,11 @@ class PermissionTest(unittest.TestCase):
                  (self.collection_uri, 'read')]))
         # records:create
         self.assertEquals(
-            permission.build_permissions_set(self.collection_uri,
-                                             'records:create'),
+            permission.build_permissions_set(self.collection_uri + '/records',
+                                             'record:create'),
             set([(self.bucket_uri, 'write'),
                  (self.collection_uri, 'write'),
-                 (self.collection_uri, 'records:create')]))
+                 (self.collection_uri, 'record:create')]))
 
     def test_build_permissions_set_for_record_permission(self):
         # write

@@ -22,11 +22,11 @@ PERMISSIONS_INHERITANCE_TREE = {
     'bucket:read': {
         'bucket': ['write', 'read']
     },
-    'bucket:groups:create': {
-        'bucket': ['write', 'groups:create']
+    'group:group:create': {
+        'bucket': ['write', 'group:create']
     },
-    'bucket:collections:create': {
-        'bucket': ['write', 'collections:create']
+    'collection:collection:create': {
+        'bucket': ['write', 'collection:create']
     },
     'group:write': {
         'bucket': ['write'],
@@ -44,9 +44,9 @@ PERMISSIONS_INHERITANCE_TREE = {
         'bucket': ['write', 'read'],
         'collection': ['write', 'read'],
     },
-    'collection:records:create': {
+    'record:record:create': {
         'bucket': ['write'],
-        'collection': ['write', 'records:create']
+        'collection': ['write', 'record:create']
     },
     'record:write': {
         'bucket': ['write'],
