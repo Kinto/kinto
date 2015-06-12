@@ -1054,14 +1054,7 @@ class ProtectedResource(BaseResource):
                 permissions[perm] = list(principals)
         return permissions
 
-    def collection_post(self):
-        """Override the collection POST endpoint to store the permissions
-        specified for the newly created record.
-        """
-        result = super(ProtectedResource, self).collection_post()
-
-        record_id = result['data'][self.collection.id_field]
-
+    def _record_uri_from_collection(self, record_id):
         # Since the current request is on a collection, the record URI must
         # be found out by inspecting the collection service and its sibling
         # record service.
@@ -1070,6 +1063,16 @@ class ProtectedResource(BaseResource):
         matchdict = self.request.matchdict.copy()
         matchdict['id'] = record_id
         record_uri = self.request.route_path(record_service, **matchdict)
+        return record_uri
+
+    def collection_post(self):
+        """Override the collection POST endpoint to store the permissions
+        specified for the newly created record.
+        """
+        result = super(ProtectedResource, self).collection_post()
+
+        record_id = result['data'][self.collection.id_field]
+        record_uri = self._record_uri_from_collection(record_id)
 
         object_id = authorization.get_object_id(record_uri)
         result['permissions'] = self._store_permissions(object_id=object_id)
@@ -1082,14 +1085,8 @@ class ProtectedResource(BaseResource):
         result = super(ProtectedResource, self).collection_delete()
 
         for record in result['data']:
-            # Since the current request is on a collection, the record URI must
-            # be found out by inspecting the collection service and its sibling
-            # record service.
-            service = current_service(self.request)
-            record_service = service.name.replace('-collection', '-record')
-            matchdict = self.request.matchdict.copy()
-            matchdict['id'] = record[self.collection.id_field]
-            record_uri = self.request.route_path(record_service, **matchdict)
+            record_id = record[self.collection.id_field]
+            record_uri = self._record_uri_from_collection(record_id)
 
             # XXX: inefficient within loop.
             object_id = authorization.get_object_id(record_uri)
