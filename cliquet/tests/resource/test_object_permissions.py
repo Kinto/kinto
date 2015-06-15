@@ -114,3 +114,29 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.assertEqual(result['permissions'],
                          {'write': ['jean-louis'],
                           'read': ['fxa:user']})
+
+
+class DeletedRecordPermissionTest(PermissionTest):
+    def setUp(self):
+        super(DeletedRecordPermissionTest, self).setUp()
+        record = self.resource.collection.create_record({})
+        self.resource.record_id = record_id = record['id']
+        record_uri = '/articles/%s' % record_id
+        self.resource.request.path = record_uri
+        self.resource.request.route_path.return_value = record_uri
+        self.permission.add_principal_to_ace(record_uri, 'read', 'fxa:user')
+
+    def test_permissions_are_deleted_when_record_is_deleted(self):
+        record_uri = self.resource.request.path
+        self.resource.delete()
+        principals = self.permission.object_permission_principals(record_uri,
+                                                                  'read')
+        self.assertEqual(len(principals), 0)
+
+    def test_permissions_are_deleted_when_collection_is_deleted(self):
+        record_uri = self.resource.request.path
+        self.resource.request.path = '/articles'
+        self.resource.collection_delete()
+        principals = self.permission.object_permission_principals(record_uri,
+                                                                  'read')
+        self.assertEqual(len(principals), 0)
