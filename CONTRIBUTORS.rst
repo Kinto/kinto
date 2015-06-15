@@ -8,3 +8,4 @@ Contributors
 * Rémy Hubscher <rhubscher@mozilla.com>
 * Tarek Ziade <tarek@mozilla.com>
 * hiromipaw <silvia@nopressure.co.uk>
+* Balthazar Rouberol <br@imap.cc>
