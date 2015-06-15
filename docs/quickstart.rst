@@ -112,8 +112,11 @@ Using `HTTPie <http://httpie.org>`_, it is as easy as:
 
 ::
 
-    $ http -v http://localhost:8000/v0/ --auth user:pass
+    $ http -v http://localhost:6543/v0/ --auth user:pass
 
+.. note::
+
+    In the case of *Basic Auth*, there is no need of registering a user/password. Just pick any combination you want, and include them in each request.
 
 Define resources
 ================
