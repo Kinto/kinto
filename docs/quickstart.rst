@@ -58,16 +58,18 @@ in ``myproject.ini``.
     **Shortcut!**
 
     In order to bypass the installation and configuration of *Redis* required by the
-    default storage and cache, use the «in-memory» backend in :file:`development.ini`:
+    default storage, permission manager and cache, use the «in-memory» backend
+    in :file:`development.ini`:
 
     .. code-block:: ini
 
         # development.ini
         cliquet.cache_backend = cliquet.cache.memory
         cliquet.storage_backend = cliquet.storage.memory
+        cliquet.permission_backend = cliquet.permission.memory
 
 
-Now is a good time to install the project locally::
+Now is a good time to install the *Pyramid* project locally::
 
     $ pip install -e .
 
@@ -89,7 +91,7 @@ Like any *Pyramid* application, it can be served locally with:
 
     $ pserve development.ini --reload
 
-A *hello* view is now available at **http://localhost:6543** (As well as basic
+A *hello* view is now available at `http://localhost:6543/v0/ <http://localhost:6543/v0/>`_ (As well as basic
 endpoints like the :ref:`utilities <api-utilities>`).
 
 The next steps will consist in building a custom application using :rtd:`Cornice <cornice>` or
@@ -110,13 +112,16 @@ Using `HTTPie <http://httpie.org>`_, it is as easy as:
 
 ::
 
-    $ http -v http://localhost:8000/v0/ --auth user:pass
+    $ http -v http://localhost:6543/v0/ --auth user:pass
 
+.. note::
+
+    In the case of *Basic Auth*, there is no need of registering a user/password. Just pick any combination you want, and include them in each request.
 
 Define resources
 ================
 
-In order to define a resource, just inherit from :class:`cliquet.resource.BaseResource`,
+In order to define a resource, define a class inheriting from :class:`cliquet.resource.BaseResource`,
 in :file:`myproject/views.py` for example:
 
 .. code-block:: python
