@@ -63,7 +63,8 @@ class TestBasic(TestCase):
             self.auth = HTTPBasicAuth(self.random_user, 'secret')
 
         # Create at least some records for this user
-        self.nb_initial_records = random.randint(3, 100)
+        max_initial_records = self.conf.get('max_initial_records', 100)
+        self.nb_initial_records = random.randint(3, max_initial_records)
 
         # TODO: improve load tests with shared buckets.
         self.bucket = self.random_user
@@ -123,13 +124,15 @@ class TestBasic(TestCase):
 
             This method is called as many times as number of hits.
         """
-        nb_initial_records = self.nb_initial_records
-        while nb_initial_records > 0:
-            self.create()
-            nb_initial_records -= 1
-
         resp = self.session.get(self.collection_url(), auth=self.auth)
         records = resp.json()['data']
+
+        # Create some records, if not any in collection.
+        if len(records) < self.nb_initial_records:
+            for i in range(self.nb_initial_records):
+                self.create()
+            resp = self.session.get(self.collection_url(), auth=self.auth)
+            records = resp.json()['data']
 
         # Pick a random record
         self.random_record = random.choice(records)
