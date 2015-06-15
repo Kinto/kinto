@@ -69,7 +69,7 @@ in ``myproject.ini``.
         cliquet.permission_backend = cliquet.permission.memory
 
 
-Now is a good time to install the project locally::
+Now is a good time to install the *Pyramid* project locally::
 
     $ pip install -e .
 
@@ -121,7 +121,7 @@ Using `HTTPie <http://httpie.org>`_, it is as easy as:
 Define resources
 ================
 
-In order to define a resource, just inherit from :class:`cliquet.resource.BaseResource`,
+In order to define a resource, define a class inheriting from :class:`cliquet.resource.BaseResource`,
 in :file:`myproject/views.py` for example:
 
 .. code-block:: python
