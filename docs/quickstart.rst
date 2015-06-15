@@ -91,8 +91,8 @@ Like any *Pyramid* application, it can be served locally with:
 
     $ pserve development.ini --reload
 
-A *hello* view is now available at `http://localhost:6543/v0/ <http://localhost:6543/v0/>`_ (As well as basic
-endpoints like the :ref:`utilities <api-utilities>`).
+A *hello* view is now available at `http://localhost:6543/v0/ <http://localhost:6543/v0/>`_
+(As well as basic endpoints like the :ref:`utilities <api-utilities>`).
 
 The next steps will consist in building a custom application using :rtd:`Cornice <cornice>` or
 **the Pyramid ecosystem**.
@@ -116,13 +116,14 @@ Using `HTTPie <http://httpie.org>`_, it is as easy as:
 
 .. note::
 
-    In the case of *Basic Auth*, there is no need of registering a user/password. Just pick any combination you want, and include them in each request.
+    In the case of *Basic Auth*, there is no need of registering a user/password.
+    Pick any combination, and include them in each request.
 
 Define resources
 ================
 
-In order to define a resource, define a class inheriting from :class:`cliquet.resource.BaseResource`,
-in :file:`myproject/views.py` for example:
+In order to define a resource, inherit from :class:`cliquet.resource.BaseResource`,
+in a subclass, in :file:`myproject/views.py` for example:
 
 .. code-block:: python
 
