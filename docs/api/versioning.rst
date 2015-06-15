@@ -4,10 +4,10 @@
 API versioning
 ##############
 
-Versionning
-===========
+Versioning
+==========
 
-The API versioning is based on the application version deployed. It follows `semver <http://semver.org/>`_.
+The API versioning is based on the application version deployed. It follows the `semver <http://semver.org/>`_ specifications.
 
 During development the server will be 0.X.X, the server endpoint will be prefixed by ``/v0``.
 

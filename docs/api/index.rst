@@ -4,11 +4,11 @@ API Endpoints
 #############
 
 .. toctree::
+   versioning
    authentication
    resource
    batch
    utilities
    timestamps
-   versionning
    backoff
    errors
