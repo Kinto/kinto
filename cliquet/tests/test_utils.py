@@ -90,18 +90,14 @@ class CurrentServiceTest(unittest.TestCase):
 
     def test_current_service_returns_the_service_for_existing_patterns(self):
         request = mock.MagicMock()
-        request.matched_route = mock.MagicMock()
         request.matched_route.pattern = '/buckets'
-        request.registry = mock.MagicMock()
         request.registry.cornice_services = {'/buckets': mock.sentinel.service}
 
         self.assertEqual(current_service(request), mock.sentinel.service)
 
     def test_current_service_returns_none_for_unexisting_patterns(self):
         request = mock.MagicMock()
-        request.matched_route = mock.MagicMock()
         request.matched_route.pattern = '/unexisting'
-        request.registry = mock.MagicMock()
         request.registry.cornice_services = {}
 
         self.assertEqual(current_service(request), None)
