@@ -1,26 +1,125 @@
 .. _permission:
 
-Permission
-##########
+Permissions
+###########
+
+*Cliquet* provides a mechanism to handle authorization on the stored objects.
+
+Glossary
+========
+
+Authorization isn't complicated, but requires the introduction of a few terms
+so that explanations are easier to follow:
+
+**Object**:
+    The data that is stored into *Cliquet*. Objects usually match
+    the resources you defined; For one resource there are two objects: resource's
+    collection and resource's records.
+**Principal**:
+    An entity that can be authenticated. Principals can be individual people,
+    computers, services, or any group of such things.
+**Permission**:
+    An action that can be authorized or denied. *read*, *write*, *create* are
+    permissions.
+**Access Control Entity (ACE)**:
+    An association of a principal, an object and a permission. For instance,
+    (Alexis, article, write).
+**Access Control List (ACL)**:
+    A list of Access Control Entities (ACE)
+
+Overview
+========
+
+By default, the resources defined by *Cliquet* are public. but it is also
+possible to define *protected resources*, which will required the user to have
+access to the requested resource.
+
+.. code-block:: python
+
+    from cliquet import authorization
+    from cliquet import resource
 
 
-Redis
-=====
-
-.. autoclass:: cliquet.permission.redis.Redis
-
-
-Memory
-======
-
-.. autoclass:: cliquet.permission.memory.Memory
+    @resource.register(factory=authorization.RouteFactory)
+    class Toadstool(resource.ProtectedResource):
+        mapping = MushroomSchema()
 
 
-API
-===
+In this example, a *route factory* is registered. Route factories are explained
+in more details below.
 
-Implementing a custom permission backend consists in implementating
-the following interface:
+A protected resource, in addition to the `data` property of request
+/ responses, takes a `permissions` property which contains the list of
+principals that can access the current object.
+
+During the creation of the object, the `permissions` property is stored in the
+permission backend, and upon access, it is checked the current principal has
+access the the object, with the correct permission.
+
+Route factory
+=============
+
+The route factory decides which permission is required to access one resource
+or another. Here is a summary of the permissions that are defined by the
+default route factory *Cliquet* defines:
+
++------------+------------------------------------------------+
+| Method     | Permission                                     |
++============+================================================+
+| POST       | create                                         |
++------------+------------------------------------------------+
+| GET / HEAD | read                                           |
++------------+------------------------------------------------+
+| PUT        | create (if id doesn't exist), create otherwise |
++------------+------------------------------------------------+
+| PATCH      | write                                          |
++------------+------------------------------------------------+
+| DELETE     | write                                          |
++------------+------------------------------------------------+
+
+Route factories are `best described in the pyramid documentation
+<http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html#route-factories>`_
+
+.. autoclass:: cliquet.authorization.RouteFactory
+  :members:
+
+Authorization policy
+====================
+
+Upon access, the authorization policy is asked if the current *principal* has
+access to the current resource. By default, the authorization policy *Cliquet*
+checks in the permission backend for the current object.
+
+It is possible to extend this behavior, for instance if there is an inheritance
+tree between the defined resources (some ACEs should give access to its child
+objects).
+
+In case the application should define its own inheritance tree, it should also
+define its own authorization policy.
+
+To do so, subclass the default `AuthorizationPolicy` and adding a specific
+`get_bound_permission` method.
+
+.. code-block:: python
+
+    @implementer(IAuthorizationPolicy)
+    class AuthorizationPolicy(authorization.AuthorizationPolicy):
+        def get_bound_permissions(self, *args, **kwargs):
+        """Callable that takes an object id and a permission and returns
+        a list of tuples (<object id>, <permission>)."""
+            return build_permissions_set(*args, **kwargs) 
+
+
+.. autoclass:: cliquet.authorization.AuthorizationPolicy
+  :members:
+
+Permissions backend
+===================
+
+The ACLs are stored in a *permission backend*. Currently, permission backends
+exists for Redis and PostgreSQL. It is of course possible to add you own
+permission backend, if you whish to store your permissions related data in
+a different database.
 
 .. autoclass:: cliquet.permission.PermissionBase
-    :members:
+  :members:
