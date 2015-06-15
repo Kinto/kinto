@@ -140,7 +140,7 @@ class AuthorizationPolicy(CliquetAuthorization):
 
     def permits(self, context, principals, permission):
         is_bucket = (context.resource_name == 'bucket')
-        if is_bucket:
+        if is_bucket and context.required_permission in ('create', 'read'):
             # XXX: Read settings.
             return Authenticated in principals
 
