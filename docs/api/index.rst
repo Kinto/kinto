@@ -12,3 +12,4 @@ API Endpoints
    timestamps
    backoff
    errors
+   deprecation
