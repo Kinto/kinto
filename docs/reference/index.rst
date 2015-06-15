@@ -7,6 +7,7 @@ Reference
    installation
    configuration
    resource
+   viewsets
    storage
    cache
    permission

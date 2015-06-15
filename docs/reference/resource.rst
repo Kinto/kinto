@@ -122,7 +122,7 @@ By default, records ids are `UUID4 <http://en.wikipedia.org/wiki/Universally_uni
 A custom record id generator can be set globally in :ref:`configuration`,
 or at the resource level:
 
-.. code-block :: python
+.. code-block:: python
 
     from cliquet import resource
     from cliquet import utils
@@ -157,10 +157,9 @@ Within views
 In views, a ``request`` object is available and allows to use the storage
 configured in the application:
 
-.. code-block :: python
+.. code-block:: python
 
     from cliquet import resource
-
 
     def view(request):
         registry = request.registry
@@ -185,7 +184,7 @@ Outside views, an application context has to be built from scratch.
 As an example, let's build a code that will copy a remote *Kinto*
 collection into a local storage:
 
-.. code-block :: python
+.. code-block:: python
 
     from cliquet import resource, DEFAULT_SETTINGS
     from pyramid import Configurator
