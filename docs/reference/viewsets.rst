@@ -27,7 +27,7 @@ Default viewset can be extended by passing viewset arguments to the
 
 
 Creating your own viewset
-#########################
+=========================
 
 In case this isn't enough to update the default properties, you can also define
 you own viewset and pass it during the registration phase:
@@ -37,7 +37,7 @@ you own viewset and pass it during the registration phase:
 
     from cliquet import resource
 
-    
+
     class MyViewSet(resource.ViewSet):
 
         def get_service_name(self, endpoint_type, resource):
@@ -45,7 +45,7 @@ you own viewset and pass it during the registration phase:
             resource.
             """
             # Get the resource name from an akwards location.
-            return name 
+            return name
 
 
     @resource.register(viewset=MyViewSet())
