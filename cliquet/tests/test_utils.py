@@ -7,7 +7,7 @@ import six
 from cliquet.utils import (native_value, strip_whitespace, random_bytes_hex,
                            read_env, current_service)
 
-from .support import unittest
+from .support import unittest, DummyRequest
 
 
 class NativeValueTest(unittest.TestCase):
@@ -89,14 +89,14 @@ class ReadEnvironmentTest(unittest.TestCase):
 class CurrentServiceTest(unittest.TestCase):
 
     def test_current_service_returns_the_service_for_existing_patterns(self):
-        request = mock.MagicMock()
+        request = DummyRequest()
         request.matched_route.pattern = '/buckets'
         request.registry.cornice_services = {'/buckets': mock.sentinel.service}
 
         self.assertEqual(current_service(request), mock.sentinel.service)
 
     def test_current_service_returns_none_for_unexisting_patterns(self):
-        request = mock.MagicMock()
+        request = DummyRequest()
         request.matched_route.pattern = '/unexisting'
         request.registry.cornice_services = {}
 
