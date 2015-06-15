@@ -29,8 +29,10 @@ class PermissionsTest(BaseWebTest, unittest.TestCase):
 class BucketPermissionsTest(PermissionsTest):
 
     def setUp(self):
+        bucket = MINIMALIST_BUCKET.copy()
+        bucket['permissions'] = {'read': [self.alice_principal]}
         self.app.put_json('/buckets/sodas',
-                          MINIMALIST_BUCKET,
+                          bucket,
                           headers=self.headers)
 
     def test_creation_is_allowed_to_authenticated_by_default(self):
@@ -46,11 +48,6 @@ class BucketPermissionsTest(PermissionsTest):
         self.assertIn(self.principal, permissions['write'])
 
     def test_can_read_if_allowed(self):
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'read': [self.alice_principal]}
-        self.app.put_json('/buckets/beer',
-                          bucket,
-                          headers=self.headers)
         self.app.get('/buckets/sodas',
                      headers=self.alice_headers)
 

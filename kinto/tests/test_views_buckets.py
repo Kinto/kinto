@@ -11,8 +11,10 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(BucketViewTest, self).setUp()
+        bucket = MINIMALIST_BUCKET.copy()
+        bucket['permissions'] = {'read': ['system.Authenticated']}
         resp = self.app.put_json(self.record_url,
-                                 MINIMALIST_BUCKET,
+                                 bucket,
                                  headers=self.headers)
         self.record = resp.json['data']
 
@@ -82,6 +84,3 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
                           headers=self.headers)
         self.app.get(self.record_url, headers=self.headers, status=404)
-
-    def test_permissions_associated_are_deleted_too(self):
-        pass
