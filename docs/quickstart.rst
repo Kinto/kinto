@@ -91,7 +91,7 @@ Like any *Pyramid* application, it can be served locally with:
 
     $ pserve development.ini --reload
 
-A *hello* view is now available at **http://localhost:6543** (As well as basic
+A *hello* view is now available at `http://localhost:6543/v0/ <http://localhost:6543/v0/>`_ (As well as basic
 endpoints like the :ref:`utilities <api-utilities>`).
 
 The next steps will consist in building a custom application using :rtd:`Cornice <cornice>` or
