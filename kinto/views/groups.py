@@ -52,7 +52,6 @@ class Group(resource.ProtectedResource):
         permission = self.request.registry.permission
         body = super(Group, self).delete()
         object_id = get_object_id(self.request.path)
-        import pdb; pdb.set_trace()
         for member in group['members']:
             # Remove the group's principal from all members of the group.
             permission.remove_user_principal(member, object_id)
