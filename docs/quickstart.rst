@@ -58,13 +58,15 @@ in ``myproject.ini``.
     **Shortcut!**
 
     In order to bypass the installation and configuration of *Redis* required by the
-    default storage and cache, use the «in-memory» backend in :file:`development.ini`:
+    default storage, permission manager and cache, use the «in-memory» backend
+    in :file:`development.ini`:
 
     .. code-block:: ini
 
         # development.ini
         cliquet.cache_backend = cliquet.cache.memory
         cliquet.storage_backend = cliquet.storage.memory
+        cliquet.permission_backend = cliquet.permission.memory
 
 
 Now is a good time to install the project locally::
