@@ -7,11 +7,12 @@ View sets can be viewed as a set of rules which can be applied to a resource in
 order to define what should be inserted in the routing mechanism of pyramid.
 
 
-Configuring your viewset
-========================
+Configuring a viewset
+=====================
 
-To use *Cliquet* in a basic fashion, you probably don't need to understand how
-viewsets work in full detail, but you could extend them very simply.
+To use *Cliquet* in a basic fashion, there is not need to understand how
+viewsets work in full detail, but it might be useful to know how to extend the
+defaults.
 
 Default viewset can be extended by passing viewset arguments to the
 `resource.register` class decorator:
@@ -26,11 +27,12 @@ Default viewset can be extended by passing viewset arguments to the
         mapping = BookmarkSchema()
 
 
-Creating your own viewset
-=========================
+Subclassing a viewset
+=====================
 
-In case this isn't enough to update the default properties, you can also define
-you own viewset and pass it during the registration phase:
+In case this isn't enough to update the default properties, the default
+`ViewSet` class can be subclassed in a more specific viewset, and then be
+passed during the registration phase:
 
 
 .. code-block:: python
