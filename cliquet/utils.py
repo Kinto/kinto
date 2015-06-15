@@ -123,5 +123,7 @@ def current_service(request):
     if request.matched_route:
         services = request.registry.cornice_services
         pattern = request.matched_route.pattern
-        service = services[pattern]
-        return service
+        if pattern in services:
+            service = services[pattern]
+            return service
+        return None
