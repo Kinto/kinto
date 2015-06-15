@@ -126,6 +126,13 @@ class AuthorizationPolicyTest(unittest.TestCase):
         allowed = self.authz.permits(self.context, self.principals, 'dynamic')
         self.assertTrue(allowed)
 
+    def test_permits_refers_to_context_to_check_permission_principals(self):
+        self.context.check_permission.return_value = False
+        self.context.allowed_principals = ['fxa:user']
+        allowed = self.authz.permits(
+            self.context, ['fxa:user', 'system.Authenticated'], 'dynamic')
+        self.assertTrue(allowed)
+
     def test_permits_reads_the_context_when_permission_is_dynamic(self):
         self.authz.permits(self.context, self.principals, 'dynamic')
         self.context.check_permission.assert_called_with(
