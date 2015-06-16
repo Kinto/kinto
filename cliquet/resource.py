@@ -5,7 +5,6 @@ import colander
 import venusian
 import six
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
-                                    HTTPMethodNotAllowed,
                                     HTTPNotFound, HTTPConflict)
 
 from cliquet import authorization
@@ -150,6 +149,16 @@ class ViewSet(object):
         service_arguments.update(self.service_arguments)
         return service_arguments
 
+    def is_endpoint_enabled(self, endpoint_type, resource_name, method,
+                            settings):
+        """Returns if the given endpoint is enabled or not.
+
+        Uses the settings to tell so.
+        """
+        setting_enabled = 'cliquet.%s_%s_%s_enabled' % (
+            endpoint_type, resource_name, method.lower())
+        return settings.get(setting_enabled, True)
+
 
 def register(depth=1, **kwargs):
     """Ressource class decorator.
@@ -172,10 +181,6 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         The resource class to register.
         It should be a class or have a "name" attribute.
 
-    :param settings:
-        A dict of settings. It will be used to check if views aren't disabled
-        before registering them.
-
     :param viewset:
         A ViewSet object, which will be used to find out which arguments should
         be appended to the views, and where the views are.
@@ -187,10 +192,6 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
     Any additional keyword parameters will be used to override the viewset
     attributes.
     """
-    # XXX config.add_directive('register') ?
-    if settings is None:
-        settings = {}
-
     if viewset is None:
         viewset = ViewSet(**kwargs)
     else:
@@ -202,7 +203,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         'resource_name': resource_name
     }
 
-    def register_service(endpoint_type):
+    def register_service(endpoint_type, settings):
         """Registers a service in cornice, for the given type."""
         path_pattern = getattr(viewset, '%s_path' % endpoint_type)
         path = path_pattern.format(**path_formatters)
@@ -221,10 +222,8 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
 
         methods = getattr(viewset, '%s_methods' % endpoint_type)
         for method in methods:
-            setting_enabled = 'cliquet.%s_%s_%s_enabled' % (endpoint_type,
-                                                            resource_name,
-                                                            method.lower())
-            if not settings.get(setting_enabled, True):
+            if not viewset.is_endpoint_enabled(
+                    endpoint_type, resource_name, method.lower(), settings):
                 continue
 
             argument_getter = getattr(viewset, '%s_arguments' % endpoint_type)
@@ -235,19 +234,19 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
 
         return service
 
-    services = [register_service('collection'), register_service('record')]
-
     def callback(context, name, ob):
         # get the callbacks registred by the inner services
         # and call them from here when the @resource classes are being
         # scanned by venusian.
+        config = context.config.with_package(info.module)
+        services = [register_service('collection', config.registry.settings),
+                    register_service('record', config.registry.settings)]
         for service in services:
-            config = context.config.with_package(info.module)
             config.add_cornice_service(service)
 
     info = venusian.attach(resource, callback, category='pyramid',
                            depth=depth)
-    return services
+    return callback
 
 
 class BaseResource(object):
@@ -392,8 +391,6 @@ class BaseResource(object):
     def collection_delete(self):
         """Collection ``DELETE`` endpoint: delete multiple records.
 
-        Can be disabled via ``cliquet.delete_collection_enabled`` setting.
-
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
             ``If-Unmodified-Since`` header is provided and collection modified
@@ -402,12 +399,6 @@ class BaseResource(object):
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters are invalid.
         """
-        settings = self.request.registry.settings
-        enabled = settings['cliquet.delete_collection_enabled']
-        if not enabled:
-            # XXX: https://github.com/mozilla-services/cliquet/issues/46
-            raise HTTPMethodNotAllowed()
-
         self._raise_412_if_modified()
 
         filters = self._extract_filters()

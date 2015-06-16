@@ -38,14 +38,39 @@ Feature settings
     # Limit number of batch operations per request
     # cliquet.batch_max_requests = 25
 
-    # Disable DELETE on collection
-    # cliquet.delete_collection_enabled = false
-
     # Force pagination *(recommended)*
     # cliquet.paginate_by = 200
 
     # Custom record id generator class
     # cliquet.id_generator = cliquet.storage.generators.UUID4
+
+
+Disabling endpoints
+===================
+
+It is possible to deactivate specific resources operations, directly in the
+settings.
+
+To do so, a setting key must be defined for the disabled resources endpoints::
+
+    'cliquet.{endpoint_type}_{resource_name}_{method}_enabled'
+
+Where:
+- **endpoint_type** is either collection or record;
+- **resource_name** is the name of the resource (by default, *Cliquet* uses
+  the name of the class);
+- **method** is the http method (in lower case): For instance ``put``.
+
+For instance, to disable the PUT on records for the *Mushrooms* resource, the
+following setting should be declared in the ``.ini`` file:
+
+.. code-block:: ini
+
+    # Disable article collection DELETE endpoint
+    cliquet.collection_article_delete_enabled = false
+
+    # Disable mushroom record PATCH endpoint
+    cliquet.record_mushroom_patch_enabled = false
 
 
 Deployment
