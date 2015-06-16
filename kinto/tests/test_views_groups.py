@@ -65,7 +65,7 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.group_url, headers=self.headers,
                      status=404)
 
-    def test_group_is_removed_from_users_on_group_deletion(self):
+    def test_group_is_removed_from_users_principals_on_group_deletion(self):
         self.app.put_json(self.group_url, MINIMALIST_GROUP,
                           headers=self.headers, status=201)
         self.assertIn(self.group_url,
@@ -74,7 +74,7 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.assertNotIn(self.group_url,
                          self.permission.user_principals('fxa:user'))
 
-    def test_group_is_removed_from_users_on_all_groups_deletion(self):
+    def test_group_is_removed_from_users_principals_on_groups_deletion(self):
         self.create_group('beers', 'moderators', ['natim', 'fxa:user'])
         self.create_group('beers', 'reviewers', ['natim', 'alexis'])
 
@@ -85,25 +85,48 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.assertEquals(self.permission.user_principals('natim'), set())
         self.assertEquals(self.permission.user_principals('alexis'), set())
 
-    def test_group_is_added_to_user_when_added_to_members(self):
+    def test_group_is_added_to_user_principals_when_added_to_members(self):
         self.create_group('beers', 'moderators', ['natim', 'mat'])
 
-        group = self.app.get('/buckets/beers/groups', headers=self.headers,
-                             status=200).json['data'][0]
-        self.assertIn('natim', group['members'])
-        self.assertIn('mat', group['members'])
+        self.app.get('/buckets/beers/groups', headers=self.headers, status=200)
+        self.assertEquals(self.permission.user_principals('natim'),
+                          {'/buckets/beers/groups/moderators'})
+        self.assertEquals(self.permission.user_principals('mat'),
+                          {'/buckets/beers/groups/moderators'})
 
-    def test_group_is_added_to_user_when_added_to_members_using_patch(self):
+    def test_group_is_added_to_user_principals_on_members_add_with_patch(self):
         self.create_group('beers', 'moderators', ['natim', 'mat'])
         group_url = '/buckets/beers/groups/moderators'
         group = {'data': {'members': ['natim', 'mat', 'alice']}}
         self.app.patch_json(group_url, group,
                             headers=self.headers, status=200)
-        group = self.app.get('/buckets/beers/groups', headers=self.headers,
-                             status=200).json['data'][0]
-        self.assertIn('natim', group['members'])
-        self.assertIn('mat', group['members'])
-        self.assertIn('alice', group['members'])
+        self.app.get('/buckets/beers/groups', headers=self.headers, status=200)
+        self.assertEquals(self.permission.user_principals('natim'),
+                          {group_url})
+        self.assertEquals(self.permission.user_principals('mat'),
+                          {group_url})
+        self.assertEquals(self.permission.user_principals('alice'),
+                          {group_url})
+
+    def test_group_member_removal_updates_user_principals(self):
+        self.create_group('beers', 'moderators', ['natim', 'mat'])
+        group_url = '/buckets/beers/groups/moderators'
+        group = {'data': {'members': ['mat']}}
+        self.app.put_json(group_url, group,
+                          headers=self.headers, status=200)
+        self.app.get('/buckets/beers/groups', headers=self.headers, status=200)
+        self.assertEquals(self.permission.user_principals('natim'), set())
+        self.assertEquals(self.permission.user_principals('mat'),
+                          {group_url})
+
+    def test_group_member_removal_updates_user_principals_with_patch(self):
+        self.create_group('beers', 'moderators', ['natim', 'mat'])
+        group_url = '/buckets/beers/groups/moderators'
+        group = {'data': {'members': ['mat']}}
+        self.app.patch_json(group_url, group, headers=self.headers, status=200)
+        self.assertEquals(self.permission.user_principals('natim'), set())
+        self.assertEquals(self.permission.user_principals('mat'),
+                          {group_url})
 
 
 class InvalidGroupTest(BaseWebTest, unittest.TestCase):
