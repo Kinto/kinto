@@ -287,6 +287,25 @@ values for OAuth2 client settings.
 See :github:`mozilla-services/cliquet-fxa`.
 
 
+Permission configuration
+::::::::::::::::::::::::
+
+ACE are usually set on objects using the permission backend.
+
+It is also possible to configure them from settings, and it will **bypass**
+the permission backend.
+
+For example, for a resource named "bucket", the following setting will enable
+authenticated people to create bucket records:
+
+.. code-block:: ini
+
+    cliquet.bucket_create_principals = system.Authenticated
+
+The format of these permission settings is
+``<resource_name>_<permission>_principals = comma,separated,principals``.
+
+
 Application profiling
 =====================
 

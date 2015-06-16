@@ -1,6 +1,7 @@
 import re
 import six
 import functools
+from pyramid.settings import aslist
 from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 
@@ -24,10 +25,13 @@ class AuthorizationPolicy(object):
         if permission == 'create':
             permission = '%s:%s' % (context.resource_name, permission)
 
-        allowed = context.check_permission(
-            permission,
-            principals,
-            get_bound_permissions=self.get_bound_permissions)
+        if context.allowed_principals:
+            allowed = bool(set(context.allowed_principals) & set(principals))
+        else:
+            allowed = context.check_permission(
+                permission,
+                principals,
+                get_bound_permissions=self.get_bound_permissions)
 
         return allowed
 
@@ -85,6 +89,9 @@ class RouteFactory(object):
                 request.registry.permission.check_permission,
                 object_id)
 
+        settings = request.registry.settings
+        settings_key = 'cliquet.%s_%s_principals' % (resource_name, permission)
+        self.allowed_principals = aslist(settings.get(settings_key, ''))
         self.object_id = object_id
         self.required_permission = permission
         self.resource_name = resource_name
