@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_SETTINGS = {
-    'kinto.buckets_creation_allowed_principals': 'system.Authenticated',
+    'cliquet.bucket_create_principals': 'system.Authenticated',
     'multiauth.authorization_policy': (
         'kinto.authorization.AuthorizationPolicy')
 }
