@@ -12,8 +12,17 @@ __version__ = pkg_resources.get_distribution(__package__).version
 logger = logging.getLogger(__name__)
 
 
+DEFAULT_SETTINGS = {
+    'kinto.buckets_creation_allowed_principals': 'system.Authenticated',
+    'multiauth.authorization_policy': (
+        'kinto.authorization.AuthorizationPolicy')
+}
+
+
 def main(global_config, **settings):
     config = Configurator(settings=settings, root_factory=RouteFactory)
-    initialize_cliquet(config, version=__version__)
+    initialize_cliquet(config,
+                       version=__version__,
+                       default_settings=DEFAULT_SETTINGS)
     config.scan("kinto.views")
     return config.make_wsgi_app()

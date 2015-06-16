@@ -14,7 +14,7 @@ _parent_path = '/buckets/{{bucket_id}}/collections/{{collection_id}}'
 @resource.register(name='record',
                    collection_path=_parent_path + '/records',
                    record_path=_parent_path + '/records/{{id}}')
-class Record(resource.BaseResource):
+class Record(resource.ProtectedResource):
 
     mapping = RecordSchema()
 

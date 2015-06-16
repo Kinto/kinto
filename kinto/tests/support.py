@@ -42,6 +42,9 @@ class BaseWebTest(object):
 
     def get_app_settings(self, additional_settings=None):
         settings = cliquet_support.DEFAULT_SETTINGS.copy()
+        settings['cliquet.cache_backend'] = 'cliquet.cache.memory'
+        settings['cliquet.storage_backend'] = 'cliquet.storage.memory'
+        settings['cliquet.permission_backend'] = 'cliquet.permission.memory'
         settings['cliquet.project_name'] = 'cloud storage'
         settings['cliquet.project_docs'] = 'https://kinto.rtfd.org/'
         settings['multiauth.authorization_policy'] = (
