@@ -30,7 +30,6 @@ DEFAULT_SETTINGS = {
     'cliquet.cache_pool_size': 10,
     'cliquet.cache_url': '',
     'cliquet.cors_origins': '*',
-    'cliquet.delete_collection_enabled': True,
     'cliquet.eos': None,
     'cliquet.eos_message': None,
     'cliquet.eos_url': None,

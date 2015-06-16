@@ -5,7 +5,6 @@ import colander
 import venusian
 import six
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
-                                    HTTPMethodNotAllowed,
                                     HTTPNotFound, HTTPConflict)
 
 from cliquet import authorization
@@ -387,8 +386,6 @@ class BaseResource(object):
     def collection_delete(self):
         """Collection ``DELETE`` endpoint: delete multiple records.
 
-        Can be disabled via ``cliquet.delete_collection_enabled`` setting.
-
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
             ``If-Unmodified-Since`` header is provided and collection modified
@@ -397,12 +394,6 @@ class BaseResource(object):
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters are invalid.
         """
-        settings = self.request.registry.settings
-        enabled = settings['cliquet.delete_collection_enabled']
-        if not enabled:
-            # XXX: https://github.com/mozilla-services/cliquet/issues/46
-            raise HTTPMethodNotAllowed()
-
         self._raise_412_if_modified()
 
         filters = self._extract_filters()

@@ -38,14 +38,25 @@ Feature settings
     # Limit number of batch operations per request
     # cliquet.batch_max_requests = 25
 
-    # Disable DELETE on collection
-    # cliquet.delete_collection_enabled = false
-
     # Force pagination *(recommended)*
     # cliquet.paginate_by = 200
 
     # Custom record id generator class
     # cliquet.id_generator = cliquet.storage.generators.UUID4
+
+
+Disable endpoints
+-----------------
+
+Particular endpoints can be disabled from configuration using settings:
+
+.. code-block:: ini
+
+    # Disable article collection DELETE endpoint
+    cliquet.collection_article_delete_enabled = false
+
+    # Disable mushroom record PATCH endpoint
+    cliquet.record_mushroom_patch_enabled = false
 
 
 Deployment
