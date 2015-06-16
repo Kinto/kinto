@@ -26,7 +26,7 @@ ENTRY_POINTS = {
 DEPENDENCY_LINKS = []
 
 setup(name='kinto',
-      version='1.0.0.dev0',
+      version='1.0.0',
       description='kinto',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',
