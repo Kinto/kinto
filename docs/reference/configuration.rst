@@ -45,10 +45,24 @@ Feature settings
     # cliquet.id_generator = cliquet.storage.generators.UUID4
 
 
-Disable endpoints
------------------
+Disabling endpoints
+===================
 
-Particular endpoints can be disabled from configuration using settings:
+It is possible to deactivate specific resources operations, directly in the
+settings.
+
+To do so, a setting key must be defined for the disabled resources endpoints::
+
+    'cliquet.{endpoint_type}_{resource_name}_{method}_enabled'
+
+Where:
+- **endpoint_type** is either collection or record;
+- **resource_name** is the name of the resource (by default, *Cliquet* uses
+  the name of the class);
+- **method** is the http method (in lower case): For instance ``put``.
+
+For instance, to disable the PUT on records for the *Mushrooms* resource, the
+following setting should be declared in the ``.ini`` file:
 
 .. code-block:: ini
 
