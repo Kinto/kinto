@@ -3,19 +3,46 @@ Changelog
 
 This document describes changes between each past release.
 
-1.8.1 (unreleased)
+2.0.0 (2015-06-16)
 ------------------
 
 **New features**
 
-- Preserve provided ``id`` field of records using POST on collection (fixes #293)
+- Authentication and authorization policies, as well as group finder function
+  can now be specified via configuration (fixes #40, #265)
+- Resources can now be protected by fine-grained permissions (#288 via #291, #302)
 
+Minor
+
+- Preserve provided ``id`` field of records using POST on collection (#293 via #294)
+- Logging value for authentication type is now available for any kind of
+  authentication policy.
+- Any resource endpoint can now be disabled from settings (#46 via #268)
+
+**Bug fixes**
+
+- Do not limit cache values to string (#279)
+- When PUT creates the record, the HTTP status code is now 201 (#298, #300)
+- Add safety check in ``utils.current_service()`` (#316)
 
 **Breaking changes**
 
 - ``cliquet.storage.postgresql`` now requires PostgreSQL version 9.4, since it
   now relies on *JSONB*. Data will be migrated automatically using the ``migrate``
   command.
+- the ``@crud`` decorator was replaced by ``@register()`` (fixes #12, #268)
+- Firefox Accounts code was removed and published as external package *cliquet-fxa*
+- The *Cloud storage* storage backend was removed out of *Cliquet* and should
+  be revamped in *Kinto* repository (mozilla-services/kinto#45)
+
+API
+
+- Resource endpoints now expect payloads to have a ``data`` attribute (#254, #287)
+- Resource endpoints switched from ``If-Modified-Since`` and ``If-Unmodified-Since``
+  to ``Etags`` (fixes #251 via #275), thanks @michielbdejong!
+
+Minor
+
 - ``existing`` attribute of conflict errors responses was moved inside a generic
   ``details`` attribute that is also used to list validation errors.
 - Setting ``cliquet.basic_auth_enabled`` is now deprecated.
@@ -24,12 +51,13 @@ This document describes changes between each past release.
 - Logging value for authentication type is now ``authn_type`` (with ``FxAOAuth``
   or ``BasicAuth`` as default values).
 
-**New features**
+**Internal changes**
 
-- Authentication and authorization policies, as well as group finder function
-  can now be specified via configuration (fixes #40)
-- Logging value for authentication type is now available for any kind of
-  authentication policy.
+- Cliquet resource code was split into ``Collection`` and ``Resource`` (fixes #243, #282)
+- Cleaner separation of concern between ``Resource`` and the new notion of ``ViewSet`` (#268)
+- Quickstart documentation improvement (#271, #312) thanks @N1k0 and @brouberol!
+- API versioning documentation improvements (#313)
+- Contribution documentation improvement (#306)
 
 
 1.8.0 (2015-05-13)
