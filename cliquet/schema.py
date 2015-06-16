@@ -82,7 +82,9 @@ class PermissionsSchema(colander.SchemaNode):
         }
 
     """
-    known_perms = tuple()
+    def __init__(self, *args, **kwargs):
+        self.known_perms = kwargs.pop('permissions', tuple())
+        super(PermissionsSchema, self).__init__(*args, **kwargs)
 
     def schema_type(self, **kw):
         return colander.Mapping(unknown='preserve')

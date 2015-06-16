@@ -98,9 +98,14 @@ class ViewSet(object):
             # Simply validate that posted body is a mapping.
             return colander.MappingSchema(unknown='preserve')
 
+        # XXX: https://github.com/mozilla-services/cliquet/issues/322
+        resource_permissions = getattr(resource, 'permissions', tuple())
+
         class RecordPayload(colander.MappingSchema):
             data = resource.mapping
-            permissions = PermissionsSchema(missing=colander.drop)
+            permissions = PermissionsSchema(
+                missing=colander.drop,
+                permissions=resource_permissions)
 
             def schema_type(self, **kw):
                 return colander.Mapping(unknown='raise')

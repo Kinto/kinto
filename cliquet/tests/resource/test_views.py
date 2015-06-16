@@ -88,6 +88,17 @@ class ProtectedResourcePermissionTest(AuthzAuthnTest):
         resp = self.app.put_json(object_uri, body, headers=self.headers)
         self.assertEqual(resp.json['permissions']['read'], ['group:readers'])
 
+    def test_unknown_permissions_are_not_accepted(self):
+        self.maxDiff = None
+        body = {'data': MINIMALIST_RECORD,
+                'permissions': {'read': ['group:readers'],
+                                'unknown': ['jacques']}}
+        resp = self.app.post_json(self.collection_url, body,
+                                  headers=self.headers, status=400)
+        self.assertEqual(
+            resp.json['message'],
+            'permissions in body: "unknown" is not one of read, write')
+
 
 class CollectionAuthzGrantedTest(AuthzAuthnTest):
     def test_collection_get_is_granted_when_authorized(self):
