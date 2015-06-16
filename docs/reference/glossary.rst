@@ -35,5 +35,32 @@ Glossary
 
         See `Pyramid authentication`_.
 
+    object
+    objects
+        The data that is stored into *Cliquet*. Objects usually match
+        the resources you defined; For one resource there are two objects: resource's
+        collection and resource's records.
+
+    principal
+    principals
+        An entity that can be authenticated. Principals can be individual people,
+        computers, services, or any group of such things.
+
+    permission
+    permissions
+        An action that can be authorized or denied. read, write, create are
+        permissions.
+
+    ACE
+    ACEs
+    Access Control Entity
+        An association of a principal, an object and a permission. For instance,
+        (Alexis, article, write).
+
+    ACL
+    ACLs
+    Access Control List
+        A list of Access Control Entities (ACE).
+
 
 .. _Pyramid authentication: http://docs.pylonsproject.org/docs/pyramid/en/latest/narr/security.html

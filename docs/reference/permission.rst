@@ -1,9 +1,9 @@
-.. _permission:
+.. permission
 
 Permissions
 ###########
 
-*Cliquet* provides a mechanism to handle authorization on the stored objects.
+*Cliquet* provides a mechanism to handle authorization on the stored :term:`objects`.
 
 Glossary
 ========
@@ -12,20 +12,20 @@ Authorization isn't complicated, but requires the introduction of a few terms
 so that explanations are easier to follow:
 
 **Object**:
-    The data that is stored into *Cliquet*. Objects usually match
-    the resources you defined; For one resource there are two objects: resource's
+    The data that is stored into *Cliquet*. :term:`objects` usually match
+    the resources you defined; For one resource there are two :term:`objects`: resource's
     collection and resource's records.
 **Principal**:
-    An entity that can be authenticated. Principals can be individual people,
+    An entity that can be authenticated. :term:`principals` can be individual people,
     computers, services, or any group of such things.
 **Permission**:
     An action that can be authorized or denied. *read*, *write*, *create* are
-    permissions.
+    :term:`permissions`.
 **Access Control Entity (ACE)**:
-    An association of a principal, an object and a permission. For instance,
+    An association of a :term:`principal`, an :term:`object` and a :term:`permission`. For instance,
     (Alexis, article, write).
 **Access Control List (ACL)**:
-    A list of Access Control Entities (ACE).
+    A list of Access Control Entities (:term:`ACE`).
 
 Overview
 ========
@@ -49,22 +49,22 @@ In this example, a *route factory* is registered. Route factories are explained
 in more details below.
 
 A protected resource, in addition to the ``data`` property of request
-/ responses, takes a ``permissions`` property which contains the list of
-principals that are allowed to access or modify the current object.
+/ responses, takes a :term:`permissions` property which contains the list of
+:term:`principals` that are allowed to access or modify the current :term:`object`.
 
-During the creation of the object, the ``permissions`` property is stored in the
-permission backend, and upon access, it checks the current principal has
+During the creation of the :term:`object`, the :term:`permissions` property is stored in the
+permission backend, and upon access, it checks the current :term:`principal` has
 access the the object, with the correct permission.
 
 Route factory
 =============
 
-The route factory decides which permission is required to access one resource
-or another. Here is a summary of the permissions that are defined by the
+The route factory decides which :term:`permission` is required to access one resource
+or another. Here is a summary of the :term:`permissions` that are defined by the
 default route factory *Cliquet* defines:
 
 +------------+------------------------------------------------+
-| Method     | Permission                                     |
+| Method     | :term:`permission`                             |
 +============+================================================+
 | POST       | ``create``                                     |
 +------------+------------------------------------------------+
@@ -88,12 +88,12 @@ Authorization policy
 ====================
 
 Upon access, the authorization policy is asked if any of the current list of
-*principals* has access to the current resource. By default, the authorization
-policy *Cliquet* checks in the permission backend for the current object.
+:term:`principals` has access to the current resource. By default, the authorization
+policy *Cliquet* checks in the :term:`permission` backend for the current :term:`object`.
 
 It is possible to extend this behavior, for instance if there is an inheritance
-tree between the defined resources (some ACEs should give access to its child
-objects).
+tree between the defined resources (some :term:`ACEs` should give access to its child
+:term:`objects`).
 
 In case the application should define its own inheritance tree, it should also
 define its own authorization policy.
@@ -121,10 +121,10 @@ To do so, subclass the default ``AuthorizationPolicy`` and add a specific
 Permissions backend
 ===================
 
-The ACLs are stored in a *permission backend*. Currently, permission backends
+The :term:`ACLs` are stored in a :term:`permission` backend. Currently, permission backends
 exists for Redis and PostgreSQL, as well as a in memory one. It is of course
 possible to add you own permission backend, if you whish to store your
-permissions related data in a different database.
+:term:`permissions` related data in a different database.
 
 .. autoclass:: cliquet.permission.PermissionBase
   :members:
