@@ -100,7 +100,9 @@ class ViewSet(object):
 
         class RecordPayload(colander.MappingSchema):
             data = resource.mapping
-            permissions = PermissionsSchema(missing=colander.drop)
+            permissions = PermissionsSchema(
+                missing=colander.drop,
+                permissions=getattr(resource, 'permissions', tuple()))
 
             def schema_type(self, **kw):
                 return colander.Mapping(unknown='raise')
