@@ -9,6 +9,7 @@ from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 from cliquet.tests import support as cliquet_support
 from kinto import main as testapp
+from kinto import DEFAULT_SETTINGS
 
 
 MINIMALIST_BUCKET = {'data': dict()}
@@ -24,8 +25,8 @@ class BaseWebTest(object):
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.app = self._get_test_app()
         self.principal = USER_PRINCIPAL
+        self.app = self._get_test_app()
         self.storage = self.app.app.registry.storage
         self.permission = self.app.app.registry.permission
         self.permission.initialize_schema()
@@ -42,6 +43,7 @@ class BaseWebTest(object):
 
     def get_app_settings(self, additional_settings=None):
         settings = cliquet_support.DEFAULT_SETTINGS.copy()
+        settings.update(**DEFAULT_SETTINGS)
         settings['cliquet.cache_backend'] = 'cliquet.cache.memory'
         settings['cliquet.storage_backend'] = 'cliquet.storage.memory'
         settings['cliquet.permission_backend'] = 'cliquet.permission.memory'

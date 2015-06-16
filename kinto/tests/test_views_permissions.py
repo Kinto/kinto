@@ -16,15 +16,6 @@ class PermissionsTest(BaseWebTest, unittest.TestCase):
         self.bob_principal = ('basicauth_c031ced27503f788b102ca54269a062ec73'
                               '794bb075154c74a0d4311e74ca8b6')
 
-    def get_app_settings(self, additional_settings=None):
-        extra = {
-            'multiauth.authorization_policy':
-                'kinto.tests.support.AllowAuthorizationPolicy'
-        }
-        extra.update(additional_settings or {})
-        return super(PermissionsTest, self).get_app_settings(
-            additional_settings=extra)
-
 
 class BucketPermissionsTest(PermissionsTest):
 

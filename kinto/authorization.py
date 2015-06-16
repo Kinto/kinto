@@ -137,13 +137,3 @@ def build_permissions_set(object_uri, unbound_permission,
 class AuthorizationPolicy(CliquetAuthorization):
     def get_bound_permissions(self, *args, **kwargs):
         return build_permissions_set(*args, **kwargs)
-
-    def permits(self, context, principals, permission):
-        is_bucket = (context.resource_name == 'bucket')
-        if is_bucket and context.required_permission in ('create', 'read'):
-            # XXX: Read settings.
-            return Authenticated in principals
-
-        return super(AuthorizationPolicy, self).permits(context,
-                                                        principals,
-                                                        permission)
