@@ -1,12 +1,13 @@
 import os
 
 import colander
+import mock
 import six
 
 from cliquet.utils import (native_value, strip_whitespace, random_bytes_hex,
-                           read_env)
+                           read_env, current_service)
 
-from .support import unittest
+from .support import unittest, DummyRequest
 
 
 class NativeValueTest(unittest.TestCase):
@@ -83,3 +84,20 @@ class ReadEnvironmentTest(unittest.TestCase):
     def test_return_env_value_is_coerced_to_python(self):
         os.environ.setdefault('CLIQUET_CONF_NAME', '3.14')
         self.assertEqual(read_env('cliquet-conf.name', 12), 3.14)
+
+
+class CurrentServiceTest(unittest.TestCase):
+
+    def test_current_service_returns_the_service_for_existing_patterns(self):
+        request = DummyRequest()
+        request.matched_route.pattern = '/buckets'
+        request.registry.cornice_services = {'/buckets': mock.sentinel.service}
+
+        self.assertEqual(current_service(request), mock.sentinel.service)
+
+    def test_current_service_returns_none_for_unexisting_patterns(self):
+        request = DummyRequest()
+        request.matched_route.pattern = '/unexisting'
+        request.registry.cornice_services = {}
+
+        self.assertEqual(current_service(request), None)
