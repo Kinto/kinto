@@ -12,6 +12,16 @@ try:
     import ujson as json  # NOQA
 except ImportError:
     import json
+
+# psycopg2cffi is installed under pypy, instead of psycopg2
+# pragma: no cover
+try:
+    import psycopg2
+except ImportError:
+    from psycopg2cffi import compat
+    compat.register()
+    import psycopg2
+
 from cornice import cors
 from colander import null
 

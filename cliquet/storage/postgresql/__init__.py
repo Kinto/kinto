@@ -3,7 +3,7 @@ import os
 import warnings
 from collections import defaultdict
 
-import psycopg2
+from cliquet.utils import psycopg2
 import psycopg2.extras
 import psycopg2.pool
 import six

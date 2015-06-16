@@ -1,9 +1,9 @@
 import time
 
 import mock
-import psycopg2
 import redis
 
+from cliquet.utils import psycopg2
 from cliquet import utils
 from cliquet.storage import (
     exceptions, Filter, generators, memory,
