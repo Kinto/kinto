@@ -1,5 +1,5 @@
 from cliquet.authorization import AuthorizationPolicy as CliquetAuthorization
-from pyramid.security import IAuthorizationPolicy, Authenticated
+from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 
 
