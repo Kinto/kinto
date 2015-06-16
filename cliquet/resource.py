@@ -145,14 +145,14 @@ class ViewSet(object):
         return service_arguments
 
     def is_endpoint_enabled(self, endpoint_type, resource_name, method,
-                            config):
+                            settings):
         """Returns if the given endpoint is enabled or not.
 
         Uses the settings to tell so.
         """
         setting_enabled = 'cliquet.%s_%s_%s_enabled' % (
             endpoint_type, resource_name, method.lower())
-        return config.get(setting_enabled, True)
+        return settings.get(setting_enabled, True)
 
 
 def register(depth=1, **kwargs):
@@ -198,7 +198,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         'resource_name': resource_name
     }
 
-    def register_service(endpoint_type, config):
+    def register_service(endpoint_type, settings):
         """Registers a service in cornice, for the given type."""
         path_pattern = getattr(viewset, '%s_path' % endpoint_type)
         path = path_pattern.format(**path_formatters)
@@ -218,7 +218,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         methods = getattr(viewset, '%s_methods' % endpoint_type)
         for method in methods:
             if not viewset.is_endpoint_enabled(
-                    endpoint_type, resource_name, method.lower(), config):
+                    endpoint_type, resource_name, method.lower(), settings):
                 continue
 
             argument_getter = getattr(viewset, '%s_arguments' % endpoint_type)
