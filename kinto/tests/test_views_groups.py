@@ -53,7 +53,7 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
     def test_wrong_create_permissions_cannot_be_added_on_groups(self):
         group = MINIMALIST_GROUP.copy()
         group['permissions'] = {'group:create': ['fxa:user']}
-        self.app.put_json('/buckets/beers/groups/__moderator__',
+        self.app.put_json('/buckets/beers/groups/moderator',
                           group,
                           headers=self.headers,
                           status=400)

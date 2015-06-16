@@ -49,7 +49,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
     def test_create_permissions_can_be_added_on_collections(self):
         collection = MINIMALIST_COLLECTION.copy()
         collection['permissions'] = {'record:create': ['fxa:user']}
-        resp = self.app.put_json('/buckets/beers/collections/__barley__',
+        resp = self.app.put_json('/buckets/beers/collections/barley',
                                  collection,
                                  headers=self.headers,
                                  status=200)
@@ -59,7 +59,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
     def test_wrong_create_permissions_cannot_be_added_on_collections(self):
         collection = MINIMALIST_COLLECTION.copy()
         collection['permissions'] = {'collection:create': ['fxa:user']}
-        self.app.put_json('/buckets/beers/collections/__barley__',
+        self.app.put_json('/buckets/beers/collections/barley',
                           collection,
                           headers=self.headers,
                           status=400)
