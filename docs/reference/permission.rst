@@ -25,14 +25,14 @@ so that explanations are easier to follow:
     An association of a principal, an object and a permission. For instance,
     (Alexis, article, write).
 **Access Control List (ACL)**:
-    A list of Access Control Entities (ACE)
+    A list of Access Control Entities (ACE).
 
 Overview
 ========
 
-By default, the resources defined by *Cliquet* are public. but it is also
-possible to define *protected resources*, which will required the user to have
-access to the requested resource.
+By default, the resources defined by *Cliquet* are public, and records are
+isolated by user. But it is also possible to define *protected resources*,
+which will required the user to have access to the requested resource.
 
 .. code-block:: python
 
@@ -48,12 +48,12 @@ access to the requested resource.
 In this example, a *route factory* is registered. Route factories are explained
 in more details below.
 
-A protected resource, in addition to the `data` property of request
-/ responses, takes a `permissions` property which contains the list of
-principals that can access the current object.
+A protected resource, in addition to the ``data`` property of request
+/ responses, takes a ``permissions`` property which contains the list of
+principals that are allowed to access or modify the current object.
 
-During the creation of the object, the `permissions` property is stored in the
-permission backend, and upon access, it is checked the current principal has
+During the creation of the object, the ``permissions`` property is stored in the
+permission backend, and upon access, it checks the current principal has
 access the the object, with the correct permission.
 
 Route factory
@@ -66,15 +66,16 @@ default route factory *Cliquet* defines:
 +------------+------------------------------------------------+
 | Method     | Permission                                     |
 +============+================================================+
-| POST       | create                                         |
+| POST       | ``create``                                     |
 +------------+------------------------------------------------+
-| GET / HEAD | read                                           |
+| GET / HEAD | ``read``                                       |
 +------------+------------------------------------------------+
-| PUT        | create (if id doesn't exist), create otherwise |
+| PUT        | ``create`` if it doesn't exist, ``write``      |
+|            | otherwise                                      |
 +------------+------------------------------------------------+
-| PATCH      | write                                          |
+| PATCH      | ``write``                                      |
 +------------+------------------------------------------------+
-| DELETE     | write                                          |
+| DELETE     | ``write``                                      |
 +------------+------------------------------------------------+
 
 Route factories are `best described in the pyramid documentation
@@ -97,10 +98,14 @@ objects).
 In case the application should define its own inheritance tree, it should also
 define its own authorization policy.
 
-To do so, subclass the default `AuthorizationPolicy` and adding a specific
-`get_bound_permission` method.
+To do so, subclass the default ``AuthorizationPolicy`` and add a specific
+``get_bound_permission`` method.
 
 .. code-block:: python
+    
+    from cliquet import authorization
+    from pyramid.security import IAuthorizationPolicy
+    from zope.interface import implementer
 
     @implementer(IAuthorizationPolicy)
     class AuthorizationPolicy(authorization.AuthorizationPolicy):
@@ -117,9 +122,9 @@ Permissions backend
 ===================
 
 The ACLs are stored in a *permission backend*. Currently, permission backends
-exists for Redis and PostgreSQL. It is of course possible to add you own
-permission backend, if you whish to store your permissions related data in
-a different database.
+exists for Redis and PostgreSQL, as well as a in memory one. It is of course
+possible to add you own permission backend, if you whish to store your
+permissions related data in a different database.
 
 .. autoclass:: cliquet.permission.PermissionBase
   :members:
