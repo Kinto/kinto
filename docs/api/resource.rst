@@ -13,7 +13,9 @@ Returns all records of the current user for this collection.
 
 The returned value is a JSON mapping containing:
 
-- ``data``: the list of records, with exhaustive fields
+- ``data``: the list of records, with exhaustive fields;
+- ``permissions``: *optional* a json dict containing the permissions for
+  the collection of records.
 
 A ``Total-Records`` response header indicates the total number of records
 of the collection.
@@ -207,11 +209,15 @@ POST /{collection}
 Used to create a record in the collection. The POST body is a JSON mapping
 containing:
 
-- ``data``: the values of the resource schema fields
+- ``data``: the values of the resource schema fields;
+- ``permissions``: *optional* a json dict containing the permissions for
+  the record to be created.
 
 The POST response body is a JSON mapping containing:
 
-- ``data``: the newly created record, if all posted values are valid.
+- ``data``: the newly created record, if all posted values are valid;
+- ``permissions``: *optional* a json dict containing the permissions for
+  the requested resource.
 
 If the request header ``If-Match`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
@@ -363,7 +369,9 @@ GET /{collection}/<id>
 Returns a specific record by its id. The GET response body is a JSON mapping
 containing:
 
-- ``data``: the record with exhaustive schema fields.
+- ``data``: the record with exhaustive schema fields;
+- ``permissions``: *optional* a json dict containing the permissions for
+  the requested record.
 
 If the request header ``If-None-Match`` is provided, and if the record has not
 changed meanwhile, a ``304 Not Modified`` is returned.
@@ -443,11 +451,15 @@ PUT /{collection}/<id>
 
 Create or replace a record with its id. The PUT body is a JSON mapping containing:
 
-- ``data``: the values of the resource schema fields
+- ``data``: the values of the resource schema fields;
+- ``permissions``: *optional* a json dict containing the permissions for
+  the record to be created.
 
 The PUT response body is a JSON mapping containing:
 
-- ``data``: the newly created/updated record, if all posted values are valid.
+- ``data``: the newly created/updated record, if all posted values are valid;
+- ``permissions``: *optional* the newly created permissions dict, containing
+  the permissions for the created record.
 
 Validation and conflicts behaviour is similar to creating records (``POST``).
 
@@ -516,11 +528,15 @@ PATCH /{collection}/<id>
 
 Modify a specific record by its id. The PATCH body is a JSON mapping containing:
 
-- ``data``: a subset of the resource schema fields.
+- ``data``: a subset of the resource schema fields;
+- ``permissions``: *optional* a json dict containing the permissions for
+  the record to be modified.
 
 The PATCH response body is a JSON mapping containing:
 
-- ``data``: the modified record (*full by default*)
+- ``data``: the modified record (*full by default*);
+- ``permissions``: *optional* the newly created permissions dict, containing
+  the permissions for the modified record.
 
 If a request header ``Response-Behavior`` is set to ``light``,
 only the fields whose value was changed are returned. If set to
@@ -598,3 +614,28 @@ HTTP Status Code
   modified
 * ``409 Conflict``: If modifying this record violates a field unicity constraint
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
+
+
+Protected resources
+===================
+
+All of the described endpoints can be either *protected* or not. Protecting
+and enpoint means that only *principals* which have been granted access will
+be able to issue requests successfully.
+
+In the case of a *protected* resource, body is a JSON mapping containing a
+``permissions`` key in addition to the ``data`` key. Permissions can also be
+replaced and modified independantly from data.
+
+On a request, ``permissions`` is a json dict containing the permissions for
+the record to be modified. It has the following signature::
+
+    'permissions': {'{permission}': [{list_of_principals}]}
+
+`{permission}` is a placeholder for the permission name (e.g. `read`, `write`,
+`create`) and `{list_of_principals}` should be replaced by an actual list of
+principals.
+
+``permissions`` is also added to JSON mapping response bodies, and contains
+the *modified* version of the permissions in case of a modification, or the
+list of permissions in case of a read operation.
