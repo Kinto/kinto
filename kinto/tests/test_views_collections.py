@@ -46,6 +46,24 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers)
         self.app.get(other_bucket, headers=self.headers, status=404)
 
+    def test_create_permissions_can_be_added_on_collections(self):
+        collection = MINIMALIST_COLLECTION.copy()
+        collection['permissions'] = {'record:create': ['fxa:user']}
+        resp = self.app.put_json('/buckets/beers/collections/__barley__',
+                                 collection,
+                                 headers=self.headers,
+                                 status=200)
+        permissions = resp.json['permissions']
+        self.assertIn('fxa:user', permissions['record:create'])
+
+    def test_wrong_create_permissions_cannot_be_added_on_collections(self):
+        collection = MINIMALIST_COLLECTION.copy()
+        collection['permissions'] = {'collection:create': ['fxa:user']}
+        self.app.put_json('/buckets/beers/collections/__barley__',
+                          collection,
+                          headers=self.headers,
+                          status=400)
+
 
 class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
 
