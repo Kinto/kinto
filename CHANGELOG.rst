@@ -7,7 +7,39 @@ This document describes changes between each past release.
 1.0.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**New features**
+
+- Added notion of bucket, user groups and collections (#48, #58)
+- Bucket, collections and records can now have permissions (#59)
+
+**Breaking changes**
+
+- Updated *Cliquet* to 2.0, which introduces a lot of breaking changes
+  (`see changelog <https://github.com/mozilla-services/cliquet/releases/2.0.0>`_)
+- Firefox Accounts is now a dependency anymore and should be installed and
+  included explictly using the python package ``cliquet-fxa``
+  (`see documentation <https://github.com/mozilla-services/cliquet-fxa/>`_)
+- API is now served under ``/v1``
+- Collections are now managed by bucket, and not by user anymore (#44)
+
+.. note::
+
+    A list records cannot be manipulated until its parents objects (bucket and
+    collection) are created.
+
+Settings
+
+- ``cliquet.permission_backend`` and ``cliquet.permission_url`` should be configured
+  to use PostgreSQL instead of *Redis* (see default :file:`config/kinto.ini`)
+- ``cliquet.basic_auth_enabled`` is now deprecated (see *Cliquet* docs to enable
+  authentication backends)
+
+
+**Internal changes**
+
+- Added documentation about deployment and data durability (#50)
+- Added load tests (#30)
+- Several improvements in documentation (#51)
 
 
 0.2.2 (2015-06-04)
