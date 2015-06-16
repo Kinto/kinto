@@ -243,6 +243,31 @@ class ViewSetTest(unittest.TestCase):
         service_arguments = viewset.get_service_arguments()
         self.assertNotIn("factory", service_arguments)
 
+    def test_is_endpoint_enabled_returns_true_if_unknown(self):
+        viewset = ViewSet()
+        config = {}
+        is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'get',
+                                                 config)
+        self.assertTrue(is_enabled)
+
+    def test_is_endpoint_enabled_returns_false_if_enabled(self):
+        viewset = ViewSet()
+        config = {
+            'cliquet.record_fake_get_enabled': False
+        }
+        is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'get',
+                                                 config)
+        self.assertFalse(is_enabled)
+
+    def test_is_endpoint_enabled_returns_true_if_disabled(self):
+        viewset = ViewSet()
+        config = {
+            'cliquet.record_fake_get_enabled': True
+        }
+        is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'get',
+                                                 config)
+        self.assertTrue(is_enabled)
+
 
 class RegisterTest(unittest.TestCase):
 
@@ -259,7 +284,11 @@ class RegisterTest(unittest.TestCase):
 
     @mock.patch('cliquet.resource.Service')
     def test_collection_views_are_registered_in_cornice(self, service_class):
-        register_resource(self.resource, viewset=self.viewset)
+        venusian_callback = register_resource(
+            self.resource, viewset=self.viewset)
+
+        context = mock.MagicMock()
+        venusian_callback(context, None, None)
 
         service_class.assert_any_call('fake-collection', '/fake', depth=1,
                                       **self.viewset.service_arguments)
@@ -268,7 +297,11 @@ class RegisterTest(unittest.TestCase):
 
     @mock.patch('cliquet.resource.Service')
     def test_record_views_are_registered_in_cornice(self, service_class):
-        register_resource(self.resource, viewset=self.viewset)
+        venusian_callback = register_resource(
+            self.resource, viewset=self.viewset)
+
+        context = mock.MagicMock()
+        venusian_callback(context, None, None)
 
         service_class.assert_any_call('fake-record', '/fake/{id}', depth=1,
                                       **self.viewset.service_arguments)
@@ -277,9 +310,15 @@ class RegisterTest(unittest.TestCase):
 
     @mock.patch('cliquet.resource.Service')
     def test_collection_methods_are_skipped_if_not_enabled(self, service_cls):
-        register_resource(self.resource, viewset=self.viewset, settings={
+        venusian_callback = register_resource(
+            self.resource, viewset=self.viewset)
+
+        context = mock.MagicMock()
+        context.registry.settings = {
             'cliquet.record_fake_put_enabled': False
-        })
+        }
+        context.config.with_package.return_value = context
+        venusian_callback(context, None, None)
 
         # Only the collection views should have been added.
         # 3 calls: two registering the service classes,
@@ -292,9 +331,15 @@ class RegisterTest(unittest.TestCase):
 
     @mock.patch('cliquet.resource.Service')
     def test_record_methods_are_skipped_if_not_enabled(self, service_class):
-        register_resource(self.resource, viewset=self.viewset, settings={
+        venusian_callback = register_resource(
+            self.resource, viewset=self.viewset)
+
+        context = mock.MagicMock()
+        context.config.with_package.return_value = context
+        context.registry.settings = {
             'cliquet.collection_fake_get_enabled': False
-        })
+        }
+        venusian_callback(context, None, None)
 
         # Only the collection views should have been added.
         # 3 calls: two registering the service classes,
