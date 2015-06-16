@@ -1,52 +1,104 @@
-Working with collections
-========================
-
 .. _collections:
 
-Collections are always linked to a `bucket <buckets>`_.
+Collections
+###########
+
+A collection belongs to a bucket and stores records.
+
+A collection is a mapping with the following attributes:
+
+* ``permissions``: (*optional*) the :term:`ACLs <ACL>` for the collection object
 
 
-.. note:: 
+.. .. note::
 
-    By default users have a bucket that is used for their own data.
-
-    Application can use this default bucket with the ``~`` shortcut.
-
-	ie: ``/buckets/~/collections/contacts`` will be the current user contacts.
+..     By default users have a bucket that is used for their own data.
+..     Application can use this default bucket with the ``~`` shortcut.
+..     ie: ``/buckets/~/collections/contacts`` will be the current user contacts.
 
 
-/buckets/<bucket_id>/collections/<collection_id>
-================================================
+PUT /buckets/<bucket_id>/collections/<collection_id>
+====================================================
 
 **Requires authentication**
 
-End-point for the collection of records:
+Creates or replaces a collection object.
 
-* Create record
-* Fetch, sort and filter records
+.. code-block:: http
+
+    $ http PUT http://localhost:8888/v1/buckets/blog/collections/articles  --auth "admin:"
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+    Content-Length: 47
+    Content-Type: application/json; charset=UTF-8
+    Date: Wed, 10 Jun 2015 13:10:30 GMT
+    Server: waitress
+
+    {
+        "id": "articles",
+        "last_modified": 1433941830569,
+        "permissions": {
+            "write": [
+                "fxa:af3e077eb9f5444a949ad65aa86e82ff"
+            ]
+        }
+    }
 
 .. note::
 
-    A collection is considered empty by default. In other words, no error will
-    be thrown if the collection id is unknown.
-
-See `cliquet resource documentation
-<http://cliquet.readthedocs.org/en/latest/api/resource.html#get-resource>`_
-for more details on available operations.
+    In order to create only if does not exist yet, a ``If-None-Match: *``
+    request header can be provided. A ``412 Precondition Failed`` error response
+    will be returned if the record already exists.
 
 
-/buckets/<bucket_id>/collections/<collection_id>/records/<record_id>
-====================================================================
+GET /buckets/<bucket_id>/collections/<collection_id>
+====================================================
 
 **Requires authentication**
 
-End-point for a single record of the collection:
+Returns the collection object.
 
-* Fetch
-* Modify
-* Replace
-* Delete
+.. code-block:: http
+
+    $ http GET http://localhost:8888/v1/buckets/blog/collections/articles  --auth "admin:"
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified, ETag
+    Content-Length: 47
+    Content-Type: application/json; charset=UTF-8
+    Date: Wed, 10 Jun 2015 13:11:25 GMT
+    Last-Modified: 1433941885974
+    Server: waitress
+
+    {
+        "id": "articles",
+        "last_modified": 1433941830569,
+        "permissions": {
+            "write": [
+                "fxa:af3e077eb9f5444a949ad65aa86e82ff"
+            ]
+        }
+    }
 
 
-See `cliquet record documentation <http://cliquet.readthedocs.org/en/latest/api/resource.html#get-resource-id>`_
-for more details on available operations.
+DELETE /buckets/<bucket_id>/collections/<collection_id>
+=======================================================
+
+**Requires authentication**
+
+Deletes a specific collection, and **everything under it**.
+
+.. code-block:: http
+
+    $ http DELETE http://localhost:8888/v1/buckets/blog/collections/articles  --auth "admin:"
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+    Content-Length: 62
+    Content-Type: application/json; charset=UTF-8
+    Date: Wed, 10 Jun 2015 13:13:55 GMT
+    Server: waitress
+
+    {
+        "deleted": true,
+        "id": "articles",
+        "last_modified": 1433942035743
+    }
