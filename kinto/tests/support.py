@@ -59,9 +59,18 @@ class BaseWebTest(object):
         self.storage.flush()
         self.permission.flush()
 
-    def add_permission(self, object_id, permission):
-        self.permission.add_principal_to_ace(
-            object_id, permission, self.principal)
+    def create_group(self, bucket_id, group_id, members=None):
+        if members is None:
+            group = MINIMALIST_GROUP
+        else:
+            group = {'data': {'members': members}}
+        group_url = '/buckets/%s/groups/%s' % (bucket_id, group_id)
+        self.app.put_json(group_url, group,
+                          headers=self.headers, status=201)
+
+    def create_bucket(self, bucket_id):
+        self.app.put_json('/buckets/%s' % bucket_id, MINIMALIST_BUCKET,
+                          headers=self.headers, status=201)
 
 
 @implementer(IAuthorizationPolicy)

@@ -51,47 +51,72 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(other_bucket, headers=self.headers, status=404)
 
 
-class GroupDeletionTest(BaseWebTest, unittest.TestCase):
+class GroupManagementTest(BaseWebTest, unittest.TestCase):
 
-    record_url = '/buckets/beers/groups/moderators'
+    group_url = '/buckets/beers/groups/moderators'
 
     def setUp(self):
-        super(GroupDeletionTest, self).setUp()
-        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
-                          headers=self.headers)
+        super(GroupManagementTest, self).setUp()
+        self.create_bucket('beers')
 
     def test_groups_can_be_deleted(self):
-        self.app.put_json(self.record_url, MINIMALIST_GROUP,
-                          headers=self.headers)
-        self.app.delete(self.record_url, headers=self.headers)
-        self.app.get(self.record_url, headers=self.headers,
+        self.create_group('beers', 'moderators')
+        self.app.delete(self.group_url, headers=self.headers)
+        self.app.get(self.group_url, headers=self.headers,
                      status=404)
 
-    def test_principal_is_removed_from_users_when_group_deleted(self):
-        pass
+    def test_group_is_removed_from_users_on_group_deletion(self):
+        self.app.put_json(self.group_url, MINIMALIST_GROUP,
+                          headers=self.headers, status=201)
+        self.assertIn(self.group_url,
+                      self.permission.user_principals('fxa:user'))
+        self.app.delete(self.group_url, headers=self.headers, status=200)
+        self.assertNotIn(self.group_url,
+                         self.permission.user_principals('fxa:user'))
+
+    def test_group_is_removed_from_users_on_all_groups_deletion(self):
+        self.create_group('beers', 'moderators', ['natim', 'fxa:user'])
+        self.create_group('beers', 'reviewers', ['natim', 'alexis'])
+
+        self.app.delete('/buckets/beers/groups', headers=self.headers,
+                        status=200)
+
+        self.assertEquals(self.permission.user_principals('fxa:user'), set())
+        self.assertEquals(self.permission.user_principals('natim'), set())
+        self.assertEquals(self.permission.user_principals('alexis'), set())
+
+    def test_group_is_added_to_user_when_added_to_members(self):
+        self.create_group('beers', 'moderators', ['natim', 'mat'])
+
+        group = self.app.get('/buckets/beers/groups', headers=self.headers,
+                             status=200).json['data'][0]
+        self.assertIn('natim', group['members'])
+        self.assertIn('mat', group['members'])
+
+    def test_group_is_added_to_user_when_added_to_members_using_patch(self):
+        self.create_group('beers', 'moderators', ['natim', 'mat'])
+        group_url = '/buckets/beers/groups/moderators'
+        group = {'data': {'members': ['natim', 'mat', 'alice']}}
+        self.app.patch_json(group_url, group,
+                            headers=self.headers, status=200)
+        group = self.app.get('/buckets/beers/groups', headers=self.headers,
+                             status=200).json['data'][0]
+        self.assertIn('natim', group['members'])
+        self.assertIn('mat', group['members'])
+        self.assertIn('alice', group['members'])
 
 
 class InvalidGroupTest(BaseWebTest, unittest.TestCase):
 
-    record_url = '/buckets/beers/groups/moderators'
+    group_url = '/buckets/beers/groups/moderators'
 
     def setUp(self):
         super(InvalidGroupTest, self).setUp()
-        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
-                          headers=self.headers)
+        self.create_bucket('beers')
 
     def test_groups_must_have_members_attribute(self):
         invalid = {}
-        self.app.put_json(self.record_url,
+        self.app.put_json(self.group_url,
                           invalid,
                           headers=self.headers,
                           status=400)
-
-
-class GroupPrincipalsTest(BaseWebTest, unittest.TestCase):
-
-    def test_principal_is_added_to_user_when_added_to_members(self):
-        pass
-
-    def test_principal_is_removed_from_user_when_removed_from_members(self):
-        pass
