@@ -1,3 +1,4 @@
+import sys
 import codecs
 import os
 from setuptools import setup, find_packages
@@ -14,6 +15,7 @@ with codecs.open(os.path.join(here, 'CONTRIBUTORS.rst'),
                  encoding='utf-8') as f:
     CONTRIBUTORS = f.read()
 
+installed_with_pypy = sys.subversion[0] == 'PyPy'
 
 REQUIREMENTS = [
     'colander',
@@ -24,8 +26,11 @@ REQUIREMENTS = [
     'requests',
     'six',
     'structlog',
-    'ujson',
 ]
+
+# ujson is not pypy compliant, as it uses the CPython C API
+if not installed_with_pypy:
+    REQUIREMENTS.append('ujson')
 
 DEPENDENCY_LINKS = [
 ]
