@@ -105,6 +105,28 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.assertIn('mat', group['members'])
         self.assertIn('alice', group['members'])
 
+    def test_group_is_removed_from_user_when_added_to_members(self):
+        self.create_group('beers', 'moderators', ['natim', 'mat'])
+        group_url = '/buckets/beers/groups/moderators'
+        group = {'data': {'members': ['mat']}}
+        self.app.put_json(group_url, group,
+                          headers=self.headers, status=200)
+        group = self.app.get('/buckets/beers/groups', headers=self.headers,
+                             status=200).json['data'][0]
+        self.assertNotIn('natim', group['members'])
+        self.assertIn('mat', group['members'])
+
+    def test_group_is_removed_from_user_when_added_to_members_with_patch(self):
+        self.create_group('beers', 'moderators', ['natim', 'mat'])
+        group_url = '/buckets/beers/groups/moderators'
+        group = {'data': {'members': ['mat']}}
+        self.app.patch_json(group_url, group,
+                            headers=self.headers, status=200)
+        group = self.app.get('/buckets/beers/groups', headers=self.headers,
+                             status=200).json['data'][0]
+        self.assertNotIn('natim', group['members'])
+        self.assertIn('mat', group['members'])
+
 
 class InvalidGroupTest(BaseWebTest, unittest.TestCase):
 
