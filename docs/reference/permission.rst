@@ -87,9 +87,9 @@ Route factories are `best described in the pyramid documentation
 Authorization policy
 ====================
 
-Upon access, the authorization policy is asked if the current *principal* has
-access to the current resource. By default, the authorization policy *Cliquet*
-checks in the permission backend for the current object.
+Upon access, the authorization policy is asked if any of the current list of
+*principals* has access to the current resource. By default, the authorization
+policy *Cliquet* checks in the permission backend for the current object.
 
 It is possible to extend this behavior, for instance if there is an inheritance
 tree between the defined resources (some ACEs should give access to its child
