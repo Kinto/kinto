@@ -95,16 +95,9 @@ class ProtectedResourcePermissionTest(AuthzAuthnTest):
                                 'unknown': ['jacques']}}
         resp = self.app.post_json(self.collection_url, body,
                                   headers=self.headers, status=400)
-        self.assertDictEqual(resp.json, {
-            u'errno': ERRORS.INVALID_PARAMETERS,
-            u'message': u'permissions in body: "unknown" '
-                        u'is not one of read, write',
-            u'code': 400,
-            u'error': u'Invalid parameters',
-            u'details': [{u'description': u'"unknown" is not one '
-                                          u'of read, write',
-                          u'location': u'body',
-                          u'name': u'permissions'}]})
+        self.assertEqual(
+            resp.json['message'],
+            'permissions in body: "unknown" is not one of read, write')
 
 
 class CollectionAuthzGrantedTest(AuthzAuthnTest):
