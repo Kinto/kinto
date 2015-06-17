@@ -112,3 +112,11 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         names = [i['name'] for i in response.json['data']]
         self.assertEqual(names,
                          ['Stout 2', 'Stout 1', 'Stout 0', 'Hulled Barley'])
+
+    def test_wrong_create_permissions_cannot_be_added_on_records(self):
+        record = MINIMALIST_RECORD.copy()
+        record['permissions'] = {'record:create': ['fxa:user']}
+        self.app.put_json(self.record_url,
+                          record,
+                          headers=self.headers,
+                          status=400)

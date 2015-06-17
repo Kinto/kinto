@@ -50,6 +50,14 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers)
         self.app.get(other_bucket, headers=self.headers, status=404)
 
+    def test_wrong_create_permissions_cannot_be_added_on_groups(self):
+        group = MINIMALIST_GROUP.copy()
+        group['permissions'] = {'group:create': ['fxa:user']}
+        self.app.put_json('/buckets/beers/groups/moderator',
+                          group,
+                          headers=self.headers,
+                          status=400)
+
 
 class GroupManagementTest(BaseWebTest, unittest.TestCase):
 
