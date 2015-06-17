@@ -23,9 +23,10 @@ ENTRY_POINTS = {
         'main = kinto:main',
     ]}
 
+DEPENDENCY_LINKS = []
 
 setup(name='kinto',
-      version='1.0.0.dev0',
+      version='1.0.0',
       description='kinto',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',
@@ -43,4 +44,5 @@ setup(name='kinto',
       include_package_data=True,
       zip_safe=False,
       install_requires=REQUIREMENTS,
-      entry_points=ENTRY_POINTS)
+      entry_points=ENTRY_POINTS,
+      dependency_links=DEPENDENCY_LINKS)
