@@ -118,9 +118,8 @@ class ThreadMixin(object):
 @implementer(IAuthorizationPolicy)
 class AllowAuthorizationPolicy(object):
     def permits(self, context, principals, permission):
-        if USER_PRINCIPAL in principals:
-            return True
-        return False
+        # Cliquet default authz policy uses prefixed_userid.
+        return USER_PRINCIPAL in (principals + [context.prefixed_userid])
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER

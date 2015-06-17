@@ -19,6 +19,9 @@ class AuthorizationPolicy(object):
     get_bound_permissions = None
 
     def permits(self, context, principals, permission):
+        # User id prefixed with authentication policy type.
+        principals.insert(0, context.prefixed_userid)
+
         if permission == DYNAMIC:
             permission = context.required_permission
 
@@ -96,6 +99,13 @@ class RouteFactory(object):
         self.required_permission = permission
         self.resource_name = resource_name
         self.check_permission = check_permission
+
+        prefixed_userid = None
+        if request.authenticated_userid:
+            authn_type = request.authn_type.lower()
+            user_id = request.authenticated_userid
+            prefixed_userid = '%s_%s' % (authn_type, user_id)
+        self.prefixed_userid = prefixed_userid
 
 
 def get_object_id(object_uri):

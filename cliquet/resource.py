@@ -258,7 +258,8 @@ class BaseResource(object):
     def __init__(self, request, context=None):
 
         # Collections are isolated by user.
-        parent_id = request.authenticated_userid
+        parent_id = (context.prefixed_userid if context else
+                     request.authenticated_userid)
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get('Authorization')
 
@@ -1009,7 +1010,7 @@ class ProtectedResource(BaseResource):
 
         if add_write_perm:
             write_principals = permissions.setdefault('write', [])
-            user_principal = self.request.authenticated_userid
+            user_principal = self.context.prefixed_userid
             if user_principal not in write_principals:
                 write_principals.insert(0, user_principal)
 
