@@ -80,11 +80,11 @@ def setup_authentication(config):
     # By default, permissions are handled dynamically.
     config.set_default_permission(authorization.DYNAMIC)
 
-    # Track policy for logging.
+    # Track policy used, for prefixing user_id and for logging.
     def on_policy_selected(event):
         value = event.policy.__class__.__name__
-        value = value.replace('Authentication', '').replace('Policy', '')
-        event.request.authn_type = value
+        authn_type = value.replace('Authentication', '').replace('Policy', '')
+        event.request.authn_type = authn_type
 
     config.add_subscriber(on_policy_selected, MultiAuthPolicySelected)
 

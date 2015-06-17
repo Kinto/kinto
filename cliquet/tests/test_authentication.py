@@ -52,10 +52,6 @@ class BasicAuthenticationPolicyTest(unittest.TestCase):
         self.request = DummyRequest()
         self.request.headers['Authorization'] = 'Basic bWF0Og=='
 
-    def test_prefixes_users_with_basicauth(self):
-        user_id = self.policy.unauthenticated_userid(self.request)
-        self.assertTrue(user_id.startswith('basicauth_'))
-
     @mock.patch('cliquet.utils.hmac_digest')
     def test_userid_is_hashed(self, mocked):
         mocked.return_value = 'yeah'
