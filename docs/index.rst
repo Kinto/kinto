@@ -29,19 +29,24 @@ store, manage and sync your data.
 Using the HTTP API
 ==================
 
-To interact with a Kinto instance, a few HTTP calls are needed. Find all you
-need to know via le links below:
+Interaction with a *Kinto* instance happens at some point using HTTP calls.
+Find all you need to know via le links below:
 
-- Collections: Retreiving and sending records to a collection
-- Buckets: Creating a bucket and working with it
-- Permissions: Handling groups | Handling permissions on records
-- Synchronization: Overview | Strategies
+- Buckets: Working with buckets;
+- Collections : Handling collections | Sending and retrieving records;
+- Permissions: Uderstanding permissions | Handling groups
 
 Deployment
 ==========
 
 - From scratch: Installation
-- Deployment: Good practices
+- Deployment: Good practices | Configuration
+
+Community
+=========
+
+- Contribution: Guidelines
+- Keeping posted: 
 
 
 Table of content
@@ -51,19 +56,9 @@ Table of content
    :maxdepth: 2
 
    api/index
+   permissions
    installation
    configuration
-   api/index
-   access-control-lists
    deployment
    contributing
    changelog
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-

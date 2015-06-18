@@ -1,7 +1,7 @@
-Access Control Lists
-####################
+Permissions
+###########
 
-.. _acls:
+.. _permissions:
 
 Terminology
 ===========
@@ -20,13 +20,18 @@ Terminology
         A group associates a name to a list of principals.
 
     Permission
+    Permissions
         A permission is an action that can be performed on an object.
         Examples of permissions are «read», «write», or «create».
 
-    ACL
-        An ACL associates a permission to objects and principals, and allows
+    ACE
+    Access Control Entity
+        An ACE associates a permission to objects and principals, and allows
         to describe rules like «*Members of group admins can create collections*».
-        Using a pseudo-code syntax: ``collections:create = ['group:admins',]``.
+        Using #a pseudo-code syntax: ``collections:create = ['group:admins',]``.
+
+    ACL
+        A list of ACEs
 
 Objects
 =======
@@ -100,13 +105,13 @@ On each of these objects, the set of permissions can be:
 |            | a new *child object*.                   |
 +------------+-----------------------------------------+
 
-Permissions are associated on objects.
+Permissions are associated to objects.
 
-For the create case, since an object can several kinds of children, the
-permission is prefixed (``groups:create``, ``collections:create``).
+In the case of a creation, since an object can have several kinds of children, the
+permission is prefixed (for instance ``groups:create``, ``collections:create``).
 
-The following table gives every permissions that can be associated by object
-to build ACLs.
+The following table lists all permissions that can be associated to each kind
+of object.
 
 +----------------+------------------------+----------------------------------+
 | Object         | Associated permissions | Description                      |
@@ -117,7 +122,7 @@ to build ACLs.
 | Bucket         | ``write``              | Ability to write + read on the   |
 |                |                        | bucket and all children objects. |
 |                +------------------------+----------------------------------+
-|                | ``reade``              | Ability to read all objects in   |
+|                | ``read``               | Ability to read all objects in   |
 |                |                        | the bucket.                      |
 |                +------------------------+----------------------------------+
 |                | ``collections:create`` | Ability to create new            |
@@ -150,40 +155,54 @@ to build ACLs.
 
 .. note::
 
-  Anyone with the ``write`` permission on an object can also edit its associated
-  permissions and delete it.
+  There is no ``delete`` permission: Anyone with the ``write`` permission on an
+  object can also edit its associated permissions and delete it.
 
 
 Principals
 ==========
 
-During the login phase, the main principal of the user is bound to the request.
+During the authentication phase, the main :term:`principal` of the user is
+bound to the request.
 
-Using default authentication, a principal is using the following formalism:
+A principal is described with the following formalism:
 ``{type}:{identifier}`` (i.e. for Firefox Account: ``fxa:32aa95a474c984d41d395e2d0b614aa2``).
 
 .. note::
 
-    A user can be another application (*service to service*).
+    A user can also be another application (in order to provide *service to
+    service* authentication).
+
+Groups
+======
+
+A group associates a name to a list of :term:`principals <principal>`.
+
+There are two special principals:
+
+- ``system.Authenticated``: All users that are authenticated, no matter the
+  authentication mean.
+- ``system.Everyone``: Anyone (authenticated or anonymous). Using this
+  principal is useful when a rule should apply to all users.
 
 
-Groups can be created in buckets, whose members are referenced using principals.
-
-When a user is a member of a group, she will have ``group:<name>`` among her
-principals.
-
-There are two specific principals:
-
-- ``system.Authenticated``: All users that are authenticated.
-- ``system.Everyone``: Anyone (authenticated or anonymous).
-
-
-Use-cases Examples
+Use-cases examples
 ==================
 
-In order to better understand how permission model works, here is a handful of
-use-cases examples.
+In order to better understand how the *Kinto* permission model works, it is
+possible to refer to this set of examples:
 
++---------------+-------------------------------------------------------------------------+
+| Example       | Description                                                             |
++===============+=========================================================================+
+| Blog          | Everyone can read; Authors can write / read / create articles           |
++---------------+-------------------------------------------------------------------------+
+| Wiki          | Authenticated users can write / read / create; Everyone can read.       |
++---------------+-------------------------------------------------------------------------+
+| Company Wiki  | Employees can write / read /create anything; Managers can add employees |
++---------------+-------------------------------------------------------------------------+
+| Microblogging | A micro blogging platform like twitter                                  |
++---------------+-------------------------------------------------------------------------+
 
 A Blog
 ------
