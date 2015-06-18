@@ -32,33 +32,19 @@ Using the HTTP API
 Interaction with a *Kinto* instance happens at some point using HTTP calls.
 Find all you need to know via le links below:
 
-- Buckets: Working with buckets;
-- Collections : Handling collections | Sending and retrieving records;
-- Permissions: Uderstanding permissions | Handling groups
+- Buckets: :ref:`Working with buckets <buckets>`
+- Collections : :ref:`Handling collections <collections>` |
+  :ref:`Sending and retrieving records <records>`
+- Permissions: :ref:`Understanding permissions <permissions>` |
+  :ref:`Handling groups <groups>`
 
 Deployment
 ==========
 
-- From scratch: Installation
-- Deployment: Good practices | Configuration
+- From scratch: :ref:`installation`.
+- Deployment: :ref:`Good practices <deployment>` | :ref:`configuration`
 
 Community
 =========
 
-- Contribution: Guidelines
-- Keeping posted: 
-
-
-Table of content
-================
-
-.. toctree::
-   :maxdepth: 2
-
-   api/index
-   permissions
-   installation
-   configuration
-   deployment
-   contributing
-   changelog
+- How to contribute: :ref:`Guidelines <contributing>`

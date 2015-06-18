@@ -21,9 +21,9 @@ Creating a group
 
     Creates a new bucket's group with a generated id.
 
-    .. code-block:: http
+    .. sourcecode:: bash
 
-    echo '{"data": {"members": ["basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http post :8888/v1/buckets/blog/groups --auth="bob:" --verbose
+        $ echo '{"data": {"members": ["basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http POST :8888/v1/buckets/blog/groups --auth="bob:" --verbose
 
     **Example Request**
 
@@ -73,8 +73,8 @@ Creating a group
             }
         }
 
-Creating a group (specifying its id)
-====================================
+Replacing a group
+=================
 
 .. http:post:: /buckets/(bucket_id)/groups/(group_id)
 
@@ -84,10 +84,9 @@ Creating a group (specifying its id)
 
     **Example Request**
 
-    .. sourecode::
+    .. sourcecode:: bash
 
-        echo '{"data": {"members": ["basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http put :8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
-
+        $ echo '{"data": {"members": ["basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http put :8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
 
     .. sourcecode:: http
 
@@ -144,7 +143,7 @@ Creating a group (specifying its id)
 Retrieving a group
 ==================
 
-.. http:get::/buckets/(bucket_idà/groups/(group_id)
+.. http:get:: /buckets/(bucket_idà/groups/(group_id)
 
     **Requires authentication**
 
@@ -152,7 +151,7 @@ Retrieving a group
 
     **Example Request**
 
-    .. sourcecode::
+    .. sourcecode:: bash
 
         $ http get :8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
 
@@ -205,7 +204,7 @@ Deleting a group
 
     **Example Request**
 
-    .. sourcecode::
+    .. sourcecode:: bash
 
         $ http delete :8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
 

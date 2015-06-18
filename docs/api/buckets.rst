@@ -25,7 +25,7 @@ Creating a bucket
 
     **Example request**
 
-    .. sourcecode::
+    .. sourcecode:: bash
 
         $ echo '{"data": {}}' | http put :8888/v1/buckets/blog --auth="bob:"
 
@@ -77,7 +77,6 @@ Creating a bucket
 Retrieve an already existing bucket
 ===================================
 
-
 .. http:get:: /buckets/(bucket_id)
 
     **Requires authentication**
@@ -86,7 +85,7 @@ Retrieve an already existing bucket
 
     **Example request**
 
-    .. sourcecode::
+    .. sourcecode:: bash
 
         $ http get :8888/v1/buckets/blog --auth="bob:" --verbose
 
@@ -130,7 +129,6 @@ Retrieve an already existing bucket
 Updating an existing bucket
 ===========================
 
-
 .. http:put:: /buckets/(bucket_id)
 
     **Requires authentication**
@@ -141,51 +139,6 @@ Updating an existing bucket
 
         Until a formalism is found to alter ACL principals (e.g. using ``+`` or ``-``)
         there is no difference in the behaviour between PATCH and PUT.
-
-.. The PATCH endpoint let you add or remove users principals from
-.. permissions sets. In case you want to override the set, you can use
-.. the PUT endpoint.
-
-.. You can use ``+principal`` to add one and ``-principal`` to remove one.
-
-.. .. code-block:: http
-
-..     $ echo '{
-..               "permissions": {
-..                 "write": ["+fxa:af3e077eb9f5444a949ad65aa86e82ff"],
-..                 "groups:create": ["+fxa:70a9335eecfe440fa445ba752a750f3d"]
-..               }
-..             }' | http PATCH http://localhost:8000/v1/buckets/servicedenuages --auth "admin:"
-
-..     PATCH /v1/buckets/servicedenuages HTTP/1.1
-..     Authorization: Basic YWRtaW46
-
-..     {
-..         "permissions": {
-..             "write_bucket": [
-..                 "+fxa:af3e077eb9f5444a949ad65aa86e82ff"
-..             ],
-..             "create_groups": [
-..                 "+fxa:70a9335eecfe440fa445ba752a750f3d"
-..             ]
-..         }
-..     }
-
-..     HTTP/1.1 200 OK
-..     Content-Type: application/json; charset=UTF-8
-
-..     {
-..         "id": "servicedenuages",
-..         "permissions": {
-..             "write": [
-..                 "basicauth:5d127220922673e346c0ebee46c23e6739dfa756",
-..                 "fxa:af3e077eb9f5444a949ad65aa86e82ff"
-..             ],
-..             "groups:create": [
-..                 "fxa:70a9335eecfe440fa445ba752a750f3d"
-..             ]
-..         }
-..     }
 
 Deleting a bucket
 =================
@@ -199,7 +152,7 @@ Deleting a bucket
 
     **Example request**
 
-    .. code-block::
+    .. sourcecode:: bash
 
         $ http delete :8888/v1/buckets/blog --auth="bob:" --verbose
 

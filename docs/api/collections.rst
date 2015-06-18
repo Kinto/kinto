@@ -9,12 +9,6 @@ A collection is a mapping with the following attribute:
 
 * ``permissions``: (*optional*) the :term:`ACLs <ACL>` for the collection object
 
-
-.. note::
-
-    A collection is considered empty by default. In other words, no error will
-    be thrown if the collection id is unknown.
-
 .. .. note::
 
 ..     By default users have a bucket that is used for their own data.
@@ -32,7 +26,7 @@ Creating a collection
     **Requires authentication**
     Creates or replaces a collection object.
 
-    .. code-block::
+    .. sourcecode:: bash
 
         $ echo '{"data": {}}' | http put :8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
 
@@ -82,17 +76,17 @@ Creating a collection
         will be returned if the record already exists.
 
 
-Retrieving an existing bucket
-=============================
+Retrieving an existing collection
+=================================
 
-.. http:get:/buckets/(bucket_id)/collections/(collection_id)
+.. http:get:: /buckets/(bucket_id)/collections/(collection_id)
 
     **Requires authentication**
 
 
     Returns the collection object.
 
-    .. code-block::
+    .. sourcecode:: bash
 
         $ http get :8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
 
@@ -139,13 +133,13 @@ Retrieving an existing bucket
 Deleting a collection
 =====================
 
-.. http:delete::/buckets/(bucket_id)/collections/(collection_id)
+.. http:delete:: /buckets/(bucket_id)/collections/(collection_id)
 
     **Requires authentication**
 
     Deletes a specific collection, and **everything under it**.
 
-    .. code-block::
+    .. sourcecode:: bash
 
         $ http delete :8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
 
