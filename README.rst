@@ -21,3 +21,5 @@ attached to your Firefox account.
 * `Online documentation <http://kinto.readthedocs.org/en/latest/>`_
 * `Issue tracker <https://github.com/mozilla-services/kinto/issues>`_
 * `Contributing <http://kinto.readthedocs.org/en/latest/contributing.html>`_
+
+Try our daily flushed instance at: https://kinto.dev.mozaws.net/v1/
