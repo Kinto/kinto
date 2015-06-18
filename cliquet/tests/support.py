@@ -20,7 +20,7 @@ from cliquet.storage import generators
 from cliquet.tests.testapp import main as testapp
 
 # This is the principal a connected user should have (in the tests).
-USER_PRINCIPAL = ('basicauth_9f2d363f98418b13253d6d7193fc88690302'
+USER_PRINCIPAL = ('basicauth:9f2d363f98418b13253d6d7193fc88690302'
                   'ab0ae21295521f6029dffe9dc3b0')
 
 
@@ -34,6 +34,8 @@ class DummyRequest(mock.MagicMock):
         self.headers = {}
         self.errors = cornice_errors.Errors(request=self)
         self.authenticated_userid = 'bob'
+        self.authn_type = 'basicauth'
+        self.prefixed_userid = 'basicauth:bob'
         self.json = {}
         self.validated = {}
         self.matchdict = {}

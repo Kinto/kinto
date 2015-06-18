@@ -11,9 +11,8 @@ class BaseTest(unittest.TestCase):
 
     def setUp(self):
         self.storage = memory.Memory()
-        request = self.get_request()
-        self.resource = self.resource_class(request=request,
-                                            context=RouteFactory(request))
+        self.resource = self.resource_class(request=self.get_request(),
+                                            context=self.get_context())
         self.collection = self.resource.collection
         self.patch_known_field = mock.patch.object(self.resource,
                                                    'is_known_field')
@@ -25,6 +24,9 @@ class BaseTest(unittest.TestCase):
         request = DummyRequest(method='GET')
         request.registry.storage = self.storage
         return request
+
+    def get_context(self):
+        return RouteFactory(self.get_request())
 
     @property
     def last_response(self):

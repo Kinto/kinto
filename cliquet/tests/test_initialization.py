@@ -199,7 +199,7 @@ class StatsDConfigurationTest(unittest.TestCase):
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
         app.get('/v0/__heartbeat__', headers=headers)
-        mocked().count.assert_any_call('users', unique='basicauth_mat')
+        mocked().count.assert_any_call('users', unique='mat')
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_counts_authentication_types(self, mocked):

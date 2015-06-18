@@ -172,9 +172,8 @@ class RecordAuthzGrantedTest(AuthzAuthnTest):
 class RecordAuthzDeniedTest(AuthzAuthnTest):
     def setUp(self):
         super(RecordAuthzDeniedTest, self).setUp()
-        self.app.app.registry.permission.add_principal_to_ace(
-            self.collection_url, 'mushroom:create', self.principal)
-
+        # Add permission to create a sample record.
+        self.add_permission(self.collection_url, 'mushroom:create')
         resp = self.app.post_json(self.collection_url,
                                   {'data': MINIMALIST_RECORD},
                                   headers=self.headers)

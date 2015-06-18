@@ -10,7 +10,8 @@ class NotModifiedTest(BaseTest):
         super(NotModifiedTest, self).setUp()
         self.stored = self.collection.create_record({})
 
-        self.resource = BaseResource(self.get_request())
+        self.resource = BaseResource(request=self.get_request(),
+                                     context=self.get_context())
         self.resource.collection_get()
         current = self.last_response.headers['ETag']
         self.resource.request.headers['If-None-Match'] = current
@@ -63,6 +64,7 @@ class ModifiedMeanwhileTest(BaseTest):
     def setUp(self):
         super(ModifiedMeanwhileTest, self).setUp()
         self.stored = self.collection.create_record({})
+
         self.resource.collection_get()
         current = self.last_response.headers['ETag'][1:-1].decode('utf-8')
         previous = int(current) - 10

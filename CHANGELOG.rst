@@ -6,7 +6,10 @@ This document describes changes between each past release.
 2.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**New features**
+
+- Cliquet does not require authentication policies to prefix
+  user ids anymore (fixes #299).
 
 
 2.0.0 (2015-06-16)
