@@ -255,11 +255,10 @@ class BaseResource(object):
     mapping = ResourceSchema()
     """Schema to validate records."""
 
-    def __init__(self, request, context=None):
-
+    def __init__(self, request, context):
         # Collections are isolated by user.
-        parent_id = (context.prefixed_userid if context else
-                     request.authenticated_userid)
+        parent_id = context.prefixed_userid
+
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get('Authorization')
 
