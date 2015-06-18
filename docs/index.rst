@@ -20,6 +20,29 @@ The server doesn't impose anything about the records data model.
 
 *Kinto* is based on top of `cliquet <http://cliquet.readthedocs.org>`_.
 
+Tutorial
+========
+
+Sometimes it is easier to get started by following a tutorial. Learn how to
+store, manage and sync your data.
+
+Using the HTTP API
+==================
+
+To interact with a Kinto instance, a few HTTP calls are needed. Find all you
+need to know via le links below:
+
+- Collections: Retreiving and sending records to a collection
+- Buckets: Creating a bucket and working with it
+- Permissions: Handling groups | Handling permissions on records
+- Synchronization: Overview | Strategies
+
+Deployment
+==========
+
+- From scratch: Installation
+- Deployment: Good practices
+
 
 Table of content
 ================
