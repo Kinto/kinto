@@ -3,39 +3,327 @@
 Records
 #######
 
+Records belong to a collection. It is the data being stored and
+synchronized.
 
-/buckets/<bucket_id>/collections/<collection_id>/records
-========================================================
+Sending a record
+================
 
-**Requires authentication**
+.. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records
 
-End-point for the collection of records:
+  **Requires authentication**
 
-* ``POST``: Create record
-* ``GET``: Fetch, sort and filter records
+  Stores a record in the collection, assigning it an identifier.
 
-.. note::
+  **Example Request**
 
-    A collection is considered empty by default. In other words, no error will
-    be thrown if the collection id is unknown.
+  .. sourcecode::
 
-See `cliquet resource documentation
+      $ echo '{"data": {"foo": "bar"}}' | http post :8888/v1/buckets/blog/collections/articles/records --auth="bob:" --verbose
+
+
+  .. sourcecode:: http
+
+      POST /v1/buckets/blog/collections/articles/records HTTP/1.1
+      Accept: application/json
+      Accept-Encoding: gzip, deflate
+      Authorization: Basic Ym9iOg==
+      Connection: keep-alive
+      Content-Length: 25
+      Content-Type: application/json
+      Host: localhost:8888
+      User-Agent: HTTPie/0.9.2
+
+      {
+          "data": {
+              "foo": "bar"
+          }
+      }
+
+  **Example Response**
+
+  .. sourcecode:: http
+
+      HTTP/1.1 201 Created
+      Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+      Content-Length: 199
+      Content-Type: application/json; charset=UTF-8
+      Date: Thu, 18 Jun 2015 17:02:23 GMT
+      Server: waitress
+
+      {
+          "data": {
+              "foo": "bar",
+              "id": "89881454-e4e9-4ef0-99a9-404d95900352",
+              "last_modified": 1434646943915
+          },
+          "permissions": {
+              "write": [
+                  "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+              ]
+          }
+      }
+
+Replacing a record
+===================
+
+.. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
+
+  **Requires authentication**
+
+  Create or update a record in the collection.
+
+  **Example Request**
+
+  .. sourcecode::
+
+      $ echo '{"data": {"foo": "baz"}}' | http put :8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
+
+  .. sourcecode:: http
+
+      PUT /v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 HTTP/1.1
+      Accept: application/json
+      Accept-Encoding: gzip, deflate
+      Authorization: Basic Ym9iOg==
+      Connection: keep-alive
+      Content-Length: 25
+      Content-Type: application/json
+      Host: localhost:8888
+      User-Agent: HTTPie/0.9.2
+
+      {
+          "data": {
+              "foo": "baz"
+          }
+      }
+
+  **Example Response**
+
+  .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+      Content-Length: 199
+      Content-Type: application/json; charset=UTF-8
+      Date: Thu, 18 Jun 2015 17:16:22 GMT
+      Server: waitress
+
+      {
+          "data": {
+              "foo": "baz",
+              "id": "89881454-e4e9-4ef0-99a9-404d95900352",
+              "last_modified": 1434647782623
+          },
+          "permissions": {
+              "write": [
+                  "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+              ]
+          }
+      }
+
+Updating a record
+=================
+
+.. http:patch:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
+
+  **Requires authentication**
+
+  Update a record in the collection. Specify only the fields to be modified,
+  all the rest will remain intact.
+
+  **Example Request**
+
+  .. sourcecode::
+
+      $ echo '{"data": {"baz": "bar"}}' | http patch :8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
+
+  .. sourcecode:: http
+
+      PATCH /v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 HTTP/1.1
+      Accept: application/json
+      Accept-Encoding: gzip, deflate
+      Authorization: Basic Ym9iOg==
+      Connection: keep-alive
+      Content-Length: 25
+      Content-Type: application/json
+      Host: localhost:8888
+      User-Agent: HTTPie/0.9.2
+
+      {
+          "data": {
+              "baz": "bar"
+          }
+      }
+
+  **Example Response**
+
+  .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+      Content-Length: 211
+      Content-Type: application/json; charset=UTF-8
+      Date: Thu, 18 Jun 2015 17:19:56 GMT
+      Server: waitress
+
+      {
+          "data": {
+              "baz": "bar",
+              "foo": "baz",
+              "id": "89881454-e4e9-4ef0-99a9-404d95900352",
+              "last_modified": 1434647996969
+          },
+          "permissions": {
+              "write": [
+                  "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+              ]
+          }
+      }
+
+
+Retrieving records
+==================
+
+Records can be paginated, filtered, and conflicts detected.
+To do so, refer to the `cliquet resource documentation
 <http://cliquet.readthedocs.org/en/latest/api/resource.html#get-resource>`_
-for more details on available operations.
+for more details on available operations on collection retrieval.
+
+.. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records
+
+  **Requires authentication**
+
+  Retrieves all the records in the collection.
+
+  .. sourcecode::
+
+    $ http get :8888/v1/buckets/blog/collections/articles/records --auth="bob:" --verbose
+
+  .. sourcecode:: http
+
+    GET /v1/buckets/blog/collections/articles/records HTTP/1.1
+    Accept: */*
+    Accept-Encoding: gzip, deflate
+    Authorization: Basic Ym9iOg==
+    Connection: keep-alive
+    Host: localhost:8888
+    User-Agent: HTTPie/0.9.2
+
+  .. sourcecode:: http
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified, ETag
+    Content-Length: 110
+    Content-Type: application/json; charset=UTF-8
+    Date: Thu, 18 Jun 2015 17:24:38 GMT
+    Etag: "1434648278603"
+    Last-Modified: Thu, 18 Jun 2015 17:24:38 GMT
+    Server: waitress
+    Total-Records: 1
+
+    {
+        "data": [
+            {
+                "baz": "bar",
+                "foo": "baz",
+                "id": "89881454-e4e9-4ef0-99a9-404d95900352",
+                "last_modified": 1434647996969
+            }
+        ]
+    }
 
 
-/buckets/<bucket_id>/collections/<collection_id>/records/<record_id>
-====================================================================
+Retrieving a specific record
+============================
 
-**Requires authentication**
+.. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-End-point for a single record of the collection:
+  **Requires authentication**
 
-* ``GET``: Fetch
-* ``PATCH``: Modify
-* ``PUT``: Replace
-* ``DELETE``: Delete
+  Retrieves a specific record by its id.
 
+  **Example Request**
 
-See `cliquet record documentation <http://cliquet.readthedocs.org/en/latest/api/resource.html#get-resource-id>`_
-for more details on available operations.
+  .. sourcecode::
+
+    $ http get :8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
+
+  .. sourcecode:: http
+
+    GET /v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 HTTP/1.1
+    Accept: */*
+    Accept-Encoding: gzip, deflate
+    Authorization: Basic Ym9iOg==
+    Connection: keep-alive
+    Host: localhost:8888
+    User-Agent: HTTPie/0.9.2
+
+  **Example Response**
+
+  .. sourcecode:: http
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified, ETag
+    Content-Length: 211
+    Content-Type: application/json; charset=UTF-8
+    Date: Thu, 18 Jun 2015 17:29:59 GMT
+    Etag: "1434648599199"
+    Last-Modified: Thu, 18 Jun 2015 17:29:59 GMT
+    Server: waitress
+
+    {
+        "data": {
+            "baz": "bar",
+            "foo": "baz",
+            "id": "89881454-e4e9-4ef0-99a9-404d95900352",
+            "last_modified": 1434647996969
+        },
+        "permissions": {
+            "write": [
+                "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+            ]
+        }
+    }
+
+Deleting a record
+=================
+
+.. http:delete:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
+
+  Delete a record, from its id.
+
+  **Example Request**
+
+  .. sourcecode::
+
+    http delete :8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
+
+  .. sourcecode:: http
+
+    DELETE /v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 HTTP/1.1
+    Accept: */*
+    Accept-Encoding: gzip, deflate
+    Authorization: Basic Ym9iOg==
+    Connection: keep-alive
+    Content-Length: 0
+    Host: localhost:8888
+    User-Agent: HTTPie/0.9.2
+
+  **Example Response**
+
+  .. sourcecode:: http
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+    Content-Length: 99
+    Content-Type: application/json; charset=UTF-8
+    Date: Thu, 18 Jun 2015 17:32:29 GMT
+    Server: waitress
+
+    {
+        "data": {
+            "deleted": true,
+            "id": "89881454-e4e9-4ef0-99a9-404d95900352",
+            "last_modified": 1434648749173
+        }
+    }
