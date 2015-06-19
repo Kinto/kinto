@@ -255,9 +255,9 @@ class BaseResource(object):
     mapping = ResourceSchema()
     """Schema to validate records."""
 
-    def __init__(self, request, context):
+    def __init__(self, request, context=None):
         # Collections are isolated by user.
-        parent_id = context.prefixed_userid
+        parent_id = request.prefixed_userid
 
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get('Authorization')
@@ -1014,7 +1014,7 @@ class ProtectedResource(BaseResource):
 
         if add_write_perm:
             write_principals = permissions.setdefault('write', [])
-            user_principal = self.context.prefixed_userid
+            user_principal = self.request.prefixed_userid
             if user_principal not in write_principals:
                 write_principals.insert(0, user_principal)
 

@@ -61,13 +61,8 @@ class RouteFactory(object):
     }
 
     def __init__(self, request):
-        # Prefix the user id with the authn policy type name.
-        user_id = request.authenticated_userid
-        # This comes from ``cliquet.initialization.setup_authentication()``.
-        authn_type = getattr(request, 'authn_type', None)
-        self.prefixed_userid = None
-        if user_id and authn_type:
-            self.prefixed_userid = '%s:%s' % (authn_type.lower(), user_id)
+        # We need it in permits as well
+        self.prefixed_userid = getattr(request, "prefixed_userid", None)
 
         # Store service, resource, record and required permission.
         service = utils.current_service(request)
