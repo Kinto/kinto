@@ -35,6 +35,9 @@ class RouteFactoryTest(unittest.TestCase):
 
             self.assertEquals(context.required_permission, permission)
 
+    def test_http_unknown_does_not_raise_a_500(self):
+        self.assert_request_resolves_to("unknown", None)
+
     def test_http_get_resolves_in_a_read_permission(self):
         self.assert_request_resolves_to("get", "read")
 

@@ -103,7 +103,11 @@ class RouteFactory(object):
                 else:
                     permission = "write"
             else:
-                permission = self.method_permissions[request.method.lower()]
+                method = request.method.lower()
+                try:
+                    permission = self.method_permissions[method]
+                except KeyError:
+                    permission = None
 
             resource_name = service.viewset.get_name(service.resource)
             check_permission = functools.partial(
