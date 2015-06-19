@@ -90,7 +90,6 @@ def setup_authentication(config):
 
     # Build the prefixed_userid
     def on_new_request(event):
-        # This comes from ``cliquet.initialization.setup_authentication()``.
         authn_type = getattr(event.request, 'authn_type', None)
 
         # Prefix the user id with the authn policy type name.

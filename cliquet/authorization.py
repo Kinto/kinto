@@ -61,7 +61,7 @@ class RouteFactory(object):
     }
 
     def __init__(self, request):
-        # We need it in permits as well
+        # Make it available for the authorization policy.
         self.prefixed_userid = getattr(request, "prefixed_userid", None)
 
         # Store service, resource, record and required permission.

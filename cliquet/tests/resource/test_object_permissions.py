@@ -16,6 +16,16 @@ class PermissionTest(BaseTest):
         return request
 
 
+class ProtectedResourceTest(BaseTest):
+    resource_class = ProtectedResource
+
+    def test_resource_can_be_created_without_context(self):
+        try:
+            ProtectedResource(self.get_request())
+        except Exception as e:
+            self.fail(e)
+
+
 class CollectionPermissionTest(PermissionTest):
     def setUp(self):
         super(CollectionPermissionTest, self).setUp()
