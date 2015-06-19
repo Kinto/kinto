@@ -71,7 +71,7 @@ Let start with a really simple data model:
 
 .. code-block:: http
 
-    $ echo '{"data": {"description": "Write a tutoriel explaining Kinto", "status": "todo"}}' | \
+    $ echo '{"data": {"description": "Write a tutorial explaining Kinto", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
              --auth 'user:password'
 
@@ -87,7 +87,7 @@ Let start with a really simple data model:
 
     {
         "data": {
-            "description": "Write a tutoriel explaining Kinto", 
+            "description": "Write a tutorial explaining Kinto", 
             "status": "todo"
         }
     }
@@ -103,7 +103,7 @@ Let start with a really simple data model:
 
     {
         "data": {
-            "description": "Write a tutoriel explaining Kinto", 
+            "description": "Write a tutorial explaining Kinto", 
             "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
             "last_modified": 1434641515332, 
             "status": "todo"
@@ -145,7 +145,7 @@ Let's grab our new list of tasks:
     {
         "data": [
             {
-                "description": "Write a tutoriel explaining Kinto", 
+                "description": "Write a tutorial explaining Kinto", 
                 "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
                 "last_modified": 1434641515332, 
                 "status": "todo"
@@ -189,7 +189,7 @@ We can also update our tasks:
 
     {
         "data": {
-            "description": "Write a tutoriel explaining Kinto", 
+            "description": "Write a tutorial explaining Kinto", 
             "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
             "last_modified": 1434642603605, 
             "status": "doing"
@@ -291,7 +291,7 @@ update:
 
     {
         "data": {
-            "description": "Write a tutoriel explaining Kinto", 
+            "description": "Write a tutorial explaining Kinto", 
             "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
             "last_modified": 1434642603605, 
             "status": "doing"
@@ -333,7 +333,7 @@ Or we can ask the list of changes from the last time we've synced our local stor
     {
         "data": [
             {
-                "description": "Write a tutoriel explaining Kinto", 
+                "description": "Write a tutorial explaining Kinto", 
                 "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
                 "last_modified": 1434642603605, 
                 "status": "doing"
@@ -388,7 +388,7 @@ The we can try to send back again our modifications using the new record ``last_
 
     {
         "data": {
-            "description": "Write a tutoriel explaining Kinto", 
+            "description": "Write a tutorial explaining Kinto", 
             "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
             "last_modified": 1434644476758, 
             "status": "done"
@@ -971,7 +971,7 @@ Then Mary can get back the record:
 Conclusion
 ==========
 
-In this tutoriel, you have see all the concept exposed by Kinto:
+In this tutorial, you have see all the concept exposed by Kinto:
 
 - Using the default personal user bucket to sync user data
 - Creating a bucket to share data between people
