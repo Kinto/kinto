@@ -257,7 +257,7 @@ class BaseResource(object):
 
     def __init__(self, request, context=None):
         # Collections are isolated by user.
-        parent_id = request.prefixed_userid
+        parent_id = self.get_parent_id(request)
 
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get('Authorization')
@@ -277,6 +277,9 @@ class BaseResource(object):
         # Log resource context.
         logger.bind(collection_id=self.collection.collection_id,
                     collection_timestamp=self.timestamp)
+
+    def get_parent_id(self, request):
+        return getattr(request, 'prefixed_userid', None)
 
     def is_known_field(self, field):
         """Return ``True`` if `field` is defined in the resource mapping.
