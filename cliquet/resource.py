@@ -299,12 +299,12 @@ class BaseResource(object):
         """Collection ``GET`` endpoint: retrieve multiple records.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
-            ``If-Match`` header is provided and collection not
+            ``If-None-Match`` header is provided and collection not
             modified in the interim.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-None-Match`` header is provided and collection modified
+            ``If-Match`` header is provided and collection modified
             in the iterim.
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters or sorting are invalid.
@@ -353,7 +353,7 @@ class BaseResource(object):
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Unmodified-Since`` header is provided and collection modified
+            ``If-Match`` header is provided and collection modified
             in the iterim.
 
         .. seealso::
@@ -393,7 +393,7 @@ class BaseResource(object):
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Unmodified-Since`` header is provided and collection modified
+            ``If-Match`` header is provided and collection modified
             in the iterim.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
@@ -416,12 +416,12 @@ class BaseResource(object):
             the record is not found.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
-            ``If-Match`` header is provided and record not
+            ``If-None-Match`` header is provided and record not
             modified in the interim.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-None-Match`` header is provided and record modified
+            ``If-Match`` header is provided and record modified
             in the iterim.
         """
         self._raise_400_if_invalid_id(self.record_id)
@@ -441,8 +441,13 @@ class BaseResource(object):
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Unmodified-Since`` header is provided and record modified
+            ``If-Match`` header is provided and record modified
             in the iterim.
+
+        .. note::
+
+            If ``If-None-Match: *`` request header is provided, the
+            ``PUT`` will succeed only if no record exists with this id.
 
         .. seealso::
 
@@ -500,7 +505,7 @@ class BaseResource(object):
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Unmodified-Since`` header is provided and record modified
+            ``If-Match`` header is provided and record modified
             in the iterim.
 
         .. seealso::
@@ -569,7 +574,7 @@ class BaseResource(object):
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Unmodified-Since`` header is provided and record modified
+            ``If-Match`` header is provided and record modified
             in the iterim.
         """
         self._raise_400_if_invalid_id(self.record_id)
