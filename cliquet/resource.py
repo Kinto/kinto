@@ -257,7 +257,7 @@ class BaseResource(object):
 
     def __init__(self, request, context=None):
         # Collections are isolated by user.
-        parent_id = request.prefixed_userid
+        parent_id = getattr(request, 'prefixed_userid', None)
 
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get('Authorization')
