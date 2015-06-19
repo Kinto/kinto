@@ -71,7 +71,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
         record_id = record['id']
         record_uri = '/articles/%s' % record_id
         self.permission.add_principal_to_ace(record_uri, 'read', 'fxa:user')
-        self.resource.context.prefixed_userid = 'basic:userid'
+        self.resource.request.prefixed_userid = 'basic:userid'
         self.resource.record_id = record_id
         self.resource.request.validated = {'data': {}}
         self.resource.request.path = record_uri
