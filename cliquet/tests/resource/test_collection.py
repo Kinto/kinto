@@ -71,10 +71,10 @@ class IsolatedCollectionsTest(BaseTest):
         self.stored = self.collection.create_record({}, parent_id='bob')
         self.resource.record_id = self.stored['id']
 
-    def get_request(self):
-        request = super(IsolatedCollectionsTest, self).get_request()
-        request.authenticated_userid = 'alice'
-        return request
+    def get_context(self):
+        context = super(IsolatedCollectionsTest, self).get_context()
+        context.prefixed_userid = 'alice'
+        return context
 
     def test_list_is_filtered_by_user(self):
         resp = self.resource.collection_get()

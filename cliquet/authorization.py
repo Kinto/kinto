@@ -19,6 +19,18 @@ class AuthorizationPolicy(object):
     get_bound_permissions = None
 
     def permits(self, context, principals, permission):
+        # Add prefixed user id to principals.
+        if context.prefixed_userid:
+            principals = principals + [context.prefixed_userid]
+            prefix, user_id = context.prefixed_userid.split(':', 1)
+            # Remove unprefixed user id to avoid conflicts.
+            # (it is added via Pyramid Authn policy effective principals)
+            if user_id in principals:
+                principals.remove(user_id)
+            # Retro-compatibility with cliquet 2.0 '_' user id prefixes.
+            # Just in case it was used in permissions definitions.
+            principals.append('%s_%s' % (prefix, user_id))
+
         if permission == DYNAMIC:
             permission = context.required_permission
 
@@ -49,6 +61,15 @@ class RouteFactory(object):
     }
 
     def __init__(self, request):
+        # Prefix the user id with the authn policy type name.
+        user_id = request.authenticated_userid
+        # This comes from ``cliquet.initialization.setup_authentication()``.
+        authn_type = getattr(request, 'authn_type', None)
+        self.prefixed_userid = None
+        if user_id and authn_type:
+            self.prefixed_userid = '%s:%s' % (authn_type.lower(), user_id)
+
+        # Store service, resource, record and required permission.
         service = utils.current_service(request)
 
         is_on_resource = (service is not None and
@@ -72,7 +93,7 @@ class RouteFactory(object):
 
                 # If the view exists, call it with the request and catch an
                 # eventual NotFound.
-                resource = service.resource(request)
+                resource = service.resource(request=request, context=self)
                 try:
                     resource.collection.get_record(resource.record_id)
                 except storage_exceptions.RecordNotFoundError:

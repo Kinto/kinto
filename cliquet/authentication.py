@@ -29,4 +29,4 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
             hmac_secret = settings['cliquet.userid_hmac_secret']
             credentials = '%s:%s' % credentials
             userid = utils.hmac_digest(hmac_secret, credentials)
-            return "basicauth_%s" % userid
+            return userid

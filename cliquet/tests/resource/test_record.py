@@ -96,7 +96,8 @@ class PatchTest(BaseTest):
     def test_collection_timestamp_is_not_updated_if_no_field_changed(self):
         self.resource.request.json = {'data': {'some': 'change'}}
         self.resource.patch()
-        self.resource = BaseResource(self.get_request())
+        self.resource = BaseResource(request=self.get_request(),
+                                     context=self.get_context())
         self.resource.collection_get()['data']
         last_modified = int(self.last_response.headers['ETag'][1:-1])
         self.assertEquals(self.result['last_modified'], last_modified)
