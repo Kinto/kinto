@@ -18,9 +18,12 @@ class Collection(resource.ProtectedResource):
                              collection_id='bucket',
                              object_id=bucket_id)
 
-        parent_id = '/buckets/%s' % bucket_id
-        self.collection.parent_id = parent_id
         self.collection.id_generator = NameGenerator()
+
+    def get_parent_id(self, request):
+        bucket_id = request.matchdict['bucket_id']
+        parent_id = '/buckets/%s' % bucket_id
+        return parent_id
 
     def delete(self):
         result = super(Collection, self).delete()

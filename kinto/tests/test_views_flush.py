@@ -16,7 +16,7 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
 
         bucket = MINIMALIST_BUCKET.copy()
 
-        alice_principal = ('basicauth_d5b0026601f1b251974e09548d44155e16812'
+        alice_principal = ('basicauth:d5b0026601f1b251974e09548d44155e16812'
                            'e3c64ff7ae053fe3542e2ca1570')
         bucket['permissions'] = {'write': [alice_principal]}
         self.app.put_json('/buckets/beers', bucket,

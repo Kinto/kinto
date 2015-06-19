@@ -12,9 +12,11 @@ class Bucket(resource.ProtectedResource):
 
     def __init__(self, *args, **kwargs):
         super(Bucket, self).__init__(*args, **kwargs)
-        # Buckets are not isolated by user, unlike Cliquet resources.
-        self.collection.parent_id = ''
         self.collection.id_generator = NameGenerator()
+
+    def get_parent_id(self, request):
+        # Buckets are not isolated by user, unlike Cliquet resources.
+        return ''
 
     def delete(self):
         result = super(Bucket, self).delete()

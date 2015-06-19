@@ -9,11 +9,11 @@ class PermissionsTest(BaseWebTest, unittest.TestCase):
         super(PermissionsTest, self).__init__(*args, **kwargs)
         self.alice_headers = self.headers.copy()
         self.alice_headers.update(**get_user_headers('alice'))
-        self.alice_principal = ('basicauth_d5b0026601f1b251974e09548d44155'
+        self.alice_principal = ('basicauth:d5b0026601f1b251974e09548d44155'
                                 'e16812e3c64ff7ae053fe3542e2ca1570')
         self.bob_headers = self.headers.copy()
         self.bob_headers.update(**get_user_headers('bob'))
-        self.bob_principal = ('basicauth_c031ced27503f788b102ca54269a062ec73'
+        self.bob_principal = ('basicauth:c031ced27503f788b102ca54269a062ec73'
                               '794bb075154c74a0d4311e74ca8b6')
 
 
