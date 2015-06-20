@@ -12,6 +12,12 @@ other backends like « in-memory » or `PostgreSQL <http://postgresql.org/>`_
 can be enabled afterwards.
 
 
+Supported Python versions
+=========================
+
+Cliquet supports Python 2.7, Python 3.4 and PyPy.
+
+
 Distribute & Pip
 ================
 
@@ -27,6 +33,17 @@ For *PostgreSQL* and *monitoring* support:
 ::
 
     pip install cliquet[postgresql,monitoring]
+
+
+.. note::
+
+    When installing cliquet with postgresql support in a virtualenv using the
+    `PyPy <http://pypy.org/>`_ interpreter, the
+    `psycopg2cffi <https://github.com/chtd/psycopg2cffi>`_ PostgreSQL database
+    adapter will be installed, instead of the traditionnal
+    `psycopg2 <https://pythonhosted.org/psycopg2/>`_, as it provides significant
+    `performance improvements
+    <http://chtd.ru/blog/bystraya-rabota-s-postgres-pod-pypy/?lang=en>`_.
 
 
 If everything is under control *python*-wise, jump to the next chapter.
