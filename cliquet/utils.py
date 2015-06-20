@@ -8,14 +8,13 @@ from base64 import b64decode, b64encode
 from binascii import hexlify
 
 # ujson is not installable with pypy
-try:  # pragma: no cover
+try:
     import ujson as json  # NOQA
 except ImportError:  # pragma: no cover
     import json  # NOQA
 
 # psycopg2cffi is installed under pypy, instead of psycopg2
-# pragma: no cover
-try:  # pragma: no cover
+try:
     import psycopg2  # NOQA
 except ImportError:  # pragma: no cover
     from psycopg2cffi import compat
