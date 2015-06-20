@@ -32,7 +32,7 @@ if not installed_with_pypy:
     # ujson is not pypy compliant, as it uses the CPython C API
     REQUIREMENTS.append('ujson')
     # We install psycopg2cffi instead of psycopg2 when dealing with pypy
-    # Note: JSONB support landed in psycopg2cffi 2.7.0
+    # Note: JSONB support landed after psycopg2cffi 2.7.0
     POSTGRESQL_REQUIRES = [
         'psycopg2cffi>2.7.0',
     ]

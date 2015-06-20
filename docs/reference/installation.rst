@@ -40,7 +40,7 @@ For *PostgreSQL* and *monitoring* support:
     When installing cliquet with postgresql support in a virtualenv using the
     `PyPy <http://pypy.org/>`_ interpreter, the
     `psycopg2cffi <https://github.com/chtd/psycopg2cffi>`_ PostgreSQL database
-    adapter will be installed, instead of the traditionnal
+    adapter will be installed, instead of the traditional
     `psycopg2 <https://pythonhosted.org/psycopg2/>`_, as it provides significant
     `performance improvements
     <http://chtd.ru/blog/bystraya-rabota-s-postgres-pod-pypy/?lang=en>`_.
