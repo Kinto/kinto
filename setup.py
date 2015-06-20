@@ -1,4 +1,4 @@
-import sys
+import platform
 import codecs
 import os
 from setuptools import setup, find_packages
@@ -15,7 +15,7 @@ with codecs.open(os.path.join(here, 'CONTRIBUTORS.rst'),
                  encoding='utf-8') as f:
     CONTRIBUTORS = f.read()
 
-installed_with_pypy = sys.subversion[0] == 'PyPy'
+installed_with_pypy = platform.python_implementation() == 'PyPy'
 
 REQUIREMENTS = [
     'colander',
