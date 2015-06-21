@@ -80,7 +80,8 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.path = '/articles'
         self.resource.request.method = 'POST'
         result = self.resource.collection_post()
-        self.assertEqual(result['permissions'], {'write': ['basicauth:userid']})
+        self.assertEqual(result['permissions'],
+                         {'write': ['basicauth:userid']})
 
     def test_write_permission_is_given_to_put(self):
         self.resource.request.method = 'PUT'
