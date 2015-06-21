@@ -126,37 +126,43 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     def test_create_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        old_timestamp = int(json.loads(collection_resp.headers['ETag']))
+        old_timestamp = int(
+            json.loads(collection_resp.headers['ETag'].decode('utf-8')))
         self.app.post_json(self.collection_url,
                            MINIMALIST_RECORD,
                            headers=self.headers,
                            status=201)
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        new_timestamp = int(json.loads(collection_resp.headers['ETag']))
+        new_timestamp = int(
+            json.loads(collection_resp.headers['ETag'].decode('utf-8')))
         assert old_timestamp < new_timestamp
 
     def test_update_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        old_timestamp = int(json.loads(collection_resp.headers['ETag']))
+        old_timestamp = int(
+            json.loads(collection_resp.headers['ETag'].decode('utf-8')))
         self.app.put_json(self.record_url,
                           MINIMALIST_RECORD,
                           headers=self.headers,
                           status=200)
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        new_timestamp = int(json.loads(collection_resp.headers['ETag']))
+        new_timestamp = int(
+            json.loads(collection_resp.headers['ETag'].decode('utf-8')))
         assert old_timestamp < new_timestamp
 
     def test_delete_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        old_timestamp = int(json.loads(collection_resp.headers['ETag']))
+        old_timestamp = int(
+            json.loads(collection_resp.headers['ETag'].decode('utf-8')))
         self.app.delete(self.record_url,
                         headers=self.headers,
                         status=200)
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        new_timestamp = int(json.loads(collection_resp.headers['ETag']))
+        new_timestamp = int(
+            json.loads(collection_resp.headers['ETag'].decode('utf-8')))
         assert old_timestamp < new_timestamp
