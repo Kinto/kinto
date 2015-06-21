@@ -69,7 +69,7 @@ in ``myproject.ini``.
         cliquet.permission_backend = cliquet.permission.memory
 
 
-Now is a good time to install the *Cornice* project locally::
+Now is a good time to install the *Cliquet* project locally::
 
     $ pip install -e .
 
