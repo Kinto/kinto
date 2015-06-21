@@ -1,3 +1,4 @@
+import platform
 import codecs
 import os
 from setuptools import setup, find_packages
@@ -14,6 +15,7 @@ with codecs.open(os.path.join(here, 'CONTRIBUTORS.rst'),
                  encoding='utf-8') as f:
     CONTRIBUTORS = f.read()
 
+installed_with_pypy = platform.python_implementation() == 'PyPy'
 
 REQUIREMENTS = [
     'colander',
@@ -24,14 +26,22 @@ REQUIREMENTS = [
     'requests',
     'six',
     'structlog',
-    'ujson',
 ]
+
+if installed_with_pypy:
+    # We install psycopg2cffi instead of psycopg2 when dealing with pypy
+    # Note: JSONB support landed after psycopg2cffi 2.7.0
+    POSTGRESQL_REQUIRES = [
+        'psycopg2cffi>2.7.0',
+    ]
+else:
+    # ujson is not pypy compliant, as it uses the CPython C API
+    REQUIREMENTS.append('ujson')
+    POSTGRESQL_REQUIRES = [
+        'psycopg2>2.5',
+    ]
 
 DEPENDENCY_LINKS = [
-]
-
-POSTGRESQL_REQUIRES = [
-    'psycopg2>2.5',
 ]
 
 MONITORING_REQUIRES = [

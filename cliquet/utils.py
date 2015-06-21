@@ -7,7 +7,20 @@ import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
 
-import ujson as json  # NOQA
+# ujson is not installable with pypy
+try:
+    import ujson as json  # NOQA
+except ImportError:  # pragma: no cover
+    import json  # NOQA
+
+# psycopg2cffi is installed under pypy, instead of psycopg2
+try:
+    import psycopg2  # NOQA
+except ImportError:  # pragma: no cover
+    from psycopg2cffi import compat
+    compat.register()
+    import psycopg2  # NOQA
+
 from cornice import cors
 from colander import null
 

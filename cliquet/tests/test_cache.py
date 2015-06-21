@@ -1,9 +1,9 @@
 import mock
 import time
 
-import psycopg2
 import redis
 
+from cliquet.utils import psycopg2
 from cliquet.storage import exceptions
 from cliquet.cache import (CacheBase, postgresql as postgresql_backend,
                            redis as redis_backend, memory as memory_backend)

@@ -1,8 +1,8 @@
 import mock
 
-import psycopg2
 import redis
 
+from cliquet.utils import psycopg2
 from cliquet.storage import exceptions
 from cliquet.permission import (PermissionBase, redis as redis_backend,
                                 memory as memory_backend,
