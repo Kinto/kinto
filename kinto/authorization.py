@@ -135,10 +135,7 @@ def build_permissions_set(object_uri, unbound_permission,
 
 # XXX: May need caching
 def groupfinder(userid, request):
-    authn_type = getattr(request, 'authn_type', None)
-    if authn_type is None:
-        return []
-
+    authn_type = request.authn_type
     prefixed_userid = '%s:%s' % (authn_type.lower(), userid)
     return request.registry.permission.user_principals(prefixed_userid)
 

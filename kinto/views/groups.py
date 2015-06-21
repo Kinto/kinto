@@ -67,7 +67,6 @@ class Group(resource.ProtectedResource):
             try:
                 existing_record_members = set(old['members'])
             except KeyError:
-                # This occurs when there is a deleted version
                 existing_record_members = set([])
         new_record_members = set(new['members'])
         new_members = new_record_members - existing_record_members
