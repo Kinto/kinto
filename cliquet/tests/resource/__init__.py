@@ -3,7 +3,7 @@ import mock
 from cliquet.authorization import RouteFactory
 from cliquet.storage import memory
 from cliquet.tests.support import unittest, DummyRequest
-from cliquet.resource import BaseResource
+from cliquet.resource import BaseResource, ProtectedResource
 
 
 class BaseTest(unittest.TestCase):
@@ -31,3 +31,37 @@ class BaseTest(unittest.TestCase):
     @property
     def last_response(self):
         return self.resource.request.response
+
+
+class ProtectedResourceTest(BaseTest):
+    resource_class = ProtectedResource
+
+    def test_resource_can_be_created_without_context(self):
+        try:
+            ProtectedResource(self.get_request())
+        except Exception as e:
+            self.fail(e)
+
+
+class ParentIdResourceTest(BaseTest):
+
+    def test_get_parent_id_default_to_prefixed_userid(self):
+        request = self.get_request()
+        parent_id = self.resource.get_parent_id(request)
+        self.assertEquals(parent_id, 'basicauth:bob')
+
+
+class NewResource(BaseResource):
+    def get_parent_id(self, request):
+        return "overrided"
+
+
+class ParentIdOverrideResourceTest(BaseTest):
+    resource_class = NewResource
+
+    def test_get_parent_can_be_overridded(self):
+        request = self.get_request()
+
+        parent_id = self.resource.get_parent_id(request)
+        self.assertEquals(parent_id, 'overrided')
+        self.assertEquals(self.resource.collection.parent_id, 'overrided')

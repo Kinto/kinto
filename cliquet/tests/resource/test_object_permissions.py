@@ -71,7 +71,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
         record_id = record['id']
         record_uri = '/articles/%s' % record_id
         self.permission.add_principal_to_ace(record_uri, 'read', 'fxa:user')
-        self.resource.context.prefixed_userid = 'basic:userid'
+        self.resource.request.prefixed_userid = 'basicauth:userid'
         self.resource.record_id = record_id
         self.resource.request.validated = {'data': {}}
         self.resource.request.path = record_uri
@@ -80,13 +80,14 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.path = '/articles'
         self.resource.request.method = 'POST'
         result = self.resource.collection_post()
-        self.assertEqual(result['permissions'], {'write': ['basic:userid']})
+        self.assertEqual(result['permissions'],
+                         {'write': ['basicauth:userid']})
 
     def test_write_permission_is_given_to_put(self):
         self.resource.request.method = 'PUT'
         result = self.resource.put()
         self.assertEqual(result['permissions'],
-                         {'read': ['fxa:user'], 'write': ['basic:userid']})
+                         {'read': ['fxa:user'], 'write': ['basicauth:userid']})
 
     def test_permissions_can_be_specified_in_collection_post(self):
         perms = {'write': ['jean-louis']}
@@ -95,7 +96,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.validated = {'data': {}, 'permissions': perms}
         result = self.resource.collection_post()
         self.assertEqual(result['permissions'],
-                         {'write': ['basic:userid', 'jean-louis']})
+                         {'write': ['basicauth:userid', 'jean-louis']})
 
     def test_permissions_are_replaced_with_put(self):
         perms = {'write': ['jean-louis']}

@@ -71,9 +71,14 @@ class IsolatedCollectionsTest(BaseTest):
         self.stored = self.collection.create_record({}, parent_id='bob')
         self.resource.record_id = self.stored['id']
 
+    def get_request(self):
+        request = super(IsolatedCollectionsTest, self).get_request()
+        request.prefixed_userid = 'basicauth:alice'
+        return request
+
     def get_context(self):
         context = super(IsolatedCollectionsTest, self).get_context()
-        context.prefixed_userid = 'alice'
+        context.prefixed_userid = 'basicauth:alice'
         return context
 
     def test_list_is_filtered_by_user(self):
@@ -85,7 +90,7 @@ class IsolatedCollectionsTest(BaseTest):
         self.resource.request.validated = {'data': {'some': 'record'}}
         self.resource.put()
         self.collection.get_record(record_id=self.stored['id'],
-                                   parent_id='alice')  # not raising
+                                   parent_id='basicauth:alice')  # not raising
 
     def test_cannot_modify_record_of_other_user(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.patch)
