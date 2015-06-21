@@ -279,6 +279,15 @@ class BaseResource(object):
                     collection_timestamp=self.timestamp)
 
     def get_parent_id(self, request):
+        """Return the parent_id of the resource with regards to the current
+        request.
+
+        :param request:
+            The request used to create the resource.
+
+        :rtype: str
+
+        """
         return getattr(request, 'prefixed_userid', None)
 
     def is_known_field(self, field):

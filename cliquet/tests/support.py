@@ -34,8 +34,8 @@ class DummyRequest(mock.MagicMock):
         self.headers = {}
         self.errors = cornice_errors.Errors(request=self)
         self.authenticated_userid = 'bob'
-        self.authn_type = 'basic'
-        self.prefixed_userid = 'basic:bob'
+        self.authn_type = 'basicauth'
+        self.prefixed_userid = 'basicauth:bob'
         self.json = {}
         self.validated = {}
         self.matchdict = {}
