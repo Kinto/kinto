@@ -7,8 +7,7 @@ This document describes changes between each past release.
 1.1.0 (unreleased)
 ==================
 
-- Nothing changed yet.
-
+- Flush endpoint now returns 404 is disabled (instead of 405)
 
 1.0.0 (2015-06-17)
 ==================

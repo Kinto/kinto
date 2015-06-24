@@ -16,35 +16,45 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
 
         bucket = MINIMALIST_BUCKET.copy()
 
+        self.alice_headers = self.headers.copy()
+        self.alice_headers.update(**get_user_headers('alice'))
         alice_principal = ('basicauth:d5b0026601f1b251974e09548d44155e16812'
                            'e3c64ff7ae053fe3542e2ca1570')
         bucket['permissions'] = {'write': [alice_principal]}
+
+        # Create shared bucket.
         self.app.put_json('/buckets/beers', bucket,
                           headers=self.headers)
         self.app.put_json('/buckets/beers/collections/barley',
                           MINIMALIST_COLLECTION,
                           headers=self.headers)
 
-        headers = self.headers.copy()
+        # Records for alice and bob.
         self.app.post_json(self.collection_url,
                            MINIMALIST_RECORD,
-                           headers=headers,
+                           headers=self.headers,
                            status=201)
-
-        headers.update(**get_user_headers('alice'))
         self.app.post_json(self.collection_url,
                            MINIMALIST_RECORD,
-                           headers=headers,
+                           headers=self.alice_headers,
                            status=201)
 
-    def test_returns_405_if_not_enabled_in_configuration(self):
-        self.app.post('/__flush__', headers=self.headers, status=405)
+    def get_app_settings(self, extra=None):
+        if extra is None:
+            extra = {}
+        extra.setdefault('kinto.flush_endpoint_enabled', True)
+        settings = super(FlushViewTest, self).get_app_settings(extra)
+        return settings
+
+    def test_returns_404_if_not_enabled_in_configuration(self):
+        extra = {'kinto.flush_endpoint_enabled': False}
+        app = self._get_test_app(settings=extra)
+        app.post('/__flush__', headers=self.headers, status=404)
 
     def test_removes_every_records_of_everykind(self):
-        headers = self.headers.copy()
-        with mock.patch.dict(self.app.app.registry.settings,
-                             [('kinto.flush_endpoint_enabled', 'true')]):
-            self.app.post('/__flush__', headers=self.headers, status=202)
+        self.app.post('/__flush__', headers=self.headers, status=202)
 
-        self.app.get('/buckets/beers', headers=headers, status=404)
-        self.app.get(self.collection_url, headers=headers, status=404)
+        self.app.get(self.collection_url, headers=self.headers, status=404)
+        self.app.get(self.collection_url,
+                     headers=self.alice_headers,
+                     status=404)

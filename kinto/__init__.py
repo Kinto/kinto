@@ -2,6 +2,7 @@ import pkg_resources
 import logging
 
 from pyramid.config import Configurator
+from pyramid.settings import asbool
 from cliquet import initialize_cliquet
 from cliquet.authorization import RouteFactory
 
@@ -15,7 +16,8 @@ logger = logging.getLogger(__name__)
 DEFAULT_SETTINGS = {
     'cliquet.bucket_create_principals': 'system.Authenticated',
     'multiauth.authorization_policy': (
-        'kinto.authorization.AuthorizationPolicy')
+        'kinto.authorization.AuthorizationPolicy'),
+    'kinto.flush_endpoint_enabled': False
 }
 
 
@@ -24,5 +26,11 @@ def main(global_config, **settings):
     initialize_cliquet(config,
                        version=__version__,
                        default_settings=DEFAULT_SETTINGS)
-    config.scan("kinto.views")
+
+    kwargs = {}
+    flush_enabled = asbool(settings['kinto.flush_endpoint_enabled'])
+    if not flush_enabled:
+        kwargs['ignore'] = 'kinto.views.flush'
+
+    config.scan("kinto.views", **kwargs)
     return config.make_wsgi_app()
