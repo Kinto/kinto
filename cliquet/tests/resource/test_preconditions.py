@@ -16,6 +16,10 @@ class NotModifiedTest(BaseTest):
         current = self.last_response.headers['ETag']
         self.resource.request.headers['If-None-Match'] = current
 
+    def test_collection_returns_200_if_change_meanwhile(self):
+        self.resource.request.headers['If-None-Match'] = '"42"'.encode('utf-8')
+        self.resource.collection_get()  # Not raising.
+
     def test_collection_returns_304_if_no_change_meanwhile(self):
         try:
             self.resource.collection_get()
@@ -115,6 +119,13 @@ class ModifiedMeanwhileTest(BaseTest):
     def test_put_returns_412_if_changed_meanwhile(self):
         self.resource.record_id = self.stored['id']
         self.collection.delete_record(self.stored)
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed,
+                          self.resource.put)
+
+    def test_put_returns_412_if_changed_and_none_match_present(self):
+        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.headers['If-None-Match'] = '"42"'.encode('utf-8')
+        self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 

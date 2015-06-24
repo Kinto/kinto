@@ -781,6 +781,9 @@ class BaseResource(object):
                     'description': "Invalid value for If-Match"
                 }
                 raise_invalid(self.request, **error_details)
+        else:
+            # In case _raise_304_if_not_modified() did not raise.
+            return
 
         if record:
             current_timestamp = record[self.collection.modified_field]
