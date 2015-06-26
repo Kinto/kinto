@@ -27,6 +27,7 @@ def main(global_config, **settings):
                        version=__version__,
                        default_settings=DEFAULT_SETTINGS)
 
+    settings = config.get_settings()
     kwargs = {}
     flush_enabled = asbool(settings['kinto.flush_endpoint_enabled'])
     if not flush_enabled:

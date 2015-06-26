@@ -1,4 +1,3 @@
-import mock
 from cliquet.tests.support import authorize
 
 from .support import (BaseWebTest, unittest, get_user_headers,
