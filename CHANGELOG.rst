@@ -10,6 +10,17 @@ This document describes changes between each past release.
 
 - Cliquet does not require authentication policies to prefix
   user ids anymore (fixes #299).
+- Pypy support (thanks Balthazar Rouberol #325)
+- Allow to override parent id of resources (#333)
+
+**Bug fixes**
+
+- Fix crash in authorization on ``OPTIONS`` requests (#331)
+- Fix crash when ``If-Match`` is provided without ``If-None-Match`` (#335)
+
+**Internal changes**
+
+- Fix docstrings and documentation (#329)
 
 
 2.0.0 (2015-06-16)
