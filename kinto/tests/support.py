@@ -17,7 +17,7 @@ MINIMALIST_COLLECTION = {'data': dict()}
 MINIMALIST_GROUP = {'data': dict(members=['fxa:user'])}
 MINIMALIST_RECORD = {'data': dict(name="Hulled Barley",
                                   type="Whole Grain")}
-USER_PRINCIPAL = 'basicauth_8a931a10fc88ab2f6d1cc02a07d3a81b5d4768f' \
+USER_PRINCIPAL = 'basicauth:8a931a10fc88ab2f6d1cc02a07d3a81b5d4768f' \
                  '6f13e85c5d8d4180419acb1b4'
 
 

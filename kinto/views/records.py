@@ -32,8 +32,10 @@ class Record(resource.ProtectedResource):
                              parent_id='/buckets/%s' % bucket_id,
                              object_id=collection_id)
 
-        parent_id = '/buckets/%s/collections/%s' % (bucket_id, collection_id)
-        self.collection.parent_id = parent_id
+    def get_parent_id(self, request):
+        bucket_id = request.matchdict['bucket_id']
+        collection_id = request.matchdict['collection_id']
+        return '/buckets/%s/collections/%s' % (bucket_id, collection_id)
 
     def is_known_field(self, field_name):
         """Without schema, any field is considered as known."""

@@ -15,7 +15,7 @@ REQUIREMENTS = [
     'cornice',
     'six',
     'waitress',
-    'cliquet[postgresql,monitoring] >= 2.0.0'
+    'cliquet[postgresql,monitoring] > 2.0.0'
 ]
 
 ENTRY_POINTS = {
@@ -23,7 +23,9 @@ ENTRY_POINTS = {
         'main = kinto:main',
     ]}
 
-DEPENDENCY_LINKS = []
+DEPENDENCY_LINKS = [
+    'https://github.com/mozilla-services/cliquet/tarball/master#egg=cliquet-2.1.0dev0'
+]
 
 setup(name='kinto',
       version='1.1.0.dev0',
