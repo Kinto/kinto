@@ -140,10 +140,18 @@ Install Cliquet with related dependencies::
 Full server
 -----------
 
-In Ubuntu/Debian based::
+PostgreSQL version 9.4 (or higher) is required.
 
-    sudo apt-get install postgresql
+To install PostgreSQL on Ubuntu/Debian use::
 
+    sudo apt-get install postgresql-9.4 postgresql-contrib-9.4
+
+If your Ubuntu/Debian distribution doesn't include version 9.4 of PostgreSQL
+look at the `PostgreSQL Ubuntu
+<http://www.postgresql.org/download/linux/ubuntu/>`_ and `PostgreSQL Debian
+<http://www.postgresql.org/download/linux/debian/>`_ pages. The PostgreSQL
+project provides an Apt Repository that one can use to install recent
+PostgreSQL versions.
 
 By default, the ``postgres`` user has no password and can hence only connect
 if ran by the ``postgres`` system user. The following command will assign it:
