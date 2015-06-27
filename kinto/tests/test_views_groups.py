@@ -58,7 +58,7 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
-    def test_recreate_group_after_deletion_works(self):
+    def test_recreate_group_after_deletion_returns_a_200(self):
         group = MINIMALIST_GROUP.copy()
         self.app.put_json('/buckets/beers/groups/moderator',
                           group,
