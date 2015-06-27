@@ -50,10 +50,14 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         app = self._get_test_app(settings=extra)
         app.post('/__flush__', headers=self.headers, status=404)
 
+    @authorize(authz_class='kinto.tests.support.AllowAuthorizationPolicy')
     def test_removes_every_records_of_everykind(self):
+        self.app.get(self.collection_url, headers=self.headers)
+        self.app.get(self.collection_url, headers=self.alice_headers)
+
         self.app.post('/__flush__', headers=self.headers, status=202)
 
-        self.app.get(self.collection_url, headers=self.headers, status=404)
+        self.app.get(self.collection_url, headers=self.headers, status=403)
         self.app.get(self.collection_url,
                      headers=self.alice_headers,
-                     status=404)
+                     status=403)
