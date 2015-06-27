@@ -63,7 +63,8 @@ class InitializationTest(unittest.TestCase):
     def test_overriden_default_settings(self):
         config = Configurator()
         defaults = {'cliquet.paginate_by': 102}
-        cliquet.initialize(config, '0.0.1', default_settings=defaults)
+        cliquet.initialize(config, '0.0.1', 'project_name',
+                           default_settings=defaults)
         self.assertEqual(config.registry.settings['cliquet.paginate_by'], 102)
 
     def test_environment_values_override_configuration(self):
@@ -179,14 +180,14 @@ class StatsDConfigurationTest(unittest.TestCase):
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_counts_nothing_on_anonymous_requests(self, mocked):
-        cliquet.initialize(self.config, '0.0.1')
+        cliquet.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get('/')
         self.assertFalse(mocked.count.called)
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_counts_views_and_methods(self, mocked):
-        cliquet.initialize(self.config, '0.0.1')
+        cliquet.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get('/v0/__heartbeat__')
         mocked().count.assert_any_call('view.heartbeat.GET')
@@ -195,7 +196,7 @@ class StatsDConfigurationTest(unittest.TestCase):
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_counts_unique_users(self, mocked, digest_mocked):
         digest_mocked.return_value = u'mat'
-        cliquet.initialize(self.config, '0.0.1')
+        cliquet.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
         app.get('/v0/__heartbeat__', headers=headers)
@@ -203,7 +204,7 @@ class StatsDConfigurationTest(unittest.TestCase):
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_counts_authentication_types(self, mocked):
-        cliquet.initialize(self.config, '0.0.1')
+        cliquet.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
         app.get('/v0/__heartbeat__', headers=headers)
