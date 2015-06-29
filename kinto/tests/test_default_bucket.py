@@ -1,5 +1,7 @@
 from .support import (BaseWebTest, unittest, get_user_headers,
-                      MINIMALIST_BUCKET, MINIMALIST_RECORD)
+                      MINIMALIST_RECORD)
+
+from cliquet.utils import hmac_digest
 
 
 class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
@@ -12,14 +14,13 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
 
     def test_default_bucket_exists_and_has_user_id(self):
         bucket = self.app.get(self.bucket_url, headers=self.headers)
+        result = bucket.json
+        settings = self.app.app.registry.settings
+        hmac_secret = settings['cliquet.userid_hmac_secret']
+        bucket_id = hmac_digest(hmac_secret, self.principal)
 
-        expected_bucket = MINIMALIST_BUCKET.copy()
-        expected_bucket['data']['id'] = self.principal
-        expected_bucket['data']['last_modified'] = self.storage \
-            .collection_timestamp(self.principal, None)
-        expected_bucket['permissions'] = {'write': [self.principal]}
-
-        self.assertDictEqual(bucket.json, expected_bucket)
+        self.assertEqual(result['data']['id'], bucket_id)
+        self.assertEqual(result['permissions']['write'], [self.principal])
 
     def test_default_bucket_collections_are_automatically_created(self):
         self.app.get(self.collection_url, headers=self.headers, status=200)
@@ -29,5 +30,5 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json(self.collection_url + '/records',
                                   record, headers=get_user_headers('bob'))
         record_id = self.collection_url + '/records/' + resp.json['data']['id']
-        resp = self.app.get(record_id, record,
-                            headers=get_user_headers('alice'), status=404)
+        resp = self.app.get(record_id, headers=get_user_headers('alice'),
+                            status=404)

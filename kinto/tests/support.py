@@ -17,8 +17,8 @@ MINIMALIST_COLLECTION = {'data': dict()}
 MINIMALIST_GROUP = {'data': dict(members=['fxa:user'])}
 MINIMALIST_RECORD = {'data': dict(name="Hulled Barley",
                                   type="Whole Grain")}
-USER_PRINCIPAL = 'basicauth:8a931a10fc88ab2f6d1cc02a07d3a81b5d4768f' \
-                 '6f13e85c5d8d4180419acb1b4'
+USER_PRINCIPAL = 'basicauth:aaedca130273574dd2bd6c3acad57f3545b662a974fa4320' \
+                 '236f25fe474676d6'
 
 
 class BaseWebTest(object):
@@ -51,6 +51,7 @@ class BaseWebTest(object):
         settings['cliquet.project_docs'] = 'https://kinto.rtfd.org/'
         settings['multiauth.authorization_policy'] = (
             'kinto.tests.support.AllowAuthorizationPolicy')
+        settings['cliquet.userid_hmac_secret'] = "azerty"
 
         if additional_settings is not None:
             settings.update(additional_settings)

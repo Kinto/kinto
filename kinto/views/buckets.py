@@ -1,6 +1,55 @@
+from pyramid.httpexceptions import HTTPForbidden
+from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.view import view_config
+
 from cliquet import resource
+from cliquet.utils import hmac_digest
+from cliquet.views.batch import build_request
 
 from kinto.views import NameGenerator
+
+
+@view_config(route_name='default_bucket', permission=NO_PERMISSION_REQUIRED)
+def default_bucket(request):
+    if (not hasattr(request, 'prefixed_userid') or
+            request.prefixed_userid is None):
+        raise HTTPForbidden  # Pass through the forbidden_view_config
+
+    settings = request.registry.settings
+    hmac_secret = settings['cliquet.userid_hmac_secret']
+    bucket_id = hmac_digest(hmac_secret, request.prefixed_userid)
+    path = request.path.replace('default', bucket_id)
+
+    # Make sure bucket exists
+    # XXX: Is there a better way to do a GET or CREATE?
+    subrequest = build_request(request, {
+        'method': 'PUT',
+        'path': '/buckets/%s' % bucket_id,
+        'body': {"data": {}},
+        'headers': {'If-None-Match': '*'}
+    })
+    request.invoke_subrequest(subrequest)
+
+    # Make sure the collection exists
+    subpath = request.matchdict['subpath']
+    if subpath.startswith('/collections/'):
+        # XXX: Is there a better way to do a GET or CREATE?
+        collection_id = subpath.split('/')[2]
+        subrequest = build_request(request, {
+            'method': 'PUT',
+            'path': '/buckets/%s/collections/%s' % (bucket_id, collection_id),
+            'body': {"data": {}},
+            'headers': {'If-None-Match': '*'}
+        })
+        request.invoke_subrequest(subrequest)
+
+    subrequest = build_request(request, {
+        'method': request.method,
+        'path': path,
+        'body': request.body
+    })
+
+    return request.invoke_subrequest(subrequest)
 
 
 @resource.register(name='bucket',
