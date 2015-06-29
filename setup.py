@@ -11,11 +11,11 @@ with open(os.path.join(here, 'CHANGELOG.rst')) as f:
 
 
 REQUIREMENTS = [
-    'colander',
-    'cornice',
-    'six',
-    'waitress',
-    'cliquet[postgresql,monitoring] > 2.0.0'
+    'colander==1.0',
+    'cornice==1.0.0',
+    'six==1.9.0',
+    'waitress==0.8.9',
+    'cliquet[postgresql,monitoring]==2.1.0'
 ]
 
 ENTRY_POINTS = {
@@ -24,11 +24,10 @@ ENTRY_POINTS = {
     ]}
 
 DEPENDENCY_LINKS = [
-    'https://github.com/mozilla-services/cliquet/tarball/master#egg=cliquet-2.1.0dev0'
 ]
 
 setup(name='kinto',
-      version='1.1.0.dev0',
+      version='1.1.0',
       description='kinto',
       long_description=README + "\n\n" + CHANGELOG,
       license='Apache License (2.0)',
