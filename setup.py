@@ -11,11 +11,11 @@ with open(os.path.join(here, 'CHANGELOG.rst')) as f:
 
 
 REQUIREMENTS = [
-    'colander',
-    'cornice',
-    'six',
-    'waitress',
-    'cliquet'
+    'colander==1.0',
+    'cornice==1.0.0',
+    'six==1.9.0',
+    'waitress==0.8.9',
+    'cliquet[monitoring]==2.1.0'
 ]
 
 ENTRY_POINTS = {
