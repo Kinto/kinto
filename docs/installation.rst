@@ -14,12 +14,8 @@ Run locally
 For development
 ---------------
 
-By default, *Kinto* persists the records and internal cache in a PostgreSQL
-database.
-
-The default configuration will connect to the ``postgres`` database on
-``localhost:5432``, with user/password ``postgres``/``postgres``.
-See more details below about installation and setup of PostgreSQL.
+By default, for convenience, *Kinto* persists the records, permissions and
+internal cache in a **volatile** memory backend.
 
 ::
 
@@ -30,7 +26,7 @@ Using Docker
 ------------
 
 Kinto uses `Docker Compose <http://docs.docker.com/compose/>`_, which takes
-care of running and connecting PostgreSQL:
+care of running and connecting to a PostgreSQL container:
 
 ::
 
@@ -56,18 +52,30 @@ Recommended settings for production are listed :ref:`in a dedicated section
 <run-production>`, and another gives some :ref:`insights about deployment strategies.
 <deployment>`.
 
+*PostgreSQL* is the recommended backend for production, see instructions below
+to get it started.
+
+
+.. _postgresql-install:
 
 Install and setup PostgreSQL
 ============================
 
- (*requires PostgreSQL 9.4 or higher*).
+(*requires PostgreSQL 9.4 or higher*).
 
-Install Python dependencies
----------------------------
+*Cliquet* dependencies do not include *PostgreSQL* tooling and drivers by
+default. In order to install them, run:
 
 ::
 
-    pip install "kinto[postgresql]"
+    pip install "cliquet[postgresql]"
+
+
+The following instructions will create a local ``postgres`` database on
+``localhost:5432``, with user/password ``postgres``/``postgres``.
+
+Once done, just uncomment the backends lines mentionning *Postgresql* in the
+default configuration file :file:`config/kinto.ini`.
 
 
 Client libraries only
@@ -118,11 +126,11 @@ Tag and save the current state with::
 
 In the future, run the tagged version of the container ::
 
-    kinto=$(sudo docker run -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 kinto-db)
+    kintodb=$(sudo docker run -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 kinto-db)
 
     ...
 
-    sudo docker stop $kinto
+    sudo docker stop $kintodb
 
 
 OS X
