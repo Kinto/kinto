@@ -1,11 +1,9 @@
 WebTest
-nose
-nose-cov
-nose-mocha-reporter
 mock
 Sphinx
 sphinx_rtd_theme
 requests
-coverage
-unittest2
 https://github.com/mozilla-services/cliquet/archive/master.zip
+pytest
+pytest-cover
+pytest-sugar
