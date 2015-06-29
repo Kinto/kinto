@@ -121,6 +121,7 @@ man_pages = [
 texinfo_documents = [
   ('index', 'Kinto', u'Kinto Documentation',
    u'Mozilla Services — Da French Team', 'Kinto',
-   'A storage service for data sync, share with fine-grained permissions.',
+   'A storage service for data storage, synchronization and sharing '
+   'with fine-grained permissions.',
    'Miscellaneous'),
 ]

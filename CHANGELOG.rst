@@ -27,7 +27,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
-- Use py.test to run tests instead of nose.
+- Use py.test to run tests instead of nose (#85)
 
 
 1.0.0 (2015-06-17)
