@@ -32,3 +32,8 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         record_id = self.collection_url + '/records/' + resp.json['data']['id']
         resp = self.app.get(record_id, headers=get_user_headers('alice'),
                             status=404)
+
+    def test_unauthenticated_bucket_access_raises_json_401(self):
+        resp = self.app.get(self.bucket_url, status=401)
+        self.assertEquals(resp.json['message'],
+                          'Please authenticate yourself to use this endpoint.')
