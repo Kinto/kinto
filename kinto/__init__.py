@@ -1,8 +1,9 @@
 import pkg_resources
 import logging
 
+import cliquet
 from pyramid.config import Configurator
-from cliquet import initialize_cliquet
+from pyramid.settings import asbool
 from cliquet.authorization import RouteFactory
 
 # Module version, as defined in PEP-0396.
@@ -23,8 +24,15 @@ DEFAULT_SETTINGS = {
 
 def main(global_config, **settings):
     config = Configurator(settings=settings, root_factory=RouteFactory)
-    initialize_cliquet(config,
+    cliquet.initialize(config,
                        version=__version__,
                        default_settings=DEFAULT_SETTINGS)
-    config.scan("kinto.views")
+
+    settings = config.get_settings()
+    kwargs = {}
+    flush_enabled = asbool(settings.get('kinto.flush_endpoint_enabled'))
+    if not flush_enabled:
+        kwargs['ignore'] = 'kinto.views.flush'
+
+    config.scan("kinto.views", **kwargs)
     return config.make_wsgi_app()
