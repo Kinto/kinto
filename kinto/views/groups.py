@@ -64,7 +64,7 @@ class Group(resource.ProtectedResource):
         if old is None:
             existing_record_members = set([])
         else:
-            existing_record_members = set(old['members'])
+            existing_record_members = set(old.get('members', []))
         new_record_members = set(new['members'])
         new_members = new_record_members - existing_record_members
         removed_members = existing_record_members - new_record_members

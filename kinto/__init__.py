@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 DEFAULT_SETTINGS = {
     'cliquet.bucket_create_principals': 'system.Authenticated',
     'multiauth.authorization_policy': (
-        'kinto.authorization.AuthorizationPolicy')
+        'kinto.authorization.AuthorizationPolicy'),
+    'multiauth.groupfinder': (
+        'kinto.authorization.groupfinder')
 }
 
 
