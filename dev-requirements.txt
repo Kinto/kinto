@@ -4,6 +4,7 @@ Sphinx
 sphinx_rtd_theme
 requests
 pytest
+pytest-cache
 pytest-cover
 pytest-sugar
 sphinxcontrib-httpdomain==1.1.9
