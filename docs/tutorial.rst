@@ -5,14 +5,14 @@ A first app with Kinto
 
 There are actually two kinds of app that you may want to use Kinto with:
 
-  - App to sync user data between her devices.
-  - App to sync and share data between user, with fined-grained permissions
+  - App to sync user data between her devices;
+  - App to sync and share data between users, with fined-grained permissions.
 
 Most of the app will fit in one or the other.
 
 
-Build an app to sync user data between her devices
-==================================================
+Sync user data between devices
+==============================
 
 Let say that we want to do a TodoMVC backend that will sync user tasks
 between her devices.
@@ -57,7 +57,7 @@ user bucket to create our collection:
         }, 
         "permissions": {
             "write": [
-                "basicauth_10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
             ]
         }
     }
@@ -110,7 +110,7 @@ Let start with a really simple data model:
         }, 
         "permissions": {
             "write": [
-                "basicauth_10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
             ]
         }
     }
@@ -196,7 +196,7 @@ We can also update our tasks:
         }, 
         "permissions": {
             "write": [
-                "basicauth_10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
             ]
         }
     }
@@ -298,12 +298,14 @@ update:
         }, 
         "permissions": {
             "write": [
-                "basicauth_10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
             ]
         }
     }
 
-Or we can ask the list of changes from the last time we've synced our local store, filtering on the ``_since`` attribute with the value of the last collection ETag:
+Or we can ask the list of changes from the last time we've synced our
+local store, filtering on the ``_since`` attribute with the value of
+the last collection ETag:
 
 .. code-block:: http
 
@@ -351,7 +353,8 @@ Or if changes did happened on the same field, we must decide or ask
 the user to decide, which version we have to keep (server version or
 client version).
 
-The we can try to send back again our modifications using the new record ``last_modified`` value:
+Then we can try to send back again our modifications using the new
+record ``last_modified`` value:
 
 .. code-block:: http
 
@@ -395,7 +398,7 @@ The we can try to send back again our modifications using the new record ``last_
         }, 
         "permissions": {
             "write": [
-                "basicauth_10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
             ]
         }
     }
@@ -485,7 +488,8 @@ your app:
 
 .. code-block:: http
 
-    $ echo '{"data": {}}' | http PUT https://kinto.dev.mozaws.net/v1/buckets/todo -v --auth 'user:password'
+    $ echo '{"data": {}}' | http PUT https://kinto.dev.mozaws.net/v1/buckets/todo \
+        -v --auth 'user:password'
 
     PUT /v1/buckets/todo HTTP/1.1
     Accept: application/json
@@ -517,7 +521,7 @@ your app:
         }, 
         "permissions": {
             "write": [
-                "basicauth_10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
             ]
         }
     }
@@ -573,7 +577,7 @@ authenticated users:
                 "system.Authenticated"
             ], 
             "write": [
-                "basicauth_10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
             ]
         }
     }
@@ -627,7 +631,7 @@ Then Alice can create a task:
         }, 
         "permissions": {
             "write": [
-                "basicauth_9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
+                "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
             ]
         }
     }
@@ -675,13 +679,13 @@ And Bob can create a task:
         }, 
         "permissions": {
             "write": [
-                "basicauth_a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
+                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
             ]
         }
     }
 
 
-The Alice can see only her tasks:
+Then Alice can only see her tasks:
 
 .. code-block::
 
@@ -697,7 +701,7 @@ The Alice can see only her tasks:
     User-Agent: HTTPie/0.9.2
 
 
-And Bob can see only his tasks:
+And Bob can only see his tasks:
 
 .. code-block:: http
 
@@ -719,7 +723,7 @@ If Alice want to share a task with Bob, she can give him the ``read`` permission
     $ echo '{
         "data": {},
         "permissions": {
-            "read": ["basicauth_a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
+            "read": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
         }
     }' | \
     http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
@@ -739,7 +743,7 @@ If Alice want to share a task with Bob, she can give him the ``read`` permission
         "data": {}, 
         "permissions": {
             "read": [
-                "basicauth_a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
+                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
             ]
         }
     }
@@ -760,10 +764,10 @@ If Alice want to share a task with Bob, she can give him the ``read`` permission
         }, 
         "permissions": {
             "read": [
-                "basicauth_a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
+                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
             ], 
             "write": [
-                "basicauth_9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
+                "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
             ]
         }
     }
@@ -792,10 +796,12 @@ And Bob can see only his tasks:
 Here we are sharing records, but if you share a collection, you share
 all the items of this collection with the same right and same for buckets.
 
+
 Working with groups
 ===================
 
-To go further, you may want to allow user to share data with a group of people.
+To go further, you may want to allow users to share data with a group
+of people.
 
 Let's add the right for people to create group in our ``todo`` bucket:
 
@@ -843,7 +849,7 @@ Let's add the right for people to create group in our ``todo`` bucket:
                 "system.Authenticated"
             ], 
             "write": [
-                "basicauth_10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
             ]
         }
     }
@@ -853,8 +859,8 @@ Then Alice can create a group of her friends Bob and Mary:
 .. code-block:: http
 
     $ echo '{"data": {
-        "members": ["basicauth_a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
-                    "basicauth_8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"]
+        "members": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
+                    "basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"]
     }}' | http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/groups/alice-friends \
         -v --auth 'alice:alicepassword'
 
@@ -871,8 +877,8 @@ Then Alice can create a group of her friends Bob and Mary:
     {
         "data": {
             "members": [
-                "basicauth_a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148", 
-                "basicauth_8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"
+                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148", 
+                "basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"
             ]
         }
     }
@@ -891,13 +897,13 @@ Then Alice can create a group of her friends Bob and Mary:
             "id": "alice-friends", 
             "last_modified": 1434647004644, 
             "members": [
-                "basicauth_a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148", 
-                "basicauth_8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"
+                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148", 
+                "basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"
             ]
         }, 
         "permissions": {
             "write": [
-                "basicauth_9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
+                "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
             ]
         }
     }
@@ -953,7 +959,7 @@ The alice can share here record directly with her group of friends:
                 "/buckets/todo/groups/alice-friends"
             ], 
             "write": [
-                "basicauth_9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
+                "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
             ]
         }
     }
