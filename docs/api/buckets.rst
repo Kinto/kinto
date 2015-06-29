@@ -63,7 +63,7 @@ Creating a bucket
             },
             "permissions": {
                 "write": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
         }
@@ -121,7 +121,7 @@ Retrieve an already existing bucket
             },
             "permissions": {
                 "write": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
         }

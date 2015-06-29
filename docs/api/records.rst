@@ -19,7 +19,7 @@ Sending a record
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"foo": "bar"}}' | http post :8888/v1/buckets/blog/collections/articles/records --auth="bob:" --verbose
+        $ echo '{"data": {"foo": "bar"}}' | http post http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:" --verbose
 
 
     .. sourcecode:: http
@@ -57,7 +57,7 @@ Sending a record
             },
             "permissions": {
                 "write": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
         }
@@ -75,7 +75,7 @@ Replacing a record
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"foo": "baz"}}' | http put :8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
+        $ echo '{"data": {"foo": "baz"}}' | http put http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
 
     .. sourcecode:: http
 
@@ -114,7 +114,7 @@ Replacing a record
           },
           "permissions": {
               "write": [
-                  "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                  "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
               ]
           }
         }
@@ -133,7 +133,7 @@ Updating a record
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"baz": "bar"}}' | http patch :8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
+        $ echo '{"data": {"baz": "bar"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
 
     .. sourcecode:: http
 
@@ -173,7 +173,7 @@ Updating a record
           },
           "permissions": {
               "write": [
-                  "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                  "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
               ]
           }
         }
@@ -194,7 +194,7 @@ for more details on available operations on collection retrieval.
 
     .. sourcecode:: bash
 
-        $ http get :8888/v1/buckets/blog/collections/articles/records --auth="bob:" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:" --verbose
 
     .. sourcecode:: http
 
@@ -243,7 +243,7 @@ Retrieving a specific record
 
     .. sourcecode:: bash
 
-        $ http get :8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
 
     .. sourcecode:: http
 
@@ -277,7 +277,7 @@ Retrieving a specific record
             },
             "permissions": {
                 "write": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
         }
@@ -293,7 +293,7 @@ Deleting a record
 
     .. sourcecode:: bash
 
-        $ http delete :8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
 
     .. sourcecode:: http
 

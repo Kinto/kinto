@@ -28,7 +28,7 @@ Creating a collection
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {}}' | http put :8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
+        $ echo '{"data": {}}' | http put http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
 
     **Example Request**
 
@@ -64,7 +64,7 @@ Creating a collection
             },
             "permissions": {
                 "write": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
         }
@@ -88,7 +88,7 @@ Retrieving an existing collection
 
     .. sourcecode:: bash
 
-        $ http get :8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
 
 
     **Example Request**
@@ -124,7 +124,7 @@ Retrieving an existing collection
             },
             "permissions": {
                 "write": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
         }
@@ -141,7 +141,7 @@ Deleting a collection
 
     .. sourcecode:: bash
 
-        $ http delete :8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
 
     **Example Request**
 

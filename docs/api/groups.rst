@@ -23,7 +23,7 @@ Creating a group
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"members": ["basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http POST :8888/v1/buckets/blog/groups --auth="bob:" --verbose
+        $ echo '{"data": {"members": ["basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http POST http://localhost:8888/v1/buckets/blog/groups --auth="bob:" --verbose
 
     **Example Request**
 
@@ -42,7 +42,7 @@ Creating a group
         {
             "data": {
                 "members": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
         }
@@ -63,12 +63,12 @@ Creating a group
                 "id": "wZjuQfpS",
                 "last_modified": 1434644222033,
                 "members": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             },
             "permissions": {
                 "write": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
         }
@@ -86,7 +86,7 @@ Replacing a group
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"members": ["basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http put :8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
+        $ echo '{"data": {"members": ["basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http put http://localhost:8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
 
     .. sourcecode:: http
 
@@ -103,7 +103,7 @@ Replacing a group
         {
             "data": {
                 "members": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
         }
@@ -124,12 +124,12 @@ Replacing a group
                 "id": "readers",
                 "last_modified": 1434645661227,
                 "members": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             },
             "permissions": {
                 "write": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
         }
@@ -153,7 +153,7 @@ Retrieving a group
 
     .. sourcecode:: bash
 
-        $ http get :8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
 
     .. sourcecode:: http
 
@@ -183,12 +183,12 @@ Retrieving a group
                 "id": "readers",
                 "last_modified": 1434645661227,
                 "members": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             },
             "permissions": {
                 "write": [
-                    "basicauth_206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
         }
@@ -206,7 +206,7 @@ Deleting a group
 
     .. sourcecode:: bash
 
-        $ http delete :8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
 
     .. sourcecode:: http
 
