@@ -5,5 +5,5 @@ sphinx_rtd_theme
 requests
 https://github.com/mozilla-services/cliquet/archive/master.zip
 pytest
-pytest-cov
+pytest-cover
 pytest-sugar
