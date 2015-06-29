@@ -17,7 +17,7 @@ def default_bucket(request):
 
     settings = request.registry.settings
     hmac_secret = settings['cliquet.userid_hmac_secret']
-    bucket_id = hmac_digest(hmac_secret, request.prefixed_userid)
+    bucket_id = hmac_digest(hmac_secret, request.prefixed_userid)[:32]
     path = request.path.replace('default', bucket_id)
 
     # Make sure bucket exists
