@@ -34,7 +34,7 @@ migrate: install
 	$(VENV)/bin/cliquet --ini $(SERVER_CONFIG) migrate
 
 tests-once: install-dev
-	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-min-percentage=100 --cover-package=kinto
+	$(VENV)/bin/py.test --cov-report term-missing --cov kinto
 
 tests:
 	tox
