@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_SETTINGS = {
+    'cliquet.cache_backend': 'cliquet.cache.memory',
+    'cliquet.permission_backend': 'cliquet.permission.memory',
+    'cliquet.storage_backend': 'cliquet.storage.memory',
     'cliquet.bucket_create_principals': 'system.Authenticated',
     'multiauth.authorization_policy': (
         'kinto.authorization.AuthorizationPolicy'),

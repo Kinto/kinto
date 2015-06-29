@@ -7,7 +7,22 @@ This document describes changes between each past release.
 1.1.0 (unreleased)
 ==================
 
-- Flush endpoint now returns 404 is disabled (instead of 405)
+**New features**
+
+- Polish default kinto configuration and default to memory backend. (#81)
+- Add the kinto group finder (#78)
+- Flush endpoint now returns 404 is disabled (instead of 405) (#82)
+
+
+**Bug fixes**
+
+- ETag not updated on collection update (#80)
+
+
+**Internal changes**
+
+- Use py.test to run tests instead of nose.
+
 
 1.0.0 (2015-06-17)
 ==================
