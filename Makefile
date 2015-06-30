@@ -15,12 +15,12 @@ OBJECTS = .venv .coverage
 all: install
 install: $(INSTALL_STAMP)
 $(INSTALL_STAMP): $(PYTHON)
-	$(PYTHON) setup.py develop
+	$(VENV)/bin/pip install -Ue .
 	touch $(INSTALL_STAMP)
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON)
-	$(VENV)/bin/pip install --ignore-installed -r dev-requirements.txt
+	$(VENV)/bin/pip install -Ur dev-requirements.txt
 	touch $(DEV_STAMP)
 
 virtualenv: $(PYTHON)
