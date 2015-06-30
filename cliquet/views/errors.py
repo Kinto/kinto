@@ -51,9 +51,17 @@ def authorization_required(request):
 @cors
 def page_not_found(request):
     """Return a JSON 404 error response."""
-    error_msg = "The resource your are looking for could not be found."
+    if request.path.startswith(
+            '/' + request.registry.settings.get('route_prefix')):
+        errno = ERRORS.MISSING_RESOURCE
+        error_msg = "The resource your are looking for could not be found."
+    else:
+        errno = ERRORS.VERSION_NOT_AVAILABLE
+        error_msg = ("The requested protocol version is not available "
+                     "on this server.")
+
     response = http_error(httpexceptions.HTTPNotFound(),
-                          errno=ERRORS.MISSING_RESOURCE,
+                          errno=errno,
                           message=error_msg)
     return response
 
