@@ -2,9 +2,9 @@ WebTest
 mock
 Sphinx
 sphinx_rtd_theme
+sphinxcontrib-httpdomain
 requests
 pytest
 pytest-cover
 pytest-sugar
-sphinxcontrib-httpdomain==1.1.9
 https://github.com/mozilla-services/cliquet/archive/master.zip
