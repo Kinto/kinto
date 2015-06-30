@@ -5,13 +5,6 @@ from collections import defaultdict
 
 from cliquet.utils import psycopg2
 
-if psycopg2 is None:
-    warnings.warn("You must install psycopg2 to use the postgresql backend",
-                  ImportWarning)
-else:
-    import psycopg2.extras
-    import psycopg2.pool
-
 import six
 from six.moves.urllib import parse as urlparse
 
@@ -22,6 +15,9 @@ from cliquet.storage import (
 from cliquet.utils import COMPARISON, json
 
 if psycopg2 is not None:
+    import psycopg2.extras
+    import psycopg2.pool
+
     psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
     psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 

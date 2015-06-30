@@ -143,8 +143,14 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.assertEqual(version, self.version)
 
 
-@unittest.skipIf(postgresql.psycopg2 is not None, "postgresql is installed.")
 class PostgresqlExceptionRaisedTest(unittest.TestCase):
+    def setUp(self):
+        self.psycopg2 = postgresql.psycopg2
+
+    def tearDown(self):
+        postgresql.psycopg2 = self.psycopg2
+
     def test_postgresql_usage_raise_an_error_if_postgresql_not_installed(self):
+        postgresql.psycopg2 = None
         with self.assertRaises(ImportWarning):
             postgresql.PostgreSQLClient()
