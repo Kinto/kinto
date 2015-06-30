@@ -8,6 +8,7 @@ env:
     - TOX_ENV=py27
     - TOX_ENV=py34
     - TOX_ENV=pypy
+    - TOX_ENV=py27-raw
     - TOX_ENV=flake8
     - TOX_ENV=docs
 install:
