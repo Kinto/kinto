@@ -119,9 +119,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Kinto', u'Kinto Documentation',
-   u'Mozilla Services — Da French Team', 'Kinto',
-   'A storage service for data storage, synchronization and sharing '
-   'with fine-grained permissions.',
-   'Miscellaneous'),
+    ('index', 'Kinto', u'Kinto Documentation',
+     u'Mozilla Services — Da French Team', 'Kinto',
+     'A remote storage service with syncing and sharing abilities.',
+     'Miscellaneous'),
 ]
