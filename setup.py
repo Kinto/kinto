@@ -4,15 +4,16 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-with codecs.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
-    README = f.read()
 
-with codecs.open(os.path.join(here, 'CHANGELOG.rst'), encoding='utf-8') as f:
-    CHANGELOG = f.read()
+def read_file(filename):
+    """Open a related file and return its content."""
+    with codecs.open(os.path.join(here, filename), encoding='utf-8') as f:
+        content = f.read()
+    return content
 
-with codecs.open(os.path.join(here, 'CONTRIBUTORS.rst'),
-                 encoding='utf-8') as f:
-    CONTRIBUTORS = f.read()
+README = read_file('README.rst')
+CHANGELOG = read_file('CHANGELOG.rst')
+CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
     'colander',
