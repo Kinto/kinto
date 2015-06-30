@@ -47,8 +47,6 @@ class BaseWebTest(object):
         settings['cliquet.cache_backend'] = 'cliquet.cache.memory'
         settings['cliquet.storage_backend'] = 'cliquet.storage.memory'
         settings['cliquet.permission_backend'] = 'cliquet.permission.memory'
-        settings['cliquet.project_name'] = 'cloud storage'
-        settings['cliquet.project_docs'] = 'https://kinto.rtfd.org/'
         settings['cliquet.userid_hmac_secret'] = "this is not a secret"
 
         if additional_settings is not None:

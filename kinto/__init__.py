@@ -17,6 +17,8 @@ DEFAULT_SETTINGS = {
     'cliquet.cache_backend': 'cliquet.cache.memory',
     'cliquet.permission_backend': 'cliquet.permission.memory',
     'cliquet.storage_backend': 'cliquet.storage.memory',
+    'cliquet.project_name': 'Cloud Storage',
+    'cliquet.project_docs': 'https://kinto.readthedocs.org/',
     'cliquet.bucket_create_principals': 'system.Authenticated',
     'multiauth.authorization_policy': (
         'kinto.authorization.AuthorizationPolicy'),
