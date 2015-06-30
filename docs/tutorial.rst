@@ -3,23 +3,22 @@
 A first app with Kinto
 ######################
 
-There are actually two kinds of app that you may want to use Kinto with:
+There are actually two kinds of applications where *Kinto* is
+particulary relevant:
 
-  - App to sync user data between her devices;
-  - App to sync and share data between users, with fined-grained permissions.
-
-Most of the app will fit in one or the other.
+  - Sync user data between her devices;
+  - Sync and share data between users, with fined-grained permissions.
 
 
 Sync user data between devices
 ==============================
 
-Let say that we want to do a TodoMVC backend that will sync user tasks
-between her devices.
+Let's say that we want to do a TodoMVC backend that will sync user
+tasks between her devices.
 
 
 In order to separate data between each user, we will use the default
-user bucket to create our collection:
+*personal bucket* to create our collection:
 
 .. code-block:: http
 
@@ -67,7 +66,7 @@ As soon as the collection has been created, you may want to start to add some ta
 Let start with a really simple data model:
 
   - ``description``: A string describing the task
-  - ``status``: The status of the task, either ``todo``, ``doing`` or ``done``.
+  - ``status``: The status of the task, (e.g. ``todo``, ``doing`` or ``done``).
 
 .. code-block:: http
 
@@ -210,13 +209,13 @@ You've got two conflicts resolution behaviors:
   something changed on server side.
 - Client wins, in that case the change will override previous changes
 
-The previous call is the Client wins behavior.
+The previous call above is the Client wins behavior.
 
-In case you want the server to prevent you from overridding changes,
-you must send the ``If-Match`` header:
+In case you want to use the *Server wins* behavior you must send the
+``If-Match`` header:
 
 Let say, we didn't refresh the server since our first POST and we send
-the ETag we had back then ``"1434641515332"``:
+the ETag we obtained while fetching the collection ``"1434641515332"``:
 
 .. code-block:: http
 
@@ -259,10 +258,9 @@ the ETag we had back then ``"1434641515332"``:
         "message": "Resource was modified meanwhile"
     }
 
-The server reject the modification with a 412 error code.
+The server rejects the modification with a 412 error code.
 
-In order to fix that, we can either ask for the record we tried to
-update:
+In order to merge both version, we can fetch the last version of this single record:
 
 .. code-block:: http
 
@@ -303,9 +301,9 @@ update:
         }
     }
 
-Or we can ask the list of changes from the last time we've synced our
-local store, filtering on the ``_since`` attribute with the value of
-the last collection ETag:
+Or we can ask the list of changes that occured since we have fetched
+the collection, filtering on the ``_since`` attribute with the value
+of the last collection ETag:
 
 .. code-block:: http
 
@@ -343,7 +341,7 @@ the last collection ETag:
         ]
     }
 
-Now that we've got the list of the record that changed, we can handle the conflict.
+Now that we've got the list of records that changed, we can handle the conflict.
 
 We can either do three-way merge (if our changes and server changes on
 the object did not happened on the same fields) or if both objects are
@@ -354,7 +352,7 @@ the user to decide, which version we have to keep (server version or
 client version).
 
 Then we can try to send back again our modifications using the new
-record ``last_modified`` value:
+record ``ETag`` value:
 
 .. code-block:: http
 
@@ -439,8 +437,9 @@ synchronization:
         }
     }
 
-If you want to sync your local store with record deletion, you can use
-the ``_since`` parameter with the last ETag you had:
+If you want to obtain the list of records that were updated or
+deleted, you can use the ``_since`` parameter with the last ETag you
+had:
 
 .. code-block:: http
 
