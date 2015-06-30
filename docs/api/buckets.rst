@@ -4,7 +4,7 @@ Buckets
 #######
 
 A bucket is the parent object of collections and groups. It can be viewed as
-a namespace where all collection and groups are stored.
+a namespace where all collections and groups are stored.
 
 A bucket is a mapping with the following attributes:
 
@@ -27,7 +27,7 @@ Creating a bucket
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {}}' | http put :8888/v1/buckets/blog --auth="bob:"
+        $ echo '{"data": {}}' | http put http://localhost:8888/v1/buckets/blog --auth="bob:"
 
     .. sourcecode:: http
 
@@ -87,7 +87,7 @@ Retrieve an already existing bucket
 
     .. sourcecode:: bash
 
-        $ http get :8888/v1/buckets/blog --auth="bob:" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog --auth="bob:" --verbose
 
     .. sourcecode:: http
 
@@ -154,7 +154,7 @@ Deleting a bucket
 
     .. sourcecode:: bash
 
-        $ http delete :8888/v1/buckets/blog --auth="bob:" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog --auth="bob:" --verbose
 
     .. sourcecode:: http
 

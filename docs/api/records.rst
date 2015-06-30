@@ -10,10 +10,10 @@ Sending a record
 ================
 
 .. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records
-
+and its id will be assigned automatically
     **Requires authentication**
 
-    Stores a record in the collection, assigning it an identifier.
+    Stores a record in the collection, and its id will be assigned automatically.
 
     **Example Request**
 
@@ -69,7 +69,7 @@ Replacing a record
 
     **Requires authentication**
 
-    Create or update a record in the collection.
+    Creates or updates a record in the collection.
 
     **Example Request**
 
@@ -126,14 +126,14 @@ Updating a record
 
     **Requires authentication**
 
-    Update a record in the collection. Specify only the fields to be modified,
+    Updates a record in the collection. Specify only the fields to be modified,
     all the rest will remain intact.
 
     **Example Request**
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"baz": "bar"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
+        $ echo '{"data": {"status": "done"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:" --verbose
 
     .. sourcecode:: http
 
@@ -149,7 +149,7 @@ Updating a record
 
         {
           "data": {
-              "baz": "bar"
+              "status": "done"
           }
         }
 
@@ -166,8 +166,8 @@ Updating a record
 
         {
           "data": {
-              "baz": "bar",
-              "foo": "baz",
+              "status": "done",
+              "title": "Midnight in Paris",
               "id": "89881454-e4e9-4ef0-99a9-404d95900352",
               "last_modified": 1434647996969
           },
@@ -287,7 +287,7 @@ Deleting a record
 
 .. http:delete:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    Delete a record, from its id.
+    Deletes a record, from its id.
 
     **Example Request**
 

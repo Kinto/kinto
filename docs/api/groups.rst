@@ -4,13 +4,13 @@ Groups
 ######
 
 A group associates a name to a list of principals. It is useful in order to
-handle permissions. Groups are handled in buckets.
+handle permissions. Groups are defined in buckets.
 
 A group is a mapping with the following attributes:
 
 * ``members``: a list of :term:`principals <principal>`
 * ``permissions``: (*optional*) the :term:`ACLs <ACL>` for the group object
-  (e.g who has the rights to read or update the group itself.)
+  (e.g who is allowed to read or update the group itself.)
 
 Creating a group
 ================
@@ -19,7 +19,7 @@ Creating a group
 
     **Requires authentication**
 
-    Creates a new bucket's group with a generated id.
+    Creates a new bucket group with a generated id.
 
     .. sourcecode:: bash
 

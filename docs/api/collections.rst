@@ -14,7 +14,7 @@ A collection is a mapping with the following attribute:
 ..     By default users have a bucket that is used for their own data.
 ..     Application can use this default bucket with the ``default`` shortcut.
 ..     ie: ``/buckets/default/collections/contacts`` will be the current
-..     user contacts.
+..     user contacts. See #71 for more discussion.
 
 
 Creating a collection
@@ -25,6 +25,8 @@ Creating a collection
 
     **Requires authentication**
     Creates or replaces a collection object.
+
+    A collection is the parent object of records. It can be viewed as a container where records permissions are assigned globally.
 
     .. sourcecode:: bash
 
