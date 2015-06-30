@@ -1,3 +1,4 @@
+import uuid
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_RECORD)
 
@@ -8,9 +9,6 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
 
     bucket_url = '/buckets/default'
     collection_url = '/buckets/default/collections/tasks'
-
-    def setUp(self):
-        super(DefaultBucketViewTest, self).setUp()
 
     def test_default_bucket_exists_and_has_user_id(self):
         bucket = self.app.get(self.bucket_url, headers=self.headers)
@@ -37,3 +35,11 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get(self.bucket_url, status=401)
         self.assertEquals(resp.json['message'],
                           'Please authenticate yourself to use this endpoint.')
+
+    def test_bucket_id_is_an_uuid(self):
+        bucket = self.app.get(self.bucket_url, headers=self.headers)
+        bucket_id = bucket.json['data']['id']
+        try:
+            uuid.UUID(bucket_id)
+        except ValueError:
+            self.fail('bucket_id: %s is not a valid UUID.' % bucket_id)

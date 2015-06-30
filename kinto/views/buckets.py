@@ -11,12 +11,12 @@ from kinto.views import NameGenerator
 
 @view_config(route_name='default_bucket', permission=NO_PERMISSION_REQUIRED)
 def default_bucket(request):
-    if (not hasattr(request, 'prefixed_userid') or
-            request.prefixed_userid is None):
+    if getattr(request, 'prefixed_userid', None) is None:
         raise HTTPForbidden  # Pass through the forbidden_view_config
 
     settings = request.registry.settings
     hmac_secret = settings['cliquet.userid_hmac_secret']
+    # Build the user unguessable bucket_id UUID from its user_id
     bucket_id = hmac_digest(hmac_secret, request.prefixed_userid)[:32]
     path = request.path.replace('default', bucket_id)
 
