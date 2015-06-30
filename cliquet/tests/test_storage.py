@@ -70,23 +70,14 @@ class BaseTestStorage(object):
 
     settings = {}
 
-    def __init__(self, *args, **kwargs):
-        super(BaseTestStorage, self).__init__(*args, **kwargs)
+    def setUp(self):
+        super(BaseTestStorage, self).setUp()
         self.storage = self.backend.load_from_config(self._get_config())
         self.storage.initialize_schema()
         self.id_field = 'id'
         self.modified_field = 'last_modified'
         self.client_error_patcher = None
 
-    def _get_config(self, settings=None):
-        """Mock Pyramid config object.
-        """
-        if settings is None:
-            settings = self.settings
-        return mock.Mock(get_settings=mock.Mock(return_value=settings))
-
-    def setUp(self):
-        super(BaseTestStorage, self).setUp()
         self.record = {'foo': 'bar'}
         self.storage_kw = {
             'collection_id': 'test',
@@ -95,6 +86,13 @@ class BaseTestStorage(object):
         }
         self.other_parent_id = '5678'
         self.other_auth = 'Basic bWF0OjE='
+
+    def _get_config(self, settings=None):
+        """Mock Pyramid config object.
+        """
+        if settings is None:
+            settings = self.settings
+        return mock.Mock(get_settings=mock.Mock(return_value=settings))
 
     def tearDown(self):
         mock.patch.stopall()
@@ -778,8 +776,8 @@ class StorageTest(ThreadMixin,
 class MemoryStorageTest(StorageTest, unittest.TestCase):
     backend = memory
 
-    def __init__(self, *args, **kwargs):
-        super(MemoryStorageTest, self).__init__(*args, **kwargs)
+    def setUp(self):
+        super(MemoryStorageTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
             self.storage,
             '_bump_timestamp',
@@ -805,8 +803,8 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
         'cliquet.storage_url': ''
     }
 
-    def __init__(self, *args, **kwargs):
-        super(RedisStorageTest, self).__init__(*args, **kwargs)
+    def setUp(self):
+        super(RedisStorageTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
             self.storage._client.connection_pool,
             'get_connection',
@@ -834,6 +832,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
                 self.storage.get_all(**self.storage_kw)  # not raising
 
 
+@unittest.skipIf(psycopg2 is None, "postgresql is not installed.")
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
@@ -843,8 +842,8 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             'postgres://postgres:postgres@localhost:5432/testdb'
     }
 
-    def __init__(self, *args, **kwargs):
-        super(PostgresqlStorageTest, self).__init__(*args, **kwargs)
+    def setUp(self):
+        super(PostgresqlStorageTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
             self.storage.pool,
             'getconn',

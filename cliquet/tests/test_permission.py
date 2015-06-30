@@ -35,8 +35,8 @@ class BaseTestPermission(object):
     backend = None
     settings = {}
 
-    def __init__(self, *args, **kwargs):
-        super(BaseTestPermission, self).__init__(*args, **kwargs)
+    def setUp(self):
+        super(BaseTestPermission, self).setUp()
         self.permission = self.backend.load_from_config(self._get_config())
         self.permission.initialize_schema()
         self.request = None
@@ -232,8 +232,8 @@ class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
         'cliquet.permission_pool_size': 10
     }
 
-    def __init__(self, *args, **kwargs):
-        super(RedisPermissionTest, self).__init__(*args, **kwargs)
+    def setUp(self):
+        super(RedisPermissionTest, self).setUp()
         self.client_error_patcher = [
             mock.patch.object(
                 self.permission._client,
@@ -245,6 +245,7 @@ class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
                 side_effect=redis.RedisError)]
 
 
+@unittest.skipIf(psycopg2 is None, "postgresql is not installed.")
 class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = postgresql_backend
     settings = {
@@ -253,8 +254,8 @@ class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
             'postgres://postgres:postgres@localhost:5432/testdb'
     }
 
-    def __init__(self, *args, **kwargs):
-        super(PostgreSQLPermissionTest, self).__init__(*args, **kwargs)
+    def setUp(self):
+        super(PostgreSQLPermissionTest, self).setUp()
         self.client_error_patcher = [mock.patch.object(
             self.permission.pool,
             'getconn',

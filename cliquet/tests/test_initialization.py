@@ -100,6 +100,8 @@ class InitializationTest(unittest.TestCase):
 
 class ApplicationWrapperTest(unittest.TestCase):
 
+    @unittest.skipIf(initialization.newrelic is None,
+                     "newrelic is not installed.")
     @mock.patch('cliquet.initialization.newrelic.agent')
     def test_newrelic_is_included_if_defined(self, mocked_newrelic):
         settings = {
@@ -111,6 +113,8 @@ class ApplicationWrapperTest(unittest.TestCase):
         mocked_newrelic.initialize.assert_called_with('/foo/bar.ini', 'test')
         self.assertEquals(app, 'wrappedApp')
 
+    @unittest.skipIf(initialization.newrelic is None,
+                     "newrelic is not installed.")
     @mock.patch('cliquet.initialization.newrelic.agent')
     def test_newrelic_is_not_included_if_set_to_false(self, mocked_newrelic):
         settings = {'cliquet.newrelic_config': False}
