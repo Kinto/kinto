@@ -55,3 +55,6 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         response = app.get('/')
         self.assertEqual(response.status_int, 200)
         self.assertEqual(response.location, None)
+
+    def test_do_not_redirect_to_version_if_not_supported_version(self):
+        self.app.get('/v1/', status=404)  # Fail in case it is not a 404
