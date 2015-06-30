@@ -3,8 +3,6 @@ import os
 import warnings
 from collections import defaultdict
 
-from cliquet.utils import psycopg2
-
 import six
 from six.moves.urllib import parse as urlparse
 
@@ -12,7 +10,7 @@ from cliquet import logger
 from cliquet.storage import (
     StorageBase, exceptions, Filter,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
-from cliquet.utils import COMPARISON, json
+from cliquet.utils import COMPARISON, json, psycopg2
 
 if psycopg2 is not None:
     import psycopg2.extras
