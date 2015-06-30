@@ -1,7 +1,7 @@
 .. _deployment:
 
-Deployment
-##########
+Deployment good practices
+#########################
 
 *Kinto* is a python Web application that provides storage as a service.
 

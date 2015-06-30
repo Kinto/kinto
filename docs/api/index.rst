@@ -1,15 +1,15 @@
 .. _api-endpoints:
 
-API Endpoints
-#############
+The HTP APIs
+############
 
 .. toctree::
    :maxdepth: 2
 
    buckets
-   groups
    collections
    records
+   groups
 
 
 See `cliquet API documentation <http://cliquet.readthedocs.org/en/latest/api/index.html>`_
