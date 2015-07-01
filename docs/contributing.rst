@@ -65,7 +65,9 @@ Currently, running the complete test suite implies to run every type of backend.
 That means:
 
 * Run Redis on ``localhost:6379``
-* Run a PostgreSQL ``testdb`` database on ``localhost:5432`` with user ``postgres/postgres``
+* Run a PostgreSQL 9.4 ``testdb`` database on ``localhost:5432`` with user
+  ``postgres/postgres``. The database encoding should be ``UTF-8``, and the
+  database timezone should be ``UTC``.
 
 ::
 

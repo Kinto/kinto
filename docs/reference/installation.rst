@@ -152,6 +152,14 @@ if ran by the ``postgres`` system user. The following command will assign it:
 
     sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
 
+Cliquet requires that ``UTC`` be used as the database timezone, and that
+``UTF-8`` as the database encoding. You can for example use the following
+commands to create a database named ``testdb`` with the appropriate timezone
+and encoding::
+
+    sudo -u postgres psql -c "ALTER ROLE postgres SET TIMEZONE TO 'UTC';"
+    sudo -u postgres psql -c "CREATE DATABASE testdb ENCODING 'UTF-8';"
+
 
 Server using Docker
 -------------------
