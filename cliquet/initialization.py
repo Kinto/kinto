@@ -49,11 +49,7 @@ def setup_version_redirection(config):
     version_prefix_redirection_enabled = asbool(redirect_enabled)
 
     route_prefix = config.route_prefix
-
-    def on_new_request(event):
-            event.request.registry.route_prefix = route_prefix
-
-    config.add_subscriber(on_new_request, NewRequest)
+    config.registry.route_prefix = route_prefix
 
     # Redirect to the current version of the API if the prefix isn't used.
     # Do not redirect if cliquet.version_prefix_redirect_enabled is set to
