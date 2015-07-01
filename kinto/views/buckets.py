@@ -1,4 +1,4 @@
-from pyramid.httpexceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPForbidden, HTTPPreconditionFailed
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
@@ -21,27 +21,38 @@ def default_bucket(request):
     path = request.path.replace('default', bucket_id)
 
     # Make sure bucket exists
-    # XXX: Is there a better way to do a GET or CREATE?
-    subrequest = build_request(request, {
-        'method': 'PUT',
-        'path': '/buckets/%s' % bucket_id,
-        'body': {"data": {}},
-        'headers': {'If-None-Match': '*'}
-    })
-    request.invoke_subrequest(subrequest)
+    if request.method.lower() != 'put' or \
+       not request.path.endswith('buckets/default'):
+        subrequest = build_request(request, {
+            'method': 'PUT',
+            'path': '/buckets/%s' % bucket_id,
+            'body': {"data": {}},
+            'headers': {'If-None-Match': '*'}
+        })
+        try:
+            request.invoke_subrequest(subrequest)
+        except HTTPPreconditionFailed:
+            # The bucket already existed
+            pass
 
     # Make sure the collection exists
     subpath = request.matchdict['subpath']
     if subpath.startswith('/collections/'):
-        # XXX: Is there a better way to do a GET or CREATE?
         collection_id = subpath.split('/')[2]
-        subrequest = build_request(request, {
-            'method': 'PUT',
-            'path': '/buckets/%s/collections/%s' % (bucket_id, collection_id),
-            'body': {"data": {}},
-            'headers': {'If-None-Match': '*'}
-        })
-        request.invoke_subrequest(subrequest)
+        if request.method.lower() != 'put' or \
+           not request.path.endswith(collection_id):
+            subrequest = build_request(request, {
+                'method': 'PUT',
+                'path': '/buckets/%s/collections/%s' % (
+                    bucket_id, collection_id),
+                'body': {"data": {}},
+                'headers': {'If-None-Match': '*'}
+            })
+            try:
+                request.invoke_subrequest(subrequest)
+            except HTTPPreconditionFailed:
+                # The bucket already existed
+                pass
 
     subrequest = build_request(request, {
         'method': request.method,

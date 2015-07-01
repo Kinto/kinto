@@ -43,3 +43,11 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
             uuid.UUID(bucket_id)
         except ValueError:
             self.fail('bucket_id: %s is not a valid UUID.' % bucket_id)
+
+    def test_second_call_on_default_bucket_doesnt_raise_a_412(self):
+        self.app.get(self.bucket_url, headers=self.headers)
+        self.app.get(self.bucket_url, headers=self.headers)
+
+    def test_second_call_on_default_bucket_collection_doesnt_raise_a_412(self):
+        self.app.get(self.collection_url, headers=self.headers)
+        self.app.get(self.collection_url, headers=self.headers)
