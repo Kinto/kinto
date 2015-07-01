@@ -117,7 +117,6 @@ def load_default_settings(config, default_settings):
 
 
 def includeme(config):
-    load_default_settings(config, DEFAULT_SETTINGS)
     settings = config.get_settings()
 
     # Add CORS settings to the base cliquet Service class.

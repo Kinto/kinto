@@ -60,12 +60,24 @@ class InitializationTest(unittest.TestCase):
         self.assertEqual(config.registry.settings['cliquet.project_name'],
                          'kinto')
 
-    def test_overriden_default_settings(self):
+    def test_default_settings_are_overriden_if_specified_in_initialize(self):
         config = Configurator()
         defaults = {'cliquet.paginate_by': 102}
         cliquet.initialize(config, '0.0.1', 'project_name',
                            default_settings=defaults)
         self.assertEqual(config.registry.settings['cliquet.paginate_by'], 102)
+
+    def test_default_settings_are_overriden_by_application(self):
+        config = Configurator(settings={'cliquet.paginate_by': 10})
+        cliquet.initialize(config, '0.0.1', 'project_name')
+        self.assertEqual(config.registry.settings['cliquet.paginate_by'], 10)
+
+    def test_specified_default_settings_are_overriden_by_application(self):
+        config = Configurator(settings={'cliquet.paginate_by': 5})
+        defaults = {'cliquet.paginate_by': 10}
+        cliquet.initialize(config, '0.0.1', 'project_name',
+                           default_settings=defaults)
+        self.assertEqual(config.registry.settings['cliquet.paginate_by'], 5)
 
     def test_environment_values_override_configuration(self):
         import os
@@ -82,7 +94,8 @@ class InitializationTest(unittest.TestCase):
         self.assertEqual(project_used, 'abc')
 
     def test_warn_if_deprecated_settings_are_used(self):
-        config = Configurator(settings={'cliquet.cache_pool_maxconn': '1'})
+        config = Configurator(settings={'cliquet.project_name': 'kinto',
+                                        'cliquet.cache_pool_maxconn': '1'})
         with mock.patch('cliquet.warnings.warn') as mocked:
             cliquet.initialize(config, '0.0.1')
             msg = ("'cliquet.cache_pool_maxconn' setting is deprecated. "
