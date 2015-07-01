@@ -8,7 +8,7 @@ from cliquet.storage import exceptions
 from cliquet.cache import (CacheBase, postgresql as postgresql_backend,
                            redis as redis_backend, memory as memory_backend)
 
-from .support import unittest
+from .support import unittest, skip_if_no_postgresql
 
 
 class CacheBaseTest(unittest.TestCase):
@@ -154,7 +154,7 @@ class RedisCacheTest(BaseTestCache, unittest.TestCase):
             side_effect=redis.RedisError)
 
 
-@unittest.skipIf(psycopg2 is None, "postgresql is not installed.")
+@skip_if_no_postgresql
 class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     backend = postgresql_backend
     settings = {

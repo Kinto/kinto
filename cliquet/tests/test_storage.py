@@ -11,7 +11,8 @@ from cliquet.storage import (
     Sort, StorageBase
 )
 
-from .support import unittest, ThreadMixin, DummyRequest, skip_if_travis
+from .support import (unittest, ThreadMixin, DummyRequest,
+                      skip_if_travis, skip_if_no_postgresql)
 
 
 RECORD_ID = '472be9ec-26fe-461b-8282-9c4e4b207ab3'
@@ -832,7 +833,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
                 self.storage.get_all(**self.storage_kw)  # not raising
 
 
-@unittest.skipIf(psycopg2 is None, "postgresql is not installed.")
+@skip_if_no_postgresql
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {

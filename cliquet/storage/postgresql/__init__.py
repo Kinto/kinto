@@ -12,7 +12,7 @@ from cliquet.storage import (
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from cliquet.utils import COMPARISON, json, psycopg2
 
-if psycopg2 is not None:
+if psycopg2:
     import psycopg2.extras
     import psycopg2.pool
 
@@ -26,9 +26,8 @@ class PostgreSQLClient(object):
 
     def __init__(self, *args, **kwargs):
         if psycopg2 is None:
-            raise ImportWarning(
-                "You must install psycopg2 to use the postgresql backend"
-            )
+            message = "You must install psycopg2 to use the postgresql backend"
+            raise ImportWarning(message)
 
         pool_size = kwargs.pop('pool_size')
         self._conn_kwargs = kwargs

@@ -8,7 +8,7 @@ from cliquet.permission import (PermissionBase, redis as redis_backend,
                                 memory as memory_backend,
                                 postgresql as postgresql_backend)
 
-from .support import unittest
+from .support import unittest, skip_if_no_postgresql
 
 
 class PermissionBaseTest(unittest.TestCase):
@@ -245,7 +245,7 @@ class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
                 side_effect=redis.RedisError)]
 
 
-@unittest.skipIf(psycopg2 is None, "postgresql is not installed.")
+@skip_if_no_postgresql
 class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = postgresql_backend
     settings = {

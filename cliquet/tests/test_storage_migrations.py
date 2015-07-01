@@ -5,10 +5,10 @@ import mock
 from cliquet.storage import postgresql
 from cliquet.utils import json
 
-from .support import unittest
+from .support import unittest, skip_if_no_postgresql
 
 
-@unittest.skipIf(postgresql.psycopg2 is None, "postgresql is not installed.")
+@skip_if_no_postgresql
 class PostgresqlStorageMigrationTest(unittest.TestCase):
     def setUp(self):
         from .test_storage import PostgresqlStorageTest
