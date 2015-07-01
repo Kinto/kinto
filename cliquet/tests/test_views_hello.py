@@ -1,5 +1,4 @@
 import mock
-from webtest.app import TestRequest
 
 from .support import BaseWebTest, unittest
 

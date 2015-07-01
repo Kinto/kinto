@@ -51,8 +51,7 @@ def authorization_required(request):
 @cors
 def page_not_found(request):
     """Return a JSON 404 error response."""
-    if request.path.startswith(
-            '/' + request.registry.settings.get('route_prefix')):
+    if request.path.startswith('/' + request.registry.route_prefix):
         errno = ERRORS.MISSING_RESOURCE
         error_msg = "The resource your are looking for could not be found."
     else:
