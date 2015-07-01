@@ -16,6 +16,7 @@ try:
 except ImportError:  # pragma: no cover
     pass
 
+import cliquet
 from cliquet import errors
 from cliquet import logger
 from cliquet import utils
@@ -340,8 +341,12 @@ def initialize(config, version=None, project_name=None, default_settings=None):
         in application settings.
     :param dict default_settings: Override cliquet default settings values.
     """
+    cliquet_defaults = cliquet.DEFAULT_SETTINGS.copy()
+
     if default_settings:
-        config.add_settings(default_settings)
+        cliquet_defaults.update(default_settings)
+
+    cliquet.load_default_settings(config, cliquet_defaults)
 
     settings = config.get_settings()
 
