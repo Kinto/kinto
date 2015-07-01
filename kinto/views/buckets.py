@@ -33,7 +33,7 @@ def default_bucket(request):
         try:
             request.invoke_subrequest(subrequest)
         except HTTPPreconditionFailed:
-            # The bucket already existed
+            # The bucket already exists
             pass
 
     # Make sure the collection exists
@@ -53,7 +53,7 @@ def default_bucket(request):
             try:
                 request.invoke_subrequest(subrequest)
             except HTTPPreconditionFailed:
-                # The collection already existed
+                # The collection already exists
                 pass
 
     subrequest = build_request(request, {
