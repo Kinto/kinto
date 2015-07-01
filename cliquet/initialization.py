@@ -48,6 +48,9 @@ def setup_version_redirection(config):
     redirect_enabled = settings['cliquet.version_prefix_redirect_enabled']
     version_prefix_redirection_enabled = asbool(redirect_enabled)
 
+    route_prefix = config.route_prefix
+    config.registry.route_prefix = route_prefix
+
     # Redirect to the current version of the API if the prefix isn't used.
     # Do not redirect if cliquet.version_prefix_redirect_enabled is set to
     # False.
@@ -59,11 +62,10 @@ def setup_version_redirection(config):
             '/%s/%s' % (route_prefix, request.matchdict['path']))
 
     # Disable the route prefix passed by the app.
-    route_prefix = config.route_prefix
     config.route_prefix = None
 
     config.add_route(name='redirect_to_version',
-                     pattern='/{path:(?!%s).*}' % route_prefix)
+                     pattern='/{path:(?!v[0-9]+).*}')
 
     config.add_view(view=_redirect_to_version_view,
                     route_name='redirect_to_version',

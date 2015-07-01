@@ -56,7 +56,8 @@ def get_request_class(prefix):
 
         @classmethod
         def blank(cls, path, *args, **kwargs):
-            path = '/%s%s' % (prefix, path)
+            if prefix:
+                path = '/%s%s' % (prefix, path)
             return webtest.app.TestRequest.blank(path, *args, **kwargs)
 
     return PrefixedRequestClass

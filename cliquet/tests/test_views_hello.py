@@ -1,5 +1,4 @@
 import mock
-from webtest.app import TestRequest
 
 from .support import BaseWebTest, unittest
 
@@ -25,33 +24,3 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
                 [('cliquet.eos', eos)]):
             response = self.app.get('/')
             self.assertEqual(response.json['eos'], eos)
-
-    def test_redirect_to_version(self):
-        # We don't want the prefix to be automatically added for this test.
-        original_request_class = self.app.RequestClass
-
-        try:
-            self.app.RequestClass = TestRequest  # Standard RequestClass.
-
-            # GET on the hello view.
-            response = self.app.get('/')
-            self.assertEqual(response.status_int, 307)
-            self.assertEqual(response.location,
-                             'http://localhost/v0/')
-
-            # GET on the fields view.
-            response = self.app.get('/mushrooms')
-            self.assertEqual(response.status_int, 307)
-            self.assertEqual(response.location,
-                             'http://localhost/v0/mushrooms')
-        finally:
-            self.app.RequestClass = original_request_class
-
-    def test_do_not_redirect_to_version_if_disabled_in_settings(self):
-        # GET on the hello view.
-        app = self._get_test_app({
-            'cliquet.version_prefix_redirect_enabled': False
-        })
-        response = app.get('/')
-        self.assertEqual(response.status_int, 200)
-        self.assertEqual(response.location, None)

@@ -6,7 +6,28 @@ from cliquet.errors import ERRORS
 from .support import BaseWebTest, unittest, authorize
 
 
-class ErrorViewTest(BaseWebTest, unittest.TestCase):
+class FormattedErrorMixin(object):
+
+    def assertFormattedError(self, response, code, errno, error,
+                             message=None, info=None):
+        self.assertEqual(response.headers['Content-Type'],
+                         'application/json; charset=UTF-8')
+        self.assertEqual(response.json['code'], code)
+        self.assertEqual(response.json['errno'], errno)
+        self.assertEqual(response.json['error'], error)
+
+        if message is not None:
+            self.assertIn(message, response.json['message'])
+        else:
+            self.assertNotIn('message', response.json)
+
+        if info is not None:
+            self.assertIn(info, response.json['info'])
+        else:
+            self.assertNotIn('info', response.json)
+
+
+class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     sample_url = "/mushrooms"
 
@@ -102,3 +123,35 @@ class ErrorViewTest(BaseWebTest, unittest.TestCase):
                 self.assertTrue(mocked_traceback.called)
                 self.assertEqual(ValueError,
                                  mocked_traceback.call_args[0][0])
+
+
+class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
+    api_prefix = ''
+
+    def test_do_not_redirect_to_version_if_not_supported_version(self):
+        resp = self.app.get('/v1/', status=404)
+        self.assertFormattedError(
+            resp, 404, ERRORS.VERSION_NOT_AVAILABLE, "Not Found",
+            "The requested protocol version is not available "
+            "on this server.")
+
+    def test_redirect_to_version(self):
+        # GET on the hello view.
+        response = self.app.get('/')
+        self.assertEqual(response.status_int, 307)
+        self.assertEqual(response.location,
+                         'http://localhost/v0/')
+
+        # GET on the fields view.
+        response = self.app.get('/mushrooms')
+        self.assertEqual(response.status_int, 307)
+        self.assertEqual(response.location,
+                         'http://localhost/v0/mushrooms')
+
+    def test_do_not_redirect_to_version_if_disabled_in_settings(self):
+        # GET on the hello view.
+        app = self._get_test_app({
+            'cliquet.version_prefix_redirect_enabled': False
+        })
+
+        app.get('/', status=404)

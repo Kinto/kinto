@@ -18,6 +18,7 @@ ERRORS = Enum(
     REQUEST_TOO_LARGE=113,
     MODIFIED_MEANWHILE=114,
     METHOD_NOT_ALLOWED=115,
+    VERSION_NOT_AVAILABLE=116,
     CLIENT_REACHED_CAPACITY=117,
     FORBIDDEN=121,
     CONSTRAINT_VIOLATED=122,
@@ -53,6 +54,8 @@ ERRORS = Enum(
 | 412         | 114   | Resource was modified meanwhile                |
 +-------------+-------+------------------------------------------------+
 | 405         | 115   | Method not allowed on this end point           |
++-------------+-------+------------------------------------------------+
+| 404         | 116   | Requested version not available on this server |
 +-------------+-------+------------------------------------------------+
 | 429         | 117   | Client has sent too many requests              |
 +-------------+-------+------------------------------------------------+
