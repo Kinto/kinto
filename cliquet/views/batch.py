@@ -1,15 +1,13 @@
 import colander
 import six
 
-from pyramid.request import Request
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid import httpexceptions
-from six.moves.urllib import parse as urlparse
 
 from cliquet import errors
 from cliquet import logger
 from cliquet import Service
-from cliquet.utils import json, merge_dicts
+from cliquet.utils import merge_dicts, build_request, build_response
 
 
 valid_http_method = colander.OneOf(('GET', 'HEAD', 'DELETE', 'TRACE',
@@ -124,63 +122,3 @@ def post_batch(request):
     return {
         'responses': responses
     }
-
-
-def build_request(original, dict_obj):
-    """
-    Transform a dict object into a ``pyramid.request.Request`` object.
-
-    :param original: the original batch request.
-    :param dict_obj: a dict object with the sub-request specifications.
-    """
-    api_prefix = '/%s' % original.upath_info.split('/')[1]
-    path = dict_obj['path']
-    if not path.startswith(api_prefix):
-        path = api_prefix + path
-
-    path = path.encode('utf-8')
-
-    method = dict_obj.get('method') or 'GET'
-    headers = dict(original.headers)
-    headers.update(**dict_obj.get('headers') or {})
-    payload = dict_obj.get('body') or ''
-
-    # Payload is always a dict (from ``BatchRequestSchema.body``).
-    # Send it as JSON for subrequests.
-    if isinstance(payload, dict):
-        headers['Content-Type'] = 'application/json; charset=utf-8'
-        payload = json.dumps(payload)
-
-    if six.PY3:  # pragma: no cover
-        path = path.decode('latin-1')
-
-    request = Request.blank(path=path,
-                            headers=headers,
-                            POST=payload,
-                            method=method)
-
-    return request
-
-
-def build_response(response, request):
-    """
-    Transform a ``pyramid.response.Response`` object into a serializable dict.
-
-    :param response: a response object, returned by Pyramid.
-    :param request: the request that was used to get the response.
-    """
-    dict_obj = {}
-    dict_obj['path'] = urlparse.unquote(request.path)
-    dict_obj['status'] = response.status_code
-    dict_obj['headers'] = dict(response.headers)
-
-    body = ''
-    if request.method != 'HEAD':
-        # XXX : Pyramid should not have built response body for HEAD!
-        try:
-            body = response.json
-        except ValueError:
-            body = response.body
-    dict_obj['body'] = body
-
-    return dict_obj
