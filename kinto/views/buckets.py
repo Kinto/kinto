@@ -21,8 +21,9 @@ def default_bucket(request):
     path = request.path.replace('default', bucket_id)
 
     # Make sure bucket exists
-    if request.method.lower() != 'put' or \
-       not request.path.endswith('buckets/default'):
+    is_bucket_put = (request.method.lower() == 'put' and
+                     request.path.endswith('buckets/default'))
+    if not is_bucket_put:
         subrequest = build_request(request, {
             'method': 'PUT',
             'path': '/buckets/%s' % bucket_id,
@@ -39,8 +40,9 @@ def default_bucket(request):
     subpath = request.matchdict['subpath']
     if subpath.startswith('/collections/'):
         collection_id = subpath.split('/')[2]
-        if request.method.lower() != 'put' or \
-           not request.path.endswith(collection_id):
+        is_collection_put = (request.method.lower() == 'put' and
+                             request.path.endswith(collection_id))
+        if not is_collection_put:
             subrequest = build_request(request, {
                 'method': 'PUT',
                 'path': '/buckets/%s/collections/%s' % (
@@ -51,7 +53,7 @@ def default_bucket(request):
             try:
                 request.invoke_subrequest(subrequest)
             except HTTPPreconditionFailed:
-                # The bucket already existed
+                # The collection already existed
                 pass
 
     subrequest = build_request(request, {
