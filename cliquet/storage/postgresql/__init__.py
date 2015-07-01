@@ -3,9 +3,6 @@ import os
 import warnings
 from collections import defaultdict
 
-from cliquet.utils import psycopg2
-import psycopg2.extras
-import psycopg2.pool
 import six
 from six.moves.urllib import parse as urlparse
 
@@ -13,11 +10,14 @@ from cliquet import logger
 from cliquet.storage import (
     StorageBase, exceptions, Filter,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
-from cliquet.utils import COMPARISON, json
+from cliquet.utils import COMPARISON, json, psycopg2
 
+if psycopg2:
+    import psycopg2.extras
+    import psycopg2.pool
 
-psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
-psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 
 
 class PostgreSQLClient(object):
@@ -25,6 +25,10 @@ class PostgreSQLClient(object):
     pool = None
 
     def __init__(self, *args, **kwargs):
+        if psycopg2 is None:
+            message = "You must install psycopg2 to use the postgresql backend"
+            raise ImportWarning(message)
+
         pool_size = kwargs.pop('pool_size')
         self._conn_kwargs = kwargs
         pool_klass = psycopg2.pool.ThreadedConnectionPool

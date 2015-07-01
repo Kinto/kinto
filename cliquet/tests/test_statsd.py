@@ -16,6 +16,7 @@ class TestedClass(object):
         pass
 
 
+@unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
 class StatsdClientTest(unittest.TestCase):
     settings = {
         'cliquet.statsd_url': 'udp://foo:1234',

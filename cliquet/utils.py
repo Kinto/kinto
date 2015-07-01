@@ -17,9 +17,13 @@ except ImportError:  # pragma: no cover
 try:
     import psycopg2  # NOQA
 except ImportError:  # pragma: no cover
-    from psycopg2cffi import compat
-    compat.register()
-    import psycopg2  # NOQA
+    try:
+        from psycopg2cffi import compat
+    except ImportError:
+        psycopg2 = None
+    else:
+        compat.register()
+        import psycopg2  # NOQA
 
 from cornice import cors
 from colander import null

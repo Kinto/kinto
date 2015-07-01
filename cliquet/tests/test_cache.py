@@ -8,7 +8,7 @@ from cliquet.storage import exceptions
 from cliquet.cache import (CacheBase, postgresql as postgresql_backend,
                            redis as redis_backend, memory as memory_backend)
 
-from .support import unittest
+from .support import unittest, skip_if_no_postgresql
 
 
 class CacheBaseTest(unittest.TestCase):
@@ -33,8 +33,8 @@ class BaseTestCache(object):
     backend = None
     settings = {}
 
-    def __init__(self, *args, **kwargs):
-        super(BaseTestCache, self).__init__(*args, **kwargs)
+    def setUp(self):
+        super(BaseTestCache, self).setUp()
         self.cache = self.backend.load_from_config(self._get_config())
         self.cache.initialize_schema()
         self.request = None
@@ -146,14 +146,15 @@ class RedisCacheTest(BaseTestCache, unittest.TestCase):
         'cliquet.cache_pool_size': 10
     }
 
-    def __init__(self, *args, **kwargs):
-        super(RedisCacheTest, self).__init__(*args, **kwargs)
+    def setUp(self):
+        super(RedisCacheTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
             self.cache._client,
             'execute_command',
             side_effect=redis.RedisError)
 
 
+@skip_if_no_postgresql
 class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     backend = postgresql_backend
     settings = {
@@ -162,8 +163,8 @@ class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
             'postgres://postgres:postgres@localhost:5432/testdb'
     }
 
-    def __init__(self, *args, **kwargs):
-        super(PostgreSQLCacheTest, self).__init__(*args, **kwargs)
+    def setUp(self):
+        super(PostgreSQLCacheTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
             self.cache.pool,
             'getconn',

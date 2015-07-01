@@ -9,7 +9,7 @@ import webob
 try:
     import newrelic.agent
 except ImportError:  # pragma: no cover
-    pass
+    newrelic = None
 
 try:
     from werkzeug.contrib.profiler import ProfilerMiddleware

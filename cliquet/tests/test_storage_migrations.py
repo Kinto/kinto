@@ -5,9 +5,10 @@ import mock
 from cliquet.storage import postgresql
 from cliquet.utils import json
 
-from .support import unittest
+from .support import unittest, skip_if_no_postgresql
 
 
+@skip_if_no_postgresql
 class PostgresqlStorageMigrationTest(unittest.TestCase):
     def setUp(self):
         from .test_storage import PostgresqlStorageTest
@@ -140,3 +141,16 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         # Version matches current one.
         version = self.storage._get_installed_version()
         self.assertEqual(version, self.version)
+
+
+class PostgresqlExceptionRaisedTest(unittest.TestCase):
+    def setUp(self):
+        self.psycopg2 = postgresql.psycopg2
+
+    def tearDown(self):
+        postgresql.psycopg2 = self.psycopg2
+
+    def test_postgresql_usage_raise_an_error_if_postgresql_not_installed(self):
+        postgresql.psycopg2 = None
+        with self.assertRaises(ImportWarning):
+            postgresql.PostgreSQLClient()
