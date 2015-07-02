@@ -1,6 +1,78 @@
+from pyramid.httpexceptions import HTTPForbidden, HTTPPreconditionFailed
+from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.view import view_config
+
 from cliquet import resource
+from cliquet.utils import hmac_digest, build_request
 
 from kinto.views import NameGenerator
+
+
+def create_bucket(request, bucket_id):
+    """Create a bucket if it doesn't exists."""
+    bucket_put = (request.method.lower() == 'put' and
+                  request.path.endswith('buckets/default'))
+
+    if not bucket_put:
+        subrequest = build_request(request, {
+            'method': 'PUT',
+            'path': '/buckets/%s' % bucket_id,
+            'body': {"data": {}},
+            'headers': {'If-None-Match': '*'.encode('utf-8')}
+        })
+
+        try:
+            request.invoke_subrequest(subrequest)
+        except HTTPPreconditionFailed:
+            # The bucket already exists
+            pass
+
+
+def create_collection(request, bucket_id):
+    subpath = request.matchdict['subpath']
+    if subpath.startswith('/collections/'):
+        collection_id = subpath.split('/')[2]
+        collection_put = (request.method.lower() == 'put' and
+                          request.path.endswith(collection_id))
+        if not collection_put:
+            subrequest = build_request(request, {
+                'method': 'PUT',
+                'path': '/buckets/%s/collections/%s' % (
+                    bucket_id, collection_id),
+                'body': {"data": {}},
+                'headers': {'If-None-Match': '*'.encode('utf-8')}
+            })
+            try:
+                request.invoke_subrequest(subrequest)
+            except HTTPPreconditionFailed:
+                # The collection already exists
+                pass
+
+
+@view_config(route_name='default_bucket', permission=NO_PERMISSION_REQUIRED)
+def default_bucket(request):
+    if getattr(request, 'prefixed_userid', None) is None:
+        raise HTTPForbidden  # Pass through the forbidden_view_config
+
+    settings = request.registry.settings
+    hmac_secret = settings['cliquet.userid_hmac_secret']
+    # Build the user unguessable bucket_id UUID from its user_id
+    bucket_id = hmac_digest(hmac_secret, request.prefixed_userid)[:32]
+    path = request.path.replace('default', bucket_id)
+
+    # Make sure bucket exists
+    create_bucket(request, bucket_id)
+
+    # Make sure the collection exists
+    create_collection(request, bucket_id)
+
+    subrequest = build_request(request, {
+        'method': request.method,
+        'path': path,
+        'body': request.body
+    })
+
+    return request.invoke_subrequest(subrequest)
 
 
 @resource.register(name='bucket',

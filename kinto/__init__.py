@@ -37,5 +37,8 @@ def main(global_config, **settings):
     if not flush_enabled:
         kwargs['ignore'] = 'kinto.views.flush'
 
+    # Redirect default to the right endpoint
+    config.add_route('default_bucket', '/buckets/default{subpath:.*}')
+
     config.scan("kinto.views", **kwargs)
     return config.make_wsgi_app()

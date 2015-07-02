@@ -9,12 +9,19 @@ A collection is a mapping with the following attribute:
 
 * ``permissions``: (*optional*) the :term:`ACLs <ACL>` for the collection object
 
-.. .. note::
+.. note::
 
-..     By default users have a bucket that is used for their own data.
-..     Application can use this default bucket with the ``default`` shortcut.
-..     ie: ``/buckets/default/collections/contacts`` will be the current
-..     user contacts. See #71 for more discussion.
+    By default users are assigned to a bucket that is used for their
+    personal data.
+
+    Application can use this default bucket with the ``default``
+    shortcut: ie ``/buckets/default/collections/contacts`` will be
+    the current user contacts.
+
+    Internally the user default bucket is assigned to an id that can
+    later be used to share data from a user personnal bucket.
+
+    Collection on a the default bucket are created silently on first access.
 
 
 Creating a collection
