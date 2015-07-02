@@ -19,7 +19,7 @@ $(INSTALL_STAMP): $(PYTHON)
 	touch $(INSTALL_STAMP)
 
 install-postgres: $(INSTALL_STAMP)
-	$(VENV)/bin/pip install -Ue .[postgresql]
+	$(VENV)/bin/pip install -U psycopg2>2.5
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON)
