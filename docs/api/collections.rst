@@ -14,7 +14,7 @@ A collection is a mapping with the following attribute:
     By default users are assigned to a bucket that is used for their
     personal data.
 
-	Application can use this default bucket with the ``default``
+    Application can use this default bucket with the ``default``
     shortcut: ie ``/buckets/default/collections/contacts`` will be
     the current user contacts.
 

@@ -17,8 +17,8 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
 
         self.alice_headers = self.headers.copy()
         self.alice_headers.update(**get_user_headers('alice'))
-        alice_principal = ('basicauth:a020953dabc9094455e81dfbffd74089fb1f9'
-                           'aa521e525066bd074cfca68dc6c')
+        alice_principal = ('basicauth:8df4b22019cc89d0bb679bc51373a9da56a'
+                           '7ae9978c52fbe684510c3d257c855')
         bucket['permissions'] = {'write': [alice_principal]}
 
         # Create shared bucket.
