@@ -23,7 +23,7 @@ This document describes changes between each past release.
 - Add detail about UTC and UTF-8 for PostgreSQL (#347, thanks @elemoine!)
 - Remove UserWarning exception when running tests (#339, thanks @elemoine!)
 - Move build_request and build_response to ``cliquet.utils`` (#344)
-- Pypy is now tested on Pypy (#337)
+- Pypy is now tested on Travis CI (#337)
 
 
 2.1.0 (2015-06-26)
