@@ -1,5 +1,3 @@
-.. include:: ../README.rst
-
 .. figure :: images/logo.svg
     :align: center
 
@@ -24,7 +22,7 @@ Tutorial
 ========
 
 Sometimes it is easier to get started by following a
-tutorial. :ref:`Learn how to store, manage and sync your data. <tutorial>`
+tutorial. :ref:`Learn how to store, manage and sync your data <tutorial>`.
 
 Using the HTTP API
 ==================
