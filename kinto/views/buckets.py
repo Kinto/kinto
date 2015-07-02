@@ -18,7 +18,7 @@ def create_bucket(request, bucket_id):
             'method': 'PUT',
             'path': '/buckets/%s' % bucket_id,
             'body': {"data": {}},
-            'headers': {'If-None-Match': '*'}
+            'headers': {'If-None-Match': '*'.encode('utf-8')}
         })
 
         try:
@@ -40,7 +40,7 @@ def create_collection(request, bucket_id):
                 'path': '/buckets/%s/collections/%s' % (
                     bucket_id, collection_id),
                 'body': {"data": {}},
-                'headers': {'If-None-Match': '*'}
+                'headers': {'If-None-Match': '*'.encode('utf-8')}
             })
             try:
                 request.invoke_subrequest(subrequest)
