@@ -13,6 +13,8 @@ The returned value is a JSON mapping containing:
 - ``url``: absolute URI (without a trailing slash) of the API (*can be used by client to build URIs*)
 - ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)
 - ``documentation``: The url to the service documentation. (this document!)
+- ``settings``: a mapping with the values of relevant public settings for clients
+    (e.g. ``cliquet.batch_max_requests``)
 
 
 GET /__heartbeat__
