@@ -20,6 +20,9 @@ def get_hello(request):
     if eos:
         data['eos'] = eos
 
+    public_settings = request.registry.public_settings
+    data['settings'] = {k: settings[k] for k in public_settings}
+
     return data
 
 

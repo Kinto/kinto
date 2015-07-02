@@ -24,3 +24,15 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
                 [('cliquet.eos', eos)]):
             response = self.app.get('/')
             self.assertEqual(response.json['eos'], eos)
+
+    def test_public_settings_are_shown_in_view(self):
+        response = self.app.get('/')
+        settings = response.json['settings']
+        expected = {'cliquet.batch_max_requests': 25}
+        self.assertEqual(expected, settings)
+
+    def test_public_settings_can_be_set_from_registry(self):
+        self.app.app.registry.public_settings.add('cliquet.paginate_by')
+        response = self.app.get('/')
+        settings = response.json['settings']
+        self.assertIn('cliquet.paginate_by', settings)

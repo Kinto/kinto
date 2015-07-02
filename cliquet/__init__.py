@@ -127,6 +127,9 @@ def includeme(config):
     # Heartbeat registry.
     config.registry.heartbeats = {}
 
+    # Public settings registry.
+    config.registry.public_settings = {'cliquet.batch_max_requests'}
+
     # Setup components.
     for step in aslist(settings['cliquet.initialization_sequence']):
         step_func = config.maybe_dotted(step)
