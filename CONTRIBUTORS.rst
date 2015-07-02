@@ -2,6 +2,7 @@ Contributors
 ============
 
 * Alexis Metaireau <alexis@mozilla.com>
+* Éric Lemoine <eric.lemoine@gmail.com>
 * Mathieu Leplatre <mathieu@mozilla.com>
 * Michiel de Jong <michiel@unhosted.org>
 * Nicolas Perriault <nperriault@mozilla.com>

@@ -3,10 +3,27 @@ Changelog
 
 This document describes changes between each past release.
 
-2.1.1 (unreleased)
+2.2.0 (2015-07-02)
 ------------------
 
-- Nothing changed yet.
+**New features**
+
+* Add public settings in hello view (#318)
+
+**Bug fixes**
+
+- Fix version redirection behaviour for unsupported versions (#341)
+- PostgreSQL dependencies are now fully optional in code (#340)
+- Prevent overriding final settings from ``default_settings`` parameter
+  in ``cliquet.initialize()`` (#343)
+
+**Internal changes**
+
+- Fix installation documentation regarding PostgreSQL 9.4 (#338, thanks @elemoine!)
+- Add detail about UTC and UTF-8 for PostgreSQL (#347, thanks @elemoine!)
+- Remove UserWarning exception when running tests (#339, thanks @elemoine!)
+- Move build_request and build_response to ``cliquet.utils`` (#344)
+- Pypy is now tested on Travis CI (#337)
 
 
 2.1.0 (2015-06-26)
