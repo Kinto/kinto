@@ -23,8 +23,8 @@ The server doesn't impose anything about the records data model.
 Tutorial
 ========
 
-Sometimes it is easier to get started by following a tutorial. Learn how to
-store, manage and sync your data.
+Sometimes it is easier to get started by following a
+tutorial. :ref:`Learn how to store, manage and sync your data. <tutorial>`
 
 Using the HTTP API
 ==================
