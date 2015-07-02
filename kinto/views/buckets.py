@@ -3,10 +3,50 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
 from cliquet import resource
-from cliquet.utils import hmac_digest
-from cliquet.views.batch import build_request
+from cliquet.utils import hmac_digest, build_request
 
 from kinto.views import NameGenerator
+
+
+def create_bucket(request, bucket_id):
+    """Create a bucket if it doesn't exists."""
+    bucket_put = (request.method.lower() == 'put' and
+                  request.path.endswith('buckets/default'))
+
+    if not bucket_put:
+        subrequest = build_request(request, {
+            'method': 'PUT',
+            'path': '/buckets/%s' % bucket_id,
+            'body': {"data": {}},
+            'headers': {'If-None-Match': '*'}
+        })
+
+        try:
+            request.invoke_subrequest(subrequest)
+        except HTTPPreconditionFailed:
+            # The bucket already exists
+            pass
+
+
+def create_collection(request, bucket_id):
+    subpath = request.matchdict['subpath']
+    if subpath.startswith('/collections/'):
+        collection_id = subpath.split('/')[2]
+        collection_put = (request.method.lower() == 'put' and
+                          request.path.endswith(collection_id))
+        if not collection_put:
+            subrequest = build_request(request, {
+                'method': 'PUT',
+                'path': '/buckets/%s/collections/%s' % (
+                    bucket_id, collection_id),
+                'body': {"data": {}},
+                'headers': {'If-None-Match': '*'}
+            })
+            try:
+                request.invoke_subrequest(subrequest)
+            except HTTPPreconditionFailed:
+                # The collection already exists
+                pass
 
 
 @view_config(route_name='default_bucket', permission=NO_PERMISSION_REQUIRED)
@@ -21,40 +61,10 @@ def default_bucket(request):
     path = request.path.replace('default', bucket_id)
 
     # Make sure bucket exists
-    is_bucket_put = (request.method.lower() == 'put' and
-                     request.path.endswith('buckets/default'))
-    if not is_bucket_put:
-        subrequest = build_request(request, {
-            'method': 'PUT',
-            'path': '/buckets/%s' % bucket_id,
-            'body': {"data": {}},
-            'headers': {'If-None-Match': '*'}
-        })
-        try:
-            request.invoke_subrequest(subrequest)
-        except HTTPPreconditionFailed:
-            # The bucket already exists
-            pass
+    create_bucket(request, bucket_id)
 
     # Make sure the collection exists
-    subpath = request.matchdict['subpath']
-    if subpath.startswith('/collections/'):
-        collection_id = subpath.split('/')[2]
-        is_collection_put = (request.method.lower() == 'put' and
-                             request.path.endswith(collection_id))
-        if not is_collection_put:
-            subrequest = build_request(request, {
-                'method': 'PUT',
-                'path': '/buckets/%s/collections/%s' % (
-                    bucket_id, collection_id),
-                'body': {"data": {}},
-                'headers': {'If-None-Match': '*'}
-            })
-            try:
-                request.invoke_subrequest(subrequest)
-            except HTTPPreconditionFailed:
-                # The collection already exists
-                pass
+    create_collection(request, bucket_id)
 
     subrequest = build_request(request, {
         'method': request.method,
