@@ -6,6 +6,7 @@ import six
 import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
+from six.moves.urllib import parse as urlparse
 
 # ujson is not installable with pypy
 try:
@@ -25,6 +26,7 @@ except ImportError:  # pragma: no cover
         compat.register()
         import psycopg2  # NOQA
 
+from pyramid.request import Request
 from cornice import cors
 from colander import null
 
@@ -146,3 +148,63 @@ def current_service(request):
             return None
         else:
             return service
+
+
+def build_request(original, dict_obj):
+    """
+    Transform a dict object into a ``pyramid.request.Request`` object.
+
+    :param original: the original batch request.
+    :param dict_obj: a dict object with the sub-request specifications.
+    """
+    api_prefix = '/%s' % original.upath_info.split('/')[1]
+    path = dict_obj['path']
+    if not path.startswith(api_prefix):
+        path = api_prefix + path
+
+    path = path.encode('utf-8')
+
+    method = dict_obj.get('method') or 'GET'
+    headers = dict(original.headers)
+    headers.update(**dict_obj.get('headers') or {})
+    payload = dict_obj.get('body') or ''
+
+    # Payload is always a dict (from ``BatchRequestSchema.body``).
+    # Send it as JSON for subrequests.
+    if isinstance(payload, dict):
+        headers['Content-Type'] = 'application/json; charset=utf-8'
+        payload = json.dumps(payload)
+
+    if six.PY3:  # pragma: no cover
+        path = path.decode('latin-1')
+
+    request = Request.blank(path=path,
+                            headers=headers,
+                            POST=payload,
+                            method=method)
+
+    return request
+
+
+def build_response(response, request):
+    """
+    Transform a ``pyramid.response.Response`` object into a serializable dict.
+
+    :param response: a response object, returned by Pyramid.
+    :param request: the request that was used to get the response.
+    """
+    dict_obj = {}
+    dict_obj['path'] = urlparse.unquote(request.path)
+    dict_obj['status'] = response.status_code
+    dict_obj['headers'] = dict(response.headers)
+
+    body = ''
+    if request.method != 'HEAD':
+        # XXX : Pyramid should not have built response body for HEAD!
+        try:
+            body = response.json
+        except ValueError:
+            body = response.body
+    dict_obj['body'] = body
+
+    return dict_obj
