@@ -60,7 +60,15 @@ Recommended settings for production are listed :ref:`in a dedicated section
 Install and setup PostgreSQL
 ============================
 
- (*requires PostgreSQL 9.3 or higher*).
+ (*requires PostgreSQL 9.4 or higher*).
+
+Install Python dependencies
+---------------------------
+
+::
+
+    pip install "kinto[postgresql]"
+
 
 Client libraries only
 ---------------------

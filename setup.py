@@ -20,7 +20,19 @@ REQUIREMENTS = [
     'cornice',
     'six',
     'waitress',
-    'cliquet[postgresql,monitoring]'
+    'cliquet'
+]
+
+POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
+    'cliquet[postgresql]'
+]
+
+MONITORING_REQUIREMENTS = REQUIREMENTS + [
+    'cliquet[monitoring]'
+]
+
+FXA_REQUIREMENTS = REQUIREMENTS + [
+    'cliquet-fxa'
 ]
 
 ENTRY_POINTS = {
@@ -50,5 +62,10 @@ setup(name='kinto',
       include_package_data=True,
       zip_safe=False,
       install_requires=REQUIREMENTS,
+      extras_require={
+          'postgresql': POSTGRESQL_REQUIREMENTS,
+          'monitoring': MONITORING_REQUIREMENTS,
+          'fxa': FXA_REQUIREMENTS,
+      },
       entry_points=ENTRY_POINTS,
       dependency_links=DEPENDENCY_LINKS)

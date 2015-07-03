@@ -18,6 +18,10 @@ $(INSTALL_STAMP): $(PYTHON)
 	$(VENV)/bin/pip install -Ue .
 	touch $(INSTALL_STAMP)
 
+install-postgres: $(INSTALL_STAMP)
+# Since pip install ".[postgres]" is not enough...
+	$(VENV)/bin/pip install -U psycopg2>2.5
+
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON)
 	$(VENV)/bin/pip install -Ur dev-requirements.txt
@@ -43,7 +47,7 @@ clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
 
-loadtest-check: install
+loadtest-check: install-postgres
 	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\
 	$(VENV)/bin/pserve loadtests/server.ini > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \
