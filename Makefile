@@ -19,8 +19,8 @@ $(INSTALL_STAMP): $(PYTHON)
 	touch $(INSTALL_STAMP)
 
 install-postgres: $(INSTALL_STAMP)
-# Since pip install ".[postgres]" is not enough...
-	$(VENV)/bin/pip install -U psycopg2>2.5
+# Since pip install ".[postgresql]" is not enough...
+	$(VENV)/bin/pip install "cliquet[postgresql]"
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON)
