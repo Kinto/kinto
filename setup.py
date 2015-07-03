@@ -20,7 +20,7 @@ REQUIREMENTS = [
     'cornice',
     'six',
     'waitress',
-    'cliquet'
+    'cliquet >= 2.2.0'
 ]
 
 POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
