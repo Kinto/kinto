@@ -4,7 +4,7 @@ Changelog
 This document describes changes between each past release.
 
 
-1.2.0 (unreleased)
+1.2.0 (2015-07-03)
 ==================
 
 - Nothing changed yet.
