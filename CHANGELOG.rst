@@ -7,7 +7,31 @@ This document describes changes between each past release.
 1.2.0 (2015-07-03)
 ==================
 
-- Nothing changed yet.
+- Upgraded to *Cliquet* 2.2.+
+
+**New features**
+
+- Add the personal bucket ``/buckets/default``, where collections are created
+  implicitly (#71)
+- *Kinto* now uses the memory backend by default, which simplifies its usage
+  for development (#86, #95)
+- Add public settings in hello view (mozilla-services/cliquet#318)
+
+**Bug fixes**
+
+- Fix Docker compose file settings (#100)
+- Fix version redirection behaviour for unsupported versions (mozilla-services/cliquet#341)
+- Fix overriding backend settings in .ini (mozilla-services/cliquet#343)
+
+**Internal changes**
+
+- Documentation improvements (#75)
+- Added tutorial (#79)
+- Remove hard dependency on *PostgreSQL* (#100)
+- Add pytest-cache (#98)
+- Add Pypy test on Travis (#99)
+- Update dependencies on ``make install`` (#97)
+- Fix URL of readthedocs.org (#90)
 
 
 1.1.0 (2015-06-29)
