@@ -1,12 +1,12 @@
 .. _tutorial:
 
-A first app with Kinto
+First steps with Kinto
 ######################
 
 There are actually two kinds of applications where *Kinto* is
-particulary relevant:
+particulary relevant as a storage backend:
 
-  - Sync user data between her devices;
+  - Sync user data between devices;
   - Sync and share data between users, with fined-grained permissions.
 
 
@@ -18,55 +18,17 @@ tasks between her devices.
 
 
 In order to separate data between each user, we will use the default
-*personal bucket* to create our collection:
+*personal bucket*.
 
-.. code-block:: http
+Unlike other buckets, the collections in the ``default`` bucket are created
+implicitly.
 
-    $ echo '{"data": {}}' | \
-        http PUT https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks \
-             --auth 'user:password'
-
-    PUT /v1/buckets/default/collections/tasks HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 13
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "data": {}
-    }
-
-    HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
-    Backoff: 10
-    Connection: keep-alive
-    Content-Length: 155
-    Content-Type: application/json; charset=UTF-8
-    Date: Thu, 18 Jun 2015 15:18:18 GMT
-    Server: nginx/1.4.6 (Ubuntu)
-
-    {
-        "data": {
-            "id": "tasks", 
-            "last_modified": 1434640698718
-        }, 
-        "permissions": {
-            "write": [
-                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
-            ]
-        }
-    }
-
-As soon as the collection has been created, you may want to start to add some tasks in it.
-
-Let start with a really simple data model:
+Let us start with a really simple data model:
 
   - ``description``: A string describing the task
   - ``status``: The status of the task, (e.g. ``todo``, ``doing`` or ``done``).
+
+And post a sample record in the ``tasks`` collection:
 
 .. code-block:: http
 
@@ -86,7 +48,7 @@ Let start with a really simple data model:
 
     {
         "data": {
-            "description": "Write a tutorial explaining Kinto", 
+            "description": "Write a tutorial explaining Kinto",
             "status": "todo"
         }
     }
@@ -102,11 +64,11 @@ Let start with a really simple data model:
 
     {
         "data": {
-            "description": "Write a tutorial explaining Kinto", 
-            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
-            "last_modified": 1434641515332, 
+            "description": "Write a tutorial explaining Kinto",
+            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
+            "last_modified": 1434641515332,
             "status": "todo"
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
@@ -115,7 +77,7 @@ Let start with a really simple data model:
     }
 
 
-Let's grab our new list of tasks:
+Let us fetch our new collection of tasks:
 
 .. code-block:: http
 
@@ -144,16 +106,16 @@ Let's grab our new list of tasks:
     {
         "data": [
             {
-                "description": "Write a tutorial explaining Kinto", 
-                "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
-                "last_modified": 1434641515332, 
+                "description": "Write a tutorial explaining Kinto",
+                "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
+                "last_modified": 1434641515332,
                 "status": "todo"
             }
         ]
     }
 
 
-We can also update our tasks:
+We can obviously also update one of our tasks, using its ``id``:
 
 .. code-block:: http
 
@@ -188,11 +150,11 @@ We can also update our tasks:
 
     {
         "data": {
-            "description": "Write a tutorial explaining Kinto", 
-            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
-            "last_modified": 1434642603605, 
+            "description": "Write a tutorial explaining Kinto",
+            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
+            "last_modified": 1434642603605,
             "status": "doing"
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
@@ -201,25 +163,23 @@ We can also update our tasks:
     }
 
 There you should ask yourself, what happens if another device already
-updated the record in between, will I override its change?
+updated the record in between, will this request overwrite changes?
 
-You've got two conflicts resolution behaviors:
+With the request shown above, yes it will.
 
-- Server wins, in that case the server will reject changes in case
-  something changed on server side.
-- Client wins, in that case the change will override previous changes
+In case you want the server to reject changes if the record was modified
+in the interim, you must send the ``If-Match`` header.
 
-The previous call above is the Client wins behavior.
+In the ``If-Match`` header, you can send either the ``ETag`` header value you
+obtained while fetching the collection, or the value of the ``last_modified``
+data field you had for this record.
 
-In case you want to use the *Server wins* behavior you must send the
-``If-Match`` header:
-
-Let say, we didn't refresh the server since our first POST and we send
-the ETag we obtained while fetching the collection ``"1434641515332"``:
+Let's try to modify the record using an obsolete value of ``ETag`` (obtained
+while we fetched the collection):
 
 .. code-block:: http
 
-    $ echo '{"data": {"status": "doing"}}' | \
+    $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/23eed462-c063-4ae0-81b0-8bf2210bfe86 \
             If-Match:'"1434641515332"' \
             -v  --auth 'user:password'
@@ -252,15 +212,17 @@ the ETag we obtained while fetching the collection ``"1434641515332"``:
     Server: nginx/1.4.6 (Ubuntu)
 
     {
-        "code": 412, 
-        "errno": 114, 
-        "error": "Precondition Failed", 
+        "code": 412,
+        "errno": 114,
+        "error": "Precondition Failed",
         "message": "Resource was modified meanwhile"
     }
 
-The server rejects the modification with a 412 error code.
+As expected here, the server rejects the modification with a ``412 Precondition Failed``
+error response.
 
-In order to merge both version, we can fetch the last version of this single record:
+In order to update this record safely, we can fetch the last version of this single record,
+and merge attributes locally:
 
 .. code-block:: http
 
@@ -289,11 +251,11 @@ In order to merge both version, we can fetch the last version of this single rec
 
     {
         "data": {
-            "description": "Write a tutorial explaining Kinto", 
-            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
-            "last_modified": 1434642603605, 
+            "description": "Write a tutorial explaining Kinto",
+            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
+            "last_modified": 1434642603605,
             "status": "doing"
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
@@ -301,57 +263,12 @@ In order to merge both version, we can fetch the last version of this single rec
         }
     }
 
-Or we can ask the list of changes that occured since we have fetched
-the collection, filtering on the ``_since`` attribute with the value
-of the last collection ETag:
+The strategy to merge changes locally are up to client, and might depend
+on the client specifications. *Three-way merge* is possible when changes do
+not affect the same fields, or if both objects are equal. Prompting the user
+to decide what version should be kept might also be an option.
 
-.. code-block:: http
-
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since=1434641515332 \
-           -v  --auth 'user:password'
-
-    GET /v1/buckets/default/collections/tasks/records?_since=1434641515332 HTTP/1.1
-    Accept: */*
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-    HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified, ETag
-    Backoff: 10
-    Connection: keep-alive
-    Content-Length: 153
-    Content-Type: application/json; charset=UTF-8
-    Date: Thu, 18 Jun 2015 16:14:44 GMT
-    ETag: "1434641474977"
-    Last-Modified: Thu, 18 Jun 2015 15:31:14 GMT
-    Server: nginx/1.4.6 (Ubuntu)
-    Total-Records: 1
-
-    {
-        "data": [
-            {
-                "description": "Write a tutorial explaining Kinto", 
-                "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
-                "last_modified": 1434642603605, 
-                "status": "doing"
-            }
-        ]
-    }
-
-Now that we've got the list of records that changed, we can handle the conflict.
-
-We can either do three-way merge (if our changes and server changes on
-the object did not happened on the same fields) or if both objects are
-actually equals.
-
-Or if changes did happened on the same field, we must decide or ask
-the user to decide, which version we have to keep (server version or
-client version).
-
-Then we can try to send back again our modifications using the new
+Once merged, we can send back again our modifications using the last
 record ``ETag`` value:
 
 .. code-block:: http
@@ -389,11 +306,11 @@ record ``ETag`` value:
 
     {
         "data": {
-            "description": "Write a tutorial explaining Kinto", 
-            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
-            "last_modified": 1434644476758, 
+            "description": "Write a tutorial explaining Kinto",
+            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
+            "last_modified": 1434644476758,
             "status": "done"
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
@@ -401,8 +318,8 @@ record ``ETag`` value:
         }
     }
 
-You can also delete the record and use the same mechanism for
-synchronization:
+
+You can also delete the record and use the same mechanism to avoid conflicts:
 
 .. code-block:: http
 
@@ -431,15 +348,17 @@ synchronization:
 
     {
         "data": {
-            "deleted": true, 
-            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
+            "deleted": true,
+            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
             "last_modified": 1434644823180
         }
     }
 
-If you want to obtain the list of records that were updated or
-deleted, you can use the ``_since`` parameter with the last ETag you
-had:
+
+Likewise, we can query the list of changes (updates and deletions) that occured
+since we had fetched the collection.
+
+Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or ``last_modified`` data field):
 
 .. code-block:: http
 
@@ -470,20 +389,24 @@ had:
     {
         "data": [
             {
-                "deleted": true, 
-                "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86", 
+                "deleted": true,
+                "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
                 "last_modified": 1434644823180
             }
         ]
     }
 
 
-Build an app to share and sync data between user
-================================================
+The list will be empty if no change occured. Instead, you can also use the
+``If-None-Match`` header with the last ``ETag`` value in order to obtain a
+``304 Not Modified`` response if nothing changed.
 
-The only difference with what we've describe above is that you will
-not use the ``default`` user bucket, but you will create a bucket for
-your app:
+
+Sync and share data between users
+=================================
+
+Instead of using the *personal bucket*, we will create a specific bucket ``todo``
+for the application.
 
 .. code-block:: http
 
@@ -515,9 +438,9 @@ your app:
 
     {
         "data": {
-            "id": "todo", 
+            "id": "todo",
             "last_modified": 1434645197868
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
@@ -525,12 +448,13 @@ your app:
         }
     }
 
-Then you will have to define permissions about what you want people to
-be able to do with your bucket.
+By default, the creator is the only administrator (see ``write`` permission).
 
-In our case, we want people to be able create and share ``tasks``, so
-we will create a collection with the ``record:create`` permission for
-authenticated users:
+You will now have to define permissions to introduce collaboration.
+
+In our case, we want people to be able create and share tasks, so
+we will create a collection ``tasks`` with the ``record:create`` permission for
+authenticated users (i.e. ``system.Authenticated``):
 
 .. code-block:: http
 
@@ -549,7 +473,7 @@ authenticated users:
     User-Agent: HTTPie/0.9.2
 
     {
-        "data": {}, 
+        "data": {},
         "permissions": {
             "record:create": [
                 "system.Authenticated"
@@ -568,13 +492,13 @@ authenticated users:
 
     {
         "data": {
-            "id": "tasks", 
+            "id": "tasks",
             "last_modified": 1434645468367
-        }, 
+        },
         "permissions": {
             "record:create": [
                 "system.Authenticated"
-            ], 
+            ],
             "write": [
                 "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
             ]
@@ -587,7 +511,7 @@ authenticated users:
    permission of any objects you are creating.
 
 
-Then Alice can create a task:
+Now Alice can create a task in this collection:
 
 .. code-block:: http
 
@@ -607,7 +531,7 @@ Then Alice can create a task:
 
     {
         "data": {
-            "description": "Alice task", 
+            "description": "Alice task",
             "status": "todo"
         }
     }
@@ -623,11 +547,11 @@ Then Alice can create a task:
 
     {
         "data": {
-            "description": "Alice task", 
-            "id": "2fa91620-f4fa-412e-aee0-957a7ad2dc0e", 
+            "description": "Alice task",
+            "id": "2fa91620-f4fa-412e-aee0-957a7ad2dc0e",
             "last_modified": 1434645840590,
             "status": "todo"
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
@@ -635,7 +559,7 @@ Then Alice can create a task:
         }
     }
 
-And Bob can create a task:
+And Bob can also create a task:
 
 .. code-block:: http
 
@@ -652,10 +576,10 @@ And Bob can create a task:
     Content-Type: application/json
     Host: kinto.dev.mozaws.net
     User-Agent: HTTPie/0.9.2
-    
+
     {
         "data": {
-            "description": "Bob new task", 
+            "description": "Bob new task",
             "status": "todo"
         }
     }
@@ -668,14 +592,14 @@ And Bob can create a task:
     Content-Type: application/json; charset=UTF-8
     Date: Thu, 18 Jun 2015 16:44:39 GMT
     Server: nginx/1.4.6 (Ubuntu)
-    
+
     {
         "data": {
-            "description": "Bob new task", 
-            "id": "10afe152-b5bb-4aff-b77e-10be44587057", 
-            "last_modified": 1434645879088, 
+            "description": "Bob new task",
+            "id": "10afe152-b5bb-4aff-b77e-10be44587057",
+            "last_modified": 1434645879088,
             "status": "todo"
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
@@ -684,51 +608,20 @@ And Bob can create a task:
     }
 
 
-Then Alice can only see her tasks:
-
-.. code-block::
-
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-        -v --auth 'alice:alicepassword'
-
-    GET /v1/buckets/todo/collections/tasks/records HTTP/1.1
-    Accept: */*
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic YWxpY2U6YWxpY2VwYXNzd29yZA==
-    Connection: keep-alive
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-
-And Bob can only see his tasks:
-
-.. code-block:: http
-
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-        -v --auth 'bob:bobpassword'
-
-    GET /v1/buckets/todo/collections/tasks/records HTTP/1.1
-    Accept: */*
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic Ym9iOmJvYnBhc3N3b3Jk
-    Connection: keep-alive
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-If Alice want to share a task with Bob, she can give him the ``read`` permission:
+If Alice wants to share a task with Bob, she can give him the ``read`` permission
+on her records:
 
 .. code-block:: http
 
     $ echo '{
-        "data": {},
         "permissions": {
             "read": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
         }
     }' | \
-    http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
+    http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
         -v --auth 'alice:alicepassword'
 
-    PUT /v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e HTTP/1.1
+    PATCH /v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic YWxpY2U6YWxpY2VwYXNzd29yZA==
@@ -739,7 +632,6 @@ If Alice want to share a task with Bob, she can give him the ``read`` permission
     User-Agent: HTTPie/0.9.2
 
     {
-        "data": {}, 
         "permissions": {
             "read": [
                 "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
@@ -758,13 +650,13 @@ If Alice want to share a task with Bob, she can give him the ``read`` permission
 
     {
         "data": {
-            "id": "2fa91620-f4fa-412e-aee0-957a7ad2dc0e", 
+            "id": "2fa91620-f4fa-412e-aee0-957a7ad2dc0e",
             "last_modified": 1434646257547
-        }, 
+        },
         "permissions": {
             "read": [
                 "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
-            ], 
+            ],
             "write": [
                 "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
             ]
@@ -772,45 +664,35 @@ If Alice want to share a task with Bob, she can give him the ``read`` permission
     }
 
 
-Then Bob can now see the one tasks that Alice shared with him:
+Here we share individual records, and nobody (except its creator) can obtain the
+collection records. For example, a ``read`` permission could be added on
+the collection to allow authenticated users to list the whole list.
 
-.. code-block:: http
+.. notes::
 
-And Bob can see only his tasks:
+    Currently, *Kinto* does not support the use-case where the whole collection is
+    private and each user obtains a list containing only the records where she
+    has read access.
 
-.. code-block:: http
-
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-        -v --auth 'bob:bobpassword'
-
-    GET /v1/buckets/todo/collections/tasks/records HTTP/1.1
-    Accept: */*
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic Ym9iOmJvYnBhc3N3b3Jk
-    Connection: keep-alive
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-
-Here we are sharing records, but if you share a collection, you share
-all the items of this collection with the same right and same for buckets.
+    **This is on top of our priorities!**
 
 
 Working with groups
 ===================
 
 To go further, you may want to allow users to share data with a group
-of people.
+of users.
 
-Let's add the right for people to create group in our ``todo`` bucket:
+Let's add the permission for authenticated users to create groups in the ``todo``
+bucket:
 
 .. code-block:: http
 
-    $ echo '{"data": {}, "permissions": {"group:create": ["system.Authenticated"]}}' | \
-        http PUT https://kinto.dev.mozaws.net/v1/buckets/todo \
+    $ echo '{"permissions": {"group:create": ["system.Authenticated"]}}' | \
+        http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo \
             -v --auth 'user:password'
 
-    PUT /v1/buckets/todo HTTP/1.1
+    PATCH /v1/buckets/todo HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -821,7 +703,6 @@ Let's add the right for people to create group in our ``todo`` bucket:
     User-Agent: HTTPie/0.9.2
 
     {
-        "data": {}, 
         "permissions": {
             "group:create": [
                 "system.Authenticated"
@@ -840,20 +721,20 @@ Let's add the right for people to create group in our ``todo`` bucket:
 
     {
         "data": {
-            "id": "todo", 
+            "id": "todo",
             "last_modified": 1434646769990
-        }, 
+        },
         "permissions": {
             "group:create": [
                 "system.Authenticated"
-            ], 
+            ],
             "write": [
                 "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
             ]
         }
     }
 
-Then Alice can create a group of her friends Bob and Mary:
+Now Alice can create a group of her friends Bob and Mary:
 
 .. code-block:: http
 
@@ -876,7 +757,7 @@ Then Alice can create a group of her friends Bob and Mary:
     {
         "data": {
             "members": [
-                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148", 
+                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
                 "basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"
             ]
         }
@@ -893,13 +774,13 @@ Then Alice can create a group of her friends Bob and Mary:
 
     {
         "data": {
-            "id": "alice-friends", 
-            "last_modified": 1434647004644, 
+            "id": "alice-friends",
+            "last_modified": 1434647004644,
             "members": [
-                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148", 
+                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
                 "basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"
             ]
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
@@ -907,20 +788,19 @@ Then Alice can create a group of her friends Bob and Mary:
         }
     }
 
-The alice can share here record directly with her group of friends:
+Consequently, Alice can share her records directly with her group of friends:
 
 .. code-block:: http
 
     $ echo '{
-        "data": {},
         "permissions": {
             "read": ["/buckets/todo/groups/alice-friends"]
         }
     }' | \
-    http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
+    http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
         -v --auth 'alice:alicepassword'
 
-    PUT /v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e HTTP/1.1
+    PATCH /v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic YWxpY2U6YWxpY2VwYXNzd29yZA==
@@ -931,7 +811,6 @@ The alice can share here record directly with her group of friends:
     User-Agent: HTTPie/0.9.2
 
     {
-        "data": {}, 
         "permissions": {
             "read": [
                 "/buckets/todo/groups/alice-friends"
@@ -950,20 +829,20 @@ The alice can share here record directly with her group of friends:
 
     {
         "data": {
-            "id": "2fa91620-f4fa-412e-aee0-957a7ad2dc0e", 
+            "id": "2fa91620-f4fa-412e-aee0-957a7ad2dc0e",
             "last_modified": 1434647169157
-        }, 
+        },
         "permissions": {
             "read": [
                 "/buckets/todo/groups/alice-friends"
-            ], 
+            ],
             "write": [
                 "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
             ]
         }
     }
 
-Then Mary can get back the record:
+And now, Mary can access the record:
 
 .. code-block:: http
 
@@ -971,16 +850,30 @@ Then Mary can get back the record:
         -v --auth 'mary:marypassword'
 
 
+.. note::
+
+    The records of the personal bucket can also be shared! In order to obtain
+    its id, just use ``GET /buckets/default`` and then share its content using
+    the full URL (e.g. ``/buckets/b86b26b8-be36-4eaa-9ed9-2e6de63a5252``)!
 
 
 Conclusion
 ==========
 
-In this tutorial, you have see all the concept exposed by Kinto:
+In this tutorial, you have seen some of the concepts exposed by *Kinto*:
 
-- Using the default personal user bucket to sync user data
-- Creating a bucket to share data between people
-- Adding Bucket, Collection and Records
-- Editing object's permissions
-- Adding a group and assigning permission to a group
-- Using ``If-Match``, ``ETag`` and ``_since`` to handle synchronization and conflict handling
+- Using the default personal user bucket;
+- Handling synchronization and conflicts;
+- Creating a bucket to share data between users;
+- Creating groups, collections and records;
+- Modifying objects permissions, for users and groups;
+
+More details about permissions, HTTP API headers and status codes.
+
+.. notes::
+
+    We plan to improve our documentation and make sure it is as easy as
+    possible to get started with *Kinto*.
+
+    Please do not hesitate to :ref:`give us feedback <contributing>`, and if you are
+    interested to improve it, join us!
