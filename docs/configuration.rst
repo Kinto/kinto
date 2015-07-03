@@ -37,7 +37,7 @@ Also, the set of settings mentionned below might deserve some review or adjustme
 :note:
 
     For an exhaustive list of available settings and their default values,
-    refer to `the source code <https://github.com/mozilla-services/cliquet/blob/2.0.0/cliquet/__init__.py#L26-L78>`_.
+    refer to `the source code <https://github.com/mozilla-services/cliquet/blob/2.2.0/cliquet/__init__.py#L26-L78>`_.
 
 
 Monitoring
