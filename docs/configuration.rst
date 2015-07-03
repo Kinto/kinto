@@ -14,18 +14,24 @@ Running in production
 Recommended settings
 --------------------
 
-Most default setting values in the application code base are suitable for production.
+Most default setting values in the application code base are suitable
+for production.
 
-But the set of settings mentionned below might deserve some review or adjustments:
+Once `PostgreSQL is installed <postgresql-install>`_, the settings about
+backends as shown in :file:`config/kinto.ini` can be uncommented in order
+to use *PostgreSQL*.
 
+Also, the set of settings mentionned below might deserve some review or adjustments:
 
 .. code-block :: ini
 
+    kinto.flush_endpoint_enabled = false
     cliquet.http_scheme = https
     cliquet.paginate_by = 100
     cliquet.batch_max_requests = 25
     cliquet.storage_pool_maxconn = 50
     cliquet.cache_pool_maxconn = 50
+    cliquet.permission_pool_maxconn = 50
     fxa-oauth.cache_ttl_seconds = 3600
 
 :note:
@@ -37,13 +43,27 @@ But the set of settings mentionned below might deserve some review or adjustment
 Monitoring
 ----------
 
+In order to enable *Cliquet* monitoring features like *statsd*, install
+extra requirements:
+
+::
+
+    pip install "cliquet[monitoring]"
+
+And configure its URL:
+
+.. code-block :: ini
+
+    # StatsD
+    cliquet.statsd_url = udp://carbon.server:8125
+
+
+In order to enable *Heka* logging output:
+
 .. code-block :: ini
 
     # Heka
     cliquet.logging_renderer = cliquet.logs.MozillaHekaRenderer
-
-    # StatsD
-    cliquet.statsd_url = udp://carbon.server:8125
 
 
 With the following configuration, all logs are structured in JSON and
