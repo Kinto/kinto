@@ -43,13 +43,27 @@ Also, the set of settings mentionned below might deserve some review or adjustme
 Monitoring
 ----------
 
+In order to enable *Cliquet* monitoring features like *statsd*, install
+extra requirements:
+
+::
+
+    pip install "cliquet[monitoring]"
+
+And configure its URL:
+
+.. code-block :: ini
+
+    # StatsD
+    cliquet.statsd_url = udp://carbon.server:8125
+
+
+In order to enable *Heka* logging output:
+
 .. code-block :: ini
 
     # Heka
     cliquet.logging_renderer = cliquet.logs.MozillaHekaRenderer
-
-    # StatsD
-    cliquet.statsd_url = udp://carbon.server:8125
 
 
 With the following configuration, all logs are structured in JSON and
