@@ -16,9 +16,6 @@ CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
-    'colander',
-    'cornice',
-    'six',
     'waitress',
     'cliquet'
 ]
