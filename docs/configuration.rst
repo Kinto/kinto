@@ -3,8 +3,9 @@
 Configuration
 #############
 
-For an exhaustive list of *Cliquet* settings, see `cliquet settings documentation
-<http://cliquet.readthedocs.org/en/latest/configuration.html>`_.
+For an exhaustive list of *Cliquet* settings, see `cliquet settings
+documentation
+<http://cliquet.readthedocs.org/en/latest/reference/configuration.html>`_.
 
 .. _run-production:
 
@@ -17,11 +18,12 @@ Recommended settings
 Most default setting values in the application code base are suitable
 for production.
 
-Once `PostgreSQL is installed <postgresql-install>`_, the settings about
+Once :ref:`PostgreSQL is installed <postgresql-install>`, the settings about
 backends as shown in :file:`config/kinto.ini` can be uncommented in order
 to use *PostgreSQL*.
 
-Also, the set of settings mentionned below might deserve some review or adjustments:
+Also, the set of settings mentionned below might deserve some review or
+adjustments:
 
 .. code-block :: ini
 
@@ -34,7 +36,7 @@ Also, the set of settings mentionned below might deserve some review or adjustme
     cliquet.permission_pool_maxconn = 50
     fxa-oauth.cache_ttl_seconds = 3600
 
-:note:
+.. note::
 
     For an exhaustive list of available settings and their default values,
     refer to `the source code <https://github.com/mozilla-services/cliquet/blob/2.2.0/cliquet/__init__.py#L26-L78>`_.
@@ -135,11 +137,11 @@ with the `cliquet` command-line tool:
 
     $ cliquet --ini production.ini migrate
 
-:note:
+.. note::
 
     Alternatively the SQL initialization files can be found in the
-    *Cliquet* source code (``cliquet/cache/postgresql/schemal.sql`` and
-    ``cliquet/storage/postgresql/schemal.sql``).
+    *Cliquet* source code (``cliquet/cache/postgresql/schema.sql`` and
+    ``cliquet/storage/postgresql/schema.sql``).
 
 
 Running with uWsgi

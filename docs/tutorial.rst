@@ -668,7 +668,7 @@ Here we share individual records, and nobody (except its creator) can obtain the
 collection records. For example, a ``read`` permission could be added on
 the collection to allow authenticated users to list the whole list.
 
-.. notes::
+.. note::
 
     Currently, *Kinto* does not support the use-case where the whole collection is
     private and each user obtains a list containing only the records where she
@@ -870,7 +870,7 @@ In this tutorial, you have seen some of the concepts exposed by *Kinto*:
 
 More details about permissions, HTTP API headers and status codes.
 
-.. notes::
+.. note::
 
     We plan to improve our documentation and make sure it is as easy as
     possible to get started with *Kinto*.

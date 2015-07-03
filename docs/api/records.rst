@@ -10,7 +10,7 @@ Sending a record
 ================
 
 .. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records
-and its id will be assigned automatically
+
     **Requires authentication**
 
     Stores a record in the collection, and its id will be assigned automatically.

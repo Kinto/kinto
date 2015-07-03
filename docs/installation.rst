@@ -40,17 +40,17 @@ Authentication
 By default, Kinto relies on Firefox Account OAuth2 Bearer tokens to authenticate
 users.
 
-See `cliquet documentation <http://cliquet.readthedocs.org/en/latest/configuration.html#authentication>`_
+See `cliquet documentation <http://cliquet.readthedocs.org/en/latest/reference/configuration.html#authentication>`_
 to configure authentication options.
 
 
 Run in production
 =================
 
-*Kinto* is a usual python application.
+*Kinto* is a standard python application.
 
 Recommended settings for production are listed :ref:`in a dedicated section
-<run-production>`, and another gives some :ref:`insights about deployment strategies.
+<run-production>`, and another gives some :ref:`insights about deployment strategies
 <deployment>`.
 
 *PostgreSQL* is the recommended backend for production, see instructions below

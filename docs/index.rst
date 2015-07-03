@@ -28,7 +28,7 @@ Using the HTTP API
 ==================
 
 Interaction with a *Kinto* instance happens at some point using HTTP calls.
-Find all you need to know via le links below:
+Find all you need to know via the links below:
 
 - Buckets: :ref:`Working with buckets <buckets>`
 - Collections : :ref:`Handling collections <collections>` |
@@ -46,3 +46,25 @@ Community
 =========
 
 - How to contribute: :ref:`Guidelines <contributing>`
+
+Table of content
+================
+
+.. toctree::
+   :maxdepth: 1
+
+   installation
+   tutorial
+   configuration
+   deployment
+   permissions
+   api/index
+   contributing
+   changelog
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
