@@ -51,6 +51,13 @@ class AuthorizationPolicy(object):
                 principals,
                 get_bound_permissions=self.get_bound_permissions)
 
+        is_list_operation = (context.on_collection and
+                             'create' not in permission)
+        if not allowed and is_list_operation:
+            # Guest trying to reach a collection.
+            setattr(context, 'guest_principals', principals)
+            return True  # OMG, resource code must be rock-solid.
+
         return allowed
 
     def principals_allowed_by_permission(self, context, permission):
@@ -72,6 +79,10 @@ class RouteFactory(object):
 
         # Store service, resource, record and required permission.
         service = utils.current_service(request)
+
+        # Determine if current request hits a collection.
+        # XXX: this will fail if ViewSet.service_name is customized.
+        self.on_collection = service.name.endswith('-collection')
 
         is_on_resource = (service is not None and
                           hasattr(service, 'viewset') and
@@ -124,3 +135,8 @@ class RouteFactory(object):
 def get_object_id(object_uri):
     # Remove potential version prefix in URI.
     return re.sub(r'^(/v\d+)?', '', six.text_type(object_uri))
+
+
+def extract_object_id(object_id):
+    # XXX: Help needed: use something like route.matchdict.get('id').
+    return object_id.split('/')[-1]

@@ -1,3 +1,5 @@
+import mock
+
 from cliquet.resource import ProtectedResource
 from cliquet.tests.resource import BaseTest
 from cliquet.permission.memory import Memory
@@ -141,3 +143,92 @@ class DeletedRecordPermissionTest(PermissionTest):
         principals = self.permission.object_permission_principals(record_uri,
                                                                   'read')
         self.assertEqual(len(principals), 0)
+
+
+class GuestCollectionListTest(PermissionTest):
+    def setUp(self):
+        super(GuestCollectionListTest, self).setUp()
+        record1 = self.resource.collection.create_record({'letter': 'a'})
+        record2 = self.resource.collection.create_record({'letter': 'b'})
+        record3 = self.resource.collection.create_record({'letter': 'c'})
+
+        uri1 = '/articles/%s' % record1['id']
+        uri2 = '/articles/%s' % record2['id']
+        uri3 = '/articles/%s' % record3['id']
+
+        self.permission.add_principal_to_ace(uri1, 'read', 'fxa:user')
+        self.permission.add_principal_to_ace(uri2, 'read', 'group')
+        self.permission.add_principal_to_ace(uri3, 'read', 'jean-louis')
+
+        self.resource.context.guest_principals = ['fxa:user', 'group']
+
+    def test_collection_is_filtered_for_current_guest(self):
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 2)
+
+    def test_guest_collection_can_be_filtered(self):
+        self.resource.request.GET = {'letter': 'a'}
+        with mock.patch.object(self.resource, 'is_known_field'):
+            result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 1)
+
+    def test_guest_collection_is_empty_if_no_record_is_shared(self):
+        self.resource.context.guest_principals = ['tata lili']
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 0)
+
+    def test_permission_backend_is_not_queried_if_not_guest(self):
+        delattr(self.resource.context, 'guest_principals')
+        self.resource.request.registry.permission = None  # would fail!
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 3)
+
+    def test_unauthorized_error_if_collection_does_not_exist(self):
+        pass
+
+
+class GuestCollectionDeleteTest(PermissionTest):
+    def setUp(self):
+        super(GuestCollectionDeleteTest, self).setUp()
+        record1 = self.resource.collection.create_record({'letter': 'a'})
+        record2 = self.resource.collection.create_record({'letter': 'b'})
+        record3 = self.resource.collection.create_record({'letter': 'c'})
+        record4 = self.resource.collection.create_record({'letter': 'd'})
+
+        uri1 = '/articles/%s' % record1['id']
+        uri2 = '/articles/%s' % record2['id']
+        uri3 = '/articles/%s' % record3['id']
+        uri4 = '/articles/%s' % record4['id']
+
+        self.permission.add_principal_to_ace(uri1, 'read', 'fxa:user')
+        self.permission.add_principal_to_ace(uri2, 'write', 'fxa:user')
+        self.permission.add_principal_to_ace(uri3, 'write', 'group')
+        self.permission.add_principal_to_ace(uri4, 'write', 'jean-louis')
+
+        self.resource.context.guest_principals = ['fxa:user', 'group']
+        self.resource.request.method = 'DELETE'
+
+    def get_request(self):
+        request = super(GuestCollectionDeleteTest, self).get_request()
+        # RouteFactory must be aware of DELETE to query 'write' permission.
+        request.method = 'DELETE'
+        return request
+
+    def test_collection_is_filtered_for_current_guest(self):
+        result = self.resource.collection_delete()
+        self.assertEqual(len(result['data']), 2)
+
+    def test_guest_collection_can_be_filtered(self):
+        self.resource.request.GET = {'letter': 'b'}
+        with mock.patch.object(self.resource, 'is_known_field'):
+            result = self.resource.collection_delete()
+        self.assertEqual(len(result['data']), 1)
+        records, _ = self.resource.collection.get_records()
+        self.assertEqual(len(records), 3)
+
+    def test_guest_cannot_delete_records_if_not_allowed(self):
+        self.resource.context.guest_principals = ['tata lili']
+        result = self.resource.collection_delete()
+        self.assertEqual(len(result['data']), 0)
+        records, _ = self.resource.collection.get_records()
+        self.assertEqual(len(records), 4)

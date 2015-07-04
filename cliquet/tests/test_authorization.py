@@ -194,3 +194,54 @@ class AuthorizationPolicyTest(unittest.TestCase):
             'foobar',
             ['fxa:userid', 'fxa_userid'],
             get_bound_permissions=mock.sentinel.get_bound_perms)
+
+
+class GuestAuthorizationPolicyTest(unittest.TestCase):
+    def setUp(self):
+        self.authz = AuthorizationPolicy()
+        self.authz.get_bound_permissions = mock.sentinel.get_bound_perms
+        self.context = RouteFactory(DummyRequest(method='GET'))
+        self.context.on_collection = True
+        self.context.check_permission = mock.Mock(return_value=False)
+
+    def test_permits_returns_true_if_collection(self):
+        allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.assertTrue(allowed)
+
+    def test_permits_does_not_return_true_if_not_collection(self):
+        self.context.on_collection = False
+        allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.assertFalse(allowed)
+
+    def test_permits_does_not_return_true_if_not_list_operation(self):
+        self.context.required_permission = 'create'
+        allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.assertFalse(allowed)
+        allowed = self.authz.permits(self.context, ['userid'], 'create')
+        self.assertFalse(allowed)
+
+    def test_permits_returns_true_if_collection_is_unknown(self):
+        # XXX ?
+        # Either that, or we raise 403 is no record is shared for guest.
+        # Otherwise it would allow to inspect other users collection existance.
+        pass
+
+    def test_guest_principals_are_set_on_context_if_collection(self):
+        self.assertFalse(hasattr(self.context, 'guest_principals'))
+        self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.assertTrue(hasattr(self.context, 'guest_principals'))
+
+    def test_guest_principals_contains_prefixed_userid(self):
+        self.context.prefixed_userid = 'fxa:userid'
+        self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.assertIn('fxa:userid', self.context.guest_principals)
+
+    def test_guest_principals_are_not_set_if_not_collection(self):
+        self.context.on_collection = False
+        self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.assertFalse(hasattr(self.context, 'guest_principals'))
+
+    def test_guest_principals_are_not_set_if_user_is_permitted(self):
+        self.context.check_permission = mock.Mock(return_value=True)
+        self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.assertFalse(hasattr(self.context, 'guest_principals'))
