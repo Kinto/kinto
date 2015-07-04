@@ -94,12 +94,19 @@ class MemoryBasedStorage(StorageBase):
             COMPARISON.NOT: operator.ne,
             COMPARISON.MIN: operator.ge,
             COMPARISON.GT: operator.gt,
+            COMPARISON.IN: operator.contains,
         }
 
         for record in records:
-            matches = [operators[f.operator](record.get(f.field), f.value)
-                       for f in filters]
-            if all(matches):
+            matches = True
+            for f in filters:
+                left = record.get(f.field)
+                right = f.value
+                if f.operator == COMPARISON.IN:
+                    right = left
+                    left = f.value
+                matches = matches and operators[f.operator](left, right)
+            if matches:
                 yield record
 
     def apply_sorting(self, records, sorting):
