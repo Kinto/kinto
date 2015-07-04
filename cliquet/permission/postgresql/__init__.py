@@ -163,6 +163,30 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
             results = cursor.fetchall()
         return set([r['principal'] for r in results])
 
+    def principals_accessible_objects(self, principals, permission,
+                                      object_id_match=None):
+        if object_id_match is None:
+            object_id_condition = 'true'
+        else:
+            object_id_match = object_id_match.replace('*', '%%')
+            object_id_condition = "object_id LIKE '%s'" % object_id_match
+
+        principals_values = ','.join(["('%s')" % p for p in principals])
+        query = """
+        WITH user_principals AS (
+          VALUES %s
+        )
+        SELECT object_id
+          FROM user_principals JOIN access_control_entries
+            ON (principal = column1)
+         WHERE permission = %%(permission)s
+           AND %s;
+        """ % (principals_values, object_id_condition)
+        with self.connect() as cursor:
+            cursor.execute(query, dict(permission=permission))
+            results = cursor.fetchall()
+        return set([r['object_id'] for r in results])
+
     def check_permission(self, object_id, permission, principals,
                          get_bound_permissions=None):
         if get_bound_permissions is None:
