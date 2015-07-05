@@ -13,15 +13,14 @@ particulary relevant as a storage backend:
 Sync user data between devices
 ==============================
 
-Let's say that we want to do a TodoMVC backend that will sync user
-tasks between her devices.
-
+Let's say that we want to do a `TodoMVC <http://todomvc.com/>`_ backend that
+will sync user tasks between the devices.
 
 In order to separate data between each user, we will use the default
 *personal bucket*.
 
-Unlike other buckets, the collections in the ``default`` bucket are created
-implicitly.
+Unlike other buckets, the :ref:`collections <collections>` in the ``default``
+:ref:`bucket <buckets>` are created implicitly.
 
 Let us start with a really simple data model:
 
@@ -34,7 +33,7 @@ And post a sample record in the ``tasks`` collection:
 
     $ echo '{"data": {"description": "Write a tutorial explaining Kinto", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-             --auth 'user:password'
+             -v --auth 'user:password'
 
     POST /v1/buckets/default/collections/tasks/records HTTP/1.1
     Accept: application/json
@@ -82,7 +81,7 @@ Let us fetch our new collection of tasks:
 .. code-block:: http
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-           --auth 'user:password'
+           -v --auth 'user:password'
     GET /v1/buckets/default/collections/tasks/records HTTP/1.1
     Accept: */*
     Accept-Encoding: gzip, deflate
@@ -114,6 +113,10 @@ Let us fetch our new collection of tasks:
         ]
     }
 
+
+Keep a note of the ``ETag`` and of the ``last_modified`` values returned (here
+respectively ``"1434641474977"`` and ``"1434641515332"``), we'll need them for
+a later example.
 
 We can obviously also update one of our tasks, using its ``id``:
 
@@ -175,7 +178,7 @@ obtained while fetching the collection, or the value of the ``last_modified``
 data field you had for this record.
 
 Let's try to modify the record using an obsolete value of ``ETag`` (obtained
-while we fetched the collection):
+while we fetched the collection earlier, which we asked you to keep note of):
 
 .. code-block:: http
 
@@ -452,8 +455,8 @@ By default, the creator is the only administrator (see ``write`` permission).
 
 You will now have to define permissions to introduce collaboration.
 
-In our case, we want people to be able create and share tasks, so
-we will create a collection ``tasks`` with the ``record:create`` permission for
+In our case, we want people to be able to create and share tasks, so
+we will create a ``tasks`` collection with the ``record:create`` permission for
 authenticated users (i.e. ``system.Authenticated``):
 
 .. code-block:: http
@@ -674,7 +677,7 @@ the collection to allow authenticated users to list the whole list.
     private and each user obtains a list containing only the records where she
     has read access.
 
-    **This is on top of our priorities!**
+    **This is our top priority!**
 
 
 Working with groups
@@ -868,7 +871,8 @@ In this tutorial, you have seen some of the concepts exposed by *Kinto*:
 - Creating groups, collections and records;
 - Modifying objects permissions, for users and groups;
 
-More details about permissions, HTTP API headers and status codes.
+More details about :ref:`permissions <permissions>`, :ref:`HTTP API headers and
+status codes <api-endpoints>`.
 
 .. note::
 
