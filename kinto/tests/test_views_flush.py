@@ -1,5 +1,3 @@
-from cliquet.tests.support import authorize
-
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_BUCKET, MINIMALIST_COLLECTION,
                       MINIMALIST_RECORD)
@@ -9,7 +7,6 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
 
-    @authorize(authz_class='kinto.tests.support.AllowAuthorizationPolicy')
     def setUp(self):
         super(FlushViewTest, self).setUp()
 
@@ -50,7 +47,6 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         app = self._get_test_app(settings=extra)
         app.post('/__flush__', headers=self.headers, status=404)
 
-    @authorize(authz_class='kinto.tests.support.AllowAuthorizationPolicy')
     def test_removes_every_records_of_everykind(self):
         self.app.get(self.collection_url, headers=self.headers)
         self.app.get(self.collection_url, headers=self.alice_headers)
