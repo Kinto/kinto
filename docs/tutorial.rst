@@ -837,6 +837,7 @@ Consequently, Alice can share her records directly with her group of friends:
         },
         "permissions": {
             "read": [
+                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
                 "/buckets/todo/groups/alice-friends"
             ],
             "write": [
@@ -857,7 +858,7 @@ And now, Mary can access the record:
 
     The records of the personal bucket can also be shared! In order to obtain
     its id, just use ``GET /buckets/default`` and then share its content using
-    the full URL (e.g. ``/buckets/b86b26b8-be36-4eaa-9ed9-2e6de63a5252``)!
+    the full URL (e.g. ``/buckets/b86b26b8be364eaa9ed92e6de63a5252``)!
 
 
 Conclusion
