@@ -6,7 +6,9 @@ This document describes changes between each past release.
 2.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix permissions handling on PATCH /resource (#358)
 
 
 2.2.0 (2015-07-02)
