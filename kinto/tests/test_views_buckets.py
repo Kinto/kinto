@@ -27,17 +27,15 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
     def test_buckets_can_be_put_with_simple_name(self):
         self.assertEqual(self.record['id'], 'beers')
 
-    def test_collection_endpoint_lists_them_all(self):
-        resp = self.app.get(self.collection_url,
-                            headers=get_user_headers('alice'))
-        records = resp.json['data']
-        self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]['id'], 'beers')
+    def test_nobody_can_list_buckets_by_default(self):
+        self.app.get(self.collection_url,
+                     headers=get_user_headers('alice'),
+                     status=403)
 
-    def test_anyone_can_read_bucket_information(self):
-        resp = self.app.get(self.record_url, headers=get_user_headers('alice'))
-        record = resp.json['data']
-        self.assertEqual(record['id'], 'beers')
+    def test_nobody_can_read_bucket_information_by_default(self):
+        self.app.get(self.record_url,
+                     headers=get_user_headers('alice'),
+                     status=403)
 
     def test_buckets_name_should_be_simple(self):
         self.app.put_json('/buckets/__beers__',
@@ -64,6 +62,27 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                           bucket,
                           headers=self.headers,
                           status=400)
+
+
+class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
+
+    def get_app_settings(self, extra=None):
+        settings = super(BucketViewTest, self).get_app_settings(extra)
+        # Give the right to list buckets (for self.principal and alice).
+        settings['cliquet.bucket_read_principals'] = 'system.Authenticated'
+        return settings
+
+    def test_collection_endpoint_lists_them_all(self):
+        resp = self.app.get(self.collection_url,
+                            headers=get_user_headers('alice'))
+        records = resp.json['data']
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]['id'], 'beers')
+
+    def test_nobody_can_read_bucket_information_by_default(self):
+        resp = self.app.get(self.record_url, headers=get_user_headers('alice'))
+        record = resp.json['data']
+        self.assertEqual(record['id'], 'beers')
 
 
 class BucketDeletionTest(BaseWebTest, unittest.TestCase):
