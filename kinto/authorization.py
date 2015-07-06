@@ -122,6 +122,9 @@ def build_permissions_set(object_uri, unbound_permission,
 
     obj_type = get_object_type(object_uri)
 
+    if obj_type is None:
+        return set()
+
     bound_permission = '%s:%s' % (obj_type, unbound_permission)
     granters = set()
 

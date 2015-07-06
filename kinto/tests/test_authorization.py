@@ -155,3 +155,7 @@ class PermissionInheritanceTest(unittest.TestCase):
                  (self.collection_uri, 'read'),
                  (self.record_uri, 'write'),
                  (self.record_uri, 'read')]))
+
+    def test_build_permissions_set_returns_empty_set_if_doesnt_know(self):
+        self.assertEquals(
+            build_permissions_set('/buckets', 'read'), set())
