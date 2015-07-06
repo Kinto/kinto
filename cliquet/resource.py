@@ -173,11 +173,11 @@ def register(depth=1, **kwargs):
     return wrapped
 
 
-def register_resource(resource, settings=None, viewset=None, depth=1,
+def register_resource(resource_cls, settings=None, viewset=None, depth=1,
                       **kwargs):
     """Register a resource in the cornice registry.
 
-    :param resource:
+    :param resource_cls:
         The resource class to register.
         It should be a class or have a "name" attribute.
 
@@ -197,7 +197,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
     else:
         viewset.update(**kwargs)
 
-    resource_name = viewset.get_name(resource)
+    resource_name = viewset.get_name(resource_cls)
 
     path_formatters = {
         'resource_name': resource_name
@@ -208,14 +208,14 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         path_pattern = getattr(viewset, '%s_path' % endpoint_type)
         path = path_pattern.format(**path_formatters)
 
-        name = viewset.get_service_name(endpoint_type, resource)
+        name = viewset.get_service_name(endpoint_type, resource_cls)
 
         service = Service(name, path, depth=depth,
                           **viewset.get_service_arguments())
 
         # Attach viewset and resource to the service for later reference.
         service.viewset = viewset
-        service.resource = resource
+        service.resource = resource_cls
         service.collection_path = viewset.collection_path.format(
             **path_formatters)
         service.record_path = viewset.record_path.format(**path_formatters)
@@ -227,10 +227,10 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
                 continue
 
             argument_getter = getattr(viewset, '%s_arguments' % endpoint_type)
-            view_args = argument_getter(resource, method)
+            view_args = argument_getter(resource_cls, method)
 
             view = viewset.get_view(endpoint_type, method.lower())
-            service.add_view(method, view, klass=resource, **view_args)
+            service.add_view(method, view, klass=resource_cls, **view_args)
 
         return service
 
@@ -244,7 +244,7 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         for service in services:
             config.add_cornice_service(service)
 
-    info = venusian.attach(resource, callback, category='pyramid',
+    info = venusian.attach(resource_cls, callback, category='pyramid',
                            depth=depth)
     return callback
 
