@@ -17,12 +17,6 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                                  headers=self.headers)
         self.record = resp.json['data']
 
-    def get_app_settings(self, extra=None):
-        settings = super(BucketViewTest, self).get_app_settings(extra)
-        # Give the right to list buckets (for self.principal and alice).
-        settings['cliquet.bucket_read_principals'] = 'system.Authenticated'
-        return settings
-
     def test_buckets_are_global_to_every_users(self):
         self.app.get(self.record_url, headers=get_user_headers('alice'))
 
