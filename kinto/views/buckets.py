@@ -59,6 +59,8 @@ def default_bucket(request):
     # Build the user unguessable bucket_id UUID from its user_id
     bucket_id = hmac_digest(hmac_secret, request.prefixed_userid)[:32]
     path = request.path.replace('default', bucket_id)
+    querystring = request.url[(request.url.index(request.path) +
+                               len(request.path)):]
 
     # Make sure bucket exists
     create_bucket(request, bucket_id)
@@ -68,7 +70,7 @@ def default_bucket(request):
 
     subrequest = build_request(request, {
         'method': request.method,
-        'path': path,
+        'path': path + querystring,
         'body': request.body
     })
 
