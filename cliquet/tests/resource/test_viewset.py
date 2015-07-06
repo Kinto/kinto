@@ -1,6 +1,7 @@
 import colander
 import mock
 
+from cliquet import authorization
 from cliquet.resource import ViewSet, register_resource
 
 from cliquet.tests.support import unittest
@@ -238,10 +239,16 @@ class ViewSetTest(unittest.TestCase):
         self.assertIn("factory", service_arguments)
         self.assertEquals(service_arguments["factory"], mock.sentinel.factory)
 
-    def test_get_service_arguments_ignore_factory_if_not_exists(self):
+    def test_get_service_arguments_uses_cliquet_factory_by_default(self):
         viewset = ViewSet()  # Don't provide a factory here.
         service_arguments = viewset.get_service_arguments()
-        self.assertNotIn("factory", service_arguments)
+        self.assertEquals(service_arguments['factory'],
+                          authorization.RouteFactory)
+
+    def test_get_service_arguments_skips_factory_if_none(self):
+        viewset = ViewSet(factory=None)
+        service_arguments = viewset.get_service_arguments()
+        self.assertNotIn('factory', service_arguments)
 
     def test_is_endpoint_enabled_returns_true_if_unknown(self):
         viewset = ViewSet()
@@ -291,7 +298,7 @@ class RegisterTest(unittest.TestCase):
         venusian_callback(context, None, None)
 
         service_class.assert_any_call('fake-collection', '/fake', depth=1,
-                                      **self.viewset.service_arguments)
+                                      **self.viewset.get_service_arguments())
         service_class().add_view.assert_any_call(
             'GET', 'collection_get', klass=self.resource)
 
@@ -304,7 +311,7 @@ class RegisterTest(unittest.TestCase):
         venusian_callback(context, None, None)
 
         service_class.assert_any_call('fake-record', '/fake/{id}', depth=1,
-                                      **self.viewset.service_arguments)
+                                      **self.viewset.get_service_arguments())
         service_class().add_view.assert_any_call(
             'PUT', 'put', klass=self.resource)
 
@@ -325,7 +332,7 @@ class RegisterTest(unittest.TestCase):
         # one for the collection_get
         self.assertEquals(len(service_cls.mock_calls), 3)
         service_cls.assert_any_call('fake-collection', '/fake', depth=1,
-                                    **self.viewset.service_arguments)
+                                    **self.viewset.get_service_arguments())
         service_cls().add_view.assert_any_call(
             'GET', 'collection_get', klass=self.resource)
 
@@ -346,6 +353,6 @@ class RegisterTest(unittest.TestCase):
         # one for the collection_get
         self.assertEquals(len(service_class.mock_calls), 3)
         service_class.assert_any_call('fake-record', '/fake/{id}', depth=1,
-                                      **self.viewset.service_arguments)
+                                      **self.viewset.get_service_arguments())
         service_class().add_view.assert_any_call(
             'PUT', 'put', klass=self.resource)

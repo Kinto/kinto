@@ -150,6 +150,14 @@ In application initialization, make *Pyramid* aware of it:
 By doing that, a Mushroom resource API is now available at the ``/mushrooms/``
 endpoint.
 
+Configure who is allowed to create, read and write records for this collection.
+
+.. code-block:: ini
+
+    cliquet.mushroom_read_principals = system.Authenticated
+    cliquet.mushroom_create_principals = system.Authenticated
+    cliquet.mushroom_write_principals = system.Authenticated
+
 It will accept a bunch of REST operations, as defined in the :ref:`API section
 <api-endpoints>`.
 

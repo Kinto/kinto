@@ -40,6 +40,7 @@ class ViewSet(object):
 
     readonly_methods = ('GET',)
 
+    factory = authorization.RouteFactory
     service_arguments = {
         'description': 'Collection of {resource_name}',
         'cors_origins': ('*',),
@@ -144,7 +145,7 @@ class ViewSet(object):
 
     def get_service_arguments(self):
         service_arguments = {}
-        if hasattr(self, 'factory'):
+        if self.factory is not None:
             service_arguments['factory'] = self.factory
         service_arguments.update(self.service_arguments)
         return service_arguments
