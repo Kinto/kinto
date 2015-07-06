@@ -4,8 +4,6 @@ except ImportError:
     import unittest  # NOQA
 
 import webtest
-from pyramid.security import IAuthorizationPolicy
-from zope.interface import implementer
 from cliquet import utils
 from cliquet.tests import support as cliquet_support
 from kinto import main as testapp
@@ -70,16 +68,6 @@ class BaseWebTest(object):
     def create_bucket(self, bucket_id):
         self.app.put_json('/buckets/%s' % bucket_id, MINIMALIST_BUCKET,
                           headers=self.headers, status=201)
-
-
-@implementer(IAuthorizationPolicy)
-class AllowAuthorizationPolicy(object):
-    def permits(self, context, principals, permission):
-        # Cliquet default authz policy uses prefixed_userid.
-        return USER_PRINCIPAL in ([context.prefixed_userid] + principals)
-
-    def principals_allowed_by_permission(self, context, permission):
-        raise NotImplementedError()  # PRAGMA NOCOVER
 
 
 def get_user_headers(user):
