@@ -78,8 +78,8 @@ setup(name='cliquet',
       zip_safe=False,
       install_requires=REQUIREMENTS,
       extras_require={
-          'postgresql': REQUIREMENTS + POSTGRESQL_REQUIRES,
-          'monitoring': REQUIREMENTS + MONITORING_REQUIRES,
+          'postgresql': POSTGRESQL_REQUIRES,
+          'monitoring': MONITORING_REQUIRES,
       },
       dependency_links=DEPENDENCY_LINKS,
       entry_points=ENTRY_POINTS)
