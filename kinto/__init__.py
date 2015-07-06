@@ -20,6 +20,7 @@ DEFAULT_SETTINGS = {
     'cliquet.project_name': 'Cloud Storage',
     'cliquet.project_docs': 'https://kinto.readthedocs.org/',
     'cliquet.bucket_create_principals': 'system.Authenticated',
+    'cliquet.bucket_read_principals': 'system.Authenticated',
     'multiauth.authorization_policy': (
         'kinto.authorization.AuthorizationPolicy'),
     'multiauth.groupfinder': (
