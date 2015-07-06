@@ -112,7 +112,8 @@ Deploy a PostgreSQL cluster:
 * one or more replication followers («*slaves*»).
 * A load balancer, that routes queries to take advantage of the cluster (pgPool)
 
-Writes are sent to the master, and reads are sent to the master and slaves that up-to-date.
+Writes are sent to the master, and reads are sent to the master and slaves that
+are up-to-date.
 
 Vertical scaling:
 

@@ -1,7 +1,7 @@
 .. _api-endpoints:
 
-The HTP APIs
-############
+The HTTP APIs
+#############
 
 .. toctree::
    :maxdepth: 2
