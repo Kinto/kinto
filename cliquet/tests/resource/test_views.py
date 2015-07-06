@@ -88,6 +88,17 @@ class ProtectedResourcePermissionTest(AuthzAuthnTest):
         resp = self.app.put_json(object_uri, body, headers=self.headers)
         self.assertEqual(resp.json['permissions']['read'], ['group:readers'])
 
+    def test_permissions_can_be_modified_using_patch(self):
+        body = {'data': MINIMALIST_RECORD,
+                'permissions': {'read': ['group:readers']}}
+        resp = self.app.post_json(self.collection_url, body,
+                                  headers=self.headers)
+        body = {'permissions': {'read': ['fxa:user']}}
+        uri = self.get_item_url(resp.json['data']['id'])
+        resp = self.app.patch_json(uri, body, headers=self.headers)
+        principals = resp.json['permissions']['read']
+        self.assertEqual(sorted(principals), ['fxa:user', 'group:readers'])
+
     def test_unknown_permissions_are_not_accepted(self):
         self.maxDiff = None
         body = {'data': MINIMALIST_RECORD,

@@ -1129,6 +1129,8 @@ class ProtectedResource(BaseResource):
         result = super(ProtectedResource, self).patch()
 
         object_id = authorization.get_object_id(self.request.path)
+        # Since there is no schema on PATCH, set JSON as validated.
+        self.request.validated = self.request.json
         self._store_permissions(object_id=object_id)
         result['permissions'] = self._build_permissions(object_id=object_id)
         return result
