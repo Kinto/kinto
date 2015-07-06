@@ -51,3 +51,8 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
     def test_second_call_on_default_bucket_collection_doesnt_raise_a_412(self):
         self.app.get(self.collection_url, headers=self.headers)
         self.app.get(self.collection_url, headers=self.headers)
+
+    def test_querystring_parameters_are_taken_into_account(self):
+        self.app.get(self.collection_url + '/records?_since=invalid',
+                     headers=self.headers,
+                     status=400)
