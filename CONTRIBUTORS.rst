@@ -2,6 +2,7 @@ Contributors
 ============
 
 * Alexis Metaireau <alexis@mozilla.com>
+* Andy McKay <amckay@mozilla.com>
 * Fil <fil@rezo.net>
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
