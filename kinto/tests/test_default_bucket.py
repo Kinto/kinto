@@ -1,8 +1,10 @@
-import uuid
-from .support import (BaseWebTest, unittest, get_user_headers,
-                      MINIMALIST_RECORD)
+from six import text_type
+from uuid import UUID
 
 from cliquet.utils import hmac_digest
+
+from .support import (BaseWebTest, unittest, get_user_headers,
+                      MINIMALIST_RECORD)
 
 
 class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
@@ -17,7 +19,7 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         hmac_secret = settings['cliquet.userid_hmac_secret']
         bucket_id = hmac_digest(hmac_secret, self.principal)[:32]
 
-        self.assertEqual(result['data']['id'], bucket_id)
+        self.assertEqual(result['data']['id'], text_type(UUID(bucket_id)))
         self.assertEqual(result['permissions']['write'], [self.principal])
 
     def test_default_bucket_collections_are_automatically_created(self):
@@ -36,11 +38,12 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         self.assertEquals(resp.json['message'],
                           'Please authenticate yourself to use this endpoint.')
 
-    def test_bucket_id_is_an_uuid(self):
+    def test_bucket_id_is_an_uuid_with_dashes(self):
         bucket = self.app.get(self.bucket_url, headers=self.headers)
         bucket_id = bucket.json['data']['id']
+        self.assertIn('-', bucket_id)
         try:
-            uuid.UUID(bucket_id)
+            UUID(bucket_id)
         except ValueError:
             self.fail('bucket_id: %s is not a valid UUID.' % bucket_id)
 
