@@ -1,5 +1,6 @@
 import mock
-from dealer.git import git
+
+from cliquet.views.hello import git
 from .support import BaseWebTest, unittest
 
 
@@ -13,6 +14,12 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(response.json['hello'], 'cliquet')
         self.assertEqual(response.json['documentation'],
                          'https://cliquet.rtfd.org/')
+
+    def test_when_not_installed_with_git(self):
+        git._repo = None
+        with mock.patch.object(git, 'init_repo', side_effect=TypeError):
+            response = self.app.get('/')
+            self.assertNotIn('commit', response.json)
 
     def test_do_not_returns_eos_if_empty_in_settings(self):
         response = self.app.get('/')

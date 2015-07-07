@@ -1,8 +1,11 @@
-from dealer.git import git
+import os.path
+
+from dealer.git import Backend
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from cliquet import Service
 
+git = Backend(os.path.dirname(os.path.dirname(__file__)))
 hello = Service(name="hello", path='/', description="Welcome")
 
 
