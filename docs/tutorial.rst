@@ -58,14 +58,14 @@ And post a sample record in the ``tasks`` collection:
     Connection: keep-alive
     Content-Length: 253
     Content-Type: application/json; charset=UTF-8
-    Date: Thu, 18 Jun 2015 15:31:55 GMT
+    Date: Mon, 06 Jul 2015 08:39:56 GMT
     Server: nginx/1.4.6 (Ubuntu)
 
     {
         "data": {
             "description": "Write a tutorial explaining Kinto",
-            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
-            "last_modified": 1434641515332,
+            "id": "a5f490b2-218e-4d71-ac5a-f046ae285c55",
+            "last_modified": 1436171996916,
             "status": "todo"
         },
         "permissions": {
@@ -96,9 +96,9 @@ Let us fetch our new collection of tasks:
     Connection: keep-alive
     Content-Length: 152
     Content-Type: application/json; charset=UTF-8
-    Date: Thu, 18 Jun 2015 15:34:04 GMT
-    ETag: "1434641474977"
-    Last-Modified: Thu, 18 Jun 2015 15:31:14 GMT
+    Date: Mon, 06 Jul 2015 08:40:14 GMT
+    ETag: "1436171996916"
+    Last-Modified: Mon, 06 Jul 2015 08:39:56 GMT
     Server: nginx/1.4.6 (Ubuntu)
     Total-Records: 1
 
@@ -106,27 +106,27 @@ Let us fetch our new collection of tasks:
         "data": [
             {
                 "description": "Write a tutorial explaining Kinto",
-                "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
-                "last_modified": 1434641515332,
+                "id": "a5f490b2-218e-4d71-ac5a-f046ae285c55",
+                "last_modified": 1436171996916,
                 "status": "todo"
             }
         ]
     }
 
 
-Keep a note of the ``ETag`` and of the ``last_modified`` values returned (here
-respectively ``"1434641474977"`` and ``"1434641515332"``), we'll need them for
-a later example.
+Keep a note of the ``ETag`` and of the ``last_modified`` values
+returned (here both ``"1436171996916"``), we'll need them for a later
+example.
 
 We can obviously also update one of our tasks, using its ``id``:
 
 .. code-block:: http
 
     $ echo '{"data": {"status": "doing"}}' | \
-         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/23eed462-c063-4ae0-81b0-8bf2210bfe86 \
+         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
               -v  --auth 'user:password'
 
-    PATCH /v1/buckets/default/collections/tasks/records/23eed462-c063-4ae0-81b0-8bf2210bfe86 HTTP/1.1
+    PATCH /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -148,14 +148,14 @@ We can obviously also update one of our tasks, using its ``id``:
     Connection: keep-alive
     Content-Length: 254
     Content-Type: application/json; charset=UTF-8
-    Date: Thu, 18 Jun 2015 15:50:03 GMT
+    Date: Mon, 06 Jul 2015 08:43:49 GMT
     Server: nginx/1.4.6 (Ubuntu)
 
     {
         "data": {
             "description": "Write a tutorial explaining Kinto",
-            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
-            "last_modified": 1434642603605,
+            "id": "a5f490b2-218e-4d71-ac5a-f046ae285c55",
+            "last_modified": 1436172229372,
             "status": "doing"
         },
         "permissions": {
@@ -183,11 +183,11 @@ while we fetched the collection earlier, which we asked you to keep note of):
 .. code-block:: http
 
     $ echo '{"data": {"status": "done"}}' | \
-        http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/23eed462-c063-4ae0-81b0-8bf2210bfe86 \
+        http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1434641515332"' \
             -v  --auth 'user:password'
 
-    PATCH /v1/buckets/default/collections/tasks/records/23eed462-c063-4ae0-81b0-8bf2210bfe86 HTTP/1.1
+    PATCH /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -195,7 +195,7 @@ while we fetched the collection earlier, which we asked you to keep note of):
     Content-Length: 29
     Content-Type: application/json
     Host: kinto.dev.mozaws.net
-    If-Match: "1434641515332"
+    If-Match: "1436171996916"
     User-Agent: HTTPie/0.9.2
 
     {
@@ -205,13 +205,12 @@ while we fetched the collection earlier, which we asked you to keep note of):
     }
 
     HTTP/1.1 412 Precondition Failed
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
     Connection: keep-alive
     Content-Length: 98
     Content-Type: application/json; charset=UTF-8
-    Date: Thu, 18 Jun 2015 16:08:31 GMT
-    ETag: "1434642603605"
-    Last-Modified: Thu, 18 Jun 2015 15:50:03 GMT
+    Date: Mon, 06 Jul 2015 08:45:07 GMT
+    ETag: "1436172229372"
+    Last-Modified: Mon, 06 Jul 2015 08:43:49 GMT
     Server: nginx/1.4.6 (Ubuntu)
 
     {
@@ -229,10 +228,10 @@ and merge attributes locally:
 
 .. code-block:: http
 
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/23eed462-c063-4ae0-81b0-8bf2210bfe86 \
+    $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
            -v  --auth 'user:password'
 
-    GET /v1/buckets/default/collections/tasks/records/23eed462-c063-4ae0-81b0-8bf2210bfe86 HTTP/1.1
+    GET /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
     Accept: */*
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -247,16 +246,16 @@ and merge attributes locally:
     Connection: keep-alive
     Content-Length: 254
     Content-Type: application/json; charset=UTF-8
-    Date: Thu, 18 Jun 2015 16:13:21 GMT
-    ETag: "1434641474977"
-    Last-Modified: Thu, 18 Jun 2015 15:31:14 GMT
+    Date: Mon, 06 Jul 2015 08:45:57 GMT
+    ETag: "1436172229372"
+    Last-Modified: Mon, 06 Jul 2015 08:43:49 GMT
     Server: nginx/1.4.6 (Ubuntu)
 
     {
         "data": {
             "description": "Write a tutorial explaining Kinto",
-            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
-            "last_modified": 1434642603605,
+            "id": "a5f490b2-218e-4d71-ac5a-f046ae285c55",
+            "last_modified": 1436172229372,
             "status": "doing"
         },
         "permissions": {
@@ -277,11 +276,11 @@ record ``ETag`` value:
 .. code-block:: http
 
     $ echo '{"data": {"status": "done"}}' | \
-        http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/23eed462-c063-4ae0-81b0-8bf2210bfe86 \
-            If-Match:'"1434642603605"' \
+        http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
+            If-Match:'"1436172229372"' \
             -v  --auth 'user:password'
 
-    PATCH /v1/buckets/default/collections/tasks/records/23eed462-c063-4ae0-81b0-8bf2210bfe86 HTTP/1.1
+    PATCH /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -289,7 +288,7 @@ record ``ETag`` value:
     Content-Length: 29
     Content-Type: application/json
     Host: kinto.dev.mozaws.net
-    If-Match: "1434642603605"
+    If-Match: "1436172229372"
     User-Agent: HTTPie/0.9.2
 
     {
@@ -304,14 +303,14 @@ record ``ETag`` value:
     Connection: keep-alive
     Content-Length: 253
     Content-Type: application/json; charset=UTF-8
-    Date: Thu, 18 Jun 2015 16:21:16 GMT
+    Date: Mon, 06 Jul 2015 08:47:22 GMT
     Server: nginx/1.4.6 (Ubuntu)
 
     {
         "data": {
             "description": "Write a tutorial explaining Kinto",
-            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
-            "last_modified": 1434644476758,
+            "id": "a5f490b2-218e-4d71-ac5a-f046ae285c55",
+            "last_modified": 1436172442466,
             "status": "done"
         },
         "permissions": {
@@ -326,19 +325,20 @@ You can also delete the record and use the same mechanism to avoid conflicts:
 
 .. code-block:: http
 
-    $ http DELETE https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/23eed462-c063-4ae0-81b0-8bf2210bfe86 \
-           If-Match:'"1434644476758"' \
+    $ http DELETE https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
+           If-Match:'"1436172442466"' \
            -v  --auth 'user:password'
 
-    DELETE /v1/buckets/default/collections/tasks/records/23eed462-c063-4ae0-81b0-8bf2210bfe86 HTTP/1.1
+    DELETE /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
     Accept: */*
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
     Connection: keep-alive
     Content-Length: 0
     Host: kinto.dev.mozaws.net
-    If-Match: "1434644476758"
+    If-Match: "1436172442466"
     User-Agent: HTTPie/0.9.2
+
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -346,14 +346,14 @@ You can also delete the record and use the same mechanism to avoid conflicts:
     Connection: keep-alive
     Content-Length: 99
     Content-Type: application/json; charset=UTF-8
-    Date: Thu, 18 Jun 2015 16:27:03 GMT
+    Date: Mon, 06 Jul 2015 08:48:21 GMT
     Server: nginx/1.4.6 (Ubuntu)
 
     {
         "data": {
             "deleted": true,
-            "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
-            "last_modified": 1434644823180
+            "id": "a5f490b2-218e-4d71-ac5a-f046ae285c55",
+            "last_modified": 1436172501156
         }
     }
 
@@ -393,7 +393,7 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or 
         "data": [
             {
                 "deleted": true,
-                "id": "23eed462-c063-4ae0-81b0-8bf2210bfe86",
+                "id": "a5f490b2-218e-4d71-ac5a-f046ae285c55",
                 "last_modified": 1434644823180
             }
         ]
@@ -837,6 +837,7 @@ Consequently, Alice can share her records directly with her group of friends:
         },
         "permissions": {
             "read": [
+                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
                 "/buckets/todo/groups/alice-friends"
             ],
             "write": [
