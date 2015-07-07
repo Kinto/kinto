@@ -21,8 +21,11 @@ def get_hello(request):
     if eos:
         data['eos'] = eos
 
-    if git and git.revision:
+    try:
         data['commit'] = git.revision
+    except TypeError:
+        # In case we are not running from a git repository.
+        pass
 
     public_settings = request.registry.public_settings
     data['settings'] = {k: settings[k] for k in public_settings}

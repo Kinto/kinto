@@ -10,6 +10,7 @@ The returned value is a JSON mapping containing:
 
 - ``hello``: the name of the service (e.g. ``"reading list"``)
 - ``version``: complete version (``"X.Y.Z"``)
+- ``commit``: the HEAD git revision number when run from a git repository.
 - ``url``: absolute URI (without a trailing slash) of the API (*can be used by client to build URIs*)
 - ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)
 - ``documentation``: The url to the service documentation. (this document!)
