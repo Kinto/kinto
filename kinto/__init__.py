@@ -4,6 +4,7 @@ import logging
 import cliquet
 from pyramid.config import Configurator
 from pyramid.settings import asbool
+from pyramid.security import Authenticated
 from cliquet.authorization import RouteFactory
 
 # Module version, as defined in PEP-0396.
@@ -19,7 +20,7 @@ DEFAULT_SETTINGS = {
     'cliquet.storage_backend': 'cliquet.storage.memory',
     'cliquet.project_name': 'Cloud Storage',
     'cliquet.project_docs': 'https://kinto.readthedocs.org/',
-    'cliquet.bucket_create_principals': 'system.Authenticated',
+    'cliquet.bucket_create_principals': Authenticated,
     'multiauth.authorization_policy': (
         'kinto.authorization.AuthorizationPolicy'),
     'multiauth.groupfinder': (

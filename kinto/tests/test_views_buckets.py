@@ -1,3 +1,5 @@
+from pyramid.security import Authenticated
+
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_BUCKET, MINIMALIST_GROUP,
                       MINIMALIST_COLLECTION, MINIMALIST_RECORD)
@@ -11,13 +13,15 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(BucketViewTest, self).setUp()
         bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'read': ['system.Authenticated']}
         resp = self.app.put_json(self.record_url,
                                  bucket,
                                  headers=self.headers)
         self.record = resp.json['data']
 
     def test_buckets_are_global_to_every_users(self):
+        self.app.patch_json(self.record_url,
+                            {'permissions': {'read': [Authenticated]}},
+                            headers=self.headers)
         self.app.get(self.record_url, headers=get_user_headers('alice'))
 
     def test_buckets_do_not_support_post(self):
@@ -66,20 +70,31 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
 class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
 
+    collection_url = '/buckets'
+    record_url = '/buckets/beers'
+
+    def setUp(self):
+        super(BucketReadPermissionTest, self).setUp()
+        bucket = MINIMALIST_BUCKET.copy()
+        self.app.put_json(self.record_url,
+                          bucket,
+                          headers=self.headers)
+
     def get_app_settings(self, extra=None):
-        settings = super(BucketViewTest, self).get_app_settings(extra)
+        settings = super(BucketReadPermissionTest,
+                         self).get_app_settings(extra)
         # Give the right to list buckets (for self.principal and alice).
-        settings['cliquet.bucket_read_principals'] = 'system.Authenticated'
+        settings['cliquet.bucket_read_principals'] = Authenticated
         return settings
 
-    def test_collection_endpoint_lists_them_all(self):
+    def test_bucket_collection_endpoint_lists_them_all_for_everyone(self):
         resp = self.app.get(self.collection_url,
                             headers=get_user_headers('alice'))
         records = resp.json['data']
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]['id'], 'beers')
 
-    def test_nobody_can_read_bucket_information_by_default(self):
+    def test_everyone_can_read_bucket_information(self):
         resp = self.app.get(self.record_url, headers=get_user_headers('alice'))
         record = resp.json['data']
         self.assertEqual(record['id'], 'beers')
