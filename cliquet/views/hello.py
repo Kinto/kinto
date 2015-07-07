@@ -1,3 +1,4 @@
+from dealer.git import git
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from cliquet import Service
@@ -19,6 +20,9 @@ def get_hello(request):
     eos = get_eos(request)
     if eos:
         data['eos'] = eos
+
+    if git and git.revision:
+        data['commit'] = git.revision
 
     public_settings = request.registry.public_settings
     data['settings'] = {k: settings[k] for k in public_settings}
