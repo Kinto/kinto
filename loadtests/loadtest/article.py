@@ -76,7 +76,7 @@ class ArticleLoadTestMixin(object):
         self.random_id_2 = self.random_record_2['id']
         self.random_url_2 = self.record_url(self.random_id_2)
 
-    def play_random_loads(self):
+    def play_a_random_endpoint(self):
         """Choose a random action among available, if not frequent enough,
         try again recursively.
 
@@ -94,7 +94,7 @@ class ArticleLoadTestMixin(object):
             self.incr_counter(action)
             return getattr(self, action)()
         else:
-            self.play_random_loads()
+            self.play_a_random_endpoint()
 
     def create(self):
         article = build_article()

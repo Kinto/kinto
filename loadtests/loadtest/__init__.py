@@ -59,7 +59,12 @@ class TestBasic(ArticleLoadTestMixin, TutorialLoadTestMixin, TestCase):
 
     def bucket_url(self, bucket=None, prefix=True):
         url = 'buckets/%s' % (bucket or self.bucket)
-        return self.api_url(url)  # if prefix else '/' + url
+        return self.api_url(url) if prefix else '/' + url
+
+    def group_url(self, bucket=None, group=None, prefix=True):
+        bucket_url = self.bucket_url(bucket, prefix)
+        group = group or self.group
+        return '%s/groups/%s' % (bucket_url, group)
 
     def collection_url(self, bucket=None, collection=None, prefix=True):
         bucket_url = self.bucket_url(bucket, prefix)
@@ -88,7 +93,7 @@ class TestBasic(ArticleLoadTestMixin, TutorialLoadTestMixin, TestCase):
 
     def test_all(self):
         self.play_full_tutorial()
-        # self.play_random_loads()
+        self.play_a_random_endpoint()
 
     def _run_batch(self, data):
         resp = self.session.post(self.api_url('batch'),

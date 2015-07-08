@@ -1,6 +1,9 @@
 import json
 import random
+import re
 import uuid
+
+from requests.auth import HTTPBasicAuth
 
 
 def build_task():
@@ -152,25 +155,137 @@ class TutorialLoadTestMixin(object):
         self.assertEqual(resp.status_code, 200)
 
     def play_user_shared_bucket_tutorial(self):
+        bucket_id = 'bucket-%s' % uuid.uuid4()
+
         # Create a new bucket and check for permissions
+        resp = self.session.put(
+            self.bucket_url(bucket_id),
+            data=json.dumps({'data': {}}),
+            auth=self.auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 201)
+        record = resp.json()
+        self.assertIn('write', record['permissions'])
 
         # Create a new collection and check for permissions
+        resp = self.session.put(
+            re.sub('/records$', '', self.collection_url(bucket_id, 'tasks')),
+            data=json.dumps({'data': {}, 'permissions': {
+                "record:create": ['system.Authenticated']}}),
+            auth=self.auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 201)
+        record = resp.json()
+        self.assertIn('record:create', record['permissions'])
+        self.assertIn('system.Authenticated',
+                      record['permissions']['record:create'])
 
         # Create a new tasks for Alice
+        alice_auth = HTTPBasicAuth('alice', 'secret')
+        alice_task = build_task()
+        resp = self.session.post(
+            self.collection_url(bucket_id, 'tasks'),
+            data=json.dumps({'data': alice_task}),
+            auth=alice_auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 201)
+        record = resp.json()
+        self.assertIn('write', record['permissions'])
+        alice_task_id = record['data']['id']
 
         # Create a new tasks for Bob
+        bob_auth = HTTPBasicAuth('bob', 'secret')
+        bob_task = build_task()
+        resp = self.session.post(
+            self.collection_url(bucket_id, 'tasks'),
+            data=json.dumps({'data': bob_task}),
+            auth=bob_auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 201)
+        record = resp.json()
+        self.assertIn('write', record['permissions'])
+        # bob_task_id = record['data']['id']
+        bob_user_id = record['permissions']['write'][0]
 
         # Share Alice's task with Bob
+        resp = self.session.patch(
+            self.record_url(alice_task_id, bucket_id, 'tasks'),
+            data=json.dumps({'permissions': {'read': [bob_user_id]}}),
+            auth=alice_auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 200)
+        record = resp.json()
+        self.assertIn('write', record['permissions'])
+        alice_task_id = record['data']['id']
 
         # Check that Bob can access it
+        resp = self.session.get(
+            self.record_url(alice_task_id, bucket_id, 'tasks'),
+            auth=bob_auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 200)
+
+        # Get mary's userid
+        mary_auth = HTTPBasicAuth('mary', 'secret')
+        resp = self.session.get(
+            self.bucket_url('default'),
+            auth=mary_auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 200)
+        record = resp.json()
+        mary_user_id = record['permissions']['write'][0]
+
+        # Allow group creation on bucket
+        resp = self.session.put(
+            self.bucket_url(bucket_id),
+            data=json.dumps({'data': {}, 'permissions': {
+                "group:create": ['system.Authenticated']}}),
+            auth=self.auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 200)
+        record = resp.json()
+        self.assertIn('group:create', record['permissions'])
+        self.assertIn('system.Authenticated',
+                      record['permissions']['group:create'])
 
         # Create Alice's friend group with Bob and Mary
+        resp = self.session.put(
+            self.group_url(bucket_id, 'alices-friends'),
+            data=json.dumps({'data': {'members': [mary_user_id,
+                                                  bob_user_id]}}),
+            auth=alice_auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 201)
 
         # Give Alice's task permission for that group
+        group_id = self.group_url(bucket_id, 'alices-friends', False)
+        resp = self.session.patch(
+            self.record_url(alice_task_id, bucket_id, 'tasks'),
+            data=json.dumps({'permissions': {'read': [group_id]}}),
+            auth=alice_auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 200)
+        record = resp.json()
+        self.assertIn(group_id, record['permissions']['read'])
+        self.assertIn(bob_user_id, record['permissions']['read'])
 
         # Try to access Alice's task with Mary
+        resp = self.session.get(
+            self.record_url(alice_task_id, bucket_id, 'tasks'),
+            auth=mary_auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 200)
 
-        # Check that Mary's collection_get sees Alice's task
-
-        # Check that Bob's collection_get sees both his and Alice's tasks
-        pass
+        # XXX: Check that Mary's collection_get sees Alice's task
+        # XXX: Check that Bob's collection_get sees both his and Alice's tasks
