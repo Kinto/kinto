@@ -40,7 +40,6 @@ class ViewSet(object):
 
     readonly_methods = ('GET',)
 
-    factory = authorization.RouteFactory
     service_arguments = {
         'description': 'Collection of {resource_name}',
         'cors_origins': ('*',),
@@ -100,14 +99,8 @@ class ViewSet(object):
             # Simply validate that posted body is a mapping.
             return colander.MappingSchema(unknown='preserve')
 
-        # XXX: https://github.com/mozilla-services/cliquet/issues/322
-        resource_permissions = getattr(resource, 'permissions', tuple())
-
         class RecordPayload(colander.MappingSchema):
             data = resource.mapping
-            permissions = PermissionsSchema(
-                missing=colander.drop,
-                permissions=resource_permissions)
 
             def schema_type(self, **kw):
                 return colander.Mapping(unknown='raise')
@@ -146,11 +139,7 @@ class ViewSet(object):
             endpoint_type=endpoint_type)
 
     def get_service_arguments(self):
-        service_arguments = {}
-        if self.factory is not None:
-            service_arguments['factory'] = self.factory
-        service_arguments.update(self.service_arguments)
-        return service_arguments
+        return self.service_arguments.copy()
 
     def is_endpoint_enabled(self, endpoint_type, resource_name, method,
                             settings):
@@ -161,6 +150,30 @@ class ViewSet(object):
         setting_enabled = 'cliquet.%s_%s_%s_enabled' % (
             endpoint_type, resource_name, method.lower())
         return settings.get(setting_enabled, True)
+
+
+class ProtectedViewSet(ViewSet):
+    def get_record_schema(self, resource, method):
+        schema = super(ProtectedViewSet, self).get_record_schema(resource, method)
+
+        if method.lower() not in map(str.lower, self.validate_schema_for):
+            return schema
+
+        permissions_node = PermissionsSchema(missing=colander.drop,
+                                             permissions=resource.permissions,
+                                             name='permissions')
+        schema.add(permissions_node)
+        return schema
+
+    def get_view_arguments(self, endpoint_type, resource, method):
+        args = super(ProtectedViewSet, self).get_view_arguments(endpoint_type, resource, method)
+        args['permission'] = authorization.DYNAMIC
+        return args
+
+    def get_service_arguments(self):
+        args = super(ProtectedViewSet, self).get_service_arguments()
+        args['factory'] = authorization.RouteFactory
+        return args
 
 
 def register(depth=1, **kwargs):
@@ -196,7 +209,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
     attributes.
     """
     if viewset is None:
-        viewset = ViewSet(**kwargs)
+        viewset = resource_cls.default_viewset(**kwargs)
     else:
         viewset.update(**kwargs)
 
@@ -254,6 +267,9 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
 
 class BaseResource(object):
     """Base resource class providing every endpoint."""
+
+    default_viewset = ViewSet
+    """Default viewset class to use when the resource is registered."""
 
     mapping = ResourceSchema()
     """Schema to validate records."""
@@ -1012,6 +1028,8 @@ class BaseResource(object):
 
 
 class ProtectedResource(BaseResource):
+
+    default_viewset = ProtectedViewSet
     permissions = ('read', 'write')
 
     def _store_permissions(self, object_id, replace=False):

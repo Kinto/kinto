@@ -42,16 +42,6 @@ Full example
             return new
 
 
-Now that the resource was defined, it is possible to control who is allowed
-to read, create and records. In the configuration, add for example:
-
-.. code-block:: ini
-
-    cliquet.bookmark_read_principals = system.Authenticated
-    cliquet.bookmark_create_principals = system.Authenticated
-    cliquet.bookmark_write_principals = system.Authenticated
-
-
 See the :github:`ReadingList <mozilla-services/readinglist>` and
 :github:`Kinto <mozilla-services/kinto>` projects source code for real use cases.
 
