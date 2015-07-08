@@ -59,3 +59,8 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.collection_url + '/records?_since=invalid',
                      headers=self.headers,
                      status=400)
+
+    def test_option_is_possible_with_authentication_for_default(self):
+        self.app.options(self.collection_url + '/records',
+                         headers={'Origin': 'http://testserver',
+                                  'Access-Control-Request-Method': 'GET'})
