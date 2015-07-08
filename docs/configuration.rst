@@ -42,6 +42,16 @@ adjustments:
     refer to `the source code <https://github.com/mozilla-services/cliquet/blob/2.2.0/cliquet/__init__.py#L26-L78>`_.
 
 
+By default, nobody can read buckets list. You can change that using:
+
+.. code-block :: ini
+
+    cliquet.bucket_read_principals = system.Authenticated
+
+Beware that if you do so, everyone will be able to list bucket
+information (including user's personal buckets).
+
+
 Monitoring
 ----------
 

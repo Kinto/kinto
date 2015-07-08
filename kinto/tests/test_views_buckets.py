@@ -1,3 +1,5 @@
+from pyramid.security import Authenticated
+
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_BUCKET, MINIMALIST_GROUP,
                       MINIMALIST_COLLECTION, MINIMALIST_RECORD)
@@ -11,19 +13,15 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(BucketViewTest, self).setUp()
         bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'read': ['system.Authenticated']}
         resp = self.app.put_json(self.record_url,
                                  bucket,
                                  headers=self.headers)
         self.record = resp.json['data']
 
-    def get_app_settings(self, extra=None):
-        settings = super(BucketViewTest, self).get_app_settings(extra)
-        # Give the right to list buckets (for self.principal and alice).
-        settings['cliquet.bucket_read_principals'] = 'system.Authenticated'
-        return settings
-
     def test_buckets_are_global_to_every_users(self):
+        self.app.patch_json(self.record_url,
+                            {'permissions': {'read': [Authenticated]}},
+                            headers=self.headers)
         self.app.get(self.record_url, headers=get_user_headers('alice'))
 
     def test_buckets_do_not_support_post(self):
@@ -33,11 +31,15 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
     def test_buckets_can_be_put_with_simple_name(self):
         self.assertEqual(self.record['id'], 'beers')
 
-    def test_collection_endpoint_lists_them_all(self):
-        resp = self.app.get(self.collection_url, headers=self.headers)
-        records = resp.json['data']
-        self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]['id'], 'beers')
+    def test_nobody_can_list_buckets_by_default(self):
+        self.app.get(self.collection_url,
+                     headers=get_user_headers('alice'),
+                     status=403)
+
+    def test_nobody_can_read_bucket_information_by_default(self):
+        self.app.get(self.record_url,
+                     headers=get_user_headers('alice'),
+                     status=403)
 
     def test_buckets_name_should_be_simple(self):
         self.app.put_json('/buckets/__beers__',
@@ -64,6 +66,38 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                           bucket,
                           headers=self.headers,
                           status=400)
+
+
+class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
+
+    collection_url = '/buckets'
+    record_url = '/buckets/beers'
+
+    def setUp(self):
+        super(BucketReadPermissionTest, self).setUp()
+        bucket = MINIMALIST_BUCKET.copy()
+        self.app.put_json(self.record_url,
+                          bucket,
+                          headers=self.headers)
+
+    def get_app_settings(self, extra=None):
+        settings = super(BucketReadPermissionTest,
+                         self).get_app_settings(extra)
+        # Give the right to list buckets (for self.principal and alice).
+        settings['cliquet.bucket_read_principals'] = Authenticated
+        return settings
+
+    def test_bucket_collection_endpoint_lists_them_all_for_everyone(self):
+        resp = self.app.get(self.collection_url,
+                            headers=get_user_headers('alice'))
+        records = resp.json['data']
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]['id'], 'beers')
+
+    def test_everyone_can_read_bucket_information(self):
+        resp = self.app.get(self.record_url, headers=get_user_headers('alice'))
+        record = resp.json['data']
+        self.assertEqual(record['id'], 'beers')
 
 
 class BucketDeletionTest(BaseWebTest, unittest.TestCase):

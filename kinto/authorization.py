@@ -122,6 +122,11 @@ def build_permissions_set(object_uri, unbound_permission,
 
     obj_type = get_object_type(object_uri)
 
+    # Unknown object type, does not map the INHERITANCE_TREE.
+    # In that case, the set of related permissions is empty.
+    if obj_type is None:
+        return set()
+
     bound_permission = '%s:%s' % (obj_type, unbound_permission)
     granters = set()
 
