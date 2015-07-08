@@ -7,7 +7,7 @@ from loads.case import TestCase
 from konfig import Config
 
 from .tutorial import TutorialLoadTestMixin
-from .article import ArticleLoadTestMixin
+from .simulation import SimulationLoadTestMixin
 
 
 class RawAuth(AuthBase):
@@ -19,7 +19,7 @@ class RawAuth(AuthBase):
         return r
 
 
-class TestBasic(ArticleLoadTestMixin, TutorialLoadTestMixin, TestCase):
+class TestBasic(SimulationLoadTestMixin, TutorialLoadTestMixin, TestCase):
     def __init__(self, *args, **kwargs):
         """Initialization that happens once per user.
 
@@ -92,21 +92,11 @@ class TestBasic(ArticleLoadTestMixin, TutorialLoadTestMixin, TestCase):
         return collection_url + '/%s' % record_id
 
     def test_all(self):
-        self.play_full_tutorial()
+        self.test_tutorial()
+        self.test_simulation()
+
+    def test_simulation(self):
         self.play_a_random_endpoint()
 
-    def _run_batch(self, data):
-        resp = self.session.post(self.api_url('batch'),
-                                 data=json.dumps(data),
-                                 auth=self.auth,
-                                 headers={'Content-Type': 'application/json'})
-        self.incr_counter('status-%s' % resp.status_code)
-        self.assertEqual(resp.status_code, 200)
-        for subresponse in resp.json()['responses']:
-            self.incr_counter('status-%s' % subresponse['status'])
-
-    def _patch(self, url, data, status=200):
-        data = json.dumps(data)
-        resp = self.session.patch(url, data, auth=self.auth)
-        self.incr_counter(resp.status_code)
-        self.assertEqual(resp.status_code, status)
+    def test_tutorial(self):
+        self.play_full_tutorial()

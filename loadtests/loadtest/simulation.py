@@ -29,7 +29,7 @@ def build_article():
     return data
 
 
-class ArticleLoadTestMixin(object):
+class SimulationLoadTestMixin(object):
 
     def init_article(self, *args, **kwargs):
         """Initialization that happens once per user.
@@ -133,6 +133,22 @@ class ArticleLoadTestMixin(object):
         resp = self.session.get(url, auth=self.auth)
         self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, 200)
+
+    def _patch(self, url, data, status=200):
+        data = json.dumps(data)
+        resp = self.session.patch(url, data, auth=self.auth)
+        self.incr_counter(resp.status_code)
+        self.assertEqual(resp.status_code, status)
+
+    def _run_batch(self, data):
+        resp = self.session.post(self.api_url('batch'),
+                                 data=json.dumps(data),
+                                 auth=self.auth,
+                                 headers={'Content-Type': 'application/json'})
+        self.incr_counter('status-%s' % resp.status_code)
+        self.assertEqual(resp.status_code, 200)
+        for subresponse in resp.json()['responses']:
+            self.incr_counter('status-%s' % subresponse['status'])
 
     def update(self):
         data = {

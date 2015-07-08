@@ -32,6 +32,12 @@ clean:
 test: install
 	$(VENV)/bin/loads-runner --config=./config/test.ini --server-url=$(SERVER_URL) $(TEST_SUITE)
 
+simulation: install
+	$(VENV)/bin/loads-runner --config=./config/test.ini --server-url=$(SERVER_URL) loadtest.TestBasic.test_simulation
+
+tutorial: install
+	$(VENV)/bin/loads-runner --config=./config/test.ini --server-url=$(SERVER_URL) loadtest.TestBasic.test_tutorial
+
 # Run a bench of 20 concurrent users.
 bench:
 	$(VENV)/bin/loads-runner --config=./config/bench.ini --server-url=$(SERVER_URL) $(TEST_SUITE)
