@@ -54,6 +54,14 @@ def create_collection(request, bucket_id):
 
 @view_config(route_name='default_bucket', permission=NO_PERMISSION_REQUIRED)
 def default_bucket(request):
+    if request.method.lower() == 'options':
+        path = request.path.replace('default', 'unknown')
+        subrequest = build_request(request, {
+            'method': 'OPTIONS',
+            'path': path
+        })
+        return request.invoke_subrequest(subrequest)
+
     if getattr(request, 'prefixed_userid', None) is None:
         raise HTTPForbidden  # Pass through the forbidden_view_config
 
