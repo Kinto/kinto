@@ -80,8 +80,6 @@ def setup_authentication(config):
     from configuration.
     """
     config.include('pyramid_multiauth')
-    # By default, permissions are handled dynamically.
-    config.set_default_permission(authorization.DYNAMIC)
 
     # Track policy used, for prefixing user_id and for logging.
     def on_policy_selected(event):

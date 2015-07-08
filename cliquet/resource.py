@@ -47,7 +47,9 @@ class ViewSet(object):
         'error_handler': json_error_handler
     }
 
-    default_arguments = {}
+    default_arguments = {
+        'permission': authorization.PRIVATE
+    }
 
     default_collection_arguments = {}
     collection_get_arguments = {
