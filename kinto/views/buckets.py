@@ -1,3 +1,6 @@
+from six import text_type
+from uuid import UUID
+
 from pyramid.httpexceptions import HTTPForbidden, HTTPPreconditionFailed
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
@@ -57,7 +60,8 @@ def default_bucket(request):
     settings = request.registry.settings
     hmac_secret = settings['cliquet.userid_hmac_secret']
     # Build the user unguessable bucket_id UUID from its user_id
-    bucket_id = hmac_digest(hmac_secret, request.prefixed_userid)[:32]
+    digest = hmac_digest(hmac_secret, request.prefixed_userid)
+    bucket_id = text_type(UUID(digest[:32]))
     path = request.path.replace('default', bucket_id)
     querystring = request.url[(request.url.index(request.path) +
                                len(request.path)):]
