@@ -4,11 +4,19 @@ Changelog
 This document describes changes between each past release.
 
 
-1.2.1 (unreleased)
+1.2.1 (2015-07-08)
 ==================
 
-- Nothing changed yet.
+**Bug fixes**
 
+- Improvments and fixes in the tutorial (#107)
+- Querystring handling for default bucket (#119)
+- Default buckets id is a UUID with dashes (#120)
+- Handle unknown permission and get rid of the 500 on /buckets (#88)
+
+**Internal changes**
+
+- Test with the normal kinto authentication policy and remove the fake one (#121)
 
 1.2.0 (2015-07-03)
 ==================
