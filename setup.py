@@ -41,7 +41,7 @@ DEPENDENCY_LINKS = [
 ]
 
 setup(name='kinto',
-      version='1.2.1',
+      version='1.2.2.dev0',
       description='kinto',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',
