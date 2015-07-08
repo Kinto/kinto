@@ -37,11 +37,11 @@ care of running and connecting to a PostgreSQL container:
 Authentication
 --------------
 
-By default, Kinto relies on Firefox Account OAuth2 Bearer tokens to authenticate
-users.
+By default, Kinto relies on BasicAuth to authenticate users. A unique
+user idenfier will be created for each couple of ``user:password`` so
+that you do not need to register a user to use it.
 
-See `cliquet documentation <http://cliquet.readthedocs.org/en/latest/reference/configuration.html#authentication>`_
-to configure authentication options.
+Kinto is compatible with Firefox Account.  See `cliquet documentation <http://cliquet.readthedocs.org/en/latest/reference/configuration.html#authentication>`_ to configure authentication options.
 
 
 Run in production
