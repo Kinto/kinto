@@ -4,10 +4,22 @@ Changelog
 This document describes changes between each past release.
 
 
-1.2.1 (unreleased)
+1.2.1 (2015-07-08)
 ==================
 
-- Nothing changed yet.
+- Upgraded to *Cliquet* 2.2.1
+
+**Bug fixes**
+
+- Improvements and fixes in the tutorial (#107)
+- Querystring handling when using the personal bucket (#119)
+- Default buckets id is now a UUID with dashes (#120)
+- Handle unknown permission and fix crash on /buckets (#88)
+- Fix permissions handling on PATCH /resource (mozilla-services/cliquet#358)
+
+**Internal changes**
+
+- Test with the normal Kinto authentication policy and remove the fake one (#121)
 
 
 1.2.0 (2015-07-03)
