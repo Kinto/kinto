@@ -62,15 +62,15 @@ class ViewSet(object):
     def __init__(self, **kwargs):
         self.update(**kwargs)
         self.record_arguments = functools.partial(
-            self.get_view_args, 'record')
+            self.get_view_arguments, 'record')
         self.collection_arguments = functools.partial(
-            self.get_view_args, 'collection')
+            self.get_view_arguments, 'collection')
 
     def update(self, **kwargs):
         """Update viewset attributes with provided values."""
         self.__dict__.update(**kwargs)
 
-    def get_view_args(self, endpoint_type, resource, method):
+    def get_view_arguments(self, endpoint_type, resource, method):
         """Return the Pyramid/Cornice view arguments for the given endpoint
         type and method.
 
