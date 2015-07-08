@@ -146,19 +146,21 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         else:
             perms = get_bound_permissions(object_id, permission)
 
-        perms_values = ','.join(["('%s', '%s')" % p for p in perms])
-        query = """
-        WITH required_perms AS (
-          VALUES %s
-        )
-        SELECT principal
-          FROM required_perms JOIN access_control_entries
-            ON (object_id = column1 AND permission = column2);
-        """ % perms_values
-        with self.connect() as cursor:
-            cursor.execute(query)
-            results = cursor.fetchall()
-        return set([r['principal'] for r in results])
+        if perms:
+            perms_values = ','.join(["('%s', '%s')" % p for p in perms])
+            query = """
+            WITH required_perms AS (
+              VALUES %s
+            )
+            SELECT principal
+              FROM required_perms JOIN access_control_entries
+                ON (object_id = column1 AND permission = column2);
+            """ % perms_values
+            with self.connect() as cursor:
+                cursor.execute(query)
+                results = cursor.fetchall()
+            return set([r['principal'] for r in results])
+        return set([])
 
     def check_permission(self, object_id, permission, principals,
                          get_bound_permissions=None):
