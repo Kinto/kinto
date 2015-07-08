@@ -21,6 +21,7 @@ class TutorialLoadTestMixin(object):
     def play_full_tutorial(self):
         self.play_user_default_bucket_tutorial()
         self.play_user_shared_bucket_tutorial()
+        self.check_for_lists()
 
     def play_user_default_bucket_tutorial(self):
         collection_id = 'tasks-%s' % uuid.uuid4()
@@ -294,3 +295,12 @@ class TutorialLoadTestMixin(object):
 
         # XXX: Check that Mary's collection_get sees Alice's task
         # XXX: Check that Bob's collection_get sees both his and Alice's tasks
+
+    def check_for_lists(self):
+        # List buckets should be forbidden
+        resp = self.session.get(
+            self.api_url('buckets'),
+            auth=self.auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 403)
