@@ -437,8 +437,9 @@ class BaseResource(object):
             in the iterim.
         """
         self._raise_400_if_invalid_id(self.record_id)
-        self._add_timestamp_header(self.request.response)
         record = self._get_record_or_404(self.record_id)
+        timestamp = record[self.collection.modified_field]
+        self._add_timestamp_header(self.request.response, timestamp=timestamp)
         self._raise_304_if_not_modified(record)
         self._raise_412_if_modified(record)
 
@@ -498,7 +499,8 @@ class BaseResource(object):
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
-        self._add_timestamp_header(self.request.response)
+        timestamp = record[self.collection.modified_field]
+        self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
         body = {
             'data': record,
@@ -575,7 +577,9 @@ class BaseResource(object):
         else:
             data = new_record
 
-        self._add_timestamp_header(self.request.response)
+        timestamp = new_record.get(self.collection.modified_field,
+                                   old_record[self.collection.modified_field])
+        self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
         body = {
             'data': data,

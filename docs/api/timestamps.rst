@@ -10,11 +10,14 @@ If two changes happen at the same millisecond, they will still have two differen
 timestamps.
 
 The ``ETag`` header with the current timestamp of the collection for
-the current user will be given on collection and record GET endpoints.
+the current user will be given on collection endpoints.
 
 ::
 
     ETag: "1432208041618"
+
+On record enpoints, the ``ETag`` header value will contain the timestamp of the
+record.
 
 
 In order to bypass costly and error-prone HTTP date parsing, ``ETag`` headers
