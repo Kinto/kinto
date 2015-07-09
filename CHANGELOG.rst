@@ -6,7 +6,11 @@ This document describes changes between each past release.
 2.2.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix missing ETag on record PUT/PATCH (fixes #352)
+- Fix value of ETag on record: provide collection timestamp on collection
+  endpoints only (fixes #356)
 
 
 2.2.1 (unreleased)
