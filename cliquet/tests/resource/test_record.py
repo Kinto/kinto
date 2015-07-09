@@ -15,12 +15,23 @@ class GetTest(BaseTest):
         self.assertIn(self.resource.collection.modified_field, result)
         self.assertIn('field', result)
 
+    def test_etag_is_provided(self):
+        record = self.collection.create_record({'field': 'value'})
+        self.resource.record_id = record['id']
+        self.resource.get()
+        self.assertIn('ETag', self.last_response.headers)
+
 
 class PutTest(BaseTest):
     def setUp(self):
         super(PutTest, self).setUp()
         self.record = self.collection.create_record({'field': 'old'})
         self.resource.record_id = self.record['id']
+
+    def test_etag_is_provided(self):
+        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.put()
+        self.assertIn('ETag', self.last_response.headers)
 
     def test_returns_201_if_created(self):
         self.resource.record_id = self.resource.collection.id_generator()
@@ -71,6 +82,9 @@ class PatchTest(BaseTest):
         self.resource.request.json = {'data': {'some': 'change'}}
         self.resource.mapping.typ.unknown = 'preserve'
         self.result = self.resource.patch()['data']
+
+    def test_etag_is_provided(self):
+        self.assertIn('ETag', self.last_response.headers)
 
     def test_modify_record_updates_timestamp(self):
         before = self.stored['last_modified']

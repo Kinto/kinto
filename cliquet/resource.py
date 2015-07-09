@@ -498,6 +498,8 @@ class BaseResource(object):
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
+        self._add_timestamp_header(self.request.response)
+
         body = {
             'data': record,
         }
@@ -572,6 +574,8 @@ class BaseResource(object):
                     if changes.get(k) != new_record.get(k)}
         else:
             data = new_record
+
+        self._add_timestamp_header(self.request.response)
 
         body = {
             'data': data,

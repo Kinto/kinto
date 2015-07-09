@@ -494,6 +494,7 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
     Content-Length: 439
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 28 Apr 2015 12:46:36 GMT
+    ETag: "1430225196396"
 
     {
         "data": {
@@ -570,6 +571,7 @@ the one provided are returned.
     Content-Length: 439
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 28 Apr 2015 12:46:36 GMT
+    ETag: "1430225196396"
 
     {
         "data": {
