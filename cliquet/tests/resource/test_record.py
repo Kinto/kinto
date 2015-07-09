@@ -15,12 +15,38 @@ class GetTest(BaseTest):
         self.assertIn(self.resource.collection.modified_field, result)
         self.assertIn('field', result)
 
+    def test_etag_is_provided(self):
+        record = self.collection.create_record({'field': 'value'})
+        self.resource.record_id = record['id']
+        self.resource.get()
+        self.assertIn('ETag', self.last_response.headers)
+
+    def test_etag_contains_record_timestamp(self):
+        record = self.collection.create_record({'field': 'value'})
+        self.resource.record_id = record['id']
+        # Create another one, bump collection timestamp.
+        self.collection.create_record({'field': 'value'})
+        self.resource.get()
+        expected = ('"%s"' % record['last_modified']).encode('utf-8')
+        self.assertEqual(expected, self.last_response.headers['ETag'])
+
 
 class PutTest(BaseTest):
     def setUp(self):
         super(PutTest, self).setUp()
         self.record = self.collection.create_record({'field': 'old'})
         self.resource.record_id = self.record['id']
+
+    def test_etag_is_provided(self):
+        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.put()
+        self.assertIn('ETag', self.last_response.headers)
+
+    def test_etag_contains_record_new_timestamp(self):
+        self.resource.request.validated = {'data': {'field': 'new'}}
+        new = self.resource.put()['data']
+        expected = ('"%s"' % new['last_modified']).encode('utf-8')
+        self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_returns_201_if_created(self):
         self.resource.record_id = self.resource.collection.id_generator()
@@ -71,6 +97,19 @@ class PatchTest(BaseTest):
         self.resource.request.json = {'data': {'some': 'change'}}
         self.resource.mapping.typ.unknown = 'preserve'
         self.result = self.resource.patch()['data']
+
+    def test_etag_is_provided(self):
+        self.assertIn('ETag', self.last_response.headers)
+
+    def test_etag_contains_record_new_timestamp(self):
+        expected = ('"%s"' % self.result['last_modified']).encode('utf-8')
+        self.assertEqual(expected, self.last_response.headers['ETag'])
+
+    def test_etag_contains_old_timestamp_if_no_field_changed(self):
+        self.resource.request.json = {'data': {'some': 'change'}}
+        self.resource.patch()['data']
+        expected = ('"%s"' % self.result['last_modified']).encode('utf-8')
+        self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_modify_record_updates_timestamp(self):
         before = self.stored['last_modified']

@@ -10,9 +10,12 @@ This document describes changes between each past release.
 
 - Provide details about existing record in ``412`` error responses
   (fixes mozilla-services/kinto#122)
+- Add ETag on record PUT/PATCH responses (fixes #352)
 
 **Bug fixes**
 
+- Fix value of ETag on record: provide collection timestamp on collection
+  endpoints only (fixes #356)
 - Default resources do accept ``permissions`` attribute in payload anymore
 - Default resources do not require a root factory (fixes #348)
 - Default resources do not hit the permission backend anymore
