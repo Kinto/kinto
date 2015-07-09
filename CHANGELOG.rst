@@ -6,7 +6,13 @@ This document describes changes between each past release.
 2.2.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Default resources do accept ``permissions`` attribute in payload anymore
+- Default resources do not require a root factory (fixes #348)
+- Default resources do not hit the permission backend anymore
+- Default viewset was split and does not handle permissions anymore (fixes #322)
+- Permissions on views is now set only on resources
 
 
 2.2.1 (unreleased)
