@@ -14,7 +14,7 @@ OBJECTS = .venv .coverage
 
 all: install
 install: $(INSTALL_STAMP)
-$(INSTALL_STAMP): $(PYTHON)
+$(INSTALL_STAMP): $(PYTHON) setup.py
 	$(VENV)/bin/pip install -Ue .
 	touch $(INSTALL_STAMP)
 
@@ -23,7 +23,7 @@ install-postgres: $(INSTALL_STAMP)
 	$(VENV)/bin/pip install "cliquet[postgresql]"
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
-$(DEV_STAMP): $(PYTHON)
+$(DEV_STAMP): $(PYTHON) dev-requirements.txt
 	$(VENV)/bin/pip install -Ur dev-requirements.txt
 	touch $(DEV_STAMP)
 
