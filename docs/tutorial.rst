@@ -75,6 +75,13 @@ And post a sample record in the ``tasks`` collection:
         }
     }
 
+.. note::
+
+    With *Basic Auth*, users registration is , necessary, a unique user
+    identifier is built using any combination of username and password.
+    Consequently, users cannot change their password without loosing access to
+    their data.
+
 
 Let us fetch our new collection of tasks:
 
