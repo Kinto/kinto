@@ -62,10 +62,10 @@ class ViewSet(object):
 
     def __init__(self, **kwargs):
         self.update(**kwargs)
-        self.record_arguments = functools.partial(
-            self.get_view_arguments, 'record')
-        self.collection_arguments = functools.partial(
-            self.get_view_arguments, 'collection')
+        self.record_arguments = functools.partial(self.get_view_arguments,
+                                                  'record')
+        self.collection_arguments = functools.partial(self.get_view_arguments,
+                                                      'collection')
 
     def update(self, **kwargs):
         """Update viewset attributes with provided values."""
@@ -154,7 +154,8 @@ class ViewSet(object):
 
 class ProtectedViewSet(ViewSet):
     def get_record_schema(self, resource, method):
-        schema = super(ProtectedViewSet, self).get_record_schema(resource, method)
+        schema = super(ProtectedViewSet, self).get_record_schema(resource,
+                                                                 method)
 
         if method.lower() not in map(str.lower, self.validate_schema_for):
             return schema
@@ -166,7 +167,9 @@ class ProtectedViewSet(ViewSet):
         return schema
 
     def get_view_arguments(self, endpoint_type, resource, method):
-        args = super(ProtectedViewSet, self).get_view_arguments(endpoint_type, resource, method)
+        args = super(ProtectedViewSet, self).get_view_arguments(endpoint_type,
+                                                                resource,
+                                                                method)
         args['permission'] = authorization.DYNAMIC
         return args
 

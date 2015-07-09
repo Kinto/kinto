@@ -33,7 +33,6 @@ class BaseWebTest(unittest.TestCase):
 
         self.app = webtest.TestApp(self.config.make_wsgi_app())
         self.app.RequestClass = get_request_class(self.config.route_prefix)
-        self.item_url = '/mushrooms/{id}'
         self.principal = USER_PRINCIPAL
 
         self.headers = {
@@ -53,6 +52,8 @@ class BaseWebTest(unittest.TestCase):
 
 class AuthzAuthnTest(BaseWebTest):
     authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
+    # Protected resource.
+    collection_url = '/toadstools'
 
     def add_permission(self, object_id, permission):
         self.app.app.registry.permission.add_principal_to_ace(
@@ -60,9 +61,6 @@ class AuthzAuthnTest(BaseWebTest):
 
 
 class ProtectedResourcePermissionTest(AuthzAuthnTest):
-    # Protected resource.
-    collection_url = '/toadstools'
-
     def setUp(self):
         self.add_permission(self.collection_url, 'toadstool:create')
 
@@ -71,7 +69,7 @@ class ProtectedResourcePermissionTest(AuthzAuthnTest):
                 'permissions': {'read': ['group:readers']}}
         resp = self.app.post_json(self.collection_url, body,
                                   headers=self.headers)
-        object_uri = '/toadstools/%s' % resp.json['data']['id']
+        object_uri = self.get_item_url(resp.json['data']['id'])
         backend = self.app.app.registry.permission
         stored_perms = backend.object_permission_principals(object_uri, 'read')
         self.assertEqual(stored_perms, {'group:readers'})
@@ -117,7 +115,7 @@ class CollectionAuthzGrantedTest(AuthzAuthnTest):
         self.app.get(self.collection_url, headers=self.headers, status=200)
 
     def test_collection_post_is_granted_when_authorized(self):
-        self.add_permission(self.collection_url, 'mushroom:create')
+        self.add_permission(self.collection_url, 'toadstool:create')
         self.app.post_json(self.collection_url, {'data': MINIMALIST_RECORD},
                            headers=self.headers, status=201)
 
@@ -147,7 +145,7 @@ class CollectionAuthzDeniedTest(AuthzAuthnTest):
 class RecordAuthzGrantedTest(AuthzAuthnTest):
     def setUp(self):
         super(RecordAuthzGrantedTest, self).setUp()
-        self.add_permission(self.collection_url, 'mushroom:create')
+        self.add_permission(self.collection_url, 'toadstool:create')
 
         resp = self.app.post_json(self.collection_url,
                                   {'data': MINIMALIST_RECORD},
@@ -175,7 +173,7 @@ class RecordAuthzGrantedTest(AuthzAuthnTest):
                           headers=self.headers, status=200)
 
     def test_record_put_on_unexisting_record_is_granted_when_authorized(self):
-        self.add_permission(self.collection_url, 'mushroom:create')
+        self.add_permission(self.collection_url, 'toadstool:create')
         self.app.put_json(self.unknown_record_url, {'data': MINIMALIST_RECORD},
                           headers=self.headers, status=201)
 
@@ -184,17 +182,20 @@ class RecordAuthzDeniedTest(AuthzAuthnTest):
     def setUp(self):
         super(RecordAuthzDeniedTest, self).setUp()
         # Add permission to create a sample record.
-        self.add_permission(self.collection_url, 'mushroom:create')
+        self.add_permission(self.collection_url, 'toadstool:create')
         resp = self.app.post_json(self.collection_url,
                                   {'data': MINIMALIST_RECORD},
                                   headers=self.headers)
         self.record = resp.json['data']
         self.record_url = self.get_item_url()
         self.unknown_record_url = self.get_item_url(uuid.uuid4())
+        # Remove every permissions.
+        self.app.app.registry.permission.flush()
 
     def test_views_require_authentication(self):
         url = self.get_item_url('abc')
         self.app.get(url, status=401)
+        self.app.put_json(url, {'data': MINIMALIST_RECORD}, status=401)
         self.app.patch_json(url, {'data': MINIMALIST_RECORD}, status=401)
         self.app.delete(url, status=401)
 
@@ -215,7 +216,7 @@ class RecordAuthzDeniedTest(AuthzAuthnTest):
     def test_record_put_on_unexisting_record_is_rejected_if_write_perm(self):
         object_id = self.collection_url
         self.app.app.registry.permission.remove_principal_from_ace(
-            object_id, 'mushroom:create', self.principal)  # Was added in setUp
+            object_id, 'toadstool:create', self.principal)  # Added in setUp.
 
         self.app.app.registry.permission.add_principal_to_ace(
             object_id, 'write', self.principal)
@@ -417,6 +418,8 @@ class InvalidBodyTest(BaseWebTest):
 
 
 class InvalidPermissionsTest(BaseWebTest):
+    collection_url = '/toadstools'
+
     def setUp(self):
         super(InvalidPermissionsTest, self).setUp()
         body = {'data': MINIMALIST_RECORD}

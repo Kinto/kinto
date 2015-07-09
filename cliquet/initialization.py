@@ -21,7 +21,6 @@ from cliquet import errors
 from cliquet import logger
 from cliquet import utils
 from cliquet import statsd
-from cliquet import authorization
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone

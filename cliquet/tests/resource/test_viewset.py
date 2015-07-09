@@ -1,7 +1,6 @@
 import colander
 import mock
 
-from cliquet import authorization
 from cliquet.resource import ViewSet, register_resource
 
 from cliquet.tests.support import unittest
@@ -233,20 +232,8 @@ class ViewSetTest(unittest.TestCase):
             viewset.get_service_name('record', resource),
             'fakename-record')
 
-    def test_get_service_arguments_returns_factory_if_exists(self):
-        viewset = ViewSet(factory=mock.sentinel.factory)
-        service_arguments = viewset.get_service_arguments()
-        self.assertIn("factory", service_arguments)
-        self.assertEquals(service_arguments["factory"], mock.sentinel.factory)
-
-    def test_get_service_arguments_uses_cliquet_factory_by_default(self):
-        viewset = ViewSet()  # Don't provide a factory here.
-        service_arguments = viewset.get_service_arguments()
-        self.assertEquals(service_arguments['factory'],
-                          authorization.RouteFactory)
-
-    def test_get_service_arguments_skips_factory_if_none(self):
-        viewset = ViewSet(factory=None)
+    def test_get_service_arguments_has_no_factory_by_default(self):
+        viewset = ViewSet()
         service_arguments = viewset.get_service_arguments()
         self.assertNotIn('factory', service_arguments)
 
