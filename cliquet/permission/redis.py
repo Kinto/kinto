@@ -87,7 +87,9 @@ class Redis(PermissionBase):
 
         keys = get_bound_permissions(object_id, permission)
         keys = ['permission:%s:%s' % key for key in keys]
-        return self._decode_set(self._client.sunion(*list(keys)))
+        if keys:
+            return self._decode_set(self._client.sunion(*list(keys)))
+        return set([])
 
 
 def load_from_config(config):

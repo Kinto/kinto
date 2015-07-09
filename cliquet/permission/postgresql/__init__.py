@@ -146,6 +146,9 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         else:
             perms = get_bound_permissions(object_id, permission)
 
+        if not perms:
+            return set([])
+
         perms_values = ','.join(["('%s', '%s')" % p for p in perms])
         query = """
         WITH required_perms AS (
