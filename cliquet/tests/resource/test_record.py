@@ -27,8 +27,8 @@ class GetTest(BaseTest):
         # Create another one, bump collection timestamp.
         self.collection.create_record({'field': 'value'})
         self.resource.get()
-        self.assertEqual('"%s"' % record['last_modified'],
-                         self.last_response.headers['ETag'])
+        expected = ('"%s"' % record['last_modified']).encode('utf-8')
+        self.assertEqual(expected, self.last_response.headers['ETag'])
 
 
 class PutTest(BaseTest):
@@ -45,8 +45,8 @@ class PutTest(BaseTest):
     def test_etag_contains_record_new_timestamp(self):
         self.resource.request.validated = {'data': {'field': 'new'}}
         new = self.resource.put()['data']
-        self.assertEqual('"%s"' % new['last_modified'],
-                         self.last_response.headers['ETag'])
+        expected = ('"%s"' % new['last_modified']).encode('utf-8')
+        self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_returns_201_if_created(self):
         self.resource.record_id = self.resource.collection.id_generator()
@@ -102,14 +102,14 @@ class PatchTest(BaseTest):
         self.assertIn('ETag', self.last_response.headers)
 
     def test_etag_contains_record_new_timestamp(self):
-        self.assertEqual('"%s"' % self.result['last_modified'],
-                         self.last_response.headers['ETag'])
+        expected = ('"%s"' % self.result['last_modified']).encode('utf-8')
+        self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_etag_contains_old_timestamp_if_no_field_changed(self):
         self.resource.request.json = {'data': {'some': 'change'}}
         self.resource.patch()['data']
-        self.assertEqual('"%s"' % self.result['last_modified'],
-                         self.last_response.headers['ETag'])
+        expected = ('"%s"' % self.result['last_modified']).encode('utf-8')
+        self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_modify_record_updates_timestamp(self):
         before = self.stored['last_modified']
