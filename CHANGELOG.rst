@@ -6,8 +6,10 @@ This document describes changes between each past release.
 2.2.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**New features**
 
+- Provide details about existing record in ``412`` error responses
+  (fixes mozilla-services/kinto#122)
 
 2.2.1 (unreleased)
 ------------------
