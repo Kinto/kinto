@@ -42,8 +42,11 @@ However, a basic ref:`<set of errors codes <errors>`_ is provided in *Cliquet*.
 Precondition errors
 ===================
 
-When an operation is cancelled because of concurrency (using ETags), a
-``412 Precondition Failed`` error response is returned.
+As detailed in the :ref:`timestamps  <server-timestamps>` section, it is
+possible to add concurrency control using ``ETag`` request headers.
+
+When a concurrency error occurs, a ``412 Precondition Failed`` error response
+is returned.
 
 Additional information about the record currently stored on the server will be
 provided in the ``details`` field:
@@ -58,7 +61,8 @@ provided in the ``details`` field:
         "details": {
             "existing": {
                 "last_modified": 1436434441550,
-                "id": "00dd028f-16f7-4755-ab0d-e0dc0cb5da92"
+                "id": "00dd028f-16f7-4755-ab0d-e0dc0cb5da92",
+                "title": "Original title"
             }
         },
     }
