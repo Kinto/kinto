@@ -127,6 +127,14 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.principals = []
         self.permission = 'dynamic'
 
+    def test_permits_does_not_refer_to_context_if_permission_is_private(self):
+        self.assertFalse(self.authz.permits(None, [], 'private'))
+
+    def test_permits_return_if_authenticated_when_permission_is_private(self):
+        self.assertTrue(self.authz.permits(None,
+                                           ['system.Authenticated'],
+                                           'private'))
+
     def test_permits_refers_to_context_to_check_permissions(self):
         self.context.check_permission.return_value = True
         allowed = self.authz.permits(self.context, self.principals, 'dynamic')

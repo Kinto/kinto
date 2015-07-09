@@ -2,7 +2,7 @@ import re
 import six
 import functools
 from pyramid.settings import aslist
-from pyramid.security import IAuthorizationPolicy
+from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
 from cliquet import utils
@@ -10,6 +10,9 @@ from cliquet.storage import exceptions as storage_exceptions
 
 # A permission is called "dynamic" when it's computed at request time.
 DYNAMIC = 'dynamic'
+
+# When permission is set to "private", only the current user is allowed.
+PRIVATE = 'private'
 
 
 @implementer(IAuthorizationPolicy)
@@ -19,6 +22,9 @@ class AuthorizationPolicy(object):
     get_bound_permissions = None
 
     def permits(self, context, principals, permission):
+        if permission == PRIVATE:
+            return Authenticated in principals
+
         # Add prefixed user id to principals.
         if context.prefixed_userid:
             principals = principals + [context.prefixed_userid]

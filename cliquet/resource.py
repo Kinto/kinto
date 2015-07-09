@@ -46,7 +46,9 @@ class ViewSet(object):
         'error_handler': json_error_handler
     }
 
-    default_arguments = {}
+    default_arguments = {
+        'permission': authorization.PRIVATE
+    }
 
     default_collection_arguments = {}
     collection_get_arguments = {
@@ -60,16 +62,16 @@ class ViewSet(object):
 
     def __init__(self, **kwargs):
         self.update(**kwargs)
-        self.record_arguments = functools.partial(
-            self.get_view_args, 'record')
-        self.collection_arguments = functools.partial(
-            self.get_view_args, 'collection')
+        self.record_arguments = functools.partial(self.get_view_arguments,
+                                                  'record')
+        self.collection_arguments = functools.partial(self.get_view_arguments,
+                                                      'collection')
 
     def update(self, **kwargs):
         """Update viewset attributes with provided values."""
         self.__dict__.update(**kwargs)
 
-    def get_view_args(self, endpoint_type, resource, method):
+    def get_view_arguments(self, endpoint_type, resource, method):
         """Return the Pyramid/Cornice view arguments for the given endpoint
         type and method.
 
@@ -97,14 +99,8 @@ class ViewSet(object):
             # Simply validate that posted body is a mapping.
             return colander.MappingSchema(unknown='preserve')
 
-        # XXX: https://github.com/mozilla-services/cliquet/issues/322
-        resource_permissions = getattr(resource, 'permissions', tuple())
-
         class RecordPayload(colander.MappingSchema):
             data = resource.mapping
-            permissions = PermissionsSchema(
-                missing=colander.drop,
-                permissions=resource_permissions)
 
             def schema_type(self, **kw):
                 return colander.Mapping(unknown='raise')
@@ -143,11 +139,7 @@ class ViewSet(object):
             endpoint_type=endpoint_type)
 
     def get_service_arguments(self):
-        service_arguments = {}
-        if hasattr(self, 'factory'):
-            service_arguments['factory'] = self.factory
-        service_arguments.update(self.service_arguments)
-        return service_arguments
+        return self.service_arguments.copy()
 
     def is_endpoint_enabled(self, endpoint_type, resource_name, method,
                             settings):
@@ -158,6 +150,33 @@ class ViewSet(object):
         setting_enabled = 'cliquet.%s_%s_%s_enabled' % (
             endpoint_type, resource_name, method.lower())
         return settings.get(setting_enabled, True)
+
+
+class ProtectedViewSet(ViewSet):
+    def get_record_schema(self, resource, method):
+        schema = super(ProtectedViewSet, self).get_record_schema(resource,
+                                                                 method)
+
+        if method.lower() not in map(str.lower, self.validate_schema_for):
+            return schema
+
+        permissions_node = PermissionsSchema(missing=colander.drop,
+                                             permissions=resource.permissions,
+                                             name='permissions')
+        schema.add(permissions_node)
+        return schema
+
+    def get_view_arguments(self, endpoint_type, resource, method):
+        args = super(ProtectedViewSet, self).get_view_arguments(endpoint_type,
+                                                                resource,
+                                                                method)
+        args['permission'] = authorization.DYNAMIC
+        return args
+
+    def get_service_arguments(self):
+        args = super(ProtectedViewSet, self).get_service_arguments()
+        args['factory'] = authorization.RouteFactory
+        return args
 
 
 def register(depth=1, **kwargs):
@@ -173,11 +192,11 @@ def register(depth=1, **kwargs):
     return wrapped
 
 
-def register_resource(resource, settings=None, viewset=None, depth=1,
+def register_resource(resource_cls, settings=None, viewset=None, depth=1,
                       **kwargs):
     """Register a resource in the cornice registry.
 
-    :param resource:
+    :param resource_cls:
         The resource class to register.
         It should be a class or have a "name" attribute.
 
@@ -193,11 +212,11 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
     attributes.
     """
     if viewset is None:
-        viewset = ViewSet(**kwargs)
+        viewset = resource_cls.default_viewset(**kwargs)
     else:
         viewset.update(**kwargs)
 
-    resource_name = viewset.get_name(resource)
+    resource_name = viewset.get_name(resource_cls)
 
     path_formatters = {
         'resource_name': resource_name
@@ -208,14 +227,14 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         path_pattern = getattr(viewset, '%s_path' % endpoint_type)
         path = path_pattern.format(**path_formatters)
 
-        name = viewset.get_service_name(endpoint_type, resource)
+        name = viewset.get_service_name(endpoint_type, resource_cls)
 
         service = Service(name, path, depth=depth,
                           **viewset.get_service_arguments())
 
         # Attach viewset and resource to the service for later reference.
         service.viewset = viewset
-        service.resource = resource
+        service.resource = resource_cls
         service.collection_path = viewset.collection_path.format(
             **path_formatters)
         service.record_path = viewset.record_path.format(**path_formatters)
@@ -227,10 +246,10 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
                 continue
 
             argument_getter = getattr(viewset, '%s_arguments' % endpoint_type)
-            view_args = argument_getter(resource, method)
+            view_args = argument_getter(resource_cls, method)
 
             view = viewset.get_view(endpoint_type, method.lower())
-            service.add_view(method, view, klass=resource, **view_args)
+            service.add_view(method, view, klass=resource_cls, **view_args)
 
         return service
 
@@ -244,13 +263,16 @@ def register_resource(resource, settings=None, viewset=None, depth=1,
         for service in services:
             config.add_cornice_service(service)
 
-    info = venusian.attach(resource, callback, category='pyramid',
+    info = venusian.attach(resource_cls, callback, category='pyramid',
                            depth=depth)
     return callback
 
 
 class BaseResource(object):
     """Base resource class providing every endpoint."""
+
+    default_viewset = ViewSet
+    """Default viewset class to use when the resource is registered."""
 
     mapping = ResourceSchema()
     """Schema to validate records."""
@@ -1011,6 +1033,8 @@ class BaseResource(object):
 
 
 class ProtectedResource(BaseResource):
+
+    default_viewset = ProtectedViewSet
     permissions = ('read', 'write')
 
     def _store_permissions(self, object_id, replace=False):

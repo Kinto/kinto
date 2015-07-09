@@ -1,7 +1,8 @@
 import colander
 import mock
 
-from cliquet.resource import ViewSet, register_resource
+from cliquet import authorization
+from cliquet.resource import ViewSet, ProtectedViewSet, register_resource
 
 from cliquet.tests.support import unittest
 
@@ -56,6 +57,11 @@ class ViewSetTest(unittest.TestCase):
         arguments = viewset.collection_arguments(mock.sentinel.resource, 'GET')
         self.assertEquals(original_arguments, {})
         self.assertNotEquals(original_arguments, arguments)
+
+    def test_permission_private_is_set_by_default(self):
+        viewset = ViewSet()
+        args = viewset.collection_arguments(mock.sentinel.resource, 'GET')
+        self.assertEquals(args['permission'], 'private')
 
     def test_schema_is_added_when_method_matches(self):
         viewset = ViewSet(
@@ -232,16 +238,10 @@ class ViewSetTest(unittest.TestCase):
             viewset.get_service_name('record', resource),
             'fakename-record')
 
-    def test_get_service_arguments_returns_factory_if_exists(self):
-        viewset = ViewSet(factory=mock.sentinel.factory)
+    def test_get_service_arguments_has_no_factory_by_default(self):
+        viewset = ViewSet()
         service_arguments = viewset.get_service_arguments()
-        self.assertIn("factory", service_arguments)
-        self.assertEquals(service_arguments["factory"], mock.sentinel.factory)
-
-    def test_get_service_arguments_ignore_factory_if_not_exists(self):
-        viewset = ViewSet()  # Don't provide a factory here.
-        service_arguments = viewset.get_service_arguments()
-        self.assertNotIn("factory", service_arguments)
+        self.assertNotIn('factory', service_arguments)
 
     def test_is_endpoint_enabled_returns_true_if_unknown(self):
         viewset = ViewSet()
@@ -269,6 +269,18 @@ class ViewSetTest(unittest.TestCase):
         self.assertTrue(is_enabled)
 
 
+class ProtectedViewSetTest(unittest.TestCase):
+    def test_permission_dynamic_is_set_by_default(self):
+        viewset = ProtectedViewSet()
+        args = viewset.collection_arguments(mock.sentinel.resource, 'GET')
+        self.assertEquals(args['permission'], 'dynamic')
+
+    def test_get_service_arguments_has_default_factory(self):
+        viewset = ProtectedViewSet()
+        args = viewset.get_service_arguments()
+        self.assertEqual(args['factory'], authorization.RouteFactory)
+
+
 class RegisterTest(unittest.TestCase):
 
     def setUp(self):
@@ -282,6 +294,13 @@ class RegisterTest(unittest.TestCase):
                           **additional_params)
         self.viewset.update.assert_called_with(**additional_params)
 
+    def test_resource_default_viewset_is_used_if_not_provided(self):
+        resource = FakeResource
+        resource.default_viewset = mock.Mock()
+        additional_params = {'foo': 'bar'}
+        register_resource(resource, **additional_params)
+        resource.default_viewset.assert_called_with(**additional_params)
+
     @mock.patch('cliquet.resource.Service')
     def test_collection_views_are_registered_in_cornice(self, service_class):
         venusian_callback = register_resource(
@@ -291,7 +310,7 @@ class RegisterTest(unittest.TestCase):
         venusian_callback(context, None, None)
 
         service_class.assert_any_call('fake-collection', '/fake', depth=1,
-                                      **self.viewset.service_arguments)
+                                      **self.viewset.get_service_arguments())
         service_class().add_view.assert_any_call(
             'GET', 'collection_get', klass=self.resource)
 
@@ -304,7 +323,7 @@ class RegisterTest(unittest.TestCase):
         venusian_callback(context, None, None)
 
         service_class.assert_any_call('fake-record', '/fake/{id}', depth=1,
-                                      **self.viewset.service_arguments)
+                                      **self.viewset.get_service_arguments())
         service_class().add_view.assert_any_call(
             'PUT', 'put', klass=self.resource)
 
@@ -325,7 +344,7 @@ class RegisterTest(unittest.TestCase):
         # one for the collection_get
         self.assertEquals(len(service_cls.mock_calls), 3)
         service_cls.assert_any_call('fake-collection', '/fake', depth=1,
-                                    **self.viewset.service_arguments)
+                                    **self.viewset.get_service_arguments())
         service_cls().add_view.assert_any_call(
             'GET', 'collection_get', klass=self.resource)
 
@@ -346,6 +365,6 @@ class RegisterTest(unittest.TestCase):
         # one for the collection_get
         self.assertEquals(len(service_class.mock_calls), 3)
         service_class.assert_any_call('fake-record', '/fake/{id}', depth=1,
-                                      **self.viewset.service_arguments)
+                                      **self.viewset.get_service_arguments())
         service_class().add_view.assert_any_call(
             'PUT', 'put', klass=self.resource)

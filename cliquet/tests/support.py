@@ -12,10 +12,11 @@ import webtest
 
 from cornice import errors as cornice_errors
 from pyramid.url import parse_url_overrides
-from pyramid.security import IAuthorizationPolicy
+from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
 from cliquet import DEFAULT_SETTINGS
+from cliquet.authorization import PRIVATE
 from cliquet.storage import generators
 from cliquet.tests.testapp import main as testapp
 from cliquet.utils import psycopg2
@@ -122,8 +123,11 @@ class ThreadMixin(object):
 @implementer(IAuthorizationPolicy)
 class AllowAuthorizationPolicy(object):
     def permits(self, context, principals, permission):
+        if permission == PRIVATE:
+            return Authenticated in principals
         # Cliquet default authz policy uses prefixed_userid.
-        return USER_PRINCIPAL in (principals + [context.prefixed_userid])
+        prefixed = [getattr(context, 'prefixed_userid', None)]
+        return USER_PRINCIPAL in (principals + prefixed)
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER
