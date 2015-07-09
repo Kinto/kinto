@@ -41,7 +41,6 @@ Full example
 
             return new
 
-
 See the :github:`ReadingList <mozilla-services/readinglist>` and
 :github:`Kinto <mozilla-services/kinto>` projects source code for real use cases.
 

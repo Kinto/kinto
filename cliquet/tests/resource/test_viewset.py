@@ -1,7 +1,8 @@
 import colander
 import mock
 
-from cliquet.resource import ViewSet, register_resource
+from cliquet import authorization
+from cliquet.resource import ViewSet, ProtectedViewSet, register_resource
 
 from cliquet.tests.support import unittest
 
@@ -56,6 +57,11 @@ class ViewSetTest(unittest.TestCase):
         arguments = viewset.collection_arguments(mock.sentinel.resource, 'GET')
         self.assertEquals(original_arguments, {})
         self.assertNotEquals(original_arguments, arguments)
+
+    def test_permission_private_is_set_by_default(self):
+        viewset = ViewSet()
+        args = viewset.collection_arguments(mock.sentinel.resource, 'GET')
+        self.assertEquals(args['permission'], 'private')
 
     def test_schema_is_added_when_method_matches(self):
         viewset = ViewSet(
@@ -263,6 +269,18 @@ class ViewSetTest(unittest.TestCase):
         self.assertTrue(is_enabled)
 
 
+class ProtectedViewSetTest(unittest.TestCase):
+    def test_permission_dynamic_is_set_by_default(self):
+        viewset = ProtectedViewSet()
+        args = viewset.collection_arguments(mock.sentinel.resource, 'GET')
+        self.assertEquals(args['permission'], 'dynamic')
+
+    def test_get_service_arguments_has_default_factory(self):
+        viewset = ProtectedViewSet()
+        args = viewset.get_service_arguments()
+        self.assertEqual(args['factory'], authorization.RouteFactory)
+
+
 class RegisterTest(unittest.TestCase):
 
     def setUp(self):
@@ -275,6 +293,13 @@ class RegisterTest(unittest.TestCase):
         register_resource(self.resource, viewset=self.viewset,
                           **additional_params)
         self.viewset.update.assert_called_with(**additional_params)
+
+    def test_resource_default_viewset_is_used_if_not_provided(self):
+        resource = FakeResource
+        resource.default_viewset = mock.Mock()
+        additional_params = {'foo': 'bar'}
+        register_resource(resource, **additional_params)
+        resource.default_viewset.assert_called_with(**additional_params)
 
     @mock.patch('cliquet.resource.Service')
     def test_collection_views_are_registered_in_cornice(self, service_class):

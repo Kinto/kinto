@@ -50,6 +50,41 @@ class BaseWebTest(unittest.TestCase):
         return self.collection_url + '/' + str(id)
 
 
+class BaseResourcePermissionTest(BaseWebTest):
+    authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
+
+    def test_views_require_authentication(self):
+        self.app.get(self.collection_url, status=401)
+        body = {'data': MINIMALIST_RECORD}
+        self.app.post_json(self.collection_url, body, status=401)
+        record_url = self.get_item_url('abc')
+        self.app.get(record_url, status=401)
+        self.app.put_json(record_url, body, status=401)
+        self.app.patch_json(record_url, body, status=401)
+        self.app.delete(record_url, status=401)
+
+    def test_collection_operations_are_authorized_if_authenticated(self):
+        body = {'data': MINIMALIST_RECORD}
+        self.app.get(self.collection_url, headers=self.headers, status=200)
+        self.app.post_json(self.collection_url, body,
+                           headers=self.headers, status=201)
+        self.app.delete(self.collection_url, headers=self.headers, status=200)
+
+    def test_record_operations_are_authorized_if_authenticated(self):
+        body = {'data': MINIMALIST_RECORD}
+        resp = self.app.post_json(self.collection_url, body,
+                                  headers=self.headers, status=201)
+        record = resp.json['data']
+        record_url = self.get_item_url(record['id'])
+        unknown_url = self.get_item_url(uuid.uuid4())
+
+        self.app.get(record_url, headers=self.headers, status=200)
+        self.app.patch_json(record_url, body, headers=self.headers, status=200)
+        self.app.delete(record_url, headers=self.headers, status=200)
+        self.app.put_json(record_url, body, headers=self.headers, status=200)
+        self.app.put_json(unknown_url, body, headers=self.headers, status=201)
+
+
 class AuthzAuthnTest(BaseWebTest):
     authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
     # Protected resource.
@@ -429,6 +464,13 @@ class InvalidPermissionsTest(BaseWebTest):
         self.record = resp.json['data']
         self.invalid_body = {'data': MINIMALIST_RECORD,
                              'permissions': {'read': 'book'}}
+
+    def test_permissions_are_not_accepted_on_normal_resources(self):
+        body = {'data': MINIMALIST_RECORD,
+                'permissions': {'read': ['book']}}
+        resp = self.app.post_json('/mushrooms', body, headers=self.headers,
+                                  status=400)
+        self.assertEqual(resp.json['message'], 'permissions is not allowed')
 
     def test_create_invalid_body_returns_400(self):
         self.app.post_json(self.collection_url,
