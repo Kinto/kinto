@@ -792,9 +792,11 @@ class BaseResource(object):
 
         if current_timestamp > modified_since:
             error_msg = 'Resource was modified meanwhile'
+            details = {'existing': record} if record else {}
             response = http_error(HTTPPreconditionFailed(),
                                   errno=ERRORS.MODIFIED_MEANWHILE,
-                                  message=error_msg)
+                                  message=error_msg,
+                                  details=details)
             self._add_timestamp_header(response, timestamp=current_timestamp)
             raise response
 

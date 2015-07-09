@@ -82,6 +82,7 @@ class ModifiedMeanwhileTest(BaseTest):
             error = e
         self.assertEqual(error.json, {
             'errno': ERRORS.MODIFIED_MEANWHILE,
+            'details': {},
             'message': 'Resource was modified meanwhile',
             'code': 412,
             'error': 'Precondition Failed'})
@@ -90,6 +91,13 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.collection_get)
 
+    def test_412_errors_on_collection_do_not_provide_existing_record(self):
+        try:
+            self.resource.collection_get()
+        except httpexceptions.HTTPPreconditionFailed as e:
+            error = e
+        self.assertNotIn('existing', error.json['details'])
+
     def test_412_on_collection_has_last_modified_timestamp(self):
         try:
             self.resource.collection_get()
@@ -97,6 +105,15 @@ class ModifiedMeanwhileTest(BaseTest):
             error = e
         self.assertIsNotNone(error.headers.get('ETag'))
         self.assertIsNotNone(error.headers.get('Last-Modified'))
+
+    def test_412_errors_on_record_provide_existing_data(self):
+        self.resource.record_id = self.stored['id']
+        try:
+            self.resource.put()
+        except httpexceptions.HTTPPreconditionFailed as e:
+            error = e
+        self.assertEqual(error.json['details']['existing'],
+                         self.stored)
 
     def test_single_record_returns_412_if_changed_meanwhile(self):
         self.resource.record_id = self.stored['id']

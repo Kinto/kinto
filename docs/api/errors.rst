@@ -39,6 +39,31 @@ Errors are meant to be managed at the project level.
 However, a basic ref:`<set of errors codes <errors>`_ is provided in *Cliquet*.
 
 
+Precondition errors
+===================
+
+When an operation is cancelled because of concurrency (using ETags), a
+``412 Precondition Failed`` error response is returned.
+
+Additional information about the record currently stored on the server will be
+provided in the ``details`` field:
+
+::
+
+    {
+        "code": 412,
+        "errno": 114,
+        "error":"Precondition Failed"
+        "message": "Resource was modified meanwhile",
+        "details": {
+            "existing": {
+                "last_modified": 1436434441550,
+                "id": "00dd028f-16f7-4755-ab0d-e0dc0cb5da92"
+            }
+        },
+    }
+
+
 Conflict errors
 ===============
 
