@@ -21,6 +21,7 @@ This document describes changes between each past release.
 - Default resources do not hit the permission backend anymore
 - Default viewset was split and does not handle permissions anymore (fixes #322)
 - Permissions on views is now set only on resources
+- Fix lost querystring during version redirection (fixes #364)
 
 
 2.2.1 (2015-07-06)

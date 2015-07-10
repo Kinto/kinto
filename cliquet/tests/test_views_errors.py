@@ -155,3 +155,8 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         })
 
         app.get('/', status=404)
+
+    def test_querystring_is_preserved_during_redirection(self):
+        response = self.app.get('/home/articles?_since=42')
+        self.assertEqual(response.location,
+                         'http://localhost/v0/home/articles?_since=42')
