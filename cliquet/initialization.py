@@ -204,6 +204,8 @@ def setup_statsd(config):
 
         client.watch_execution_time(config.registry.cache, prefix='cache')
         client.watch_execution_time(config.registry.storage, prefix='storage')
+        client.watch_execution_time(config.registry.permission,
+                                    prefix='permission')
 
         # Commit so that configured policy can be queried.
         config.commit()

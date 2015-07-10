@@ -11,6 +11,7 @@ This document describes changes between each past release.
 - Provide details about existing record in ``412`` error responses
   (fixes mozilla-services/kinto#122)
 - Add ETag on record PUT/PATCH responses (fixes #352)
+- Add StatsD counters for the permission backend
 
 **Bug fixes**
 
