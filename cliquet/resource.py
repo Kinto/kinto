@@ -584,6 +584,11 @@ class BaseResource(object):
                     unique_fields=unique_fields)
             except storage_exceptions.UnicityError as e:
                 self._raise_conflict(e)
+        else:
+            # Behave as if storage would have added `id` and `last_modified`.
+            for extra_field in [self.collection.modified_field,
+                                self.collection.id_field]:
+                new_record[extra_field] = old_record[extra_field]
 
         # Adjust response according to ``Response-Behavior`` header
         body_behavior = self.request.headers.get('Response-Behavior', 'full')
