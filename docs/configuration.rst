@@ -69,8 +69,34 @@ And configure its URL:
     # StatsD
     cliquet.statsd_url = udp://carbon.server:8125
 
+The following counters will be enabled:
 
-In order to enable *Heka* logging output:
+* ``users`` (unique user ids)
+* ``authn_type.basicauth``
+* ``authn_type.fxa``
+
+And the following timers:
+
+* ``authentication.permits``
+* ``view.hello.GET``
+* ``view.heartbeat.GET``
+* ``view.batch.POST``
+* ``view.bucket-[record|collection].[GET|POST|PUT|PATCH|DELETE]``
+* ``view.collection-[record|collection].[GET|POST|PUT|PATCH|DELETE]``
+* ``view.group-[record|collection].[GET|POST|PUT|PATCH|DELETE]``
+* ``view.record-[record|collection].[GET|POST|PUT|PATCH|DELETE]``
+* ``cache.[ping|ttl|expire|set|get|delete]``
+* ``storage.[ping|collection_timestamp|create|get|update|delete|delete_all|get_all]``
+* ``permission.[add_user_principal|remove_user_principal|user_principals|add_principal_to_ace|remove_principal_from_ace|object_permission_principals|check_permission]``
+
+
+Heka Logging
+------------
+
+At Mozilla, applications log files follow a specific JSON schema, that is
+processed through `Heka <http://hekad.readthedocs.org>`_.
+
+In order to enable Mozilla *Heka* logging output:
 
 .. code-block :: ini
 

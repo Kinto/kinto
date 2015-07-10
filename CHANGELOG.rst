@@ -7,8 +7,9 @@ This document describes changes between each past release.
 1.2.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Internal changes**
 
+- List StatsD counters and timers in documentation (fixes #73)
 
 1.2.1 (2015-07-08)
 ==================
