@@ -39,8 +39,9 @@ class StatsdClientTest(unittest.TestCase):
             'test.testedclass.test_method')
 
     def test_private_methods_does_not_generates_statsd_calls(self):
+        self.mocked_client.reset_mock()
         self.test_object._private_method()
-        self.mocked_client.timer.assert_not_called()
+        self.assertFalse(self.mocked_client.timer.called)
 
     def test_count_increments_the_counter_for_key(self):
         with mock.patch.object(self.client, '_client') as mocked_client:

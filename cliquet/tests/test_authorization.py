@@ -173,7 +173,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
     def test_permits_takes_route_factory_allowed_principals_into_account(self):
         self.context.resource_name = 'record'
         self.context.required_permission = 'create'
-        self.allowed_principals = ['fxa:user']
+        self.context.allowed_principals = ['fxa:user']
         has_permission = self.authz.permits(
             self.context, ['fxa:user'], 'dynamic')
         self.context.check_permission.assert_not_called()
