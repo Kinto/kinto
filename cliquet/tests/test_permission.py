@@ -210,11 +210,20 @@ class BaseTestPermission(object):
         object_id = 'foo'
         permissions = set([])
         user_id = 'bar'
-        self.permission.add_principal_to_ace(object_id, 'write',
-                                                        user_id)
+        self.permission.add_principal_to_ace(object_id, 'write', user_id)
         principals = self.permission.object_permission_authorized_principals(
             object_id, 'read', lambda object_id, permission: permissions)
         self.assertEquals(principals, set([]))
+
+    def test_check_permissions_handles_empty_set(self):
+        object_id = 'foo'
+        permissions = set([])
+        principal = 'bar'
+        self.permission.add_principal_to_ace(object_id, 'write', principal)
+        permits = self.permission.check_permission(
+            object_id, 'read', {principal},
+            lambda object_id, permission: permissions)
+        self.assertFalse(permits)
 
     def test_check_permission_return_false_for_unknown_principal(self):
         object_id = 'foo'

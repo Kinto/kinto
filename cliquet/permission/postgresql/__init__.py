@@ -170,6 +170,9 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         else:
             perms = get_bound_permissions(object_id, permission)
 
+        if not perms:
+            return False
+
         perms_values = ','.join(["('%s', '%s')" % p for p in perms])
         principals_values = ','.join(["('%s')" % p for p in principals])
         query = """
