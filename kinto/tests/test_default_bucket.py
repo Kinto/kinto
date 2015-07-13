@@ -67,3 +67,17 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
                              'Origin': 'http://localhost:8000',
                              'Access-Control-Request-Method': 'GET',
                              'Access-Control-Request-Headers': headers})
+
+    def test_cors_headers_are_provided_on_errors(self):
+        resp = self.app.post_json(self.collection_url + '/records',
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers)
+        current = resp.json['data']['last_modified']
+        headers = self.headers.copy()
+        headers.update({
+            'Origin': 'http://localhost:8000',
+            'If-None-Match': ('"%s"' % current).encode('utf-8')
+        })
+        resp = self.app.get(self.collection_url + '/records',
+                            headers=headers, status=304)
+        self.assertIn('Access-Control-Allow-Origin', resp.headers)
