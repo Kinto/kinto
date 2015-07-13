@@ -58,14 +58,14 @@ class SimulationLoadTest(BaseLoadTest):
 
             This method is called as many times as number of hits.
         """
-        resp = self.session.get(self.collection_url(), auth=self.auth)
+        resp = self.session.get(self.collection_url())
         records = resp.json()['data']
 
         # Create some records, if not any in collection.
         if len(records) < self.nb_initial_records:
             for i in range(self.nb_initial_records):
                 self.create()
-            resp = self.session.get(self.collection_url(), auth=self.auth)
+            resp = self.session.get(self.collection_url())
             records = resp.json()['data']
 
         # Pick a random record
@@ -104,7 +104,6 @@ class SimulationLoadTest(BaseLoadTest):
         resp = self.session.post(
             self.collection_url(),
             data=json.dumps({'data': article}),
-            auth=self.auth,
             headers={'Content-Type': 'application/json'})
         self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, 201)
@@ -133,21 +132,19 @@ class SimulationLoadTest(BaseLoadTest):
         queryparams = random.choice(queries)
         query_url = '&'.join(['='.join(param) for param in queryparams])
         url = self.collection_url() + '?' + query_url
-        resp = self.session.get(url, auth=self.auth)
+        resp = self.session.get(url)
         self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def _patch(self, url, data, status=200):
         data = json.dumps(data)
-        resp = self.session.patch(url, data, auth=self.auth)
+        resp = self.session.patch(url, data)
         self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, status)
 
     def _run_batch(self, data):
         resp = self.session.post(self.api_url('batch'),
-                                 data=json.dumps(data),
-                                 auth=self.auth,
-                                 headers={'Content-Type': 'application/json'})
+                                 data=json.dumps(data))
         self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 200)
         for subresponse in resp.json()['responses']:
@@ -163,14 +160,14 @@ class SimulationLoadTest(BaseLoadTest):
         self._patch(self.random_url, data)
 
     def delete(self):
-        resp = self.session.delete(self.random_url, auth=self.auth)
+        resp = self.session.delete(self.random_url)
         self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def batch_delete(self):
         # Get some random articles on which the batch will be applied
         url = self.collection_url() + '?_limit=5&_sort=title'
-        resp = self.session.get(url, auth=self.auth)
+        resp = self.session.get(url)
         articles = resp.json()['data']
         urls = [self.record_url(a['id'], prefix=False)
                 for a in articles]
@@ -190,12 +187,12 @@ class SimulationLoadTest(BaseLoadTest):
         last_modified = self.random_record['last_modified']
         filters = '?_since=%s' % last_modified
         modified_url = self.collection_url() + filters
-        resp = self.session.get(modified_url, auth=self.auth)
+        resp = self.session.get(modified_url)
         self.assertEqual(resp.status_code, 200)
 
     def list_archived(self):
         archived_url = self.collection_url() + '?archived=true'
-        resp = self.session.get(archived_url, auth=self.auth)
+        resp = self.session.get(archived_url)
         self.assertEqual(resp.status_code, 200)
 
     def batch_count(self):
@@ -218,7 +215,7 @@ class SimulationLoadTest(BaseLoadTest):
         modif = self.random_record['last_modified']
         filters = '?_since=%s&deleted=true' % modif
         deleted_url = self.collection_url() + filters
-        resp = self.session.get(deleted_url, auth=self.auth)
+        resp = self.session.get(deleted_url)
         self.assertEqual(resp.status_code, 200)
 
     def list_continuated_pagination(self):
@@ -227,7 +224,7 @@ class SimulationLoadTest(BaseLoadTest):
         urls = []
 
         while paginated_url:
-            resp = self.session.get(paginated_url, auth=self.auth)
+            resp = self.session.get(paginated_url)
             self.assertEqual(resp.status_code, 200)
             next_page = resp.headers.get("Next-Page")
             if next_page is not None and next_page not in urls:

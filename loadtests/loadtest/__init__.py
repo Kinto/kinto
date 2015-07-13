@@ -35,6 +35,9 @@ class BaseLoadTest(TestCase):
             self.random_user = uuid.uuid4().hex
             self.auth = HTTPBasicAuth(self.random_user, 'secret')
 
+        self.session.auth = self.auth
+        self.session.headers.update({'Content-Type': 'application/json'})
+
         # Keep track of created objects.
         self._collections_created = {}
 
@@ -73,14 +76,10 @@ class BaseLoadTest(TestCase):
         if collection not in self._collections_created:
             self.session.put(bucket_url,
                              data=json.dumps({'data': {}}),
-                             auth=self.auth,
-                             headers={'If-None-Match': '*',
-                                      'Content-Type': 'application/json'})
+                             headers={'If-None-Match': '*'})
             self.session.put(collection_url,
                              data=json.dumps({'data': {}}),
-                             auth=self.auth,
-                             headers={'If-None-Match': '*',
-                                      'Content-Type': 'application/json'})
+                             headers={'If-None-Match': '*'})
             self._collections_created[collection] = True
 
         return collection_url + '/records'
