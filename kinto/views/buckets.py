@@ -1,12 +1,13 @@
 from six import text_type
 from uuid import UUID
 
-from pyramid.httpexceptions import HTTPForbidden, HTTPPreconditionFailed
+from pyramid.httpexceptions import (HTTPForbidden, HTTPPreconditionFailed,
+                                    HTTPException)
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
 from cliquet import resource
-from cliquet.utils import hmac_digest, build_request
+from cliquet.utils import hmac_digest, build_request, reapply_cors
 
 from kinto.views import NameGenerator
 
@@ -86,7 +87,11 @@ def default_bucket(request):
         'body': request.body
     })
 
-    return request.invoke_subrequest(subrequest)
+    try:
+        response = request.invoke_subrequest(subrequest)
+    except HTTPException as error:
+        response = reapply_cors(subrequest, error)
+    return response
 
 
 @resource.register(name='bucket',
