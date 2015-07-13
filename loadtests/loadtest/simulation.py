@@ -3,6 +3,8 @@ import os
 import random
 import uuid
 
+from . import BaseLoadTest
+
 ACTIONS_FREQUENCIES = [
     ('create', 20),
     ('batch_create', 50),
@@ -29,7 +31,11 @@ def build_article():
     return data
 
 
-class SimulationLoadTestMixin(object):
+class SimulationLoadTest(BaseLoadTest):
+
+    def __init__(self, *args, **kwargs):
+        super(SimulationLoadTest, self).__init__(*args, **kwargs)
+        self.init_article()
 
     def init_article(self, *args, **kwargs):
         """Initialization that happens once per user.
@@ -44,9 +50,6 @@ class SimulationLoadTestMixin(object):
 
         self.bucket = 'default'
         self.collection = 'articles'
-
-        # Keep track of created objects.
-        self._collections_created = {}
 
     def setUp(self):
         """Choose some random records in the whole collection.
@@ -76,7 +79,7 @@ class SimulationLoadTestMixin(object):
         self.random_id_2 = self.random_record_2['id']
         self.random_url_2 = self.record_url(self.random_id_2)
 
-    def play_a_random_endpoint(self):
+    def test_simulation(self):
         """Choose a random action among available, if not frequent enough,
         try again recursively.
 
@@ -94,7 +97,7 @@ class SimulationLoadTestMixin(object):
             self.incr_counter(action)
             return getattr(self, action)()
         else:
-            self.play_a_random_endpoint()
+            self.test_simulation()
 
     def create(self):
         article = build_article()

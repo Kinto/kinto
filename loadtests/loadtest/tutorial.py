@@ -4,6 +4,7 @@ import re
 import uuid
 
 from requests.auth import HTTPBasicAuth
+from . import BaseLoadTest
 
 
 def build_task():
@@ -15,10 +16,11 @@ def build_task():
     return data
 
 
-class TutorialLoadTestMixin(object):
-    buckets = []
+class TutorialLoadTest(BaseLoadTest):
+    def __init__(self, *args, **kwargs):
+        super(TutorialLoadTest, self).__init__(*args, **kwargs)
 
-    def play_full_tutorial(self):
+    def test_tutorial(self):
         self.play_user_default_bucket_tutorial()
         self.play_user_shared_bucket_tutorial()
         self.check_for_lists()
@@ -298,11 +300,9 @@ class TutorialLoadTestMixin(object):
 
     def check_for_lists(self):
         # List buckets should be forbidden
-        # XXX: We now have a 500 and a 503. See #128
-        # resp = self.session.get(
-        #     self.api_url('buckets'),
-        #     auth=self.auth,
-        #     headers={'Content-Type': 'application/json'})
-        # self.incr_counter("status-%s" % resp.status_code)
-        # self.assertEqual(resp.status_code, 403)
-        pass
+        resp = self.session.get(
+            self.api_url('buckets'),
+            auth=self.auth,
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 403)

@@ -6,9 +6,6 @@ from requests.auth import HTTPBasicAuth, AuthBase
 from loads.case import TestCase
 from konfig import Config
 
-from .tutorial import TutorialLoadTestMixin
-from .simulation import SimulationLoadTestMixin
-
 
 class RawAuth(AuthBase):
     def __init__(self, authorization):
@@ -19,7 +16,7 @@ class RawAuth(AuthBase):
         return r
 
 
-class TestBasic(SimulationLoadTestMixin, TutorialLoadTestMixin, TestCase):
+class BaseLoadTest(TestCase):
     def __init__(self, *args, **kwargs):
         """Initialization that happens once per user.
 
@@ -27,7 +24,7 @@ class TestBasic(SimulationLoadTestMixin, TutorialLoadTestMixin, TestCase):
 
             This method is called as many times as number of users.
         """
-        super(TestBasic, self).__init__(*args, **kwargs)
+        super(BaseLoadTest, self).__init__(*args, **kwargs)
 
         self.conf = self._get_configuration()
 
@@ -38,7 +35,8 @@ class TestBasic(SimulationLoadTestMixin, TutorialLoadTestMixin, TestCase):
             self.random_user = uuid.uuid4().hex
             self.auth = HTTPBasicAuth(self.random_user, 'secret')
 
-        self.init_article()
+        # Keep track of created objects.
+        self._collections_created = {}
 
     def _get_configuration(self):
         # Loads is removing the extra information contained in the ini files,
@@ -90,13 +88,3 @@ class TestBasic(SimulationLoadTestMixin, TutorialLoadTestMixin, TestCase):
     def record_url(self, record_id, bucket=None, collection=None, prefix=True):
         collection_url = self.collection_url(bucket, collection, prefix)
         return collection_url + '/%s' % record_id
-
-    def test_all(self):
-        self.test_tutorial()
-        self.test_simulation()
-
-    def test_simulation(self):
-        self.play_a_random_endpoint()
-
-    def test_tutorial(self):
-        self.play_full_tutorial()
