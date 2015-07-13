@@ -3,7 +3,7 @@ VIRTUALENV=virtualenv
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON=$(VENV)/bin/python
 
-TEST_SUITE = loadtest.TestBasic.test_all
+TEST_SUITE = loadtest.simulation.SimulationLoadTest.test_simulation
 
 # Hackety-hack around OSX system python bustage.
 # The need for this should go away with a future osx/xcode update.
@@ -31,6 +31,12 @@ clean:
 # Run a single test from the venv machine, for sanity-checking.
 test: install
 	$(VENV)/bin/loads-runner --config=./config/test.ini --server-url=$(SERVER_URL) $(TEST_SUITE)
+
+simulation: install
+	$(VENV)/bin/loads-runner --config=./config/test.ini --server-url=$(SERVER_URL) loadtest.simulation.SimulationLoadTest.test_simulation
+
+tutorial: install
+	$(VENV)/bin/loads-runner --config=./config/test.ini --server-url=$(SERVER_URL) loadtest.tutorial.TutorialLoadTest.test_tutorial
 
 # Run a bench of 20 concurrent users.
 bench:

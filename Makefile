@@ -47,12 +47,20 @@ clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
 
-loadtest-check: install-postgres
+loadtest-check-tutorial: install-postgres
 	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\
 	$(VENV)/bin/pserve loadtests/server.ini > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \
 	  sleep 1 && cd loadtests && \
-	  make test SERVER_URL=http://127.0.0.1:8888; \
+	  make tutorial SERVER_URL=http://127.0.0.1:8888; \
+	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
+
+loadtest-check-simulation: install-postgres
+	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\
+	$(VENV)/bin/pserve loadtests/server.ini > kinto.log & PID=$$! && \
+	  rm kinto.log || cat kinto.log; \
+	  sleep 1 && cd loadtests && \
+	  make simulation SERVER_URL=http://127.0.0.1:8888; \
 	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
 
 docs: install-dev
