@@ -166,6 +166,7 @@ class StatsDConfigurationTest(unittest.TestCase):
         self.config = Configurator(settings=settings)
         self.config.registry.storage = {}
         self.config.registry.cache = {}
+        self.config.registry.permission = {}
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_isnt_called_if_statsd_url_is_not_set(self, mocked):
@@ -189,6 +190,11 @@ class StatsDConfigurationTest(unittest.TestCase):
     def test_statsd_is_set_on_storage(self, mocked):
         c = initialization.setup_statsd(self.config)
         c.watch_execution_time.assert_any_call({}, prefix='storage')
+
+    @mock.patch('cliquet.statsd.Client')
+    def test_statsd_is_set_on_permission(self, mocked):
+        c = initialization.setup_statsd(self.config)
+        c.watch_execution_time.assert_any_call({}, prefix='permission')
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_is_set_on_authentication(self, mocked):
