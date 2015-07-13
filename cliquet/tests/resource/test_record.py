@@ -1,7 +1,10 @@
 import mock
+
+import colander
 from pyramid import httpexceptions
 
 from cliquet.resource import BaseResource
+from cliquet.schema import ResourceSchema
 from cliquet.errors import ERRORS
 from cliquet.tests.resource import BaseTest
 
@@ -94,8 +97,13 @@ class PatchTest(BaseTest):
         super(PatchTest, self).setUp()
         self.stored = self.collection.create_record({})
         self.resource.record_id = self.stored['id']
-        self.resource.request.json = {'data': {'some': 'change'}}
-        self.resource.mapping.typ.unknown = 'preserve'
+        self.resource.request.json = {'data': {'position': 10}}
+        schema = ResourceSchema()
+        schema.add(colander.SchemaNode(colander.Boolean(), name='unread',
+                                       missing=colander.drop))
+        schema.add(colander.SchemaNode(colander.Int(), name='position',
+                                       missing=colander.drop))
+        self.resource.mapping = schema
         self.result = self.resource.patch()['data']
 
     def test_etag_is_provided(self):
@@ -106,7 +114,7 @@ class PatchTest(BaseTest):
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_etag_contains_old_timestamp_if_no_field_changed(self):
-        self.resource.request.json = {'data': {'some': 'change'}}
+        self.resource.request.json = {'data': {'position': 10}}
         self.resource.patch()['data']
         expected = ('"%s"' % self.result['last_modified']).encode('utf-8')
         self.assertEqual(expected, self.last_response.headers['ETag'])
@@ -118,22 +126,22 @@ class PatchTest(BaseTest):
 
     def test_patch_record_returns_updated_fields(self):
         self.assertEquals(self.stored['id'], self.result['id'])
-        self.assertEquals(self.result['some'], 'change')
+        self.assertEquals(self.result['position'], 10)
 
     def test_record_timestamp_is_not_updated_if_none_for_missing_field(self):
-        self.resource.request.json = {'data': {'plop': None}}
+        self.resource.request.json = {'data': {'polo': None}}
         result = self.resource.patch()['data']
         self.assertEquals(self.result['last_modified'],
                           result['last_modified'])
 
     def test_record_timestamp_is_not_updated_if_no_field_changed(self):
-        self.resource.request.json = {'data': {'some': 'change'}}
+        self.resource.request.json = {'data': {'position': 10}}
         result = self.resource.patch()['data']
         self.assertEquals(self.result['last_modified'],
                           result['last_modified'])
 
     def test_collection_timestamp_is_not_updated_if_no_field_changed(self):
-        self.resource.request.json = {'data': {'some': 'change'}}
+        self.resource.request.json = {'data': {'position': 10}}
         self.resource.patch()
         self.resource = BaseResource(request=self.get_request(),
                                      context=self.get_context())
@@ -144,13 +152,13 @@ class PatchTest(BaseTest):
     def test_timestamp_is_not_updated_if_no_change_after_preprocessed(self):
         with mock.patch.object(self.resource, 'process_record') as mocked:
             mocked.return_value = self.result
-            self.resource.request.json = {'data': {'some': 'plop'}}
+            self.resource.request.json = {'data': {'position': 20}}
             result = self.resource.patch()['data']
             self.assertEquals(self.result['last_modified'],
                               result['last_modified'])
 
     def test_returns_changed_fields_among_provided_if_behaviour_is_diff(self):
-        self.resource.request.json = {'data': {'unread': True, 'position': 10}}
+        self.resource.request.json = {'data': {'unread': True, 'position': 15}}
         self.resource.request.headers['Response-Behavior'] = 'diff'
         with mock.patch.object(self.resource.collection, 'update_record',
                                return_value={'unread': True, 'position': 0}):
@@ -158,7 +166,7 @@ class PatchTest(BaseTest):
         self.assertDictEqual(result, {'position': 0})
 
     def test_returns_changed_fields_if_behaviour_is_light(self):
-        self.resource.request.json = {'data': {'unread': True, 'position': 10}}
+        self.resource.request.json = {'data': {'unread': True, 'position': 15}}
         self.resource.request.headers['Response-Behavior'] = 'light'
         with mock.patch.object(self.resource.collection, 'update_record',
                                return_value={'unread': True, 'position': 0}):
