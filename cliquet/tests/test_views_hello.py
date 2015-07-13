@@ -16,6 +16,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
                          'https://cliquet.rtfd.org/')
 
     def test_when_not_installed_with_git(self):
+        # Clear dealer.git internal cache.
         git._repo = None
         with mock.patch.object(git, 'init_repo', side_effect=TypeError):
             response = self.app.get('/')

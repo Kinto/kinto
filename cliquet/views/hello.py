@@ -26,7 +26,7 @@ def get_hello(request):
 
     try:
         data['commit'] = git.revision
-    except TypeError:
+    except:
         # In case we are not running from a git repository.
         pass
 
