@@ -15,7 +15,7 @@ The returned value is a JSON mapping containing:
 - ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)
 - ``documentation``: The url to the service documentation. (this document!)
 - ``settings``: a mapping with the values of relevant public settings for clients
-    (e.g. ``cliquet.batch_max_requests``)
+    - ``cliquet.batch_max_requests``: Number of requests that can be made in a batch request.
 
 
 GET /__heartbeat__
