@@ -15,6 +15,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
+- Fix crashes in permission backends when permission set is empty (fixes #368, #371)
 - Fix value of ETag on record: provide collection timestamp on collection
   endpoints only (fixes #356)
 - Default resources do accept ``permissions`` attribute in payload anymore
@@ -25,6 +26,10 @@ This document describes changes between each past release.
 - Fix missing ``last_modified`` field in PATCH response when no field
   was changed (fixes #371)
 - Fix lost querystring during version redirection (fixes #364)
+
+**Internal changes**
+
+- Document the list of public settings in hello view (mozilla-services/kinto#133)
 
 
 2.2.1 (2015-07-06)
