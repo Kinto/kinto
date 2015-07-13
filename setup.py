@@ -16,20 +16,20 @@ CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
-    'waitress',
-    'cliquet'
+    'waitress==0.8.9',
+    'cliquet==2.3'
 ]
 
 POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[postgresql]'
+    'cliquet[postgresql]==2.3'
 ]
 
 MONITORING_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[monitoring]'
+    'cliquet[monitoring]==2.3'
 ]
 
 FXA_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet-fxa'
+    'cliquet-fxa==1.2.0'
 ]
 
 ENTRY_POINTS = {
@@ -41,7 +41,7 @@ DEPENDENCY_LINKS = [
 ]
 
 setup(name='kinto',
-      version='1.2.2.dev0',
+      version='1.3.0',
       description='kinto',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',

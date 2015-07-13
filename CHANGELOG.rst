@@ -4,12 +4,21 @@ Changelog
 This document describes changes between each past release.
 
 
-1.2.2 (unreleased)
+1.3.0 (2015-07-13)
 ==================
+
+- Upgraded to *Cliquet* 2.3.0
+
+**Bug fixes**
+
+- Handle CORS with the default bucket. (#126, #135)
+- Add a test to make sure the tutorial works. (#118)
 
 **Internal changes**
 
 - List StatsD counters and timers in documentation (fixes #73)
+- Update virtualenv dependencies on setup.py modification (fixes #130)
+
 
 1.2.1 (2015-07-08)
 ==================
