@@ -23,6 +23,7 @@ This document describes changes between each past release.
 - Permissions on views is now set only on resources
 - Fix missing ``last_modified`` field in PATCH response when no field
   was changed (fixes #371)
+- Fix lost querystring during version redirection (fixes #364)
 
 
 2.2.1 (2015-07-06)

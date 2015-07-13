@@ -58,8 +58,11 @@ def setup_version_redirection(config):
         return
 
     def _redirect_to_version_view(request):
-        raise HTTPTemporaryRedirect(
-            '/%s/%s' % (route_prefix, request.matchdict['path']))
+        path = request.matchdict['path']
+        querystring = request.url[(request.url.rindex(request.path) +
+                                   len(request.path)):]
+        redirect = '/%s/%s%s' % (route_prefix, path, querystring)
+        raise HTTPTemporaryRedirect(redirect)
 
     # Disable the route prefix passed by the app.
     config.route_prefix = None
