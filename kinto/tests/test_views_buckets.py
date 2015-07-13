@@ -20,7 +20,8 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
     def test_buckets_are_global_to_every_users(self):
         self.app.patch_json(self.record_url,
-                            {'permissions': {'read': [Authenticated]}},
+                            {'data': {},
+                             'permissions': {'read': [Authenticated]}},
                             headers=self.headers)
         self.app.get(self.record_url, headers=get_user_headers('alice'))
 
