@@ -12,6 +12,7 @@ from cliquet import utils
 # Main Cliquet logger.
 logger = structlog.get_logger()
 
+from cliquet import errors
 from cliquet.initialization import (  # NOQA
     initialize, initialize_cliquet, install_middlewares)
 
@@ -123,6 +124,7 @@ def includeme(config):
     cors_origins = settings['cliquet.cors_origins']
     Service.cors_origins = tuple(aslist(cors_origins))
     Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
+    Service.error_handler = lambda self, e: errors.json_error_handler(e)
 
     # Heartbeat registry.
     config.registry.heartbeats = {}

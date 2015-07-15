@@ -66,8 +66,7 @@ class BatchPayloadSchema(colander.MappingSchema):
 
 
 batch = Service(name="batch", path='/batch',
-                description="Batch operations",
-                error_handler=errors.json_error_handler)
+                description="Batch operations")
 
 
 @batch.post(schema=BatchPayloadSchema, permission=NO_PERMISSION_REQUIRED)
