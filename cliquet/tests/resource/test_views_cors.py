@@ -106,11 +106,11 @@ class CORSExposeHeadersTest(BaseWebTest):
     def test_collection_get_exposes_every_possible_header(self):
         self.assert_expose_headers('GET', self.collection_url, [
             'Alert', 'Backoff', 'ETag', 'Last-Modified', 'Next-Page',
-            'Retry-After', 'Total-Records'])
+            'Retry-After', 'Total-Records', 'Content-Length'])
 
     def test_hello_endpoint_exposes_only_minimal_set_of_headers(self):
         self.assert_expose_headers('GET', '/', [
-            'Alert', 'Backoff', 'Retry-After'])
+            'Alert', 'Backoff', 'Retry-After', 'Content-Length'])
 
     def test_record_get_exposes_only_used_headers(self):
         body = {'data': MINIMALIST_RECORD}
@@ -120,9 +120,10 @@ class CORSExposeHeadersTest(BaseWebTest):
                                   status=201)
         record_url = self.get_item_url(resp.json['data']['id'])
         self.assert_expose_headers('GET', record_url, [
-            'Alert', 'Backoff', 'ETag', 'Retry-After', 'Last-Modified'])
+            'Alert', 'Backoff', 'ETag', 'Retry-After',
+            'Last-Modified', 'Content-Length'])
 
     def test_record_post_exposes_only_minimal_set_of_headers(self):
         body = {'data': MINIMALIST_RECORD}
         self.assert_expose_headers('POST_JSON', '/mushrooms', [
-            'Alert', 'Backoff', 'Retry-After'], body=body)
+            'Alert', 'Backoff', 'Retry-After', 'Content-Length'], body=body)

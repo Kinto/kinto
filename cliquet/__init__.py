@@ -122,7 +122,8 @@ def includeme(config):
     # Add CORS settings to the base cliquet Service class.
     cors_origins = settings['cliquet.cors_origins']
     Service.cors_origins = tuple(aslist(cors_origins))
-    Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert')
+    Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert',
+                                    'Content-Length')
 
     # Heartbeat registry.
     config.registry.heartbeats = {}

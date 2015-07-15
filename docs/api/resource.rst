@@ -42,7 +42,7 @@ and ``If-None-Match`` headers (see :ref:`section about timestamps <server-timest
 
     HTTP/1.1 200 OK
     Access-Control-Allow-Origin: *
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, ETag, Next-Page, Total-Records, Last-Modified
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, ETag, Next-Page, Total-Records, Last-Modified
     Content-Length: 436
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 28 Apr 2015 12:08:11 GMT
@@ -246,7 +246,7 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 
     HTTP/1.1 201 Created
     Access-Control-Allow-Origin: *
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
     Content-Length: 422
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 28 Apr 2015 12:35:02 GMT
@@ -332,7 +332,7 @@ has changed meanwhile, a ``412 Precondition failed`` error is returned.
 
     HTTP/1.1 200 OK
     Access-Control-Allow-Origin: *
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
     Content-Length: 193
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 28 Apr 2015 12:38:36 GMT
@@ -391,7 +391,7 @@ changed meanwhile, a ``304 Not Modified`` is returned.
 
     HTTP/1.1 200 OK
     Access-Control-Allow-Origin: *
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, ETag, Last-Modified
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, ETag, Last-Modified
     Content-Length: 438
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 28 Apr 2015 12:42:42 GMT
@@ -490,7 +490,7 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 
     HTTP/1.1 200 OK
     Access-Control-Allow-Origin: *
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
     Content-Length: 439
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 28 Apr 2015 12:46:36 GMT
@@ -567,7 +567,7 @@ the one provided are returned.
 
     HTTP/1.1 200 OK
     Access-Control-Allow-Origin: *
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
     Content-Length: 439
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 28 Apr 2015 12:46:36 GMT
