@@ -81,3 +81,22 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get(self.collection_url + '/records',
                             headers=headers, status=304)
         self.assertIn('Access-Control-Allow-Origin', resp.headers)
+
+    def test_bucket_id_starting_with_default_can_still_be_created(self):
+        # We need to create the bucket first since it is not the default bucket
+        resp = self.app.put_json(
+            self.bucket_url.replace('default', 'default-1234'),
+            {"data": {}}, headers=self.headers, status=201)
+        bucket_id = resp.json['data']['id']
+        self.assertEquals(bucket_id, 'default-1234')
+
+        # We can then create the collection
+        collection_url = '/buckets/default-1234/collections/default'
+        self.app.put_json(
+            collection_url,
+            {"data": {}},
+            headers=self.headers,
+            status=201)
+        resp = self.app.get('/buckets/default-1234/collections',
+                            headers=self.headers)
+        self.assertEquals(resp.json['data'][0]['id'], 'default')

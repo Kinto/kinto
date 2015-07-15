@@ -33,9 +33,9 @@ def create_bucket(request, bucket_id):
 
 
 def create_collection(request, bucket_id):
-    subpath = request.matchdict['subpath']
-    if subpath.startswith('/collections/'):
-        collection_id = subpath.split('/')[2]
+    subpath = request.matchdict.get('subpath')
+    if subpath and subpath.startswith('collections/'):
+        collection_id = subpath.split('/')[1]
         collection_put = (request.method.lower() == 'put' and
                           request.path.endswith(collection_id))
         if not collection_put:
@@ -54,6 +54,8 @@ def create_collection(request, bucket_id):
 
 
 @view_config(route_name='default_bucket', permission=NO_PERMISSION_REQUIRED)
+@view_config(route_name='default_bucket_collection',
+             permission=NO_PERMISSION_REQUIRED)
 def default_bucket(request):
     if request.method.lower() == 'options':
         path = request.path.replace('default', 'unknown')
@@ -71,7 +73,7 @@ def default_bucket(request):
     # Build the user unguessable bucket_id UUID from its user_id
     digest = hmac_digest(hmac_secret, request.prefixed_userid)
     bucket_id = text_type(UUID(digest[:32]))
-    path = request.path.replace('default', bucket_id)
+    path = request.path.replace('/buckets/default', '/buckets/%s' % bucket_id)
     querystring = request.url[(request.url.index(request.path) +
                                len(request.path)):]
 
