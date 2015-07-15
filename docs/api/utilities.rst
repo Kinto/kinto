@@ -16,8 +16,6 @@ The returned value is a JSON mapping containing:
 - ``documentation``: The url to the service documentation. (this document!)
 - ``settings``: a mapping with the values of relevant public settings for clients
     - ``cliquet.batch_max_requests``: Number of requests that can be made in a batch request.
-- ``userid``: The connected perso user id. The field is not present
-  when no Authorization header is provided.
 
 
 GET /__heartbeat__
