@@ -15,6 +15,7 @@ This document describes changes between each past release.
 
 - Fix crash on hello view when application is not deployed from Git
   repository (fixes #382)
+- Expose Content-Length header to Kinto.js (#390)
 
 
 2.3 (2015-07-13)
