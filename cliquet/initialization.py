@@ -116,7 +116,7 @@ def setup_backoff(config):
         # Add backoff in response headers.
         backoff = config.registry.settings['cliquet.backoff']
         if backoff is not None:
-            backoff = ('%s' % backoff).encode('utf-8')
+            backoff = utils.encode_header('%s' % backoff)
             event.request.response.headers['Backoff'] = backoff
 
     config.add_subscriber(on_new_response, NewResponse)
@@ -170,7 +170,8 @@ def _end_of_life_tween_factory(handler, registry):
                     errno=errors.ERRORS.SERVICE_DEPRECATED,
                     message=deprecation_msg)
                 alert['code'] = "hard-eol"
-            response.headers['Alert'] = utils.json.dumps(alert)
+            alert = utils.encode_header(utils.json.dumps(alert))
+            response.headers['Alert'] = alert
             return response
         return handler(request)
     return eos_tween

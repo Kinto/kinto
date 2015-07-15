@@ -61,8 +61,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             response = self.app.get(self.sample_url,
                                     headers=self.headers, status=200)
             self.assertIn('Backoff', response.headers)
-            self.assertEquals(response.headers['Backoff'],
-                              '10'.encode('utf-8'))
+            self.assertEquals(response.headers['Backoff'], '10')
 
     def test_404_is_valid_formatted_error(self):
         response = self.app.get('/unknown', status=404)

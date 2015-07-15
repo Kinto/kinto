@@ -9,7 +9,7 @@ from pyramid.view import (
 from cliquet import logger
 from cliquet.errors import http_error, ERRORS
 from cliquet.storage import exceptions as storage_exceptions
-from cliquet.utils import reapply_cors
+from cliquet.utils import reapply_cors, encode_header
 
 
 def cors(view):
@@ -75,7 +75,7 @@ def service_unavailable(context, request):
                           message=error_msg)
 
     retry_after = request.registry.settings['cliquet.retry_after_seconds']
-    response.headers["Retry-After"] = ('%s' % retry_after).encode("utf-8")
+    response.headers["Retry-After"] = encode_header('%s' % retry_after)
     return reapply_cors(request, response)
 
 

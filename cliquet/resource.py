@@ -17,7 +17,7 @@ from cliquet.schema import ResourceSchema, PermissionsSchema
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
-    current_service
+    current_service, encode_header, decode_header
 )
 
 
@@ -367,11 +367,11 @@ class BaseResource(object):
         next_page = None
         if limit and len(records) == limit and total_records > limit:
             next_page = self._next_page_url(sorting, limit, records[-1])
-            headers['Next-Page'] = next_page
+            headers['Next-Page'] = encode_header(next_page)
 
         # Bind metric about response size.
         logger.bind(nb_records=len(records), limit=limit)
-        headers['Total-Records'] = ('%s' % total_records)
+        headers['Total-Records'] = encode_header('%s' % total_records)
 
         body = {
             'data': records,
@@ -740,7 +740,7 @@ class BaseResource(object):
         # Pyramid takes care of converting.
         response.last_modified = timestamp / 1000.0
         # Return timestamp as ETag.
-        response.headers['ETag'] = ('"%s"' % timestamp).encode('utf-8')
+        response.headers['ETag'] = encode_header('"%s"' % timestamp)
 
     def _raise_400_if_invalid_id(self, record_id):
         """Raise 400 if specified record id does not match the format excepted
@@ -766,7 +766,7 @@ class BaseResource(object):
         if not if_none_match:
             return
 
-        if_none_match = if_none_match.decode('utf-8')
+        if_none_match = decode_header(if_none_match)
 
         try:
             assert if_none_match[0] == if_none_match[-1] == '"'
@@ -802,9 +802,9 @@ class BaseResource(object):
         if not if_match and not if_none_match:
             return
 
-        if_match = if_match.decode('utf-8') if if_match else None
+        if_match = decode_header(if_match) if if_match else None
 
-        if if_none_match and if_none_match.decode('utf-8') == '*':
+        if if_none_match and decode_header(if_none_match) == '*':
             modified_since = -1  # Always raise.
         elif if_match:
             try:
