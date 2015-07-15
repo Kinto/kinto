@@ -29,6 +29,10 @@ Memory
 Cloud Storage
 -------------
 
+.. note::
+
+    `Under construction <https://github.com/mozilla-services/kinto/pull/45>`_
+
 If the ``kinto`` package is available, it is possible to store data in
 a remote instance of *Kinto*.
 
