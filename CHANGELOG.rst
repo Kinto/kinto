@@ -4,10 +4,15 @@ Changelog
 This document describes changes between each past release.
 
 
-1.4.0 (unreleased)
+1.3.1 (2015-07-15)
 ==================
 
-- Nothing changed yet.
+- Upgraded to *Cliquet* 2.3.1
+
+**Bug fixes**
+
+- Make sure the default route only catch /buckets/default and
+  /buckets/default/* routes. (#131)
 
 
 1.3.0 (2015-07-13)
