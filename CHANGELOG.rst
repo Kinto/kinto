@@ -11,6 +11,10 @@ This document describes changes between each past release.
 - Provide the userid when calling the hello page with an Authorization
   header. (#319)
 
+
+2.3.1 (2015-07-15)
+------------------
+
 **Bug fixes**
 
 - Fix crash on hello view when application is not deployed from Git
