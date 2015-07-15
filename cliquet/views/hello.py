@@ -33,6 +33,10 @@ def get_hello(request):
     public_settings = request.registry.public_settings
     data['settings'] = {k: settings[k] for k in public_settings}
 
+    prefixed_userid = getattr(request, 'prefixed_userid', None)
+    if prefixed_userid:
+        data['userid'] = prefixed_userid
+
     return data
 
 

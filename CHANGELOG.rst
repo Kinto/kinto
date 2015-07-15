@@ -6,10 +6,15 @@ This document describes changes between each past release.
 2.4 (unreleased)
 ----------------
 
+**New features**
+
+- Provide the userid when calling the hello page with an Authorization
+  header. (#319)
+
 **Bug fixes**
 
-- Fix crash on hello view when application is not deployed from Git repository
-  (fixes #382)
+- Fix crash on hello view when application is not deployed from Git
+  repository (fixes #382)
 
 
 2.3 (2015-07-13)
