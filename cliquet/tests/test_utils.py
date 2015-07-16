@@ -109,28 +109,28 @@ class CurrentServiceTest(unittest.TestCase):
 
 class EncodeHeaderTest(unittest.TestCase):
 
-    def test_giving_string_return_a_string(self):
+    def test_returns_a_string_if_passed_a_string(self):
         entry = str('Toto')
         value = encode_header(entry)
         self.assertEqual(entry, value)
         self.assertEqual(type(value), str)
 
-    def test_giving_bytes_return_a_string(self):
+    def test_returns_a_string_if_passed_bytes(self):
         entry = 'Toto'.encode('utf-8')
         value = encode_header(entry)
         self.assertEqual(type(value), str)
 
-    def test_giving_bytes_and_encoding_return_a_string(self):
+    def test_returns_a_string_if_passed_bytes_and_encoding(self):
         entry = 'Rémy'.encode('latin-1')
         value = encode_header(entry, 'latin-1')
         self.assertEqual(type(value), str)
 
-    def test_giving_unicode_return_a_string(self):
+    def test_returns_a_string_if_passed_unicode(self):
         entry = six.text_type('Rémy')
         value = encode_header(entry)
         self.assertEqual(type(value), str)
 
-    def test_giving_unicode_with_encoding_return_a_string(self):
+    def test_returns_a_string_if_passed_unicode_with_encoding(self):
         entry = six.text_type('Rémy')
         value = encode_header(entry, 'latin-1')
         self.assertEqual(type(value), str)
@@ -138,17 +138,17 @@ class EncodeHeaderTest(unittest.TestCase):
 
 class DecodeHeaderTest(unittest.TestCase):
 
-    def test_giving_string_return_a_string(self):
+    def test_returns_an_unicode_string_if_passed_a_string(self):
         entry = 'Toto'
         value = decode_header(entry)
         self.assertEqual(entry, value)
 
-    def test_giving_bytes_return_a_string(self):
+    def test_returns_an_unicode__string_if_passed_bytes(self):
         entry = 'Toto'.encode('utf-8')
         value = decode_header(entry)
         self.assertEqual(type(value), six.text_type)
 
-    def test_giving_bytes_and_encoding_return_a_string(self):
+    def test_returns_an_unicode__string_if_passed_bytes_and_encoding(self):
         entry = 'Rémy'.encode('latin-1')
         value = decode_header(entry, 'latin-1')
         self.assertEqual(type(value), six.text_type)
