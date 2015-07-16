@@ -172,7 +172,8 @@ def build_request(original, dict_obj):
     # Payload is always a dict (from ``BatchRequestSchema.body``).
     # Send it as JSON for subrequests.
     if isinstance(payload, dict):
-        headers['Content-Type'] = 'application/json; charset=utf-8'
+        headers['Content-Type'] = encode_header(
+            'application/json; charset=utf-8')
         payload = json.dumps(payload)
 
     if six.PY3:  # pragma: no cover
@@ -208,3 +209,23 @@ def build_response(response, request):
     dict_obj['body'] = body
 
     return dict_obj
+
+
+def encode_header(value, encoding='utf-8'):
+    """Make sure the value is of type ``str`` in both PY2 and PY3."""
+    value_type = type(value)
+    if value_type != str:
+        # Test for Python3
+        if value_type == six.binary_type:  # pragma: no cover
+            value = value.decode(encoding)
+        # Test for Python2
+        elif value_type == six.text_type:  # pragma: no cover
+            value = value.encode(encoding)
+    return value
+
+
+def decode_header(value, encoding='utf-8'):
+    """Make sure the header is an unicode string."""
+    if type(value) == six.binary_type:
+        value = value.decode(encoding)
+    return value

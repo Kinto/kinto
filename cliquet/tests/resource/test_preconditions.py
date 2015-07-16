@@ -17,7 +17,7 @@ class NotModifiedTest(BaseTest):
         self.resource.request.headers['If-None-Match'] = current
 
     def test_collection_returns_200_if_change_meanwhile(self):
-        self.resource.request.headers['If-None-Match'] = '"42"'.encode('utf-8')
+        self.resource.request.headers['If-None-Match'] = '"42"'
         self.resource.collection_get()  # Not raising.
 
     def test_collection_returns_304_if_no_change_meanwhile(self):
@@ -49,17 +49,17 @@ class NotModifiedTest(BaseTest):
         self.assertNotIn('1970', error.headers['Last-Modified'])
 
     def test_if_none_match_empty_raises_invalid(self):
-        self.resource.request.headers['If-None-Match'] = '""'.encode('utf-8')
+        self.resource.request.headers['If-None-Match'] = '""'
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_if_none_match_without_quotes_raises_invalid(self):
-        self.resource.request.headers['If-None-Match'] = '1234'.encode('utf-8')
+        self.resource.request.headers['If-None-Match'] = '1234'
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_if_none_match_not_integer_raises_invalid(self):
-        self.resource.request.headers['If-None-Match'] = '"ab"'.encode('utf-8')
+        self.resource.request.headers['If-None-Match'] = '"ab"'
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
@@ -70,9 +70,9 @@ class ModifiedMeanwhileTest(BaseTest):
         self.stored = self.collection.create_record({})
 
         self.resource.collection_get()
-        current = self.last_response.headers['ETag'][1:-1].decode('utf-8')
+        current = self.last_response.headers['ETag'][1:-1]
         previous = int(current) - 10
-        if_match = ('"%s"' % previous).encode('utf-8')
+        if_match = ('"%s"' % previous)
         self.resource.request.headers['If-Match'] = if_match
 
     def test_preconditions_errors_are_json_formatted(self):
@@ -141,7 +141,7 @@ class ModifiedMeanwhileTest(BaseTest):
 
     def test_put_returns_412_if_changed_and_none_match_present(self):
         self.resource.request.validated = {'data': {'field': 'new'}}
-        self.resource.request.headers['If-None-Match'] = '"42"'.encode('utf-8')
+        self.resource.request.headers['If-None-Match'] = '"42"'
         self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
@@ -162,7 +162,7 @@ class ModifiedMeanwhileTest(BaseTest):
 
     def test_if_none_match_star_fails_if_record_exists(self):
         self.resource.request.headers.pop('If-Match')
-        self.resource.request.headers['If-None-Match'] = '*'.encode('utf-8')
+        self.resource.request.headers['If-None-Match'] = '*'
         self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
@@ -194,16 +194,16 @@ class ModifiedMeanwhileTest(BaseTest):
                           self.resource.collection_delete)
 
     def test_if_match_without_quotes_raises_invalid(self):
-        self.resource.request.headers['If-Match'] = '123456'.encode('utf-8')
+        self.resource.request.headers['If-Match'] = '123456'
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_if_match_empty_raises_invalid(self):
-        self.resource.request.headers['If-Match'] = '""'.encode('utf-8')
+        self.resource.request.headers['If-Match'] = '""'
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_if_match_not_integer_raises_invalid(self):
-        self.resource.request.headers['If-Match'] = '"abc"'.encode('utf-8')
+        self.resource.request.headers['If-Match'] = '"abc"'
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
