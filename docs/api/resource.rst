@@ -23,7 +23,7 @@ of the collection.
 A ``Last-Modified`` response header provides a human-readable (rounded to second)
 of the current collection timestamp.
 
-For cache and concurrency control, a ``ETag`` response header gives the
+For cache and concurrency control, an ``ETag`` response header gives the
 value that consumers can provide in subsequent requests using ``If-Match``
 and ``If-None-Match`` headers (see :ref:`section about timestamps <server-timestamps>`).
 
@@ -139,10 +139,11 @@ Polling for changes
 
 The ``_since`` parameter is provided as an alias for ``gt_last_modified``.
 
-* ``/collection?_since=1234567890123``
+* ``/collection?_since=1437034064``
 
 When filtering on ``last_modified`` every deleted records will appear in the
-list with a deleted status (``deleted=true``.)
+list with a ``deleted`` flag and a ``last_modified`` value that corresponds
+to the deletion event.
 
 If the request header ``If-None-Match`` is provided as described in
 the :ref:`section about timestamps <server-timestamps>` and if the
@@ -152,6 +153,52 @@ collection was not changed, a ``304 Not Modified`` response is returned.
 
    The ``_to`` parameter is also available, and is an alias for
    ``lt_last_modified`` (*strictly inferior*).
+
+
+**Request**:
+
+.. code-block:: http
+
+    GET /articles?_since=1437034064 HTTP/1.1
+    Accept: application/json
+    Authorization: Basic bWF0Og==
+    Host: localhost:8000
+
+**Response**:
+
+.. code-block:: http
+
+    HTTP/1.1 200 OK
+    Access-Control-Allow-Origin: *
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, ETag, Next-Page, Total-Records, Last-Modified
+    Content-Length: 436
+    Content-Type: application/json; charset=UTF-8
+    Date: Tue, 28 Apr 2015 12:08:11 GMT
+    Last-Modified: Mon, 12 Apr 2015 11:12:07 GMT
+    ETag: "1430222877724"
+    Total-Records: 2
+
+    {
+        "data": [
+            {
+                "id": "dc86afa9-a839-4ce1-ae02-3d538b75496f",
+                "last_modified": 1430222877724,
+                "title": "MoCo",
+                "url": "https://mozilla.com",
+            },
+            {
+                "id": "23160c47-27a5-41f6-9164-21d46141804d",
+                "last_modified": 1430140411480,
+                "title": "MoFo",
+                "url": "https://mozilla.org",
+            },
+            {
+                "id": "11130c47-37a5-41f6-9112-32d46141804f",
+                "deleted": true,
+                "last_modified": 1430140411480
+            }
+        ]
+    }
 
 
 Paginate
@@ -166,7 +213,7 @@ Next-Page.
 When there is no more ``Next-Page`` response header, there is nothing
 more to fetch.
 
-Pagination works with sorting and filtering.
+Pagination works with sorting, filtering and polling.
 
 .. note::
 
