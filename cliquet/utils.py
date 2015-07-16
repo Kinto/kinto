@@ -217,15 +217,15 @@ def encode_header(value, encoding='utf-8'):
     if value_type != str:
         # Test for Python3
         if value_type == six.binary_type:  # pragma: no cover
-            value = value.decode(encoding)  # pragma: no cover
+            value = value.decode(encoding)
         # Test for Python2
         elif value_type == six.text_type:  # pragma: no cover
-            value = value.encode(encoding)  # pragma: no cover
+            value = value.encode(encoding)
     return value
 
 
 def decode_header(value, encoding='utf-8'):
-    """Makes sure the header is an unicode string."""
+    """Make sure the header is an unicode string."""
     if type(value) == six.binary_type:
         value = value.decode(encoding)
     return value
