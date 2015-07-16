@@ -10,6 +10,7 @@ The HTTP APIs
    collections
    records
    groups
+   permissions
 
 
 See `cliquet API documentation <http://cliquet.readthedocs.org/en/latest/api/index.html>`_
