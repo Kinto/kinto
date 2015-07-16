@@ -142,7 +142,7 @@ The ``_since`` parameter is provided as an alias for ``gt_last_modified``.
 * ``/collection?_since=1234567890123``
 
 When filtering on ``last_modified`` every deleted records will appear in the
-list with a deleted status (``deleted=true``).
+list with a deleted status (``deleted=true``.)
 
 If the request header ``If-None-Match`` is provided as described in
 the :ref:`section about timestamps <server-timestamps>` and if the
