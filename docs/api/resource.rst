@@ -144,9 +144,9 @@ The ``_since`` parameter is provided as an alias for ``gt_last_modified``.
 When filtering on ``last_modified`` every deleted records will appear in the
 list with a deleted status (``deleted=true``).
 
-If the request header ``If-None-Match`` is provided, and if the
-collection has not suffered changes meanwhile, a ``304 Not Modified``
-response is returned.
+If the request header ``If-None-Match`` is provided as described in
+the :ref:`section about timestamps <server-timestamps>` and if the
+collection was not changed, a ``304 Not Modified`` response is returned.
 
 .. note::
 
