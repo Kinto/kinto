@@ -11,8 +11,7 @@ from cliquet import authorization
 from cliquet import logger
 from cliquet import Service
 from cliquet.collection import Collection
-from cliquet.errors import (http_error, raise_invalid, ERRORS,
-                            json_error_handler)
+from cliquet.errors import http_error, raise_invalid, ERRORS
 from cliquet.schema import ResourceSchema, PermissionsSchema
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
@@ -42,8 +41,7 @@ class ViewSet(object):
 
     service_arguments = {
         'description': 'Collection of {resource_name}',
-        'cors_origins': ('*',),
-        'error_handler': json_error_handler
+        'cors_origins': ('*',)
     }
 
     default_arguments = {
