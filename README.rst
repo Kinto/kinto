@@ -22,3 +22,4 @@ such as data-driven REST APIs.
 * `Online documentation <http://cliquet.readthedocs.org/en/latest/>`_
 * `Issue tracker <https://github.com/mozilla-services/cliquet/issues>`_
 * `Contributing <http://cliquet.readthedocs.org/en/latest/contributing.html>`_
+* `Talk at PyBCN <http://mozilla-services.github.io/cliquet/talks/2015.07.pybcn/>`_
