@@ -15,6 +15,8 @@ This document describes changes between each past release.
 
 - ``data`` is not mandatory in request body if the resource does not define
   any schema or if no field is mandatory (fixes mozilla-services/kinto#63)
+- Fix no validation error on PATCH with unknown attribute (fixes #374)
+- Fix permissions not validated on PATCH (fixes #375)
 
 2.3.1 (2015-07-15)
 ------------------

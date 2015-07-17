@@ -109,7 +109,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
 
     def test_permissions_are_modified_with_patch(self):
         perms = {'write': ['jean-louis']}
-        self.resource.request.json = {'permissions': perms}
+        self.resource.request.validated = {'permissions': perms}
         self.resource.request.method = 'PATCH'
         result = self.resource.patch()
         self.assertEqual(result['permissions'],
