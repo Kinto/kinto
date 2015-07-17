@@ -90,3 +90,8 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
                           headers=self.headers)
         self.app.get(self.record_url, headers=self.headers, status=404)
+
+        # Verify tombstones
+        resp = self.app.get('%s/records?_since=0' % self.collection_url,
+                            headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 0)
