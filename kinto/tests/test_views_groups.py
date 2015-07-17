@@ -166,9 +166,9 @@ class InvalidGroupTest(BaseWebTest, unittest.TestCase):
                                  headers=self.headers,
                                  status=400)
         self.assertEqual(resp.json['message'],
-                         "data.members in body: Required")
-        self.assertDictEqual(resp.json['details'], {
-            "description": "Required",
+                         "data is missing")
+        self.assertDictEqual(resp.json['details'][0], {
+            "description": "data is missing",
             "location": "body",
-            "name": "data.members"
+            "name": "data"
         })
