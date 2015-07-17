@@ -101,7 +101,7 @@ def error(context, request):
     logger.error(context, exc_info=True)
 
     error_msg = "A programmatic error occured, developers have been informed."
-    info = request.registry.settings.get('cliquet.error_info_link')
+    info = request.registry.settings['cliquet.error_info_link']
     response = http_error(httpexceptions.HTTPInternalServerError(),
                           message=error_msg,
                           info=info)

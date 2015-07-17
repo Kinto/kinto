@@ -83,7 +83,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             "A programmatic error occured, developers have been informed.",
             "https://github.com/mozilla-services/cliquet/issues/")
 
-    def test_500_info_link_can_be_configured(self):
+    def test_info_link_in_error_responses_can_be_configured(self):
         with mock.patch(
                 'cliquet.tests.testapp.views.Mushroom._extract_filters',
                 side_effect=ValueError):
