@@ -139,7 +139,7 @@ Polling for changes
 
 The ``_since`` parameter is provided as an alias for ``gt_last_modified``.
 
-* ``/collection?_since=1437034064``
+* ``/collection?_since=1437035923844``
 
 When filtering on ``last_modified`` every deleted records will appear in the
 list with a ``deleted`` flag and a ``last_modified`` value that corresponds
@@ -159,7 +159,7 @@ collection was not changed, a ``304 Not Modified`` response is returned.
 
 .. code-block:: http
 
-    GET /articles?_since=1437034064 HTTP/1.1
+    GET /articles?_since=1437035923844 HTTP/1.1
     Accept: application/json
     Authorization: Basic bWF0Og==
     Host: localhost:8000
