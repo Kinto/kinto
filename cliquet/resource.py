@@ -97,8 +97,18 @@ class ViewSet(object):
             # Simply validate that posted body is a mapping.
             return colander.MappingSchema(unknown='preserve')
 
+        record_mapping = resource.mapping
+
+        try:
+            record_mapping.deserialize({})
+            is_empty_accepted = True
+        except colander.Invalid:
+            is_empty_accepted = False
+
+        record_mapping.missing = {} if is_empty_accepted else colander.required
+
         class RecordPayload(colander.MappingSchema):
-            data = resource.mapping
+            data = record_mapping
 
             def schema_type(self, **kw):
                 return colander.Mapping(unknown='raise')
@@ -402,7 +412,7 @@ class BaseResource(object):
             id_field = self.collection.id_field
             new_record[id_field] = _id = self.request.json['data'][id_field]
             self._raise_400_if_invalid_id(_id)
-        except KeyError:
+        except (KeyError, ValueError):
             pass
 
         new_record = self.process_record(new_record)

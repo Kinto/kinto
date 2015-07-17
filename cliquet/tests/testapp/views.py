@@ -14,3 +14,19 @@ class Mushroom(resource.BaseResource):
 @resource.register()
 class Toadstool(resource.ProtectedResource):
     mapping = MushroomSchema()
+
+
+@resource.register()
+class Moisture(resource.ProtectedResource):
+    # Empty schema.
+    pass
+
+
+class PsilocybinSchema(resource.ResourceSchema):
+    # Optional fields.
+    edible = colander.SchemaNode(colander.Boolean(), missing=True)
+
+
+@resource.register()
+class Psilo(resource.ProtectedResource):
+    mapping = PsilocybinSchema()
