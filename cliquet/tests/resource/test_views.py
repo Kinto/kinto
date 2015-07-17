@@ -345,6 +345,12 @@ class InvalidRecordTest(BaseWebTest):
                             headers=self.headers,
                             status=400)
 
+    def test_modify_with_unknown_attribute_returns_400(self):
+        self.app.patch_json(self.get_item_url(),
+                            {"datta": {}},
+                            headers=self.headers,
+                            status=400)
+
     def test_replace_with_invalid_record_returns_400(self):
         self.app.put_json(self.get_item_url(),
                           self.invalid_record,
@@ -479,11 +485,10 @@ class InvalidBodyTest(BaseWebTest):
         self.assertIn('escape sequence', resp.json['message'])
 
     def test_modify_with_empty_returns_400(self):
-        resp = self.app.patch(self.get_item_url(),
-                              '',
-                              headers=self.headers,
-                              status=400)
-        self.assertIn('Empty body', resp.json['message'])
+        self.app.patch(self.get_item_url(),
+                       '',
+                       headers=self.headers,
+                       status=400)
 
 
 class InvalidPermissionsTest(BaseWebTest):
@@ -497,7 +502,7 @@ class InvalidPermissionsTest(BaseWebTest):
                                   headers=self.headers)
         self.record = resp.json['data']
         self.invalid_body = {'data': MINIMALIST_RECORD,
-                             'permissions': {'read': 'book'}}
+                             'permissions': {'read': 'book'}}  # book not list
 
     def test_permissions_are_not_accepted_on_normal_resources(self):
         body = {'data': MINIMALIST_RECORD,
@@ -511,6 +516,12 @@ class InvalidPermissionsTest(BaseWebTest):
                            self.invalid_body,
                            headers=self.headers,
                            status=400)
+
+    def test_modify_with_invalid_permissions_returns_400(self):
+        self.app.patch_json(self.get_item_url(),
+                            self.invalid_body,
+                            headers=self.headers,
+                            status=400)
 
     def test_invalid_body_returns_json_formatted_error(self):
         resp = self.app.post_json(self.collection_url,

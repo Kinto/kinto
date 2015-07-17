@@ -35,7 +35,7 @@ class ViewSet(object):
 
     collection_methods = ('GET', 'POST', 'DELETE')
     record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
-    validate_schema_for = ('POST', 'PUT')
+    validate_schema_for = ('POST', 'PUT', 'PATCH')
 
     readonly_methods = ('GET',)
 
@@ -93,27 +93,32 @@ class ViewSet(object):
     def get_record_schema(self, resource, method):
         """Return the Cornice schema for the given method.
         """
+        simple_mapping = colander.MappingSchema(unknown='preserve')
+
         if method.lower() not in map(str.lower, self.validate_schema_for):
             # Simply validate that posted body is a mapping.
-            return colander.MappingSchema(unknown='preserve')
+            return simple_mapping
 
-        record_mapping = resource.mapping
+        if method.lower() == 'patch':
+            record_mapping = simple_mapping
+        else:
+            record_mapping = resource.mapping
 
-        try:
-            record_mapping.deserialize({})
-            is_empty_accepted = True
-        except colander.Invalid:
-            is_empty_accepted = False
+            try:
+                record_mapping.deserialize({})
+                # Empty data accepted.
+                record_mapping.missing = colander.drop
+                record_mapping.default = {}
+            except colander.Invalid:
+                pass
 
-        record_mapping.missing = {} if is_empty_accepted else colander.required
-
-        class RecordPayload(colander.MappingSchema):
+        class PayloadSchema(colander.MappingSchema):
             data = record_mapping
 
             def schema_type(self, **kw):
                 return colander.Mapping(unknown='raise')
 
-        return RecordPayload()
+        return PayloadSchema()
 
     def get_view(self, endpoint_type, method):
         """Return the view method name located on the resource object, for the
@@ -167,6 +172,10 @@ class ProtectedViewSet(ViewSet):
 
         if method.lower() not in map(str.lower, self.validate_schema_for):
             return schema
+
+        if method.lower() == 'patch':
+            # Data is optional when patching permissions.
+            schema.children[-1].missing = colander.drop
 
         permissions_node = PermissionsSchema(missing=colander.drop,
                                              permissions=resource.permissions,
@@ -562,13 +571,6 @@ class BaseResource(object):
         self._raise_400_if_invalid_id(self.record_id)
         old_record = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(old_record)
-
-        # Empty body for patch is invalid.
-        if not self.request.body:
-            error_details = {
-                'description': 'Empty body'
-            }
-            raise_invalid(self.request, **error_details)
 
         changes = self.request.json.get('data', {})  # May patch only perms.
 
@@ -1176,8 +1178,6 @@ class ProtectedResource(BaseResource):
         result = super(ProtectedResource, self).patch()
 
         object_id = authorization.get_object_id(self.request.path)
-        # Since there is no schema on PATCH, set JSON as validated.
-        self.request.validated = self.request.json
         self._store_permissions(object_id=object_id)
         result['permissions'] = self._build_permissions(object_id=object_id)
         return result
