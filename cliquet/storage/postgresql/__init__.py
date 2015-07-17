@@ -455,16 +455,11 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                           modified_field=DEFAULT_MODIFIED_FIELD,
                           auth=None):
         query = """
-        WITH deleted_records AS (
-            DELETE
-            FROM deleted
-            WHERE parent_id = %%(parent_id)s
-              AND collection_id = %%(collection_id)s
-              %(conditions_filter)s
-            RETURNING id
-        )
-        SELECT COUNT(*) as deleted FROM deleted_records
-        RETURNING deleted;
+        DELETE
+        FROM deleted
+        WHERE parent_id = %%(parent_id)s
+          AND collection_id = %%(collection_id)s
+          %(conditions_filter)s;
         """
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
@@ -480,9 +475,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         with self.connect() as cursor:
             cursor.execute(query % safeholders, placeholders)
-            result = cursor.fetchone()
 
-        return result['deleted']
+        return cursor.rowcount
 
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,
