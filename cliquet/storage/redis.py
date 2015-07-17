@@ -208,6 +208,38 @@ class Redis(MemoryBasedStorage):
         return existing
 
     @wrap_redis_error
+    def delete_tombstones(self, collection_id, parent_id, before=None,
+                          id_field=DEFAULT_ID_FIELD,
+                          modified_field=DEFAULT_MODIFIED_FIELD,
+                          auth=None):
+        deleted_ids = '{0}.{1}.deleted'.format(collection_id, parent_id)
+        ids = self._client.smembers(deleted_ids)
+
+        keys = ['{0}.{1}.{2}.deleted'.format(collection_id, parent_id,
+                                             _id.decode('utf-8'))
+                for _id in ids]
+
+        if len(keys) == 0:
+            deleted = []
+        else:
+            encoded_results = self._client.mget(keys)
+            deleted = [self._decode(r) for r in encoded_results if r]
+        if before is not None:
+            to_remove = [d['id'] for d in deleted
+                         if d[modified_field] < before]
+        else:
+            to_remove = deleted
+
+        with self._client.pipeline() as pipe:
+            pipe.delete(['{0}.{1}.{2}.deleted'.format(collection_id, parent_id,
+                                                      _id)
+                         for _id in to_remove])
+            pipe.srem(deleted_ids, to_remove)
+            pipe.execute()
+        number_deleted = len(to_remove)
+        return number_deleted
+
+    @wrap_redis_error
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,
                 id_field=DEFAULT_ID_FIELD,

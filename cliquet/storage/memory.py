@@ -27,7 +27,7 @@ class MemoryBasedStorage(StorageBase):
                    id_field=DEFAULT_ID_FIELD,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
-                   auth=None):
+                   auth=None, delete_tombstones=False):
         records, count = self.get_all(collection_id, parent_id,
                                       filters=filters,
                                       id_field=id_field,
@@ -38,6 +38,13 @@ class MemoryBasedStorage(StorageBase):
                                modified_field=modified_field,
                                deleted_field=deleted_field)
                    for r in records]
+
+        if delete_tombstones:
+            self.delete_tombstones(collection_id, parent_id,
+                                   id_field=id_field,
+                                   modified_field=modified_field,
+                                   auth=auth)
+
         return deleted
 
     def strip_deleted_record(self, resource, parent_id, record,
@@ -237,6 +244,20 @@ class Memory(MemoryBasedStorage):
         self._store[collection_id][parent_id].pop(object_id)
 
         return existing
+
+    def delete_tombstones(self, collection_id, parent_id, before=None,
+                          id_field=DEFAULT_ID_FIELD,
+                          modified_field=DEFAULT_MODIFIED_FIELD,
+                          auth=None):
+        num_deleted = len(self._cemetery[collection_id][parent_id].keys())
+        if before is not None:
+            kept = {key: value for key, value in
+                    self._cemetery[collection_id][parent_id].items()
+                    if value[modified_field] >= before}
+        else:
+            kept = {}
+        self._cemetery[collection_id][parent_id] = kept
+        return num_deleted - len(kept.keys())
 
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,

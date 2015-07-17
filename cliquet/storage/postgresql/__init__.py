@@ -407,7 +407,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                    id_field=DEFAULT_ID_FIELD,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
-                   auth=None):
+                   auth=None, delete_tombstones=False):
         query = """
         WITH deleted_records AS (
             DELETE
@@ -448,7 +448,47 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             record[deleted_field] = True
             records.append(record)
 
+        if delete_tombstones:
+            self.delete_tombstones(collection_id, parent_id,
+                                   id_field=id_field,
+                                   modified_field=modified_field,
+                                   auth=auth)
+
         return records
+
+    def delete_tombstones(self, collection_id, parent_id, before=None,
+                          id_field=DEFAULT_ID_FIELD,
+                          modified_field=DEFAULT_MODIFIED_FIELD,
+                          auth=None):
+        query = """
+        WITH deleted_records AS (
+            DELETE
+            FROM deleted
+            WHERE parent_id = %%(parent_id)s
+              AND collection_id = %%(collection_id)s
+              %(conditions_filter)s
+            RETURNING id
+        )
+        SELECT COUNT(*) as deleted FROM deleted_records
+        RETURNING deleted;
+        """
+        id_field = id_field or self.id_field
+        modified_field = modified_field or self.modified_field
+        placeholders = dict(parent_id=parent_id,
+                            collection_id=collection_id)
+        # Safe strings
+        safeholders = defaultdict(six.text_type)
+
+        if before is not None:
+            safeholders['conditions_filter'] = (
+                'AND as_epoch(last_modified) < %%(before)s')
+            placeholders['before'] = before
+
+        with self.connect() as cursor:
+            cursor.execute(query % safeholders, placeholders)
+            result = cursor.fetchone()
+
+        return result['deleted']
 
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,

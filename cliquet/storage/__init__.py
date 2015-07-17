@@ -199,6 +199,24 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
+    def delete_tombstones(self, collection_id, parent_id, before=None,
+                          id_field=DEFAULT_ID_FIELD,
+                          modified_field=DEFAULT_MODIFIED_FIELD,
+                          auth=None):
+        """Delete all tombstones for deleted object in this `collection_id`
+        for this `parent_id`.
+
+        :param str collection_id: the collection id.
+        :param str parent_id: the collection parent.
+
+        :param int before: Optionnally elete tombstones older than it.
+
+        :returns: The number of deleted objects.
+        :rtype: int
+
+        """
+        raise NotImplementedError
+
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,
                 id_field=DEFAULT_ID_FIELD,
