@@ -107,7 +107,8 @@ class ViewSet(object):
             try:
                 record_mapping.deserialize({})
                 # Empty data accepted.
-                record_mapping.missing = {}
+                record_mapping.missing = colander.drop
+                record_mapping.default = {}
             except colander.Invalid:
                 pass
 
