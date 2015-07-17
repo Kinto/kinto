@@ -31,7 +31,7 @@ virtualenv: $(PYTHON)
 $(PYTHON):
 	virtualenv $(VENV)
 
-serve: install-dev migrate
+serve: install migrate
 	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
 
 migrate: install
