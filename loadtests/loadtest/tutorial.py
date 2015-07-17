@@ -139,8 +139,7 @@ class TutorialLoadTest(BaseLoadTest):
 
         # Create a new bucket and check for permissions
         resp = self.session.put(
-            self.bucket_url(bucket_id),
-            data=json.dumps({'data': {}}))
+            self.bucket_url(bucket_id))
         self.incr_counter("status-%s" % resp.status_code)
         # We should always have a 201 here. See mozilla-services/cliquet#367
         # if resp.status_code == 200:
@@ -153,7 +152,7 @@ class TutorialLoadTest(BaseLoadTest):
         permissions = {"record:create": ['system.Authenticated']}
         resp = self.session.put(
             re.sub('/records$', '', collection_url),
-            data=json.dumps({'data': {}, 'permissions': permissions}))
+            data=json.dumps({'permissions': permissions}))
         self.incr_counter("status-%s" % resp.status_code)
         # We should always have a 201 here. See mozilla-services/cliquet#367
         # if resp.status_code == 200:
@@ -223,7 +222,7 @@ class TutorialLoadTest(BaseLoadTest):
         permissions = {"group:create": ['system.Authenticated']}
         resp = self.session.put(
             self.bucket_url(bucket_id),
-            data=json.dumps({'data': {}, 'permissions': permissions}))
+            data=json.dumps({'permissions': permissions}))
         self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
         record = resp.json()
