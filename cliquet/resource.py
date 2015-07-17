@@ -571,13 +571,6 @@ class BaseResource(object):
         old_record = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(old_record)
 
-        # Empty body for patch is invalid.
-        if not self.request.body:
-            error_details = {
-                'description': 'Empty body'
-            }
-            raise_invalid(self.request, **error_details)
-
         changes = self.request.json.get('data', {})  # May patch only perms.
 
         updated = self.apply_changes(old_record, changes=changes)
