@@ -262,7 +262,7 @@ class RecordAuthzDeniedTest(AuthzAuthnTest):
 class EmptySchemaTest(BaseWebTest):
     collection_url = '/moistures'
 
-    def test_accept_empty_body_if_schema_is_empty(self):
+    def test_accept_empty_body(self):
         resp = self.app.post(self.collection_url,
                              headers=self.headers)
         self.assertIn('id', resp.json['data'])
@@ -281,6 +281,16 @@ class EmptySchemaTest(BaseWebTest):
                                   {'data': {'icq': '9427392'}},
                                   headers=self.headers)
         self.assertNotIn('icq', resp.json['data'])
+
+
+class OptionalSchemaTest(EmptySchemaTest):
+    collection_url = '/psilos'
+
+    def test_known_fields_are_saved(self):
+        resp = self.app.post_json(self.collection_url,
+                                  {'data': {'edible': False}},
+                                  headers=self.headers)
+        self.assertIn('edible', resp.json['data'])
 
 
 class InvalidRecordTest(BaseWebTest):

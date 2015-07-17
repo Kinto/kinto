@@ -14,7 +14,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - ``data`` is not mandatory in request body if the resource does not define
-  any schema (fixes mozilla-services#63)
+  any schema or if no field is mandatory (fixes mozilla-services/kinto#63)
 
 2.3.1 (2015-07-15)
 ------------------

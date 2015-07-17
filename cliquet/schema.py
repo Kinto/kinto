@@ -1,7 +1,7 @@
 import colander
 from colander import SchemaNode, String
 
-from cliquet.utils import strip_whitespace, msec_time, classproperty
+from cliquet.utils import strip_whitespace, msec_time
 
 
 class ResourceSchema(colander.MappingSchema):
@@ -60,12 +60,6 @@ class ResourceSchema(colander.MappingSchema):
         :rtype: bool
         """
         return field in self.get_option("readonly_fields")
-
-    @classproperty
-    def missing(cls):
-        if cls != ResourceSchema:
-            return colander.required
-        return {}
 
     def schema_type(self, **kw):
         if self.get_option("preserve_unknown") is True:
