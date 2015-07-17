@@ -122,6 +122,9 @@ Some applications in the wild built with *Cliquet*:
 
 .. note::
 
+    Applications built with *Cliquet* can store their data in several kinds of
+    storage backends.
+
     A *Kinto* instance can be used as a storage backend for a *Cliquet*
     application! :ref:`See cloud storage <cloud-storage>`.
 
@@ -155,37 +158,6 @@ Any application built with *Cliquet*:
 
 Let's build a :ref:`sane ecosystem <ecosystem>` for microservices in Python!
 
-Generic storage
----------------
-
-Server applications built with *Cliquet* can store their data in several kinds of
-storage backends. Since backends are pluggable, and since *Kinto* is one of
-them, storing data «in the cloud» is built-in! At Mozilla, several applications
-can store data in *Kinto*!
-
-.. figure:: images/deploy-once.png
-    :align: center
-
-An offline-first JavaScript library will be published [#]_, with the aim of providing
-some reusable code for any client that interacts with any *Cliquet*-based API.
-
-.. figure:: images/kinto-multi-client.png
-    :align: center
-
-In the long term, we envision a world where client and server applications are
-decorrelated from the location of their data [#]_!
-
-.. figure:: images/self-hostable.png
-    :align: center
-
-Since the protocol is language independant and follows good HTTP/REST principles,
-in the long term *Cliquet* should become only one among several server implementations.
-
-.. note::
-
-    We encourage you to implement a clone of this project — using Node.js, Asyncio,
-    Go, Twisted, Django or anything else — following :ref:`the same protocol <api-endpoints>`!
-
 
 Roadmap
 -------
@@ -193,7 +165,6 @@ Roadmap
 The future features we plan to implement in *Cliquet* are currently driven by the
 use-cases we meet internally at Mozilla. Most notable are:
 
-* Permissions system (e.g. read-only and record sharing);
 * Notifications channel (e.g. run asynchronous tasks on events or listen for
   changes);
 * Attachments on records (e.g. *Remote Storage* compatibility);
@@ -209,6 +180,14 @@ Similar projects
 
 * `Python Eve <http://python-eve.org/>`_, built on Flask and MongoDB;
 * *Please contact us to add more if any*.
+
+Since the protocol is language independant and follows good HTTP/REST principles,
+in the long term *Cliquet* should become only one among several server implementations.
+
+.. note::
+
+    We encourage you to implement a clone of this project — using Node.js, Asyncio,
+    Go, Twisted, Django or anything else — following :ref:`the same protocol <api-endpoints>`!
 
 
 .. [#] Switch from custom protocol to `JSON-API spec`_ is `being discussed`_.

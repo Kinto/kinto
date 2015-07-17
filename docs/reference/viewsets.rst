@@ -22,7 +22,7 @@ Default viewset can be extended by passing viewset arguments to the
     from cliquet import resource
 
 
-    @resource.register(validate_shema_for('POST', 'PUT', 'PATCH'))
+    @resource.register(collection_methods=('GET',))
     class Resource(resource.BaseResource):
         mapping = BookmarkSchema()
 
