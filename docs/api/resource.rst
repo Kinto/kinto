@@ -151,7 +151,7 @@ collection was not changed, a ``304 Not Modified`` response is returned.
 
 .. note::
 
-   The ``_to`` parameter is also available, and is an alias for
+   The ``_before`` parameter is also available, and is an alias for
    ``lt_last_modified`` (*strictly inferior*).
 
 
@@ -228,7 +228,7 @@ List of available URL parameters
 --------------------------------
 
 - ``<prefix?><attribute name>``: filter by value(s)
-- ``_since``, ``_to``: polling changes
+- ``_since``, ``_before``: polling changes
 - ``_sort``: order list
 - ``_limit``: pagination max size
 - ``_token``: pagination token
