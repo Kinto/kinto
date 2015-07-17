@@ -1,0 +1,29 @@
+pre .err {
+    border: none;
+}
+
+ul > li > em:last-child {
+    opacity: 0.6;
+}
+
+ul > li {
+    list-style-type: inherit;
+    list-style-type: '- ';
+}
+
+h1 > em {
+    font-style: normal;
+    opacity: 0.5;
+}
+
+.slide section p {
+    font-size: 25px;
+}
+
+.slide section p > tt {
+    font-size: 20px;
+}
+
+.slide section img.align-right {
+    float: right;
+}
