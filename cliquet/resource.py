@@ -402,7 +402,7 @@ class BaseResource(object):
             id_field = self.collection.id_field
             new_record[id_field] = _id = self.request.json['data'][id_field]
             self._raise_400_if_invalid_id(_id)
-        except KeyError:
+        except (KeyError, ValueError):
             pass
 
         new_record = self.process_record(new_record)

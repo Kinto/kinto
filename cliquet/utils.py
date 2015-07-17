@@ -229,3 +229,14 @@ def decode_header(value, encoding='utf-8'):
     if type(value) == six.binary_type:
         value = value.decode(encoding)
     return value
+
+
+class classproperty(object):
+    """Decorator to defined a class property.
+    Source: http://stackoverflow.com/a/5192374
+    """
+    def __init__(self, f):
+        self.f = f
+
+    def __get__(self, obj, owner):
+        return self.f(owner)

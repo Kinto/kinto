@@ -11,6 +11,10 @@ This document describes changes between each past release.
 - Provide the userid when calling the hello page with an Authorization
   header. (#319)
 
+**Bug fixes**
+
+- ``data`` is not mandatory in request body if the resource does not define
+  any schema (fixes mozilla-services#63)
 
 2.3.1 (2015-07-15)
 ------------------

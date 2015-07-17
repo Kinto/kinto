@@ -14,3 +14,9 @@ class Mushroom(resource.BaseResource):
 @resource.register()
 class Toadstool(resource.ProtectedResource):
     mapping = MushroomSchema()
+
+
+@resource.register()
+class Moisture(resource.ProtectedResource):
+    # Empty schema.
+    pass
