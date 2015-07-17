@@ -31,24 +31,6 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     sample_url = "/mushrooms"
 
-    def assertFormattedError(self, response, code, errno, error,
-                             message=None, info=None):
-        self.assertEqual(response.headers['Content-Type'],
-                         'application/json; charset=UTF-8')
-        self.assertEqual(response.json['code'], code)
-        self.assertEqual(response.json['errno'], errno)
-        self.assertEqual(response.json['error'], error)
-
-        if message is not None:
-            self.assertIn(message, response.json['message'])
-        else:
-            self.assertNotIn('message', response.json)
-
-        if info is not None:
-            self.assertIn(info, response.json['info'])
-        else:
-            self.assertNotIn('info', response.json)
-
     def test_backoff_headers_is_not_present_if_no_error(self):
         response = self.app.get(self.sample_url,
                                 headers=self.headers, status=200)
@@ -100,6 +82,21 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             response, 500, ERRORS.UNDEFINED, "Internal Server Error",
             "A programmatic error occured, developers have been informed.",
             "https://github.com/mozilla-services/cliquet/issues/")
+
+    def test_500_info_link_can_be_configured(self):
+        with mock.patch(
+                'cliquet.tests.testapp.views.Mushroom._extract_filters',
+                side_effect=ValueError):
+            link = "https://github.com/mozilla-services/kinto/issues/"
+            app = self._get_test_app({
+                'cliquet.error_info_link': link
+            })
+            response = app.get(self.sample_url,
+                               headers=self.headers, status=500)
+        self.assertFormattedError(
+            response, 500, ERRORS.UNDEFINED, "Internal Server Error",
+            "A programmatic error occured, developers have been informed.",
+            link)
 
     def test_503_is_valid_formatted_error(self):
         with mock.patch(
