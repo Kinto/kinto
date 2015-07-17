@@ -34,6 +34,8 @@ DEFAULT_SETTINGS = {
     'cliquet.eos': None,
     'cliquet.eos_message': None,
     'cliquet.eos_url': None,
+    'cliquet.error_info_link':
+    "https://github.com/mozilla-services/cliquet/issues/",
     'cliquet.http_host': None,
     'cliquet.http_scheme': None,
     'cliquet.id_generator': 'cliquet.storage.generators.UUID4',
