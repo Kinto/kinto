@@ -27,7 +27,7 @@ class MemoryBasedStorage(StorageBase):
                    id_field=DEFAULT_ID_FIELD,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
-                   auth=None, delete_tombstones=False):
+                   auth=None):
         records, count = self.get_all(collection_id, parent_id,
                                       filters=filters,
                                       id_field=id_field,
@@ -38,13 +38,6 @@ class MemoryBasedStorage(StorageBase):
                                modified_field=modified_field,
                                deleted_field=deleted_field)
                    for r in records]
-
-        if delete_tombstones:
-            self.delete_tombstones(collection_id, parent_id,
-                                   id_field=id_field,
-                                   modified_field=modified_field,
-                                   auth=auth)
-
         return deleted
 
     def strip_deleted_record(self, resource, parent_id, record,

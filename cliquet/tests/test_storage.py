@@ -566,17 +566,6 @@ class DeletedRecordsTest(object):
         _, count = self.storage.get_all(**self.storage_kw)
         self.assertEqual(count, 1)
 
-    def test_delete_all_can_remove_tombstones(self):
-        self.create_record()
-        stored = self.create_record()
-        self.storage.delete(object_id=stored['id'], **self.storage_kw)
-        self.storage.delete_all(delete_tombstones=True, **self.storage_kw)
-
-        records, count = self.storage.get_all(include_deleted=True,
-                                              **self.storage_kw)
-        self.assertEqual(len(records), 0)
-        self.assertEqual(count, 0)
-
     def test_delete_tombstones_remove_all_tombstones(self):
         self.create_record()
         self.create_record()

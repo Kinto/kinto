@@ -407,7 +407,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                    id_field=DEFAULT_ID_FIELD,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
-                   auth=None, delete_tombstones=False):
+                   auth=None):
         query = """
         WITH deleted_records AS (
             DELETE
@@ -447,12 +447,6 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             record[modified_field] = result['last_modified']
             record[deleted_field] = True
             records.append(record)
-
-        if delete_tombstones:
-            self.delete_tombstones(collection_id, parent_id,
-                                   id_field=id_field,
-                                   modified_field=modified_field,
-                                   auth=auth)
 
         return records
 
