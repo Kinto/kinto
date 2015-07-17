@@ -12,16 +12,14 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(BucketViewTest, self).setUp()
-        bucket = MINIMALIST_BUCKET.copy()
         resp = self.app.put_json(self.record_url,
-                                 bucket,
+                                 MINIMALIST_BUCKET,
                                  headers=self.headers)
         self.record = resp.json['data']
 
     def test_buckets_are_global_to_every_users(self):
         self.app.patch_json(self.record_url,
-                            {'data': {},
-                             'permissions': {'read': [Authenticated]}},
+                            {'permissions': {'read': [Authenticated]}},
                             headers=self.headers)
         self.app.get(self.record_url, headers=get_user_headers('alice'))
 
