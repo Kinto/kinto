@@ -155,12 +155,11 @@ collection was not changed, a ``304 Not Modified`` response is returned.
    ``lt_last_modified`` (*strictly inferior*).
 
 
-.. warning::
+.. versionchanged:: 2.4::
 
-   In cliquet 2.4.0, _to was renamed _before. ``_to`` will still be
-   supported, with a ``soft-eol`` alert header, until the next major
-   version of cliquet, also you should update your code to use
-   ``_before`` from now on.
+   ``_to`` was renamed ``_before``. ``_to`` will still be supported,
+   until the next major version of cliquet, also you should update
+   your code to use ``_before`` from now on.
 
 
 **Request**:
