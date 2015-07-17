@@ -2,7 +2,7 @@ import six
 from pyramid import httpexceptions
 
 from cliquet import logger
-from cliquet.utils import Enum, json, reapply_cors
+from cliquet.utils import Enum, json, reapply_cors, encode_header
 
 
 ERRORS = Enum(
@@ -166,3 +166,20 @@ def raise_invalid(request, location='body', name=None, description=None,
     request.errors.add(location, name, description, **kwargs)
     response = json_error_handler(request.errors)
     raise response
+
+
+def send_alert(request, message, url=None, code='soft-eol'):
+    """Helper to add an Alert header to the response.
+
+    :param code: The type of error 'soft-eol', 'hard-eol'
+    :param message: The description message.
+    :param url: The URL for more information, default to the documentation url.
+    """
+    if url is None:
+        url = request.registry.settings['cliquet.project_docs']
+
+    request.response.headers['Alert'] = encode_header(json.dumps({
+        'code': code,
+        'message': message,
+        'url': url
+    }))
