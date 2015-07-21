@@ -92,7 +92,7 @@ class MozillaHekaRenderer(object):
             value = event_dict.pop(f)
 
             # Heka relies on Protobuf, which doesn't support recursive objects.
-            if isinstance(value, (dict)):
+            if isinstance(value, dict):
                 value = utils.json.dumps(value)
             elif isinstance(value, (list, tuple)):
                 if not all([isinstance(i, six.string_types) for i in value]):
