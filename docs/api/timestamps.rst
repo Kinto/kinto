@@ -36,9 +36,8 @@ in the ``Last-Modified`` response headers:
     In previous versions, cache and concurrency control was handled using
     ``If-Modified-Since`` and ``If-Unmodified-Since``. But since the HTTP date
     does not include milliseconds, they contained the milliseconds timestamp as
-    integer. The current version using ``ETag`` is HTTP compliant.
-
-    (*see `original discussion <https://github.com/mozilla-services/cliquet/issues/251>`_*)
+    integer. The current version using ``ETag`` is HTTP compliant (see
+    `original discussion <https://github.com/mozilla-services/cliquet/issues/251>`_.)
 
 .. note::
 
