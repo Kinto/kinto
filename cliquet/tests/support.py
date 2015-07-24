@@ -120,6 +120,27 @@ class ThreadMixin(object):
         return thread
 
 
+class FormattedErrorMixin(object):
+
+    def assertFormattedError(self, response, code, errno, error,
+                             message=None, info=None):
+        self.assertEqual(response.headers['Content-Type'],
+                         'application/json; charset=UTF-8')
+        self.assertEqual(response.json['code'], code)
+        self.assertEqual(response.json['errno'], errno)
+        self.assertEqual(response.json['error'], error)
+
+        if message is not None:
+            self.assertIn(message, response.json['message'])
+        else:
+            self.assertNotIn('message', response.json)
+
+        if info is not None:
+            self.assertIn(info, response.json['info'])
+        else:
+            self.assertNotIn('info', response.json)
+
+
 @implementer(IAuthorizationPolicy)
 class AllowAuthorizationPolicy(object):
     def permits(self, context, principals, permission):
