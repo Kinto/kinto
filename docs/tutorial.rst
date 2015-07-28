@@ -22,12 +22,13 @@ In order to separate data between each user, we will use the default
 Unlike other buckets, the :ref:`collections <collections>` in the ``default``
 :ref:`bucket <buckets>` are created implicitly.
 
-Let us start with a really simple data model:
+We'll start with a relatively simple data model:
 
   - ``description``: A string describing the task
   - ``status``: The status of the task, (e.g. ``todo``, ``doing`` or ``done``).
 
-And post a sample record in the ``tasks`` collection:
+Using the `httpie <http://httpie.org>` tool we can post a sample record in the
+``tasks`` collection:
 
 .. code-block:: http
 
@@ -79,7 +80,7 @@ And post a sample record in the ``tasks`` collection:
 
     With *Basic Auth*, users registration is , necessary, a unique user
     identifier is built using any combination of username and password.
-    Consequently, users cannot change their password without loosing access to
+    Consequently, users cannot change their password without losing access to
     their data.
 
 
@@ -122,10 +123,10 @@ Let us fetch our new collection of tasks:
 
 
 Keep a note of the ``ETag`` and of the ``last_modified`` values
-returned (here both ``"1436171996916"``), we'll need them for a later
+returned (here both ``"1436171996916"``) - we'll need them for a later
 example.
 
-We can obviously also update one of our tasks, using its ``id``:
+We can also update one of our tasks using its ``id``:
 
 .. code-block:: http
 
@@ -172,20 +173,20 @@ We can obviously also update one of our tasks, using its ``id``:
         }
     }
 
-There you should ask yourself, what happens if another device already
-updated the record in between, will this request overwrite changes?
+Here you should ask yourself: what happens if another device updated the same
+record in the interim - will this request overwrite those changes?
 
-With the request shown above, yes it will.
+With the request shown above the answer is *yes*.
 
-In case you want the server to reject changes if the record was modified
-in the interim, you must send the ``If-Match`` header.
+If you want the server to reject changes if the record was modified in the
+interim, you must send the ``If-Match`` header.
 
 In the ``If-Match`` header, you can send either the ``ETag`` header value you
 obtained while fetching the collection, or the value of the ``last_modified``
 data field you had for this record.
 
 Let's try to modify the record using an obsolete value of ``ETag`` (obtained
-while we fetched the collection earlier, which we asked you to keep note of):
+while we fetched the collection earlier - you kept a note, didn't you?):
 
 .. code-block:: http
 
@@ -230,8 +231,8 @@ while we fetched the collection earlier, which we asked you to keep note of):
 As expected here, the server rejects the modification with a ``412 Precondition Failed``
 error response.
 
-In order to update this record safely, we can fetch the last version of this single record,
-and merge attributes locally:
+In order to update this record safely we can fetch the last version of this
+single record and merge attributes locally:
 
 .. code-block:: http
 
@@ -272,9 +273,9 @@ and merge attributes locally:
         }
     }
 
-The strategy to merge changes locally are up to client, and might depend
-on the client specifications. *Three-way merge* is possible when changes do
-not affect the same fields, or if both objects are equal. Prompting the user
+The strategy to merge local changes is left to the client and might depend on
+the client specifications. A *three-way merge* is possible when changes do
+not affect the same fields or if both objects are equal. Prompting the user
 to decide what version should be kept might also be an option.
 
 Once merged, we can send back again our modifications using the last
@@ -366,9 +367,10 @@ You can also delete the record and use the same mechanism to avoid conflicts:
 
 
 Likewise, we can query the list of changes (updates and deletions) that occured
-since we had fetched the collection.
+since we last fetched the collection.
 
-Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or ``last_modified`` data field):
+Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
+``last_modified`` data field):
 
 .. code-block:: http
 
@@ -407,16 +409,16 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or 
     }
 
 
-The list will be empty if no change occured. Instead, you can also use the
-``If-None-Match`` header with the last ``ETag`` value in order to obtain a
-``304 Not Modified`` response if nothing changed.
+The list will be empty if no change occurred. If you would prefer to receive a
+``304 Not Modified`` response in this case, simply send the ``If-None-Match``
+header with the last ``ETag`` value.
 
 
 Sync and share data between users
 =================================
 
-Instead of using the *personal bucket*, we will create a specific bucket ``todo``
-for the application.
+In this example, instead of using the *personal bucket* we will create an
+application-specific bucket called ``todo``.
 
 .. code-block:: http
 
@@ -458,12 +460,12 @@ for the application.
         }
     }
 
-By default, the creator is the only administrator (see ``write`` permission).
+By default the creator is granted sole administrator privilees (see ``write``
+permission). In order to allow collaboration additional permissions will need
+to be granted.
 
-You will now have to define permissions to introduce collaboration.
-
-In our case, we want people to be able to create and share tasks, so
-we will create a ``tasks`` collection with the ``record:create`` permission for
+In our case, we want people to be able to create and share tasks, so we will
+create a ``tasks`` collection with the ``record:create`` permission for
 authenticated users (i.e. ``system.Authenticated``):
 
 .. code-block:: http
@@ -618,8 +620,8 @@ And Bob can also create a task:
     }
 
 
-If Alice wants to share a task with Bob, she can give him the ``read`` permission
-on her records:
+If Alice wants to share a task with Bob, she can give him the ``read``
+permission on her records:
 
 .. code-block:: http
 
@@ -674,8 +676,8 @@ on her records:
     }
 
 
-Here we share individual records, and nobody (except its creator) can obtain the
-collection records. For example, a ``read`` permission could be added on
+Here we share individual records and nobody (except the creator) can obtain
+the collection records. For example, a ``read`` permission could be added on
 the collection to allow authenticated users to list the whole list.
 
 .. note::
@@ -744,7 +746,7 @@ bucket:
         }
     }
 
-Now Alice can create a group of her friends Bob and Mary:
+Now Alice can create a group of her friends (Bob and Mary):
 
 .. code-block:: http
 
@@ -798,7 +800,7 @@ Now Alice can create a group of her friends Bob and Mary:
         }
     }
 
-Consequently, Alice can share her records directly with her group of friends:
+Now Alice can share records directly with her group of friends:
 
 .. code-block:: http
 
@@ -853,7 +855,7 @@ Consequently, Alice can share her records directly with her group of friends:
         }
     }
 
-And now, Mary can access the record:
+And now Mary can access the record:
 
 .. code-block:: http
 
@@ -871,13 +873,13 @@ And now, Mary can access the record:
 Conclusion
 ==========
 
-In this tutorial, you have seen some of the concepts exposed by *Kinto*:
+In this tutorial you have seen some of the concepts exposed by *Kinto*:
 
-- Using the default personal user bucket;
-- Handling synchronization and conflicts;
-- Creating a bucket to share data between users;
-- Creating groups, collections and records;
-- Modifying objects permissions, for users and groups;
+- Using the default personal user bucket
+- Handling synchronization and conflicts
+- Creating a bucket to share data between users
+- Creating groups, collections and records
+- Modifying objects permissions, for users and groups
 
 More details about :ref:`permissions <permissions>`, :ref:`HTTP API headers and
 status codes <api-endpoints>`.
@@ -888,4 +890,4 @@ status codes <api-endpoints>`.
     possible to get started with *Kinto*.
 
     Please do not hesitate to :ref:`give us feedback <contributing>`, and if you are
-    interested to improve it, join us!
+    interested in making improvements, you're welcome to join us!
