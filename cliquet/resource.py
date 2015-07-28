@@ -11,7 +11,7 @@ from cliquet import authorization
 from cliquet import logger
 from cliquet import Service
 from cliquet.collection import Collection
-from cliquet.errors import http_error, raise_invalid, ERRORS
+from cliquet.errors import http_error, raise_invalid, send_alert, ERRORS
 from cliquet.schema import ResourceSchema, PermissionsSchema
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
@@ -911,22 +911,30 @@ class BaseResource(object):
             value = native_value(value)
 
             # Ignore specific fields
-            if param.startswith('_') and param not in ('_since', '_to'):
+            if param.startswith('_') and param not in ('_since',
+                                                       '_to',
+                                                       '_before'):
                 continue
 
             # Handle the _since specific filter.
-            if param in ('_since', '_to'):
+            if param in ('_since', '_to', '_before'):
                 if not isinstance(value, six.integer_types):
                     error_details = {
                         'name': param,
                         'location': 'querystring',
-                        'description': 'Invalid value for _since'
+                        'description': 'Invalid value for %s' % param
                     }
                     raise_invalid(self.request, **error_details)
 
                 if param == '_since':
                     operator = COMPARISON.GT
                 else:
+                    if param == '_to':
+                        message = ('_to is now deprecated, '
+                                   'you should use _before instead')
+                        url = ('http://cliquet.rtfd.org/en/2.4.0/api/resource'
+                               '.html#list-of-available-url-parameters')
+                        send_alert(self.request, message, url)
                     operator = COMPARISON.LT
                 filters.append(
                     Filter(self.collection.modified_field, value, operator)

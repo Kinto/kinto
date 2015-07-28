@@ -1,3 +1,4 @@
+import json
 import mock
 import time
 
@@ -7,6 +8,7 @@ from pyramid import httpexceptions
 from cliquet.resource import BaseResource
 from cliquet.tests.resource import BaseTest
 from cliquet.tests.support import ThreadMixin
+from cliquet.utils import decode_header
 
 
 class SinceModifiedTest(ThreadMixin, BaseTest):
@@ -27,10 +29,30 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 2)
 
-    def test_filter_with_to_is_exclusive(self):
+    def test_filter_with__to_is_exclusive(self):
         self.resource.request.GET = {'_to': '3'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 3)
+
+    def test_filter_with__before_is_exclusive(self):
+        self.resource.request.GET = {'_before': '3'}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 3)
+
+    def test_filter_with__to_return_an_alert_header(self):
+        self.resource.request.GET = {'_to': '3'}
+        self.resource.collection_get()
+        self.assertIn('Alert', self.resource.request.response.headers)
+        alert = self.resource.request.response.headers['Alert']
+        self.assertDictEqual(
+            decode_header(json.loads(alert)),
+            {
+                'code': 'soft-eol',
+                'message': ('_to is now deprecated, '
+                            'you should use _before instead'),
+                'url': ('http://cliquet.rtfd.org/en/2.4.0/api/resource'
+                        '.html#list-of-available-url-parameters')
+            })
 
     def test_the_timestamp_header_is_equal_to_last_modification(self):
         result = self.resource.collection_post()['data']
