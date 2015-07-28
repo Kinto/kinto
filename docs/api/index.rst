@@ -1,6 +1,6 @@
 .. _api-endpoints:
 
-API Endpoints
+HTTP Protocol
 #############
 
 .. toctree::
