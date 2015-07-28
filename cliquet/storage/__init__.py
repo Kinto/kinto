@@ -199,17 +199,17 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
-    def delete_tombstones(self, collection_id, parent_id, before=None,
-                          id_field=DEFAULT_ID_FIELD,
-                          modified_field=DEFAULT_MODIFIED_FIELD,
-                          auth=None):
-        """Delete all tombstones for deleted object in this `collection_id`
+    def purge_deleted(self, collection_id, parent_id, before=None,
+                      id_field=DEFAULT_ID_FIELD,
+                      modified_field=DEFAULT_MODIFIED_FIELD,
+                      auth=None):
+        """Delete all deleted object tombstones in this `collection_id`
         for this `parent_id`.
 
         :param str collection_id: the collection id.
         :param str parent_id: the collection parent.
 
-        :param int before: Optionnally elete tombstones older than it.
+        :param int before: Optionnal timestamp to limit deletion (exclusive)
 
         :returns: The number of deleted objects.
         :rtype: int

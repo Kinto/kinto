@@ -450,10 +450,10 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         return records
 
-    def delete_tombstones(self, collection_id, parent_id, before=None,
-                          id_field=DEFAULT_ID_FIELD,
-                          modified_field=DEFAULT_MODIFIED_FIELD,
-                          auth=None):
+    def purge_deleted(self, collection_id, parent_id, before=None,
+                      id_field=DEFAULT_ID_FIELD,
+                      modified_field=DEFAULT_MODIFIED_FIELD,
+                      auth=None):
         query = """
         DELETE
         FROM deleted
@@ -470,7 +470,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
         if before is not None:
             safeholders['conditions_filter'] = (
-                'AND as_epoch(last_modified) < %%(before)s')
+                'AND as_epoch(last_modified) < %(before)s')
             placeholders['before'] = before
 
         with self.connect() as cursor:

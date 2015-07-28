@@ -52,7 +52,7 @@ class StorageBaseTest(unittest.TestCase):
             (self.storage.update, '', '', '', {}),
             (self.storage.delete, '', '', ''),
             (self.storage.delete_all, '', ''),
-            (self.storage.delete_tombstones, '', ''),
+            (self.storage.purge_deleted, '', ''),
             (self.storage.get_all, '', ''),
         ]
         for call in calls:
@@ -134,7 +134,7 @@ class BaseTestStorage(object):
             (self.storage.update, dict(object_id='', record={})),
             (self.storage.delete, dict(object_id='')),
             (self.storage.delete_all, {}),
-            (self.storage.delete_tombstones, {}),
+            (self.storage.purge_deleted, {}),
             (self.storage.get_all, {}),
         ]
         for call, kwargs in calls:
@@ -566,25 +566,26 @@ class DeletedRecordsTest(object):
         _, count = self.storage.get_all(**self.storage_kw)
         self.assertEqual(count, 1)
 
-    def test_delete_tombstones_remove_all_tombstones(self):
+    def test_purge_deleted_remove_all_tombstones(self):
         self.create_record()
         self.create_record()
         self.storage.delete_all(**self.storage_kw)
-        num_removed = self.storage.delete_tombstones(**self.storage_kw)
+        num_removed = self.storage.purge_deleted(**self.storage_kw)
         self.assertEqual(num_removed, 2)
         records, count = self.storage.get_all(include_deleted=True,
                                               **self.storage_kw)
         self.assertEqual(count, 0)
         self.assertEqual(len(records), 0)
 
-    def test_delete_tombstones_remove_with_before_remove_olders_only(self):
+    def test_purge_deleted_remove_with_before_remove_olders_exclusive(self):
         older = self.create_record()
         newer = self.create_record()
         self.storage.delete(object_id=older['id'], **self.storage_kw)
-        last_deleted = self.storage.delete(object_id=newer['id'],
-                                           **self.storage_kw)
-        num_removed = self.storage.delete_tombstones(
-            before=last_deleted['last_modified'],
+        self.storage.delete(object_id=newer['id'], **self.storage_kw)
+        records, count = self.storage.get_all(include_deleted=True,
+                                              **self.storage_kw)
+        num_removed = self.storage.purge_deleted(
+            before=max([r['last_modified'] for r in records]),
             **self.storage_kw)
         self.assertEqual(num_removed, 1)
         records, count = self.storage.get_all(include_deleted=True,

@@ -238,10 +238,10 @@ class Memory(MemoryBasedStorage):
 
         return existing
 
-    def delete_tombstones(self, collection_id, parent_id, before=None,
-                          id_field=DEFAULT_ID_FIELD,
-                          modified_field=DEFAULT_MODIFIED_FIELD,
-                          auth=None):
+    def purge_deleted(self, collection_id, parent_id, before=None,
+                      id_field=DEFAULT_ID_FIELD,
+                      modified_field=DEFAULT_MODIFIED_FIELD,
+                      auth=None):
         num_deleted = len(self._cemetery[collection_id][parent_id].keys())
         if before is not None:
             kept = {key: value for key, value in

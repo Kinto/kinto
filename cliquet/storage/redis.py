@@ -208,10 +208,10 @@ class Redis(MemoryBasedStorage):
         return existing
 
     @wrap_redis_error
-    def delete_tombstones(self, collection_id, parent_id, before=None,
-                          id_field=DEFAULT_ID_FIELD,
-                          modified_field=DEFAULT_MODIFIED_FIELD,
-                          auth=None):
+    def purge_deleted(self, collection_id, parent_id, before=None,
+                      id_field=DEFAULT_ID_FIELD,
+                      modified_field=DEFAULT_MODIFIED_FIELD,
+                      auth=None):
         deleted_ids = '{0}.{1}.deleted'.format(collection_id, parent_id)
         ids = self._client.smembers(deleted_ids)
 
@@ -228,13 +228,12 @@ class Redis(MemoryBasedStorage):
             to_remove = [d['id'] for d in deleted
                          if d[modified_field] < before]
         else:
-            to_remove = deleted
+            to_remove = [d['id'] for d in deleted]
 
         with self._client.pipeline() as pipe:
-            pipe.delete(['{0}.{1}.{2}.deleted'.format(collection_id, parent_id,
-                                                      _id)
-                         for _id in to_remove])
-            pipe.srem(deleted_ids, to_remove)
+            pipe.delete(*['{0}.{1}.{2}.deleted'.format(
+                collection_id, parent_id, _id) for _id in to_remove])
+            pipe.srem(deleted_ids, *to_remove)
             pipe.execute()
         number_deleted = len(to_remove)
         return number_deleted
