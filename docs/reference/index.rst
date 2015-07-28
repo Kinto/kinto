@@ -1,6 +1,6 @@
 .. _reference:
 
-Reference
+Internals
 #########
 
 .. toctree::
