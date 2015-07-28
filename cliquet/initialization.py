@@ -152,28 +152,23 @@ def _end_of_life_tween_factory(handler, registry):
         eos_date = registry.settings['cliquet.eos']
         eos_url = registry.settings['cliquet.eos_url']
         eos_message = registry.settings['cliquet.eos_message']
-        if eos_date:
-            eos_date = dateparser.parse(eos_date)
-            alert = {}
-            if eos_url is not None:
-                alert['url'] = eos_url
+        if not eos_date:
+            return handler(request)
 
-            if eos_message is not None:
-                alert['message'] = eos_message
+        eos_date = dateparser.parse(eos_date)
+        if eos_date > datetime.now():
+            code = "soft-eol"
+            request.response = handler(request)
+        else:
+            code = "hard-eol"
+            request.response = errors.http_error(
+                HTTPGone(),
+                errno=errors.ERRORS.SERVICE_DEPRECATED,
+                message=deprecation_msg)
 
-            if eos_date > datetime.now():
-                alert['code'] = "soft-eol"
-                response = handler(request)
-            else:
-                response = errors.http_error(
-                    HTTPGone(),
-                    errno=errors.ERRORS.SERVICE_DEPRECATED,
-                    message=deprecation_msg)
-                alert['code'] = "hard-eol"
-            alert = utils.encode_header(utils.json.dumps(alert))
-            response.headers['Alert'] = alert
-            return response
-        return handler(request)
+        errors.send_alert(request, eos_message, url=eos_url, code=code)
+        return request.response
+
     return eos_tween
 
 

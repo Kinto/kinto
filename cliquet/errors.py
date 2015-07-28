@@ -168,7 +168,7 @@ def raise_invalid(request, location='body', name=None, description=None,
     raise response
 
 
-def send_alert(request, message, url=None, code='soft-eol'):
+def send_alert(request, message=None, url=None, code='soft-eol'):
     """Helper to add an Alert header to the response.
 
     :param code: The type of error 'soft-eol', 'hard-eol'
