@@ -78,11 +78,10 @@ Using the `httpie <http://httpie.org>` tool we can post a sample record in the
 
 .. note::
 
-    With *Basic Auth*, users registration is , necessary, a unique user
-    identifier is built using any combination of username and password.
-    Consequently, users cannot change their password without losing access to
-    their data.
-
+    With *Basic Auth* a unique identifier needs to be associated with each
+    user. This identifier is built using a combination of username and
+    password, therefore users cannot change their password without losing
+    access to their data.
 
 Let us fetch our new collection of tasks:
 
