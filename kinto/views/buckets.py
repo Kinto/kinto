@@ -117,7 +117,9 @@ class Bucket(resource.ProtectedResource):
         # Delete groups.
         storage = self.collection.storage
         parent_id = '/buckets/%s' % self.record_id
-        storage.delete_all(collection_id='group', parent_id=parent_id)
+        storage.delete_all(collection_id='group',
+                           parent_id=parent_id,
+                           with_deleted=False)
         storage.purge_deleted(collection_id='group',
                               parent_id=parent_id)
 
