@@ -601,6 +601,10 @@ class DeletedRecordsTest(object):
         self.assertEqual(count, 0)
         self.assertEqual(len(records), 0)
 
+    def test_purge_deleted_works_when_no_tombstones(self):
+        num_removed = self.storage.purge_deleted(**self.storage_kw)
+        self.assertEqual(num_removed, 0)
+
     def test_purge_deleted_remove_with_before_remove_olders_exclusive(self):
         older = self.create_record()
         newer = self.create_record()

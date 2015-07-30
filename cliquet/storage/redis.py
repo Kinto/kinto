@@ -232,11 +232,12 @@ class Redis(MemoryBasedStorage):
         else:
             to_remove = [d['id'] for d in deleted]
 
-        with self._client.pipeline() as pipe:
-            pipe.delete(*['{0}.{1}.{2}.deleted'.format(
-                collection_id, parent_id, _id) for _id in to_remove])
-            pipe.srem(deleted_ids, *to_remove)
-            pipe.execute()
+        if len(to_remove) > 0:
+            with self._client.pipeline() as pipe:
+                pipe.delete(*['{0}.{1}.{2}.deleted'.format(
+                    collection_id, parent_id, _id) for _id in to_remove])
+                pipe.srem(deleted_ids, *to_remove)
+                pipe.execute()
         number_deleted = len(to_remove)
         return number_deleted
 
