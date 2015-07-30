@@ -6,11 +6,11 @@ Permissions
 Before to start, make sure to have read the :ref:`Understanding
 permissions <permissions>` paragraph.
 
-Permissions can be added on any manipulated objects (:ref:`buckets
-<buckets>`, :ref:`groups <groups>`, :ref:`collections <collections>`,
+Permissions can be added on any objects (:ref:`buckets <buckets>`,
+:ref:`groups <groups>`, :ref:`collections <collections>`,
 :ref:`records <records>`)
 
-By default the creator of an object grab write privileges on this
+By default the ``write`` permission is given to the creator of an
 object.
 
 
@@ -19,7 +19,7 @@ How do I get my Kinto user id?
 
 To be able to add permissions for a user, the user id is needed.
 
-The user id can be found by calling the ``/`` endpoint logged.
+The currently authenticated user id can be obtained on the root url.
 
 .. code-block::
     :emphasize-lines: 16
@@ -48,25 +48,19 @@ In this case the user id is: ``basicauth:631c2d625ee5726172cf67c6750de10a3e1a04b
 
 .. note::
 
-    In case of sharing, users may need to register their user id
-    associated with their email address for other user to add permission
-    to them.
+    In case of sharing, users need a way to share their user id with
+    people that needs to give them permission.
 
 
 Object permissions
 ==================
 
-On each object, it is possible to add ``write`` and ``read``
-permissions as well as ``sub-object:create`` ones.
-
 .. note::
 
-    In Kinto, object inherit their parents ones. i.e: giving the read
-    permission to a user on a bucket gives read permissions on all
-    objects stored in the bucket.
+    Please make sure to have read the :ref:`permission documentation <permissions>`
+    first.
 
-
-For instance, we can look at our own bucket permissions.
+For instance, we can look at our *personal bucket* permissions.
 
 .. code-block::
 
@@ -82,9 +76,9 @@ For instance, we can look at our own bucket permissions.
 
     {
         "data": {
-            "id": "46524be8-0ad7-3ac6-e260-71f8993feffa", 
+            "id": "46524be8-0ad7-3ac6-e260-71f8993feffa",
             "last_modified": 1437040770742
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
@@ -93,7 +87,7 @@ For instance, we can look at our own bucket permissions.
     }
 
 
-We can look at our own tasks collections permissions.
+Similarly, the permissions of a collection can be obtained with a ``GET``:
 
 .. code-block::
 
@@ -109,9 +103,9 @@ We can look at our own tasks collections permissions.
 
     {
         "data": {
-            "id": "tasks", 
+            "id": "tasks",
             "last_modified": 1437040830468
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
@@ -123,14 +117,16 @@ We can look at our own tasks collections permissions.
 Managing object permissions
 ===========================
 
-You can use PUT or PATCH to update or replace :term:`ACLs <ACL>` for an object.
+Permissions can be specified during the creation of an object, and can
+later be updated using PUT or PATCH.
 
 .. note::
 
-    The user that run the permission update is always added to the
-    write ACL in order not to loose control of the object.
+   The user that updates the permissions is always given the ``write``
+   permission, in order to prevent loosing ownership on the object.
 
-A blog bucket could be created with the following to give read access to everyone.
+A :ref:`blog bucket <permissions-use-cases>` could be created with the following to
+give read access to everyone.
 
 .. code-block::
 
@@ -150,26 +146,25 @@ A blog bucket could be created with the following to give read access to everyon
 
     {
         "data": {
-            "id": "servicedenuages-blog", 
+            "id": "servicedenuages-blog",
             "last_modified": 1437056437581
-        }, 
+        },
         "permissions": {
             "read": [
                 "system.Authenticated"
-            ], 
+            ],
             "write": [
                 "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
             ]
         }
     }
 
-Then it is possible to create ``articles`` and ``comments`` collection
-with everyone having read access to their respective records.
+Now it will be possible to create two collections (``articles`` and
+``comments``) in this bucket. Users will be able to read their content.
 
 .. code-block::
 
-    $ echo '{"data":{}}' | \
-        http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles \
+    $ http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles \
         --auth user:pass
 
     HTTP/1.1 201 Created
@@ -184,9 +179,9 @@ with everyone having read access to their respective records.
 
     {
         "data": {
-            "id": "articles", 
+            "id": "articles",
             "last_modified": 1437057639758
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
@@ -210,9 +205,9 @@ with everyone having read access to their respective records.
 
     {
         "data": {
-            "id": "comments", 
+            "id": "comments",
             "last_modified": 1437057699755
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
@@ -239,12 +234,12 @@ We can add an article.
 
     {
         "data": {
-            "content": "my content", 
-            "id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", 
-            "last_modified": 1437057825171, 
-            "published_at": "Thu Jul 16 16:44:15 CEST 2015", 
+            "content": "my content",
+            "id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c",
+            "last_modified": 1437057825171,
+            "published_at": "Thu Jul 16 16:44:15 CEST 2015",
             "title": "My article"
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
@@ -270,12 +265,12 @@ Everybody can read the article:
 
     {
         "data": {
-            "content": "my content", 
-            "id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", 
-            "last_modified": 1437057825171, 
-            "published_at": "Thu Jul 16 16:44:15 CEST 2015", 
+            "content": "my content",
+            "id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c",
+            "last_modified": 1437057825171,
+            "published_at": "Thu Jul 16 16:44:15 CEST 2015",
             "title": "My article"
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
@@ -283,7 +278,8 @@ Everybody can read the article:
         }
     }
 
-If we want everyone to be able to add a comment, we can PATCH the comments collections.
+If we want everyone to be able to add a comment, we can PATCH the
+permissions of the ``comments`` collections.
 
 .. code-block::
 
@@ -303,13 +299,13 @@ If we want everyone to be able to add a comment, we can PATCH the comments colle
 
     {
         "data": {
-            "id": "comments", 
+            "id": "comments",
             "last_modified": 1437057699755
-        }, 
+        },
         "permissions": {
             "record:create": [
                 "system.Authenticated"
-            ], 
+            ],
             "write": [
                 "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
             ]
@@ -339,7 +335,7 @@ Now everyone can add a comment.
             "comment": "my comment",
             "id": "5e2292d5-8818-4cd4-be7d-d5a834d36de6",
             "last_modified": 1437058244384
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"
@@ -352,7 +348,9 @@ Permissions and groups
 
 It is possible to give an ACL to a group.
 
-Let's create a new group.
+As described in the :ref:`use case page <permissions-use-cases>`, let us create a
+new group ``writers``:
+
 
 .. code-block::
 
@@ -372,12 +370,12 @@ Let's create a new group.
 
     {
         "data": {
-            "id": "writers", 
-            "last_modified": 1437058498218, 
+            "id": "writers",
+            "last_modified": 1437058498218,
             "members": [
                 "basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"
             ]
-        }, 
+        },
         "permissions": {
             "write": [
                 "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
@@ -405,15 +403,15 @@ Then we can give the write ACL on the bucket for the group.
 
     {
         "data": {
-            "id": "servicedenuages-blog", 
+            "id": "servicedenuages-blog",
             "last_modified": 1437056437581
-        }, 
+        },
         "permissions": {
             "read": [
                 "system.Authenticated"
-            ], 
+            ],
             "write": [
-                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6", 
+                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6",
                 "/buckets/servicedenuages-blog/groups/writers"
             ]
         }
@@ -436,12 +434,12 @@ Now the user Natim can create articles.
 
 {
     "data": {
-        "content": "natims content", 
-        "id": "f9a61750-f61f-402b-8785-1647c9325a5d", 
-        "last_modified": 1437058727907, 
-        "published_at": "Thu Jul 16 16:59:16 CEST 2015", 
+        "content": "natims content",
+        "id": "f9a61750-f61f-402b-8785-1647c9325a5d",
+        "last_modified": 1437058727907,
+        "published_at": "Thu Jul 16 16:59:16 CEST 2015",
         "title": "Natim article"
-    }, 
+    },
     "permissions": {
         "write": [
             "basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"
@@ -453,7 +451,7 @@ Now the user Natim can create articles.
 Listing shared items
 ====================
 
-One can fetch the list of article.
+One can fetch the list of articles.
 
 .. code-block::
 
@@ -475,17 +473,17 @@ One can fetch the list of article.
     {
         "data": [
             {
-                "content": "natims content", 
-                "id": "f9a61750-f61f-402b-8785-1647c9325a5d", 
-                "last_modified": 1437058727907, 
-                "published_at": "Thu Jul 16 16:59:16 CEST 2015", 
+                "content": "natims content",
+                "id": "f9a61750-f61f-402b-8785-1647c9325a5d",
+                "last_modified": 1437058727907,
+                "published_at": "Thu Jul 16 16:59:16 CEST 2015",
                 "title": "Natim article"
-            }, 
+            },
             {
-                "content": "my content", 
-                "id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", 
-                "last_modified": 1437057825171, 
-                "published_at": "Thu Jul 16 16:44:15 CEST 2015", 
+                "content": "my content",
+                "id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c",
+                "last_modified": 1437057825171,
+                "published_at": "Thu Jul 16 16:44:15 CEST 2015",
                 "title": "My article"
             }
         ]
