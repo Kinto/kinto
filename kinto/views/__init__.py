@@ -6,11 +6,14 @@ from pyramid import httpexceptions
 
 
 class NameGenerator(generators.Generator):
+    regexp = r'^[a-zA-Z0-9][a-zA-Z0-9_-]*$'
+
     def __call__(self):
         ascii_letters = ('abcdefghijklmopqrstuvwxyz'
                          'ABCDEFGHIJKLMOPQRSTUVWXYZ')
-        alphabet = ascii_letters + string.digits + '-'
-        letters = [random.choice(alphabet) for x in range(8)]
+        alphabet = ascii_letters + string.digits + '-_'
+        letters = [random.choice(ascii_letters + string.digits)]
+        letters += [random.choice(alphabet) for x in range(7)]
         return ''.join(letters)
 
 
