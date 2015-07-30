@@ -154,7 +154,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def delete(self, collection_id, parent_id, object_id,
-               id_field=DEFAULT_ID_FIELD,
+               id_field=DEFAULT_ID_FIELD, with_deleted=True,
                modified_field=DEFAULT_MODIFIED_FIELD,
                deleted_field=DEFAULT_DELETED_FIELD,
                auth=None):
@@ -182,7 +182,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def delete_all(self, collection_id, parent_id, filters=None,
-                   id_field=DEFAULT_ID_FIELD,
+                   id_field=DEFAULT_ID_FIELD, with_deleted=True,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
                    auth=None):

@@ -368,24 +368,34 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         return record
 
     def delete(self, collection_id, parent_id, object_id,
-               id_field=DEFAULT_ID_FIELD,
+               id_field=DEFAULT_ID_FIELD, with_deleted=True,
                modified_field=DEFAULT_MODIFIED_FIELD,
                deleted_field=DEFAULT_DELETED_FIELD,
                auth=None):
-        query = """
-        WITH deleted_record AS (
-            DELETE
-            FROM records
-            WHERE id = %(object_id)s
-              AND parent_id = %(parent_id)s
-              AND collection_id = %(collection_id)s
-            RETURNING id
-        )
-        INSERT INTO deleted (id, parent_id, collection_id)
-        SELECT id, %(parent_id)s, %(collection_id)s
-          FROM deleted_record
-        RETURNING as_epoch(last_modified) AS last_modified;
-        """
+        if with_deleted:
+            query = """
+            WITH deleted_record AS (
+                DELETE
+                FROM records
+                WHERE id = %(object_id)s
+                  AND parent_id = %(parent_id)s
+                  AND collection_id = %(collection_id)s
+                RETURNING id
+            )
+            INSERT INTO deleted (id, parent_id, collection_id)
+            SELECT id, %(parent_id)s, %(collection_id)s
+              FROM deleted_record
+            RETURNING as_epoch(last_modified) AS last_modified;
+            """
+        else:
+            query = """
+                DELETE
+                FROM records
+                WHERE id = %(object_id)s
+                  AND parent_id = %(parent_id)s
+                  AND collection_id = %(collection_id)s
+                RETURNING as_epoch(last_modified) AS last_modified;
+            """
         placeholders = dict(object_id=object_id,
                             parent_id=parent_id,
                             collection_id=collection_id)
@@ -404,24 +414,34 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         return record
 
     def delete_all(self, collection_id, parent_id, filters=None,
-                   id_field=DEFAULT_ID_FIELD,
+                   id_field=DEFAULT_ID_FIELD, with_deleted=True,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
                    auth=None):
-        query = """
-        WITH deleted_records AS (
-            DELETE
-            FROM records
-            WHERE parent_id = %%(parent_id)s
-              AND collection_id = %%(collection_id)s
-              %(conditions_filter)s
-            RETURNING id
-        )
-        INSERT INTO deleted (id, parent_id, collection_id)
-        SELECT id, %%(parent_id)s, %%(collection_id)s
-          FROM deleted_records
-        RETURNING id, as_epoch(last_modified) AS last_modified;
-        """
+        if with_deleted:
+            query = """
+            WITH deleted_records AS (
+                DELETE
+                FROM records
+                WHERE parent_id = %%(parent_id)s
+                  AND collection_id = %%(collection_id)s
+                  %(conditions_filter)s
+                RETURNING id
+            )
+            INSERT INTO deleted (id, parent_id, collection_id)
+            SELECT id, %%(parent_id)s, %%(collection_id)s
+              FROM deleted_records
+            RETURNING id, as_epoch(last_modified) AS last_modified;
+            """
+        else:
+            query = """
+                DELETE
+                FROM records
+                WHERE parent_id = %%(parent_id)s
+                  AND collection_id = %%(collection_id)s
+                  %(conditions_filter)s
+                RETURNING id, as_epoch(last_modified) AS last_modified;
+            """
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
         placeholders = dict(parent_id=parent_id,

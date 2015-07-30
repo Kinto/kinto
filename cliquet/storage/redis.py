@@ -165,7 +165,7 @@ class Redis(MemoryBasedStorage):
 
     @wrap_redis_error
     def delete(self, collection_id, parent_id, object_id,
-               id_field=DEFAULT_ID_FIELD,
+               id_field=DEFAULT_ID_FIELD, with_deleted=True,
                modified_field=DEFAULT_MODIFIED_FIELD,
                deleted_field=DEFAULT_DELETED_FIELD,
                auth=None):
@@ -186,24 +186,26 @@ class Redis(MemoryBasedStorage):
             raise exceptions.RecordNotFoundError(object_id)
 
         existing = self._decode(encoded_item)
+
         self.set_record_timestamp(collection_id, parent_id, existing,
                                   modified_field=modified_field)
         existing = self.strip_deleted_record(collection_id, parent_id,
                                              existing)
 
-        deleted_record_key = '{0}.{1}.{2}.deleted'.format(collection_id,
-                                                          parent_id,
-                                                          object_id)
-        with self._client.pipeline() as multi:
-            multi.set(
-                deleted_record_key,
-                self._encode(existing)
-            )
-            multi.sadd(
-                '{0}.{1}.deleted'.format(collection_id, parent_id),
-                object_id
-            )
-            multi.execute()
+        if with_deleted:
+            deleted_record_key = '{0}.{1}.{2}.deleted'.format(collection_id,
+                                                              parent_id,
+                                                              object_id)
+            with self._client.pipeline() as multi:
+                multi.set(
+                    deleted_record_key,
+                    self._encode(existing)
+                )
+                multi.sadd(
+                    '{0}.{1}.deleted'.format(collection_id, parent_id),
+                    object_id
+                )
+                multi.execute()
 
         return existing
 

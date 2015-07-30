@@ -543,12 +543,36 @@ class DeletedRecordsTest(object):
 
     def test_delete_all_keeps_track_of_deleted_records(self):
         filters = self._get_last_modified_filters()
-        self.create_and_delete_record()
+        record = {'challenge': 'accepted'}
+        record = self.create_record(record)
         self.storage.delete_all(**self.storage_kw)
         records, count = self.storage.get_all(filters=filters,
                                               include_deleted=True,
                                               **self.storage_kw)
         self.assertEqual(len(records), 1)
+        self.assertEqual(count, 0)
+
+    def test_delete_all_can_delete_without_deleted_items(self):
+        filters = self._get_last_modified_filters()
+        record = {'challenge': 'accepted'}
+        record = self.create_record(record)
+        self.storage.delete_all(with_deleted=False, **self.storage_kw)
+        records, count = self.storage.get_all(filters=filters,
+                                              include_deleted=True,
+                                              **self.storage_kw)
+        self.assertEqual(len(records), 0)
+        self.assertEqual(count, 0)
+
+    def test_delete_can_delete_without_deleted_items(self):
+        filters = self._get_last_modified_filters()
+        record = {'challenge': 'accepted'}
+        record = self.create_record(record)
+        self.storage.delete(object_id=record['id'], with_deleted=False,
+                            **self.storage_kw)
+        records, count = self.storage.get_all(filters=filters,
+                                              include_deleted=True,
+                                              **self.storage_kw)
+        self.assertEqual(len(records), 0)
         self.assertEqual(count, 0)
 
     def test_delete_all_deletes_records(self):

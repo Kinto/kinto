@@ -24,7 +24,7 @@ class MemoryBasedStorage(StorageBase):
         pass
 
     def delete_all(self, collection_id, parent_id, filters=None,
-                   id_field=DEFAULT_ID_FIELD,
+                   id_field=DEFAULT_ID_FIELD, with_deleted=True,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
                    auth=None):
@@ -34,7 +34,7 @@ class MemoryBasedStorage(StorageBase):
                                       modified_field=modified_field,
                                       deleted_field=deleted_field)
         deleted = [self.delete(collection_id, parent_id, r[id_field],
-                               id_field=id_field,
+                               id_field=id_field, with_deleted=with_deleted,
                                modified_field=modified_field,
                                deleted_field=deleted_field)
                    for r in records]
@@ -221,7 +221,7 @@ class Memory(MemoryBasedStorage):
         return record
 
     def delete(self, collection_id, parent_id, object_id,
-               id_field=DEFAULT_ID_FIELD,
+               id_field=DEFAULT_ID_FIELD, with_deleted=True,
                modified_field=DEFAULT_MODIFIED_FIELD,
                deleted_field=DEFAULT_DELETED_FIELD,
                auth=None):
@@ -233,7 +233,9 @@ class Memory(MemoryBasedStorage):
                                              existing)
 
         # Add to deleted items, remove from store.
-        self._cemetery[collection_id][parent_id][object_id] = existing.copy()
+        if with_deleted:
+            deleted = existing.copy()
+            self._cemetery[collection_id][parent_id][object_id] = deleted
         self._store[collection_id][parent_id].pop(object_id)
 
         return existing
