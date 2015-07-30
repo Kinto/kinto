@@ -11,7 +11,7 @@ class Generator(object):
     resource level to validate record id in requests paths.
     """
 
-    regexp = r'^[a-zA-Z0-9\-]+$'
+    regexp = r'^[a-zA-Z0-9][a-zA-Z0-9_-]*$'
     """Default record id pattern. Can be changed to comply with custom ids."""
 
     def __init__(self, config=None):
