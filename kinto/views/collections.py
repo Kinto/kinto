@@ -33,5 +33,6 @@ class Collection(resource.ProtectedResource):
         parent_id = '%s/collections/%s' % (self.collection.parent_id,
                                            self.record_id)
         storage.delete_all(collection_id='record', parent_id=parent_id)
+        storage.purge_deleted(collection_id='record', parent_id=parent_id)
 
         return result

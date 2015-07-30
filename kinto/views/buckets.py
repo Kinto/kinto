@@ -118,16 +118,24 @@ class Bucket(resource.ProtectedResource):
         storage = self.collection.storage
         parent_id = '/buckets/%s' % self.record_id
         storage.delete_all(collection_id='group', parent_id=parent_id)
+        storage.purge_deleted(collection_id='group',
+                              parent_id=parent_id)
 
         # Delete collections.
         deleted = storage.delete_all(collection_id='collection',
-                                     parent_id=parent_id)
+                                     parent_id=parent_id,
+                                     with_deleted=False)
+        storage.purge_deleted(collection_id='collection',
+                              parent_id=parent_id)
 
         # Delete records.
         id_field = self.collection.id_field
         for collection in deleted:
             parent_id = '/buckets/%s/collections/%s' % (self.record_id,
                                                         collection[id_field])
-            storage.delete_all(collection_id='record', parent_id=parent_id)
+            storage.delete_all(collection_id='record',
+                               parent_id=parent_id,
+                               with_deleted=False)
+            storage.purge_deleted(collection_id='record', parent_id=parent_id)
 
         return result
