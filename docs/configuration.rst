@@ -220,6 +220,23 @@ To use a different ini file, the ``KINTO_INI`` environment variable
 should be present with a path to it.
 
 
+Activating the flush endpoint
+=============================
+
+When using Kinto in development mode, it might be helpful to have a way to
+flush all the data that is currently stored in the database.
+
+There is a way to enable this behaviour (it is deactivated by default for
+obvious security reasons). In your `.ini` file:
+
+.. code-block :: ini
+
+    kinto.flush_endpoint_enabled = true
+
+Then, you can issue a `POST` request to the `/__flush__` endpoint to flush all
+the data.
+
+
 .. Storage backend
 .. ===============
 
