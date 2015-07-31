@@ -165,7 +165,7 @@ class Redis(MemoryBasedStorage):
 
     @wrap_redis_error
     def delete(self, collection_id, parent_id, object_id,
-               id_field=DEFAULT_ID_FIELD,
+               id_field=DEFAULT_ID_FIELD, with_deleted=True,
                modified_field=DEFAULT_MODIFIED_FIELD,
                deleted_field=DEFAULT_DELETED_FIELD,
                auth=None):
@@ -186,26 +186,60 @@ class Redis(MemoryBasedStorage):
             raise exceptions.RecordNotFoundError(object_id)
 
         existing = self._decode(encoded_item)
+
         self.set_record_timestamp(collection_id, parent_id, existing,
                                   modified_field=modified_field)
         existing = self.strip_deleted_record(collection_id, parent_id,
                                              existing)
 
-        deleted_record_key = '{0}.{1}.{2}.deleted'.format(collection_id,
-                                                          parent_id,
-                                                          object_id)
-        with self._client.pipeline() as multi:
-            multi.set(
-                deleted_record_key,
-                self._encode(existing)
-            )
-            multi.sadd(
-                '{0}.{1}.deleted'.format(collection_id, parent_id),
-                object_id
-            )
-            multi.execute()
+        if with_deleted:
+            deleted_record_key = '{0}.{1}.{2}.deleted'.format(collection_id,
+                                                              parent_id,
+                                                              object_id)
+            with self._client.pipeline() as multi:
+                multi.set(
+                    deleted_record_key,
+                    self._encode(existing)
+                )
+                multi.sadd(
+                    '{0}.{1}.deleted'.format(collection_id, parent_id),
+                    object_id
+                )
+                multi.execute()
 
         return existing
+
+    @wrap_redis_error
+    def purge_deleted(self, collection_id, parent_id, before=None,
+                      id_field=DEFAULT_ID_FIELD,
+                      modified_field=DEFAULT_MODIFIED_FIELD,
+                      auth=None):
+        deleted_ids = '{0}.{1}.deleted'.format(collection_id, parent_id)
+        ids = self._client.smembers(deleted_ids)
+
+        keys = ['{0}.{1}.{2}.deleted'.format(collection_id, parent_id,
+                                             _id.decode('utf-8'))
+                for _id in ids]
+
+        if len(keys) == 0:
+            deleted = []
+        else:
+            encoded_results = self._client.mget(keys)
+            deleted = [self._decode(r) for r in encoded_results if r]
+        if before is not None:
+            to_remove = [d['id'] for d in deleted
+                         if d[modified_field] < before]
+        else:
+            to_remove = [d['id'] for d in deleted]
+
+        if len(to_remove) > 0:
+            with self._client.pipeline() as pipe:
+                pipe.delete(*['{0}.{1}.{2}.deleted'.format(
+                    collection_id, parent_id, _id) for _id in to_remove])
+                pipe.srem(deleted_ids, *to_remove)
+                pipe.execute()
+        number_deleted = len(to_remove)
+        return number_deleted
 
     @wrap_redis_error
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,

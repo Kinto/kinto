@@ -41,6 +41,12 @@ Glossary
         the resources you defined; For one resource there are two objects: resource's
         collection and resource's records.
 
+    tombstone
+    tombstones
+        When a record is deleted in a resource, a tombstone is created to keep
+        track of the deletion when polling for changes. A tombstone only contains
+        the ``id`` and ``last_modified`` fields, everything else is really deleted.
+
     principal
     principals
         An entity that can be authenticated. Principals can be individual people,
