@@ -154,7 +154,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def delete(self, collection_id, parent_id, object_id,
-               id_field=DEFAULT_ID_FIELD, with_deleted=True,
+               with_deleted=True, id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                deleted_field=DEFAULT_DELETED_FIELD,
                auth=None):
@@ -175,6 +175,7 @@ class StorageBase(object):
         :param str parent_id: the collection parent.
 
         :param str object_id: unique identifier of the object
+        :param bool with_deleted: track deleted record with a tombstone
 
         :returns: the deleted object, with minimal set of attributes.
         :rtype: dict
@@ -182,7 +183,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def delete_all(self, collection_id, parent_id, filters=None,
-                   id_field=DEFAULT_ID_FIELD, with_deleted=True,
+                   with_deleted=True, id_field=DEFAULT_ID_FIELD,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
                    auth=None):
@@ -193,6 +194,7 @@ class StorageBase(object):
 
         :param filters: Optionnally filter the objects to delete.
         :type filters: list of :class:`cliquet.storage.Filter`
+        :param bool with_deleted: track deleted records with a tombstone
 
         :returns: the list of deleted objects, with minimal set of attributes.
         :rtype: list of dict

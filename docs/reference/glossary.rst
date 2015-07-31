@@ -43,9 +43,9 @@ Glossary
 
     tombstone
     tombstones
-        When a record is deleted in a resource, a tombstone is created to let remote
-        clients know about the deletion. Only the id and the last_modified field are kept,
-        other information are really deleted.
+        When a record is deleted in a resource, a tombstone is created to keep
+        track of the deletion when polling for changes. A tombstone only contains
+        the ``id`` and ``last_modified`` fields, everything else is really deleted.
 
     principal
     principals
