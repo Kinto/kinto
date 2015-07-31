@@ -137,11 +137,19 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.get(self.collection_url, headers=self.headers, status=404)
+        # Verify tombstones
+        resp = self.app.get('%s/collections?_since=0' % self.bucket_url,
+                            headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 0)
 
     def test_every_groups_are_deleted_too(self):
         self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.get(self.group_url, headers=self.headers, status=404)
+        # Verify tombstones
+        resp = self.app.get('%s/groups?_since=0' % self.bucket_url,
+                            headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 0)
 
     def test_every_records_are_deleted_too(self):
         self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
@@ -149,3 +157,8 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
                           headers=self.headers)
         self.app.get(self.record_url, headers=self.headers, status=404)
+
+        # Verify tombstones
+        resp = self.app.get('%s/records?_since=0' % self.collection_url,
+                            headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 0)
