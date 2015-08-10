@@ -227,13 +227,13 @@ When using Kinto in development mode, it might be helpful to have a way to
 flush all the data currently stored in the database.
 
 There is a way to enable this behaviour (it is deactivated by default for
-obvious security reasons). In your `.ini` file:
+obvious security reasons). In the `.ini` file:
 
 .. code-block :: ini
 
     kinto.flush_endpoint_enabled = true
 
-Then, you can issue a `POST` request to the `/__flush__` endpoint to flush all
+Then, issue a `POST` request to the `/__flush__` endpoint to flush all
 the data.
 
 
