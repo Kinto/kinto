@@ -144,7 +144,7 @@ PostgreSQL version 9.4 (or higher) is required.
 
 To install PostgreSQL on Ubuntu/Debian use::
 
-    sudo apt-get install postgresql-9.4 postgresql-contrib-9.4
+    sudo apt-get install postgresql-9.4
 
 If your Ubuntu/Debian distribution doesn't include version 9.4 of PostgreSQL
 look at the `PostgreSQL Ubuntu
