@@ -12,4 +12,5 @@ Internals
    cache
    permission
    errors
+   utils
    glossary

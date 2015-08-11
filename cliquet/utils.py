@@ -34,22 +34,35 @@ from colander import null
 def strip_whitespace(v):
     """Remove whitespace, newlines, and tabs from the beginning/end
     of a string.
+
+    :param str v: the string to strip.
+    :rtype: str
     """
     return v.strip(' \t\n\r') if v is not null else v
 
 
 def msec_time():
-    """Return current epoch time in milliseconds."""
+    """Return current epoch time in milliseconds.
+
+    :rtype: int
+    """
     return int(time.time() * 1000.0)  # floor
 
 
 def classname(obj):
-    """Get a classname from a class."""
+    """Get a classname from an object.
+
+    :rtype: str
+    """
     return obj.__class__.__name__.lower()
 
 
 def merge_dicts(a, b):
-    """Merge b into a recursively, without overwriting values."""
+    """Merge b into a recursively, without overwriting values.
+
+    :param dict a: the dict that will be altered with values of `b`.
+    :rtype: None
+    """
     for k, v in b.items():
         if isinstance(v, dict):
             merge_dicts(a.setdefault(k, {}), v)
@@ -59,12 +72,19 @@ def merge_dicts(a, b):
 
 def random_bytes_hex(bytes_length):
     """Return a hexstring of bytes_length cryptographic-friendly random bytes.
+
+    :param integer bytes_length: number of random bytes.
+    :rtype: str
     """
     return hexlify(os.urandom(bytes_length)).decode('utf-8')
 
 
 def native_value(value):
-    """Convert string value to native python values."""
+    """Convert string value to native python values.
+
+    :param str value: value to interprete.
+    :returns: the value coerced to python type
+    """
     if isinstance(value, six.string_types):
         if value.lower() in ['on', 'true', 'yes']:
             value = True
@@ -89,12 +109,18 @@ def read_env(key, value):
 
 
 def encode64(content, encoding='utf-8'):
-    """Encode some content in base64."""
+    """Encode some content in base64.
+
+    :rtype: str
+    """
     return b64encode(content.encode(encoding)).decode(encoding)
 
 
 def decode64(encoded_content, encoding='utf-8'):
-    """Decode some base64 encoded content."""
+    """Decode some base64 encoded content.
+
+    :rtype: str
+    """
     return b64decode(encoded_content.encode(encoding)).decode(encoding)
 
 
@@ -154,7 +180,7 @@ def build_request(original, dict_obj):
     """
     Transform a dict object into a ``pyramid.request.Request`` object.
 
-    :param original: the original batch request.
+    :param original: the original request.
     :param dict_obj: a dict object with the sub-request specifications.
     """
     api_prefix = '/%s' % original.upath_info.split('/')[1]
