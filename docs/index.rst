@@ -1,25 +1,59 @@
 .. figure :: images/logo.svg
     :align: center
 
-    `Kinto-Un <http://dragonball.wikia.com/wiki/Flying_Nimbus>`_ is a magical,
-    yellow cloud that serves as a way of transportation.
+    **Kinto** — Store, Sync, Share and Self-Host.
+
+Kinto is a lightweight JSON storage service, with synchronisation and sharing
+abilities.
+
+.. raw:: html
+
+    <table class="contentstable" align="center" style="margin-left: 30px">
+    <tr>
+        <td width="50%">
+            <h3><a href="{{ pathto("tutorial") }}">Rationale</a></h3>
+            <p>Get a high level overview of what Kinto is.</p>
+        </td>
+        <td width="50%">
+            <h3><a href="{{ pathto("tutorial") }}">Tutorial</a></h3>
+            <p>The easiest way to get started with Kinto.</p>
+        </td>
+    </tr>
+    <tr>
+        <td width="50%">
+            <h3><a href="{{ pathto("tutorial") }}">Concepts, terms and design</a></h3>
+            <p>Learn the concepts you need to interact with a Kinto server.</p>
+        </td>
+        <td width="50%">
+            <h3><a href="{{ pathto("tutorial") }}">APIs</a></h3>
+            <p>Extensive HTTP endpoints documentation.</p>
+        </td>
+    </tr>
+    <tr>
+        <td width="50%">
+            <h3><a href="{{ pathto("tutorial") }}">Configuration and Deployment</a></h3>
+            <p>Discover how to install configure and self-host your Kinto server.</p>
+        </td>
+        <td width="50%">
+            <h3><a href="{{ pathto("tutorial") }}">Community</a></h3>
+            <p>Find help here about contributing, troubleshooting and communication channels.</p>
+        </td>
+    </tr>
+    </table>
 
 
-In short
+Getting started
+===============
+
+.. code-block:: bash
+
+    $ pip install kinto
+    $ wget https://raw.githubusercontent.com/Kinto/kinto/master/config/kinto.ini
+    $ pserve kinto.ini
+
+
+Tutorial
 ========
-
-It's as simple as that:
-
-1. Pick up a name for your records collection;
-2. Push the records on the server;
-3. Pull the records from the server (ordered, filtered, paginated)
-
-The server doesn't impose anything about the records data model.
-
-*Kinto* is based on top of `cliquet <http://cliquet.readthedocs.org>`_.
-
-Tutorials
-=========
 
 Sometimes it is easier to get started by following a
 tutorial. :ref:`Learn how to store, sync and share your data <tutorials>`.
