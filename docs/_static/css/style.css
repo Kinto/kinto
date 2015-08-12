@@ -2,11 +2,19 @@
     margin-bottom: 0.1em;
 }
 
-#toc td {
-    padding-bottom: 2em;
-    padding-right: 0.5em;
+#toc {
+    display: flex;
+    flex-wrap: wrap;
 }
 
-#toc .items {
+#toc .item {
+    padding-bottom: 1em;
+    padding-right: 0.5em;
+
+    flex: 1 1 auto;
+    width: 200px;
+}
+
+#toc .links {
     padding: 0.2em;
 }
