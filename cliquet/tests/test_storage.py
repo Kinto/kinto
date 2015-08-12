@@ -29,6 +29,17 @@ class GeneratorTest(unittest.TestCase):
 
         self.assertRaises(AssertionError, Dumb)
 
+    def test_default_generator_allow_underscores_dash_alphabet(self):
+        class Dumb(generators.Generator):
+            def __call__(self):
+                return '1234'
+
+        generator = Dumb()
+        self.assertTrue(generator.match('1_2_3-abc'))
+        self.assertTrue(generator.match('abc_123'))
+        self.assertFalse(generator.match('-1_2_3-abc'))
+        self.assertFalse(generator.match('_1_2_3-abc'))
+
     def test_uuid4_generator_has_accurate_pattern(self):
         generator = generators.UUID4()
         self.assertTrue(generator.match(RECORD_ID))
