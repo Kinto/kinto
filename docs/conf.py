@@ -13,6 +13,9 @@
 # serve to show the default.
 
 import os
+import cliquet_docs
+
+__HERE__ = os.path.dirname(os.path.abspath(__file__))
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
@@ -23,6 +26,10 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 
 # otherwise, readthedocs.org uses their theme by default, so no need to specify
 # it
+
+# Copy the docs from Cliquet inside these ones.
+destination = os.path.join(__HERE__, 'api', 'cliquet')
+cliquet_docs.copy_docs('api', destination)
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
