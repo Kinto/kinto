@@ -16,6 +16,14 @@
     width: 200px;
 }
 
+#toc .description {
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 0.5em;
+}
+
 #toc .links {
-    padding: 0.2em;
+    margin: 0.1em;
+    padding: 0.1em;
+    font-size: 0.8em;
 }
