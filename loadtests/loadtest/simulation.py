@@ -157,7 +157,7 @@ class SimulationLoadTest(BaseLoadTest):
             "is_article": bool(random.randint(0, 1)),
             "favorite": bool(random.randint(0, 1)),
         }
-        self._patch(self.random_url, data)
+        self._patch(self.random_url, {"data": data})
 
     def delete(self):
         resp = self.session.delete(self.random_url)
