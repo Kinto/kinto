@@ -16,8 +16,10 @@ to the underlying protocol are publically discussed and documented.
 
 Kinto is released under the Apache v2 licence.
 
-Use kinto to
-============
+.. _use-cases:
+
+Use cases
+=========
 
 - Build collaborative applications with fine grained-permissions;
 - Store encrypted data at a location you control;
@@ -62,6 +64,8 @@ Language                     Python                    Erlang   Node.js [#]_
 You can also read `a longer explanation of our choices and motivations behind the
 creation of Kinto <http://www.servicedenuages.fr/en/generic-storage-ecosystem>`_
 on our blog.
+
+.. _FAQ:
 
 FAQ
 ===
