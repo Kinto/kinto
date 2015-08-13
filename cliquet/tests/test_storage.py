@@ -40,13 +40,20 @@ class GeneratorTest(unittest.TestCase):
         self.assertFalse(generator.match('-1_2_3-abc'))
         self.assertFalse(generator.match('_1_2_3-abc'))
 
-    def test_uuid4_generator_has_accurate_pattern(self):
+    def test_uuid_generator_pattern_allows_uuid_only(self):
+        invalid_uuid = 'XXX-00000000-0000-5000-a000-000000000000'
+        generator = generators.UUID4()
+        self.assertFalse(generator.match(invalid_uuid))
+
+    def test_uuid_generator_pattern_is_not_restricted_to_uuid4(self):
         generator = generators.UUID4()
         self.assertTrue(generator.match(RECORD_ID))
-        fake_uuid4 = '00000000-0000-5000-a000-000000000000'
-        self.assertFalse(generator.match(fake_uuid4))
-        fake_uuid4 = '00000000-0000-4000-e000-000000000000'
-        self.assertFalse(generator.match(fake_uuid4))
+        valid_uuid = 'fd800e8d-e8e9-3cac-f502-816cbed9bb6c'
+        self.assertTrue(generator.match(valid_uuid))
+        invalid_uuid4 = '00000000-0000-5000-a000-000000000000'
+        self.assertTrue(generator.match(invalid_uuid4))
+        invalid_uuid4 = '00000000-0000-4000-e000-000000000000'
+        self.assertTrue(generator.match(invalid_uuid4))
 
 
 class StorageBaseTest(unittest.TestCase):
