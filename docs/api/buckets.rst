@@ -10,9 +10,10 @@ A bucket is a mapping with the following attributes:
 
 * ``permissions``: (*optional*) the :term:`ACLs <ACL>` for the bucket object
 
+.. _buckets-put:
+
 Creating a bucket
 =================
-
 
 .. http:put:: /buckets/(bucket_id)
 
@@ -74,8 +75,11 @@ Creating a bucket
         request header can be provided. A ``412 Precondition Failed`` error response
         will be returned if the record already exists.
 
-Retrieve an already existing bucket
-===================================
+
+.. _bucket-get:
+
+Retrieve an existing bucket
+===========================
 
 .. http:get:: /buckets/(bucket_id)
 
@@ -126,6 +130,8 @@ Retrieve an already existing bucket
             }
         }
 
+.. _bucket-put:
+
 Updating an existing bucket
 ===========================
 
@@ -140,15 +146,19 @@ Updating an existing bucket
         Until a formalism is found to alter ACL principals (e.g. using ``+`` or ``-``)
         there is no difference in the behaviour between PATCH and PUT.
 
+.. _bucket-delete:
+
 Deleting a bucket
 =================
 
 
 .. http:delete:: /buckets/(bucket_id)
 
+    :synopsis: Deletes a specific bucket, and **everything under it**.
+
     **Requires authentication**
 
-    Deletes a specific bucket, and **everything under it**.
+
 
     **Example request**
 
