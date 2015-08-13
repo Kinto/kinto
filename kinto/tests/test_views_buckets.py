@@ -32,6 +32,14 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
     def test_buckets_can_be_put_with_simple_name(self):
         self.assertEqual(self.record['id'], 'beers')
 
+    def test_buckets_names_can_have_underscores(self):
+        bucket = MINIMALIST_BUCKET.copy()
+        record_url = '/buckets/alexis_beers'
+        resp = self.app.put_json(record_url,
+                                 bucket,
+                                 headers=self.headers)
+        self.assertEqual(resp.json['data']['id'], 'alexis_beers')
+
     def test_nobody_can_list_buckets_by_default(self):
         self.app.get(self.collection_url,
                      headers=get_user_headers('alice'),
