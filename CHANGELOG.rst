@@ -13,6 +13,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
+- Fix missing ``Backoff`` header for 304 responses (fixes #416)
 - ``data`` is not mandatory in request body if the resource does not define
   any schema or if no field is mandatory (fixes mozilla-services/kinto#63)
 - Fix no validation error on PATCH with unknown attribute (fixes #374)
