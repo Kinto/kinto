@@ -10,10 +10,28 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     sample_url = "/mushrooms"
 
-    def test_backoff_headers_is_not_present_if_no_error(self):
+    def test_backoff_headers_is_not_present_by_default(self):
         response = self.app.get(self.sample_url,
                                 headers=self.headers, status=200)
         self.assertNotIn('Backoff', response.headers)
+
+    def test_backoff_headers_is_present_if_configured(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('cliquet.backoff', 10)]):
+            response = self.app.get(self.sample_url,
+                                    headers=self.headers, status=200)
+        self.assertIn('Backoff', response.headers)
+
+    def test_backoff_headers_is_present_on_304(self):
+        first = self.app.get(self.sample_url, headers=self.headers)
+        etag = first.headers['ETag']
+        headers = self.headers.copy()
+        headers['If-None-Match'] = etag
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('cliquet.backoff', 10)]):
+            response = self.app.get(self.sample_url, headers=headers,
+                                    status=304)
+        self.assertIn('Backoff', response.headers)
 
     def test_backoff_header_is_present_on_error_responses(self):
         with mock.patch.dict(

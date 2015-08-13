@@ -117,7 +117,7 @@ def setup_backoff(config):
         backoff = config.registry.settings['cliquet.backoff']
         if backoff is not None:
             backoff = utils.encode_header('%s' % backoff)
-            event.request.response.headers['Backoff'] = backoff
+            event.response.headers['Backoff'] = backoff
 
     config.add_subscriber(on_new_response, NewResponse)
 
