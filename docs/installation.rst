@@ -3,11 +3,6 @@
 Installation
 ############
 
-*Kinto* is based on top of the `cliquet <https://cliquet.rtfd.org>`_ project, and
-as such, please refer to cliquet's documentation if details seem to be missing
-here.
-
-
 Run locally
 ===========
 
@@ -42,9 +37,8 @@ By default, *Kinto* relies on *Basic Auth* to authenticate users.
 User registration is not necessary. A unique user idenfier will be created
 for each couple of ``username:password``.
 
-*Kinto* is compatible with *Firefox Account*.  See `cliquet documentation
-<http://cliquet.readthedocs.org/en/latest/reference/configuration.html#authentication>`_
-to configure authentication options.
+*Kinto* is compatible with *Firefox Account*.  Install and
+configure :github:`mozilla-services/cliquet-fxa`.
 
 
 Run in production

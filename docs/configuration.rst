@@ -3,10 +3,6 @@
 Configuration
 #############
 
-For an exhaustive list of *Cliquet* settings, see `cliquet settings
-documentation
-<http://cliquet.readthedocs.org/en/latest/reference/configuration.html>`_.
-
 .. _run-production:
 
 Running in production
@@ -55,7 +51,7 @@ information (including user's personal buckets).
 Monitoring
 ----------
 
-In order to enable *Cliquet* monitoring features like *statsd*, install
+In order to enable monitoring features like *statsd*, install
 extra requirements:
 
 ::

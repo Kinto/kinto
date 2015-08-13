@@ -190,9 +190,8 @@ Retrieving stored records
 =========================
 
 Records can be paginated, filtered, and conflicts detected.
-To do so, refer to the `cliquet resource documentation
-<http://cliquet.readthedocs.org/en/latest/api/resource.html#get-resource>`_
-for more details on available operations on collection retrieval.
+To do so, refer to :ref:`resource-endpoints` for more details on available
+operations on collection retrieval.
 
 .. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records
 
