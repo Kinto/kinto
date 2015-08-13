@@ -12,7 +12,7 @@ A group is a mapping with the following attributes:
 * ``permissions``: (*optional*) the :term:`ACLs <ACL>` for the group object
   (e.g who is allowed to read or update the group itself.)
 
-.. groups-post:
+.. _groups-post:
 
 Creating a group
 ================
@@ -75,7 +75,7 @@ Creating a group
             }
         }
 
-.. group-put:
+.. _group-put:
 
 Replacing a group
 =================
@@ -144,7 +144,7 @@ Replacing a group
         request header can be provided. A ``412 Precondition Failed`` error
         response will be returned if the record already exists.
 
-.. group-get:
+.. _group-get:
 
 Retrieving a group
 ==================
@@ -200,7 +200,7 @@ Retrieving a group
         }
 
 
-.. groups-get:
+.. _groups-get:
 
 Retrieving all groups
 =====================
@@ -255,7 +255,7 @@ Retrieving all groups
 
 
 
-.. group-delete:
+.. _group-delete:
 
 Deleting a group
 ================
