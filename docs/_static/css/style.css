@@ -27,3 +27,7 @@
     padding: 0.1em;
     font-size: 0.8em;
 }
+
+.wy-nav-content {
+    max-width: 1000px !important;
+}

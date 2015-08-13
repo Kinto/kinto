@@ -6,8 +6,10 @@ Records
 Records belong to a collection. It is the data being stored and
 synchronized.
 
-Sending a record
-================
+.. _records-post:
+
+Uploading a record
+==================
 
 .. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records
 
@@ -62,10 +64,12 @@ Sending a record
             }
         }
 
+.. _record-put:
+
 Replacing a record
 ===================
 
-.. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
+.. http:put:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
     **Requires authentication**
 
@@ -118,6 +122,8 @@ Replacing a record
               ]
           }
         }
+
+.. _record-patch:
 
 Updating a record
 =================
@@ -178,8 +184,10 @@ Updating a record
           }
         }
 
-Retrieving records
-==================
+.. _records-get:
+
+Retrieving stored records
+=========================
 
 Records can be paginated, filtered, and conflicts detected.
 To do so, refer to the `cliquet resource documentation
@@ -229,6 +237,7 @@ for more details on available operations on collection retrieval.
             ]
         }
 
+.. _record-get:
 
 Retrieving a specific record
 ============================
@@ -281,6 +290,8 @@ Retrieving a specific record
                 ]
             }
         }
+
+.. _record-delete:
 
 Deleting a record
 =================

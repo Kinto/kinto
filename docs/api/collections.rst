@@ -24,6 +24,8 @@ A collection is a mapping with the following attribute:
     Collection on a the default bucket are created silently on first access.
 
 
+.. _collection-put:
+
 Creating a collection
 =====================
 
@@ -85,6 +87,8 @@ Creating a collection
         will be returned if the record already exists.
 
 
+.. _collection-get:
+
 Retrieving an existing collection
 =================================
 
@@ -138,6 +142,8 @@ Retrieving an existing collection
             }
         }
 
+
+.. _collection-delete:
 
 Deleting a collection
 =====================
