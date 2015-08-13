@@ -51,8 +51,8 @@ class UUID4(Generator):
     duplicate would be about 50% (`source <http://en.wikipedia.org/wiki/\
 Universally_unique_identifier#Random_UUID_probability_of_duplicates>`_).
     """
-    regexp = (r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-'
-              r'[89ab][0-9a-f]{3}-[0-9a-f]{12}$')
+    regexp = (r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-'
+              r'[0-9a-f]{4}-[0-9a-f]{12}$')
     """UUID4 accurate pattern."""
 
     def __call__(self):

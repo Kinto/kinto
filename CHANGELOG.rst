@@ -10,6 +10,7 @@ This document describes changes between each past release.
 
 - Provide the userid when calling the hello page with an Authorization
   header. (#319)
+- UUID validation now accepts any kind of UUID, not just v4 (fixes #387)
 
 **Bug fixes**
 
