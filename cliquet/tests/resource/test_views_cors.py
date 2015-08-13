@@ -34,6 +34,25 @@ class CORSOriginHeadersTest(BaseWebTest):
                                    headers=self.headers)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
+    def test_present_on_unknown_url(self):
+        headers = self.headers.copy()
+        headers['Origin'] = 'notmyidea.org'
+        response = self.app.get('/unknown',
+                                headers=headers,
+                                status=404)
+        self.assertEqual(response.headers['Access-Control-Allow-Origin'],
+                         'notmyidea.org')
+
+    def test_not_present_on_unknown_url_if_setting_does_not_match(self):
+        headers = self.headers.copy()
+        headers['Origin'] = 'notmyidea.org'
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('cliquet.cors_origins', 'daybed.io')]):
+            response = self.app.get('/unknown',
+                                    headers=headers,
+                                    status=404)
+            self.assertNotIn('Access-Control-Allow-Origin', response.headers)
+
     def test_present_on_unknown_record(self):
         url = self.get_item_url('1cea99eb-5e3d-44ad-a53a-2fb68473b538')
         response = self.app.get(url,

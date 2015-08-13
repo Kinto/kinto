@@ -17,6 +17,7 @@ This document describes changes between each past release.
   any schema or if no field is mandatory (fixes mozilla-services/kinto#63)
 - Fix no validation error on PATCH with unknown attribute (fixes #374)
 - Fix permissions not validated on PATCH (fixes #375)
+- Fix CORS header missing in 404 responses for unknown URLs (fixes #414)
 
 2.3.1 (2015-07-15)
 ------------------

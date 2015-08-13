@@ -156,6 +156,15 @@ def reapply_cors(request, response):
     if service:
         request.info['cors_checked'] = False
         response = cors.ensure_origin(service, request, response)
+    else:
+        # No existing service is concerned, and Cornice is not implied.
+        origin = request.headers.get('Origin')
+        if origin:
+            allowed_origins = request.registry.settings['cliquet.cors_origins']
+            origins_match = decode_header(origin) == allowed_origins
+            if allowed_origins == '*' or origins_match:
+                origin = encode_header(origin)
+                response.headers['Access-Control-Allow-Origin'] = origin
     return response
 
 
