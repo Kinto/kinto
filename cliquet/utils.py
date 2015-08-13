@@ -27,6 +27,7 @@ except ImportError:  # pragma: no cover
         import psycopg2  # NOQA
 
 from pyramid.request import Request
+from pyramid.settings import aslist
 from cornice import cors
 from colander import null
 
@@ -160,9 +161,10 @@ def reapply_cors(request, response):
         # No existing service is concerned, and Cornice is not implied.
         origin = request.headers.get('Origin')
         if origin:
-            allowed_origins = request.registry.settings['cliquet.cors_origins']
-            origins_match = decode_header(origin) == allowed_origins
-            if allowed_origins == '*' or origins_match:
+            settings = request.registry.settings
+            allowed_origins = set(aslist(settings['cliquet.cors_origins']))
+            required_origins = {'*', decode_header(origin)}
+            if allowed_origins.intersection(required_origins):
                 origin = encode_header(origin)
                 response.headers['Access-Control-Allow-Origin'] = origin
     return response
