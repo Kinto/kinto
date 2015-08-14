@@ -186,6 +186,8 @@ There are two special principals:
   principal is useful when a rule should apply to all users.
 
 
+.. _permissions_usecases:
+
 Use-cases examples
 ==================
 

@@ -18,11 +18,11 @@ The server doesn't impose anything about the records data model.
 
 *Kinto* is based on top of `cliquet <http://cliquet.readthedocs.org>`_.
 
-Tutorial
-========
+Tutorials
+=========
 
 Sometimes it is easier to get started by following a
-tutorial. :ref:`Learn how to store, manage and sync your data <tutorial>`.
+tutorial. :ref:`Learn how to store, sync and share your data <tutorials>`.
 
 Using the HTTP API
 ==================
@@ -54,7 +54,7 @@ Table of content
    :maxdepth: 1
 
    installation
-   tutorial
+   tutorials/index
    configuration
    deployment
    permissions
