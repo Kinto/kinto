@@ -6,20 +6,42 @@ This document describes changes between each past release.
 2.4.0 (2015-08-14)
 ------------------
 
+**Protocol**
+
+- Userid is now provided when requesting the hello endpoint with an ``Authorization``
+  header (#319)
+- UUID validation now accepts any kind of UUID, not just v4 (fixes #387)
+- Querystring parameter ``_to`` was renamed to ``_before`` (*the former is now
+  deprecated*) (#391)
+
 **New features**
 
-- Provide the userid when calling the hello page with an Authorization
-  header. (#319)
-- UUID validation now accepts any kind of UUID, not just v4 (fixes #387)
+- Cliquet ``Service`` class now has the default error handler attached (#388)
+- Allow to configure info link in error responses with ``cliquet.error_info_link``
+  setting (#395)
+- Storage backend now has a ``purge_deleted()`` to get rid of `tombstones <http://cliquet.readthedocs.org/en/latest/reference/glossary.html>`_ (#400)
 
 **Bug fixes**
 
 - Fix missing ``Backoff`` header for 304 responses (fixes #416)
+- Fix Python3 encoding errors (#328)
 - ``data`` is not mandatory in request body if the resource does not define
   any schema or if no field is mandatory (fixes mozilla-services/kinto#63)
 - Fix no validation error on PATCH with unknown attribute (fixes #374)
 - Fix permissions not validated on PATCH (fixes #375)
 - Fix CORS header missing in 404 responses for unknown URLs (fixes #414)
+
+**Internal changes**
+
+- Renamed main documentation sections to *HTTP Protocol* and *Internals* (#394)
+- Remove mentions of storage in documentation to avoid confusions with the
+  *Kinto* project.
+- Add details in timestamp documentation.
+- Mention talk at Python Meetup Barcelona in README
+- Fix documentation about postgres-contrib dependancy (#409)
+- Add ``cliquet.utils`` to *Internals* documentation (#407)
+- Default id generator now accepts dashes and underscores (#411)
+
 
 2.3.1 (2015-07-15)
 ------------------
