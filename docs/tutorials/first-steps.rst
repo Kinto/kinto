@@ -1,4 +1,4 @@
-.. _tutorial:
+.. _tutorial-first-steps:
 
 First steps with Kinto
 ######################

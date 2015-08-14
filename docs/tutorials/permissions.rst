@@ -1,4 +1,4 @@
-.. _permissions-api:
+.. _tutorial-permissions:
 
 Permissions
 ###########
@@ -21,7 +21,7 @@ To be able to add permissions for a user, the user id is needed.
 
 The currently authenticated user id can be obtained on the root url.
 
-.. code-block::
+.. code-block:: http
     :emphasize-lines: 16
 
     $ http GET http://localhost:8888/v1/ --auth user:pass
@@ -62,7 +62,7 @@ Object permissions
 
 For instance, we can look at our *personal bucket* permissions.
 
-.. code-block::
+.. code-block:: http
 
     $ http GET http://localhost:8888/v1/buckets/default --auth user:pass
     HTTP/1.1 200 OK
@@ -89,7 +89,7 @@ For instance, we can look at our *personal bucket* permissions.
 
 Similarly, the permissions of a collection can be obtained with a ``GET``:
 
-.. code-block::
+.. code-block:: http
 
     $ http GET http://localhost:8888/v1/buckets/default/collections/tasks --auth user:pass
     HTTP/1.1 200 OK
@@ -125,10 +125,10 @@ later be updated using PUT or PATCH.
    The user that updates the permissions is always given the ``write``
    permission, in order to prevent loosing ownership on the object.
 
-A :ref:`blog bucket <permissions-use-cases>` could be created with the following to
+A :ref:`blog bucket <permissions_usecases>` could be created with the following to
 give read access to everyone.
 
-.. code-block::
+.. code-block:: http
 
     $ echo '{"data":{}, "permissions": {"read": ["system.Authenticated"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog \
@@ -162,7 +162,7 @@ give read access to everyone.
 Now it will be possible to create two collections (``articles`` and
 ``comments``) in this bucket. Users will be able to read their content.
 
-.. code-block::
+.. code-block:: http
 
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles \
         --auth user:pass
@@ -217,7 +217,7 @@ Now it will be possible to create two collections (``articles`` and
 
 We can add an article.
 
-.. code-block::
+.. code-block:: http
 
     $ echo '{"data":{"title": "My article", "content": "my content", "published_at": "Thu Jul 16 16:44:15 CEST 2015"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
@@ -249,7 +249,7 @@ We can add an article.
 
 Everybody can read the article:
 
-.. code-block::
+.. code-block:: http
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records/b8c4cc34-f184-4b4d-8cad-e135a3f0308c \
         --auth natim:
@@ -281,7 +281,7 @@ Everybody can read the article:
 If we want everyone to be able to add a comment, we can PATCH the
 permissions of the ``comments`` collections.
 
-.. code-block::
+.. code-block:: http
 
     $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments \
@@ -314,7 +314,7 @@ permissions of the ``comments`` collections.
 
 Now everyone can add a comment.
 
-.. code-block::
+.. code-block:: http
 
     $ echo '{"data":{"article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", "comment": "my comment", "author": "Natim"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
@@ -348,11 +348,11 @@ Permissions and groups
 
 It is possible to give an ACL to a group.
 
-As described in the :ref:`use case page <permissions-use-cases>`, let us create a
+As described in the :ref:`use case page <permissions_usecases>`, let us create a
 new group ``writers``:
 
 
-.. code-block::
+.. code-block:: http
 
     $ echo '{"data": {"members": ["basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/groups/writers \
@@ -385,7 +385,7 @@ new group ``writers``:
 
 Then we can give the write ACL on the bucket for the group.
 
-.. code-block::
+.. code-block:: http
 
     $ echo '{"permissions": {"write": ["/buckets/servicedenuages-blog/groups/writers"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog \
@@ -419,7 +419,7 @@ Then we can give the write ACL on the bucket for the group.
 
 Now the user Natim can create articles.
 
-.. code-block::
+.. code-block:: http
 
     $ echo '{"data":{"title": "Natim article", "content": "natims content", "published_at": "Thu Jul 16 16:59:16 CEST 2015"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
@@ -432,20 +432,20 @@ Now the user Natim can create articles.
     Date: Thu, 16 Jul 2015 14:58:47 GMT
     Server: nginx/1.4.6 (Ubuntu)
 
-{
-    "data": {
-        "content": "natims content",
-        "id": "f9a61750-f61f-402b-8785-1647c9325a5d",
-        "last_modified": 1437058727907,
-        "published_at": "Thu Jul 16 16:59:16 CEST 2015",
-        "title": "Natim article"
-    },
-    "permissions": {
-        "write": [
-            "basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"
-        ]
+    {
+        "data": {
+            "content": "natims content",
+            "id": "f9a61750-f61f-402b-8785-1647c9325a5d",
+            "last_modified": 1437058727907,
+            "published_at": "Thu Jul 16 16:59:16 CEST 2015",
+            "title": "Natim article"
+        },
+        "permissions": {
+            "write": [
+                "basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"
+            ]
+        }
     }
-}
 
 
 Listing shared items
@@ -453,7 +453,7 @@ Listing shared items
 
 One can fetch the list of articles.
 
-.. code-block::
+.. code-block:: http
 
     $ http GET \
         https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
@@ -490,6 +490,8 @@ One can fetch the list of articles.
     }
 
 Or the list of comments.
+
+.. code-block:: http
 
     $ http GET \
         https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
