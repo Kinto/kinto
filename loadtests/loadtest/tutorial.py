@@ -108,8 +108,7 @@ class TutorialLoadTest(BaseLoadTest):
         self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
         record = resp.json()['data']
-        # XXX: Should be the ETag header see mozilla-services/cliquet#352
-        etag = '"%s"' % record['last_modified']
+        etag = resp.headers['ETag']
 
         # Delete the record with If-Match
         resp = self.session.delete(
@@ -139,8 +138,7 @@ class TutorialLoadTest(BaseLoadTest):
 
         # Create a new bucket and check for permissions
         resp = self.session.put(
-            self.bucket_url(bucket_id),
-            data=json.dumps({'data': {}}))
+            self.bucket_url(bucket_id))
         self.incr_counter("status-%s" % resp.status_code)
         # We should always have a 201 here. See mozilla-services/cliquet#367
         # if resp.status_code == 200:
@@ -153,7 +151,7 @@ class TutorialLoadTest(BaseLoadTest):
         permissions = {"record:create": ['system.Authenticated']}
         resp = self.session.put(
             re.sub('/records$', '', collection_url),
-            data=json.dumps({'data': {}, 'permissions': permissions}))
+            data=json.dumps({'permissions': permissions}))
         self.incr_counter("status-%s" % resp.status_code)
         # We should always have a 201 here. See mozilla-services/cliquet#367
         # if resp.status_code == 200:
@@ -188,7 +186,6 @@ class TutorialLoadTest(BaseLoadTest):
         self.assertEqual(resp.status_code, 201)
         record = resp.json()
         self.assertIn('write', record['permissions'])
-        # bob_task_id = record['data']['id']
         bob_user_id = record['permissions']['write'][0]
 
         # Share Alice's task with Bob
@@ -223,7 +220,7 @@ class TutorialLoadTest(BaseLoadTest):
         permissions = {"group:create": ['system.Authenticated']}
         resp = self.session.put(
             self.bucket_url(bucket_id),
-            data=json.dumps({'data': {}, 'permissions': permissions}))
+            data=json.dumps({'permissions': permissions}))
         self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
         record = resp.json()

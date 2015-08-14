@@ -10,8 +10,8 @@ from kinto import main as testapp
 from kinto import DEFAULT_SETTINGS
 
 
-MINIMALIST_BUCKET = {'data': dict()}
-MINIMALIST_COLLECTION = {'data': dict()}
+MINIMALIST_BUCKET = {}
+MINIMALIST_COLLECTION = {}
 MINIMALIST_GROUP = {'data': dict(members=['fxa:user'])}
 MINIMALIST_RECORD = {'data': dict(name="Hulled Barley",
                                   type="Whole Grain")}

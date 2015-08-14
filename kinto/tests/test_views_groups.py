@@ -161,7 +161,14 @@ class InvalidGroupTest(BaseWebTest, unittest.TestCase):
 
     def test_groups_must_have_members_attribute(self):
         invalid = {}
-        self.app.put_json(self.group_url,
-                          invalid,
-                          headers=self.headers,
-                          status=400)
+        resp = self.app.put_json(self.group_url,
+                                 invalid,
+                                 headers=self.headers,
+                                 status=400)
+        self.assertEqual(resp.json['message'],
+                         "data is missing")
+        self.assertDictEqual(resp.json['details'][0], {
+            "description": "data is missing",
+            "location": "body",
+            "name": "data"
+        })
