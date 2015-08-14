@@ -108,8 +108,7 @@ class TutorialLoadTest(BaseLoadTest):
         self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
         record = resp.json()['data']
-        # XXX: Should be the ETag header see mozilla-services/cliquet#352
-        etag = '"%s"' % record['last_modified']
+        etag = resp.headers['ETag']
 
         # Delete the record with If-Match
         resp = self.session.delete(
@@ -187,7 +186,6 @@ class TutorialLoadTest(BaseLoadTest):
         self.assertEqual(resp.status_code, 201)
         record = resp.json()
         self.assertIn('write', record['permissions'])
-        # bob_task_id = record['data']['id']
         bob_user_id = record['permissions']['write'][0]
 
         # Share Alice's task with Bob
