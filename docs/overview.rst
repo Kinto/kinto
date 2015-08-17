@@ -2,17 +2,8 @@ Overview
 #########
 
 
-Kinto is a lightweight JSON storage service with synchronisation and sharing
-abilities baked in. It is meant to be **easy to use** and **easy to self-host**.
-
-Kinto implements modern HTTP best practices making it easy to synchronise
-application data between different devices.
-
-Abstractions are provided wherever it makes sense (storage, authentication,
-permissions, etc.), which allows Kinto to adapt to many different use-cases.
-
-We believe in open source, collaboration, and consensus - as such, any changes
-to the underlying protocol are publically discussed and documented.
+*Kinto* is a lightweight JSON storage service with synchronisation and sharing
+abilities. It is meant to be **easy to use** and **easy to self-host**.
 
 Kinto is released under the Apache v2 licence.
 
@@ -25,6 +16,43 @@ Use cases
 - Store encrypted data at a location you control;
 - Store application state between different devices.
 - Create a data wiki
+
+
+Key features
+============
+
+*Kinto* implements modern HTTP best practices making it easy to synchronise
+application data between different devices.
+
+Abstractions are provided wherever it makes sense (storage, authentication,
+permissions, etc.), which allows Kinto to adapt to many different use-cases.
+
+We believe in open source, collaboration, and consensus - as such, any changes
+to the underlying protocol are publically discussed and documented.
+
+
+.. _overview-synchronization
+
+Synchronization
+===============
+
+Bi-directionnal synchronization of records is a very hard topic.
+
+*Kinto* takes some shortcuts by only providing the basics for concurrency control
+and polling for changes, and not trying to resolve conflicts automatically.
+
+Basically, each object has a revision number which is guaranteed to be incremented after
+each modification.
+
+Clients can retrieve the list of changes that occured on a collection of records
+since a specified revision. *Kinto* can also use it to avoid accidental updates
+of objects.
+
+.. note::
+
+    *Kinto* synchronization was designed and built by the `Mozilla Firefox Sync
+    <https://en.wikipedia.org/wiki/Firefox_Sync>`_ team.
+
 
 .. _comparison:
 
