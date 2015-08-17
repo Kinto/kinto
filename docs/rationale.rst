@@ -1,4 +1,4 @@
-Rationale
+Overview
 #########
 
 
@@ -38,6 +38,9 @@ the community effort rather than re-inventing the wheel.
 It appeared that solutions we looked at weren't solving the problems we had,
 especially regarding fine-grained permissions.
 
+Here is a comparison table we put together with existing alternative
+technologies.
+
 ===========================  ======  ======  ========  =======  ==============
 Project                      Kinto   Parse   Firebase  CouchDB  Remote-Storage
 ---------------------------  ------  ------  --------  -------  --------------
@@ -56,7 +59,8 @@ Open source                  ✔                         ✔        ✔
 Language                     Python                    Erlang   Node.js [#]_
 ===========================  ======  ======  ========  =======  ==============
 
-.. [#] CouchDB uses Map/Reduce as a query mechanism.
+.. [#] CouchDB uses Map/Reduce as a query mechanism, which isn't easy to
+       understand for newcomers.
 .. [#] Notifications support is currently in the work.
 .. [#] Remote Storage doesn't define any default implementation (as it is
        a procol) but makes it easy to start with JavaScript and Node.js.
@@ -83,8 +87,44 @@ FAQ
     read :ref:`the comparison table <comparison>`.
 
 - Can I encrypt my data?
+
+    Kinto server stores any data you pass to it, be it encrypted or not.
+    We make it easy to use encryption in our Kinto.js client
+    `using transformers <http://kintojs.readthedocs.org/en/latest/api/#transformers>`_.
+
 - Is there a package for my Operating System?
-- Why did you chose Python rather than X?
-- Is it Web Scale™?
+
+    Not at the moment. We want to make it very easy to integrate with existing
+    operating systems, and this item is on our priority list.
+
+    However, we are not there just yet. We are `already integrated with docker <https://hub.docker.com/r/kinto/kinto-server/>`
+    and :ref:`easy to install with pip <installation>`.
+
+- Why did you chose to use Python rather than X?
+
+    We know and love `Python <python.org>`_ for its simplicity and ease to
+    learn, so it was an obvious choice the development team. In addition, the
+    operational team at Mozilla has good recipes and a lot of knowledge about
+    how to deploy python.
+
+    However, the protocol and concepts behind Kinto don't rely on Python *per se*,
+    so it is possible to have other Kinto implementations using other languages.
+
+- Is it Web Scale?
+
+    YES™.
+
 - Can I store files inside Kinto?
+
+    No. At the moment, Kinto is meant to be used as a JSON storage service, and
+    differs with file storage solutions. We might add this in the future if
+    the use-case appears, but it is not on our radar so far.
+
+
 - What is Cliquet? What is the difference between Cliquet and Kinto ?
+
+    Kinto is a server built upon a toolkit named Cliquet. All of the reusable
+    parts have been factorised inside the toolkit, whereas what makes Kinto
+    unique is not.
+
+    `Read more (in french) about the differences <http://www.servicedenuages.fr/pourquoi-cliquet>`_.
