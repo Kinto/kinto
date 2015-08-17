@@ -42,7 +42,7 @@ Bi-directionnal synchronization of records is a very hard topic.
 and polling for changes, and not trying to resolve conflicts automatically.
 
 Basically, each object has a revision number which is guaranteed to be incremented after
-each modification.
+each modification. *Kinto* does not keep any history.
 
 Clients can retrieve the list of changes that occured on a collection of records
 since a specified revision. *Kinto* can also use it to avoid accidental updates
