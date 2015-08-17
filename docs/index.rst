@@ -13,6 +13,7 @@ Table of content
    :maxdepth: 1
 
    rationale
+   concepts
    installation
    tutorials/index
    configuration
