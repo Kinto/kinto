@@ -3,8 +3,7 @@
 Buckets
 #######
 
-A bucket is the parent object of collections and groups. It can be viewed as
-a namespace where all collections and groups are stored.
+A bucket is the parent object of collections and groups.
 
 A bucket is a mapping with the following attributes:
 
