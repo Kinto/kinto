@@ -3,8 +3,23 @@
 Installation
 ############
 
+Instructions on how to run Kinto are given below. Some dependencies might
+make the installation more painful than you should. If this is the case, have
+a look at the sections on how to install the cryptographic libraries or
+postgresql, at the end of this page.
+
 Run locally
 ===========
+
+To test Kinto quickly
+---------------------
+
+In general, in order to run Kinto, it is as simple as running the following
+commands::
+
+    pip install kinto
+    wget https://raw.githubusercontent.com/Kinto/kinto/master/config/kinto.ini
+    pserve kinto.ini
 
 For development
 ---------------
@@ -28,30 +43,30 @@ care of running and connecting to a PostgreSQL container:
 
     docker-compose up
 
+.. _crypto-install:
 
-Authentication
---------------
+Cryptography libraries
+======================
 
-By default, *Kinto* relies on *Basic Auth* to authenticate users.
+Linux
+-----
 
-User registration is not necessary. A unique user idenfier will be created
-for each couple of ``username:password``.
+On Debian / Ubuntu based systems::
 
-*Kinto* is compatible with *Firefox Account*.  Install and
-configure :github:`mozilla-services/cliquet-fxa`.
+    apt-get install libffi-dev libssl-dev
 
+On RHEL-derivatives::
 
-Run in production
-=================
+    apt-get install libffi-devel openssl-devel
 
-*Kinto* is a standard python application.
+OS X
+----
 
-Recommended settings for production are listed :ref:`in a dedicated section
-<run-production>`, and another gives some :ref:`insights about deployment strategies
-<deployment>`.
+Assuming `brew <http://brew.sh/>`_ is installed:
 
-*PostgreSQL* is the recommended backend for production, see instructions below
-to get it started.
+::
+
+    brew install libffi openssl pkg-config
 
 
 .. _postgresql-install:
@@ -146,27 +161,3 @@ Create the initial database:
 ::
 
     initdb /usr/local/var/postgres
-
-
-Cryptography libraries
-======================
-
-Linux
------
-
-On Debian / Ubuntu based systems::
-
-    apt-get install libffi-dev libssl-dev
-
-On RHEL-derivatives::
-
-    apt-get install libffi-devel openssl-devel
-
-OS X
-----
-
-Assuming `brew <http://brew.sh/>`_ is installed:
-
-::
-
-    brew install libffi openssl pkg-config

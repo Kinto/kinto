@@ -1,12 +1,15 @@
-.. _configuration:
-
-Configuration
-#############
 
 .. _run-production:
 
 Running in production
 =====================
+
+*Kinto* is a standard python application.
+
+Recommended settings for production are listed below. Some :ref:`insights about deployment strategies
+<deployment>` are also given.
+
+*PostgreSQL* is the recommended backend for production.
 
 Recommended settings
 --------------------
@@ -214,35 +217,3 @@ Here's an example:
 
 To use a different ini file, the ``KINTO_INI`` environment variable
 should be present with a path to it.
-
-
-Activating the flush endpoint
-=============================
-
-When using Kinto in development mode, it might be helpful to have a way to
-flush all the data currently stored in the database.
-
-There is a way to enable this behaviour (it is deactivated by default for
-obvious security reasons). In the `.ini` file:
-
-.. code-block :: ini
-
-    kinto.flush_endpoint_enabled = true
-
-Then, issue a `POST` request to the `/__flush__` endpoint to flush all
-the data.
-
-
-.. Storage backend
-.. ===============
-
-.. In order to use Kinto as a storage backend for an application built with
-.. cliquet, some settings must be set carefully.
-
-
-.. Firefox Account
-.. '''''''''''''''
-
-.. In order to avoid double-verification of FxA OAuth tokens, the ``cliquet.cache_url``
-.. should be the same in *Kinto* and in the application. This way
-.. the verification cache will be shared between the two components.
