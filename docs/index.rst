@@ -12,7 +12,7 @@ Table of content
 .. toctree::
    :maxdepth: 1
 
-   rationale
+   overview
    concepts
    installation
    tutorials/index
