@@ -72,3 +72,4 @@ of interest:
    collections
    records
    groups
+   synchronization
