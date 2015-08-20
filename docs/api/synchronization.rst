@@ -30,7 +30,7 @@ Polling for changes
 When fetching the collection records with ``?_since=<timestamp>``, *Kinto* returns
 every records that were created/updated/deleted **after** this timestamp.
 
-#. Cold sync → no ``?_since``.
+#. First sync → no ``?_since``.
 #. ``GET /buckets/default/collections/articles?_since=<timestamp>`` (with header ``If-Unmodified-Since = <timestamp>``)
 #. If response is ``304 Not modified``, done → up to date, nothing to do.
 #. If response is ``200 OK`` store ``ETag`` response header value for next
@@ -55,7 +55,7 @@ It basically consists in fetching the list until the ``Next-Page`` is present.
 Since changes can occur between the first and the last page, the synchronization
 process is a bit more complex.
 
-#. Cold sync → no ``?_since``.
+#. First sync → no ``?_since``.
 #. ``GET /buckets/default/collections/articles?_since=<timestamp>`` (with header ``If-Unmodified-Since = <timestamp>``)
 #. If response is ``304 Not modified``, done → up to date, nothing to do.
 #. If no ``Next-Page`` response header, done → store ``ETag`` response header valuè for next
@@ -140,7 +140,7 @@ When going back online, the set of changes can be sent to the server using a
 Implementations
 ===============
 
-The **current implementation of reference** for offline-first records synchronization is
+The current **reference implementation** for offline-first records synchronization is
 `Kinto.js <http://kintojs.readthedocs.org>`_.
 
 

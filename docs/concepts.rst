@@ -21,7 +21,8 @@ and can be filtered or sorted. Clients can obtain the list of changes that
 occured on the collection records since a certain revision (e.g. *last synchronization*).
 
 A **bucket** is an abstract notion used to organize collections and their
-permissions. A bucket named ``default`` is provided, whose collections and records
+permissions. It can be viewed as a namespace where all collections and groups are stored.
+A bucket named ``default`` is provided, whose collections and records
 are accessible to the current user only.
 
 .. image:: images/concepts-general.jpg
