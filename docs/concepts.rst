@@ -40,9 +40,10 @@ A **bucket** is an abstract notion used to organize collections and their
 permissions. A bucket named ``default`` is provided, whose collections and records
 are accessible to the current user only.
 
-.. image:: images/concepts-general.jpg
+.. image:: images/concepts-general.png
 
 Every kind of object manipulated by *Kinto* shares some common properties:
+
 * a unique identifier;
 * a revision number, automatically incremented on change;
 * a set of permissions.
@@ -79,7 +80,7 @@ Inherited
 Since there is a notion of hierarchy between buckets, collections and records,
 *Kinto* consider permissions as inherited from parent objects.
 
-.. image:: images/concepts-permissions.jpg
+.. image:: images/concepts-permissions.png
 
 For example, if a bucket defines a permission that allows anonymous users to read,
 then every record of every collection in this bucket will becomes readable.

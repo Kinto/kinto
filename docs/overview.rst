@@ -5,30 +5,50 @@ Overview
 *Kinto* is a lightweight JSON storage service with synchronisation and sharing
 abilities. It is meant to be **easy to use** and **easy to self-host**.
 
-Kinto is released under the Apache v2 licence.
+*Kinto* is used at Mozilla and released under the Apache v2 licence.
+
 
 .. _use-cases:
 
 Use cases
 =========
 
+- A generic Web database for frontend applications;
 - Build collaborative applications with fine grained-permissions;
 - Store encrypted data at a location you control;
-- Store application state between different devices.
-- Create a data wiki
+- Synchronize application data between different devices.
+
+.. image:: images/overview-use-cases.png
 
 
 Key features
 ============
 
-*Kinto* implements modern HTTP best practices making it easy to synchronise
-application data between different devices.
+- Synchronization and concurrency control
+- Offline first JavaScript client
+- Fined grained permissions
+- Plug multiple client apps
+- Self-hostable
+- Designed in the open
 
-Abstractions are provided wherever it makes sense (storage, authentication,
-permissions, etc.), which allows Kinto to adapt to many different use-cases.
+.. image:: images/overview-features.png
 
-We believe in open source, collaboration, and consensus - as such, any changes
-to the underlying protocol are publically discussed and documented.
+Also:
+
+- HTTP best practices
+- Pluggable authentication
+- Pluggable storage, cache, and permission backends
+- Configuration via a single INI file
+- Built-in monitoring
+
+.. image:: images/overview-selfhost.png
+
+Coming soon:
+
+- Schema validation
+- Push notifications
+
+.. image:: images/overview-deployonce.png
 
 
 .. _overview-synchronization:
@@ -47,6 +67,8 @@ each modification. *Kinto* does not keep any history.
 Clients can retrieve the list of changes that occured on a collection of records
 since a specified revision. *Kinto* can also use it to avoid accidental updates
 of objects.
+
+.. image:: images/overview-synchronization.png
 
 .. note::
 
@@ -77,7 +99,7 @@ Easy query mechanism         ✔       ✔       ✔         [#]_     N/A
 Conflict resolution          ✔       ✔       ✔         ✔        N/A
 Validation                   ✔       ✔       ✔         ✔        N/A
 Revision history                                       ✔        N/A
-File storage                         ✔                 ✔
+File storage                         ✔                 ✔        ✔
 Batch/bulk operations        ✔       ✔                 ✔
 Changes stream               [#]_    ✔       ✔         ✔        N/A
 Pluggable authentication     ✔                         ✔        N/A
@@ -96,6 +118,7 @@ Language                     Python                    Erlang   Node.js [#]_
 You can also read `a longer explanation of our choices and motivations behind the
 creation of Kinto <http://www.servicedenuages.fr/en/generic-storage-ecosystem>`_
 on our blog.
+
 
 .. _FAQ:
 
