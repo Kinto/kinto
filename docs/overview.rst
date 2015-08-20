@@ -31,7 +31,7 @@ We believe in open source, collaboration, and consensus - as such, any changes
 to the underlying protocol are publically discussed and documented.
 
 
-.. _overview-synchronization
+.. _overview-synchronization:
 
 Synchronization
 ===============
