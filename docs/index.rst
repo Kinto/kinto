@@ -12,12 +12,12 @@ Table of content
 .. toctree::
    :maxdepth: 1
 
-   rationale
+   overview
+   concepts
    installation
    tutorial
    configuration
    deployment
-   permissions
    api/index
    contributing
    changelog
