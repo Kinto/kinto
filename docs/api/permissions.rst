@@ -10,15 +10,15 @@ Terminology
 .. glossary::
 
     Object
-        Anything that can be interacted with. Collections, records, buckets, groups
-        are all objects.
+        Anything that can be interacted with. For example, collections, records,
+        buckets, and groups, are all objects.
 
     Principal
         An entity that can be authenticated. Principals can be individual people,
         applications, services, or any group of such things.
 
     Group
-        A group associates a name to a list of principals.
+        A group associates a label to a list of principals.
 
     Permission
     Permissions
@@ -28,11 +28,12 @@ Terminology
     ACE
     Access Control Entity
         An ACE associates a permission to objects and principals, and allows
-        to describe rules like «*Members of group admins can create collections*».
+        to describe rules like "*Members of group admins can create collections*".
         Using #a pseudo-code syntax: ``collections:create = ['group:admins',]``.
 
     ACL
-        A list of ACEs
+    Access Control List
+        A list of ACEs.
 
 Objects
 =======
@@ -89,7 +90,7 @@ There is a notion of hierarchy among all these objects:
 Permissions
 ===========
 
-On each of these objects, the set of permissions can be:
+On each of these objects the set of permissions can be:
 
 +------------+-----------------------------------------+
 | Permission | Description                             |
@@ -185,4 +186,3 @@ There are two special principals:
   authentication mean.
 - ``system.Everyone``: Anyone (authenticated or anonymous). Using this
   principal is useful when a rule should apply to all users.
-

@@ -64,12 +64,6 @@ Full detailed API documentation:
 .. toctree::
    :maxdepth: 2
 
-   buckets
-   collections
-   records
-   groups
-   permissions
-   synchronization
    cliquet/versioning
    cliquet/authentication
    cliquet/resource
@@ -77,3 +71,9 @@ Full detailed API documentation:
    cliquet/backoff
    cliquet/errors
    cliquet/deprecation
+   buckets
+   collections
+   records
+   groups
+   permissions
+   synchronization
