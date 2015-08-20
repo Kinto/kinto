@@ -141,7 +141,7 @@ Implementations
 ===============
 
 The **current implementation of reference** for offline-first records synchronization is
-`Kinto.js <http://kintojs.readthedocs.org>`_.
+:rtd:`Kinto.js <kintojs>`_.
 
 
 Before that, some other clients were implemented in the context of the

@@ -45,7 +45,10 @@ cliquet_docs.copy_docs('api', destination)
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinxcontrib.httpdomain']
+extensions = [
+    'sphinxcontrib.httpdomain',
+    'sphinx.ext.extlinks',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -90,6 +93,16 @@ html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Kintodoc'
+
+
+# -- Options of extlinks --------------------------------------------------
+
+extlinks = {
+    'github': ('https://github.com/%s/', ''),
+    'rtd': ('http://%s.readthedocs.org', ''),
+    'blog': ('http://www.servicedenuages.fr/%s', '')
+}
+
 
 
 # -- Options for LaTeX output ---------------------------------------------

@@ -4,8 +4,8 @@ Application examples
 Existing applications
 =====================
 
-* `Kinto React Boilerplate <https://github.com/Kinto/kinto-react-boilerplate>`_: a starter kit for JavaScript application
-* `Routina <https://github.com/leplatrem/Routina>`_: an offline-first demo Web app
+* :github:`Kinto React Boilerplate <Kinto/kinto-react-boilerplate>`: a starter kit for JavaScript application
+* :github:`Routina <leplatrem/Routina>`: an offline-first demo Web app
 
 *Add yours!*
 

@@ -13,16 +13,15 @@ Uploading a record
 
 .. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records
 
-    **Requires authentication**
+    :synopsis: Stores a record in the collection, and its id will be assigned automatically.
 
-    Stores a record in the collection, and its id will be assigned automatically.
+    **Requires authentication**
 
     **Example Request**
 
     .. sourcecode:: bash
 
         $ echo '{"data": {"foo": "bar"}}' | http post http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:" --verbose
-
 
     .. sourcecode:: http
 
@@ -64,6 +63,7 @@ Uploading a record
             }
         }
 
+
 .. _record-put:
 
 Replacing a record
@@ -71,9 +71,9 @@ Replacing a record
 
 .. http:put:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    **Requires authentication**
+    :synopsis: Creates or updates a record in the collection.
 
-    Creates or updates a record in the collection.
+    **Requires authentication**
 
     **Example Request**
 
@@ -123,6 +123,7 @@ Replacing a record
           }
         }
 
+
 .. _record-patch:
 
 Updating a record
@@ -130,10 +131,10 @@ Updating a record
 
 .. http:patch:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    **Requires authentication**
-
-    Updates a record in the collection. Specify only the fields to be modified,
+    :synopsis: Updates a record in the collection. Specify only the fields to be modified,
     all the rest will remain intact.
+
+    **Requires authentication**
 
     **Example Request**
 
@@ -184,6 +185,7 @@ Updating a record
           }
         }
 
+
 .. _records-get:
 
 Retrieving stored records
@@ -195,9 +197,11 @@ operations on collection retrieval.
 
 .. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records
 
+    :synopsis: Retrieves all the records in the collection.
+
     **Requires authentication**
 
-    Retrieves all the records in the collection.
+    **Example Request**
 
     .. sourcecode:: bash
 
@@ -236,6 +240,7 @@ operations on collection retrieval.
             ]
         }
 
+
 .. _record-get:
 
 Retrieving a specific record
@@ -243,9 +248,9 @@ Retrieving a specific record
 
 .. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    **Requires authentication**
+    :synopsis: Retrieves a specific record by its id.
 
-    Retrieves a specific record by its id.
+    **Requires authentication**
 
     **Example Request**
 
@@ -290,6 +295,7 @@ Retrieving a specific record
             }
         }
 
+
 .. _record-delete:
 
 Deleting a record
@@ -297,7 +303,7 @@ Deleting a record
 
 .. http:delete:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    Deletes a record, from its id.
+    :synopsis: Deletes a record, from its id.
 
     **Example Request**
 

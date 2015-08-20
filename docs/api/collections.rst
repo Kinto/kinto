@@ -32,16 +32,17 @@ Creating a collection
 
 .. http:put:: /buckets/(bucket_id)/collections/(collection_id)
 
+    :synopsis: Creates or replaces a collection object.
+
     **Requires authentication**
-    Creates or replaces a collection object.
 
     A collection is the parent object of records. It can be viewed as a container where records permissions are assigned globally.
+
+    **Example Request**
 
     .. sourcecode:: bash
 
         $ echo '{"data": {}}' | http put http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
-
-    **Example Request**
 
     .. sourcecode:: http
 
@@ -94,17 +95,15 @@ Retrieving an existing collection
 
 .. http:get:: /buckets/(bucket_id)/collections/(collection_id)
 
+    :synopsis: Returns the collection object.
+
     **Requires authentication**
 
-
-    Returns the collection object.
+    **Example Request**
 
     .. sourcecode:: bash
 
         $ http get http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
-
-
-    **Example Request**
 
     .. sourcecode:: http
 
@@ -150,15 +149,15 @@ Deleting a collection
 
 .. http:delete:: /buckets/(bucket_id)/collections/(collection_id)
 
+    :synopsis: Deletes a specific collection, and **everything under it**.
+
     **Requires authentication**
 
-    Deletes a specific collection, and **everything under it**.
+    **Example Request**
 
     .. sourcecode:: bash
 
         $ http delete http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
-
-    **Example Request**
 
     .. sourcecode:: http
 

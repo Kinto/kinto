@@ -3,8 +3,8 @@
 Groups
 ######
 
-A group associates a name to a list of principals. It is useful in order to
-handle permissions. Groups are defined in buckets.
+A group associates a name to a list of :term:`principals <principal>`.
+It is useful in order to handle permissions. Groups are defined in buckets.
 
 A group is a mapping with the following attributes:
 
@@ -19,15 +19,15 @@ Creating a group
 
 .. http:post:: /buckets/(bucket_id)/groups
 
+    :synopsis: Creates a new bucket group with a generated id.
+
     **Requires authentication**
 
-    Creates a new bucket group with a generated id.
+    **Example Request**
 
     .. sourcecode:: bash
 
         $ echo '{"data": {"members": ["basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http POST http://localhost:8888/v1/buckets/blog/groups --auth="bob:" --verbose
-
-    **Example Request**
 
     .. sourcecode:: http
 
@@ -82,9 +82,9 @@ Replacing a group
 
 .. http:put:: /buckets/(bucket_id)/groups/(group_id)
 
-    **Requires authentication**
+    :synopsis: Creates or replaces a group with a chosen id.
 
-    Creates or replaces a group with a chosen id.
+    **Requires authentication**
 
     **Example Request**
 
@@ -149,11 +149,11 @@ Replacing a group
 Retrieving a group
 ==================
 
-.. http:get:: /buckets/(bucket_idà/groups/(group_id)
+.. http:get:: /buckets/(bucket_id)/groups/(group_id)
+
+    :synopsis: Returns the group object.
 
     **Requires authentication**
-
-    Returns the group object.
 
     **Example Request**
 
@@ -207,9 +207,9 @@ Retrieving all groups
 
 .. http:get:: /buckets/(bucket_idà/groups
 
-    **Requires authentication**
+    :synopsis: Returns the list of groups for the bucket.
 
-    Returns the list of groups for the bucket.
+    **Requires authentication**
 
     **Example Request**
 
@@ -262,9 +262,9 @@ Deleting a group
 
 .. http:delete:: /buckets/(bucket_id)/groups/(group_id)
 
-    **Requires authentication**
+    :synopsis: Deletes a specific group.
 
-    Deletes a specific group.
+    **Requires authentication**
 
     **Example Request**
 

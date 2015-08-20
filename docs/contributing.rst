@@ -62,8 +62,10 @@ If you are proposing a feature:
 Communication channels
 ======================
 
-* Talk to us in our IRC channel ``#storage`` on ``irc.mozilla.org``!
-* Talk about *Kinto* on Twitter using the ``#Kinto`` hashtag
+* Questions tagged ``kinto`` on `Stackflow <http://stackoverflow.com/questions/tagged/kinto>`_
+* Our IRC channel ``#storage`` on ``irc.mozilla.org``!
+* Our team blog http://www.servicedenuages.fr/
+* Some ``#Kinto`` mentions on Twitter :)
 
 
 Hack

@@ -7,6 +7,22 @@ Basically, *Kinto* is a service where client applications can store and retrieve
 In order to provide synchronization and sharing features for these data, *Kinto*
 introduces some basic concepts.
 
+*Kinto* objects in brief :
+
++-----------------+---------------------------------------------------------+
+| Object          | Description                                             |
++=================+=========================================================+
+| **bucket**      | Buckets can be seen as namespaces:                      |
+|                 | collections names won't collide if stored in different  |
+|                 | buckets.                                                |
++-----------------+---------------------------------------------------------+
+| **collection**  | A collection of records                                 |
++-----------------+---------------------------------------------------------+
+| **record**      | The actual stored data                                  |
++-----------------+---------------------------------------------------------+
+| **group**       | A named list of :term:`principals <principal>`.         |
++-----------------+---------------------------------------------------------+
+
 
 .. _concepts-buckets-collections-records:
 
@@ -51,16 +67,20 @@ of permissions is applied to several objects.
 
 .. _concepts-permissions:
 
-Permission inheritance
-======================
+Permissions
+===========
 
 In order to control who is allowed to read, create, modify or delete the records,
 permissions can be defined on buckets, groups, collections and single records.
 
-.. image:: images/concepts-permissions.jpg
+Inherited
+---------
 
 Since there is a notion of hierarchy between buckets, collections and records,
 *Kinto* consider permissions as inherited from parent objects.
+
+.. image:: images/concepts-permissions.jpg
+
 For example, if a bucket defines a permission that allows anonymous users to read,
 then every record of every collection in this bucket will becomes readable.
 
@@ -73,3 +93,35 @@ buckets is controled from the :ref:`server configuration <configuration>` though
 
     If a parent defines a permission, it is (*currently*) not possible to restrict
     it in its children objects.
+
+
+Terminology
+-----------
+
+Regarding permissions, the following vocabulary is used in the documentation:
+
+.. glossary::
+
+    Principal
+        An entity that can be authenticated. Principals can be individual people,
+        applications, services, or any group of such things
+        (e.g. ``username``, ``group:authors``).
+
+    Permission
+    Permissions
+        A permission is an action that can be performed on an object.
+        Examples of permissions are «read», «write», or «create».
+
+    ACE
+    Access Control Entity
+        An ACE associates a permission to objects and principals, and allows
+        to describe rules like "*Members of group admins can create collections*".
+        (e.g ``collections:create = ['group:admins',]``)
+
+    ACL
+    Access Control List
+        A list of ACEs.
+
+.. note::
+
+    Further details about *Kinto* permissions :blog:`were described in a blogpost <en/handling-permissions>`.

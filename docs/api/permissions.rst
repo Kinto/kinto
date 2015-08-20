@@ -3,94 +3,13 @@
 Permissions
 ###########
 
+As described in the :ref:`concepts section <concepts-permissions>`, permissions
+can be set on any object.
 
-Terminology
-===========
+Formalism
+=========
 
-.. glossary::
-
-    Object
-        Anything that can be interacted with. For example, collections, records,
-        buckets, and groups, are all objects.
-
-    Principal
-        An entity that can be authenticated. Principals can be individual people,
-        applications, services, or any group of such things.
-
-    Group
-        A group associates a label to a list of principals.
-
-    Permission
-    Permissions
-        A permission is an action that can be performed on an object.
-        Examples of permissions are «read», «write», or «create».
-
-    ACE
-    Access Control Entity
-        An ACE associates a permission to objects and principals, and allows
-        to describe rules like "*Members of group admins can create collections*".
-        Using #a pseudo-code syntax: ``collections:create = ['group:admins',]``.
-
-    ACL
-    Access Control List
-        A list of ACEs.
-
-Objects
-=======
-
-Any set of objects defined in *Kinto* can be given a number of permissions.
-
-+-----------------+---------------------------------------------------------+
-| Object          | Description                                             |
-+=================+=========================================================+
-| **bucket**      | :ref:`Buckets <buckets>` can be seen as namespaces:     |
-|                 | collections names won't collide if stored in different  |
-|                 | buckets.                                                |
-+-----------------+---------------------------------------------------------+
-| **collection**  | A collection of records                                 |
-+-----------------+---------------------------------------------------------+
-| **record**      | The data handled by the server                          |
-+-----------------+---------------------------------------------------------+
-| **group**       | A group of other :term:`principals <principal>`.        |
-+-----------------+---------------------------------------------------------+
-
-There is a notion of hierarchy among all these objects:
-
-.. code-block:: text
-
-               +---------------+
-               | Buckets       |
-               +---------------+
-        +----->+ - id          +<---+
-        |      | - permissions |    |
-        |      +---------------+    |
-        |                           |
-        |                           |
-        |                           |
-        |                           |
-        |                           |
-    +---+-----------+        +------+---------+
-    | Collections   |        | Groups         |
-    +---------------+        +----------------+
-    | - id          |        |  - id          |
-    | - permissions |        |  - members     |
-    +------+--------+        |  - permissions |
-           ^                 +----------------+
-           |
-           |
-    +------+---------+
-    | Records        |
-    +----------------+
-    |  - id          |
-    |  - data        |
-    |  - permissions |
-    +----------------+
-
-
-Permissions
-===========
-
-On each of these objects the set of permissions can be:
+On each kind of object the set of permissions can be:
 
 +------------+-----------------------------------------+
 | Permission | Description                             |
@@ -106,8 +25,6 @@ On each of these objects the set of permissions can be:
 | **create** | Any listed :term:`principal` can create |
 |            | a new *child object*.                   |
 +------------+-----------------------------------------+
-
-Permissions are associated to objects.
 
 In the case of a creation, since an object can have several kinds of children, the
 permission is prefixed (for instance ``groups:create``, ``collections:create``).
@@ -155,6 +72,11 @@ of object.
 |                |                        |                                  |
 +----------------+------------------------+----------------------------------+
 
+
+By default the ``write`` permission is given to the creator of an
+object.
+
+
 .. note::
 
   There is no ``delete`` permission: Anyone with the ``write`` permission on an
@@ -164,21 +86,11 @@ of object.
 Principals
 ==========
 
-During the authentication phase, the main :term:`principal` of the user is
-bound to the request.
+During the authentication phase, a set of :term:`principal`s for the current
+authenticated *user* will be bound to to the request.
 
-A principal is described with the following formalism:
-``{type}:{identifier}`` (i.e. for Firefox Account: ``fxa:32aa95a474c984d41d395e2d0b614aa2``).
-
-.. note::
-
-    A user can also be another application (in order to provide *service to
-    service* authentication).
-
-Groups
-======
-
-A group associates a name to a list of :term:`principals <principal>`.
+The main principal is considered the **user id**, and follows this formalism:
+``{type}:{identifier}`` (e.g. for Firefox Account: ``fxa:32aa95a474c984d41d395e2d0b614aa2``).
 
 There are two special principals:
 
@@ -186,3 +98,235 @@ There are two special principals:
   authentication mean.
 - ``system.Everyone``: Anyone (authenticated or anonymous). Using this
   principal is useful when a rule should apply to all users.
+
+.. note::
+
+    A user can also be another application (in order to provide *service to
+    service* authentication).
+
+Get the current user id
+-----------------------
+
+The currently authenticated *user id* can be obtained on the root url.
+
+.. code-block:: http
+    :emphasize-lines: 16
+
+    $ http GET http://localhost:8888/v1/ --auth user:pass
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
+    Content-Length: 288
+    Content-Type: application/json; charset=UTF-8
+    Date: Thu, 16 Jul 2015 09:48:47 GMT
+    Server: waitress
+
+    {
+        "documentation": "https://kinto.readthedocs.org/",
+        "hello": "cloud storage",
+        "settings": {
+            "cliquet.batch_max_requests": 25
+        },
+        "url": "http://localhost:8888/v1/",
+        "userid": "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6",
+        "version": "1.4.0"
+    }
+
+
+In this case the user id is: ``basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6``
+
+.. note::
+
+    In case of sharing, users need a way to share their user id with
+    people that needs to give them permission.
+
+
+Retrieve permissions
+====================
+
+.. http:get:: /(object url)
+
+    :synopsis: Retrieve the object data and permissions.
+
+    **Requires authentication**
+
+    **Example request**
+
+    .. sourcecode:: bash
+
+        $ http GET http://localhost:8888/v1/buckets/default --auth="bob:" --verbose
+
+    .. sourcecode:: http
+
+        GET /v1/buckets/default HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOg==
+        Connection: keep-alive
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.2
+
+    **Example response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Last-Modified, ETag
+        Connection: keep-alive
+        Content-Length: 187
+        Content-Type: application/json; charset=UTF-8
+        Date: Thu, 20 Aug 2015 16:18:48 GMT
+        ETag: "1440087528171"
+        Last-Modified: Thu, 20 Aug 2015 16:18:48 GMT
+        Server: nginx/1.4.6 (Ubuntu)
+
+        {
+            "data": {
+                "id": "fec930f1-4e30-5b1c-2a63-0fafbe508d48",
+                "last_modified": 1440087528171
+            },
+            "permissions": {
+                "write": [
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                ]
+            }
+        }
+
+
+Add a permission
+================
+
+.. http:patch:: /(object url)
+
+    :synopsis: Add principals or permissions to the object.
+
+    **Requires authentication**
+
+    **Example request**
+
+    .. sourcecode:: bash
+
+        $ echo '{"permissions": {"read": ["system.Authenticated"]}}' | \
+          http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks \
+          --auth bob:
+
+    .. sourcecode:: http
+
+        PATCH /v1/buckets/default/collections/tasks HTTP/1.1
+        Accept: application/json
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOg==
+        Connection: keep-alive
+        Content-Length: 52
+        Content-Type: application/json; charset=utf-8
+        Host: kinto.dev.mozaws.net
+        User-Agent: HTTPie/0.8.0
+
+        {
+            "permissions": {
+                "read": [
+                    "system.Authenticated"
+                ]
+            }
+        }
+
+    **Example response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
+        Connection: keep-alive
+        Content-Length: 188
+        Content-Type: application/json; charset=UTF-8
+        Date: Thu, 20 Aug 2015 16:43:51 GMT
+        ETag: "1440089003843"
+        Last-Modified: Thu, 20 Aug 2015 16:43:23 GMT
+        Server: nginx/1.4.6 (Ubuntu)
+
+        {
+            "data": {
+                "id": "tasks",
+                "last_modified": 1440089003843
+            },
+            "permissions": {
+                "read": [
+                    "system.Authenticated"
+                ],
+                "write": [
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                ]
+            }
+        }
+
+
+Replace or remove permissions
+=============================
+
+.. note::
+
+   The user id that updates the permissions is always given the ``write``
+   permission, in order to prevent loosing ownership on the object.
+
+
+.. http:put:: /(object url)
+
+    :synopsis: Replace existing principals or permissions of the object.
+
+    **Requires authentication**
+
+    **Example request**
+
+    .. sourcecode:: bash
+
+        $ echo '{"permissions": {"write": ["groups:writers"]}}' | \
+          http PUT https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks \
+          --auth bob:
+
+    .. sourcecode:: http
+
+        PUT /v1/buckets/default/collections/tasks HTTP/1.1
+        Accept: application/json
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOg==
+        Connection: keep-alive
+        Content-Length: 57
+        Content-Type: application/json; charset=utf-8
+        Host: kinto.dev.mozaws.net
+        User-Agent: HTTPie/0.8.0
+
+        {
+            "permissions": {
+                "write": [
+                    "groups:writers"
+                ]
+            }
+        }
+
+    **Example response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
+        Connection: keep-alive
+        Content-Length: 182
+        Content-Type: application/json; charset=UTF-8
+        Date: Thu, 20 Aug 2015 16:50:37 GMT
+        ETag: "1440089437221"
+        Last-Modified: Thu, 20 Aug 2015 16:50:37 GMT
+        Server: nginx/1.4.6 (Ubuntu)
+
+        {
+            "data": {
+                "id": "tasks",
+                "last_modified": 1440089437221
+            },
+            "permissions": {
+                "write": [
+                    "groups:writers"
+                ],
+                "write": [
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                ]
+            }
+        }
