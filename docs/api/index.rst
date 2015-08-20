@@ -1,7 +1,10 @@
 .. _api-endpoints:
 
-HTTP endpoints
-##############
+API
+###
+
+Cheatsheet
+==========
 
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | Method   | URI                                                                                          | Description                                             |
@@ -52,15 +55,21 @@ HTTP endpoints
 Many of the listed endpoints are resource endpoints, which an be filtered,
 paginated and interracted as described in :ref:`resource-endpoints`.
 
-Kinto protocol
+
+Full reference
 ==============
 
-In addition to the endpoints defined above, some aspects of the API might be
-of interest:
+Full detailed API documentation:
 
 .. toctree::
    :maxdepth: 2
 
+   buckets
+   collections
+   records
+   groups
+   permissions
+   synchronization
    cliquet/versioning
    cliquet/authentication
    cliquet/resource
@@ -68,8 +77,3 @@ of interest:
    cliquet/backoff
    cliquet/errors
    cliquet/deprecation
-   buckets
-   collections
-   records
-   groups
-   synchronization
