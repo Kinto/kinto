@@ -13,27 +13,56 @@ abilities. It is meant to be **easy to use** and **easy to self-host**.
 Use cases
 =========
 
+.. image:: images/overview-use-cases.png
+
 - A generic Web database for frontend applications;
 - Build collaborative applications with fine grained-permissions;
 - Store encrypted data at a location you control;
 - Synchronize application data between different devices.
 
-.. image:: images/overview-use-cases.png
+.. image:: images/overview-deployonce-selfhost.png
 
 
 Key features
 ============
 
-- Synchronization and concurrency control
-- Offline first JavaScript client
-- Fined grained permissions
-- Plug multiple client apps
-- Self-hostable
-- Designed in the open
+.. |logo-synchronization| image:: images/logo-synchronization.svg
+   :alt: https://thenounproject.com/search/?q=syncing&i=31170
+   :width: 100px
 
-.. image:: images/overview-features.png
+.. |logo-offline| image:: images/logo-offline.svg
+   :alt: https://thenounproject.com/search/?q=offline&i=90580
+   :width: 100px
 
-Also:
+.. |logo-permissions| image:: images/logo-permissions.svg
+   :alt: https://thenounproject.com/search/?q=permissions&i=23303
+   :width: 100px
+
+.. |logo-multiapps| image:: images/logo-multiapps.svg
+   :alt: https://thenounproject.com/search/?q=community&i=189189
+   :width: 100px
+
+.. |logo-selfhostable| image:: images/logo-selfhostable.svg
+   :alt: https://thenounproject.com/search/?q=free&i=669
+   :width: 100px
+
+.. |logo-community| image:: images/logo-community.svg
+   :alt: https://thenounproject.com/search/?q=community&i=189189
+   :width: 100px
+
++---------------------------------------------+-------------------------------------+
+| |logo-synchronization|                      | |logo-offline|                      |
+| **Synchronization and concurrency control** | **Offline-first JavaScript client** |
++---------------------------------------------+-------------------------------------+
+| |logo-permissions|                          | |logo-multiapps|                    |
+| **Fined grained permissions**               | **Plug multiple client apps**       |
++---------------------------------------------+-------------------------------------+
+| |logo-selfhostable|                         | |logo-community|                    |
+| **Open Source and Self-hostable**           | **Designed in the open**            |
++---------------------------------------------+-------------------------------------+
+
+
+**Also**
 
 - HTTP best practices
 - Pluggable authentication
@@ -41,14 +70,13 @@ Also:
 - Configuration via a single INI file
 - Built-in monitoring
 
-.. image:: images/overview-selfhost.png
 
-Coming soon:
+**Coming soon**
 
 - Schema validation
 - Push notifications
 
-.. image:: images/overview-deployonce.png
+.. image:: images/overview-features.png
 
 
 .. _overview-synchronization:
