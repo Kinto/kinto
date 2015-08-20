@@ -1,7 +1,7 @@
 .. _contributing:
 
-Contribution guidelines
-#######################
+Contributing
+############
 
 Thank you for considering to contribute to *Kinto*!
 

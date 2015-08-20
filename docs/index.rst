@@ -18,7 +18,6 @@ Table of content
    tutorials/index
    configuration
    deployment
-   permissions
    api/index
    contributing
    changelog
