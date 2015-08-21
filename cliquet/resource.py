@@ -906,9 +906,9 @@ class BaseResource(object):
 
         filters = []
 
-        for param, value in queryparams.items():
+        for param, paramvalue in queryparams.items():
             param = param.strip()
-            value = native_value(value)
+            value = native_value(paramvalue)
 
             # Ignore specific fields
             if param.startswith('_') and param not in ('_since',
@@ -941,7 +941,7 @@ class BaseResource(object):
                 )
                 continue
 
-            m = re.match(r'^(min|max|not|lt|gt)_(\w+)$', param)
+            m = re.match(r'^(min|max|not|lt|gt|in)_(\w+)$', param)
             if m:
                 keyword, field = m.groups()
                 operator = getattr(COMPARISON, keyword.upper())
@@ -954,6 +954,9 @@ class BaseResource(object):
                     'description': "Unknown filter field '{0}'".format(param)
                 }
                 raise_invalid(self.request, **error_details)
+
+            if operator is COMPARISON.IN:
+                value = tuple([native_value(v) for v in paramvalue.split(',')])
 
             filters.append(Filter(field, value, operator))
 
