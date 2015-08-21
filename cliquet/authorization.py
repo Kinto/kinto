@@ -51,12 +51,14 @@ class AuthorizationPolicy(object):
                 principals,
                 get_bound_permissions=self.get_bound_permissions)
 
+        # If not allowed on this collection, but some records are shared with
+        # the current user, then authorize.
+        # The ProtectedResource class will take care of the filtering.
         is_list_operation = (context.on_collection and
                              'create' not in permission)
         if not allowed and is_list_operation:
-            # Guest trying to reach a collection.
-            setattr(context, 'guest_principals', principals)
-            return True  # OMG, resource code must be rock-solid.
+            shared_records = context.fetch_shared_records(principals)
+            allowed = len(shared_records) > 0
 
         return allowed
 
@@ -130,6 +132,16 @@ class RouteFactory(object):
         self.required_permission = permission
         self.resource_name = resource_name
         self.check_permission = check_permission
+
+        self.shared_ids = []
+        self.get_shared_ids = functools.partial(
+            request.registry.permission.principals_accessible_objects,
+            permission=permission,
+            object_id_match='*%s*' % object_id)
+
+    def fetch_shared_records(self, principals):
+        self.shared_ids = self.get_shared_ids(principals=principals)
+        return self.shared_ids
 
 
 def get_object_id(object_uri):

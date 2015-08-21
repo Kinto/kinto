@@ -1074,18 +1074,9 @@ class ProtectedResource(BaseResource):
     def _extract_filters(self, queryparams=None):
         filters = super(ProtectedResource, self)._extract_filters(queryparams)
 
-        # Guest wants her records.
-        # guest_principals is set in Authorization policy permits().
-        # XXX: better request.effective_principals + context.prefixed_userid ?
-        guest_principals = getattr(self.context, 'guest_principals', [])
-        if guest_principals:
-            permission_backend = self.request.registry.permission
-            query_ids = permission_backend.principals_accessible_objects
-            permission = self.context.required_permission
-            ids = query_ids(guest_principals, permission)
-            # Since object_ids are URIs, must extract records ids (e.g. UUID)
-            ids = [authorization.extract_object_id(obj_id) for obj_id in ids]
-
+        # XXX: find more elegant approach to add custom filters.
+        ids = self.context.shared_ids
+        if ids:
             filter_by_id = Filter(self.collection.id_field, ids, COMPARISON.IN)
             filters.insert(0, filter_by_id)
 
