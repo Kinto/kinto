@@ -18,8 +18,8 @@ class NameGenerator(generators.Generator):
 def object_exists_or_404(request, collection_id, object_id, parent_id=''):
     storage = request.registry.storage
     try:
-        storage.get(collection_id=collection_id,
-                    parent_id=parent_id,
-                    object_id=object_id)
+        return storage.get(collection_id=collection_id,
+                           parent_id=parent_id,
+                           object_id=object_id)
     except exceptions.RecordNotFoundError:
         raise httpexceptions.HTTPNotFound()

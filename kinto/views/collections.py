@@ -1,6 +1,32 @@
+import colander
+import jsonschema
 from cliquet import resource
+from jsonschema import exceptions as jsonschema_exceptions
 
 from kinto.views import NameGenerator, object_exists_or_404
+
+
+class JSONSchemaMapping(colander.SchemaNode):
+    def schema_type(self, **kw):
+        return colander.Mapping(unknown='preserve')
+
+    def deserialize(self, cstruct=colander.null):
+        # Start by deserializing a simple mapping.
+        validated = super(JSONSchemaMapping, self).deserialize(cstruct)
+
+        # In case it is optional in parent schema.
+        if not validated or validated in (colander.null, colander.drop):
+            return validated
+
+        try:
+            jsonschema.Draft4Validator.check_schema(validated)
+        except jsonschema_exceptions.SchemaError as e:
+            self.raise_invalid(e.path.pop() + e.message)
+        return validated
+
+
+class CollectionSchema(resource.ResourceSchema):
+    schema = JSONSchemaMapping(missing=colander.drop)
 
 
 @resource.register(name='collection',
@@ -8,6 +34,7 @@ from kinto.views import NameGenerator, object_exists_or_404
                    collection_path='/buckets/{{bucket_id}}/collections',
                    record_path='/buckets/{{bucket_id}}/collections/{{id}}')
 class Collection(resource.ProtectedResource):
+    mapping = CollectionSchema()
     permissions = ('read', 'write', 'record:create')
 
     def __init__(self, *args, **kwargs):
