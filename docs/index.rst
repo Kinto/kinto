@@ -16,7 +16,7 @@ Table of content
    concepts
    installation
    tutorials/index
-   configuration
+   configuration/index
    deployment
    api/index
    contributing
