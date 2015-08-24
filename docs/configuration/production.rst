@@ -68,29 +68,31 @@ And configure its URL:
     # StatsD
     cliquet.statsd_url = udp://carbon.server:8125
 
-The following counters will be enabled:
+Counters
+========
+.. csv-table::
+   :header: "Name", "Description"
+   :widths: 10, 100
 
-* ``users`` (unique user ids)
-* ``authn_type.basicauth``
-* ``authn_type.fxa``
+   "``users``", "Number of unique user ids."
+   "``authn_type.basicauth``", "Number of basic authentication requests"
+   "``authn_type.fxa``", "Number of FxA authentications"
 
-And the following timers:
+Timers
+======
 
-* ``authentication.permits``
-* ``view.hello.GET``
-* ``view.heartbeat.GET``
-* ``view.batch.POST``
-* ``view.bucket-record.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.bucket-collection.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.collection-record.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.collection-collection.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.group-record.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.group-collection.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.record-record.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.record-collection.[GET|POST|PUT|PATCH|DELETE]``
-* ``cache.[ping|ttl|expire|set|get|delete]``
-* ``storage.[ping|collection_timestamp|create|get|update|delete|delete_all|get_all]``
-* ``permission.[add_user_principal|remove_user_principal|user_principals|add_principal_to_ace|remove_principal_from_ace|object_permission_principals|check_permission]``
+.. csv-table::
+   :header: "Name", "Description"
+   :widths: 10, 100
+
+   "``authentication.permits``", "Time needed by the permissions backend to allow or reject a request"
+   "``view.hello.GET``", "Time needed to return the hello view"
+   "``view.heartbeat.GET``", "Time needed to return the heartbeat page"
+   "``view.batch.POST``", "Time needed to process a batch request"
+   "``view.{resource}-{type}.{method}``", "Time needed to process the specified *{method}* on a *{resource}* (e.g. bucket, collection or record). Different timers exists for the different type of resources (record or collection)"
+   "``cache.{method}``", "Time needed to execute a method of the cache backend. Methods are ``ping``, ``ttl``, ``expire``, ``set``, ``get`` and ``delete``"
+   "``storage.{method}``", "Time needed to execute a method of the storage backend. Methods are ``ping``, ``collection_timestamp``, ``create``, ``get``, ``update``, ``delete``, ``delete_all``, ``get_all``"
+   "``permission.{method}``", "Time needed to execute a method of the permission backend. Methods are ``add_user_principal``, ``remove_user_principal``, ``user_principals``, ``add_principal_to_ace``, ``remove_principal_from_ace``, ``object_permission_principals``, ``check_permission``"
 
 
 Heka Logging
