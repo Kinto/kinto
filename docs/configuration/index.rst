@@ -10,4 +10,3 @@ Configuration
    settings
    production
    good-practices
-   recipes

@@ -1,6 +1,9 @@
 Settings
 ########
 
+.. image:: /images/overview-features.png
+    :align: center
+
 Kinto is built to be highly configurable. As a result, the related
 configuration can be verbose, but don't worry, all configuration flags are
 listed below.
@@ -279,6 +282,8 @@ New-Relic can be enabled (disabled by default):
 
     cliquet.newrelic_config = /location/of/newrelic.ini
     cliquet.newrelic_env = prod
+
+.. _configuration-authentication:
 
 Authentication
 ==============

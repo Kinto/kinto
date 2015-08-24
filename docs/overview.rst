@@ -1,6 +1,8 @@
 Overview
 #########
 
+.. image:: images/overview-use-cases.png
+    :align: right
 
 *Kinto* is a lightweight JSON storage service with synchronisation and sharing
 abilities. It is meant to be **easy to use** and **easy to self-host**.
@@ -13,14 +15,10 @@ abilities. It is meant to be **easy to use** and **easy to self-host**.
 Use cases
 =========
 
-.. image:: images/overview-use-cases.png
-
 - A generic Web database for frontend applications;
 - Build collaborative applications with fine grained-permissions;
 - Store encrypted data at a location you control;
 - Synchronize application data between different devices.
-
-.. image:: images/overview-deployonce-selfhost.png
 
 
 Key features
@@ -76,9 +74,6 @@ Key features
 - Schema validation
 - Push notifications
 
-.. image:: images/overview-features.png
-
-
 .. _overview-synchronization:
 
 Synchronization
@@ -97,6 +92,7 @@ since a specified revision. *Kinto* can also use it to avoid accidental updates
 of objects.
 
 .. image:: images/overview-synchronization.png
+    :align: center
 
 .. note::
 

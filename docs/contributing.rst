@@ -7,8 +7,8 @@ Thank you for considering to contribute to *Kinto*!
 
 .. note::
 
-    No contribution is too small; please submit as many fixes for typos and
-    grammar bloopers as you can!
+    Please, remember: No contribution is too small; We welcome all kind of
+    feedback. Typos, grammar bloopers, code, documentation, we take them all!
 
 
 How to contribute
@@ -62,7 +62,7 @@ If you are proposing a feature:
 Communication channels
 ======================
 
-* Questions tagged ``kinto`` on `Stackflow <http://stackoverflow.com/questions/tagged/kinto>`_
+* Questions tagged ``kinto`` on `Stack Overflow <http://stackoverflow.com/questions/tagged/kinto>`_
 * Our IRC channel ``#storage`` on ``irc.mozilla.org``!
 * Our team blog http://www.servicedenuages.fr/
 * Some ``#Kinto`` mentions on Twitter :)
@@ -160,4 +160,3 @@ Troubleshooting
 ===============
 
 *Coming soon* !
-

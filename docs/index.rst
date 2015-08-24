@@ -14,10 +14,8 @@ Table of content
 
    overview
    concepts
-   installation
    tutorials/index
    configuration/index
-   deployment
    api/index
    contributing
    changelog
