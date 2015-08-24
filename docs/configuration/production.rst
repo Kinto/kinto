@@ -69,7 +69,8 @@ And configure its URL:
     cliquet.statsd_url = udp://carbon.server:8125
 
 Counters
-========
+::::::::
+
 .. csv-table::
    :header: "Name", "Description"
    :widths: 10, 100
@@ -79,7 +80,7 @@ Counters
    "``authn_type.fxa``", "Number of FxA authentications"
 
 Timers
-======
+::::::
 
 .. csv-table::
    :header: "Name", "Description"
