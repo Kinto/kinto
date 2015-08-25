@@ -1,7 +1,7 @@
 import platform
 import codecs
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -74,7 +74,8 @@ setup(name='cliquet',
       author='Mozilla Services',
       author_email='services-dev@mozilla.com',
       url='',
-      packages=find_packages(),
+      packages=['cliquet', 'cliquet_docs'],
+      package_data={'': ['*.rst', ]},
       include_package_data=True,
       zip_safe=False,
       install_requires=REQUIREMENTS,

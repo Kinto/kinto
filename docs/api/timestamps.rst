@@ -4,9 +4,9 @@
 Server timestamps
 #################
 
-In order to avoid race conditions, *Cliquet* guarantees that each change will
+In order to avoid race conditions, each change is guaranteed to 
 increment the timestamp of the related collection.
-If two changes happen at the same millisecond, they will still have two differents
+If two changes happen at the same millisecond, they will still have two different
 timestamps.
 
 The ``ETag`` header with the current timestamp of the collection for
