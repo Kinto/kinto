@@ -1,18 +1,20 @@
-.. _api-synchronization:
+.. _api-synchronisation:
 
-Synchronization
+Synchronisation
 ###############
 
-This section describes the basic aspects of synchronization using *Kinto*.
+This section describes the basic aspects of synchronisation using *Kinto*.
 
 .. note::
 
-    If you are looking for a ready-to-use synchronization solution,
+    If you are looking for a ready-to-use synchronisation solution,
     jump to :ref:`sync-implementations`.
 
 
-The main idea consists in maintaining a local database up-to-date
-with the *Kinto* server. Remote changes are downloaded and applied
+
+
+The basic idea is to keep a local database up to date with the Kinto server.
+Remote changes are downloaded and applied
 on the local data. Local changes are uploaded using HTTP headers to control
 concurrency and overwrite.
 
@@ -20,7 +22,7 @@ In short:
 
 #. Poll for remote changes using ``?_since=<timestamp>``
 #. Apply changes locally
-#. Post creations
+#. Apply creations remotely
 #. Use concurrency control to send updates and deletes
 
 
@@ -28,19 +30,19 @@ Polling for changes
 ===================
 
 When fetching the collection records with ``?_since=<timestamp>``, *Kinto* returns
-every records that were created/updated/deleted **after** this timestamp.
+every records that was created/updated/deleted **after** this timestamp.
 
 #. Cold sync → no ``?_since``.
 #. ``GET /buckets/default/collections/articles?_since=<timestamp>`` (with header ``If-Unmodified-Since = <timestamp>``)
 #. If response is ``304 Not modified``, done → up to date, nothing to do.
 #. If response is ``200 OK`` store ``ETag`` response header value for next
-   synchronization and handle the obtained list of changes.
+   synchronisation and handle the obtained list of changes.
 
 .. note::
 
-    * Deleted records have an attribute ``delete: true``
-    * Created/updated records are both returned in their new version
-    * Since *Kinto* does not keep any history, there is no *diff* for updates
+    * Deleted records have an attribute ``delete: true``.
+    * Created/updated records are both returned in their new version.
+    * Since *Kinto* does not keep any history, there is no *diff* for updates.
 
 
 Paginated changes
@@ -52,14 +54,14 @@ changes will be paginated.
 
 It basically consists in fetching the list until the ``Next-Page`` is present.
 
-Since changes can occur between the first and the last page, the synchronization
+Since changes can occur between the first and the last page, the synchronisation
 process is a bit more complex.
 
 #. Cold sync → no ``?_since``.
 #. ``GET /buckets/default/collections/articles?_since=<timestamp>`` (with header ``If-Unmodified-Since = <timestamp>``)
 #. If response is ``304 Not modified``, done → up to date, nothing to do.
 #. If no ``Next-Page`` response header, done → store ``ETag`` response header valuè for next
-   synchronization.
+   synchronisation.
 #. If ``Next-Page`` response header is present → store the ``ETag`` response header value into a variable ``timestamp``
    and go on to it (it's an url) using a ``If-Match: <timestamp>`` request header.
 #. If response is ``200 OK`` → repeat previous step.
@@ -140,7 +142,7 @@ When going back online, the set of changes can be sent to the server using a
 Implementations
 ===============
 
-The **current implementation of reference** for offline-first records synchronization is
+The **current implementation of reference** for offline-first records synchronisation is
 :rtd:`Kinto.js <kintojs>`_.
 
 
@@ -157,4 +159,3 @@ Before that, some other clients were implemented in the context of the
         the probability of creating just **one duplicate** would
         be about **50%**.
         `Source <https://en.wikipedia.org/wiki/Universally_unique_identifier#Random_UUID_probability_of_duplicates>`_
-

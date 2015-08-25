@@ -305,7 +305,7 @@ Deleting a record
 
 .. http:delete:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    :synopsis: Delete a record, from its ID.
+    :synopsis: Delete a record by its ID.
 
     **Example Request**
 

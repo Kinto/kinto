@@ -24,7 +24,7 @@ Use cases
 Key features
 ============
 
-.. |logo-synchronization| image:: images/logo-synchronization.svg
+.. |logo-synchronisation| image:: images/logo-synchronisation.svg
    :alt: https://thenounproject.com/search/?q=syncing&i=31170
    :width: 100px
 
@@ -49,8 +49,8 @@ Key features
    :width: 100px
 
 +---------------------------------------------+-------------------------------------+
-| |logo-synchronization|                      | |logo-offline|                      |
-| **Synchronization and concurrency control** | **Offline-first JavaScript client** |
+| |logo-synchronisation|                      | |logo-offline|                      |
+| **Synchronisation and concurrency control** | **Offline-first JavaScript client** |
 +---------------------------------------------+-------------------------------------+
 | |logo-permissions|                          | |logo-multiapps|                    |
 | **Fined grained permissions**               | **Plug multiple client apps**       |
@@ -74,12 +74,12 @@ Key features
 - Schema validation
 - Push notifications
 
-.. _overview-synchronization:
+.. _overview-synchronisation:
 
-Synchronization
+Synchronisation
 ===============
 
-Bi-directionnal synchronization of records is a very hard topic.
+Bi-directionnal synchronisation of records is a very hard topic.
 
 *Kinto* takes some shortcuts by only providing the basics for concurrency control
 and polling for changes, and not trying to resolve conflicts automatically.
@@ -91,12 +91,12 @@ Clients can retrieve the list of changes that occured on a collection of records
 since a specified revision. *Kinto* can also use it to avoid accidental updates
 of objects.
 
-.. image:: images/overview-synchronization.png
+.. image:: images/overview-synchronisation.png
     :align: center
 
 .. note::
 
-    *Kinto* synchronization was designed and built by the `Mozilla Firefox Sync
+    *Kinto* synchronisation was designed and built by the `Mozilla Firefox Sync
     <https://en.wikipedia.org/wiki/Firefox_Sync>`_ team.
 
 

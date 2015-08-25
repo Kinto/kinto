@@ -3,10 +3,10 @@
 Installation
 ############
 
-Instructions on how to run Kinto are given below. Some dependencies might
-make the installation more painful than you should. If this is the case, have
-a look at the sections on how to install the cryptographic libraries or
-postgresql, at the end of this page.
+*Kinto* is meant to be relatively straightforward to install, and we've
+provided fairly extensive documentation to get you up and running. That said,
+some dependencies might make the process harder than it should be -
+we've got some notes on crypto libraries and PostgreSQL at the end of this page.
 
 Run locally
 ===========

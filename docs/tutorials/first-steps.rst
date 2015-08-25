@@ -875,7 +875,7 @@ Conclusion
 In this tutorial you have seen some of the concepts exposed by *Kinto*:
 
 - Using the default personal user bucket
-- Handling synchronization and conflicts
+- Handling synchronisation and conflicts
 - Creating a bucket to share data between users
 - Creating groups, collections and records
 - Modifying objects permissions, for users and groups
