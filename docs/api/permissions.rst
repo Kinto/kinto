@@ -132,11 +132,11 @@ The currently authenticated *user id* can be obtained on the root url.
     }
 
 
-In this case the user id is: ``basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6``
+In this case the user ID is: ``basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6``
 
 .. note::
 
-    In case of sharing, users need a way to share their user id with
+    In case of sharing, users need a way to share their user ID with
     people that needs to give them permission.
 
 
@@ -264,7 +264,7 @@ Replace or remove permissions
 
 .. note::
 
-   The user id that updates the permissions is always given the ``write``
+   The user ID that updates the permissions is always given the ``write``
    permission, in order to prevent loosing ownership on the object.
 
 

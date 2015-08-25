@@ -205,7 +205,7 @@ Retrieving a group
 Retrieving all groups
 =====================
 
-.. http:get:: /buckets/(bucket_idà/groups
+.. http:get:: /buckets/(bucket_id/groups
 
     :synopsis: Returns the list of groups for the bucket.
 

@@ -17,12 +17,12 @@ Creating a bucket
 
 .. http:put:: /buckets/(bucket_id)
 
-    :synopsis: Creates or replaces a bucket with a specific id.
+    :synopsis: Creates or replaces a bucket with a specific ID.
 
     **Requires authentication**
 
-    If the bucket exists and you don't have the ``write`` permission on
-    it, you will get a ``403 Forbidden`` http response.
+    If the bucket exists but you don't have the ``write`` permission,
+    you will get a ``403 Forbidden`` http response.
 
     **Example request**
 
@@ -83,7 +83,7 @@ Retrieve an existing bucket
 
 .. http:get:: /buckets/(bucket_id)
 
-    :synopsis: Returns a specific bucket by its id.
+    :synopsis: Returns a specific bucket by its ID.
 
     **Requires authentication**
 
@@ -155,7 +155,7 @@ Deleting a bucket
 
 .. http:delete:: /buckets/(bucket_id)
 
-    :synopsis: Deletes a specific bucket, and **everything under it**.
+    :synopsis: Deletes a specific bucket and **everything under it**.
 
     **Requires authentication**
 

@@ -46,7 +46,7 @@ This document describes changes between each past release.
 
 - Improvements and fixes in the tutorial (#107)
 - Querystring handling when using the personal bucket (#119)
-- Default buckets id is now a UUID with dashes (#120)
+- Default buckets ID is now a UUID with dashes (#120)
 - Handle unknown permission and fix crash on /buckets (#88)
 - Fix permissions handling on PATCH /resource (mozilla-services/cliquet#358)
 

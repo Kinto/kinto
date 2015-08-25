@@ -18,10 +18,11 @@ A collection is a mapping with the following attribute:
     shortcut: ie ``/buckets/default/collections/contacts`` will be
     the current user contacts.
 
-    Internally the user default bucket is assigned to an id that can
+    Internally the user default bucket is assigned to an ID that can
     later be used to share data from a user personnal bucket.
 
-    Collection on a the default bucket are created silently on first access.
+    Collection on a the bucket named "default" are created silently on
+    first access, so you don't need to create them before using them.
 
 
 .. _collection-put:
@@ -149,7 +150,7 @@ Deleting a collection
 
 .. http:delete:: /buckets/(bucket_id)/collections/(collection_id)
 
-    :synopsis: Deletes a specific collection, and **everything under it**.
+    :synopsis: Deletes a specific collection and **everything under it**.
 
     **Requires authentication**
 

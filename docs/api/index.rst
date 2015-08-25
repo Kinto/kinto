@@ -19,7 +19,7 @@ Cheatsheet
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | **Buckets**                                                                                                                                                       |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
-| `PUT`    | :ref:`/buckets/(bucket_id) <bucket-put>`                                                     | :ref:`Create or replaces a bucket <bucket-put>`         |
+| `PUT`    | :ref:`/buckets/(bucket_id) <bucket-put>`                                                     | :ref:`Create or replace a bucket <bucket-put>`          |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `GET`    | :ref:`/buckets/(bucket_id) <bucket-get>`                                                     | :ref:`Retrieve an existing bucket <bucket-get>`         |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
@@ -60,8 +60,9 @@ Cheatsheet
 | `DELETE` | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records/(record_id) <record-delete>`  | :ref:`Delete a single record <record-delete>`           |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 
-Many of the listed endpoints are resource endpoints, which an be filtered,
-paginated and interracted as described in :ref:`resource-endpoints`.
+Buckets, Groups, Collection and Record endpoints are *resource endpoints* which
+can be filtered, paginated, and interacted with as described in
+:ref:`resource-endpoints`.
 
 
 Full reference

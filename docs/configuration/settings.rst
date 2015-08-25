@@ -43,7 +43,7 @@ Example:
     # Force pagination *(recommended)*
     # cliquet.paginate_by = 200
 
-    # Custom record id generator class
+    # Custom record ID generator class
     # cliquet.id_generator = cliquet.storage.generators.UUID4
 
 

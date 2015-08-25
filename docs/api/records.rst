@@ -13,7 +13,7 @@ Uploading a record
 
 .. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records
 
-    :synopsis: Stores a record in the collection, and its id will be assigned automatically.
+    :synopsis: Stores a record in the collection, and its ID will be assigned automatically.
 
     **Requires authentication**
 
