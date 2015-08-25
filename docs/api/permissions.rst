@@ -18,16 +18,16 @@ On each kind of object the set of permissions can be:
 |            | the object.                             |
 +------------+-----------------------------------------+
 | **write**  | Any listed :term:`principal` can write  |
-|            | the object. Whoever has the permission  |
-|            | to write an object can read, update and |
-|            | delete it.                              |
+|            | the object, which further implies       |
+|            | *read*, *update*, and *delete*.         |
 +------------+-----------------------------------------+
 | **create** | Any listed :term:`principal` can create |
 |            | a new *child object*.                   |
 +------------+-----------------------------------------+
 
 In the case of a creation, since an object can have several kinds of children, the
-permission is prefixed (for instance ``groups:create``, ``collections:create``).
+permission is prefixed by the type of child (for instance ``groups:create``,
+``collections:create``).
 
 The following table lists all permissions that can be associated to each kind
 of object.
@@ -35,52 +35,51 @@ of object.
 +----------------+------------------------+----------------------------------+
 | Object         | Associated permissions | Description                      |
 +================+========================+==================================+
-| Configuration  | ``buckets:create``     | Ability to create new buckets.   |
+| Configuration  | ``buckets:create``     | Create new buckets.              |
 |                |                        |                                  |
 +----------------+------------------------+----------------------------------+
-| Bucket         | ``write``              | Ability to write + read on the   |
+| Bucket         | ``read``               | Read all objects in the bucket.  |
+|                |                        |                                  |
+|                +------------------------+----------------------------------+
+|                | ``write``              | Write + read on the              |
 |                |                        | bucket and all children objects. |
 |                +------------------------+----------------------------------+
-|                | ``read``               | Ability to read all objects in   |
-|                |                        | the bucket.                      |
-|                +------------------------+----------------------------------+
-|                | ``collections:create`` | Ability to create new            |
+|                | ``collections:create`` | Create new                       |
 |                |                        | collections in the bucket.       |
 |                +------------------------+----------------------------------+
-|                | ``groups:create``      | Ability to create new groups     |
+|                | ``groups:create``      | Create new groups                |
 |                |                        | in the bucket.                   |
 +----------------+------------------------+----------------------------------+
-| Collection     | ``write``              | Ability to write and read all    |
+| Collection     | ``read``               | Read all                         |
 |                |                        | objects in the collection.       |
 |                +------------------------+----------------------------------+
-|                | ``read``               | Ability to read all objects in   |
+|                | ``write``              | Write and read all objects in    |
 |                |                        | the collection.                  |
 |                +------------------------+----------------------------------+
-|                | ``records:create``     | Ability to create new records    |
+|                | ``records:create``     | Create new records               |
 |                |                        | in the collection.               |
 +----------------+------------------------+----------------------------------+
-| Record         | ``write``              | Ability to write and read the    |
+| Record         | ``read``               | Read the record.                 |
 |                |                        | record.                          |
 |                +------------------------+----------------------------------+
-|                | ``read``               | Ability to read the record.      |
+|                | ``write``              | Write and read the record.       |
 |                |                        |                                  |
 +----------------+------------------------+----------------------------------+
-| Group          | ``write``              | Ability to write and read the    |
+| Group          | ``read``               | Read the group                   |
 |                |                        | group.                           |
 |                +------------------------+----------------------------------+
-|                | ``read``               | Ability to read the group.       |
+|                | ``write``              | Write and read the group         |
 |                |                        |                                  |
 +----------------+------------------------+----------------------------------+
 
-
-By default the ``write`` permission is given to the creator of an
-object.
+Every modification of an object (including the creation of new objects)
+grant the `write` permission to their creator.
 
 
 .. note::
 
-  There is no ``delete`` permission: Anyone with the ``write`` permission on an
-  object can also edit its associated permissions and delete it.
+  There is no ``delete`` permission. Anyone with the ``write`` permission on an
+  object can delete it.
 
 
 Principals
@@ -89,13 +88,13 @@ Principals
 During the authentication phase, a set of :term:`principal`s for the current
 authenticated *user* will be bound to to the request.
 
-The main principal is considered the **user id**, and follows this formalism:
+The main principal is considered the **user id** and follows this formalism:
 ``{type}:{identifier}`` (e.g. for Firefox Account: ``fxa:32aa95a474c984d41d395e2d0b614aa2``).
 
 There are two special principals:
 
-- ``system.Authenticated``: All users that are authenticated, no matter the
-  authentication mean.
+- ``system.Authenticated``: All users that are authenticated, no matter how they
+  authenticated.
 - ``system.Everyone``: Anyone (authenticated or anonymous). Using this
   principal is useful when a rule should apply to all users.
 
