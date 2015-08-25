@@ -13,7 +13,7 @@ The returned value is a JSON mapping containing:
 - ``commit``: the HEAD git revision number when run from a git repository.
 - ``url``: absolute URI (without a trailing slash) of the API (*can be used by client to build URIs*)
 - ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)
-- ``documentation``: The url to the service documentation. (this document!)
+- ``documentation``: The URL to the service documentation. (this document!)
 - ``settings``: a mapping with the values of relevant public settings for clients
     - ``cliquet.batch_max_requests``: Number of requests that can be made in a batch request.
 - ``userid``: The connected perso user id. The field is not present
