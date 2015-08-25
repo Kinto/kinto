@@ -21,8 +21,9 @@ A collection is a mapping with the following attribute:
     Internally the user default bucket is assigned to an ID that can
     later be used to share data from a user personnal bucket.
 
-    Collection on a the bucket named "default" are created silently on
-    first access, so you don't need to create them before using them.
+    Collections on the "default" bucket are created silently upon first
+    access and therefore don't need to be set beforehand.
+
 
 
 .. _collection-put:

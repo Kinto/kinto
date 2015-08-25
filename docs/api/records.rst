@@ -13,7 +13,8 @@ Uploading a record
 
 .. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records
 
-    :synopsis: Stores a record in the collection, and its ID will be assigned automatically.
+    :synopsis: Store a record in the collection. The ID will be assigned automatically.
+
 
     **Requires authentication**
 
@@ -71,7 +72,7 @@ Replacing a record
 
 .. http:put:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    :synopsis: Creates or updates a record in the collection.
+    :synopsis: Create or update a record in the collection.
 
     **Requires authentication**
 
@@ -131,8 +132,8 @@ Updating a record
 
 .. http:patch:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    :synopsis: Updates a record in the collection. Specify only the fields to be modified,
-    all the rest will remain intact.
+    :synopsis: Update a record in the collection. Specify only the fields to be
+    modified (all the rest will remain intact).
 
     **Requires authentication**
 
@@ -191,13 +192,14 @@ Updating a record
 Retrieving stored records
 =========================
 
-Records can be paginated, filtered, and conflicts detected.
+Records can be paginated and filtered, and conflicts can be detected.
+
 To do so, refer to :ref:`resource-endpoints` for more details on available
 operations on collection retrieval.
 
 .. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records
 
-    :synopsis: Retrieves all the records in the collection.
+    :synopsis: Retrieve all the records in the collection.
 
     **Requires authentication**
 
@@ -248,7 +250,7 @@ Retrieving a specific record
 
 .. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    :synopsis: Retrieves a specific record by its id.
+    :synopsis: Retrieve a specific record by its ID.
 
     **Requires authentication**
 
@@ -303,7 +305,7 @@ Deleting a record
 
 .. http:delete:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    :synopsis: Deletes a record, from its id.
+    :synopsis: Delete a record, from its ID.
 
     **Example Request**
 

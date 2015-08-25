@@ -19,7 +19,7 @@ Creating a group
 
 .. http:post:: /buckets/(bucket_id)/groups
 
-    :synopsis: Creates a new bucket group with a generated id.
+    :synopsis: Creates a new bucket group with a generated ID.
 
     **Requires authentication**
 
@@ -82,7 +82,7 @@ Replacing a group
 
 .. http:put:: /buckets/(bucket_id)/groups/(group_id)
 
-    :synopsis: Creates or replaces a group with a chosen id.
+    :synopsis: Creates or replaces a group with a chosen ID.
 
     **Requires authentication**
 

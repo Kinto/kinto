@@ -865,7 +865,7 @@ And now Mary can access the record:
 .. note::
 
     The records of the personal bucket can also be shared! In order to obtain
-    its id, just use ``GET /buckets/default`` and then share its content using
+    its ID, just use ``GET /buckets/default`` and then share its content using
     the full URL (e.g. ``/buckets/b86b26b8-be36-4eaa-9ed9-2e6de63a5252``)!
 
 

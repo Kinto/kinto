@@ -88,13 +88,12 @@ Principals
 During the authentication phase, a set of :term:`principal`s for the current
 authenticated *user* will be bound to to the request.
 
-The main principal is considered the **user id** and follows this formalism:
+The main principal is considered the **user ID** and follows this formalism:
 ``{type}:{identifier}`` (e.g. for Firefox Account: ``fxa:32aa95a474c984d41d395e2d0b614aa2``).
 
 There are two special principals:
 
-- ``system.Authenticated``: All users that are authenticated, no matter how they
-  authenticated.
+- ``system.Authenticated``: All *authenticated* users.
 - ``system.Everyone``: Anyone (authenticated or anonymous). Using this
   principal is useful when a rule should apply to all users.
 
@@ -103,10 +102,10 @@ There are two special principals:
     A user can also be another application (in order to provide *service to
     service* authentication).
 
-Get the current user id
+Get the current user ID
 -----------------------
 
-The currently authenticated *user id* can be obtained on the root url.
+The currently authenticated *user ID* can be obtained on the root URL.
 
 .. code-block:: http
     :emphasize-lines: 16
@@ -135,8 +134,9 @@ In this case the user ID is: ``basicauth:631c2d625ee5726172cf67c6750de10a3e1a04b
 
 .. note::
 
-    In case of sharing, users need a way to share their user ID with
-    people that needs to give them permission.
+    If Alice wants to share objects with Bob, Bob will need to give Alice his
+    user ID - this is an easy way to obtain that ID.
+
 
 
 Retrieve permissions
@@ -263,8 +263,9 @@ Replace or remove permissions
 
 .. note::
 
-   The user ID that updates the permissions is always given the ``write``
-   permission, in order to prevent loosing ownership on the object.
+   The user ID that *updates* the permissions is always granted the `write`
+   permission. This is in order to prevent accidental loss of ownership on an
+   object.
 
 
 .. http:put:: /(object url)

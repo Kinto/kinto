@@ -103,7 +103,7 @@ Protected creation with PUT
 ---------------------------
 
 Add a ``If-None-Match: *`` request header to the ``PUT`` to make sure no
-record exists on the server with this id.
+record exists on the server with this ID.
 
 This can be useful to avoid overwrites when creating records with ``PUT``
 instead of ``POST``.

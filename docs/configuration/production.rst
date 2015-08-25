@@ -75,7 +75,7 @@ Counters
    :header: "Name", "Description"
    :widths: 10, 100
 
-   "``users``", "Number of unique user ids."
+   "``users``", "Number of unique user IDs."
    "``authn_type.basicauth``", "Number of basic authentication requests"
    "``authn_type.fxa``", "Number of FxA authentications"
 
