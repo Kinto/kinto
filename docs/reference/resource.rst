@@ -119,7 +119,7 @@ Custom record ids
 
 By default, records ids are `UUID4 <http://en.wikipedia.org/wiki/Universally_unique_identifier>_`.
 
-A custom record id generator can be set globally in :ref:`configuration`,
+A custom record ID generator can be set globally in :ref:`configuration`,
 or at the resource level:
 
 .. code-block:: python

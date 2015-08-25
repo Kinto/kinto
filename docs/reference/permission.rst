@@ -110,7 +110,7 @@ To do so, subclass the default ``AuthorizationPolicy`` and add a specific
     @implementer(IAuthorizationPolicy)
     class AuthorizationPolicy(authorization.AuthorizationPolicy):
         def get_bound_permissions(self, *args, **kwargs):
-        """Callable that takes an object id and a permission and returns
+        """Callable that takes an object ID and a permission and returns
         a list of tuples (<object id>, <permission>)."""
             return build_permissions_set(*args, **kwargs) 
 
