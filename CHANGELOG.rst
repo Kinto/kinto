@@ -3,7 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-2.4.1 (unreleased)
+2.4.2 (Unreleased)
+------------------
+
+- Nothing yet.
+
+2.4.1 (2015-08-25)
 ------------------
 
 **Internal changes**
