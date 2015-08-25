@@ -6,7 +6,9 @@ This document describes changes between each past release.
 2.4.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Make documentation available from outside by using `cliquet_docs` (#413)
 
 
 2.4.0 (2015-08-14)
