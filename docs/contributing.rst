@@ -3,12 +3,13 @@
 Contributing
 ############
 
-Thank you for considering to contribute to *Kinto*!
+Thanks for your interest in contributing to *Kinto*!
 
 .. note::
 
-    Please, remember: No contribution is too small; We welcome all kind of
-    feedback. Typos, grammar bloopers, code, documentation, we take them all!
+    We love community feedback and are glad to review contributions of any
+    size - from typos in the documentation to critical bug fixes - so don't be
+    shy!
 
 
 How to contribute
@@ -17,7 +18,7 @@ How to contribute
 Report bugs
 -----------
 
-Report bugs at https://github.com/Kinto/kinto/issues/new.
+Report bugs at https://github.com/Kinto/kinto/issues/new
 
 If you are reporting a bug, please include:
 
@@ -27,8 +28,8 @@ If you are reporting a bug, please include:
 Fix bugs
 --------
 
-Look through the GitHub issues for bugs. We added a label **[easy-pick]** on bugs
-that can be tackled by newcomers.
+Check out the `open bugs <https://github.com/Kinto/kinto/issues>`_ - anything
+tagged with the **[easy-pick]** label could be a good choice for newcomers.
 
 Implement features
 ------------------
@@ -46,26 +47,29 @@ articles, and such.
 Submit feedback
 ---------------
 
-We added a label **[question]** on issues where feedback is required. Don't
-be shy and share your thoughts!
+Any issue with the **[question]** label is open for feedback, so feel free to
+share your thoughts with us!
 
-Otherwise, the best way to send feedback is to file a new issue on Github.
+The best way to send feedback is to
+`file a new issue <https://github.com/Kinto/kinto/issues/new>`_ on GitHub.
 
 If you are proposing a feature:
 
-* Explain in detail how it would work.
-* Keep the scope as narrow as possible, to make it easier to implement.
-* Remember that this is a volunteer-driven project, and that contributions
+* Explain how you envision it working. Try to be as detailed as you can.
+* Try to keep the scope as narrow as possible. This will help make it easier
+  to implement.
+* Feel free to include any code you might already have, even if it's just a
+  rough idea. This is a volunteer-driven project, and contributions
   are welcome :)
 
 
 Communication channels
 ======================
 
-* Questions tagged ``kinto`` on `Stack Overflow <http://stackoverflow.com/questions/tagged/kinto>`_
+* Questions tagged ``kinto`` on `Stack Overflow <http://stackoverflow.com/questions/tagged/kinto>`_.
 * Our IRC channel ``#storage`` on ``irc.mozilla.org``!
 * Our team blog http://www.servicedenuages.fr/
-* Some ``#Kinto`` mentions on Twitter :)
+* Some `#Kinto <https://twitter.com/search?q=%23Kinto>`_ mentions on Twitter :)
 
 
 Hack
@@ -95,7 +99,7 @@ Get started!
 
     make test
 
-6. Commit your changes and push yor branch to GitHub::
+6. Commit your changes and push your branch to GitHub::
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
@@ -117,7 +121,7 @@ Before we merge a pull request, we check that it meets these guidelines:
 1. The pull request should include tests.
 2. If the pull request adds functionality, the docs should be updated.
 3. *TravisCI* integration tests should be *green* :) It will make sure the tests
-   pass with every supported versions of Python.
+   pass with `every supported version of Python <https://github.com/Kinto/kinto/blob/master/tox.ini#L2>`_.
 
 
 Hack core libraries

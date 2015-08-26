@@ -15,10 +15,10 @@ a storage API for a blog application.
 Basic permission setup
 ======================
 
-A ``servicedenuages-blog`` bucket will contain two collections: ``articles`` and
+The ``servicedenuages-blog`` bucket will contain two collections: ``articles`` and
 ``comments``.
 
-Let's start with the bucket with read access to everyone.
+Let's start by giving all authenticated users read access to the bucket.
 
 .. code-block:: http
 
@@ -51,8 +51,9 @@ Let's start with the bucket with read access to everyone.
         }
     }
 
-Now, with the same user, it will be possible to create two collections in this
-buckets (``articles`` and ``comments``).
+
+Now, with that same user, let's create two collections in this
+buckets: ``articles`` and ``comments``.
 
 .. code-block:: http
 
@@ -106,8 +107,8 @@ buckets (``articles`` and ``comments``).
         }
     }
 
-Since we gave the permission ``read`` to any authenticated user on the bucket,
-those will be allowed to read both collections.
+Thanks to the `read` permission that we set previously, all authenticated users
+will be able to read both collections.
 
 Let's verify that. Create an article:
 
@@ -141,7 +142,7 @@ Let's verify that. Create an article:
         }
     }
 
-Indeed, using another user like *Natim*, we can read the article:
+Indeed, using another user like *natim*, we can read the article:
 
 .. code-block:: http
 
@@ -206,11 +207,11 @@ permissions of the ``comments`` collections:
         }
     }
 
-Now every authenticated user, like *Natim* here, can add a comment.
+Now every authenticated user, like *natim* here, can add a comment.
 
 .. code-block:: http
 
-    $ echo '{"data":{"article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", "comment": "my comment", "author": "*Natim*"}}' | \
+    $ echo '{"data":{"article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", "comment": "my comment", "author": "*natim*"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
         --auth natim:secret
 
@@ -225,7 +226,7 @@ Now every authenticated user, like *Natim* here, can add a comment.
     {
         "data": {
             "article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c",
-            "author": "*Natim*",
+            "author": "*natim*",
             "comment": "my comment",
             "id": "5e2292d5-8818-4cd4-be7d-d5a834d36de6",
             "last_modified": 1437058244384
@@ -241,10 +242,10 @@ Now every authenticated user, like *Natim* here, can add a comment.
 Permissions and groups
 ======================
 
-So far, only the creator of the initial bucket (i.e. the blog admin) can write
-articles. Let us invite some writers to create articles!
+So far only the creator of the initial bucket (i.e. the blog admin) can write
+articles. Let's invite some writers to create articles!
 
-We will create a new group ``writers``, with *Natim* main principal in the members.
+We will create a new group ``writers`` with *natim* as a principal members.
 
 .. code-block:: http
 
@@ -277,8 +278,7 @@ We will create a new group ``writers``, with *Natim* main principal in the membe
         }
     }
 
-Even though it is a simplistic setup, let us give the ``write`` permission on the blog
-bucket to the ``writers`` group.
+Now we grant the `write` permission on the blog bucket to the ``writers`` group.
 
 .. code-block:: http
 
@@ -312,11 +312,11 @@ bucket to the ``writers`` group.
         }
     }
 
-Now the user *Natim* can create articles.
+Now *natim* can write new articles!
 
 .. code-block:: http
 
-    $ echo '{"data":{"title": "Natim article", "content": "natims content", "published_at": "Thu Jul 16 16:59:16 CEST 2015"}}' | \
+    $ echo '{"data":{"title": "natim article", "content": "natims content", "published_at": "Thu Jul 16 16:59:16 CEST 2015"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
         --auth natim:
     HTTP/1.1 201 Created
@@ -333,7 +333,7 @@ Now the user *Natim* can create articles.
             "id": "f9a61750-f61f-402b-8785-1647c9325a5d",
             "last_modified": 1437058727907,
             "published_at": "Thu Jul 16 16:59:16 CEST 2015",
-            "title": "Natim article"
+            "title": "natim article"
         },
         "permissions": {
             "write": [
@@ -372,7 +372,7 @@ One can fetch the list of articles.
                 "id": "f9a61750-f61f-402b-8785-1647c9325a5d",
                 "last_modified": 1437058727907,
                 "published_at": "Thu Jul 16 16:59:16 CEST 2015",
-                "title": "Natim article"
+                "title": "natim article"
             },
             {
                 "content": "my content",
@@ -407,7 +407,7 @@ Or the list of comments.
         "data": [
             {
                 "article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c",
-                "author": "Natim",
+                "author": "natim",
                 "comment": "my comment",
                 "id": "5e2292d5-8818-4cd4-be7d-d5a834d36de6",
                 "last_modified": 1437058244384

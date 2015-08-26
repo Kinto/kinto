@@ -15,9 +15,9 @@ abilities. It is meant to be **easy to use** and **easy to self-host**.
 Use cases
 =========
 
-- A generic Web database for frontend applications;
-- Build collaborative applications with fine grained-permissions;
-- Store encrypted data at a location you control;
+- A generic Web database for frontend applications.
+- Build collaborative applications with fine grained-permissions.
+- Store encrypted data at a location you control.
 - Synchronize application data between different devices.
 
 
@@ -105,15 +105,14 @@ of objects.
 Comparison with other solutions
 ===============================
 
-Before starting to create yet another data storage service, we had a long
-look to the existing solutions, to see if that would make sense to extend
-the community effort rather than re-inventing the wheel.
+Before we started on Yet Another Data Storage Service, we took a look at what
+was already out there, with a view to extending an existing community project
+(rather than reinventing the wheel). In the end, the solutions we reviewed
+didn't quite solve the problems we had - notably regarding fine-grained
+permission settings.
 
-It appeared that solutions we looked at weren't solving the problems we had,
-especially regarding fine-grained permissions.
-
-Here is a comparison table we put together with existing alternative
-technologies.
+What follows is a comparison table showing how Kinto stacks up compared to some
+other projects in this space.
 
 ===========================  ======  ======  ========  =======  ==============
 Project                      Kinto   Parse   Firebase  CouchDB  Remote-Storage
@@ -177,37 +176,40 @@ FAQ
 
 - Is there a package for my Operating System?
 
-    Not at the moment. We want to make it very easy to integrate with existing
-    operating systems, and this item is on our priority list.
+    No, but it's a great idea. Packaging is hard and we're a small team, so if
+    you'd like to help us out by maintaining packages for your favourite OS,
+    we'd be delighted to collaborate with you!
 
-    However, we are not there just yet. We are `already integrated with docker <https://hub.docker.com/r/kinto/kinto-server/>`
-    and :ref:`easy to install with pip <installation>`.
+    That said,
+    That said, Kinto is :ref:`easy to install with pip <installation>` and
+    we've got `an image set up <https://hub.docker.com/r/kinto/kinto-server/>`_
+    on the Docker hub, too.
 
 - Why did you chose to use Python rather than X?
 
-    We know and love `Python <python.org>`_ for its simplicity and ease to
-    learn, so it was an obvious choice the development team. In addition, the
-    operational team at Mozilla has good recipes and a lot of knowledge about
-    how to deploy python.
+    We know and love `Python <python.org>`_ for its simplicity and short
+    learning curve, so it was an obvious choice for the development team. In
+    addition, Operations team at Mozilla is comfortable with deploying and
+    managing Python applications in production.
 
     However, the protocol and concepts behind Kinto don't rely on Python *per se*,
     so it is possible to have other Kinto implementations using other languages.
 
 - Is it Web Scale?
 
-    YES™.
+    YES™. Have a look at the `/dev/null` backend.
 
 - Can I store files inside Kinto?
 
-    No. At the moment, Kinto is meant to be used as a JSON storage service, and
-    differs with file storage solutions. We might add this in the future if
-    the use-case appears, but it is not on our radar so far.
+    No. Kinto is a JSON storage service and is not designed to store arbitrary
+    files. We'd be open to exploring file storage should a solid use-case
+    present itself in the future; however, at this time, it's not on our
+    roadmap.
 
 
 - What is Cliquet? What is the difference between Cliquet and Kinto ?
 
-    Kinto is a server built upon a toolkit named Cliquet. All of the reusable
-    parts have been factorised inside the toolkit, whereas what makes Kinto
-    unique is not.
+    Cliquet is a toolkit for designing micro-services. Kinto is a server built
+    using that toolkit.
 
     `Read more (in french) about the differences <http://www.servicedenuages.fr/pourquoi-cliquet>`_.

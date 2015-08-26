@@ -7,9 +7,10 @@ Running in production
 *Kinto* is a standard python application.
 
 Recommended settings for production are listed below. Some :ref:`insights about deployment strategies
-<deployment>` are also given.
+<deployment>` are also provided.
 
-*PostgreSQL* is the recommended backend for production.
+Because we use it for most of our deploys, *PostgreSQL* is the recommended
+backend for production.
 
 Recommended settings
 --------------------

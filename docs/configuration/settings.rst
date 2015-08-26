@@ -13,9 +13,14 @@ listed below.
     In order to ease deployment or testing strategies, *Kinto* reads settings
     from environment variables, in addition to ``.ini`` files.
 
+    The environment variables are exactly the same as the settings, but they
+    are capitalized and `.` are replaced by `_`.
+
     For example, ``cliquet.storage_backend`` is read from environment variable
-    ``CLIQUET_STORAGE_BACKEND`` if defined, else from application ``.ini``, else
-    from internal defaults.
+    ``CLIQUET_STORAGE_BACKEND`` if defined.
+
+    All settings are read first from the environment variables, then from
+    application ``.ini``, and finally from internal defaults.
 
 
 Feature settings
@@ -24,10 +29,13 @@ Feature settings
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.batch_max_requests ``25``     | The Maximum number of requests that can be sent to the batch endpoint.   |
+| cliquet.batch_max_requests ``25``     | The maximum number of requests that can be sent to the batch endpoint.   |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.paginate_by ``None``          | The maximum number of items to include on a response, before enabling    |
+| cliquet.paginate_by ``None``          | The maximum number of items to include on a response before enabling     |
 |                                       | pagination. If set to `None`, no pagination will be used.                |
+|                                       | It is recommended to set-up pagination. If not defined, a collection     |
+|                                       | connot contain more elements than defined by the                         |
+|                                       | `cliquet.storage_max_fetch_size` setting.                                |
 +---------------------------------------+--------------------------------------------------------------------------+
 | cliquet.id_generator                  | The Python *dotted* location of the generator class that should be used  |
 | ``cliquet.storage.generators.UUID4``  | to generate identifiers on a POST on a collection endpoint.              |
@@ -50,8 +58,8 @@ Example:
 Backends
 ========
 
-In order to configure the backends to use, a number of settings are useful. The
-most important ones being `{backend_type}_backend` and `{backend_type}_url`,
+While there are a number of useful settings to assist in configuring the
+backend, the most important are `{backend_type}_backend` and `{backend_type}_url`,
 where `backend_type` is one of "storage", "permission" or "cache".
 
 Storage
@@ -151,18 +159,16 @@ The format of these permission settings is
 ``<resource_name>_<permission>_principals = comma,separated,principals``.
 
 
-Scheme, host and port
-=====================
+Scheme, host, and port
+======================
 
-By default *Kinto* does not enforce requests scheme, host and port. It relies
-on WSGI specification and the related stack configuration. Tuning this becomes
-necessary when the application runs behind proxies or load balancers.
+By default, Kinto relies on WSGI for underlying details like host, port, or
+request scheme. Tuning these settings may be necessary when the application
+runs behind proxies or load balancers, but most implementations
+(such as uWSGI) provide adequate configuration details.
 
-Most implementations, like *uwsgi*, provide configuration variables to adjust it
-properly.
-
-However if, for some reasons, this had to be enforced at the application level,
-the following settings can be set:
+That said, if ever these items need to be controlled at the application layer,
+the following settings are available:
 
 .. code-block :: ini
 
@@ -192,10 +198,6 @@ Logging
 | cliquet.logging_renderer              | The Python *dotted* location of the renderer class that should be used   |
 | ``cliquet.logs.ClassicLogRenderer``   | to render the logs to the standard output.                               |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.newrelic_config ``None``      | `None`                                                                   |
-+---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.newrelic_env ``dev``          | `dev`                                                                    |
-+---------------------------------------+--------------------------------------------------------------------------+
 | cliquet.statsd_prefix ``cliquet``     | The prefix to use when sending data to statsd.                           |
 +---------------------------------------+--------------------------------------------------------------------------+
 | cliquet.statsd_url: ``None``          | The URL to use to connect to the statsd host. e.g.                       |
@@ -205,7 +207,13 @@ Logging
 Logging with Heka
 :::::::::::::::::
 
-Mozilla Services standard logging format can be enabled using:
+Heka is an open source stream processing software system developed by Mozilla.
+Heka is a "Swiss Army Knife" type tool for data processing, and is useful for
+a wide variety of different tasks.
+
+For more information, see https://hekad.readthedocs.org/
+
+Heka logging format can be enabled using:
 
 .. code-block:: ini
 
@@ -243,22 +251,20 @@ With the following configuration, all logs are redirected to standard output
 Handling exceptions with Sentry
 :::::::::::::::::::::::::::::::
 
-Requires the ``raven`` package, or *Cliquet* installed with
-``pip install cliquet[monitoring]``.
+Requires the ``raven`` package.
 
-Sentry logging can be enabled, `as explained in official documentation
+Sentry logging can be enabled `as explained in official documentation
 <http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
 
 .. note::
 
-    The application sends an *INFO* message on startup, mainly for setup check.
+    The application sends an *INFO* message on startup (mainly for setup check).
 
 
 Monitoring with StatsD
 ::::::::::::::::::::::
 
-Requires the ``statsd`` package, or *Cliquet* installed with
-``pip install cliquet[monitoring]``.
+Requires the ``statsd`` package.
 
 StatsD metrics can be enabled (disabled by default):
 
@@ -271,12 +277,17 @@ StatsD metrics can be enabled (disabled by default):
 Monitoring with New Relic
 :::::::::::::::::::::::::
 
-Requires the ``newrelic`` package, or *Cliquet* installed with
-``pip install cliquet[monitoring]``.
+Requires the ``newrelic`` package.
 
-Enable middlewares as described :ref:`here <configuration-middlewares>`.
++---------------------------------------+--------------------------------------------------------------------------+
+| Setting name                          | What does it do?                                                         |
++=======================================+==========================================================================+
+| cliquet.newrelic_config ``None``      | Location of the newrelic configuration file.                             |
++---------------------------------------+--------------------------------------------------------------------------+
+| cliquet.newrelic_env ``dev``          | The environment the server runs into                                     |
++---------------------------------------+--------------------------------------------------------------------------+
 
-New-Relic can be enabled (disabled by default):
+New Relic can be enabled (disabled by default):
 
 .. code-block:: ini
 
@@ -291,32 +302,32 @@ Authentication
 By default, *Kinto* relies on *Basic Auth* to authenticate users.
 
 User registration is not necessary. A unique user idenfier will be created
-for each couple of ``username:password``.
+for each ``username:password`` pair.
 
-*Kinto* is compatible with *Firefox Account*.  Install and
-configure :github:`mozilla-services/cliquet-fxa`.
+*Kinto* is compatible with *Firefox Accounts*. To install and
+configure it refer to their documentation at :github:`mozilla-services/cliquet-fxa`.
 
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.userid_hmac_secret ``''``     | The secret used by the server to derive the shareable user id. This      |
-|                                       | value should be unique to each instance and, of course, kept secret. By  |
+| cliquet.userid_hmac_secret ``''``     | The secret used by the server to derive the shareable user ID. This      |
+|                                       | value should be unique to each instance and kept secret. By              |
 |                                       | default, Kinto doesn't define a secret for you, and won't start unless   |
 |                                       | you generate one.                                                        |
 +---------------------------------------+--------------------------------------------------------------------------+
 | multiauth.policies ``["basicauth",    | `MultiAuthenticationPolicy <https://github.com/mozilla-                  |
 | ]``                                   | services/pyramid_multiauth>`_ is a Pyramid authentication policy that    |
-|                                       | proxies to a stack of other IAuthenticationPolicy objects, to provide a  |
-|                                       | combined auth solution from individual pieces. Simply pass it a list of  |
-|                                       | policies that should be tried in order.                                  |
+|                                       | proxies to a stack of other IAuthenticationPolicy objects, in order to   |
+|                                       | provide a combined auth solution from individual pieces. Simply pass it  |
+|                                       | a list of policies that should be tried in order.                        |
 +---------------------------------------+--------------------------------------------------------------------------+
 | multiauth.policy.basicauth.use        | Python *dotted* path to the authentication policy to use for basicauth.  |
-| ``('cliquet.authentication.           | By default, every couple of login / password will be accepted, meaning   |
+| ``('cliquet.authentication.           | By default, any `login:password` pair will be accepted, meaning          |
 | BasicAuthAuthenticationPolicy')``     | that no account creation is required.                                    |
 +---------------------------------------+--------------------------------------------------------------------------+
-| multiauth.authorization_policy        | Python *dotted* path the authorization policy to use for basicAuth.      |
-| ``('cliquet.authorization.            | Letting the default value will require the :term:`principal` to have     |
-| AuthorizationPolicy')``               | access to the required fields.                                           |
+| multiauth.authorization_policy        | Python *dotted* path the authorisation policy to use for basicAuth.      |
+| ``('cliquet.authorization.            |                                                                          |
+| AuthorizationPolicy')``               |                                                                          |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 Since user identification is hashed in storage, a secret key is required
@@ -331,12 +342,11 @@ Authentication setup
 ::::::::::::::::::::
 
 *Kinto* relies on :github:`pyramid multiauth <mozilla-service/pyramid_multiauth>`_
-to initialize authentication.
+to initialise authentication.
 
 Therefore, any authentication policy can be specified through configuration.
 
-For example, using the following example, *Basic Auth*, *Persona* and *IP Auth*
-are enabled:
+In the following example, Basic Auth, Persona, and IP Auth are all enabled:
 
 .. code-block:: ini
 
@@ -347,22 +357,21 @@ are enabled:
     multiauth.policy.ipauth.userid = LAN-user
     multiauth.policy.ipauth.principals = trusted
 
-
-Similarly, any authorization policies and group finder function can be
-specified through configuration in order to deeply customize permissions
-handling and authorizations.
+Permission handling and authorisation mechanisms are specified directly via
+configuration. This allows for customised solutions ranging from very simple
+to highly complex.
 
 
 Basic Auth
 ::::::::::
 
-``basicauth`` is mentioned among ``multiauth.policies`` by default.
+``basicauth`` is enabled via ``multiauth.policies`` by default.
 
 .. code-block:: ini
 
     multiauth.policies = basicauth
 
-By default, it uses an internal *Basic Auth* policy.
+By default an internal *Basic Auth* policy is used.
 
 In order to replace it by another one:
 
@@ -377,14 +386,14 @@ Custom Authentication
 
 Using the various `Pyramid authentication packages
 <https://github.com/ITCase/awesome-pyramid#authentication>`_, it is possible
-to plug any kind of authentication.
+to plug in any kind of authentication.
 
 
 Firefox Accounts
 ::::::::::::::::
 
-Enabling :term:`Firefox Accounts` consists in including ``cliquet_fxa`` in
-configuration, mentioning ``fxa`` among policies and providing appropriate
+Enabling :term:`Firefox Accounts` consists of including ``cliquet_fxa`` in
+configuration, mentioning ``fxa`` among policies, and providing appropriate
 values for OAuth2 client settings.
 
 See :github:`mozilla-services/cliquet-fxa`.
@@ -450,8 +459,7 @@ Similarly, the end of service date can be specified by using these settings.
 Enabling or disabling endpoints
 ===============================
 
-It is possible to deactivate specific resources operations, directly in the
-settings.
+Specific resource operations can be disabled.
 
 To do so, a setting key must be defined for the disabled resources endpoints::
 
@@ -463,7 +471,7 @@ Where:
   the name of the class);
 - **method** is the http method (in lower case): For instance ``put``.
 
-For instance, to disable the PUT on records for the *Mushrooms* resource, the
+For example, to disable the PUT on records for the *Mushrooms* resource, the
 following setting should be declared in the ``.ini`` file:
 
 .. code-block:: ini
@@ -477,11 +485,10 @@ following setting should be declared in the ``.ini`` file:
 Activating the flush endpoint
 =============================
 
-When using Kinto in development mode, it might be helpful to have a way to
-flush all the data currently stored in the database.
 
-There is a way to enable this behaviour (it is deactivated by default for
-obvious security reasons). In the `.ini` file:
+The Flush endpoint is used to flush (completely remove) all data from the
+database backend. While this can be useful during development, it's too
+dangerous to leave on by default, and must therefore be enabled explicitly.
 
 .. code-block :: ini
 
@@ -525,8 +532,10 @@ Example:
 Application profiling
 =====================
 
-It is possible to profile the application while its running. This is especially
-useful when trying to find slowness in the application.
+It is possible to profile the application while its running. Graphs of calls
+will be generated, highlighting the calls taking the most of the time.
+
+This is very useful when trying to find slowness in the application.
 
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
@@ -544,7 +553,7 @@ Update the configuration file with the following values:
     cliquet.profiler_enabled = true
     cliquet.profiler_dir = /tmp/profiling
 
-Render execution graphs using GraphViz:
+Render execution graphs using GraphViz. On debuntu:
 
 ::
 
@@ -565,12 +574,8 @@ possible to change the ``initialization_sequence`` setting.
 
 .. warning::
 
-    This is considered as a dangerous zone and should be used with caution.
-
-    Later, a better formalism should be introduced to easily allow addition
-    or removal of steps, without repeating the whole list and without relying
-    on internal functions location.
-
+    This is considered an advanced configuration feature and should be used
+    with caution.
 
 .. code-block:: ini
 
