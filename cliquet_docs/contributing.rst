@@ -117,38 +117,58 @@ on ``#storage`` on ``irc.mozilla.org``.
 How to release
 ==============
 
-In order to prepare a new release, we are following the following steps:
+In order to prepare a new release, we are following the following steps.
 
-#. Create a feature branch.
+The `prerelease` and `postrelease` commands are coming from `zest.releaser
+<https://pypi.python.org/pypi/zest.releaser>`.
 
-   .. code-block:: bash
+Step1
+-----
+
+- Merge remaining pull requests
+- Update changelog
+- Update version in docs/conf.py
+- Version dependencies + Remove master url in dev-requirements.txt
+- If cliquet was updated, update the link to default settings in the docs
+
+.. code-block:: bash
 
      $ git checkout -b prepare-X.X
-
-#. Update the CHANGELOG with the changes since the last release;
-#. Update the version in setup.py. You can automate the version bump using
-   `prerelease` from `zest.releaser <https://pypi.python.org/pypi/zest.releaser>`_;
-#. Update the version in cliquet_docs/conf.py;
-#. Update the version of the dependencies.
-
-   .. code-block:: bash
-
+     $ prerelease
+     $ vim docs/conf.py
      $ rm -rf .venv
      $ make install && .venv/bin/pip freeze > requirements.txt
-     # Remove the master URL in the requirements.txt file.
+     $ # Remove the master URL in the requirements.txt file.
+     $ git commit -a --amend
+     $ git push origin prepare-X.X
 
-#. Send a pull request with your changes.
-#. With the pull request merged, tag a new version locally and push it on the
-   server;
-#. Generate the release and publish it on PyPI.
 
-   .. code-block:: bash
+Step 2
+------
 
-      $ rm -rf dist
-      $ python setup.py bdist_wheel --universal
-      $ python setup.py sdist
-      $ twine upload dist/*
+Once the pull request is validated, you can merge it and do a release. We are
+using `twine <https://pypi.python.org/pypi/twine>`_ to upload to PyPI and
+`wheel <https://pypi.python.org/pypi/wheel>`_ as a packaging format.
 
-#. Add an entry in the Github release page;
-#. Create next milestone in Github (if appropriate)
+.. code-block:: bash
 
+    $ git checkout master
+    $ git merge --no-ff prepare-X.X
+    $ rm -rf dist
+    $ python setup.py bdist_wheel --universal
+    $ python setup.py sdist
+    $ twine upload dist/*
+    $ postrelease
+
+Step 3
+------
+
+As a final step:
+
+- Close the milestone in Github
+- Add entry in Github release page
+- Create next milestone in Github in the case of a major release
+- Configure the version in ReadTheDocs
+- Send mail to ML (If major release)
+
+That's all folks!
