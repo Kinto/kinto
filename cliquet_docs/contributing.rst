@@ -119,20 +119,28 @@ How to release
 
 In order to prepare a new release, we are following the following steps:
 
-1. Update the CHANGELOG with the changes since the last release;
-2. Update the version in setup.py;
-3. Update the version in cliquet_docs/conf.py;
-4. Update the version of the dependencies.
+#. Create a feature branch.
+
+   .. code-block:: bash
+
+     $ git checkout -b prepare-X.X
+
+#. Update the CHANGELOG with the changes since the last release;
+#. Update the version in setup.py. You can automate the version bump using
+   `prerelease` from `zest.releaser <https://pypi.python.org/pypi/zest.releaser>`_;
+#. Update the version in cliquet_docs/conf.py;
+#. Update the version of the dependencies.
 
    .. code-block:: bash
 
      $ rm -rf .venv
-     $ make install .venv/bin/pip freeze > requirements.txt
+     $ make install && .venv/bin/pip freeze > requirements.txt
+     # Remove the master URL in the requirements.txt file.
 
-5. Send a pull request with your changes.
-6. With the pull request merged, tag a new version locally and push it on the
+#. Send a pull request with your changes.
+#. With the pull request merged, tag a new version locally and push it on the
    server;
-7. Generate the release and publish it on PyPI.
+#. Generate the release and publish it on PyPI.
 
    .. code-block:: bash
 
@@ -141,6 +149,6 @@ In order to prepare a new release, we are following the following steps:
       $ python setup.py sdist
       $ twine upload dist/*
 
-8. Add an entry in the Github release page;
-9. Create next milestone in Github (if appropriate)
+#. Add an entry in the Github release page;
+#. Create next milestone in Github (if appropriate)
 
