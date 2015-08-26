@@ -1,7 +1,7 @@
 SERVER_CONFIG = config/cliquet.ini
 
 VIRTUALENV = virtualenv
-SPHINX_BUILDDIR = docs/_build
+SPHINX_BUILDDIR = cliquet_docs/_build
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON = $(VENV)/bin/python
 DEV_STAMP = $(VENV)/.dev_env_installed.stamp
@@ -38,6 +38,6 @@ clean:
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
 
 docs: install-dev
-	$(VENV)/bin/sphinx-build -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
+	$(VENV)/bin/sphinx-build -n -b html -d $(SPHINX_BUILDDIR)/doctrees cliquet_docs $(SPHINX_BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"

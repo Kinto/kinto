@@ -6,4 +6,4 @@
 .coverage
 .tox/
 loadtests/.env.install
-docs/_build/
+cliquet_docs/_build/
