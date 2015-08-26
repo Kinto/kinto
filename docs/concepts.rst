@@ -13,7 +13,7 @@ introduces some basic concepts.
 | Object          | Description                                             |
 +=================+=========================================================+
 | **bucket**      | Buckets can be seen as namespaces:                      |
-|                 | collection names won't collide if stored in different  |
+|                 | collection names won't collide if stored in different   |
 |                 | buckets.                                                |
 +-----------------+---------------------------------------------------------+
 | **collection**  | A collection of records                                 |
