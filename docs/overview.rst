@@ -16,9 +16,9 @@ Use cases
 =========
 
 - A generic Web database for frontend applications.
-- Build collaborative applications with fine grained-permissions.
+- Build collaborative applications with fine-grained permissions.
 - Store encrypted data at a location you control.
-- Synchronize application data between different devices.
+- Synchronise application data between different devices.
 
 
 Key features
