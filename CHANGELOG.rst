@@ -3,6 +3,13 @@ Changelog
 
 This document describes changes between each past release.
 
+2.4.3 (2015-08-26)
+------------------
+
+**Bug fixes**
+
+- Fix the packaging for cliquet (#430)
+
 2.4.2 (2015-08-26)
 ------------------
 

@@ -1,7 +1,7 @@
 import platform
 import codecs
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -60,7 +60,7 @@ ENTRY_POINTS = {
 
 
 setup(name='cliquet',
-      version='2.4.3.dev0',
+      version='2.4.3',
       description='cliquet',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',
@@ -74,8 +74,8 @@ setup(name='cliquet',
       author='Mozilla Services',
       author_email='services-dev@mozilla.com',
       url='',
-      packages=['cliquet', 'cliquet_docs'],
-      package_data={'': ['*.rst', ]},
+      packages=find_packages(),
+      package_data={'': ['*.rst', '*.py']},
       include_package_data=True,
       zip_safe=False,
       install_requires=REQUIREMENTS,
