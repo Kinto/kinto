@@ -60,7 +60,7 @@ ENTRY_POINTS = {
 
 
 setup(name='cliquet',
-      version='2.4.2.dev0',
+      version='2.4.2',
       description='cliquet',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',

@@ -3,10 +3,14 @@ Changelog
 
 This document describes changes between each past release.
 
-2.4.2 (Unreleased)
+2.4.2 (2015-08-26)
 ------------------
 
-- Nothing yet.
+**Internal changes**
+
+- Remove the symlink to cliquet_docs and put the documentation inside
+  `cliquet_docs` directly (#426)
+
 
 2.4.1 (2015-08-25)
 ------------------
