@@ -147,17 +147,13 @@ Step 2
 ------
 
 Once the pull request is validated, you can merge it and do a release. We are
-using `twine <https://pypi.python.org/pypi/twine>`_ to upload to PyPI and
-`wheel <https://pypi.python.org/pypi/wheel>`_ as a packaging format.
+using the `release` command to invoke the `setup.py` builds and upload to PyPI.
 
 .. code-block:: bash
 
     $ git checkout master
     $ git merge --no-ff prepare-X.X
-    $ rm -rf dist
-    $ python setup.py bdist_wheel --universal
-    $ python setup.py sdist
-    $ twine upload dist/*
+    $ release
     $ postrelease
 
 Step 3
