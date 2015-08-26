@@ -85,4 +85,4 @@ Full detailed API documentation:
    records
    groups
    permissions
-   synchronization
+   synchronisation

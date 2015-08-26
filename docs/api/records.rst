@@ -4,7 +4,7 @@ Records
 #######
 
 Records belong to a collection. It is the data being stored and
-synchronized.
+synchronised.
 
 .. _records-post:
 
