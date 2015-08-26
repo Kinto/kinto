@@ -112,3 +112,35 @@ on ``#storage`` on ``irc.mozilla.org``.
 * You can direct your IRC client to the channel using `this IRC link
   <irc://irc.mozilla.org/storage>`_ or you can manually join the #storage IRC
   channel on the mozilla IRC network.
+
+
+How to release
+==============
+
+In order to prepare a new release, we are following the following steps:
+
+1. Update the CHANGELOG with the changes since the last release;
+2. Update the version in setup.py;
+3. Update the version in cliquet_docs/conf.py;
+4. Update the version of the dependencies.
+
+   .. code-block:: bash
+
+     $ rm -rf .venv
+     $ make install .venv/bin/pip freeze > requirements.txt
+
+5. Send a pull request with your changes.
+6. With the pull request merged, tag a new version locally and push it on the
+   server;
+7. Generate the release and publish it on PyPI.
+
+   .. code-block:: bash
+
+      $ rm -rf dist
+      $ python setup.py bdist_wheel --universal
+      $ python setup.py sdist
+      $ twine upload dist/*
+
+8. Add an entry in the Github release page;
+9. Create next milestone in Github (if appropriate)
+
