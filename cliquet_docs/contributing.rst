@@ -122,6 +122,13 @@ In order to prepare a new release, we are following the following steps.
 The `prerelease` and `postrelease` commands are coming from `zest.releaser
 <https://pypi.python.org/pypi/zest.releaser>`_.
 
+Install `zest.releaser` with the `recommended` dependencies. They contain
+`wheel` and `twine`, which are required to release a new version.
+
+.. code-block:: bash
+
+    $ pip install zest.releaser[recommended]
+
 Step1
 -----
 
