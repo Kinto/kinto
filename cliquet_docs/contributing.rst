@@ -112,3 +112,59 @@ on ``#storage`` on ``irc.mozilla.org``.
 * You can direct your IRC client to the channel using `this IRC link
   <irc://irc.mozilla.org/storage>`_ or you can manually join the #storage IRC
   channel on the mozilla IRC network.
+
+
+How to release
+==============
+
+In order to prepare a new release, we are following the following steps.
+
+The `prerelease` and `postrelease` commands are coming from `zest.releaser
+<https://pypi.python.org/pypi/zest.releaser>`_.
+
+Step1
+-----
+
+- Merge remaining pull requests
+- Update changelog
+- Update version in docs/conf.py
+- Version dependencies + Remove master url in dev-requirements.txt
+- If cliquet was updated, update the link to default settings in the docs
+
+.. code-block:: bash
+
+     $ git checkout -b prepare-X.X
+     $ prerelease
+     $ vim docs/conf.py
+     $ rm -rf .venv
+     $ make install && .venv/bin/pip freeze > requirements.txt
+     $ # Remove the master URL in the requirements.txt file.
+     $ git commit -a --amend
+     $ git push origin prepare-X.X
+
+
+Step 2
+------
+
+Once the pull request is validated, you can merge it and do a release. We are
+using the `release` command to invoke the `setup.py` builds and upload to PyPI.
+
+.. code-block:: bash
+
+    $ git checkout master
+    $ git merge --no-ff prepare-X.X
+    $ release
+    $ postrelease
+
+Step 3
+------
+
+As a final step:
+
+- Close the milestone in Github
+- Add entry in Github release page
+- Create next milestone in Github in the case of a major release
+- Configure the version in ReadTheDocs
+- Send mail to ML (If major release)
+
+That's all folks!
