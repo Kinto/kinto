@@ -1,136 +1,28 @@
 .. _tutorial-permissions:
 
-Permissions
-###########
+Step by step permissions tutorial
+#################################
 
-Before to start, make sure to have read the :ref:`Understanding
-permissions <permissions>` paragraph.
-
-Permissions can be added on any objects (:ref:`buckets <buckets>`,
-:ref:`groups <groups>`, :ref:`collections <collections>`,
-:ref:`records <records>`)
-
-By default the ``write`` permission is given to the creator of an
-object.
-
-
-How do I get my Kinto user id?
-==============================
-
-To be able to add permissions for a user, the user id is needed.
-
-The currently authenticated user id can be obtained on the root url.
-
-.. code-block:: http
-    :emphasize-lines: 16
-
-    $ http GET http://localhost:8888/v1/ --auth user:pass
-    HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
-    Content-Length: 288
-    Content-Type: application/json; charset=UTF-8
-    Date: Thu, 16 Jul 2015 09:48:47 GMT
-    Server: waitress
-
-    {
-        "documentation": "https://kinto.readthedocs.org/",
-        "hello": "cloud storage",
-        "settings": {
-            "cliquet.batch_max_requests": 25
-        },
-        "url": "http://localhost:8888/v1/",
-        "userid": "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6",
-        "version": "1.4.0"
-    }
-
-
-In this case the user id is: ``basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6``
+Let's use one of the :ref:`application examples <app-examples-blog>`: using *Kinto* as
+a storage API for a blog application.
 
 .. note::
 
-    In case of sharing, users need a way to share their user id with
-    people that needs to give them permission.
+    Some general details are provided in the :ref:`concepts` and :ref:`api/permissions`
+    sections. Make sure you are familiar with main concepts before starting this.
 
 
-Object permissions
-==================
+Basic permission setup
+======================
 
-.. note::
+The ``servicedenuages-blog`` bucket will contain two collections: ``articles`` and
+``comments``.
 
-    Please make sure to have read the :ref:`permission documentation <permissions>`
-    first.
-
-For instance, we can look at our *personal bucket* permissions.
+Let's start by giving all authenticated users read access to the bucket.
 
 .. code-block:: http
 
-    $ http GET http://localhost:8888/v1/buckets/default --auth user:pass
-    HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Last-Modified, ETag
-    Content-Length: 187
-    Content-Type: application/json; charset=UTF-8
-    Date: Thu, 16 Jul 2015 09:59:30 GMT
-    Etag: "1437040770742"
-    Last-Modified: Thu, 16 Jul 2015 09:59:30 GMT
-    Server: waitress
-
-    {
-        "data": {
-            "id": "46524be8-0ad7-3ac6-e260-71f8993feffa",
-            "last_modified": 1437040770742
-        },
-        "permissions": {
-            "write": [
-                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
-            ]
-        }
-    }
-
-
-Similarly, the permissions of a collection can be obtained with a ``GET``:
-
-.. code-block:: http
-
-    $ http GET http://localhost:8888/v1/buckets/default/collections/tasks --auth user:pass
-    HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Last-Modified, ETag
-    Content-Length: 156
-    Content-Type: application/json; charset=UTF-8
-    Date: Thu, 16 Jul 2015 10:00:30 GMT
-    Etag: "1437040830468"
-    Last-Modified: Thu, 16 Jul 2015 10:00:30 GMT
-    Server: waitress
-
-    {
-        "data": {
-            "id": "tasks",
-            "last_modified": 1437040830468
-        },
-        "permissions": {
-            "write": [
-                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
-            ]
-        }
-    }
-
-
-Managing object permissions
-===========================
-
-Permissions can be specified during the creation of an object, and can
-later be updated using PUT or PATCH.
-
-.. note::
-
-   The user that updates the permissions is always given the ``write``
-   permission, in order to prevent loosing ownership on the object.
-
-A :ref:`blog bucket <permissions_usecases>` could be created with the following to
-give read access to everyone.
-
-.. code-block:: http
-
-    $ echo '{"data":{}, "permissions": {"read": ["system.Authenticated"]}}' | \
+    $ echo '{"permissions": {"read": ["system.Authenticated"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog \
         --auth user:pass
 
@@ -159,8 +51,9 @@ give read access to everyone.
         }
     }
 
-Now it will be possible to create two collections (``articles`` and
-``comments``) in this bucket. Users will be able to read their content.
+
+Now, with that same user, let's create two collections in this
+buckets: ``articles`` and ``comments``.
 
 .. code-block:: http
 
@@ -189,8 +82,7 @@ Now it will be possible to create two collections (``articles`` and
         }
     }
 
-    $ echo '{"data":{}}' | \
-        http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments \
+    $ http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments \
         --auth user:pass
 
     HTTP/1.1 201 Created
@@ -215,7 +107,10 @@ Now it will be possible to create two collections (``articles`` and
         }
     }
 
-We can add an article.
+Thanks to the `read` permission that we set previously, all authenticated users
+will be able to read both collections.
+
+Let's verify that. Create an article:
 
 .. code-block:: http
 
@@ -247,12 +142,12 @@ We can add an article.
         }
     }
 
-Everybody can read the article:
+Indeed, using another user like *natim*, we can read the article:
 
 .. code-block:: http
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records/b8c4cc34-f184-4b4d-8cad-e135a3f0308c \
-        --auth natim:
+        --auth natim:secret
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Last-Modified, ETag
     Connection: keep-alive
@@ -278,8 +173,8 @@ Everybody can read the article:
         }
     }
 
-If we want everyone to be able to add a comment, we can PATCH the
-permissions of the ``comments`` collections.
+If we want authenticated users to be able to create a comment, we can PATCH the
+permissions of the ``comments`` collections:
 
 .. code-block:: http
 
@@ -312,13 +207,13 @@ permissions of the ``comments`` collections.
         }
     }
 
-Now everyone can add a comment.
+Now every authenticated user, like *natim* here, can add a comment.
 
 .. code-block:: http
 
-    $ echo '{"data":{"article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", "comment": "my comment", "author": "Natim"}}' | \
+    $ echo '{"data":{"article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", "comment": "my comment", "author": "*natim*"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
-        --auth natim:
+        --auth natim:secret
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
@@ -331,7 +226,7 @@ Now everyone can add a comment.
     {
         "data": {
             "article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c",
-            "author": "Natim",
+            "author": "*natim*",
             "comment": "my comment",
             "id": "5e2292d5-8818-4cd4-be7d-d5a834d36de6",
             "last_modified": 1437058244384
@@ -343,14 +238,14 @@ Now everyone can add a comment.
         }
     }
 
+
 Permissions and groups
 ======================
 
-It is possible to give an ACL to a group.
+So far only the creator of the initial bucket (i.e. the blog admin) can write
+articles. Let's invite some writers to create articles!
 
-As described in the :ref:`use case page <permissions_usecases>`, let us create a
-new group ``writers``:
-
+We will create a new group ``writers`` with *natim* as a principal members.
 
 .. code-block:: http
 
@@ -383,7 +278,7 @@ new group ``writers``:
         }
     }
 
-Then we can give the write ACL on the bucket for the group.
+Now we grant the `write` permission on the blog bucket to the ``writers`` group.
 
 .. code-block:: http
 
@@ -417,11 +312,11 @@ Then we can give the write ACL on the bucket for the group.
         }
     }
 
-Now the user Natim can create articles.
+Now *natim* can write new articles!
 
 .. code-block:: http
 
-    $ echo '{"data":{"title": "Natim article", "content": "natims content", "published_at": "Thu Jul 16 16:59:16 CEST 2015"}}' | \
+    $ echo '{"data":{"title": "natim article", "content": "natims content", "published_at": "Thu Jul 16 16:59:16 CEST 2015"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
         --auth natim:
     HTTP/1.1 201 Created
@@ -438,7 +333,7 @@ Now the user Natim can create articles.
             "id": "f9a61750-f61f-402b-8785-1647c9325a5d",
             "last_modified": 1437058727907,
             "published_at": "Thu Jul 16 16:59:16 CEST 2015",
-            "title": "Natim article"
+            "title": "natim article"
         },
         "permissions": {
             "write": [
@@ -448,8 +343,8 @@ Now the user Natim can create articles.
     }
 
 
-Listing shared items
-====================
+Listing records
+===============
 
 One can fetch the list of articles.
 
@@ -457,7 +352,7 @@ One can fetch the list of articles.
 
     $ http GET \
         https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
-        --auth natim:
+        --auth alice:secret
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag
@@ -477,7 +372,7 @@ One can fetch the list of articles.
                 "id": "f9a61750-f61f-402b-8785-1647c9325a5d",
                 "last_modified": 1437058727907,
                 "published_at": "Thu Jul 16 16:59:16 CEST 2015",
-                "title": "Natim article"
+                "title": "natim article"
             },
             {
                 "content": "my content",
@@ -495,7 +390,7 @@ Or the list of comments.
 
     $ http GET \
         https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
-        --auth natim:
+        --auth alice:secret
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag
@@ -512,7 +407,7 @@ Or the list of comments.
         "data": [
             {
                 "article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c",
-                "author": "Natim",
+                "author": "natim",
                 "comment": "my comment",
                 "id": "5e2292d5-8818-4cd4-be7d-d5a834d36de6",
                 "last_modified": 1437058244384

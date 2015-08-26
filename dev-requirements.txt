@@ -1,3 +1,5 @@
+tox
+flake8
 WebTest
 mock
 Sphinx

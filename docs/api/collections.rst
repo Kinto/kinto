@@ -18,11 +18,15 @@ A collection is a mapping with the following attribute:
     shortcut: ie ``/buckets/default/collections/contacts`` will be
     the current user contacts.
 
-    Internally the user default bucket is assigned to an id that can
+    Internally the user default bucket is assigned to an ID that can
     later be used to share data from a user personnal bucket.
 
-    Collection on a the default bucket are created silently on first access.
+    Collections on the "default" bucket are created silently upon first
+    access and therefore don't need to be set beforehand.
 
+
+
+.. _collection-put:
 
 Creating a collection
 =====================
@@ -30,16 +34,17 @@ Creating a collection
 
 .. http:put:: /buckets/(bucket_id)/collections/(collection_id)
 
+    :synopsis: Creates or replaces a collection object.
+
     **Requires authentication**
-    Creates or replaces a collection object.
 
     A collection is the parent object of records. It can be viewed as a container where records permissions are assigned globally.
+
+    **Example Request**
 
     .. sourcecode:: bash
 
         $ echo '{"data": {}}' | http put http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
-
-    **Example Request**
 
     .. sourcecode:: http
 
@@ -85,22 +90,22 @@ Creating a collection
         will be returned if the record already exists.
 
 
+.. _collection-get:
+
 Retrieving an existing collection
 =================================
 
 .. http:get:: /buckets/(bucket_id)/collections/(collection_id)
 
+    :synopsis: Returns the collection object.
+
     **Requires authentication**
 
-
-    Returns the collection object.
+    **Example Request**
 
     .. sourcecode:: bash
 
         $ http get http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
-
-
-    **Example Request**
 
     .. sourcecode:: http
 
@@ -139,20 +144,22 @@ Retrieving an existing collection
         }
 
 
+.. _collection-delete:
+
 Deleting a collection
 =====================
 
 .. http:delete:: /buckets/(bucket_id)/collections/(collection_id)
 
+    :synopsis: Deletes a specific collection and **everything under it**.
+
     **Requires authentication**
 
-    Deletes a specific collection, and **everything under it**.
+    **Example Request**
 
     .. sourcecode:: bash
 
         $ http delete http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
-
-    **Example Request**
 
     .. sourcecode:: http
 

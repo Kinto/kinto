@@ -865,7 +865,7 @@ And now Mary can access the record:
 .. note::
 
     The records of the personal bucket can also be shared! In order to obtain
-    its id, just use ``GET /buckets/default`` and then share its content using
+    its ID, just use ``GET /buckets/default`` and then share its content using
     the full URL (e.g. ``/buckets/b86b26b8-be36-4eaa-9ed9-2e6de63a5252``)!
 
 
@@ -875,7 +875,7 @@ Conclusion
 In this tutorial you have seen some of the concepts exposed by *Kinto*:
 
 - Using the default personal user bucket
-- Handling synchronization and conflicts
+- Handling synchronisation and conflicts
 - Creating a bucket to share data between users
 - Creating groups, collections and records
 - Modifying objects permissions, for users and groups

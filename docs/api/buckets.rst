@@ -3,25 +3,26 @@
 Buckets
 #######
 
-A bucket is the parent object of collections and groups. It can be viewed as
-a namespace where all collections and groups are stored.
+A bucket is the parent object of collections and groups.
 
 A bucket is a mapping with the following attributes:
 
 * ``permissions``: (*optional*) the :term:`ACLs <ACL>` for the bucket object
 
+
+.. _buckets-put:
+
 Creating a bucket
 =================
 
-
 .. http:put:: /buckets/(bucket_id)
+
+    :synopsis: Creates or replaces a bucket with a specific ID.
 
     **Requires authentication**
 
-    Creates or replaces a bucket with a specific id.
-
-    If the bucket exists and you don't have the ``write`` permission on
-    it, you will get a ``403 Forbidden`` http response.
+    If the bucket exists but you don't have the ``write`` permission,
+    you will get a ``403 Forbidden`` http response.
 
     **Example request**
 
@@ -74,14 +75,17 @@ Creating a bucket
         request header can be provided. A ``412 Precondition Failed`` error response
         will be returned if the record already exists.
 
-Retrieve an already existing bucket
-===================================
+
+.. _bucket-get:
+
+Retrieve an existing bucket
+===========================
 
 .. http:get:: /buckets/(bucket_id)
 
-    **Requires authentication**
+    :synopsis: Returns a specific bucket by its ID.
 
-    Returns a specific bucket by its id.
+    **Requires authentication**
 
     **Example request**
 
@@ -126,29 +130,34 @@ Retrieve an already existing bucket
             }
         }
 
+
+.. _bucket-put:
+
 Updating an existing bucket
 ===========================
 
 .. http:put:: /buckets/(bucket_id)
 
-    **Requires authentication**
+    :synopsis: Modifies an existing bucket.
 
-    Modifies an existing bucket.
+    **Requires authentication**
 
     .. note::
 
         Until a formalism is found to alter ACL principals (e.g. using ``+`` or ``-``)
         there is no difference in the behaviour between PATCH and PUT.
 
+
+.. _bucket-delete:
+
 Deleting a bucket
 =================
 
-
 .. http:delete:: /buckets/(bucket_id)
 
-    **Requires authentication**
+    :synopsis: Deletes a specific bucket and **everything under it**.
 
-    Deletes a specific bucket, and **everything under it**.
+    **Requires authentication**
 
     **Example request**
 

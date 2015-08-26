@@ -3,13 +3,23 @@
 Installation
 ############
 
-*Kinto* is based on top of the `cliquet <https://cliquet.rtfd.org>`_ project, and
-as such, please refer to cliquet's documentation if details seem to be missing
-here.
-
+*Kinto* is meant to be relatively straightforward to install, and we've
+provided fairly extensive documentation to get you up and running. That said,
+some dependencies might make the process harder than it should be -
+we've got some notes on crypto libraries and PostgreSQL at the end of this page.
 
 Run locally
 ===========
+
+To test Kinto quickly
+---------------------
+
+In general, in order to run Kinto, it is as simple as running the following
+commands::
+
+    pip install kinto
+    wget https://raw.githubusercontent.com/Kinto/kinto/master/config/kinto.ini
+    pserve kinto.ini
 
 For development
 ---------------
@@ -33,31 +43,30 @@ care of running and connecting to a PostgreSQL container:
 
     docker-compose up
 
+.. _crypto-install:
 
-Authentication
---------------
+Cryptography libraries
+======================
 
-By default, *Kinto* relies on *Basic Auth* to authenticate users.
+Linux
+-----
 
-User registration is not necessary. A unique user idenfier will be created
-for each couple of ``username:password``.
+On Debian / Ubuntu based systems::
 
-*Kinto* is compatible with *Firefox Account*.  See `cliquet documentation
-<http://cliquet.readthedocs.org/en/latest/reference/configuration.html#authentication>`_
-to configure authentication options.
+    apt-get install libffi-dev libssl-dev
 
+On RHEL-derivatives::
 
-Run in production
-=================
+    apt-get install libffi-devel openssl-devel
 
-*Kinto* is a standard python application.
+OS X
+----
 
-Recommended settings for production are listed :ref:`in a dedicated section
-<run-production>`, and another gives some :ref:`insights about deployment strategies
-<deployment>`.
+Assuming `brew <http://brew.sh/>`_ is installed:
 
-*PostgreSQL* is the recommended backend for production, see instructions below
-to get it started.
+::
+
+    brew install libffi openssl pkg-config
 
 
 .. _postgresql-install:
@@ -152,27 +161,3 @@ Create the initial database:
 ::
 
     initdb /usr/local/var/postgres
-
-
-Cryptography libraries
-======================
-
-Linux
------
-
-On Debian / Ubuntu based systems::
-
-    apt-get install libffi-dev libssl-dev
-
-On RHEL-derivatives::
-
-    apt-get install libffi-devel openssl-devel
-
-OS X
-----
-
-Assuming `brew <http://brew.sh/>`_ is installed:
-
-::
-
-    brew install libffi openssl pkg-config

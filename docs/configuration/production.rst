@@ -1,16 +1,16 @@
-.. _configuration:
-
-Configuration
-#############
-
-For an exhaustive list of *Cliquet* settings, see `cliquet settings
-documentation
-<http://cliquet.readthedocs.org/en/latest/reference/configuration.html>`_.
 
 .. _run-production:
 
 Running in production
 =====================
+
+*Kinto* is a standard python application.
+
+Recommended settings for production are listed below. Some :ref:`insights about deployment strategies
+<deployment>` are also provided.
+
+Because we use it for most of our deploys, *PostgreSQL* is the recommended
+backend for production.
 
 Recommended settings
 --------------------
@@ -55,7 +55,7 @@ information (including user's personal buckets).
 Monitoring
 ----------
 
-In order to enable *Cliquet* monitoring features like *statsd*, install
+In order to enable monitoring features like *statsd*, install
 extra requirements:
 
 ::
@@ -69,29 +69,32 @@ And configure its URL:
     # StatsD
     cliquet.statsd_url = udp://carbon.server:8125
 
-The following counters will be enabled:
+Counters
+::::::::
 
-* ``users`` (unique user ids)
-* ``authn_type.basicauth``
-* ``authn_type.fxa``
+.. csv-table::
+   :header: "Name", "Description"
+   :widths: 10, 100
 
-And the following timers:
+   "``users``", "Number of unique user IDs."
+   "``authn_type.basicauth``", "Number of basic authentication requests"
+   "``authn_type.fxa``", "Number of FxA authentications"
 
-* ``authentication.permits``
-* ``view.hello.GET``
-* ``view.heartbeat.GET``
-* ``view.batch.POST``
-* ``view.bucket-record.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.bucket-collection.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.collection-record.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.collection-collection.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.group-record.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.group-collection.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.record-record.[GET|POST|PUT|PATCH|DELETE]``
-* ``view.record-collection.[GET|POST|PUT|PATCH|DELETE]``
-* ``cache.[ping|ttl|expire|set|get|delete]``
-* ``storage.[ping|collection_timestamp|create|get|update|delete|delete_all|get_all]``
-* ``permission.[add_user_principal|remove_user_principal|user_principals|add_principal_to_ace|remove_principal_from_ace|object_permission_principals|check_permission]``
+Timers
+::::::
+
+.. csv-table::
+   :header: "Name", "Description"
+   :widths: 10, 100
+
+   "``authentication.permits``", "Time needed by the permissions backend to allow or reject a request"
+   "``view.hello.GET``", "Time needed to return the hello view"
+   "``view.heartbeat.GET``", "Time needed to return the heartbeat page"
+   "``view.batch.POST``", "Time needed to process a batch request"
+   "``view.{resource}-{type}.{method}``", "Time needed to process the specified *{method}* on a *{resource}* (e.g. bucket, collection or record). Different timers exists for the different type of resources (record or collection)"
+   "``cache.{method}``", "Time needed to execute a method of the cache backend. Methods are ``ping``, ``ttl``, ``expire``, ``set``, ``get`` and ``delete``"
+   "``storage.{method}``", "Time needed to execute a method of the storage backend. Methods are ``ping``, ``collection_timestamp``, ``create``, ``get``, ``update``, ``delete``, ``delete_all``, ``get_all``"
+   "``permission.{method}``", "Time needed to execute a method of the permission backend. Methods are ``add_user_principal``, ``remove_user_principal``, ``user_principals``, ``add_principal_to_ace``, ``remove_principal_from_ace``, ``object_permission_principals``, ``check_permission``"
 
 
 Heka Logging
@@ -218,35 +221,3 @@ Here's an example:
 
 To use a different ini file, the ``KINTO_INI`` environment variable
 should be present with a path to it.
-
-
-Activating the flush endpoint
-=============================
-
-When using Kinto in development mode, it might be helpful to have a way to
-flush all the data currently stored in the database.
-
-There is a way to enable this behaviour (it is deactivated by default for
-obvious security reasons). In the `.ini` file:
-
-.. code-block :: ini
-
-    kinto.flush_endpoint_enabled = true
-
-Then, issue a `POST` request to the `/__flush__` endpoint to flush all
-the data.
-
-
-.. Storage backend
-.. ===============
-
-.. In order to use Kinto as a storage backend for an application built with
-.. cliquet, some settings must be set carefully.
-
-
-.. Firefox Account
-.. '''''''''''''''
-
-.. In order to avoid double-verification of FxA OAuth tokens, the ``cliquet.cache_url``
-.. should be the same in *Kinto* and in the application. This way
-.. the verification cache will be shared between the two components.

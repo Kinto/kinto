@@ -6,21 +6,23 @@ Records
 Records belong to a collection. It is the data being stored and
 synchronized.
 
-Sending a record
-================
+.. _records-post:
+
+Uploading a record
+==================
 
 .. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records
 
-    **Requires authentication**
+    :synopsis: Store a record in the collection. The ID will be assigned automatically.
 
-    Stores a record in the collection, and its id will be assigned automatically.
+
+    **Requires authentication**
 
     **Example Request**
 
     .. sourcecode:: bash
 
         $ echo '{"data": {"foo": "bar"}}' | http post http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:" --verbose
-
 
     .. sourcecode:: http
 
@@ -62,14 +64,17 @@ Sending a record
             }
         }
 
+
+.. _record-put:
+
 Replacing a record
 ===================
 
-.. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
+.. http:put:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
+
+    :synopsis: Create or update a record in the collection.
 
     **Requires authentication**
-
-    Creates or updates a record in the collection.
 
     **Example Request**
 
@@ -119,15 +124,18 @@ Replacing a record
           }
         }
 
+
+.. _record-patch:
+
 Updating a record
 =================
 
 .. http:patch:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    **Requires authentication**
+    :synopsis: Update a record in the collection. Specify only the fields to be
+    modified (all the rest will remain intact).
 
-    Updates a record in the collection. Specify only the fields to be modified,
-    all the rest will remain intact.
+    **Requires authentication**
 
     **Example Request**
 
@@ -178,19 +186,24 @@ Updating a record
           }
         }
 
-Retrieving records
-==================
 
-Records can be paginated, filtered, and conflicts detected.
-To do so, refer to the `cliquet resource documentation
-<http://cliquet.readthedocs.org/en/latest/api/resource.html#get-resource>`_
-for more details on available operations on collection retrieval.
+.. _records-get:
+
+Retrieving stored records
+=========================
+
+Records can be paginated and filtered, and conflicts can be detected.
+
+To do so, refer to :ref:`resource-endpoints` for more details on available
+operations on collection retrieval.
 
 .. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records
 
+    :synopsis: Retrieve all the records in the collection.
+
     **Requires authentication**
 
-    Retrieves all the records in the collection.
+    **Example Request**
 
     .. sourcecode:: bash
 
@@ -230,14 +243,16 @@ for more details on available operations on collection retrieval.
         }
 
 
+.. _record-get:
+
 Retrieving a specific record
 ============================
 
 .. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    **Requires authentication**
+    :synopsis: Retrieve a specific record by its ID.
 
-    Retrieves a specific record by its id.
+    **Requires authentication**
 
     **Example Request**
 
@@ -282,12 +297,15 @@ Retrieving a specific record
             }
         }
 
+
+.. _record-delete:
+
 Deleting a record
 =================
 
 .. http:delete:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    Deletes a record, from its id.
+    :synopsis: Delete a record by its ID.
 
     **Example Request**
 

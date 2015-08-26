@@ -8,3 +8,4 @@ Tutorials
 
    first-steps
    permissions
+   app-examples
