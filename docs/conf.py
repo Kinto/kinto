@@ -105,7 +105,9 @@ extlinks = {
 
 
 def setup(app):
-    app.add_stylesheet('theme_overrides.css')   # path relative to _static
+    # path relative to _static
+    app.add_stylesheet('theme_overrides.css')
+    app.add_javascript('piwik.js')
 
 
 # -- Options for LaTeX output ---------------------------------------------
