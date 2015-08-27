@@ -64,7 +64,8 @@ Key features
 
 - HTTP best practices
 - Pluggable authentication
-- Pluggable storage, cache, and permission backends
+- :ref:`Pluggable storage, cache, and permission backends
+  <configuration-backends>`
 - Configuration via a single INI file
 - Built-in monitoring
 
