@@ -157,60 +157,67 @@ on our blog.
 FAQ
 ===
 
-- How does Kinto compares to CouchDB / Remote Storage?
+How does Kinto compares to CouchDB / Remote Storage?
+----------------------------------------------------
 
-    Before starting to create yet another data storage service, we had a long
-    look to the existing solutions, to see if that would make sense to extend
-    the community effort rather than re-inventing the wheel.
+Before starting to create yet another data storage service, we had a long
+look to the existing solutions, to see if that would make sense to extend
+the community effort rather than re-inventing the wheel.
 
-    It appeared that solutions we looked at weren't solving the problems we had,
-    especially regarding fine-grained permissions.
+It appeared that solutions we looked at weren't solving the problems we had,
+especially regarding fine-grained permissions.
 
-    To see how Kinto compares to these solutions,
-    read :ref:`the comparison table <comparison>`.
+To see how Kinto compares to these solutions,
+read :ref:`the comparison table <comparison>`.
 
-- Can I encrypt my data?
+Can I encrypt my data?
+----------------------
 
-    Kinto server stores any data you pass to it, be it encrypted or not.
-    We make it easy to use encryption in our Kinto.js client
-    `using transformers <http://kintojs.readthedocs.org/en/latest/api/#transformers>`_.
+Kinto server stores any data you pass to it, be it encrypted or not.
+We make it easy to use encryption in our Kinto.js client
+`using transformers <http://kintojs.readthedocs.org/en/latest/api/#transformers>`_.
 
-- Is there a package for my Operating System?
+Is there a package for my Operating System?
+-------------------------------------------
 
-    No, but it's a great idea. Packaging is hard and we're a small team, so if
-    you'd like to help us out by maintaining packages for your favourite OS,
-    we'd be delighted to collaborate with you!
+No, but it's a great idea. Packaging is hard and we're a small team, so if
+you'd like to help us out by maintaining packages for your favourite OS,
+we'd be delighted to collaborate with you!
 
-    That said, Kinto is :ref:`easy to install with pip <installation>` and
-    we've got `an image set up <https://hub.docker.com/r/kinto/kinto-server/>`_
-    on the Docker hub, too.
+That said, Kinto is :ref:`easy to install with pip <installation>` and
+we've got `an image set up <https://hub.docker.com/r/kinto/kinto-server/>`_
+on the Docker hub, too.
 
-- Why did you chose to use Python rather than X?
+Why did you chose to use Python rather than X?
+----------------------------------------------
 
-    We know and love `Python <python.org>`_ for its simplicity and short
-    learning curve, so it was an obvious choice for the development team. In
-    addition, the Operations team at Mozilla is comfortable with deploying and
-    managing Python applications in production.
+We know and love `Python <python.org>`_ for its simplicity and short
+learning curve, so it was an obvious choice for the development team. In
+addition, the Operations team at Mozilla is comfortable with deploying and
+managing Python applications in production.
 
-    However, the protocol and concepts behind Kinto don't rely on Python *per
-    se*, so it is possible to have other Kinto implementations using other
-    languages.
+However, the protocol and concepts behind Kinto don't rely on Python *per
+se*, so it is possible to have other Kinto implementations using other
+languages.
 
-- Is it Web Scale?
+Is it Web Scale?
+----------------
 
-    YES™. Have a look at the ``/dev/null`` backend. ;-)
+YES™. Have a look at the ``/dev/null`` backend. ;-)
 
-- Can I store files inside Kinto?
+Can I store files inside Kinto?
+-------------------------------
 
-    No. Kinto is a JSON storage service and is not designed to store arbitrary
-    files. We'd be open to exploring file storage should a solid use-case
-    present itself in the future; however, at this time, it's not on our
-    roadmap.
+No. Kinto is a JSON storage service and is not designed to store arbitrary
+files. We'd be open to exploring file storage should a solid use-case
+present itself in the future; however, at this time, it's not on our
+roadmap.
 
 
-- What is Cliquet? What is the difference between Cliquet and Kinto ?
+What is Cliquet? What is the difference between Cliquet and Kinto ?
+-------------------------------------------------------------------
 
-    Cliquet is a toolkit for designing micro-services. Kinto is a server built
-    using that toolkit.
+Cliquet is a toolkit for designing micro-services. Kinto is a server built
+using that toolkit.
 
-    `Read more (in french) about the differences <http://www.servicedenuages.fr/pourquoi-cliquet>`_.
+`Read more (in french) about the differences <http://www.servicedenuages.fr/pourquoi-cliquet>`_.
