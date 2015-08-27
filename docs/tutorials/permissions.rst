@@ -245,7 +245,8 @@ Permissions and groups
 So far only the creator of the initial bucket (i.e. the blog admin) can write
 articles. Let's invite some writers to create articles!
 
-We will create a new group ``writers`` with *natim* as a principal members.
+We will create a new group called ``writers`` with *natim* as a principal
+member.
 
 .. code-block:: http
 

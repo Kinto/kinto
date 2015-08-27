@@ -14,7 +14,7 @@ listed below.
     from environment variables, in addition to ``.ini`` files.
 
     The environment variables are exactly the same as the settings, but they
-    are capitalized and `.` are replaced by `_`.
+    are capitalised and ``.`` are replaced by ``_``.
 
     For example, ``cliquet.storage_backend`` is read from environment variable
     ``CLIQUET_STORAGE_BACKEND`` if defined.
@@ -32,10 +32,10 @@ Feature settings
 | cliquet.batch_max_requests ``25``     | The maximum number of requests that can be sent to the batch endpoint.   |
 +---------------------------------------+--------------------------------------------------------------------------+
 | cliquet.paginate_by ``None``          | The maximum number of items to include on a response before enabling     |
-|                                       | pagination. If set to `None`, no pagination will be used.                |
+|                                       | pagination. If set to ``None``, no pagination will be used.                |
 |                                       | It is recommended to set-up pagination. If not defined, a collection     |
 |                                       | connot contain more elements than defined by the                         |
-|                                       | `cliquet.storage_max_fetch_size` setting.                                |
+|                                       | ``cliquet.storage_max_fetch_size`` setting.                                |
 +---------------------------------------+--------------------------------------------------------------------------+
 | cliquet.id_generator                  | The Python *dotted* location of the generator class that should be used  |
 | ``cliquet.storage.generators.UUID4``  | to generate identifiers on a POST on a collection endpoint.              |
@@ -59,8 +59,8 @@ Backends
 ========
 
 While there are a number of useful settings to assist in configuring the
-backend, the most important are `{backend_type}_backend` and `{backend_type}_url`,
-where `backend_type` is one of "storage", "permission" or "cache".
+backend, the most important are ``{backend_type}_backend`` and ``{backend_type}_url``,
+where ``backend_type`` is one of "storage", "permission" or "cache".
 
 Storage
 :::::::

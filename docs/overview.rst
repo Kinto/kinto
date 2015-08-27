@@ -180,7 +180,6 @@ FAQ
     you'd like to help us out by maintaining packages for your favourite OS,
     we'd be delighted to collaborate with you!
 
-    That said,
     That said, Kinto is :ref:`easy to install with pip <installation>` and
     we've got `an image set up <https://hub.docker.com/r/kinto/kinto-server/>`_
     on the Docker hub, too.
@@ -189,15 +188,16 @@ FAQ
 
     We know and love `Python <python.org>`_ for its simplicity and short
     learning curve, so it was an obvious choice for the development team. In
-    addition, Operations team at Mozilla is comfortable with deploying and
+    addition, the Operations team at Mozilla is comfortable with deploying and
     managing Python applications in production.
 
-    However, the protocol and concepts behind Kinto don't rely on Python *per se*,
-    so it is possible to have other Kinto implementations using other languages.
+    However, the protocol and concepts behind Kinto don't rely on Python *per
+    se*, so it is possible to have other Kinto implementations using other
+    languages.
 
 - Is it Web Scale?
 
-    YES™. Have a look at the `/dev/null` backend.
+    YES™. Have a look at the ``/dev/null`` backend. ;-)
 
 - Can I store files inside Kinto?
 
