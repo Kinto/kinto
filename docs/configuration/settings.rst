@@ -55,12 +55,16 @@ Example:
     # cliquet.id_generator = cliquet.storage.generators.UUID4
 
 
+.. _configuration-backends:
+
 Backends
 ========
 
 While there are a number of useful settings to assist in configuring the
 backend, the most important are `{backend_type}_backend` and `{backend_type}_url`,
 where `backend_type` is one of "storage", "permission" or "cache".
+
+Supported backends are currently PostgreSQL, Redis, and Memory.
 
 Storage
 :::::::
