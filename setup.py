@@ -17,7 +17,8 @@ CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
     'waitress',
-    'cliquet'
+    'cliquet',
+    'jsonschema',
 ]
 
 POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
