@@ -307,9 +307,9 @@ Once a schema has been defined, the posted records must match it:
 
 .. code-block:: bash
 
-    $ echo '{
+    $ echo '{"data": {
         "body": "Fails if no title"
-    }' | http POST http://localhost:8888/v1/buckets/blog/collections/articles/records --auth "admin:"
+    }}' | http POST http://localhost:8888/v1/buckets/blog/collections/articles/records --auth "admin:"
 
 .. code-block:: http
 
