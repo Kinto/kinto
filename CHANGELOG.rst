@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Protocol**
 
 - Collection records can now be filtered using multiple values (``?in_status=1,2,3``) (fixes #39)
+- Collection records can now be filtered excluding multiple values (``?exclude_status=1,2,3``) (fixes mozilla-services/readinglist#68)
 
 
 2.4.3 (2015-08-26)
