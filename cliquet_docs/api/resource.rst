@@ -94,6 +94,12 @@ Prefix attribute name with ``min_`` or ``max_``:
 
    ``lt_`` and ``gt_`` can also be used to exclude the bound.
 
+**Multiple values**
+
+Prefix attribute with ``in_`` and provide comma-separated values.
+
+* ``/collection?in_status=1,2,3``
+
 **Exclude**
 
 Prefix attribute name with ``not_``:

@@ -3,6 +3,14 @@ Changelog
 
 This document describes changes between each past release.
 
+2.5.0 (unreleased)
+------------------
+
+**Protocol**
+
+- Collection records can now be filtered using multiple values (``?in_status=1,2,3``) (fixes #39)
+
+
 2.4.3 (2015-08-26)
 ------------------
 

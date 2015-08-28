@@ -621,6 +621,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         operators = {
             COMPARISON.EQ: '=',
             COMPARISON.NOT: '<>',
+            COMPARISON.IN: 'IN',
         }
 
         conditions = []
@@ -639,9 +640,12 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                 # JSON operator ->> retrieves values as text.
                 # If field is missing, we default to ''.
                 sql_field = "coalesce(data->>%%(%s)s, '')" % field_holder
-                # JSON-ify the native value (e.g. True -> 'true')
-                if not isinstance(filtr.value, six.string_types):
-                    value = json.dumps(filtr.value).strip('"')
+
+                if filtr.operator != COMPARISON.IN:
+                    # For the IN operator, let psycopg escape the values list.
+                    # Otherwise JSON-ify the native value (e.g. True -> 'true')
+                    if not isinstance(filtr.value, six.string_types):
+                        value = json.dumps(filtr.value).strip('"')
 
             # Safely escape value
             value_holder = '%s_value_%s' % (prefix, i)

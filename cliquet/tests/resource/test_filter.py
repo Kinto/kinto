@@ -136,3 +136,9 @@ class FilteringTest(BaseTest):
         result = self.resource.collection_get()
         values = [item['status'] for item in result['data']]
         self.assertTrue(all([value < 2 for value in values]))
+
+    def test_in_values(self):
+        self.resource.request.GET = {'in_status': '0,1'}
+        result = self.resource.collection_get()
+        values = [item['status'] for item in result['data']]
+        self.assertEqual(sorted(values), [0, 0, 1, 1])
