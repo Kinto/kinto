@@ -7,7 +7,7 @@ from kinto.views import object_exists_or_404
 
 
 class RecordSchema(schema.ResourceSchema):
-    class Options():
+    class Options:
         preserve_unknown = True
 
 

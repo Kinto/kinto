@@ -64,6 +64,18 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
+    def test_collections_can_handle_arbitrary_attributes(self):
+        collection = MINIMALIST_COLLECTION.copy()
+        fingerprint = "5866f245a00bb3a39100d31b2f14d453"
+        collection['data'] = {'fingerprint': fingerprint}
+        resp = self.app.put_json('/buckets/beers/collections/barley',
+                                 collection,
+                                 headers=self.headers,
+                                 status=200)
+        data = resp.json['data']
+        self.assertIn('fingerprint', data)
+        self.assertEqual(data['fingerprint'], fingerprint)
+
 
 class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
 
