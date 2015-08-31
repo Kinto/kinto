@@ -85,14 +85,18 @@ class Redis(PermissionBase):
             object_id_match = '*'
         key_pattern = 'permission:%s:%s' % (object_id_match, permission)
 
-        # XXX: not optimal at all.
         objects = set([])
-        _, keys = self._client.scan(match=key_pattern)
-        for key in keys:
-            authorized = self._decode_set(self._client.smembers(key))
-            if len(authorized & set(principals)) > 0:
-                object_id = key.split(':')[1]
-                objects.add(object_id)
+        count, keys = self._client.scan(match=key_pattern)
+        while True:
+            for key in keys:
+                authorized = self._decode_set(self._client.smembers(key))
+                if len(authorized & set(principals)) > 0:
+                    object_id = key.split(':')[1]
+                    objects.add(object_id)
+            if count == 0:
+                break
+            count, keys = self._client.scan(match=key_pattern, count=count)
+
         return objects
 
     @wrap_redis_error
