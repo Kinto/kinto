@@ -86,16 +86,12 @@ class Redis(PermissionBase):
         key_pattern = 'permission:%s:%s' % (object_id_match, permission)
 
         objects = set([])
-        count, keys = self._client.scan(match=key_pattern)
-        while True:
-            for key in keys:
-                authorized = self._decode_set(self._client.smembers(key))
-                if len(authorized & set(principals)) > 0:
-                    object_id = key.split(':')[1]
-                    objects.add(object_id)
-            if count == 0:
-                break
-            count, keys = self._client.scan(match=key_pattern, count=count)
+        keys = self._client.scan_iter(match=key_pattern)
+        for key in keys:
+            authorized = self._decode_set(self._client.smembers(key))
+            if len(authorized & set(principals)) > 0:
+                object_id = key.decode('utf-8').split(':')[1]
+                objects.add(object_id)
 
         return objects
 
