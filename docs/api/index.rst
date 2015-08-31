@@ -41,6 +41,8 @@ Cheatsheet
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `PUT`    | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-put>`                     | :ref:`Create or replace a collection <collection-put>`  |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
+| `PATCH`  | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-patch>`                   | :ref:`Update a collection <collection-patch>`           |
++----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `GET`    | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-get>`                     | :ref:`Retreive an existing collection <collection-get>` |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `DELETE` | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-delete>`                  | :ref:`Delete a collection <collection-delete>`          |

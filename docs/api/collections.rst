@@ -90,6 +90,65 @@ Creating a collection
         will be returned if the record already exists.
 
 
+.. _collection-patch:
+
+Updating a collection
+=====================
+
+
+.. http:patch:: /buckets/(bucket_id)/collections/(collection_id)
+
+    :synopsis: Updates a collection object.
+
+    **Requires authentication**
+
+    A collection is the parent object of records. It can be viewed as
+    a container where records permissions are assigned globally.
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ echo '{"data": {}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
+
+    .. sourcecode:: http
+
+        PATCH /v1/buckets/blog/collections/articles HTTP/1.1
+        Accept: application/json
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOg==
+        Connection: keep-alive
+        Content-Length: 13
+        Content-Type: application/json
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.2
+
+        {
+            "data": {}
+        }
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+        Content-Length: 159
+        Content-Type: application/json; charset=UTF-8
+        Date: Thu, 18 Jun 2015 15:36:34 GMT
+        Server: waitress
+
+        {
+            "data": {
+                "id": "articles",
+                "last_modified": 1434641794149
+            },
+            "permissions": {
+                "write": [
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                ]
+            }
+        }
+
+
 .. _collection-get:
 
 Retrieving an existing collection
