@@ -26,13 +26,13 @@ class Memory(PermissionBase):
 
     def add_user_principal(self, user_id, principal):
         user_key = 'user:%s' % user_id
-        user_principals = self._store.get(user_key, set([]))
+        user_principals = self._store.get(user_key, set())
         user_principals.add(principal)
         self._store[user_key] = user_principals
 
     def remove_user_principal(self, user_id, principal):
         user_key = 'user:%s' % user_id
-        user_principals = self._store.get(user_key, set([]))
+        user_principals = self._store.get(user_key, set())
         try:
             user_principals.remove(principal)
         except KeyError:
@@ -45,18 +45,18 @@ class Memory(PermissionBase):
 
     def user_principals(self, user_id):
         user_key = 'user:%s' % user_id
-        members = self._store.get(user_key, set([]))
+        members = self._store.get(user_key, set())
         return members
 
     def add_principal_to_ace(self, object_id, permission, principal):
         permission_key = 'permission:%s:%s' % (object_id, permission)
-        object_permission_principals = self._store.get(permission_key, set([]))
+        object_permission_principals = self._store.get(permission_key, set())
         object_permission_principals.add(principal)
         self._store[permission_key] = object_permission_principals
 
     def remove_principal_from_ace(self, object_id, permission, principal):
         permission_key = 'permission:%s:%s' % (object_id, permission)
-        object_permission_principals = self._store.get(permission_key, set([]))
+        object_permission_principals = self._store.get(permission_key, set())
         try:
             object_permission_principals.remove(principal)
         except KeyError:
@@ -69,19 +69,20 @@ class Memory(PermissionBase):
 
     def object_permission_principals(self, object_id, permission):
         permission_key = 'permission:%s:%s' % (object_id, permission)
-        members = self._store.get(permission_key, set([]))
+        members = self._store.get(permission_key, set())
         return members
 
     def principals_accessible_objects(self, principals, permission,
                                       object_id_match=None):
+        principals = set(principals)
         if object_id_match is None:
             object_id_match = re.compile('.*')
         else:
             object_id_match = re.compile(object_id_match.replace('*', '.*'))
-        objects = set([])
+        objects = set()
         for key, value in self._store.items():
             if key.endswith(permission):
-                if len(set(principals) & value) > 0:
+                if len(principals & value) > 0:
                     object_id = key.split(':')[1]
                     if object_id_match.match(object_id):
                         objects.add(object_id)
@@ -93,7 +94,7 @@ class Memory(PermissionBase):
             keys = [(object_id, permission)]
         else:
             keys = get_bound_permissions(object_id, permission)
-        principals = set([])
+        principals = set()
         for obj_id, perm in keys:
             principals |= self.object_permission_principals(obj_id, perm)
         return principals

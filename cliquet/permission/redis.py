@@ -85,7 +85,7 @@ class Redis(PermissionBase):
             object_id_match = '*'
         key_pattern = 'permission:%s:%s' % (object_id_match, permission)
 
-        objects = set([])
+        objects = set()
         keys = self._client.scan_iter(match=key_pattern)
         for key in keys:
             authorized = self._decode_set(self._client.smembers(key))
@@ -106,7 +106,7 @@ class Redis(PermissionBase):
         keys = ['permission:%s:%s' % key for key in keys]
         if keys:
             return self._decode_set(self._client.sunion(*list(keys)))
-        return set([])
+        return set()
 
 
 def load_from_config(config):
