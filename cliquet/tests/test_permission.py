@@ -25,6 +25,7 @@ class PermissionBaseTest(unittest.TestCase):
             (self.permission.add_principal_to_ace, '', '', ''),
             (self.permission.remove_principal_from_ace, '', '', ''),
             (self.permission.object_permission_principals, '', ''),
+            (self.permission.principals_accessible_objects, [], ''),
             (self.permission.object_permission_authorized_principals, '', ''),
         ]
         for call in calls:
@@ -232,6 +233,28 @@ class BaseTestPermission(object):
         check_permission = self.permission.check_permission(
             object_id, permission, {principal})
         self.assertFalse(check_permission)
+
+    def test_obtain_object_ids_from_principals_and_permission(self):
+        self.permission.add_principal_to_ace('id1', 'write', 'user1')
+        self.permission.add_principal_to_ace('id1', 'read', 'user1')
+        self.permission.add_principal_to_ace('id1', 'read', 'group')
+        self.permission.add_principal_to_ace('id2', 'write', 'user1')
+        self.permission.add_principal_to_ace('id2', 'read', 'user2')
+        self.permission.add_principal_to_ace('id2', 'read', 'group')
+        self.permission.add_principal_to_ace('id3', 'read', 'user2')
+        object_ids = self.permission.principals_accessible_objects(['user1',
+                                                                    'group'],
+                                                                   'read')
+        self.assertEquals(object_ids, set(['id1', 'id2']))
+
+    def test_obtain_object_ids_can_be_filtered_with_pattern(self):
+        self.permission.add_principal_to_ace('/url1/id', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url2/id', 'write', 'user1')
+        object_ids = self.permission.principals_accessible_objects(
+            ['user1'],
+            'write',
+            object_id_match='*url1*')
+        self.assertEquals(object_ids, set(['/url1/id']))
 
 
 class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):

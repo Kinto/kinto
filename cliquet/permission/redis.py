@@ -79,6 +79,23 @@ class Redis(PermissionBase):
         return self._decode_set(members)
 
     @wrap_redis_error
+    def principals_accessible_objects(self, principals, permission,
+                                      object_id_match=None):
+        if object_id_match is None:
+            object_id_match = '*'
+        key_pattern = 'permission:%s:%s' % (object_id_match, permission)
+
+        objects = set([])
+        keys = self._client.scan_iter(match=key_pattern)
+        for key in keys:
+            authorized = self._decode_set(self._client.smembers(key))
+            if len(authorized & set(principals)) > 0:
+                object_id = key.decode('utf-8').split(':')[1]
+                objects.add(object_id)
+
+        return objects
+
+    @wrap_redis_error
     def object_permission_authorized_principals(self, object_id, permission,
                                                 get_bound_permissions=None):
         if get_bound_permissions is None:
