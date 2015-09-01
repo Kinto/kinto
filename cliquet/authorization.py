@@ -138,10 +138,17 @@ class RouteFactory(object):
             object_id_match='*%s*' % object_id)
 
     def fetch_shared_records(self, principals):
-        self.shared_ids = self.get_shared_ids(principals=principals)
+        shared_ids = self.get_shared_ids(principals=principals)
+        self.shared_ids = [extract_object_id(shared_id)
+                           for shared_id in shared_ids]
         return self.shared_ids
 
 
 def get_object_id(object_uri):
     # Remove potential version prefix in URI.
     return re.sub(r'^(/v\d+)?', '', six.text_type(object_uri))
+
+
+def extract_object_id(object_id):
+    # XXX: Help needed: use something like route.matchdict.get('id').
+    return object_id.split('/')[-1]

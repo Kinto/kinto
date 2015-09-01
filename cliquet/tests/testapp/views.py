@@ -15,6 +15,9 @@ class Mushroom(resource.BaseResource):
 class Toadstool(resource.ProtectedResource):
     mapping = MushroomSchema()
 
+    def get_parent_id(self, request):
+        return "foobar"
+
 
 @resource.register()
 class Moisture(resource.ProtectedResource):

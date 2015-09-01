@@ -1077,6 +1077,7 @@ class ProtectedResource(BaseResource):
 
         # XXX: find more elegant approach to add custom filters.
         ids = self.context.shared_ids
+
         if ids:
             filter_by_id = Filter(self.collection.id_field, ids, COMPARISON.IN)
             filters.insert(0, filter_by_id)
