@@ -82,10 +82,6 @@ class RouteFactory(object):
         # Store service, resource, record and required permission.
         service = utils.current_service(request)
 
-        # Determine if current request hits a collection.
-        # XXX: this will fail if ViewSet.service_name is customized.
-        self.on_collection = service.name.endswith('-collection')
-
         is_on_resource = (service is not None and
                           hasattr(service, 'viewset') and
                           hasattr(service, 'resource'))
@@ -95,8 +91,9 @@ class RouteFactory(object):
             permission = None
             resource_name = None
             check_permission = None
-
+            on_collection = False
         else:
+            on_collection = getattr(service, "type", None) == "collection"
             object_id = get_object_id(request.path)
 
             # Decide what the required unbound permission is depending on the
@@ -132,6 +129,7 @@ class RouteFactory(object):
         self.required_permission = permission
         self.resource_name = resource_name
         self.check_permission = check_permission
+        self.on_collection = on_collection
 
         self.shared_ids = []
         self.get_shared_ids = functools.partial(

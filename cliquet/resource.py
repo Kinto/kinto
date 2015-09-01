@@ -255,6 +255,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
         service.collection_path = viewset.collection_path.format(
             **path_formatters)
         service.record_path = viewset.record_path.format(**path_formatters)
+        service.type = endpoint_type
 
         methods = getattr(viewset, '%s_methods' % endpoint_type)
         for method in methods:

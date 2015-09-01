@@ -19,8 +19,6 @@ def cors(view):
     def wrap_view(request, *args, **kwargs):
         response = view(request, *args, **kwargs)
 
-        print "cors"
-
         # We need to re-apply the CORS checks done by Cornice, since we're
         # recreating the response from scratch.
         return reapply_cors(request, response)
@@ -53,7 +51,6 @@ def authorization_required(request):
 @cors
 def page_not_found(request):
     """Return a JSON 404 error response."""
-    print "404"
     if request.path.startswith('/' + request.registry.route_prefix):
         errno = ERRORS.MISSING_RESOURCE
         error_msg = "The resource your are looking for could not be found."
