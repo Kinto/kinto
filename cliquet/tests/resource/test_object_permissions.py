@@ -160,7 +160,7 @@ class GuestCollectionListTest(PermissionTest):
         self.permission.add_principal_to_ace(uri2, 'read', 'group')
         self.permission.add_principal_to_ace(uri3, 'read', 'jean-louis')
 
-        self.resource.context.guest_principals = ['fxa:user', 'group']
+        self.resource.context.shared_ids = [record1['id'], record2['id']]
 
     def test_collection_is_filtered_for_current_guest(self):
         result = self.resource.collection_get()
@@ -173,12 +173,12 @@ class GuestCollectionListTest(PermissionTest):
         self.assertEqual(len(result['data']), 1)
 
     def test_guest_collection_is_empty_if_no_record_is_shared(self):
-        self.resource.context.guest_principals = ['tata lili']
+        self.resource.context.shared_ids = ['tata lili']
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 0)
 
     def test_permission_backend_is_not_queried_if_not_guest(self):
-        delattr(self.resource.context, 'guest_principals')
+        self.resource.context.shared_ids = []
         self.resource.request.registry.permission = None  # would fail!
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 3)
@@ -205,7 +205,7 @@ class GuestCollectionDeleteTest(PermissionTest):
         self.permission.add_principal_to_ace(uri3, 'write', 'group')
         self.permission.add_principal_to_ace(uri4, 'write', 'jean-louis')
 
-        self.resource.context.guest_principals = ['fxa:user', 'group']
+        self.resource.context.shared_ids = [record2['id'], record3['id']]
         self.resource.request.method = 'DELETE'
 
     def get_request(self):
@@ -227,7 +227,7 @@ class GuestCollectionDeleteTest(PermissionTest):
         self.assertEqual(len(records), 3)
 
     def test_guest_cannot_delete_records_if_not_allowed(self):
-        self.resource.context.guest_principals = ['tata lili']
+        self.resource.context.shared_ids = ['tata lili']
         result = self.resource.collection_delete()
         self.assertEqual(len(result['data']), 0)
         records, _ = self.resource.collection.get_records()

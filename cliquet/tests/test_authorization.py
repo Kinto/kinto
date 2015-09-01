@@ -200,12 +200,17 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
     def setUp(self):
         self.authz = AuthorizationPolicy()
         self.authz.get_bound_permissions = mock.sentinel.get_bound_perms
-        self.context = RouteFactory(DummyRequest(method='GET'))
+        self.request = DummyRequest(method='GET')
+        self.context = RouteFactory(self.request)
         self.context.on_collection = True
         self.context.check_permission = mock.Mock(return_value=False)
 
-    def test_permits_returns_true_if_collection(self):
+    def test_permits_returns_true_if_collection_and_shared_records(self):
+        self.context.fetch_shared_records = mock.MagicMock(return_value=[
+            'record1', 'record2'])
         allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.context.fetch_shared_records.assert_called_with(
+            ['userid', 'basicauth:bob', 'basicauth_bob'])
         self.assertTrue(allowed)
 
     def test_permits_does_not_return_true_if_not_collection(self):
@@ -220,28 +225,9 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         allowed = self.authz.permits(self.context, ['userid'], 'create')
         self.assertFalse(allowed)
 
-    def test_permits_returns_true_if_collection_is_unknown(self):
-        # XXX ?
-        # Either that, or we raise 403 is no record is shared for guest.
-        # Otherwise it would allow to inspect other users collection existance.
-        pass
-
-    def test_guest_principals_are_set_on_context_if_collection(self):
-        self.assertFalse(hasattr(self.context, 'guest_principals'))
-        self.authz.permits(self.context, ['userid'], 'dynamic')
-        self.assertTrue(hasattr(self.context, 'guest_principals'))
-
-    def test_guest_principals_contains_prefixed_userid(self):
-        self.context.prefixed_userid = 'fxa:userid'
-        self.authz.permits(self.context, ['userid'], 'dynamic')
-        self.assertIn('fxa:userid', self.context.guest_principals)
-
-    def test_guest_principals_are_not_set_if_not_collection(self):
-        self.context.on_collection = False
-        self.authz.permits(self.context, ['userid'], 'dynamic')
-        self.assertFalse(hasattr(self.context, 'guest_principals'))
-
-    def test_guest_principals_are_not_set_if_user_is_permitted(self):
-        self.context.check_permission = mock.Mock(return_value=True)
-        self.authz.permits(self.context, ['userid'], 'dynamic')
-        self.assertFalse(hasattr(self.context, 'guest_principals'))
+    def test_permits_returns_false_if_collection_is_unknown(self):
+        self.context.fetch_shared_records = mock.MagicMock(return_value=[])
+        allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.context.fetch_shared_records.assert_called_with(
+            ['userid', 'basicauth:bob', 'basicauth_bob'])
+        self.assertFalse(allowed)

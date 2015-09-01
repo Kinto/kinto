@@ -145,8 +145,3 @@ class RouteFactory(object):
 def get_object_id(object_uri):
     # Remove potential version prefix in URI.
     return re.sub(r'^(/v\d+)?', '', six.text_type(object_uri))
-
-
-def extract_object_id(object_id):
-    # XXX: Help needed: use something like route.matchdict.get('id').
-    return object_id.split('/')[-1]
