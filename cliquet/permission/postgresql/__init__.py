@@ -165,11 +165,13 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
 
     def principals_accessible_objects(self, principals, permission,
                                       object_id_match=None):
+        placeholders = {'permission': permission}
         if object_id_match is None:
             object_id_condition = 'true'
         else:
             object_id_match = object_id_match.replace('*', '%%')
-            object_id_condition = "object_id LIKE '%s'" % object_id_match
+            object_id_condition = "object_id LIKE %(object_id_match)s"
+            placeholders['object_id_match'] = object_id_match
 
         principals_values = ','.join(["('%s')" % p for p in principals])
         query = """
@@ -183,7 +185,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
            AND %s;
         """ % (principals_values, object_id_condition)
         with self.connect() as cursor:
-            cursor.execute(query, dict(permission=permission))
+            cursor.execute(query, placeholders)
             results = cursor.fetchall()
         return set([r['object_id'] for r in results])
 
