@@ -31,7 +31,7 @@ If the HTTP status is not OK (<200 or >=400), the response contains a JSON mappi
     }
 
 
-Refer yourself to the ref:`<set of errors codes <errors>`_.
+Refer yourself to the ref:`set of errors codes <errors>`_.
 
 
 Precondition errors
