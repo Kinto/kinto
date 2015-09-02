@@ -95,6 +95,7 @@ class MemoryBasedStorage(StorageBase):
             COMPARISON.MIN: operator.ge,
             COMPARISON.GT: operator.gt,
             COMPARISON.IN: operator.contains,
+            COMPARISON.EXCLUDE: lambda x, y: not operator.contains(x, y),
         }
 
         for record in records:
@@ -102,7 +103,7 @@ class MemoryBasedStorage(StorageBase):
             for f in filters:
                 left = record.get(f.field)
                 right = f.value
-                if f.operator == COMPARISON.IN:
+                if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                     right = left
                     left = f.value
                 matches = matches and operators[f.operator](left, right)

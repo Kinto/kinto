@@ -106,6 +106,12 @@ Prefix attribute name with ``not_``:
 
 * ``/collection?not_field=0``
 
+**Exclude multiple values**
+
+Prefix attribute name with ``exclude_``:
+
+* ``/collection?exclude_field=0,1``
+
 .. note::
 
     Will return an error if a field is unknown.

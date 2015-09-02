@@ -143,7 +143,8 @@ COMPARISON = Enum(
     NOT='!=',
     EQ='==',
     GT='>',
-    IN='in'
+    IN='in',
+    EXCLUDE='exclude',
 )
 
 

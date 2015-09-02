@@ -142,3 +142,9 @@ class FilteringTest(BaseTest):
         result = self.resource.collection_get()
         values = [item['status'] for item in result['data']]
         self.assertEqual(sorted(values), [0, 0, 1, 1])
+
+    def test_exclude_values(self):
+        self.resource.request.GET = {'exclude_status': '0'}
+        result = self.resource.collection_get()
+        values = [item['status'] for item in result['data']]
+        self.assertEqual(sorted(values), [1, 1, 2, 2])

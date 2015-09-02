@@ -941,7 +941,7 @@ class BaseResource(object):
                 )
                 continue
 
-            m = re.match(r'^(min|max|not|lt|gt|in)_(\w+)$', param)
+            m = re.match(r'^(min|max|not|lt|gt|in|exclude)_(\w+)$', param)
             if m:
                 keyword, field = m.groups()
                 operator = getattr(COMPARISON, keyword.upper())
@@ -955,7 +955,7 @@ class BaseResource(object):
                 }
                 raise_invalid(self.request, **error_details)
 
-            if operator is COMPARISON.IN:
+            if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = set([native_value(v) for v in paramvalue.split(',')])
 
             filters.append(Filter(field, value, operator))

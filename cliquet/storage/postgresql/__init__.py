@@ -622,6 +622,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             COMPARISON.EQ: '=',
             COMPARISON.NOT: '<>',
             COMPARISON.IN: 'IN',
+            COMPARISON.EXCLUDE: 'NOT IN',
         }
 
         conditions = []
@@ -641,7 +642,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                 # If field is missing, we default to ''.
                 sql_field = "coalesce(data->>%%(%s)s, '')" % field_holder
 
-                if filtr.operator != COMPARISON.IN:
+                if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                     # For the IN operator, let psycopg escape the values list.
                     # Otherwise JSON-ify the native value (e.g. True -> 'true')
                     if not isinstance(filtr.value, six.string_types):
