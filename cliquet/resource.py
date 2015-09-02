@@ -955,10 +955,7 @@ class BaseResource(object):
                 }
                 raise_invalid(self.request, **error_details)
 
-            if operator is COMPARISON.IN:
-                value = set([native_value(v) for v in paramvalue.split(',')])
-
-            if operator is COMPARISON.EXCLUDE:
+            if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = set([native_value(v) for v in paramvalue.split(',')])
 
             filters.append(Filter(field, value, operator))
