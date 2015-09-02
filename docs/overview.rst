@@ -48,16 +48,17 @@ Key features
    :alt: https://thenounproject.com/search/?q=community&i=189189
    :width: 100px
 
-+---------------------------------------------+-------------------------------------+
-| |logo-synchronisation|                      | |logo-offline|                      |
-| **Synchronisation and concurrency control** | **Offline-first JavaScript client** |
-+---------------------------------------------+-------------------------------------+
-| |logo-permissions|                          | |logo-multiapps|                    |
-| **Fined grained permissions**               | **Plug multiple client apps**       |
-+---------------------------------------------+-------------------------------------+
-| |logo-selfhostable|                         | |logo-community|                    |
-| **Open Source and Self-hostable**           | **Designed in the open**            |
-+---------------------------------------------+-------------------------------------+
++---------------------------------------------+---------------------------------------+
+| |logo-synchronisation|                      | |logo-offline|                        |
+| :ref:`Synchronisation <api-synchronisation>`| `Offline-first JS clients             |
+|                                             | <https://kintojs.readthedocs.org>`_   |
++---------------------------------------------+---------------------------------------+
+| |logo-permissions|                          | |logo-multiapps|                      |
+| **Fined grained permissions**               | **Plug multiple client apps**         |
++---------------------------------------------+---------------------------------------+
+| |logo-selfhostable|                         | |logo-community|                      |
+| **Open Source and Self-hostable**           | **Designed in the open**              |
++---------------------------------------------+---------------------------------------+
 
 
 **Also**
