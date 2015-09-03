@@ -50,7 +50,7 @@ Key features
 
 +---------------------------------------------+---------------------------------------+
 | |logo-synchronisation|                      | |logo-offline|                        |
-| :ref:`Synchronisation <api-synchronisation>`| `Offline-first JS clients             |
+| :ref:`Synchronisation <api-synchronisation>`| `Offline-first JS client              |
 |                                             | <https://kintojs.readthedocs.org>`_   |
 +---------------------------------------------+---------------------------------------+
 | |logo-permissions|                          | |logo-multiapps|                      |
