@@ -54,7 +54,7 @@ Key features
 |                                             | <https://kintojs.readthedocs.org>`_   |
 +---------------------------------------------+---------------------------------------+
 | |logo-permissions|                          | |logo-multiapps|                      |
-| **Fined grained permissions**               | **Plug multiple client apps**         |
+| **Fined grained permissions**               | **Plug multiple clients**             |
 +---------------------------------------------+---------------------------------------+
 | |logo-selfhostable|                         | |logo-community|                      |
 | **Open Source and Self-hostable**           | **Designed in the open**              |
