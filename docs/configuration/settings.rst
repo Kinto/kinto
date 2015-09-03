@@ -4,6 +4,8 @@ Settings
 .. image:: /images/overview-features.png
     :align: center
 
+If you are looking for installation instructions, please refer to :ref:`installation`.
+
 Kinto is built to be highly configurable. As a result, the related
 configuration can be verbose, but don't worry, all configuration flags are
 listed below.
@@ -32,10 +34,10 @@ Feature settings
 | cliquet.batch_max_requests ``25``     | The maximum number of requests that can be sent to the batch endpoint.   |
 +---------------------------------------+--------------------------------------------------------------------------+
 | cliquet.paginate_by ``None``          | The maximum number of items to include on a response before enabling     |
-|                                       | pagination. If set to ``None``, no pagination will be used.                |
+|                                       | pagination. If set to ``None``, no pagination will be used.              |
 |                                       | It is recommended to set-up pagination. If not defined, a collection     |
 |                                       | connot contain more elements than defined by the                         |
-|                                       | ``cliquet.storage_max_fetch_size`` setting.                                |
+|                                       | ``cliquet.storage_max_fetch_size`` setting.                              |
 +---------------------------------------+--------------------------------------------------------------------------+
 | cliquet.id_generator                  | The Python *dotted* location of the generator class that should be used  |
 | ``cliquet.storage.generators.UUID4``  | to generate identifiers on a POST on a collection endpoint.              |
