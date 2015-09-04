@@ -56,9 +56,10 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.collection_url, headers=self.headers)
 
     def test_querystring_parameters_are_taken_into_account(self):
-        self.app.get(self.collection_url + '/records?_since=invalid',
-                     headers=self.headers,
-                     status=400)
+        resp = self.app.get(self.collection_url + '/records?_since=invalid',
+                            headers=self.headers,
+                            status=400)
+        self.assertIn('Content-Length', resp.headers)
 
     def test_option_is_possible_without_authentication_for_default(self):
         headers = 'authorization,content-type'

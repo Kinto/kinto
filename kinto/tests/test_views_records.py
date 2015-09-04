@@ -119,10 +119,11 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     def test_wrong_create_permissions_cannot_be_added_on_records(self):
         record = MINIMALIST_RECORD.copy()
         record['permissions'] = {'record:create': ['fxa:user']}
-        self.app.put_json(self.record_url,
-                          record,
-                          headers=self.headers,
-                          status=400)
+        resp = self.app.put_json(self.record_url,
+                                 record,
+                                 headers=self.headers,
+                                 status=400)
+        self.assertIn('Content-Length', resp.headers)
 
     def test_create_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,

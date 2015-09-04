@@ -47,6 +47,7 @@ class InvalidSchemaTest(BaseWebTest, unittest.TestCase):
                                  status=400)
         error_msg = "'Washmachine' is not valid under any of the given schemas"
         self.assertIn(error_msg, resp.json['message'])
+        self.assertIn('Content-Length', resp.headers)
 
 
 class RecordsValidationTest(BaseWebTest, unittest.TestCase):
@@ -64,10 +65,11 @@ class RecordsValidationTest(BaseWebTest, unittest.TestCase):
                            status=201)
 
     def test_records_are_invalid_if_do_not_match_schema(self):
-        self.app.post_json(RECORDS_URL,
-                           {'data': {'body': '<h1>Without title</h1>'}},
-                           headers=self.headers,
-                           status=400)
+        resp = self.app.post_json(RECORDS_URL,
+                                  {'data': {'body': '<h1>Without title</h1>'}},
+                                  headers=self.headers,
+                                  status=400)
+        self.assertIn('Content-Length', resp.headers)
 
     def test_records_are_validated_on_patch(self):
         resp = self.app.post_json(RECORDS_URL,
@@ -75,10 +77,11 @@ class RecordsValidationTest(BaseWebTest, unittest.TestCase):
                                   headers=self.headers,
                                   status=201)
         record_id = resp.json['data']['id']
-        self.app.patch_json('%s/%s' % (RECORDS_URL, record_id),
-                            {'data': {'title': 3.14}},
-                            headers=self.headers,
-                            status=400)
+        resp = self.app.patch_json('%s/%s' % (RECORDS_URL, record_id),
+                                   {'data': {'title': 3.14}},
+                                   headers=self.headers,
+                                   status=400)
+        self.assertIn('Content-Length', resp.headers)
 
     def test_records_are_validated_on_put(self):
         resp = self.app.post_json(RECORDS_URL,
@@ -86,10 +89,11 @@ class RecordsValidationTest(BaseWebTest, unittest.TestCase):
                                   headers=self.headers,
                                   status=201)
         record_id = resp.json['data']['id']
-        self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
-                          {'data': {'body': '<h1>Without title</h1>'}},
-                          headers=self.headers,
-                          status=400)
+        resp = self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
+                                 {'data': {'body': '<h1>Without title</h1>'}},
+                                 headers=self.headers,
+                                 status=400)
+        self.assertIn('Content-Length', resp.headers)
 
     def test_validation_error_response_provides_details(self):
         resp = self.app.post_json(RECORDS_URL,
@@ -98,6 +102,7 @@ class RecordsValidationTest(BaseWebTest, unittest.TestCase):
                                   status=400)
         self.assertIn("'title' is a required property", resp.json['message'])
         self.assertEqual(resp.json['details'][0]['name'], 'title')
+        self.assertIn('Content-Length', resp.headers)
 
     def test_records_of_other_bucket_are_not_impacted(self):
         self.app.put_json('/buckets/blog', headers=self.headers)
