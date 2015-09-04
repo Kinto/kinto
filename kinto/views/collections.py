@@ -28,6 +28,9 @@ class JSONSchemaMapping(colander.SchemaNode):
 class CollectionSchema(resource.ResourceSchema):
     schema = JSONSchemaMapping(missing=colander.drop)
 
+    class Options:
+        preserve_unknown = True
+
 
 @resource.register(name='collection',
                    collection_methods=('GET',),
