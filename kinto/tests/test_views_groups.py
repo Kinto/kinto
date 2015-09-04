@@ -34,10 +34,11 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(self.record['id'], 'moderators')
 
     def test_groups_name_should_be_simple(self):
-        self.app.put_json('/buckets/beers/groups/__moderator__',
-                          MINIMALIST_GROUP,
-                          headers=self.headers,
-                          status=400)
+        resp = self.app.put_json('/buckets/beers/groups/__moderator__',
+                                 MINIMALIST_GROUP,
+                                 headers=self.headers,
+                                 status=400)
+        self.assertIn('Content-Length', resp.headers)
 
     def test_unknown_bucket_raises_403(self):
         other_bucket = self.collection_url.replace('beers', 'sodas')
@@ -53,10 +54,11 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
     def test_wrong_create_permissions_cannot_be_added_on_groups(self):
         group = MINIMALIST_GROUP.copy()
         group['permissions'] = {'group:create': ['fxa:user']}
-        self.app.put_json('/buckets/beers/groups/moderator',
-                          group,
-                          headers=self.headers,
-                          status=400)
+        resp = self.app.put_json('/buckets/beers/groups/moderator',
+                                 group,
+                                 headers=self.headers,
+                                 status=400)
+        self.assertIn('Content-Length', resp.headers)
 
     def test_recreate_group_after_deletion_returns_a_200(self):
         group = MINIMALIST_GROUP.copy()
@@ -165,6 +167,7 @@ class InvalidGroupTest(BaseWebTest, unittest.TestCase):
                                  invalid,
                                  headers=self.headers,
                                  status=400)
+        self.assertIn('Content-Length', resp.headers)
         self.assertEqual(resp.json['message'],
                          "data is missing")
         self.assertDictEqual(resp.json['details'][0], {

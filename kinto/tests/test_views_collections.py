@@ -30,10 +30,11 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(self.record['id'], 'barley')
 
     def test_collections_name_should_be_simple(self):
-        self.app.put_json('/buckets/beers/collections/__barley__',
-                          MINIMALIST_COLLECTION,
-                          headers=self.headers,
-                          status=400)
+        resp = self.app.put_json('/buckets/beers/collections/__barley__',
+                                 MINIMALIST_COLLECTION,
+                                 headers=self.headers,
+                                 status=400)
+        self.assertIn('Content-Length', resp.headers)
 
     def test_unknown_bucket_raises_403(self):
         other_bucket = self.collections_url.replace('beers', 'sodas')
@@ -59,10 +60,11 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
     def test_wrong_create_permissions_cannot_be_added_on_collections(self):
         collection = MINIMALIST_COLLECTION.copy()
         collection['permissions'] = {'collection:create': ['fxa:user']}
-        self.app.put_json('/buckets/beers/collections/barley',
-                          collection,
-                          headers=self.headers,
-                          status=400)
+        resp = self.app.put_json('/buckets/beers/collections/barley',
+                                 collection,
+                                 headers=self.headers,
+                                 status=400)
+        self.assertIn('Content-Length', resp.headers)
 
 
 class CollectionDeletionTest(BaseWebTest, unittest.TestCase):

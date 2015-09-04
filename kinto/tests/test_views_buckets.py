@@ -49,10 +49,11 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                      status=403)
 
     def test_buckets_name_should_be_simple(self):
-        self.app.put_json('/buckets/__beers__',
-                          MINIMALIST_BUCKET,
-                          headers=self.headers,
-                          status=400)
+        resp = self.app.put_json('/buckets/__beers__',
+                                 MINIMALIST_BUCKET,
+                                 headers=self.headers,
+                                 status=400)
+        self.assertIn('Content-Length', resp.headers)
 
     def test_create_permissions_can_be_added_on_buckets(self):
         bucket = MINIMALIST_BUCKET.copy()
@@ -69,10 +70,11 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
     def test_wrong_create_permissions_cannot_be_added_on_buckets(self):
         bucket = MINIMALIST_BUCKET.copy()
         bucket['permissions'] = {'record:create': ['fxa:user']}
-        self.app.put_json('/buckets/beers',
-                          bucket,
-                          headers=self.headers,
-                          status=400)
+        resp = self.app.put_json('/buckets/beers',
+                                 bucket,
+                                 headers=self.headers,
+                                 status=400)
+        self.assertIn('Content-Length', resp.headers)
 
 
 class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
