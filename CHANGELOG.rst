@@ -3,13 +3,17 @@ Changelog
 
 This document describes changes between each past release.
 
-2.5.0 (unreleased)
+2.5.0 (2015-09-04)
 ------------------
 
 **Protocol**
 
 - Collection records can now be filtered using multiple values (``?in_status=1,2,3``) (fixes #39)
 - Collection records can now be filtered excluding multiple values (``?exclude_status=1,2,3``) (fixes mozilla-services/readinglist#68)
+
+**Internal changes**
+
+- We can obtains accessible objects_id in a collection from user principals (fixes #423)
 
 
 2.4.3 (2015-08-26)
@@ -18,6 +22,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix the packaging for cliquet (#430)
+
 
 2.4.2 (2015-08-26)
 ------------------

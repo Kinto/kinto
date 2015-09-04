@@ -1,5 +1,3 @@
-include tox.ini
-include *.rst
+include *.rst *.txt tox.ini LICENSE Makefile
 recursive-include cliquet *.sql
-recursive-include cliquet_docs *.rst
-include LICENSE
+recursive-include cliquet_docs *.rst *.png *.svg
