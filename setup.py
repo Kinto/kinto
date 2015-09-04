@@ -16,21 +16,21 @@ CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
-    'waitress',
-    'cliquet',
-    'jsonschema',
+    'waitress==0.8.10',
+    'cliquet>=2.5,<=2.6',
+    'jsonschema==2.5.1',
 ]
 
 POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[postgresql]'
+    'cliquet[postgresql]>=2.5,<=2.6'
 ]
 
 MONITORING_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[monitoring]'
+    'cliquet[monitoring]>=2.5,<=2.6'
 ]
 
 FXA_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet-fxa'
+    'cliquet-fxa==1.2.0'
 ]
 
 ENTRY_POINTS = {
