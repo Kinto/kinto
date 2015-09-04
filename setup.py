@@ -60,12 +60,17 @@ ENTRY_POINTS = {
 
 
 setup(name='cliquet',
-      version='2.5.0.dev0',
-      description='cliquet',
+      version='2.5.0',
+      description='Micro service API toolkit',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',
       classifiers=[
           "Programming Language :: Python",
+          "Programming Language :: Python :: 2.7",
+          "Programming Language :: Python :: 3.4",
+          "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: Implementation :: CPython",
+          "Programming Language :: Python :: Implementation :: PyPy",
           "Topic :: Internet :: WWW/HTTP",
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
           "License :: OSI Approved :: Apache Software License"
@@ -73,7 +78,7 @@ setup(name='cliquet',
       keywords="web services",
       author='Mozilla Services',
       author_email='services-dev@mozilla.com',
-      url='',
+      url='https://github.com/mozilla-services/cliquet',
       packages=find_packages(),
       package_data={'': ['*.rst', '*.py']},
       include_package_data=True,

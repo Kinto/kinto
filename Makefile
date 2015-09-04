@@ -15,7 +15,7 @@ OBJECTS = .venv .coverage
 all: install
 install: $(INSTALL_STAMP)
 $(INSTALL_STAMP): $(PYTHON) setup.py
-	$(PYTHON) setup.py develop
+	$(VENV)/bin/pip install -Ue .
 	touch $(INSTALL_STAMP)
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
@@ -26,6 +26,7 @@ $(DEV_STAMP): $(PYTHON) dev-requirements.txt
 virtualenv: $(PYTHON)
 $(PYTHON):
 	$(VIRTUALENV) $(VENV)
+	$(VENV)/bin/pip install -U pip
 
 tests-once: install-dev
 	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-min-percentage=100 --cover-package=cliquet
