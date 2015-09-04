@@ -4,10 +4,26 @@ Changelog
 This document describes changes between each past release.
 
 
-1.4.0 (unreleased)
+1.4.0 (2015-09-04)
 ==================
 
-- Nothing changed yet.
+- Upgraded to *Cliquet* 2.5.0
+
+**New features**
+
+- Collection can now accept a schema (#31)
+- Accept an empty data attribute on buckets and collections (#63)
+- Allow underscores in Kinto resource names. (#153)
+- When deleting a collection also remove its tombstones. (#136)
+
+**Bug fixes**
+
+- Use correct Headers type in both Python2 and Python3 (#141)
+
+**Internal changes**
+
+- Complete revamp of the documentation (#156 #167 #168 #169 #170)
+
 
 
 1.3.1 (2015-07-15)

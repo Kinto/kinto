@@ -1,1 +1,2 @@
-include *.rst README.rst CHANGELOG.rst
+include *.rst LICENSE Makefile tox.ini .coveragerc
+recursive-include config *.ini

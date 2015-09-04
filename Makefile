@@ -30,6 +30,7 @@ $(DEV_STAMP): $(PYTHON) dev-requirements.txt
 virtualenv: $(PYTHON)
 $(PYTHON):
 	virtualenv $(VENV)
+	$(VENV)/bin/pip install -U pip
 
 serve: install-dev migrate
 	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload

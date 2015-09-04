@@ -42,12 +42,17 @@ DEPENDENCY_LINKS = [
 ]
 
 setup(name='kinto',
-      version='1.4.0.dev0',
-      description='kinto',
+      version='1.4.0',
+      description='Kinto Web Service - Store, Sync, Share, and Self-Host.',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',
       classifiers=[
           "Programming Language :: Python",
+          "Programming Language :: Python :: 2.7",
+          "Programming Language :: Python :: 3.4",
+          "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: Implementation :: CPython",
+          "Programming Language :: Python :: Implementation :: PyPy",
           "Topic :: Internet :: WWW/HTTP",
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
           "License :: OSI Approved :: Apache Software License"
@@ -55,7 +60,7 @@ setup(name='kinto',
       keywords="web services",
       author='Mozilla Services',
       author_email='services-dev@mozilla.com',
-      url='',
+      url='https://github.com/Kinto/kinto',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
