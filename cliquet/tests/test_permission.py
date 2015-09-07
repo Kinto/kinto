@@ -109,7 +109,7 @@ class BaseTestPermission(object):
         principal = 'bar'
         self.permission.remove_user_principal(user_id, principal)
         retrieved = self.permission.user_principals(user_id)
-        self.assertEquals(retrieved, set([]))
+        self.assertEquals(retrieved, set())
 
     def test_can_add_a_principal_to_an_object_permission(self):
         object_id = 'foo'
@@ -152,7 +152,7 @@ class BaseTestPermission(object):
                                                   principal)
         retrieved = self.permission.object_permission_principals(
             object_id, permission)
-        self.assertEquals(retrieved, set([]))
+        self.assertEquals(retrieved, set())
 
     def test_can_remove_an_unexisting_principal_to_an_object_permission(self):
         object_id = 'foo'
@@ -209,16 +209,16 @@ class BaseTestPermission(object):
 
     def test_object_permission_authorized_principals_handles_empty_set(self):
         object_id = 'foo'
-        permissions = set([])
+        permissions = set()
         user_id = 'bar'
         self.permission.add_principal_to_ace(object_id, 'write', user_id)
         principals = self.permission.object_permission_authorized_principals(
             object_id, 'read', lambda object_id, permission: permissions)
-        self.assertEquals(principals, set([]))
+        self.assertEquals(principals, set())
 
     def test_check_permissions_handles_empty_set(self):
         object_id = 'foo'
-        permissions = set([])
+        permissions = set()
         principal = 'bar'
         self.permission.add_principal_to_ace(object_id, 'write', principal)
         permits = self.permission.check_permission(

@@ -255,6 +255,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
         service.collection_path = viewset.collection_path.format(
             **path_formatters)
         service.record_path = viewset.record_path.format(**path_formatters)
+        service.type = endpoint_type
 
         methods = getattr(viewset, '%s_methods' % endpoint_type)
         for method in methods:
@@ -1070,6 +1071,18 @@ class ProtectedResource(BaseResource):
 
     default_viewset = ProtectedViewSet
     permissions = ('read', 'write')
+
+    def _extract_filters(self, queryparams=None):
+        filters = super(ProtectedResource, self)._extract_filters(queryparams)
+
+        # XXX: find more elegant approach to add custom filters.
+        ids = self.context.shared_ids
+
+        if ids:
+            filter_by_id = Filter(self.collection.id_field, ids, COMPARISON.IN)
+            filters.insert(0, filter_by_id)
+
+        return filters
 
     def _store_permissions(self, object_id, replace=False):
         """Go through the permissions from request body, and store them

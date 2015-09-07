@@ -90,9 +90,11 @@ class AuthzAuthnTest(BaseWebTest):
     # Protected resource.
     collection_url = '/toadstools'
 
-    def add_permission(self, object_id, permission):
+    def add_permission(self, object_id, permission, principal=None):
+        if not principal:
+            principal = self.principal
         self.app.app.registry.permission.add_principal_to_ace(
-            object_id, permission, self.principal)
+            object_id, permission, principal)
 
 
 class ProtectedResourcePermissionTest(AuthzAuthnTest):
@@ -257,6 +259,51 @@ class RecordAuthzDeniedTest(AuthzAuthnTest):
             object_id, 'write', self.principal)
         self.app.put_json(self.unknown_record_url, {'data': MINIMALIST_RECORD},
                           headers=self.headers, status=403)
+
+
+class RecordAuthzGrantedOnCollectionTest(AuthzAuthnTest):
+    def setUp(self):
+        super(RecordAuthzGrantedOnCollectionTest, self).setUp()
+        self.add_permission(self.collection_url, 'toadstool:create')
+
+        self.guest_headers = self.headers.copy()
+        self.guest_headers['Authorization'] = "Basic bmF0aW06"
+        resp = self.app.get('/', headers=self.guest_headers)
+        self.guest_id = resp.json['userid']
+
+        body = {
+            'data': MINIMALIST_RECORD,
+            'permissions': {
+                'write': [self.guest_id],
+                'read': [self.guest_id]
+            }
+        }
+        resp = self.app.post_json(self.collection_url, body,
+                                  headers=self.headers)
+        self.record = resp.json['data']
+        self.record_url = self.get_item_url()
+
+        # Add another private record
+        resp = self.app.post_json(self.collection_url,
+                                  {'data': MINIMALIST_RECORD,
+                                   'permissions': {"read": [self.principal]}},
+                                  headers=self.headers)
+
+    def test_guest_can_access_the_record(self):
+        self.app.get(self.record_url, headers=self.guest_headers, status=200)
+
+    def test_guest_can_see_the_record_in_the_list_of_records(self):
+        resp = self.app.get(self.collection_url, headers=self.guest_headers,
+                            status=200)
+        self.assertEqual(len(resp.json['data']), 1)
+
+    def test_guest_can_remove_its_records_from_the_list_of_records(self):
+        resp = self.app.delete(self.collection_url, headers=self.guest_headers,
+                               status=200)
+        self.assertEqual(len(resp.json['data']), 1)
+        resp = self.app.get(self.collection_url, headers=self.headers,
+                            status=200)
+        self.assertEqual(len(resp.json['data']), 1)
 
 
 class EmptySchemaTest(BaseWebTest):

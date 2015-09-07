@@ -51,6 +51,15 @@ class AuthorizationPolicy(object):
                 principals,
                 get_bound_permissions=self.get_bound_permissions)
 
+        # If not allowed on this collection, but some records are shared with
+        # the current user, then authorize.
+        # The ProtectedResource class will take care of the filtering.
+        is_list_operation = (context.on_collection and
+                             'create' not in permission)
+        if not allowed and is_list_operation:
+            shared_records = context.fetch_shared_records(principals)
+            allowed = len(shared_records) > 0
+
         return allowed
 
     def principals_allowed_by_permission(self, context, permission):
@@ -82,8 +91,9 @@ class RouteFactory(object):
             permission = None
             resource_name = None
             check_permission = None
-
+            on_collection = False
         else:
+            on_collection = getattr(service, "type", None) == "collection"
             object_id = get_object_id(request.path)
 
             # Decide what the required unbound permission is depending on the
@@ -119,8 +129,26 @@ class RouteFactory(object):
         self.required_permission = permission
         self.resource_name = resource_name
         self.check_permission = check_permission
+        self.on_collection = on_collection
+
+        self.shared_ids = []
+        self.get_shared_ids = functools.partial(
+            request.registry.permission.principals_accessible_objects,
+            permission=permission,
+            object_id_match='*%s*' % object_id)
+
+    def fetch_shared_records(self, principals):
+        shared_ids = self.get_shared_ids(principals=principals)
+        self.shared_ids = [extract_object_id(shared_id)
+                           for shared_id in shared_ids]
+        return self.shared_ids
 
 
 def get_object_id(object_uri):
     # Remove potential version prefix in URI.
     return re.sub(r'^(/v\d+)?', '', six.text_type(object_uri))
+
+
+def extract_object_id(object_id):
+    # XXX: Help needed: use something like route.matchdict.get('id').
+    return object_id.split('/')[-1]

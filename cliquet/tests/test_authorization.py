@@ -194,3 +194,40 @@ class AuthorizationPolicyTest(unittest.TestCase):
             'foobar',
             ['fxa:userid', 'fxa_userid'],
             get_bound_permissions=mock.sentinel.get_bound_perms)
+
+
+class GuestAuthorizationPolicyTest(unittest.TestCase):
+    def setUp(self):
+        self.authz = AuthorizationPolicy()
+        self.authz.get_bound_permissions = mock.sentinel.get_bound_perms
+        self.request = DummyRequest(method='GET')
+        self.context = RouteFactory(self.request)
+        self.context.on_collection = True
+        self.context.check_permission = mock.Mock(return_value=False)
+
+    def test_permits_returns_true_if_collection_and_shared_records(self):
+        self.context.fetch_shared_records = mock.MagicMock(return_value=[
+            'record1', 'record2'])
+        allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.context.fetch_shared_records.assert_called_with(
+            ['userid', 'basicauth:bob', 'basicauth_bob'])
+        self.assertTrue(allowed)
+
+    def test_permits_does_not_return_true_if_not_collection(self):
+        self.context.on_collection = False
+        allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.assertFalse(allowed)
+
+    def test_permits_does_not_return_true_if_not_list_operation(self):
+        self.context.required_permission = 'create'
+        allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.assertFalse(allowed)
+        allowed = self.authz.permits(self.context, ['userid'], 'create')
+        self.assertFalse(allowed)
+
+    def test_permits_returns_false_if_collection_is_unknown(self):
+        self.context.fetch_shared_records = mock.MagicMock(return_value=[])
+        allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
+        self.context.fetch_shared_records.assert_called_with(
+            ['userid', 'basicauth:bob', 'basicauth_bob'])
+        self.assertFalse(allowed)
