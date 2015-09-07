@@ -114,13 +114,18 @@ class CORSOriginHeadersTest(BaseWebTest):
 
 
 class CORSExposeHeadersTest(BaseWebTest):
-    def assert_expose_headers(self, method, path, allowed_headers, body=None):
+    def assert_expose_headers(self, method, path, allowed_headers, body=None,
+                              status=None):
         self.headers.update({'Origin': 'lolnet.org'})
         http_method = getattr(self.app, method.lower())
-        response = http_method(path, body, headers=self.headers)
+        kwargs = dict(headers=self.headers)
+        if status:
+            kwargs['status'] = status
+        response = http_method(path, body, **kwargs)
         exposed_headers = response.headers['Access-Control-Expose-Headers']
         exposed_headers = [x.strip() for x in exposed_headers.split(',')]
         self.assertEqual(sorted(allowed_headers), sorted(exposed_headers))
+        return response
 
     def test_collection_get_exposes_every_possible_header(self):
         self.assert_expose_headers('GET', self.collection_url, [
@@ -146,3 +151,9 @@ class CORSExposeHeadersTest(BaseWebTest):
         body = {'data': MINIMALIST_RECORD}
         self.assert_expose_headers('POST_JSON', '/mushrooms', [
             'Alert', 'Backoff', 'Retry-After', 'Content-Length'], body=body)
+
+    def test_present_on_bad_id_400_errors(self):
+        body = {'data': {'name': 'Amanite'}}
+        self.assert_expose_headers('PUT_JSON', '/mushrooms/wrong=ids', [
+            'Alert', 'Backoff', 'Retry-After', 'Content-Length'],
+            body=body, status=400)
