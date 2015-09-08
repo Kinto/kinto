@@ -647,6 +647,8 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                     # Otherwise JSON-ify the native value (e.g. True -> 'true')
                     if not isinstance(filtr.value, six.string_types):
                         value = json.dumps(filtr.value).strip('"')
+                else:
+                    value = tuple(value)
 
             # Safely escape value
             value_holder = '%s_value_%s' % (prefix, i)

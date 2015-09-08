@@ -298,7 +298,7 @@ class BaseTestStorage(object):
     def test_get_all_can_filter_with_list_of_values(self):
         for l in ['a', 'b', 'c']:
             self.create_record({'code': l})
-        filters = [Filter('code', ('a', 'b'), utils.COMPARISON.IN)]
+        filters = [Filter('code', ['a', 'b'], utils.COMPARISON.IN)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 2)
