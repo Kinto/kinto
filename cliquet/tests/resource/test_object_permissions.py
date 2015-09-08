@@ -114,9 +114,10 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.validated = {'permissions': perms}
         self.resource.request.method = 'PATCH'
         result = self.resource.patch()
-        self.assertDictEqual(result['permissions'],
-                             {'write': ['basicauth:userid', 'jean-louis'],
-                              'read': ['fxa:user']})
+        permissions = result['permissions']
+        self.assertEqual(permissions['read'], ['fxa:user']),
+        self.assertEqual(sorted(permissions['write']),
+                         ['basicauth:userid', 'jean-louis'])
 
     def test_permissions_can_be_removed_with_patch_but_keep_current_user(self):
         perms = {'write': ['jean-louis']}
@@ -142,8 +143,8 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.validated = {'permissions': perms}
         self.resource.request.method = 'PATCH'
         result = self.resource.patch()
-        self.assertEqual(result['permissions'],
-                         {'write': ['basicauth:userid', 'jean-louis']})
+        self.assertEqual(sorted(result['permissions']['write']),
+                         ['basicauth:userid', 'jean-louis'])
 
 
 class DeletedRecordPermissionTest(PermissionTest):
