@@ -129,37 +129,37 @@ Install `zest.releaser` with the `recommended` dependencies. They contain
 
     $ pip install zest.releaser[recommended]
 
-Step1
------
+Step 1
+------
 
 - Merge remaining pull requests
-- Update changelog
-- Update version in docs/conf.py
-- Version dependencies + Remove master url in dev-requirements.txt
-- If cliquet was updated, update the link to default settings in the docs
+- Update ``CHANGELOG.rst``
+- Update version in ``docs/conf.py``
+- Known good versions of dependencies in ``requirements.txt``
 
 .. code-block:: bash
 
-     $ git checkout -b prepare-X.X
+     $ git checkout -b prepare-X.Y.Z
      $ prerelease
      $ vim docs/conf.py
      $ rm -rf .venv
      $ make install && .venv/bin/pip freeze > requirements.txt
-     $ # Remove the master URL in the requirements.txt file.
      $ git commit -a --amend
-     $ git push origin prepare-X.X
+     $ git push origin prepare-X.Y.Z
 
+- Open a pull-request with to release the version.
 
 Step 2
 ------
 
-Once the pull request is validated, you can merge it and do a release. We are
-using the `release` command to invoke the `setup.py` builds and upload to PyPI.
+Once the pull-request is validated, merge it and do a release.
+Use using the ``release`` command to invoke the ``setup.py`` builds and upload to PyPI.
 
 .. code-block:: bash
 
     $ git checkout master
-    $ git merge --no-ff prepare-X.X
+    $ git merge --no-ff prepare-X.Y.Z
+    $ git tag X.Y.Z
     $ release
     $ postrelease
 
