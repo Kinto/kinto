@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-2.7.0 (unreleased)
+2.6.1 (2015-09-08)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Make sure we pass a tuple to Postgresql in conditions (#441)
 
 
 2.6.0 (2015-09-08)
