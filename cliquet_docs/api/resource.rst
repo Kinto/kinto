@@ -687,7 +687,7 @@ Protected resources
 ===================
 
 All of the described endpoints can be either *protected* or not. Protecting
-and enpoint means that only *principals* which have been granted access will
+an enpoint means that only *principals* which have been granted access will
 be able to issue requests successfully.
 
 In the case of a *protected* resource, body is a JSON mapping containing a
@@ -706,3 +706,9 @@ principals.
 ``permissions`` is also added to JSON mapping response bodies, and contains
 the *modified* version of the permissions in case of a modification, or the
 list of permissions in case of a read operation.
+
+
+.. versionchanged:: 2.6::
+
+    With a ``PATCH`` request, the list of principals for the specified permissions
+    is now replaced by the one provided.

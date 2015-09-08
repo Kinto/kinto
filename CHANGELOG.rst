@@ -6,7 +6,22 @@ This document describes changes between each past release.
 2.6.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Protocol**
+
+- Fix consistency in API to modify permissions with PATCH (#437, ref Kinto/kinto#155).
+  The list of principals for each specified permission is now replaced by the one
+  provided.
+
+**New features**
+
+- Partial collection of records for ``ProtectedResource`` when user has no ``read``
+  permission (fixes #354). Alice can now obtain a list of Bob records on which she
+  has read/write permission.
+
+**Internal changes**
+
+- Fix Wheel packaging for Pypy (fixes Kinto/kinto#177)
+- Add additional test to make sure 400 errors returns CORS Allowed Headers
 
 
 2.5.0 (2015-09-04)
