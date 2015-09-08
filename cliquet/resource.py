@@ -1099,6 +1099,8 @@ class ProtectedResource(BaseResource):
         # Do nothing if not specified in request body.
         if not permissions:
             permissions = self._build_permissions(object_id)
+            if self.request.method.lower() == 'patch':
+                replace = False
 
         if add_write_perm:
             write_principals = permissions.setdefault('write', [])
@@ -1108,7 +1110,10 @@ class ProtectedResource(BaseResource):
 
         if replace:
             # XXX: add replace method to permissions API.
-            self._delete_permissions(object_id)
+            kwargs = {}
+            if self.request.method.lower() == 'patch':
+                kwargs['permissions'] = permissions
+            self._delete_permissions(object_id, **kwargs)
 
         registry = self.request.registry
         add_principal = registry.permission.add_principal_to_ace
@@ -1119,12 +1124,14 @@ class ProtectedResource(BaseResource):
 
         return permissions
 
-    def _delete_permissions(self, object_id):
+    def _delete_permissions(self, object_id, permissions=None):
+        if not permissions:
+            permissions = self.permissions
         registry = self.request.registry
         del_principal = registry.permission.remove_principal_from_ace
         get_perm_principals = registry.permission.object_permission_principals
 
-        for permission in self.permissions:
+        for permission in permissions:
             existing = list(get_perm_principals(object_id, permission))
             for principal in existing:
                 del_principal(object_id, permission, principal)
@@ -1202,7 +1209,7 @@ class ProtectedResource(BaseResource):
         result = super(ProtectedResource, self).patch()
 
         object_id = authorization.get_object_id(self.request.path)
-        self._store_permissions(object_id=object_id)
+        self._store_permissions(object_id=object_id, replace=True)
         result['permissions'] = self._build_permissions(object_id=object_id)
         return result
 
