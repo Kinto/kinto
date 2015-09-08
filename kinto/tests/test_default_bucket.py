@@ -84,17 +84,16 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
 
     def test_bucket_id_starting_with_default_can_still_be_created(self):
         # We need to create the bucket first since it is not the default bucket
-        resp = self.app.put_json(
+        resp = self.app.put(
             self.bucket_url.replace('default', 'default-1234'),
-            {"data": {}}, headers=self.headers, status=201)
+            headers=self.headers, status=201)
         bucket_id = resp.json['data']['id']
         self.assertEquals(bucket_id, 'default-1234')
 
         # We can then create the collection
         collection_url = '/buckets/default-1234/collections/default'
-        self.app.put_json(
+        self.app.put(
             collection_url,
-            {"data": {}},
             headers=self.headers,
             status=201)
         resp = self.app.get('/buckets/default-1234/collections',

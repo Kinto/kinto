@@ -44,7 +44,7 @@ Creating a collection
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {}}' | http put http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
+        $ http put http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
 
     .. sourcecode:: http
 
@@ -53,14 +53,9 @@ Creating a collection
         Accept-Encoding: gzip, deflate
         Authorization: Basic Ym9iOg==
         Connection: keep-alive
-        Content-Length: 13
-        Content-Type: application/json
+        Content-Length: 0
         Host: localhost:8888
         User-Agent: HTTPie/0.9.2
-
-        {
-            "data": {}
-        }
 
     .. sourcecode:: http
 
@@ -109,7 +104,7 @@ Updating a collection
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
+        $ echo '{"data": {"fingerprint": "9cae1b2d0f2b7d09bcf5c1bf51544274"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
 
     .. sourcecode:: http
 
@@ -118,20 +113,22 @@ Updating a collection
         Accept-Encoding: gzip, deflate
         Authorization: Basic Ym9iOg==
         Connection: keep-alive
-        Content-Length: 13
+        Content-Length: 62
         Content-Type: application/json
         Host: localhost:8888
         User-Agent: HTTPie/0.9.2
 
         {
-            "data": {}
+            "data": {
+                "fingerprint": "9cae1b2d0f2b7d09bcf5c1bf51544274"
+            }
         }
 
     .. sourcecode:: http
 
         HTTP/1.1 200 OK
         Access-Control-Expose-Headers: Backoff, Retry-After, Alert
-        Content-Length: 159
+        Content-Length: 208
         Content-Type: application/json; charset=UTF-8
         Date: Thu, 18 Jun 2015 15:36:34 GMT
         Server: waitress
@@ -139,7 +136,8 @@ Updating a collection
         {
             "data": {
                 "id": "articles",
-                "last_modified": 1434641794149
+                "last_modified": 1434641794149,
+                "fingerprint": "9cae1b2d0f2b7d09bcf5c1bf51544274"
             },
             "permissions": {
                 "write": [

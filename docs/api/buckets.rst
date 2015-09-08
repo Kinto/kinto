@@ -28,7 +28,7 @@ Creating a bucket
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {}}' | http put http://localhost:8888/v1/buckets/blog --auth="bob:"
+        $ http put http://localhost:8888/v1/buckets/blog --auth="bob:"
 
     .. sourcecode:: http
 
@@ -37,14 +37,9 @@ Creating a bucket
         Accept-Encoding: gzip, deflate
         Authorization: Basic Ym9iOg==
         Connection: keep-alive
-        Content-Length: 13
-        Content-Type: application/json
+        Content-Length: 0
         Host: localhost:8888
         User-Agent: HTTPie/0.9.2
-
-        {
-            "data": {}
-        }
 
     **Example response**
 
