@@ -18,7 +18,38 @@ SCHEMA = {
 VALID_RECORD = {'title': 'About us', 'body': '<h1>About</h1>'}
 
 
-class MissingSchemaTest(BaseWebTest, unittest.TestCase):
+class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
+    def test_schema_should_be_json_schema(self):
+        newschema = SCHEMA.copy()
+        newschema['type'] = 'Washmachine'
+        resp = self.app.put_json(COLLECTION_URL,
+                                 {'data': {'schema': newschema}},
+                                 headers=self.headers,
+                                 status=400)
+        error_msg = "'Washmachine' is not valid under any of the given schemas"
+        self.assertIn(error_msg, resp.json['message'])
+
+    def test_records_are_not_invalid_if_do_not_match_schema(self):
+        resp = self.app.put_json(COLLECTION_URL,
+                                 {'data': {'schema': SCHEMA}},
+                                 headers=self.headers)
+        self.collection = resp.json['data']
+
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'body': '<h1>Without title</h1>'}},
+                           headers=self.headers,
+                           status=201)
+
+
+class BaseWebTestWithSchema(BaseWebTest):
+    def get_app_settings(self, additional_settings=None):
+        settings = super(BaseWebTestWithSchema, self).get_app_settings(
+            additional_settings)
+        settings['kinto.experimental_collection_schema_validation'] = 'True'
+        return settings
+
+
+class MissingSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
     def test_attribute_is_none_if_no_schema_defined(self):
         resp = self.app.get(COLLECTION_URL,
                             headers=self.headers)
@@ -37,7 +68,7 @@ class MissingSchemaTest(BaseWebTest, unittest.TestCase):
                            status=201)
 
 
-class InvalidSchemaTest(BaseWebTest, unittest.TestCase):
+class InvalidSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
     def test_schema_should_be_json_schema(self):
         newschema = SCHEMA.copy()
         newschema['type'] = 'Washmachine'
@@ -49,7 +80,7 @@ class InvalidSchemaTest(BaseWebTest, unittest.TestCase):
         self.assertIn(error_msg, resp.json['message'])
 
 
-class RecordsValidationTest(BaseWebTest, unittest.TestCase):
+class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
         super(RecordsValidationTest, self).setUp()
         resp = self.app.put_json(COLLECTION_URL,
