@@ -7,4 +7,7 @@ Sphinx
 sphinx_rtd_theme
 psycopg2
 kinto
+tox
 werkzeug
+wheel
+zest.releaser
