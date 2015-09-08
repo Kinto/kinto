@@ -1097,16 +1097,18 @@ class ProtectedResource(BaseResource):
         add_write_perm = (self.request.method.lower() in ('put', 'post',
                                                           'patch'))
 
+        is_patch = (self.request.method.lower() == 'patch')
+
         # Do nothing if not specified in request body.
         if not permissions:
             permissions = self._build_permissions(object_id)
-            if self.request.method.lower() == 'patch':
+            if is_patch:
                 replace = False
 
         if replace:
             # XXX: add replace method to permissions API.
             kwargs = {}
-            if self.request.method.lower() == 'patch':
+            if is_patch:
                 kwargs['permissions'] = permissions
             self._delete_permissions(object_id, **kwargs)
 

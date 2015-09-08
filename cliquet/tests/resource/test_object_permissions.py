@@ -97,8 +97,8 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.path = '/articles'
         self.resource.request.validated = {'data': {}, 'permissions': perms}
         result = self.resource.collection_post()
-        self.assertEqual(result['permissions'],
-                         {'write': ['basicauth:userid', 'jean-louis']})
+        self.assertDictEqual(result['permissions'],
+                             {'write': ['basicauth:userid', 'jean-louis']})
 
     def test_permissions_are_replaced_with_put(self):
         perms = {'write': ['jean-louis']}
@@ -114,9 +114,9 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.validated = {'permissions': perms}
         self.resource.request.method = 'PATCH'
         result = self.resource.patch()
-        self.assertEqual(result['permissions'],
-                         {'write': ['basicauth:userid', 'jean-louis'],
-                          'read': ['fxa:user']})
+        self.assertDictEqual(result['permissions'],
+                             {'write': ['basicauth:userid', 'jean-louis'],
+                              'read': ['fxa:user']})
 
     def test_permissions_can_be_removed_with_patch_but_keep_current_user(self):
         perms = {'write': ['jean-louis']}
@@ -128,9 +128,9 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.validated = {'permissions': perms}
         self.resource.request.method = 'PATCH'
         result = self.resource.patch()
-        self.assertEqual(result['permissions'],
-                         {'write': ['basicauth:userid'],
-                          'read': ['fxa:user']})
+        self.assertDictEqual(result['permissions'],
+                             {'write': ['basicauth:userid'],
+                              'read': ['fxa:user']})
 
     def test_permissions_can_be_removed_with_patch(self):
         perms = {'write': ['jean-louis']}
