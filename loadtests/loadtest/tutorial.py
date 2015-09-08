@@ -187,6 +187,15 @@ class TutorialLoadTest(BaseLoadTest):
         record = resp.json()
         self.assertIn('write', record['permissions'])
         bob_user_id = record['permissions']['write'][0]
+        bob_task_id = record['data']['id']
+
+        # XXX: Allow bob to read his record. See Kinto#182
+        resp = self.session.patch(
+            self.record_url(bob_task_id, bucket_id, 'tasks'),
+            data=json.dumps({'permissions': {'read': [bob_user_id]}}),
+            auth=bob_auth)
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 200)
 
         # Share Alice's task with Bob
         resp = self.session.patch(
@@ -255,8 +264,23 @@ class TutorialLoadTest(BaseLoadTest):
         self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
-        # XXX: Check that Mary's collection_get sees Alice's task
-        # XXX: Check that Bob's collection_get sees both his and Alice's tasks
+        # Check that Mary's collection_get sees Alice's task
+        resp = self.session.get(collection_url, auth=mary_auth)
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 200)
+        records = resp.json()['data']
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]['id'], alice_task_id)
+
+        # Check that Bob's collection_get sees both his and Alice's tasks
+        resp = self.session.get(collection_url, auth=bob_auth)
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 200)
+        records = resp.json()['data']
+        self.assertEqual(len(records), 2)
+        records_ids = [r['id'] for r in records]
+        self.assertIn(alice_task_id, records_ids)
+        self.assertIn(bob_task_id, records_ids)
 
     def check_for_lists(self):
         # List buckets should be forbidden

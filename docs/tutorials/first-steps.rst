@@ -421,7 +421,7 @@ application-specific bucket called ``todo``.
 
 .. code-block:: http
 
-    $ echo '{"data": {}}' | http PUT https://kinto.dev.mozaws.net/v1/buckets/todo \
+    $ http PUT https://kinto.dev.mozaws.net/v1/buckets/todo \
         -v --auth 'user:password'
 
     PUT /v1/buckets/todo HTTP/1.1
@@ -429,14 +429,9 @@ application-specific bucket called ``todo``.
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
     Connection: keep-alive
-    Content-Length: 13
-    Content-Type: application/json
+    Content-Length: 0
     Host: kinto.dev.mozaws.net
     User-Agent: HTTPie/0.9.2
-
-    {
-        "data": {}
-    }
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -469,7 +464,7 @@ authenticated users (i.e. ``system.Authenticated``):
 
 .. code-block:: http
 
-    $ echo '{"data": {}, "permissions": {"record:create": ["system.Authenticated"]}}' | \
+    $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks \
             -v --auth 'user:password'
 
@@ -478,13 +473,12 @@ authenticated users (i.e. ``system.Authenticated``):
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
     Connection: keep-alive
-    Content-Length: 73
+    Content-Length: 61
     Content-Type: application/json
     Host: kinto.dev.mozaws.net
     User-Agent: HTTPie/0.9.2
 
     {
-        "data": {},
         "permissions": {
             "record:create": [
                 "system.Authenticated"
@@ -574,7 +568,15 @@ And Bob can also create a task:
 
 .. code-block:: http
 
-    $ echo '{"data": {"description": "Bob new task", "status": "todo"}}' | \
+    $ echo '{
+        "data": {
+            "description": "Bob new task",
+            "status": "todo"
+        },
+        "permissions": {
+            "read": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
+        }
+    }' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
         -v --auth 'bob:bobpassword'
 
@@ -583,7 +585,7 @@ And Bob can also create a task:
     Accept-Encoding: gzip, deflate
     Authorization: Basic Ym9iOmJvYnBhc3N3b3Jk
     Connection: keep-alive
-    Content-Length: 60
+    Content-Length: 243
     Content-Type: application/json
     Host: kinto.dev.mozaws.net
     User-Agent: HTTPie/0.9.2
@@ -592,6 +594,11 @@ And Bob can also create a task:
         "data": {
             "description": "Bob new task",
             "status": "todo"
+        },
+        "permissions": {
+            "read": [
+                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
+            ]
         }
     }
 
@@ -599,7 +606,7 @@ And Bob can also create a task:
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
     Backoff: 10
     Connection: keep-alive
-    Content-Length: 232
+    Content-Length: 318
     Content-Type: application/json; charset=UTF-8
     Date: Thu, 18 Jun 2015 16:44:39 GMT
     Server: nginx/1.4.6 (Ubuntu)
@@ -612,6 +619,9 @@ And Bob can also create a task:
             "status": "todo"
         },
         "permissions": {
+            "read": [
+                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
+            ],
             "write": [
                 "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
             ]
@@ -663,6 +673,8 @@ permission on her records:
         "data": {
             "id": "2fa91620-f4fa-412e-aee0-957a7ad2dc0e",
             "last_modified": 1434646257547
+            "description": "Alice task",
+            "status": "todo"
         },
         "permissions": {
             "read": [
@@ -675,17 +687,55 @@ permission on her records:
     }
 
 
-Here we share individual records and nobody (except the creator) can obtain
-the collection records. For example, a ``read`` permission could be added on
-the collection to allow authenticated users to list the whole list.
+If Bob want's to get the record list, he will get his records as well as Alice's ones:
+
+.. code-block:: http
+
+    $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
+           -v --auth 'bob:bobpassword'
+
+    GET /v1/buckets/todo/collections/tasks/records HTTP/1.1
+    Accept: */*
+    Accept-Encoding: gzip, deflate
+    Authorization: Basic Ym9iOmJvYnBhc3N3b3Jk
+    Connection: keep-alive
+    Host: kinto.dev.mozaws.net
+    User-Agent: HTTPie/0.9.2
+
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag
+    Content-Length: 371
+    Content-Type: application/json; charset=UTF-8
+    Etag: "1434646257547"
+    Total-Records: 3
+
+    {
+        "data": [
+            {
+                "description": "Bob new task",
+                "id": "10afe152-b5bb-4aff-b77e-10be44587057",
+                "last_modified": 1434645879088,
+                "status": "todo"
+            },
+            {
+                "description": "Alice task",
+                "id": "2fa91620-f4fa-412e-aee0-957a7ad2dc0e",
+                "last_modified": 1434646257547,
+                "status": "todo"
+            }
+        ]
+    }
 
 .. note::
 
-    Currently, *Kinto* does not support the use-case where the whole collection is
-    private and each user obtains a list containing only the records where she
-    has read access.
+    **Known limitation**
 
-    **This is our top priority!**
+    In Kinto 1.4.0 release, you have to give the ``read`` permission
+    explicitely on records that you want to access in the Collection GET.
+
+    This is something we want to fix ASAP,
+    `See Kinto#182 <https://github.com/Kinto/kinto/issues/182>`_
 
 
 Working with groups
