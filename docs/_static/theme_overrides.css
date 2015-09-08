@@ -38,3 +38,8 @@
 .wy-table-responsive {
     overflow: visible !important;
 }
+
+/* small tweak for overview images */
+table img {
+    margin-right: 30px;
+}
