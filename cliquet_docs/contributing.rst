@@ -153,13 +153,12 @@ Step 2
 ------
 
 Once the pull-request is validated, merge it and do a release.
-Use using the ``release`` command to invoke the ``setup.py`` builds and upload to PyPI.
+Use the ``release`` command to invoke the ``setup.py``, which builds and uploads to PyPI
 
 .. code-block:: bash
 
     $ git checkout master
     $ git merge --no-ff prepare-X.Y.Z
-    $ git tag X.Y.Z
     $ release
     $ postrelease
 
