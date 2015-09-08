@@ -7,11 +7,12 @@ This document describes changes between each past release.
 1.4.0 (2015-09-04)
 ==================
 
-- Upgraded to *Cliquet* 2.5.0
+- Upgraded to *Cliquet* 2.6.0
 
 **New features**
 
 - Collection can now accept a schema (#31)
+- Record validation schema is behind a prefs by default (#181)
 - Accept an empty data attribute on buckets and collections (#63)
 - Allow underscores in Kinto resource names. (#153)
 - When deleting a collection also remove its tombstones. (#136)
