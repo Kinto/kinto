@@ -247,7 +247,6 @@ class TutorialLoadTest(BaseLoadTest):
         self.assertEqual(resp.status_code, 200)
         record = resp.json()
         self.assertIn(group_id, record['permissions']['read'])
-        self.assertIn(bob_user_id, record['permissions']['read'])
 
         # Try to access Alice's task with Mary
         resp = self.session.get(
