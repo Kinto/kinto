@@ -1094,7 +1094,8 @@ class ProtectedResource(BaseResource):
         """
         permissions = self.request.validated.get('permissions')
 
-        add_write_perm = (self.request.method.lower() in ('put', 'post'))
+        add_write_perm = (self.request.method.lower() in ('put', 'post',
+                                                          'patch'))
 
         # Do nothing if not specified in request body.
         if not permissions:
@@ -1102,18 +1103,18 @@ class ProtectedResource(BaseResource):
             if self.request.method.lower() == 'patch':
                 replace = False
 
-        if add_write_perm:
-            write_principals = permissions.setdefault('write', [])
-            user_principal = self.request.prefixed_userid
-            if user_principal not in write_principals:
-                write_principals.insert(0, user_principal)
-
         if replace:
             # XXX: add replace method to permissions API.
             kwargs = {}
             if self.request.method.lower() == 'patch':
                 kwargs['permissions'] = permissions
             self._delete_permissions(object_id, **kwargs)
+
+        if add_write_perm:
+            write_principals = permissions.setdefault('write', [])
+            user_principal = self.request.prefixed_userid
+            if user_principal not in write_principals:
+                write_principals.insert(0, user_principal)
 
         registry = self.request.registry
         add_principal = registry.permission.add_principal_to_ace
