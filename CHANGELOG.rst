@@ -10,7 +10,7 @@ This document describes changes between each past release.
 **New features**
 
 - Partial collection of records when user has no ``read`` permission on collection (fixes #76).
-  Alice can now obtain a list of Bob records on which she has individual read/write permission!
+  Alice can now obtain a list of Bob records on which she has individual ``read`` permission!
 - Collection can now specify a JSON schema and validate its records (#31).
   The feature is marked as *experimental* and should be explicitly enabled
   from settings (#181)
@@ -39,6 +39,12 @@ This document describes changes between each past release.
 - When deleting a collection also remove the records tombstones (#136)
 - Complete revamp of the documentation (#156 #167 #168 #169 #170)
 - Upgraded to *Cliquet* 2.6.0
+
+
+**Known limitations**
+
+- Partial collections only work with records on which the user has the ``read`` permission.
+  In future releases, it will also include those with the ``write`` permission.
 
 
 1.3.1 (2015-07-15)
