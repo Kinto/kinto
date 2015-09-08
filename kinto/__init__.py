@@ -24,7 +24,8 @@ DEFAULT_SETTINGS = {
     'multiauth.authorization_policy': (
         'kinto.authorization.AuthorizationPolicy'),
     'multiauth.groupfinder': (
-        'kinto.authorization.groupfinder')
+        'kinto.authorization.groupfinder'),
+    'kinto.experimental_collection_schema_validation': 'False',
 }
 
 

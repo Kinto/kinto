@@ -2,6 +2,7 @@ import jsonschema
 from cliquet import resource, schema
 from cliquet.errors import raise_invalid
 from jsonschema import exceptions as jsonschema_exceptions
+from pyramid.settings import asbool
 
 from kinto.views import object_exists_or_404
 
@@ -49,7 +50,8 @@ class Record(resource.ProtectedResource):
     def process_record(self, new, old=None):
         """Validate records against collection schema, if any."""
         schema = self._collection.get('schema')
-        if not schema:
+        if not schema or not asbool(self.request.registry.settings.get(
+                'kinto.experimental_collection_schema_validation')):
             return new
 
         collection_timestamp = self._collection[self.collection.modified_field]
