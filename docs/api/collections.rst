@@ -251,8 +251,12 @@ Deleting a collection
         }
 
 
+.. _collection-json-schema:
+
 Collection JSON schema
 ======================
+
+**Requires setting** ``kinto.experimental_collection_schema_validation`` to ``True``.
 
 A `JSON schema <http://json-schema.org/>`_ can optionally be associated to a
 collection.
