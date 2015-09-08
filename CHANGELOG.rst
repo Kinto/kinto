@@ -7,24 +7,38 @@ This document describes changes between each past release.
 1.4.0 (2015-09-04)
 ==================
 
-- Upgraded to *Cliquet* 2.6.0
-
 **New features**
 
-- Collection can now accept a schema (#31)
-- Record validation schema is behind a prefs by default (#181)
-- Accept an empty data attribute on buckets and collections (#63)
-- Allow underscores in Kinto resource names. (#153)
-- When deleting a collection also remove its tombstones. (#136)
+- Partial collection of records when user has no ``read`` permission on collection (fixes #76).
+  Alice can now obtain a list of Bob records on which she has individual read/write permission!
+- Collection can now specify a JSON schema and validate its records (#31).
+  The feature is marked as *experimental* and should be explicitly enabled
+  from settings (#181)
+- Accept empty payload on buckets and collections creation (#63)
+- Allow underscores in Kinto bucket and collection names (#153, fixes #77)
+- Collection records can now be filtered using multiple values (``?in_status=1,2,3``) (mozilla-services/cliquet#39)
+- Collection records can now be filtered excluding multiple values (``?exclude_status=1,2,3``) (mozilla-services/readinglist#68)
+- Current userid is now provided when requesting the hello endpoint with an ``Authorization``
+  header (mozilla-services/cliquet#319)
+- UUID validation now accepts any kind of UUID, not just v4 (mozilla-services/cliquet#387)
+- Querystring parameter ``_to`` on collection records was renamed to ``_before`` (*the former is now
+  deprecated*) (mozilla-services/cliquet#391)
+- Allow to configure info link in error responses with ``cliquet.error_info_link``
+  setting (mozilla-services/cliquet#395)
 
 **Bug fixes**
 
-- Use correct Headers type in both Python2 and Python3 (#141)
+- Fix consistency in API to modify permissions with PATCH (fixes #155)
+  The list of principals for each specified permission is now replaced by the one
+  provided.
+- Use correct HTTP Headers encoding in both Python2 and Python3 (#141)
+- ETag is now returned on every verb (fixes #110)
 
 **Internal changes**
 
+- When deleting a collection also remove the records tombstones (#136)
 - Complete revamp of the documentation (#156 #167 #168 #169 #170)
-
+- Upgraded to *Cliquet* 2.6.0
 
 
 1.3.1 (2015-07-15)
