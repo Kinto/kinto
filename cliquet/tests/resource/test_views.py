@@ -132,7 +132,7 @@ class ProtectedResourcePermissionTest(AuthzAuthnTest):
         uri = self.get_item_url(resp.json['data']['id'])
         resp = self.app.patch_json(uri, body, headers=self.headers)
         principals = resp.json['permissions']['read']
-        self.assertEqual(sorted(principals), ['fxa:user', 'group:readers'])
+        self.assertEqual(sorted(principals), ['fxa:user'])
 
     def test_unknown_permissions_are_not_accepted(self):
         self.maxDiff = None
