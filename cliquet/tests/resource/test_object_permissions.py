@@ -118,6 +118,19 @@ class SpecifyRecordPermissionTest(PermissionTest):
                          {'write': ['jean-louis'],
                           'read': ['fxa:user']})
 
+    def test_permissions_can_be_removed_with_patch(self):
+        perms = {'write': ['jean-louis']}
+        self.resource.request.validated = {'permissions': perms}
+        self.resource.request.method = 'PATCH'
+        result = self.resource.patch()
+
+        perms = {'write': []}
+        self.resource.request.validated = {'permissions': perms}
+        self.resource.request.method = 'PATCH'
+        result = self.resource.patch()
+        self.assertEqual(result['permissions'],
+                         {'read': ['fxa:user']})
+
 
 class DeletedRecordPermissionTest(PermissionTest):
     def setUp(self):
