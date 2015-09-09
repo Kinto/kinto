@@ -134,7 +134,8 @@ class TutorialLoadTest(BaseLoadTest):
 
     def play_user_shared_bucket_tutorial(self):
         bucket_id = 'bucket-%s' % uuid.uuid4()
-        collection_url = self.collection_url(bucket_id, 'tasks')
+        collection_id = 'tasks-%s' % uuid.uuid4()
+        collection_url = self.collection_url(bucket_id, collection_id)
 
         # Create a new bucket and check for permissions
         resp = self.session.put(
@@ -189,17 +190,9 @@ class TutorialLoadTest(BaseLoadTest):
         bob_user_id = record['permissions']['write'][0]
         bob_task_id = record['data']['id']
 
-        # XXX: Allow bob to read his record. See Kinto#182
-        resp = self.session.patch(
-            self.record_url(bob_task_id, bucket_id, 'tasks'),
-            data=json.dumps({'permissions': {'read': [bob_user_id]}}),
-            auth=bob_auth)
-        self.incr_counter("status-%s" % resp.status_code)
-        self.assertEqual(resp.status_code, 200)
-
         # Share Alice's task with Bob
         resp = self.session.patch(
-            self.record_url(alice_task_id, bucket_id, 'tasks'),
+            self.record_url(alice_task_id, bucket_id, collection_id),
             data=json.dumps({'permissions': {'read': [bob_user_id]}}),
             auth=alice_auth)
         self.incr_counter("status-%s" % resp.status_code)
@@ -210,7 +203,7 @@ class TutorialLoadTest(BaseLoadTest):
 
         # Check that Bob can access it
         resp = self.session.get(
-            self.record_url(alice_task_id, bucket_id, 'tasks'),
+            self.record_url(alice_task_id, bucket_id, collection_id),
             auth=bob_auth)
         self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
@@ -249,7 +242,7 @@ class TutorialLoadTest(BaseLoadTest):
         # Give Alice's task permission for that group
         group_id = self.group_url(bucket_id, 'alices-friends', False)
         resp = self.session.patch(
-            self.record_url(alice_task_id, bucket_id, 'tasks'),
+            self.record_url(alice_task_id, bucket_id, collection_id),
             data=json.dumps({'permissions': {'read': [group_id]}}),
             auth=alice_auth)
         self.incr_counter("status-%s" % resp.status_code)
@@ -259,7 +252,7 @@ class TutorialLoadTest(BaseLoadTest):
 
         # Try to access Alice's task with Mary
         resp = self.session.get(
-            self.record_url(alice_task_id, bucket_id, 'tasks'),
+            self.record_url(alice_task_id, bucket_id, collection_id),
             auth=mary_auth)
         self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
@@ -287,4 +280,4 @@ class TutorialLoadTest(BaseLoadTest):
         resp = self.session.get(
             self.api_url('buckets'))
         self.incr_counter("status-%s" % resp.status_code)
-        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.status_code, 200)
