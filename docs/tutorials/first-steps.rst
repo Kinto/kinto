@@ -727,16 +727,6 @@ If Bob want's to get the record list, he will get his records as well as Alice's
         ]
     }
 
-.. note::
-
-    **Known limitation**
-
-    In Kinto 1.4.0 release, you have to give the ``read`` permission
-    explicitely on records that you want to access in the Collection GET.
-
-    This is something we want to fix ASAP,
-    `See Kinto#182 <https://github.com/Kinto/kinto/issues/182>`_
-
 
 Working with groups
 ===================

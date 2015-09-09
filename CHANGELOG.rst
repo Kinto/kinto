@@ -47,12 +47,6 @@ This document describes changes between each past release.
 - Upgraded to *Cliquet* 2.6.0
 
 
-**Known limitations**
-
-- Partial collections only work with records on which the user has the ``read`` permission.
-  In future releases, it will also include those with the ``write`` permission.
-
-
 1.3.1 (2015-07-15)
 ==================
 
