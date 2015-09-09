@@ -161,7 +161,6 @@ def reapply_cors(request, response):
         cors.apply_cors_post_request(service, request, response)
         response = cors.ensure_origin(service, request, response)
     else:
-        from cliquet import Service
         # No existing service is concerned, and Cornice is not implied.
         origin = request.headers.get('Origin')
         if origin:
@@ -171,6 +170,9 @@ def reapply_cors(request, response):
             if allowed_origins.intersection(required_origins):
                 origin = encode_header(origin)
                 response.headers['Access-Control-Allow-Origin'] = origin
+
+        # Import service here because cliquet import utils
+        from cliquet import Service
         if Service.default_cors_headers:
             headers = ','.join(Service.default_cors_headers)
             response.headers['Access-Control-Expose-Headers'] = headers
