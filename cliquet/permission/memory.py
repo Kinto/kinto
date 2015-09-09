@@ -73,19 +73,28 @@ class Memory(PermissionBase):
         return members
 
     def principals_accessible_objects(self, principals, permission,
-                                      object_id_match=None):
+                                      object_id_match=None,
+                                      get_bound_permissions=None):
         principals = set(principals)
-        if object_id_match is None:
-            object_id_match = re.compile('.*')
+
+        if get_bound_permissions is None:
+            if object_id_match is None:
+                object_id_match = '*'
+            object_id_match = object_id_match.replace('*', '.*')
+            keys = [(re.compile(object_id_match), permission)]
         else:
-            object_id_match = re.compile(object_id_match.replace('*', '.*'))
+            keys = get_bound_permissions(object_id_match, permission)
+            keys = [(re.compile(obj_id.replace('*', '.*')), p)
+                    for (obj_id, p) in keys]
+
         objects = set()
-        for key, value in self._store.items():
-            if key.endswith(permission):
-                if len(principals & value) > 0:
-                    object_id = key.split(':')[1]
-                    if object_id_match.match(object_id):
-                        objects.add(object_id)
+        for obj_id, perm in keys:
+            for key, value in self._store.items():
+                if key.endswith(perm):
+                    if len(principals & value) > 0:
+                        object_id = key.split(':')[1]
+                        if obj_id.match(object_id):
+                            objects.add(object_id)
         return objects
 
     def object_permission_authorized_principals(self, object_id, permission,

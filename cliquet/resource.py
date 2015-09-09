@@ -1073,11 +1073,14 @@ class ProtectedResource(BaseResource):
     permissions = ('read', 'write')
 
     def _extract_filters(self, queryparams=None):
+        """Override default filters extraction from QueryString to allow
+        partial collection of records.
+
+        XXX: find more elegant approach to add custom filters.
+        """
         filters = super(ProtectedResource, self)._extract_filters(queryparams)
 
-        # XXX: find more elegant approach to add custom filters.
         ids = self.context.shared_ids
-
         if ids:
             filter_by_id = Filter(self.collection.id_field, ids, COMPARISON.IN)
             filters.insert(0, filter_by_id)
@@ -1153,17 +1156,6 @@ class ProtectedResource(BaseResource):
                 permissions[perm] = list(principals)
         return permissions
 
-    def _record_uri_from_collection(self, record_id):
-        # Since the current request is on a collection, the record URI must
-        # be found out by inspecting the collection service and its sibling
-        # record service.
-        service = current_service(self.request)
-        record_service = service.name.replace('-collection', '-record')
-        matchdict = self.request.matchdict.copy()
-        matchdict['id'] = record_id
-        record_uri = self.request.route_path(record_service, **matchdict)
-        return record_uri
-
     def collection_post(self):
         """Override the collection POST endpoint to store the permissions
         specified for the newly created record.
@@ -1171,7 +1163,8 @@ class ProtectedResource(BaseResource):
         result = super(ProtectedResource, self).collection_post()
 
         record_id = result['data'][self.collection.id_field]
-        record_uri = self._record_uri_from_collection(record_id)
+        record_uri = authorization.record_uri_from_collection(self.request,
+                                                              record_id)
 
         object_id = authorization.get_object_id(record_uri)
         result['permissions'] = self._store_permissions(object_id=object_id)
@@ -1185,7 +1178,8 @@ class ProtectedResource(BaseResource):
 
         for record in result['data']:
             record_id = record[self.collection.id_field]
-            record_uri = self._record_uri_from_collection(record_id)
+            record_uri = authorization.record_uri_from_collection(self.request,
+                                                                  record_id)
 
             # XXX: inefficient within loop.
             object_id = authorization.get_object_id(record_uri)

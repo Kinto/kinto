@@ -80,7 +80,8 @@ class Redis(PermissionBase):
 
     @wrap_redis_error
     def principals_accessible_objects(self, principals, permission,
-                                      object_id_match=None):
+                                      object_id_match=None,
+                                      get_bound_permissions=None):
         if object_id_match is None:
             object_id_match = '*'
         key_pattern = 'permission:%s:%s' % (object_id_match, permission)
