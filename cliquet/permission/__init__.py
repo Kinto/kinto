@@ -77,7 +77,8 @@ class PermissionBase(object):
         raise NotImplementedError
 
     def principals_accessible_objects(self, principals, permission,
-                                      object_id_match=None):
+                                      object_id_match=None,
+                                      get_bound_permissions=None):
         """Return the list of objects id where the specified `principals`
         have the specified `permission`.
 
@@ -85,6 +86,9 @@ class PermissionBase(object):
         :param str permission: The permission to query.
         :param str object_id_match: Filter object ids based on a pattern
             (e.g. ``'*articles*'``).
+        :param function get_bound_permissions:
+            The methods to call in order to generate the list of permission to
+            verify against. (ie: if you can write, you can read)
         :returns: The list of object ids
         :rtype: set
 

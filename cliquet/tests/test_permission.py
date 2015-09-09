@@ -256,6 +256,33 @@ class BaseTestPermission(object):
             object_id_match='*url1*')
         self.assertEquals(object_ids, set(['/url1/id']))
 
+    def test_obtain_object_ids_with_get_bound_permissions(self):
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/2', 'read', 'user1')
+        self.permission.add_principal_to_ace('/url/_/id/2', 'read', 'user1')
+        object_ids = self.permission.principals_accessible_objects(
+            ['user1'],
+            'read',
+            object_id_match='/url/a/id/*',
+            get_bound_permissions=lambda o, p: [('/url/a/id/*', 'read'),
+                                                ('/url/a/id/*', 'write')])
+        self.assertEquals(object_ids, set(['/url/a/id/1', '/url/a/id/2']))
+
+    def test_obtain_object_ids_with_get_bound_permissions_without_match(self):
+        self.permission.add_principal_to_ace('/url/a', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/b/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/2', 'read', 'user1')
+        self.permission.add_principal_to_ace('/url/b/id/2', 'read', 'user1')
+        object_ids = self.permission.principals_accessible_objects(
+            ['user1'],
+            'read',
+            get_bound_permissions=lambda o, p: [('/url/a', 'write'),
+                                                ('/url/a', 'read'),
+                                                ('/url/a/id/*', 'write'),
+                                                ('/url/a/id/*', 'read')])
+        self.assertEquals(object_ids, set(['/url/a/id/1', '/url/a/id/2']))
+
 
 class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = memory_backend

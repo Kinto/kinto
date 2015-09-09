@@ -164,26 +164,39 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         return set([r['principal'] for r in results])
 
     def principals_accessible_objects(self, principals, permission,
-                                      object_id_match=None):
+                                      object_id_match=None,
+                                      get_bound_permissions=None):
         placeholders = {'permission': permission}
-        if object_id_match is None:
-            object_id_condition = 'true'
-        else:
-            object_id_match = object_id_match.replace('*', '%%')
-            object_id_condition = "object_id LIKE %(object_id_match)s"
-            placeholders['object_id_match'] = object_id_match
 
+        if object_id_match is None:
+            object_id_match = '*'
+
+        if get_bound_permissions is None:
+            perms = [(object_id_match, permission)]
+        else:
+            perms = get_bound_permissions(object_id_match, permission)
+
+        perms = [(o.replace('*', '.*'), p) for (o, p) in perms
+                 if o.endswith(object_id_match)]
+        perms_values = ','.join(["('%s', '%s')" % p for p in perms])
         principals_values = ','.join(["('%s')" % p for p in principals])
         query = """
-        WITH user_principals AS (
-          VALUES %s
+        WITH required_perms AS (
+          VALUES %(perms)s
+        ),
+        user_principals AS (
+          VALUES %(principals)s
         )
         SELECT object_id
-          FROM user_principals JOIN access_control_entries
-            ON (principal = column1)
-         WHERE permission = %%(permission)s
-           AND %s;
-        """ % (principals_values, object_id_condition)
+          FROM access_control_entries
+            JOIN required_perms
+              ON (object_id ~ required_perms.column1 AND
+                  permission = required_perms.column2)
+            JOIN user_principals
+              ON (principal = user_principals.column1);
+        """ % dict(perms=perms_values,
+                   principals=principals_values)
+
         with self.connect() as cursor:
             cursor.execute(query, placeholders)
             results = cursor.fetchall()

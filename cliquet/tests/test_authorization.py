@@ -80,6 +80,7 @@ class RouteFactoryTest(unittest.TestCase):
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.resource_name)
         self.assertIsNone(context.check_permission)
+        self.assertIsNone(context.get_shared_ids)
 
     def test_attributes_are_none_with_non_resource_requests(self):
         basic_service = object()
@@ -94,6 +95,7 @@ class RouteFactoryTest(unittest.TestCase):
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.resource_name)
         self.assertIsNone(context.check_permission)
+        self.assertIsNone(context.get_shared_ids)
 
     def test_route_factory_adds_allowed_principals_from_settings(self):
         with mock.patch('cliquet.utils.current_service') as current_service:
@@ -210,7 +212,9 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
             'record1', 'record2'])
         allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
         self.context.fetch_shared_records.assert_called_with(
-            ['userid', 'basicauth:bob', 'basicauth_bob'])
+            'read',
+            ['userid', 'basicauth:bob', 'basicauth_bob'],
+            get_bound_permissions=mock.sentinel.get_bound_perms)
         self.assertTrue(allowed)
 
     def test_permits_does_not_return_true_if_not_collection(self):
@@ -229,5 +233,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         self.context.fetch_shared_records = mock.MagicMock(return_value=[])
         allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
         self.context.fetch_shared_records.assert_called_with(
-            ['userid', 'basicauth:bob', 'basicauth_bob'])
+            'read',
+            ['userid', 'basicauth:bob', 'basicauth_bob'],
+            get_bound_permissions=mock.sentinel.get_bound_perms)
         self.assertFalse(allowed)
