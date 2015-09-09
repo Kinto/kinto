@@ -84,15 +84,23 @@ class Redis(PermissionBase):
                                       get_bound_permissions=None):
         if object_id_match is None:
             object_id_match = '*'
-        key_pattern = 'permission:%s:%s' % (object_id_match, permission)
 
+        if get_bound_permissions is None:
+            def get_bound_permissions(object_id, permission):
+                return [(object_id, permission)]
+
+        keys = get_bound_permissions(object_id_match, permission)
+        keys = ['permission:%s:%s' % key for key in keys
+                if key[0].endswith(object_id_match)]
+        principals = set(principals)
         objects = set()
-        keys = self._client.scan_iter(match=key_pattern)
-        for key in keys:
-            authorized = self._decode_set(self._client.smembers(key))
-            if len(authorized & set(principals)) > 0:
-                object_id = key.decode('utf-8').split(':')[1]
-                objects.add(object_id)
+        for key_pattern in keys:
+            matched = self._client.scan_iter(match=key_pattern)
+            for key in matched:
+                authorized = self._decode_set(self._client.smembers(key))
+                if len(authorized & principals) > 0:
+                    object_id = key.decode('utf-8').split(':')[1]
+                    objects.add(object_id)
 
         return objects
 

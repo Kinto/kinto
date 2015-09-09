@@ -275,7 +275,7 @@ class BaseTestPermission(object):
         object_ids = self.permission.principals_accessible_objects(
             ['user1'],
             'read',
-            get_bound_permissions=lambda o, p: [('/url/a/id/1', 'write'),
+            get_bound_permissions=lambda o, p: [('/url/a/id/*', 'write'),
                                                 ('/url/a/id/*', 'read')])
         self.assertEquals(object_ids, set(['/url/a/id/1', '/url/a/id/2']))
 

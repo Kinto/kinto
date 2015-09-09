@@ -168,14 +168,16 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
                                       get_bound_permissions=None):
         placeholders = {'permission': permission}
 
+        if object_id_match is None:
+            object_id_match = '*'
+
         if get_bound_permissions is None:
-            if object_id_match is None:
-                object_id_match = '*'
             perms = [(object_id_match, permission)]
         else:
             perms = get_bound_permissions(object_id_match, permission)
 
-        perms = [(o.replace('*', '.*'), p) for (o, p) in perms]
+        perms = [(o.replace('*', '.*'), p) for (o, p) in perms
+                 if o.endswith(object_id_match)]
         perms_values = ','.join(["('%s', '%s')" % p for p in perms])
         principals_values = ','.join(["('%s')" % p for p in principals])
         query = """
