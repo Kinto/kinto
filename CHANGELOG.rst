@@ -3,10 +3,17 @@ Changelog
 
 This document describes changes between each past release.
 
-2.7.0 (unreleased)
+2.6.2 (2015-09-09)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Expose CORS headers on subrequest error response and for non service errors (#435).
+- Make sure a tuple is passed for Postgresql list comparisons even for ids (#443).
+
+**Internal changes**
+
+- Use the ``get_bound_permissions`` callback to select shared records in collection list (#444).
 
 
 2.6.1 (2015-09-08)
@@ -14,7 +21,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
-- Make sure we pass a tuple to Postgresql in conditions (#441)
+- Make sure a tuple is passed for Postgresql in conditions (#441).
 
 
 2.6.0 (2015-09-08)
