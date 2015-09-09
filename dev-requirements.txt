@@ -10,3 +10,4 @@ pytest
 pytest-cache
 pytest-cover
 pytest-sugar
+https://github.com/mozilla-services/cliquet/archive/master.zip
