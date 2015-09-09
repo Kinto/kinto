@@ -15,6 +15,7 @@ OBJECTS = .venv .coverage
 all: install
 install: $(INSTALL_STAMP)
 $(INSTALL_STAMP): $(PYTHON) setup.py
+	$(VENV)/bin/pip install -U pip
 	$(VENV)/bin/pip install -Ue .
 	touch $(INSTALL_STAMP)
 
@@ -30,7 +31,6 @@ $(DEV_STAMP): $(PYTHON) dev-requirements.txt
 virtualenv: $(PYTHON)
 $(PYTHON):
 	virtualenv $(VENV)
-	$(VENV)/bin/pip install -U pip
 
 serve: install-dev migrate
 	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
