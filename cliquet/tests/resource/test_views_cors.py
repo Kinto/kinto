@@ -157,3 +157,7 @@ class CORSExposeHeadersTest(BaseWebTest):
         self.assert_expose_headers('PUT_JSON', '/mushrooms/wrong=ids', [
             'Alert', 'Backoff', 'Retry-After', 'Content-Length'],
             body=body, status=400)
+
+    def test_present_on_unknown_url(self):
+        self.assert_expose_headers('PUT_JSON', '/unknown', [
+            'Alert', 'Backoff', 'Retry-After', 'Content-Length'], status=404)
