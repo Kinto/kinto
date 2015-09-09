@@ -642,13 +642,13 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                 # If field is missing, we default to ''.
                 sql_field = "coalesce(data->>%%(%s)s, '')" % field_holder
 
-                if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
-                    # For the IN operator, let psycopg escape the values list.
-                    # Otherwise JSON-ify the native value (e.g. True -> 'true')
-                    if not isinstance(filtr.value, six.string_types):
-                        value = json.dumps(filtr.value).strip('"')
-                else:
-                    value = tuple(value)
+            if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
+                # For the IN operator, let psycopg escape the values list.
+                # Otherwise JSON-ify the native value (e.g. True -> 'true')
+                if not isinstance(filtr.value, six.string_types):
+                    value = json.dumps(filtr.value).strip('"')
+            else:
+                value = tuple(value)
 
             # Safely escape value
             value_holder = '%s_value_%s' % (prefix, i)
