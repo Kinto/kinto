@@ -4,7 +4,8 @@ import logging
 import cliquet
 from pyramid.config import Configurator
 from pyramid.settings import asbool
-from pyramid.security import Authenticated
+from pyramid.httpexceptions import HTTPTemporaryRedirect
+from pyramid.security import Authenticated, NO_PERMISSION_REQUIRED
 from cliquet.authorization import RouteFactory
 
 # Module version, as defined in PEP-0396.
@@ -29,6 +30,25 @@ DEFAULT_SETTINGS = {
 }
 
 
+def setup_redirect_trailing_slash(config):
+    """URLs of Webservices built with Django usually have a trailing slash.
+    Kinto does not, and removes it with a redirection.
+    """
+    def _view(request):
+        route_prefix = request.registry.route_prefix
+        path = request.matchdict['path']
+        querystring = request.url[(request.url.rindex(request.path) +
+                                   len(request.path)):]
+        redirect = '/%s/%s%s' % (route_prefix, path, querystring)
+        raise HTTPTemporaryRedirect(redirect)
+
+    config.add_route(name='redirect_no_trailing_slash',
+                     pattern='/{path:.+}/')
+    config.add_view(view=_view,
+                    route_name='redirect_no_trailing_slash',
+                    permission=NO_PERMISSION_REQUIRED)
+
+
 def main(global_config, **settings):
     config = Configurator(settings=settings, root_factory=RouteFactory)
     cliquet.initialize(config,
@@ -39,6 +59,9 @@ def main(global_config, **settings):
     config.add_route('default_bucket_collection',
                      '/buckets/default/{subpath:.*}')
     config.add_route('default_bucket', '/buckets/default')
+
+    # Redirect to remove trailing slash
+    setup_redirect_trailing_slash(config)
 
     # Scan Kinto views.
     settings = config.get_settings()

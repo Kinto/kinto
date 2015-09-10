@@ -17,6 +17,11 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                                  headers=self.headers)
         self.record = resp.json['data']
 
+    def test_trailing_slash_redirects(self):
+        r = self.app.get('/buckets/?_since=0')
+        self.assertEqual(r.status_code, 307)
+        self.assertTrue(r.headers["Location"].endswith('/v1/buckets?_since=0'))
+
     def test_buckets_are_global_to_every_users(self):
         self.app.patch_json(self.record_url,
                             {'permissions': {'read': [Authenticated]}},
