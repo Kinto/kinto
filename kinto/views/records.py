@@ -61,3 +61,26 @@ class Record(resource.ProtectedResource):
             raise_invalid(self.request, name=field, description=e.message)
 
         return new
+
+    def collection_get(self):
+        result = super(Record, self).collection_get()
+        self._handle_cache_expires(self.request.response)
+        return result
+
+    def get(self):
+        result = super(Record, self).get()
+        self._handle_cache_expires(self.request.response)
+        return result
+
+    def _handle_cache_expires(self, response):
+        """If the parent collection defines a ``cache_expires`` attribute,
+        then cache-control response headers are sent.
+
+        .. note::
+
+            Those headers are also sent if setting
+            ``cliquet.record_cache_expires_seconds`` is defined.
+        """
+        cache_expires = self._collection.get('cache_expires')
+        if cache_expires is not None:
+            response.cache_expires(seconds=cache_expires)

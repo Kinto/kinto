@@ -27,6 +27,7 @@ class JSONSchemaMapping(colander.SchemaNode):
 
 class CollectionSchema(resource.ResourceSchema):
     schema = JSONSchemaMapping(missing=colander.drop)
+    cache_expires = colander.SchemaNode(colander.Int(), missing=colander.drop)
 
     class Options:
         preserve_unknown = True

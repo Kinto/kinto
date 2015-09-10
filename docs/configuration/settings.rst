@@ -507,6 +507,56 @@ dangerous to leave on by default, and must therefore be enabled explicitly.
 Then, issue a `POST` request to the `/__flush__` endpoint to flush all
 the data.
 
+
+.. _configuration-client-caching:
+
+Client caching
+==============
+
+In addition to :ref:`per-collection caching <collection-caching>`, it is possible
+to add cache control headers for every :app:`Kinto` object.
+The client (or cache server or proxy) will use them to cache the collection
+records for a certain amount of time, in seconds.
+
+The setting can be set for any kind of object (``bucket``, ``collection``, ``record``),
+and concerns read-only requests (``GET /buckets``, ``GET /buckets/{}/collections``,
+``GET /buckets/{}/collections/{}/records``).
+
+.. code-block:: ini
+
+    # cliquet.bucket_cache_expires_seconds = 3600
+    # cliquet.collection_cache_expires_seconds = 3600
+    cliquet.record_cache_expires_seconds = 3600
+
+
+If set to ``0`` then the resource becomes uncacheable (``no-cache``).
+
+
+Nginx
+:::::
+
+If *Nginx* is used as a reverse proxy, it can also `act as a cache server <https://serversforhackers.com/nginx-caching>`_
+using those :app:`Kinto` response headers.
+
+A sample *Nginx* configuration could look like so:
+
+::
+
+    proxy_cache_path /tmp/nginx levels=1:2 keys_zone=my_zone:100m inactive=200m;
+    proxy_cache_key "$scheme$request_method$host$request_uri$";
+
+    server {
+        ...
+
+        location / {
+            proxy_cache my_zone;
+
+            include proxy_params;
+            proxy_pass http://127.0.0.1:8888;
+        }
+    }
+
+
 Project information
 ===================
 
