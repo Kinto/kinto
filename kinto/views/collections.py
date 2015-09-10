@@ -3,7 +3,7 @@ import jsonschema
 from cliquet import resource
 from jsonschema import exceptions as jsonschema_exceptions
 
-from kinto.views import NameGenerator, object_exists_or_404
+from kinto.views import NameGenerator
 
 
 class JSONSchemaMapping(colander.SchemaNode):
@@ -42,12 +42,6 @@ class Collection(resource.ProtectedResource):
 
     def __init__(self, *args, **kwargs):
         super(Collection, self).__init__(*args, **kwargs)
-
-        bucket_id = self.request.matchdict['bucket_id']
-        object_exists_or_404(self.request,
-                             collection_id='bucket',
-                             object_id=bucket_id)
-
         self.collection.id_generator = NameGenerator()
 
     def get_parent_id(self, request):

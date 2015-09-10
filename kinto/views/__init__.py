@@ -22,4 +22,5 @@ def object_exists_or_404(request, collection_id, object_id, parent_id=''):
                            parent_id=parent_id,
                            object_id=object_id)
     except exceptions.RecordNotFoundError:
+        # XXX: We gave up putting details about parent id here (See #53).
         raise httpexceptions.HTTPNotFound()
