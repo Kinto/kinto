@@ -156,19 +156,17 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
 
 class TrailingSlashRedirectViewTest(BaseWebTest, unittest.TestCase):
-    def test_redirect_to_non_trailing_slash_version(self):
-        # GET on the hello view.
+    def test_doesnt_redirect_the_home_page(self):
         response = self.app.get('/')
         self.assertEqual(response.status_int, 200)
 
-        # GET on the fields view.
+    def test_it_redirects_if_it_ends_with_a__slash_(self):
         response = self.app.get('/mushrooms/')
         self.assertEqual(response.status_int, 307)
         self.assertEqual(response.location,
                          'http://localhost/v0/mushrooms')
 
     def test_do_not_redirect_if_disabled_in_settings(self):
-        # GET on the hello view.
         app = self._get_test_app({
             'cliquet.trailing_slash_redirect_enabled': False
         })

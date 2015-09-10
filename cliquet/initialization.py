@@ -43,14 +43,12 @@ def setup_json_serializer(config):
 
 def setup_trailing_slash_redirection(config):
     """URLs of Webservices built with Django usually have a trailing slash.
-    Kinto does not, and removes it with a redirection.
+    Cliquet does not, and removes it with a redirection.
     """
     settings = config.get_settings()
     redirect_enabled = settings['cliquet.trailing_slash_redirect_enabled']
     trailing_slash_redirection_enabled = asbool(redirect_enabled)
 
-    # Do not redirect if cliquet.trailing_slash_redirect_enabled is set to
-    # False.
     if not trailing_slash_redirection_enabled:
         return
 
