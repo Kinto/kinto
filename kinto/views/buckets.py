@@ -97,7 +97,7 @@ def default_bucket(request):
 
 
 @resource.register(name='bucket',
-                   collection_methods=('GET',),
+                   collection_methods=('GET', 'POST'),
                    collection_path='/buckets',
                    record_path='/buckets/{{id}}')
 class Bucket(resource.ProtectedResource):

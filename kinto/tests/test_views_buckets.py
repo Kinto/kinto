@@ -23,10 +23,6 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                             headers=self.headers)
         self.app.get(self.record_url, headers=get_user_headers('alice'))
 
-    def test_buckets_do_not_support_post(self):
-        self.app.post(self.collection_url, headers=self.headers,
-                      status=405)
-
     def test_buckets_can_be_put_with_simple_name(self):
         self.assertEqual(self.record['id'], 'beers')
 
@@ -73,6 +69,21 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                           bucket,
                           headers=self.headers,
                           status=400)
+
+
+class BucketCreationTest(BaseWebTest, unittest.TestCase):
+    def test_buckets_can_be_created_with_post(self):
+        r = self.app.post_json('/buckets',
+                               MINIMALIST_BUCKET,
+                               headers=self.headers)
+        self.assertEqual(r.status_code, 201)
+
+    def test_bucket_id_can_be_specified_in_post(self):
+        bucket = 'blog'
+        r = self.app.post_json('/buckets',
+                               {'data': {'id': bucket}},
+                               headers=self.headers)
+        self.assertEqual(r.json['data']['id'], bucket)
 
 
 class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
