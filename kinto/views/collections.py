@@ -3,7 +3,7 @@ import jsonschema
 from cliquet import resource
 from jsonschema import exceptions as jsonschema_exceptions
 
-from kinto.views import NameGenerator, object_exists_or_404
+from kinto.views import NameGenerator
 
 
 class JSONSchemaMapping(colander.SchemaNode):
