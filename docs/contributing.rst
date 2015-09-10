@@ -69,6 +69,7 @@ Communication channels
 * Questions tagged ``kinto`` on `Stack Overflow <http://stackoverflow.com/questions/tagged/kinto>`_.
 * Our IRC channel ``#storage`` on ``irc.mozilla.org``!
 * Our team blog http://www.servicedenuages.fr/
+* `The Kinto mailing list <https://mail.mozilla.org/listinfo/kinto>`_.
 * Some `#Kinto <https://twitter.com/search?q=%23Kinto>`_ mentions on Twitter :)
 
 
