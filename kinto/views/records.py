@@ -27,10 +27,6 @@ class Record(resource.ProtectedResource):
         super(Record, self).__init__(*args, **kwargs)
 
         bucket_id = self.request.matchdict['bucket_id']
-        object_exists_or_404(self.request,
-                             collection_id='bucket',
-                             object_id=bucket_id)
-
         collection_id = self.request.matchdict['collection_id']
         parent_id = '/buckets/%s' % bucket_id
         self._collection = object_exists_or_404(self.request,
