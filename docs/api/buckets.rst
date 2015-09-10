@@ -10,10 +10,70 @@ A bucket is a mapping with the following attributes:
 * ``permissions``: (*optional*) the :term:`ACLs <ACL>` for the bucket object
 
 
-.. _buckets-put:
+.. _buckets-post:
 
 Creating a bucket
 =================
+
+.. http:post:: /buckets
+
+    :synopsis: Creates a new bucket. If ``id`` is not provided, it is automatically generated.
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ echo '{"data": {"id": "blog"}}' | http POST http://localhost:8888/v1/buckets --auth="bob:" --verbose
+
+    .. sourcecode:: http
+
+        POST /v1/buckets HTTP/1.1
+        Accept: application/json
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOg==
+        Connection: keep-alive
+        Content-Length: 25
+        Content-Type: application/json; charset=utf-8
+        Host: localhost:8888
+        User-Agent: HTTPie/0.8.0
+
+        {
+            "data": {
+                "id": "blog"
+            }
+        }
+
+
+    **Example Response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 201 Created
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
+        Content-Length: 155
+        Content-Type: application/json; charset=UTF-8
+        Date: Thu, 10 Sep 2015 08:34:32 GMT
+        Server: waitress
+
+        {
+            "data": {
+                "id": "blog",
+                "last_modified": 1441874072429
+            },
+            "permissions": {
+                "write": [
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                ]
+            }
+        }
+
+
+.. _bucket-put:
+
+Replacing a bucket
+==================
 
 .. http:put:: /buckets/(bucket_id)
 
@@ -126,12 +186,12 @@ Retrieve an existing bucket
         }
 
 
-.. _bucket-put:
+.. _bucket-patch:
 
 Updating an existing bucket
 ===========================
 
-.. http:put:: /buckets/(bucket_id)
+.. http:patch:: /buckets/(bucket_id)
 
     :synopsis: Modifies an existing bucket.
 
@@ -188,4 +248,55 @@ Deleting a bucket
                 "id": "blog",
                 "last_modified": 1434641382954
             }
+        }
+
+
+.. _buckets-get:
+
+Retrieving all buckets
+======================
+
+.. http:get:: /buckets
+
+    :synopsis: Returns the list of accessible buckets
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http get http://localhost:8888/v1/buckets --auth="bob:" --verbose
+
+    .. sourcecode:: http
+
+        GET /v1/buckets HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOg==
+        Connection: keep-alive
+        Host: localhost:8888
+        User-Agent: HTTPie/0.8.0
+
+    **Example Response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag
+        Content-Length: 54
+        Content-Type: application/json; charset=UTF-8
+        Date: Thu, 10 Sep 2015 08:37:32 GMT
+        Etag: "1441874072429"
+        Last-Modified: Thu, 10 Sep 2015 08:34:32 GMT
+        Server: waitress
+        Total-Records: 1
+
+        {
+            "data": [
+                {
+                    "id": "blog",
+                    "last_modified": 1441874072429
+                }
+            ]
         }
