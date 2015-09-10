@@ -41,6 +41,34 @@ def setup_json_serializer(config):
     config.add_renderer('json', renderer)
 
 
+def setup_trailing_slash_redirection(config):
+    """URLs of Webservices built with Django usually have a trailing slash.
+    Kinto does not, and removes it with a redirection.
+    """
+    settings = config.get_settings()
+    redirect_enabled = settings['cliquet.trailing_slash_redirect_enabled']
+    trailing_slash_redirection_enabled = asbool(redirect_enabled)
+
+    # Do not redirect if cliquet.trailing_slash_redirect_enabled is set to
+    # False.
+    if not trailing_slash_redirection_enabled:
+        return
+
+    def _view(request):
+        route_prefix = request.registry.route_prefix
+        path = request.matchdict['path']
+        querystring = request.url[(request.url.rindex(request.path) +
+                                   len(request.path)):]
+        redirect = '/%s/%s%s' % (route_prefix, path, querystring)
+        raise HTTPTemporaryRedirect(redirect)
+
+    config.add_route(name='redirect_no_trailing_slash',
+                     pattern='/{path:.+}/')
+    config.add_view(view=_view,
+                    route_name='redirect_no_trailing_slash',
+                    permission=NO_PERMISSION_REQUIRED)
+
+
 def setup_version_redirection(config):
     """Add a view which redirects to the current version of the API.
     """

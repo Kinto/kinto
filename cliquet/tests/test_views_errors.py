@@ -153,3 +153,30 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         response = self.app.get('/home/articles?_since=42')
         self.assertEqual(response.location,
                          'http://localhost/v0/home/articles?_since=42')
+
+
+class TrailingSlashRedirectViewTest(BaseWebTest, unittest.TestCase):
+    def test_redirect_to_non_trailing_slash_version(self):
+        # GET on the hello view.
+        response = self.app.get('/')
+        self.assertEqual(response.status_int, 200)
+
+        # GET on the fields view.
+        response = self.app.get('/mushrooms/')
+        self.assertEqual(response.status_int, 307)
+        self.assertEqual(response.location,
+                         'http://localhost/v0/mushrooms')
+
+    def test_do_not_redirect_if_disabled_in_settings(self):
+        # GET on the hello view.
+        app = self._get_test_app({
+            'cliquet.trailing_slash_redirect_enabled': False
+        })
+
+        app.get('/', status=200)
+        app.get('/mushrooms/', status=404)
+
+    def test_querystring_is_preserved_during_redirection(self):
+        response = self.app.get('/home/articles/?_since=42')
+        self.assertEqual(response.location,
+                         'http://localhost/v0/home/articles?_since=42')
