@@ -136,6 +136,7 @@ Step 1
 - Update ``CHANGELOG.rst``
 - Update version in ``docs/conf.py``
 - Known good versions of dependencies in ``requirements.txt``
+- Update ``CONTRIBUTORS.rst`` using: ``git shortlog -sne | awk '{$1=""; sub(" ", ""); print}'``
 
 .. code-block:: bash
 
