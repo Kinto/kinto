@@ -223,6 +223,9 @@ See :ref:`storage backend documentation <storage>` for more details.
 Cache
 =====
 
+Backend
+-------
+
 .. code-block:: ini
 
     cliquet.cache_backend = cliquet.cache.redis
@@ -232,6 +235,23 @@ Cache
     # cliquet.storage_pool_size = 50
 
 See :ref:`cache backend documentation <cache>` for more details.
+
+
+Headers
+-------
+
+It is possible to add cache control headers for each resource.
+The client (or proxy) will use them to cache the resource responses for a
+certain amount of time.
+
+If set to ``0`` then the resource becomes uncacheable (``no-cache``).
+
+.. code-block:: ini
+
+    cliquet.mushroom_cache_expires_seconds = 3600
+
+Basically, this will add both ``Cache-Control: max-age=3600`` and
+``Expire: <server datetime + 1H>`` response headers to the ``GET`` responses.
 
 
 .. _configuration-authentication:

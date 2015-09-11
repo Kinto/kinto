@@ -50,12 +50,14 @@ class ViewSet(object):
 
     default_collection_arguments = {}
     collection_get_arguments = {
-        'cors_headers': ('Next-Page', 'Total-Records', 'Last-Modified', 'ETag')
+        'cors_headers': ('Next-Page', 'Total-Records', 'Last-Modified', 'ETag',
+                         'Cache-Control', 'Expires', 'Pragma')
     }
 
     default_record_arguments = {}
     record_get_arguments = {
-        'cors_headers': ('Last-Modified', 'ETag')
+        'cors_headers': ('Last-Modified', 'ETag',
+                         'Cache-Control', 'Expires', 'Pragma')
     }
 
     def __init__(self, **kwargs):
@@ -362,6 +364,7 @@ class BaseResource(object):
             if filters or sorting are invalid.
         """
         self._add_timestamp_header(self.request.response)
+        self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified()
         self._raise_412_if_modified()
 
@@ -480,6 +483,7 @@ class BaseResource(object):
         record = self._get_record_or_404(self.record_id)
         timestamp = record[self.collection.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
+        self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified(record)
         self._raise_412_if_modified(record)
 
@@ -752,6 +756,16 @@ class BaseResource(object):
         response.last_modified = timestamp / 1000.0
         # Return timestamp as ETag.
         response.headers['ETag'] = encode_header('"%s"' % timestamp)
+
+    def _add_cache_header(self, response):
+        """Add Cache-Control and Expire headers, based a on a setting for the
+        current resource.
+        """
+        resource_name = self.context.resource_name if self.context else ''
+        setting_key = 'cliquet.%s_cache_expires_seconds' % resource_name
+        collection_expires = self.request.registry.settings.get(setting_key)
+        if collection_expires is not None:
+            response.cache_expires(seconds=int(collection_expires))
 
     def _raise_400_if_invalid_id(self, record_id):
         """Raise 400 if specified record id does not match the format excepted

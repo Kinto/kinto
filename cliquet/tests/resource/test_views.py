@@ -637,6 +637,23 @@ class ConflictErrorsTest(BaseWebTest):
         self.assertEqual(resp.json['details']['existing'], {'id': 42})
 
 
+class CacheControlTest(BaseWebTest):
+    def test_cache_control_headers_are_set(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('cliquet._cache_expires_seconds', 3600)]):
+            resp = self.app.get(self.collection_url, headers=self.headers)
+        self.assertIn('Expires', resp.headers)
+        self.assertIn('Cache-Control', resp.headers)
+
+    def test_cache_control_headers_set_no_cache_if_zero(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('cliquet._cache_expires_seconds', 0)]):
+            resp = self.app.get(self.collection_url, headers=self.headers)
+        self.assertIn('Expires', resp.headers)
+        self.assertIn('Cache-Control', resp.headers)
+        self.assertIn('Pragma', resp.headers)
+
+
 class StorageErrorTest(BaseWebTest):
     def __init__(self, *args, **kwargs):
         super(StorageErrorTest, self).__init__(*args, **kwargs)
