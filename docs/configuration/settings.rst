@@ -518,13 +518,14 @@ to add cache control headers for every *Kinto* object.
 The client (or cache server or proxy) will use them to cache the collection
 records for a certain amount of time, in seconds.
 
-The setting can be set for any kind of object (``bucket``, ``collection``, ``record``),
-and concerns read-only requests (``GET /buckets``, ``GET /buckets/{}/collections``,
+The setting can be set for any kind of object (``bucket``, ``group``, ``collection``, ``record``),
+and concerns read-only requests (``GET /buckets``, ``GET /buckets/{}/groups``, ``GET /buckets/{}/collections``,
 ``GET /buckets/{}/collections/{}/records``).
 
 .. code-block:: ini
 
     # cliquet.bucket_cache_expires_seconds = 3600
+    # cliquet.group_cache_expires_seconds = 3600
     # cliquet.collection_cache_expires_seconds = 3600
     cliquet.record_cache_expires_seconds = 3600
 
