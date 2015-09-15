@@ -1,29 +1,30 @@
 from .support import (BaseWebTest, unittest, MINIMALIST_RECORD)
 
 
-class ForcedCacheExpiresTest(BaseWebTest, unittest.TestCase):
+class SettingsExpiresTest(BaseWebTest, unittest.TestCase):
+    def get_app_settings(self, extra=None):
+        settings = super(SettingsExpiresTest, self).get_app_settings(extra)
+        settings['cliquet.record_cache_expires_seconds'] = 3600
+        return settings
+
     def setUp(self):
-        super(ForcedCacheExpiresTest, self).setUp()
+        super(SettingsExpiresTest, self).setUp()
         r = self.app.post_json('/buckets/default/collections/cached/records',
                                MINIMALIST_RECORD,
                                headers=self.headers)
         self.record = r.json['data']
 
-    def get_app_settings(self, extra=None):
-        settings = super(ForcedCacheExpiresTest, self).get_app_settings(extra)
-        settings['cliquet.record_cache_expires_seconds'] = 3600
-        return settings
-
-    def test_expire_and_cache_control_are_set(self):
+    def test_expires_and_cache_control_headers_are_set(self):
         url = '/buckets/default/collections/cached/records'
         r = self.app.get(url,
                          headers=self.headers)
         self.assertIn('Expires', r.headers)
-        self.assertIn('Cache-Control', r.headers)
+        self.assertEqual(r.headers['Cache-Control'], 'max-age=3600')
+
         r = self.app.get(url + '/%s' % self.record['id'],
                          headers=self.headers)
         self.assertIn('Expires', r.headers)
-        self.assertIn('Cache-Control', r.headers)
+        self.assertEqual(r.headers['Cache-Control'], 'max-age=3600')
 
 
 class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
@@ -48,13 +49,13 @@ class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
-    def test_expire_and_cache_control_are_set_on_records(self):
+    def test_expires_and_cache_control_are_set_on_records(self):
         r = self.app.get(self.records_url,
                          headers=self.headers)
         self.assertIn('Expires', r.headers)
-        self.assertIn('Cache-Control', r.headers)
+        self.assertEqual(r.headers['Cache-Control'], 'max-age=3600')
 
-    def test_expire_and_cache_control_are_set_on_record(self):
+    def test_expires_and_cache_control_are_set_on_record(self):
         r = self.app.get(self.record_url,
                          headers=self.headers)
         self.assertIn('Expires', r.headers)

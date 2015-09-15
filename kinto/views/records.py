@@ -78,8 +78,8 @@ class Record(resource.ProtectedResource):
 
         .. note::
 
-            Those headers are also sent if setting
-            ``cliquet.record_cache_expires_seconds`` is defined.
+            Those headers are also sent if the
+            ``cliquet.record_cache_expires_seconds`` setting is defined.
         """
         cache_expires = self._collection.get('cache_expires')
         if cache_expires is not None:
