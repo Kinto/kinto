@@ -154,7 +154,7 @@ class ApplicationWrapperTest(unittest.TestCase):
         mocked_profiler.assert_called_with(
             mock.sentinel.app,
             restrictions='*cliquet*',
-            profile_dir=('/tmp/path',))
+            profile_dir='/tmp/path')
 
         self.assertEquals(app, 'wrappedApp')
 

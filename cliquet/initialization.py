@@ -273,7 +273,7 @@ def install_middlewares(app, settings):
 
     # Adds the Werkzeug profiler.
     if asbool(settings.get('cliquet.profiler_enabled')):
-        profile_dir = settings['cliquet.profiler_dir'],
+        profile_dir = settings['cliquet.profiler_dir']
         app = ProfilerMiddleware(app, profile_dir=profile_dir,
                                  restrictions=('*cliquet*'))
 
