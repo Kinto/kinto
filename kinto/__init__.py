@@ -5,7 +5,8 @@ import cliquet
 from pyramid.config import Configurator
 from pyramid.settings import asbool
 from pyramid.security import Authenticated
-from cliquet.authorization import RouteFactory
+
+from kinto.authorization import RouteFactory
 
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution(__package__).version

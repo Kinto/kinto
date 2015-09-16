@@ -38,6 +38,9 @@ class BaseLoadTest(TestCase):
         self.session.auth = self.auth
         self.session.headers.update({'Content-Type': 'application/json'})
 
+        self.bucket = 'default'
+        self.collection = 'default'
+
         # Keep track of created objects.
         self._collections_created = {}
 

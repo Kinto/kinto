@@ -167,3 +167,14 @@ class RecordPermissionsTest(PermissionsTest):
                            MINIMALIST_RECORD,
                            headers=headers,
                            status=403)
+
+    def test_record_permissions_are_modified_by_patch(self):
+        collection_url = '/buckets/beer/collections/barley/records'
+        resp = self.app.post_json(collection_url,
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers)
+        record = resp.json['data']
+        resp = self.app.patch_json(collection_url + '/' + record['id'],
+                                   {'permissions': {'read': ['fxa:user']}},
+                                   headers=self.headers)
+        self.assertIn('fxa:user', resp.json['permissions']['read'])
