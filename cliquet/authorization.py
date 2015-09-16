@@ -89,7 +89,6 @@ class RouteFactory(object):
                           hasattr(service, 'viewset') and
                           hasattr(service, 'resource'))
 
-        object_id = None
         permission = None
         resource_name = None
         check_permission = None
@@ -138,7 +137,6 @@ class RouteFactory(object):
         settings_key = 'cliquet.%s_%s_principals' % (resource_name, permission)
         self.allowed_principals = aslist(settings.get(settings_key, ''))
         self.on_collection = on_collection
-        self.object_id = object_id
         self.required_permission = permission
         self.resource_name = resource_name
         self.check_permission = check_permission
