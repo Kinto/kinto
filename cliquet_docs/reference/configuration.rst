@@ -399,7 +399,7 @@ In order to enable Cliquet middleware, wrap the application in the project ``mai
       config = Configurator(settings=settings)
       cliquet.initialize(config, __version__)
       app = config.make_wsgi_app()
-      return cliquet.install_middlewares(app)
+      return cliquet.install_middlewares(app, settings)
 
 
 Initialization sequence
