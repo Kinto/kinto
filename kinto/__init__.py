@@ -48,4 +48,7 @@ def main(global_config, **settings):
         kwargs['ignore'] = 'kinto.views.flush'
     config.scan("kinto.views", **kwargs)
 
-    return config.make_wsgi_app()
+    app = config.make_wsgi_app()
+
+    # Install middleware (idempotent if disabled)
+    return cliquet.install_middlewares(app, settings)
