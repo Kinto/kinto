@@ -62,7 +62,6 @@ class RouteFactoryTest(unittest.TestCase):
             request.matchdict = {'bucket_id': 'abc'}
             context = RouteFactory(request)
 
-            self.assertEquals(context.object_id, '/buckets/abc')
             self.assertEquals(context.required_permission, 'create')
 
     def test_http_put_existing_record_resolves_in_a_write_permission(self):
@@ -76,7 +75,6 @@ class RouteFactoryTest(unittest.TestCase):
         request.registry = mock.Mock(settings={})
         request.authn_type = 'fxa'
         context = RouteFactory(request)
-        self.assertIsNone(context.object_id)
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.resource_name)
         self.assertIsNone(context.check_permission)
@@ -91,7 +89,6 @@ class RouteFactoryTest(unittest.TestCase):
 
         context = RouteFactory(request)
         self.assertIsNone(context.prefixed_userid)
-        self.assertIsNone(context.object_id)
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.resource_name)
         self.assertIsNone(context.check_permission)
