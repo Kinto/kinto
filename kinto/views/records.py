@@ -26,13 +26,13 @@ class Record(resource.ProtectedResource):
     def __init__(self, *args, **kwargs):
         super(Record, self).__init__(*args, **kwargs)
 
-        bucket_id = self.request.matchdict['bucket_id']
-        collection_id = self.request.matchdict['collection_id']
-        parent_id = '/buckets/%s' % bucket_id
+        self.bucket_id = self.request.matchdict['bucket_id']
+        self.collection_id = self.request.matchdict['collection_id']
+        collection_parent_id = '/buckets/%s' % self.bucket_id
         self._collection = object_exists_or_404(self.request,
                                                 collection_id='collection',
-                                                parent_id=parent_id,
-                                                object_id=collection_id)
+                                                parent_id=collection_parent_id,
+                                                object_id=self.collection_id)
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict['bucket_id']
@@ -82,5 +82,14 @@ class Record(resource.ProtectedResource):
             ``cliquet.record_cache_expires_seconds`` setting is defined.
         """
         cache_expires = self._collection.get('cache_expires')
+        if cache_expires is None:
+            by_bucket = 'cliquet.%s_record_cache_expires_seconds' % (
+                self.bucket_id)
+            by_collection = 'cliquet.%s_%s_record_cache_expires_seconds' % (
+                self.bucket_id, self.collection_id)
+            settings = self.request.registry.settings
+            cache_expires = settings.get(by_collection,
+                                         settings.get(by_bucket))
+
         if cache_expires is not None:
             response.cache_expires(seconds=cache_expires)

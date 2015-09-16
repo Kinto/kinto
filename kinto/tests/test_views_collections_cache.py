@@ -1,14 +1,15 @@
-from .support import (BaseWebTest, unittest, MINIMALIST_RECORD)
+from .support import (BaseWebTest, unittest, MINIMALIST_BUCKET,
+                      MINIMALIST_COLLECTION, MINIMALIST_RECORD)
 
 
-class SettingsExpiresTest(BaseWebTest, unittest.TestCase):
+class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extra=None):
-        settings = super(SettingsExpiresTest, self).get_app_settings(extra)
+        settings = super(GlobalSettingsTest, self).get_app_settings(extra)
         settings['cliquet.record_cache_expires_seconds'] = 3600
         return settings
 
     def setUp(self):
-        super(SettingsExpiresTest, self).setUp()
+        super(GlobalSettingsTest, self).setUp()
         r = self.app.post_json('/buckets/default/collections/cached/records',
                                MINIMALIST_RECORD,
                                headers=self.headers)
@@ -25,6 +26,51 @@ class SettingsExpiresTest(BaseWebTest, unittest.TestCase):
                          headers=self.headers)
         self.assertIn('Expires', r.headers)
         self.assertEqual(r.headers['Cache-Control'], 'max-age=3600')
+
+
+class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
+    def get_app_settings(self, extra=None):
+        settings = super(SpecificSettingsTest, self).get_app_settings(extra)
+        settings['cliquet.blog_record_cache_expires_seconds'] = 30
+        settings['cliquet.browser_top500_record_cache_expires_seconds'] = 60
+        return settings
+
+    def setUp(self):
+        super(SpecificSettingsTest, self).setUp()
+
+        def create_record_in_collection(bucket_id, collection_id):
+            self.app.put_json('/buckets/%s' % bucket_id,
+                              MINIMALIST_BUCKET,
+                              headers=self.headers)
+            collection_url = '/buckets/%s/collections/%s' % (bucket_id,
+                                                             collection_id)
+            self.app.put_json(collection_url,
+                              MINIMALIST_COLLECTION,
+                              headers=self.headers)
+            r = self.app.post_json(collection_url + '/records',
+                                   MINIMALIST_RECORD,
+                                   headers=self.headers)
+            return r.json['data']
+
+        self.blog_record = create_record_in_collection('blog', 'cached')
+        self.app_record = create_record_in_collection('browser', 'top500')
+
+    def assertHasCache(self, url, age):
+        r = self.app.get(url, headers=self.headers)
+        self.assertIn('Expires', r.headers)
+        self.assertEqual(r.headers['Cache-Control'], 'max-age=%s' % age)
+
+    def test_for_records_on_a_specific_bucket(self):
+        collection_url = '/buckets/blog/collections/cached/records'
+        self.assertHasCache(collection_url, 30)
+        record_url = collection_url + '/%s' % self.blog_record['id']
+        self.assertHasCache(record_url, 30)
+
+    def test_for_records_on_a_specific_collection(self):
+        collection_url = '/buckets/browser/collections/top500/records'
+        self.assertHasCache(collection_url, 60)
+        record_url = collection_url + '/%s' % self.app_record['id']
+        self.assertHasCache(record_url, 60)
 
 
 class CollectionExpiresTest(BaseWebTest, unittest.TestCase):

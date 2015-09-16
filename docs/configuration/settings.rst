@@ -519,7 +519,7 @@ The client (or cache server or proxy) will use them to cache the collection
 records for a certain amount of time, in seconds.
 
 The setting can be set for any kind of object (``bucket``, ``group``, ``collection``, ``record``),
-and concerns read-only requests (``GET /buckets``, ``GET /buckets/{}/groups``, ``GET /buckets/{}/collections``,
+and concerns GET requests (``GET /buckets``, ``GET /buckets/{}/groups``, ``GET /buckets/{}/collections``,
 ``GET /buckets/{}/collections/{}/records``).
 
 .. code-block:: ini
@@ -529,6 +529,12 @@ and concerns read-only requests (``GET /buckets``, ``GET /buckets/{}/groups``, `
     # cliquet.collection_cache_expires_seconds = 3600
     cliquet.record_cache_expires_seconds = 3600
 
+It can also be specified per bucket or collections for records:
+
+.. code-block:: ini
+
+    cliquet.blog_record_cache_expires_seconds = 30
+    cliquet.blog_articles_record_cache_expires_seconds = 3600
 
 If set to ``0`` then the resource becomes uncacheable (``no-cache``).
 
