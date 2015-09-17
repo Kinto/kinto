@@ -152,7 +152,6 @@ class Redis(PermissionBase):
                 if len(principals) > 0:
                     pipe.sadd(key, *principals)
             pipe.execute()
-        return permissions
 
     @wrap_redis_error
     def delete_object_permissions(self, *object_id_list):

@@ -1,5 +1,3 @@
-import re
-import six
 import functools
 from pyramid.settings import aslist
 from pyramid.security import IAuthorizationPolicy, Authenticated
@@ -70,6 +68,13 @@ class AuthorizationPolicy(object):
 
 
 class RouteFactory(object):
+    resource_name = None
+    on_collection = False
+    required_permission = None
+    allowed_principals = None
+    permission_object_id = None
+    get_shared_ids = None
+
     method_permissions = {
         "head": "read",
         "get": "read",
@@ -82,6 +87,11 @@ class RouteFactory(object):
         # Make it available for the authorization policy.
         self.prefixed_userid = getattr(request, "prefixed_userid", None)
 
+        self._check_permission = request.registry.permission.check_permission
+
+        # Partial collections of ProtectedResource:
+        self.shared_ids = []
+
         # Store service, resource, record and required permission.
         service = utils.current_service(request)
 
@@ -89,15 +99,9 @@ class RouteFactory(object):
                           hasattr(service, 'viewset') and
                           hasattr(service, 'resource'))
 
-        permission = None
-        resource_name = None
-        check_permission = None
-        on_collection = False
-        get_shared_ids = None
-
         if is_on_resource:
-            on_collection = getattr(service, "type", None) == "collection"
-            object_id = get_object_id(request.path)
+            self.on_collection = getattr(service, "type", None) == "collection"
+            self.permission_object_id = self.get_permission_object_id(request)
 
             # Decide what the required unbound permission is depending on the
             # method that's being requested.
@@ -111,39 +115,30 @@ class RouteFactory(object):
                 try:
                     resource.collection.get_record(resource.record_id)
                 except storage_exceptions.RecordNotFoundError:
-                    object_id = service.collection_path.format(
+                    self.permission_object_id = service.collection_path.format(
                         **request.matchdict)
-                    permission = "create"
+                    self.required_permission = "create"
                 else:
-                    permission = "write"
+                    self.required_permission = "write"
             else:
                 method = request.method.lower()
-                permission = self.method_permissions.get(method)
+                self.required_permission = self.method_permissions.get(method)
 
-            resource_name = service.viewset.get_name(service.resource)
-            check_permission = functools.partial(
-                request.registry.permission.check_permission,
-                object_id)
+            self.resource_name = service.viewset.get_name(service.resource)
 
-            if on_collection:
-                record_uri = record_uri_from_collection(request, '*')
-                object_id_match = get_object_id(record_uri.replace('%2A', '*'))
-
-                get_shared_ids = functools.partial(
+            if self.on_collection:
+                object_id_match = self.get_permission_object_id(request, '*')
+                self.get_shared_ids = functools.partial(
                     request.registry.permission.principals_accessible_objects,
                     object_id_match=object_id_match)
 
-        settings = request.registry.settings
-        settings_key = 'cliquet.%s_%s_principals' % (resource_name, permission)
-        self.allowed_principals = aslist(settings.get(settings_key, ''))
-        self.on_collection = on_collection
-        self.required_permission = permission
-        self.resource_name = resource_name
-        self.check_permission = check_permission
-        self.get_shared_ids = get_shared_ids
+            settings = request.registry.settings
+            setting = 'cliquet.%s_%s_principals' % (self.resource_name,
+                                                    self.required_permission)
+            self.allowed_principals = aslist(settings.get(setting, ''))
 
-        # Partial collections of ProtectedResource:
-        self.shared_ids = []
+    def check_permission(self, *args, **kw):
+        return self._check_permission(self.permission_object_id, *args, **kw)
 
     def fetch_shared_records(self, perm, principals, get_bound_permissions):
         ids = self.get_shared_ids(
@@ -151,28 +146,28 @@ class RouteFactory(object):
             principals=principals,
             get_bound_permissions=get_bound_permissions)
         # Store for later use in ``ProtectedResource``.
-        self.shared_ids = [extract_object_id(id_) for id_ in ids]
+        self.shared_ids = [self.extract_object_id(id_) for id_ in ids]
         return self.shared_ids
 
+    def get_permission_object_id(self, request, record_id=None):
+        record_uri = request.path
 
-def get_object_id(object_uri):
-    # Remove potential version prefix in URI.
-    return re.sub(r'^(/v\d+)?', '', six.text_type(object_uri))
+        if self.on_collection and record_id is not None:
+            # With the current request on a collection, the record URI must
+            # be found out by inspecting the collection service and its sibling
+            # record service.
+            service = utils.current_service(request)
+            # XXX: Why not use service.path.format(id=) ?
+            record_service = service.name.replace('-collection', '-record')
+            matchdict = request.matchdict.copy()
+            matchdict['id'] = record_id
+            record_uri = request.route_path(record_service, **matchdict)
 
+            if record_id == '*':
+                record_uri = record_uri.replace('%2A', '*')
 
-def extract_object_id(object_id):
-    # XXX: Help needed: use something like route.matchdict.get('id').
-    return object_id.split('/')[-1]
+        return utils.strip_uri_prefix(record_uri)
 
-
-def record_uri_from_collection(request, record_id):
-    """ With the current request on a collection, the record URI must
-    be found out by inspecting the collection service and its sibling
-    record service.
-    """
-    service = utils.current_service(request)
-    record_service = service.name.replace('-collection', '-record')
-    matchdict = request.matchdict.copy()
-    matchdict['id'] = record_id
-    record_uri = request.route_path(record_service, **matchdict)
-    return record_uri
+    def extract_object_id(self, object_uri):
+        # XXX: Help needed: use something like route.matchdict.get('id').
+        return object_uri.split('/')[-1]

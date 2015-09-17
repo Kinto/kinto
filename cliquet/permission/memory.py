@@ -124,10 +124,10 @@ class Memory(PermissionBase):
     def replace_object_permissions(self, object_id, permissions):
         for permission, principals in permissions.items():
             permission_key = 'permission:%s:%s' % (object_id, permission)
-            if len(principals) == 0:
+            if permission_key in self._store and len(principals) == 0:
                 del self._store[permission_key]
             else:
-                self._store[permission_key] = principals
+                self._store[permission_key] = set(principals)
         return permissions
 
     def delete_object_permissions(self, *object_id_list):

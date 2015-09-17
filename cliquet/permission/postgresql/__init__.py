@@ -292,7 +292,6 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         with self.connect() as cursor:
             cursor.execute(delete_query, placeholders)
             cursor.execute(insert_query, placeholders)
-        return permissions
 
     def delete_object_permissions(self, *object_id_list):
         query = """

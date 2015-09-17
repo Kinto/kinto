@@ -7,195 +7,17 @@ import six
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPNotFound, HTTPConflict)
 
-from cliquet import authorization
 from cliquet import logger
 from cliquet import Service
-from cliquet.collection import Collection
+from cliquet.collection import Collection, ProtectedCollection
+from cliquet.viewset import ViewSet, ProtectedViewSet
 from cliquet.errors import http_error, raise_invalid, send_alert, ERRORS
-from cliquet.schema import ResourceSchema, PermissionsSchema
+from cliquet.schema import ResourceSchema
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
     current_service, encode_header, decode_header
 )
-
-
-class ViewSet(object):
-    """The default ViewSet object.
-
-    A viewset contains all the information needed to register
-    any resource in the Cornice registry.
-
-    It provides the same features as ``cornice.resource()``, except
-    that it is much more flexible and extensible.
-    """
-    service_name = "{resource_name}-{endpoint_type}"
-    collection_path = "/{resource_name}s"
-    record_path = "/{resource_name}s/{{id}}"
-
-    collection_methods = ('GET', 'POST', 'DELETE')
-    record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
-    validate_schema_for = ('POST', 'PUT', 'PATCH')
-
-    readonly_methods = ('GET',)
-
-    service_arguments = {
-        'description': 'Collection of {resource_name}',
-        'cors_origins': ('*',)
-    }
-
-    default_arguments = {
-        'permission': authorization.PRIVATE
-    }
-
-    default_collection_arguments = {}
-    collection_get_arguments = {
-        'cors_headers': ('Next-Page', 'Total-Records', 'Last-Modified', 'ETag',
-                         'Cache-Control', 'Expires', 'Pragma')
-    }
-
-    default_record_arguments = {}
-    record_get_arguments = {
-        'cors_headers': ('Last-Modified', 'ETag',
-                         'Cache-Control', 'Expires', 'Pragma')
-    }
-
-    def __init__(self, **kwargs):
-        self.update(**kwargs)
-        self.record_arguments = functools.partial(self.get_view_arguments,
-                                                  'record')
-        self.collection_arguments = functools.partial(self.get_view_arguments,
-                                                      'collection')
-
-    def update(self, **kwargs):
-        """Update viewset attributes with provided values."""
-        self.__dict__.update(**kwargs)
-
-    def get_view_arguments(self, endpoint_type, resource, method):
-        """Return the Pyramid/Cornice view arguments for the given endpoint
-        type and method.
-
-        :param str endpoint_type: either "collection" or "record".
-        :param resource: the resource object.
-        :param str method: the HTTP method.
-        """
-        args = self.default_arguments.copy()
-        default_arguments = getattr(self,
-                                    'default_%s_arguments' % endpoint_type)
-        args.update(**default_arguments)
-
-        by_method = '%s_%s_arguments' % (endpoint_type, method.lower())
-        method_args = getattr(self, by_method, {})
-        args.update(**method_args)
-
-        args['schema'] = self.get_record_schema(resource, method)
-
-        return args
-
-    def get_record_schema(self, resource, method):
-        """Return the Cornice schema for the given method.
-        """
-        simple_mapping = colander.MappingSchema(unknown='preserve')
-
-        if method.lower() not in map(str.lower, self.validate_schema_for):
-            # Simply validate that posted body is a mapping.
-            return simple_mapping
-
-        if method.lower() == 'patch':
-            record_mapping = simple_mapping
-        else:
-            record_mapping = resource.mapping
-
-            try:
-                record_mapping.deserialize({})
-                # Empty data accepted.
-                record_mapping.missing = colander.drop
-                record_mapping.default = {}
-            except colander.Invalid:
-                pass
-
-        class PayloadSchema(colander.MappingSchema):
-            data = record_mapping
-
-            def schema_type(self, **kw):
-                return colander.Mapping(unknown='raise')
-
-        return PayloadSchema()
-
-    def get_view(self, endpoint_type, method):
-        """Return the view method name located on the resource object, for the
-        given type and method.
-
-        * For collections, this will be "collection_{method|lower}
-        * For records, this will be "{method|lower}.
-        """
-        if endpoint_type == 'record':
-            return method.lower()
-        return '%s_%s' % (endpoint_type, method.lower())
-
-    def get_name(self, resource):
-        """Returns the name of the resource.
-        """
-        if 'name' in self.__dict__:
-            name = self.__dict__['name']
-        elif hasattr(resource, 'name') and not callable(resource.name):
-            name = resource.name
-        else:
-            name = resource.__name__.lower()
-
-        return name
-
-    def get_service_name(self, endpoint_type, resource):
-        """Returns the name of the service, depending a given type and
-        resource.
-        """
-        return self.service_name.format(
-            resource_name=self.get_name(resource),
-            endpoint_type=endpoint_type)
-
-    def get_service_arguments(self):
-        return self.service_arguments.copy()
-
-    def is_endpoint_enabled(self, endpoint_type, resource_name, method,
-                            settings):
-        """Returns if the given endpoint is enabled or not.
-
-        Uses the settings to tell so.
-        """
-        setting_enabled = 'cliquet.%s_%s_%s_enabled' % (
-            endpoint_type, resource_name, method.lower())
-        return settings.get(setting_enabled, True)
-
-
-class ProtectedViewSet(ViewSet):
-    def get_record_schema(self, resource, method):
-        schema = super(ProtectedViewSet, self).get_record_schema(resource,
-                                                                 method)
-
-        if method.lower() not in map(str.lower, self.validate_schema_for):
-            return schema
-
-        if method.lower() == 'patch':
-            # Data is optional when patching permissions.
-            schema.children[-1].missing = colander.drop
-
-        permissions_node = PermissionsSchema(missing=colander.drop,
-                                             permissions=resource.permissions,
-                                             name='permissions')
-        schema.add(permissions_node)
-        return schema
-
-    def get_view_arguments(self, endpoint_type, resource, method):
-        args = super(ProtectedViewSet, self).get_view_arguments(endpoint_type,
-                                                                resource,
-                                                                method)
-        args['permission'] = authorization.DYNAMIC
-        return args
-
-    def get_service_arguments(self):
-        args = super(ProtectedViewSet, self).get_service_arguments()
-        args['factory'] = authorization.RouteFactory
-        return args
 
 
 def register(depth=1, **kwargs):
@@ -292,7 +114,13 @@ class BaseResource(object):
     """Base resource class providing every endpoint."""
 
     default_viewset = ViewSet
-    """Default viewset class to use when the resource is registered."""
+    """Default :class:`cliquet.viewset.ViewSet` class to use when the resource
+    is registered."""
+
+    default_collection = Collection
+    """Default :class:`cliquet.collection.Collection` class to use for
+    interacting the :module:`cliquet.storage` and :module:`cliquet.permission`
+    backends."""
 
     mapping = ResourceSchema()
     """Schema to validate records."""
@@ -304,7 +132,7 @@ class BaseResource(object):
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get('Authorization')
 
-        self.collection = Collection(
+        self.collection = self.default_collection(
             storage=request.registry.storage,
             id_generator=request.registry.id_generator,
             collection_id=classname(self),
@@ -315,6 +143,7 @@ class BaseResource(object):
         self.context = context
         self.timestamp = self.collection.timestamp()
         self.record_id = self.request.matchdict.get('id')
+        self.force_patch_update = False
 
         # Log resource context.
         logger.bind(collection_id=self.collection.collection_id,
@@ -394,10 +223,7 @@ class BaseResource(object):
         logger.bind(nb_records=len(records), limit=limit)
         headers['Total-Records'] = encode_header('%s' % total_records)
 
-        body = {
-            'data': records,
-        }
-        return body
+        return self.postprocess(records)
 
     def collection_post(self):
         """Collection ``POST`` endpoint: create a record.
@@ -438,10 +264,7 @@ class BaseResource(object):
         except storage_exceptions.UnicityError as e:
             record = e.record
 
-        body = {
-            'data': record,
-        }
-        return body
+        return self.postprocess(record)
 
     def collection_delete(self):
         """Collection ``DELETE`` endpoint: delete multiple records.
@@ -459,10 +282,7 @@ class BaseResource(object):
         filters = self._extract_filters()
         deleted = self.collection.delete_records(filters=filters)
 
-        body = {
-            'data': deleted,
-        }
-        return body
+        return self.postprocess(deleted)
 
     def get(self):
         """Record ``GET`` endpoint: retrieve a record.
@@ -487,10 +307,7 @@ class BaseResource(object):
         self._raise_304_if_not_modified(record)
         self._raise_412_if_modified(record)
 
-        body = {
-            'data': record,
-        }
-        return body
+        return self.postprocess(record)
 
     def put(self):
         """Record ``PUT`` endpoint: create or replace the provided record and
@@ -546,10 +363,7 @@ class BaseResource(object):
         timestamp = record[self.collection.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-        body = {
-            'data': record,
-        }
-        return body
+        return self.postprocess(record)
 
     def patch(self):
         """Record ``PATCH`` endpoint: modify a record and return its
@@ -591,7 +405,7 @@ class BaseResource(object):
                           if old_record.get(k) != new_record.get(k)]
 
         # Save in storage if necessary.
-        if changed_fields:
+        if changed_fields or self.force_patch_update:
             try:
                 unique_fields = self.mapping.get_option('unique_fields')
                 new_record = self.collection.update_record(
@@ -623,10 +437,7 @@ class BaseResource(object):
                                    old_record[self.collection.modified_field])
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-        body = {
-            'data': data,
-        }
-        return body
+        return self.postprocess(data)
 
     def delete(self):
         """Record ``DELETE`` endpoint: delete a record and return it.
@@ -645,10 +456,7 @@ class BaseResource(object):
 
         deleted = self.collection.delete_record(record)
 
-        body = {
-            'data': deleted,
-        }
-        return body
+        return self.postprocess(deleted)
 
     #
     # Data processing
@@ -728,6 +536,12 @@ class BaseResource(object):
             # validated only once the changes are applied
             for field, error in e.asdict().items():
                 raise_invalid(self.request, name=field, description=error)
+
+    def postprocess(self, result):
+        body = {
+            'data': result
+        }
+        return body
 
     #
     # Internals
@@ -1082,9 +896,28 @@ class BaseResource(object):
 
 
 class ProtectedResource(BaseResource):
-
+    """Protected resources allow to set permissions on records, in order to
+    share their access or protect their modification.
+    """
+    default_collection = ProtectedCollection
     default_viewset = ProtectedViewSet
     permissions = ('read', 'write')
+    """List of allowed permissions names."""
+
+    def __init__(self, *args, **kwargs):
+        super(ProtectedResource, self).__init__(*args, **kwargs)
+        # In base resource, PATCH only hit storage if no data has changed.
+        # Here, we force update because we add the current principal to
+        # the ``write`` ACE.
+        self.force_patch_update = True
+
+        # Required by the ProtectedCollection class.
+        self.collection.permission = self.request.registry.permission
+        self.collection.current_principal = self.request.prefixed_userid
+        if self.context:
+            self.collection.get_permission_object_id = functools.partial(
+                self.context.get_permission_object_id,
+                self.request)
 
     def _extract_filters(self, queryparams=None):
         """Override default filters extraction from QueryString to allow
@@ -1101,132 +934,32 @@ class ProtectedResource(BaseResource):
 
         return filters
 
-    def _store_permissions(self, object_id, replace=False):
-        """Go through the permissions from request body, and store them
-        for the specified `object_id`.
-
-        :param bool replace: If ``True`` any existing permission will be
-            erased.
-        :returns: the resulting mapping of permissions.
+    def process_record(self, new, old=None):
+        """Read permissions from request body, and in the case of ``PUT`` every
+        existing ACE is removed (using empty list).
         """
-        permissions = self.request.validated.get('permissions')
+        permissions = self.request.validated.get('permissions', {})
 
-        add_write_perm = (self.request.method.lower() in ('put', 'post',
-                                                          'patch'))
+        if permissions:
+            is_put = (self.request.method.lower() == 'put')
+            if is_put:
+                # Remove every existing ACEs using empty lists.
+                for perm in self.permissions:
+                    permissions.setdefault(perm, [])
+            new[self.collection.permissions_field] = permissions
 
-        is_patch = (self.request.method.lower() == 'patch')
+        return new
 
-        # Do nothing if not specified in request body.
-        if not permissions:
-            permissions = self._build_permissions(object_id)
-            if is_patch:
-                replace = False
+    def postprocess(self, result):
+        """Add ``permissions`` attribute in response body.
 
-        if replace:
-            # XXX: add replace method to permissions API.
-            kwargs = {}
-            if is_patch:
-                kwargs['permissions'] = permissions
-            self._delete_permissions(object_id, **kwargs)
-
-        if add_write_perm:
-            write_principals = permissions.setdefault('write', [])
-            user_principal = self.request.prefixed_userid
-            if user_principal not in write_principals:
-                write_principals.insert(0, user_principal)
-
-        registry = self.request.registry
-        add_principal = registry.permission.add_principal_to_ace
-
-        for permission, principals in permissions.items():
-            for principal in principals:
-                add_principal(object_id, permission, principal)
-
-        return permissions
-
-    def _delete_permissions(self, object_id, permissions=None):
-        if not permissions:
-            permissions = self.permissions
-        registry = self.request.registry
-        del_principal = registry.permission.remove_principal_from_ace
-        get_perm_principals = registry.permission.object_permission_principals
-
-        for permission in permissions:
-            existing = list(get_perm_principals(object_id, permission))
-            for principal in existing:
-                del_principal(object_id, permission, principal)
-
-    def _build_permissions(self, object_id):
-        """Fetch the stored permissions for the specified `object_id` and
-        returns a mapping representing ACLs.
+        In the protocol, it was decided that ``permissions`` would reside
+        outside the ``data`` attribute.
         """
-        registry = self.request.registry
-        get_perm_principals = registry.permission.object_permission_principals
-
-        permissions = {}
-        for perm in self.permissions:
-            principals = get_perm_principals(object_id, perm)
-            if principals:
-                permissions[perm] = list(principals)
-        return permissions
-
-    def collection_post(self):
-        """Override the collection POST endpoint to store the permissions
-        specified for the newly created record.
-        """
-        result = super(ProtectedResource, self).collection_post()
-
-        record_id = result['data'][self.collection.id_field]
-        record_uri = authorization.record_uri_from_collection(self.request,
-                                                              record_id)
-
-        object_id = authorization.get_object_id(record_uri)
-        result['permissions'] = self._store_permissions(object_id=object_id)
-        return result
-
-    def collection_delete(self):
-        """Override the collection DELETE endpoint to clear the permissions
-        of the delete records.
-        """
-        result = super(ProtectedResource, self).collection_delete()
-
-        for record in result['data']:
-            record_id = record[self.collection.id_field]
-            record_uri = authorization.record_uri_from_collection(self.request,
-                                                                  record_id)
-
-            # XXX: inefficient within loop.
-            object_id = authorization.get_object_id(record_uri)
-            self._delete_permissions(object_id)
-
-        return result
-
-    def get(self):
-        result = super(ProtectedResource, self).get()
-
-        object_id = authorization.get_object_id(self.request.path)
-        result['permissions'] = self._build_permissions(object_id=object_id)
-        return result
-
-    def put(self):
-        result = super(ProtectedResource, self).put()
-
-        object_id = authorization.get_object_id(self.request.path)
-        self._store_permissions(object_id=object_id, replace=True)
-        result['permissions'] = self._build_permissions(object_id=object_id)
-        return result
-
-    def patch(self):
-        result = super(ProtectedResource, self).patch()
-
-        object_id = authorization.get_object_id(self.request.path)
-        self._store_permissions(object_id=object_id, replace=True)
-        result['permissions'] = self._build_permissions(object_id=object_id)
-        return result
-
-    def delete(self):
-        result = super(ProtectedResource, self).delete()
-
-        object_id = authorization.get_object_id(self.request.path)
-        self._delete_permissions(object_id=object_id)
+        result = super(ProtectedResource, self).postprocess(result)
+        if not isinstance(result['data'], list):
+            permissions = result['data'].pop(self.collection.permissions_field,
+                                             None)
+            if permissions is not None:
+                result['permissions'] = permissions
         return result

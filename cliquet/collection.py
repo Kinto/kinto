@@ -233,3 +233,95 @@ class Collection(object):
                                    modified_field=self.modified_field,
                                    deleted_field=self.deleted_field,
                                    auth=self.auth)
+
+
+class ProtectedCollection(Collection):
+    """A protected collection interacts with the permission backend.
+    """
+    permissions_field = '__permissions__'
+
+    def __init__(self, *args, **kwargs):
+        super(ProtectedCollection, self).__init__(*args, **kwargs)
+        # Permission backend.
+        self.permission = None
+        # Object permission id.
+        self.get_permission_object_id = None
+        # Current user main principal.
+        self.current_principal = None
+
+    def _allow_write(self, perm_object_id):
+        """Helper to give the ``write`` permission to the current user.
+        """
+        self.permission.add_principal_to_ace(perm_object_id,
+                                             'write',
+                                             self.current_principal)
+
+    def delete_records(self, filters=None, parent_id=None):
+        """Delete permissions when collection records are deleted in bulk.
+        """
+        deleted = super(ProtectedCollection, self).delete_records(filters,
+                                                                  parent_id)
+        perm_ids = [self.get_permission_object_id(record_id=r[self.id_field])
+                    for r in deleted]
+        self.permission.delete_object_permissions(*perm_ids)
+        return deleted
+
+    def get_record(self, record_id, parent_id=None):
+        """Fetch current permissions and add them to returned record.
+        """
+        record = super(ProtectedCollection, self).get_record(
+            record_id, parent_id)
+        perm_object_id = self.get_permission_object_id(record_id)
+        permissions = self.permission.object_permissions(perm_object_id)
+        record[self.permissions_field] = permissions
+        return record
+
+    def create_record(self, record, parent_id=None, unique_fields=None):
+        """Create record and set specified permissions.
+
+        The current principal is added to the owner (``write`` permission).
+        """
+        permissions = record.pop(self.permissions_field, {})
+        record = super(ProtectedCollection, self).create_record(
+            record, parent_id, unique_fields)
+
+        record_id = record[self.id_field]
+        perm_object_id = self.get_permission_object_id(record_id)
+        self.permission.replace_object_permissions(perm_object_id, permissions)
+        self._allow_write(perm_object_id)
+        permissions = self.permission.object_permissions(perm_object_id)
+        record[self.permissions_field] = permissions
+
+        return record
+
+    def update_record(self, record, parent_id=None, unique_fields=None):
+        """Update record and the specified permissions.
+
+        If no permissions is specified, the current permissions are not
+        modified.
+
+        The current principal is added to the owner (``write`` permission).
+        """
+        permissions = record.pop(self.permissions_field, {})
+        record = super(ProtectedCollection, self).update_record(
+            record, parent_id, unique_fields)
+
+        record_id = record[self.id_field]
+        perm_object_id = self.get_permission_object_id(record_id)
+        self.permission.replace_object_permissions(perm_object_id, permissions)
+        self._allow_write(perm_object_id)
+        permissions = self.permission.object_permissions(perm_object_id)
+        record[self.permissions_field] = permissions
+
+        return record
+
+    def delete_record(self, record_id, parent_id=None):
+        """Delete record and its associated permissions.
+        """
+        record = super(ProtectedCollection, self).delete_record(
+            record_id, parent_id)
+
+        perm_object_id = self.get_permission_object_id(record_id)
+        self.permission.delete_object_permissions(perm_object_id)
+
+        return record
