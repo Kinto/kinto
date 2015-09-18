@@ -25,6 +25,9 @@ class PermissionBaseTest(unittest.TestCase):
             (self.permission.add_principal_to_ace, '', '', ''),
             (self.permission.remove_principal_from_ace, '', '', ''),
             (self.permission.object_permission_principals, '', ''),
+            (self.permission.object_permissions, ''),
+            (self.permission.replace_object_permissions, '', {}),
+            (self.permission.delete_object_permissions, ''),
             (self.permission.principals_accessible_objects, [], ''),
             (self.permission.object_permission_authorized_principals, '', ''),
         ]
@@ -66,6 +69,10 @@ class BaseTestPermission(object):
             (self.permission.add_principal_to_ace, '', '', ''),
             (self.permission.remove_principal_from_ace, '', '', ''),
             (self.permission.object_permission_principals, '', ''),
+            (self.permission.object_permissions, ''),
+            (self.permission.replace_object_permissions, '', {}),
+            (self.permission.delete_object_permissions, ''),
+            (self.permission.principals_accessible_objects, [], ''),
             (self.permission.object_permission_authorized_principals, '', ''),
         ]
         for call in calls:
@@ -282,6 +289,90 @@ class BaseTestPermission(object):
                                                 ('/url/a/id/*', 'write'),
                                                 ('/url/a/id/*', 'read')])
         self.assertEquals(object_ids, set(['/url/a/id/1', '/url/a/id/2']))
+
+    def test_object_permissions_return_all_object_acls(self):
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'read', 'user3')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'create', 'user1')
+        object_permissions = self.permission.object_permissions('/url/a/id/1')
+        self.assertDictEqual(object_permissions, {
+            "write": {"user1", "user2"},
+            "read": {"user3"},
+            "create": {"user1"}
+        })
+
+    def test_object_permissions_return_listed_object_acls(self):
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'read', 'user3')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'create', 'user1')
+        object_permissions = self.permission.object_permissions(
+            '/url/a/id/1', ['write', 'read'])
+        self.assertDictEqual(object_permissions, {
+            "write": {"user1", "user2"},
+            "read": {"user3"}
+        })
+
+    def test_object_permissions_return_empty_dict(self):
+        self.assertDictEqual(self.permission.object_permissions('abc'), {})
+
+    def test_replace_object_permission_replace_all_given_sets(self):
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'read', 'user3')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'create', 'user1')
+
+        self.permission.replace_object_permissions('/url/a/id/1', {
+            "write": ["user1"],
+            "read": set(["user2"]),
+            "create": set(),
+            "new": ["user3"]
+        })
+
+        object_permissions = self.permission.object_permissions('/url/a/id/1')
+        self.assertDictEqual(object_permissions, {
+            "write": {"user1"},
+            "read": {"user2"},
+            "new": {"user3"}
+        })
+
+    def test_replace_object_permission_only_replace_given_sets(self):
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'read', 'user3')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'create', 'user1')
+
+        self.permission.replace_object_permissions('/url/a/id/1', {
+            "write": ["user1"],
+            "new": set(["user2"])
+        })
+
+        object_permissions = self.permission.object_permissions('/url/a/id/1')
+        self.assertDictEqual(object_permissions, {
+            "write": {"user1"},
+            "read": {"user3"},
+            "new": {"user2"},
+            "create": {"user1"}
+        })
+
+    def test_delete_object_permissions_remove_all_given_objects_acls(self):
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'read', 'user3')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'create', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/2', 'create', 'user3')
+        self.permission.add_principal_to_ace('/url/a/id/3', 'create', 'user4')
+
+        self.permission.delete_object_permissions('/url/a/id/1',
+                                                  '/url/a/id/2')
+
+        self.assertDictEqual(self.permission.object_permissions(
+            '/url/a/id/1'), {})
+        self.assertDictEqual(self.permission.object_permissions(
+            '/url/a/id/2'), {})
+        self.assertDictEqual(self.permission.object_permissions(
+            '/url/a/id/3'), {"create": {"user4"}})
 
 
 class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):

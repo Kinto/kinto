@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import os
 
+from collections import defaultdict
 from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
@@ -235,6 +236,70 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
             cursor.execute(query)
             result = cursor.fetchone()
         return result['matched'] > 0
+
+    def object_permissions(self, object_id, permissions=None):
+        query = """
+        SELECT permission, principal
+        FROM access_control_entries
+        WHERE object_id = %(object_id)s"""
+
+        placeholders = dict(object_id=object_id)
+        if permissions is not None:
+            query += """
+        AND permission IN %(permissions)s;"""
+            placeholders["permissions"] = tuple(permissions)
+        with self.connect() as cursor:
+            cursor.execute(query, placeholders)
+            results = cursor.fetchall()
+        permissions = defaultdict(set)
+        for r in results:
+            permissions[r['permission']].add(r['principal'])
+        return permissions
+
+    def replace_object_permissions(self, object_id, permissions):
+        placeholders = {
+            'object_id': object_id
+        }
+
+        new_perms = []
+        specified_perms = []
+        for i, (perm, principals) in enumerate(permissions.items()):
+            placeholders['perm_%s' % i] = perm
+            specified_perms.append("(%%(perm_%s)s)" % i)
+            for principal in principals:
+                j = len(new_perms)
+                placeholders['principal_%s' % j] = principal
+                new_perms.append("(%%(perm_%s)s, %%(principal_%s)s)" % (i, j))
+
+        delete_query = """
+        WITH specified_perms AS (
+          VALUES %(specified_perms)s
+        )
+        DELETE FROM access_control_entries
+         USING specified_perms
+         WHERE object_id = %%(object_id)s AND permission = column1
+        """ % dict(specified_perms=','.join(specified_perms))
+
+        insert_query = """
+        WITH new_aces AS (
+          VALUES %(new_perms)s
+        )
+        INSERT INTO access_control_entries(object_id, permission, principal)
+          SELECT %%(object_id)s, column1, column2
+            FROM new_aces;
+        """ % dict(new_perms=','.join(new_perms))
+
+        with self.connect() as cursor:
+            cursor.execute(delete_query, placeholders)
+            cursor.execute(insert_query, placeholders)
+        return permissions
+
+    def delete_object_permissions(self, *object_id_list):
+        query = """
+        DELETE FROM access_control_entries
+         WHERE object_id IN %(object_id_list)s;"""
+        with self.connect() as cursor:
+            cursor.execute(query, dict(object_id_list=tuple(object_id_list)))
 
 
 def load_from_config(config):

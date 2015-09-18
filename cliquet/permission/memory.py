@@ -108,6 +108,37 @@ class Memory(PermissionBase):
             principals |= self.object_permission_principals(obj_id, perm)
         return principals
 
+    def object_permissions(self, object_id, permissions=None):
+        if permissions is None:
+            aces = [k for k in self._store
+                    if k.startswith('permission:%s' % object_id)]
+        else:
+            aces = ['permission:%s:%s' % (object_id, permission)
+                    for permission in permissions]
+        permissions = {}
+        for ace in aces:
+            _, _, permission = ace.split(':')
+            permissions[permission] = set(self._store[ace])
+        return permissions
+
+    def replace_object_permissions(self, object_id, permissions):
+        for permission, principals in permissions.items():
+            permission_key = 'permission:%s:%s' % (object_id, permission)
+            if len(principals) == 0:
+                del self._store[permission_key]
+            else:
+                self._store[permission_key] = principals
+        return permissions
+
+    def delete_object_permissions(self, *object_id_list):
+        to_delete = []
+        for key in self._store:
+            _, object_id, _ = key.split(':')
+            if object_id in object_id_list:
+                to_delete.append(key)
+        for k in to_delete:
+            del self._store[k]
+
 
 def load_from_config(config):
     return Memory()
