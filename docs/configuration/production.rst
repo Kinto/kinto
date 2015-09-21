@@ -221,3 +221,31 @@ Here's an example:
 
 To use a different ini file, the ``KINTO_INI`` environment variable
 should be present with a path to it.
+
+.. _production-cache-server:
+
+Nginx as cache server
+---------------------
+
+If *Nginx* is used as a reverse proxy, it can also `act as a cache server <https://serversforhackers.com/nginx-caching>`_
+by taking advantage of *Kinto* optional cache control response headers
+(forced :ref:`in settings <configuration-client-caching>`
+or set :ref:`on collections <collection-caching>`).
+
+A sample *Nginx* configuration could look like so:
+
+::
+
+    proxy_cache_path /tmp/nginx levels=1:2 keys_zone=my_zone:100m inactive=200m;
+    proxy_cache_key "$scheme$request_method$host$request_uri$";
+
+    server {
+        ...
+
+        location / {
+            proxy_cache my_zone;
+
+            include proxy_params;
+            proxy_pass http://127.0.0.1:8888;
+        }
+    }

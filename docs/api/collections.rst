@@ -8,6 +8,9 @@ A collection belongs to a bucket and stores records.
 A collection is a mapping with the following attribute:
 
 * ``schema``: (*optional*) a JSON schema to validate the collection records
+* ``cache_expires``: (*optional*, in seconds) add client cache headers on read-only requests.
+  :ref:`More details...<collection-caching>`
+
 
 .. note::
 
@@ -476,3 +479,76 @@ to an empty mapping.
             ]
         }
     }
+
+
+.. _collection-caching:
+
+Collection caching
+==================
+
+With the ``cache_expires`` attribute on a collection, it is possible to add client
+cache control response headers for read-only requests.
+The client (or cache server or proxy) will use them to cache the collection
+records for a certain amount of time, in seconds.
+
+For example, set it to ``3600`` (1 hour):
+
+.. code-block:: bash
+
+    echo '{"data": {"cache_expires": 3600} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth admin:
+
+From now on, the cache control headers are set for the `GET` requests:
+
+.. code-block:: bash
+
+    http  "http://localhost:8888/v1/buckets/default/collections/articles/records" --auth admin:
+
+.. code-block:: http
+    :emphasize-lines: 3,8
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag, Cache-Control, Expires, Pragma
+    Cache-Control: max-age=3600
+    Content-Length: 11
+    Content-Type: application/json; charset=UTF-8
+    Date: Mon, 14 Sep 2015 13:51:47 GMT
+    Etag: "1442238450779"
+    Expires: Mon, 14 Sep 2015 14:51:47 GMT
+    Last-Modified: Mon, 14 Sep 2015 13:47:30 GMT
+    Server: waitress
+    Total-Records: 0
+
+    {
+        "data": [...]
+    }
+
+
+If set to ``0``, the collection records become explicitly uncacheable (``no-cache``).
+
+.. code-block:: bash
+
+    echo '{"data": {"cache_expires": 0} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth admin:
+
+.. code-block:: http
+    :emphasize-lines: 3,8,10
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag, Cache-Control, Expires, Pragma
+    Cache-Control: max-age=0, must-revalidate, no-cache, no-store
+    Content-Length: 11
+    Content-Type: application/json; charset=UTF-8
+    Date: Mon, 14 Sep 2015 13:54:51 GMT
+    Etag: "1442238450779"
+    Expires: Mon, 14 Sep 2015 13:54:51 GMT
+    Last-Modified: Mon, 14 Sep 2015 13:47:30 GMT
+    Pragma: no-cache
+    Server: waitress
+    Total-Records: 0
+
+    {
+        "data": []
+    }
+
+.. note::
+
+    This can also be forced from settings, see :ref:`configuration section <configuration-client-caching>`.

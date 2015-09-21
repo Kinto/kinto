@@ -507,6 +507,43 @@ dangerous to leave on by default, and must therefore be enabled explicitly.
 Then, issue a `POST` request to the `/__flush__` endpoint to flush all
 the data.
 
+
+.. _configuration-client-caching:
+
+Client caching
+==============
+
+In addition to :ref:`per-collection caching <collection-caching>`, it is possible
+to add cache control headers for every *Kinto* object.
+The client (or cache server or proxy) will use them to cache the collection
+records for a certain amount of time, in seconds.
+
+The setting can be set for any kind of object (``bucket``, ``group``, ``collection``, ``record``),
+and concerns GET requests (``GET /buckets``, ``GET /buckets/{}/groups``, ``GET /buckets/{}/collections``,
+``GET /buckets/{}/collections/{}/records``).
+
+.. code-block:: ini
+
+    # cliquet.bucket_cache_expires_seconds = 3600
+    # cliquet.group_cache_expires_seconds = 3600
+    # cliquet.collection_cache_expires_seconds = 3600
+    cliquet.record_cache_expires_seconds = 3600
+
+It can also be specified per bucket or collections for records:
+
+.. code-block:: ini
+
+    cliquet.blog_record_cache_expires_seconds = 30
+    cliquet.blog_articles_record_cache_expires_seconds = 3600
+
+If set to ``0`` then the resource becomes uncacheable (``no-cache``).
+
+.. note::
+
+    In production, :ref:`Nginx can act as a cache-server <production-cache-server>`
+    using those client cache control headers.
+
+
 Project information
 ===================
 
