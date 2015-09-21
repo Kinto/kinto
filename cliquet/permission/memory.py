@@ -117,7 +117,8 @@ class Memory(PermissionBase):
                     for permission in permissions]
         permissions = {}
         for ace in aces:
-            _, _, permission = ace.split(':')
+            # Should work with stuff like 'permission:/url/id:record:create'.
+            permission = ace.split(':', 2)[2]
             permissions[permission] = set(self._store[ace])
         return permissions
 
@@ -133,7 +134,7 @@ class Memory(PermissionBase):
     def delete_object_permissions(self, *object_id_list):
         to_delete = []
         for key in self._store:
-            _, object_id, _ = key.split(':')
+            object_id = key.split(':')[1]
             if object_id in object_id_list:
                 to_delete.append(key)
         for k in to_delete:
