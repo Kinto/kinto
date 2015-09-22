@@ -12,7 +12,7 @@ logger = structlog.get_logger()
 def decode_value(value):
     try:
         return six.text_type(value)
-    except UnicodeDecodeError:
+    except UnicodeDecodeError:  # pragma: no cover
         return six.binary_type(value).decode('utf-8')
 
 
