@@ -958,8 +958,7 @@ class ProtectedResource(BaseResource):
         """
         result = super(ProtectedResource, self).postprocess(result)
         if not isinstance(result['data'], list):
-            permissions = result['data'].pop(self.collection.permissions_field,
-                                             None)
-            if permissions is not None:
-                result['permissions'] = permissions
+            perms = result['data'].pop(self.collection.permissions_field, None)
+            if perms is not None:
+                result['permissions'] = {k: list(p) for k, p in perms.items()}
         return result
