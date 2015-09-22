@@ -257,6 +257,9 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         return permissions
 
     def replace_object_permissions(self, object_id, permissions):
+        if not permissions:
+            return
+
         placeholders = {
             'object_id': object_id
         }
