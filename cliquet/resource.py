@@ -553,6 +553,10 @@ class BaseResource(object):
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
             the record is not found.
         """
+        if self.context and self.context.current_record:
+            # Set during authorization. Save a storage hit.
+            return self.context.current_record
+
         try:
             return self.collection.get_record(record_id)
         except storage_exceptions.RecordNotFoundError:

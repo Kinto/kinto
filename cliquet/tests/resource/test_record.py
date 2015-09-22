@@ -74,6 +74,13 @@ class PutTest(BaseTest):
         result = self.resource.put()['data']
         self.assertNotEqual(result['last_modified'], 123)
 
+    def test_storage_is_not_used_if_context_provides_current_record(self):
+        self.resource.context.current_record = {'id': 'hola'}
+        self.resource.request.validated = {'data': {}}
+        with mock.patch.object(self.resource.collection, 'get_record') as get:
+            self.resource.put()
+            self.assertFalse(get.called)
+
 
 class DeleteTest(BaseTest):
     def test_delete_record_returns_last_timestamp(self):
