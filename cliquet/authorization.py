@@ -73,6 +73,7 @@ class RouteFactory(object):
     required_permission = None
     allowed_principals = None
     permission_object_id = None
+    current_record = None
     get_shared_ids = None
 
     method_permissions = {
@@ -109,11 +110,12 @@ class RouteFactory(object):
                 # In the case of a "PUT", check if the targetted record already
                 # exists, return "write" if it does, "create" otherwise.
 
-                # If the view exists, call it with the request and catch an
+                # If the view exists, use its collection to catch an
                 # eventual NotFound.
                 resource = service.resource(request=request, context=self)
                 try:
-                    resource.collection.get_record(resource.record_id)
+                    record = resource.collection.get_record(resource.record_id)
+                    self.current_record = record
                 except storage_exceptions.RecordNotFoundError:
                     self.permission_object_id = service.collection_path.format(
                         **request.matchdict)

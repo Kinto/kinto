@@ -67,6 +67,18 @@ class RouteFactoryTest(unittest.TestCase):
     def test_http_put_existing_record_resolves_in_a_write_permission(self):
         self.assert_request_resolves_to("put", "write")
 
+    def test_http_put_sets_current_record_attribute(self):
+        with mock.patch('cliquet.utils.current_service') as current_service:
+            # Patch current service.
+            resource = mock.MagicMock()
+            resource.record_id = 1
+            resource.collection.get_record.return_value = mock.sentinel.record
+            current_service().resource.return_value = resource
+            # Do the actual call.
+            request = DummyRequest(method='put')
+            context = RouteFactory(request)
+            self.assertEquals(context.current_record, mock.sentinel.record)
+
     def test_http_patch_resolves_in_a_write_permission(self):
         self.assert_request_resolves_to("patch", "write")
 
@@ -76,6 +88,7 @@ class RouteFactoryTest(unittest.TestCase):
         request.authn_type = 'fxa'
         context = RouteFactory(request)
         self.assertIsNone(context.required_permission)
+        self.assertIsNone(context.current_record)
         self.assertIsNone(context.resource_name)
         self.assertIsNone(context.get_shared_ids)
 
@@ -88,6 +101,7 @@ class RouteFactoryTest(unittest.TestCase):
 
         context = RouteFactory(request)
         self.assertIsNone(context.prefixed_userid)
+        self.assertIsNone(context.current_record)
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.resource_name)
         self.assertIsNone(context.get_shared_ids)
