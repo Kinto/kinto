@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 import os
 
@@ -94,6 +95,12 @@ class ClassicLogRendererTest(unittest.TestCase):
     def test_fields_values_support_unicode(self):
         value = self.renderer(self.logger, 'critical', {'value': u'\u2014'})
         self.assertIn(u'\u2014', value)
+
+    @unittest.skipIf(six.PY3, "Error with Python2 only")
+    def test_fields_values_support_bytes(self):
+        value = self.renderer(self.logger, 'critical',
+                              {'event': AssertionError('\xc3\xa8')})
+        self.assertIn(u'è', value)
 
 
 class MozillaHekaRendererTest(unittest.TestCase):
