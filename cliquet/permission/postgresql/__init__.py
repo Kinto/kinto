@@ -187,14 +187,18 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         ),
         user_principals AS (
           VALUES %(principals)s
+        ),
+        potential_objects AS (
+          SELECT object_id, required_perms.column1 AS pattern
+            FROM access_control_entries
+            JOIN user_principals
+              ON (principal = user_principals.column1)
+            JOIN required_perms
+              ON (permission = required_perms.column2)
         )
         SELECT object_id
-          FROM access_control_entries
-            JOIN required_perms
-              ON (object_id ~ required_perms.column1 AND
-                  permission = required_perms.column2)
-            JOIN user_principals
-              ON (principal = user_principals.column1);
+          FROM potential_objects
+         WHERE object_id ~ pattern;
         """ % dict(perms=perms_values,
                    principals=principals_values)
 
