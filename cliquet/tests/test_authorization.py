@@ -77,7 +77,6 @@ class RouteFactoryTest(unittest.TestCase):
         context = RouteFactory(request)
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.resource_name)
-        self.assertIsNone(context.check_permission)
         self.assertIsNone(context.get_shared_ids)
 
     def test_attributes_are_none_with_non_resource_requests(self):
@@ -91,7 +90,6 @@ class RouteFactoryTest(unittest.TestCase):
         self.assertIsNone(context.prefixed_userid)
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.resource_name)
-        self.assertIsNone(context.check_permission)
         self.assertIsNone(context.get_shared_ids)
 
     def test_route_factory_adds_allowed_principals_from_settings(self):

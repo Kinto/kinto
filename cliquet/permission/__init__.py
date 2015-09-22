@@ -145,3 +145,31 @@ class PermissionBase(object):
         except BackendError:
             return False
         return True
+
+    def object_permissions(self, object_id, permissions=None):
+        """Return the set of principals for each object permission.
+
+        :param str object_id: The object_id the permission is set to.
+        :param list permissions: List of permissions to retrieve.
+                                 If not define will try to find them all.
+        :returns: The dictionnary with the list of user principals for
+                  each object permissions
+        :rtype: dict
+
+        """
+        raise NotImplementedError
+
+    def replace_object_permissions(self, object_id, permissions):
+        """Replace given object permissions.
+
+        :param str object_id: The object to replace permissions to.
+        :param str permissions: The permissions dict to replace.
+        """
+        raise NotImplementedError
+
+    def delete_object_permissions(self, *object_id_list):
+        """Delete all listed object permissions.
+
+        :param str object_id: Remove given objects permissions.
+        """
+        raise NotImplementedError

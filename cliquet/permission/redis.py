@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import redis
+from collections import defaultdict
 from six.moves.urllib import parse as urlparse
 
 from cliquet.permission import PermissionBase
@@ -116,6 +117,51 @@ class Redis(PermissionBase):
         if keys:
             return self._decode_set(self._client.sunion(*list(keys)))
         return set()
+
+    @wrap_redis_error
+    def object_permissions(self, object_id, permissions=None):
+        if permissions is not None:
+            keys = ['permission:%s:%s' % (object_id, permission)
+                    for permission in permissions]
+        else:
+            keys = [key.decode('utf-8') for key in self._client.scan_iter(
+                match='permission:%s:*' % object_id)]
+
+        with self._client.pipeline() as pipe:
+            for permission_key in keys:
+                pipe.smembers(permission_key)
+
+            results = pipe.execute()
+
+        permissions = defaultdict(set)
+        for i, result in enumerate(results):
+            permission = keys[i].split(':')[-1]
+            permissions[permission] = self._decode_set(result)
+
+        return permissions
+
+    @wrap_redis_error
+    def replace_object_permissions(self, object_id, permissions):
+        keys = ['permission:%s:%s' % (object_id, permission)
+                for permission in permissions]
+        with self._client.pipeline() as pipe:
+            for key in keys:
+                pipe.delete(key)
+                permission = key.split(':')[-1]
+                principals = permissions[permission]
+                if len(principals) > 0:
+                    pipe.sadd(key, *principals)
+            pipe.execute()
+
+    @wrap_redis_error
+    def delete_object_permissions(self, *object_id_list):
+        with self._client.pipeline() as pipe:
+            for object_id in object_id_list:
+                keys = list(self._client.scan_iter(
+                    match='permission:%s:*' % object_id))
+                if len(keys) > 0:
+                    pipe.delete(*keys)
+            pipe.execute()
 
 
 def load_from_config(config):

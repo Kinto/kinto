@@ -2,6 +2,7 @@ import ast
 import hashlib
 import hmac
 import os
+import re
 import six
 import time
 from base64 import b64decode, b64encode
@@ -275,3 +276,10 @@ def decode_header(value, encoding='utf-8'):
     if type(value) == six.binary_type:
         value = value.decode(encoding)
     return value
+
+
+def strip_uri_prefix(path):
+    """
+    Remove potential version prefix in URI.
+    """
+    return re.sub(r'^(/v\d+)?', '', six.text_type(path))
