@@ -9,6 +9,13 @@ from cliquet import utils
 logger = structlog.get_logger()
 
 
+def decode_value(value):
+    try:
+        return six.text_type(value)
+    except UnicodeDecodeError:  # pragma: no cover
+        return six.binary_type(value).decode('utf-8')
+
+
 class ClassicLogRenderer(object):
     """Classic log output for structlog.
 
@@ -29,13 +36,13 @@ class ClassicLogRenderer(object):
 
         output = {}
         for field in ['method', 'path', 'code', 't', 'event']:
-            output[field] = event_dict.pop(field, '?')
+            output[field] = decode_value(event_dict.pop(field, '?'))
 
         querystring = event_dict.pop('querystring', {})
-        params = ['%s=%s' % qs for qs in querystring.items()]
+        params = [decode_value('%s=%s' % qs) for qs in querystring.items()]
         output['querystring'] = '?%s' % '&'.join(params) if params else ''
 
-        context = ['%s=%s' % c for c in event_dict.items()]
+        context = [decode_value('%s=%s' % c) for c in event_dict.items()]
         output['context'] = '; '.join(context)
 
         log_msg = pattern.format(**output)
