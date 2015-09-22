@@ -133,7 +133,7 @@ class Memory(PermissionBase):
 
     def delete_object_permissions(self, *object_id_list):
         to_delete = []
-        for key in self._store:
+        for key in self._store.keys():
             object_id = key.split(':')[1]
             if object_id in object_id_list:
                 to_delete.append(key)
