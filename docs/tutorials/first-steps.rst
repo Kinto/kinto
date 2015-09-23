@@ -568,15 +568,7 @@ And Bob can also create a task:
 
 .. code-block:: http
 
-    $ echo '{
-        "data": {
-            "description": "Bob new task",
-            "status": "todo"
-        },
-        "permissions": {
-            "read": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
-        }
-    }' | \
+    $ echo '{"data": {"description": "Bob new task", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
         -v --auth 'bob:bobpassword'
 
@@ -585,7 +577,7 @@ And Bob can also create a task:
     Accept-Encoding: gzip, deflate
     Authorization: Basic Ym9iOmJvYnBhc3N3b3Jk
     Connection: keep-alive
-    Content-Length: 243
+    Content-Length: 60
     Content-Type: application/json
     Host: kinto.dev.mozaws.net
     User-Agent: HTTPie/0.9.2
@@ -594,11 +586,6 @@ And Bob can also create a task:
         "data": {
             "description": "Bob new task",
             "status": "todo"
-        },
-        "permissions": {
-            "read": [
-                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
-            ]
         }
     }
 
@@ -606,7 +593,7 @@ And Bob can also create a task:
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
     Backoff: 10
     Connection: keep-alive
-    Content-Length: 318
+    Content-Length: 232
     Content-Type: application/json; charset=UTF-8
     Date: Thu, 18 Jun 2015 16:44:39 GMT
     Server: nginx/1.4.6 (Ubuntu)
@@ -619,9 +606,6 @@ And Bob can also create a task:
             "status": "todo"
         },
         "permissions": {
-            "read": [
-                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
-            ],
             "write": [
                 "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
             ]
@@ -634,11 +618,9 @@ permission on her records:
 
 .. code-block:: http
 
-    $ echo '{
-        "permissions": {
-            "read": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
-        }
-    }' | \
+    $ echo '{"permissions": {
+        "read": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
+    }}' | \
     http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
         -v --auth 'alice:alicepassword'
 

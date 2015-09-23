@@ -45,6 +45,8 @@ class Record(resource.ProtectedResource):
 
     def process_record(self, new, old=None):
         """Validate records against collection schema, if any."""
+        new = super(Record, self).process_record(new, old)
+
         schema = self._collection.get('schema')
         settings = self.request.registry.settings
         schema_validation = 'kinto.experimental_collection_schema_validation'

@@ -210,13 +210,11 @@ class TutorialLoadTest(BaseLoadTest):
 
         # Get mary's userid
         mary_auth = HTTPBasicAuth('mary', 'secret-%s' % uuid.uuid4())
-        resp = self.session.get(
-            self.bucket_url('default'),
-            auth=mary_auth)
+        resp = self.session.get(self.api_url(''), auth=mary_auth)
         self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
         record = resp.json()
-        mary_user_id = record['permissions']['write'][0]
+        mary_user_id = record['userid']
 
         # Allow group creation on bucket
         permissions = {"group:create": ['system.Authenticated']}

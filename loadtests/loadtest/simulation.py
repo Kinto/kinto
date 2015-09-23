@@ -35,6 +35,7 @@ class SimulationLoadTest(BaseLoadTest):
 
     def __init__(self, *args, **kwargs):
         super(SimulationLoadTest, self).__init__(*args, **kwargs)
+        self.collection = 'articles'
         self.init_article()
 
     def init_article(self, *args, **kwargs):
@@ -47,9 +48,6 @@ class SimulationLoadTest(BaseLoadTest):
         # Create at least some records for this user
         max_initial_records = self.conf.get('max_initial_records', 100)
         self.nb_initial_records = random.randint(3, max_initial_records)
-
-        self.bucket = 'default'
-        self.collection = 'articles'
 
     def setUp(self):
         """Choose some random records in the whole collection.

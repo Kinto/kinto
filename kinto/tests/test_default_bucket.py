@@ -22,6 +22,12 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(result['data']['id'], text_type(UUID(bucket_id)))
         self.assertEqual(result['permissions']['write'], [self.principal])
 
+    def test_default_bucket_can_still_be_explicitly_created(self):
+        bucket = {'permissions': {'read': ['system.Everyone']}}
+        resp = self.app.put_json(self.bucket_url, bucket, headers=self.headers)
+        result = resp.json
+        self.assertIn('system.Everyone', result['permissions']['read'])
+
     def test_default_bucket_collections_are_automatically_created(self):
         self.app.get(self.collection_url, headers=self.headers, status=200)
 
