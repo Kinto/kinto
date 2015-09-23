@@ -57,6 +57,13 @@ class PutTest(BaseTest):
         self.resource.put()
         self.assertEqual(self.last_response.status_code, 201)
 
+    def test_relies_on_collection_create(self):
+        self.resource.record_id = self.resource.collection.id_generator()
+        self.resource.request.validated = {'data': {'field': 'new'}}
+        with mock.patch.object(self.collection, 'create_record') as patched:
+            self.resource.put()
+            self.assertEqual(patched.call_count, 1)
+
     def test_replace_record_returns_updated_fields(self):
         self.resource.request.validated = {'data': {'field': 'new'}}
         result = self.resource.put()['data']

@@ -343,8 +343,6 @@ class BaseResource(object):
         finally:
             if existing:
                 self._raise_412_if_modified(existing)
-            else:
-                self.request.response.status_code = 201
 
         new_record = self.request.validated['data']
 
@@ -354,9 +352,15 @@ class BaseResource(object):
         new_record = self.process_record(new_record, old=existing)
 
         try:
-            unique_fields = self.mapping.get_option('unique_fields')
-            record = self.collection.update_record(new_record,
-                                                   unique_fields=unique_fields)
+            unique = self.mapping.get_option('unique_fields')
+            if existing:
+                record = self.collection.update_record(new_record,
+                                                       unique_fields=unique)
+            else:
+                record = self.collection.create_record(new_record,
+                                                       unique_fields=unique)
+                self.request.response.status_code = 201
+
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
