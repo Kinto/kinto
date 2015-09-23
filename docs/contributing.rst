@@ -98,7 +98,7 @@ Get started!
 
 5. When you're done making changes, check that your changes pass the tests::
 
-    make test
+    make tests
 
 6. Commit your changes and push your branch to GitHub::
 
