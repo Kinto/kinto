@@ -200,7 +200,11 @@ def _end_of_life_tween_factory(handler, registry):
 
 def setup_storage(config):
     settings = config.get_settings()
-    storage = config.maybe_dotted(settings['cliquet.storage_backend'])
+    storage_class = settings['cliquet.storage_backend']
+    if not storage_class:
+        return
+
+    storage = config.maybe_dotted(storage_class)
     config.registry.storage = storage.load_from_config(config)
     config.registry.heartbeats['storage'] = config.registry.storage.ping
     id_generator = config.maybe_dotted(settings['cliquet.id_generator'])
@@ -209,14 +213,22 @@ def setup_storage(config):
 
 def setup_permission(config):
     settings = config.get_settings()
-    permission = config.maybe_dotted(settings['cliquet.permission_backend'])
+    permission_class = settings['cliquet.permission_backend']
+    if not permission_class:
+        return
+
+    permission = config.maybe_dotted(permission_class)
     config.registry.permission = permission.load_from_config(config)
     config.registry.heartbeats['permission'] = config.registry.permission.ping
 
 
 def setup_cache(config):
     settings = config.get_settings()
-    cache = config.maybe_dotted(settings['cliquet.cache_backend'])
+    cache_class = settings['cliquet.cache_backend']
+    if not cache_class:
+        return
+
+    cache = config.maybe_dotted(cache_class)
     config.registry.cache = cache.load_from_config(config)
     config.registry.heartbeats['cache'] = config.registry.cache.ping
 

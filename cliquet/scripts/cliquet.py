@@ -14,14 +14,11 @@ def deprecated_init(env):
 
 
 def init_schema(env):
-    cache_backend = env['registry'].cache
-    cache_backend.initialize_schema()
+    registry = env['registry']
 
-    storage_backend = env['registry'].storage
-    storage_backend.initialize_schema()
-
-    permission_backend = env['registry'].permission
-    permission_backend.initialize_schema()
+    for backend in ('cache', 'storage', 'permission'):
+        if hasattr(registry, backend):
+            getattr(registry, backend).initialize_schema()
 
 
 def main():
