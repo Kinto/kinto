@@ -22,6 +22,8 @@ class BaseWebTest(unittest.TestCase):
 
         self.config.add_settings({
             'cliquet.storage_backend': 'cliquet.storage.memory',
+            'cliquet.cache_backend': 'cliquet.cache.memory',
+            'cliquet.permission_backend': 'cliquet.permission.memory',
             'cliquet.project_version': '0.0.1',
             'cliquet.project_name': 'cliquet',
             'cliquet.project_docs': 'https://cliquet.rtfd.org/',

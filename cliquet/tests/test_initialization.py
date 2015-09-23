@@ -80,6 +80,13 @@ class InitializationTest(unittest.TestCase):
                            default_settings=defaults)
         self.assertEqual(config.registry.settings['cliquet.paginate_by'], 5)
 
+    def test_backend_are_not_instantiated_by_default(self):
+        config = Configurator(settings=cliquet.DEFAULT_SETTINGS)
+        cliquet.initialize(config, '0.0.1', 'project_name')
+        self.assertFalse(hasattr(config.registry, 'storage'))
+        self.assertFalse(hasattr(config.registry, 'cache'))
+        self.assertFalse(hasattr(config.registry, 'permission'))
+
     def test_environment_values_override_configuration(self):
         import os
 
