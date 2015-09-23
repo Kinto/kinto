@@ -4,10 +4,25 @@ Changelog
 This document describes changes between each past release.
 
 
-1.5.0 (unreleased)
+1.5.0 (2015-09-23)
 ==================
 
-- Nothing changed yet.
+- Add Disqus comments to documentation (fixes #159)
+
+**New features**
+
+- Allow POST to create buckets (fixes #64)
+- Control client cache headers from settings or collection objects (#189)
+
+**Internal changes**
+
+- Remove dead code (#187, ref #53)
+- Add pytest-capturelog for better output on test failures (#191)
+- Install cliquet middleware (*no-op if disabled*) (#193)
+- Many optimizations on ``default`` bucket (#192, #197)
+- Many optimizations on number of storage hits (#203)
+- Fix contributing docs about tests (#198)
+- Added more batched actions to loadtests (#199)
 
 
 1.4.0 (2015-09-04)
