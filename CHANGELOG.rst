@@ -6,7 +6,30 @@ This document describes changes between each past release.
 2.7.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- Backends are not instantiated by default anymore (used to be with *Redis*) (#461)
+
+**New features**
+
+- Redirect to remove trailing slash in URLs (fixes Kinto/kinto#112)
+- Add resource cache control headers via settings (fixes #401)
+- Add request ``bound_data`` attribute, shared with subrequests.
+  Useful to share context or cache values between BATCH requests for example (#459)
+
+**Bug fixes**
+
+- Fix Werkzeug profiling setup docs and code (#451)
+- Fix logger encoding error with UTF-8 output (#455)
+- Do not instantiate backends if not configured (fixes #386)
+
+**Internal changes**
+
+- Huge refactoring the interaction between ``Resource`` and ``Permission`` backend (#454)
+- Fetch record only once from storage with PUT requests on resources (#452)
+- Index permissions columns, bringing huge performance gain for shared collections (#458, ref #354)
+- Add instructions to mention contributors list in documentation (#408)
+- Explicitly call to collection create_record on PUT (#460)
 
 
 2.6.2 (2015-09-09)
