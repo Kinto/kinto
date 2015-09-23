@@ -253,6 +253,12 @@ class BatchServiceTest(unittest.TestCase):
         result = self.post({'requests': [{'path': '/'}]})
         self.assertEqual(result['responses'][0]['path'], '/v0/')
 
+    def test_subrequests_have_parent_attribute(self):
+        self.request.path = '/batch'
+        self.post({'requests': [{'path': '/'}]})
+        subrequest, = self.request.invoke_subrequest.call_args[0]
+        self.assertEqual(subrequest.parent.path, '/batch')
+
     def test_subrequests_are_GET_by_default(self):
         self.post({'requests': [{'path': '/'}]})
         subrequest, = self.request.invoke_subrequest.call_args[0]

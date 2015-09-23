@@ -40,6 +40,7 @@ DEFAULT_SETTINGS = {
     'cliquet.http_scheme': None,
     'cliquet.id_generator': 'cliquet.storage.generators.UUID4',
     'cliquet.initialization_sequence': (
+        'cliquet.initialization.setup_request_bound_data',
         'cliquet.initialization.setup_json_serializer',
         'cliquet.initialization.setup_logging',
         'cliquet.initialization.setup_storage',

@@ -2,6 +2,7 @@ import mock
 import webtest
 
 from pyramid.config import Configurator
+from pyramid.events import NewRequest
 
 import cliquet
 from cliquet import initialization
@@ -244,6 +245,33 @@ class RequestsConfigurationTest(unittest.TestCase):
         config = Configurator(settings=app_settings)
         cliquet.initialize(config, '0.0.1', 'name')
         return webtest.TestApp(config.make_wsgi_app())
+
+    def test_requests_have_a_bound_data_attribute(self):
+        config = Configurator()
+        cliquet.initialize(config, '0.0.1', 'name')
+
+        def on_new_request(event):
+            data = event.request.bound_data
+            self.assertEqual(data, {})
+            self.assertEqual(id(data), id(event.request.bound_data))
+
+        config.add_subscriber(on_new_request, NewRequest)
+        app = webtest.TestApp(config.make_wsgi_app())
+        app.get('/v0/')
+
+    def test_subrequests_share_parent_bound_data(self):
+        config = Configurator()
+        cliquet.initialize(config, '0.0.1', 'name')
+
+        bound_datas = set()
+
+        def on_new_request(event):
+            bound_datas.add(id(event.request.bound_data))
+
+        config.add_subscriber(on_new_request, NewRequest)
+        app = webtest.TestApp(config.make_wsgi_app())
+        app.post_json('/v0/batch', {'requests': [{'path': '/'}]})
+        self.assertEqual(len(bound_datas), 1)
 
     def test_by_default_relies_on_pyramid_application_url(self):
         app = self._get_app()
