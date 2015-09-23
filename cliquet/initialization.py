@@ -31,6 +31,16 @@ from pyramid.settings import asbool
 from pyramid_multiauth import MultiAuthPolicySelected
 
 
+def setup_request_bound_data(config):
+    """Attach custom data on request object, and share it with parent
+    requests during batch."""
+    def attach_bound_data(request):
+        parent = getattr(request, 'parent', None)
+        return parent.bound_data if parent else {}
+
+    config.add_request_method(attach_bound_data, name='bound_data', reify=True)
+
+
 def setup_json_serializer(config):
     # Monkey patch to use ujson
     webob.request.json = utils.json
