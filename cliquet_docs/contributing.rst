@@ -127,7 +127,7 @@ Install `zest.releaser` with the `recommended` dependencies. They contain
 
 .. code-block:: bash
 
-    $ pip install zest.releaser[recommended]
+    $ pip install "zest.releaser[recommended]"
 
 Step 1
 ------
@@ -136,7 +136,7 @@ Step 1
 - Update ``CHANGELOG.rst``
 - Update version in ``docs/conf.py``
 - Known good versions of dependencies in ``requirements.txt``
-- Update ``CONTRIBUTORS.rst`` using: ``git shortlog -sne | awk '{$1=""; sub(" ", ""); print}' | awk -F'<' '!x[$1]++' | awk -F'<' '!x[$2]++'``
+- Update ``CONTRIBUTORS.rst`` using: ``git shortlog -sne | awk '{$1=""; sub(" ", ""); print}' | awk -F'<' '!x[$1]++' | awk -F'<' '!x[$2]++' | sort``
 
 .. code-block:: bash
 
