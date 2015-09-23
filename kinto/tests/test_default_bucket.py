@@ -1,3 +1,4 @@
+import mock
 from six import text_type
 from uuid import UUID
 
@@ -105,3 +106,17 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('/buckets/default-1234/collections',
                             headers=self.headers)
         self.assertEquals(resp.json['data'][0]['id'], 'default')
+
+    def test_default_bucket_objects_are_checked_only_once_in_batch(self):
+        batch = {'requests': []}
+        nb_create = 25
+        for i in range(nb_create):
+            request = {'method': 'POST',
+                       'path': self.collection_url + '/records',
+                       'body': MINIMALIST_RECORD}
+            batch['requests'].append(request)
+
+        with mock.patch.object(self.storage, 'create',
+                               wraps=self.storage.create) as patched:
+            self.app.post_json('/batch', batch, headers=self.headers)
+            self.assertEqual(patched.call_count, nb_create + 2)

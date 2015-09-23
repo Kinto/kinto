@@ -69,6 +69,11 @@ def create_bucket(request, bucket_id):
     if bucket_put:
         return
 
+    # Do not intent to create multiple times per request (e.g. in batch).
+    already_created = request.bound_data.setdefault('created_buckets', [])
+    if bucket_id in already_created:
+        return
+
     # Fake context to instantiate a Bucket resource.
     context = RouteFactory(request)
     context.get_permission_object_id = lambda r, i: '/buckets/%s' % bucket_id
@@ -77,6 +82,8 @@ def create_bucket(request, bucket_id):
         resource.collection.create_record({'id': bucket_id})
     except storage_exceptions.UnicityError:
         pass
+    else:
+        already_created.append(bucket_id)
 
 
 def create_collection(request, bucket_id):
@@ -86,6 +93,12 @@ def create_collection(request, bucket_id):
         return
 
     collection_id = subpath.split('/')[1]
+    collection_uri = '/buckets/%s/collections/%s' % (bucket_id, collection_id)
+
+    # Do not intent to create multiple times per request (e.g. in batch).
+    already_created = request.bound_data.setdefault('created_collections', [])
+    if collection_uri in already_created:
+        return
 
     # Do nothing if current request will already create the collection.
     collection_put = (request.method.lower() == 'put' and
@@ -95,8 +108,7 @@ def create_collection(request, bucket_id):
 
     # Fake context to instantiate a Collection resource.
     context = RouteFactory(request)
-    context.get_permission_object_id = (
-        lambda r, i: '/buckets/%s/collections/%s' % (bucket_id, collection_id))
+    context.get_permission_object_id = lambda r, i: collection_uri
 
     backup = request.matchdict
     request.matchdict = dict(bucket_id=bucket_id,
@@ -107,6 +119,8 @@ def create_collection(request, bucket_id):
         resource.collection.create_record({'id': collection_id})
     except storage_exceptions.UnicityError:
         pass
+    else:
+        already_created.append(collection_uri)
     request.matchdict = backup
 
 
