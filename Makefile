@@ -19,8 +19,7 @@ $(INSTALL_STAMP): $(PYTHON) setup.py
 	$(VENV)/bin/pip install -Ue .
 	touch $(INSTALL_STAMP)
 
-install-postgres: $(INSTALL_STAMP)
-# Since pip install ".[postgresql]" is not enough...
+install-postgres: $(INSTALL_STAMP) $(DEV_STAMP)
 	$(VENV)/bin/pip install "cliquet[postgresql]"
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
