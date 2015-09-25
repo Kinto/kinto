@@ -14,9 +14,9 @@ help on `#storage <http://chat.mibbit.com/?server=irc.mozilla.org&channel=#stora
 Module object has no attribute 'register_json'
 ==============================================
 
-Kinto uses PostgreSQL JSONBin feature, which allow Kinto to
-efficiently store JSON object into PostgreSQL, support for which was
-added to PostgreSQL in version 9.4.
+Kinto uses PostgreSQL ``JSONBin`` feature, which allow Kinto to
+efficiently store ``JSON objects`` into PostgreSQL, support for which
+was added to PostgreSQL in version 9.4.
 
 This is a hard requirement for postgresql backends, therefore you
 will either need to **use PostgreSQL 9.4 (or greater)**, or
