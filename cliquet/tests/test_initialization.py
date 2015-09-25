@@ -188,7 +188,6 @@ class StatsDConfigurationTest(unittest.TestCase):
     def test_statsd_is_called_if_statsd_url_is_set(self, mocked):
         initialization.setup_statsd(self.config)
         mocked.assert_called_with('host', 8080, 'cliquet')
-        self.assertEqual(self.config.registry.statsd, mocked.return_value)
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_is_expose_in_the_registry_if_url_is_set(self, mocked):
