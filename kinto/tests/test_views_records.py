@@ -1,4 +1,5 @@
 import json
+import mock
 
 from cliquet.utils import decode_header
 from .support import (BaseWebTest, unittest, MINIMALIST_RECORD,
@@ -34,6 +35,20 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     def test_unknown_collection_raises_404(self):
         other_collection = self.collection_url.replace('barley', 'pills')
         self.app.get(other_collection, headers=self.headers, status=404)
+
+    def test_parent_collection_is_fetched_only_once_in_batch(self):
+        batch = {'requests': []}
+        nb_create = 25
+        for i in range(nb_create):
+            request = {'method': 'POST',
+                       'path': self.collection_url,
+                       'body': MINIMALIST_RECORD}
+            batch['requests'].append(request)
+
+        with mock.patch.object(self.storage, 'get',
+                               wraps=self.storage.get) as patched:
+            self.app.post_json('/batch', batch, headers=self.headers)
+            self.assertEqual(patched.call_count, 1)
 
     def test_individual_collections_can_be_deleted(self):
         resp = self.app.get(self.collection_url, headers=self.headers)

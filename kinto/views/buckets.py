@@ -70,7 +70,7 @@ def create_bucket(request, bucket_id):
         return
 
     # Do not intent to create multiple times per request (e.g. in batch).
-    already_created = request.bound_data.setdefault('created_buckets', [])
+    already_created = request.bound_data.setdefault('buckets', {})
     if bucket_id in already_created:
         return
 
@@ -79,11 +79,11 @@ def create_bucket(request, bucket_id):
     context.get_permission_object_id = lambda r, i: '/buckets/%s' % bucket_id
     resource = Bucket(request, context)
     try:
-        resource.collection.create_record({'id': bucket_id})
+        bucket = resource.collection.create_record({'id': bucket_id})
     except storage_exceptions.UnicityError:
         pass
     else:
-        already_created.append(bucket_id)
+        already_created[bucket_id] = bucket
 
 
 def create_collection(request, bucket_id):
@@ -96,7 +96,7 @@ def create_collection(request, bucket_id):
     collection_uri = '/buckets/%s/collections/%s' % (bucket_id, collection_id)
 
     # Do not intent to create multiple times per request (e.g. in batch).
-    already_created = request.bound_data.setdefault('created_collections', [])
+    already_created = request.bound_data.setdefault('collections', {})
     if collection_uri in already_created:
         return
 
@@ -116,11 +116,11 @@ def create_collection(request, bucket_id):
                              **request.matchdict)
     resource = Collection(request, context)
     try:
-        resource.collection.create_record({'id': collection_id})
+        collection = resource.collection.create_record({'id': collection_id})
     except storage_exceptions.UnicityError:
         pass
     else:
-        already_created.append(collection_uri)
+        already_created[collection_uri] = collection
     request.matchdict = backup
 
 

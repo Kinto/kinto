@@ -26,18 +26,25 @@ class Record(resource.ProtectedResource):
     def __init__(self, *args, **kwargs):
         super(Record, self).__init__(*args, **kwargs)
 
-        self.bucket_id = self.request.matchdict['bucket_id']
-        self.collection_id = self.request.matchdict['collection_id']
-        collection_parent_id = '/buckets/%s' % self.bucket_id
-        self._collection = object_exists_or_404(self.request,
-                                                collection_id='collection',
-                                                parent_id=collection_parent_id,
-                                                object_id=self.collection_id)
+        # Check if already fetched before (in batch).
+        collections = self.request.bound_data.setdefault('collections', {})
+        collection_uri = self.get_parent_id(self.request)
+        if collection_uri not in collections:
+            # Unknown yet, fetch from storage.
+            collection_parent_id = '/buckets/%s' % self.bucket_id
+            collection = object_exists_or_404(self.request,
+                                              collection_id='collection',
+                                              parent_id=collection_parent_id,
+                                              object_id=self.collection_id)
+            collections[collection_uri] = collection
+
+        self._collection = collections[collection_uri]
 
     def get_parent_id(self, request):
-        bucket_id = request.matchdict['bucket_id']
-        collection_id = request.matchdict['collection_id']
-        return '/buckets/%s/collections/%s' % (bucket_id, collection_id)
+        self.bucket_id = request.matchdict['bucket_id']
+        self.collection_id = request.matchdict['collection_id']
+        return '/buckets/%s/collections/%s' % (self.bucket_id,
+                                               self.collection_id)
 
     def is_known_field(self, field_name):
         """Without schema, any field is considered as known."""
