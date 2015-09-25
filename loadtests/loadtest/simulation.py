@@ -7,7 +7,11 @@ from . import BaseLoadTest
 
 ACTIONS_FREQUENCIES = [
     ('create', 20),
+    ('create_put', 20),
     ('batch_create', 50),
+    ('batch_create_put', 50),
+    ('batch_replace', 50),
+    ('batch_update', 50),
     ('update', 50),
     ('filter_sort', 60),
     ('delete', 10),
@@ -48,6 +52,7 @@ class SimulationLoadTest(BaseLoadTest):
         # Create at least some records for this user
         max_initial_records = self.conf.get('max_initial_records', 100)
         self.nb_initial_records = random.randint(3, max_initial_records)
+        self.batch_requests_size = self.conf.get('batch_requests_size', 25)
 
     def setUp(self):
         """Choose some random records in the whole collection.
@@ -57,23 +62,23 @@ class SimulationLoadTest(BaseLoadTest):
             This method is called as many times as number of hits.
         """
         resp = self.session.get(self.collection_url())
-        records = resp.json()['data']
+        self.records = resp.json()['data']
 
         # Create some records, if not any in collection.
-        if len(records) < self.nb_initial_records:
+        if len(self.records) < self.nb_initial_records:
             for i in range(self.nb_initial_records):
                 self.create()
             resp = self.session.get(self.collection_url())
-            records = resp.json()['data']
+            self.records = resp.json()['data']
 
         # Pick a random record
-        self.random_record = random.choice(records)
+        self.random_record = random.choice(self.records)
         self.random_id = self.random_record['id']
         self.random_url = self.record_url(self.random_id)
 
         # Pick another random, different
-        records.remove(self.random_record)
-        self.random_record_2 = random.choice(records)
+        self.records.remove(self.random_record)
+        self.random_record_2 = random.choice(self.records)
         self.random_id_2 = self.random_record_2['id']
         self.random_url_2 = self.record_url(self.random_id_2)
 
@@ -106,6 +111,15 @@ class SimulationLoadTest(BaseLoadTest):
         self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, 201)
 
+    def create_put(self):
+        article = build_article()
+        resp = self.session.put(
+            self.record_url(uuid.uuid4()),
+            data=json.dumps({'data': article}),
+            headers={'Content-Type': 'application/json'})
+        self.incr_counter(resp.status_code)
+        self.assertEqual(resp.status_code, 201)
+
     def batch_create(self):
         data = {
             "defaults": {
@@ -113,8 +127,21 @@ class SimulationLoadTest(BaseLoadTest):
                 "path": self.collection_url(prefix=False)
             }
         }
-        for i in range(25):
+        for i in range(self.batch_requests_size):
             request = {"body": {"data": build_article()}}
+            data.setdefault("requests", []).append(request)
+
+        self._run_batch(data)
+
+    def batch_create_put(self):
+        data = {
+            "defaults": {
+                "method": "PUT",
+            }
+        }
+        for i in range(self.batch_requests_size):
+            path = self.record_url(uuid.uuid4(), prefix=False)
+            request = {"path": path, "body": {"data": build_article()}}
             data.setdefault("requests", []).append(request)
 
         self._run_batch(data)
@@ -157,6 +184,37 @@ class SimulationLoadTest(BaseLoadTest):
         }
         self._patch(self.random_url, {"data": data})
 
+    def batch_replace(self):
+        data = {
+            "defaults": {
+                "method": "PUT"
+            }
+        }
+        nb_batched = min(self.nb_initial_records, len(self.records))
+        records = random.sample(self.records, nb_batched)
+        for record in records:
+            record_url = self.record_url(record['id'], prefix=False)
+            request = {"path": record_url, "body": {"data": build_article()}}
+            data.setdefault("requests", []).append(request)
+
+        self._run_batch(data)
+
+    def batch_update(self):
+        data = {
+            "defaults": {
+                "method": "PATCH"
+            }
+        }
+        nb_batched = min(self.nb_initial_records, len(self.records))
+        records = random.sample(self.records, nb_batched)
+        for record in records:
+            record_url = self.record_url(record['id'], prefix=False)
+            change = {"title": "Some title %s" % random.randint(0, 100)}
+            request = {"path": record_url, "body": {"data": change}}
+            data.setdefault("requests", []).append(request)
+
+        self._run_batch(data)
+
     def delete(self):
         resp = self.session.delete(self.random_url)
         self.incr_counter(resp.status_code)
@@ -175,7 +233,7 @@ class SimulationLoadTest(BaseLoadTest):
                 "method": "DELETE"
             }
         }
-        for i in range(25):
+        for i in range(self.batch_requests_size):
             request = {"path": urls[i % len(urls)]}
             data.setdefault("requests", []).append(request)
 
