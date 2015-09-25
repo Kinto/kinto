@@ -222,3 +222,11 @@ Cliquet is a toolkit for designing micro-services. Kinto is a server built
 using that toolkit.
 
 `Read more (in french) about the differences <http://www.servicedenuages.fr/pourquoi-cliquet>`_.
+
+
+When running Kinto I have got an exception, what's wrong?
+---------------------------------------------------------
+
+- ``AttributeError: 'module' object has no attribute 'register_json'``:
+  You are using an old PostgreSQL server version.
+  Please upgrade to PostgreSQL 9.4+ or configure another backend.
