@@ -7,8 +7,8 @@ We are doing the best we can so you do not have to read this section.
 
 In case you do, please find the common problems you may have below.
 
-If you do not find your problem here, please file an issue or ask for
-help on `#storage <http://chat.mibbit.com/?server=irc.mozilla.org&channel=#storage>`_
+If you do not find a solution to your problem here, please
+:ref:`ask for help <communication_channels>`!
 
 
 Module object has no attribute 'register_json'
