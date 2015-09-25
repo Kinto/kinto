@@ -17,6 +17,7 @@ Table of content
    tutorials/index
    configuration/index
    api/index
+   troubleshooting
    contributing
    changelog
 

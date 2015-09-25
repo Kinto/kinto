@@ -222,3 +222,10 @@ Cliquet is a toolkit for designing micro-services. Kinto is a server built
 using that toolkit.
 
 `Read more (in french) about the differences <http://www.servicedenuages.fr/pourquoi-cliquet>`_.
+
+
+I am seeing an Exception error, what's wrong?
+---------------------------------------------
+
+Have a look at the :ref:`Troubleshooting section <troubleshooting>` to
+see what to do.
