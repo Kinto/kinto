@@ -245,9 +245,12 @@ def setup_cache(config):
 
 def setup_statsd(config):
     settings = config.get_settings()
+    config.registry.statsd = None
 
     if settings['cliquet.statsd_url']:
         client = statsd.load_from_config(config)
+
+        config.registry.statsd = client
 
         client.watch_execution_time(config.registry.cache, prefix='cache')
         client.watch_execution_time(config.registry.storage, prefix='storage')
