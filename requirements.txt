@@ -1,5 +1,5 @@
 cffi==1.2.1
-cliquet==2.5.0
+cliquet==2.7.0
 cliquet-fxa==1.2.0
 colander==1.0
 cornice==1.0.0
