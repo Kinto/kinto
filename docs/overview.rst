@@ -227,6 +227,5 @@ using that toolkit.
 When running Kinto I have got an exception, what's wrong?
 ---------------------------------------------------------
 
-- ``AttributeError: 'module' object has no attribute 'register_json'``:
-  You are using an old PostgreSQL server version.
-  Please upgrade to PostgreSQL 9.4+ or configure another backend.
+Have a look at the :ref:`Troubleshooting section <troubleshooting>` to
+see what to do.
