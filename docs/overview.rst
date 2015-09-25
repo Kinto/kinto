@@ -224,8 +224,8 @@ using that toolkit.
 `Read more (in french) about the differences <http://www.servicedenuages.fr/pourquoi-cliquet>`_.
 
 
-When running Kinto I have got an exception, what's wrong?
----------------------------------------------------------
+I am seeing an Exception error, what's wrong?
+---------------------------------------------
 
 Have a look at the :ref:`Troubleshooting section <troubleshooting>` to
 see what to do.
