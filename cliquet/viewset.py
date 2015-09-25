@@ -27,7 +27,6 @@ class ViewSet(object):
 
     service_arguments = {
         'description': 'Collection of {resource_name}',
-        'cors_origins': ('*',)
     }
 
     default_arguments = {
