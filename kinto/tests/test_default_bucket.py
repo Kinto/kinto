@@ -120,3 +120,34 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
                                wraps=self.storage.create) as patched:
             self.app.post_json('/batch', batch, headers=self.headers)
             self.assertEqual(patched.call_count, nb_create + 2)
+
+    def test_parent_collection_is_taken_from_the_one_created_in_batch(self):
+        batch = {'requests': []}
+        nb_create = 25
+        for i in range(nb_create):
+            request = {'method': 'POST',
+                       'path': self.collection_url + '/records',
+                       'body': MINIMALIST_RECORD}
+            batch['requests'].append(request)
+
+        with mock.patch.object(self.storage, 'get',
+                               wraps=self.storage.get) as patched:
+            self.app.post_json('/batch', batch, headers=self.headers)
+            self.assertEqual(patched.call_count, 0)
+
+    def test_parent_collection_is_taken_from_the_one_checked_in_batch(self):
+        # Create it first.
+        self.app.put(self.collection_url, headers=self.headers, status=201)
+
+        batch = {'requests': []}
+        nb_create = 25
+        for i in range(nb_create):
+            request = {'method': 'POST',
+                       'path': self.collection_url + '/records',
+                       'body': MINIMALIST_RECORD}
+            batch['requests'].append(request)
+
+        with mock.patch.object(self.storage, 'get',
+                               wraps=self.storage.get) as patched:
+            self.app.post_json('/batch', batch, headers=self.headers)
+            self.assertEqual(patched.call_count, 0)

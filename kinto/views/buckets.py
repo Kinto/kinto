@@ -80,9 +80,9 @@ def create_bucket(request, bucket_id):
     resource = Bucket(request, context)
     try:
         bucket = resource.collection.create_record({'id': bucket_id})
-    except storage_exceptions.UnicityError:
-        pass
-    else:
+    except storage_exceptions.UnicityError as e:
+        bucket = e.record
+    finally:
         already_created[bucket_id] = bucket
 
 
@@ -117,9 +117,9 @@ def create_collection(request, bucket_id):
     resource = Collection(request, context)
     try:
         collection = resource.collection.create_record({'id': collection_id})
-    except storage_exceptions.UnicityError:
-        pass
-    else:
+    except storage_exceptions.UnicityError as e:
+        collection = e.record
+    finally:
         already_created[collection_uri] = collection
     request.matchdict = backup
 
@@ -159,6 +159,7 @@ def default_bucket(request):
         'path': path + querystring,
         'body': request.body
     })
+    subrequest.bound_data = request.bound_data
 
     try:
         response = request.invoke_subrequest(subrequest)
