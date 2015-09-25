@@ -31,6 +31,7 @@ DEFAULT_SETTINGS = {
     'cliquet.cache_pool_size': 10,
     'cliquet.cache_url': '',
     'cliquet.cors_origins': '*',
+    'cliquet.cors_max_age': 3600,
     'cliquet.eos': None,
     'cliquet.eos_message': None,
     'cliquet.eos_url': None,
@@ -130,6 +131,9 @@ def includeme(config):
     Service.cors_origins = tuple(aslist(cors_origins))
     Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert',
                                     'Content-Length')
+    cors_max_age = settings['cliquet.cors_max_age']
+    Service.cors_max_age = int(cors_max_age) if cors_max_age else None
+
     Service.error_handler = lambda self, e: errors.json_error_handler(e)
 
     # Heartbeat registry.
