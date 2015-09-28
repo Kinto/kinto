@@ -1,12 +1,12 @@
 import mock
 
-from .test_views import BaseWebTest
+from cliquet.tests.support import (unittest, BaseWebTest)
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
 
 
-class CORSOriginHeadersTest(BaseWebTest):
+class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(CORSOriginHeadersTest, self).setUp()
         self.headers['Origin'] = 'notmyidea.org'

@@ -71,11 +71,16 @@ class BaseWebTest(object):
     """
 
     api_prefix = "v0"
+    authorization_policy = 'cliquet.tests.support.AllowAuthorizationPolicy'
+    collection_url = '/mushrooms'
+    principal = USER_PRINCIPAL
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
         self.app = self.get_test_app()
         self.storage = self.app.app.registry.storage
+        self.cache = self.app.app.registry.cache
+        self.permission = self.app.app.registry.permission
         self.headers = {
             'Content-Type': 'application/json',
             'Authorization': 'Basic bWF0OjE='
@@ -94,17 +99,25 @@ class BaseWebTest(object):
         settings['cliquet.permission_backend'] = 'cliquet.permission.redis'
 
         settings['cliquet.project_name'] = 'cliquet'
+        settings['cliquet.project_version'] = '0.0.1'
         settings['cliquet.project_docs'] = 'https://cliquet.rtfd.org/'
-        settings['multiauth.authorization_policy'] = (
-            'cliquet.tests.support.AllowAuthorizationPolicy')
+        settings['multiauth.authorization_policy'] = self.authorization_policy
 
         if additional_settings is not None:
             settings.update(additional_settings)
         return settings
 
+    def get_item_url(self, id=None):
+        """Return the URL of the item using self.item_url."""
+        if id is None:
+            id = self.record['id']
+        return self.collection_url + '/' + str(id)
+
     def tearDown(self):
         super(BaseWebTest, self).tearDown()
         self.storage.flush()
+        self.cache.flush()
+        self.permission.flush()
 
 
 class ThreadMixin(object):
