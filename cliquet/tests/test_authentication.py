@@ -12,15 +12,15 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
     sample_basicauth = {'Authorization': 'Basic bWF0OjE='}
 
     def test_basic_auth_is_accepted_by_default(self):
-        app = self._get_test_app()
+        app = self.get_test_app()
         app.get(self.sample_url, headers=self.sample_basicauth, status=200)
 
     def test_basic_auth_is_accepted_if_enabled_in_settings(self):
-        app = self._get_test_app({'multiauth.policies': 'basicauth'})
+        app = self.get_test_app({'multiauth.policies': 'basicauth'})
         app.get(self.sample_url, headers=self.sample_basicauth, status=200)
 
     def test_basic_auth_is_accepted_if_enabled_with_old_setting(self):
-        app = self._get_test_app({
+        app = self.get_test_app({
             'multiauth.policies': 'dummy',
             'multiauth.policy.dummy.use': ('pyramid.authentication.'
                                            'RepozeWho1AuthenticationPolicy'),
@@ -28,18 +28,18 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         app.get(self.sample_url, headers=self.sample_basicauth, status=200)
 
     def test_basic_auth_is_accepted_if_default_with_old_setting(self):
-        app = self._get_test_app({'cliquet.basic_auth_enabled': 'true'})
+        app = self.get_test_app({'cliquet.basic_auth_enabled': 'true'})
         app.get(self.sample_url, headers=self.sample_basicauth, status=200)
 
     def test_basic_auth_is_declined_if_disabled_in_settings(self):
-        app = self._get_test_app({
+        app = self.get_test_app({
             'multiauth.policies': 'dummy',
             'multiauth.policy.dummy.use': ('pyramid.authentication.'
                                            'RepozeWho1AuthenticationPolicy')})
         app.get(self.sample_url, headers=self.sample_basicauth, status=401)
 
     def test_views_are_forbidden_if_unknown_auth_method(self):
-        app = self._get_test_app({'multiauth.policies': 'basicauth'})
+        app = self.get_test_app({'multiauth.policies': 'basicauth'})
         self.headers['Authorization'] = 'Carrier'
         app.get(self.sample_url, headers=self.headers, status=401)
         self.headers['Authorization'] = 'Carrier pigeon'

@@ -1,58 +1,15 @@
 import mock
-import webtest
 import uuid
-from pyramid import testing
 
-import cliquet
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
-from cliquet.tests.support import unittest, get_request_class, USER_PRINCIPAL
+from cliquet.tests.support import (unittest, BaseWebTest)
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
 
 
-class BaseWebTest(unittest.TestCase):
-    authorization_policy = 'cliquet.tests.support.AllowAuthorizationPolicy'
-    collection_url = '/mushrooms'
-
-    def __init__(self, *args, **kwargs):
-        super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.config = testing.setUp()
-
-        self.config.add_settings({
-            'cliquet.storage_backend': 'cliquet.storage.memory',
-            'cliquet.cache_backend': 'cliquet.cache.memory',
-            'cliquet.permission_backend': 'cliquet.permission.memory',
-            'cliquet.project_version': '0.0.1',
-            'cliquet.project_name': 'cliquet',
-            'cliquet.project_docs': 'https://cliquet.rtfd.org/',
-            'multiauth.authorization_policy': self.authorization_policy
-        })
-
-        cliquet.initialize(self.config)
-        self.config.scan("cliquet.tests.testapp.views")
-
-        self.app = webtest.TestApp(self.config.make_wsgi_app())
-        self.app.RequestClass = get_request_class(self.config.route_prefix)
-        self.principal = USER_PRINCIPAL
-
-        self.headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic bWF0OjE='
-        }
-
-    def tearDown(self):
-        self.app.app.registry.permission.flush()
-
-    def get_item_url(self, id=None):
-        """Return the URL of the item using self.item_url."""
-        if id is None:
-            id = self.record['id']
-        return self.collection_url + '/' + str(id)
-
-
-class BaseResourcePermissionTest(BaseWebTest):
+class BaseResourcePermissionTest(BaseWebTest, unittest.TestCase):
     authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
 
     def test_views_require_authentication(self):
@@ -87,7 +44,7 @@ class BaseResourcePermissionTest(BaseWebTest):
         self.app.put_json(unknown_url, body, headers=self.headers, status=201)
 
 
-class AuthzAuthnTest(BaseWebTest):
+class AuthzAuthnTest(BaseWebTest, unittest.TestCase):
     authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
     # Protected resource.
     collection_url = '/toadstools'
@@ -95,8 +52,7 @@ class AuthzAuthnTest(BaseWebTest):
     def add_permission(self, object_id, permission, principal=None):
         if not principal:
             principal = self.principal
-        self.app.app.registry.permission.add_principal_to_ace(
-            object_id, permission, principal)
+        self.permission.add_principal_to_ace(object_id, permission, principal)
 
 
 class ProtectedResourcePermissionTest(AuthzAuthnTest):
@@ -109,7 +65,7 @@ class ProtectedResourcePermissionTest(AuthzAuthnTest):
         resp = self.app.post_json(self.collection_url, body,
                                   headers=self.headers)
         object_uri = self.get_item_url(resp.json['data']['id'])
-        backend = self.app.app.registry.permission
+        backend = self.permission
         stored_perms = backend.object_permission_principals(object_uri, 'read')
         self.assertEqual(stored_perms, {'group:readers'})
 
@@ -229,7 +185,7 @@ class RecordAuthzDeniedTest(AuthzAuthnTest):
         self.record_url = self.get_item_url()
         self.unknown_record_url = self.get_item_url(uuid.uuid4())
         # Remove every permissions.
-        self.app.app.registry.permission.flush()
+        self.permission.flush()
 
     def test_views_require_authentication(self):
         url = self.get_item_url('abc')
@@ -254,10 +210,10 @@ class RecordAuthzDeniedTest(AuthzAuthnTest):
 
     def test_record_put_on_unexisting_record_is_rejected_if_write_perm(self):
         object_id = self.collection_url
-        self.app.app.registry.permission.remove_principal_from_ace(
+        self.permission.remove_principal_from_ace(
             object_id, 'toadstool:create', self.principal)  # Added in setUp.
 
-        self.app.app.registry.permission.add_principal_to_ace(
+        self.permission.add_principal_to_ace(
             object_id, 'write', self.principal)
         self.app.put_json(self.unknown_record_url, {'data': MINIMALIST_RECORD},
                           headers=self.headers, status=403)
@@ -308,7 +264,7 @@ class RecordAuthzGrantedOnCollectionTest(AuthzAuthnTest):
         self.assertEqual(len(resp.json['data']), 1)
 
 
-class EmptySchemaTest(BaseWebTest):
+class EmptySchemaTest(BaseWebTest, unittest.TestCase):
     collection_url = '/moistures'
 
     def test_accept_empty_body(self):
@@ -342,7 +298,7 @@ class OptionalSchemaTest(EmptySchemaTest):
         self.assertIn('edible', resp.json['data'])
 
 
-class InvalidRecordTest(BaseWebTest):
+class InvalidRecordTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(InvalidRecordTest, self).setUp()
         body = {'data': MINIMALIST_RECORD}
@@ -431,7 +387,7 @@ class InvalidRecordTest(BaseWebTest):
                            status=200)
 
 
-class IgnoredFieldsTest(BaseWebTest):
+class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(IgnoredFieldsTest, self).setUp()
         body = {'data': MINIMALIST_RECORD}
@@ -466,7 +422,7 @@ class IgnoredFieldsTest(BaseWebTest):
         self.assertNotEqual(resp.json['data']['last_modified'], 'abc')
 
 
-class InvalidBodyTest(BaseWebTest):
+class InvalidBodyTest(BaseWebTest, unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(InvalidBodyTest, self).__init__(*args, **kwargs)
         self.invalid_body = "{'foo>}"
@@ -540,7 +496,7 @@ class InvalidBodyTest(BaseWebTest):
                        status=400)
 
 
-class InvalidPermissionsTest(BaseWebTest):
+class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
     collection_url = '/toadstools'
 
     def setUp(self):
@@ -588,7 +544,7 @@ class InvalidPermissionsTest(BaseWebTest):
                  'name': 'permissions.read'}]})
 
 
-class ConflictErrorsTest(BaseWebTest):
+class ConflictErrorsTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(ConflictErrorsTest, self).setUp()
 
@@ -602,7 +558,7 @@ class ConflictErrorsTest(BaseWebTest):
             raise storage_exceptions.UnicityError('city', {'id': 42})
 
         for operation in ('create', 'update'):
-            patch = mock.patch.object(self.config.registry.storage, operation,
+            patch = mock.patch.object(self.storage, operation,
                                       side_effect=unicity_failure)
             patch.start()
 
@@ -639,7 +595,7 @@ class ConflictErrorsTest(BaseWebTest):
         self.assertEqual(resp.json['details']['existing'], {'id': 42})
 
 
-class CacheControlTest(BaseWebTest):
+class CacheControlTest(BaseWebTest, unittest.TestCase):
     def test_cache_control_headers_are_set(self):
         with mock.patch.dict(self.app.app.registry.settings,
                              [('cliquet._cache_expires_seconds', 3600)]):
@@ -656,12 +612,12 @@ class CacheControlTest(BaseWebTest):
         self.assertIn('Pragma', resp.headers)
 
 
-class StorageErrorTest(BaseWebTest):
+class StorageErrorTest(BaseWebTest, unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(StorageErrorTest, self).__init__(*args, **kwargs)
         self.error = storage_exceptions.BackendError(ValueError())
         self.storage_error_patcher = mock.patch(
-            'cliquet.storage.memory.Memory.create',
+            'cliquet.storage.redis.Redis.create',
             side_effect=self.error)
 
     def test_backend_errors_are_served_as_503(self):
@@ -684,7 +640,7 @@ class StorageErrorTest(BaseWebTest):
                 self.assertEqual(type(mocked.call_args[0][0]), ValueError)
 
 
-class PaginationNextURLTest(BaseWebTest):
+class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
     """Extra tests for `cliquet.tests.resource.test_pagination`
     """
 

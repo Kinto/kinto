@@ -1,12 +1,13 @@
 import mock
+from pyramid import httpexceptions
 
-from .test_views import BaseWebTest
+from cliquet.tests.support import (unittest, BaseWebTest)
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
 
 
-class CORSOriginHeadersTest(BaseWebTest):
+class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(CORSOriginHeadersTest, self).setUp()
         self.headers['Origin'] = 'notmyidea.org'
@@ -112,8 +113,15 @@ class CORSOriginHeadersTest(BaseWebTest):
                                     headers=self.headers, status=500)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
+    def test_present_on_http_error(self):
+        with mock.patch('cliquet.resource.BaseResource._extract_filters',
+                        side_effect=httpexceptions.HTTPPaymentRequired):
+            response = self.app.get('/mushrooms',
+                                    headers=self.headers, status=402)
+        self.assertIn('Access-Control-Allow-Origin', response.headers)
 
-class CORSExposeHeadersTest(BaseWebTest):
+
+class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
     def assert_expose_headers(self, method, path, allowed_headers, body=None,
                               status=None):
         self.headers.update({'Origin': 'lolnet.org'})
