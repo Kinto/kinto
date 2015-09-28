@@ -89,6 +89,8 @@ def method_not_allowed(context, request):
 
 
 @view_config(context=Exception, permission=NO_PERMISSION_REQUIRED)
+@view_config(context=httpexceptions.HTTPException,
+             permission=NO_PERMISSION_REQUIRED)
 def error(context, request):
     """Catch server errors and trace them."""
     if isinstance(context, httpexceptions.Response):
