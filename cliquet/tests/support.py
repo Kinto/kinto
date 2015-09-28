@@ -74,14 +74,14 @@ class BaseWebTest(object):
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.app = self._get_test_app()
+        self.app = self.get_test_app()
         self.storage = self.app.app.registry.storage
         self.headers = {
             'Content-Type': 'application/json',
             'Authorization': 'Basic bWF0OjE='
         }
 
-    def _get_test_app(self, settings=None):
+    def get_test_app(self, settings=None):
         app = webtest.TestApp(testapp(self.get_app_settings(settings)))
         app.RequestClass = get_request_class(self.api_prefix)
         return app
