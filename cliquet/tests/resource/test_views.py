@@ -1,13 +1,9 @@
 import mock
-import webtest
 import uuid
-from pyramid import testing
 
-import cliquet
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
-from cliquet.tests.support import (unittest, get_request_class, USER_PRINCIPAL,
-                                   BaseWebTest)
+from cliquet.tests.support import (unittest, BaseWebTest)
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}

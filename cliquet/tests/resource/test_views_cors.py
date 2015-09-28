@@ -113,7 +113,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
 
-class CORSExposeHeadersTest(BaseWebTest):
+class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
     def assert_expose_headers(self, method, path, allowed_headers, body=None,
                               status=None):
         self.headers.update({'Origin': 'lolnet.org'})
