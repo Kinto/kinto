@@ -179,3 +179,27 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
     def test_present_on_unknown_url(self):
         self.assert_expose_headers('PUT_JSON', '/unknown', [
             'Alert', 'Backoff', 'Retry-After', 'Content-Length'], status=404)
+
+
+class CORSMaxAgeTest(BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super(CORSMaxAgeTest, self).setUp()
+        self.headers.update({
+            'Origin': 'lolnet.org',
+            'Access-Control-Request-Method': 'GET'
+        })
+
+    def test_cors_max_age_is_3600_seconds_by_default(self):
+        app = self.get_test_app()
+        resp = app.options('/', headers=self.headers)
+        self.assertEqual(int(resp.headers['Access-Control-Max-Age']), 3600)
+
+    def test_cors_max_age_can_be_specified_in_settings(self):
+        app = self.get_test_app({'cliquet.cors_max_age_seconds': '42'})
+        resp = app.options('/', headers=self.headers)
+        self.assertEqual(int(resp.headers['Access-Control-Max-Age']), 42)
+
+    def test_cors_max_age_is_disabled_if_unset(self):
+        app = self.get_test_app({'cliquet.cors_max_age_seconds': ''})
+        resp = app.options('/', headers=self.headers)
+        self.assertNotIn('Access-Control-Max-Age', resp.headers)

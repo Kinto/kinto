@@ -254,6 +254,20 @@ Basically, this will add both ``Cache-Control: max-age=3600`` and
 ``Expire: <server datetime + 1H>`` response headers to the ``GET`` responses.
 
 
+CORS
+----
+
+By default, CORS headers are cached by clients during 1H (``Access-Control-Max-Age``).
+
+The duration can be set from settings. If set to empty or to 0, the header
+is not sent to clients.
+
+.. code-block:: ini
+
+    cliquet.cors_max_age_seconds = 7200
+
+
+
 .. _configuration-authentication:
 
 Authentication
