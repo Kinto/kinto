@@ -19,6 +19,14 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
                                       status=201)
         self.record = response.json['data']
 
+    def test_can_be_configured_from_settings(self):
+        app = self.get_test_app({'cliquet.cors_origins': '*.daybed.io'})
+        headers = self.headers.copy()
+        headers['Origin'] = 'demo.daybed.io'
+        resp = app.get(self.collection_url, headers=headers)
+        self.assertEqual(resp.headers['Access-Control-Allow-Origin'],
+                         'demo.daybed.io')
+
     def test_present_on_hello(self):
         response = self.app.get('/',
                                 headers=self.headers,
