@@ -195,11 +195,11 @@ class CORSMaxAgeTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(int(resp.headers['Access-Control-Max-Age']), 3600)
 
     def test_cors_max_age_can_be_specified_in_settings(self):
-        app = self.get_test_app({'cliquet.cors_max_age': '42'})
+        app = self.get_test_app({'cliquet.cors_max_age_seconds': '42'})
         resp = app.options('/', headers=self.headers)
         self.assertEqual(int(resp.headers['Access-Control-Max-Age']), 42)
 
     def test_cors_max_age_is_disabled_if_unset(self):
-        app = self.get_test_app({'cliquet.cors_max_age': ''})
+        app = self.get_test_app({'cliquet.cors_max_age_seconds': ''})
         resp = app.options('/', headers=self.headers)
         self.assertNotIn('Access-Control-Max-Age', resp.headers)
