@@ -1,7 +1,7 @@
 import mock
 from pyramid import httpexceptions
 
-from cliquet.errors import ERRORS
+from cliquet.errors import ERRORS, http_error
 
 from .support import BaseWebTest, unittest, authorize, FormattedErrorMixin
 
@@ -68,6 +68,19 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertFormattedError(
             response, 405, ERRORS.METHOD_NOT_ALLOWED, "Method Not Allowed",
             "Method not allowed on this endpoint.")
+
+    def test_405_can_have_custom_message(self):
+        custom_405 = http_error(httpexceptions.HTTPMethodNotAllowed(),
+                                errno=ERRORS.METHOD_NOT_ALLOWED,
+                                message="Disabled from conf.")
+        with mock.patch(
+                'cliquet.tests.testapp.views.Mushroom._extract_filters',
+                side_effect=custom_405):
+            response = self.app.get(self.sample_url,
+                                    headers=self.headers, status=405)
+        self.assertFormattedError(
+            response, 405, ERRORS.METHOD_NOT_ALLOWED, "Method Not Allowed",
+            "Disabled from conf.")
 
     def test_500_is_valid_formatted_error(self):
         with mock.patch(
