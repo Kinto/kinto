@@ -68,7 +68,6 @@ def page_not_found(request):
 @view_config(context=httpexceptions.HTTPServiceUnavailable,
              permission=NO_PERMISSION_REQUIRED)
 def service_unavailable(context, request):
-
     error_msg = "Service unavailable due to high load, please retry later."
     response = http_error(httpexceptions.HTTPServiceUnavailable(),
                           errno=ERRORS.BACKEND,
@@ -82,7 +81,10 @@ def service_unavailable(context, request):
 @view_config(context=httpexceptions.HTTPMethodNotAllowed,
              permission=NO_PERMISSION_REQUIRED)
 def method_not_allowed(context, request):
-    response = http_error(httpexceptions.HTTPMethodNotAllowed(),
+    if context.content_type == 'application/json':
+        return context
+
+    response = http_error(context,
                           errno=ERRORS.METHOD_NOT_ALLOWED,
                           message="Method not allowed on this endpoint.")
     return reapply_cors(request, response)
