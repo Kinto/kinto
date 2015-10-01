@@ -122,7 +122,7 @@ The currently authenticated *user ID* can be obtained on the root URL.
         "documentation": "https://kinto.readthedocs.org/",
         "hello": "cloud storage",
         "settings": {
-            "cliquet.batch_max_requests": 25
+            "kinto.batch_max_requests": 25
         },
         "url": "http://localhost:8888/v1/",
         "userid": "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6",

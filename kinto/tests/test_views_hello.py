@@ -9,6 +9,6 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get('/')
         self.assertEqual(response.json['version'], VERSION)
         self.assertEqual(response.json['url'], 'http://localhost/v1/')
-        self.assertEqual(response.json['hello'], 'Kinto')
+        self.assertEqual(response.json['hello'], 'kinto')
         self.assertEqual(response.json['documentation'],
                          'https://kinto.readthedocs.org/')

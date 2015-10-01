@@ -17,7 +17,7 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         bucket = self.app.get(self.bucket_url, headers=self.headers)
         result = bucket.json
         settings = self.app.app.registry.settings
-        hmac_secret = settings['cliquet.userid_hmac_secret']
+        hmac_secret = settings['userid_hmac_secret']
         bucket_id = hmac_digest(hmac_secret, self.principal)[:32]
 
         self.assertEqual(result['data']['id'], text_type(UUID(bucket_id)))

@@ -18,8 +18,8 @@ listed below.
     The environment variables are exactly the same as the settings, but they
     are capitalised and ``.`` are replaced by ``_``.
 
-    For example, ``cliquet.storage_backend`` is read from environment variable
-    ``CLIQUET_STORAGE_BACKEND`` if defined.
+    For example, ``kinto.storage_backend`` is read from environment variable
+    ``KINTO_STORAGE_BACKEND`` if defined.
 
     All settings are read first from the environment variables, then from
     application ``.ini``, and finally from internal defaults.
@@ -31,15 +31,15 @@ Feature settings
 +-----------------------------------------------------------+--------------------------------------------------------------------------+
 | Setting name                                              | What does it do?                                                         |
 +===========================================================+==========================================================================+
-| cliquet.batch_max_requests ``25``                         | The maximum number of requests that can be sent to the batch endpoint.   |
+| kinto.batch_max_requests ``25``                           | The maximum number of requests that can be sent to the batch endpoint.   |
 +-----------------------------------------------------------+--------------------------------------------------------------------------+
-| cliquet.paginate_by ``None``                              | The maximum number of items to include on a response before enabling     |
+| kinto.paginate_by ``None``                                | The maximum number of items to include on a response before enabling     |
 |                                                           | pagination. If set to ``None``, no pagination will be used.              |
 |                                                           | It is recommended to set-up pagination. If not defined, a collection     |
 |                                                           | connot contain more elements than defined by the                         |
-|                                                           | ``cliquet.storage_max_fetch_size`` setting.                              |
+|                                                           | ``kinto.storage_max_fetch_size`` setting.                              |
 +-----------------------------------------------------------+--------------------------------------------------------------------------+
-| cliquet.id_generator                                      | The Python *dotted* location of the generator class that should be used  |
+| kinto.id_generator                                        | The Python *dotted* location of the generator class that should be used  |
 | ``cliquet.storage.generators.UUID4``                      | to generate identifiers on a POST on a collection endpoint.              |
 +-----------------------------------------------------------+--------------------------------------------------------------------------+
 | kinto.experimental_collection_schema_validation ``False`` | *Experimental*: Allow definition of JSON schema at the collection level, |
@@ -52,13 +52,13 @@ Example:
 .. code-block:: ini
 
     # Limit number of batch operations per request
-    # cliquet.batch_max_requests = 25
+    # kinto.batch_max_requests = 25
 
     # Force pagination *(recommended)*
-    # cliquet.paginate_by = 200
+    # kinto.paginate_by = 200
 
     # Custom record ID generator class
-    # cliquet.id_generator = cliquet.storage.generators.UUID4
+    # kinto.id_generator = cliquet.storage.generators.UUID4
 
 
 .. _configuration-backends:
@@ -78,31 +78,31 @@ Storage
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.storage_backend               | The Python *dotted* location of the storage backend to use.              |
+| kinto.storage_backend                 | The Python *dotted* location of the storage backend to use.              |
 | ``cliquet.storage.redis``             |                                                                          |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.storage_max_fetch_size        | The maximum number of items that can be returned by one request to the   |
+| kinto.storage_max_fetch_size          | The maximum number of items that can be returned by one request to the   |
 | ``10000``                             | storage backend. If no pagination is enabled, this is the maximum number |
 |                                       | of items that can be stored in a collection (otherwise some of them      |
 |                                       | won't be returned). With pagination enabled, this limitation doesn't     |
 |                                       | apply.                                                                   |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.storage_pool_size ``10``      | The size of the pool of connections to use for the storage backend.      |
+| kinto.storage_pool_size ``10``        | The size of the pool of connections to use for the storage backend.      |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.storage_url  ``''``           | The URL to use to authenticate to the storage backend. e.g.              |
+| kinto.storage_url  ``''``             | The URL to use to authenticate to the storage backend. e.g.              |
 |                                       | ``redis://localhost:6378/1`` or ``postgres://user:pass@database/db``     |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 .. code-block:: ini
 
-    cliquet.storage_backend = cliquet.storage.redis
-    cliquet.storage_url = redis://localhost:6379/1
+    kinto.storage_backend = cliquet.storage.redis
+    kinto.storage_url = redis://localhost:6379/1
 
     # Safety limit while fetching from storage
-    # cliquet.storage_max_fetch_size = 10000
+    # kinto.storage_max_fetch_size = 10000
 
     # Control number of pooled connections
-    # cliquet.storage_pool_size = 50
+    # kinto.storage_pool_size = 50
 
 
 Cache
@@ -111,22 +111,22 @@ Cache
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.cache_backend                 | The Python *dotted* location of the cache backend to use.                |
+| kinto.cache_backend                   | The Python *dotted* location of the cache backend to use.                |
 | ``cliquet.cache.redis``               |                                                                          |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.cache_pool_size ``10``        | The size of the pool of connections to use for the cache backend.        |
+| kinto.cache_pool_size ``10``          | The size of the pool of connections to use for the cache backend.        |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.cache_url  ``''``             | The URL to use to authenticate to the cache backend. e.g.                |
+| kinto.cache_url  ``''``               | The URL to use to authenticate to the cache backend. e.g.                |
 |                                       | ``redis://localhost:6378/1`` or ``postgres://user:pass@database/db``     |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 .. code-block:: ini
 
-    cliquet.cache_backend = cliquet.cache.redis
-    cliquet.cache_url = redis://localhost:6379/0
+    kinto.cache_backend = cliquet.cache.redis
+    kinto.cache_url = redis://localhost:6379/0
 
     # Control number of pooled connections
-    # cliquet.storage_pool_size = 50
+    # kinto.storage_pool_size = 50
 
 Permissions
 :::::::::::
@@ -134,22 +134,22 @@ Permissions
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.permission_backend            | The Python *dotted* location of the permission backend to use.           |
+| kinto.permission_backend              | The Python *dotted* location of the permission backend to use.           |
 | ``cliquet.permission.redis``          |                                                                          |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.permission_url ``''``         | The URL to use to authenticate to the permission backend. e.g.           |
+| kinto.permission_url ``''``           | The URL to use to authenticate to the permission backend. e.g.           |
 |                                       | ``redis://localhost:6379/1``                                             |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.permission_pool_size ``10``   | The size of the pool of connections to use for the permission backend.   |
+| kinto.permission_pool_size ``10``     | The size of the pool of connections to use for the permission backend.   |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 .. code-block:: ini
 
-    cliquet.permission_backend = cliquet.permission.redis
-    cliquet.permission_url = redis://localhost:6379/1
+    kinto.permission_backend = cliquet.permission.redis
+    kinto.permission_url = redis://localhost:6379/1
 
     # Control number of pooled connections
-    # cliquet.permission_pool_size = 50
+    # kinto.permission_pool_size = 50
 
 Bypass permissions with configuration
 :::::::::::::::::::::::::::::::::::::
@@ -163,7 +163,7 @@ authenticated people to create bucket records:
 
 .. code-block:: ini
 
-    cliquet.bucket_create_principals = system.Authenticated
+    kinto.bucket_create_principals = system.Authenticated
 
 The format of these permission settings is
 ``<resource_name>_<permission>_principals = comma,separated,principals``.
@@ -182,8 +182,8 @@ the following settings are available:
 
 .. code-block :: ini
 
-   # cliquet.http_scheme = https
-   # cliquet.http_host = production.server:7777
+   # kinto.http_scheme = https
+   # kinto.http_host = production.server:7777
 
 
 Check the behaviour of the server with the ``url`` value returned in :ref:`the
@@ -192,10 +192,10 @@ hello view <batch>`.
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.http_host ``None``            | The HTTP Host used by Kinto to refer to itself. If set to `None`, the    |
+| kinto.http_host ``None``              | The HTTP Host used by Kinto to refer to itself. If set to `None`, the    |
 |                                       | HTTP host is read from HTTP headers.                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.http_scheme ``None``          | The HTTP scheme used by Kinto to refer to itself. If set to `None`, the  |
+| kinto.http_scheme ``None``            | The HTTP scheme used by Kinto to refer to itself. If set to `None`, the  |
 |                                       | HTTP scheme is read from the HTTP headers.                               |
 +---------------------------------------+--------------------------------------------------------------------------+
 
@@ -205,12 +205,12 @@ Logging
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.logging_renderer              | The Python *dotted* location of the renderer class that should be used   |
+| kinto.logging_renderer                | The Python *dotted* location of the renderer class that should be used   |
 | ``cliquet.logs.ClassicLogRenderer``   | to render the logs to the standard output.                               |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.statsd_prefix ``cliquet``     | The prefix to use when sending data to statsd.                           |
+| kinto.statsd_prefix ``kinto``         | The prefix to use when sending data to statsd.                           |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.statsd_url: ``None``          | The URL to use to connect to the statsd host. e.g.                       |
+| kinto.statsd_url: ``None``            | The URL to use to connect to the statsd host. e.g.                       |
 |                                       | ``udp://localhost:8125``                                                 |
 +---------------------------------------+--------------------------------------------------------------------------+
 
@@ -227,7 +227,7 @@ Heka logging format can be enabled using:
 
 .. code-block:: ini
 
-    cliquet.logging_renderer = cliquet.logs.MozillaHekaRenderer
+    kinto.logging_renderer = cliquet.logs.MozillaHekaRenderer
 
 
 With the following configuration, all logs are redirected to standard output
@@ -280,8 +280,8 @@ StatsD metrics can be enabled (disabled by default):
 
 .. code-block:: ini
 
-    cliquet.statsd_url = udp://localhost:8125
-    # cliquet.statsd_prefix = cliquet.project_name
+    kinto.statsd_url = udp://localhost:8125
+    # kinto.statsd_prefix = kinto-prod
 
 
 Monitoring with New Relic
@@ -292,17 +292,17 @@ Requires the ``newrelic`` package.
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.newrelic_config ``None``      | Location of the newrelic configuration file.                             |
+| kinto.newrelic_config ``None``        | Location of the newrelic configuration file.                             |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.newrelic_env ``dev``          | The environment the server runs into                                     |
+| kinto.newrelic_env ``dev``            | The environment the server runs into                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 New Relic can be enabled (disabled by default):
 
 .. code-block:: ini
 
-    cliquet.newrelic_config = /location/of/newrelic.ini
-    cliquet.newrelic_env = prod
+    kinto.newrelic_config = /location/of/newrelic.ini
+    kinto.newrelic_env = prod
 
 .. _configuration-authentication:
 
@@ -320,7 +320,7 @@ configure it refer to their documentation at :github:`mozilla-services/cliquet-f
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.userid_hmac_secret ``''``     | The secret used by the server to derive the shareable user ID. This      |
+| kinto.userid_hmac_secret ``''``       | The secret used by the server to derive the shareable user ID. This      |
 |                                       | value should be unique to each instance and kept secret. By              |
 |                                       | default, Kinto doesn't define a secret for you, and won't start unless   |
 |                                       | you generate one.                                                        |
@@ -332,11 +332,11 @@ configure it refer to their documentation at :github:`mozilla-services/cliquet-f
 |                                       | a list of policies that should be tried in order.                        |
 +---------------------------------------+--------------------------------------------------------------------------+
 | multiauth.policy.basicauth.use        | Python *dotted* path to the authentication policy to use for basicauth.  |
-| ``('cliquet.authentication.           | By default, any `login:password` pair will be accepted, meaning          |
+| ``('kinto.authentication.             | By default, any `login:password` pair will be accepted, meaning          |
 | BasicAuthAuthenticationPolicy')``     | that no account creation is required.                                    |
 +---------------------------------------+--------------------------------------------------------------------------+
 | multiauth.authorization_policy        | Python *dotted* path the authorisation policy to use for basicAuth.      |
-| ``('cliquet.authorization.            |                                                                          |
+| ``('kinto.authorization.              |                                                                          |
 | AuthorizationPolicy')``               |                                                                          |
 +---------------------------------------+--------------------------------------------------------------------------+
 
@@ -345,7 +345,7 @@ in configuration:
 
 .. code-block:: ini
 
-    # cliquet.userid_hmac_secret = b4c96a8692291d88fe5a97dd91846eb4
+    # kinto.userid_hmac_secret = b4c96a8692291d88fe5a97dd91846eb4
 
 
 Authentication setup
@@ -418,7 +418,7 @@ Kinto supports `CORS <http://www.w3.org/TR/cors/>`_ out of the box. Use the
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.cors_origins ``*``            | This List of CORS origins to support on all endpoints. By default allow  |
+| kinto.cors_origins ``*``              | This List of CORS origins to support on all endpoints. By default allow  |
 |                                       | all cross origin requests.                                               |
 +---------------------------------------+--------------------------------------------------------------------------+
 
@@ -431,39 +431,39 @@ following flags can be used. Read more about this at :ref:`backoff-indicators`.
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.backoff ``None``              | The Backoff time to use. If set to `None`, no backoff flag is sent to    |
+| kinto.backoff ``None``                | The Backoff time to use. If set to `None`, no backoff flag is sent to    |
 |                                       | the clients. If set, provides the client with a number of seconds during |
 |                                       | which it should avoid doing unnecessary requests.                        |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.retry_after_seconds ``30``    | The number of seconds after which the client should issue requests.      |
+| kinto.retry_after_seconds ``30``      | The number of seconds after which the client should issue requests.      |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 .. code-block:: ini
 
-    # cliquet.backoff = 10
-    cliquet.retry_after_seconds = 30
+    # kinto.backoff = 10
+    kinto.retry_after_seconds = 30
 
 Similarly, the end of service date can be specified by using these settings.
 
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.eos ``None``                  | The End of Service Deprecation date. If the date specified is in the     |
+| kinto.eos ``None``                    | The End of Service Deprecation date. If the date specified is in the     |
 |                                       | future, an alert will be sent to clients. If it’s in the past, the       |
 |                                       | service will be declared as decomissionned. If set to `None`, no End of  |
 |                                       | Service information will be sent to the client.                          |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.eos_message ``None``          | The End of Service message. If set to `None`, no End of Service message  |
+| kinto.eos_message ``None``            | The End of Service message. If set to `None`, no End of Service message  |
 |                                       | will be sent to the clients.                                             |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.eos_url ``None``              | The End of Service information URL.                                      |
+| kinto.eos_url ``None``                | The End of Service information URL.                                      |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 .. code-block:: ini
 
-    cliquet.eos = 2015-01-22
-    cliquet.eos_message = "Client is too old"
-    cliquet.eos_url = http://website/info-shutdown.html
+    kinto.eos = 2015-01-22
+    kinto.eos_message = "Client is too old"
+    kinto.eos_url = http://website/info-shutdown.html
 
 
 Enabling or disabling endpoints
@@ -473,7 +473,7 @@ Specific resource operations can be disabled.
 
 To do so, a setting key must be defined for the disabled resources endpoints::
 
-    'cliquet.{endpoint_type}_{resource_name}_{method}_enabled'
+    'kinto.{endpoint_type}_{resource_name}_{method}_enabled'
 
 Where:
 - **endpoint_type** is either collection or record;
@@ -487,10 +487,10 @@ following setting should be declared in the ``.ini`` file:
 .. code-block:: ini
 
     # Disable article collection DELETE endpoint
-    cliquet.collection_article_delete_enabled = false
+    kinto.collection_article_delete_enabled = false
 
     # Disable mushroom record PATCH endpoint
-    cliquet.record_mushroom_patch_enabled = false
+    kinto.record_mushroom_patch_enabled = false
 
 Activating the flush endpoint
 =============================
@@ -524,17 +524,17 @@ and concerns GET requests (``GET /buckets``, ``GET /buckets/{}/groups``, ``GET /
 
 .. code-block:: ini
 
-    # cliquet.bucket_cache_expires_seconds = 3600
-    # cliquet.group_cache_expires_seconds = 3600
-    # cliquet.collection_cache_expires_seconds = 3600
-    cliquet.record_cache_expires_seconds = 3600
+    # kinto.bucket_cache_expires_seconds = 3600
+    # kinto.group_cache_expires_seconds = 3600
+    # kinto.collection_cache_expires_seconds = 3600
+    kinto.record_cache_expires_seconds = 3600
 
 It can also be specified per bucket or collections for records:
 
 .. code-block:: ini
 
-    cliquet.blog_record_cache_expires_seconds = 30
-    cliquet.blog_articles_record_cache_expires_seconds = 3600
+    kinto.blog_record_cache_expires_seconds = 30
+    kinto.blog_articles_record_cache_expires_seconds = 3600
 
 If set to ``0`` then the resource becomes uncacheable (``no-cache``).
 
@@ -550,19 +550,17 @@ Project information
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.error_info_link               | The HTTP link returned when uncaught errors are triggered on the server. |
+| kinto.error_info_link                 | The HTTP link returned when uncaught errors are triggered on the server. |
 | ``https://github.com/kinto/kinto/     |                                                                          |
 | issues/``                             |                                                                          |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.project_docs                  | The URL where the documentation of the Kinto instance can be found. Will |
+| kinto.project_docs                    | The URL where the documentation of the Kinto instance can be found. Will |
 | ``'http://kinto.readthedocs.org'``    | be returned in :ref:`the hello view <api-utilities>`.                    |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.project_name ``'kinto'``      | The project name returned in :ref:`the hello view <api- utilities>`.     |
-+---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.project_version ``''``        | The version of the project. Will be returned in :ref:`the hello view     |
+| kinto.project_version ``''``          | The version of the project. Will be returned in :ref:`the hello view     |
 |                                       | <api-utilities>`. By default, this is the major version of Kinto.        |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.version_prefix_redirect_enab  | By default, all endpoints exposed by Kinto are prefixed by a             |
+| kinto.version_prefix_redirect_enab    | By default, all endpoints exposed by Kinto are prefixed by a             |
 | led  ``True``                         | :ref:`version number <versioning>`. If this flag is enabled, the server  |
 |                                       | will redirect all requests not matching the supported version to the     |
 |                                       | supported one.                                                           |
@@ -572,9 +570,8 @@ Example:
 
 .. code-block:: ini
 
-    cliquet.project_name = project
-    cliquet.project_docs = https://project.rtfd.org/
-    # cliquet.project_version = 1.0
+    kinto.project_docs = https://project.rtfd.org/
+    # kinto.project_version = 1.0
 
 Application profiling
 =====================
@@ -587,18 +584,18 @@ This is very useful when trying to find slowness in the application.
 +---------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
-| cliquet.profiler_enabled ``False``    | If enabled, each request will generate an image file with information to |
+| kinto.profiler_enabled ``False``      | If enabled, each request will generate an image file with information to |
 |                                       | profile the application.                                                 |
 +---------------------------------------+--------------------------------------------------------------------------+
-| cliquet.profiler_dir ``/tmp``         | The Location where the profiler should output its images.                |
+| kinto.profiler_dir ``/tmp``           | The Location where the profiler should output its images.                |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 Update the configuration file with the following values:
 
 .. code-block:: ini
 
-    cliquet.profiler_enabled = true
-    cliquet.profiler_dir = /tmp/profiling
+    kinto.profiler_enabled = true
+    kinto.profiler_dir = /tmp/profiling
 
 Render execution graphs using GraphViz. On debuntu:
 
@@ -621,18 +618,18 @@ possible to change the ``initialization_sequence`` setting.
 
 .. warning::
 
-    This is considered an advanced configuration feature and should be used
+    This is considered a very advanced configuration feature and should be used
     with caution.
 
 .. code-block:: ini
 
-    cliquet.initialization_sequence = cliquet.initialization.setup_json_serializer
-                                      cliquet.initialization.setup_logging
-                                      cliquet.initialization.setup_storage
-                                      cliquet.initialization.setup_cache
-                                      cliquet.initialization.setup_requests_scheme
-                                      cliquet.initialization.setup_version_redirection
-                                      cliquet.initialization.setup_deprecation
-                                      cliquet.initialization.setup_authentication
-                                      cliquet.initialization.setup_backoff
-                                      cliquet.initialization.setup_stats
+    kinto.initialization_sequence = cliquet.initialization.setup_json_serializer
+                                    cliquet.initialization.setup_logging
+                                    cliquet.initialization.setup_storage
+                                    cliquet.initialization.setup_cache
+                                    cliquet.initialization.setup_requests_scheme
+                                    cliquet.initialization.setup_version_redirection
+                                    cliquet.initialization.setup_deprecation
+                                    cliquet.initialization.setup_authentication
+                                    cliquet.initialization.setup_backoff
+                                    cliquet.initialization.setup_stats

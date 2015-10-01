@@ -56,7 +56,7 @@ class Record(resource.ProtectedResource):
 
         schema = self._collection.get('schema')
         settings = self.request.registry.settings
-        schema_validation = 'kinto.experimental_collection_schema_validation'
+        schema_validation = 'experimental_collection_schema_validation'
         if not schema or not asbool(settings.get(schema_validation)):
             return new
 
@@ -88,13 +88,13 @@ class Record(resource.ProtectedResource):
         .. note::
 
             Those headers are also sent if the
-            ``cliquet.record_cache_expires_seconds`` setting is defined.
+            ``kinto.record_cache_expires_seconds`` setting is defined.
         """
         cache_expires = self._collection.get('cache_expires')
         if cache_expires is None:
-            by_bucket = 'cliquet.%s_record_cache_expires_seconds' % (
+            by_bucket = 'kinto.%s_record_cache_expires_seconds' % (
                 self.bucket_id)
-            by_collection = 'cliquet.%s_%s_record_cache_expires_seconds' % (
+            by_collection = '%s_%s_record_cache_expires_seconds' % (
                 self.bucket_id, self.collection_id)
             settings = self.request.registry.settings
             cache_expires = settings.get(by_collection,
