@@ -45,7 +45,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         hello = resp.json['responses'][0]
         self.assertEqual(hello['path'], '/v0/')
         self.assertEqual(hello['status'], 200)
-        self.assertEqual(hello['body']['hello'], 'cliquet')
+        self.assertEqual(hello['body']['hello'], 'myapp')
         self.assertIn('application/json', hello['headers']['Content-Type'])
 
     def test_empty_response_body_with_head(self):
@@ -90,7 +90,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         hello = resp.json['responses'][0]
         self.assertEqual(hello['path'], '/v0/')
         self.assertEqual(hello['status'], 200)
-        self.assertEqual(hello['body']['hello'], 'cliquet')
+        self.assertEqual(hello['body']['hello'], 'myapp')
         self.assertIn('application/json', hello['headers']['Content-Type'])
 
 

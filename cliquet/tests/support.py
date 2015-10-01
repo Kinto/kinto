@@ -98,7 +98,7 @@ class BaseWebTest(object):
         settings['cliquet.cache_backend'] = 'cliquet.cache.redis'
         settings['cliquet.permission_backend'] = 'cliquet.permission.redis'
 
-        settings['cliquet.project_name'] = 'cliquet'
+        settings['cliquet.project_name'] = 'myapp'
         settings['cliquet.project_version'] = '0.0.1'
         settings['cliquet.project_docs'] = 'https://cliquet.rtfd.org/'
         settings['multiauth.authorization_policy'] = self.authorization_policy

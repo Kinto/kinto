@@ -13,8 +13,9 @@ hello = Service(name="hello", path='/', description="Welcome")
 def get_hello(request):
     """Return information regarding the current instance."""
     settings = request.registry.settings
+    project = settings['cliquet.project_name']
     data = dict(
-        hello=settings['cliquet.project_name'],
+        hello=project,
         version=settings['cliquet.project_version'],
         url=request.route_url(hello.name),
         documentation=settings['cliquet.project_docs']
@@ -31,6 +32,12 @@ def get_hello(request):
         pass
 
     public_settings = request.registry.public_settings
+    # Public settings should be prefixed with project name, unless explicitly
+    # specified with cliquet. (for retrocompability of clients for example).
+    for setting in list(public_settings):
+        if not (setting.startswith(project) or setting.startswith('cliquet.')):
+            public_settings.remove(setting)
+            public_settings.add(project + '.' + setting)
     data['settings'] = {k: settings[k] for k in public_settings}
 
     prefixed_userid = getattr(request, 'prefixed_userid', None)

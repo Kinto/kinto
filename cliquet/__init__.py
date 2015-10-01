@@ -112,7 +112,7 @@ def includeme(config):
     config.registry.heartbeats = {}
 
     # Public settings registry.
-    config.registry.public_settings = {'cliquet.batch_max_requests'}
+    config.registry.public_settings = {'batch_max_requests'}
 
     # Setup components.
     for step in aslist(settings['cliquet.initialization_sequence']):
