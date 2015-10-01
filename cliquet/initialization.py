@@ -419,19 +419,19 @@ def handle_project_name_prefix(settings):
     settings = settings.copy()
 
     # First, override cliquet.* settings with <project_name>.* values.
-    for key, value in settings.items():
+    for key, value in list(settings.items()):
         if key.startswith(project_name + '.'):
             prefixed_key = re.sub(r"^%s" % project_name, "cliquet", key)
             settings[prefixed_key] = value
 
     # Then, complete <project_name>.* with cliquet.* values.
-    for key, value in settings.items():
+    for key, value in list(settings.items()):
         if key.startswith('cliquet.'):
             prefixed_key = re.sub(r"^cliquet", project_name, key)
             settings.setdefault(prefixed_key, value)
 
     # Then, use <project_name>.* for unprefixed settings.
-    for key, value in settings.items():
+    for key, value in list(settings.items()):
         if key.startswith(project_name + '.'):
             unprefixed_key = re.sub(r"^.+\.", "", key)
             settings[unprefixed_key] = value
