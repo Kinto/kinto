@@ -1,3 +1,4 @@
+import re
 import warnings
 from datetime import datetime
 from dateutil import parser as dateparser
@@ -367,6 +368,65 @@ def setup_logging(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
+def load_default_settings(config, default_settings):
+    """Read settings provided in Paste ini file, set default values and
+    replace if defined as environment variable.
+    """
+    settings = config.get_settings()
+    for key, value in default_settings.items():
+        configured = settings.get(key, value)
+        settings[key] = utils.read_env(key, configured)
+
+    deprecated_settings = [
+        ('cliquet.cache_pool_maxconn', 'cliquet.cache_pool_size'),
+        ('cliquet.storage_pool_maxconn', 'cliquet.storage_pool_size'),
+        ('cliquet.basic_auth_enabled', 'multiauth.policies')
+    ]
+    for old, new in deprecated_settings:
+        if old in settings:
+            msg = "'%s' setting is deprecated. Use '%s' instead." % (old, new)
+            warnings.warn(msg, DeprecationWarning)
+
+            if old == 'cliquet.basic_auth_enabled':
+                # Transform former setting into pyramid_multiauth config:
+                is_already_set = 'basicauth' in settings['multiauth.policies']
+                if asbool(settings.pop(old)) and not is_already_set:
+                    settings['multiauth.policies'] += ' basicauth'
+            else:
+                settings[new] = settings.pop(old)
+
+    config.add_settings(settings)
+
+
+def handle_project_name_prefix(settings):
+    # Handle prefixed settings with project_name.
+    project_name = settings['cliquet.project_name']
+    if not project_name:
+        return settings
+
+    settings = settings.copy()
+
+    # First, override cliquet.* settings with <project_name>.* values.
+    for key, value in settings.items():
+        if key.startswith(project_name + '.'):
+            prefixed_key = re.sub(r"^%s" % project_name, "cliquet", key)
+            settings[prefixed_key] = value
+
+    # Then, complete <project_name>.* with cliquet.* values.
+    for key, value in settings.items():
+        if key.startswith('cliquet.'):
+            prefixed_key = re.sub(r"^cliquet", project_name, key)
+            settings.setdefault(prefixed_key, value)
+
+    # Then, use <project_name>.* for unprefixed settings.
+    for key, value in settings.items():
+        if key.startswith(project_name + '.'):
+            unprefixed_key = re.sub(r"^.+\.", "", key)
+            settings[unprefixed_key] = value
+
+    return settings
+
+
 def initialize_cliquet(*args, **kwargs):
     message = ('cliquet.initialize_cliquet is now deprecated. '
                'Please use "cliquet.initialize" instead')
@@ -395,7 +455,7 @@ def initialize(config, version=None, project_name=None, default_settings=None):
     if default_settings:
         cliquet_defaults.update(default_settings)
 
-    cliquet.load_default_settings(config, cliquet_defaults)
+    load_default_settings(config, cliquet_defaults)
 
     settings = config.get_settings()
 

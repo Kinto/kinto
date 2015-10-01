@@ -119,6 +119,43 @@ class InitializationTest(unittest.TestCase):
             mocked.assert_called_with(msg, DeprecationWarning)
 
 
+class ProjectSettingsTest(unittest.TestCase):
+    def settings(self, provided):
+        config = Configurator(settings=provided)
+        cliquet.initialize(config, '1.0', 'kinto')
+        return config.get_settings()
+
+    def test_can_have_cliquet_prefix(self):
+        settings = {'cliquet.value': 3.14}
+        self.assertEqual(self.settings(settings)['cliquet.value'], 3.14)
+
+    def test_uses_project_name_if_no_prefix(self):
+        settings = {
+            'kinto.value': 42,
+            'cliquet.value': 3.14,
+        }
+        self.assertEqual(self.settings(settings)['value'], 42)
+
+    def test_uses_project_name_even_prefixed(self):
+        settings = {
+            'kinto.value': 42,
+            'cliquet.value': 3.14,
+        }
+        self.assertEqual(self.settings(settings)['cliquet.value'], 42)
+
+    def test_fallbacks_to_cliquet_if_not_defined(self):
+        settings = {
+            'cliquet.value': 3.14,
+        }
+        self.assertEqual(self.settings(settings)['value'], 3.14)
+
+    def test_fallbacks_to_cliquet_even_prefixed(self):
+        settings = {
+            'cliquet.value_cliquet': 3.14,
+        }
+        self.assertEqual(self.settings(settings)['kinto.value_cliquet'], 3.14)
+
+
 class ApplicationWrapperTest(unittest.TestCase):
 
     @unittest.skipIf(initialization.newrelic is None,

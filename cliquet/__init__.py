@@ -1,20 +1,19 @@
 """Main entry point
 """
-import warnings
 import pkg_resources
 
 import structlog
 from cornice import Service as CorniceService
-from pyramid.settings import asbool, aslist
+from pyramid.settings import aslist
 
-from cliquet import utils
 
 # Main Cliquet logger.
 logger = structlog.get_logger()
 
 from cliquet import errors
 from cliquet.initialization import (  # NOQA
-    initialize, initialize_cliquet, install_middlewares)
+    initialize, initialize_cliquet, install_middlewares,
+    load_default_settings, handle_project_name_prefix)
 
 
 # Module version, as defined in PEP-0396.
@@ -93,38 +92,11 @@ class Service(CorniceService):
     """
 
 
-def load_default_settings(config, default_settings):
-    """Read settings provided in Paste ini file, set default values and
-    replace if defined as environment variable.
-    """
-    settings = config.get_settings()
-    for key, value in default_settings.items():
-        configured = settings.get(key, value)
-        settings[key] = utils.read_env(key, configured)
-
-    deprecated_settings = [
-        ('cliquet.cache_pool_maxconn', 'cliquet.cache_pool_size'),
-        ('cliquet.storage_pool_maxconn', 'cliquet.storage_pool_size'),
-        ('cliquet.basic_auth_enabled', 'multiauth.policies')
-    ]
-    for old, new in deprecated_settings:
-        if old in settings:
-            msg = "'%s' setting is deprecated. Use '%s' instead." % (old, new)
-            warnings.warn(msg, DeprecationWarning)
-
-            if old == 'cliquet.basic_auth_enabled':
-                # Transform former setting into pyramid_multiauth config:
-                is_already_set = 'basicauth' in settings['multiauth.policies']
-                if asbool(settings.pop(old)) and not is_already_set:
-                    settings['multiauth.policies'] += ' basicauth'
-            else:
-                settings[new] = settings.pop(old)
-
-    config.add_settings(settings)
-
-
 def includeme(config):
     settings = config.get_settings()
+
+    settings = handle_project_name_prefix(settings)
+    config.add_settings(settings)
 
     # Add CORS settings to the base cliquet Service class.
     cors_origins = settings['cliquet.cors_origins']
