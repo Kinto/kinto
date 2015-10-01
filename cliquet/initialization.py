@@ -399,9 +399,21 @@ def load_default_settings(config, default_settings):
 
 
 def handle_project_name_prefix(settings):
-    # Handle prefixed settings with project_name.
+    """
+    This function builds a new settings dictionnary, handling project name
+    prefix of settings names.
+
+    * `<project>.name` copied to `name`
+    * `<project>.name` copied to `cliquet.name`
+    * `cliquet.name` -> copied to `<project>.name` if not already defined.
+
+    :param dict settings: Application settings (configured with defaults).
+    :returns: A new dictionnary of settings populated with the new keys.
+    """
     project_name = settings['cliquet.project_name']
+
     if not project_name:
+        # Safety check. If no project name, a warning is issued elsewhere.
         return settings
 
     settings = settings.copy()
