@@ -155,6 +155,18 @@ class ProjectSettingsTest(unittest.TestCase):
         }
         self.assertEqual(self.settings(settings)['kinto.value_cliquet'], 3.14)
 
+    def test_environment_can_specify_project_name(self):
+        import os
+
+        envkey = 'KINTO_STORAGE_BACKEND'
+        os.environ[envkey] = 'cliquet.storage.redis'
+        settings = {
+            'kinto.storage_backend': 'cliquet.storage.memory',
+        }
+        value = self.settings(settings)['storage_backend']
+        os.environ.pop(envkey)
+        self.assertEqual(value, 'cliquet.storage.redis')
+
 
 class ApplicationWrapperTest(unittest.TestCase):
 

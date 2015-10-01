@@ -13,7 +13,7 @@ logger = structlog.get_logger()
 from cliquet import errors
 from cliquet.initialization import (  # NOQA
     initialize, initialize_cliquet, install_middlewares,
-    load_default_settings, handle_project_name_prefix)
+    load_default_settings)
 
 
 # Module version, as defined in PEP-0396.
@@ -94,9 +94,6 @@ class Service(CorniceService):
 
 def includeme(config):
     settings = config.get_settings()
-
-    settings = handle_project_name_prefix(settings)
-    config.add_settings(settings)
 
     # Add CORS settings to the base cliquet Service class.
     cors_origins = settings['cliquet.cors_origins']
