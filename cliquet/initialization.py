@@ -381,7 +381,7 @@ def load_default_settings(config, default_settings):
         cliquet_prefix = 'cliquet.' + unprefixed
         return unprefixed, project_prefix, cliquet_prefix
 
-    # # Fill settings with default values if not defined.
+    # Fill settings with default values if not defined.
     for key, default_value in sorted(default_settings.items()):
         unprefixed, project_prefix, cliquet_prefix = keys = _prefixed_keys(key)
         is_defined = len(set(settings.keys()).intersection(set(keys))) > 0
@@ -395,7 +395,8 @@ def load_default_settings(config, default_settings):
         defined = set(settings.keys()).intersection(set(keys))
         distinct_values = set([settings[d] for d in defined])
         if len(defined) > 1 and len(distinct_values) > 1:
-            raise ValueError('Settings %s are in conflict.' % defined)
+            names = "', '".join(defined)
+            raise ValueError("Settings '%s' are in conflict." % names)
 
         # Override settings from OS env values.
         # e.g. HTTP_PORT, KINTO_HTTP_PORT, CLIQUET_HTTP_PORT
@@ -433,7 +434,7 @@ def initialize(config, version=None, project_name='', default_settings=None):
     """
     settings = config.get_settings()
 
-    project_name = settings.get('cliquet.project_name',
+    project_name = settings.pop('cliquet.project_name',
                                 settings.get('project_name')) or project_name
     settings['project_name'] = project_name
     if not project_name:
