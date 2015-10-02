@@ -67,11 +67,11 @@ def page_not_found(request):
 
 @view_config(context=httpexceptions.HTTPServiceUnavailable,
              permission=NO_PERMISSION_REQUIRED)
-def service_unavailable(context, request):
-    error_msg = "Service unavailable due to high load, please retry later."
-    response = http_error(httpexceptions.HTTPServiceUnavailable(),
-                          errno=ERRORS.BACKEND,
-                          message=error_msg)
+def service_unavailable(response, request):
+    if response.content_type != 'application/json':
+        error_msg = "Service unavailable due to high load, please retry later."
+        response = http_error(response, errno=ERRORS.BACKEND,
+                              message=error_msg)
 
     retry_after = request.registry.settings['cliquet.retry_after_seconds']
     response.headers["Retry-After"] = encode_header('%s' % retry_after)
@@ -100,7 +100,8 @@ def error(context, request):
 
     if isinstance(context, storage_exceptions.BackendError):
         logger.critical(context.original, exc_info=True)
-        return service_unavailable(context, request)
+        response = httpexceptions.HTTPServiceUnavailable()
+        return service_unavailable(response, request)
 
     logger.error(context, exc_info=True)
 

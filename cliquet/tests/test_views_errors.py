@@ -119,6 +119,19 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             "Service unavailable due to high load, please retry later.")
         self.assertIn("Retry-After", response.headers)
 
+    def test_503_can_have_custom_message(self):
+        custom_503 = http_error(httpexceptions.HTTPServiceUnavailable(),
+                                errno=ERRORS.BACKEND,
+                                message="Unable to connect the server.")
+        with mock.patch(
+                'cliquet.tests.testapp.views.Mushroom._extract_filters',
+                side_effect=custom_503):
+            response = self.app.get(self.sample_url,
+                                    headers=self.headers, status=503)
+        self.assertFormattedError(
+            response, 503, ERRORS.BACKEND, "Service Unavailable",
+            "Unable to connect the server.")
+
     def test_500_provides_traceback_on_server(self):
         mock_traceback = mock.patch('logging.traceback.print_exception')
         with mock.patch(
