@@ -142,8 +142,8 @@ class MemoryCacheTest(BaseTestCache, unittest.TestCase):
 class RedisCacheTest(BaseTestCache, unittest.TestCase):
     backend = redis_backend
     settings = {
-        'cliquet.cache_url': '',
-        'cliquet.cache_pool_size': 10
+        'cache_url': '',
+        'cache_pool_size': 10
     }
 
     def setUp(self):
@@ -158,9 +158,8 @@ class RedisCacheTest(BaseTestCache, unittest.TestCase):
 class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     backend = postgresql_backend
     settings = {
-        'cliquet.cache_pool_size': 10,
-        'cliquet.cache_url':
-            'postgres://postgres:postgres@localhost:5432/testdb'
+        'cache_pool_size': 10,
+        'cache_url': 'postgres://postgres:postgres@localhost:5432/testdb'
     }
 
     def setUp(self):

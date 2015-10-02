@@ -94,13 +94,13 @@ class BaseWebTest(object):
     def get_app_settings(self, additional_settings=None):
         settings = DEFAULT_SETTINGS.copy()
 
-        settings['cliquet.storage_backend'] = 'cliquet.storage.redis'
-        settings['cliquet.cache_backend'] = 'cliquet.cache.redis'
-        settings['cliquet.permission_backend'] = 'cliquet.permission.redis'
+        settings['storage_backend'] = 'cliquet.storage.redis'
+        settings['cache_backend'] = 'cliquet.cache.redis'
+        settings['permission_backend'] = 'cliquet.permission.redis'
 
-        settings['cliquet.project_name'] = 'myapp'
-        settings['cliquet.project_version'] = '0.0.1'
-        settings['cliquet.project_docs'] = 'https://cliquet.rtfd.org/'
+        settings['project_name'] = 'myapp'
+        settings['project_version'] = '0.0.1'
+        settings['project_docs'] = 'https://cliquet.rtfd.org/'
         settings['multiauth.authorization_policy'] = self.authorization_policy
 
         if additional_settings is not None:

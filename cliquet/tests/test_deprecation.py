@@ -17,9 +17,9 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
         # Set an end of service date in the future.
         tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
         with mock.patch.dict(self.app.app.registry.settings, [
-                             ('cliquet.eos', tomorrow.isoformat()),
-                             ('cliquet.eos_url', 'http://eos-url'),
-                             ('cliquet.eos_message',
+                             ('eos', tomorrow.isoformat()),
+                             ('eos_url', 'http://eos-url'),
+                             ('eos_message',
                               'This service will soon be decommissioned')]):
             response = self.app.get('/')
 
@@ -36,9 +36,9 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
         # Set an end of service date in the past.
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
         with mock.patch.dict(self.app.app.registry.settings, [
-                             ('cliquet.eos', yesterday.isoformat()),
-                             ('cliquet.eos_url', 'http://eos-url'),
-                             ('cliquet.eos_message',
+                             ('eos', yesterday.isoformat()),
+                             ('eos_url', 'http://eos-url'),
+                             ('eos_message',
                               'This service had been decommissioned')]):
             response = self.app.get('/', status=410)
             self.assertIn('Alert', response.headers)

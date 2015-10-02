@@ -37,7 +37,7 @@ class LoggingSetupTest(unittest.TestCase):
 
         config = testing.setUp()
         with mock.patch.dict(config.registry.settings,
-                             [('cliquet.logging_renderer',
+                             [('logging_renderer',
                                'cliquet.logs.MozillaHekaRenderer')]):
             with mozlog_class as moz_mocked:
                 with classiclog_class as classic_mocked:
@@ -105,7 +105,7 @@ class ClassicLogRendererTest(unittest.TestCase):
 
 class MozillaHekaRendererTest(unittest.TestCase):
     def setUp(self):
-        self.settings = {'cliquet.project_name': ''}
+        self.settings = {'project_name': ''}
         self.renderer = cliquet_logs.MozillaHekaRenderer(self.settings)
         self.logger = logging.getLogger(__name__)
 

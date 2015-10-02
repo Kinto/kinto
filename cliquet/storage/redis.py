@@ -287,9 +287,9 @@ class Redis(MemoryBasedStorage):
 
 def load_from_config(config):
     settings = config.get_settings()
-    uri = settings['cliquet.storage_url']
+    uri = settings['storage_url']
     uri = urlparse.urlparse(uri)
-    pool_size = int(settings['cliquet.storage_pool_size'])
+    pool_size = int(settings['storage_pool_size'])
 
     return Redis(max_connections=pool_size,
                  host=uri.hostname or 'localhost',

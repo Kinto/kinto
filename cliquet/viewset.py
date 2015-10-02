@@ -147,7 +147,7 @@ class ViewSet(object):
 
         Uses the settings to tell so.
         """
-        setting_enabled = 'cliquet.%s_%s_%s_enabled' % (
+        setting_enabled = '%s_%s_%s_enabled' % (
             endpoint_type, resource_name, method.lower())
         return settings.get(setting_enabled, True)
 

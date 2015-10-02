@@ -310,9 +310,9 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
 
 def load_from_config(config):
     settings = config.get_settings()
-    uri = settings['cliquet.permission_url']
+    uri = settings['permission_url']
     uri = urlparse.urlparse(uri)
-    pool_size = int(settings['cliquet.permission_pool_size'])
+    pool_size = int(settings['permission_pool_size'])
 
     conn_kwargs = dict(pool_size=pool_size,
                        host=uri.hostname,

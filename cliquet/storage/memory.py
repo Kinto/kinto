@@ -154,7 +154,7 @@ class Memory(MemoryBasedStorage):
 
     Enable in configuration::
 
-        cliquet.storage_backend = cliquet.storage.memory
+        myapp.storage_backend = cliquet.storage.memory
     """
     def __init__(self, *args, **kwargs):
         super(Memory, self).__init__(*args, **kwargs)

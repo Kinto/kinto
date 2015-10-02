@@ -24,22 +24,21 @@ API_VERSION = 'v%s' % __version__.split('.')[0]
 
 
 DEFAULT_SETTINGS = {
-    'cliquet.backoff': None,
-    'cliquet.batch_max_requests': 25,
-    'cliquet.cache_backend': '',
-    'cliquet.cache_pool_size': 10,
-    'cliquet.cache_url': '',
-    'cliquet.cors_origins': '*',
-    'cliquet.cors_max_age_seconds': 3600,
-    'cliquet.eos': None,
-    'cliquet.eos_message': None,
-    'cliquet.eos_url': None,
-    'cliquet.error_info_link':
-    "https://github.com/mozilla-services/cliquet/issues/",
-    'cliquet.http_host': None,
-    'cliquet.http_scheme': None,
-    'cliquet.id_generator': 'cliquet.storage.generators.UUID4',
-    'cliquet.initialization_sequence': (
+    'backoff': None,
+    'batch_max_requests': 25,
+    'cache_backend': '',
+    'cache_pool_size': 10,
+    'cache_url': '',
+    'cors_origins': '*',
+    'cors_max_age_seconds': 3600,
+    'eos': None,
+    'eos_message': None,
+    'eos_url': None,
+    'error_info_link': 'https://github.com/mozilla-services/cliquet/issues/',
+    'http_host': None,
+    'http_scheme': None,
+    'id_generator': 'cliquet.storage.generators.UUID4',
+    'initialization_sequence': (
         'cliquet.initialization.setup_request_bound_data',
         'cliquet.initialization.setup_json_serializer',
         'cliquet.initialization.setup_logging',
@@ -54,28 +53,28 @@ DEFAULT_SETTINGS = {
         'cliquet.initialization.setup_backoff',
         'cliquet.initialization.setup_statsd'
     ),
-    'cliquet.logging_renderer': 'cliquet.logs.ClassicLogRenderer',
-    'cliquet.newrelic_config': None,
-    'cliquet.newrelic_env': 'dev',
-    'cliquet.paginate_by': None,
-    'cliquet.permission_backend': '',
-    'cliquet.permission_url': '',
-    'cliquet.permission_pool_size': 10,
-    'cliquet.profiler_dir': '/tmp',
-    'cliquet.profiler_enabled': False,
-    'cliquet.project_docs': '',
-    'cliquet.project_name': '',
-    'cliquet.project_version': '',
-    'cliquet.retry_after_seconds': 30,
-    'cliquet.statsd_prefix': 'cliquet',
-    'cliquet.statsd_url': None,
-    'cliquet.storage_backend': '',
-    'cliquet.storage_max_fetch_size': 10000,
-    'cliquet.storage_pool_size': 10,
-    'cliquet.storage_url': '',
-    'cliquet.userid_hmac_secret': '',
-    'cliquet.version_prefix_redirect_enabled': True,
-    'cliquet.trailing_slash_redirect_enabled': True,
+    'logging_renderer': 'cliquet.logs.ClassicLogRenderer',
+    'newrelic_config': None,
+    'newrelic_env': 'dev',
+    'paginate_by': None,
+    'permission_backend': '',
+    'permission_url': '',
+    'permission_pool_size': 10,
+    'profiler_dir': '/tmp',
+    'profiler_enabled': False,
+    'project_docs': '',
+    'project_name': '',
+    'project_version': '',
+    'retry_after_seconds': 30,
+    'statsd_prefix': 'cliquet',
+    'statsd_url': None,
+    'storage_backend': '',
+    'storage_max_fetch_size': 10000,
+    'storage_pool_size': 10,
+    'storage_url': '',
+    'userid_hmac_secret': '',
+    'version_prefix_redirect_enabled': True,
+    'trailing_slash_redirect_enabled': True,
     'multiauth.policies': 'basicauth',
     'multiauth.policy.basicauth.use': ('cliquet.authentication.'
                                        'BasicAuthAuthenticationPolicy'),
@@ -95,16 +94,6 @@ class Service(CorniceService):
 def includeme(config):
     settings = config.get_settings()
 
-    # Add CORS settings to the base cliquet Service class.
-    cors_origins = settings['cliquet.cors_origins']
-    Service.cors_origins = tuple(aslist(cors_origins))
-    Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert',
-                                    'Content-Length')
-    cors_max_age = settings['cliquet.cors_max_age_seconds']
-    Service.cors_max_age = int(cors_max_age) if cors_max_age else None
-
-    Service.error_handler = lambda self, e: errors.json_error_handler(e)
-
     # Heartbeat registry.
     config.registry.heartbeats = {}
 
@@ -112,9 +101,23 @@ def includeme(config):
     config.registry.public_settings = {'batch_max_requests'}
 
     # Setup components.
-    for step in aslist(settings['cliquet.initialization_sequence']):
+    for step in aslist(settings['initialization_sequence']):
         step_func = config.maybe_dotted(step)
         step_func(config)
+
+    # # Show settings to output.
+    # for key, value in settings.items():
+    #     logger.info('Using %s = %s' % (key, value))
+
+    # Add CORS settings to the base cliquet Service class.
+    cors_origins = settings['cors_origins']
+    Service.cors_origins = tuple(aslist(cors_origins))
+    Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert',
+                                    'Content-Length')
+    cors_max_age = settings['cors_max_age_seconds']
+    Service.cors_max_age = int(cors_max_age) if cors_max_age else None
+
+    Service.error_handler = lambda self, e: errors.json_error_handler(e)
 
     # Setup cornice.
     config.include("cornice")
@@ -123,5 +126,5 @@ def includeme(config):
     config.scan("cliquet.views")
 
     # Give sign of life.
-    msg = "%(cliquet.project_name)s %(cliquet.project_version)s starting."
+    msg = "%(project_name)s %(project_version)s starting."
     logger.info(msg % settings)

@@ -57,7 +57,7 @@ def setup_trailing_slash_redirection(config):
     Cliquet does not, and removes it with a redirection.
     """
     settings = config.get_settings()
-    redirect_enabled = settings['cliquet.trailing_slash_redirect_enabled']
+    redirect_enabled = settings['trailing_slash_redirect_enabled']
     trailing_slash_redirection_enabled = asbool(redirect_enabled)
 
     if not trailing_slash_redirection_enabled:
@@ -82,7 +82,7 @@ def setup_version_redirection(config):
     """Add a view which redirects to the current version of the API.
     """
     settings = config.get_settings()
-    redirect_enabled = settings['cliquet.version_prefix_redirect_enabled']
+    redirect_enabled = settings['version_prefix_redirect_enabled']
     version_prefix_redirection_enabled = asbool(redirect_enabled)
 
     route_prefix = config.route_prefix
@@ -151,7 +151,7 @@ def setup_backoff(config):
     """
     def on_new_response(event):
         # Add backoff in response headers.
-        backoff = config.registry.settings['cliquet.backoff']
+        backoff = config.registry.settings['backoff']
         if backoff is not None:
             backoff = utils.encode_header('%s' % backoff)
             event.response.headers['Backoff'] = backoff
@@ -163,8 +163,8 @@ def setup_requests_scheme(config):
     """Force server scheme, host and port at the application level."""
     settings = config.get_settings()
 
-    http_scheme = settings['cliquet.http_scheme']
-    http_host = settings['cliquet.http_host']
+    http_scheme = settings['http_scheme']
+    http_host = settings['http_host']
 
     def on_new_request(event):
         if http_scheme:
@@ -186,9 +186,9 @@ def _end_of_life_tween_factory(handler, registry):
                        " at this location.")
 
     def eos_tween(request):
-        eos_date = registry.settings['cliquet.eos']
-        eos_url = registry.settings['cliquet.eos_url']
-        eos_message = registry.settings['cliquet.eos_message']
+        eos_date = registry.settings['eos']
+        eos_url = registry.settings['eos_url']
+        eos_message = registry.settings['eos_message']
         if not eos_date:
             return handler(request)
 
@@ -211,20 +211,20 @@ def _end_of_life_tween_factory(handler, registry):
 
 def setup_storage(config):
     settings = config.get_settings()
-    storage_class = settings['cliquet.storage_backend']
+    storage_class = settings['storage_backend']
     if not storage_class:
         return
 
     storage = config.maybe_dotted(storage_class)
     config.registry.storage = storage.load_from_config(config)
     config.registry.heartbeats['storage'] = config.registry.storage.ping
-    id_generator = config.maybe_dotted(settings['cliquet.id_generator'])
+    id_generator = config.maybe_dotted(settings['id_generator'])
     config.registry.id_generator = id_generator()
 
 
 def setup_permission(config):
     settings = config.get_settings()
-    permission_class = settings['cliquet.permission_backend']
+    permission_class = settings['permission_backend']
     if not permission_class:
         return
 
@@ -235,7 +235,7 @@ def setup_permission(config):
 
 def setup_cache(config):
     settings = config.get_settings()
-    cache_class = settings['cliquet.cache_backend']
+    cache_class = settings['cache_backend']
     if not cache_class:
         return
 
@@ -248,7 +248,7 @@ def setup_statsd(config):
     settings = config.get_settings()
     config.registry.statsd = None
 
-    if settings['cliquet.statsd_url']:
+    if settings['statsd_url']:
         client = statsd.load_from_config(config)
 
         config.registry.statsd = client
@@ -291,15 +291,15 @@ def install_middlewares(app, settings):
     "Install a set of middlewares defined in the ini file on the given app."
 
     # Setup new-relic.
-    if settings.get('cliquet.newrelic_config'):
-        ini_file = settings['cliquet.newrelic_config']
-        env = settings['cliquet.newrelic_env']
+    if settings.get('newrelic_config'):
+        ini_file = settings['newrelic_config']
+        env = settings['newrelic_env']
         newrelic.agent.initialize(ini_file, env)
         app = newrelic.agent.WSGIApplicationWrapper(app)
 
     # Adds the Werkzeug profiler.
-    if asbool(settings.get('cliquet.profiler_enabled')):
-        profile_dir = settings['cliquet.profiler_dir']
+    if asbool(settings.get('profiler_enabled')):
+        profile_dir = settings['profiler_dir']
         app = ProfilerMiddleware(app, profile_dir=profile_dir,
                                  restrictions=('*cliquet*'))
 
@@ -315,7 +315,7 @@ def setup_logging(config):
     """
     settings = config.get_settings()
 
-    renderer_klass = config.maybe_dotted(settings['cliquet.logging_renderer'])
+    renderer_klass = config.maybe_dotted(settings['logging_renderer'])
     renderer = renderer_klass(settings)
 
     structlog.configure(
@@ -368,77 +368,39 @@ def setup_logging(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
-def handle_project_name_prefix(settings):
-    """
-    This function builds a new settings dictionnary, handling project name
-    prefix of settings names.
-
-    * `<project>.name` copied to `name`
-    * `<project>.name` copied to `cliquet.name`
-    * `cliquet.name` -> copied to `<project>.name` if not already defined.
-
-    :param dict settings: Application settings (configured with defaults).
-    :returns: A new dictionnary of settings populated with the new keys.
-    """
-    project_name = settings['cliquet.project_name']
-
-    if not project_name:
-        # Safety check. If no project name, a warning is issued elsewhere.
-        return settings
-
-    settings = settings.copy()
-
-    # First, override cliquet.* settings with <project_name>.* values.
-    for key, value in list(settings.items()):
-        if key.startswith(project_name + '.'):
-            settings[key] = utils.read_env(key, value)
-            prefixed_key = re.sub(r"^%s" % project_name, "cliquet", key)
-            settings[prefixed_key] = value
-
-    # Then, complete <project_name>.* with cliquet.* values.
-    for key, value in list(settings.items()):
-        if key.startswith('cliquet.'):
-            prefixed_key = re.sub(r"^cliquet", project_name, key)
-            settings.setdefault(prefixed_key, value)
-
-    # Then, use <project_name>.* for unprefixed settings.
-    for key, value in list(settings.items()):
-        if key.startswith(project_name + '.'):
-            unprefixed_key = re.sub(r"^.+\.", "", key)
-            settings[unprefixed_key] = value
-
-    return settings
-
-
 def load_default_settings(config, default_settings):
     """Read settings provided in Paste ini file, set default values and
     replace if defined as environment variable.
     """
     settings = config.get_settings()
 
-    for key, value in default_settings.items():
-        configured = settings.get(key, value)
-        settings[key] = utils.read_env(key, configured)
+    project_name = settings['project_name']
 
-    deprecated_settings = [
-        ('cliquet.cache_pool_maxconn', 'cliquet.cache_pool_size'),
-        ('cliquet.storage_pool_maxconn', 'cliquet.storage_pool_size'),
-        ('cliquet.basic_auth_enabled', 'multiauth.policies')
-    ]
-    for old, new in deprecated_settings:
-        if old in settings:
-            msg = "'%s' setting is deprecated. Use '%s' instead." % (old, new)
-            warnings.warn(msg, DeprecationWarning)
+    def _prefixed_keys(key):
+        unprefixed = key.split('.', 1)[1] if '.' in key else key
+        project_prefix = project_name + '.' + unprefixed
+        cliquet_prefix = 'cliquet.' + unprefixed
+        return unprefixed, project_prefix, cliquet_prefix
 
-            if old == 'cliquet.basic_auth_enabled':
-                # Transform former setting into pyramid_multiauth config:
-                is_already_set = 'basicauth' in settings['multiauth.policies']
-                if asbool(settings.pop(old)) and not is_already_set:
-                    settings['multiauth.policies'] += ' basicauth'
-            else:
-                settings[new] = settings.pop(old)
+    # # Fill settings with default values if not defined.
+    for key, default_value in sorted(default_settings.items()):
+        unprefixed, project_prefix, cliquet_prefix = keys = _prefixed_keys(key)
+        is_defined = len(set(settings.keys()).intersection(set(keys))) > 0
+        if not is_defined:
+            settings[unprefixed] = default_value
 
-    settings = handle_project_name_prefix(settings)
+    # Override settings from OS env values.
+    for key, value in sorted(settings.items()):
+        unprefixed, project_prefix, cliquet_prefix = _prefixed_keys(key)
+
+        # XXX: warn if not only one is defined ?
+
+        # e.g. HTTP_PORT, KINTO_HTTP_PORT, CLIQUET_HTTP_PORT
+        from_env = utils.read_env(unprefixed, value)
+        from_env = utils.read_env(project_prefix, from_env)
+        from_env = utils.read_env(cliquet_prefix, from_env)
+
+        settings[unprefixed] = from_env
 
     config.add_settings(settings)
 
@@ -451,7 +413,7 @@ def initialize_cliquet(*args, **kwargs):
     initialize(*args, **kwargs)
 
 
-def initialize(config, version=None, project_name=None, default_settings=None):
+def initialize(config, version=None, project_name='', default_settings=None):
     """Initialize Cliquet with the given configuration, version and project
     name.
 
@@ -468,16 +430,9 @@ def initialize(config, version=None, project_name=None, default_settings=None):
     """
     settings = config.get_settings()
 
-    # The API version is derivated from the module version.
-    project_version = settings.get('cliquet.project_version') or version
-    settings['cliquet.project_version'] = project_version
-    try:
-        api_version = 'v%s' % project_version.split('.')[0]
-    except (AttributeError, ValueError):
-        raise ValueError('Invalid project version')
-
-    project_name = settings.get('cliquet.project_name') or project_name
-    settings['cliquet.project_name'] = project_name
+    project_name = settings.get('cliquet.project_name',
+                                settings.get('project_name')) or project_name
+    settings['project_name'] = project_name
     if not project_name:
         warnings.warn('No value specified for `project_name`')
 
@@ -487,6 +442,14 @@ def initialize(config, version=None, project_name=None, default_settings=None):
         cliquet_defaults.update(default_settings)
 
     load_default_settings(config, cliquet_defaults)
+
+    # The API version is derivated from the module version.
+    project_version = settings.get('project_version') or version
+    settings['project_version'] = project_version
+    try:
+        api_version = 'v%s' % project_version.split('.')[0]
+    except (AttributeError, ValueError):
+        raise ValueError('Invalid project version')
 
     # Include cliquet views with the correct api version prefix.
     config.include("cliquet", route_prefix=api_version)

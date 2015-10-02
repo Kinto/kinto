@@ -73,7 +73,7 @@ def service_unavailable(context, request):
                           errno=ERRORS.BACKEND,
                           message=error_msg)
 
-    retry_after = request.registry.settings['cliquet.retry_after_seconds']
+    retry_after = request.registry.settings['retry_after_seconds']
     response.headers["Retry-After"] = encode_header('%s' % retry_after)
     return reapply_cors(request, response)
 
@@ -105,7 +105,7 @@ def error(context, request):
     logger.error(context, exc_info=True)
 
     error_msg = "A programmatic error occured, developers have been informed."
-    info = request.registry.settings['cliquet.error_info_link']
+    info = request.registry.settings['error_info_link']
     response = http_error(httpexceptions.HTTPInternalServerError(),
                           message=error_msg,
                           info=info)

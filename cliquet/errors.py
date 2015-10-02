@@ -176,7 +176,7 @@ def send_alert(request, message=None, url=None, code='soft-eol'):
     :param url: The URL for more information, default to the documentation url.
     """
     if url is None:
-        url = request.registry.settings['cliquet.project_docs']
+        url = request.registry.settings['project_docs']
 
     request.response.headers['Alert'] = encode_header(json.dumps({
         'code': code,

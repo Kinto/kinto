@@ -6,7 +6,11 @@ This document describes changes between each past release.
 2.8.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- Deprecated settings ``cliquet.cache_pool_maxconn``,
+  ``cliquet.storage_pool_maxconn`` and ``cliquet.basic_auth_enabled``
+  were removed (ref #448)
 
 
 2.7.0 (2015-09-23)

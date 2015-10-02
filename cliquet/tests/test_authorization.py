@@ -119,7 +119,7 @@ class RouteFactoryTest(unittest.TestCase):
             request.matchdict = {}
             request.registry = mock.Mock()
             request.registry.settings = {
-                'cliquet.bucket_create_principals': 'fxa:user'
+                'bucket_create_principals': 'fxa:user'
             }
             context = RouteFactory(request)
 

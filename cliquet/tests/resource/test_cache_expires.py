@@ -2,7 +2,7 @@ from cliquet.tests.resource import BaseTest
 
 
 class CacheExpires(BaseTest):
-    setting = 'cliquet.test_cache_expires_seconds'
+    setting = 'test_cache_expires_seconds'
 
     def get_context(self):
         context = super(CacheExpires, self).get_context()

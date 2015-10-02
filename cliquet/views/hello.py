@@ -13,12 +13,12 @@ hello = Service(name="hello", path='/', description="Welcome")
 def get_hello(request):
     """Return information regarding the current instance."""
     settings = request.registry.settings
-    project = settings['cliquet.project_name']
+    project_name = settings['project_name']
     data = dict(
-        hello=project,
-        version=settings['cliquet.project_version'],
+        hello=project_name,
+        version=settings['project_version'],
         url=request.route_url(hello.name),
-        documentation=settings['cliquet.project_docs']
+        documentation=settings['project_docs']
     )
 
     eos = get_eos(request)
@@ -31,14 +31,18 @@ def get_hello(request):
         # In case we are not running from a git repository.
         pass
 
+    data['settings'] = {}
     public_settings = request.registry.public_settings
-    # Public settings should be prefixed with project name, unless explicitly
+    # Public settings will be prefixed with project name, unless explicitly
     # specified with cliquet. (for retrocompability of clients for example).
     for setting in list(public_settings):
-        if not (setting.startswith(project) or setting.startswith('cliquet.')):
-            public_settings.remove(setting)
-            public_settings.add(project + '.' + setting)
-    data['settings'] = {k: settings[k] for k in public_settings}
+        if setting.startswith('cliquet.'):
+            value = settings[setting.replace('cliquet.', '', 1)]
+        else:
+            setting = setting.replace(project_name + '.', '')
+            value = settings[setting]
+            setting = project_name + '.' + setting
+        data['settings'][setting] = value
 
     prefixed_userid = getattr(request, 'prefixed_userid', None)
     if prefixed_userid:
@@ -48,4 +52,4 @@ def get_hello(request):
 
 
 def get_eos(request):
-    return request.registry.settings['cliquet.eos']
+    return request.registry.settings['eos']

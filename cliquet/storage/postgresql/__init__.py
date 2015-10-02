@@ -791,9 +791,9 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 def load_from_config(config):
     settings = config.get_settings()
 
-    max_fetch_size = settings['cliquet.storage_max_fetch_size']
-    pool_size = int(settings['cliquet.storage_pool_size'])
-    uri = settings['cliquet.storage_url']
+    max_fetch_size = settings['storage_max_fetch_size']
+    pool_size = int(settings['storage_pool_size'])
+    uri = settings['storage_url']
     uri = urlparse.urlparse(uri)
     conn_kwargs = dict(pool_size=pool_size,
                        host=uri.hostname,

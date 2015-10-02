@@ -17,7 +17,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     def test_backoff_headers_is_present_if_configured(self):
         with mock.patch.dict(self.app.app.registry.settings,
-                             [('cliquet.backoff', 10)]):
+                             [('backoff', 10)]):
             response = self.app.get(self.sample_url,
                                     headers=self.headers, status=200)
         self.assertIn('Backoff', response.headers)
@@ -28,7 +28,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         headers = self.headers.copy()
         headers['If-None-Match'] = etag
         with mock.patch.dict(self.app.app.registry.settings,
-                             [('cliquet.backoff', 10)]):
+                             [('backoff', 10)]):
             response = self.app.get(self.sample_url, headers=headers,
                                     status=304)
         self.assertIn('Backoff', response.headers)
@@ -36,7 +36,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
     def test_backoff_header_is_present_on_error_responses(self):
         with mock.patch.dict(
                 self.app.app.registry.settings,
-                [('cliquet.backoff', 10)]):
+                [('backoff', 10)]):
             response = self.app.get(self.sample_url,
                                     headers=self.headers, status=200)
             self.assertIn('Backoff', response.headers)
@@ -98,9 +98,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                 'cliquet.tests.testapp.views.Mushroom._extract_filters',
                 side_effect=ValueError):
             link = "https://github.com/mozilla-services/kinto/issues/"
-            app = self.get_test_app({
-                'cliquet.error_info_link': link
-            })
+            app = self.get_test_app({'error_info_link': link})
             response = app.get(self.sample_url,
                                headers=self.headers, status=500)
         self.assertFormattedError(
@@ -156,9 +154,7 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     def test_do_not_redirect_to_version_if_disabled_in_settings(self):
         # GET on the hello view.
-        app = self.get_test_app({
-            'cliquet.version_prefix_redirect_enabled': False
-        })
+        app = self.get_test_app({'version_prefix_redirect_enabled': False})
 
         app.get('/', status=404)
 
@@ -180,9 +176,7 @@ class TrailingSlashRedirectViewTest(BaseWebTest, unittest.TestCase):
                          'http://localhost/v0/mushrooms')
 
     def test_do_not_redirect_if_disabled_in_settings(self):
-        app = self.get_test_app({
-            'cliquet.trailing_slash_redirect_enabled': False
-        })
+        app = self.get_test_app({'trailing_slash_redirect_enabled': False})
 
         app.get('/', status=200)
         app.get('/mushrooms/', status=404)

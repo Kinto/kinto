@@ -598,14 +598,14 @@ class ConflictErrorsTest(BaseWebTest, unittest.TestCase):
 class CacheControlTest(BaseWebTest, unittest.TestCase):
     def test_cache_control_headers_are_set(self):
         with mock.patch.dict(self.app.app.registry.settings,
-                             [('cliquet._cache_expires_seconds', 3600)]):
+                             [('_cache_expires_seconds', 3600)]):
             resp = self.app.get(self.collection_url, headers=self.headers)
         self.assertIn('Expires', resp.headers)
         self.assertIn('Cache-Control', resp.headers)
 
     def test_cache_control_headers_set_no_cache_if_zero(self):
         with mock.patch.dict(self.app.app.registry.settings,
-                             [('cliquet._cache_expires_seconds', 0)]):
+                             [('_cache_expires_seconds', 0)]):
             resp = self.app.get(self.collection_url, headers=self.headers)
         self.assertIn('Expires', resp.headers)
         self.assertIn('Cache-Control', resp.headers)

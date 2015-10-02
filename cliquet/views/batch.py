@@ -74,7 +74,7 @@ def post_batch(request):
     requests = request.validated['requests']
     batch_size = len(requests)
 
-    limit = request.registry.settings['cliquet.batch_max_requests']
+    limit = request.registry.settings['batch_max_requests']
     if limit and len(requests) > int(limit):
         error_msg = 'Number of requests is limited to %s' % limit
         request.errors.add('body', 'requests', error_msg)

@@ -253,7 +253,7 @@ class ViewSetTest(unittest.TestCase):
     def test_is_endpoint_enabled_returns_false_if_enabled(self):
         viewset = ViewSet()
         config = {
-            'cliquet.record_fake_get_enabled': False
+            'record_fake_get_enabled': False
         }
         is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'get',
                                                  config)
@@ -262,7 +262,7 @@ class ViewSetTest(unittest.TestCase):
     def test_is_endpoint_enabled_returns_true_if_disabled(self):
         viewset = ViewSet()
         config = {
-            'cliquet.record_fake_get_enabled': True
+            'record_fake_get_enabled': True
         }
         is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'get',
                                                  config)
@@ -334,7 +334,7 @@ class RegisterTest(unittest.TestCase):
 
         context = mock.MagicMock()
         context.registry.settings = {
-            'cliquet.record_fake_put_enabled': False
+            'record_fake_put_enabled': False
         }
         context.config.with_package.return_value = context
         venusian_callback(context, None, None)
@@ -356,7 +356,7 @@ class RegisterTest(unittest.TestCase):
         context = mock.MagicMock()
         context.config.with_package.return_value = context
         context.registry.settings = {
-            'cliquet.collection_fake_get_enabled': False
+            'collection_fake_get_enabled': False
         }
         venusian_callback(context, None, None)
 
