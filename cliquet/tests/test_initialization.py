@@ -134,6 +134,28 @@ class ProjectSettingsTest(unittest.TestCase):
         }
         self.assertEqual(self.settings(settings)['paginate_by'], 42)
 
+    def test_does_raise_valueerror_if_multiple_entries_are_equal(self):
+        settings = {
+            'paginate_by': 42,
+            'cliquet.paginate_by': 42,
+        }
+        self.settings(settings)  # Not raising.
+
+    def test_raises_valueerror_if_different_multiple_entries(self):
+        settings = {
+            'paginate_by': 42,
+            'cliquet.paginate_by': 3.14,
+        }
+        with self.assertRaises(ValueError):
+            self.settings(settings)
+
+        settings = {
+            'kinto.paginate_by': 42,
+            'cliquet.paginate_by': 3.14,
+        }
+        with self.assertRaises(ValueError):
+            self.settings(settings)
+
     def test_environment_can_specify_project_name(self):
         import os
 

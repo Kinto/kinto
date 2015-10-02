@@ -1,4 +1,3 @@
-import re
 import warnings
 from datetime import datetime
 from dateutil import parser as dateparser
@@ -389,12 +388,16 @@ def load_default_settings(config, default_settings):
         if not is_defined:
             settings[unprefixed] = default_value
 
-    # Override settings from OS env values.
     for key, value in sorted(settings.items()):
-        unprefixed, project_prefix, cliquet_prefix = _prefixed_keys(key)
+        unprefixed, project_prefix, cliquet_prefix = keys = _prefixed_keys(key)
 
-        # XXX: warn if not only one is defined ?
+        # Fail if not only one is defined.
+        defined = set(settings.keys()).intersection(set(keys))
+        distinct_values = set([settings[d] for d in defined])
+        if len(defined) > 1 and len(distinct_values) > 1:
+            raise ValueError('Settings %s are in conflict.' % defined)
 
+        # Override settings from OS env values.
         # e.g. HTTP_PORT, KINTO_HTTP_PORT, CLIQUET_HTTP_PORT
         from_env = utils.read_env(unprefixed, value)
         from_env = utils.read_env(project_prefix, from_env)
