@@ -12,15 +12,21 @@ This document describes changes between each past release.
 - Deprecated settings ``cliquet.cache_pool_maxconn``,
   ``cliquet.storage_pool_maxconn`` and ``cliquet.basic_auth_enabled``
   were removed (ref #448)
+- Prefixed settings will not work if ``project_name`` is not defined.
+  (either with ``cliquet.initialize()`` or with the ``cliquet.project_name``
+  configuration variable).
+- Settings should now be read without their prefix in the code:
+  ``request.registry.settings['max_duration']`` rather than
+  ``request.registry.settings['cliquet.max_duration']``
 
 **New features**
 
-- Add CORS catching headers. (ref #466)
+- Add cache CORS headers. (ref #466)
 - Use the project name as setting prefix (ref #472)
 
 **Internal changes**
 
-- Expose statsd client for projects using cliquet can send statsd
+- Expose statsd client so that projects using cliquet can send statsd
   metrics. (ref #465)
 - Refactor BaseWebTest. (ref #468)
 - Remove hard coded CORS origins in order to be able to override it
