@@ -376,7 +376,9 @@ def load_default_settings(config, default_settings):
     project_name = settings['project_name']
 
     def _prefixed_keys(key):
-        unprefixed = key.split('.', 1)[1] if '.' in key else key
+        unprefixed = key
+        if key.startswith('cliquet.') or key.startswith(project_name + '.'):
+            unprefixed = key.split('.', 1)[1]
         project_prefix = project_name + '.' + unprefixed
         cliquet_prefix = 'cliquet.' + unprefixed
         return unprefixed, project_prefix, cliquet_prefix
