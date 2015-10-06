@@ -3,7 +3,8 @@ Changelog
 
 This document describes changes between each past release.
 
-2.8.0 (unreleased)
+
+2.8.0 (2015-10-06)
 ------------------
 
 **Breaking changes**
@@ -11,6 +12,21 @@ This document describes changes between each past release.
 - Deprecated settings ``cliquet.cache_pool_maxconn``,
   ``cliquet.storage_pool_maxconn`` and ``cliquet.basic_auth_enabled``
   were removed (ref #448)
+
+**New features**
+
+- Add CORS catching headers. (ref #466)
+- Use the project name as setting prefix (ref #472)
+
+**Internal changes**
+
+- Expose statsd client for projects using cliquet can send statsd
+  metrics. (ref #465)
+- Refactor BaseWebTest. (ref #468)
+- Remove hard coded CORS origins in order to be able to override it
+  with config. (ref #467)
+- Allow overridding 405 response error to give context (ref #471)
+- Allow overridding 503 response error to give context (ref #473)
 
 
 2.7.0 (2015-09-23)
