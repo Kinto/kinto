@@ -28,12 +28,12 @@ adjustments:
 .. code-block :: ini
 
     kinto.flush_endpoint_enabled = false
-    cliquet.http_scheme = https
-    cliquet.paginate_by = 100
-    cliquet.batch_max_requests = 25
-    cliquet.storage_pool_maxconn = 50
-    cliquet.cache_pool_maxconn = 50
-    cliquet.permission_pool_maxconn = 50
+    kinto.http_scheme = https
+    kinto.paginate_by = 100
+    kinto.batch_max_requests = 25
+    kinto.storage_pool_maxconn = 50
+    kinto.cache_pool_maxconn = 50
+    kinto.permission_pool_maxconn = 50
     fxa-oauth.cache_ttl_seconds = 3600
 
 .. note::
@@ -46,7 +46,7 @@ By default, nobody can read buckets list. You can change that using:
 
 .. code-block :: ini
 
-    cliquet.bucket_read_principals = system.Authenticated
+    kinto.bucket_read_principals = system.Authenticated
 
 Beware that if you do so, everyone will be able to list bucket
 information (including user's personal buckets).
@@ -67,7 +67,7 @@ And configure its URL:
 .. code-block :: ini
 
     # StatsD
-    cliquet.statsd_url = udp://carbon.server:8125
+    kinto.statsd_url = udp://carbon.server:8125
 
 Counters
 ::::::::
@@ -108,7 +108,7 @@ In order to enable Mozilla *Heka* logging output:
 .. code-block :: ini
 
     # Heka
-    cliquet.logging_renderer = cliquet.logs.MozillaHekaRenderer
+    kinto.logging_renderer = cliquet.logs.MozillaHekaRenderer
 
 
 With the following configuration, all logs are structured in JSON and

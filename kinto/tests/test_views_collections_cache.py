@@ -5,7 +5,7 @@ from .support import (BaseWebTest, unittest, MINIMALIST_BUCKET,
 class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extra=None):
         settings = super(GlobalSettingsTest, self).get_app_settings(extra)
-        settings['cliquet.record_cache_expires_seconds'] = 3600
+        settings['kinto.record_cache_expires_seconds'] = 3600
         return settings
 
     def setUp(self):
@@ -31,8 +31,8 @@ class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
 class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extra=None):
         settings = super(SpecificSettingsTest, self).get_app_settings(extra)
-        settings['cliquet.blog_record_cache_expires_seconds'] = 30
-        settings['cliquet.browser_top500_record_cache_expires_seconds'] = 60
+        settings['kinto.blog_record_cache_expires_seconds'] = 30
+        settings['kinto.browser_top500_record_cache_expires_seconds'] = 60
         return settings
 
     def setUp(self):
@@ -119,7 +119,7 @@ class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(r.headers['Pragma'], 'no-cache')
 
     def test_cache_control_on_collection_overrides_setting(self):
-        app = self._get_test_app({'cliquet.record_cache_expires_seconds': 10})
+        app = self._get_test_app({'kinto.record_cache_expires_seconds': 10})
         app.put_json(self.collection_url,
                      {'data': {'cache_expires': 3600}},
                      headers=self.headers)

@@ -45,7 +45,7 @@ class BaseWebTestWithSchema(BaseWebTest):
     def get_app_settings(self, additional_settings=None):
         settings = super(BaseWebTestWithSchema, self).get_app_settings(
             additional_settings)
-        settings['kinto.experimental_collection_schema_validation'] = 'True'
+        settings['experimental_collection_schema_validation'] = 'True'
         return settings
 
 

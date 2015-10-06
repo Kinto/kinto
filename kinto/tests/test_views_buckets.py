@@ -102,7 +102,7 @@ class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
         settings = super(BucketReadPermissionTest,
                          self).get_app_settings(extra)
         # Give the right to list buckets (for self.principal and alice).
-        settings['cliquet.bucket_read_principals'] = Authenticated
+        settings['kinto.bucket_read_principals'] = Authenticated
         return settings
 
     def test_bucket_collection_endpoint_lists_them_all_for_everyone(self):
@@ -143,7 +143,7 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extra=None):
         settings = super(BucketDeletionTest, self).get_app_settings(extra)
         # Give the permission to read, to get an explicit 404 once deleted.
-        settings['cliquet.bucket_read_principals'] = self.principal
+        settings['kinto.bucket_read_principals'] = self.principal
         return settings
 
     def test_buckets_can_be_deleted(self):
