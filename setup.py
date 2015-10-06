@@ -16,21 +16,21 @@ CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
-    'waitress',
-    'cliquet',
-    'jsonschema',
+    'waitress==0.8.10',
+    'cliquet>=2.7,<2.8',
+    'jsonschema==2.5.1',
 ]
 
 POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[postgresql]'
+    'cliquet[postgresql]>=2.7,<2.8'
 ]
 
 MONITORING_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[monitoring]'
+    'cliquet[monitoring]>=2.7,<2.8'
 ]
 
 FXA_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet-fxa'
+    'cliquet-fxa==1.3.1'
 ]
 
 ENTRY_POINTS = {
@@ -42,7 +42,7 @@ DEPENDENCY_LINKS = [
 ]
 
 setup(name='kinto',
-      version='1.5.0',
+      version='1.5.1',
       description='Kinto Web Service - Store, Sync, Share, and Self-Host.',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',

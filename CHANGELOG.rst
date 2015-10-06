@@ -4,6 +4,12 @@ Changelog
 This document describes changes between each past release.
 
 
+1.5.1 (2015-10-07)
+==================
+
+- Upgraded to *Cliquet* 2.7.0
+
+
 1.5.0 (2015-09-23)
 ==================
 
