@@ -82,6 +82,7 @@ Full detailed API documentation:
    cliquet/versioning
    cliquet/authentication
    cliquet/resource
+   cliquet/batch
    cliquet/timestamps
    cliquet/backoff
    cliquet/errors
