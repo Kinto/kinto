@@ -216,6 +216,29 @@ class ApplicationWrapperTest(unittest.TestCase):
 
         self.assertEquals(app, 'wrappedApp')
 
+    def test_load_default_settings_handle_prefix_attributes(self):
+        config = mock.MagicMock()
+
+        settings = {'project_name': 'myapp'}
+
+        config.get_settings.return_value = settings
+        initialization.load_default_settings(
+            config, {'multiauth.policies': 'basicauth',
+                     'cliquet.http_scheme': 'https',
+                     'myapp.http_host': 'localhost:8888'})
+
+        self.assertIn('multiauth.policies', settings)
+        self.assertNotIn('policies', settings)
+        self.assertEqual(settings['multiauth.policies'], 'basicauth')
+
+        self.assertIn('http_scheme', settings)
+        self.assertNotIn('cliquet.http_scheme', settings)
+        self.assertEqual(settings['http_scheme'], 'https')
+
+        self.assertIn('http_host', settings)
+        self.assertNotIn('myapp.http_host', settings)
+        self.assertEqual(settings['http_host'], 'localhost:8888')
+
 
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
