@@ -26,25 +26,25 @@ class InitializationTest(unittest.TestCase):
     def test_set_the_project_version_if_specified(self):
         config = Configurator()
         cliquet.initialize(config, '0.0.1', 'name')
-        self.assertEqual(config.registry.settings['cliquet.project_version'],
+        self.assertEqual(config.registry.settings['project_version'],
                          '0.0.1')
 
     def test_set_the_project_version_from_settings_even_if_specified(self):
         config = Configurator(settings={'cliquet.project_version': '1.0.0'})
         cliquet.initialize(config, '0.0.1', 'name')
-        self.assertEqual(config.registry.settings['cliquet.project_version'],
+        self.assertEqual(config.registry.settings['project_version'],
                          '1.0.0')
 
     def test_warns_if_project_name_is_empty(self):
         config = Configurator(settings={'cliquet.project_name': ''})
-        with mock.patch('cliquet.warnings.warn') as mocked:
+        with mock.patch('cliquet.initialization.warnings.warn') as mocked:
             cliquet.initialize(config, '0.0.1')
             error_msg = 'No value specified for `project_name`'
             mocked.assert_called_with(error_msg)
 
     def test_warns_if_project_name_is_missing(self):
         config = Configurator()
-        with mock.patch('cliquet.warnings.warn') as mocked:
+        with mock.patch('cliquet.initialization.warnings.warn') as mocked:
             cliquet.initialize(config, '0.0.1')
             error_msg = 'No value specified for `project_name`'
             mocked.assert_called_with(error_msg)
@@ -52,13 +52,13 @@ class InitializationTest(unittest.TestCase):
     def test_set_the_project_name_if_specified(self):
         config = Configurator()
         cliquet.initialize(config, '0.0.1', 'kinto')
-        self.assertEqual(config.registry.settings['cliquet.project_name'],
+        self.assertEqual(config.registry.settings['project_name'],
                          'kinto')
 
     def test_set_the_project_name_from_settings_even_if_specified(self):
         config = Configurator(settings={'cliquet.project_name': 'kinto'})
         cliquet.initialize(config, '0.0.1', 'readinglist')
-        self.assertEqual(config.registry.settings['cliquet.project_name'],
+        self.assertEqual(config.registry.settings['project_name'],
                          'kinto')
 
     def test_default_settings_are_overriden_if_specified_in_initialize(self):
@@ -66,19 +66,19 @@ class InitializationTest(unittest.TestCase):
         defaults = {'cliquet.paginate_by': 102}
         cliquet.initialize(config, '0.0.1', 'project_name',
                            default_settings=defaults)
-        self.assertEqual(config.registry.settings['cliquet.paginate_by'], 102)
+        self.assertEqual(config.registry.settings['paginate_by'], 102)
 
     def test_default_settings_are_overriden_by_application(self):
         config = Configurator(settings={'cliquet.paginate_by': 10})
         cliquet.initialize(config, '0.0.1', 'project_name')
-        self.assertEqual(config.registry.settings['cliquet.paginate_by'], 10)
+        self.assertEqual(config.registry.settings['paginate_by'], 10)
 
     def test_specified_default_settings_are_overriden_by_application(self):
         config = Configurator(settings={'cliquet.paginate_by': 5})
         defaults = {'cliquet.paginate_by': 10}
         cliquet.initialize(config, '0.0.1', 'project_name',
                            default_settings=defaults)
-        self.assertEqual(config.registry.settings['cliquet.paginate_by'], 5)
+        self.assertEqual(config.registry.settings['paginate_by'], 5)
 
     def test_backend_are_not_instantiated_by_default(self):
         config = Configurator(settings=cliquet.DEFAULT_SETTINGS)
@@ -98,25 +98,75 @@ class InitializationTest(unittest.TestCase):
 
         os.environ.pop(envkey)
 
-        project_used = config.registry.settings['cliquet.project_name']
+        project_used = config.registry.settings['project_name']
         self.assertEqual(project_used, 'abc')
-
-    def test_warn_if_deprecated_settings_are_used(self):
-        config = Configurator(settings={'cliquet.project_name': 'kinto',
-                                        'cliquet.cache_pool_maxconn': '1'})
-        with mock.patch('cliquet.warnings.warn') as mocked:
-            cliquet.initialize(config, '0.0.1')
-            msg = ("'cliquet.cache_pool_maxconn' setting is deprecated. "
-                   "Use 'cliquet.cache_pool_size' instead.")
-            mocked.assert_called_with(msg, DeprecationWarning)
 
     def test_initialize_cliquet_is_deprecated(self):
         config = Configurator()
-        with mock.patch('cliquet.warnings.warn') as mocked:
+        with mock.patch('cliquet.initialization.warnings.warn') as mocked:
             cliquet.initialize_cliquet(config, '0.0.1', 'name')
             msg = ('cliquet.initialize_cliquet is now deprecated. '
                    'Please use "cliquet.initialize" instead')
             mocked.assert_called_with(msg, DeprecationWarning)
+
+
+class ProjectSettingsTest(unittest.TestCase):
+    def settings(self, provided):
+        config = Configurator(settings=provided)
+        cliquet.initialize(config, '1.0', 'kinto')
+        return config.get_settings()
+
+    def test_uses_unprefixed_name(self):
+        settings = {
+            'paginate_by': 3.14
+        }
+        self.assertEqual(self.settings(settings)['paginate_by'], 3.14)
+
+    def test_uses_cliquet_prefix(self):
+        settings = {
+            'cliquet.paginate_by': 3.14
+        }
+        self.assertEqual(self.settings(settings)['paginate_by'], 3.14)
+
+    def test_uses_project_name(self):
+        settings = {
+            'kinto.paginate_by': 42,
+        }
+        self.assertEqual(self.settings(settings)['paginate_by'], 42)
+
+    def test_does_raise_valueerror_if_multiple_entries_are_equal(self):
+        settings = {
+            'paginate_by': 42,
+            'cliquet.paginate_by': 42,
+        }
+        self.settings(settings)  # Not raising.
+
+    def test_raises_valueerror_if_different_multiple_entries(self):
+        settings = {
+            'paginate_by': 42,
+            'cliquet.paginate_by': 3.14,
+        }
+        with self.assertRaises(ValueError):
+            self.settings(settings)
+
+        settings = {
+            'kinto.paginate_by': 42,
+            'cliquet.paginate_by': 3.14,
+        }
+        with self.assertRaises(ValueError):
+            self.settings(settings)
+
+    def test_environment_can_specify_project_name(self):
+        import os
+
+        envkey = 'KINTO_STORAGE_BACKEND'
+        os.environ[envkey] = 'cliquet.storage.redis'
+        settings = {
+            'kinto.storage_backend': 'cliquet.storage.memory',
+        }
+        value = self.settings(settings)['storage_backend']
+        os.environ.pop(envkey)
+        self.assertEqual(value, 'cliquet.storage.redis')
 
 
 class ApplicationWrapperTest(unittest.TestCase):
@@ -126,8 +176,8 @@ class ApplicationWrapperTest(unittest.TestCase):
     @mock.patch('cliquet.initialization.newrelic.agent')
     def test_newrelic_is_included_if_defined(self, mocked_newrelic):
         settings = {
-            'cliquet.newrelic_config': '/foo/bar.ini',
-            'cliquet.newrelic_env': 'test'
+            'newrelic_config': '/foo/bar.ini',
+            'newrelic_env': 'test'
         }
         mocked_newrelic.WSGIApplicationWrapper.return_value = 'wrappedApp'
         app = cliquet.install_middlewares(mock.sentinel.app, settings)
@@ -138,14 +188,14 @@ class ApplicationWrapperTest(unittest.TestCase):
                      "newrelic is not installed.")
     @mock.patch('cliquet.initialization.newrelic.agent')
     def test_newrelic_is_not_included_if_set_to_false(self, mocked_newrelic):
-        settings = {'cliquet.newrelic_config': False}
+        settings = {'newrelic_config': False}
         app = cliquet.install_middlewares(mock.sentinel.app, settings)
         mocked_newrelic.initialize.assert_not_called()
         self.assertEquals(app, mock.sentinel.app)
 
     @mock.patch('cliquet.initialization.ProfilerMiddleware')
     def test_profiler_is_not_installed_if_set_to_false(self, mocked_profiler):
-        settings = {'cliquet.profiler_enabled': False}
+        settings = {'profiler_enabled': False}
         app = cliquet.install_middlewares(mock.sentinel.app, settings)
         mocked_profiler.initialize.assert_not_called()
         self.assertEquals(app, mock.sentinel.app)
@@ -153,8 +203,8 @@ class ApplicationWrapperTest(unittest.TestCase):
     @mock.patch('cliquet.initialization.ProfilerMiddleware')
     def test_profiler_is_installed_if_set_to_true(self, mocked_profiler):
         settings = {
-            'cliquet.profiler_enabled': True,
-            'cliquet.profiler_dir': '/tmp/path'
+            'profiler_enabled': True,
+            'profiler_dir': '/tmp/path'
         }
         mocked_profiler.return_value = 'wrappedApp'
         app = cliquet.install_middlewares(mock.sentinel.app, settings)
@@ -170,7 +220,7 @@ class ApplicationWrapperTest(unittest.TestCase):
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
         settings = cliquet.DEFAULT_SETTINGS.copy()
-        settings['cliquet.statsd_url'] = 'udp://host:8080'
+        settings['statsd_url'] = 'udp://host:8080'
         self.config = Configurator(settings=settings)
         self.config.registry.storage = {}
         self.config.registry.cache = {}
@@ -179,7 +229,7 @@ class StatsDConfigurationTest(unittest.TestCase):
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_isnt_called_if_statsd_url_is_not_set(self, mocked):
         self.config.add_settings({
-            'cliquet.statsd_url': None
+            'statsd_url': None
         })
         initialization.setup_statsd(self.config)
         mocked.assert_not_called()
@@ -187,7 +237,7 @@ class StatsDConfigurationTest(unittest.TestCase):
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_is_set_to_none_if_statsd_url_not_set(self, mocked):
         self.config.add_settings({
-            'cliquet.statsd_url': None
+            'statsd_url': None
         })
         initialization.setup_statsd(self.config)
         self.assertEqual(self.config.registry.statsd, None)
@@ -258,8 +308,8 @@ class StatsDConfigurationTest(unittest.TestCase):
 class RequestsConfigurationTest(unittest.TestCase):
     def _get_app(self, settings={}):
         app_settings = {
-            'cliquet.storage_backend': 'cliquet.storage.memory',
-            'cliquet.cache_backend': 'cliquet.cache.redis',
+            'storage_backend': 'cliquet.storage.memory',
+            'cache_backend': 'cliquet.cache.redis',
         }
         app_settings.update(**settings)
         config = Configurator(settings=app_settings)
@@ -313,7 +363,7 @@ class RequestsConfigurationTest(unittest.TestCase):
         self.assertEqual(resp.json['url'], 'https://server:44311/v0/')
 
     def test_http_scheme_overrides_the_wsgi_environment(self):
-        app = self._get_app({'cliquet.http_scheme': 'http2'})
+        app = self._get_app({'http_scheme': 'http2'})
         environ = {
             'wsgi.url_scheme': 'https'
         }
@@ -321,7 +371,7 @@ class RequestsConfigurationTest(unittest.TestCase):
         self.assertEqual(resp.json['url'], 'http2://localhost:80/v0/')
 
     def test_http_host_overrides_the_wsgi_environment(self):
-        app = self._get_app({'cliquet.http_host': 'server'})
+        app = self._get_app({'http_host': 'server'})
         environ = {
             'HTTP_HOST': 'elb:44311'
         }
@@ -329,6 +379,6 @@ class RequestsConfigurationTest(unittest.TestCase):
         self.assertEqual(resp.json['url'], 'http://server/v0/')
 
     def test_http_host_overrides_the_request_headers(self):
-        app = self._get_app({'cliquet.http_host': 'server'})
+        app = self._get_app({'http_host': 'server'})
         resp = app.get('/v0/', headers={'Host': 'elb:8888'})
         self.assertEqual(resp.json['url'], 'http://server/v0/')

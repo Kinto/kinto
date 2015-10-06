@@ -166,7 +166,7 @@ def reapply_cors(request, response):
         origin = request.headers.get('Origin')
         if origin:
             settings = request.registry.settings
-            allowed_origins = set(aslist(settings['cliquet.cors_origins']))
+            allowed_origins = set(aslist(settings['cors_origins']))
             required_origins = {'*', decode_header(origin)}
             if allowed_origins.intersection(required_origins):
                 origin = encode_header(origin)

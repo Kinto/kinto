@@ -584,7 +584,7 @@ class BaseResource(object):
         current resource.
         """
         resource_name = self.context.resource_name if self.context else ''
-        setting_key = 'cliquet.%s_cache_expires_seconds' % resource_name
+        setting_key = '%s_cache_expires_seconds' % resource_name
         collection_expires = self.request.registry.settings.get(setting_key)
         if collection_expires is not None:
             response.cache_expires(seconds=int(collection_expires))
@@ -718,7 +718,7 @@ class BaseResource(object):
 
     def _extract_limit(self):
         """Extract limit value from QueryString parameters."""
-        paginate_by = self.request.registry.settings['cliquet.paginate_by']
+        paginate_by = self.request.registry.settings['paginate_by']
         limit = self.request.GET.get('_limit', paginate_by)
         if limit:
             try:

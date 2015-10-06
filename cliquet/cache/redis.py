@@ -71,9 +71,9 @@ class Redis(CacheBase):
 
 def load_from_config(config):
     settings = config.get_settings()
-    uri = settings['cliquet.cache_url']
+    uri = settings['cache_url']
     uri = urlparse.urlparse(uri)
-    pool_size = int(settings['cliquet.cache_pool_size'])
+    pool_size = int(settings['cache_pool_size'])
 
     return Redis(max_connections=pool_size,
                  host=uri.hostname or 'localhost',

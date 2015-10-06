@@ -20,7 +20,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         self.record = response.json['data']
 
     def test_can_be_configured_from_settings(self):
-        app = self.get_test_app({'cliquet.cors_origins': '*.daybed.io'})
+        app = self.get_test_app({'cors_origins': '*.daybed.io'})
         headers = self.headers.copy()
         headers['Origin'] = 'demo.daybed.io'
         resp = app.get(self.collection_url, headers=headers)
@@ -56,7 +56,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         headers = self.headers.copy()
         headers['Origin'] = 'notmyidea.org'
         with mock.patch.dict(self.app.app.registry.settings,
-                             [('cliquet.cors_origins', 'daybed.io')]):
+                             [('cors_origins', 'daybed.io')]):
             response = self.app.get('/unknown',
                                     headers=headers,
                                     status=404)
@@ -195,11 +195,11 @@ class CORSMaxAgeTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(int(resp.headers['Access-Control-Max-Age']), 3600)
 
     def test_cors_max_age_can_be_specified_in_settings(self):
-        app = self.get_test_app({'cliquet.cors_max_age_seconds': '42'})
+        app = self.get_test_app({'cors_max_age_seconds': '42'})
         resp = app.options('/', headers=self.headers)
         self.assertEqual(int(resp.headers['Access-Control-Max-Age']), 42)
 
     def test_cors_max_age_is_disabled_if_unset(self):
-        app = self.get_test_app({'cliquet.cors_max_age_seconds': ''})
+        app = self.get_test_app({'cors_max_age_seconds': ''})
         resp = app.options('/', headers=self.headers)
         self.assertNotIn('Access-Control-Max-Age', resp.headers)

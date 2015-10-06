@@ -36,12 +36,12 @@ class Client(object):
 
 def load_from_config(config):
     settings = config.get_settings()
-    uri = settings['cliquet.statsd_url']
+    uri = settings['statsd_url']
     uri = urlparse.urlparse(uri)
 
-    if settings['cliquet.project_name'] != '':
-        prefix = settings['cliquet.project_name']
+    if settings['project_name'] != '':
+        prefix = settings['project_name']
     else:
-        prefix = settings['cliquet.statsd_prefix']
+        prefix = settings['statsd_prefix']
 
     return Client(uri.hostname, uri.port, prefix)

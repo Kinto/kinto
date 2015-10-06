@@ -19,9 +19,9 @@ class TestedClass(object):
 @unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
 class StatsdClientTest(unittest.TestCase):
     settings = {
-        'cliquet.statsd_url': 'udp://foo:1234',
-        'cliquet.statsd_prefix': 'prefix',
-        'cliquet.project_name': '',
+        'statsd_url': 'udp://foo:1234',
+        'statsd_prefix': 'prefix',
+        'project_name': '',
     }
 
     def setUp(self):
@@ -65,7 +65,7 @@ class StatsdClientTest(unittest.TestCase):
     def test_load_from_config_uses_project_name_if_defined(self, module_mock):
         config = testing.setUp()
         config.registry.settings = self.settings.copy()
-        config.registry.settings['cliquet.project_name'] = 'projectname'
+        config.registry.settings['project_name'] = 'projectname'
         statsd.load_from_config(config)
         module_mock.StatsClient.assert_called_with('foo', 1234,
                                                    prefix='projectname')

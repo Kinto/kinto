@@ -19,18 +19,6 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         app = self.get_test_app({'multiauth.policies': 'basicauth'})
         app.get(self.sample_url, headers=self.sample_basicauth, status=200)
 
-    def test_basic_auth_is_accepted_if_enabled_with_old_setting(self):
-        app = self.get_test_app({
-            'multiauth.policies': 'dummy',
-            'multiauth.policy.dummy.use': ('pyramid.authentication.'
-                                           'RepozeWho1AuthenticationPolicy'),
-            'cliquet.basic_auth_enabled': 'true'})
-        app.get(self.sample_url, headers=self.sample_basicauth, status=200)
-
-    def test_basic_auth_is_accepted_if_default_with_old_setting(self):
-        app = self.get_test_app({'cliquet.basic_auth_enabled': 'true'})
-        app.get(self.sample_url, headers=self.sample_basicauth, status=200)
-
     def test_basic_auth_is_declined_if_disabled_in_settings(self):
         app = self.get_test_app({
             'multiauth.policies': 'dummy',

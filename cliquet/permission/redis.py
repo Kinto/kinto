@@ -166,9 +166,9 @@ class Redis(PermissionBase):
 
 def load_from_config(config):
     settings = config.get_settings()
-    uri = settings['cliquet.permission_url']
+    uri = settings['permission_url']
     uri = urlparse.urlparse(uri)
-    pool_size = int(settings['cliquet.permission_pool_size'])
+    pool_size = int(settings['permission_pool_size'])
 
     return Redis(max_connections=pool_size,
                  host=uri.hostname or 'localhost',

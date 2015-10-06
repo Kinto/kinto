@@ -45,7 +45,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         hello = resp.json['responses'][0]
         self.assertEqual(hello['path'], '/v0/')
         self.assertEqual(hello['status'], 200)
-        self.assertEqual(hello['body']['hello'], 'cliquet')
+        self.assertEqual(hello['body']['hello'], 'myapp')
         self.assertIn('application/json', hello['headers']['Content-Type'])
 
     def test_empty_response_body_with_head(self):
@@ -90,7 +90,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         hello = resp.json['responses'][0]
         self.assertEqual(hello['path'], '/v0/')
         self.assertEqual(hello['status'], 200)
-        self.assertEqual(hello['body']['hello'], 'cliquet')
+        self.assertEqual(hello['body']['hello'], 'myapp')
         self.assertIn('application/json', hello['headers']['Content-Type'])
 
 
@@ -317,7 +317,7 @@ class BatchServiceTest(unittest.TestCase):
         self.assertEqual(body, 'Internal Error')
 
     def test_number_of_requests_is_not_limited_when_settings_set_to_none(self):
-        self.request.registry.settings['cliquet.batch_max_requests'] = None
+        self.request.registry.settings['batch_max_requests'] = None
         requests = {}
         for i in range(30):
             requests.setdefault('requests', []).append({'path': '/'})
@@ -334,7 +334,7 @@ class BatchServiceTest(unittest.TestCase):
         self.assertIsNone(result)  # rest of view not executed
 
     def test_return_400_if_number_of_requests_is_greater_than_settings(self):
-        self.request.registry.settings['cliquet.batch_max_requests'] = 22
+        self.request.registry.settings['batch_max_requests'] = 22
 
         requests = {}
         for i in range(23):

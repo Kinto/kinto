@@ -17,7 +17,7 @@ class SendAlertTest(unittest.TestCase):
 
     def test_send_alert_default_to_project_url(self):
         request = DummyRequest()
-        request.registry.settings['cliquet.project_docs'] = 'docs_url'
+        request.registry.settings['project_docs'] = 'docs_url'
         send_alert(request, 'Message')
         self.verify_alert_header(request, {
             'code': 'soft-eol',
@@ -36,7 +36,7 @@ class SendAlertTest(unittest.TestCase):
 
     def test_send_alert_code_can_be_specified(self):
         request = DummyRequest()
-        request.registry.settings['cliquet.project_docs'] = 'docs_url'
+        request.registry.settings['project_docs'] = 'docs_url'
         send_alert(request, 'Message', code='hard-eol')
         self.verify_alert_header(request, {
             'code': 'hard-eol',

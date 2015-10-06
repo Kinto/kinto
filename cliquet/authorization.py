@@ -135,8 +135,8 @@ class RouteFactory(object):
                     object_id_match=object_id_match)
 
             settings = request.registry.settings
-            setting = 'cliquet.%s_%s_principals' % (self.resource_name,
-                                                    self.required_permission)
+            setting = '%s_%s_principals' % (self.resource_name,
+                                            self.required_permission)
             self.allowed_principals = aslist(settings.get(setting, ''))
 
     def check_permission(self, *args, **kw):

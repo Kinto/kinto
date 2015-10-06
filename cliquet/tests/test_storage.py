@@ -900,8 +900,8 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
 class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
     backend = redisbackend
     settings = {
-        'cliquet.storage_pool_size': 50,
-        'cliquet.storage_url': ''
+        'storage_pool_size': 50,
+        'storage_url': ''
     }
 
     def setUp(self):
@@ -937,10 +937,9 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
-        'cliquet.storage_pool_size': 10,
-        'cliquet.storage_max_fetch_size': 10000,
-        'cliquet.storage_url':
-            'postgres://postgres:postgres@localhost:5432/testdb'
+        'storage_pool_size': 10,
+        'storage_max_fetch_size': 10000,
+        'storage_url': 'postgres://postgres:postgres@localhost:5432/testdb'
     }
 
     def setUp(self):
@@ -958,7 +957,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         self.assertEqual(len(results), 4)
 
         settings = self.settings.copy()
-        settings['cliquet.storage_max_fetch_size'] = 2
+        settings['storage_max_fetch_size'] = 2
         config = self._get_config(settings=settings)
         limited = self.backend.load_from_config(config)
 
@@ -1006,7 +1005,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     def test_warns_if_configured_pool_size_differs_for_same_backend_type(self):
         self.backend.load_from_config(self._get_config())
         settings = self.settings.copy()
-        settings['cliquet.storage_pool_size'] = 1
+        settings['storage_pool_size'] = 1
         msg = 'Pool size 1 ignored for PostgreSQL backend (Already set to 10).'
         with mock.patch('cliquet.storage.postgresql.warnings.warn') as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))

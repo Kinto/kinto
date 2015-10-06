@@ -396,8 +396,8 @@ class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):
 class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = redis_backend
     settings = {
-        'cliquet.permission_url': '',
-        'cliquet.permission_pool_size': 10
+        'permission_url': '',
+        'permission_pool_size': 10
     }
 
     def setUp(self):
@@ -417,9 +417,8 @@ class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
 class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = postgresql_backend
     settings = {
-        'cliquet.permission_pool_size': 10,
-        'cliquet.permission_url':
-            'postgres://postgres:postgres@localhost:5432/testdb'
+        'permission_pool_size': 10,
+        'permission_url': 'postgres://postgres:postgres@localhost:5432/testdb'
     }
 
     def setUp(self):
