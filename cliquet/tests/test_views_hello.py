@@ -37,14 +37,15 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
     def test_public_settings_are_shown_in_view(self):
         response = self.app.get('/')
         settings = response.json['settings']
-        expected = {'myapp.batch_max_requests': 25}
+        expected = {'cliquet.batch_max_requests': 25,
+                    'batch_max_requests': 25}
         self.assertEqual(expected, settings)
 
     def test_public_settings_can_be_set_from_registry(self):
         self.app.app.registry.public_settings.add('myapp.paginate_by')
         response = self.app.get('/')
         settings = response.json['settings']
-        self.assertIn('myapp.paginate_by', settings)
+        self.assertIn('paginate_by', settings)
 
     def test_public_settings_can_be_set_with_and_without_prefix(self):
         self.app.app.registry.public_settings.add('myapp.paginate_by')
@@ -53,8 +54,8 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get('/')
         settings = response.json['settings']
         self.assertIn('cliquet.paginate_by', settings)
-        self.assertIn('myapp.paginate_by', settings)
-        self.assertIn('myapp.project_version', settings)
+        self.assertIn('paginate_by', settings)
+        self.assertIn('project_version', settings)
 
     def test_if_user_not_authenticated_no_userid_provided(self):
         response = self.app.get('/')

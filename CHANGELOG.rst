@@ -7,7 +7,8 @@ This document describes changes between each past release.
 2.9.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Expose public settings without prefix, expect if we explicitely want
+  to expose cliquet.
 
 
 2.8.0 (2015-10-06)
