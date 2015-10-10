@@ -1,5 +1,5 @@
-Permissions setups
-==================
+Permissions examples
+====================
 
 In order to better understand how the *Kinto* permission model works, it is
 possible to refer to this set of examples:

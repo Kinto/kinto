@@ -8,5 +8,5 @@ Tutorials
 
    first-steps
    permissions
-   permissions
+   permission-setups
    app-examples
