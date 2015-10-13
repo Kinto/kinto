@@ -15,7 +15,7 @@ The returned value is a JSON mapping containing:
 - ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)
 - ``documentation``: The URL to the service documentation. (this document!)
 - ``settings``: a mapping with the values of relevant public settings for clients
-    - ``cliquet.batch_max_requests``: Number of requests that can be made in a batch request.
+    - ``batch_max_requests``: Number of requests that can be made in a batch request.
 - ``userid``: The connected perso user id. The field is not present
   when no Authorization header is provided.
 
