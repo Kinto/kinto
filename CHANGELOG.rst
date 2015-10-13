@@ -7,7 +7,7 @@ This document describes changes between each past release.
 2.9.0 (unreleased)
 ------------------
 
-- Expose public settings without prefix, expect if we explicitely want
+- Expose public settings without prefix, except if we explicitely want
   to expose cliquet.
 
 
