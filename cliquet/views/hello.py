@@ -39,11 +39,10 @@ def get_hello(request):
         if setting.startswith('cliquet.'):
             unprefixed = setting.replace('cliquet.', '', 1)
             value = settings[unprefixed]
-            # For retropatibility compat expose both for a while.
-            data['settings'][setting] = value
-            data['settings'][unprefixed] = value
+        elif setting.startswith(project_name + '.'):
+            unprefixed = setting.replace(project_name + '.', '')
+            value = settings[unprefixed]
         else:
-            setting = setting.replace(project_name + '.', '')
             value = settings[setting]
         data['settings'][setting] = value
 
