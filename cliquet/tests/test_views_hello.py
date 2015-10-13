@@ -37,8 +37,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
     def test_public_settings_are_shown_in_view(self):
         response = self.app.get('/')
         settings = response.json['settings']
-        expected = {'cliquet.batch_max_requests': 25,
-                    'batch_max_requests': 25}
+        expected = {'batch_max_requests': 25}
         self.assertEqual(expected, settings)
 
     def test_public_settings_can_be_set_from_registry(self):
