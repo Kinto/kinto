@@ -4,15 +4,17 @@ Changelog
 This document describes changes between each past release.
 
 
-1.6.0 (unreleased)
+1.6.0 (2015-10-14)
 ==================
+
+- Upgraded to *Cliquet* 2.8.1
 
 **Breaking changes**
 
 - Settings prefixed with ``cliquet.`` are now deprecated, and should be replaced
-  with ``kinto.`` instead.
-- In the root url response, public settings are now prefixed with kinto too
-  (e.g. ``kinto.batch_max_requests``).
+  with non prefixed version instead.
+- In the root url response, public settings are exposed without prefix too
+  (e.g. ``batch_max_requests``).
 
 
 1.5.1 (2015-10-07)
