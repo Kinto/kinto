@@ -37,11 +37,13 @@ def get_hello(request):
     # specified with cliquet. (for retrocompability of clients for example).
     for setting in list(public_settings):
         if setting.startswith('cliquet.'):
-            value = settings[setting.replace('cliquet.', '', 1)]
+            unprefixed = setting.replace('cliquet.', '', 1)
+            value = settings[unprefixed]
+        elif setting.startswith(project_name + '.'):
+            unprefixed = setting.replace(project_name + '.', '')
+            value = settings[unprefixed]
         else:
-            setting = setting.replace(project_name + '.', '')
             value = settings[setting]
-            setting = project_name + '.' + setting
         data['settings'][setting] = value
 
     prefixed_userid = getattr(request, 'prefixed_userid', None)
