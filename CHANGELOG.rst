@@ -4,12 +4,12 @@ Changelog
 This document describes changes between each past release.
 
 
-2.9.0 (unreleased)
+2.8.1 (2015-10-14)
 ------------------
 
 - Expose public settings without prefix, except if we explicitely
   configure public_settings to expose them (with ``cliquet.`` or
-  ``project_name.``) (refs #476)
+  ``project_name.``) (ref #476)
 
 
 2.8.0 (2015-10-06)
