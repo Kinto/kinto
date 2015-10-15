@@ -141,6 +141,12 @@ class ProjectSettingsTest(unittest.TestCase):
         }
         self.settings(settings)  # Not raising.
 
+    def test_does_raise_valueerror_if_entries_are_not_hashable(self):
+        settings = {
+            'paginate_by': [42],
+        }
+        self.settings(settings)  # Not raising.
+
     def test_raises_valueerror_if_different_multiple_entries(self):
         settings = {
             'paginate_by': 42,
