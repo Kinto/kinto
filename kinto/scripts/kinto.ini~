@@ -1,0 +1,8 @@
+[DEFAULT]
+pyramid.debug_notfound = true
+kinto.http_scheme = http
+kinto.http_host = localhost:8888
+
+[app:main]
+use = egg:kinto
+
