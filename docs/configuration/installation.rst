@@ -76,15 +76,15 @@ Install and setup PostgreSQL
 
 (*requires PostgreSQL 9.4 or higher*).
 
-*Cliquet* dependencies do not include *PostgreSQL* tooling and drivers by
+*Kinto* dependencies do not include *PostgreSQL* tooling and drivers by
 default. In order to install them, run:
 
 ::
 
-    pip install "cliquet[postgresql]"
+    make install-postgres
 
 
-The following instructions will create a local ``postgres`` database on
+The instructions below will create a local ``postgres`` database on
 ``localhost:5432``, with user/password ``postgres``/``postgres``.
 
 Once done, just uncomment the backends lines mentionning *Postgresql* in the
