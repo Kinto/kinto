@@ -3,7 +3,7 @@ import uuid
 
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.errors import ERRORS
-from cliquet.tests.support import (unittest, BaseWebTest)
+from cliquet.tests.support import unittest, BaseWebTest
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}

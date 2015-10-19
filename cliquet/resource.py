@@ -18,6 +18,7 @@ from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
     current_service, encode_header, decode_header
 )
+from cliquet.events import ResourceChanged, ACTIONS
 
 
 def register(depth=1, **kwargs):
@@ -243,7 +244,6 @@ class BaseResource(object):
             :meth:`cliquet.resource.BaseResource.process_record`
         """
         self._raise_412_if_modified()
-
         new_record = self.request.validated['data']
 
         # Since ``id`` does not belong to schema, it can only be found in body.
@@ -255,16 +255,18 @@ class BaseResource(object):
             pass
 
         new_record = self.process_record(new_record)
-
         try:
             unique_fields = self.mapping.get_option('unique_fields')
             record = self.collection.create_record(new_record,
                                                    unique_fields=unique_fields)
             self.request.response.status_code = 201
+            action = ACTIONS.CREATE
         except storage_exceptions.UnicityError as e:
             record = e.record
+            # failed to write
+            action = ACTIONS.READ
 
-        return self.postprocess(record)
+        return self.postprocess(record, action=action)
 
     def collection_delete(self):
         """Collection ``DELETE`` endpoint: delete multiple records.
@@ -282,7 +284,8 @@ class BaseResource(object):
         filters = self._extract_filters()
         deleted = self.collection.delete_records(filters=filters)
 
-        return self.postprocess(deleted)
+        action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
+        return self.postprocess(deleted, action=action)
 
     def get(self):
         """Record ``GET`` endpoint: retrieve a record.
@@ -360,14 +363,14 @@ class BaseResource(object):
                 record = self.collection.create_record(new_record,
                                                        unique_fields=unique)
                 self.request.response.status_code = 201
-
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
         timestamp = record[self.collection.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-        return self.postprocess(record)
+        action = existing and ACTIONS.UPDATE or ACTIONS.CREATE
+        return self.postprocess(record, action=action)
 
     def patch(self):
         """Record ``PATCH`` endpoint: modify a record and return its
@@ -441,7 +444,7 @@ class BaseResource(object):
                                    old_record[self.collection.modified_field])
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-        return self.postprocess(data)
+        return self.postprocess(data, action=ACTIONS.UPDATE)
 
     def delete(self):
         """Record ``DELETE`` endpoint: delete a record and return it.
@@ -459,8 +462,7 @@ class BaseResource(object):
         self._raise_412_if_modified(record)
 
         deleted = self.collection.delete_record(record)
-
-        return self.postprocess(deleted)
+        return self.postprocess(deleted, action=ACTIONS.DELETE)
 
     #
     # Data processing
@@ -541,10 +543,21 @@ class BaseResource(object):
             for field, error in e.asdict().items():
                 raise_invalid(self.request, name=field, description=error)
 
-    def postprocess(self, result):
+    def postprocess(self, result, action=ACTIONS.READ):
         body = {
             'data': result
         }
+
+        # XXX this should be plugged with the transaction system
+        # when it's added
+        if action != ACTIONS.READ:
+            # the collection has been changed
+            try:
+                event = ResourceChanged(action, self, self.request)
+                self.request.registry.notify(event)
+            except Exception:
+                logger.error("Unable to notify", exc_info=True)
+
         return body
 
     #
@@ -958,13 +971,13 @@ class ProtectedResource(BaseResource):
 
         return new
 
-    def postprocess(self, result):
+    def postprocess(self, result, action=ACTIONS.READ):
         """Add ``permissions`` attribute in response body.
 
         In the protocol, it was decided that ``permissions`` would reside
         outside the ``data`` attribute.
         """
-        result = super(ProtectedResource, self).postprocess(result)
+        result = super(ProtectedResource, self).postprocess(result, action)
         if not isinstance(result['data'], list):
             perms = result['data'].pop(self.collection.permissions_field, None)
             if perms is not None:

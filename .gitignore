@@ -1,3 +1,4 @@
+*.un~
 *.pyc
 *.egg-info
 *.stamp
