@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import mock
 import webtest
 
@@ -143,7 +144,7 @@ class ProjectSettingsTest(unittest.TestCase):
 
     def test_does_raise_valueerror_if_entries_are_not_hashable(self):
         settings = {
-            'paginate_by': [42],
+            'events.listeners': ['Rémy', 42],
         }
         self.settings(settings)  # Not raising.
 
