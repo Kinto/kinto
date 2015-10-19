@@ -135,7 +135,7 @@ class Redis(PermissionBase):
 
         permissions = defaultdict(set)
         for i, result in enumerate(results):
-            permission = keys[i].split(':')[-1]
+            permission = keys[i].split(':', 2)[-1]
             permissions[permission] = self._decode_set(result)
 
         return permissions
@@ -147,7 +147,7 @@ class Redis(PermissionBase):
         with self._client.pipeline() as pipe:
             for key in keys:
                 pipe.delete(key)
-                permission = key.split(':')[-1]
+                permission = key.split(':', 2)[-1]
                 principals = permissions[permission]
                 if len(principals) > 0:
                     pipe.sadd(key, *principals)
