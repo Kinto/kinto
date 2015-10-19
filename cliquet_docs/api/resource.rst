@@ -594,7 +594,7 @@ PATCH /{collection}/<id>
 
 Modify a specific record by its id. The PATCH body is a JSON mapping containing:
 
-- ``data``: a subset of the resource schema fields;
+- ``data``: a subset of the resource schema fields (*key-value replace*);
 - ``permissions``: *optional* a json dict containing the permissions for
   the record to be modified.
 
@@ -658,6 +658,11 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
 
     ``last_modified`` is updated to the current server timestamp, only if a
     field value was changed.
+
+.. note::
+
+    `JSON-Patch <http://jsonpatch.com>`_ is currently not
+    supported. Any help is welcomed though!
 
 
 Read-only fields
