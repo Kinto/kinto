@@ -32,7 +32,7 @@ tests-once: install-dev
 	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-min-percentage=100 --cover-package=cliquet
 
 tests:
-	tox
+	$(VENV)/bin/tox
 
 clean:
 	find . -name '*.pyc' -delete
