@@ -60,7 +60,7 @@ extra requirements:
 
 ::
 
-    pip install "cliquet[monitoring]"
+    make install-monitoring
 
 And configure its URL:
 
@@ -205,14 +205,14 @@ Here's an example:
     [uwsgi]
     wsgi-file = app.wsgi
     enable-threads = true
-    http-socket = 127.0.0.1:8000
+    http-socket = 127.0.0.1:8888
     processes =  3
     master = true
     module = kinto
     harakiri = 120
     uid = kinto
     gid = kinto
-    virtualenv = .
+    virtualenv = .venv
     lazy = true
     lazy-apps = true
     single-interpreter = true

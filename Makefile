@@ -19,6 +19,9 @@ $(INSTALL_STAMP): $(PYTHON) setup.py
 	$(VENV)/bin/pip install -Ue .
 	touch $(INSTALL_STAMP)
 
+install-monitoring: $(INSTALL_STAMP)
+	$(VENV)/bin/pip install "cliquet[monitoring]"
+
 install-postgres: $(INSTALL_STAMP) $(DEV_STAMP)
 	$(VENV)/bin/pip install "cliquet[postgresql]"
 
