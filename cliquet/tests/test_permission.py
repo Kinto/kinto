@@ -294,12 +294,12 @@ class BaseTestPermission(object):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
         self.permission.add_principal_to_ace('/url/a/id/1', 'read', 'user3')
-        self.permission.add_principal_to_ace('/url/a/id/1', 'create', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'obj:del', 'user1')
         object_permissions = self.permission.object_permissions('/url/a/id/1')
         self.assertDictEqual(object_permissions, {
             "write": {"user1", "user2"},
             "read": {"user3"},
-            "create": {"user1"}
+            "obj:del": {"user1"}
         })
 
     def test_object_permissions_return_listed_object_acls(self):
@@ -321,12 +321,14 @@ class BaseTestPermission(object):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
         self.permission.add_principal_to_ace('/url/a/id/1', 'read', 'user3')
-        self.permission.add_principal_to_ace('/url/a/id/1', 'create', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'update', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'obj:del', 'user1')
 
         self.permission.replace_object_permissions('/url/a/id/1', {
             "write": ["user1"],
-            "read": set(["user2"]),
-            "create": set(),
+            "read": ["user2"],
+            "update": [],
+            "obj:del": ["user1"],
             "new": ["user3"]
         })
 
@@ -334,6 +336,7 @@ class BaseTestPermission(object):
         self.assertDictEqual(object_permissions, {
             "write": {"user1"},
             "read": {"user2"},
+            "obj:del": {"user1"},
             "new": {"user3"}
         })
 
@@ -341,7 +344,7 @@ class BaseTestPermission(object):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
         self.permission.add_principal_to_ace('/url/a/id/1', 'read', 'user3')
-        self.permission.add_principal_to_ace('/url/a/id/1', 'create', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'obj:del', 'user1')
 
         self.permission.replace_object_permissions('/url/a/id/1', {
             "write": ["user1"],
@@ -353,7 +356,7 @@ class BaseTestPermission(object):
             "write": {"user1"},
             "read": {"user3"},
             "new": {"user2"},
-            "create": {"user1"}
+            "obj:del": {"user1"}
         })
 
     def test_replace_object_permission_supports_empty_input(self):
