@@ -193,10 +193,10 @@ hello view <batch>`.
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
 | kinto.http_host ``None``              | The HTTP Host used by Kinto to refer to itself. If set to `None`, the    |
-|                                       | HTTP host is read from HTTP headers.                                     |
+|                                       | HTTP host is read from HTTP headers or WSGI environment.                 |
 +---------------------------------------+--------------------------------------------------------------------------+
 | kinto.http_scheme ``None``            | The HTTP scheme used by Kinto to refer to itself. If set to `None`, the  |
-|                                       | HTTP scheme is read from the HTTP headers.                               |
+|                                       | HTTP scheme is read from the HTTP headers or WSGI environment.           |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 Logging
