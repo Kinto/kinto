@@ -95,7 +95,7 @@ BEGIN
 
   IF NOT EXISTS (
     SELECT 1 FROM pg_indexes
-       WHERE indexname = 'idx_records_last_modified_epoch'
+       WHERE indexname = 'idx_deleted_parent_id_collection_id_last_modified'
        AND tablename = 'deleted'
   ) THEN
 
