@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import mock
 import webtest
 
@@ -138,6 +139,12 @@ class ProjectSettingsTest(unittest.TestCase):
         settings = {
             'paginate_by': 42,
             'cliquet.paginate_by': 42,
+        }
+        self.settings(settings)  # Not raising.
+
+    def test_does_raise_valueerror_if_entries_are_not_hashable(self):
+        settings = {
+            'events.listeners': ['Rémy', 42],
         }
         self.settings(settings)  # Not raising.
 
