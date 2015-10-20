@@ -3,7 +3,7 @@ import functools
 import colander
 
 from cliquet import authorization
-from cliquet.schema import PermissionsSchema
+from cliquet.resource.schema import PermissionsSchema
 
 
 class ViewSet(object):

@@ -12,6 +12,9 @@ This document describes changes between each past release.
 - Renamed internal backend classes for better consistency. Settings remain
   unchanged (#).
 
+- ``cliquet.schema`` is now deprecated, and was moved to a ``cliquet.resource``
+  module.
+
 **Internal changes**
 
 - Rework PostgreSQL backends to use composition instead of inheritance for the
