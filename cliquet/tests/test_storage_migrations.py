@@ -17,7 +17,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.config = mock.Mock(get_settings=mock.Mock(
             return_value=self.settings))
 
-        self.version = postgresql.PostgreSQL.schema_version
+        self.version = postgresql.Storage.schema_version
 
         # Usual storage object to manipulate the storage.
         self.storage = postgresql.load_from_config(self.config)
@@ -31,10 +31,10 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
         # Patch to keep track of SQL files executed.
         self.sql_execute_patcher = mock.patch(
-            'cliquet.storage.postgresql.PostgreSQL._execute_sql_file')
+            'cliquet.storage.postgresql.Storage._execute_sql_file')
 
     def tearDown(self):
-        postgresql.PostgreSQL.schema_version = self.version
+        postgresql.Storage.schema_version = self.version
         mock.patch.stopall()
 
     def _delete_everything(self):
@@ -46,7 +46,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         DROP FUNCTION IF EXISTS collection_timestamp(VARCHAR, VARCHAR);
         DROP FUNCTION IF EXISTS bump_timestamp();
         """
-        with self.storage.connect() as cursor:
+        with self.storage.client.connect() as cursor:
             cursor.execute(q)
 
     def test_schema_sets_the_current_version(self):
@@ -59,17 +59,17 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.assertFalse(mocked.called)
 
     def test_schema_is_considered_first_version_if_no_version_detected(self):
-        with self.storage.connect() as cursor:
+        with self.storage.client.connect() as cursor:
             q = "DELETE FROM metadata WHERE name = 'storage_schema_version';"
             cursor.execute(q)
 
         mocked = self.sql_execute_patcher.start()
-        postgresql.PostgreSQL.schema_version = 2
+        postgresql.Storage.schema_version = 2
         self.storage.initialize_schema()
         mocked.assert_any_call('migrations/migration_001_002.sql')
 
     def test_migration_file_is_executed_for_every_intermediary_version(self):
-        postgresql.PostgreSQL.schema_version = 6
+        postgresql.Storage.schema_version = 6
 
         versions = [6, 5, 4, 3, 3]
         self.storage._get_installed_version = lambda: versions.pop()
@@ -97,7 +97,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self._delete_everything()
 
         # Install old schema
-        with self.storage.connect() as cursor:
+        with self.storage.client.connect() as cursor:
             here = os.path.abspath(os.path.dirname(__file__))
             filepath = 'schema/postgresql-storage-1.6.sql'
             old_schema = open(os.path.join(here, filepath)).read()
@@ -105,7 +105,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
         # Create a sample record using some code that is compatible with the
         # schema in place in cliquet 1.6.
-        with self.storage.connect() as cursor:
+        with self.storage.client.connect() as cursor:
             before = {'drink': 'cacao'}
             query = """
             INSERT INTO records (user_id, resource_name, data)
@@ -145,12 +145,12 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
 class PostgresqlExceptionRaisedTest(unittest.TestCase):
     def setUp(self):
-        self.psycopg2 = postgresql.psycopg2
+        self.psycopg2 = postgresql.client.psycopg2
 
     def tearDown(self):
-        postgresql.psycopg2 = self.psycopg2
+        postgresql.client.psycopg2 = self.psycopg2
 
     def test_postgresql_usage_raise_an_error_if_postgresql_not_installed(self):
-        postgresql.psycopg2 = None
+        postgresql.client.psycopg2 = None
         with self.assertRaises(ImportWarning):
-            postgresql.PostgreSQLClient()
+            postgresql.client.PostgreSQLClient()

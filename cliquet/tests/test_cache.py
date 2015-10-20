@@ -165,6 +165,6 @@ class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     def setUp(self):
         super(PostgreSQLCacheTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
-            self.cache.pool,
+            self.cache.client.pool,
             'getconn',
             side_effect=psycopg2.DatabaseError)

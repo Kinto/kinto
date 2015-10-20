@@ -3,7 +3,7 @@ import re
 from cliquet.permission import PermissionBase
 
 
-class Memory(PermissionBase):
+class Permission(PermissionBase):
     """Permission backend implementation in local thread memory.
 
     Enable in configuration::
@@ -14,7 +14,7 @@ class Memory(PermissionBase):
     """
 
     def __init__(self, *args, **kwargs):
-        super(Memory, self).__init__(*args, **kwargs)
+        super(Permission, self).__init__(*args, **kwargs)
         self.flush()
 
     def initialize_schema(self):
@@ -142,4 +142,4 @@ class Memory(PermissionBase):
 
 
 def load_from_config(config):
-    return Memory()
+    return Permission()

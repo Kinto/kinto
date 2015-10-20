@@ -427,6 +427,6 @@ class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
     def setUp(self):
         super(PostgreSQLPermissionTest, self).setUp()
         self.client_error_patcher = [mock.patch.object(
-            self.permission.pool,
+            self.permission.client.pool,
             'getconn',
             side_effect=psycopg2.DatabaseError)]
