@@ -1,95 +1,18 @@
-import contextlib
 import os
 import warnings
 from collections import defaultdict
 
 import six
-from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
 from cliquet.storage import (
     StorageBase, exceptions, Filter,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
-from cliquet.utils import COMPARISON, json, psycopg2
-
-if psycopg2:
-    import psycopg2.extras
-    import psycopg2.pool
-
-    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
-    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+from cliquet.storage.postgresql.client import create_from_config
+from cliquet.utils import COMPARISON, json
 
 
-class PostgreSQLClient(object):
-
-    pool = None
-
-    def __init__(self, *args, **kwargs):
-        if psycopg2 is None:
-            message = "You must install psycopg2 to use the postgresql backend"
-            raise ImportWarning(message)
-
-        pool_size = kwargs.pop('pool_size')
-        self._conn_kwargs = kwargs
-        pool_klass = psycopg2.pool.ThreadedConnectionPool
-        if PostgreSQLClient.pool is None:
-            PostgreSQLClient.pool = pool_klass(minconn=pool_size,
-                                               maxconn=pool_size,
-                                               **self._conn_kwargs)
-        elif pool_size != self.pool.minconn:
-            msg = ("Pool size %s ignored for PostgreSQL backend "
-                   "(Already set to %s).") % (pool_size, self.pool.minconn)
-            warnings.warn(msg)
-
-        # When fsync setting is off, like on TravisCI or in during development,
-        # cliquet some storage tests fail because commits are not applied
-        # accross every opened connections.
-        # XXX: find a proper solution to support fsync off.
-        # Meanhwile, disable connection pooling to prevent test suite failures.
-        self._always_close = False
-        with self.connect(readonly=True) as cursor:
-            cursor.execute("SELECT current_setting('fsync');")
-            fsync = cursor.fetchone()[0]
-            if fsync == 'off':  # pragma: no cover
-                warnings.warn('Option fsync = off detected. Disable pooling.')
-                self._always_close = True
-
-    @contextlib.contextmanager
-    def connect(self, readonly=False):
-        """Connect to the database and instantiates a cursor.
-        At exiting the context manager, a COMMIT is performed on the current
-        transaction if everything went well. Otherwise transaction is ROLLBACK,
-        and everything cleaned up.
-
-        If the database could not be be reached a 503 error is raised.
-        """
-        conn = None
-        cursor = None
-        try:
-            conn = self.pool.getconn()
-            conn.autocommit = readonly
-            options = dict(cursor_factory=psycopg2.extras.DictCursor)
-            cursor = conn.cursor(**options)
-            # Start context
-            yield cursor
-            # End context
-            if not readonly:
-                conn.commit()
-        except psycopg2.Error as e:
-            if cursor:
-                logger.debug(cursor.query)
-            logger.error(e)
-            if conn and not conn.closed:
-                conn.rollback()
-            raise exceptions.BackendError(original=e)
-        finally:
-            if cursor:
-                cursor.close()
-            if conn and not conn.closed:
-                self.pool.putconn(conn, close=self._always_close)
-
-
-class PostgreSQL(PostgreSQLClient, StorageBase):
+class Storage(StorageBase):
     """Storage backend using PostgreSQL.
 
     Recommended in production (*requires PostgreSQL 9.4 or higher*).
@@ -131,20 +54,15 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
     schema_version = 7
 
-    def __init__(self, *args, **kwargs):
-        self._max_fetch_size = kwargs.pop('max_fetch_size')
-        super(PostgreSQL, self).__init__(*args, **kwargs)
-
-        # Register ujson, globally for all futur cursors
-        with self.connect() as cursor:
-            psycopg2.extras.register_json(cursor,
-                                          globally=True,
-                                          loads=json.loads)
+    def __init__(self, client, max_fetch_size, *args, **kwargs):
+        super(Storage, self).__init__(*args, **kwargs)
+        self.client = client
+        self._max_fetch_size = max_fetch_size
 
     def _execute_sql_file(self, filepath):
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, filepath)).read()
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(schema)
 
     def initialize_schema(self):
@@ -186,7 +104,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
     def _check_database_timezone(self):
         # Make sure database has UTC timezone.
         query = "SELECT current_setting('TIMEZONE') AS timezone;"
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query)
             result = cursor.fetchone()
         timezone = result['timezone'].upper()
@@ -202,7 +120,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
           FROM pg_database
          WHERE datname =  current_database();
         """
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query)
             result = cursor.fetchone()
         encoding = result['encoding'].lower()
@@ -212,7 +130,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         """Return current version of schema or None if not any found.
         """
         query = "SELECT tablename FROM pg_tables WHERE tablename = 'metadata';"
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query)
             tables_exist = cursor.rowcount > 0
 
@@ -225,7 +143,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
          WHERE name = 'storage_schema_version'
          ORDER BY value DESC;
         """
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query)
             if cursor.rowcount > 0:
                 return int(cursor.fetchone()['version'])
@@ -251,7 +169,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         DELETE FROM records;
         DELETE FROM metadata;
         """
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query)
         logger.debug('Flushed PostgreSQL storage tables')
 
@@ -261,7 +179,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             AS last_modified;
         """
         placeholders = dict(parent_id=parent_id, collection_id=collection_id)
-        with self.connect(readonly=True) as cursor:
+        with self.client.connect(readonly=True) as cursor:
             cursor.execute(query, placeholders)
             result = cursor.fetchone()
         return result['last_modified']
@@ -284,7 +202,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                             parent_id=parent_id,
                             collection_id=collection_id,
                             data=json.dumps(record))
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             # Check that it does violate the resource unicity rules.
             self._check_unicity(cursor, collection_id, parent_id, record,
                                 unique_fields, id_field, modified_field,
@@ -309,7 +227,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         placeholders = dict(object_id=object_id,
                             parent_id=parent_id,
                             collection_id=collection_id)
-        with self.connect(readonly=True) as cursor:
+        with self.client.connect(readonly=True) as cursor:
             cursor.execute(query, placeholders)
             if cursor.rowcount == 0:
                 raise exceptions.RecordNotFoundError(object_id)
@@ -347,7 +265,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
         record = record.copy()
         record[id_field] = object_id
 
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             # Check that it does violate the resource unicity rules.
             self._check_unicity(cursor, collection_id, parent_id, record,
                                 unique_fields, id_field, modified_field)
@@ -400,7 +318,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                             parent_id=parent_id,
                             collection_id=collection_id)
 
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, placeholders)
             if cursor.rowcount == 0:
                 raise exceptions.RecordNotFoundError(object_id)
@@ -456,7 +374,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             safeholders['conditions_filter'] = 'AND %s' % safe_sql
             placeholders.update(**holders)
 
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query % safeholders, placeholders)
             results = cursor.fetchmany(self._max_fetch_size)
 
@@ -493,7 +411,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
                 'AND as_epoch(last_modified) < %(before)s')
             placeholders['before'] = before
 
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query % safeholders, placeholders)
 
         return cursor.rowcount
@@ -585,7 +503,7 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
             assert isinstance(limit, six.integer_types)  # asserted in resource
             safeholders['pagination_limit'] = 'LIMIT %s' % limit
 
-        with self.connect(readonly=True) as cursor:
+        with self.client.connect(readonly=True) as cursor:
             cursor.execute(query % safeholders, placeholders)
             results = cursor.fetchmany(self._max_fetch_size)
 
@@ -790,18 +708,6 @@ class PostgreSQL(PostgreSQLClient, StorageBase):
 
 def load_from_config(config):
     settings = config.get_settings()
-
-    max_fetch_size = settings['storage_max_fetch_size']
-    pool_size = int(settings['storage_pool_size'])
-    uri = settings['storage_url']
-    uri = urlparse.urlparse(uri)
-    conn_kwargs = dict(pool_size=pool_size,
-                       host=uri.hostname,
-                       port=uri.port,
-                       user=uri.username,
-                       password=uri.password,
-                       database=uri.path[1:] if uri.path else '')
-    # Filter specified values only, to preserve PostgreSQL defaults
-    conn_kwargs = dict([(k, v) for k, v in conn_kwargs.items() if v])
-    return PostgreSQL(max_fetch_size=int(max_fetch_size),
-                      **conn_kwargs)
+    max_fetch_size = int(settings['storage_max_fetch_size'])
+    client = create_from_config(config, prefix='storage_')
+    return Storage(client=client, max_fetch_size=max_fetch_size)

@@ -7,7 +7,15 @@ This document describes changes between each past release.
 2.9.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- Renamed internal backend classes for better consistency. Settings remain
+  unchanged (#).
+
+**Internal changes**
+
+- Rework PostgreSQL backends to use composition instead of inheritance for the
+  client code.
 
 
 2.8.1 (2015-10-14)

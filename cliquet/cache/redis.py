@@ -8,7 +8,7 @@ from cliquet.storage.redis import wrap_redis_error
 from cliquet.utils import json
 
 
-class Redis(CacheBase):
+class Cache(CacheBase):
     """Cache backend implementation using Redis.
 
     Enable in configuration::
@@ -27,7 +27,7 @@ class Redis(CacheBase):
     """
 
     def __init__(self, *args, **kwargs):
-        super(Redis, self).__init__(*args, **kwargs)
+        super(Cache, self).__init__(*args, **kwargs)
         maxconn = kwargs.pop('max_connections')
         connection_pool = redis.BlockingConnectionPool(max_connections=maxconn)
         self._client = redis.StrictRedis(connection_pool=connection_pool,
@@ -75,7 +75,7 @@ def load_from_config(config):
     uri = urlparse.urlparse(uri)
     pool_size = int(settings['cache_pool_size'])
 
-    return Redis(max_connections=pool_size,
+    return Cache(max_connections=pool_size,
                  host=uri.hostname or 'localhost',
                  port=uri.port or 6739,
                  password=uri.password or None,
