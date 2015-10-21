@@ -15,17 +15,18 @@ try:
 except ImportError:  # pragma: no cover
     import json  # NOQA
 
-# psycopg2cffi is installed under pypy, instead of psycopg2
 try:
-    import psycopg2  # NOQA
+    # Register psycopg2cffi as psycopg2
+    from psycopg2cffi import compat
 except ImportError:  # pragma: no cover
-    try:
-        from psycopg2cffi import compat
-    except ImportError:
-        psycopg2 = None
-    else:
-        compat.register()
-        import psycopg2  # NOQA
+    pass
+else:  # pragma: no cover
+    compat.register()
+
+try:
+    import sqlalchemy
+except ImportError:  # pragma: no cover
+    sqlalchemy = None
 
 from pyramid.request import Request
 from pyramid.settings import aslist

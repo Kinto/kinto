@@ -32,12 +32,14 @@ if installed_with_pypy:
     # We install psycopg2cffi instead of psycopg2 when dealing with pypy
     # Note: JSONB support landed after psycopg2cffi 2.7.0
     POSTGRESQL_REQUIRES = [
+        'SQLAlchemy',
         'psycopg2cffi>2.7.0',
     ]
 else:
     # ujson is not pypy compliant, as it uses the CPython C API
     REQUIREMENTS.append('ujson')
     POSTGRESQL_REQUIRES = [
+        'SQLAlchemy',
         'psycopg2>2.5',
     ]
 

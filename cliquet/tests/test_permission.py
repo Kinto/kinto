@@ -1,8 +1,9 @@
 import mock
 
 import redis
+from pyramid import testing
 
-from cliquet.utils import psycopg2
+from cliquet.utils import sqlalchemy
 from cliquet.storage import exceptions
 from cliquet.permission import (PermissionBase, redis as redis_backend,
                                 memory as memory_backend,
@@ -51,7 +52,9 @@ class BaseTestPermission(object):
         """
         if settings is None:
             settings = self.settings
-        return mock.Mock(get_settings=mock.Mock(return_value=settings))
+        config = testing.setUp()
+        config.add_settings(settings)
+        return config
 
     def tearDown(self):
         mock.patch.stopall()
@@ -427,6 +430,6 @@ class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
     def setUp(self):
         super(PostgreSQLPermissionTest, self).setUp()
         self.client_error_patcher = [mock.patch.object(
-            self.permission.client.pool,
-            'getconn',
-            side_effect=psycopg2.DatabaseError)]
+            self.permission.client._engine,
+            'connect',
+            side_effect=sqlalchemy.exc.SQLAlchemyError)]
