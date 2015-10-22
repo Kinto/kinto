@@ -7,6 +7,10 @@ This document describes changes between each past release.
 2.9.0 (unreleased)
 ------------------
 
+**Protocol**
+
+- Remove the broken git revision ``commit`` field in the hello page. (#495).
+
 **Breaking changes**
 
 - Renamed internal backend classes for better consistency. Settings remain
