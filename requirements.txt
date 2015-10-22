@@ -1,6 +1,5 @@
 colander==1.0
 cornice==1.1.0
-dealer==2.0.4
 iso8601==0.1.10
 newrelic==2.56.0.42
 PasteDeploy==1.5.2

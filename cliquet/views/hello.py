@@ -1,11 +1,7 @@
-import os.path
-
-from dealer.git import Backend
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from cliquet import Service
 
-git = Backend(os.path.dirname(os.path.dirname(__file__)))
 hello = Service(name="hello", path='/', description="Welcome")
 
 
@@ -24,12 +20,6 @@ def get_hello(request):
     eos = get_eos(request)
     if eos:
         data['eos'] = eos
-
-    try:
-        data['commit'] = git.revision
-    except:
-        # In case we are not running from a git repository.
-        pass
 
     data['settings'] = {}
     public_settings = request.registry.public_settings

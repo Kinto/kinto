@@ -20,7 +20,6 @@ installed_with_pypy = platform.python_implementation() == 'PyPy'
 REQUIREMENTS = [
     'colander',
     'cornice >= 1.1',  # Fix cache CORS
-    'dealer',  # For git.revision
     'python-dateutil',
     'pyramid_multiauth >= 0.5',  # Pluggable authz
     'redis',  # Default backend
