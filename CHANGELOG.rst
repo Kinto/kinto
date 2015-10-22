@@ -16,6 +16,8 @@ This document describes changes between each past release.
 
 - Rework PostgreSQL backends to use composition instead of inheritance for the
   client code.
+- Replace DROP INDEX by a conditional creation in PostgreSQL schemas (#487,
+  thanks @rodo)
 
 
 2.8.2 (2015-10-22)
