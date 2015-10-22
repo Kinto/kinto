@@ -6,7 +6,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
 from cliquet import resource
-from cliquet.utils import hmac_digest, build_request, reapply_cors
+from cliquet.utils import hmac_digest, build_request
 from cliquet.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
@@ -137,7 +137,7 @@ def default_bucket(request):
         return request.invoke_subrequest(subrequest)
 
     if getattr(request, 'prefixed_userid', None) is None:
-        raise HTTPForbidden  # Pass through the forbidden_view_config
+        raise HTTPForbidden()  # Pass through the forbidden_view_config
 
     settings = request.registry.settings
     hmac_secret = settings['userid_hmac_secret']
@@ -164,5 +164,5 @@ def default_bucket(request):
     try:
         response = request.invoke_subrequest(subrequest)
     except HTTPException as error:
-        response = reapply_cors(subrequest, error)
+        raise error
     return response
