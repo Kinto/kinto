@@ -2,10 +2,13 @@ import mock
 from six import text_type
 from uuid import UUID
 
-from cliquet.errors import ERRORS
+from pyramid.httpexceptions import HTTPBadRequest
+
+from cliquet.errors import ERRORS, http_error
 from cliquet.tests.support import FormattedErrorMixin
 from cliquet.utils import hmac_digest
 
+from kinto.views.buckets import default_bucket
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_RECORD)
 
@@ -161,3 +164,23 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
         self.assertFormattedError(
             response, 405, ERRORS.METHOD_NOT_ALLOWED, "Method Not Allowed",
             "Method not allowed on this endpoint.")
+
+    def test_formatted_error_are_passed_through(self):
+        request = mock.MagicMock()
+        request.method = 'PUT'
+        request.url = 'http://localhost/v1/buckets/default/collections/tasks'
+        request.path = 'http://localhost/v1/buckets/default/collections/tasks'
+        request.prefixed_userid = 'fxa:abcd'
+        request.registry.settings = {
+            'userid_hmac_secret': 'This is no secret'
+        }
+
+        response = http_error(HTTPBadRequest(),
+                              errno=ERRORS.INVALID_PARAMETERS,
+                              message='Yop')
+
+        with mock.patch('kinto.views.buckets.create_bucket'):
+            with mock.patch('kinto.views.buckets.create_collection'):
+                request.invoke_subrequest.side_effect = response
+                resp = default_bucket(request)
+                self.assertEqual(resp.body, response.body)
