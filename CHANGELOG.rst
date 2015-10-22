@@ -4,10 +4,12 @@ Changelog
 This document describes changes between each past release.
 
 
-1.7 (unreleased)
-================
+1.6.2 (2015-10-22)
+==================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Handle 412 details with default bucket (#226)
 
 
 1.6.1 (2015-10-22)
