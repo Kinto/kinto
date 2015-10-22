@@ -9,15 +9,16 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 
 from cliquet import logger
 from cliquet import Service
-from cliquet.collection import Collection, ProtectedCollection
-from cliquet.viewset import ViewSet, ProtectedViewSet
 from cliquet.errors import http_error, raise_invalid, send_alert, ERRORS
-from cliquet.schema import ResourceSchema
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
     current_service, encode_header, decode_header
 )
+
+from .model import Model, ProtectedModel
+from .schema import ResourceSchema
+from .viewset import ViewSet, ProtectedViewSet
 
 
 def register(depth=1, **kwargs):
@@ -117,8 +118,8 @@ class BaseResource(object):
     """Default :class:`cliquet.viewset.ViewSet` class to use when the resource
     is registered."""
 
-    default_collection = Collection
-    """Default :class:`cliquet.collection.Collection` class to use for
+    default_model = Model
+    """Default :class:`cliquet.collection.Model` class to use for
     interacting the :module:`cliquet.storage` and :module:`cliquet.permission`
     backends."""
 
@@ -126,13 +127,13 @@ class BaseResource(object):
     """Schema to validate records."""
 
     def __init__(self, request, context=None):
-        # Collections are isolated by user.
+        # Models are isolated by user.
         parent_id = self.get_parent_id(request)
 
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get('Authorization')
 
-        self.collection = self.default_collection(
+        self.collection = self.default_model(
             storage=request.registry.storage,
             id_generator=request.registry.id_generator,
             collection_id=classname(self),
@@ -179,7 +180,7 @@ class BaseResource(object):
     #
 
     def collection_get(self):
-        """Collection ``GET`` endpoint: retrieve multiple records.
+        """Model ``GET`` endpoint: retrieve multiple records.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
             ``If-None-Match`` header is provided and collection not
@@ -226,7 +227,7 @@ class BaseResource(object):
         return self.postprocess(records)
 
     def collection_post(self):
-        """Collection ``POST`` endpoint: create a record.
+        """Model ``POST`` endpoint: create a record.
 
         If the new record conflicts against a unique field constraint, the
         posted record is ignored, and the existing record is returned, with
@@ -267,7 +268,7 @@ class BaseResource(object):
         return self.postprocess(record)
 
     def collection_delete(self):
-        """Collection ``DELETE`` endpoint: delete multiple records.
+        """Model ``DELETE`` endpoint: delete multiple records.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
@@ -907,7 +908,7 @@ class ProtectedResource(BaseResource):
     """Protected resources allow to set permissions on records, in order to
     share their access or protect their modification.
     """
-    default_collection = ProtectedCollection
+    default_model = ProtectedModel
     default_viewset = ProtectedViewSet
     permissions = ('read', 'write')
     """List of allowed permissions names."""
@@ -919,7 +920,7 @@ class ProtectedResource(BaseResource):
         # the ``write`` ACE.
         self.force_patch_update = True
 
-        # Required by the ProtectedCollection class.
+        # Required by the ProtectedModel class.
         self.collection.permission = self.request.registry.permission
         self.collection.current_principal = self.request.prefixed_userid
         if self.context:

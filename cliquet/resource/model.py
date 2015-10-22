@@ -1,4 +1,4 @@
-class Collection(object):
+class Model(object):
     """A collection stores and manipulate records in its attached storage.
 
     It is not aware of HTTP environment nor protocol.
@@ -27,7 +27,7 @@ class Collection(object):
         :param id_generator: an instance of id generator, used by storage
             on record creation.
 
-        :param str name: the collection name
+        :param str collection_id: the collection id
         :param str parent_id: the default parent id
         """
         self.storage = storage
@@ -149,7 +149,7 @@ class Collection(object):
         .. code-block:: python
 
             def create_record(self, record):
-                record = super(MyCollection, self).create_record(record)
+                record = super(MyModel, self).create_record(record)
                 idx = index.store(record)
                 record['index'] = idx
                 return record
@@ -180,9 +180,9 @@ class Collection(object):
         .. code-block:: python
 
             def update_record(self, record, parent_id=None,unique_fields=None):
-                record = super(MyCollection, self).update_record(record,
-                                                                 parent_id,
-                                                                 unique_fields)
+                record = super(MyModel, self).update_record(record,
+                                                            parent_id,
+                                                            unique_fields)
                 subject = 'Record {} was changed'.format(record[self.id_field])
                 send_email(subject)
                 return record
@@ -213,7 +213,7 @@ class Collection(object):
         .. code-block:: python
 
             def delete_record(self, record):
-                deleted = super(MyCollection, self).delete_record(record)
+                deleted = super(MyModel, self).delete_record(record)
                 erase_media(record)
                 deleted['media'] = 0
                 return deleted
@@ -235,13 +235,13 @@ class Collection(object):
                                    auth=self.auth)
 
 
-class ProtectedCollection(Collection):
+class ProtectedModel(Model):
     """A protected collection interacts with the permission backend.
     """
     permissions_field = '__permissions__'
 
     def __init__(self, *args, **kwargs):
-        super(ProtectedCollection, self).__init__(*args, **kwargs)
+        super(ProtectedModel, self).__init__(*args, **kwargs)
         # Permission backend.
         self.permission = None
         # Object permission id.
@@ -259,8 +259,8 @@ class ProtectedCollection(Collection):
     def delete_records(self, filters=None, parent_id=None):
         """Delete permissions when collection records are deleted in bulk.
         """
-        deleted = super(ProtectedCollection, self).delete_records(filters,
-                                                                  parent_id)
+        deleted = super(ProtectedModel, self).delete_records(filters,
+                                                             parent_id)
         perm_ids = [self.get_permission_object_id(record_id=r[self.id_field])
                     for r in deleted]
         self.permission.delete_object_permissions(*perm_ids)
@@ -269,7 +269,7 @@ class ProtectedCollection(Collection):
     def get_record(self, record_id, parent_id=None):
         """Fetch current permissions and add them to returned record.
         """
-        record = super(ProtectedCollection, self).get_record(
+        record = super(ProtectedModel, self).get_record(
             record_id, parent_id)
         perm_object_id = self.get_permission_object_id(record_id)
         permissions = self.permission.object_permissions(perm_object_id)
@@ -282,7 +282,7 @@ class ProtectedCollection(Collection):
         The current principal is added to the owner (``write`` permission).
         """
         permissions = record.pop(self.permissions_field, {})
-        record = super(ProtectedCollection, self).create_record(
+        record = super(ProtectedModel, self).create_record(
             record, parent_id, unique_fields)
 
         record_id = record[self.id_field]
@@ -303,7 +303,7 @@ class ProtectedCollection(Collection):
         The current principal is added to the owner (``write`` permission).
         """
         permissions = record.pop(self.permissions_field, {})
-        record = super(ProtectedCollection, self).update_record(
+        record = super(ProtectedModel, self).update_record(
             record, parent_id, unique_fields)
 
         record_id = record[self.id_field]
@@ -318,7 +318,7 @@ class ProtectedCollection(Collection):
     def delete_record(self, record_id, parent_id=None):
         """Delete record and its associated permissions.
         """
-        record = super(ProtectedCollection, self).delete_record(
+        record = super(ProtectedModel, self).delete_record(
             record_id, parent_id)
 
         perm_object_id = self.get_permission_object_id(record_id)

@@ -16,12 +16,11 @@ Full example
     import colander
 
     from cliquet import resource
-    from cliquet import schema
     from cliquet import utils
 
 
     class BookmarkSchema(resource.ResourceSchema):
-        url = schema.URL()
+        url = colander.SchemaNode(colander.String(), validator=colander.url)
         title = colander.SchemaNode(colander.String())
         favorite = colander.SchemaNode(colander.Boolean(), missing=False)
         device = colander.SchemaNode(colander.String(), missing='')
@@ -87,30 +86,23 @@ a custom collection can be plugged-in:
     from cliquet import resource
 
 
-    class TrackedCollection(resource.Collection):
+    class TrackedModel(resource.Model):
         def create_record(self, record, parent_id=None, unique_fields=None):
-            record = super(TrackedCollection, self).create_record(record,
-                                                                  parent_id,
-                                                                  unique_fields)
+            record = super(TrackedModel, self).create_record(record,
+                                                             parent_id,
+                                                             unique_fields)
             trackid = index.track(record)
             record['trackid'] = trackid
             return record
 
 
     class Payment(resource.BaseResource):
-        def __init__(request):
-            super(Payment, self).__init__(request)
-            self.collection = TrackedCollection(
-                storage=self.collection.storage,
-                id_generator=self.collection.id_generator,
-                collection_id=self.collection.collection_id,
-                parent_id=self.collection.parent_id,
-                auth=self.collection.auth)
+        default_model = TrackedModel
 
 
 .. _collection:
 
-.. autoclass:: cliquet.resource.Collection
+.. autoclass:: cliquet.resource.Model
     :members:
 
 
@@ -164,8 +156,8 @@ configured in the application:
     def view(request):
         registry = request.registry
 
-        flowers = resource.Collection(storage=registry.storage,
-                                      name='app:flowers')
+        flowers = resource.Model(storage=registry.storage,
+                                 collection_id='app:flowers')
 
         flowers.create_record({'name': 'Jonquille', 'size': 30})
         flowers.create_record({'name': 'Amapola', 'size': 18})
@@ -181,8 +173,7 @@ Outside views
 
 Outside views, an application context has to be built from scratch.
 
-As an example, let's build a code that will copy a remote *Kinto*
-collection into a local storage:
+As an example, let's build a code that will copy a collection into another:
 
 .. code-block:: python
 
@@ -190,24 +181,20 @@ collection into a local storage:
     from pyramid import Configurator
 
 
-    config_local = Configurator(settings=DEFAULT_SETTINGS)
-    config_local.add_settings({
+    config = Configurator(settings=DEFAULT_SETTINGS)
+    config.add_settings({
         'cliquet.storage_backend': 'cliquet.storage.postgresql'
         'cliquet.storage_url': 'postgres://user:pass@db.server.lan:5432/dbname'
     })
-    local = resource.Collection(storage=config_local.registry.storage,
-                                parent_id='browsing',
-                                name='history')
+    cliquet.initialize(config, '0.0.1')
 
-    config_remote = Configurator(settings=DEFAULT_SETTINGS)
-    config_remote.add_settings({
-        'cliquet.storage_backend': 'kinto.storage',
-        'cliquet.storage_url': 'https://cloud-storage.services.mozilla.com'
-    })
-    remote = resource.Collection(storage=config_remote.registry.storage,
-                                 parent_id='browsing',
-                                 name='history',
-                                 auth='Basic bWF0Og==')
+    local = resource.Model(storage=config.registry.storage,
+                           parent_id='browsing',
+                           collection_id='history')
+
+    remote = resource.Model(storage=config_remote.registry.storage,
+                            parent_id='',
+                            collection_id='history')
 
     records, total = in remote.get_records():
     for record in records:

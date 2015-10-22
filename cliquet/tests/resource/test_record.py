@@ -3,8 +3,7 @@ import mock
 import colander
 from pyramid import httpexceptions
 
-from cliquet.resource import BaseResource
-from cliquet.schema import ResourceSchema
+from cliquet.resource import BaseResource, ResourceSchema
 from cliquet.errors import ERRORS
 from cliquet.tests.resource import BaseTest
 

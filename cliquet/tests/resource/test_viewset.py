@@ -81,7 +81,7 @@ class ViewSetTest(unittest.TestCase):
         schema = arguments['schema']
         self.assertEquals(schema.children[0], resource.mapping)
 
-    @mock.patch('cliquet.viewset.colander')
+    @mock.patch('cliquet.resource.viewset.colander')
     def test_a_default_schema_is_added_when_method_doesnt_match(self, mocked):
         viewset = ViewSet(
             validate_schema_for=('GET', )
