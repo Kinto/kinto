@@ -95,7 +95,8 @@ def includeme(config):
     settings = config.get_settings()
 
     # Heartbeat registry.
-    config.registry.heartbeats = {}
+    if not hasattr(config.registry, 'heartbeats'):
+        config.registry.heartbeats = {}
 
     # Public settings registry.
     config.registry.public_settings = {'batch_max_requests'}
