@@ -7,7 +7,7 @@ PYTHON = $(VENV)/bin/python
 DEV_STAMP = $(VENV)/.dev_env_installed.stamp
 INSTALL_STAMP = $(VENV)/.install.stamp
 
-.IGNORE: clean
+.IGNORE: clean distclean maintainer-clean
 .PHONY: all install virtualenv tests
 
 OBJECTS = .venv .coverage
@@ -49,6 +49,12 @@ tests:
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
+
+distclean: clean
+	rm -fr *.egg *.egg-info/
+
+maintainer-clean: distclean
+	rm -fr .venv/ .tox/ dist/ build/
 
 loadtest-check-tutorial: install-postgres
 	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\

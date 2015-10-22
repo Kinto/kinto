@@ -4,10 +4,21 @@ Changelog
 This document describes changes between each past release.
 
 
-1.7.0 (unreleased)
+1.6.1 (2015-10-22)
 ==================
 
-- Nothing changed yet.
+- Upgraded to *Cliquet* 2.8.2
+
+**Bug fixes**
+
+- Return a JSON body for 405 response on the default bucket (#214)
+
+**Internal changes**
+
+- Improve documentation for new comers (#217)
+- Do not force host in default configuration (#219)
+- Use tox installed in virtualenv (#221)
+- Skip python versions unavailable in tox (#222)
 
 
 1.6.0 (2015-10-14)
