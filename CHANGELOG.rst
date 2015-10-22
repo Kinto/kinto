@@ -4,7 +4,7 @@ Changelog
 This document describes changes between each past release.
 
 
-2.9.0 (unreleased)
+2.8.2 (2015-10-22)
 ------------------
 
 **Bug fixes**
