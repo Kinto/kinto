@@ -6,7 +6,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
 from cliquet import resource
-from cliquet.utils import hmac_digest, build_request, reapply_cors
+from cliquet.utils import hmac_digest, build_request
 from cliquet.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
