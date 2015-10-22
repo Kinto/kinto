@@ -22,10 +22,10 @@ class RouteFactoryTest(unittest.TestCase):
             resource = mock.MagicMock()
             resource.record_id = 1
             if record_not_found:
-                resource.collection.get_record.side_effect = \
+                resource.model.get_record.side_effect = \
                     storage_exceptions.RecordNotFoundError
             else:
-                resource.collection.get_record.return_value = 1
+                resource.model.get_record.return_value = 1
             current_service().resource.return_value = resource
 
             # Do the actual call.
@@ -52,7 +52,7 @@ class RouteFactoryTest(unittest.TestCase):
             # Patch current service.
             resource = mock.MagicMock()
             resource.record_id = 1
-            resource.collection.get_record.side_effect = \
+            resource.model.get_record.side_effect = \
                 storage_exceptions.RecordNotFoundError
             current_service().resource.return_value = resource
             current_service().collection_path = '/buckets/{bucket_id}'
@@ -72,7 +72,7 @@ class RouteFactoryTest(unittest.TestCase):
             # Patch current service.
             resource = mock.MagicMock()
             resource.record_id = 1
-            resource.collection.get_record.return_value = mock.sentinel.record
+            resource.model.get_record.return_value = mock.sentinel.record
             current_service().resource.return_value = resource
             # Do the actual call.
             request = DummyRequest(method='put')

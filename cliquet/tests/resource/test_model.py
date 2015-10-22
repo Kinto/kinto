@@ -6,7 +6,7 @@ from cliquet.tests.resource import BaseTest
 class ModelTest(BaseTest):
     def setUp(self):
         super(ModelTest, self).setUp()
-        self.record = self.collection.create_record({'field': 'value'})
+        self.record = self.model.create_record({'field': 'value'})
 
     def test_list_gives_number_of_results_in_headers(self):
         self.resource.collection_get()
@@ -29,12 +29,12 @@ class CreateTest(BaseTest):
     def test_new_records_are_linked_to_owner(self):
         resp = self.resource.collection_post()['data']
         record_id = resp['id']
-        self.collection.get_record(record_id)  # not raising
+        self.model.get_record(record_id)  # not raising
 
     def test_create_record_returns_at_least_id_and_last_modified(self):
         record = self.resource.collection_post()['data']
-        self.assertIn(self.resource.collection.id_field, record)
-        self.assertIn(self.resource.collection.modified_field, record)
+        self.assertIn(self.resource.model.id_field, record)
+        self.assertIn(self.resource.model.modified_field, record)
         self.assertIn('field', record)
 
 
@@ -42,8 +42,8 @@ class DeleteModelTest(BaseTest):
     def setUp(self):
         super(DeleteModelTest, self).setUp()
         self.patch_known_field.start()
-        self.collection.create_record({'field': 'a'})
-        self.collection.create_record({'field': 'b'})
+        self.model.create_record({'field': 'a'})
+        self.model.create_record({'field': 'b'})
 
     def test_delete_on_list_removes_all_records(self):
         self.resource.collection_delete()
@@ -68,7 +68,7 @@ class DeleteModelTest(BaseTest):
 class IsolatedModelsTest(BaseTest):
     def setUp(self):
         super(IsolatedModelsTest, self).setUp()
-        self.stored = self.collection.create_record({}, parent_id='bob')
+        self.stored = self.model.create_record({}, parent_id='bob')
         self.resource.record_id = self.stored['id']
 
     def get_request(self):
@@ -89,8 +89,8 @@ class IsolatedModelsTest(BaseTest):
     def test_update_record_of_another_user_will_create_it(self):
         self.resource.request.validated = {'data': {'some': 'record'}}
         self.resource.put()
-        self.collection.get_record(record_id=self.stored['id'],
-                                   parent_id='basicauth:alice')  # not raising
+        self.model.get_record(record_id=self.stored['id'],
+                              parent_id='basicauth:alice')  # not raising
 
     def test_cannot_modify_record_of_other_user(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.patch)

@@ -8,7 +8,7 @@ from cliquet.tests.resource import BaseTest
 class NotModifiedTest(BaseTest):
     def setUp(self):
         super(NotModifiedTest, self).setUp()
-        self.stored = self.collection.create_record({})
+        self.stored = self.model.create_record({})
 
         self.resource = BaseResource(request=self.get_request(),
                                      context=self.get_context())
@@ -67,7 +67,7 @@ class NotModifiedTest(BaseTest):
 class ModifiedMeanwhileTest(BaseTest):
     def setUp(self):
         super(ModifiedMeanwhileTest, self).setUp()
-        self.stored = self.collection.create_record({})
+        self.stored = self.model.create_record({})
 
         self.resource.collection_get()
         current = self.last_response.headers['ETag'][1:-1]
@@ -135,7 +135,7 @@ class ModifiedMeanwhileTest(BaseTest):
 
     def test_put_returns_412_if_changed_meanwhile(self):
         self.resource.record_id = self.stored['id']
-        self.collection.delete_record(self.stored)
+        self.model.delete_record(self.stored)
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
@@ -167,7 +167,7 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
         self.resource.request.validated = {'data': {'field': 'new'}}
-        self.resource.record_id = self.resource.collection.id_generator()
+        self.resource.record_id = self.resource.model.id_generator()
         self.resource.put()  # not raising.
 
     def test_patch_returns_412_if_changed_meanwhile(self):

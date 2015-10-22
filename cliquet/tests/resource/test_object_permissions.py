@@ -36,7 +36,7 @@ class CollectionPermissionTest(PermissionTest):
 class ObtainRecordPermissionTest(PermissionTest):
     def setUp(self):
         super(ObtainRecordPermissionTest, self).setUp()
-        record = self.resource.collection.create_record({})
+        record = self.resource.model.create_record({})
         record_id = record['id']
         record_uri = '/articles/%s' % record_id
         self.permission.add_principal_to_ace(record_uri, 'read', 'fxa:user')
@@ -71,13 +71,13 @@ class ObtainRecordPermissionTest(PermissionTest):
 class SpecifyRecordPermissionTest(PermissionTest):
     def setUp(self):
         super(SpecifyRecordPermissionTest, self).setUp()
-        self.record = self.resource.collection.create_record({})
+        self.record = self.resource.model.create_record({})
         record_id = self.record['id']
         self.record_uri = '/articles/%s' % record_id
         self.permission.add_principal_to_ace(self.record_uri,
                                              'read',
                                              'fxa:user')
-        self.resource.collection.current_principal = 'basicauth:userid'
+        self.resource.model.current_principal = 'basicauth:userid'
         self.resource.record_id = record_id
         self.resource.request.validated = {'data': {}}
         self.resource.request.path = self.record_uri
@@ -163,7 +163,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
 class DeletedRecordPermissionTest(PermissionTest):
     def setUp(self):
         super(DeletedRecordPermissionTest, self).setUp()
-        record = self.resource.collection.create_record({})
+        record = self.resource.model.create_record({})
         self.resource.record_id = record_id = record['id']
         self.record_uri = '/articles/%s' % record_id
         self.resource.request.route_path.return_value = self.record_uri
@@ -189,9 +189,9 @@ class DeletedRecordPermissionTest(PermissionTest):
 class GuestCollectionListTest(PermissionTest):
     def setUp(self):
         super(GuestCollectionListTest, self).setUp()
-        record1 = self.resource.collection.create_record({'letter': 'a'})
-        record2 = self.resource.collection.create_record({'letter': 'b'})
-        record3 = self.resource.collection.create_record({'letter': 'c'})
+        record1 = self.resource.model.create_record({'letter': 'a'})
+        record2 = self.resource.model.create_record({'letter': 'b'})
+        record3 = self.resource.model.create_record({'letter': 'c'})
 
         uri1 = '/articles/%s' % record1['id']
         uri2 = '/articles/%s' % record2['id']
@@ -231,10 +231,10 @@ class GuestCollectionListTest(PermissionTest):
 class GuestCollectionDeleteTest(PermissionTest):
     def setUp(self):
         super(GuestCollectionDeleteTest, self).setUp()
-        record1 = self.resource.collection.create_record({'letter': 'a'})
-        record2 = self.resource.collection.create_record({'letter': 'b'})
-        record3 = self.resource.collection.create_record({'letter': 'c'})
-        record4 = self.resource.collection.create_record({'letter': 'd'})
+        record1 = self.resource.model.create_record({'letter': 'a'})
+        record2 = self.resource.model.create_record({'letter': 'b'})
+        record3 = self.resource.model.create_record({'letter': 'c'})
+        record4 = self.resource.model.create_record({'letter': 'd'})
 
         uri1 = '/articles/%s' % record1['id']
         uri2 = '/articles/%s' % record2['id']
@@ -264,12 +264,12 @@ class GuestCollectionDeleteTest(PermissionTest):
         with mock.patch.object(self.resource, 'is_known_field'):
             result = self.resource.collection_delete()
         self.assertEqual(len(result['data']), 1)
-        records, _ = self.resource.collection.get_records()
+        records, _ = self.resource.model.get_records()
         self.assertEqual(len(records), 3)
 
     def test_guest_cannot_delete_records_if_not_allowed(self):
         self.resource.context.shared_ids = ['tata lili']
         result = self.resource.collection_delete()
         self.assertEqual(len(result['data']), 0)
-        records, _ = self.resource.collection.get_records()
+        records, _ = self.resource.model.get_records()
         self.assertEqual(len(records), 4)

@@ -114,7 +114,7 @@ class RouteFactory(object):
                 # eventual NotFound.
                 resource = service.resource(request=request, context=self)
                 try:
-                    record = resource.collection.get_record(resource.record_id)
+                    record = resource.model.get_record(resource.record_id)
                     self.current_record = record
                 except storage_exceptions.RecordNotFoundError:
                     self.permission_object_id = service.collection_path.format(
