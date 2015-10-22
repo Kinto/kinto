@@ -4,4 +4,4 @@ class ListenerBase(object):
         pass
 
     def __call__(self, event):
-        pass
+        raise NotImplementedError()

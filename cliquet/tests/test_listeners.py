@@ -9,6 +9,7 @@ from contextlib import contextmanager
 
 from cliquet import initialization
 from cliquet.events import ResourceChanged, ACTIONS
+from cliquet.listeners import ListenerBase
 from .support import unittest
 
 
@@ -129,3 +130,11 @@ class ListenerCalledTest(unittest.TestCase):
                 self.config.registry.notify(event)
 
             self.assertFalse(self.has_redis_changed())
+
+
+class ListenerBaseTest(unittest.TestCase):
+
+    def test_not_implemented(self):
+        # make sure we can't use the base listener
+        listener = ListenerBase()
+        self.assertRaises(NotImplementedError, listener, object())

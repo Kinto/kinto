@@ -13,16 +13,17 @@ class ResourceChanged(object):
     def __init__(self, action, resource, request):
         self.request = request
         service = current_service(request)
-        resource_id = service.viewset.get_name(resource.__class__) + '_id'
+        resource_name = service.viewset.get_name(resource.__class__)
 
         self.payload = {'timestamp': resource.timestamp,
                         'action': action,
                         'uri': strip_uri_prefix(request.path),
-                        'user_id': request.prefixed_userid}
+                        'user_id': request.prefixed_userid,
+                        'resource_name': resource_name}
 
         matchdict = dict(request.matchdict)
 
         if 'id' in request.matchdict:
-            matchdict[resource_id] = matchdict.pop('id')
+            matchdict[resource_name + '_id'] = matchdict.pop('id')
 
         self.payload.update(**matchdict)

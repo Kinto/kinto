@@ -25,7 +25,7 @@ Memory
 API
 ===
 
-Implementing a custom cache backend consists in implementating the following
+Implementing a custom cache backend consists on implementing the following
 interface:
 
 .. autoclass:: cliquet.cache.CacheBase

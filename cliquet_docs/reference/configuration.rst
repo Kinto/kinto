@@ -219,6 +219,28 @@ Storage
 
 See :ref:`storage backend documentation <storage>` for more details.
 
+.. _configuring-events:
+
+Notifications
+=============
+
+To activate an event listener, you can use the *event_handlers* option,
+which takes a list of listeners.
+
+Each listener can get its own options, under the *event_handlers.<name>*
+namespace.
+
+In the example below, the Redis listener is activated and will send
+data in the **cliquet** Redis list.
+
+
+.. code-block:: ini
+
+    cliquet.event_handlers = redis
+    cliquet.event_handlers.redis.url = redis://localhost:6379/0
+    cliquet.event_handlers.redis.listname = cliquet
+    cliquet.event_handlers.redis.pool_size = 5
+
 
 Cache
 =====

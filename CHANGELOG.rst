@@ -7,6 +7,10 @@ This document describes changes between each past release.
 2.9.0 (unreleased)
 ------------------
 
+**New features**
+
+- Added notifications (#488)
+
 **Protocol**
 
 - Remove the broken git revision ``commit`` field in the hello page. (#495).

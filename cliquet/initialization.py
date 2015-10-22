@@ -372,6 +372,7 @@ def setup_listeners(config):
     from cliquet.events import ResourceChanged
 
     for listener in listeners:
+        logger.info('Setting up %r listener')
         listener_mod = config.maybe_dotted(listener)
         listener = listener_mod.load_from_config(config)
         config.add_subscriber(listener, ResourceChanged)
