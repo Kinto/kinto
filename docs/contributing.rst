@@ -89,7 +89,7 @@ Get started!
 
     git clone git@github.com:your_name_here/kinto.git
 
-3. Install and run *Kinto* locally::
+3. Install and run *Kinto* locally (:ref:`more details <run-kinto-from-source>`)::
 
     make serve
 

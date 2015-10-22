@@ -1,16 +1,19 @@
-
 .. _run-production:
 
 Running in production
-=====================
+#####################
 
 *Kinto* is a standard python application.
 
-Recommended settings for production are listed below. Some :ref:`insights about deployment strategies
+Recommended settings for production are listed below. Some :ref:`general insights about deployment strategies
 <deployment>` are also provided.
 
 Because we use it for most of our deploys, *PostgreSQL* is the recommended
 backend for production.
+
+
+Production checklist
+====================
 
 Recommended settings
 --------------------
@@ -187,15 +190,79 @@ with the `cliquet` command-line tool:
     ``cliquet/storage/postgresql/schema.sql``).
 
 
-Running with uWsgi
+Run the Kinto application
+=========================
+
+Using Apache mod wsgi
+---------------------
+
+This is probably the easiest way to setup a production server.
+
+With the following configuration for the site, Apache should be able to
+run the Kinto application:
+
+::
+
+    WSGIScriptAlias /         /path/to/kinto/app.wsgi
+    WSGIPythonPath            /path/to/kinto
+    SetEnv          KINTO_INI /path/to/kinto.ini
+
+    <Directory /path/to/kinto>
+      <Files app.wsgi>
+        Require all granted
+      </Files>
+    </Directory>
+
+
+Using nginx
+-----------
+
+nginx can act as a *reverse proxy* in front of :rtd:`uWSGI <uwsgi-docs>`_
+(or any other wsgi server like `Gunicorn <http://gunicorn.org>`_ or :rtd:`Circus <circus>`).
+
+Download the ``uwsgi_params`` file:
+
+::
+
+    wget https://raw.githubusercontent.com/nginx/nginx/master/conf/uwsgi_params
+
+
+Configure nginx to listen to a uwsgi running:
+
+::
+
+    upstream kinto {
+        server unix:///var/run/uwsgi/kinto.sock;
+    }
+
+    server {
+        listen      8000;
+        server_name .my-kinto.org; # substitute your machine's IP address or FQDN
+        charset     utf-8;
+
+        # max upload size
+        client_max_body_size 75M;   # adjust to taste
+
+        location / {
+            uwsgi_pass  kinto;
+            include     /path/to/uwsgi_params; # the uwsgi_params file previously downloaded
+        }
+    }
+
+
+Running with uWSGI
 ------------------
 
-To run the application using uWsgi, an **app.wsgi** file is provided.
+::
+
+    pip install uwsgi
+
+To run the application using uWSGI, an **app.wsgi** file is provided.
 This command can be used to run it::
 
     uwsgi --ini config/kinto.ini
 
-uWsgi configuration can be tweaked in the ini file in the dedicated
+uWSGI configuration can be tweaked in the ini file in the dedicated
 ``[uwsgi]`` section.
 
 Here's an example:
@@ -205,7 +272,8 @@ Here's an example:
     [uwsgi]
     wsgi-file = app.wsgi
     enable-threads = true
-    http-socket = 127.0.0.1:8888
+    socket = /var/run/uwsgi/kinto.sock
+    chmod-socket = 666
     processes =  3
     master = true
     module = kinto
@@ -232,9 +300,10 @@ by taking advantage of *Kinto* optional cache control response headers
 (forced :ref:`in settings <configuration-client-caching>`
 or set :ref:`on collections <collection-caching>`).
 
-A sample *Nginx* configuration could look like so:
+The sample *Nginx* configuration file shown above will look like so:
 
-::
+.. code-block:: javascript
+    :emphasize-lines: 1,2,8
 
     proxy_cache_path /tmp/nginx levels=1:2 keys_zone=my_zone:100m inactive=200m;
     proxy_cache_key "$scheme$request_method$host$request_uri$";
@@ -245,7 +314,7 @@ A sample *Nginx* configuration could look like so:
         location / {
             proxy_cache my_zone;
 
-            include proxy_params;
-            proxy_pass http://127.0.0.1:8888;
+            uwsgi_pass  kinto;
+            include     /path/to/uwsgi_params; # the uwsgi_params file previously downloaded
         }
     }

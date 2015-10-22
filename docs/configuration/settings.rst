@@ -1,3 +1,5 @@
+.. _settings:
+
 Settings
 ########
 
@@ -37,7 +39,7 @@ Feature settings
 |                                                           | pagination. If set to ``None``, no pagination will be used.              |
 |                                                           | It is recommended to set-up pagination. If not defined, a collection     |
 |                                                           | connot contain more elements than defined by the                         |
-|                                                           | ``kinto.storage_max_fetch_size`` setting.                              |
+|                                                           | ``kinto.storage_max_fetch_size`` setting.                                |
 +-----------------------------------------------------------+--------------------------------------------------------------------------+
 | kinto.id_generator                                        | The Python *dotted* location of the generator class that should be used  |
 | ``cliquet.storage.generators.UUID4``                      | to generate identifiers on a POST on a collection endpoint.              |
@@ -351,7 +353,7 @@ in configuration:
 Authentication setup
 ::::::::::::::::::::
 
-*Kinto* relies on :github:`pyramid multiauth <mozilla-service/pyramid_multiauth>`_
+*Kinto* relies on :github:`pyramid multiauth <mozilla-service/pyramid_multiauth>`
 to initialise authentication.
 
 Therefore, any authentication policy can be specified through configuration.
@@ -477,8 +479,7 @@ To do so, a setting key must be defined for the disabled resources endpoints::
 
 Where:
 - **endpoint_type** is either collection or record;
-- **resource_name** is the name of the resource (by default, *Cliquet* uses
-  the name of the class);
+- **resource_name** is the name of the resource (by default, *Cliquet* uses the name of the class);
 - **method** is the http method (in lower case): For instance ``put``.
 
 For example, to disable the PUT on records for the *Mushrooms* resource, the
@@ -561,9 +562,9 @@ Project information
 |                                       | <api-utilities>`. By default, this is the major version of Kinto.        |
 +---------------------------------------+--------------------------------------------------------------------------+
 | kinto.version_prefix_redirect_enab    | By default, all endpoints exposed by Kinto are prefixed by a             |
-| led  ``True``                         | :ref:`version number <versioning>`. If this flag is enabled, the server  |
-|                                       | will redirect all requests not matching the supported version to the     |
-|                                       | supported one.                                                           |
+| led  ``True``                         | :ref:`version number <api-versioning>`. If this flag is enabled, the     |
+|                                       | server will redirect all requests not matching the supported version     |
+|                                       | to the supported one.                                                    |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 Example:
