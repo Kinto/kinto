@@ -6,7 +6,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
 from cliquet import resource
-from cliquet.utils import hmac_digest, build_request
+from cliquet.utils import hmac_digest, build_request, reapply_cors
 from cliquet.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
@@ -164,5 +164,9 @@ def default_bucket(request):
     try:
         response = request.invoke_subrequest(subrequest)
     except HTTPException as error:
-        raise error
+        if error.content_type == 'application/json':
+            response = reapply_cors(subrequest, error)
+        else:
+            # Ask the upper level to format the error.
+            raise error
     return response
