@@ -9,9 +9,12 @@ This document describes changes between each past release.
 
 - Upgraded to *Cliquet* 2.8.2
 
-**Internal changes**
+**Bug fixes**
 
 - Return a JSON body for 405 response on the default bucket (#214)
+
+**Internal changes**
+
 - Improve documentation for new comers (#217)
 - Do not force host in default configuration (#219)
 - Use tox installed in virtualenv (#221)
