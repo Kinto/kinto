@@ -1,4 +1,8 @@
 --
+-- Automated script, we do not need NOTICE and WARNING
+--
+SET client_min_messages TO ERROR;
+--
 -- Convert timestamps to milliseconds epoch integer
 --
 CREATE OR REPLACE FUNCTION as_epoch(ts TIMESTAMP) RETURNS BIGINT AS $$
@@ -26,13 +30,53 @@ CREATE TABLE IF NOT EXISTS records (
 
     PRIMARY KEY (id, parent_id, collection_id)
 );
+--
+-- CREATE INDEX IF NOT EXISTS will be available in PostgreSQL 9.5
+-- http://www.postgresql.org/docs/9.5/static/sql-createindex.html
+DO $$
+BEGIN
 
-DROP INDEX IF EXISTS idx_records_parent_id_collection_id_last_modified;
-CREATE UNIQUE INDEX idx_records_parent_id_collection_id_last_modified
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_indexes
+       WHERE indexname = 'idx_records_parent_id_collection_id_last_modified'
+       AND tablename = 'records'
+  ) THEN
+
+  CREATE UNIQUE INDEX idx_records_parent_id_collection_id_last_modified
     ON records(parent_id, collection_id, last_modified DESC);
-DROP INDEX IF EXISTS idx_records_last_modified_epoch;
-CREATE INDEX idx_records_last_modified_epoch ON records(as_epoch(last_modified));
 
+  END IF;
+END$$;
+
+DO $$
+BEGIN
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_indexes
+       WHERE indexname = 'idx_records_parent_id_collection_id_last_modified'
+       AND tablename = 'records'
+  ) THEN
+
+  CREATE UNIQUE INDEX idx_records_parent_id_collection_id_last_modified
+    ON records(parent_id, collection_id, last_modified DESC);
+
+  END IF;
+END$$;
+
+DO $$
+BEGIN
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_indexes
+       WHERE indexname = 'idx_records_last_modified_epoch'
+       AND tablename = 'records'
+  ) THEN
+
+  CREATE INDEX idx_records_last_modified_epoch
+    ON records(as_epoch(last_modified));
+
+  END IF;
+END$$;
 
 --
 -- Deleted records, without data.
@@ -45,12 +89,36 @@ CREATE TABLE IF NOT EXISTS deleted (
 
     PRIMARY KEY (id, parent_id, collection_id)
 );
-DROP INDEX IF EXISTS idx_deleted_parent_id_collection_id_last_modified;
-CREATE UNIQUE INDEX idx_deleted_parent_id_collection_id_last_modified
-    ON deleted(parent_id, collection_id, last_modified DESC);
-DROP INDEX IF EXISTS idx_deleted_last_modified_epoch;
-CREATE INDEX idx_deleted_last_modified_epoch ON deleted(as_epoch(last_modified));
 
+DO $$
+BEGIN
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_indexes
+       WHERE indexname = 'idx_deleted_parent_id_collection_id_last_modified'
+       AND tablename = 'deleted'
+  ) THEN
+
+  CREATE UNIQUE INDEX idx_deleted_parent_id_collection_id_last_modified
+    ON deleted(parent_id, collection_id, last_modified DESC);
+
+  END IF;
+END$$;
+
+DO $$
+BEGIN
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_indexes
+       WHERE indexname = 'idx_deleted_last_modified_epoch'
+       AND tablename = 'deleted'
+  ) THEN
+
+  CREATE INDEX idx_deleted_last_modified_epoch
+    ON deleted(as_epoch(last_modified));
+
+  END IF;
+END$$;
 
 --
 -- Helper that returns the current collection timestamp.
