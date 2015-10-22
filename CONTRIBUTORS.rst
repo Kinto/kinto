@@ -11,5 +11,5 @@ Contributors
 * Michiel de Jong <michiel@unhosted.org>
 * Nicolas Perriault <nperriault@mozilla.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
-* Rodolphe Quiédeville <rodolphe@quiedeville.org>  
+* Rodolphe Quiédeville <rodolphe@quiedeville.org>
 * Tarek Ziade <tarek@mozilla.com>
