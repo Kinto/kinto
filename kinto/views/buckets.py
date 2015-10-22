@@ -137,7 +137,7 @@ def default_bucket(request):
         return request.invoke_subrequest(subrequest)
 
     if getattr(request, 'prefixed_userid', None) is None:
-        raise HTTPForbidden  # Pass through the forbidden_view_config
+        raise HTTPForbidden()  # Pass through the forbidden_view_config
 
     settings = request.registry.settings
     hmac_secret = settings['userid_hmac_secret']
@@ -164,5 +164,5 @@ def default_bucket(request):
     try:
         response = request.invoke_subrequest(subrequest)
     except HTTPException as error:
-        response = reapply_cors(subrequest, error)
+        raise error
     return response
