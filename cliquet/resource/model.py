@@ -269,12 +269,13 @@ class ProtectedModel(Model):
     def get_record(self, record_id, parent_id=None):
         """Fetch current permissions and add them to returned record.
         """
-        record = super(ProtectedModel, self).get_record(
-            record_id, parent_id)
+        record = super(ProtectedModel, self).get_record(record_id, parent_id)
         perm_object_id = self.get_permission_object_id(record_id)
         permissions = self.permission.object_permissions(perm_object_id)
-        record[self.permissions_field] = permissions
-        return record
+
+        annotated = record.copy()
+        annotated[self.permissions_field] = permissions
+        return annotated
 
     def create_record(self, record, parent_id=None, unique_fields=None):
         """Create record and set specified permissions.
@@ -282,17 +283,18 @@ class ProtectedModel(Model):
         The current principal is added to the owner (``write`` permission).
         """
         permissions = record.pop(self.permissions_field, {})
-        record = super(ProtectedModel, self).create_record(
-            record, parent_id, unique_fields)
-
+        record = super(ProtectedModel, self).create_record(record,
+                                                           parent_id,
+                                                           unique_fields)
         record_id = record[self.id_field]
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)
         self._allow_write(perm_object_id)
         permissions = self.permission.object_permissions(perm_object_id)
-        record[self.permissions_field] = permissions
 
-        return record
+        annotated = record.copy()
+        annotated[self.permissions_field] = permissions
+        return annotated
 
     def update_record(self, record, parent_id=None, unique_fields=None):
         """Update record and the specified permissions.
@@ -303,24 +305,24 @@ class ProtectedModel(Model):
         The current principal is added to the owner (``write`` permission).
         """
         permissions = record.pop(self.permissions_field, {})
-        record = super(ProtectedModel, self).update_record(
-            record, parent_id, unique_fields)
-
+        record = super(ProtectedModel, self).update_record(record,
+                                                           parent_id,
+                                                           unique_fields)
         record_id = record[self.id_field]
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)
         self._allow_write(perm_object_id)
         permissions = self.permission.object_permissions(perm_object_id)
-        record[self.permissions_field] = permissions
 
-        return record
+        annotated = record.copy()
+        annotated[self.permissions_field] = permissions
+        return annotated
 
     def delete_record(self, record_id, parent_id=None):
         """Delete record and its associated permissions.
         """
-        record = super(ProtectedModel, self).delete_record(
-            record_id, parent_id)
-
+        record = super(ProtectedModel, self).delete_record(record_id,
+                                                           parent_id)
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.delete_object_permissions(perm_object_id)
 

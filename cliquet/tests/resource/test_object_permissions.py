@@ -1,5 +1,7 @@
 import mock
 
+from pyramid import httpexceptions
+
 from cliquet.resource import ProtectedResource
 from cliquet.tests.resource import BaseTest
 from cliquet.permission.memory import Permission
@@ -69,8 +71,8 @@ class ObtainRecordPermissionTest(PermissionTest):
 class SpecifyRecordPermissionTest(PermissionTest):
     def setUp(self):
         super(SpecifyRecordPermissionTest, self).setUp()
-        record = self.resource.collection.create_record({})
-        record_id = record['id']
+        self.record = self.resource.collection.create_record({})
+        record_id = self.record['id']
         self.record_uri = '/articles/%s' % record_id
         self.permission.add_principal_to_ace(self.record_uri,
                                              'read',
@@ -146,6 +148,16 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.assertNotIn('read', result['permissions'])
         self.assertEqual(sorted(result['permissions']['write']),
                          ['basicauth:userid', 'jean-louis'])
+
+    def test_412_errors_do_not_put_permission_in_record(self):
+        self.resource.request.headers['If-Match'] = '"1234567"'  # invalid
+        try:
+            self.resource.put()
+        except httpexceptions.HTTPPreconditionFailed as e:
+            error = e
+        self.assertEqual(error.json['details']['existing'],
+                         {'id': self.record['id'],
+                          'last_modified': self.record['last_modified']})
 
 
 class DeletedRecordPermissionTest(PermissionTest):
