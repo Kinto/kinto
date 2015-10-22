@@ -2,13 +2,16 @@ import mock
 from six import text_type
 from uuid import UUID
 
+from cliquet.errors import ERRORS
+from cliquet.tests.support import FormattedErrorMixin
 from cliquet.utils import hmac_digest
 
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_RECORD)
 
 
-class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
+class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
+                            unittest.TestCase):
 
     bucket_url = '/buckets/default'
     collection_url = '/buckets/default/collections/tasks'
@@ -151,3 +154,10 @@ class DefaultBucketViewTest(BaseWebTest, unittest.TestCase):
                                wraps=self.storage.get) as patched:
             self.app.post_json('/batch', batch, headers=self.headers)
             self.assertEqual(patched.call_count, 0)
+
+    def test_405_is_a_valid_formatted_error(self):
+        response = self.app.post(self.collection_url,
+                                 headers=self.headers, status=405)
+        self.assertFormattedError(
+            response, 405, ERRORS.METHOD_NOT_ALLOWED, "Method Not Allowed",
+            "Method not allowed on this endpoint.")
