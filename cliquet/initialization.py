@@ -405,7 +405,8 @@ def load_default_settings(config, default_settings):
 
         # Fail if not only one is defined.
         defined = set(settings.keys()).intersection(set(keys))
-        distinct_values = set([settings[d] for d in defined])
+        distinct_values = set([str(settings[d]) for d in defined])
+
         if len(defined) > 1 and len(distinct_values) > 1:
             names = "', '".join(defined)
             raise ValueError("Settings '%s' are in conflict." % names)

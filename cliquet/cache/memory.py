@@ -2,7 +2,7 @@ from cliquet import utils
 from cliquet.cache import CacheBase
 
 
-class Memory(CacheBase):
+class Cache(CacheBase):
     """Cache backend implementation in local thread memory.
 
     Enable in configuration::
@@ -13,7 +13,7 @@ class Memory(CacheBase):
     """
 
     def __init__(self, *args, **kwargs):
-        super(Memory, self).__init__(*args, **kwargs)
+        super(Cache, self).__init__(*args, **kwargs)
         self.flush()
 
     def initialize_schema(self):
@@ -51,4 +51,4 @@ class Memory(CacheBase):
 
 
 def load_from_config(config):
-    return Memory()
+    return Cache()

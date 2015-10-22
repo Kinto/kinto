@@ -3,14 +3,13 @@ from __future__ import absolute_import
 import os
 
 from collections import defaultdict
-from six.moves.urllib import parse as urlparse
 
 from cliquet import logger
 from cliquet.permission import PermissionBase
-from cliquet.storage.postgresql import PostgreSQLClient
+from cliquet.storage.postgresql.client import create_from_config
 
 
-class PostgreSQL(PostgreSQLClient, PermissionBase):
+class Permission(PermissionBase):
     """Permission backend using PostgreSQL.
 
     Enable in configuration::
@@ -48,15 +47,15 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
 
     :noindex:
     """
-
-    def __init__(self, **kwargs):
-        super(PostgreSQL, self).__init__(**kwargs)
+    def __init__(self, client, *args, **kwargs):
+        super(Permission, self).__init__(*args, **kwargs)
+        self.client = client
 
     def initialize_schema(self):
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, 'schema.sql')).read()
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(schema)
         logger.info('Created PostgreSQL permission tables')
 
@@ -65,7 +64,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         DELETE FROM user_principals;
         DELETE FROM access_control_entries;
         """
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query)
         logger.debug('Flushed PostgreSQL permission tables')
 
@@ -79,7 +78,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
             WHERE user_id = %(user_id)s
               AND principal = %(principal)s
         );"""
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, dict(user_id=user_id, principal=principal))
 
     def remove_user_principal(self, user_id, principal):
@@ -87,7 +86,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         DELETE FROM user_principals
          WHERE user_id = %(user_id)s
            AND principal = %(principal)s;"""
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, dict(user_id=user_id, principal=principal))
 
     def user_principals(self, user_id):
@@ -95,7 +94,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         SELECT principal
           FROM user_principals
          WHERE user_id = %(user_id)s;"""
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, dict(user_id=user_id))
             results = cursor.fetchall()
         return set([r['principal'] for r in results])
@@ -111,7 +110,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
                AND permission = %(permission)s
                AND principal = %(principal)s
         );"""
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, dict(object_id=object_id,
                                        permission=permission,
                                        principal=principal))
@@ -122,7 +121,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
          WHERE object_id = %(object_id)s
            AND permission = %(permission)s
            AND principal = %(principal)s;"""
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, dict(object_id=object_id,
                                        permission=permission,
                                        principal=principal))
@@ -133,7 +132,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
           FROM access_control_entries
          WHERE object_id = %(object_id)s
            AND permission = %(permission)s;"""
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, dict(object_id=object_id,
                                        permission=permission))
             results = cursor.fetchall()
@@ -159,7 +158,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
           FROM required_perms JOIN access_control_entries
             ON (object_id = column1 AND permission = column2);
         """ % perms_values
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query)
             results = cursor.fetchall()
         return set([r['principal'] for r in results])
@@ -202,7 +201,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         """ % dict(perms=perms_values,
                    principals=principals_values)
 
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, placeholders)
             results = cursor.fetchall()
         return set([r['object_id'] for r in results])
@@ -236,7 +235,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
             ON (required_principals.column1 = principal);
         """ % dict(perms=perms_values, principals=principals_values)
 
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query)
             result = cursor.fetchone()
         return result['matched'] > 0
@@ -252,7 +251,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
             query += """
         AND permission IN %(permissions)s;"""
             placeholders["permissions"] = tuple(permissions)
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, placeholders)
             results = cursor.fetchall()
         permissions = defaultdict(set)
@@ -296,7 +295,7 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
             FROM new_aces;
         """ % dict(new_perms=','.join(new_perms))
 
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(delete_query, placeholders)
             cursor.execute(insert_query, placeholders)
 
@@ -304,23 +303,10 @@ class PostgreSQL(PostgreSQLClient, PermissionBase):
         query = """
         DELETE FROM access_control_entries
          WHERE object_id IN %(object_id_list)s;"""
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, dict(object_id_list=tuple(object_id_list)))
 
 
 def load_from_config(config):
-    settings = config.get_settings()
-    uri = settings['permission_url']
-    uri = urlparse.urlparse(uri)
-    pool_size = int(settings['permission_pool_size'])
-
-    conn_kwargs = dict(pool_size=pool_size,
-                       host=uri.hostname,
-                       port=uri.port,
-                       user=uri.username,
-                       password=uri.password,
-                       database=uri.path[1:] if uri.path else '')
-    # Filter specified values only, to preserve PostgreSQL defaults
-    conn_kwargs = dict([(k, v) for k, v in conn_kwargs.items() if v])
-
-    return PostgreSQL(**conn_kwargs)
+    client = create_from_config(config, prefix='permission_')
+    return Permission(client=client)

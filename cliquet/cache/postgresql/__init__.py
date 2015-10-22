@@ -2,15 +2,13 @@ from __future__ import absolute_import
 
 import os
 
-from six.moves.urllib import parse as urlparse
-
 from cliquet import logger
 from cliquet.cache import CacheBase
-from cliquet.storage.postgresql import PostgreSQLClient
+from cliquet.storage.postgresql.client import create_from_config
 from cliquet.utils import json
 
 
-class PostgreSQL(PostgreSQLClient, CacheBase):
+class Cache(CacheBase):
     """Cache backend using PostgreSQL.
 
     Enable in configuration::
@@ -48,15 +46,15 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
 
     :noindex:
     """
-
-    def __init__(self, **kwargs):
-        super(PostgreSQL, self).__init__(**kwargs)
+    def __init__(self, client, *args, **kwargs):
+        super(Cache, self).__init__(*args, **kwargs)
+        self.client = client
 
     def initialize_schema(self):
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, 'schema.sql')).read()
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(schema)
         logger.info('Created PostgreSQL cache tables')
 
@@ -64,7 +62,7 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         query = """
         DELETE FROM cache;
         """
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query)
         logger.debug('Flushed PostgreSQL cache tables')
 
@@ -75,7 +73,7 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
          WHERE key = %s
            AND ttl IS NOT NULL;
         """
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, (key,))
             if cursor.rowcount > 0:
                 return cursor.fetchone()['ttl']
@@ -85,7 +83,7 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         query = """
         UPDATE cache SET ttl = sec2ttl(%s) WHERE key = %s;
         """
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, (ttl, key,))
 
     def set(self, key, value, ttl=None):
@@ -99,13 +97,13 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
         WHERE NOT EXISTS (SELECT * FROM upsert)
         """
         value = json.dumps(value)
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, dict(key=key, value=value, ttl=ttl))
 
     def get(self, key):
         purge = "DELETE FROM cache WHERE ttl IS NOT NULL AND now() > ttl;"
         query = "SELECT value FROM cache WHERE key = %s;"
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(purge)
             cursor.execute(query, (key,))
             if cursor.rowcount > 0:
@@ -114,23 +112,10 @@ class PostgreSQL(PostgreSQLClient, CacheBase):
 
     def delete(self, key):
         query = "DELETE FROM cache WHERE key = %s"
-        with self.connect() as cursor:
+        with self.client.connect() as cursor:
             cursor.execute(query, (key,))
 
 
 def load_from_config(config):
-    settings = config.get_settings()
-    uri = settings['cache_url']
-    uri = urlparse.urlparse(uri)
-    pool_size = int(settings['cache_pool_size'])
-
-    conn_kwargs = dict(pool_size=pool_size,
-                       host=uri.hostname,
-                       port=uri.port,
-                       user=uri.username,
-                       password=uri.password,
-                       database=uri.path[1:] if uri.path else '')
-    # Filter specified values only, to preserve PostgreSQL defaults
-    conn_kwargs = dict([(k, v) for k, v in conn_kwargs.items() if v])
-
-    return PostgreSQL(**conn_kwargs)
+    client = create_from_config(config, prefix='cache_')
+    return Cache(client=client)

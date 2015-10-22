@@ -20,7 +20,6 @@ installed_with_pypy = platform.python_implementation() == 'PyPy'
 REQUIREMENTS = [
     'colander',
     'cornice >= 1.1',  # Fix cache CORS
-    'dealer',  # For git.revision
     'python-dateutil',
     'pyramid_multiauth >= 0.5',  # Pluggable authz
     'redis',  # Default backend
@@ -60,7 +59,7 @@ ENTRY_POINTS = {
 
 
 setup(name='cliquet',
-      version='2.9.0.dev0',
+      version='2.8.2',
       description='Micro service API toolkit',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',

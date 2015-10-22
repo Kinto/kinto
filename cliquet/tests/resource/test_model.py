@@ -3,9 +3,9 @@ from pyramid import httpexceptions
 from cliquet.tests.resource import BaseTest
 
 
-class CollectionTest(BaseTest):
+class ModelTest(BaseTest):
     def setUp(self):
-        super(CollectionTest, self).setUp()
+        super(ModelTest, self).setUp()
         self.record = self.collection.create_record({'field': 'value'})
 
     def test_list_gives_number_of_results_in_headers(self):
@@ -38,9 +38,9 @@ class CreateTest(BaseTest):
         self.assertIn('field', record)
 
 
-class DeleteCollectionTest(BaseTest):
+class DeleteModelTest(BaseTest):
     def setUp(self):
-        super(DeleteCollectionTest, self).setUp()
+        super(DeleteModelTest, self).setUp()
         self.patch_known_field.start()
         self.collection.create_record({'field': 'a'})
         self.collection.create_record({'field': 'b'})
@@ -65,19 +65,19 @@ class DeleteCollectionTest(BaseTest):
         self.assertEqual(len(records), 1)
 
 
-class IsolatedCollectionsTest(BaseTest):
+class IsolatedModelsTest(BaseTest):
     def setUp(self):
-        super(IsolatedCollectionsTest, self).setUp()
+        super(IsolatedModelsTest, self).setUp()
         self.stored = self.collection.create_record({}, parent_id='bob')
         self.resource.record_id = self.stored['id']
 
     def get_request(self):
-        request = super(IsolatedCollectionsTest, self).get_request()
+        request = super(IsolatedModelsTest, self).get_request()
         request.prefixed_userid = 'basicauth:alice'
         return request
 
     def get_context(self):
-        context = super(IsolatedCollectionsTest, self).get_context()
+        context = super(IsolatedModelsTest, self).get_context()
         context.prefixed_userid = 'basicauth:alice'
         return context
 

@@ -2,14 +2,14 @@ import mock
 
 from cliquet.resource import ProtectedResource
 from cliquet.tests.resource import BaseTest
-from cliquet.permission.memory import Memory
+from cliquet.permission.memory import Permission
 
 
 class PermissionTest(BaseTest):
     resource_class = ProtectedResource
 
     def setUp(self):
-        self.permission = Memory()
+        self.permission = Permission()
         super(PermissionTest, self).setUp()
 
     def get_request(self):

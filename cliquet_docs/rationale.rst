@@ -118,18 +118,9 @@ Some applications in the wild built with *Cliquet*:
 * :rtd:`Reading List <readinglist>`, a service to synchronize articles between
   devices;
 * :rtd:`Kinto <kinto>`, a service to store and synchronize schema-less data.
+* :rtd:`Syncto <syncto>`, a service to access *Firefox Sync* using *kinto.js*.
 * *Please contact us to add yours*.
 
-.. note::
-
-    Applications built with *Cliquet* can store their data in several kinds of
-    storage backends.
-
-    A *Kinto* instance can be used as a storage backend for a *Cliquet*
-    application! :ref:`See cloud storage <cloud-storage>`.
-
-    .. figure:: images/cliquet-kinto.png
-        :align: center
 
 Context
 -------

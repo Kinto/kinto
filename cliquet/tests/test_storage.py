@@ -945,7 +945,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     def setUp(self):
         super(PostgresqlStorageTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
-            self.storage.pool,
+            self.storage.client.pool,
             'getconn',
             side_effect=psycopg2.DatabaseError)
 
@@ -965,12 +965,12 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         self.assertEqual(len(results), 2)
 
     def test_connection_is_rolledback_if_error_occurs(self):
-        with self.storage.connect() as cursor:
+        with self.storage.client.connect() as cursor:
             query = "DELETE FROM metadata WHERE name = 'roll';"
             cursor.execute(query)
 
         try:
-            with self.storage.connect() as cursor:
+            with self.storage.client.connect() as cursor:
                 query = "INSERT INTO metadata VALUES ('roll', 'back');"
                 cursor.execute(query)
                 cursor.connection.commit()
@@ -982,7 +982,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         except exceptions.BackendError:
             pass
 
-        with self.storage.connect() as cursor:
+        with self.storage.client.connect() as cursor:
             query = "SELECT COUNT(*) FROM metadata WHERE name = 'roll';"
             cursor.execute(query)
             self.assertEqual(cursor.fetchone()[0], 1)
@@ -991,16 +991,17 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         config = self._get_config()
         storage1 = self.backend.load_from_config(config)
         storage2 = self.backend.load_from_config(config)
-        self.assertEqual(id(storage1.pool), id(storage2.pool))
+        self.assertEqual(id(storage1.client.pool), id(storage2.client.pool))
 
     def test_pool_object_is_shared_among_every_backends(self):
         config = self._get_config()
         storage1 = self.backend.load_from_config(config)
-        subclass = type('backend', (postgresql.PostgreSQLClient,), {})
-        storage2 = subclass(user='postgres', password='postgres',
+        subclass = type('backend', (postgresql.client.PostgreSQLClient,), {})
+        storage2 = subclass(dsn='',
+                            user='postgres', password='postgres',
                             host='localhost', database='testdb',
                             pool_size=10)
-        self.assertEqual(id(storage1.pool), id(storage2.pool))
+        self.assertEqual(id(storage1.client.pool), id(storage2.pool))
 
     def test_warns_if_configured_pool_size_differs_for_same_backend_type(self):
         self.backend.load_from_config(self._get_config())

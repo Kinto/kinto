@@ -2,11 +2,11 @@ import colander
 import mock
 
 from cliquet.tests.support import unittest
-from cliquet import schema
+from cliquet.resource import schema
 
 
 class TimeStampTest(unittest.TestCase):
-    @mock.patch('cliquet.schema.msec_time')
+    @mock.patch('cliquet.resource.schema.msec_time')
     def test_default_value_comes_from_timestamper(self, time_mocked):
         time_mocked.return_value = 666
         default = schema.TimeStamp().deserialize(colander.null)
@@ -27,6 +27,14 @@ class URLTest(unittest.TestCase):
 
 
 class ResourceSchemaTest(unittest.TestCase):
+
+    def test_old_resource_schema_is_deprecated(self):
+        from cliquet.schema import ResourceSchema
+        with mock.patch('cliquet.schema.warnings.warn') as mocked:
+            ResourceSchema()
+            error_msg = ('cliquet.schema is now deprecated. Please use '
+                         '`cliquet.resource.schema` instead')
+            mocked.assert_called_with(error_msg, DeprecationWarning)
 
     def test_preserves_unknown_fields_when_specified(self):
         class PreserveSchema(schema.ResourceSchema):
