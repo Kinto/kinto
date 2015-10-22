@@ -7,7 +7,15 @@ This document describes changes between each past release.
 2.9.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix crash on settings with list values (#481)
+- Fix crash in Redis permission backend (ref Kinto/kinto#215)
+
+**Internal changes**
+
+- Use tox installed in virtualenv (#486)
+- Skip python versions unavailable in tox (#486)
 
 
 2.8.1 (2015-10-14)
