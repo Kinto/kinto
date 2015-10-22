@@ -11,3 +11,4 @@ pytest-cache
 pytest-capturelog
 pytest-cover
 pytest-sugar
+https://github.com/mozilla-services/cliquet/archive/master.zip
