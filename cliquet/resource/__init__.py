@@ -348,12 +348,12 @@ class BaseResource(object):
             if existing:
                 self._raise_412_if_modified(existing)
 
-        new_record = self.request.validated['data']
+        post_record = self.request.validated['data']
 
-        record_id = new_record.setdefault(id_field, self.record_id)
+        record_id = post_record.setdefault(id_field, self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
 
-        new_record = self.process_record(new_record, old=existing)
+        new_record = self.process_record(post_record, old=existing)
 
         try:
             unique = self.mapping.get_option('unique_fields')
@@ -417,7 +417,7 @@ class BaseResource(object):
             try:
                 unique_fields = self.mapping.get_option('unique_fields')
                 new_record = self.collection.update_record(
-                    updated,
+                    new_record,
                     unique_fields=unique_fields)
             except storage_exceptions.UnicityError as e:
                 self._raise_conflict(e)
@@ -956,11 +956,22 @@ class ProtectedResource(BaseResource):
 
         return filters
 
+    def _raise_412_if_modified(self, record=None):
+        """Do not provide the permissions among the record fields.
+        Ref: https://github.com/Kinto/kinto/issues/224
+        """
+        if record:
+            record = record.copy()
+            record.pop(self.collection.permissions_field, None)
+        return super(ProtectedResource, self)._raise_412_if_modified(record)
+
     def process_record(self, new, old=None):
         """Read permissions from request body, and in the case of ``PUT`` every
         existing ACE is removed (using empty list).
         """
         permissions = self.request.validated.get('permissions', {})
+
+        annotated = new.copy()
 
         if permissions:
             is_put = (self.request.method.lower() == 'put')
@@ -968,9 +979,9 @@ class ProtectedResource(BaseResource):
                 # Remove every existing ACEs using empty lists.
                 for perm in self.permissions:
                     permissions.setdefault(perm, [])
-            new[self.collection.permissions_field] = permissions
+            annotated[self.collection.permissions_field] = permissions
 
-        return new
+        return annotated
 
     def postprocess(self, result, action=ACTIONS.READ):
         """Add ``permissions`` attribute in response body.
@@ -978,9 +989,12 @@ class ProtectedResource(BaseResource):
         In the protocol, it was decided that ``permissions`` would reside
         outside the ``data`` attribute.
         """
-        result = super(ProtectedResource, self).postprocess(result, action)
-        if not isinstance(result['data'], list):
-            perms = result['data'].pop(self.collection.permissions_field, None)
-            if perms is not None:
-                result['permissions'] = {k: list(p) for k, p in perms.items()}
+        result = super(ProtectedResource, self).postprocess(result)
+        if isinstance(result['data'], list):
+            # collection endpoint.
+            return result
+
+        perms = result['data'].pop(self.collection.permissions_field, None)
+        if perms is not None:
+            result['permissions'] = {k: list(p) for k, p in perms.items()}
         return result
