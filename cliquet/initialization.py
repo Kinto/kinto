@@ -27,7 +27,7 @@ from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.interfaces import IAuthenticationPolicy
-from pyramid.settings import asbool
+from pyramid.settings import asbool, aslist
 from pyramid_multiauth import MultiAuthPolicySelected
 
 
@@ -365,6 +365,17 @@ def setup_logging(config):
         logger.info('request.summary')
 
     config.add_subscriber(on_new_response, NewResponse)
+
+
+def setup_listeners(config):
+    listeners = aslist(config.get_settings()['event_listeners'])
+    from cliquet.events import ResourceChanged
+
+    for listener in listeners:
+        logger.info('Setting up %r listener')
+        listener_mod = config.maybe_dotted(listener)
+        listener = listener_mod.load_from_config(config)
+        config.add_subscriber(listener, ResourceChanged)
 
 
 def load_default_settings(config, default_settings):

@@ -51,8 +51,10 @@ DEFAULT_SETTINGS = {
         'cliquet.initialization.setup_deprecation',
         'cliquet.initialization.setup_authentication',
         'cliquet.initialization.setup_backoff',
-        'cliquet.initialization.setup_statsd'
+        'cliquet.initialization.setup_statsd',
+        'cliquet.initialization.setup_listeners'
     ),
+    'event_listeners': '',
     'logging_renderer': 'cliquet.logs.ClassicLogRenderer',
     'newrelic_config': None,
     'newrelic_env': 'dev',
