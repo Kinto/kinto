@@ -88,6 +88,12 @@ class InitializationTest(unittest.TestCase):
         self.assertFalse(hasattr(config.registry, 'cache'))
         self.assertFalse(hasattr(config.registry, 'permission'))
 
+    def test_heartbeats_are_not_overwritten(self):
+        config = Configurator(settings=cliquet.DEFAULT_SETTINGS)
+        config.registry.heartbeats = {'oauth': lambda r: False}
+        cliquet.initialize(config, '0.0.1', 'project_name')
+        self.assertIn('oauth', config.registry.heartbeats)
+
     def test_environment_values_override_configuration(self):
         import os
 
