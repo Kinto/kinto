@@ -130,7 +130,7 @@ or at the resource level:
     class Mushroom(resource.BaseResource):
         def __init__(request):
             super(Mushroom, self).__init__(request)
-            self.collection.id_generator = MsecId()
+            self.model.id_generator = MsecId()
 
 
 Generators objects

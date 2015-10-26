@@ -261,9 +261,9 @@ Indexed resource in :file:`cliquet_indexing/resource.py`:
 
 .. code-block:: python
 
-    class IndexedCollection(cliquet.resource.Collection):
+    class IndexedModel(cliquet.resource.Model):
         def create_record(self, record):
-            r = super(IndexedCollection, self).create_record(self, record)
+            r = super(IndexedModel, self).create_record(self, record)
 
             self.indexer.index_record(self, record)
 
@@ -272,7 +272,7 @@ Indexed resource in :file:`cliquet_indexing/resource.py`:
     class IndexedResource(cliquet.resource.BaseResource):
         def __init__(self, request):
             super(IndexedResource, self).__init__(request)
-            self.collection.indexer = request.registry.indexer
+            self.model.indexer = request.registry.indexer
 
 .. note::
 

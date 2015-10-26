@@ -120,7 +120,7 @@ class BaseResource(object):
     is registered."""
 
     default_model = Model
-    """Default :class:`cliquet.collection.Model` class to use for
+    """Default :class:`cliquet.resource.model.Model` class to use for
     interacting the :module:`cliquet.storage` and :module:`cliquet.permission`
     backends."""
 
@@ -134,7 +134,7 @@ class BaseResource(object):
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get('Authorization')
 
-        self.collection = self.default_model(
+        self.model = self.default_model(
             storage=request.registry.storage,
             id_generator=request.registry.id_generator,
             collection_id=classname(self),
@@ -143,12 +143,12 @@ class BaseResource(object):
 
         self.request = request
         self.context = context
-        self.timestamp = self.collection.timestamp()
+        self.timestamp = self.model.timestamp()
         self.record_id = self.request.matchdict.get('id')
         self.force_patch_update = False
 
         # Log resource context.
-        logger.bind(collection_id=self.collection.collection_id,
+        logger.bind(collection_id=self.model.collection_id,
                     collection_timestamp=self.timestamp)
 
     def get_parent_id(self, request):
@@ -171,9 +171,9 @@ class BaseResource(object):
 
         """
         known_fields = [c.name for c in self.mapping.children] + \
-                       [self.collection.id_field,
-                        self.collection.modified_field,
-                        self.collection.deleted_field]
+                       [self.model.id_field,
+                        self.model.modified_field,
+                        self.model.deleted_field]
         return field in known_fields
 
     #
@@ -204,12 +204,12 @@ class BaseResource(object):
         sorting = self._extract_sorting()
         limit = self._extract_limit()
         filter_fields = [f.field for f in filters]
-        include_deleted = self.collection.modified_field in filter_fields
+        include_deleted = self.model.modified_field in filter_fields
 
         pagination_rules = self._extract_pagination_rules_from_token(
             limit, sorting)
 
-        records, total_records = self.collection.get_records(
+        records, total_records = self.model.get_records(
             filters=filters,
             sorting=sorting,
             limit=limit,
@@ -249,7 +249,7 @@ class BaseResource(object):
 
         # Since ``id`` does not belong to schema, it can only be found in body.
         try:
-            id_field = self.collection.id_field
+            id_field = self.model.id_field
             new_record[id_field] = _id = self.request.json['data'][id_field]
             self._raise_400_if_invalid_id(_id)
         except (KeyError, ValueError):
@@ -258,8 +258,8 @@ class BaseResource(object):
         new_record = self.process_record(new_record)
         try:
             unique_fields = self.mapping.get_option('unique_fields')
-            record = self.collection.create_record(new_record,
-                                                   unique_fields=unique_fields)
+            record = self.model.create_record(new_record,
+                                              unique_fields=unique_fields)
             self.request.response.status_code = 201
             action = ACTIONS.CREATE
         except storage_exceptions.UnicityError as e:
@@ -283,7 +283,7 @@ class BaseResource(object):
         self._raise_412_if_modified()
 
         filters = self._extract_filters()
-        deleted = self.collection.delete_records(filters=filters)
+        deleted = self.model.delete_records(filters=filters)
 
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
         return self.postprocess(deleted, action=action)
@@ -305,7 +305,7 @@ class BaseResource(object):
         """
         self._raise_400_if_invalid_id(self.record_id)
         record = self._get_record_or_404(self.record_id)
-        timestamp = record[self.collection.modified_field]
+        timestamp = record[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
         self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified(record)
@@ -333,15 +333,15 @@ class BaseResource(object):
             :meth:`cliquet.resource.BaseResource.process_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
-        id_field = self.collection.id_field
+        id_field = self.model.id_field
         existing = None
         try:
             existing = self._get_record_or_404(self.record_id)
         except HTTPNotFound:
             # Look if this record used to exist (for preconditions check).
             deleted = Filter(id_field, self.record_id, COMPARISON.EQ)
-            result, _ = self.collection.get_records(filters=[deleted],
-                                                    include_deleted=True)
+            result, _ = self.model.get_records(filters=[deleted],
+                                               include_deleted=True)
             if len(result) > 0:
                 existing = result[0]
         finally:
@@ -358,16 +358,16 @@ class BaseResource(object):
         try:
             unique = self.mapping.get_option('unique_fields')
             if existing:
-                record = self.collection.update_record(new_record,
-                                                       unique_fields=unique)
+                record = self.model.update_record(new_record,
+                                                  unique_fields=unique)
             else:
-                record = self.collection.create_record(new_record,
-                                                       unique_fields=unique)
+                record = self.model.create_record(new_record,
+                                                  unique_fields=unique)
                 self.request.response.status_code = 201
         except storage_exceptions.UnicityError as e:
             self._raise_conflict(e)
 
-        timestamp = record[self.collection.modified_field]
+        timestamp = record[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
         action = existing and ACTIONS.UPDATE or ACTIONS.CREATE
@@ -403,7 +403,7 @@ class BaseResource(object):
 
         updated = self.apply_changes(old_record, changes=changes)
 
-        record_id = updated.setdefault(self.collection.id_field,
+        record_id = updated.setdefault(self.model.id_field,
                                        self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
 
@@ -416,15 +416,15 @@ class BaseResource(object):
         if changed_fields or self.force_patch_update:
             try:
                 unique_fields = self.mapping.get_option('unique_fields')
-                new_record = self.collection.update_record(
+                new_record = self.model.update_record(
                     new_record,
                     unique_fields=unique_fields)
             except storage_exceptions.UnicityError as e:
                 self._raise_conflict(e)
         else:
             # Behave as if storage would have added `id` and `last_modified`.
-            for extra_field in [self.collection.modified_field,
-                                self.collection.id_field]:
+            for extra_field in [self.model.modified_field,
+                                self.model.id_field]:
                 new_record[extra_field] = old_record[extra_field]
 
         # Adjust response according to ``Response-Behavior`` header
@@ -441,8 +441,8 @@ class BaseResource(object):
         else:
             data = new_record
 
-        timestamp = new_record.get(self.collection.modified_field,
-                                   old_record[self.collection.modified_field])
+        timestamp = new_record.get(self.model.modified_field,
+                                   old_record[self.model.modified_field])
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
         return self.postprocess(data, action=ACTIONS.UPDATE)
@@ -462,7 +462,7 @@ class BaseResource(object):
         record = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(record)
 
-        deleted = self.collection.delete_record(record)
+        deleted = self.model.delete_record(record)
         return self.postprocess(deleted, action=ACTIONS.DELETE)
 
     #
@@ -576,7 +576,7 @@ class BaseResource(object):
             return self.context.current_record
 
         try:
-            return self.collection.get_record(record_id)
+            return self.model.get_record(record_id)
         except storage_exceptions.RecordNotFoundError:
             response = http_error(HTTPNotFound(),
                                   errno=ERRORS.INVALID_RESOURCE_ID)
@@ -609,7 +609,7 @@ class BaseResource(object):
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        if not self.collection.id_generator.match(six.text_type(record_id)):
+        if not self.model.id_generator.match(six.text_type(record_id)):
             error_details = {
                 'location': 'path',
                 'description': "Invalid record id"
@@ -641,9 +641,9 @@ class BaseResource(object):
                 raise_invalid(self.request, **error_details)
 
         if record:
-            current_timestamp = record[self.collection.modified_field]
+            current_timestamp = record[self.model.modified_field]
         else:
-            current_timestamp = self.collection.timestamp()
+            current_timestamp = self.model.timestamp()
 
         if current_timestamp <= modified_since:
             response = HTTPNotModified()
@@ -682,9 +682,9 @@ class BaseResource(object):
             return
 
         if record:
-            current_timestamp = record[self.collection.modified_field]
+            current_timestamp = record[self.model.modified_field]
         else:
-            current_timestamp = self.collection.timestamp()
+            current_timestamp = self.model.timestamp()
 
         if current_timestamp > modified_since:
             error_msg = 'Resource was modified meanwhile'
@@ -704,7 +704,7 @@ class BaseResource(object):
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
         """
         field = exception.field
-        record_id = exception.record[self.collection.id_field]
+        record_id = exception.record[self.model.id_field]
         message = 'Conflict of field %s on record %s' % (field, record_id)
         details = {
             "field": field,
@@ -725,7 +725,7 @@ class BaseResource(object):
         if new_id != record_id:
             error_msg = 'Record id does not match existing record'
             error_details = {
-                'name': self.collection.id_field,
+                'name': self.model.id_field,
                 'description': error_msg
             }
             raise_invalid(self.request, **error_details)
@@ -788,7 +788,7 @@ class BaseResource(object):
                         send_alert(self.request, message, url)
                     operator = COMPARISON.LT
                 filters.append(
-                    Filter(self.collection.modified_field, value, operator)
+                    Filter(self.model.modified_field, value, operator)
                 )
                 continue
 
@@ -818,7 +818,7 @@ class BaseResource(object):
         specified = self.request.GET.get('_sort', '').split(',')
         limit = '_limit' in self.request.GET
         sorting = []
-        modified_field_used = self.collection.modified_field in specified
+        modified_field_used = self.model.modified_field in specified
         for field in specified:
             field = field.strip()
             m = re.match(r'^([\-+]?)(\w+)$', field)
@@ -838,7 +838,7 @@ class BaseResource(object):
         if not modified_field_used and limit:
             # Add a sort by the ``modified_field`` in descending order
             # useful for pagination
-            sorting.append(Sort(self.collection.modified_field, -1))
+            sorting.append(Sort(self.model.modified_field, -1))
         return sorting
 
     def _build_pagination_rules(self, sorting, last_record, rules=None):
@@ -934,10 +934,10 @@ class ProtectedResource(BaseResource):
         self.force_patch_update = True
 
         # Required by the ProtectedModel class.
-        self.collection.permission = self.request.registry.permission
-        self.collection.current_principal = self.request.prefixed_userid
+        self.model.permission = self.request.registry.permission
+        self.model.current_principal = self.request.prefixed_userid
         if self.context:
-            self.collection.get_permission_object_id = functools.partial(
+            self.model.get_permission_object_id = functools.partial(
                 self.context.get_permission_object_id,
                 self.request)
 
@@ -951,7 +951,7 @@ class ProtectedResource(BaseResource):
 
         ids = self.context.shared_ids
         if ids:
-            filter_by_id = Filter(self.collection.id_field, ids, COMPARISON.IN)
+            filter_by_id = Filter(self.model.id_field, ids, COMPARISON.IN)
             filters.insert(0, filter_by_id)
 
         return filters
@@ -962,7 +962,7 @@ class ProtectedResource(BaseResource):
         """
         if record:
             record = record.copy()
-            record.pop(self.collection.permissions_field, None)
+            record.pop(self.model.permissions_field, None)
         return super(ProtectedResource, self)._raise_412_if_modified(record)
 
     def process_record(self, new, old=None):
@@ -979,7 +979,7 @@ class ProtectedResource(BaseResource):
                 # Remove every existing ACEs using empty lists.
                 for perm in self.permissions:
                     permissions.setdefault(perm, [])
-            annotated[self.collection.permissions_field] = permissions
+            annotated[self.model.permissions_field] = permissions
 
         return annotated
 
@@ -994,7 +994,7 @@ class ProtectedResource(BaseResource):
             # collection endpoint.
             return result
 
-        perms = result['data'].pop(self.collection.permissions_field, None)
+        perms = result['data'].pop(self.model.permissions_field, None)
         if perms is not None:
             result['permissions'] = {k: list(p) for k, p in perms.items()}
         return result

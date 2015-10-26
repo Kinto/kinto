@@ -18,7 +18,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
         self.resource.request.validated = {'data': {}}
 
-        with mock.patch.object(self.collection.storage,
+        with mock.patch.object(self.model.storage,
                                '_bump_timestamp') as msec_mocked:
             for i in range(6):
                 msec_mocked.return_value = i
@@ -109,7 +109,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.assertEqual(len(result['data']), 0)
 
     def test_filter_works_with_empty_list(self):
-        self.resource.collection.parent_id = 'alice'
+        self.resource.model.parent_id = 'alice'
         self.resource.request.GET = {'_since': '3'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 0)
@@ -148,7 +148,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
                 time.sleep(.100)  # 100 msec
                 return [], 0
 
-            with mock.patch.object(self.collection.storage,
+            with mock.patch.object(self.model.storage,
                                    'get_all', delayed_get):
                 self.resource.collection_get()
                 fetch_at = self.last_response.headers['ETag'][1:-1]

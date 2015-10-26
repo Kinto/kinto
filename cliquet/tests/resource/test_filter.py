@@ -14,12 +14,12 @@ class FilteringTest(BaseTest):
                 'status': i % 3,
                 'favorite': (i % 4 == 0)
             }
-            self.collection.create_record(record)
+            self.model.create_record(record)
 
     def test_list_can_be_filtered_on_deleted_with_since(self):
-        since = self.collection.timestamp()
-        r = self.collection.create_record({})
-        self.collection.delete_record(r)
+        since = self.model.timestamp()
+        r = self.model.create_record({})
+        self.model.delete_record(r)
         self.resource.request.GET = {'_since': '%s' % since, 'deleted': 'true'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 1)
@@ -27,20 +27,20 @@ class FilteringTest(BaseTest):
 
     def test_filter_on_id_is_supported(self):
         self.patch_known_field.stop()
-        r = self.collection.create_record({})
+        r = self.model.create_record({})
         self.resource.request.GET = {'id': '%s' % r['id']}
         result = self.resource.collection_get()
         self.assertEqual(result['data'][0], r)
 
     def test_list_cannot_be_filtered_on_deleted_without_since(self):
-        r = self.collection.create_record({})
-        self.collection.delete_record(r)
+        r = self.model.create_record({})
+        self.model.delete_record(r)
         self.resource.request.GET = {'deleted': 'true'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 0)
 
     def test_filter_works_with_empty_list(self):
-        self.resource.collection.parent_id = 'alice'
+        self.resource.model.parent_id = 'alice'
         self.resource.request.GET = {'status': '1'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 0)

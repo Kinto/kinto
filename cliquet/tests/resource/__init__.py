@@ -13,7 +13,7 @@ class BaseTest(unittest.TestCase):
         self.storage = memory.Memory()
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
-        self.collection = self.resource.collection
+        self.model = self.resource.model
         self.patch_known_field = mock.patch.object(self.resource,
                                                    'is_known_field')
 
@@ -64,4 +64,4 @@ class ParentIdOverrideResourceTest(BaseTest):
 
         parent_id = self.resource.get_parent_id(request)
         self.assertEquals(parent_id, 'overrided')
-        self.assertEquals(self.resource.collection.parent_id, 'overrided')
+        self.assertEquals(self.resource.model.parent_id, 'overrided')
