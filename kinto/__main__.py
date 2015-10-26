@@ -2,7 +2,6 @@ import argparse
 import sys
 import textwrap
 import warnings
-#import os
 import subprocess
 import cliquet
 from pyramid.paster import bootstrap
@@ -34,9 +33,11 @@ def main (args=None):
 	args = vars(parser.parse_args())
 
 	if args['which'] =='init':
-		env =bootstrap('config/kinto.ini')
+		##env =bootstrap('config/kinto.ini')
+		##Still needs to setup the configuration options
 	elif args['which'] =='migrate':
-		#subprocess.call(["python","-m","cliquet","--ini","config/kinto.ini","migrate"])
+		env =bootstrap('config/kinto.ini')
+		kinto_migrate(env)
 		print("running migrations")
 	elif args['which'] =='start':
 		subprocess.call(["python","-m","pyramid.scripts.pserve","config/kinto.ini","--reload"])		
