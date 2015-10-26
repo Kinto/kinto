@@ -33,14 +33,14 @@ def main (args=None):
 	args = vars(parser.parse_args())
 
 	if args['which'] =='init':
-		##env =bootstrap('config/kinto.ini')
-		##Still needs to setup the configuration options
+	   	#Still needs to setup the configuration options
+		pass
 	elif args['which'] =='migrate':
-		env =bootstrap('config/kinto.ini')
-		kinto_migrate(env)
-		print("running migrations")
+	   	env = bootstrap('config/kinto.ini')
+	  	kinto_migrate(env)
+	   	print("running migrations")
 	elif args['which'] =='start':
-		subprocess.call(["python","-m","pyramid.scripts.pserve","config/kinto.ini","--reload"])		
+	   	subprocess.call(["python","-m","pyramid.scripts.pserve","config/kinto.ini","--reload"])		
 
 
 if __name__ == "__main__":
