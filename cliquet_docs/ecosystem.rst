@@ -67,7 +67,7 @@ Alternatively, packages can also be included via configuration:
 .. code-block:: ini
 
     # myproject.ini
-    pyramid.includes = cliquet_elasticsearch
+    cliquet.includes = cliquet_elasticsearch
                        pyramid_debugtoolbar
 
 

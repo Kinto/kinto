@@ -10,6 +10,8 @@ This document describes changes between each past release.
 **New features**
 
 - Added notifications (#488)
+- Added ``cliquet.includes`` setting allowing loading of plugins once Cliquet
+  is initialized (unlike ``pyramid.includes``).
 
 **Protocol**
 
