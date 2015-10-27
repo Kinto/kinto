@@ -1,3 +1,5 @@
+import mock
+
 from pyramid import httpexceptions
 
 from cliquet.tests.resource import BaseTest
@@ -7,6 +9,11 @@ class ModelTest(BaseTest):
     def setUp(self):
         super(ModelTest, self).setUp()
         self.record = self.model.create_record({'field': 'value'})
+
+    def test_access_to_collection_is_deprecated(self):
+        with mock.patch('cliquet.resource.warnings.warn') as mocked:
+            self.resource.collection
+            self.assertTrue(mocked.called)
 
     def test_list_gives_number_of_results_in_headers(self):
         self.resource.collection_get()

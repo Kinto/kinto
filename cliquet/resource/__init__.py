@@ -1,5 +1,6 @@
 import re
 import functools
+import warnings
 
 import colander
 import venusian
@@ -150,6 +151,14 @@ class BaseResource(object):
         # Log resource context.
         logger.bind(collection_id=self.model.collection_id,
                     collection_timestamp=self.timestamp)
+
+    @property
+    def collection(self):
+        """The collection property."""
+        message = ('``self.collection`` is now deprecated. '
+                   'Please use ``self.model`` instead')
+        warnings.warn(message, DeprecationWarning)
+        return self.model
 
     def get_parent_id(self, request):
         """Return the parent_id of the resource with regards to the current
