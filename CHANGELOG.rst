@@ -32,6 +32,7 @@ This document describes changes between each past release.
 - Replace DROP INDEX by a conditional creation in PostgreSQL schemas (#487,
   thanks @rodo)
 - Documentation and minor refactors in viewset code
+- Add the ``build-requirements``, ``distclean`` and ``maintainer-clean`` Makefile rules.
 
 
 2.8.2 (2015-10-22)

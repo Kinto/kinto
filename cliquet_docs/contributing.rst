@@ -143,8 +143,7 @@ Step 1
      $ git checkout -b prepare-X.Y.Z
      $ prerelease
      $ vim docs/conf.py
-     $ rm -rf .venv
-     $ make install && .venv/bin/pip freeze > requirements.txt
+     $ make build-requirements
      $ git commit -a --amend
      $ git push origin prepare-X.Y.Z
 

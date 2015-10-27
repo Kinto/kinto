@@ -13,12 +13,13 @@ repoze.lru==0.6
 requests==2.8.1
 simplejson==3.8.0
 six==1.10.0
-statsd==3.2
+statsd==3.2.1
 structlog==15.3.0
 translationstring==1.3
 ujson==1.33
 venusian==1.0
 WebOb==1.5.0
 Werkzeug==0.10.4
+wheel==0.24.0
 zope.deprecation==4.1.2
 zope.interface==4.1.3
