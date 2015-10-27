@@ -29,6 +29,7 @@ This document describes changes between each past release.
   client code.
 - Replace DROP INDEX by a conditional creation in PostgreSQL schemas (#487,
   thanks @rodo)
+- Documentation and minor refactors in viewset code
 
 
 2.8.2 (2015-10-22)

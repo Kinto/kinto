@@ -56,12 +56,12 @@ class ViewSet(object):
         """Update viewset attributes with provided values."""
         self.__dict__.update(**kwargs)
 
-    def get_view_arguments(self, endpoint_type, resource, method):
+    def get_view_arguments(self, endpoint_type, resource_cls, method):
         """Return the Pyramid/Cornice view arguments for the given endpoint
         type and method.
 
         :param str endpoint_type: either "collection" or "record".
-        :param resource: the resource object.
+        :param resource_cls: the resource class.
         :param str method: the HTTP method.
         """
         args = self.default_arguments.copy()
@@ -73,11 +73,11 @@ class ViewSet(object):
         method_args = getattr(self, by_method, {})
         args.update(**method_args)
 
-        args['schema'] = self.get_record_schema(resource, method)
+        args['schema'] = self.get_record_schema(resource_cls, method)
 
         return args
 
-    def get_record_schema(self, resource, method):
+    def get_record_schema(self, resource_cls, method):
         """Return the Cornice schema for the given method.
         """
         simple_mapping = colander.MappingSchema(unknown='preserve')
@@ -89,7 +89,7 @@ class ViewSet(object):
         if method.lower() == 'patch':
             record_mapping = simple_mapping
         else:
-            record_mapping = resource.mapping
+            record_mapping = resource_cls.mapping
 
             try:
                 record_mapping.deserialize({})
@@ -118,24 +118,28 @@ class ViewSet(object):
             return method.lower()
         return '%s_%s' % (endpoint_type, method.lower())
 
-    def get_name(self, resource):
+    def get_name(self, resource_cls):
         """Returns the name of the resource.
         """
+        # Provided on viewset during registration.
         if 'name' in self.__dict__:
-            name = self.__dict__['name']
-        elif hasattr(resource, 'name') and not callable(resource.name):
-            name = resource.name
-        else:
-            name = resource.__name__.lower()
+            return self.__dict__['name']
 
-        return name
+        # Attribute on resource class (but not @property)
+        has_class_attr = (hasattr(resource_cls, 'name') and
+                          not callable(resource_cls.name))
+        if has_class_attr:
+            return resource_cls.name
 
-    def get_service_name(self, endpoint_type, resource):
+        # Use classname
+        return resource_cls.__name__.lower()
+
+    def get_service_name(self, endpoint_type, resource_cls):
         """Returns the name of the service, depending a given type and
         resource.
         """
         return self.service_name.format(
-            resource_name=self.get_name(resource),
+            resource_name=self.get_name(resource_cls),
             endpoint_type=endpoint_type)
 
     def get_service_arguments(self):
@@ -153,8 +157,14 @@ class ViewSet(object):
 
 
 class ProtectedViewSet(ViewSet):
-    def get_record_schema(self, resource, method):
-        schema = super(ProtectedViewSet, self).get_record_schema(resource,
+    """A ProtectedViewSet will register the given resource with a schema
+    that supports permissions.
+
+    The views will rely on dynamic permissions (e.g. create with PUT if
+    record does not exist), and solicit the cliquet RouteFactory.
+    """
+    def get_record_schema(self, resource_cls, method):
+        schema = super(ProtectedViewSet, self).get_record_schema(resource_cls,
                                                                  method)
 
         if method.lower() not in map(str.lower, self.validate_schema_for):
@@ -164,15 +174,16 @@ class ProtectedViewSet(ViewSet):
             # Data is optional when patching permissions.
             schema.children[-1].missing = colander.drop
 
+        allowed_permissions = resource_cls.permissions
         permissions_node = PermissionsSchema(missing=colander.drop,
-                                             permissions=resource.permissions,
+                                             permissions=allowed_permissions,
                                              name='permissions')
         schema.add(permissions_node)
         return schema
 
-    def get_view_arguments(self, endpoint_type, resource, method):
+    def get_view_arguments(self, endpoint_type, resource_cls, method):
         args = super(ProtectedViewSet, self).get_view_arguments(endpoint_type,
-                                                                resource,
+                                                                resource_cls,
                                                                 method)
         args['permission'] = authorization.DYNAMIC
         return args
