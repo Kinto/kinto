@@ -1,15 +1,8 @@
 import argparse
 import sys
-import subprocess
-
+from cliquet.scripts import cliquet
+from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
-
-
-def kinto_migrate(env):
-        registry = env['registry']
-        for backend in ('cache', 'storage', 'permission'):
-                if hasattr(registry, backend):
-                        getattr(registry, backend).initialize_schema()
 
 
 def main(args=None):
@@ -38,11 +31,12 @@ def main(args=None):
                 pass
         elif args['which'] == 'migrate':
                 env = bootstrap('config/kinto.ini')
-                kinto_migrate(env)
+                """kinto_migrate(env)"""
+                cliquet.init_schema(env)
                 print("running migrations")
         elif args['which'] == 'start':
-                subprocess.call(["python", "-m", "pyramid.scripts.pserve",
-                                "config/kinto.ini", "--reload"])
+                pserve_argv = ['pserve', 'config/kinto.ini', '--reload']
+                pserve.main(pserve_argv)
 
 
 if __name__ == "__main__":
