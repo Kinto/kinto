@@ -76,15 +76,12 @@ def create_from_config(config, prefix=''):
     poolclass_key = prefix + 'poolclass'
     settings.setdefault(poolclass_key, 'sqlalchemy.pool.QueuePool')
     settings[poolclass_key] = config.maybe_dotted(settings[poolclass_key])
+    settings.pop(prefix + 'max_fetch_size', None)
 
-    # When fsync setting is off, like on TravisCI or in during development,
-    # some storage tests fail because commits are not applied
-    # accross every opened connections.
-    # XXX: find a proper solution to support fsync off.
-    # Meanhwile, disable connection pooling to prevent test suite failures.
+    # XXX: Disable pooling at least during tests to avoid stalled tests.
     if os.getenv('TRAVIS', False):  # pragma: no cover
-        warnings.warn('Option fsync = off detected. Disable pooling.')
-        settings = dict([(poolclass_key, sqlalchemy.pool.NullPool)])
+        warnings.warn('Disable pooling on TravisCI')
+        settings = dict([(poolclass_key, sqlalchemy.pool.StaticPool)])
 
     engine = sqlalchemy.engine_from_config(settings, prefix=prefix, url=url)
 

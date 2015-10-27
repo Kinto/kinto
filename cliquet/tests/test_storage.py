@@ -528,7 +528,11 @@ class DeletedRecordsTest(object):
         """Helper to create and delete a record."""
         record = record or {'challenge': 'accepted'}
         record = self.create_record(record)
-        return self.storage.delete(object_id=record['id'], **self.storage_kw)
+        time.sleep(0.001)  # 1 msec
+        deleted = self.storage.delete(object_id=record['id'],
+                                      **self.storage_kw)
+        time.sleep(0.001)  # 1 msec
+        return deleted
 
     def test_get_should_not_return_deleted_items(self):
         record = self.create_and_delete_record()
