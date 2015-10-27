@@ -4,14 +4,14 @@ Changelog
 This document describes changes between each past release.
 
 
-2.9.0 (unreleased)
+2.9.0 (2015-10-27)
 ------------------
 
 **New features**
 
-- Added notifications (#488)
+- Added Pyramid events, triggered when the content of a resource has changed. (#488)
 - Added ``cliquet.includes`` setting allowing loading of plugins once Cliquet
-  is initialized (unlike ``pyramid.includes``).
+  is initialized (unlike ``pyramid.includes``). (#504)
 
 **Protocol**
 
@@ -19,20 +19,23 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
-- Renamed internal backend classes for better consistency. Settings remain
-  unchanged (#).
+- Renamed internal backend classes for better consistency. Settings
+  remain unchanged, but if you imported the backend classes in your
+  Cliquet application, it will break (#491).
 - ``cliquet.schema`` is now deprecated, and was moved to a ``cliquet.resource``
-  module.
-- Resource collection attribute is now deprecated. Use ``model`` attribute instead.
+  module. (#505)
+- Resource collection attribute is now deprecated. Use ``model`` attribute instead. (#506)
 
 **Internal changes**
 
 - Rework PostgreSQL backends to use composition instead of inheritance for the
-  client code.
-- Replace DROP INDEX by a conditional creation in PostgreSQL schemas (#487,
+  client code. (#491)
+- Replace DROP INDEX by a conditional creation in PostgreSQL schemas (#487, #496
   thanks @rodo)
-- Documentation and minor refactors in viewset code
+- Documentation and minor refactors in viewset code (#490, #498, #502)
 - Add the ``build-requirements``, ``distclean`` and ``maintainer-clean`` Makefile rules.
+- Documentation JSON patch format. (#484)
+- Fix for permission among record fields in 412 errors. (#499)
 
 
 2.8.2 (2015-10-22)

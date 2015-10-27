@@ -174,3 +174,15 @@ As a final step:
 - Send mail to ML (If major release)
 
 That's all folks!
+
+
+Cleaning your environment
+=========================
+
+There are three levels of cleaning your environment:
+
+ - ``make clean`` will remove ``*.pyc`` files and ``__pycache__`` directory.
+ - ``make distclean`` will also remove ``*.egg-info`` files and ``*.egg``,
+   ``build`` and ``dist`` directories.
+ - ``make maintainer-clean`` will also remove the ``.tox`` and the
+   ``.venv`` directories.
