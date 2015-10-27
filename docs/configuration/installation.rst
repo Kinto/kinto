@@ -3,45 +3,14 @@
 Installation
 ############
 
-*Kinto* is meant to be relatively straightforward to install, and we've
-provided fairly extensive documentation to get you up and running. That said,
-some dependencies might make the process harder than it should be -
-we've got some notes on crypto libraries and PostgreSQL at the end of this page.
+Depending on the platform, and chosen configuration, some libraries or
+extra services are required.
 
-Run locally
-===========
+.. note::
 
-To test Kinto quickly
----------------------
+    If you are just interesting in trying *Kinto*, a pre-installed and pre-configured
+    :ref:`demo instance is publicly available <run-kinto-mozilla-demo>`.
 
-In general, in order to run Kinto, it is as simple as running the following
-commands::
-
-    pip install kinto
-    wget https://raw.githubusercontent.com/Kinto/kinto/master/config/kinto.ini
-    pserve kinto.ini
-
-For development
----------------
-
-By default, for convenience, *Kinto* persists the records, permissions and
-internal cache in a **volatile** memory backend. On every restart, the server
-will loose its data, and multiple processes are not handled properly.
-
-::
-
-    make serve
-
-
-Using Docker
-------------
-
-Kinto uses `Docker Compose <http://docs.docker.com/compose/>`_, which takes
-care of running and connecting to a PostgreSQL container:
-
-::
-
-    docker-compose up
 
 .. _crypto-install:
 
@@ -83,9 +52,14 @@ default. In order to install them, run:
 
     make install-postgres
 
+.. note::
 
-The instructions below will create a local ``postgres`` database on
-``localhost:5432``, with user/password ``postgres``/``postgres``.
+        The ``make`` commands are only available when Kinto was installed from
+        sources. The `underlying commands are available on Github
+        <https://github.com/Kinto/kinto/blob/684c31c/Makefile#L22-L26>`_.
+
+The instructions in the sections below will help you create a local ``postgres``
+database on ``localhost:5432``, with user/password ``postgres``/``postgres``.
 
 Once done, just uncomment the backends lines mentionning *Postgresql* in the
 default configuration file :file:`config/kinto.ini`.
@@ -118,7 +92,7 @@ if ran by the ``postgres`` system user. The following command will assign it:
 Server using Docker
 -------------------
 
-Install docker:
+Install `Docker <https://docker.com/>`_:
 
 On Ubuntu you can do:
 
@@ -144,6 +118,14 @@ In the future, run the tagged version of the container ::
     ...
 
     sudo docker stop $kintodb
+
+
+In order to build the Kinto container locally and run it against a PostgreSQL
+container, Kinto supports `Docker Compose <http://docs.docker.com/compose/>`_:
+
+::
+
+    docker-compose up
 
 
 OS X

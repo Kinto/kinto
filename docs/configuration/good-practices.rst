@@ -28,7 +28,7 @@ High-availability
 
 * At least two nodes (e.g. Linux boxes)
 * A load balancer, that spreads requests across the nodes (e.g. HAProxy)
-* Each node runs several WSGI process workers (e.g. uwsgi)
+* Each node runs several WSGI process workers (e.g. uWSGI)
 * Each node runs a HTTP reverse proxy that spreads requests across the workers (e.g. Nginx)
 
 Vertical scaling:
@@ -48,7 +48,7 @@ WSGI process crash:
 
 * 503 error + ``Retry-After`` response header
 * Sentry report
-* Uwsgi respawns a process (via Systemd for example)
+* uWSGI respawns a process (via Systemd for example)
 
 Reverse proxy crash:
 
@@ -193,7 +193,7 @@ Using Amazon RDS
 
 * Consistency/Availability/Durability are handled by Postgresql RDS
 * Use Elasticcache for Redis
-* Use a EC2 Instance with uwsgi and nginx deployed
+* Use a EC2 Instance with uWSGI and Nginx deployed
 * Use Route53 for loadbalancing
 
 
