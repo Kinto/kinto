@@ -19,9 +19,9 @@ This document describes changes between each past release.
 
 - Renamed internal backend classes for better consistency. Settings remain
   unchanged (#).
-
 - ``cliquet.schema`` is now deprecated, and was moved to a ``cliquet.resource``
   module.
+- Resource collection attribute is now deprecated. Use ``model`` attribute instead.
 
 **Internal changes**
 
