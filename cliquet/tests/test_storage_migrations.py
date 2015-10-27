@@ -1,6 +1,8 @@
 import os
 
 import mock
+import six
+from pyramid import testing
 
 from cliquet.storage import postgresql
 from cliquet.utils import json
@@ -10,25 +12,25 @@ from .support import unittest, skip_if_no_postgresql
 
 @skip_if_no_postgresql
 class PostgresqlStorageMigrationTest(unittest.TestCase):
-    def setUp(self):
+    def __init__(self, *args, **kwargs):
+        super(PostgresqlStorageMigrationTest, self).__init__(*args, **kwargs)
+        from cliquet.utils import sqlalchemy
+        if sqlalchemy is None:
+            return
+
         from .test_storage import PostgresqlStorageTest
-
         self.settings = PostgresqlStorageTest.settings.copy()
-        self.config = mock.Mock(get_settings=mock.Mock(
-            return_value=self.settings))
-
+        self.config = testing.setUp()
+        self.config.add_settings(self.settings)
         self.version = postgresql.Storage.schema_version
-
         # Usual storage object to manipulate the storage.
         self.storage = postgresql.load_from_config(self.config)
 
+    def setUp(self):
         # Start empty.
         self._delete_everything()
-
         # Create schema in its last version
-        self.storage = postgresql.load_from_config(self.config)
         self.storage.initialize_schema()
-
         # Patch to keep track of SQL files executed.
         self.sql_execute_patcher = mock.patch(
             'cliquet.storage.postgresql.Storage._execute_sql_file')
@@ -46,8 +48,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         DROP FUNCTION IF EXISTS collection_timestamp(VARCHAR, VARCHAR);
         DROP FUNCTION IF EXISTS bump_timestamp();
         """
-        with self.storage.client.connect() as cursor:
-            cursor.execute(q)
+        with self.storage.client.connect() as conn:
+            conn.execute(q)
 
     def test_schema_sets_the_current_version(self):
         version = self.storage._get_installed_version()
@@ -59,9 +61,9 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.assertFalse(mocked.called)
 
     def test_schema_is_considered_first_version_if_no_version_detected(self):
-        with self.storage.client.connect() as cursor:
+        with self.storage.client.connect() as conn:
             q = "DELETE FROM metadata WHERE name = 'storage_schema_version';"
-            cursor.execute(q)
+            conn.execute(q)
 
         mocked = self.sql_execute_patcher.start()
         postgresql.Storage.schema_version = 2
@@ -97,15 +99,15 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self._delete_everything()
 
         # Install old schema
-        with self.storage.client.connect() as cursor:
+        with self.storage.client.connect() as conn:
             here = os.path.abspath(os.path.dirname(__file__))
             filepath = 'schema/postgresql-storage-1.6.sql'
             old_schema = open(os.path.join(here, filepath)).read()
-            cursor.execute(old_schema)
+            conn.execute(old_schema)
 
         # Create a sample record using some code that is compatible with the
         # schema in place in cliquet 1.6.
-        with self.storage.client.connect() as cursor:
+        with self.storage.client.connect() as conn:
             before = {'drink': 'cacao'}
             query = """
             INSERT INTO records (user_id, resource_name, data)
@@ -115,9 +117,9 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             placeholders = dict(user_id='jean-louis',
                                 resource_name='test',
                                 data=json.dumps(before))
-            cursor.execute(query, placeholders)
-            inserted = cursor.fetchone()
-            before['id'] = inserted['id']
+            result = conn.execute(query, placeholders)
+            inserted = result.fetchone()
+            before['id'] = six.text_type(inserted['id'])
             before['last_modified'] = inserted['last_modified']
 
         # In cliquet 1.6, version = 1.
@@ -145,12 +147,12 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
 class PostgresqlExceptionRaisedTest(unittest.TestCase):
     def setUp(self):
-        self.psycopg2 = postgresql.client.psycopg2
+        self.sqlalchemy = postgresql.client.sqlalchemy
 
     def tearDown(self):
-        postgresql.client.psycopg2 = self.psycopg2
+        postgresql.client.sqlalchemy = self.sqlalchemy
 
     def test_postgresql_usage_raise_an_error_if_postgresql_not_installed(self):
-        postgresql.client.psycopg2 = None
+        postgresql.client.sqlalchemy = None
         with self.assertRaises(ImportWarning):
-            postgresql.client.PostgreSQLClient()
+            postgresql.client.create_from_config(testing.setUp())

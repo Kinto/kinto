@@ -7,7 +7,19 @@ This document describes changes between each past release.
 2.10.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- For PostgreSQL backends, it is recommended to specify ``postgresql://``
+
+**New features**
+
+- New settings for backends when using PostgreSQL: ``*_pool_maxoverflow``,
+  ``*_pool_recycle``, ``*_pool_timeout`` to control connections pool
+  behaviour.
+
+**Internal changes**
+
+- Switch to SQLAlchemy for smarter connections pools.
 
 
 2.9.0 (2015-10-27)
