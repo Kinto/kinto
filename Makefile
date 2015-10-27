@@ -28,6 +28,12 @@ $(PYTHON):
 	$(VIRTUALENV) $(VENV)
 	$(VENV)/bin/pip install -U pip
 
+build-requirements:
+	@rm -fr /tmp/cliquet
+	$(VIRTUALENV) /tmp/cliquet
+	/tmp/cliquet/bin/pip install -Ue ".[monitoring,postgresql]"
+	/tmp/cliquet/bin/pip freeze | tail -n +2 > requirements.txt
+
 tests-once: install-dev
 	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-min-percentage=100 --cover-package=cliquet
 
@@ -39,10 +45,10 @@ clean:
 	find . -name '__pycache__' -type d -exec rm -fr {} \;
 
 distclean: clean
-	rm -fr *.egg *.egg-info/
+	rm -fr *.egg *.egg-info/ dist/ build/
 
 maintainer-clean: distclean
-	rm -fr .venv/ .tox/ dist/ build/
+	rm -fr .venv/ .tox/
 
 docs: install-dev
 	$(VENV)/bin/sphinx-build -n -b html -d $(SPHINX_BUILDDIR)/doctrees cliquet_docs $(SPHINX_BUILDDIR)/html
