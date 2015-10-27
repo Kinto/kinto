@@ -88,11 +88,17 @@ class InitializationTest(unittest.TestCase):
         self.assertFalse(hasattr(config.registry, 'cache'))
         self.assertFalse(hasattr(config.registry, 'permission'))
 
-    def test_heartbeats_are_not_overwritten(self):
+    def test_cliquet_includes_are_included_manually(self):
         config = Configurator(settings=cliquet.DEFAULT_SETTINGS)
-        config.registry.heartbeats = {'oauth': lambda r: False}
-        cliquet.initialize(config, '0.0.1', 'project_name')
-        self.assertIn('oauth', config.registry.heartbeats)
+        config.add_settings({'includes': 'elastic history'})
+        config.route_prefix = 'v2'
+
+        with mock.patch.object(config, 'include'):
+            with mock.patch.object(config, 'scan'):
+                cliquet.includeme(config)
+
+                config.include.assert_any_call('elastic')
+                config.include.assert_any_call('history')
 
     def test_environment_values_override_configuration(self):
         import os

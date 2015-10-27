@@ -38,6 +38,7 @@ DEFAULT_SETTINGS = {
     'http_host': None,
     'http_scheme': None,
     'id_generator': 'cliquet.storage.generators.UUID4',
+    'includes': '',
     'initialization_sequence': (
         'cliquet.initialization.setup_request_bound_data',
         'cliquet.initialization.setup_json_serializer',
@@ -97,11 +98,18 @@ def includeme(config):
     settings = config.get_settings()
 
     # Heartbeat registry.
-    if not hasattr(config.registry, 'heartbeats'):
-        config.registry.heartbeats = {}
+    config.registry.heartbeats = {}
 
     # Public settings registry.
     config.registry.public_settings = {'batch_max_requests'}
+
+    # Setup cornice.
+    config.include("cornice")
+
+    # Include cliquet plugins after init, unlike pyramid includes.
+    includes = aslist(settings['includes'])
+    for app in includes:
+        config.include(app)
 
     # Setup components.
     for step in aslist(settings['initialization_sequence']):
@@ -121,9 +129,6 @@ def includeme(config):
     Service.cors_max_age = int(cors_max_age) if cors_max_age else None
 
     Service.error_handler = lambda self, e: errors.json_error_handler(e)
-
-    # Setup cornice.
-    config.include("cornice")
 
     # Scan views.
     config.scan("cliquet.views")
