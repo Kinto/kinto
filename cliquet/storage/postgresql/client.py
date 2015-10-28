@@ -77,6 +77,7 @@ def create_from_config(config, prefix=''):
     settings.setdefault(poolclass_key, 'sqlalchemy.pool.QueuePool')
     settings[poolclass_key] = config.maybe_dotted(settings[poolclass_key])
     settings.pop(prefix + 'max_fetch_size', None)
+    settings.pop(prefix + 'backend', None)
 
     # XXX: Disable pooling at least during tests to avoid stalled tests.
     if os.getenv('TRAVIS', False):  # pragma: no cover

@@ -409,10 +409,10 @@ class TimestampsTest(object):
 
     def test_the_timestamp_are_based_on_real_time_milliseconds(self):
         before = utils.msec_time()
-        time.sleep(0.001)  # 1 msec
+        time.sleep(0.002)  # 2 msec
         record = self.create_record()
         now = record['last_modified']
-        time.sleep(0.001)  # 1 msec
+        time.sleep(0.002)  # 2 msec
         after = utils.msec_time()
         self.assertTrue(before < now < after,
                         '%s < %s < %s' % (before, now, after))
@@ -946,6 +946,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     settings = {
         'storage_pool_size': 10,
         'storage_max_fetch_size': 10000,
+        'storage_backend': 'cliquet.storage.postgresql',
         'storage_url': 'postgres://postgres:postgres@localhost:5432/testdb',
     }
 
