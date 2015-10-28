@@ -611,8 +611,9 @@ class CacheControlTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extras=None):
         settings = super(CacheControlTest, self).get_app_settings(extras)
         settings['toadstool_cache_expires_seconds'] = 3600
-        settings['psilo_cache_expires_seconds'] = 0
         settings['toadstool_read_principals'] = 'system.Everyone'
+        settings['psilo_cache_expires_seconds'] = 0
+        settings['moisture_read_principals'] = 'system.Everyone'
         return settings
 
     def test_cache_control_headers_are_set_if_anonymous(self):
@@ -622,15 +623,21 @@ class CacheControlTest(BaseWebTest, unittest.TestCase):
 
     def test_cache_control_headers_are_not_set_if_authenticated(self):
         resp = self.app.get(self.collection_url, headers=self.headers)
-        # XXX: See other PR #522 - merge test here.
+        self.assertIn('no-cache', resp.headers['Cache-Control'])
         self.assertNotIn('Expires', resp.headers)
-        self.assertNotIn('Cache-Control', resp.headers)
 
     def test_cache_control_headers_set_no_cache_if_zero(self):
         resp = self.app.get('/psilos')
-        self.assertIn('Expires', resp.headers)
         self.assertIn('Cache-Control', resp.headers)
-        self.assertIn('Pragma', resp.headers)
+        # Check that not set by Pyramid.cache_expires()
+        self.assertNotIn('Expires', resp.headers)
+        self.assertNotIn('Pragma', resp.headers)
+
+    def test_cache_control_provides_no_cache_by_default(self):
+        resp = self.app.get('/moistures')
+        self.assertIn('no-cache', resp.headers['Cache-Control'])
+        self.assertNotIn('Expires', resp.headers)
+        self.assertNotIn('Pragma', resp.headers)
 
 
 class StorageErrorTest(BaseWebTest, unittest.TestCase):

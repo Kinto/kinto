@@ -293,7 +293,8 @@ for anonymous requests.
 The client (or proxy) will use them to cache the resource responses for a
 certain amount of time.
 
-If set to ``0`` then the resource becomes uncacheable (``no-cache``).
+By default, *Cliquet* indicates the clients to invalidate their cache
+(``Cache-Control: no-cache``).
 
 .. code-block:: ini
 
@@ -301,6 +302,8 @@ If set to ``0`` then the resource becomes uncacheable (``no-cache``).
 
 Basically, this will add both ``Cache-Control: max-age=3600`` and
 ``Expire: <server datetime + 1H>`` response headers to the ``GET`` responses.
+
+If setting is set to ``0``, then the resource follows the default behaviour.
 
 
 CORS

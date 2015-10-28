@@ -37,13 +37,12 @@ class ViewSet(object):
     default_collection_arguments = {}
     collection_get_arguments = {
         'cors_headers': ('Next-Page', 'Total-Records', 'Last-Modified', 'ETag',
-                         'Cache-Control', 'Expires', 'Pragma')
+                         'Cache-Control', 'Expires')
     }
 
     default_record_arguments = {}
     record_get_arguments = {
-        'cors_headers': ('Last-Modified', 'ETag',
-                         'Cache-Control', 'Expires', 'Pragma')
+        'cors_headers': ('Last-Modified', 'ETag', 'Cache-Control', 'Expires')
     }
 
     def __init__(self, **kwargs):
