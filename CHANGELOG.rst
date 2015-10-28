@@ -14,7 +14,7 @@ This document describes changes between each past release.
 **New features**
 
 - Added Pyramid events, triggered when the content of a resource has changed. (#488)
-- Added ``cliquet.includes`` setting allowing loading of plugins once Cliquet
+- Added ``kinto.includes`` setting allowing loading of plugins once Kinto
   is initialized (unlike ``pyramid.includes``). (#504)
 
 
