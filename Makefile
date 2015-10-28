@@ -6,6 +6,7 @@ VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON = $(VENV)/bin/python
 DEV_STAMP = $(VENV)/.dev_env_installed.stamp
 INSTALL_STAMP = $(VENV)/.install.stamp
+TEMPDIR := $(shell mktemp -d)
 
 .IGNORE: clean distclean maintainer-clean
 .PHONY: all install virtualenv tests
@@ -33,6 +34,11 @@ $(DEV_STAMP): $(PYTHON) dev-requirements.txt
 virtualenv: $(PYTHON)
 $(PYTHON):
 	virtualenv $(VENV)
+
+build-requirements:
+	$(VIRTUALENV) $(TEMPDIR)
+	$(TEMPDIR)/bin/pip install -Ue .
+	$(TEMPDIR)/bin/pip freeze > requirements.txt
 
 serve: install-dev migrate
 	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload

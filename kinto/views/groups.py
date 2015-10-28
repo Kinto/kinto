@@ -20,7 +20,7 @@ class Group(resource.ProtectedResource):
 
     def __init__(self, *args, **kwargs):
         super(Group, self).__init__(*args, **kwargs)
-        self.collection.id_generator = NameGenerator()
+        self.model.id_generator = NameGenerator()
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict['bucket_id']
@@ -29,12 +29,12 @@ class Group(resource.ProtectedResource):
 
     def collection_delete(self):
         filters = self._extract_filters()
-        groups, _ = self.collection.get_records(filters=filters)
+        groups, _ = self.model.get_records(filters=filters)
         body = super(Group, self).collection_delete()
         permission = self.request.registry.permission
         for group in groups:
             group_id = self.context.get_permission_object_id(
-                self.request, group[self.collection.id_field])
+                self.request, group[self.model.id_field])
             # Remove the group's principal from all members of the group.
             for member in group['members']:
                 permission.remove_user_principal(

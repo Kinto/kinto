@@ -4,11 +4,25 @@ Changelog
 This document describes changes between each past release.
 
 
-1.7.0 (unreleased)
+1.7.0 (2015-10-28)
 ==================
 
-- Nothing changed yet.
+- Upgraded to *Cliquet* 2.9.0
+- Update cliquet-fxa configuration example for cliquet-fxa 1.4.0
+- Improve the documentation to get started
 
+**New features**
+
+- Added Pyramid events, triggered when the content of a resource has changed. (#488)
+- Added ``kinto.includes`` setting allowing loading of plugins once Kinto
+  is initialized (unlike ``pyramid.includes``). (#504)
+
+
+**Protocol**
+
+- Remove the broken git revision ``commit`` field in the hello page. (#495).
+
+`Please read the full Cliquet 2.9.0 changelog for more information <https://github.com/mozilla-services/cliquet/releases/tag/2.9.0>`_
 
 1.6.2 (2015-10-22)
 ==================

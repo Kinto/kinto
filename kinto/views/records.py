@@ -60,7 +60,7 @@ class Record(resource.ProtectedResource):
         if not schema or not asbool(settings.get(schema_validation)):
             return new
 
-        collection_timestamp = self._collection[self.collection.modified_field]
+        collection_timestamp = self._collection[self.model.modified_field]
 
         try:
             jsonschema.validate(new, schema)
