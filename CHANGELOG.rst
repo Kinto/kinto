@@ -16,6 +16,7 @@ This document describes changes between each past release.
 - New settings for backends when using PostgreSQL: ``*_pool_maxoverflow``,
   ``*_pool_recycle``, ``*_pool_timeout`` to control connections pool
   behaviour.
+- Follow redirections in batch subrequests (fixes #511)
 
 **Internal changes**
 

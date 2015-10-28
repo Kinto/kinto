@@ -19,7 +19,7 @@ from cliquet import DEFAULT_SETTINGS
 from cliquet.authorization import PRIVATE
 from cliquet.storage import generators
 from cliquet.tests.testapp import main as testapp
-from cliquet.utils import sqlalchemy
+from cliquet.utils import sqlalchemy, follow_subrequest
 
 # This is the principal a connected user should have (in the tests).
 USER_PRINCIPAL = ('basicauth:9f2d363f98418b13253d6d7193fc88690302'
@@ -49,6 +49,8 @@ class DummyRequest(mock.MagicMock):
             return ''.join([p for p in parts if p])
 
         self.route_url = route_url
+
+    follow_subrequest = follow_subrequest
 
 
 def get_request_class(prefix):

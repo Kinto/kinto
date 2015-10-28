@@ -28,6 +28,7 @@ try:
 except ImportError:  # pragma: no cover
     sqlalchemy = None
 
+from pyramid import httpexceptions
 from pyramid.request import Request
 from pyramid.settings import aslist
 from cornice import cors
@@ -257,6 +258,24 @@ def build_response(response, request):
     dict_obj['body'] = body
 
     return dict_obj
+
+
+def follow_subrequest(request, subrequest):
+    """Run a subrequest (e.g. batch), and follow the redirection if any.
+
+    :rtype: tuple
+    :returns: the reponse and the redirection request (or `subrequest`
+              if no redirection happened.)
+    """
+    try:
+        return request.invoke_subrequest(subrequest), subrequest
+    except httpexceptions.HTTPRedirection as e:
+        new_location = e.headers['Location']
+        new_request = Request.blank(path=new_location,
+                                    headers=subrequest.headers,
+                                    POST=subrequest.body,
+                                    method=subrequest.method)
+        return request.invoke_subrequest(new_request), new_request
 
 
 def encode_header(value, encoding='utf-8'):
