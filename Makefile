@@ -48,7 +48,7 @@ tests:
 
 clean:
 	find . -name '*.pyc' -delete
-	find . -name '__pycache__' -type d -exec rm -fr {} \;
+	find . -name '__pycache__' -type d | xargs rm -fr
 
 distclean: clean
 	rm -fr *.egg *.egg-info/
