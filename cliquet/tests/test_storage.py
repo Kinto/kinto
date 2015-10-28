@@ -548,6 +548,23 @@ class DeletedRecordsTest(object):
                           object_id=record['id'],
                           **self.storage_kw)
 
+    def test_recreating_a_deleted_record_should_delete_its_tombstone(self):
+        record = {'id': 'jesus', 'rebirth': True}
+        self.create_and_delete_record(record)
+        self.create_record(record)
+        records, count = self.storage.get_all(include_deleted=True,
+                                              **self.storage_kw)
+        self.assertEqual(count, 1)  # One existing.
+        self.assertEqual(len(records), 1)  # No tombstone.
+
+    def test_deleting_a_record_twice_should_update_its_tombstone(self):
+        record = {'id': 'jesus', 'rebirth': True}
+        deleted = self.create_and_delete_record(record)
+        before = deleted['last_modified']
+        deleted = self.create_and_delete_record(record)
+        after = deleted['last_modified']
+        self.assertNotEqual(before, after)
+
     def test_deleted_items_have_deleted_set_to_true(self):
         record = self.create_and_delete_record()
         self.assertTrue(record['deleted'])
