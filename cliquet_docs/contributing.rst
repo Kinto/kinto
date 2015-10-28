@@ -142,7 +142,7 @@ Step 1
 
      $ git checkout -b prepare-X.Y.Z
      $ prerelease
-     $ vim docs/conf.py
+     $ vim cliquet_docs/conf.py
      $ make build-requirements
      $ git commit -a --amend
      $ git push origin prepare-X.Y.Z
