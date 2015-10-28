@@ -168,3 +168,76 @@ Troubleshooting
 ===============
 
 *Coming soon* !
+
+How to release
+==============
+
+In order to prepare a new release, we are following the following steps.
+
+The `prerelease` and `postrelease` commands are coming from `zest.releaser
+<https://pypi.python.org/pypi/zest.releaser>`_.
+
+Install `zest.releaser` with the `recommended` dependencies. They contain
+`wheel` and `twine`, which are required to release a new version.
+
+.. code-block:: bash
+
+    $ pip install "zest.releaser[recommended]"
+
+Step 1
+------
+
+- Merge remaining pull requests
+- Update ``CHANGELOG.rst``
+- Update version in ``docs/conf.py``
+- Known good versions of dependencies in ``requirements.txt``
+- Update ``CONTRIBUTORS.rst`` using: ``git shortlog -sne | awk '{$1=""; sub(" ", ""); print}' | awk -F'<' '!x[$1]++' | awk -F'<' '!x[$2]++' | sort``
+
+.. code-block:: bash
+
+     $ git checkout -b prepare-X.Y.Z
+     $ prerelease
+     $ vim docs/conf.py
+     $ make build-requirements
+     $ git commit -a --amend
+     $ git push origin prepare-X.Y.Z
+
+- Open a pull-request with to release the version.
+
+Step 2
+------
+
+Once the pull-request is validated, merge it and do a release.
+Use the ``release`` command to invoke the ``setup.py``, which builds and uploads to PyPI
+
+.. code-block:: bash
+
+    $ git checkout master
+    $ git merge --no-ff prepare-X.Y.Z
+    $ release
+    $ postrelease
+
+Step 3
+------
+
+As a final step:
+
+- Close the milestone in Github
+- Create next milestone in Github in the case of a major release
+- Add entry in Github release page
+- Configure the version in ReadTheDocs
+- Send mail to ML (If major release)
+
+That's all folks!
+
+
+Cleaning your environment
+=========================
+
+There are three levels of cleaning your environment:
+
+ - ``make clean`` will remove ``*.pyc`` files and ``__pycache__`` directory.
+ - ``make distclean`` will also remove ``*.egg-info`` files and ``*.egg``,
+   ``build`` and ``dist`` directories.
+ - ``make maintainer-clean`` will also remove the ``.tox`` and the
+   ``.venv`` directories.
