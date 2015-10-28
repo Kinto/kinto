@@ -1,7 +1,6 @@
-cliquet==2.8.2
+cliquet==2.9.0
 colander==1.0
 cornice==1.1.0
-dealer==2.0.4
 functools32==3.2.3.post2
 iso8601==0.1.10
 jsonschema==2.5.1
@@ -12,7 +11,7 @@ python-dateutil==2.4.2
 redis==2.10.3
 repoze.lru==0.6
 requests==2.8.1
-simplejson==3.8.0
+simplejson==3.8.1
 six==1.10.0
 structlog==15.3.0
 translationstring==1.3

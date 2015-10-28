@@ -4,10 +4,11 @@ Changelog
 This document describes changes between each past release.
 
 
-1.7.0 (unreleased)
+1.7.0 (2015-10-28)
 ==================
 
-- Nothing changed yet.
+- Upgraded to *Cliquet* 2.9.0
+- Update cliquet-fxa configuration example for cliquet-fxa 1.4.0
 
 
 1.6.2 (2015-10-22)
