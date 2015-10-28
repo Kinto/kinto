@@ -23,7 +23,7 @@ class Bucket(resource.ProtectedResource):
 
     def __init__(self, *args, **kwargs):
         super(Bucket, self).__init__(*args, **kwargs)
-        self.collection.id_generator = NameGenerator()
+        self.model.id_generator = NameGenerator()
 
     def get_parent_id(self, request):
         # Buckets are not isolated by user, unlike Cliquet resources.
@@ -33,7 +33,7 @@ class Bucket(resource.ProtectedResource):
         result = super(Bucket, self).delete()
 
         # Delete groups.
-        storage = self.collection.storage
+        storage = self.model.storage
         parent_id = '/buckets/%s' % self.record_id
         storage.delete_all(collection_id='group',
                            parent_id=parent_id,
@@ -49,7 +49,7 @@ class Bucket(resource.ProtectedResource):
                               parent_id=parent_id)
 
         # Delete records.
-        id_field = self.collection.id_field
+        id_field = self.model.id_field
         for collection in deleted:
             parent_id = '/buckets/%s/collections/%s' % (self.record_id,
                                                         collection[id_field])
@@ -79,7 +79,7 @@ def create_bucket(request, bucket_id):
     context.get_permission_object_id = lambda r, i: '/buckets/%s' % bucket_id
     resource = Bucket(request, context)
     try:
-        bucket = resource.collection.create_record({'id': bucket_id})
+        bucket = resource.model.create_record({'id': bucket_id})
     except storage_exceptions.UnicityError as e:
         bucket = e.record
     finally:
@@ -116,7 +116,7 @@ def create_collection(request, bucket_id):
                              **request.matchdict)
     resource = Collection(request, context)
     try:
-        collection = resource.collection.create_record({'id': collection_id})
+        collection = resource.model.create_record({'id': collection_id})
     except storage_exceptions.UnicityError as e:
         collection = e.record
     finally:

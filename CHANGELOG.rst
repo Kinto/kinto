@@ -9,7 +9,20 @@ This document describes changes between each past release.
 
 - Upgraded to *Cliquet* 2.9.0
 - Update cliquet-fxa configuration example for cliquet-fxa 1.4.0
+- Improve the documentation to get started
 
+**New features**
+
+- Added Pyramid events, triggered when the content of a resource has changed. (#488)
+- Added ``cliquet.includes`` setting allowing loading of plugins once Cliquet
+  is initialized (unlike ``pyramid.includes``). (#504)
+
+
+**Protocol**
+
+- Remove the broken git revision ``commit`` field in the hello page. (#495).
+
+`Please read the full Cliquet 2.9.0 changelog for more information <https://github.com/mozilla-services/cliquet/releases/tag/2.9.0>`_
 
 1.6.2 (2015-10-22)
 ==================

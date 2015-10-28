@@ -43,7 +43,7 @@ class Collection(resource.ProtectedResource):
 
     def __init__(self, *args, **kwargs):
         super(Collection, self).__init__(*args, **kwargs)
-        self.collection.id_generator = NameGenerator()
+        self.model.id_generator = NameGenerator()
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict['bucket_id']
@@ -54,8 +54,8 @@ class Collection(resource.ProtectedResource):
         result = super(Collection, self).delete()
 
         # Delete records.
-        storage = self.collection.storage
-        parent_id = '%s/collections/%s' % (self.collection.parent_id,
+        storage = self.model.storage
+        parent_id = '%s/collections/%s' % (self.model.parent_id,
                                            self.record_id)
         storage.delete_all(collection_id='record',
                            parent_id=parent_id,
