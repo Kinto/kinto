@@ -2,13 +2,10 @@ import mock
 from six import text_type
 from uuid import UUID
 
-from pyramid.httpexceptions import HTTPBadRequest
-
-from cliquet.errors import ERRORS, http_error
+from cliquet.errors import ERRORS
 from cliquet.tests.support import FormattedErrorMixin
 from cliquet.utils import hmac_digest
 
-from kinto.views.buckets import default_bucket
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_RECORD)
 
@@ -19,8 +16,19 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
     bucket_url = '/buckets/default'
     collection_url = '/buckets/default/collections/tasks'
 
+    def _follow(self, method, *args, **kwargs):
+        status = kwargs.pop('status', None)
+        response = method(*args, **kwargs)
+        if response.status_code in (307, 308):
+            location = response.headers['Location']
+            location = location.replace('http://localhost/v1', '')
+            kwargs['status'] = status
+            response = method(location, *args[1:], **kwargs)
+        return response
+
     def test_default_bucket_exists_and_has_user_id(self):
-        bucket = self.app.get(self.bucket_url, headers=self.headers)
+        bucket = self._follow(self.app.get, self.bucket_url,
+                              headers=self.headers)
         result = bucket.json
         settings = self.app.app.registry.settings
         hmac_secret = settings['userid_hmac_secret']
@@ -31,20 +39,23 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
 
     def test_default_bucket_can_still_be_explicitly_created(self):
         bucket = {'permissions': {'read': ['system.Everyone']}}
-        resp = self.app.put_json(self.bucket_url, bucket, headers=self.headers)
+        resp = self._follow(self.app.put_json, self.bucket_url, bucket,
+                            headers=self.headers)
         result = resp.json
         self.assertIn('system.Everyone', result['permissions']['read'])
 
     def test_default_bucket_collections_are_automatically_created(self):
-        self.app.get(self.collection_url, headers=self.headers, status=200)
+        self._follow(self.app.get, self.collection_url, status=200,
+                     headers=self.headers)
 
     def test_adding_a_task_for_bob_doesnt_add_it_for_alice(self):
         record = MINIMALIST_RECORD.copy()
-        resp = self.app.post_json(self.collection_url + '/records',
-                                  record, headers=get_user_headers('bob'))
+        records_url = self.collection_url + '/records'
+        resp = self._follow(self.app.post_json, records_url, record,
+                            headers=get_user_headers('bob'))
         record_id = self.collection_url + '/records/' + resp.json['data']['id']
-        resp = self.app.get(record_id, headers=get_user_headers('alice'),
-                            status=404)
+        resp = self._follow(self.app.get, record_id, status=404,
+                            headers=get_user_headers('alice'))
 
     def test_unauthenticated_bucket_access_raises_json_401(self):
         resp = self.app.get(self.bucket_url, status=401)
@@ -52,7 +63,8 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
                           'Please authenticate yourself to use this endpoint.')
 
     def test_bucket_id_is_an_uuid_with_dashes(self):
-        bucket = self.app.get(self.bucket_url, headers=self.headers)
+        bucket = self._follow(self.app.get, self.bucket_url,
+                              headers=self.headers)
         bucket_id = bucket.json['data']['id']
         self.assertIn('-', bucket_id)
         try:
@@ -69,9 +81,9 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
         self.app.get(self.collection_url, headers=self.headers)
 
     def test_querystring_parameters_are_taken_into_account(self):
-        self.app.get(self.collection_url + '/records?_since=invalid',
-                     headers=self.headers,
-                     status=400)
+        full_url = self.collection_url + '/records?_since=invalid'
+        self._follow(self.app.get, full_url, status=400,
+                     headers=self.headers)
 
     def test_option_is_possible_without_authentication_for_default(self):
         headers = 'authorization,content-type'
@@ -82,34 +94,32 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
                              'Access-Control-Request-Headers': headers})
 
     def test_cors_headers_are_provided_on_errors(self):
-        resp = self.app.post_json(self.collection_url + '/records',
-                                  MINIMALIST_RECORD,
-                                  headers=self.headers)
+        records_url = self.collection_url + '/records'
+        resp = self._follow(self.app.post_json, records_url, MINIMALIST_RECORD,
+                            headers=self.headers)
         current = resp.json['data']['last_modified']
         headers = self.headers.copy()
         headers.update({
             'Origin': 'http://localhost:8000',
             'If-None-Match': ('"%s"' % current).encode('utf-8')
         })
-        resp = self.app.get(self.collection_url + '/records',
+        resp = self._follow(self.app.get, self.collection_url + '/records',
                             headers=headers, status=304)
         self.assertIn('Access-Control-Allow-Origin', resp.headers)
 
     def test_bucket_id_starting_with_default_can_still_be_created(self):
         # We need to create the bucket first since it is not the default bucket
-        resp = self.app.put(
-            self.bucket_url.replace('default', 'default-1234'),
-            headers=self.headers, status=201)
+        classic_bucket = self.bucket_url.replace('default', 'default-1234')
+        resp = self._follow(self.app.put, classic_bucket, status=201,
+                            headers=self.headers)
         bucket_id = resp.json['data']['id']
         self.assertEquals(bucket_id, 'default-1234')
 
         # We can then create the collection
         collection_url = '/buckets/default-1234/collections/default'
-        self.app.put(
-            collection_url,
-            headers=self.headers,
-            status=201)
-        resp = self.app.get('/buckets/default-1234/collections',
+        self._follow(self.app.put, collection_url, status=201,
+                     headers=self.headers)
+        resp = self._follow(self.app.get, '/buckets/default-1234/collections',
                             headers=self.headers)
         self.assertEquals(resp.json['data'][0]['id'], 'default')
 
@@ -125,7 +135,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
         with mock.patch.object(self.storage, 'create',
                                wraps=self.storage.create) as patched:
             self.app.post_json('/batch', batch, headers=self.headers)
-            self.assertEqual(patched.call_count, nb_create + 2)
+            self.assertEqual(patched.call_count, 2)
 
     def test_parent_collection_is_taken_from_the_one_created_in_batch(self):
         batch = {'requests': []}
@@ -143,7 +153,8 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
 
     def test_parent_collection_is_taken_from_the_one_checked_in_batch(self):
         # Create it first.
-        self.app.put(self.collection_url, headers=self.headers, status=201)
+        self._follow(self.app.put, self.collection_url, status=201,
+                     headers=self.headers)
 
         batch = {'requests': []}
         nb_create = 25
@@ -159,28 +170,8 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
             self.assertEqual(patched.call_count, 0)
 
     def test_405_is_a_valid_formatted_error(self):
-        response = self.app.post(self.collection_url,
-                                 headers=self.headers, status=405)
+        response = self._follow(self.app.post, self.collection_url, status=405,
+                                headers=self.headers)
         self.assertFormattedError(
             response, 405, ERRORS.METHOD_NOT_ALLOWED, "Method Not Allowed",
             "Method not allowed on this endpoint.")
-
-    def test_formatted_error_are_passed_through(self):
-        request = mock.MagicMock()
-        request.method = 'PUT'
-        request.url = 'http://localhost/v1/buckets/default/collections/tasks'
-        request.path = 'http://localhost/v1/buckets/default/collections/tasks'
-        request.prefixed_userid = 'fxa:abcd'
-        request.registry.settings = {
-            'userid_hmac_secret': 'This is no secret'
-        }
-
-        response = http_error(HTTPBadRequest(),
-                              errno=ERRORS.INVALID_PARAMETERS,
-                              message='Yop')
-
-        with mock.patch('kinto.views.buckets.create_bucket'):
-            with mock.patch('kinto.views.buckets.create_collection'):
-                request.invoke_subrequest.side_effect = response
-                resp = default_bucket(request)
-                self.assertEqual(resp.body, response.body)

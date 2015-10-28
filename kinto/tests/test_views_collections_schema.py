@@ -1,8 +1,9 @@
-from .support import BaseWebTest, unittest
+from .support import (BaseWebTest, unittest, MINIMALIST_BUCKET,
+                      MINIMALIST_COLLECTION)
 
 
-COLLECTION_URL = '/buckets/default/collections/articles'
-RECORDS_URL = '/buckets/default/collections/articles/records'
+COLLECTION_URL = '/buckets/blog/collections/articles'
+RECORDS_URL = '/buckets/blog/collections/articles/records'
 
 
 SCHEMA = {
@@ -19,6 +20,11 @@ VALID_RECORD = {'title': 'About us', 'body': '<h1>About</h1>'}
 
 
 class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super(DeactivatedSchemaTest, self).setUp()
+        self.app.put_json('/buckets/blog', MINIMALIST_BUCKET,
+                          headers=self.headers)
+
     def test_schema_should_be_json_schema(self):
         newschema = SCHEMA.copy()
         newschema['type'] = 'Washmachine'
@@ -47,6 +53,14 @@ class BaseWebTestWithSchema(BaseWebTest):
             additional_settings)
         settings['experimental_collection_schema_validation'] = 'True'
         return settings
+
+    def setUp(self):
+        super(BaseWebTestWithSchema, self).setUp()
+        self.app.put_json('/buckets/blog', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json(COLLECTION_URL,
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
 
 
 class MissingSchemaTest(BaseWebTestWithSchema, unittest.TestCase):

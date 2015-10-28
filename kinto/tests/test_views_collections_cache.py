@@ -1,5 +1,5 @@
-from .support import (BaseWebTest, unittest, MINIMALIST_BUCKET,
-                      MINIMALIST_COLLECTION, MINIMALIST_RECORD)
+from .support import (BaseWebTest, unittest, MINIMALIST_RECORD,
+                      MINIMALIST_BUCKET)
 
 
 class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
@@ -10,13 +10,10 @@ class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(GlobalSettingsTest, self).setUp()
-        r = self.app.post_json('/buckets/default/collections/cached/records',
-                               MINIMALIST_RECORD,
-                               headers=self.headers)
-        self.record = r.json['data']
+        self.record = self.create_record_in_collection('blog', 'cached')
 
     def test_expires_and_cache_control_headers_are_set(self):
-        url = '/buckets/default/collections/cached/records'
+        url = '/buckets/blog/collections/cached/records'
         r = self.app.get(url,
                          headers=self.headers)
         self.assertIn('Expires', r.headers)
@@ -37,23 +34,8 @@ class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(SpecificSettingsTest, self).setUp()
-
-        def create_record_in_collection(bucket_id, collection_id):
-            self.app.put_json('/buckets/%s' % bucket_id,
-                              MINIMALIST_BUCKET,
-                              headers=self.headers)
-            collection_url = '/buckets/%s/collections/%s' % (bucket_id,
-                                                             collection_id)
-            self.app.put_json(collection_url,
-                              MINIMALIST_COLLECTION,
-                              headers=self.headers)
-            r = self.app.post_json(collection_url + '/records',
-                                   MINIMALIST_RECORD,
-                                   headers=self.headers)
-            return r.json['data']
-
-        self.blog_record = create_record_in_collection('blog', 'cached')
-        self.app_record = create_record_in_collection('browser', 'top500')
+        self.blog_record = self.create_record_in_collection('blog', 'cached')
+        self.app_record = self.create_record_in_collection('browser', 'top500')
 
     def assertHasCache(self, url, age):
         r = self.app.get(url, headers=self.headers)
@@ -76,7 +58,9 @@ class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
 class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(CollectionExpiresTest, self).setUp()
-        self.collection_url = '/buckets/default/collections/cached'
+        self.app.put_json('/buckets/blog', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.collection_url = '/buckets/blog/collections/cached'
         self.app.put_json(self.collection_url,
                           {'data': {'cache_expires': 3600}},
                           headers=self.headers)
@@ -120,6 +104,8 @@ class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
 
     def test_cache_control_on_collection_overrides_setting(self):
         app = self._get_test_app({'kinto.record_cache_expires_seconds': 10})
+        app.put_json('/buckets/blog', MINIMALIST_BUCKET,
+                     headers=self.headers)
         app.put_json(self.collection_url,
                      {'data': {'cache_expires': 3600}},
                      headers=self.headers)

@@ -33,7 +33,7 @@ When fetching the collection records with ``?_since=<timestamp>``, *Kinto* retur
 every records that was created/updated/deleted **after** this timestamp.
 
 #. Cold sync → no ``?_since``.
-#. ``GET /buckets/default/collections/articles?_since=<timestamp>`` (with header ``If-Unmodified-Since = <timestamp>``)
+#. ``GET /buckets/blog/collections/articles?_since=<timestamp>`` (with header ``If-Unmodified-Since = <timestamp>``)
 #. If response is ``304 Not modified``, done → up to date, nothing to do.
 #. If response is ``200 OK`` store ``ETag`` response header value for next
    synchronisation and handle the obtained list of changes.
@@ -58,7 +58,7 @@ Since changes can occur between the first and the last page, the synchronisation
 process is a bit more complex.
 
 #. Cold sync → no ``?_since``.
-#. ``GET /buckets/default/collections/articles?_since=<timestamp>`` (with header ``If-Unmodified-Since = <timestamp>``)
+#. ``GET /buckets/blog/collections/articles?_since=<timestamp>`` (with header ``If-Unmodified-Since = <timestamp>``)
 #. If response is ``304 Not modified``, done → up to date, nothing to do.
 #. If no ``Next-Page`` response header, done → store ``ETag`` response header valuè for next
    synchronisation.

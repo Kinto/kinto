@@ -1,12 +1,9 @@
-from six import text_type
-from uuid import UUID
-
-from pyramid.httpexceptions import HTTPForbidden, HTTPException
+from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPForbidden
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
 from cliquet import resource
-from cliquet.utils import hmac_digest, build_request, reapply_cors
+from cliquet.utils import build_request
 from cliquet.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
@@ -136,14 +133,10 @@ def default_bucket(request):
         })
         return request.invoke_subrequest(subrequest)
 
-    if getattr(request, 'prefixed_userid', None) is None:
+    bucket_id = request.default_bucket_id
+    if bucket_id is None:
         raise HTTPForbidden()  # Pass through the forbidden_view_config
 
-    settings = request.registry.settings
-    hmac_secret = settings['userid_hmac_secret']
-    # Build the user unguessable bucket_id UUID from its user_id
-    digest = hmac_digest(hmac_secret, request.prefixed_userid)
-    bucket_id = text_type(UUID(digest[:32]))
     path = request.path.replace('/buckets/default', '/buckets/%s' % bucket_id)
     querystring = request.url[(request.url.index(request.path) +
                                len(request.path)):]
@@ -154,19 +147,5 @@ def default_bucket(request):
     # Make sure the collection exists
     create_collection(request, bucket_id)
 
-    subrequest = build_request(request, {
-        'method': request.method,
-        'path': path + querystring,
-        'body': request.body
-    })
-    subrequest.bound_data = request.bound_data
-
-    try:
-        response = request.invoke_subrequest(subrequest)
-    except HTTPException as error:
-        if error.content_type == 'application/json':
-            response = reapply_cors(subrequest, error)
-        else:
-            # Ask the upper level to format the error.
-            raise error
-    return response
+    # Redirect the client to the actual bucket.
+    raise HTTPTemporaryRedirect(path + querystring)

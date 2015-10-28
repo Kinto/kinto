@@ -20,7 +20,8 @@ In order to separate data between each user, we will use the default
 *personal bucket*.
 
 Unlike other buckets, the :ref:`collections <collections>` in the ``default``
-:ref:`bucket <buckets>` are created implicitly.
+:ref:`bucket <buckets>` are created implicitly and the client is redirected
+to the URL with the full bucket id.
 
 We'll start with a relatively simple data model:
 
@@ -34,9 +35,9 @@ Using the `httpie <http://httpie.org>` tool we can post a sample record in the
 
     $ echo '{"data": {"description": "Write a tutorial explaining Kinto", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-             -v --auth 'user:password'
+             -v --follow --auth 'user:password'
 
-    POST /v1/buckets/default/collections/tasks/records HTTP/1.1
+    POST /v1/buckets/3d45de3c-d116-7060-6797-c6b525f7ee51/collections/tasks/records HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -88,8 +89,8 @@ Let us fetch our new collection of tasks:
 .. code-block:: http
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-           -v --auth 'user:password'
-    GET /v1/buckets/default/collections/tasks/records HTTP/1.1
+           -v --follow --auth 'user:password'
+    GET /v1/buckets/3d45de3c-d116-7060-6797-c6b525f7ee51/collections/tasks/records HTTP/1.1
     Accept: */*
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -131,9 +132,9 @@ We can also update one of our tasks using its ``id``:
 
     $ echo '{"data": {"status": "doing"}}' | \
          http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
-              -v  --auth 'user:password'
+              -v --follow --auth 'user:password'
 
-    PATCH /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
+    PATCH /v1/buckets/3d45de3c-d116-7060-6797-c6b525f7ee51/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -192,9 +193,9 @@ while we fetched the collection earlier - you kept a note, didn't you?):
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1434641515332"' \
-            -v  --auth 'user:password'
+            -v --follow --auth 'user:password'
 
-    PATCH /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
+    PATCH /v1/buckets/3d45de3c-d116-7060-6797-c6b525f7ee51/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -236,9 +237,9 @@ single record and merge attributes locally:
 .. code-block:: http
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
-           -v  --auth 'user:password'
+           -v --follow --auth 'user:password'
 
-    GET /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
+    GET /v1/buckets/3d45de3c-d116-7060-6797-c6b525f7ee51/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
     Accept: */*
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -285,9 +286,9 @@ record ``ETag`` value:
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1436172229372"' \
-            -v  --auth 'user:password'
+            -v --follow --auth 'user:password'
 
-    PATCH /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
+    PATCH /v1/buckets/3d45de3c-d116-7060-6797-c6b525f7ee51/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -334,9 +335,9 @@ You can also delete the record and use the same mechanism to avoid conflicts:
 
     $ http DELETE https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
            If-Match:'"1436172442466"' \
-           -v  --auth 'user:password'
+           -v --follow --auth 'user:password'
 
-    DELETE /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
+    DELETE /v1/buckets/3d45de3c-d116-7060-6797-c6b525f7ee51/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
     Accept: */*
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==
@@ -374,9 +375,9 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
 .. code-block:: http
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since=1434642603605 \
-           -v  --auth 'user:password'
+           -v --follow --auth 'user:password'
 
-    GET /v1/buckets/default/collections/tasks/records?_since=1434642603605 HTTP/1.1
+    GET /v1/buckets/3d45de3c-d116-7060-6797-c6b525f7ee51/collections/tasks/records?_since=1434642603605 HTTP/1.1
     Accept: */*
     Accept-Encoding: gzip, deflate
     Authorization: Basic dXNlcjpwYXNzd29yZA==

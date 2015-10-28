@@ -21,12 +21,13 @@ A collection is a mapping with the following attribute:
     shortcut: ie ``/buckets/default/collections/contacts`` will be
     the current user contacts.
 
-    Internally the user default bucket is assigned to an ID that can
-    later be used to share data from a user personnal bucket.
+    Internally the user default bucket is assigned to an ID, and the client
+    is redirected when accessing it.
 
-    Collections on the "default" bucket are created silently upon first
-    access and therefore don't need to be set beforehand.
+    When going through the default bucket, the collections are created silently
+    upon first access before redirecting the client.
 
+    Users can share data from their personnal bucket, by sharing :ref:`its URL using the full ID <buckets-default-id>`.
 
 
 .. _collection-put:
@@ -295,11 +296,11 @@ Just modify the ``schema`` attribute of the collection object:
           "required": ["title"]
         }
       }
-    }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth admin: --verbose
+    }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" -v --follow --auth 'admin:'
 
 .. code-block:: http
 
-    PATCH /v1/buckets/default/collections/articles HTTP/1.1
+    PATCH /v1/buckets/3d45de3c-d116-7060-6797-c6b525f7ee51/collections/articles HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic YWRtaW46
@@ -380,7 +381,7 @@ Once a schema has been defined, the posted records must match it:
 
     $ echo '{"data": {
         "body": "Fails if no title"
-    }}' | http POST http://localhost:8888/v1/buckets/blog/collections/articles/records --auth "admin:"
+    }}' | http POST http://localhost:8888/v1/buckets/blog/collections/articles/records -v --follow --auth 'admin:'
 
 .. code-block:: http
 
@@ -434,11 +435,11 @@ to an empty mapping.
 
 .. code-block:: bash
 
-    echo '{"data": {"schema": {}} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth admin: --verbose
+    echo '{"data": {"schema": {}} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" -v --follow --auth 'admin:'
 
 .. code-block:: http
 
-    PATCH /v1/buckets/default/collections/articles HTTP/1.1
+    PATCH /v1/buckets/3d45de3c-d116-7060-6797-c6b525f7ee51/collections/articles HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic YWRtaW46
@@ -495,13 +496,13 @@ For example, set it to ``3600`` (1 hour):
 
 .. code-block:: bash
 
-    echo '{"data": {"cache_expires": 3600} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth admin:
+    echo '{"data": {"cache_expires": 3600} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" -v --follow --auth 'admin:'
 
 From now on, the cache control headers are set for the `GET` requests:
 
 .. code-block:: bash
 
-    http  "http://localhost:8888/v1/buckets/default/collections/articles/records" --auth admin:
+    http  "http://localhost:8888/v1/buckets/default/collections/articles/records" -v --follow --auth 'admin:'
 
 .. code-block:: http
     :emphasize-lines: 3,8
@@ -527,7 +528,7 @@ If set to ``0``, the collection records become explicitly uncacheable (``no-cach
 
 .. code-block:: bash
 
-    echo '{"data": {"cache_expires": 0} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth admin:
+    echo '{"data": {"cache_expires": 0} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" -v --follow --auth 'admin:'
 
 .. code-block:: http
     :emphasize-lines: 3,8,10

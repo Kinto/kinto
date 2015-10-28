@@ -72,6 +72,20 @@ class BaseWebTest(object):
         self.app.put_json('/buckets/%s' % bucket_id, MINIMALIST_BUCKET,
                           headers=self.headers, status=201)
 
+    def create_record_in_collection(self, bucket_id, collection_id):
+        self.app.put_json('/buckets/%s' % bucket_id,
+                          MINIMALIST_BUCKET,
+                          headers=self.headers)
+        collection_url = '/buckets/%s/collections/%s' % (bucket_id,
+                                                         collection_id)
+        self.app.put_json(collection_url,
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        r = self.app.post_json(collection_url + '/records',
+                               MINIMALIST_RECORD,
+                               headers=self.headers)
+        return r.json['data']
+
 
 def get_user_headers(user):
     credentials = "%s:secret" % user
