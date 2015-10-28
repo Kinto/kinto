@@ -179,6 +179,11 @@ class ProtectedViewSet(ViewSet):
                                              permissions=allowed_permissions,
                                              name='permissions')
         schema.add(permissions_node)
+
+        # XXX: If Cornice wouldn't recreate the schema on the fly.
+        # We could make sure using a validator that at least one of `data` or
+        # `permissions` is provided.
+
         return schema
 
     def get_view_arguments(self, endpoint_type, resource_cls, method):

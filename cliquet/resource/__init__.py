@@ -408,7 +408,17 @@ class BaseResource(object):
         old_record = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(old_record)
 
-        changes = self.request.json.get('data', {})  # May patch only perms.
+        try:
+            # data may not be present if only perms are patched.
+            changes = self.request.json.get('data', {})
+        except ValueError:
+            # XXX: This could be handled in Colander schema (c.f. Viewset)
+            # once hacks in Cornice about schemas will be removed.
+            error_details = {
+                'name': 'data',
+                'description': 'Provide at least one of data or permissions',
+            }
+            raise_invalid(self.request, **error_details)
 
         updated = self.apply_changes(old_record, changes=changes)
 

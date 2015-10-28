@@ -489,9 +489,19 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
                               status=400)
         self.assertIn('escape sequence', resp.json['message'])
 
-    def test_modify_with_empty_returns_400(self):
+    def test_modify_with_empty_body_returns_400(self):
         self.app.patch(self.get_item_url(),
-                       '',
+                       headers=self.headers,
+                       status=400)
+
+    def test_modify_protected_with_empty_body_returns_400(self):
+        body = {'data': MINIMALIST_RECORD}
+        resp = self.app.post_json('/toadstools',
+                                  body,
+                                  headers=self.headers)
+        record = resp.json['data']
+        item_url = '/toadstools/' + record['id']
+        self.app.patch(item_url,
                        headers=self.headers,
                        status=400)
 
