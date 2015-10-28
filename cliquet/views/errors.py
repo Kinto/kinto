@@ -69,7 +69,8 @@ def page_not_found(request):
              permission=NO_PERMISSION_REQUIRED)
 def service_unavailable(response, request):
     if response.content_type != 'application/json':
-        error_msg = "Service unavailable due to high load, please retry later."
+        error_msg = ("Service temporary unavailable "
+                     "due to overloading or maintenance, please retry later.")
         response = http_error(response, errno=ERRORS.BACKEND,
                               message=error_msg)
 

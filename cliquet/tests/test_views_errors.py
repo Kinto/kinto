@@ -114,7 +114,8 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                                     headers=self.headers, status=503)
         self.assertFormattedError(
             response, 503, ERRORS.BACKEND, "Service Unavailable",
-            "Service unavailable due to high load, please retry later.")
+            ("Service temporary unavailable "
+             "due to overloading or maintenance, please retry later."))
         self.assertIn("Retry-After", response.headers)
 
     def test_503_can_have_custom_message(self):
