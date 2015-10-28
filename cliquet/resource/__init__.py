@@ -609,7 +609,8 @@ class BaseResource(object):
         resource_name = self.context.resource_name if self.context else ''
         setting_key = '%s_cache_expires_seconds' % resource_name
         collection_expires = self.request.registry.settings.get(setting_key)
-        if collection_expires is not None:
+        is_anonymous = self.request.prefixed_userid is None
+        if collection_expires is not None and is_anonymous:
             response.cache_expires(seconds=int(collection_expires))
 
     def _raise_400_if_invalid_id(self, record_id):

@@ -12,7 +12,7 @@ import webtest
 
 from cornice import errors as cornice_errors
 from pyramid.url import parse_url_overrides
-from pyramid.security import IAuthorizationPolicy, Authenticated
+from pyramid.security import IAuthorizationPolicy, Authenticated, Everyone
 from zope.interface import implementer
 
 from cliquet import DEFAULT_SETTINGS
@@ -164,6 +164,8 @@ class AllowAuthorizationPolicy(object):
     def permits(self, context, principals, permission):
         if permission == PRIVATE:
             return Authenticated in principals
+        if Everyone in principals:
+            return True
         # Cliquet default authz policy uses prefixed_userid.
         prefixed = [getattr(context, 'prefixed_userid', None)]
         return USER_PRINCIPAL in (principals + prefixed)

@@ -596,17 +596,28 @@ class ConflictErrorsTest(BaseWebTest, unittest.TestCase):
 
 
 class CacheControlTest(BaseWebTest, unittest.TestCase):
-    def test_cache_control_headers_are_set(self):
-        with mock.patch.dict(self.app.app.registry.settings,
-                             [('_cache_expires_seconds', 3600)]):
-            resp = self.app.get(self.collection_url, headers=self.headers)
+    collection_url = '/toadstools'
+
+    def get_app_settings(self, extras=None):
+        settings = super(CacheControlTest, self).get_app_settings(extras)
+        settings['toadstool_cache_expires_seconds'] = 3600
+        settings['psilo_cache_expires_seconds'] = 0
+        settings['toadstool_read_principals'] = 'system.Everyone'
+        return settings
+
+    def test_cache_control_headers_are_set_if_anonymous(self):
+        resp = self.app.get(self.collection_url)
         self.assertIn('Expires', resp.headers)
         self.assertIn('Cache-Control', resp.headers)
 
+    def test_cache_control_headers_are_not_set_if_authenticated(self):
+        resp = self.app.get(self.collection_url, headers=self.headers)
+        # XXX: See other PR #522 - merge test here.
+        self.assertNotIn('Expires', resp.headers)
+        self.assertNotIn('Cache-Control', resp.headers)
+
     def test_cache_control_headers_set_no_cache_if_zero(self):
-        with mock.patch.dict(self.app.app.registry.settings,
-                             [('_cache_expires_seconds', 0)]):
-            resp = self.app.get(self.collection_url, headers=self.headers)
+        resp = self.app.get('/psilos')
         self.assertIn('Expires', resp.headers)
         self.assertIn('Cache-Control', resp.headers)
         self.assertIn('Pragma', resp.headers)

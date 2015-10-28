@@ -9,6 +9,11 @@ class CacheExpires(BaseTest):
         context.resource_name = 'test'
         return context
 
+    def get_request(self):
+        request = super(CacheExpires, self).get_request()
+        request.prefixed_userid = None  # Anonymous.
+        return request
+
     def test_no_cache_expires_by_default(self):
         settings = self.resource.request.registry.settings
         settings.pop(self.setting, None)
