@@ -250,7 +250,7 @@ class ViewSetTest(unittest.TestCase):
                                                  config)
         self.assertTrue(is_enabled)
 
-    def test_is_endpoint_enabled_returns_false_if_enabled(self):
+    def test_is_endpoint_enabled_returns_false_if_disabled(self):
         viewset = ViewSet()
         config = {
             'record_fake_get_enabled': False
@@ -259,7 +259,7 @@ class ViewSetTest(unittest.TestCase):
                                                  config)
         self.assertFalse(is_enabled)
 
-    def test_is_endpoint_enabled_returns_true_if_disabled(self):
+    def test_is_endpoint_enabled_returns_true_if_enabled(self):
         viewset = ViewSet()
         config = {
             'record_fake_get_enabled': True
@@ -267,6 +267,42 @@ class ViewSetTest(unittest.TestCase):
         is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'get',
                                                  config)
         self.assertTrue(is_enabled)
+
+    def test_is_endpoint_enabled_returns_false_for_put_if_readonly(self):
+        viewset = ViewSet()
+        config = {
+            'readonly': True
+        }
+        is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'put',
+                                                 config)
+        self.assertFalse(is_enabled)
+
+    def test_is_endpoint_enabled_returns_false_for_post_if_readonly(self):
+        viewset = ViewSet()
+        config = {
+            'readonly': True
+        }
+        is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'post',
+                                                 config)
+        self.assertFalse(is_enabled)
+
+    def test_is_endpoint_enabled_returns_false_for_patch_if_readonly(self):
+        viewset = ViewSet()
+        config = {
+            'readonly': True
+        }
+        is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'patch',
+                                                 config)
+        self.assertFalse(is_enabled)
+
+    def test_is_endpoint_enabled_returns_false_for_delete_if_readonly(self):
+        viewset = ViewSet()
+        config = {
+            'readonly': True
+        }
+        is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'delete',
+                                                 config)
+        self.assertFalse(is_enabled)
 
 
 class ProtectedViewSetTest(unittest.TestCase):
