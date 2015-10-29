@@ -1,7 +1,7 @@
 import colander
 import mock
 
-from cliquet import authorization
+from cliquet import authorization, DEFAULT_SETTINGS
 from cliquet.resource import ViewSet, ProtectedViewSet, register_resource
 
 from cliquet.tests.support import unittest
@@ -306,7 +306,11 @@ class RegisterTest(unittest.TestCase):
         venusian_callback = register_resource(
             self.resource, viewset=self.viewset)
 
+        config = mock.MagicMock()
+        config.registry.settings = DEFAULT_SETTINGS
+
         context = mock.MagicMock()
+        context.config.with_package.return_value = config
         venusian_callback(context, None, None)
 
         service_class.assert_any_call('fake-collection', '/fake', depth=1,
@@ -319,7 +323,11 @@ class RegisterTest(unittest.TestCase):
         venusian_callback = register_resource(
             self.resource, viewset=self.viewset)
 
+        config = mock.MagicMock()
+        config.registry.settings = DEFAULT_SETTINGS
+
         context = mock.MagicMock()
+        context.config.with_package.return_value = config
         venusian_callback(context, None, None)
 
         service_class.assert_any_call('fake-record', '/fake/{id}', depth=1,

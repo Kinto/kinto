@@ -9,7 +9,7 @@ from cliquet.permission import (PermissionBase, redis as redis_backend,
                                 memory as memory_backend,
                                 postgresql as postgresql_backend)
 
-from .support import unittest, skip_if_no_postgresql
+from .support import unittest, skip_if_no_postgresql, DummyRequest
 
 
 class PermissionBaseTest(unittest.TestCase):
@@ -44,7 +44,7 @@ class BaseTestPermission(object):
         super(BaseTestPermission, self).setUp()
         self.permission = self.backend.load_from_config(self._get_config())
         self.permission.initialize_schema()
-        self.request = None
+        self.request = DummyRequest()
         self.client_error_patcher = []
 
     def _get_config(self, settings=None):

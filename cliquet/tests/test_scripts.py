@@ -27,3 +27,14 @@ class InitSchemaTest(unittest.TestCase):
         self.assertTrue(self.registry.storage.initialize_schema.called)
         self.assertTrue(self.registry.cache.initialize_schema.called)
         self.assertTrue(self.registry.permission.initialize_schema.called)
+
+    def test_migrate_in_read_only_display_warnings(self):
+        with mock.patch('cliquet.scripts.cliquet.warnings.warn') as mocked:
+            self.registry.settings = {'readonly': 'true'}
+            self.run_command('migrate')
+            mocked.assert_any_call(
+                'Cannot migrate the storage backend while in readonly mode.',
+                Warning)
+            mocked.assert_any_call(
+                'Cannot migrate the permission backend while in readonly '
+                'mode.', Warning)
