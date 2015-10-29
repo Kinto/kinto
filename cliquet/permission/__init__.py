@@ -132,25 +132,6 @@ class PermissionBase(object):
             object_id, permission, get_bound_permissions)
         return len(authorized_principals & principals) > 0
 
-    def ping(self, request):
-        """Test the permission backend is operationnal.
-
-        :param request: current request object
-        :type request: :class:`~pyramid:pyramid.request.Request`
-        :returns: ``True`` is everything is ok, ``False`` otherwise.
-        :rtype: bool
-        """
-        try:
-            if asbool(request.registry.settings.get('readonly')):
-                # Do not try to write in readonly mode.
-                self.user_principals(__HEARTBEAT_KEY__)
-            else:
-                self.add_user_principal(__HEARTBEAT_KEY__, 'alive')
-                self.remove_user_principal(__HEARTBEAT_KEY__, 'alive')
-        except BackendError:
-            return False
-        return True
-
     def object_permissions(self, object_id, permissions=None):
         """Return the set of principals for each object permission.
 
@@ -178,3 +159,25 @@ class PermissionBase(object):
         :param str object_id: Remove given objects permissions.
         """
         raise NotImplementedError
+
+
+def heartbeat(backend):
+    def ping(request):
+        """Test the permission backend is operationnal.
+
+        :param request: current request object
+        :type request: :class:`~pyramid:pyramid.request.Request`
+        :returns: ``True`` is everything is ok, ``False`` otherwise.
+        :rtype: bool
+        """
+        try:
+            if asbool(request.registry.settings.get('readonly')):
+                # Do not try to write in readonly mode.
+                backend.user_principals(__HEARTBEAT_KEY__)
+            else:
+                backend.add_user_principal(__HEARTBEAT_KEY__, 'alive')
+                backend.remove_user_principal(__HEARTBEAT_KEY__, 'alive')
+        except BackendError:
+            return False
+        return True
+    return ping

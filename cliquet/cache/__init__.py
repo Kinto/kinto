@@ -23,25 +23,6 @@ class CacheBase(object):
         """Delete every values."""
         raise NotImplementedError
 
-    def ping(self, request):
-        """Test that cache backend is operationnal.
-
-        :param request: current request object
-        :type request: :class:`~pyramid:pyramid.request.Request`
-        :returns: ``True`` is everything is ok, ``False`` otherwise.
-        :rtype: bool
-        """
-        # No specific case for readonly mode because the cache should
-        # continue to work in that mode.
-        try:
-            if random.random() < _HEARTBEAT_DELETE_RATE:
-                self.delete(_HEARTBEAT_KEY)
-            else:
-                self.set(_HEARTBEAT_KEY, 'alive', _HEARTBEAT_TTL_SECONDS)
-            return True
-        except:
-            return False
-
     def ttl(self, key):
         """Obtain the expiration value of the specified `key`.
 
@@ -84,3 +65,26 @@ class CacheBase(object):
         :param str key: key
         """
         raise NotImplementedError
+
+
+def heartbeat(backend):
+    def ping(request):
+        """Test that cache backend is operationnal.
+
+        :param request: current request object
+        :type request: :class:`~pyramid:pyramid.request.Request`
+        :returns: ``True`` is everything is ok, ``False`` otherwise.
+        :rtype: bool
+        """
+        # No specific case for readonly mode because the cache should
+        # continue to work in that mode.
+        try:
+            if random.random() < _HEARTBEAT_DELETE_RATE:
+                backend.delete(_HEARTBEAT_KEY)
+            else:
+                backend.set(_HEARTBEAT_KEY, 'alive', _HEARTBEAT_TTL_SECONDS)
+            return True
+        except:
+            return False
+
+    return ping

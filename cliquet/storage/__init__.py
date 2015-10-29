@@ -49,31 +49,6 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
-    def ping(self, request):
-        """Test that storage is operationnal.
-
-        :param request: current request object
-        :type request: :class:`~pyramid:pyramid.request.Request`
-        :returns: ``True`` is everything is ok, ``False`` otherwise.
-        :rtype: bool
-        """
-        try:
-            auth = request.headers.get('Authorization')
-            if asbool(request.registry.settings.get('readonly')):
-                # Do not try to write in readonly mode.
-                self.get_all(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
-                             auth=auth)
-            else:
-                if random.random() < _HEARTBEAT_DELETE_RATE:
-                    self.delete_all(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
-                                    auth=auth)
-                else:
-                    self.create(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
-                                _HEARTBEAT_RECORD, auth=auth)
-            return True
-        except:
-            return False
-
     def collection_timestamp(self, collection_id, parent_id, auth=None):
         """Get the highest timestamp of every objects in this `collection_id` for
         this `parent_id`.
@@ -265,3 +240,32 @@ class StorageBase(object):
         :rtype: tuple (list, integer)
         """
         raise NotImplementedError
+
+
+def heartbeat(backend):
+    def ping(request):
+        """Test that storage is operationnal.
+
+        :param request: current request object
+        :type request: :class:`~pyramid:pyramid.request.Request`
+        :returns: ``True`` is everything is ok, ``False`` otherwise.
+        :rtype: bool
+        """
+        try:
+            auth = request.headers.get('Authorization')
+            if asbool(request.registry.settings.get('readonly')):
+                # Do not try to write in readonly mode.
+                backend.get_all(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
+                                auth=auth)
+            else:
+                if random.random() < _HEARTBEAT_DELETE_RATE:
+                    backend.delete_all(_HEARTBEAT_COLLECTION_ID,
+                                       _HEART_PARENT_ID, auth=auth)
+                else:
+                    backend.create(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
+                                   _HEARTBEAT_RECORD, auth=auth)
+            return True
+        except:
+            return False
+
+    return ping

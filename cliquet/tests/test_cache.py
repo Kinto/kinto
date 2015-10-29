@@ -7,7 +7,8 @@ from pyramid import testing
 from cliquet.utils import sqlalchemy
 from cliquet.storage import exceptions
 from cliquet.cache import (CacheBase, postgresql as postgresql_backend,
-                           redis as redis_backend, memory as memory_backend)
+                           redis as redis_backend, memory as memory_backend,
+                           heartbeat)
 
 from .support import unittest, skip_if_no_postgresql
 
@@ -70,17 +71,19 @@ class BaseTestCache(object):
 
     def test_ping_returns_false_if_unavailable(self):
         self.client_error_patcher.start()
-        self.assertFalse(self.cache.ping(self.request))
+        ping = heartbeat(self.cache)
+        self.assertFalse(ping(self.request))
         with mock.patch('cliquet.cache.random.random', return_value=0.6):
-            self.assertFalse(self.cache.ping(self.request))
+            self.assertFalse(ping(self.request))
         with mock.patch('cliquet.cache.random.random', return_value=0.4):
-            self.assertFalse(self.cache.ping(self.request))
+            self.assertFalse(ping(self.request))
 
     def test_ping_returns_true_if_available(self):
+        ping = heartbeat(self.cache)
         with mock.patch('cliquet.cache.random.random', return_value=0.6):
-            self.assertTrue(self.cache.ping(self.request))
+            self.assertTrue(ping(self.request))
         with mock.patch('cliquet.cache.random.random', return_value=0.4):
-            self.assertTrue(self.cache.ping(self.request))
+            self.assertTrue(ping(self.request))
 
     def test_set_adds_the_record(self):
         stored = 'toto'

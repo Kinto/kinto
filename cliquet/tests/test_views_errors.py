@@ -98,7 +98,8 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                 'cliquet.tests.testapp.views.Mushroom._extract_filters',
                 side_effect=ValueError):
             link = "https://github.com/mozilla-services/kinto/issues/"
-            app = self.get_test_app({'error_info_link': link})
+            app = self.get_test_app({'error_info_link': link,
+                                     'readonly': False})
             response = app.get(self.sample_url,
                                headers=self.headers, status=500)
         self.assertFormattedError(

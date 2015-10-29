@@ -7,7 +7,7 @@ from cliquet.utils import sqlalchemy
 from cliquet.storage import exceptions
 from cliquet.permission import (PermissionBase, redis as redis_backend,
                                 memory as memory_backend,
-                                postgresql as postgresql_backend)
+                                postgresql as postgresql_backend, heartbeat)
 
 from .support import unittest, skip_if_no_postgresql, DummyRequest
 
@@ -82,12 +82,27 @@ class BaseTestPermission(object):
             self.assertRaises(exceptions.BackendError, *call)
 
     def test_ping_returns_false_if_unavailable(self):
+        ping = heartbeat(self.permission)
         for patch in self.client_error_patcher:
             patch.start()
-        self.assertFalse(self.permission.ping(self.request))
+        self.assertFalse(ping(self.request))
 
     def test_ping_returns_true_if_available(self):
-        self.assertTrue(self.permission.ping(self.request))
+        ping = heartbeat(self.permission)
+        self.assertTrue(ping(self.request))
+
+    def test_ping_returns_false_if_unavailable_in_readonly_mode(self):
+        self.request.registry.settings['readonly'] = 'true'
+        ping = heartbeat(self.permission)
+        with mock.patch.object(self.permission, 'user_principals',
+                               side_effect=exceptions.BackendError(
+                                   "Segmentation fault.")):
+            self.assertFalse(ping(self.request))
+
+    def test_ping_returns_true_if_available_in_readonly_mode(self):
+        self.request.registry.settings['readonly'] = 'true'
+        ping = heartbeat(self.permission)
+        self.assertTrue(ping(self.request))
 
     def test_can_add_a_principal_to_a_user(self):
         user_id = 'foo'

@@ -21,6 +21,9 @@ from cliquet import errors
 from cliquet import logger
 from cliquet import utils
 from cliquet import statsd
+from cliquet.cache import heartbeat as cache_heartbeat
+from cliquet.permission import heartbeat as permission_heartbeat
+from cliquet.storage import heartbeat as storage_heartbeat
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
@@ -216,7 +219,8 @@ def setup_storage(config):
 
     storage = config.maybe_dotted(storage_class)
     config.registry.storage = storage.load_from_config(config)
-    config.registry.heartbeats['storage'] = config.registry.storage.ping
+    config.registry.heartbeats['storage'] = storage_heartbeat(
+        config.registry.storage)
     id_generator = config.maybe_dotted(settings['id_generator'])
     config.registry.id_generator = id_generator()
 
@@ -229,7 +233,8 @@ def setup_permission(config):
 
     permission = config.maybe_dotted(permission_class)
     config.registry.permission = permission.load_from_config(config)
-    config.registry.heartbeats['permission'] = config.registry.permission.ping
+    config.registry.heartbeats['permission'] = permission_heartbeat(
+        config.registry.permission)
 
 
 def setup_cache(config):
@@ -240,7 +245,8 @@ def setup_cache(config):
 
     cache = config.maybe_dotted(cache_class)
     config.registry.cache = cache.load_from_config(config)
-    config.registry.heartbeats['cache'] = config.registry.cache.ping
+    config.registry.heartbeats['cache'] = cache_heartbeat(
+        config.registry.cache)
 
 
 def setup_statsd(config):
