@@ -85,8 +85,12 @@ Instead of listing all the endpoint, you can use the ``readonly`` settings::
 This will disable all resources endpoints that are not accessed with one of
 ``GET``, ``OPTIONS``, or ``HEAD`` method.
 
-This settings will also make sure the heartbeat does not fails to
-write into the database.
+This settings will also activate readonly heartbeat checks for the
+permission and the storage backend.
+
+In case you need to use the cache backend in readonly mode, it will
+still needs read-write capabilities. Do not configure it if you do not
+need it.
 
 
 Deployment
