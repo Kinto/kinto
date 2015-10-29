@@ -85,6 +85,9 @@ Instead of listing all the endpoint, you can use the ``read_only`` settings::
 This will disable all resources endpoints that are not accessed with one of
 ``GET``, ``OPTIONS``, or ``HEAD`` method.
 
+This settings will also make sure the heartbeat does not fails to
+write into the database.
+
 
 Deployment
 ==========

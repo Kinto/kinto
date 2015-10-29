@@ -58,12 +58,17 @@ class StorageBase(object):
         """
         try:
             auth = request.headers.get('Authorization')
-            if random.random() < _HEARTBEAT_DELETE_RATE:
-                self.delete_all(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
-                                auth=auth)
+            if request.registry.settings.get('read_only'):
+                # Do not try to write in read_only mode.
+                self.get_all(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
+                             auth=auth)
             else:
-                self.create(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
-                            _HEARTBEAT_RECORD, auth=auth)
+                if random.random() < _HEARTBEAT_DELETE_RATE:
+                    self.delete_all(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
+                                    auth=auth)
+                else:
+                    self.create(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
+                                _HEARTBEAT_RECORD, auth=auth)
             return True
         except:
             return False

@@ -140,8 +140,12 @@ class PermissionBase(object):
         :rtype: bool
         """
         try:
-            self.add_user_principal(__HEARTBEAT_KEY__, 'alive')
-            self.remove_user_principal(__HEARTBEAT_KEY__, 'alive')
+            if request.registry.settings.get('read_only'):
+                # Do not try to write in read_only mode.
+                self.user_principals(__HEARTBEAT_KEY__)
+            else:
+                self.add_user_principal(__HEARTBEAT_KEY__, 'alive')
+                self.remove_user_principal(__HEARTBEAT_KEY__, 'alive')
         except BackendError:
             return False
         return True
