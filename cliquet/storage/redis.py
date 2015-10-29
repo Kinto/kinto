@@ -116,6 +116,10 @@ class Redis(MemoryBasedStorage):
                 '{0}.{1}.records'.format(collection_id, parent_id),
                 _id
             )
+            multi.srem(
+                '{0}.{1}.deleted'.format(collection_id, parent_id),
+                _id
+            )
             multi.execute()
 
         return record

@@ -201,6 +201,12 @@ class Storage(StorageBase):
         record_id = record.setdefault(id_field, id_generator())
 
         query = """
+        WITH delete_potential_tombstone AS (
+            DELETE FROM deleted
+             WHERE id = %(object_id)s
+               AND parent_id = %(parent_id)s
+               AND collection_id = %(collection_id)s
+        )
         INSERT INTO records (id, parent_id, collection_id, data)
         VALUES (%(object_id)s, %(parent_id)s,
                 %(collection_id)s, %(data)s::JSONB)
