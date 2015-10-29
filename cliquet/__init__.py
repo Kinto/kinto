@@ -133,6 +133,8 @@ def includeme(config):
 
     # Custom helpers.
     config.add_request_method(follow_subrequest)
+    config.add_request_method(lambda request: {'id': request.prefixed_userid},
+                              name='get_user_info')
 
     # Scan views.
     config.scan("cliquet.views")
