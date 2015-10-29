@@ -14,6 +14,7 @@ from cliquet import errors
 from cliquet.initialization import (  # NOQA
     initialize, initialize_cliquet, install_middlewares,
     load_default_settings)
+from cliquet.utils import follow_subrequest
 
 
 # Module version, as defined in PEP-0396.
@@ -129,6 +130,9 @@ def includeme(config):
     Service.cors_max_age = int(cors_max_age) if cors_max_age else None
 
     Service.error_handler = lambda self, e: errors.json_error_handler(e)
+
+    # Custom helpers.
+    config.add_request_method(follow_subrequest)
 
     # Scan views.
     config.scan("cliquet.views")

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import colander
 import mock
+import uuid
 
 from pyramid.response import Response
 
@@ -92,6 +93,27 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(hello['status'], 200)
         self.assertEqual(hello['body']['hello'], 'myapp')
         self.assertIn('application/json', hello['headers']['Content-Type'])
+
+    def test_redirect_responses_are_followed(self):
+        request = {'path': '/mushrooms/'}  # trailing slash
+        body = {'requests': [request]}
+        resp = self.app.post_json('/batch', body, headers=self.headers)
+        collection = resp.json['responses'][0]
+        self.assertEqual(collection['status'], 200)
+        self.assertEqual(collection['path'], '/v0/mushrooms')
+        self.assertEqual(collection['body'], {'data': []})
+
+    def test_body_is_transmitted_during_redirect(self):
+        request = {
+            'method': 'PUT',
+            'path': '/mushrooms/%s/' % str(uuid.uuid4()),
+            'body': {'data': {'name': 'Trompette de la mort'}}
+        }
+        body = {'requests': [request]}
+        resp = self.app.post_json('/batch', body, headers=self.headers)
+        response = resp.json['responses'][0]
+        record = response['body']['data']
+        self.assertEqual(record['name'], 'Trompette de la mort')
 
 
 class BatchSchemaTest(unittest.TestCase):

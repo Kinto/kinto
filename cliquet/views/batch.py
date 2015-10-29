@@ -97,7 +97,7 @@ def post_batch(request):
                        method=subrequest.method)
 
         try:
-            subresponse = request.invoke_subrequest(subrequest)
+            subresponse, subrequest = request.follow_subrequest(subrequest)
 
         except httpexceptions.HTTPException as e:
             error_msg = 'Failed batch subrequest'
