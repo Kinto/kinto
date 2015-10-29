@@ -408,7 +408,17 @@ class BaseResource(object):
         old_record = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(old_record)
 
-        changes = self.request.json.get('data', {})  # May patch only perms.
+        try:
+            # `data` attribute may not be present if only perms are patched.
+            changes = self.request.json.get('data', {})
+        except ValueError:
+            # If no `data` nor `permissions` is provided in patch, reject!
+            # XXX: This should happen in schema instead (c.f. ProtectedViewset)
+            error_details = {
+                'name': 'data',
+                'description': 'Provide at least one of data or permissions',
+            }
+            raise_invalid(self.request, **error_details)
 
         updated = self.apply_changes(old_record, changes=changes)
 
