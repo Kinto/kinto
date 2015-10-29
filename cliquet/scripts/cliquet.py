@@ -19,10 +19,10 @@ def init_schema(env):
     registry = env['registry']
     settings = registry.settings
 
-    if settings['read_only']:
+    if settings.get('read_only', False):
         message = 'You cannot migrate the database with a read_only setup.'
         warnings.warn(message, ReadOnlyError)
-        return
+        sys.exit(1)
 
     for backend in ('cache', 'storage', 'permission'):
         if hasattr(registry, backend):
