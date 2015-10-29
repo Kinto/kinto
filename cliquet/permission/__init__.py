@@ -1,3 +1,4 @@
+from pyramid.settings import asbool
 from cliquet.storage.exceptions import BackendError
 
 __HEARTBEAT_KEY__ = '__heartbeat__'
@@ -140,7 +141,7 @@ class PermissionBase(object):
         :rtype: bool
         """
         try:
-            if request.registry.settings.get('readonly'):
+            if asbool(request.registry.settings.get('readonly')):
                 # Do not try to write in readonly mode.
                 self.user_principals(__HEARTBEAT_KEY__)
             else:

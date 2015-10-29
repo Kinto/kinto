@@ -1,5 +1,6 @@
 import random
 from collections import namedtuple
+from pyramid.settings import asbool
 
 from . import generators
 
@@ -58,7 +59,7 @@ class StorageBase(object):
         """
         try:
             auth = request.headers.get('Authorization')
-            if request.registry.settings.get('readonly'):
+            if asbool(request.registry.settings.get('readonly')):
                 # Do not try to write in readonly mode.
                 self.get_all(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
                              auth=auth)

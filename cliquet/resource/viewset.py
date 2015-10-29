@@ -1,6 +1,7 @@
 import functools
 
 import colander
+from pyramid.settings import asbool
 
 from cliquet import authorization
 from cliquet.resource.schema import PermissionsSchema
@@ -151,12 +152,13 @@ class ViewSet(object):
 
         Uses the settings to tell so.
         """
-        if settings.get('readonly') and method not in self.readonly_methods:
+        if (asbool(settings.get('readonly')) and
+                method not in self.readonly_methods):
             return False
 
         setting_enabled = '%s_%s_%s_enabled' % (
             endpoint_type, resource_name, method.lower())
-        return settings.get(setting_enabled, True)
+        return asbool(settings.get(setting_enabled, True))
 
 
 class ProtectedViewSet(ViewSet):

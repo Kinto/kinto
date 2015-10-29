@@ -6,6 +6,7 @@ import textwrap
 import warnings
 
 from pyramid.paster import bootstrap
+from pyramid.settings import asbool
 
 
 def deprecated_init(env):
@@ -18,7 +19,7 @@ def init_schema(env):
     registry = env['registry']
     settings = registry.settings
     readonly_backends = ('storage', 'permission')
-    readonly_mode = settings.get('readonly', False)
+    readonly_mode = asbool(settings.get('readonly', False))
 
     for backend in ('cache', 'storage', 'permission'):
         if hasattr(registry, backend):
