@@ -5,27 +5,6 @@ from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
 
 
-def init_kinto(args):
-        if(args['config_file'] is None):
-                env = bootstrap('config/kinto.ini')
-                print("normal init")
-        else:
-                config_file = format(args['config_file'])
-                env = bootstrap(config_file)
-                print("custom init")
-
-
-def migrate_kinto():
-        env = bootstrap('config/kinto.ini')
-        cliquet.init_schema(env)
-        print("running migrations")
-
-
-def start_kinto():
-        pserve_argv = ['pserve', 'config/kinto.ini', '--reload']
-        pserve.main(pserve_argv)
-
-
 def create_parser():
         parser = argparse.ArgumentParser(description="Kinto commands")
         subparsers = parser.add_subparsers(title='subcommands',
@@ -56,11 +35,17 @@ def main(args=None):
         args = vars(parser.parse_args())
 
         if args['which'] == 'init':
-                init_kinto(args)
+                if(args['config_file'] is None):
+                    env = bootstrap('config/kinto.ini')
+                else:
+                    config_file = format(args['config_file'])
+                    env = bootstrap(config_file)
         elif args['which'] == 'migrate':
-                migrate_kinto()
+                env = bootstrap('config/kinto.ini')
+                cliquet.init_schema(env)
         elif args['which'] == 'start':
-                start_kinto()
+                pserve_argv = ['pserve', 'config/kinto.ini', '--reload']
+                pserve.main(pserve_argv)
 
 
 if __name__ == "__main__":
