@@ -18,8 +18,8 @@ def init_schema(env):
     registry = env['registry']
     settings = registry.settings
 
-    if settings.get('read_only', False):
-        message = 'You cannot migrate the database with a read_only setup.'
+    if settings.get('readonly', False):
+        message = 'Cannot migrate the database while in readonly mode.'
         print(message, file=sys.stderr)
         sys.exit(1)
 

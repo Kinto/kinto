@@ -22,7 +22,7 @@ This document describes changes between each past release.
   ``*_pool_recycle``, ``*_pool_timeout`` to control connections pool
   behaviour.
 - Follow redirections in batch subrequests (fixes #511)
-- Add a ``read_only`` setting to run the service in read-only mode. (#525)
+- Add a ``readonly`` setting to run the service in read-only mode. (#525)
 
 **Internal changes**
 

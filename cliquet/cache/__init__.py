@@ -31,8 +31,8 @@ class CacheBase(object):
         :returns: ``True`` is everything is ok, ``False`` otherwise.
         :rtype: bool
         """
-        # No specific case for read_only mode because the cache should
-        # continue to work in read_only mode.
+        # No specific case for readonly mode because the cache should
+        # continue to work in that mode.
         try:
             if random.random() < _HEARTBEAT_DELETE_RATE:
                 self.delete(_HEARTBEAT_KEY)

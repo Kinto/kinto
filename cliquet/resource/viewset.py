@@ -23,7 +23,7 @@ class ViewSet(object):
     record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
     validate_schema_for = ('POST', 'PUT', 'PATCH')
 
-    readonly_methods = ('GET',)
+    readonly_methods = ('GET', 'OPTIONS', 'HEAD')
 
     service_arguments = {
         'description': 'Collection of {resource_name}',
@@ -151,8 +151,7 @@ class ViewSet(object):
 
         Uses the settings to tell so.
         """
-        READ_ONLY_METHODS = ('GET', 'OPTIONS', 'HEAD')
-        if settings.get('read_only') and method not in READ_ONLY_METHODS:
+        if settings.get('readonly') and method not in self.readonly_methods:
             return False
 
         setting_enabled = '%s_%s_%s_enabled' % (

@@ -140,8 +140,8 @@ class PermissionBase(object):
         :rtype: bool
         """
         try:
-            if request.registry.settings.get('read_only'):
-                # Do not try to write in read_only mode.
+            if request.registry.settings.get('readonly'):
+                # Do not try to write in readonly mode.
                 self.user_principals(__HEARTBEAT_KEY__)
             else:
                 self.add_user_principal(__HEARTBEAT_KEY__, 'alive')

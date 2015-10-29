@@ -15,7 +15,7 @@ The returned value is a JSON mapping containing:
 - ``documentation``: The URL to the service documentation. (this document!)
 - ``settings``: a mapping with the values of relevant public settings for clients
     - ``batch_max_requests``: Number of requests that can be made in a batch request.
-    - ``read_only``: Tells client if the service is in read_only mode.
+    - ``readonly``: Only request with read operations are allowed.
 - ``user``: A mapping with an ``id`` field for the currently connected user id.
    The field is not present when no Authorization header is provided.
 
