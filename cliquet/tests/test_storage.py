@@ -944,9 +944,9 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
-        'storage_pool_size': 10,
         'storage_max_fetch_size': 10000,
         'storage_backend': 'cliquet.storage.postgresql',
+        'storage_poolclass': 'sqlalchemy.pool.StaticPool',
         'storage_url': 'postgres://postgres:postgres@localhost:5432/testdb',
     }
 

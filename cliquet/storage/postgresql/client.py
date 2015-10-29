@@ -1,5 +1,4 @@
 import contextlib
-import os
 import warnings
 
 from cliquet import logger
@@ -78,11 +77,6 @@ def create_from_config(config, prefix=''):
     settings[poolclass_key] = config.maybe_dotted(settings[poolclass_key])
     settings.pop(prefix + 'max_fetch_size', None)
     settings.pop(prefix + 'backend', None)
-
-    # XXX: Disable pooling at least during tests to avoid stalled tests.
-    if os.getenv('TRAVIS', False):  # pragma: no cover
-        warnings.warn('Disable pooling on TravisCI')
-        settings = dict([(poolclass_key, sqlalchemy.pool.StaticPool)])
 
     engine = sqlalchemy.engine_from_config(settings, prefix=prefix, url=url)
 
