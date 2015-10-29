@@ -262,7 +262,8 @@ See :ref:`cache backend documentation <cache>` for more details.
 Headers
 -------
 
-It is possible to add cache control headers for each resource.
+It is possible to add cache control headers on a particular resource
+for anonymous requests.
 The client (or proxy) will use them to cache the resource responses for a
 certain amount of time.
 
