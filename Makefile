@@ -35,6 +35,7 @@ build-requirements:
 	/tmp/cliquet/bin/pip freeze | tail -n +2 > requirements.txt
 
 tests-once: install-dev
+	@rm -fr .coverage
 	$(VENV)/bin/nosetests -s --with-mocha-reporter --with-coverage --cover-min-percentage=100 --cover-package=cliquet
 
 tests:

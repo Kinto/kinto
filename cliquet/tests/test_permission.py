@@ -132,7 +132,10 @@ class BaseTestPermission(object):
     def test_can_remove_a_unexisting_principal_to_a_user(self):
         user_id = 'foo'
         principal = 'bar'
+        principal2 = 'foobar'
+        self.permission.add_user_principal(user_id, principal2)
         self.permission.remove_user_principal(user_id, principal)
+        self.permission.remove_user_principal(user_id, principal2)
         retrieved = self.permission.user_principals(user_id)
         self.assertEquals(retrieved, set())
 
