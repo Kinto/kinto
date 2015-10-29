@@ -275,6 +275,8 @@ def follow_subrequest(request, subrequest):
                                     headers=subrequest.headers,
                                     POST=subrequest.body,
                                     method=subrequest.method)
+        new_request.bound_data = subrequest.bound_data
+        new_request.parent = getattr(subrequest, 'parent', None)
         return request.invoke_subrequest(new_request), new_request
 
 
