@@ -38,7 +38,7 @@ def get_hello(request):
 
     prefixed_userid = getattr(request, 'prefixed_userid', None)
     if prefixed_userid:
-        data['userid'] = prefixed_userid
+        data['user'] = request.get_user_info()
 
     return data
 

@@ -7,6 +7,11 @@ This document describes changes between each past release.
 2.10.0 (unreleased)
 -------------------
 
+**Protocol**
+
+- Moved ``userid`` attribute to a dedicated ``user`` mapping in the hello
+  view.
+
 **Breaking changes**
 
 - For PostgreSQL backends, it is recommended to specify ``postgresql://``

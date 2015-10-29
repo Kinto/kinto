@@ -227,7 +227,7 @@ class RecordAuthzGrantedOnCollectionTest(AuthzAuthnTest):
         self.guest_headers = self.headers.copy()
         self.guest_headers['Authorization'] = "Basic bmF0aW06"
         resp = self.app.get('/', headers=self.guest_headers)
-        self.guest_id = resp.json['userid']
+        self.guest_id = resp.json['user']['id']
 
         body = {
             'data': MINIMALIST_RECORD,

@@ -49,11 +49,10 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
 
     def test_if_user_not_authenticated_no_userid_provided(self):
         response = self.app.get('/')
-        self.assertNotIn('userid', response.json)
+        self.assertNotIn('user', response.json)
 
     def test_if_user_authenticated_userid_is_provided(self):
         response = self.app.get('/', headers=self.headers)
-        self.assertIn('userid', response.json)
-        self.assertTrue(
-            response.json['userid'].startswith('basicauth:'),
-            '"%s" does not starts with "basicauth:"' % response.json['userid'])
+        userid = response.json['user']['id']
+        self.assertTrue(userid.startswith('basicauth:'),
+                        '"%s" does not starts with "basicauth:"' % userid)
