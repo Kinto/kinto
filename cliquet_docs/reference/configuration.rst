@@ -73,6 +73,19 @@ following setting should be declared in the ``.ini`` file:
     cliquet.record_mushroom_patch_enabled = false
 
 
+Setting the service in read_only mode
+:::::::::::::::::::::::::::::::::::::
+
+It is also possible to deploy a cliquet service in read_only mode.
+
+Instead of listing all the endpoint, you can use the ``read_only`` settings::
+
+    cliquet.read_only = true
+
+This will disable all resources endpoints that are not accessed with one of
+``GET``, ``OPTIONS``, or ``HEAD`` method.
+
+
 Deployment
 ==========
 
