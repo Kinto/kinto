@@ -168,6 +168,7 @@ class BaseTestStorage(object):
     def test_ping_returns_false_if_unavailable(self):
         request = DummyRequest()
         request.headers['Authorization'] = self.storage_kw['auth']
+        request.registry.settings = {'readonly': 'false'}
         ping = heartbeat(self.storage)
 
         with mock.patch('cliquet.storage.random.random', return_value=0.7):
@@ -937,9 +938,6 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         pass
 
     def test_backenderror_message_default_to_original_exception_message(self):
-        pass
-
-    def test_ping_returns_false_if_unavailable(self):
         pass
 
 

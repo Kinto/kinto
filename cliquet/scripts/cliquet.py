@@ -26,7 +26,7 @@ def init_schema(env):
             if readonly_mode and backend in readonly_backends:
                 message = ('Cannot migrate the %s backend while '
                            'in readonly mode.' % backend)
-                warnings.warn(message, Warning)
+                warnings.warn(message)
             else:
                 getattr(registry, backend).initialize_schema()
 
