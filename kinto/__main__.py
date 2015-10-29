@@ -5,7 +5,11 @@ from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
 
 
-def create_parser():
+def main(args=None):
+        """The main routine."""
+        if args is None:
+                args = sys.argv[1:]
+
         parser = argparse.ArgumentParser(description="Kinto commands")
         subparsers = parser.add_subparsers(title='subcommands',
                                            description='valid subcommands',
@@ -21,16 +25,6 @@ def create_parser():
 
         parser_start = subparsers.add_parser('start')
         parser_start.set_defaults(which='start')
-
-        return parser
-
-
-def main(args=None):
-        """The main routine."""
-        if args is None:
-                args = sys.argv[1:]
-
-        parser = create_parser()
 
         args = vars(parser.parse_args())
 
