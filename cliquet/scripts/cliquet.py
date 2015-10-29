@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 import logging
 import argparse
 import sys
@@ -6,7 +6,6 @@ import textwrap
 import warnings
 
 from pyramid.paster import bootstrap
-from cliquet.errors import ReadOnlyError
 
 
 def deprecated_init(env):
@@ -21,7 +20,7 @@ def init_schema(env):
 
     if settings.get('read_only', False):
         message = 'You cannot migrate the database with a read_only setup.'
-        warnings.warn(message, ReadOnlyError)
+        print(message, file=sys.stderr)
         sys.exit(1)
 
     for backend in ('cache', 'storage', 'permission'):

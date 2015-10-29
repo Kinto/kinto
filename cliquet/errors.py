@@ -72,10 +72,6 @@ ERRORS = Enum(
 """
 
 
-class ReadOnlyError(Warning):
-    pass
-
-
 def http_error(httpexception, errno=None,
                code=None, error=None, message=None, info=None, details=None):
     """Return a JSON formated response matching the error protocol.

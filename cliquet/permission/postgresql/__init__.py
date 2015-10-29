@@ -55,16 +55,15 @@ class Permission(PermissionBase):
 
     :noindex:
     """
-    def __init__(self, client, read_only=False, *args, **kwargs):
+    def __init__(self, client, *args, **kwargs):
         super(Permission, self).__init__(*args, **kwargs)
         self.client = client
-        self.read_only = read_only
 
     def initialize_schema(self):
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, 'schema.sql')).read()
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             conn.execute(schema)
         logger.info('Created PostgreSQL permission tables')
 
@@ -73,7 +72,7 @@ class Permission(PermissionBase):
         DELETE FROM user_principals;
         DELETE FROM access_control_entries;
         """
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             conn.execute(query)
         logger.debug('Flushed PostgreSQL permission tables')
 
@@ -87,7 +86,7 @@ class Permission(PermissionBase):
             WHERE user_id = %(user_id)s
               AND principal = %(principal)s
         );"""
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             conn.execute(query, dict(user_id=user_id, principal=principal))
 
     def remove_user_principal(self, user_id, principal):
@@ -95,7 +94,7 @@ class Permission(PermissionBase):
         DELETE FROM user_principals
          WHERE user_id = %(user_id)s
            AND principal = %(principal)s;"""
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             conn.execute(query, dict(user_id=user_id, principal=principal))
 
     def user_principals(self, user_id):
@@ -103,7 +102,7 @@ class Permission(PermissionBase):
         SELECT principal
           FROM user_principals
          WHERE user_id = %(user_id)s;"""
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             result = conn.execute(query, dict(user_id=user_id))
             results = result.fetchall()
         return set([r['principal'] for r in results])
@@ -119,7 +118,7 @@ class Permission(PermissionBase):
                AND permission = %(permission)s
                AND principal = %(principal)s
         );"""
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             conn.execute(query, dict(object_id=object_id,
                                      permission=permission,
                                      principal=principal))
@@ -130,7 +129,7 @@ class Permission(PermissionBase):
          WHERE object_id = %(object_id)s
            AND permission = %(permission)s
            AND principal = %(principal)s;"""
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             conn.execute(query, dict(object_id=object_id,
                                      permission=permission,
                                      principal=principal))
@@ -141,7 +140,7 @@ class Permission(PermissionBase):
           FROM access_control_entries
          WHERE object_id = %(object_id)s
            AND permission = %(permission)s;"""
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             result = conn.execute(query, dict(object_id=object_id,
                                               permission=permission))
             results = result.fetchall()
@@ -167,7 +166,7 @@ class Permission(PermissionBase):
           FROM required_perms JOIN access_control_entries
             ON (object_id = column1 AND permission = column2);
         """ % perms_values
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             result = conn.execute(query)
             results = result.fetchall()
         return set([r['principal'] for r in results])
@@ -210,7 +209,7 @@ class Permission(PermissionBase):
         """ % dict(perms=perms_values,
                    principals=principals_values)
 
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             result = conn.execute(query, placeholders)
             results = result.fetchall()
         return set([r['object_id'] for r in results])
@@ -244,7 +243,7 @@ class Permission(PermissionBase):
             ON (required_principals.column1 = principal);
         """ % dict(perms=perms_values, principals=principals_values)
 
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             result = conn.execute(query)
             total = result.fetchone()
         return total['matched'] > 0
@@ -260,7 +259,7 @@ class Permission(PermissionBase):
             query += """
         AND permission IN %(permissions)s;"""
             placeholders["permissions"] = tuple(permissions)
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             result = conn.execute(query, placeholders)
             results = result.fetchall()
         permissions = defaultdict(set)
@@ -304,7 +303,7 @@ class Permission(PermissionBase):
             FROM new_aces;
         """ % dict(new_perms=','.join(new_perms))
 
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             conn.execute(delete_query, placeholders)
             conn.execute(insert_query, placeholders)
 
@@ -312,12 +311,10 @@ class Permission(PermissionBase):
         query = """
         DELETE FROM access_control_entries
          WHERE object_id IN %(object_id_list)s;"""
-        with self.client.connect(readonly=self.read_only) as conn:
+        with self.client.connect() as conn:
             conn.execute(query, dict(object_id_list=tuple(object_id_list)))
 
 
 def load_from_config(config):
     client = create_from_config(config, prefix='permission_')
-    settings = config.get_settings()
-    read_only = settings['read_only']
-    return Permission(client=client, read_only=read_only)
+    return Permission(client=client)
