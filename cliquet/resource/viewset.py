@@ -151,6 +151,10 @@ class ViewSet(object):
 
         Uses the settings to tell so.
         """
+        READ_ONLY_METHODS = ('GET', 'OPTIONS', 'HEAD')
+        if settings.get('read_only') and method not in READ_ONLY_METHODS:
+            return False
+
         setting_enabled = '%s_%s_%s_enabled' % (
             endpoint_type, resource_name, method.lower())
         return settings.get(setting_enabled, True)

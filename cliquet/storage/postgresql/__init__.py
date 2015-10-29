@@ -62,15 +62,17 @@ class Storage(StorageBase):
 
     schema_version = 7
 
-    def __init__(self, client, max_fetch_size, *args, **kwargs):
+    def __init__(self, client, max_fetch_size, read_only=False,
+                 *args, **kwargs):
         super(Storage, self).__init__(*args, **kwargs)
         self.client = client
         self._max_fetch_size = max_fetch_size
+        self.read_only = read_only
 
     def _execute_sql_file(self, filepath):
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, filepath)).read()
-        with self.client.connect() as conn:
+        with self.client.connect(readonly=self.read_only) as conn:
             conn.execute(schema)
 
     def initialize_schema(self):
@@ -724,4 +726,6 @@ def load_from_config(config):
     settings = config.get_settings()
     max_fetch_size = int(settings['storage_max_fetch_size'])
     client = create_from_config(config, prefix='storage_')
-    return Storage(client=client, max_fetch_size=max_fetch_size)
+    read_only = settings['read_only']
+    return Storage(client=client, max_fetch_size=max_fetch_size,
+                   read_only=read_only)
