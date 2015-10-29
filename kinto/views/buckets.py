@@ -1,9 +1,10 @@
-from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPForbidden
+from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
 from cliquet import resource
-from cliquet.utils import build_request
+from cliquet.errors import http_error
+from cliquet.utils import build_request, reapply_cors
 from cliquet.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
@@ -125,8 +126,9 @@ def create_collection(request, bucket_id):
 @view_config(route_name='default_bucket_collection',
              permission=NO_PERMISSION_REQUIRED)
 def default_bucket(request):
-    if request.method.lower() == 'options':
-        path = request.path.replace('default', 'unknown')
+    is_preflight_request = request.method.lower() == 'options'
+    if is_preflight_request:
+        path = request.path.replace('default', 'any_bucket')
         subrequest = build_request(request, {
             'method': 'OPTIONS',
             'path': path
@@ -134,18 +136,21 @@ def default_bucket(request):
         return request.invoke_subrequest(subrequest)
 
     bucket_id = request.default_bucket_id
-    if bucket_id is None:
-        raise HTTPForbidden()  # Pass through the forbidden_view_config
 
+    if not is_preflight_request:
+        # Only OPTIONS requests can be anonymous.
+        if bucket_id is None:
+            # Will pass through Cliquet @forbidden_view_config
+            raise httpexceptions.HTTPForbidden()
+
+        # Implicit bucket creation if does not exist
+        create_bucket(request, bucket_id)
+
+        # Implicit collection creation if does not exist
+        create_collection(request, bucket_id)
+
+    # Redirect the client to the actual bucket, using full URL
     path = request.path.replace('/buckets/default', '/buckets/%s' % bucket_id)
     querystring = request.url[(request.url.index(request.path) +
                                len(request.path)):]
-
-    # Make sure bucket exists
-    create_bucket(request, bucket_id)
-
-    # Make sure the collection exists
-    create_collection(request, bucket_id)
-
-    # Redirect the client to the actual bucket.
-    raise HTTPTemporaryRedirect(path + querystring)
+    raise http_error(httpexceptions.HTTPTemporaryRedirect(path + querystring))

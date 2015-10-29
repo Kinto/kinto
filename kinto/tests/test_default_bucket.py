@@ -107,6 +107,12 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
                             headers=headers, status=304)
         self.assertIn('Access-Control-Allow-Origin', resp.headers)
 
+    def test_cors_headers_are_provided_on_redirection(self):
+        headers = self.headers.copy()
+        headers['Origin'] = 'http://localhost:8000'
+        resp = self.app.get(self.bucket_url, headers=headers, status=307)
+        self.assertIn('Access-Control-Allow-Origin', resp.headers)
+
     def test_bucket_id_starting_with_default_can_still_be_created(self):
         # We need to create the bucket first since it is not the default bucket
         classic_bucket = self.bucket_url.replace('default', 'default-1234')
@@ -135,7 +141,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
         with mock.patch.object(self.storage, 'create',
                                wraps=self.storage.create) as patched:
             self.app.post_json('/batch', batch, headers=self.headers)
-            self.assertEqual(patched.call_count, 2)
+            self.assertEqual(patched.call_count, nb_create + 2)
 
     def test_parent_collection_is_taken_from_the_one_created_in_batch(self):
         batch = {'requests': []}
