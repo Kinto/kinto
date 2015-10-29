@@ -183,6 +183,9 @@ class ProtectedViewSet(ViewSet):
         # XXX: If Cornice wouldn't recreate the schema on the fly.
         # We could make sure using a validator that at least one of `data` or
         # `permissions` is provided.
+        # There is a huge work in progress, with several pull-requests
+        # addressing this issue:
+        # https://github.com/mozilla-services/cornice/labels/schema-validation
 
         return schema
 

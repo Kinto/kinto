@@ -409,11 +409,11 @@ class BaseResource(object):
         self._raise_412_if_modified(old_record)
 
         try:
-            # data may not be present if only perms are patched.
+            # `data` attribute may not be present if only perms are patched.
             changes = self.request.json.get('data', {})
         except ValueError:
-            # XXX: This could be handled in Colander schema (c.f. Viewset)
-            # once hacks in Cornice about schemas will be removed.
+            # If no `data` nor `permissions` is provided in patch, reject!
+            # XXX: This should happen in schema instead (c.f. ProtectedViewset)
             error_details = {
                 'name': 'data',
                 'description': 'Provide at least one of data or permissions',
