@@ -201,9 +201,8 @@ class BaseTestStorage(object):
         request.headers['Authorization'] = 'Basic bWF0OjI='
         request.registry.settings = {'readonly': 'true'}
         ping = heartbeat(self.storage)
-        with mock.patch.object(
-                self.storage, 'get_all', side_effect=exceptions.BackendError(
-                    "Segmentation fault.")):
+        with mock.patch.object(self.storage, 'get_all',
+                               side_effect=exceptions.BackendError("Boom!")):
             self.assertFalse(ping(request))
 
     def test_create_adds_the_record_id(self):

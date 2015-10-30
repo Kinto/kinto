@@ -95,8 +95,7 @@ class BaseTestPermission(object):
         self.request.registry.settings['readonly'] = 'true'
         ping = heartbeat(self.permission)
         with mock.patch.object(self.permission, 'user_principals',
-                               side_effect=exceptions.BackendError(
-                                   "Segmentation fault.")):
+                               side_effect=exceptions.BackendError("Boom!")):
             self.assertFalse(ping(self.request))
 
     def test_ping_returns_true_if_available_in_readonly_mode(self):

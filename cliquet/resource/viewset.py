@@ -152,8 +152,8 @@ class ViewSet(object):
 
         Uses the settings to tell so.
         """
-        if (asbool(settings.get('readonly')) and
-                method not in self.readonly_methods):
+        readonly_enabled = asbool(settings.get('readonly'))
+        if readonly_enabled and method not in self.readonly_methods:
             return False
 
         setting_enabled = '%s_%s_%s_enabled' % (
