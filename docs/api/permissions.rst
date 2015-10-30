@@ -108,7 +108,7 @@ Get the current user ID
 The currently authenticated *user ID* can be obtained on the root URL.
 
 .. code-block:: http
-    :emphasize-lines: 16
+    :emphasize-lines: 17
 
     $ http GET http://localhost:8888/v1/ --auth user:pass
     HTTP/1.1 200 OK
@@ -125,7 +125,9 @@ The currently authenticated *user ID* can be obtained on the root URL.
             "kinto.batch_max_requests": 25
         },
         "url": "http://localhost:8888/v1/",
-        "userid": "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6",
+        "user": {
+            "id": "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
+        },
         "version": "1.4.0"
     }
 

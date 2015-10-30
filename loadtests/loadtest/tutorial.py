@@ -214,7 +214,7 @@ class TutorialLoadTest(BaseLoadTest):
         self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
         record = resp.json()
-        mary_user_id = record['userid']
+        mary_user_id = record['user']['id']
 
         # Allow group creation on bucket
         permissions = {"group:create": ['system.Authenticated']}
