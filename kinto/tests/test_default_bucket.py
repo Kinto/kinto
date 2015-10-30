@@ -184,3 +184,14 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
                 request.invoke_subrequest.side_effect = response
                 resp = default_bucket(request)
                 self.assertEqual(resp.body, response.body)
+
+
+class ReadonlyDefaultBucket(BaseWebTest, unittest.TestCase):
+
+    def get_app_settings(self, extras=None):
+        settings = super(ReadonlyDefaultBucket, self).get_app_settings(extras)
+        settings['readonly'] = True
+        return settings
+
+    def test_implicit_creation_is_rejected(self):
+        self.app.get('/buckets/default', headers=self.headers, status=405)

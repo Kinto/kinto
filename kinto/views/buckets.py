@@ -140,6 +140,7 @@ def default_bucket(request):
         raise HTTPForbidden()  # Pass through the forbidden_view_config
 
     settings = request.registry.settings
+
     hmac_secret = settings['userid_hmac_secret']
     # Build the user unguessable bucket_id UUID from its user_id
     digest = hmac_digest(hmac_secret, request.prefixed_userid)

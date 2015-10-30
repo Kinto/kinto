@@ -7,7 +7,10 @@ This document describes changes between each past release.
 1.8.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**New features**
+
+- Added ``kinto.readonly`` setting, to disable any kind of *write* operations
+  on the service.
 
 
 1.7.0 (2015-10-28)
