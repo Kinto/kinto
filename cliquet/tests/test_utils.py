@@ -5,10 +5,11 @@ import os
 import colander
 import mock
 import six
+from pyramid import httpexceptions
 
 from cliquet.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env,
-    current_service, encode_header, decode_header
+    current_service, encode_header, decode_header, follow_subrequest
 )
 
 from .support import unittest, DummyRequest
@@ -152,3 +153,17 @@ class DecodeHeaderTest(unittest.TestCase):
         entry = 'Rémy'.encode('latin-1')
         value = decode_header(entry, 'latin-1')
         self.assertEqual(type(value), six.text_type)
+
+
+class FollowSubrequestTest(unittest.TestCase):
+
+    def test_parent_and_bound_data_are_preserved(self):
+        request = DummyRequest()
+        request.invoke_subrequest.side_effect = (
+            httpexceptions.HTTPTemporaryRedirect, None)
+        subrequest = DummyRequest()
+        subrequest.parent = mock.sentinel.parent
+        subrequest.bound_data = mock.sentinel.bound_data
+        _, redirected = follow_subrequest(request, subrequest)
+        self.assertEqual(subrequest.parent, redirected.parent)
+        self.assertEqual(subrequest.bound_data, redirected.bound_data)
