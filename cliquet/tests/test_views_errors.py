@@ -46,7 +46,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         response = self.app.get('/unknown', status=404)
         self.assertFormattedError(
             response, 404, ERRORS.MISSING_RESOURCE, "Not Found",
-            "The resource your are looking for could not be found.")
+            "The resource you are looking for could not be found.")
 
     def test_401_is_valid_formatted_error(self):
         response = self.app.get(self.sample_url, status=401)
