@@ -23,6 +23,9 @@ This document describes changes between each past release.
   behaviour.
 - Follow redirections in batch subrequests (fixes #511)
 - Add a ``readonly`` setting to run the service in read-only mode. (#525)
+- If no client cache is set, add ``Cache-Control: no-cache`` by default,
+  so that clients are forced to revalidate their cache against the server
+  (#522, ref Kinto/kinto#231)
 
 **Bug fixes**
 
