@@ -38,4 +38,4 @@ class CacheExpires(BaseTest):
         settings = self.resource.request.registry.settings
         settings[self.setting] = 0
         self.resource.collection_get()
-        self.last_response.cache_expires.assert_called_with(seconds=0)
+        self.assertTrue(self.last_response.cache_control.no_cache)

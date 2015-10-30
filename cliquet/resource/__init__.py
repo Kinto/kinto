@@ -616,13 +616,28 @@ class BaseResource(object):
     def _add_cache_header(self, response):
         """Add Cache-Control and Expire headers, based a on a setting for the
         current resource.
+
+        Cache headers will be set with anonymous requests only.
+
+        .. note::
+
+            The ``Cache-Control: no-cache`` response header does not prevent
+            caching in client. It will indicate the client to revalidate
+            the response content on each access. The client will send a
+            conditional request to the server and check that a
+            ``304 Not modified`` is returned before serving content from cache.
         """
         resource_name = self.context.resource_name if self.context else ''
         setting_key = '%s_cache_expires_seconds' % resource_name
         collection_expires = self.request.registry.settings.get(setting_key)
         is_anonymous = self.request.prefixed_userid is None
-        if collection_expires is not None and is_anonymous:
+        if collection_expires and is_anonymous:
             response.cache_expires(seconds=int(collection_expires))
+        else:
+            # Since `Expires` response header provides an HTTP data with a
+            # resolution in seconds, do not use Pyramid `cache_expires()` in
+            # order to omit it.
+            response.cache_control.no_cache = True
 
     def _raise_400_if_invalid_id(self, record_id):
         """Raise 400 if specified record id does not match the format excepted
