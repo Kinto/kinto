@@ -90,8 +90,6 @@ Dependencies
 
 * :rtd:`Cornice <cornice>` for the REST helpers;
 * :rtd:`Pyramid <pyramid>` for the heavy HTTP stuff;
-* `SQLAlchemy <http://docs.sqlalchemy.org>`_ core, for database sessions and
-  pooling;
 
 Everything else is meant to be **pluggable and optional**.
 

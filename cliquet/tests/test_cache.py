@@ -2,9 +2,8 @@ import mock
 import time
 
 import redis
-from pyramid import testing
 
-from cliquet.utils import sqlalchemy
+from cliquet.utils import psycopg2
 from cliquet.storage import exceptions
 from cliquet.cache import (CacheBase, postgresql as postgresql_backend,
                            redis as redis_backend, memory as memory_backend,
@@ -47,9 +46,7 @@ class BaseTestCache(object):
         """
         if settings is None:
             settings = self.settings
-        config = testing.setUp()
-        config.add_settings(settings)
-        return config
+        return mock.Mock(get_settings=mock.Mock(return_value=settings))
 
     def tearDown(self):
         mock.patch.stopall()
@@ -171,6 +168,6 @@ class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     def setUp(self):
         super(PostgreSQLCacheTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
-            self.cache.client._engine,
-            'connect',
-            side_effect=sqlalchemy.exc.SQLAlchemyError)
+            self.cache.client.pool,
+            'getconn',
+            side_effect=psycopg2.DatabaseError)

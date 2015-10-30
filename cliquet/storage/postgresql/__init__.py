@@ -40,17 +40,9 @@ class Storage(StorageBase):
         distinguish schema manipulation privileges from schema usage.
 
 
-    A connection pool is enabled by default::
+    A threaded connection pool is enabled by default::
 
         cliquet.storage_pool_size = 10
-        cliquet.storage_maxoverflow = 10
-        cliquet.storage_pool_recycle = -1
-        cliquet.storage_pool_timeout = 30
-        cliquet.storage_poolclass = sqlalchemy.pool.QueuePool
-
-    See `dedicated section in SQLAlchemy documentation
-    <http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html>`_
-    for default values and behaviour.
 
     .. note::
 
@@ -70,8 +62,8 @@ class Storage(StorageBase):
     def _execute_sql_file(self, filepath):
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, filepath)).read()
-        with self.client.connect() as conn:
-            conn.execute(schema)
+        with self.client.connect() as cursor:
+            cursor.execute(schema)
 
     def initialize_schema(self):
         """Create PostgreSQL tables, and run necessary schema migrations.
@@ -112,10 +104,10 @@ class Storage(StorageBase):
     def _check_database_timezone(self):
         # Make sure database has UTC timezone.
         query = "SELECT current_setting('TIMEZONE') AS timezone;"
-        with self.client.connect() as conn:
-            result = conn.execute(query)
-            record = result.fetchone()
-        timezone = record['timezone'].upper()
+        with self.client.connect() as cursor:
+            cursor.execute(query)
+            result = cursor.fetchone()
+        timezone = result['timezone'].upper()
         if timezone != 'UTC':  # pragma: no cover
             msg = 'Database timezone is not UTC (%s)' % timezone
             warnings.warn(msg)
@@ -128,19 +120,19 @@ class Storage(StorageBase):
           FROM pg_database
          WHERE datname =  current_database();
         """
-        with self.client.connect() as conn:
-            result = conn.execute(query)
-            record = result.fetchone()
-        encoding = record['encoding'].lower()
+        with self.client.connect() as cursor:
+            cursor.execute(query)
+            result = cursor.fetchone()
+        encoding = result['encoding'].lower()
         assert encoding == 'utf8', 'Unexpected database encoding %s' % encoding
 
     def _get_installed_version(self):
         """Return current version of schema or None if not any found.
         """
         query = "SELECT tablename FROM pg_tables WHERE tablename = 'metadata';"
-        with self.client.connect() as conn:
-            result = conn.execute(query)
-            tables_exist = result.rowcount > 0
+        with self.client.connect() as cursor:
+            cursor.execute(query)
+            tables_exist = cursor.rowcount > 0
 
         if not tables_exist:
             return
@@ -151,15 +143,15 @@ class Storage(StorageBase):
          WHERE name = 'storage_schema_version'
          ORDER BY value DESC;
         """
-        with self.client.connect() as conn:
-            result = conn.execute(query)
-            if result.rowcount > 0:
-                return int(result.fetchone()['version'])
+        with self.client.connect() as cursor:
+            cursor.execute(query)
+            if cursor.rowcount > 0:
+                return int(cursor.fetchone()['version'])
             else:
                 # Guess current version.
                 query = "SELECT COUNT(*) FROM metadata;"
-                result = conn.execute(query)
-                was_flushed = int(result.fetchone()[0]) == 0
+                cursor.execute(query)
+                was_flushed = int(cursor.fetchone()[0]) == 0
                 if was_flushed:
                     error_msg = 'Missing schema history: consider version %s.'
                     logger.warning(error_msg % self.schema_version)
@@ -177,8 +169,8 @@ class Storage(StorageBase):
         DELETE FROM records;
         DELETE FROM metadata;
         """
-        with self.client.connect() as conn:
-            conn.execute(query)
+        with self.client.connect() as cursor:
+            cursor.execute(query)
         logger.debug('Flushed PostgreSQL storage tables')
 
     def collection_timestamp(self, collection_id, parent_id, auth=None):
@@ -187,10 +179,10 @@ class Storage(StorageBase):
             AS last_modified;
         """
         placeholders = dict(parent_id=parent_id, collection_id=collection_id)
-        with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, placeholders)
-            record = result.fetchone()
-        return record['last_modified']
+        with self.client.connect(readonly=True) as cursor:
+            cursor.execute(query, placeholders)
+            result = cursor.fetchone()
+        return result['last_modified']
 
     def create(self, collection_id, parent_id, record, id_generator=None,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
@@ -216,13 +208,13 @@ class Storage(StorageBase):
                             parent_id=parent_id,
                             collection_id=collection_id,
                             data=json.dumps(record))
-        with self.client.connect() as conn:
+        with self.client.connect() as cursor:
             # Check that it does violate the resource unicity rules.
-            self._check_unicity(conn, collection_id, parent_id, record,
+            self._check_unicity(cursor, collection_id, parent_id, record,
                                 unique_fields, id_field, modified_field,
                                 for_creation=True)
-            result = conn.execute(query, placeholders)
-            inserted = result.fetchone()
+            cursor.execute(query, placeholders)
+            inserted = cursor.fetchone()
 
         record[modified_field] = inserted['last_modified']
         return record
@@ -241,16 +233,16 @@ class Storage(StorageBase):
         placeholders = dict(object_id=object_id,
                             parent_id=parent_id,
                             collection_id=collection_id)
-        with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, placeholders)
-            if result.rowcount == 0:
+        with self.client.connect(readonly=True) as cursor:
+            cursor.execute(query, placeholders)
+            if cursor.rowcount == 0:
                 raise exceptions.RecordNotFoundError(object_id)
             else:
-                existing = result.fetchone()
+                result = cursor.fetchone()
 
-        record = existing['data']
+        record = result['data']
         record[id_field] = object_id
-        record[modified_field] = existing['last_modified']
+        record[modified_field] = result['last_modified']
         return record
 
     def update(self, collection_id, parent_id, object_id, record,
@@ -279,9 +271,9 @@ class Storage(StorageBase):
         record = record.copy()
         record[id_field] = object_id
 
-        with self.client.connect() as conn:
+        with self.client.connect() as cursor:
             # Check that it does violate the resource unicity rules.
-            self._check_unicity(conn, collection_id, parent_id, record,
+            self._check_unicity(cursor, collection_id, parent_id, record,
                                 unique_fields, id_field, modified_field)
             # Create or update ?
             query = """
@@ -290,13 +282,13 @@ class Storage(StorageBase):
               AND parent_id = %(parent_id)s
               AND collection_id = %(collection_id)s;
             """
-            result = conn.execute(query, placeholders)
-            query = query_update if result.rowcount > 0 else query_create
+            cursor.execute(query, placeholders)
+            query = query_update if cursor.rowcount > 0 else query_create
 
-            result = conn.execute(query, placeholders)
-            updated = result.fetchone()
+            cursor.execute(query, placeholders)
+            result = cursor.fetchone()
 
-        record[modified_field] = updated['last_modified']
+        record[modified_field] = result['last_modified']
         return record
 
     def delete(self, collection_id, parent_id, object_id,
@@ -332,11 +324,11 @@ class Storage(StorageBase):
                             parent_id=parent_id,
                             collection_id=collection_id)
 
-        with self.client.connect() as conn:
-            result = conn.execute(query, placeholders)
-            if result.rowcount == 0:
+        with self.client.connect() as cursor:
+            cursor.execute(query, placeholders)
+            if cursor.rowcount == 0:
                 raise exceptions.RecordNotFoundError(object_id)
-            inserted = result.fetchone()
+            inserted = cursor.fetchone()
 
         record = {}
         record[modified_field] = inserted['last_modified']
@@ -388,12 +380,12 @@ class Storage(StorageBase):
             safeholders['conditions_filter'] = 'AND %s' % safe_sql
             placeholders.update(**holders)
 
-        with self.client.connect() as conn:
-            result = conn.execute(query % safeholders, placeholders)
-            deleted = result.fetchmany(self._max_fetch_size)
+        with self.client.connect() as cursor:
+            cursor.execute(query % safeholders, placeholders)
+            results = cursor.fetchmany(self._max_fetch_size)
 
         records = []
-        for result in deleted:
+        for result in results:
             record = {}
             record[id_field] = result['id']
             record[modified_field] = result['last_modified']
@@ -425,10 +417,10 @@ class Storage(StorageBase):
                 'AND as_epoch(last_modified) < %(before)s')
             placeholders['before'] = before
 
-        with self.client.connect() as conn:
-            result = conn.execute(query % safeholders, placeholders)
+        with self.client.connect() as cursor:
+            cursor.execute(query % safeholders, placeholders)
 
-        return result.rowcount
+        return cursor.rowcount
 
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,
@@ -517,17 +509,17 @@ class Storage(StorageBase):
             assert isinstance(limit, six.integer_types)  # asserted in resource
             safeholders['pagination_limit'] = 'LIMIT %s' % limit
 
-        with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query % safeholders, placeholders)
-            retrieved = result.fetchmany(self._max_fetch_size)
+        with self.client.connect(readonly=True) as cursor:
+            cursor.execute(query % safeholders, placeholders)
+            results = cursor.fetchmany(self._max_fetch_size)
 
-        if not len(retrieved):
+        if not len(results):
             return [], 0
 
-        count_total = retrieved[0]['count_total']
+        count_total = results[0]['count_total']
 
         records = []
-        for result in retrieved:
+        for result in results:
             record = result['data']
             record[id_field] = result['id']
             record[modified_field] = result['last_modified']
@@ -655,7 +647,7 @@ class Storage(StorageBase):
         safe_sql = 'ORDER BY %s' % (', '.join(sorts))
         return safe_sql, holders
 
-    def _check_unicity(self, conn, collection_id, parent_id, record,
+    def _check_unicity(self, cursor, collection_id, parent_id, record,
                        unique_fields, id_field, modified_field,
                        for_creation=False):
         """Check that no existing record (in the current transaction snapshot)
@@ -713,11 +705,11 @@ class Storage(StorageBase):
         else:
             safeholders['condition_record'] = 'TRUE'
 
-        result = conn.execute(query % safeholders, placeholders)
-        if result.rowcount > 0:
-            existing = result.fetchone()
-            record = self.get(collection_id, parent_id, existing['id'])
-            raise exceptions.UnicityError(unique_fields[0], record)
+        cursor.execute(query % safeholders, placeholders)
+        if cursor.rowcount > 0:
+            result = cursor.fetchone()
+            existing = self.get(collection_id, parent_id, result['id'])
+            raise exceptions.UnicityError(unique_fields[0], existing)
 
 
 def load_from_config(config):

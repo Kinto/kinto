@@ -34,17 +34,9 @@ class Cache(CacheBase):
         distinguish schema manipulation privileges from schema usage.
 
 
-    A connection pool is enabled by default::
+    A threaded connection pool is enabled by default::
 
         cliquet.cache_pool_size = 10
-        cliquet.cache_maxoverflow = 10
-        cliquet.cache_pool_recycle = -1
-        cliquet.cache_pool_timeout = 30
-        cliquet.cache_poolclass = sqlalchemy.pool.QueuePool
-
-    See `dedicated section in SQLAlchemy documentation
-    <http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html>`_
-    for default values and behaviour.
 
     .. note::
 
@@ -62,16 +54,16 @@ class Cache(CacheBase):
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, 'schema.sql')).read()
-        with self.client.connect() as conn:
-            conn.execute(schema)
+        with self.client.connect() as cursor:
+            cursor.execute(schema)
         logger.info('Created PostgreSQL cache tables')
 
     def flush(self):
         query = """
         DELETE FROM cache;
         """
-        with self.client.connect() as conn:
-            conn.execute(query)
+        with self.client.connect() as cursor:
+            cursor.execute(query)
         logger.debug('Flushed PostgreSQL cache tables')
 
     def ttl(self, key):
@@ -81,18 +73,18 @@ class Cache(CacheBase):
          WHERE key = %s
            AND ttl IS NOT NULL;
         """
-        with self.client.connect() as conn:
-            result = conn.execute(query, (key,))
-            if result.rowcount > 0:
-                return result.fetchone()['ttl']
+        with self.client.connect() as cursor:
+            cursor.execute(query, (key,))
+            if cursor.rowcount > 0:
+                return cursor.fetchone()['ttl']
         return -1
 
     def expire(self, key, ttl):
         query = """
         UPDATE cache SET ttl = sec2ttl(%s) WHERE key = %s;
         """
-        with self.client.connect() as conn:
-            conn.execute(query, (ttl, key,))
+        with self.client.connect() as cursor:
+            cursor.execute(query, (ttl, key,))
 
     def set(self, key, value, ttl=None):
         query = """
@@ -105,23 +97,23 @@ class Cache(CacheBase):
         WHERE NOT EXISTS (SELECT * FROM upsert)
         """
         value = json.dumps(value)
-        with self.client.connect() as conn:
-            conn.execute(query, dict(key=key, value=value, ttl=ttl))
+        with self.client.connect() as cursor:
+            cursor.execute(query, dict(key=key, value=value, ttl=ttl))
 
     def get(self, key):
         purge = "DELETE FROM cache WHERE ttl IS NOT NULL AND now() > ttl;"
         query = "SELECT value FROM cache WHERE key = %s;"
-        with self.client.connect() as conn:
-            conn.execute(purge)
-            result = conn.execute(query, (key,))
-            if result.rowcount > 0:
-                value = result.fetchone()['value']
+        with self.client.connect() as cursor:
+            cursor.execute(purge)
+            cursor.execute(query, (key,))
+            if cursor.rowcount > 0:
+                value = cursor.fetchone()['value']
                 return json.loads(value)
 
     def delete(self, key):
         query = "DELETE FROM cache WHERE key = %s"
-        with self.client.connect() as conn:
-            conn.execute(query, (key,))
+        with self.client.connect() as cursor:
+            cursor.execute(query, (key,))
 
 
 def load_from_config(config):

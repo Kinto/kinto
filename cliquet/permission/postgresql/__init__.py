@@ -35,17 +35,9 @@ class Permission(PermissionBase):
         distinguish schema manipulation privileges from schema usage.
 
 
-    A connection pool is enabled by default::
+    A threaded connection pool is enabled by default::
 
         cliquet.permission_pool_size = 10
-        cliquet.permission_maxoverflow = 10
-        cliquet.permission_pool_recycle = -1
-        cliquet.permission_pool_timeout = 30
-        cliquet.permission_poolclass = sqlalchemy.pool.QueuePool
-
-    See `dedicated section in SQLAlchemy documentation
-    <http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html>`_
-    for default values and behaviour.
 
     .. note::
 
@@ -63,8 +55,8 @@ class Permission(PermissionBase):
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, 'schema.sql')).read()
-        with self.client.connect() as conn:
-            conn.execute(schema)
+        with self.client.connect() as cursor:
+            cursor.execute(schema)
         logger.info('Created PostgreSQL permission tables')
 
     def flush(self):
@@ -72,8 +64,8 @@ class Permission(PermissionBase):
         DELETE FROM user_principals;
         DELETE FROM access_control_entries;
         """
-        with self.client.connect() as conn:
-            conn.execute(query)
+        with self.client.connect() as cursor:
+            cursor.execute(query)
         logger.debug('Flushed PostgreSQL permission tables')
 
     def add_user_principal(self, user_id, principal):
@@ -86,25 +78,25 @@ class Permission(PermissionBase):
             WHERE user_id = %(user_id)s
               AND principal = %(principal)s
         );"""
-        with self.client.connect() as conn:
-            conn.execute(query, dict(user_id=user_id, principal=principal))
+        with self.client.connect() as cursor:
+            cursor.execute(query, dict(user_id=user_id, principal=principal))
 
     def remove_user_principal(self, user_id, principal):
         query = """
         DELETE FROM user_principals
          WHERE user_id = %(user_id)s
            AND principal = %(principal)s;"""
-        with self.client.connect() as conn:
-            conn.execute(query, dict(user_id=user_id, principal=principal))
+        with self.client.connect() as cursor:
+            cursor.execute(query, dict(user_id=user_id, principal=principal))
 
     def user_principals(self, user_id):
         query = """
         SELECT principal
           FROM user_principals
          WHERE user_id = %(user_id)s;"""
-        with self.client.connect() as conn:
-            result = conn.execute(query, dict(user_id=user_id))
-            results = result.fetchall()
+        with self.client.connect() as cursor:
+            cursor.execute(query, dict(user_id=user_id))
+            results = cursor.fetchall()
         return set([r['principal'] for r in results])
 
     def add_principal_to_ace(self, object_id, permission, principal):
@@ -118,10 +110,10 @@ class Permission(PermissionBase):
                AND permission = %(permission)s
                AND principal = %(principal)s
         );"""
-        with self.client.connect() as conn:
-            conn.execute(query, dict(object_id=object_id,
-                                     permission=permission,
-                                     principal=principal))
+        with self.client.connect() as cursor:
+            cursor.execute(query, dict(object_id=object_id,
+                                       permission=permission,
+                                       principal=principal))
 
     def remove_principal_from_ace(self, object_id, permission, principal):
         query = """
@@ -129,10 +121,10 @@ class Permission(PermissionBase):
          WHERE object_id = %(object_id)s
            AND permission = %(permission)s
            AND principal = %(principal)s;"""
-        with self.client.connect() as conn:
-            conn.execute(query, dict(object_id=object_id,
-                                     permission=permission,
-                                     principal=principal))
+        with self.client.connect() as cursor:
+            cursor.execute(query, dict(object_id=object_id,
+                                       permission=permission,
+                                       principal=principal))
 
     def object_permission_principals(self, object_id, permission):
         query = """
@@ -140,10 +132,10 @@ class Permission(PermissionBase):
           FROM access_control_entries
          WHERE object_id = %(object_id)s
            AND permission = %(permission)s;"""
-        with self.client.connect() as conn:
-            result = conn.execute(query, dict(object_id=object_id,
-                                              permission=permission))
-            results = result.fetchall()
+        with self.client.connect() as cursor:
+            cursor.execute(query, dict(object_id=object_id,
+                                       permission=permission))
+            results = cursor.fetchall()
         return set([r['principal'] for r in results])
 
     def object_permission_authorized_principals(self, object_id, permission,
@@ -166,9 +158,9 @@ class Permission(PermissionBase):
           FROM required_perms JOIN access_control_entries
             ON (object_id = column1 AND permission = column2);
         """ % perms_values
-        with self.client.connect() as conn:
-            result = conn.execute(query)
-            results = result.fetchall()
+        with self.client.connect() as cursor:
+            cursor.execute(query)
+            results = cursor.fetchall()
         return set([r['principal'] for r in results])
 
     def principals_accessible_objects(self, principals, permission,
@@ -209,9 +201,9 @@ class Permission(PermissionBase):
         """ % dict(perms=perms_values,
                    principals=principals_values)
 
-        with self.client.connect() as conn:
-            result = conn.execute(query, placeholders)
-            results = result.fetchall()
+        with self.client.connect() as cursor:
+            cursor.execute(query, placeholders)
+            results = cursor.fetchall()
         return set([r['object_id'] for r in results])
 
     def check_permission(self, object_id, permission, principals,
@@ -243,10 +235,10 @@ class Permission(PermissionBase):
             ON (required_principals.column1 = principal);
         """ % dict(perms=perms_values, principals=principals_values)
 
-        with self.client.connect() as conn:
-            result = conn.execute(query)
-            total = result.fetchone()
-        return total['matched'] > 0
+        with self.client.connect() as cursor:
+            cursor.execute(query)
+            result = cursor.fetchone()
+        return result['matched'] > 0
 
     def object_permissions(self, object_id, permissions=None):
         query = """
@@ -259,9 +251,9 @@ class Permission(PermissionBase):
             query += """
         AND permission IN %(permissions)s;"""
             placeholders["permissions"] = tuple(permissions)
-        with self.client.connect() as conn:
-            result = conn.execute(query, placeholders)
-            results = result.fetchall()
+        with self.client.connect() as cursor:
+            cursor.execute(query, placeholders)
+            results = cursor.fetchall()
         permissions = defaultdict(set)
         for r in results:
             permissions[r['permission']].add(r['principal'])
@@ -303,9 +295,9 @@ class Permission(PermissionBase):
             FROM new_aces;
         """ % dict(new_perms=','.join(new_perms))
 
-        with self.client.connect() as conn:
-            conn.execute(delete_query, placeholders)
-            conn.execute(insert_query, placeholders)
+        with self.client.connect() as cursor:
+            cursor.execute(delete_query, placeholders)
+            cursor.execute(insert_query, placeholders)
 
     def delete_object_permissions(self, *object_id_list):
         if len(object_id_list) == 0:
@@ -314,8 +306,8 @@ class Permission(PermissionBase):
         query = """
         DELETE FROM access_control_entries
          WHERE object_id IN %(object_id_list)s;"""
-        with self.client.connect() as conn:
-            conn.execute(query, dict(object_id_list=tuple(object_id_list)))
+        with self.client.connect() as cursor:
+            cursor.execute(query, dict(object_id_list=tuple(object_id_list)))
 
 
 def load_from_config(config):

@@ -12,15 +12,8 @@ This document describes changes between each past release.
 - Moved ``userid`` attribute to a dedicated ``user`` mapping in the hello
   view.
 
-**Breaking changes**
-
-- For PostgreSQL backends, it is recommended to specify ``postgresql://``
-
 **New features**
 
-- New settings for backends when using PostgreSQL: ``*_pool_maxoverflow``,
-  ``*_pool_recycle``, ``*_pool_timeout`` to control connections pool
-  behaviour.
 - Follow redirections in batch subrequests (fixes #511)
 - Add a ``readonly`` setting to run the service in read-only mode. (#525)
 - If no client cache is set, add ``Cache-Control: no-cache`` by default,
@@ -33,10 +26,6 @@ This document describes changes between each past release.
   resource (fixes #528)
 - Fix PUT not using ``create()`` method in storage backend when tombstone exists
   (fixes #530)
-
-**Internal changes**
-
-- Switch to SQLAlchemy for smarter connections pools.
 
 
 2.9.0 (2015-10-27)

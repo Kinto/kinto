@@ -2,9 +2,8 @@ import time
 
 import mock
 import redis
-from pyramid import testing
 
-from cliquet.utils import sqlalchemy
+from cliquet.utils import psycopg2
 from cliquet import utils
 from cliquet.storage import (
     exceptions, Filter, generators, memory,
@@ -113,9 +112,7 @@ class BaseTestStorage(object):
         """
         if settings is None:
             settings = self.settings
-        config = testing.setUp()
-        config.add_settings(settings)
-        return config
+        return mock.Mock(get_settings=mock.Mock(return_value=settings))
 
     def tearDown(self):
         mock.patch.stopall()
@@ -547,11 +544,7 @@ class DeletedRecordsTest(object):
         """Helper to create and delete a record."""
         record = record or {'challenge': 'accepted'}
         record = self.create_record(record)
-        time.sleep(0.001)  # 1 msec
-        deleted = self.storage.delete(object_id=record['id'],
-                                      **self.storage_kw)
-        time.sleep(0.001)  # 1 msec
-        return deleted
+        return self.storage.delete(object_id=record['id'], **self.storage_kw)
 
     def test_get_should_not_return_deleted_items(self):
         record = self.create_and_delete_record()
@@ -981,17 +974,16 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
         'storage_max_fetch_size': 10000,
-        'storage_backend': 'cliquet.storage.postgresql',
-        'storage_poolclass': 'sqlalchemy.pool.StaticPool',
-        'storage_url': 'postgres://postgres:postgres@localhost:5432/testdb',
+        'storage_pool_size': 10,
+        'storage_url': 'postgres://postgres:postgres@localhost:5432/testdb'
     }
 
     def setUp(self):
         super(PostgresqlStorageTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
-            self.storage.client._engine,
-            'connect',
-            side_effect=sqlalchemy.exc.SQLAlchemyError)
+            self.storage.client.pool,
+            'getconn',
+            side_effect=psycopg2.DatabaseError)
 
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
         for i in range(4):
@@ -1009,42 +1001,49 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         self.assertEqual(len(results), 2)
 
     def test_connection_is_rolledback_if_error_occurs(self):
-        with self.storage.client.connect() as conn:
+        with self.storage.client.connect() as cursor:
             query = "DELETE FROM metadata WHERE name = 'roll';"
-            conn.execute(query)
+            cursor.execute(query)
 
         try:
-            with self.storage.client.connect() as conn:
+            with self.storage.client.connect() as cursor:
                 query = "INSERT INTO metadata VALUES ('roll', 'back');"
-                conn.execute(query)
-                conn.connection.commit()
+                cursor.execute(query)
+                cursor.connection.commit()
 
                 query = "INSERT INTO metadata VALUES ('roll', 'rock');"
-                conn.execute(query)
+                cursor.execute(query)
 
-                raise sqlalchemy.exc.TimeoutError()
+                raise psycopg2.Error()
         except exceptions.BackendError:
             pass
 
-        with self.storage.client.connect() as conn:
+        with self.storage.client.connect() as cursor:
             query = "SELECT COUNT(*) FROM metadata WHERE name = 'roll';"
-            result = conn.execute(query)
-            self.assertEqual(result.fetchone()[0], 1)
+            cursor.execute(query)
+            self.assertEqual(cursor.fetchone()[0], 1)
 
     def test_pool_object_is_shared_among_backend_instances(self):
         config = self._get_config()
         storage1 = self.backend.load_from_config(config)
         storage2 = self.backend.load_from_config(config)
-        self.assertEqual(id(storage1.client._engine),
-                         id(storage2.client._engine))
+        self.assertEqual(id(storage1.client.pool), id(storage2.client.pool))
+
+    def test_pool_object_is_shared_among_every_backends(self):
+        config = self._get_config()
+        storage1 = self.backend.load_from_config(config)
+        subclass = type('backend', (postgresql.client.PostgreSQLClient,), {})
+        storage2 = subclass(dsn='',
+                            user='postgres', password='postgres',
+                            host='localhost', database='testdb',
+                            pool_size=10)
+        self.assertEqual(id(storage1.client.pool), id(storage2.pool))
 
     def test_warns_if_configured_pool_size_differs_for_same_backend_type(self):
         self.backend.load_from_config(self._get_config())
         settings = self.settings.copy()
         settings['storage_pool_size'] = 1
-        msg = ('Reuse existing PostgreSQL connection. Parameters storage_* '
-               'will be ignored.')
-        with mock.patch('cliquet.storage.postgresql.client.'
-                        'warnings.warn') as mocked:
+        msg = 'Pool size 1 ignored for PostgreSQL backend (Already set to 10).'
+        with mock.patch('cliquet.storage.postgresql.warnings.warn') as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
             mocked.assert_any_call(msg)
