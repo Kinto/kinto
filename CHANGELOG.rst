@@ -7,7 +7,15 @@ This document describes changes between each past release.
 1.8.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Protocol**
+
+- Replaced ``userid`` field in root URL hello view by a ``user`` mapping
+  containing ``id`` and ``bucket``, her default bucket id.
+- Changed the ``/buckets/default`` behaviour. Implicit creation of collections
+  is preserved, but an explicit ``307`` redirects the client to the actual
+  underlying bucket.
+  For clients that follow redirections (like *kinto.js* or Python *requests*),
+  the new behaviour is retrocompatible.
 
 
 1.7.0 (2015-10-28)

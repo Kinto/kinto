@@ -1,12 +1,10 @@
-from six import text_type
-from uuid import UUID
-
-from pyramid.httpexceptions import HTTPForbidden, HTTPException
+from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
 from cliquet import resource
-from cliquet.utils import hmac_digest, build_request, reapply_cors
+from cliquet.errors import http_error
+from cliquet.utils import build_request, reapply_cors
 from cliquet.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
@@ -128,45 +126,31 @@ def create_collection(request, bucket_id):
 @view_config(route_name='default_bucket_collection',
              permission=NO_PERMISSION_REQUIRED)
 def default_bucket(request):
-    if request.method.lower() == 'options':
-        path = request.path.replace('default', 'unknown')
+    is_preflight_request = request.method.lower() == 'options'
+    if is_preflight_request:
+        path = request.path.replace('default', 'any_bucket')
         subrequest = build_request(request, {
             'method': 'OPTIONS',
             'path': path
         })
         return request.invoke_subrequest(subrequest)
 
-    if getattr(request, 'prefixed_userid', None) is None:
-        raise HTTPForbidden()  # Pass through the forbidden_view_config
+    bucket_id = request.default_bucket_id
 
-    settings = request.registry.settings
-    hmac_secret = settings['userid_hmac_secret']
-    # Build the user unguessable bucket_id UUID from its user_id
-    digest = hmac_digest(hmac_secret, request.prefixed_userid)
-    bucket_id = text_type(UUID(digest[:32]))
+    if not is_preflight_request:
+        # Only OPTIONS requests can be anonymous.
+        if bucket_id is None:
+            # Will pass through Cliquet @forbidden_view_config
+            raise httpexceptions.HTTPForbidden()
+
+        # Implicit bucket creation if does not exist
+        create_bucket(request, bucket_id)
+
+        # Implicit collection creation if does not exist
+        create_collection(request, bucket_id)
+
+    # Redirect the client to the actual bucket, using full URL
     path = request.path.replace('/buckets/default', '/buckets/%s' % bucket_id)
     querystring = request.url[(request.url.index(request.path) +
                                len(request.path)):]
-
-    # Make sure bucket exists
-    create_bucket(request, bucket_id)
-
-    # Make sure the collection exists
-    create_collection(request, bucket_id)
-
-    subrequest = build_request(request, {
-        'method': request.method,
-        'path': path + querystring,
-        'body': request.body
-    })
-    subrequest.bound_data = request.bound_data
-
-    try:
-        response = request.invoke_subrequest(subrequest)
-    except HTTPException as error:
-        if error.content_type == 'application/json':
-            response = reapply_cors(subrequest, error)
-        else:
-            # Ask the upper level to format the error.
-            raise error
-    return response
+    raise http_error(httpexceptions.HTTPTemporaryRedirect(path + querystring))
