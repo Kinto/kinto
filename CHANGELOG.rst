@@ -4,7 +4,7 @@ Changelog
 This document describes changes between each past release.
 
 
-2.10.0 (unreleased)
+2.10.0 (2015-10-30)
 -------------------
 
 **Protocol**
