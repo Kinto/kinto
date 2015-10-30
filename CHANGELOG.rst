@@ -7,10 +7,34 @@ This document describes changes between each past release.
 1.8.0 (2015-10-30)
 ==================
 
+- Upgraded to *Cliquet* 2.10.0
+
+** Protocol breaking changes**
+
+- Moved ``userid`` attribute to a dedicated ``user`` mapping in the hello
+  view (#242).
+
 **New features**
 
-- Added ``kinto.readonly`` setting, to disable any kind of *write* operations
-  on the service.
+- Follow redirections in batch subrequests (fixes mozilla-services/cliquet#511)
+- Set cache headers only when anonymous (fixes mozilla-services/cliquet#449)
+- Add a ``readonly`` setting to run the service in read-only mode. (#241)
+- If no client cache is set, add ``Cache-Control: no-cache`` by default,
+  so that clients are forced to revalidate their cache against the server
+  (ref Kinto/kinto#231)
+
+**Bug fixes**
+
+- Fixed 503 error message to mention backend errors in addition to unavailability.
+- When recreating a record that was previously deleted, status code is now ``201``
+  (ref mozilla-services/cliquet#530).
+- Fix PostgreSQL error when deleting an empty collection in a protected
+  resource (fixes mozilla-services/cliquet#528)
+- Fix PUT not using ``create()`` method in storage backend when tombstone exists
+  (fixes mozilla-services/cliquet#530)
+- Delete tombstone when record is re-created (fixes mozilla-services/cliquet#518)
+- Fix crash with empty body for PATCH (fixes mozilla-services/cliquet#477, fixes mozilla-services/cliquet#516)
+- Fix english typo in 404 error message (fixes mozilla-services/cliquet#527)
 
 
 1.7.0 (2015-10-28)
