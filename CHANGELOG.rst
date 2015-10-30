@@ -11,9 +11,11 @@ This document describes changes between each past release.
 
 - Moved ``userid`` attribute to a dedicated ``user`` mapping in the hello
   view.
-- Fixed 503 error message to metion backend errors in addition to unavailability.
+- Fixed 503 error message to mention backend errors in addition to unavailability.
 - Set cache headers only when anonymous (fixes #449)
 - Follow redirections in batch subrequests (fixes #511)
+- When recreating a record that was previously deleted, status code is now ``201``
+  (ref #530).
 
 **Breaking changes**
 
