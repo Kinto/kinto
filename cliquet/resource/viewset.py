@@ -1,6 +1,7 @@
 import functools
 
 import colander
+from pyramid.settings import asbool
 
 from cliquet import authorization
 from cliquet.resource.schema import PermissionsSchema
@@ -23,7 +24,7 @@ class ViewSet(object):
     record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
     validate_schema_for = ('POST', 'PUT', 'PATCH')
 
-    readonly_methods = ('GET',)
+    readonly_methods = ('GET', 'OPTIONS', 'HEAD')
 
     service_arguments = {
         'description': 'Collection of {resource_name}',
@@ -151,9 +152,13 @@ class ViewSet(object):
 
         Uses the settings to tell so.
         """
+        readonly_enabled = asbool(settings.get('readonly'))
+        if readonly_enabled and method not in self.readonly_methods:
+            return False
+
         setting_enabled = '%s_%s_%s_enabled' % (
             endpoint_type, resource_name, method.lower())
-        return settings.get(setting_enabled, True)
+        return asbool(settings.get(setting_enabled, True))
 
 
 class ProtectedViewSet(ViewSet):

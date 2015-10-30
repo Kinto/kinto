@@ -69,6 +69,7 @@ DEFAULT_SETTINGS = {
     'project_docs': '',
     'project_name': '',
     'project_version': '',
+    'readonly': False,
     'retry_after_seconds': 30,
     'statsd_prefix': 'cliquet',
     'statsd_url': None,
@@ -102,7 +103,7 @@ def includeme(config):
     config.registry.heartbeats = {}
 
     # Public settings registry.
-    config.registry.public_settings = {'batch_max_requests'}
+    config.registry.public_settings = {'batch_max_requests', 'readonly'}
 
     # Setup cornice.
     config.include("cornice")

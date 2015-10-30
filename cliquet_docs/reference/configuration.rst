@@ -73,6 +73,32 @@ following setting should be declared in the ``.ini`` file:
     cliquet.record_mushroom_patch_enabled = false
 
 
+Setting the service in readonly mode
+::::::::::::::::::::::::::::::::::::
+
+It is also possible to deploy a *Cliquet* service in readonly mode.
+
+Instead of having settings to disable every resource endpoint, the ``readonly`` setting
+can be set::
+
+    cliquet.readonly = true
+
+This will disable every resources endpoints that are not accessed with one of
+``GET``, ``OPTIONS``, or ``HEAD`` methods. Requests will receive a
+``405 Method not allowed`` error response.
+
+This setting will also activate readonly heartbeat checks for the
+permission and the storage backend.
+
+.. warning::
+
+    The cache backend will still needs read-write privileges, in order to
+    cache OAuth authentication states and tokens for example.
+
+    If you do not need cache at all, set the ``kinto.cache_backend`` setting to
+    an empty string to disable it.
+
+
 Deployment
 ==========
 

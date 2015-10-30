@@ -1,3 +1,4 @@
+from __future__ import absolute_import, print_function
 import logging
 import argparse
 import sys
@@ -5,6 +6,7 @@ import textwrap
 import warnings
 
 from pyramid.paster import bootstrap
+from pyramid.settings import asbool
 
 
 def deprecated_init(env):
@@ -15,10 +17,18 @@ def deprecated_init(env):
 
 def init_schema(env):
     registry = env['registry']
+    settings = registry.settings
+    readonly_backends = ('storage', 'permission')
+    readonly_mode = asbool(settings.get('readonly', False))
 
     for backend in ('cache', 'storage', 'permission'):
         if hasattr(registry, backend):
-            getattr(registry, backend).initialize_schema()
+            if readonly_mode and backend in readonly_backends:
+                message = ('Cannot migrate the %s backend while '
+                           'in readonly mode.' % backend)
+                warnings.warn(message)
+            else:
+                getattr(registry, backend).initialize_schema()
 
 
 def main():

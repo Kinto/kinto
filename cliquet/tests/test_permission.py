@@ -7,9 +7,9 @@ from cliquet.utils import sqlalchemy
 from cliquet.storage import exceptions
 from cliquet.permission import (PermissionBase, redis as redis_backend,
                                 memory as memory_backend,
-                                postgresql as postgresql_backend)
+                                postgresql as postgresql_backend, heartbeat)
 
-from .support import unittest, skip_if_no_postgresql
+from .support import unittest, skip_if_no_postgresql, DummyRequest
 
 
 class PermissionBaseTest(unittest.TestCase):
@@ -44,7 +44,7 @@ class BaseTestPermission(object):
         super(BaseTestPermission, self).setUp()
         self.permission = self.backend.load_from_config(self._get_config())
         self.permission.initialize_schema()
-        self.request = None
+        self.request = DummyRequest()
         self.client_error_patcher = []
 
     def _get_config(self, settings=None):
@@ -82,12 +82,26 @@ class BaseTestPermission(object):
             self.assertRaises(exceptions.BackendError, *call)
 
     def test_ping_returns_false_if_unavailable(self):
+        ping = heartbeat(self.permission)
         for patch in self.client_error_patcher:
             patch.start()
-        self.assertFalse(self.permission.ping(self.request))
+        self.assertFalse(ping(self.request))
 
     def test_ping_returns_true_if_available(self):
-        self.assertTrue(self.permission.ping(self.request))
+        ping = heartbeat(self.permission)
+        self.assertTrue(ping(self.request))
+
+    def test_ping_returns_false_if_unavailable_in_readonly_mode(self):
+        self.request.registry.settings['readonly'] = 'true'
+        ping = heartbeat(self.permission)
+        with mock.patch.object(self.permission, 'user_principals',
+                               side_effect=exceptions.BackendError("Boom!")):
+            self.assertFalse(ping(self.request))
+
+    def test_ping_returns_true_if_available_in_readonly_mode(self):
+        self.request.registry.settings['readonly'] = 'true'
+        ping = heartbeat(self.permission)
+        self.assertTrue(ping(self.request))
 
     def test_can_add_a_principal_to_a_user(self):
         user_id = 'foo'
@@ -117,7 +131,10 @@ class BaseTestPermission(object):
     def test_can_remove_a_unexisting_principal_to_a_user(self):
         user_id = 'foo'
         principal = 'bar'
+        principal2 = 'foobar'
+        self.permission.add_user_principal(user_id, principal2)
         self.permission.remove_user_principal(user_id, principal)
+        self.permission.remove_user_principal(user_id, principal2)
         retrieved = self.permission.user_principals(user_id)
         self.assertEquals(retrieved, set())
 

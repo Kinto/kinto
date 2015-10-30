@@ -9,7 +9,7 @@ from cliquet import utils
 from cliquet.storage import (
     exceptions, Filter, generators, memory,
     redis as redisbackend, postgresql,
-    Sort, StorageBase
+    Sort, StorageBase, heartbeat
 )
 
 from .support import (unittest, ThreadMixin, DummyRequest,
@@ -168,23 +168,42 @@ class BaseTestStorage(object):
     def test_ping_returns_false_if_unavailable(self):
         request = DummyRequest()
         request.headers['Authorization'] = self.storage_kw['auth']
+        request.registry.settings = {'readonly': 'false'}
+        ping = heartbeat(self.storage)
 
         with mock.patch('cliquet.storage.random.random', return_value=0.7):
-            self.storage.ping(request)
+            ping(request)
 
         self.client_error_patcher.start()
         with mock.patch('cliquet.storage.random.random', return_value=0.7):
-            self.assertFalse(self.storage.ping(request))
+            self.assertFalse(ping(request))
         with mock.patch('cliquet.storage.random.random', return_value=0.5):
-            self.assertFalse(self.storage.ping(request))
+            self.assertFalse(ping(request))
 
     def test_ping_returns_true_when_working(self):
         request = DummyRequest()
         request.headers['Authorization'] = 'Basic bWF0OjI='
+        ping = heartbeat(self.storage)
         with mock.patch('cliquet.storage.random.random', return_value=0.7):
-            self.assertTrue(self.storage.ping(request))
+            self.assertTrue(ping(request))
         with mock.patch('cliquet.storage.random.random', return_value=0.5):
-            self.assertTrue(self.storage.ping(request))
+            self.assertTrue(ping(request))
+
+    def test_ping_returns_true_when_working_in_readonly_mode(self):
+        request = DummyRequest()
+        request.headers['Authorization'] = 'Basic bWF0OjI='
+        request.registry.settings = {'readonly': 'true'}
+        ping = heartbeat(self.storage)
+        self.assertTrue(ping(request))
+
+    def test_ping_returns_false_if_unavailable_in_readonly_mode(self):
+        request = DummyRequest()
+        request.headers['Authorization'] = 'Basic bWF0OjI='
+        request.registry.settings = {'readonly': 'true'}
+        ping = heartbeat(self.storage)
+        with mock.patch.object(self.storage, 'get_all',
+                               side_effect=exceptions.BackendError("Boom!")):
+            self.assertFalse(ping(request))
 
     def test_create_adds_the_record_id(self):
         record = self.create_record()
