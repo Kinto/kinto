@@ -90,6 +90,10 @@ class Record(resource.ProtectedResource):
             Those headers are also sent if the
             ``kinto.record_cache_expires_seconds`` setting is defined.
         """
+        is_anonymous = self.request.prefixed_userid is None
+        if not is_anonymous:
+            return
+
         cache_expires = self._collection.get('cache_expires')
         if cache_expires is None:
             by_bucket = 'kinto.%s_record_cache_expires_seconds' % (
