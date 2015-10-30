@@ -308,6 +308,9 @@ class Permission(PermissionBase):
             conn.execute(insert_query, placeholders)
 
     def delete_object_permissions(self, *object_id_list):
+        if len(object_id_list) == 0:
+            return
+
         query = """
         DELETE FROM access_control_entries
          WHERE object_id IN %(object_id_list)s;"""
