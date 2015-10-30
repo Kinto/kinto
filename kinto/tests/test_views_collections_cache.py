@@ -17,8 +17,7 @@ class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
 
     def test_expires_and_cache_control_headers_are_set(self):
         url = '/buckets/default/collections/cached/records'
-        r = self.app.get(url,
-                         headers=self.headers)
+        r = self.app.get(url, headers=self.headers)
         self.assertIn('Expires', r.headers)
         self.assertEqual(r.headers['Cache-Control'], 'max-age=3600')
 
