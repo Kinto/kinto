@@ -11,7 +11,7 @@ raven==5.8.1
 redis==2.10.3
 repoze.lru==0.6
 requests==2.8.1
-simplejson==3.8.0
+simplejson==3.8.1
 six==1.10.0
 statsd==3.2.1
 structlog==15.3.0
