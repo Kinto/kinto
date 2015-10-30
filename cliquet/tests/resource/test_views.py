@@ -631,13 +631,11 @@ class CacheControlTest(BaseWebTest, unittest.TestCase):
         self.assertIn('Cache-Control', resp.headers)
         # Check that not set by Pyramid.cache_expires()
         self.assertNotIn('Expires', resp.headers)
-        self.assertNotIn('Pragma', resp.headers)
 
     def test_cache_control_provides_no_cache_by_default(self):
         resp = self.app.get('/moistures')
         self.assertIn('no-cache', resp.headers['Cache-Control'])
         self.assertNotIn('Expires', resp.headers)
-        self.assertNotIn('Pragma', resp.headers)
 
 
 class StorageErrorTest(BaseWebTest, unittest.TestCase):
