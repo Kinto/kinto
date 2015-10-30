@@ -35,7 +35,8 @@ Feature settings
 +===========================================================+==========================================================================+
 | kinto.readonly ``False``                                  | If set to true, the whole service will reject every write operation.     |
 |                                                           | Note that with this option, the ``default`` bucket cannot be used and    |
-|                                                           | request will be rejected with a ``403 Forbidden`` error response.        |
+|                                                           | request will be rejected with a ``405 Method Not Allowed`` error         |
+|                                                           | response.                                                                |
 +-----------------------------------------------------------+--------------------------------------------------------------------------+
 | kinto.batch_max_requests ``25``                           | The maximum number of requests that can be sent to the batch endpoint.   |
 +-----------------------------------------------------------+--------------------------------------------------------------------------+

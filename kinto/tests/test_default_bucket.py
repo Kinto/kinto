@@ -194,4 +194,4 @@ class ReadonlyDefaultBucket(BaseWebTest, unittest.TestCase):
         return settings
 
     def test_implicit_creation_is_rejected(self):
-        self.app.get('/buckets/default', headers=self.headers, status=403)
+        self.app.get('/buckets/default', headers=self.headers, status=405)
