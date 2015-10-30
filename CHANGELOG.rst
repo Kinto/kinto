@@ -11,6 +11,9 @@ This document describes changes between each past release.
 
 - Moved ``userid`` attribute to a dedicated ``user`` mapping in the hello
   view.
+- Fixed 503 error message to metion backend errors in addition to unavailability.
+- Set cache headers only when anonymous (fixes #449)
+- Follow redirections in batch subrequests (fixes #511)
 
 **New features**
 
@@ -26,6 +29,14 @@ This document describes changes between each past release.
   resource (fixes #528)
 - Fix PUT not using ``create()`` method in storage backend when tombstone exists
   (fixes #530)
+- Delete tombstone when record is re-created (fixes #518)
+- Fix crash with empty body for PATCH (fixes #477, fixes #516)
+- Fix english typo in 404 error message (fixes #527)
+
+
+**Internal changes**
+
+- Better __pycache__ cleaning
 
 
 2.9.0 (2015-10-27)
