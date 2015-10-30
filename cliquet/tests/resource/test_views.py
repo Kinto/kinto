@@ -40,7 +40,7 @@ class BaseResourcePermissionTest(BaseWebTest, unittest.TestCase):
         self.app.get(record_url, headers=self.headers, status=200)
         self.app.patch_json(record_url, body, headers=self.headers, status=200)
         self.app.delete(record_url, headers=self.headers, status=200)
-        self.app.put_json(record_url, body, headers=self.headers, status=200)
+        self.app.put_json(record_url, body, headers=self.headers, status=201)
         self.app.put_json(unknown_url, body, headers=self.headers, status=201)
 
 

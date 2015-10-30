@@ -344,15 +344,16 @@ class BaseResource(object):
         self._raise_400_if_invalid_id(self.record_id)
         id_field = self.model.id_field
         existing = None
+        tombstones = None
         try:
             existing = self._get_record_or_404(self.record_id)
         except HTTPNotFound:
             # Look if this record used to exist (for preconditions check).
-            deleted = Filter(id_field, self.record_id, COMPARISON.EQ)
-            result, _ = self.model.get_records(filters=[deleted],
-                                               include_deleted=True)
-            if len(result) > 0:
-                existing = result[0]
+            filter_by_id = Filter(id_field, self.record_id, COMPARISON.EQ)
+            tombstones, _ = self.model.get_records(filters=[filter_by_id],
+                                                   include_deleted=True)
+            if len(tombstones) > 0:
+                existing = tombstones[0]
         finally:
             if existing:
                 self._raise_412_if_modified(existing)
@@ -366,7 +367,7 @@ class BaseResource(object):
 
         try:
             unique = self.mapping.get_option('unique_fields')
-            if existing:
+            if existing and not tombstones:
                 record = self.model.update_record(new_record,
                                                   unique_fields=unique)
             else:

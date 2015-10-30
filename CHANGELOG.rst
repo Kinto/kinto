@@ -28,6 +28,8 @@ This document describes changes between each past release.
 
 - Fix PostgreSQL error when deleting an empty collection in a protected
   resource (fixes #528)
+- Fix PUT not using ``create()`` method in storage backend when tombstone exists
+  (fixes #530)
 
 **Internal changes**
 
