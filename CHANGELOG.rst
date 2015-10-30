@@ -24,6 +24,11 @@ This document describes changes between each past release.
 - Follow redirections in batch subrequests (fixes #511)
 - Add a ``readonly`` setting to run the service in read-only mode. (#525)
 
+**Bug fixes**
+
+- Fix PostgreSQL error when deleting an empty collection in a protected
+  resource (fixes #528)
+
 **Internal changes**
 
 - Switch to SQLAlchemy for smarter connections pools.

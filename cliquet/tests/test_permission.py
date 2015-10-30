@@ -405,6 +405,9 @@ class BaseTestPermission(object):
         self.assertDictEqual(self.permission.object_permissions(
             '/url/a/id/3'), {"create": {"user4"}})
 
+    def test_delete_object_permissions_supports_empty_list(self):
+        self.permission.delete_object_permissions()  # Not failing
+
 
 class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = memory_backend
