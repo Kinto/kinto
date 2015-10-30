@@ -108,7 +108,8 @@ class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
     def test_expires_and_cache_control_are_not_set_if_authenticated(self):
         r = self.app.get(self.records_url, headers=self.headers)
         self.assertNotIn('Expires', r.headers)
-        self.assertNotIn('Cache-Control', r.headers)
+        self.assertIn('Cache-Control', r.headers)
+        self.assertEqual(r.headers['Cache-Control'], 'no-cache')
 
     def test_expires_and_cache_control_are_set_on_records(self):
         r = self.app.get(self.records_url)
