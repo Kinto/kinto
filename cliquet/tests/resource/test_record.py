@@ -63,6 +63,16 @@ class PutTest(BaseTest):
             self.resource.put()
             self.assertEqual(patched.call_count, 1)
 
+    def test_relies_on_collection_create_even_when_previously_deleted(self):
+        record = self.model.create_record({'field': 'value'})
+        self.resource.record_id = record['id']
+        self.resource.delete()['data']
+
+        self.resource.request.validated = {'data': {'field': 'new'}}
+        with mock.patch.object(self.model, 'create_record') as patched:
+            self.resource.put()
+            self.assertEqual(patched.call_count, 1)
+
     def test_replace_record_returns_updated_fields(self):
         self.resource.request.validated = {'data': {'field': 'new'}}
         result = self.resource.put()['data']
