@@ -27,7 +27,7 @@ We'll start with a relatively simple data model:
   - ``description``: A string describing the task
   - ``status``: The status of the task, (e.g. ``todo``, ``doing`` or ``done``).
 
-Using the `httpie <http://httpie.org>` tool we can post a sample record in the
+Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
 ``tasks`` collection:
 
 .. code-block:: http
