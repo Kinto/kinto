@@ -29,6 +29,7 @@ We'll start with a relatively simple data model:
 
 Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
 ``tasks`` collection:
+Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#proxies>`_ for more information If you need to configure a proxy for instance.
 
 .. code-block:: http
 
