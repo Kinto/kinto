@@ -9,19 +9,19 @@ Backends
 PostgreSQL
 ----------
 
-.. autoclass:: cliquet.storage.postgresql.PostgreSQL
+.. autoclass:: cliquet.storage.postgresql.Storage
 
 
 Redis
 -----
 
-.. autoclass:: cliquet.storage.redis.Redis
+.. autoclass:: cliquet.storage.redis.Storage
 
 
 Memory
 ------
 
-.. autoclass:: cliquet.storage.memory.Memory
+.. autoclass:: cliquet.storage.memory.Storage
 
 
 API

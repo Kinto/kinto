@@ -158,8 +158,6 @@ Roadmap
 The future features we plan to implement in *Cliquet* are currently driven by the
 use-cases we meet internally at Mozilla. Most notable are:
 
-* Notifications channel (e.g. run asynchronous tasks on events or listen for
-  changes);
 * Attachments on records (e.g. *Remote Storage* compatibility);
 * Records generic indexing (e.g. streaming records to *ElasticSearch*).
 
