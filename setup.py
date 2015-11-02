@@ -37,9 +37,9 @@ ENTRY_POINTS = {
     'paste.app_factory': [
         'main = kinto:main',
     ],
-    'console_scripts':[
-	'kinto = kinto.__main__:main'	
-	],
+    'console_scripts': [
+        'kinto = kinto.__main__:main'
+    ],
 }
 
 DEPENDENCY_LINKS = [
