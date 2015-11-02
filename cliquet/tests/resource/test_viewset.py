@@ -304,6 +304,33 @@ class ViewSetTest(unittest.TestCase):
                                                  config)
         self.assertFalse(is_enabled)
 
+    def test_is_endpoint_enabled_returns_true_for_get_if_readonly(self):
+        viewset = ViewSet()
+        config = {
+            'readonly': True
+        }
+        is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'get',
+                                                 config)
+        self.assertTrue(is_enabled)
+
+    def test_is_endpoint_enabled_returns_true_for_options_if_readonly(self):
+        viewset = ViewSet()
+        config = {
+            'readonly': True
+        }
+        is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'options',
+                                                 config)
+        self.assertTrue(is_enabled)
+
+    def test_is_endpoint_enabled_returns_true_for_head_if_readonly(self):
+        viewset = ViewSet()
+        config = {
+            'readonly': True
+        }
+        is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'head',
+                                                 config)
+        self.assertTrue(is_enabled)
+
 
 class ProtectedViewSetTest(unittest.TestCase):
     def test_permission_dynamic_is_set_by_default(self):

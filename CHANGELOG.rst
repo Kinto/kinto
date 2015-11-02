@@ -4,6 +4,14 @@ Changelog
 This document describes changes between each past release.
 
 
+2.10.1 (2015-11-03)
+-------------------
+
+**Bug fixes**
+
+- Make sure read enpoints (GET, OPTIONS, HEAD) are activated in readonly mode. (#539)
+
+
 2.10.0 (2015-10-30)
 -------------------
 
@@ -34,7 +42,6 @@ This document describes changes between each past release.
 - Delete tombstone when record is re-created (fixes #518)
 - Fix crash with empty body for PATCH (fixes #477, fixes #516)
 - Fix english typo in 404 error message (fixes #527)
-
 
 **Internal changes**
 
