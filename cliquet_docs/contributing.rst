@@ -84,6 +84,41 @@ to speed-up the execution:
     nosetests -s --with-mocha-reporter cliquet.tests.test_views_hello:HelloViewTest.test_returns_info_about_url_and_version
 
 
+Load tests
+----------
+
+A load test is provided in order to run end-to-end tests on *Cliquet* through a sample application,
+or prevent regressions in terms of performance.
+
+The following ``make`` command will check briefly the overall sanity of the API,
+by running a server and running a very few random HTTP requests on it.
+
+::
+
+    make loadtest-check-simulation
+
+It is possible to customize this load test, by focusing on a single action,
+or customize the number of users and hits.
+
+First, run the test application manually in a terminal: ::
+
+    cd loadtests/
+    pserve loadtests/server.ini
+
+And then, run the test suite against it: ::
+
+    SERVER_URL=http://localhost:8888 make test -e
+
+With a specific action: ::
+
+    LOAD_ACTION=batch_create SERVER_URL=http://localhost:8888 make test -e
+
+Or a specific configuration: ::
+
+    cp test.ini custom.ini
+    CONFIG=custom.ini SERVER_URL=http://localhost:8888 make test -e
+
+
 Definition of done
 ==================
 
