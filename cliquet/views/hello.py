@@ -13,7 +13,7 @@ def get_hello(request):
     data = dict(
         hello=project_name,
         version=settings['project_version'],
-        protocol=API_VERSION,
+        protocol_version=API_VERSION,
         url=request.route_url(hello.name),
         documentation=settings['project_docs']
     )
