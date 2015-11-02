@@ -9,7 +9,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
-- Make sure read enpoint are activated in readonly mode. (#539)
+- Make sure read enpoints (GET, OPTIONS, HEAD) are activated in readonly mode. (#539)
 
 
 2.10.0 (2015-10-30)
