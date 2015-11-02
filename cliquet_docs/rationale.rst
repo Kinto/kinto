@@ -52,7 +52,9 @@ Records and synchronization
 * Sorting and filtering;
 * Pagination using continuation tokens;
 * Polling for collection changes;
-* Record race conditions handling using preconditions headers.
+* Record race conditions handling using preconditions headers;
+* Notifications channel (e.g. run asynchronous tasks on changes).
+
 
 Generic endpoints
 -----------------
