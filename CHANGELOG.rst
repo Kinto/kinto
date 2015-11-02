@@ -7,7 +7,9 @@ This document describes changes between each past release.
 1.9.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**New features**
+
+- Add a Kinto command for start and migrate operation (#129)
 
 
 1.8.0 (2015-10-30)
@@ -15,7 +17,7 @@ This document describes changes between each past release.
 
 - Upgraded to *Cliquet* 2.10.0
 
-** Protocol breaking changes**
+**Protocol breaking changes**
 
 - Moved ``userid`` attribute to a dedicated ``user`` mapping in the hello
   view (#242).
@@ -39,7 +41,8 @@ This document describes changes between each past release.
 - Fix PUT not using ``create()`` method in storage backend when tombstone exists
   (fixes mozilla-services/cliquet#530)
 - Delete tombstone when record is re-created (fixes mozilla-services/cliquet#518)
-- Fix crash with empty body for PATCH (fixes mozilla-services/cliquet#477, fixes mozilla-services/cliquet#516)
+- Fix crash with empty body for PATCH (fixes mozilla-services/cliquet#477,
+  fixes mozilla-services/cliquet#516)
 - Fix english typo in 404 error message (fixes mozilla-services/cliquet#527)
 
 
