@@ -9,7 +9,7 @@ GET /
 The returned value is a JSON mapping containing:
 
 - ``hello``: the name of the service (e.g. ``"reading list"``)
-- ``api_version``: the cliquet protocol version (``"2"``)
+- ``protocol``: the cliquet protocol version (``"v2"``)
 - ``version``: complete version (``"X.Y.Z"``)
 - ``url``: absolute URI (without a trailing slash) of the API (*can be used by client to build URIs*)
 - ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)

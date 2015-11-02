@@ -15,7 +15,6 @@ This document describes changes between each past release.
 - Add the ``protocol_version`` to tell which protocol version is
   implemented by the service. (#324)
 
-
 **Internal changes**
 
 - Added a simple end-to-end test on a *Cliquet* sample application, using

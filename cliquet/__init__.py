@@ -21,7 +21,7 @@ from cliquet.utils import follow_subrequest
 __version__ = pkg_resources.get_distribution(__package__).version
 
 # The API version is derivated from the module version.
-API_VERSION = '%s' % __version__.split('.')[0]
+API_VERSION = 'v%s' % __version__.split('.')[0]
 
 
 DEFAULT_SETTINGS = {
