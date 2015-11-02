@@ -4,10 +4,12 @@ Changelog
 This document describes changes between each past release.
 
 
-2.11.0 (unreleased)
+2.10.1 (2015-11-03)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Make sure read enpoint are activated in readonly mode. (#539)
 
 
 2.10.0 (2015-10-30)
