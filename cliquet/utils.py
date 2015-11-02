@@ -9,11 +9,18 @@ import warnings
 from base64 import b64decode, b64encode
 from binascii import hexlify
 from six.moves.urllib import parse as urlparse
-# ujson is not installable with pypy
+
+# ultrajson is not installable with pypy
 try:
-    import ujson as json  # NOQA
+    import ultrajson as json  # NOQA
+
+    def json_serializer(v, **kw):
+        return json.dumps(v, escape_forward_slashes=False)
+
 except ImportError:  # pragma: no cover
     import json  # NOQA
+
+    json_serializer = json.dumps
 
 try:
     # Register psycopg2cffi as psycopg2

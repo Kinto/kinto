@@ -39,7 +39,7 @@ if installed_with_pypy:
     ]
 else:
     # ujson is not pypy compliant, as it uses the CPython C API
-    REQUIREMENTS.append('ujson')
+    REQUIREMENTS.append('ultrajson')
     POSTGRESQL_REQUIRES = [
         'SQLAlchemy',
         'psycopg2>2.5',
