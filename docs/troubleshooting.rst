@@ -17,7 +17,7 @@ Module object has no attribute 'register_json'
 
 Kinto uses the ``JSONBin`` feature of PostgreSQL, which is used to
 store native ``JSON objects`` efficiently. Support for this feature
-wasa added in PostgreSQL 9.4.
+was added in PostgreSQL 9.4.
 
 This is a hard requirement for postgresql backends, therefore you
 will either need to **use PostgreSQL 9.4 (or greater)**, or
