@@ -4,6 +4,12 @@ Changelog
 This document describes changes between each past release.
 
 
+2.11.0 (unreleased)
+-------------------
+
+- Nothing changed yet.
+
+
 2.10.0 (2015-10-30)
 -------------------
 
@@ -16,6 +22,7 @@ This document describes changes between each past release.
 - Follow redirections in batch subrequests (fixes #511)
 - When recreating a record that was previously deleted, status code is now ``201``
   (ref #530).
+
 
 **New features**
 
@@ -34,7 +41,6 @@ This document describes changes between each past release.
 - Delete tombstone when record is re-created (fixes #518)
 - Fix crash with empty body for PATCH (fixes #477, fixes #516)
 - Fix english typo in 404 error message (fixes #527)
-
 
 **Internal changes**
 
