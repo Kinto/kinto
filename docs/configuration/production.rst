@@ -181,7 +181,7 @@ with the `cliquet` command-line tool:
 
 .. code-block :: bash
 
-    $ cliquet --ini production.ini migrate
+    $ kinto --ini production.ini migrate
 
 .. note::
 
