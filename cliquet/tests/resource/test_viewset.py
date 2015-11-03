@@ -1,9 +1,10 @@
 import colander
 import mock
+from pyramid import exceptions
+from pyramid import testing
 
 from cliquet import authorization, DEFAULT_SETTINGS
 from cliquet.resource import ViewSet, ProtectedViewSet, register_resource
-
 from cliquet.tests.support import unittest
 
 
@@ -349,6 +350,19 @@ class RegisterTest(unittest.TestCase):
     def setUp(self):
         self.resource = FakeResource
         self.viewset = FakeViewSet()
+
+    @mock.patch('cliquet.resource.Service')
+    def test_register_fails_if_no_storage_backend_is_configured(self, *args):
+        venusian_callback = register_resource(
+            self.resource, viewset=self.viewset)
+        context = mock.MagicMock()
+        config = testing.setUp(settings=DEFAULT_SETTINGS)
+        context.config.with_package.return_value = config
+        try:
+            venusian_callback(context, None, None)
+        except exceptions.ConfigurationError as e:
+            error = e
+        self.assertIn('storage backend is missing', str(error))
 
     @mock.patch('cliquet.resource.Service')
     def test_viewset_is_updated_if_provided(self, service_class):

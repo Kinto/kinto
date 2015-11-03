@@ -5,6 +5,7 @@ import warnings
 import colander
 import venusian
 import six
+from pyramid import exceptions as pyramid_exceptions
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPNotFound, HTTPConflict)
 
@@ -103,6 +104,12 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
         # and call them from here when the @resource classes are being
         # scanned by venusian.
         config = context.config.with_package(info.module)
+
+        # Storage is mandatory for resources.
+        if not hasattr(config.registry, 'storage'):
+            msg = 'Mandatory storage backend is missing from configuration.'
+            raise pyramid_exceptions.ConfigurationError(msg)
+
         services = [register_service('collection', config.registry.settings),
                     register_service('record', config.registry.settings)]
         for service in services:
