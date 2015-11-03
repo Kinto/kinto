@@ -83,8 +83,7 @@ def create_bucket(request, bucket_id):
         bucket = resource.model.create_record({'id': bucket_id})
     except storage_exceptions.UnicityError as e:
         bucket = e.record
-    finally:
-        already_created[bucket_id] = bucket
+    already_created[bucket_id] = bucket
 
 
 def create_collection(request, bucket_id):
@@ -120,8 +119,7 @@ def create_collection(request, bucket_id):
         collection = resource.model.create_record({'id': collection_id})
     except storage_exceptions.UnicityError as e:
         collection = e.record
-    finally:
-        already_created[collection_uri] = collection
+    already_created[collection_uri] = collection
     request.matchdict = backup
 
 

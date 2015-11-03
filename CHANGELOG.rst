@@ -11,6 +11,11 @@ This document describes changes between each past release.
 
 - Add a Kinto command for start and migrate operation (#129)
 
+**Bug fixes**
+
+- Fix 500 error response (instead of 503) when storage backend fails during
+  implicit creation of objects on ``default`` bucket (fixes #236)
+
 
 1.8.0 (2015-10-30)
 ==================
