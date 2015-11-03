@@ -172,6 +172,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
         request.path = 'http://localhost/v1/buckets/default/collections/tasks'
         request.prefixed_userid = 'fxa:abcd'
         request.registry.settings = {
+            'readonly': False,
             'userid_hmac_secret': 'This is no secret'
         }
 

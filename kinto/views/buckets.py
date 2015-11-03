@@ -1,7 +1,8 @@
 from six import text_type
 from uuid import UUID
 
-from pyramid.httpexceptions import HTTPForbidden, HTTPException
+from pyramid import httpexceptions
+from pyramid.settings import asbool
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
@@ -137,9 +138,13 @@ def default_bucket(request):
         return request.invoke_subrequest(subrequest)
 
     if getattr(request, 'prefixed_userid', None) is None:
-        raise HTTPForbidden()  # Pass through the forbidden_view_config
+        # Pass through the forbidden_view_config
+        raise httpexceptions.HTTPForbidden()
 
     settings = request.registry.settings
+
+    if asbool(settings['readonly']):
+        raise httpexceptions.HTTPMethodNotAllowed()
 
     hmac_secret = settings['userid_hmac_secret']
     # Build the user unguessable bucket_id UUID from its user_id
@@ -164,7 +169,7 @@ def default_bucket(request):
 
     try:
         response = request.invoke_subrequest(subrequest)
-    except HTTPException as error:
+    except httpexceptions.HTTPException as error:
         if error.content_type == 'application/json':
             response = reapply_cors(subrequest, error)
         else:
