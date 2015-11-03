@@ -362,7 +362,7 @@ class RegisterTest(unittest.TestCase):
             venusian_callback(context, None, None)
         except exceptions.ConfigurationError as e:
             error = e
-        self.assertIn('storage backend is missing', error.message)
+        self.assertIn('storage backend is missing', str(error))
 
     @mock.patch('cliquet.resource.Service')
     def test_viewset_is_updated_if_provided(self, service_class):
