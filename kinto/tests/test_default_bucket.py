@@ -5,6 +5,7 @@ from uuid import UUID
 from pyramid.httpexceptions import HTTPBadRequest
 
 from cliquet.errors import ERRORS, http_error
+from cliquet.storage import exceptions as storage_exceptions
 from cliquet.tests.support import FormattedErrorMixin
 from cliquet.utils import hmac_digest
 
@@ -196,3 +197,22 @@ class ReadonlyDefaultBucket(BaseWebTest, unittest.TestCase):
 
     def test_implicit_creation_is_rejected(self):
         self.app.get('/buckets/default', headers=self.headers, status=405)
+
+
+class BackendErrorTest(BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super(BackendErrorTest, self).setUp()
+        self.patcher = mock.patch.object(
+            self.storage, 'create',
+            side_effect=storage_exceptions.BackendError())
+        self.addCleanup(self.patcher.stop)
+
+    def test_implicit_bucket_creation_raises_503_if_backend_fails(self):
+        self.patcher.start()
+        self.app.get('/buckets/default', headers=self.headers, status=503)
+
+    def test_implicit_collection_creation_raises_503_if_backend_fails(self):
+        self.app.get('/buckets/default', headers=self.headers)
+        self.patcher.start()
+        self.app.get('/buckets/default/collections/articles',
+                     headers=self.headers, status=503)
