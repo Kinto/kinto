@@ -358,8 +358,11 @@ class RegisterTest(unittest.TestCase):
         context = mock.MagicMock()
         config = testing.setUp(settings=DEFAULT_SETTINGS)
         context.config.with_package.return_value = config
-        with self.assertRaises(exceptions.ConfigurationError):
+        try:
             venusian_callback(context, None, None)
+        except exceptions.ConfigurationError as e:
+            error = e
+        self.assertIn('storage backend is missing', error.message)
 
     @mock.patch('cliquet.resource.Service')
     def test_viewset_is_updated_if_provided(self, service_class):

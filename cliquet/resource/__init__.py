@@ -107,8 +107,8 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
 
         # Storage is mandatory for resources.
         if not hasattr(config.registry, 'storage'):
-            error_msg = 'Mandatory storage backend missing from configuration.'
-            raise pyramid_exceptions.ConfigurationError(error_msg)
+            msg = 'Mandatory storage backend is missing from configuration.'
+            raise pyramid_exceptions.ConfigurationError(msg)
 
         services = [register_service('collection', config.registry.settings),
                     register_service('record', config.registry.settings)]
