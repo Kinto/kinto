@@ -7,7 +7,10 @@ This document describes changes between each past release.
 2.11.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Protocol**
+
+* ``_since`` and ``_before`` now accepts an integer value between quotes ``"``,
+  as it would be returned in the ``ETag`` response header.
 
 
 2.10.1 (2015-11-03)

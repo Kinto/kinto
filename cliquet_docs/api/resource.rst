@@ -166,6 +166,11 @@ collection was not changed, a ``304 Not Modified`` response is returned.
    The ``_before`` parameter is also available, and is an alias for
    ``lt_last_modified`` (*strictly inferior*).
 
+.. note::
+
+    ``_since`` and ``_before`` also accept a value between quotes (``"``) as
+    it would be returned in the ``ETag`` response header
+    (see :ref:`response timestamps <server-timestamps>`).
 
 .. versionchanged:: 2.4::
 

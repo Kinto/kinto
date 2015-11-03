@@ -802,7 +802,6 @@ class BaseResource(object):
 
         for param, paramvalue in queryparams.items():
             param = param.strip()
-            value = native_value(paramvalue)
 
             # Ignore specific fields
             if param.startswith('_') and param not in ('_since',
@@ -812,6 +811,8 @@ class BaseResource(object):
 
             # Handle the _since specific filter.
             if param in ('_since', '_to', '_before'):
+                value = native_value(paramvalue.strip('"'))
+
                 if not isinstance(value, six.integer_types):
                     error_details = {
                         'name': param,
@@ -849,6 +850,7 @@ class BaseResource(object):
                 }
                 raise_invalid(self.request, **error_details)
 
+            value = native_value(paramvalue)
             if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = set([native_value(v) for v in paramvalue.split(',')])
 

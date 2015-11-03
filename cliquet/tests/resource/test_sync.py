@@ -69,6 +69,12 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 1)
 
+    def test_filter_with_since_accepts_quoted_numeric_value(self):
+        self.resource.collection_post()
+        self.resource.request.GET = {'_since': '"6"'}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 1)
+
     def test_filter_with_since_rejects_non_numeric_value(self):
         self.resource.request.GET = {'_since': 'abc'}
         self.assertRaises(httpexceptions.HTTPBadRequest,
