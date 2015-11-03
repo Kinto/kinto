@@ -3,7 +3,7 @@
 Notifications
 #############
 
-Knowing collection has been modified is very
+Knowing some records have been modified in a resource is very
 useful to integrate a Cliquet-based application with other services.
 
 For example, a search service that gets notified everytime something
@@ -24,8 +24,8 @@ Event listeners can then pick up those events and act upon them.
         resource_name = event.payload['resource_name']
         action = event.payload['action']
 
-        if resource_name == 'user' and action == 'create':
-            send_welcome_email(event.payload['user_id'])
+        if resource_name == 'article' and action == 'create':
+            start_download(event.payload['article_id'])
 
     config.add_subscriber(on_resource_changed, ResourceChanged)
 
@@ -37,22 +37,23 @@ the following information:
 - **action**: what happened. 'create', 'update' or 'delete'
 - **uri**: the uri of the impacted resource
 - **user_id**: the authenticated user id
-- **resource_name**: the name of the impacted resouce (e.g. 'mushroom', 'bucket',
-  etc.)
+- **resource_name**: the name of the impacted resouce (e.g. 'article', 'bookmark', bucket',
+  'group' etc.)
 - **<resource_name>_id**: id of the impacted record
-- **<match-dict value>**: every matchdict values of the URL pattern
-
+- **<matchdict value>**: every value matched by each URL pattern name (see
+  `Pyramid request matchdict <http://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-matchdict>`_)
 
 Event listeners
 ---------------
 
-It is possible for an application or a plugin to listen to the events and execute
-some code. In this case, the notifications are synchronous.
+It is possible for an application or a plugin to listen to events and execute
+some code. Triggered code on events is synchronously called when a request is handled.
 
-In addition to this low-level events handling, *Cliquet* provides some generic
-listeners that are pluggable from configuration.
+*Cliquet* offers custom listeners that can be activated through configuration,
+so that every Cliquet-based application can benefit from **pluggable listeners**
+without using `config.add_event_subscriber()` explicitely.
 
-Currently, a simple built-in listener is available, that just consists in delivering the
+Currently, a simple built-in listener is available, that just delivers the
 events into a Redis queue, allowing asynchronous event handling:
 
 .. autoclass:: cliquet.listeners.redis.Listener
