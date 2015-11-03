@@ -7,9 +7,16 @@ from cliquet.listeners import ListenerBase
 from cliquet import logger
 
 
-class RedisListener(ListenerBase):
+class Listener(ListenerBase):
+    """
+    A Redis-based event listener that simply pushes the events payloads into
+    the specified Redis list as they happen.
+
+    This listener allows actions to be performed asynchronously, using Redis
+    Pub/Sub notifications, or scheduled inspections of the queue.
+    """
     def __init__(self, *args, **kwargs):
-        super(RedisListener, self).__init__(*args, **kwargs)
+        super(Listener, self).__init__(*args, **kwargs)
         maxconn = kwargs.pop('max_connections')
         self.listname = kwargs.pop('listname')
         connection_pool = redis.BlockingConnectionPool(max_connections=maxconn)
@@ -48,9 +55,9 @@ def load_from_config(config):
     pool_size = int(options.get('pool_size', 1))
     listname = options.get('listname', 'cliquet.events')
 
-    return RedisListener(listname=listname,
-                         max_connections=pool_size,
-                         host=uri.hostname or 'localhost',
-                         port=uri.port or 6739,
-                         password=uri.password or None,
-                         db=int(uri.path[1:]) if uri.path else 0)
+    return Listener(listname=listname,
+                    max_connections=pool_size,
+                    host=uri.hostname or 'localhost',
+                    port=uri.port or 6739,
+                    password=uri.password or None,
+                    db=int(uri.path[1:]) if uri.path else 0)

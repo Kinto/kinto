@@ -7,19 +7,19 @@ Cache
 PostgreSQL
 ==========
 
-.. autoclass:: cliquet.cache.postgresql.PostgreSQL
+.. autoclass:: cliquet.cache.postgresql.Cache
 
 
 Redis
 =====
 
-.. autoclass:: cliquet.cache.redis.Redis
+.. autoclass:: cliquet.cache.redis.Cache
 
 
 Memory
 ======
 
-.. autoclass:: cliquet.cache.memory.Memory
+.. autoclass:: cliquet.cache.memory.Cache
 
 
 API

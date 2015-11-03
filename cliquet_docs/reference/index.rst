@@ -10,6 +10,7 @@ Internals
    viewsets
    storage
    cache
+   notifications
    permission
    errors
    utils

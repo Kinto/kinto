@@ -4,4 +4,7 @@ class ListenerBase(object):
         pass
 
     def __call__(self, event):
+        """
+        :param event: Incoming event
+        """
         raise NotImplementedError()

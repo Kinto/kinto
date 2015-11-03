@@ -16,7 +16,7 @@ from .support import unittest
 class ListenerSetupTest(unittest.TestCase):
     def test_redis_listener_is_enabled_via_setting(self):
         listener = 'cliquet.listeners.redis'
-        redis_class = mock.patch(listener + '.RedisListener')
+        redis_class = mock.patch(listener + '.Listener')
         config = testing.setUp()
         with mock.patch.dict(config.registry.settings,
                              [('event_listeners', listener)]):
