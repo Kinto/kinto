@@ -1,7 +1,10 @@
 Cliquet
 =======
 
-|travis| |master-coverage| |readthedocs|
+|pypi| |travis| |master-coverage| |readthedocs|
+
+.. |pypi| image:: https://img.shields.io/pypi/v/cliquet.svg
+    :target: https://pypi.python.org/pypi/cliquet
 
 .. |travis| image:: https://travis-ci.org/mozilla-services/cliquet.svg?branch=master
     :target: https://travis-ci.org/mozilla-services/cliquet
