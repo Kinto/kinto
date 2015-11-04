@@ -98,8 +98,8 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                 'cliquet.tests.testapp.views.Mushroom._extract_filters',
                 side_effect=ValueError):
             link = "https://github.com/mozilla-services/kinto/issues/"
-            app = self.get_test_app({'error_info_link': link,
-                                     'readonly': False})
+            app = self.make_app({'error_info_link': link,
+                                 'readonly': False})
             response = app.get(self.sample_url,
                                headers=self.headers, status=500)
         self.assertFormattedError(
@@ -169,8 +169,7 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     def test_do_not_redirect_to_version_if_disabled_in_settings(self):
         # GET on the hello view.
-        app = self.get_test_app({'version_prefix_redirect_enabled': False})
-
+        app = self.make_app({'version_prefix_redirect_enabled': False})
         app.get('/', status=404)
 
     def test_querystring_is_preserved_during_redirection(self):
@@ -191,8 +190,7 @@ class TrailingSlashRedirectViewTest(BaseWebTest, unittest.TestCase):
                          'http://localhost/v0/mushrooms')
 
     def test_do_not_redirect_if_disabled_in_settings(self):
-        app = self.get_test_app({'trailing_slash_redirect_enabled': False})
-
+        app = self.make_app({'trailing_slash_redirect_enabled': False})
         app.get('/', status=200)
         app.get('/mushrooms/', status=404)
 

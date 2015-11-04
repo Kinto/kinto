@@ -38,7 +38,7 @@ class EventsTest(BaseWebTest, unittest.TestCase):
     def listener(self, event):
         self.events.append(event)
 
-    def get_test_app(self, settings=None):
+    def make_app(self, settings=None):
         settings = self.get_app_settings(settings)
         self.config = Configurator(settings=settings)
         app = testapp(config=self.config)

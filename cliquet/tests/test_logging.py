@@ -229,7 +229,7 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(event_dict['errno'], 111)
 
     def test_basic_authn_type_is_bound(self):
-        app = self.get_test_app({'multiauth.policies': 'basicauth'})
+        app = self.make_app({'multiauth.policies': 'basicauth'})
         app.get('/mushrooms', headers={'Authorization': 'Basic bWF0OjE='})
         event_dict = logger_context()
         self.assertEqual(event_dict['authn_type'], 'BasicAuth')
