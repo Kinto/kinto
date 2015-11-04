@@ -32,8 +32,6 @@ DEFAULT_SETTINGS = {
 
 
 def default_bucket_id(request):
-    if getattr(request, 'prefixed_userid', None) is None:
-        return None
     settings = request.registry.settings
     secret = settings['userid_hmac_secret']
     # Build the user unguessable bucket_id UUID from its user_id
