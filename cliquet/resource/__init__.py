@@ -977,6 +977,15 @@ class ProtectedResource(BaseResource):
                 self.context.get_permission_object_id,
                 self.request)
 
+    def get_parent_id(self, request):
+        """Unlike :class:`BaseResource`, records are not isolated by user.
+
+        See https://github.com/mozilla-services/cliquet/issues/549
+
+        :returns: A constant empty value.
+        """
+        return ''
+
     def _extract_filters(self, queryparams=None):
         """Override default filters extraction from QueryString to allow
         partial collection of records.
