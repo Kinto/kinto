@@ -97,19 +97,19 @@ by running a server and running a very few random HTTP requests on it.
 
     make loadtest-check-simulation
 
-It is possible to customize this load test, by focusing on a single action,
-or customize the number of users and hits.
+It is possible to customise this load test, by focusing on a single action,
+or customise the number of users and hits.
 
 First, run the test application manually in a terminal: ::
 
     cd loadtests/
-    pserve loadtests/server.ini
+    pserve loadtests/testapp.ini
 
 And then, run the test suite against it: ::
 
     SERVER_URL=http://localhost:8888 make test -e
 
-With a specific action: ::
+To run a specific action, specify it with: ::
 
     LOAD_ACTION=batch_create SERVER_URL=http://localhost:8888 make test -e
 

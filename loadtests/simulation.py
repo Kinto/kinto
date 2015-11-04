@@ -38,7 +38,15 @@ def build_record():
 
 class SimulationLoadTest(TestCase):
 
+    collection = 'psilos'
+
     def __init__(self, *args, **kwargs):
+        """Initialization that happens once per user.
+
+        :note:
+
+            This method is called as many times as number of users.
+        """
         super(SimulationLoadTest, self).__init__(*args, **kwargs)
 
         self.conf = self._get_configuration()
@@ -48,8 +56,10 @@ class SimulationLoadTest(TestCase):
         self.session.auth = self.auth
         self.session.headers.update({'Content-Type': 'application/json'})
 
-        self.collection = 'psilos'
-        self.init_record()
+        # Create at least some records for this user
+        max_initial_records = self.conf.get('max_initial_records', 100)
+        self.nb_initial_records = random.randint(3, max_initial_records)
+        self.batch_requests_size = self.conf.get('batch_requests_size', 25)
 
     def _get_configuration(self):
         # Loads is removing the extra information contained in the ini files,
@@ -75,18 +85,6 @@ class SimulationLoadTest(TestCase):
 
     def record_url(self, record_id, prefix=True):
         return self.collection_url(prefix) + '/%s' % record_id
-
-    def init_record(self, *args, **kwargs):
-        """Initialization that happens once per user.
-
-        :note:
-
-            This method is called as many times as number of users.
-        """
-        # Create at least some records for this user
-        max_initial_records = self.conf.get('max_initial_records', 100)
-        self.nb_initial_records = random.randint(3, max_initial_records)
-        self.batch_requests_size = self.conf.get('batch_requests_size', 25)
 
     def setUp(self):
         """Choose some random records in the whole collection.
@@ -126,7 +124,8 @@ class SimulationLoadTest(TestCase):
         """
         action, percentage = random.choice(ACTIONS_FREQUENCIES)
 
-        forced_action = os.getenv('LOAD_ACTION')
+        forced_action = self.conf.get('load_action',
+                                      os.getenv('LOAD_ACTION'))
         if forced_action:
             action, percentage = forced_action, 101
 

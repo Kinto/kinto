@@ -43,8 +43,8 @@ tests:
 
 loadtest-check-simulation:
 	$(VENV)/bin/pip install -Ue ".[monitoring,postgresql]" waitress
-	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > loadtest.log &&\
-	$(VENV)/bin/pserve loadtests/server.ini > loadtest.log & PID=$$! && \
+	$(VENV)/bin/cliquet --ini loadtests/testapp.ini migrate > loadtest.log &&\
+	$(VENV)/bin/pserve loadtests/testapp.ini > loadtest.log & PID=$$! && \
 	  rm loadtest.log || cat loadtest.log; \
 	  sleep 1 && cd loadtests && \
 	  make test SERVER_URL=http://127.0.0.1:8888; \
