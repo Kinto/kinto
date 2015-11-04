@@ -71,7 +71,7 @@ class StorageBase(object):
                auth=None):
         """Create the specified `object` in this `collection_id` for this `parent_id`.
         Assign the id to the object, using the attribute
-        :attr:`cliquet.resource.BaseResource.id_field`.
+        :attr:`cliquet.resource.Model.id_field`.
 
         .. note::
 

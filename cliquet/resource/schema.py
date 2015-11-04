@@ -31,7 +31,7 @@ class ResourceSchema(colander.MappingSchema):
         """Fields that cannot be updated. Values for fields will have to be
         provided either during record creation, through default values using
         ``missing`` attribute or implementing a custom logic in
-        :meth:`cliquet.resource.BaseResource.process_record`.
+        :meth:`cliquet.resource.UserResource.process_record`.
         """
 
         preserve_unknown = False

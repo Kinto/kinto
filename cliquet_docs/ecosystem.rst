@@ -269,7 +269,7 @@ Indexed resource in :file:`cliquet_indexing/resource.py`:
 
             return r
 
-    class IndexedResource(cliquet.resource.BaseResource):
+    class IndexedResource(cliquet.resource.UserResource):
         def __init__(self, request):
             super(IndexedResource, self).__init__(request)
             self.model.indexer = request.registry.indexer

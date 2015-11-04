@@ -1,7 +1,6 @@
 from pyramid import httpexceptions
 
 from cliquet.errors import ERRORS
-from cliquet.resource import BaseResource
 from cliquet.tests.resource import BaseTest
 
 
@@ -10,8 +9,8 @@ class NotModifiedTest(BaseTest):
         super(NotModifiedTest, self).setUp()
         self.stored = self.model.create_record({})
 
-        self.resource = BaseResource(request=self.get_request(),
-                                     context=self.get_context())
+        self.resource = self.resource_class(request=self.get_request(),
+                                            context=self.get_context())
         self.resource.collection_get()
         current = self.last_response.headers['ETag']
         self.resource.request.headers['If-None-Match'] = current

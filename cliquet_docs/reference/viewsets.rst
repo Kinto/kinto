@@ -23,7 +23,7 @@ Default viewset can be extended by passing viewset arguments to the
 
 
     @resource.register(collection_methods=('GET',))
-    class Resource(resource.BaseResource):
+    class Resource(resource.UserResource):
         mapping = BookmarkSchema()
 
 
@@ -51,7 +51,7 @@ passed during the registration phase:
 
 
     @resource.register(viewset=MyViewSet())
-    class Resource(resource.BaseResource):
+    class Resource(resource.UserResource):
         mapping = BookmarkSchema()
 
 

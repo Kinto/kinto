@@ -2,13 +2,13 @@ import mock
 
 from pyramid import httpexceptions
 
-from cliquet.resource import ProtectedResource
+from cliquet.resource import ShareableResource
 from cliquet.tests.resource import BaseTest
 from cliquet.permission.memory import Permission
 
 
 class PermissionTest(BaseTest):
-    resource_class = ProtectedResource
+    resource_class = ShareableResource
 
     def setUp(self):
         self.permission = Permission()

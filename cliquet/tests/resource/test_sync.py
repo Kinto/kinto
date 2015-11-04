@@ -5,7 +5,6 @@ import time
 import six
 from pyramid import httpexceptions
 
-from cliquet.resource import BaseResource
 from cliquet.tests.resource import BaseTest
 from cliquet.tests.support import ThreadMixin
 from cliquet.utils import decode_header
@@ -57,8 +56,8 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
     def test_the_timestamp_header_is_equal_to_last_modification(self):
         result = self.resource.collection_post()['data']
         modification = result['last_modified']
-        self.resource = BaseResource(request=self.get_request(),
-                                     context=self.get_context())
+        self.resource = self.resource_class(request=self.get_request(),
+                                            context=self.get_context())
         self.resource.collection_get()
         header = int(self.last_response.headers['ETag'][1:-1])
         self.assertEqual(header, modification)

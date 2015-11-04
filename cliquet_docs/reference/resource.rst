@@ -31,7 +31,7 @@ Full example
 
 
     @resource.register()
-    class Bookmark(resource.BaseResource):
+    class Bookmark(resource.UserResource):
         mapping = BookmarkSchema()
 
         def process_record(self, new, old=None):
@@ -72,7 +72,7 @@ Resource class
 In order to customize the resource URLs or behaviour on record
 processing, the resource class can be extended:
 
-.. autoclass:: cliquet.resource.BaseResource
+.. autoclass:: cliquet.resource.UserResource
     :members:
 
 Interaction with storage
@@ -96,7 +96,7 @@ a custom collection can be plugged-in:
             return record
 
 
-    class Payment(resource.BaseResource):
+    class Payment(resource.UserResource):
         default_model = TrackedModel
 
 
@@ -127,7 +127,7 @@ or at the resource level:
 
 
     @resource.register()
-    class Mushroom(resource.BaseResource):
+    class Mushroom(resource.UserResource):
         def __init__(request):
             super(Mushroom, self).__init__(request)
             self.model.id_generator = MsecId()

@@ -51,7 +51,7 @@ class AuthorizationPolicy(object):
 
         # If not allowed on this collection, but some records are shared with
         # the current user, then authorize.
-        # The ProtectedResource class will take care of the filtering.
+        # The ShareableResource class will take care of the filtering.
         is_list_operation = (context.on_collection and
                              'create' not in permission)
         if not allowed and is_list_operation:
@@ -90,7 +90,7 @@ class RouteFactory(object):
 
         self._check_permission = request.registry.permission.check_permission
 
-        # Partial collections of ProtectedResource:
+        # Partial collections of ShareableResource:
         self.shared_ids = []
 
         # Store service, resource, record and required permission.
@@ -147,7 +147,7 @@ class RouteFactory(object):
             permission=perm,
             principals=principals,
             get_bound_permissions=get_bound_permissions)
-        # Store for later use in ``ProtectedResource``.
+        # Store for later use in ``ShareableResource``.
         self.shared_ids = [self.extract_object_id(id_) for id_ in ids]
         return self.shared_ids
 

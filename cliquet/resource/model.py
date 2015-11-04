@@ -1,3 +1,8 @@
+import six
+
+from cliquet.utils import DeprecatedMeta
+
+
 class Model(object):
     """A collection stores and manipulate records in its attached storage.
 
@@ -235,13 +240,13 @@ class Model(object):
                                    auth=self.auth)
 
 
-class ProtectedModel(Model):
+class ShareableModel(Model):
     """A protected collection interacts with the permission backend.
     """
     permissions_field = '__permissions__'
 
     def __init__(self, *args, **kwargs):
-        super(ProtectedModel, self).__init__(*args, **kwargs)
+        super(ShareableModel, self).__init__(*args, **kwargs)
         # Permission backend.
         self.permission = None
         # Object permission id.
@@ -259,7 +264,7 @@ class ProtectedModel(Model):
     def delete_records(self, filters=None, parent_id=None):
         """Delete permissions when collection records are deleted in bulk.
         """
-        deleted = super(ProtectedModel, self).delete_records(filters,
+        deleted = super(ShareableModel, self).delete_records(filters,
                                                              parent_id)
         perm_ids = [self.get_permission_object_id(record_id=r[self.id_field])
                     for r in deleted]
@@ -269,7 +274,7 @@ class ProtectedModel(Model):
     def get_record(self, record_id, parent_id=None):
         """Fetch current permissions and add them to returned record.
         """
-        record = super(ProtectedModel, self).get_record(record_id, parent_id)
+        record = super(ShareableModel, self).get_record(record_id, parent_id)
         perm_object_id = self.get_permission_object_id(record_id)
         permissions = self.permission.object_permissions(perm_object_id)
 
@@ -283,7 +288,7 @@ class ProtectedModel(Model):
         The current principal is added to the owner (``write`` permission).
         """
         permissions = record.pop(self.permissions_field, {})
-        record = super(ProtectedModel, self).create_record(record,
+        record = super(ShareableModel, self).create_record(record,
                                                            parent_id,
                                                            unique_fields)
         record_id = record[self.id_field]
@@ -305,7 +310,7 @@ class ProtectedModel(Model):
         The current principal is added to the owner (``write`` permission).
         """
         permissions = record.pop(self.permissions_field, {})
-        record = super(ProtectedModel, self).update_record(record,
+        record = super(ShareableModel, self).update_record(record,
                                                            parent_id,
                                                            unique_fields)
         record_id = record[self.id_field]
@@ -321,9 +326,15 @@ class ProtectedModel(Model):
     def delete_record(self, record_id, parent_id=None):
         """Delete record and its associated permissions.
         """
-        record = super(ProtectedModel, self).delete_record(record_id,
+        record = super(ShareableModel, self).delete_record(record_id,
                                                            parent_id)
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.delete_object_permissions(perm_object_id)
 
         return record
+
+
+@six.add_metaclass(DeprecatedMeta)
+class ProtectedModel(ShareableModel):
+    __deprecation_warning__ = ('ProtectedModel is deprecated. '
+                               'Use ShareableModel instead.')

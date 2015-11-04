@@ -4,7 +4,7 @@ from pyramid import exceptions
 from pyramid import testing
 
 from cliquet import authorization, DEFAULT_SETTINGS
-from cliquet.resource import ViewSet, ProtectedViewSet, register_resource
+from cliquet.resource import ViewSet, ShareableViewSet, register_resource
 from cliquet.tests.support import unittest
 
 
@@ -333,14 +333,14 @@ class ViewSetTest(unittest.TestCase):
         self.assertTrue(is_enabled)
 
 
-class ProtectedViewSetTest(unittest.TestCase):
+class ShareableViewSetTest(unittest.TestCase):
     def test_permission_dynamic_is_set_by_default(self):
-        viewset = ProtectedViewSet()
+        viewset = ShareableViewSet()
         args = viewset.collection_arguments(mock.sentinel.resource, 'GET')
         self.assertEquals(args['permission'], 'dynamic')
 
     def test_get_service_arguments_has_default_factory(self):
-        viewset = ProtectedViewSet()
+        viewset = ShareableViewSet()
         args = viewset.get_service_arguments()
         self.assertEqual(args['factory'], authorization.RouteFactory)
 
