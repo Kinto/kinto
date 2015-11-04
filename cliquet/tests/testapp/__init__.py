@@ -1,6 +1,5 @@
 from pyramid.config import Configurator
 import cliquet
-from cliquet.authorization import RouteFactory
 
 
 def includeme(config):
@@ -12,7 +11,7 @@ def main(settings=None, config=None, *args, **additional_settings):
         settings = {}
     settings.update(additional_settings)
     if config is None:
-        config = Configurator(settings=settings, root_factory=RouteFactory)
+        config = Configurator(settings=settings)
     cliquet.initialize(config, version='0.0.1')
     config.include(includeme)
     app = config.make_wsgi_app()
