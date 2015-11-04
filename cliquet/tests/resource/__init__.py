@@ -33,6 +33,14 @@ class BaseTest(unittest.TestCase):
         return self.resource.request.response
 
 
+class ResourceTest(BaseTest):
+
+    def test_get_parent_id_default_to_prefixed_userid(self):
+        request = self.get_request()
+        parent_id = self.resource.get_parent_id(request)
+        self.assertEquals(parent_id, 'basicauth:bob')
+
+
 class ProtectedResourceTest(BaseTest):
     resource_class = ProtectedResource
 
@@ -42,13 +50,10 @@ class ProtectedResourceTest(BaseTest):
         except Exception as e:
             self.fail(e)
 
-
-class ParentIdResourceTest(BaseTest):
-
-    def test_get_parent_id_default_to_prefixed_userid(self):
+    def test_get_parent_id_is_empty(self):
         request = self.get_request()
         parent_id = self.resource.get_parent_id(request)
-        self.assertEquals(parent_id, 'basicauth:bob')
+        self.assertEquals(parent_id, '')
 
 
 class NewResource(BaseResource):
