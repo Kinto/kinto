@@ -24,7 +24,9 @@ class Moisture(resource.ProtectedResource):
 
 class PsilocybinSchema(resource.ResourceSchema):
     # Optional fields.
+    name = colander.SchemaNode(colander.String(), missing="Unknown")
     edible = colander.SchemaNode(colander.Boolean(), missing=True)
+    size = colander.SchemaNode(colander.Integer(), missing=-1)
 
 
 @resource.register()

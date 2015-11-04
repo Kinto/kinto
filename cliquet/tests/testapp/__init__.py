@@ -14,4 +14,6 @@ def main(settings=None, config=None, *args, **additional_settings):
         config = Configurator(settings=settings)
     cliquet.initialize(config, version='0.0.1')
     config.include(includeme)
-    return config.make_wsgi_app()
+    app = config.make_wsgi_app()
+    # Install middleware (no-op if not enabled in setting)
+    return cliquet.install_middlewares(app, settings)

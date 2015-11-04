@@ -10,6 +10,7 @@ env:
     - TOX_ENV=py27-raw
     - TOX_ENV=flake8
     - TOX_ENV=docs
+    - ACTION=loadtest_simulation
 install:
     - pip install tox
 before_script:
@@ -17,7 +18,8 @@ before_script:
     - sudo /etc/init.d/postgresql restart
     - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
 script:
-    - tox -e $TOX_ENV
+    - if [[ $ACTION != loadtest_simulation ]]; then tox -e $TOX_ENV; fi
+    - if [[ $ACTION == loadtest_simulation ]]; then make loadtest-check-simulation; fi
 after_success:
     # Report coverage results to coveralls.io
     - pip install coveralls

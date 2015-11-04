@@ -41,6 +41,15 @@ tests-once: install-dev
 tests:
 	$(VENV)/bin/tox
 
+loadtest-check-simulation:
+	$(VENV)/bin/pip install -Ue ".[monitoring,postgresql]" waitress
+	$(VENV)/bin/cliquet --ini loadtests/testapp.ini migrate > loadtest.log &&\
+	$(VENV)/bin/pserve loadtests/testapp.ini > loadtest.log & PID=$$! && \
+	  rm loadtest.log || cat loadtest.log; \
+	  sleep 1 && cd loadtests && \
+	  make test SERVER_URL=http://127.0.0.1:8888; \
+	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
+
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d | xargs rm -fr

@@ -12,6 +12,11 @@ This document describes changes between each past release.
 * ``_since`` and ``_before`` now accepts an integer value between quotes ``"``,
   as it would be returned in the ``ETag`` response header.
 
+**Internal changes**
+
+- Added a simple end-to-end test on a *Cliquet* sample application, using
+  `Loads <http://github.com/loads/>`_ (fixes #512)
+
 
 2.10.1 (2015-11-03)
 -------------------
