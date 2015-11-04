@@ -3,9 +3,13 @@ Changelog
 
 This document describes changes between each past release.
 
-
 1.9.0 (unreleased)
 ==================
+
+**Protocol**
+
+- Replaced ``userid`` field in root URL hello view by a ``user`` mapping
+  containing ``id`` and ``bucket``, her default bucket id.
 
 **New features**
 

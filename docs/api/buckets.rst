@@ -300,3 +300,99 @@ Retrieving all buckets
                 }
             ]
         }
+
+
+.. buckets-default-id:
+
+Personal bucket «default»
+=========================
+
+.. http:get:: /buckets/default
+
+    :synopsis: Returns the current user personnal bucket.
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http get http://localhost:8888/v1/buckets/default -v --auth='bob:'
+
+    .. sourcecode:: http
+
+        GET /v1/buckets/default HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOg==
+        Connection: keep-alive
+        Host: localhost:8888
+        User-Agent: HTTPie/0.8.0
+
+    **Example Response**
+
+    .. sourcecode:: http
+        :emphasize-lines: 12
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Content-Length, Expires, Alert, Retry-After, Last-Modified, ETag, Pragma, Cache-Control, Backoff
+        Content-Length: 187
+        Content-Type: application/json; charset=UTF-8
+        Date: Wed, 28 Oct 2015 16:29:00 GMT
+        Etag: "1446049740955"
+        Last-Modified: Wed, 28 Oct 2015 16:29:00 GMT
+        Server: waitress
+
+        {
+            "data": {
+                "id": "b8f3fa97-3e0a-00ae-7f07-ce8ce05ce0e5",
+                "last_modified": 1446049740955
+            },
+            "permissions": {
+                "write": [
+                    "basicauth:62e79bedacd2508c7da3dfb16e9724501fb4bdf9a830de7f8abcc8f7f1496c35"
+                ]
+            }
+        }
+
+
+For convenience, the default bucket id is provided in the root URL of *Kinto*:
+
+.. http:get:: /
+
+    :synopsis: Obtain current user personnal bucket in root URL.
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http get http://localhost:8888/v1/ -v --follow --auth='bob:'
+
+    **Example Response**
+
+    .. sourcecode:: http
+        :emphasize-lines: 19
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Retry-After, Content-Length, Alert, Backoff
+        Content-Length: 400
+        Content-Type: application/json; charset=UTF-8
+        Date: Wed, 28 Oct 2015 16:52:49 GMT
+        Server: waitress
+
+        {
+            "hello": "kinto",
+            "version": "1.7.0.dev0"
+            "url": "http://localhost:8888/v1/",
+            "documentation": "https://kinto.readthedocs.org/",
+            "settings": {
+                "batch_max_requests": 25,
+                "cliquet.batch_max_requests": 25
+            },
+            "user": {
+                "id": "basicauth:62e79bedacd2508c7da3dfb16e9724501fb4bdf9a830de7f8abcc8f7f1496c35",
+                "bucket": "b8f3fa97-3e0a-00ae-7f07-ce8ce05ce0e5",
+            }
+        }
