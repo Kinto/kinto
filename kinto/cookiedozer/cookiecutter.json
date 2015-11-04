@@ -1,0 +1,13 @@
+{
+    
+    "repo_name": "create_ini",
+    "backend_platform (1 - in-memory, 2 - postgresql, 3 - redis)" : "2",
+    "backend"  : "cliquet.cache.postgresql",
+    "cache_url" : "postgres://postgres:postgres@localhost/postgres",
+    "storage" : "cliquet.storage.postgresql",
+    "storage_url" : "postgres://postgres:postgres@localhost/postgres",
+    "permission" : "cliquet.permission.postgresql",
+    "permission_url" : "postgres://postgres:postgres@localhost/postgres",
+    "multiauth_policies" : "basicauth"
+    
+}
