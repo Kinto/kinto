@@ -1028,13 +1028,13 @@ class ProtectedResource(BaseResource):
 
         return annotated
 
-    def postprocess(self, result, action=ACTIONS.READ):
+    def postprocess(self, result, **kwargs):
         """Add ``permissions`` attribute in response body.
 
         In the protocol, it was decided that ``permissions`` would reside
         outside the ``data`` attribute.
         """
-        result = super(ProtectedResource, self).postprocess(result)
+        result = super(ProtectedResource, self).postprocess(result, **kwargs)
         if isinstance(result['data'], list):
             # collection endpoint.
             return result
