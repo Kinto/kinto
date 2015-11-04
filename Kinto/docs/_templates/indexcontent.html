@@ -1,0 +1,47 @@
+{% extends "defindex.html" %}
+
+{% block body %}
+
+<div class="figure align-center" id="id1">
+    <img src="_images/logo.svg">
+    <h1>Kinto — Store, Sync, Share, and Self-Host.</h1>
+    <p>Kinto is a lightweight JSON storage service with synchronisation and sharing abilities.</p>
+</div>
+
+<div id="toc">
+    <div class="item">
+          <h3><a href="{{ pathto("overview") }}">Overview</a></h3>
+          <p class="description">A high-level introduction of what Kinto is.</p>
+          <p class="links"><a href="{{ pathto("overview") }}#use-cases">Use cases</a> | <a href="{{ pathto("overview") }}#comparison">Comparison table</a> | <a href="{{ pathto("overview") }}#faq">FAQ</a></p>
+    </div>
+    <div class="item">
+        <h3><a href="{{ pathto("tutorials/first-steps") }}">Tutorials</a></h3>
+        <p class="description">The easiest way to get started.</p>
+        <p class="links"><a href="{{ pathto("tutorials/first-steps") }}">Store your data</a> | <a href="{{ pathto("tutorials/permissions") }}">Share between users</a> |  <a href="{{ pathto("tutorials/app-examples") }}">Application examples</a></p>
+    </div>
+    <div class="item">
+        <h3><a href="{{ pathto("concepts") }}">Concepts</a></h3>
+        <p class="description">Dive into the details: architecture and terminology.</p>
+        <p class="links"><a href="{{ pathto("concepts") }}#buckets-collections-and-records">Buckets, Collections and Records</a> | <a href="{{ pathto("concepts") }}#inherited">Permissions inheritance</a> | <a href="{{ pathto("concepts") }}#groups">Groups</a></p>
+    </div>
+    <div class="item">
+        <h3><a href="{{ pathto("api/index") }}">APIs</a></h3>
+        <p class="description">An exhaustive look at the exposed HTTP endpoints.</p>
+        <p class="links"><a href="{{ pathto("api/index") }}#cheatsheet">Cheatsheet</a> | <a href="{{ pathto("api/index") }}#full-reference">Full reference</a> | <a href="{{ pathto("api/permissions") }}#permissions">Permissions</a> | <a href="{{ pathto("api/synchronisation") }}">Synchronisation</a></p>
+    </div>
+    <div class="item">
+        <h3><a href="{{ pathto("configuration/settings") }}">Configuration</a></h3>
+        <p class="description">Install, configure, and deploy.</p>
+        <p class="links"><a href="{{ pathto("configuration/installation") }}">Installation</a> | <a href="{{ pathto("configuration/settings") }}">Settings</a> | <a href="{{ pathto("configuration/production") }}">Production setup</a> | <a href="{{ pathto("configuration/good-practices") }}">Good practices</a></p>
+    </div>
+    <div class="item">
+        <h3><a href="{{ pathto("contributing") }}">Community</a></h3>
+        <p class="description">Get help, contribute, and troubleshoot.</p>
+        <p class="links"><a href="{{ pathto("contributing") }}#how-to-contribute">How to contribute</a> | <a href="{{ pathto("contributing") }}#communication-channels">Communication channels</a> | <a href="{{ pathto("contributing") }}#hack">Hack</a> | <a href="{{ pathto("contributing") }}#troubleshooting">Troubleshooting</a></p>
+    </div>
+</div>
+
+</div>
+
+
+{% endblock %}

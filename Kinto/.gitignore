@@ -1,0 +1,11 @@
+*.pyc
+*.egg-info
+*.stamp
+*.db
+.venv/
+.coverage
+.tox/
+loadtests/.env.install
+docs/_build/
+docs/api/cliquet/
+.cache/

@@ -1,7 +1,6 @@
 {
     
-    
-    "file_name": "dev",
+    "repo_name": "create_ini",
     "backend_platform (1 - in-memory, 2 - postgresql, 3 - redis)" : "2",
     "backend"  : "cliquet.cache.postgresql",
     "cache_url" : "postgres://postgres:postgres@localhost/postgres",

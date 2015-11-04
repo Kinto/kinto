@@ -1,0 +1,18 @@
+db:
+  image: postgres
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+web:
+  build: .
+  links:
+   - db
+  ports:
+   - "8888:8888"
+  environment:
+    KINTO_CACHE_BACKEND: cliquet.cache.postgresql
+    KINTO_CACHE_URL: postgres://postgres:postgres@db/postgres
+    KINTO_STORAGE_BACKEND: cliquet.storage.postgresql
+    KINTO_STORAGE_URL: postgres://postgres:postgres@db/postgres
+    KINTO_PERMISSION_BACKEND: cliquet.permission.postgresql
+    KINTO_PERMISSION_URL: postgres://postgres:postgres@db/postgres

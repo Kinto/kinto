@@ -1,0 +1,14 @@
+tox
+flake8
+WebTest
+mock
+Sphinx
+sphinx_rtd_theme
+sphinxcontrib-httpdomain
+requests
+pytest
+pytest-cache
+pytest-capturelog
+pytest-cover
+pytest-sugar
+https://github.com/mozilla-services/cliquet/archive/master.zip
