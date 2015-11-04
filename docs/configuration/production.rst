@@ -34,9 +34,9 @@ adjustments:
     kinto.http_scheme = https
     kinto.paginate_by = 100
     kinto.batch_max_requests = 25
-    kinto.storage_pool_maxconn = 50
-    kinto.cache_pool_maxconn = 50
-    kinto.permission_pool_maxconn = 50
+    kinto.storage_pool_size = 50
+    kinto.cache_pool_size = 50
+    kinto.permission_pool_size = 50
     fxa-oauth.cache_ttl_seconds = 3600
 
 .. note::
