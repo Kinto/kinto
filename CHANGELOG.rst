@@ -8,8 +8,8 @@ This document describes changes between each past release.
 
 **Protocol**
 
-- Replaced ``userid`` field in root URL hello view by a ``user`` mapping
-  containing ``id`` and ``bucket``, her default bucket id.
+- Add a ``bucket`` attribute in ``user`` mapping allowing clients to obtain
+  the actual id of their default bucket.
 
 **New features**
 
