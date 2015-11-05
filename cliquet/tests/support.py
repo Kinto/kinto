@@ -79,7 +79,7 @@ class BaseWebTest(object):
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.app = self.get_test_app()
+        self.app = self.make_app()
         self.storage = self.app.app.registry.storage
         self.cache = self.app.app.registry.cache
         self.permission = self.app.app.registry.permission
@@ -88,7 +88,7 @@ class BaseWebTest(object):
             'Authorization': 'Basic bWF0OjE='
         }
 
-    def get_test_app(self, settings=None):
+    def make_app(self, settings=None):
         app = webtest.TestApp(testapp(self.get_app_settings(settings)))
         app.RequestClass = get_request_class(self.api_prefix)
         return app
