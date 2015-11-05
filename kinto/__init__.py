@@ -2,6 +2,8 @@ import pkg_resources
 import logging
 
 import cliquet
+import uuid
+import six
 from pyramid.config import Configurator
 from pyramid.settings import asbool
 from pyramid.security import Authenticated
@@ -29,6 +31,22 @@ DEFAULT_SETTINGS = {
 }
 
 
+def default_bucket_id(request):
+    settings = request.registry.settings
+    secret = settings['userid_hmac_secret']
+    # Build the user unguessable bucket_id UUID from its user_id
+    digest = cliquet.utils.hmac_digest(secret, request.prefixed_userid)
+    return six.text_type(uuid.UUID(digest[:32]))
+
+
+def get_user_info(request):
+    user_info = {
+        'id': request.prefixed_userid,
+        'bucket': request.default_bucket_id
+    }
+    return user_info
+
+
 def main(global_config, **settings):
     config = Configurator(settings=settings, root_factory=RouteFactory)
 
@@ -43,6 +61,11 @@ def main(global_config, **settings):
     config.add_route('default_bucket_collection',
                      '/buckets/default/{subpath:.*}')
     config.add_route('default_bucket', '/buckets/default')
+
+    # Provide helpers
+    config.add_request_method(default_bucket_id, reify=True)
+    # Override Cliquet default user info
+    config.add_request_method(get_user_info)
 
     # Retro-compatibility with first Kinto clients.
     config.registry.public_settings.add('cliquet.batch_max_requests')

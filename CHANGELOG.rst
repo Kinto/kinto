@@ -3,9 +3,13 @@ Changelog
 
 This document describes changes between each past release.
 
-
 1.9.0 (unreleased)
 ==================
+
+**Protocol**
+
+- Add a ``bucket`` attribute in ``user`` mapping allowing clients to obtain
+  the actual id of their default bucket.
 
 **New features**
 
