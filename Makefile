@@ -79,6 +79,6 @@ loadtest-check-simulation: install-postgres
 	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
 
 docs: install-dev
-	$(VENV)/bin/sphinx-build -a -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
+	$(VENV)/bin/sphinx-build -a -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"
