@@ -146,7 +146,7 @@ class MemoryBasedStorage(StorageBase):
         return sorted_, total_records - filtered_deleted
 
 
-class Memory(MemoryBasedStorage):
+class Storage(MemoryBasedStorage):
     """Storage backend implementation in memory.
 
     Useful for development or testing purposes, but records are lost after
@@ -157,7 +157,7 @@ class Memory(MemoryBasedStorage):
         cliquet.storage_backend = cliquet.storage.memory
     """
     def __init__(self, *args, **kwargs):
-        super(Memory, self).__init__(*args, **kwargs)
+        super(Storage, self).__init__(*args, **kwargs)
         self.flush()
 
     def flush(self, auth=None):
@@ -334,4 +334,4 @@ def apply_sorting(records, sorting):
 
 
 def load_from_config(config):
-    return Memory()
+    return Storage()

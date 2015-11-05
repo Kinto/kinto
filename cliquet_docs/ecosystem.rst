@@ -71,7 +71,7 @@ Alternatively, packages can also be included via configuration:
                        pyramid_debugtoolbar
 
 
-There are `many available packages`_, and it is straightforward to build one.
+There are `many available packages <curated list>`_, and it is straightforward to build one.
 
 .. _curated list: https://github.com/ITCase/awesome-pyramid
 

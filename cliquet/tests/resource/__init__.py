@@ -10,7 +10,7 @@ class BaseTest(unittest.TestCase):
     resource_class = BaseResource
 
     def setUp(self):
-        self.storage = memory.Memory()
+        self.storage = memory.Storage()
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
         self.model = self.resource.model
