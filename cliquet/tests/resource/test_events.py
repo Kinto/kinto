@@ -125,7 +125,7 @@ class EventsTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(len(self.events), 0)
 
     def test_event_triggered_on_protected_resource(self):
-        app = self.get_test_app(settings={
+        app = self.make_app(settings={
             'psilo_write_principals': 'system.Authenticated'
         })
         app.post_json('/psilos', self.body,
