@@ -7,17 +7,17 @@ class MushroomSchema(resource.ResourceSchema):
 
 
 @resource.register()
-class Mushroom(resource.BaseResource):
+class Mushroom(resource.UserResource):
     mapping = MushroomSchema()
 
 
 @resource.register()
-class Toadstool(resource.ProtectedResource):
+class Toadstool(resource.ShareableResource):
     mapping = MushroomSchema()
 
 
 @resource.register()
-class Moisture(resource.ProtectedResource):
+class Moisture(resource.ShareableResource):
     # Empty schema.
     pass
 
@@ -30,5 +30,5 @@ class PsilocybinSchema(resource.ResourceSchema):
 
 
 @resource.register()
-class Psilo(resource.ProtectedResource):
+class Psilo(resource.ShareableResource):
     mapping = PsilocybinSchema()

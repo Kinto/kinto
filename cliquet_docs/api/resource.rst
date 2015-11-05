@@ -14,8 +14,6 @@ Returns all records of the current user for this collection.
 The returned value is a JSON mapping containing:
 
 - ``data``: the list of records, with exhaustive fields;
-- ``permissions``: *optional* a json dict containing the permissions for
-  the collection of records.
 
 A ``Total-Records`` response header indicates the total number of records
 of the collection.
@@ -693,15 +691,16 @@ HTTP Status Code
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
 
 
-Protected resources
+Shareable resources
 ===================
 
-All of the described endpoints can be either *protected* or not. Protecting
-an enpoint means that only *principals* which have been granted access will
+All of the described endpoints can be either *shareable* or not.
+
+With a shareable resource, only *principals* which have been granted access will
 be able to issue requests successfully.
 
-In the case of a *protected* resource, body is a JSON mapping containing a
-``permissions`` key in addition to the ``data`` key. Permissions can also be
+Shareable resources allow permissions management via ``permissions`` attribute
+in the JSON payloads, along the ``data`` attributes. Permissions can also be
 replaced and modified independantly from data.
 
 On a request, ``permissions`` is a json dict containing the permissions for

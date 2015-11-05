@@ -31,25 +31,22 @@ Overview
 ========
 
 By default, the resources defined by *Cliquet* are public, and records are
-isolated by user. But it is also possible to define *protected resources*,
-which will required the user to have access to the requested resource.
+isolated by user. But it is also possible to define *shareable resources*,
+which will required the user to have access to the requested resource, or
+share records among users.
 
 .. code-block:: python
 
-    from cliquet import authorization
     from cliquet import resource
 
 
-    @resource.register(factory=authorization.RouteFactory)
-    class Toadstool(resource.ProtectedResource):
+    @resource.register()
+    class Toadstool(resource.ShareableResource):
         mapping = MushroomSchema()
 
 
-In this example, a *route factory* is registered. Route factories are explained
-in more details below.
-
-A protected resource, in addition to the ``data`` property of request
-/ responses, takes a :term:`permissions` property which contains the list of
+A shareable resource, in addition to the ``data`` property of request
+/ responses, can take a :term:`permissions` property with the list of
 :term:`principals` that are allowed to access or modify the current :term:`object`.
 
 During the creation of the :term:`object`, the :term:`permissions` property is stored in the
@@ -59,7 +56,7 @@ access the the object, with the correct permission.
 Route factory
 =============
 
-The route factory decides which :term:`permission` is required to access one resource
+The Cliquet default route factory decides which :term:`permission` is required to access one resource
 or another. Here is a summary of the :term:`permissions` that are defined by the
 default route factory *Cliquet* defines:
 
@@ -70,7 +67,7 @@ default route factory *Cliquet* defines:
 +------------+------------------------------------------------+
 | GET / HEAD | ``read``                                       |
 +------------+------------------------------------------------+
-| PUT        | ``create`` if it doesn't exist, ``write``      |
+| PUT        | ``create`` if record doesn't exist, ``write``  |
 |            | otherwise                                      |
 +------------+------------------------------------------------+
 | PATCH      | ``write``                                      |
@@ -102,7 +99,7 @@ To do so, subclass the default ``AuthorizationPolicy`` and add a specific
 ``get_bound_permission`` method.
 
 .. code-block:: python
-    
+
     from cliquet import authorization
     from pyramid.security import IAuthorizationPolicy
     from zope.interface import implementer
@@ -112,7 +109,7 @@ To do so, subclass the default ``AuthorizationPolicy`` and add a specific
         def get_bound_permissions(self, *args, **kwargs):
         """Callable that takes an object ID and a permission and returns
         a list of tuples (<object id>, <permission>)."""
-            return build_permissions_set(*args, **kwargs) 
+            return build_permissions_set(*args, **kwargs)
 
 
 .. autoclass:: cliquet.authorization.AuthorizationPolicy

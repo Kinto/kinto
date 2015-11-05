@@ -9,7 +9,7 @@ from cliquet.tests.support import unittest, BaseWebTest
 MINIMALIST_RECORD = {'name': 'Champignon'}
 
 
-class BaseResourcePermissionTest(BaseWebTest, unittest.TestCase):
+class UserResourcePermissionTest(BaseWebTest, unittest.TestCase):
     authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
 
     def test_views_require_authentication(self):
@@ -46,7 +46,7 @@ class BaseResourcePermissionTest(BaseWebTest, unittest.TestCase):
 
 class AuthzAuthnTest(BaseWebTest, unittest.TestCase):
     authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
-    # Protected resource.
+    # Shareable resource.
     collection_url = '/toadstools'
 
     def add_permission(self, object_id, permission, principal=None):
@@ -55,7 +55,7 @@ class AuthzAuthnTest(BaseWebTest, unittest.TestCase):
         self.permission.add_principal_to_ace(object_id, permission, principal)
 
 
-class ProtectedResourcePermissionTest(AuthzAuthnTest):
+class ShareableResourcePermissionTest(AuthzAuthnTest):
     def setUp(self):
         self.add_permission(self.collection_url, 'toadstool:create')
 
@@ -494,7 +494,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
                        headers=self.headers,
                        status=400)
 
-    def test_modify_protected_with_empty_body_returns_400(self):
+    def test_modify_shareable_resource_with_empty_body_returns_400(self):
         body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json('/toadstools',
                                   body,

@@ -15,13 +15,13 @@ from cliquet.errors import http_error, raise_invalid, send_alert, ERRORS
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
-    current_service, encode_header, decode_header
+    current_service, encode_header, decode_header, DeprecatedMeta
 )
 from cliquet.events import ResourceChanged, ACTIONS
 
-from .model import Model, ProtectedModel
+from .model import Model, ShareableModel
 from .schema import ResourceSchema
-from .viewset import ViewSet, ProtectedViewSet
+from .viewset import ViewSet, ShareableViewSet
 
 
 def register(depth=1, **kwargs):
@@ -120,7 +120,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
     return callback
 
 
-class BaseResource(object):
+class UserResource(object):
     """Base resource class providing every endpoint."""
 
     default_viewset = ViewSet
@@ -258,7 +258,7 @@ class BaseResource(object):
         .. seealso::
 
             Add custom behaviour by overriding
-            :meth:`cliquet.resource.BaseResource.process_record`
+            :meth:`cliquet.resource.UserResource.process_record`
         """
         self._raise_412_if_modified()
         new_record = self.request.validated['data']
@@ -346,7 +346,7 @@ class BaseResource(object):
         .. seealso::
 
             Add custom behaviour by overriding
-            :meth:`cliquet.resource.BaseResource.process_record`.
+            :meth:`cliquet.resource.UserResource.process_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
         id_field = self.model.id_field
@@ -409,8 +409,8 @@ class BaseResource(object):
 
         .. seealso::
             Add custom behaviour by overriding
-            :meth:`cliquet.resource.BaseResource.apply_changes` or
-            :meth:`cliquet.resource.BaseResource.process_record`.
+            :meth:`cliquet.resource.UserResource.apply_changes` or
+            :meth:`cliquet.resource.UserResource.process_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
         old_record = self._get_record_or_404(self.record_id)
@@ -421,7 +421,7 @@ class BaseResource(object):
             changes = self.request.json.get('data', {})
         except ValueError:
             # If no `data` nor `permissions` is provided in patch, reject!
-            # XXX: This should happen in schema instead (c.f. ProtectedViewset)
+            # XXX: This should happen in schema instead (c.f. ShareableViewSet)
             error_details = {
                 'name': 'data',
                 'description': 'Provide at least one of data or permissions',
@@ -962,23 +962,29 @@ class BaseResource(object):
         return encode64(json.dumps(token))
 
 
-class ProtectedResource(BaseResource):
-    """Protected resources allow to set permissions on records, in order to
+@six.add_metaclass(DeprecatedMeta)
+class BaseResource(UserResource):
+    __deprecation_warning__ = ('BaseResource is deprecated. '
+                               'Use UserResource instead.')
+
+
+class ShareableResource(UserResource):
+    """Shareable resources allow to set permissions on records, in order to
     share their access or protect their modification.
     """
-    default_model = ProtectedModel
-    default_viewset = ProtectedViewSet
+    default_model = ShareableModel
+    default_viewset = ShareableViewSet
     permissions = ('read', 'write')
     """List of allowed permissions names."""
 
     def __init__(self, *args, **kwargs):
-        super(ProtectedResource, self).__init__(*args, **kwargs)
+        super(ShareableResource, self).__init__(*args, **kwargs)
         # In base resource, PATCH only hit storage if no data has changed.
         # Here, we force update because we add the current principal to
         # the ``write`` ACE.
         self.force_patch_update = True
 
-        # Required by the ProtectedModel class.
+        # Required by the ShareableModel class.
         self.model.permission = self.request.registry.permission
         self.model.current_principal = self.request.prefixed_userid
         if self.context:
@@ -1001,7 +1007,7 @@ class ProtectedResource(BaseResource):
 
         XXX: find more elegant approach to add custom filters.
         """
-        filters = super(ProtectedResource, self)._extract_filters(queryparams)
+        filters = super(ShareableResource, self)._extract_filters(queryparams)
 
         ids = self.context.shared_ids
         if ids:
@@ -1017,7 +1023,7 @@ class ProtectedResource(BaseResource):
         if record:
             record = record.copy()
             record.pop(self.model.permissions_field, None)
-        return super(ProtectedResource, self)._raise_412_if_modified(record)
+        return super(ShareableResource, self)._raise_412_if_modified(record)
 
     def process_record(self, new, old=None):
         """Read permissions from request body, and in the case of ``PUT`` every
@@ -1043,7 +1049,7 @@ class ProtectedResource(BaseResource):
         In the protocol, it was decided that ``permissions`` would reside
         outside the ``data`` attribute.
         """
-        result = super(ProtectedResource, self).postprocess(result, **kwargs)
+        result = super(ShareableResource, self).postprocess(result, **kwargs)
         if isinstance(result['data'], list):
             # collection endpoint.
             return result
@@ -1052,3 +1058,9 @@ class ProtectedResource(BaseResource):
         if perms is not None:
             result['permissions'] = {k: list(p) for k, p in perms.items()}
         return result
+
+
+@six.add_metaclass(DeprecatedMeta)
+class ProtectedResource(ShareableResource):
+    __deprecation_warning__ = ('ProtectedResource is deprecated. '
+                               'Use ShareableResource instead.')

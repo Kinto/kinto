@@ -122,7 +122,7 @@ Using `HTTPie <http://httpie.org>`_, it is as easy as:
 Define resources
 ================
 
-In order to define a resource, inherit from :class:`cliquet.resource.BaseResource`,
+In order to define a resource, inherit from :class:`cliquet.resource.UserResource`,
 in a subclass, in :file:`myproject/views.py` for example:
 
 .. code-block:: python
@@ -130,7 +130,7 @@ in a subclass, in :file:`myproject/views.py` for example:
     from cliquet import resource
 
     @resource.register()
-    class Mushroom(resource.BaseResource):
+    class Mushroom(resource.UserResource):
         # No schema yet.
         pass
 
@@ -182,7 +182,7 @@ Currently, only :rtd:`Colander <colander>` is supported, and it looks like this:
 
 
     @resource.register()
-    class Mushroom(resource.BaseResource):
+    class Mushroom(resource.UserResource):
         mapping = MushroomSchema()
 
 

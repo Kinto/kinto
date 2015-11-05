@@ -115,14 +115,14 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_internal_error(self):
-        with mock.patch('cliquet.resource.BaseResource._extract_filters',
+        with mock.patch('cliquet.resource.UserResource._extract_filters',
                         side_effect=ValueError):
             response = self.app.get('/mushrooms',
                                     headers=self.headers, status=500)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_http_error(self):
-        with mock.patch('cliquet.resource.BaseResource._extract_filters',
+        with mock.patch('cliquet.resource.UserResource._extract_filters',
                         side_effect=httpexceptions.HTTPPaymentRequired):
             response = self.app.get('/mushrooms',
                                     headers=self.headers, status=402)

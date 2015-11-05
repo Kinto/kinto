@@ -1,10 +1,12 @@
 import functools
 
 import colander
+import six
 from pyramid.settings import asbool
 
 from cliquet import authorization
 from cliquet.resource.schema import PermissionsSchema
+from cliquet.utils import DeprecatedMeta
 
 
 class ViewSet(object):
@@ -163,15 +165,15 @@ class ViewSet(object):
         return asbool(settings.get(setting_enabled, True))
 
 
-class ProtectedViewSet(ViewSet):
-    """A ProtectedViewSet will register the given resource with a schema
+class ShareableViewSet(ViewSet):
+    """A ShareableViewSet will register the given resource with a schema
     that supports permissions.
 
     The views will rely on dynamic permissions (e.g. create with PUT if
     record does not exist), and solicit the cliquet RouteFactory.
     """
     def get_record_schema(self, resource_cls, method):
-        schema = super(ProtectedViewSet, self).get_record_schema(resource_cls,
+        schema = super(ShareableViewSet, self).get_record_schema(resource_cls,
                                                                  method)
 
         if method.lower() not in map(str.lower, self.validate_schema_for):
@@ -197,13 +199,19 @@ class ProtectedViewSet(ViewSet):
         return schema
 
     def get_view_arguments(self, endpoint_type, resource_cls, method):
-        args = super(ProtectedViewSet, self).get_view_arguments(endpoint_type,
+        args = super(ShareableViewSet, self).get_view_arguments(endpoint_type,
                                                                 resource_cls,
                                                                 method)
         args['permission'] = authorization.DYNAMIC
         return args
 
     def get_service_arguments(self):
-        args = super(ProtectedViewSet, self).get_service_arguments()
+        args = super(ShareableViewSet, self).get_service_arguments()
         args['factory'] = authorization.RouteFactory
         return args
+
+
+@six.add_metaclass(DeprecatedMeta)
+class ProtectedViewSet(ShareableViewSet):
+    __deprecation_warning__ = ('ProtectedViewSet is deprecated. '
+                               'Use ShareableViewSet instead.')
