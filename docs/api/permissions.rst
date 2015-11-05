@@ -85,7 +85,7 @@ grant the `write` permission to their creator.
 Principals
 ==========
 
-During the authentication phase, a set of :term:`principal`s for the current
+During the authentication phase, a set of :term:`principals` for the current
 authenticated *user* will be bound to to the request.
 
 The main principal is considered the **user ID** and follows this formalism:

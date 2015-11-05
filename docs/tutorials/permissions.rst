@@ -3,12 +3,12 @@
 Step by step permissions tutorial
 #################################
 
-Let's use one of the :ref:`application examples <app-examples-blog>`: using *Kinto* as
+Let's use one of the :ref:`application examples <permissions-setups-blog>`: using *Kinto* as
 a storage API for a blog application.
 
 .. note::
 
-    Some general details are provided in the :ref:`concepts` and :ref:`api/permissions`
+    Some general details are provided in the :ref:`kinto-concepts` and :ref:`api-permissions`
     sections. Make sure you are familiar with main concepts before starting this.
 
 

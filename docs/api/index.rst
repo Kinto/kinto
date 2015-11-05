@@ -1,4 +1,4 @@
-.. _api-endpoints:
+.. _kinto-api-endpoints:
 
 API
 ###
