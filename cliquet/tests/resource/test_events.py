@@ -27,8 +27,6 @@ class EventsTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(EventsTest, self).setUp()
         self.events = []
-        self.config.add_subscriber(self.listener, ResourceChanged)
-        self.config.commit()
         self.body = {'data': {'name': 'de Paris'}}
 
     def tearDown(self):
@@ -41,6 +39,8 @@ class EventsTest(BaseWebTest, unittest.TestCase):
     def get_test_app(self, settings=None):
         settings = self.get_app_settings(settings)
         self.config = Configurator(settings=settings)
+        self.config.add_subscriber(self.listener, ResourceChanged)
+        self.config.commit()
         app = testapp(config=self.config)
         app = webtest.TestApp(app)
         app.RequestClass = get_request_class(self.api_prefix)
@@ -123,3 +123,12 @@ class EventsTest(BaseWebTest, unittest.TestCase):
         record_url = self.get_item_url(record['id'])
         self.assertNotEqual(record_url, None)
         self.assertEqual(len(self.events), 0)
+
+    def test_event_triggered_on_protected_resource(self):
+        app = self.get_test_app(settings={
+            'psilo_write_principals': 'system.Authenticated'
+        })
+        app.post_json('/psilos', self.body,
+                      headers=self.headers, status=201)
+        self.assertEqual(len(self.events), 1)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
