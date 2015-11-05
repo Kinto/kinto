@@ -1,5 +1,8 @@
 import argparse
+import os
+import shutil
 import sys
+
 from cliquet.scripts import cliquet
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
@@ -34,6 +37,10 @@ def main(args=None):
 
     args = vars(parser.parse_args())
     config_file = args['ini_file']
+
+    if not os.path.exists(config_file):
+        shutil.copy('config/kinto.ini.sample', config_file)
+
     env = bootstrap(config_file)
 
     if args['which'] == 'init':

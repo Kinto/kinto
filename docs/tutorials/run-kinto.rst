@@ -73,8 +73,8 @@ Then install the package using the default configuration:
 ::
 
     pip install kinto
-    wget https://raw.githubusercontent.com/Kinto/kinto/master/config/kinto.ini
-    pserve kinto.ini
+    wget https://raw.githubusercontent.com/Kinto/kinto/master/config/kinto.ini.sample -O kinto.ini
+    kinto --ini kinto.ini start
 
 The server should now be running on http://localhost:8888
 
@@ -98,11 +98,7 @@ documentation etc.
 
 The server should now be running with the default configuration on http://localhost:8888
 
-In order to add some **custom settings**, copy the provided file: ::
-
-    cp config/kinto.ini config/dev.ini
-
-And specify the path when running: ::
+In order to specify a particular settings file: ::
 
     make serve SERVER_CONFIG=config/dev.ini
 

@@ -22,7 +22,7 @@ Most default setting values in the application code base are suitable
 for production.
 
 Once :ref:`PostgreSQL is installed <postgresql-install>`, the settings about
-backends as shown in :file:`config/kinto.ini` can be uncommented in order
+backends as shown in :file:`config/kinto.ini.sample` can be uncommented in order
 to use *PostgreSQL*.
 
 Also, the set of settings mentionned below might deserve some review or
