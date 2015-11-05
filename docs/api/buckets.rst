@@ -307,7 +307,7 @@ Retrieving all buckets
 Personal bucket «default»
 =========================
 
-As explained in the :ref:`section about collections<collections>`_, the ``default``
+As explained in the :ref:`section about collections<collections>`, the ``default``
 bucket implicitly creates the collections objects on their first use.
 
 
