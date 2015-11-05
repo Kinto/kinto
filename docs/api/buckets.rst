@@ -307,6 +307,10 @@ Retrieving all buckets
 Personal bucket «default»
 =========================
 
+As explained in the :ref:`section about collections<collections>`_, the ``default``
+bucket implicitly creates the collections objects on their first use.
+
+
 .. http:get:: /buckets/default
 
     :synopsis: Returns the current user personnal bucket.
@@ -356,7 +360,7 @@ Personal bucket «default»
         }
 
 
-For convenience, the default bucket id is provided in the root URL of *Kinto*:
+For convenience, the actual default bucket id is provided in the root URL of *Kinto*:
 
 .. http:get:: /
 
