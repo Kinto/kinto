@@ -1,3 +1,5 @@
+import mock
+
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_BUCKET, MINIMALIST_COLLECTION,
                       MINIMALIST_GROUP, MINIMALIST_RECORD)
@@ -178,3 +180,25 @@ class RecordPermissionsTest(PermissionsTest):
                                    {'permissions': {'read': ['fxa:user']}},
                                    headers=self.headers)
         self.assertIn('fxa:user', resp.json['permissions']['read'])
+
+    def test_user_principals_are_cached_per_user(self):
+        patch = mock.patch.object(self.permission, 'user_principals',
+                                  wraps=self.permission.user_principals)
+        self.addCleanup(patch.stop)
+        mocked = patch.start()
+        batch = {
+            "defaults": {
+                "method": "POST",
+                "headers": self.headers,
+                "path": "/buckets/default/collections/tests/records"
+            },
+            "requests": [
+                {"body": MINIMALIST_RECORD},
+                {"body": MINIMALIST_RECORD},
+                {"body": MINIMALIST_RECORD},
+                {"body": MINIMALIST_RECORD,
+                 "headers": {"Authorization": "Basic Ym9iOg=="}},
+            ]
+        }
+        self.app.post_json('/batch', batch)
+        self.assertEqual(mocked.call_count, 2)  # Instead of 20!
