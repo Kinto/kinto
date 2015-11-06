@@ -1,0 +1,3 @@
+        [pyramid.scaffold]
+        generator=generator.scaffolds:generatorTemplate
+      
