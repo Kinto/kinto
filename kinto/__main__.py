@@ -37,15 +37,12 @@ def main(args=None):
 
     args = vars(parser.parse_args())
     config_file = args['ini_file']
-
-    if not os.path.exists(config_file):
-        shutil.copy('config/kinto.ini.sample', config_file)
-
     env = bootstrap(config_file)
 
     if args['which'] == 'init':
-        # Not implemented yet
-        pass
+        if not os.path.exists(config_file):
+            # XXX: Take this from egg using pkgutil
+            shutil.copy('config/kinto.ini.sample', config_file)
     elif args['which'] == 'migrate':
         cliquet.init_schema(env)
     elif args['which'] == 'start':

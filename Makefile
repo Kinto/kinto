@@ -40,6 +40,9 @@ build-requirements:
 	$(TEMPDIR)/bin/pip install -Ue .
 	$(TEMPDIR)/bin/pip freeze > requirements.txt
 
+$(SERVER_CONFIG):
+	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
+
 serve: install-dev migrate
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start
 

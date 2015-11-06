@@ -76,7 +76,10 @@ Then install the package using the default configuration:
     wget https://raw.githubusercontent.com/Kinto/kinto/master/config/kinto.ini.sample -O kinto.ini
     kinto --ini kinto.ini start
 
+.. XXX: provide kinto.ini.sample in python package instead.
+
 The server should now be running on http://localhost:8888
+
 
 .. _run-kinto-from-source:
 

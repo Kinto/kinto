@@ -1,2 +1,2 @@
 include *.rst LICENSE Makefile tox.ini .coveragerc
-recursive-include config *.ini
+recursive-include config *.ini.sample
