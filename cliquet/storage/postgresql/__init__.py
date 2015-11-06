@@ -183,7 +183,7 @@ class Storage(StorageBase):
 
     def collection_timestamp(self, collection_id, parent_id, auth=None):
         query = """
-        SELECT as_epoch(collection_timestamp(%(parent_id)s, %(collection_id)s))
+        SELECT as_epoch(collection_timestamp(:parent_id, :collection_id))
             AS last_modified;
         """
         placeholders = dict(parent_id=parent_id, collection_id=collection_id)
@@ -203,13 +203,13 @@ class Storage(StorageBase):
         query = """
         WITH delete_potential_tombstone AS (
             DELETE FROM deleted
-             WHERE id = %(object_id)s
-               AND parent_id = %(parent_id)s
-               AND collection_id = %(collection_id)s
+             WHERE id = :object_id
+               AND parent_id = :parent_id
+               AND collection_id = :collection_id
         )
         INSERT INTO records (id, parent_id, collection_id, data)
-        VALUES (%(object_id)s, %(parent_id)s,
-                %(collection_id)s, %(data)s::JSONB)
+        VALUES (:object_id, :parent_id,
+                :collection_id, (:data)::JSONB)
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(object_id=record_id,
@@ -234,9 +234,9 @@ class Storage(StorageBase):
         query = """
         SELECT as_epoch(last_modified) AS last_modified, data
           FROM records
-         WHERE id = %(object_id)s
-           AND parent_id = %(parent_id)s
-           AND collection_id = %(collection_id)s;
+         WHERE id = :object_id
+           AND parent_id = :parent_id
+           AND collection_id = :collection_id;
         """
         placeholders = dict(object_id=object_id,
                             parent_id=parent_id,
@@ -259,16 +259,16 @@ class Storage(StorageBase):
                auth=None):
         query_create = """
         INSERT INTO records (id, parent_id, collection_id, data)
-        VALUES (%(object_id)s, %(parent_id)s,
-                %(collection_id)s, %(data)s::JSONB)
+        VALUES (:object_id, :parent_id,
+                :collection_id, (:data)::JSONB)
         RETURNING as_epoch(last_modified) AS last_modified;
         """
 
         query_update = """
-        UPDATE records SET data=%(data)s::JSONB
-        WHERE id = %(object_id)s
-           AND parent_id = %(parent_id)s
-           AND collection_id = %(collection_id)s
+        UPDATE records SET data=(:data)::JSONB
+        WHERE id = :object_id
+           AND parent_id = :parent_id
+           AND collection_id = :collection_id
         RETURNING as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(object_id=object_id,
@@ -286,9 +286,9 @@ class Storage(StorageBase):
             # Create or update ?
             query = """
             SELECT id FROM records
-            WHERE id = %(object_id)s
-              AND parent_id = %(parent_id)s
-              AND collection_id = %(collection_id)s;
+            WHERE id = :object_id
+              AND parent_id = :parent_id
+              AND collection_id = :collection_id;
             """
             result = conn.execute(query, placeholders)
             query = query_update if result.rowcount > 0 else query_create
@@ -309,13 +309,13 @@ class Storage(StorageBase):
             WITH deleted_record AS (
                 DELETE
                 FROM records
-                WHERE id = %(object_id)s
-                  AND parent_id = %(parent_id)s
-                  AND collection_id = %(collection_id)s
+                WHERE id = :object_id
+                  AND parent_id = :parent_id
+                  AND collection_id = :collection_id
                 RETURNING id
             )
             INSERT INTO deleted (id, parent_id, collection_id)
-            SELECT id, %(parent_id)s, %(collection_id)s
+            SELECT id, :parent_id, :collection_id
               FROM deleted_record
             RETURNING as_epoch(last_modified) AS last_modified;
             """
@@ -323,9 +323,9 @@ class Storage(StorageBase):
             query = """
                 DELETE
                 FROM records
-                WHERE id = %(object_id)s
-                  AND parent_id = %(parent_id)s
-                  AND collection_id = %(collection_id)s
+                WHERE id = :object_id
+                  AND parent_id = :parent_id
+                  AND collection_id = :collection_id
                 RETURNING as_epoch(last_modified) AS last_modified;
             """
         placeholders = dict(object_id=object_id,
@@ -355,13 +355,13 @@ class Storage(StorageBase):
             WITH deleted_records AS (
                 DELETE
                 FROM records
-                WHERE parent_id = %%(parent_id)s
-                  AND collection_id = %%(collection_id)s
+                WHERE parent_id = :parent_id
+                  AND collection_id = :collection_id
                   %(conditions_filter)s
                 RETURNING id
             )
             INSERT INTO deleted (id, parent_id, collection_id)
-            SELECT id, %%(parent_id)s, %%(collection_id)s
+            SELECT id, :parent_id, :collection_id
               FROM deleted_records
             RETURNING id, as_epoch(last_modified) AS last_modified;
             """
@@ -369,8 +369,8 @@ class Storage(StorageBase):
             query = """
                 DELETE
                 FROM records
-                WHERE parent_id = %%(parent_id)s
-                  AND collection_id = %%(collection_id)s
+                WHERE parent_id = :parent_id
+                  AND collection_id = :collection_id
                   %(conditions_filter)s
                 RETURNING id, as_epoch(last_modified) AS last_modified;
             """
@@ -409,8 +409,8 @@ class Storage(StorageBase):
         query = """
         DELETE
         FROM deleted
-        WHERE parent_id = %%(parent_id)s
-          AND collection_id = %%(collection_id)s
+        WHERE parent_id = :parent_id
+          AND collection_id = :collection_id
           %(conditions_filter)s;
         """
         id_field = id_field or self.id_field
@@ -422,7 +422,7 @@ class Storage(StorageBase):
 
         if before is not None:
             safeholders['conditions_filter'] = (
-                'AND as_epoch(last_modified) < %(before)s')
+                'AND as_epoch(last_modified) < :before')
             placeholders['before'] = before
 
         with self.client.connect() as conn:
@@ -440,26 +440,26 @@ class Storage(StorageBase):
         WITH total_filtered AS (
             SELECT COUNT(id) AS count
               FROM records
-             WHERE parent_id = %%(parent_id)s
-               AND collection_id = %%(collection_id)s
+             WHERE parent_id = :parent_id
+               AND collection_id = :collection_id
                %(conditions_filter)s
         ),
         collection_filtered AS (
             SELECT id, last_modified, data
               FROM records
-             WHERE parent_id = %%(parent_id)s
-               AND collection_id = %%(collection_id)s
+             WHERE parent_id = :parent_id
+               AND collection_id = :collection_id
                %(conditions_filter)s
              LIMIT %(max_fetch_size)s
         ),
         fake_deleted AS (
-            SELECT %%(deleted_field)s::JSONB AS data
+            SELECT (:deleted_field)::JSONB AS data
         ),
         filtered_deleted AS (
             SELECT id, last_modified, fake_deleted.data AS data
               FROM deleted, fake_deleted
-             WHERE parent_id = %%(parent_id)s
-               AND collection_id = %%(collection_id)s
+             WHERE parent_id = :parent_id
+               AND collection_id = :collection_id
                %(conditions_filter)s
                %(deleted_limit)s
         ),
@@ -572,7 +572,7 @@ class Storage(StorageBase):
                 holders[field_holder] = filtr.field
                 # JSON operator ->> retrieves values as text.
                 # If field is missing, we default to ''.
-                sql_field = "coalesce(data->>%%(%s)s, '')" % field_holder
+                sql_field = "coalesce(data->>:%s, '')" % field_holder
 
             if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 # For the IN operator, let psycopg escape the values list.
@@ -587,7 +587,7 @@ class Storage(StorageBase):
             holders[value_holder] = value
 
             sql_operator = operators.setdefault(filtr.operator, filtr.operator)
-            cond = "%s %s %%(%s)s" % (sql_field, sql_operator, value_holder)
+            cond = "%s %s :%s" % (sql_field, sql_operator, value_holder)
             conditions.append(cond)
 
         safe_sql = ' AND '.join(conditions)
@@ -646,7 +646,7 @@ class Storage(StorageBase):
             else:
                 field_holder = 'sort_field_%s' % i
                 holders[field_holder] = sort.field
-                sql_field = 'data->>%%(%s)s' % field_holder
+                sql_field = 'data->>(:%s)' % field_holder
 
             sql_direction = 'ASC' if sort.direction > 0 else 'DESC'
             sql_sort = "%s %s" % (sql_field, sql_direction)
@@ -671,8 +671,8 @@ class Storage(StorageBase):
         query = """
         SELECT id
           FROM records
-         WHERE parent_id = %%(parent_id)s
-           AND collection_id = %%(collection_id)s
+         WHERE parent_id = :parent_id
+           AND collection_id = :collection_id
            AND (%(conditions_filter)s)
            AND %(condition_record)s
          LIMIT 1;

@@ -79,12 +79,12 @@ class Permission(PermissionBase):
     def add_user_principal(self, user_id, principal):
         query = """
         INSERT INTO user_principals (user_id, principal)
-        SELECT %(user_id)s, %(principal)s
+        SELECT :user_id, :principal
          WHERE NOT EXISTS (
             SELECT principal
             FROM user_principals
-            WHERE user_id = %(user_id)s
-              AND principal = %(principal)s
+            WHERE user_id = :user_id
+              AND principal = :principal
         );"""
         with self.client.connect() as conn:
             conn.execute(query, dict(user_id=user_id, principal=principal))
@@ -92,8 +92,8 @@ class Permission(PermissionBase):
     def remove_user_principal(self, user_id, principal):
         query = """
         DELETE FROM user_principals
-         WHERE user_id = %(user_id)s
-           AND principal = %(principal)s;"""
+         WHERE user_id = :user_id
+           AND principal = :principal;"""
         with self.client.connect() as conn:
             conn.execute(query, dict(user_id=user_id, principal=principal))
 
@@ -101,7 +101,7 @@ class Permission(PermissionBase):
         query = """
         SELECT principal
           FROM user_principals
-         WHERE user_id = %(user_id)s;"""
+         WHERE user_id = :user_id;"""
         with self.client.connect() as conn:
             result = conn.execute(query, dict(user_id=user_id))
             results = result.fetchall()
@@ -110,13 +110,13 @@ class Permission(PermissionBase):
     def add_principal_to_ace(self, object_id, permission, principal):
         query = """
         INSERT INTO access_control_entries (object_id, permission, principal)
-        SELECT %(object_id)s, %(permission)s, %(principal)s
+        SELECT :object_id, :permission, :principal
          WHERE NOT EXISTS (
             SELECT principal
               FROM access_control_entries
-             WHERE object_id = %(object_id)s
-               AND permission = %(permission)s
-               AND principal = %(principal)s
+             WHERE object_id = :object_id
+               AND permission = :permission
+               AND principal = :principal
         );"""
         with self.client.connect() as conn:
             conn.execute(query, dict(object_id=object_id,
@@ -126,9 +126,9 @@ class Permission(PermissionBase):
     def remove_principal_from_ace(self, object_id, permission, principal):
         query = """
         DELETE FROM access_control_entries
-         WHERE object_id = %(object_id)s
-           AND permission = %(permission)s
-           AND principal = %(principal)s;"""
+         WHERE object_id = :object_id
+           AND permission = :permission
+           AND principal = :principal;"""
         with self.client.connect() as conn:
             conn.execute(query, dict(object_id=object_id,
                                      permission=permission,
@@ -138,8 +138,8 @@ class Permission(PermissionBase):
         query = """
         SELECT principal
           FROM access_control_entries
-         WHERE object_id = %(object_id)s
-           AND permission = %(permission)s;"""
+         WHERE object_id = :object_id
+           AND permission = :permission;"""
         with self.client.connect() as conn:
             result = conn.execute(query, dict(object_id=object_id,
                                               permission=permission))
@@ -252,12 +252,12 @@ class Permission(PermissionBase):
         query = """
         SELECT permission, principal
         FROM access_control_entries
-        WHERE object_id = %(object_id)s"""
+        WHERE object_id = :object_id"""
 
         placeholders = dict(object_id=object_id)
         if permissions is not None:
             query += """
-        AND permission IN %(permissions)s;"""
+        AND permission IN :permissions;"""
             placeholders["permissions"] = tuple(permissions)
         with self.client.connect() as conn:
             result = conn.execute(query, placeholders)
@@ -279,11 +279,11 @@ class Permission(PermissionBase):
         specified_perms = []
         for i, (perm, principals) in enumerate(permissions.items()):
             placeholders['perm_%s' % i] = perm
-            specified_perms.append("(%%(perm_%s)s)" % i)
+            specified_perms.append("(:perm_%s)" % i)
             for principal in principals:
                 j = len(new_perms)
                 placeholders['principal_%s' % j] = principal
-                new_perms.append("(%%(perm_%s)s, %%(principal_%s)s)" % (i, j))
+                new_perms.append("(:perm_%s, :principal_%s)" % (i, j))
 
         delete_query = """
         WITH specified_perms AS (
@@ -291,7 +291,7 @@ class Permission(PermissionBase):
         )
         DELETE FROM access_control_entries
          USING specified_perms
-         WHERE object_id = %%(object_id)s AND permission = column1
+         WHERE object_id = :object_id AND permission = column1
         """ % dict(specified_perms=','.join(specified_perms))
 
         insert_query = """
@@ -299,7 +299,7 @@ class Permission(PermissionBase):
           VALUES %(new_perms)s
         )
         INSERT INTO access_control_entries(object_id, permission, principal)
-          SELECT %%(object_id)s, column1, column2
+          SELECT :object_id, column1, column2
             FROM new_aces;
         """ % dict(new_perms=','.join(new_perms))
 
@@ -313,7 +313,7 @@ class Permission(PermissionBase):
 
         query = """
         DELETE FROM access_control_entries
-         WHERE object_id IN %(object_id_list)s;"""
+         WHERE object_id IN :object_id_list;"""
         with self.client.connect() as conn:
             conn.execute(query, dict(object_id_list=tuple(object_id_list)))
 

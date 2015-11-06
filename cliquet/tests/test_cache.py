@@ -191,6 +191,6 @@ class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     def setUp(self):
         super(PostgreSQLCacheTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
-            self.cache.client._engine,
-            'connect',
+            self.cache.client,
+            'session_factory',
             side_effect=sqlalchemy.exc.SQLAlchemyError)

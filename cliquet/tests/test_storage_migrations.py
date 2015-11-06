@@ -111,7 +111,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             before = {'drink': 'cacao'}
             query = """
             INSERT INTO records (user_id, resource_name, data)
-            VALUES (%(user_id)s, %(resource_name)s, %(data)s::JSON)
+            VALUES (:user_id, :resource_name, (:data)::JSON)
             RETURNING id, as_epoch(last_modified) AS last_modified;
             """
             placeholders = dict(user_id='jean-louis',

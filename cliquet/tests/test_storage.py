@@ -1015,8 +1015,8 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     def setUp(self):
         super(PostgresqlStorageTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
-            self.storage.client._engine,
-            'connect',
+            self.storage.client,
+            'session_factory',
             side_effect=sqlalchemy.exc.SQLAlchemyError)
 
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
@@ -1043,7 +1043,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
             with self.storage.client.connect() as conn:
                 query = "INSERT INTO metadata VALUES ('roll', 'back');"
                 conn.execute(query)
-                conn.connection.commit()
+                conn.commit()
 
                 query = "INSERT INTO metadata VALUES ('roll', 'rock');"
                 conn.execute(query)
@@ -1061,8 +1061,8 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
         config = self._get_config()
         storage1 = self.backend.load_from_config(config)
         storage2 = self.backend.load_from_config(config)
-        self.assertEqual(id(storage1.client._engine),
-                         id(storage2.client._engine))
+        self.assertEqual(id(storage1.client),
+                         id(storage2.client))
 
     def test_warns_if_configured_pool_size_differs_for_same_backend_type(self):
         self.backend.load_from_config(self._get_config())
