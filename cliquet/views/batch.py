@@ -97,21 +97,21 @@ def post_batch(request):
                        method=subrequest.method)
 
         try:
-            subresponse, subrequest = request.follow_subrequest(subrequest)
-
+            # Invoke subrequest without individual transaction.
+            resp, subrequest = request.follow_subrequest(subrequest,
+                                                         use_tweens=False)
         except httpexceptions.HTTPException as e:
             error_msg = 'Failed batch subrequest'
-            subresponse = errors.http_error(e, message=error_msg)
+            resp = errors.http_error(e, message=error_msg)
         except Exception as e:
             logger.error(e)
-            subresponse = errors.http_error(
-                httpexceptions.HTTPInternalServerError())
+            resp = errors.http_error(httpexceptions.HTTPInternalServerError())
 
-        sublogger.bind(code=subresponse.status_code)
+        sublogger.bind(code=resp.status_code)
         sublogger.info('subrequest.summary')
 
-        subresponse = build_response(subresponse, subrequest)
-        responses.append(subresponse)
+        dict_resp = build_response(resp, subrequest)
+        responses.append(dict_resp)
 
     # Rebing batch request for summary
     logger.bind(path=batch.path,

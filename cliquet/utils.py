@@ -260,7 +260,7 @@ def build_response(response, request):
     return dict_obj
 
 
-def follow_subrequest(request, subrequest):
+def follow_subrequest(request, subrequest, **kwargs):
     """Run a subrequest (e.g. batch), and follow the redirection if any.
 
     :rtype: tuple
@@ -268,7 +268,7 @@ def follow_subrequest(request, subrequest):
               if no redirection happened.)
     """
     try:
-        return request.invoke_subrequest(subrequest), subrequest
+        return request.invoke_subrequest(subrequest, **kwargs), subrequest
     except httpexceptions.HTTPRedirection as e:
         new_location = e.headers['Location']
         new_request = Request.blank(path=new_location,
@@ -277,7 +277,7 @@ def follow_subrequest(request, subrequest):
                                     method=subrequest.method)
         new_request.bound_data = subrequest.bound_data
         new_request.parent = getattr(subrequest, 'parent', None)
-        return request.invoke_subrequest(new_request), new_request
+        return request.invoke_subrequest(new_request, **kwargs), new_request
 
 
 def encode_header(value, encoding='utf-8'):
