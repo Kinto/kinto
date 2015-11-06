@@ -70,7 +70,8 @@ class Storage(StorageBase):
     def _execute_sql_file(self, filepath):
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, filepath)).read()
-        with self.client.connect() as conn:
+        # Since called outside request, force commit.
+        with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
 
     def initialize_schema(self):
@@ -177,7 +178,7 @@ class Storage(StorageBase):
         DELETE FROM records;
         DELETE FROM metadata;
         """
-        with self.client.connect() as conn:
+        with self.client.connect(force_commit=True) as conn:
             conn.execute(query)
         logger.debug('Flushed PostgreSQL storage tables')
 

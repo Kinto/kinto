@@ -464,6 +464,7 @@ class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
 class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = postgresql_backend
     settings = {
+        'permission_backend': 'cliquet.permission.postgresql',
         'permission_pool_size': 10,
         'permission_url': 'postgres://postgres:postgres@localhost:5432/testdb'
     }

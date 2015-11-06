@@ -1003,7 +1003,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
 
 
 @skip_if_no_postgresql
-class PostgresqlStorageTest(StorageTest, unittest.TestCase):
+class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
         'storage_max_fetch_size': 10000,
@@ -1013,7 +1013,7 @@ class PostgresqlStorageTest(StorageTest, unittest.TestCase):
     }
 
     def setUp(self):
-        super(PostgresqlStorageTest, self).setUp()
+        super(PostgreSQLStorageTest, self).setUp()
         self.client_error_patcher = mock.patch.object(
             self.storage.client,
             'session_factory',

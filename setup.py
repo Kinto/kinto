@@ -22,6 +22,7 @@ REQUIREMENTS = [
     'cornice >= 1.1',  # Fix cache CORS
     'python-dateutil',
     'pyramid_multiauth >= 0.5',  # Pluggable authz
+    'pyramid_tm',
     'redis',  # Default backend
     'requests',
     'six',
@@ -34,6 +35,7 @@ if installed_with_pypy:
     POSTGRESQL_REQUIRES = [
         'SQLAlchemy',
         'psycopg2cffi>2.7.0',
+        'zope.sqlalchemy',
     ]
 else:
     # ujson is not pypy compliant, as it uses the CPython C API
@@ -41,6 +43,7 @@ else:
     POSTGRESQL_REQUIRES = [
         'SQLAlchemy',
         'psycopg2>2.5',
+        'zope.sqlalchemy',
     ]
 
 DEPENDENCY_LINKS = [

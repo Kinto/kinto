@@ -79,6 +79,7 @@ DEFAULT_SETTINGS = {
     'storage_url': '',
     'storage_max_fetch_size': 10000,
     'storage_pool_size': 25,
+    'transaction_per_request': True,
     'userid_hmac_secret': '',
     'version_prefix_redirect_enabled': True,
     'trailing_slash_redirect_enabled': True,
@@ -109,6 +110,9 @@ def includeme(config):
 
     # Setup cornice.
     config.include("cornice")
+
+    # Per-request transaction.
+    config.include("pyramid_tm")
 
     # Include cliquet plugins after init, unlike pyramid includes.
     includes = aslist(settings['includes'])

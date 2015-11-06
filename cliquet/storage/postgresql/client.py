@@ -1,15 +1,18 @@
 import contextlib
 import warnings
+from collections import defaultdict
 
 from cliquet import logger
 from cliquet.storage import exceptions
 from cliquet.utils import sqlalchemy
+import transaction as zope_transaction
 
 
 class PostgreSQLClient(object):
-    def __init__(self, session_factory, commit_manually=True):
+    def __init__(self, session_factory, commit_manually=True, invalidate=None):
         self.session_factory = session_factory
         self.commit_manually = commit_manually
+        self.invalidate = invalidate or (lambda: None)
 
         # # Register ujson, globally for all futur cursors
         # with self.connect() as cursor:
@@ -18,7 +21,7 @@ class PostgreSQLClient(object):
         #                                   loads=json.loads)
 
     @contextlib.contextmanager
-    def connect(self, readonly=False):
+    def connect(self, readonly=False, force_commit=False):
         """
         Pulls a connection from the pool when context is entered and
         returns it when context is exited.
@@ -33,23 +36,29 @@ class PostgreSQLClient(object):
             session = self.session_factory()
             # Start context
             yield session
+            if not readonly:
+                # Mark session as dirty.
+                self.invalidate(session)
             # Success
             if with_transaction:
                 session.commit()
-                # Give back to pool.
-                session.close()
+            elif force_commit:
+                # Commit like would do a succesful request.
+                zope_transaction.commit()
 
         except sqlalchemy.exc.SQLAlchemyError as e:
             logger.error(e)
-            if session:
-                if with_transaction:
-                    session.rollback()
-                    session.close()
+            if session and with_transaction:
+                session.rollback()
             raise exceptions.BackendError(original=e)
 
+        finally:
+            if session and self.commit_manually:
+                # Give back to pool if commit done manually.
+                session.close()
 
 # Reuse existing client if same URL.
-_CLIENTS = {}
+_CLIENTS = defaultdict(dict)
 
 
 def create_from_config(config, prefix=''):
@@ -60,13 +69,17 @@ def create_from_config(config, prefix=''):
                    "Refer to installation section in documentation.")
         raise ImportWarning(message)
 
+    from zope.sqlalchemy import ZopeTransactionExtension, invalidate
+    from sqlalchemy.orm import sessionmaker, scoped_session
+
     settings = config.get_settings().copy()
     # Custom Cliquet settings, unsupported by SQLAlchemy.
     settings.pop(prefix + 'backend', None)
     settings.pop(prefix + 'max_fetch_size', None)
+    transaction_per_request = settings.pop('transaction_per_request', False)
 
     url = settings[prefix + 'url']
-    existing_client = _CLIENTS.get(url)
+    existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
         msg = ("Reuse existing PostgreSQL connection. "
                "Parameters %s* will be ignored." % prefix)
@@ -80,10 +93,14 @@ def create_from_config(config, prefix=''):
     engine = sqlalchemy.engine_from_config(settings, prefix=prefix, url=url)
 
     # Initialize thread-safe session factory.
-    from sqlalchemy.orm import sessionmaker, scoped_session
-    session_factory = scoped_session(sessionmaker(bind=engine))
+    options = {}
+    if transaction_per_request:
+        # Plug with Pyramid transaction manager
+        options['extension'] = ZopeTransactionExtension()
+    session_factory = scoped_session(sessionmaker(bind=engine, **options))
 
     # Store one client per URI.
-    client = PostgreSQLClient(session_factory)
-    _CLIENTS[url] = client
+    commit_manually = (not transaction_per_request)
+    client = PostgreSQLClient(session_factory, commit_manually, invalidate)
+    _CLIENTS[transaction_per_request][url] = client
     return client

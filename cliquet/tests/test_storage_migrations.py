@@ -18,8 +18,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         if sqlalchemy is None:
             return
 
-        from .test_storage import PostgresqlStorageTest
-        self.settings = PostgresqlStorageTest.settings.copy()
+        from .test_storage import PostgreSQLStorageTest
+        self.settings = PostgreSQLStorageTest.settings.copy()
         self.config = testing.setUp()
         self.config.add_settings(self.settings)
         self.version = postgresql.Storage.schema_version

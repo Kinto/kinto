@@ -9,8 +9,17 @@ This document describes changes between each past release.
 
 **Protocol**
 
-* ``_since`` and ``_before`` now accepts an integer value between quotes ``"``,
+- ``_since`` and ``_before`` now accepts an integer value between quotes ``"``,
   as it would be returned in the ``ETag`` response header.
+- A batch request now fails if one of the subrequests fails (#510)
+  (*see new feature about transactions*)
+
+**New features**
+
+- A transaction now covers the whole request/response cycle (#510, Kinto/kinto#194).
+  If an error occurs during the request processing, every operation performed
+  is rolled back. **Note:** This is only enabled with *PostgreSQL* backends. In
+  other words, the rollback has no effect on backends like *Redis* or *Memory*.
 
 - Add the ``protocol_version`` to tell which protocol version is
   implemented by the service. (#324)
@@ -34,6 +43,7 @@ This document describes changes between each past release.
 - Switch to SQLAlchemy for smarter connections pools.
 - Added a simple end-to-end test on a *Cliquet* sample application, using
   `Loads <http://github.com/loads/>`_ (fixes #512)
+- Switched to SQLAlchemy sessions instead of raw connections and cursors (#510)
 
 
 2.10.2 (2015-11-10)

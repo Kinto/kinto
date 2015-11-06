@@ -62,7 +62,8 @@ class Cache(CacheBase):
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, 'schema.sql')).read()
-        with self.client.connect() as conn:
+        # Since called outside request, force commit.
+        with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
         logger.info('Created PostgreSQL cache tables')
 
@@ -70,7 +71,8 @@ class Cache(CacheBase):
         query = """
         DELETE FROM cache;
         """
-        with self.client.connect() as conn:
+        # Since called outside request (e.g. tests), force commit.
+        with self.client.connect(force_commit=True) as conn:
             conn.execute(query)
         logger.debug('Flushed PostgreSQL cache tables')
 
