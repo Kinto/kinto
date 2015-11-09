@@ -15,6 +15,10 @@ This document describes changes between each past release.
 - Add the ``protocol_version`` to tell which protocol version is
   implemented by the service. (#324)
 
+**Bug fixes**
+
+- Fix crash with Redis backend if record parent/id is unicode (fixes #556)
+
 **Internal changes**
 
 - Added a simple end-to-end test on a *Cliquet* sample application, using
