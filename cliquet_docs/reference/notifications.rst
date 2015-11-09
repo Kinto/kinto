@@ -43,6 +43,21 @@ the following information:
 - **<matchdict value>**: every value matched by each URL pattern name (see
   `Pyramid request matchdict <http://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-matchdict>`_)
 
+And provides the list of affected records in the ``impacted_records`` attribute.
+This list contains dictionnaries with ``new`` and ``old`` keys. For creation
+events, only ``new`` is provided. For deletion events, only ``old`` is provided.
+This also allows listeners to react on particular field change or handle *diff*
+between versions.
+
+Example, when deleting a collection:
+
+::
+
+    >>> event.impacted_records
+    [{'old': {'deleted': True, 'last_modified': 1447240896769, 'id': u'a1f4af60-ddf5-4c49-933f-4cfeff18ad07'}},
+     {'old': {'deleted': True, 'last_modified': 1447240896770, 'id': u'7a6916aa-0ea1-42a7-9741-c24fe13cb70b'}}]
+
+
 Event listeners
 ---------------
 

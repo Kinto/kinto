@@ -23,15 +23,15 @@ def notif_broken(app):
     app.registry.notify = old
 
 
-class EventsTest(BaseWebTest, unittest.TestCase):
+class ResourceChangedTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(EventsTest, self).setUp()
+        super(ResourceChangedTest, self).setUp()
         self.events = []
         self.body = {'data': {'name': 'de Paris'}}
 
     def tearDown(self):
         self.events = []
-        super(EventsTest, self).tearDown()
+        super(ResourceChangedTest, self).tearDown()
 
     def listener(self, event):
         self.events.append(event)
@@ -112,6 +112,19 @@ class EventsTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
         self.assertEqual(self.events[1].payload['action'], ACTIONS.DELETE)
 
+    def test_event_triggered_collection_delete(self):
+        self.app.post_json(self.collection_url, self.body,
+                           headers=self.headers, status=201)
+        self.app.post_json(self.collection_url, self.body,
+                           headers=self.headers, status=201)
+
+        self.app.delete(self.collection_url, headers=self.headers, status=200)
+
+        self.assertEqual(len(self.events), 3)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
+        self.assertEqual(self.events[1].payload['action'], ACTIONS.CREATE)
+        self.assertEqual(self.events[2].payload['action'], ACTIONS.DELETE)
+
     def test_event_not_triggered(self):
         # if the notification system is broken we should still see
         # the record created
@@ -132,3 +145,60 @@ class EventsTest(BaseWebTest, unittest.TestCase):
                       headers=self.headers, status=201)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
+
+    def test_impacted_records_on_create(self):
+        resp = self.app.post_json(self.collection_url, self.body,
+                                  headers=self.headers)
+        record = resp.json['data']
+        impacted_records = self.events[-1].impacted_records
+        self.assertEqual(len(impacted_records), 1)
+        self.assertNotIn('old', impacted_records[0])
+        self.assertEqual(impacted_records[0]['new'], record)
+
+    def test_impacted_records_on_collection_delete(self):
+        resp = self.app.post_json(self.collection_url, self.body,
+                                  headers=self.headers)
+        record1 = resp.json['data']
+        resp = self.app.post_json(self.collection_url, self.body,
+                                  headers=self.headers)
+        record2 = resp.json['data']
+
+        self.app.delete(self.collection_url, headers=self.headers, status=200)
+
+        impacted_records = self.events[-1].impacted_records
+        self.assertEqual(len(impacted_records), 2)
+        self.assertNotIn('new', impacted_records[0])
+        self.assertNotIn('new', impacted_records[1])
+        self.assertEqual(impacted_records[0]['old']['deleted'], True)
+        self.assertEqual(impacted_records[1]['old']['deleted'], True)
+        deleted_ids = {impacted_records[0]['old']['id'],
+                       impacted_records[1]['old']['id']}
+        self.assertEqual(deleted_ids, {record1['id'], record2['id']})
+
+    def test_impacted_records_on_update(self):
+        resp = self.app.post_json(self.collection_url, self.body,
+                                  headers=self.headers, status=201)
+        record = resp.json['data']
+        record_url = self.get_item_url(record['id'])
+        self.app.patch_json(record_url, {'data': {'name': 'en boite'}},
+                            headers=self.headers)
+        impacted_records = self.events[-1].impacted_records
+        self.assertEqual(len(impacted_records), 1)
+        self.assertEqual(impacted_records[0]['new']['id'], record['id'])
+        self.assertEqual(impacted_records[0]['new']['id'],
+                         impacted_records[0]['old']['id'])
+        self.assertEqual(impacted_records[0]['old']['name'], 'de Paris')
+        self.assertEqual(impacted_records[0]['new']['name'], 'en boite')
+
+    def test_impacted_records_on_delete(self):
+        resp = self.app.post_json(self.collection_url, self.body,
+                                  headers=self.headers, status=201)
+        record = resp.json['data']
+        record_url = self.get_item_url(record['id'])
+        self.app.delete(record_url, headers=self.headers, status=200)
+
+        impacted_records = self.events[-1].impacted_records
+        self.assertEqual(len(impacted_records), 1)
+        self.assertNotIn('new', impacted_records[0])
+        self.assertEqual(impacted_records[0]['old']['id'], record['id'])
+        self.assertEqual(impacted_records[0]['old']['deleted'], True)

@@ -10,7 +10,8 @@ ACTIONS = Enum(CREATE='create',
 class ResourceChanged(object):
     """Triggered when a resource is changed.
     """
-    def __init__(self, action, resource, request):
+    def __init__(self, action, resource, impacted_records, request):
+        self.impacted_records = impacted_records
         self.request = request
         service = current_service(request)
         resource_name = service.viewset.get_name(resource.__class__)
