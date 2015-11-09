@@ -17,11 +17,9 @@ class Listener(ListenerBase):
     """
     def __init__(self, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
-        maxconn = kwargs.pop('max_connections')
         self.listname = kwargs.pop('listname')
-        connection_pool = redis.BlockingConnectionPool(max_connections=maxconn)
-        self._client = redis.StrictRedis(connection_pool=connection_pool,
-                                         **kwargs)
+        connection_pool = redis.BlockingConnectionPool(**kwargs)
+        self._client = redis.StrictRedis(connection_pool=connection_pool)
 
     def __call__(self, event):
         try:
@@ -50,7 +48,7 @@ def _get_options(config, prefix='event_listeners.redis.'):
 def load_from_config(config):
     options = _get_options(config)
 
-    uri = options.get('url', 'http://localhost:6739')
+    uri = options.get('url', 'http://localhost:6379')
     uri = urlparse.urlparse(uri)
     pool_size = int(options.get('pool_size', 1))
     listname = options.get('listname', 'cliquet.events')
@@ -58,6 +56,6 @@ def load_from_config(config):
     return Listener(listname=listname,
                     max_connections=pool_size,
                     host=uri.hostname or 'localhost',
-                    port=uri.port or 6739,
+                    port=uri.port or 6379,
                     password=uri.password or None,
                     db=int(uri.path[1:]) if uri.path else 0)
