@@ -1,4 +1,5 @@
 import random
+from cliquet import logger
 
 
 _HEARTBEAT_DELETE_RATE = 0.5
@@ -85,6 +86,7 @@ def heartbeat(backend):
                 backend.set(_HEARTBEAT_KEY, 'alive', _HEARTBEAT_TTL_SECONDS)
             return True
         except:
+            logger.exception("Heartbeat Failure")
             return False
 
     return ping

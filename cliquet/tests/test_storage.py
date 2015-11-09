@@ -205,6 +205,16 @@ class BaseTestStorage(object):
                                side_effect=exceptions.BackendError("Boom!")):
             self.assertFalse(ping(request))
 
+    def test_ping_logs_error_if_unavailable(self):
+        request = DummyRequest()
+        self.client_error_patcher.start()
+        ping = heartbeat(self.storage)
+
+        with mock.patch('cliquet.storage.logger.exception') as exc_handler:
+            self.assertFalse(ping(request))
+
+        self.assertTrue(exc_handler.called)
+
     def test_create_adds_the_record_id(self):
         record = self.create_record()
         self.assertIsNotNone(record['id'])
@@ -937,6 +947,9 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         pass
 
     def test_backenderror_message_default_to_original_exception_message(self):
+        pass
+
+    def test_ping_logs_error_if_unavailable(self):
         pass
 
 

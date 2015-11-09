@@ -85,6 +85,15 @@ class BaseTestCache(object):
         with mock.patch('cliquet.cache.random.random', return_value=0.4):
             self.assertTrue(ping(self.request))
 
+    def test_ping_logs_error_if_unavailable(self):
+        self.client_error_patcher.start()
+        ping = heartbeat(self.cache)
+
+        with mock.patch('cliquet.cache.logger.exception') as exc_handler:
+            self.assertFalse(ping(self.request))
+
+        self.assertTrue(exc_handler.called)
+
     def test_set_adds_the_record(self):
         stored = 'toto'
         self.cache.set('foobar', stored)
@@ -142,6 +151,9 @@ class MemoryCacheTest(BaseTestCache, unittest.TestCase):
         pass
 
     def test_ping_returns_false_if_unavailable(self):
+        pass
+
+    def test_ping_logs_error_if_unavailable(self):
         pass
 
 

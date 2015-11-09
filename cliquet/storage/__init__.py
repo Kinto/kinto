@@ -2,6 +2,7 @@ import random
 from collections import namedtuple
 from pyramid.settings import asbool
 
+from cliquet import logger
 from . import generators
 
 
@@ -266,6 +267,7 @@ def heartbeat(backend):
                                    _HEARTBEAT_RECORD, auth=auth)
             return True
         except:
+            logger.exception("Heartbeat Error")
             return False
 
     return ping
