@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import time
 
 import mock
@@ -228,6 +229,10 @@ class BaseTestStorage(object):
     def test_create_uses_the_resource_id_generator(self):
         record = self.create_record(id_generator=lambda: RECORD_ID)
         self.assertEquals(record['id'], RECORD_ID)
+
+    def test_create_supports_unicode_for_parent_and_id(self):
+        unicode_id = u'Rémy'
+        self.create_record(parent_id=unicode_id, collection_id=unicode_id)
 
     def test_create_does_not_overwrite_the_provided_id(self):
         record = self.record.copy()

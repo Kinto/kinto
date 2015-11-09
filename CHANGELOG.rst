@@ -4,6 +4,14 @@ Changelog
 This document describes changes between each past release.
 
 
+2.10.2 (unreleased)
+-------------------
+
+**Bug fixes**
+
+- Fix crash with Redis backend if record parent/id is unicode (fixes #556)
+
+
 2.10.1 (2015-11-03)
 -------------------
 
