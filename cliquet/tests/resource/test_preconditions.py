@@ -1,4 +1,5 @@
 from pyramid import httpexceptions
+import six
 
 from cliquet.errors import ERRORS
 from cliquet.tests.resource import BaseTest
@@ -193,9 +194,12 @@ class ModifiedMeanwhileTest(BaseTest):
                           self.resource.collection_delete)
 
     def test_if_match_without_quotes_raises_invalid(self):
-        self.resource.request.headers['If-Match'] = '123456'
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)
+        with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
+            self.resource.request.headers['If-Match'] = '123456'
+            self.resource.collection_get()
+        expected_message = ('headers: Invalid value for If-Match. '
+                            'The value should be inside double quotes.')
+        self.assertEquals(cm.exception.json['message'], expected_message)
 
     def test_if_match_empty_raises_invalid(self):
         self.resource.request.headers['If-Match'] = '""'
