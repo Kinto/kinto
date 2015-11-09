@@ -12,6 +12,9 @@ This document describes changes between each past release.
 * ``_since`` and ``_before`` now accepts an integer value between quotes ``"``,
   as it would be returned in the ``ETag`` response header.
 
+- Add the ``protocol_version`` to tell which protocol version is
+  implemented by the service. (#324)
+
 **Internal changes**
 
 - Added a simple end-to-end test on a *Cliquet* sample application, using

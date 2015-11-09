@@ -8,6 +8,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
     def test_returns_info_about_url_and_version(self):
         response = self.app.get('/')
         self.assertEqual(response.json['version'], "0.0.1")
+        self.assertEqual(response.json['protocol_version'], "2")
         self.assertEqual(response.json['url'], 'http://localhost/v0/')
         self.assertEqual(response.json['hello'], 'myapp')
         self.assertEqual(response.json['documentation'],

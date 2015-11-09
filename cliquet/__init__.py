@@ -20,8 +20,10 @@ from cliquet.utils import follow_subrequest
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution(__package__).version
 
-# The API version is derivated from the module version.
-API_VERSION = 'v%s' % __version__.split('.')[0]
+# The API version, incremented when Python API has breaking change.
+API_VERSION = '%s' % __version__.split('.')[0]
+# The protocol version, incremented when HTTP API has breaking change.
+PROTOCOL_VERSION = API_VERSION
 
 
 DEFAULT_SETTINGS = {
