@@ -100,6 +100,16 @@ class BaseTestPermission(object):
         ping = heartbeat(self.permission)
         self.assertTrue(ping(self.request))
 
+    def test_ping_logs_error_if_unavailable(self):
+        for patch in self.client_error_patcher:
+            patch.start()
+        ping = heartbeat(self.permission)
+
+        with mock.patch('cliquet.permission.logger.exception') as exc_handler:
+            self.assertFalse(ping(self.request))
+
+        self.assertTrue(exc_handler.called)
+
     def test_can_add_a_principal_to_a_user(self):
         user_id = 'foo'
         principal = 'bar'
@@ -413,6 +423,9 @@ class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):
         pass
 
     def test_ping_returns_false_if_unavailable(self):
+        pass
+
+    def test_ping_logs_error_if_unavailable(self):
         pass
 
 

@@ -1,5 +1,5 @@
 from pyramid.settings import asbool
-from cliquet.storage.exceptions import BackendError
+from cliquet import logger
 
 __HEARTBEAT_KEY__ = '__heartbeat__'
 
@@ -177,7 +177,8 @@ def heartbeat(backend):
             else:
                 backend.add_user_principal(__HEARTBEAT_KEY__, 'alive')
                 backend.remove_user_principal(__HEARTBEAT_KEY__, 'alive')
-        except BackendError:
+        except:
+            logger.exception("Heartbeat Error")
             return False
         return True
     return ping
