@@ -54,4 +54,4 @@ Storage can be used to store arbitrary data.
     storage = request.registry.storage
     storage.create(collection_id='__custom', parent_id='', record=data)
 
-See the :ref:`collection` class to manipulate collections of records.
+See the :ref:`resource-model` class to manipulate collections of records.

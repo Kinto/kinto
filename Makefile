@@ -53,6 +53,7 @@ loadtest-check-simulation:
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d | xargs rm -fr
+	rm -fr docs/_build/
 
 distclean: clean
 	rm -fr *.egg *.egg-info/ dist/ build/
@@ -61,6 +62,6 @@ maintainer-clean: distclean
 	rm -fr .venv/ .tox/
 
 docs: install-dev
-	$(VENV)/bin/sphinx-build -n -b html -d $(SPHINX_BUILDDIR)/doctrees cliquet_docs $(SPHINX_BUILDDIR)/html
+	$(VENV)/bin/sphinx-build -a -n -b html -d $(SPHINX_BUILDDIR)/doctrees cliquet_docs $(SPHINX_BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"

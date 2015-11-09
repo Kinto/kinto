@@ -129,7 +129,7 @@ class UserResource(object):
 
     default_model = Model
     """Default :class:`cliquet.resource.model.Model` class to use for
-    interacting the :module:`cliquet.storage` and :module:`cliquet.permission`
+    interacting the :mod:`cliquet.storage` and :mod:`cliquet.permission`
     backends."""
 
     mapping = ResourceSchema()

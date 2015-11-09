@@ -57,8 +57,7 @@ To do so, a setting key must be defined for the disabled resources endpoints::
 
 Where:
 - **endpoint_type** is either collection or record;
-- **resource_name** is the name of the resource (by default, *Cliquet* uses
-  the name of the class);
+- **resource_name** is the name of the resource (by default, *Cliquet* uses the name of the class);
 - **method** is the http method (in lower case): For instance ``put``.
 
 For instance, to disable the PUT on records for the *Mushrooms* resource, the
@@ -272,7 +271,7 @@ Cache
 =====
 
 Backend
--------
+:::::::
 
 .. code-block:: ini
 
@@ -286,7 +285,7 @@ See :ref:`cache backend documentation <cache>` for more details.
 
 
 Headers
--------
+:::::::
 
 It is possible to add cache control headers on a particular resource
 for anonymous requests.
@@ -307,7 +306,7 @@ If setting is set to ``0``, then the resource follows the default behaviour.
 
 
 CORS
-----
+::::
 
 By default, CORS headers are cached by clients during 1H (``Access-Control-Max-Age``).
 
@@ -336,7 +335,7 @@ in configuration:
 Authentication setup
 ::::::::::::::::::::
 
-*Cliquet* relies on :github:`pyramid multiauth <mozilla-service/pyramid_multiauth>`_
+*Cliquet* relies on :github:`pyramid multiauth <mozilla-service/pyramid_multiauth>`
 to initialize authentication.
 
 Therefore, any authentication policy can be specified through configuration.

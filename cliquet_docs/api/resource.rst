@@ -354,7 +354,7 @@ Since some fields can be :ref:`defined as unique <resource-class>` per collectio
 
 If a conflict occurs, an error response is returned with status ``409``.
 A ``details`` attribute in the response provides the offending record and
-field name. See :ref:`dedicated section about errors <error-responses>`_.
+field name. See :ref:`dedicated section about errors <error-responses>`.
 
 
 HTTP Status Codes

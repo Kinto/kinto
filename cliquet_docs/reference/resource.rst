@@ -1,7 +1,7 @@
+.. _resource:
+
 Resource
 ########
-
-.. _resource:
 
 *Cliquet* provides a basic component to build resource oriented APIs.
 In most cases, the main customization consists in defining the schema of the
@@ -100,7 +100,7 @@ a custom collection can be plugged-in:
         default_model = TrackedModel
 
 
-.. _collection:
+.. _resource-model:
 
 .. autoclass:: cliquet.resource.Model
     :members:
