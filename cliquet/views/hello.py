@@ -1,6 +1,6 @@
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from cliquet import Service, API_VERSION
+from cliquet import Service, PROTOCOL_VERSION
 
 hello = Service(name="hello", path='/', description="Welcome")
 
@@ -13,7 +13,7 @@ def get_hello(request):
     data = dict(
         hello=project_name,
         version=settings['project_version'],
-        protocol_version=API_VERSION,
+        protocol_version=PROTOCOL_VERSION,
         url=request.route_url(hello.name),
         documentation=settings['project_docs']
     )
