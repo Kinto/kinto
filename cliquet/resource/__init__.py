@@ -715,8 +715,8 @@ class UserResource(object):
                 assert if_match[0] == if_match[-1] == '"'
                 modified_since = int(if_match[1:-1])
             except (IndexError, AssertionError, ValueError):
-                message = ("Invalid value for If-Match. "
-                           "The value should be inside double quotes.")
+                message = ("Invalid value for If-Match. The value should "
+                           "be integer between double quotes.")
                 error_details = {
                     'location': 'headers',
                     'description': message
