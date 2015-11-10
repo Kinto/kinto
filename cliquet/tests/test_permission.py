@@ -1,6 +1,7 @@
 import mock
 
 import redis
+from pyramid import testing
 
 from cliquet.utils import psycopg2
 from cliquet.storage import exceptions
@@ -99,6 +100,16 @@ class BaseTestPermission(object):
         self.request.registry.settings['readonly'] = 'true'
         ping = heartbeat(self.permission)
         self.assertTrue(ping(self.request))
+
+    def test_ping_logs_error_if_unavailable(self):
+        for patch in self.client_error_patcher:
+            patch.start()
+        ping = heartbeat(self.permission)
+
+        with mock.patch('cliquet.permission.logger.exception') as exc_handler:
+            self.assertFalse(ping(self.request))
+
+        self.assertTrue(exc_handler.called)
 
     def test_can_add_a_principal_to_a_user(self):
         user_id = 'foo'
@@ -415,6 +426,9 @@ class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):
     def test_ping_returns_false_if_unavailable(self):
         pass
 
+    def test_ping_logs_error_if_unavailable(self):
+        pass
+
 
 class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = redis_backend
@@ -434,6 +448,14 @@ class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
                 self.permission._client,
                 'pipeline',
                 side_effect=redis.RedisError)]
+
+    def test_config_is_taken_in_account(self):
+        config = testing.setUp(settings=self.settings)
+        config.add_settings({'permission_url': 'redis://:pass@db.loc:1234/5'})
+        backend = self.backend.load_from_config(config)
+        self.assertDictEqual(
+            backend._client.connection_pool.connection_kwargs,
+            {'host': 'db.loc', 'password': 'pass', 'db': 5, 'port': 1234})
 
 
 @skip_if_no_postgresql

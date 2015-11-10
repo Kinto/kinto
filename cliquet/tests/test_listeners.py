@@ -70,9 +70,9 @@ class ListenerCalledTest(unittest.TestCase):
 
     def setUp(self):
         self.config = testing.setUp()
-        pool = redis.BlockingConnectionPool(max_connections=1)
-        self._redis = redis.StrictRedis(host='localhost', port=6739, db=0,
-                                        connection_pool=pool)
+        pool = redis.BlockingConnectionPool(max_connections=1,
+                                            host='localhost', port=6379, db=0)
+        self._redis = redis.StrictRedis(connection_pool=pool)
         self._size = 0
 
     def _save_redis(self):

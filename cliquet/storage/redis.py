@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 from functools import wraps
 
 import redis
@@ -44,10 +44,8 @@ class Redis(MemoryBasedStorage):
 
     def __init__(self, *args, **kwargs):
         super(Redis, self).__init__(*args, **kwargs)
-        maxconn = kwargs.pop('max_connections')
-        connection_pool = redis.BlockingConnectionPool(max_connections=maxconn)
-        self._client = redis.StrictRedis(connection_pool=connection_pool,
-                                         **kwargs)
+        connection_pool = redis.BlockingConnectionPool(**kwargs)
+        self._client = redis.StrictRedis(connection_pool=connection_pool)
 
     def _encode(self, record):
         return utils.json.dumps(record)
@@ -297,6 +295,6 @@ def load_from_config(config):
 
     return Redis(max_connections=pool_size,
                  host=uri.hostname or 'localhost',
-                 port=uri.port or 6739,
+                 port=uri.port or 6379,
                  password=uri.password or None,
                  db=int(uri.path[1:]) if uri.path else 0)

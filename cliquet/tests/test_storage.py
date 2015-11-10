@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 import time
 
 import mock
 import redis
+from pyramid import testing
 
 from cliquet.utils import psycopg2
 from cliquet import utils
@@ -202,6 +204,16 @@ class BaseTestStorage(object):
                                side_effect=exceptions.BackendError("Boom!")):
             self.assertFalse(ping(request))
 
+    def test_ping_logs_error_if_unavailable(self):
+        request = DummyRequest()
+        self.client_error_patcher.start()
+        ping = heartbeat(self.storage)
+
+        with mock.patch('cliquet.storage.logger.exception') as exc_handler:
+            self.assertFalse(ping(request))
+
+        self.assertTrue(exc_handler.called)
+
     def test_create_adds_the_record_id(self):
         record = self.create_record()
         self.assertIsNotNone(record['id'])
@@ -218,6 +230,10 @@ class BaseTestStorage(object):
     def test_create_uses_the_resource_id_generator(self):
         record = self.create_record(id_generator=lambda: RECORD_ID)
         self.assertEquals(record['id'], RECORD_ID)
+
+    def test_create_supports_unicode_for_parent_and_id(self):
+        unicode_id = u'Rémy'
+        self.create_record(parent_id=unicode_id, collection_id=unicode_id)
 
     def test_create_does_not_overwrite_the_provided_id(self):
         record = self.record.copy()
@@ -932,6 +948,9 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
     def test_backenderror_message_default_to_original_exception_message(self):
         pass
 
+    def test_ping_logs_error_if_unavailable(self):
+        pass
+
 
 class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
     backend = redisbackend
@@ -946,6 +965,14 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
             self.storage._client.connection_pool,
             'get_connection',
             side_effect=redis.RedisError('connection error'))
+
+    def test_config_is_taken_in_account(self):
+        config = testing.setUp(settings=self.settings)
+        config.add_settings({'storage_url': 'redis://:blah@store.loc:7777/6'})
+        backend = self.backend.load_from_config(config)
+        self.assertDictEqual(
+            backend._client.connection_pool.connection_kwargs,
+            {'host': 'store.loc', 'password': 'blah', 'db': 6, 'port': 7777})
 
     def test_backend_error_provides_original_exception(self):
         StorageTest.test_backend_error_provides_original_exception(self)

@@ -4,6 +4,18 @@ Changelog
 This document describes changes between each past release.
 
 
+2.10.2 (2015-11-10)
+-------------------
+
+**Bug fixes**
+
+- Fix sharing records with ProtectedResource (fixes #549)
+- Fix notifications on protected resources (#548)
+- Log any heartbeat exception (fixes #559)
+- Fix crash with Redis backend if record parent/id is unicode (fixes #556)
+- Fix Redis client instantiation (fixes #564)
+
+
 2.10.1 (2015-11-03)
 -------------------
 
