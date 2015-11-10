@@ -15,14 +15,37 @@ This document describes changes between each past release.
 - Add the ``protocol_version`` to tell which protocol version is
   implemented by the service. (#324)
 
+**Breaking changes**
+
+- For PostgreSQL backends, it is recommended to specify ``postgresql://``
+
+**New features**
+
+- New settings for backends when using PostgreSQL: ``*_pool_maxoverflow``,
+  ``*_pool_recycle``, ``*_pool_timeout`` to control connections pool
+  behaviour.
+
 **Bug fixes**
 
 - Fix crash with Redis backend if record parent/id is unicode (fixes #556)
 
 **Internal changes**
 
+- Switch to SQLAlchemy for smarter connections pools.
 - Added a simple end-to-end test on a *Cliquet* sample application, using
   `Loads <http://github.com/loads/>`_ (fixes #512)
+
+
+2.10.2 (2015-11-10)
+-------------------
+
+**Bug fixes**
+
+- Fix sharing records with ProtectedResource (fixes #549)
+- Fix notifications on protected resources (#548)
+- Log any heartbeat exception (fixes #559)
+- Fix crash with Redis backend if record parent/id is unicode (fixes #556)
+- Fix Redis client instantiation (fixes #564)
 
 
 2.10.1 (2015-11-03)
@@ -46,15 +69,8 @@ This document describes changes between each past release.
 - When recreating a record that was previously deleted, status code is now ``201``
   (ref #530).
 
-**Breaking changes**
-
-- For PostgreSQL backends, it is recommended to specify ``postgresql://``
-
 **New features**
 
-- New settings for backends when using PostgreSQL: ``*_pool_maxoverflow``,
-  ``*_pool_recycle``, ``*_pool_timeout`` to control connections pool
-  behaviour.
 - Follow redirections in batch subrequests (fixes #511)
 - Add a ``readonly`` setting to run the service in read-only mode. (#525)
 - If no client cache is set, add ``Cache-Control: no-cache`` by default,
@@ -71,14 +87,9 @@ This document describes changes between each past release.
 - Fix crash with empty body for PATCH (fixes #477, fixes #516)
 - Fix english typo in 404 error message (fixes #527)
 
-
 **Internal changes**
 
 - Better __pycache__ cleaning
-
-**Internal changes**
-
-- Switch to SQLAlchemy for smarter connections pools.
 
 
 2.9.0 (2015-10-27)
