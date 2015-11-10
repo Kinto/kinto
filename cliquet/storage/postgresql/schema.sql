@@ -146,7 +146,7 @@ BEGIN
      ORDER BY last_modified DESC LIMIT 1;
 
     -- Latest of records/deleted or current if empty
-    RETURN coalesce(greatest(ts_deleted, ts_records), localtimestamp);
+    RETURN coalesce(greatest(ts_deleted, ts_records), clock_timestamp());
 END;
 $$ LANGUAGE plpgsql;
 
@@ -172,7 +172,7 @@ BEGIN
     -- See https://github.com/mozilla-services/cliquet/issues/25
     --
     previous := collection_timestamp(NEW.parent_id, NEW.collection_id);
-    current := localtimestamp;
+    current := clock_timestamp();
 
     IF previous >= current THEN
         current := previous + INTERVAL '1 milliseconds';
@@ -204,4 +204,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``cliquet.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '7');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '8');
