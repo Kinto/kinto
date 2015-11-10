@@ -176,7 +176,7 @@ class RedisCacheTest(BaseTestCache, unittest.TestCase):
         config.add_settings({'cache_url': 'redis://:secret@peer.loc:4444/7'})
         backend = self.backend.load_from_config(config)
         self.assertDictEqual(
-            backend._client.connection_pool.connection_kwargs,
+            backend.settings,
             {'host': 'peer.loc', 'password': 'secret', 'db': 7, 'port': 4444})
 
 

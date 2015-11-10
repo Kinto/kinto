@@ -21,6 +21,24 @@ def wrap_redis_error(func):
     return wrapped
 
 
+def create_from_config(config, prefix=''):
+    """Redis client instantiation from settings.
+    """
+    settings = config.get_settings()
+    uri = settings[prefix + 'url']
+    uri = urlparse.urlparse(uri)
+    pool_size = int(settings[prefix + 'pool_size'])
+    kwargs = {
+        "max_connections": pool_size,
+        "host": uri.hostname or 'localhost',
+        "port": uri.port or 6379,
+        "password": uri.password or None,
+        "db": int(uri.path[1:]) if uri.path else 0
+    }
+    connection_pool = redis.BlockingConnectionPool(**kwargs)
+    return redis.StrictRedis(connection_pool=connection_pool)
+
+
 class Storage(MemoryBasedStorage):
     """Storage backend implementation using Redis.
 
@@ -42,10 +60,13 @@ class Storage(MemoryBasedStorage):
         cliquet.storage_pool_size = 50
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, client, *args, **kwargs):
         super(Storage, self).__init__(*args, **kwargs)
-        connection_pool = redis.BlockingConnectionPool(**kwargs)
-        self._client = redis.StrictRedis(connection_pool=connection_pool)
+        self._client = client
+
+    @property
+    def settings(self):
+        return dict(self._client.connection_pool.connection_kwargs)
 
     def _encode(self, record):
         return utils.json.dumps(record)
@@ -288,13 +309,5 @@ class Storage(MemoryBasedStorage):
 
 
 def load_from_config(config):
-    settings = config.get_settings()
-    uri = settings['storage_url']
-    uri = urlparse.urlparse(uri)
-    pool_size = int(settings['storage_pool_size'])
-
-    return Storage(max_connections=pool_size,
-                   host=uri.hostname or 'localhost',
-                   port=uri.port or 6379,
-                   password=uri.password or None,
-                   db=int(uri.path[1:]) if uri.path else 0)
+    client = create_from_config(config, prefix='storage_')
+    return Storage(client)
