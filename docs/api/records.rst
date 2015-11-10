@@ -11,7 +11,7 @@ synchronised.
 Uploading a record
 ==================
 
-.. http:post:: /buckets/(bucket_id)/collections/(collection_id)/records
+ POST /buckets/(bucket_id)/collections/(collection_id)/records
 
     :synopsis: Store a record in the collection. The ID will be assigned automatically.
 
@@ -70,7 +70,7 @@ Uploading a record
 Replacing a record
 ===================
 
-.. http:put:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
+ PUT /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
     :synopsis: Create or update a record in the collection.
 
@@ -130,10 +130,9 @@ Replacing a record
 Updating a record
 =================
 
-.. http:patch:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
+PATCH /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
-    :synopsis: Update a record in the collection. Specify only the fields to be
-    modified (all the rest will remain intact).
+    :synopsis: Update a record in the collection. Specify only the fields to be modified (all the rest will remain intact).
 
     **Requires authentication**
 
@@ -194,10 +193,9 @@ Retrieving stored records
 
 Records can be paginated and filtered, and conflicts can be detected.
 
-To do so, refer to :ref:`resource-endpoints` for more details on available
-operations on collection retrieval.
+To do so, refer to :ref:`resource-endpoints` for more details on available operations on collection retrieval.
 
-.. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records
+    GET /buckets/(bucket_id)/collections/(collection_id)/records
 
     :synopsis: Retrieve all the records in the collection.
 
@@ -248,7 +246,7 @@ operations on collection retrieval.
 Retrieving a specific record
 ============================
 
-.. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
+    GET /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
     :synopsis: Retrieve a specific record by its ID.
 
@@ -303,7 +301,7 @@ Retrieving a specific record
 Deleting a record
 =================
 
-.. http:delete:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
+DELETE /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
     :synopsis: Delete a record by its ID.
 
