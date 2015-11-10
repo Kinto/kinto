@@ -972,6 +972,14 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
             'get_connection',
             side_effect=redis.RedisError('connection error'))
 
+    def test_config_is_taken_in_account(self):
+        config = testing.setUp(settings=self.settings)
+        config.add_settings({'storage_url': 'redis://:blah@store.loc:7777/6'})
+        backend = self.backend.load_from_config(config)
+        self.assertDictEqual(
+            backend._client.connection_pool.connection_kwargs,
+            {'host': 'store.loc', 'password': 'blah', 'db': 6, 'port': 7777})
+
     def test_backend_error_provides_original_exception(self):
         StorageTest.test_backend_error_provides_original_exception(self)
 

@@ -171,6 +171,14 @@ class RedisCacheTest(BaseTestCache, unittest.TestCase):
             'execute_command',
             side_effect=redis.RedisError)
 
+    def test_config_is_taken_in_account(self):
+        config = testing.setUp(settings=self.settings)
+        config.add_settings({'cache_url': 'redis://:secret@peer.loc:4444/7'})
+        backend = self.backend.load_from_config(config)
+        self.assertDictEqual(
+            backend._client.connection_pool.connection_kwargs,
+            {'host': 'peer.loc', 'password': 'secret', 'db': 7, 'port': 4444})
+
 
 @skip_if_no_postgresql
 class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
