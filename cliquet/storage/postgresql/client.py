@@ -29,7 +29,7 @@ class PostgreSQLClient(object):
         A COMMIT is performed on the current transaction if everything went
         well. Otherwise transaction is ROLLBACK, and everything cleaned up.
         """
-        with_transaction = (not readonly and self.commit_manually)
+        with_transaction = not readonly and self.commit_manually
         session = None
         try:
             # Pull connection from pool.
