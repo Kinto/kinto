@@ -88,7 +88,8 @@ def create_from_config(config, prefix=''):
 
     # Initialize SQLAlchemy engine from settings.
     poolclass_key = prefix + 'poolclass'
-    settings.setdefault(poolclass_key, 'sqlalchemy.pool.QueuePool')
+    settings.setdefault(poolclass_key, ('cliquet.storage.postgresql.'
+                                        'pool.QueuePoolWithMaxBacklog'))
     settings[poolclass_key] = config.maybe_dotted(settings[poolclass_key])
     engine = sqlalchemy.engine_from_config(settings, prefix=prefix, url=url)
 

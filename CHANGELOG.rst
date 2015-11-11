@@ -33,6 +33,8 @@ This document describes changes between each past release.
 - New settings for backends when using PostgreSQL: ``*_pool_maxoverflow``,
   ``*_pool_recycle``, ``*_pool_timeout`` to control connections pool
   behaviour.
+- Add custom pool supporting a ``max_backlog`` parameter that limits the
+  number of threads waiting for a connection (#509)
 
 **Bug fixes**
 

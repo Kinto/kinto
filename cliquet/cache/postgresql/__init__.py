@@ -38,9 +38,15 @@ class Cache(CacheBase):
 
         cliquet.cache_pool_size = 10
         cliquet.cache_maxoverflow = 10
+        cliquet.cache_max_backlog = -1
         cliquet.cache_pool_recycle = -1
         cliquet.cache_pool_timeout = 30
-        cliquet.cache_poolclass = sqlalchemy.pool.QueuePool
+        cliquet.cache_poolclass = cliquet.storage.postgresql.pool.QueuePoolWithMaxBacklog
+
+    The ``max_backlog``  limits the number of threads that can be in the queue
+    waiting for a connection.  Once this limit has been reached, any further
+    attempts to acquire a connection will be rejected immediately, instead of
+    locking up all threads by keeping them waiting in the queue.
 
     See `dedicated section in SQLAlchemy documentation
     <http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html>`_
@@ -53,7 +59,7 @@ class Cache(CacheBase):
         of connections used in a multi-process deployment.
 
     :noindex:
-    """
+    """  # NOQA
     def __init__(self, client, *args, **kwargs):
         super(Cache, self).__init__(*args, **kwargs)
         self.client = client
