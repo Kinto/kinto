@@ -58,7 +58,7 @@ def create_from_config(config, prefix=''):
     """Create a PostgreSQLClient client using settings in the provided config.
     """
     if sqlalchemy is None:
-        message = ("PostgreSQL dependencies missing. "
+        message = ("PostgreSQL SQLAlchemy dependency missing. "
                    "Refer to installation section in documentation.")
         raise ImportWarning(message)
 
