@@ -413,10 +413,28 @@ values for OAuth2 client settings.
 See :github:`mozilla-services/cliquet-fxa`.
 
 
-Permission configuration
-::::::::::::::::::::::::
+.. _configuration-permissions:
 
-ACE are usually set on objects using the permission backend.
+Permissions
+===========
+
+Backend
+:::::::
+
+.. code-block:: ini
+
+    cliquet.permission_backend = cliquet.permission.redis
+    cliquet.permission_url = redis://localhost:6379/1
+
+    # Control number of pooled connections
+    # cliquet.permission_pool_size = 50
+
+See :ref:`permission backend documentation <permissions-backend>` for more details.
+
+Resources
+:::::::::
+
+:term:`ACEs` are usually set on objects using the permission backend.
 
 It is also possible to configure them from settings, and it will **bypass**
 the permission backend.
@@ -430,6 +448,8 @@ authenticated people to create bucket records:
 
 The format of these permission settings is
 ``<resource_name>_<permission>_principals = comma,separated,principals``.
+
+See :ref:`shareable resource documentation <permission-shareable-resource>` for more details.
 
 
 Application profiling

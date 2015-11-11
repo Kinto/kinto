@@ -60,8 +60,21 @@ Override the base schema to add extra fields using the `Colander API <http://doc
         genre = colander.SchemaNode(colander.String(),
                                     validator=colander.OneOf(['Sci-Fi', 'Comedy']))
 
-.. automodule:: cliquet.schema
+.. automodule:: cliquet.resource.schema
     :members:
+
+
+.. _resource-permissions:
+
+Open or restrict permissions
+============================
+
+Using the :class:`cliquet.resource.UserResource`, the resource is accessible by
+any authenticated request, but the records are isolated by :term:`user id`.
+
+In order to define resources whose records are not isolated, open publicly or
+controlled with individual fined-permissions, a :class:`cliquet.resource.ShareableResource`
+has to be used. Please refer to `dedicated section about permissions <resource-permissions>`.
 
 
 .. _resource-class:
