@@ -27,6 +27,13 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         client = create_from_config(config, prefix='pooltest_')
         self.engine = client._engine
 
+    def take_connection(self):
+        try:
+            self.connections.append(self.engine.connect())
+        except Exception as e:
+            self.errors.append(e)
+
+    def exhaust_pool(self):
         # The size of the pool is two, so we can take
         # two connections right away without any error.
         self.take_connection()
@@ -37,13 +44,9 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         self.assertEquals(len(self.connections), 3)
         self.assertEquals(len(self.errors), 0)
 
-    def take_connection(self):
-        try:
-            self.connections.append(self.engine.connect())
-        except Exception, e:
-            self.errors.append(e)
+    def test_max_backlog_fails_when_reached(self):
+        self.exhaust_pool()
 
-    def test_max_overflow_and_max_backlog(self):
         # The pool allows a backlog of 2, so we can
         # spawn two threads that will block waiting for a connection.
         thread1 = threading.Thread(target=self.take_connection)
@@ -52,7 +55,6 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         thread2.start()
         self.assertEquals(len(self.connections), 3)
         self.assertEquals(len(self.errors), 0)
-
         # The pool is now exhausted and at maximum backlog.
         # Trying to take another connection fails immediately.
         t1 = time.time()
@@ -68,3 +70,10 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         thread2.join()
         self.assertEquals(len(self.connections), 3)
         self.assertEquals(len(self.errors), 3)
+
+    def test_recreates_reinstantiate_with_same_pool_class(self):
+        from cliquet.storage.postgresql.pool import QueuePoolWithMaxBacklog
+        pool = QueuePoolWithMaxBacklog(None, max_backlog=2, pool_size=2)
+        other = pool.recreate()
+        self.assertEqual(pool._pool.__class__, other._pool.__class__)
+        self.assertEqual(other._pool.max_backlog, 2)
