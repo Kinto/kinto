@@ -56,7 +56,7 @@ Quick start
 
 By default, for convenience, *Kinto* persists the records, permissions and
 internal cache in a **volatile** memory backend. On every restart, the server
-will loose its data, and multiple processes are not handled properly.
+will lose its data, and multiple processes are not handled properly.
 
 But it should be enough to get started!
 
