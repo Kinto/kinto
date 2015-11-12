@@ -1,9 +1,12 @@
 import os
 import binascii
 
-
-
 def render_template(template, destination, **kwargs):
+
+    here = os.path.abspath(os.path.dirname(__file__))
+    template = os.path.join(here, 'kinto.tpl') 
+    destination = os.path.join(here, 'kinto.ini')   
+    
     with open(template, 'r') as f:
         raw_template = f.read()
        
@@ -20,7 +23,7 @@ def init():
 	backend = raw_input("Which backend to use ? (1 - in-memory, 2 - postgresql, 3 - redis) :")
 
 	if backend == '':
-	    backend = 2;     #default
+	    backend = '2';     #default
 
 	if backend == '2':
 	    values['storage_backend'] = "cliquet.storage.postgresql"
