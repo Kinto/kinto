@@ -8,30 +8,38 @@ from .support import BaseWebTest, DummyRequest, unittest
 
 class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
-    sample_url = '/mushrooms'
-    sample_basicauth = {'Authorization': 'Basic bWF0OjE='}
-
     def test_basic_auth_is_accepted_by_default(self):
-        app = self.make_app()
-        app.get(self.sample_url, headers=self.sample_basicauth, status=200)
+        self.app.get(self.collection_url, headers=self.headers, status=200)
 
     def test_basic_auth_is_accepted_if_enabled_in_settings(self):
         app = self.make_app({'multiauth.policies': 'basicauth'})
-        app.get(self.sample_url, headers=self.sample_basicauth, status=200)
+        app.get(self.collection_url, headers=self.headers, status=200)
 
     def test_basic_auth_is_declined_if_disabled_in_settings(self):
         app = self.make_app({
             'multiauth.policies': 'dummy',
             'multiauth.policy.dummy.use': ('pyramid.authentication.'
                                            'RepozeWho1AuthenticationPolicy')})
-        app.get(self.sample_url, headers=self.sample_basicauth, status=401)
+        app.get(self.collection_url, headers=self.headers, status=401)
 
     def test_views_are_forbidden_if_unknown_auth_method(self):
         app = self.make_app({'multiauth.policies': 'basicauth'})
         self.headers['Authorization'] = 'Carrier'
-        app.get(self.sample_url, headers=self.headers, status=401)
+        app.get(self.collection_url, headers=self.headers, status=401)
         self.headers['Authorization'] = 'Carrier pigeon'
-        app.get(self.sample_url, headers=self.headers, status=401)
+        app.get(self.collection_url, headers=self.headers, status=401)
+
+    def test_principals_are_fetched_from_permission_backend(self):
+        patch = mock.patch(('cliquet.tests.support.'
+                            'AllowAuthorizationPolicy.permits'))
+        self.addCleanup(patch.stop)
+        mocked = patch.start()
+
+        self.permission.add_user_principal(self.principal, 'group:admin')
+        self.app.get(self.collection_url, headers=self.headers)
+
+        _, principals, _ = mocked.call_args[0]
+        self.assertIn('group:admin', principals)
 
 
 class BasicAuthenticationPolicyTest(unittest.TestCase):

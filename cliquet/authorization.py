@@ -13,6 +13,30 @@ DYNAMIC = 'dynamic'
 PRIVATE = 'private'
 
 
+def groupfinder(userid, request):
+    """Fetch principals from permission backend for the specified `userid`.
+
+    This is plugged by default using the ``multiauth.groupfinder`` setting.
+    """
+    backend = getattr(request.registry, 'permission', None)
+    # Permission backend not configured. Ignore.
+    if not backend:
+        return []
+
+    # Anonymous safety check.
+    if not hasattr(request, 'prefixed_userid'):
+        return []
+
+    # Query the permission backend only once per request (e.g. batch).
+
+    reify_key = request.prefixed_userid + '_principals'
+    if reify_key not in request.bound_data:
+        principals = backend.user_principals(request.prefixed_userid)
+        request.bound_data[reify_key] = principals
+
+    return request.bound_data[reify_key]
+
+
 @implementer(IAuthorizationPolicy)
 class AuthorizationPolicy(object):
     # Callable that takes an object id and a permission and returns

@@ -39,6 +39,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix crash with Redis backend if record parent/id is unicode (fixes #556)
+- Fix principals of permission backend not being plugged by default (#573)
 
 **Internal changes**
 
