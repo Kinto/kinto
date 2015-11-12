@@ -1,5 +1,8 @@
 import argparse
+import os
+import shutil
 import sys
+
 from cliquet.scripts import cliquet
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
@@ -37,8 +40,9 @@ def main(args=None):
     env = bootstrap(config_file)
 
     if args['which'] == 'init':
-        # Not implemented yet
-        pass
+        if not os.path.exists(config_file):
+            # XXX: Take this from egg using pkgutil
+            shutil.copy('config/kinto.ini.sample', config_file)
     elif args['which'] == 'migrate':
         cliquet.init_schema(env)
     elif args['which'] == 'start':

@@ -40,11 +40,14 @@ build-requirements:
 	$(TEMPDIR)/bin/pip install -Ue .
 	$(TEMPDIR)/bin/pip freeze > requirements.txt
 
+$(SERVER_CONFIG):
+	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
+
 serve: install-dev migrate
-	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
+	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start
 
 migrate: install
-	$(VENV)/bin/cliquet --ini $(SERVER_CONFIG) migrate
+	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) migrate
 
 tests-once: install-dev
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
