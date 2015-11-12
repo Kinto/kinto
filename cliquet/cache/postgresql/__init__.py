@@ -62,7 +62,8 @@ class Cache(CacheBase):
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
         schema = open(os.path.join(here, 'schema.sql')).read()
-        with self.client.connect() as conn:
+        # Since called outside request, force commit.
+        with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
         logger.info('Created PostgreSQL cache tables')
 
@@ -70,7 +71,8 @@ class Cache(CacheBase):
         query = """
         DELETE FROM cache;
         """
-        with self.client.connect() as conn:
+        # Since called outside request (e.g. tests), force commit.
+        with self.client.connect(force_commit=True) as conn:
             conn.execute(query)
         logger.debug('Flushed PostgreSQL cache tables')
 
@@ -78,30 +80,30 @@ class Cache(CacheBase):
         query = """
         SELECT EXTRACT(SECOND FROM (ttl - now())) AS ttl
           FROM cache
-         WHERE key = %s
+         WHERE key = :key
            AND ttl IS NOT NULL;
         """
         with self.client.connect() as conn:
-            result = conn.execute(query, (key,))
+            result = conn.execute(query, dict(key=key))
             if result.rowcount > 0:
                 return result.fetchone()['ttl']
         return -1
 
     def expire(self, key, ttl):
         query = """
-        UPDATE cache SET ttl = sec2ttl(%s) WHERE key = %s;
+        UPDATE cache SET ttl = sec2ttl(:ttl) WHERE key = :key;
         """
         with self.client.connect() as conn:
-            conn.execute(query, (ttl, key,))
+            conn.execute(query, dict(ttl=ttl, key=key))
 
     def set(self, key, value, ttl=None):
         query = """
         WITH upsert AS (
-            UPDATE cache SET value = %(value)s, ttl = sec2ttl(%(ttl)s)
-             WHERE key=%(key)s
+            UPDATE cache SET value = :value, ttl = sec2ttl(:ttl)
+             WHERE key=:key
             RETURNING *)
         INSERT INTO cache (key, value, ttl)
-        SELECT %(key)s, %(value)s, sec2ttl(%(ttl)s)
+        SELECT :key, :value, sec2ttl(:ttl)
         WHERE NOT EXISTS (SELECT * FROM upsert)
         """
         value = json.dumps(value)
@@ -110,18 +112,18 @@ class Cache(CacheBase):
 
     def get(self, key):
         purge = "DELETE FROM cache WHERE ttl IS NOT NULL AND now() > ttl;"
-        query = "SELECT value FROM cache WHERE key = %s;"
+        query = "SELECT value FROM cache WHERE key = :key;"
         with self.client.connect() as conn:
             conn.execute(purge)
-            result = conn.execute(query, (key,))
+            result = conn.execute(query, dict(key=key))
             if result.rowcount > 0:
                 value = result.fetchone()['value']
                 return json.loads(value)
 
     def delete(self, key):
-        query = "DELETE FROM cache WHERE key = %s"
+        query = "DELETE FROM cache WHERE key = :key"
         with self.client.connect() as conn:
-            conn.execute(query, (key,))
+            conn.execute(query, dict(key=key))
 
 
 def load_from_config(config):

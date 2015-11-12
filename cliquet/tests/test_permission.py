@@ -464,6 +464,7 @@ class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
 class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = postgresql_backend
     settings = {
+        'permission_backend': 'cliquet.permission.postgresql',
         'permission_pool_size': 10,
         'permission_url': 'postgres://postgres:postgres@localhost:5432/testdb'
     }
@@ -471,6 +472,6 @@ class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
     def setUp(self):
         super(PostgreSQLPermissionTest, self).setUp()
         self.client_error_patcher = [mock.patch.object(
-            self.permission.client._engine,
-            'connect',
+            self.permission.client,
+            'session_factory',
             side_effect=sqlalchemy.exc.SQLAlchemyError)]

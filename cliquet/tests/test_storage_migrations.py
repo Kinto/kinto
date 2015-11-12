@@ -18,8 +18,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         if sqlalchemy is None:
             return
 
-        from .test_storage import PostgresqlStorageTest
-        self.settings = PostgresqlStorageTest.settings.copy()
+        from .test_storage import PostgreSQLStorageTest
+        self.settings = PostgreSQLStorageTest.settings.copy()
         self.config = testing.setUp()
         self.config.add_settings(self.settings)
         self.version = postgresql.Storage.schema_version
@@ -111,7 +111,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             before = {'drink': 'cacao'}
             query = """
             INSERT INTO records (user_id, resource_name, data)
-            VALUES (%(user_id)s, %(resource_name)s, %(data)s::JSON)
+            VALUES (:user_id, :resource_name, (:data)::JSON)
             RETURNING id, as_epoch(last_modified) AS last_modified;
             """
             placeholders = dict(user_id='jean-louis',

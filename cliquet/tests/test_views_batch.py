@@ -65,17 +65,14 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(error['body']['code'], 404)
         self.assertIn('message', error['body'])
 
-    def test_internal_errors_are_returned_within_responses(self):
+    def test_internal_errors_makes_the_batch_fail(self):
         request = {'path': '/v0/'}
         body = {'requests': [request]}
 
         with mock.patch('cliquet.views.hello.get_eos') as mocked:
             mocked.side_effect = AttributeError
-            resp = self.app.post_json('/batch', body, headers=self.headers)
-
-        error = resp.json['responses'][0]
-        self.assertEqual(error['status'], 500)
-        self.assertEqual(error['body']['errno'], 999)
+            self.app.post_json('/batch', body, headers=self.headers,
+                               status=500)
 
     def test_batch_cannot_be_recursive(self):
         requests = {'requests': [{'path': '/v0/'}]}

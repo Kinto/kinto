@@ -94,12 +94,13 @@ class SimulationLoadTest(TestCase):
             This method is called as many times as number of hits.
         """
         resp = self.session.get(self.collection_url())
+        self.incr_counter(resp.status_code)
         self.records = resp.json()['data']
 
         # Create some records, if not any in collection.
-        if len(self.records) < self.nb_initial_records:
-            for i in range(self.nb_initial_records):
-                self.create()
+        missing = self.nb_initial_records - len(self.records)
+        if missing > 0:
+            self.batch_create(size=missing)
             resp = self.session.get(self.collection_url())
             self.records = resp.json()['data']
 
@@ -153,14 +154,14 @@ class SimulationLoadTest(TestCase):
         self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, 201)
 
-    def batch_create(self):
+    def batch_create(self, size=None):
         data = {
             "defaults": {
                 "method": "POST",
                 "path": self.collection_url(prefix=False)
             }
         }
-        for i in range(self.batch_requests_size):
+        for i in range(size or self.batch_requests_size):
             request = {"body": {"data": build_record()}}
             data.setdefault("requests", []).append(request)
 
@@ -203,10 +204,10 @@ class SimulationLoadTest(TestCase):
     def _run_batch(self, data):
         resp = self.session.post(self.api_url('batch'),
                                  data=json.dumps(data))
-        self.incr_counter('status-%s' % resp.status_code)
+        self.incr_counter(resp.status_code)
         self.assertEqual(resp.status_code, 200)
         for subresponse in resp.json()['responses']:
-            self.incr_counter('status-%s' % subresponse['status'])
+            self.incr_counter(subresponse['status'])
 
     def update(self):
         data = {
