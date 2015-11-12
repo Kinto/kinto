@@ -3,10 +3,17 @@ import binascii
 
 def render_template(template, destination, **kwargs):
 
+<<<<<<< HEAD
     here = os.path.abspath(os.path.dirname(__file__))
     template = os.path.join(here, 'kinto.tpl') 
     destination = os.path.join(here, 'kinto.ini')   
     
+=======
+   here = os.path.abspath(os.path.dirname(__file__))
+   template = os.path.join(here, 'kinto.tpl') 
+   destination = os.path.join(here, 'kinto.ini')
+
+>>>>>>> master
     with open(template, 'r') as f:
         raw_template = f.read()
        
