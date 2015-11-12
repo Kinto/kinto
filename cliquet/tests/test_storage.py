@@ -977,7 +977,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
         config.add_settings({'storage_url': 'redis://:blah@store.loc:7777/6'})
         backend = self.backend.load_from_config(config)
         self.assertDictEqual(
-            backend._client.connection_pool.connection_kwargs,
+            backend.settings,
             {'host': 'store.loc', 'password': 'blah', 'db': 6, 'port': 7777})
 
     def test_backend_error_provides_original_exception(self):

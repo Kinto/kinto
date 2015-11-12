@@ -44,6 +44,7 @@ This document describes changes between each past release.
 - Added a simple end-to-end test on a *Cliquet* sample application, using
   `Loads <http://github.com/loads/>`_ (fixes #512)
 - Switched to SQLAlchemy sessions instead of raw connections and cursors (#510)
+- Refactor Redis clients instantiation to avoid repeated defaults (#567, #568)
 
 
 2.10.2 (2015-11-10)

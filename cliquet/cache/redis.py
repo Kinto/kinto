@@ -1,10 +1,7 @@
 from __future__ import absolute_import
 
-import redis
-from six.moves.urllib import parse as urlparse
-
 from cliquet.cache import CacheBase
-from cliquet.storage.redis import wrap_redis_error
+from cliquet.storage.redis import wrap_redis_error, create_from_config
 from cliquet.utils import json
 
 
@@ -26,10 +23,13 @@ class Cache(CacheBase):
     :noindex:
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, client, *args, **kwargs):
         super(Cache, self).__init__(*args, **kwargs)
-        connection_pool = redis.BlockingConnectionPool(**kwargs)
-        self._client = redis.StrictRedis(connection_pool=connection_pool)
+        self._client = client
+
+    @property
+    def settings(self):
+        return dict(self._client.connection_pool.connection_kwargs)
 
     def initialize_schema(self):
         # Nothing to do.
@@ -68,13 +68,5 @@ class Cache(CacheBase):
 
 
 def load_from_config(config):
-    settings = config.get_settings()
-    uri = settings['cache_url']
-    uri = urlparse.urlparse(uri)
-    pool_size = int(settings['cache_pool_size'])
-
-    return Cache(max_connections=pool_size,
-                 host=uri.hostname or 'localhost',
-                 port=uri.port or 6379,
-                 password=uri.password or None,
-                 db=int(uri.path[1:]) if uri.path else 0)
+    client = create_from_config(config, prefix='cache_')
+    return Cache(client)

@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
+import json
+import uuid
+from contextlib import contextmanager
+from datetime import datetime
+
 import mock
 from pyramid import testing
-import uuid
-import redis
-import json
-from datetime import datetime
-from contextlib import contextmanager
 
 from cliquet import initialization
 from cliquet.events import ResourceChanged, ACTIONS
 from cliquet.listeners import ListenerBase
-from .support import unittest
+from cliquet.storage.redis import create_from_config
+from cliquet.tests.support import unittest
 
 
 class ListenerSetupTest(unittest.TestCase):
@@ -70,9 +71,9 @@ class ListenerCalledTest(unittest.TestCase):
 
     def setUp(self):
         self.config = testing.setUp()
-        pool = redis.BlockingConnectionPool(max_connections=1,
-                                            host='localhost', port=6379, db=0)
-        self._redis = redis.StrictRedis(connection_pool=pool)
+        self.config.add_settings({'events_pool_size': 1,
+                                  'events_url': 'redis://localhost:6379/0'})
+        self._redis = create_from_config(self.config, prefix='events_')
         self._size = 0
 
     def _save_redis(self):

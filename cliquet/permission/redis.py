@@ -1,11 +1,9 @@
 from __future__ import absolute_import
 
-import redis
 from collections import defaultdict
-from six.moves.urllib import parse as urlparse
 
 from cliquet.permission import PermissionBase
-from cliquet.storage.redis import wrap_redis_error
+from cliquet.storage.redis import create_from_config, wrap_redis_error
 
 
 class Permission(PermissionBase):
@@ -26,10 +24,13 @@ class Permission(PermissionBase):
     :noindex:
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, client, *args, **kwargs):
         super(Permission, self).__init__(*args, **kwargs)
-        connection_pool = redis.BlockingConnectionPool(**kwargs)
-        self._client = redis.StrictRedis(connection_pool=connection_pool)
+        self._client = client
+
+    @property
+    def settings(self):
+        return dict(self._client.connection_pool.connection_kwargs)
 
     def initialize_schema(self):
         # Nothing to do.
@@ -163,13 +164,5 @@ class Permission(PermissionBase):
 
 
 def load_from_config(config):
-    settings = config.get_settings()
-    uri = settings['permission_url']
-    uri = urlparse.urlparse(uri)
-    pool_size = int(settings['permission_pool_size'])
-
-    return Permission(max_connections=pool_size,
-                      host=uri.hostname or 'localhost',
-                      port=uri.port or 6379,
-                      password=uri.password or None,
-                      db=int(uri.path[1:]) if uri.path else 0)
+    client = create_from_config(config, prefix='permission_')
+    return Permission(client)
