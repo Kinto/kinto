@@ -7,6 +7,7 @@ Glossary
         Acronym for Create, Read, Update, Delete
 
     endpoint
+    endpoints
         An endpoint handles a particular HTTP verb at a particular URL.
 
     extensible

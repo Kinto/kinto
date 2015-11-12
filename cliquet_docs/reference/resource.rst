@@ -44,10 +44,32 @@ See the :github:`ReadingList <mozilla-services/readinglist>` and
 :github:`Kinto <mozilla-services/kinto>` projects source code for real use cases.
 
 
-.. _resource-schema:
+.. _resource-urls:
 
-Resource Schema
-===============
+URLs
+====
+
+By default, a resource defines two URLs:
+* ``/{classname}s`` for the list of records
+* ``/{classname}s/{id}`` for single records
+
+URLs can be specified during registration:
+
+.. code-block:: python
+
+    @resource.register(collection_path='/user/bookmarks',
+                       record_path='/user/bookmarks/{{id}}')
+    class Bookmark(resource.UserResource):
+        mapping = BookmarkSchema()
+
+.. note::
+
+    The same resource can be registered with different URLs.
+
+
+
+Schema
+======
 
 Override the base schema to add extra fields using the `Colander API <http://docs.pylonsproject.org/projects/colander/>`_.
 
@@ -60,36 +82,47 @@ Override the base schema to add extra fields using the `Colander API <http://doc
         genre = colander.SchemaNode(colander.String(),
                                     validator=colander.OneOf(['Sci-Fi', 'Comedy']))
 
-.. automodule:: cliquet.resource.schema
-    :members:
+See the `resource schema options <resource-schema>`_ to define *schema-less* resources or specify rules
+for unicity or readonly.
 
 
 .. _resource-permissions:
 
-Open or restrict permissions
-============================
+Permissions
+===========
 
 Using the :class:`cliquet.resource.UserResource`, the resource is accessible by
 any authenticated request, but the records are isolated by :term:`user id`.
 
 In order to define resources whose records are not isolated, open publicly or
 controlled with individual fined-permissions, a :class:`cliquet.resource.ShareableResource`
-has to be used. Please refer to `dedicated section about permissions <resource-permissions>`.
+could be used. A custom :ref:`viewset` or :class:`~pyramid:pyramid.authorization.RouteFactory`
+could also be used.
+
+Please refer to `dedicated section about permissions <resource-permissions>`.
 
 
-.. _resource-class:
+HTTP methods and options
+========================
 
-Resource class
-==============
+In order to specify which HTTP verbs (``GET``, ``PUT``, ``PATCH``, ...)
+are allowed on the resource, as well as specific custom Pyramid (or :rtd:`cornice`)
+view arguments, refer to the :ref:`viewset section <viewset>`.
 
-In order to customize the resource URLs or behaviour on record
-processing, the resource class can be extended:
 
-.. autoclass:: cliquet.resource.UserResource
-    :members:
+Events
+======
 
-Interaction with storage
-------------------------
+When a record is created/deleted in a resource, an event is sent.
+See the `dedicated section about notifications <notifications>`_ to plug events
+in your Pyramid/*Cliquet* application or plugin.
+
+
+Model
+=====
+
+Plug custom model
+-----------------
 
 In order to customize the interaction of a HTTP resource with its storage,
 a custom collection can be plugged-in:
@@ -113,53 +146,24 @@ a custom collection can be plugged-in:
         default_model = TrackedModel
 
 
-.. _resource-model:
+Relationships
+-------------
 
-.. autoclass:: cliquet.resource.Model
-    :members:
+With the default model and storage backend, *Cliquet* does not support complex
+relations.
 
+However, it is possible to plug a custom :ref:`model class <resource-model>`,
+that will take care of saving and retrieving records with relations.
 
-Custom record ids
-=================
+.. note::
 
-By default, records ids are `UUID4 <http://en.wikipedia.org/wiki/Universally_unique_identifier>_`.
-
-A custom record ID generator can be set globally in :ref:`configuration`,
-or at the resource level:
-
-.. code-block:: python
-
-    from cliquet import resource
-    from cliquet import utils
-    from cliquet.storage import generators
+    This part deserves more love, `please come and discuss <https://github.com/mozilla-services/cliquet/issues/135>`_!
 
 
-    class MsecId(generators.Generator):
-        def __call__(self):
-            return '%s' % utils.msec_time()
+In Pyramid views
+----------------
 
-
-    @resource.register()
-    class Mushroom(resource.UserResource):
-        def __init__(request):
-            super(Mushroom, self).__init__(request)
-            self.model.id_generator = MsecId()
-
-
-Generators objects
-------------------
-
-.. automodule:: cliquet.storage.generators
-    :members:
-
-
-Custom Usage
-============
-
-Within views
-------------
-
-In views, a ``request`` object is available and allows to use the storage
+In Pyramid views, a ``request`` object is available and allows to use the storage
 configured in the application:
 
 .. code-block:: python
@@ -212,3 +216,64 @@ As an example, let's build a code that will copy a collection into another:
     records, total = in remote.get_records():
     for record in records:
         local.create_record(record)
+
+
+Custom record ids
+=================
+
+By default, records ids are `UUID4 <http://en.wikipedia.org/wiki/Universally_unique_identifier>_`.
+
+A custom record ID generator can be set globally in :ref:`configuration`,
+or at the resource level:
+
+.. code-block:: python
+
+    from cliquet import resource
+    from cliquet import utils
+    from cliquet.storage import generators
+
+
+    class MsecId(generators.Generator):
+        def __call__(self):
+            return '%s' % utils.msec_time()
+
+
+    @resource.register()
+    class Mushroom(resource.UserResource):
+        def __init__(request):
+            super(Mushroom, self).__init__(request)
+            self.model.id_generator = MsecId()
+
+
+Python API
+==========
+
+.. _resource-class:
+
+Resource
+--------
+
+.. autoclass:: cliquet.resource.UserResource
+    :members:
+
+.. _resource-schema:
+
+Schema
+------
+
+.. automodule:: cliquet.resource.schema
+    :members:
+
+.. _resource-model:
+
+Model
+-----
+
+.. autoclass:: cliquet.resource.Model
+    :members:
+
+Generators
+----------
+
+.. automodule:: cliquet.storage.generators
+    :members:
