@@ -69,3 +69,14 @@ class StatsdClientTest(unittest.TestCase):
         statsd.load_from_config(config)
         module_mock.StatsClient.assert_called_with('foo', 1234,
                                                    prefix='projectname')
+
+    def test_statsd_count_handle_unconfigured_statsd_client(self):
+        request = mock.MagicMock()
+        request.registry.statsd = None
+        statsd.statsd_count(request, 'toto')  # Doesn't raise
+
+    def test_statsd_count_call_the_client_if_configured(self):
+        request = mock.MagicMock()
+        request.registry.statsd = self.mocked_client
+        statsd.statsd_count(request, 'toto')
+        self.mocked_client.count.assert_called_with('toto')
