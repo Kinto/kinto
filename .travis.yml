@@ -11,6 +11,10 @@ env:
     - TOX_ENV=flake8
     - TOX_ENV=docs
     - ACTION=loadtest_simulation
+matrix:
+  allow_failures:
+    - env: ACTION=loadtest_simulation
+
 install:
     - pip install tox
 before_script:
