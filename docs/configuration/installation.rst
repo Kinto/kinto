@@ -120,14 +120,6 @@ In the future, run the tagged version of the container ::
     sudo docker stop $kintodb
 
 
-In order to build the Kinto container locally and run it against a PostgreSQL
-container, Kinto supports `Docker Compose <http://docs.docker.com/compose/>`_:
-
-::
-
-    docker-compose up
-
-
 OS X
 ----
 

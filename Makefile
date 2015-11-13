@@ -41,10 +41,10 @@ build-requirements:
 	$(TEMPDIR)/bin/pip freeze > requirements.txt
 
 serve: install-dev migrate
-	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
+	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start
 
 migrate: install
-	$(VENV)/bin/cliquet --ini $(SERVER_CONFIG) migrate
+	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) migrate
 
 tests-once: install-dev
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
@@ -64,7 +64,7 @@ maintainer-clean: distclean
 
 loadtest-check-tutorial: install-postgres
 	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\
-	$(VENV)/bin/pserve loadtests/server.ini > kinto.log & PID=$$! && \
+	$(VENV)/bin/kinto --ini loadtests/server.ini start > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \
 	  sleep 1 && cd loadtests && \
 	  make tutorial SERVER_URL=http://127.0.0.1:8888; \
@@ -72,7 +72,7 @@ loadtest-check-tutorial: install-postgres
 
 loadtest-check-simulation: install-postgres
 	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\
-	$(VENV)/bin/pserve loadtests/server.ini > kinto.log & PID=$$! && \
+	$(VENV)/bin/kinto --ini loadtests/server.ini start > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \
 	  sleep 1 && cd loadtests && \
 	  make simulation SERVER_URL=http://127.0.0.1:8888; \

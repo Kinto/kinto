@@ -19,10 +19,12 @@ This document describes changes between each past release.
 
 - Fix 500 error response (instead of 503) when storage backend fails during
   implicit creation of objects on ``default`` bucket (fixes #236)
+- Fixed ``Dockerfile`` for PostgreSQL backends
 
 **Internal changes**
 
 - Optimization for obtention of user principals (#263)
+- Do not build the Docker container when using Docker Compose
 
 
 1.8.0 (2015-10-30)
