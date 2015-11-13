@@ -25,6 +25,7 @@ This document describes changes between each past release.
 
 - Optimization for obtention of user principals (#263)
 - Do not build the Docker container when using Docker Compose
+- Add Python 3.5 on TravisCI
 
 
 1.8.0 (2015-10-30)
