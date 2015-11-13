@@ -4,7 +4,7 @@ db:
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
 web:
-  build: .
+  image: kinto/kinto-server
   links:
    - db
   ports:
