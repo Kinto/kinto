@@ -579,30 +579,50 @@ class UserResource(object):
             'data': result
         }
 
-        # XXX this should be plugged with the transaction system
-        # when it's added
-        if action != ACTIONS.READ:
-            # the collection has been changed
-            if not isinstance(result, list):
-                result = [result]
-            impacted = {}
-            if action == ACTIONS.CREATE:
-                impacted = [{'new': r} for r in result]
-            elif action == ACTIONS.DELETE:
-                impacted = [{'old': r} for r in result]
-            elif action == ACTIONS.UPDATE:
-                impacted = [{'new': r, 'old': old} for r in result]
-            try:
-                event = ResourceChanged(action, self, impacted, self.request)
-                self.request.registry.notify(event)
-            except Exception:
-                logger.error("Unable to notify", exc_info=True)
+        self._notify_event(result, action, old)
 
         return body
 
     #
     # Internals
     #
+
+    def _notify_event(self, result, action, old):
+        """
+        Emit a :class:`cliquet.event.ResourceChanged` event with the
+        impacted records.
+
+        # XXX: this should be plugged with the transaction system.
+        When plugged with pyramid_tm, this method will have to be rewritten
+        to just populate the ``bound_data`` attribute of ``self.request``.
+        (since it is shared among batch requests).
+        """
+        # Do not notify read actions.
+        if action == ACTIONS.READ:
+            return
+
+        # When plugged with the transaction system, impacted records will
+        # always be a list. Therefore, here put single operations into a
+        # list.
+        if not isinstance(result, list):
+            result = [result]
+
+        impacted = {}
+        if action == ACTIONS.CREATE:
+            impacted = [{'new': r} for r in result]
+        elif action == ACTIONS.DELETE:
+            impacted = [{'old': r} for r in result]
+        elif action == ACTIONS.UPDATE:
+            # XXX `old` is "always" the same, since currently, we can only
+            # notify one update at a time.
+            # This code will change when plugged with transactions (and batch).
+            impacted = [{'new': r, 'old': old} for r in result]
+
+        try:
+            event = ResourceChanged(action, self, impacted, self.request)
+            self.request.registry.notify(event)
+        except Exception:
+            logger.error("Unable to notify", exc_info=True)
 
     def _get_record_or_404(self, record_id):
         """Retrieve record from storage and raise ``404 Not found`` if missing.
