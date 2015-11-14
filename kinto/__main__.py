@@ -3,9 +3,9 @@ import sys
 from cliquet.scripts import cliquet
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
-from config import template
+from config import init
 
-CONFIG_FILE = 'config/kinto.ini'
+CONFIG_FILE = 'kinto/config/kinto.ini'
 
 
 def main(args=None):
@@ -38,7 +38,7 @@ def main(args=None):
     env = bootstrap(config_file)
 
     if args['which'] == 'init':
-        template.init()
+        init()
         
     elif args['which'] == 'migrate':
         cliquet.init_schema(env)
