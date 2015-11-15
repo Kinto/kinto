@@ -25,7 +25,8 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         # Use create_from_config() to make sure it is used by default
         # and handles parameters.
         client = create_from_config(config, prefix='pooltest_')
-        self.engine = client._engine
+        session = client.session_factory()
+        self.engine = session.get_bind()
 
     def take_connection(self):
         try:
