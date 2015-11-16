@@ -12,7 +12,7 @@ class PostgreSQLClient(object):
     def __init__(self, session_factory, commit_manually=True, invalidate=None):
         self.session_factory = session_factory
         self.commit_manually = commit_manually
-        self.invalidate = invalidate or (lambda: None)
+        self.invalidate = invalidate or (lambda session: None)
 
         # # Register ujson, globally for all futur cursors
         # with self.connect() as cursor:
@@ -36,7 +36,7 @@ class PostgreSQLClient(object):
             session = self.session_factory()
             # Start context
             yield session
-            if not readonly:
+            if not readonly and not self.commit_manually:
                 # Mark session as dirty.
                 self.invalidate(session)
             # Success
