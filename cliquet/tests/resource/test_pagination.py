@@ -168,6 +168,13 @@ class PaginationTest(BaseTest):
             '_token': b64encode('{"toto":'.encode('ascii')).decode('ascii')}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 
+    def test_token_wrong_json_fields(self):
+        badtoken = '{"toto": {"tutu": 1}}'
+        self.resource.request.GET = {
+            '_since': '123', '_limit': '20',
+            '_token': b64encode(badtoken.encode('ascii')).decode('ascii')}
+        self.assertRaises(HTTPBadRequest, self.resource.collection_get)
+
     def test_raises_bad_request_if_token_has_bad_data_structure(self):
         invalid_token = json.dumps([[('last_modified', 0, '>')]])
         self.resource.request.GET = {

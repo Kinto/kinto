@@ -931,7 +931,7 @@ class UserResource(object):
                 assert isinstance(tokeninfo, dict)
                 last_record = tokeninfo['last_record']
                 offset = tokeninfo['offset']
-            except (ValueError, TypeError, AssertionError):
+            except (ValueError, KeyError, TypeError, AssertionError):
                 error_msg = '_token has invalid content'
                 error_details = {
                     'location': 'querystring',
