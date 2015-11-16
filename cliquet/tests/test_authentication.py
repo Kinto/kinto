@@ -41,6 +41,27 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         _, principals, _ = mocked.call_args[0]
         self.assertIn('group:admin', principals)
 
+    def test_user_principals_are_cached_per_user(self):
+        patch = mock.patch.object(self.permission, 'user_principals',
+                                  wraps=self.permission.user_principals)
+        self.addCleanup(patch.stop)
+        mocked = patch.start()
+        batch = {
+            "defaults": {
+                "headers": self.headers,
+                "path": "/mushrooms"
+            },
+            "requests": [
+                {},
+                {},
+                {},
+                {"headers": {"Authorization": "Basic Ym9iOg=="}},
+                {"headers": {"Authorization": "Basic bWF0Og=="}},
+            ]
+        }
+        self.app.post_json('/batch', batch)
+        self.assertEqual(mocked.call_count, 3)
+
 
 class BasicAuthenticationPolicyTest(unittest.TestCase):
     def setUp(self):
