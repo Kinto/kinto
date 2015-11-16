@@ -38,6 +38,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
+- Fix Service CORS not being set when plugins are included
 - Fix crash with Redis backend if record parent/id is unicode (fixes #556)
 
 **Internal changes**
