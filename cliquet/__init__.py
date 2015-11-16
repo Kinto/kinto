@@ -113,8 +113,7 @@ def includeme(config):
     config.include("cornice")
 
     # Per-request transaction.
-    if settings['transaction_per_request']:
-        config.include("pyramid_tm")
+    config.include("pyramid_tm")
 
     # Include cliquet plugins after init, unlike pyramid includes.
     includes = aslist(settings['includes'])

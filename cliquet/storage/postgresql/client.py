@@ -69,7 +69,7 @@ def create_from_config(config, prefix=''):
                    "Refer to installation section in documentation.")
         raise ImportWarning(message)
 
-    from zope.sqlalchemy import invalidate
+    from zope.sqlalchemy import ZopeTransactionExtension, invalidate
     from sqlalchemy.orm import sessionmaker, scoped_session
 
     settings = config.get_settings().copy()
@@ -94,7 +94,11 @@ def create_from_config(config, prefix=''):
     engine = sqlalchemy.engine_from_config(settings, prefix=prefix, url=url)
 
     # Initialize thread-safe session factory.
-    session_factory = scoped_session(sessionmaker(bind=engine))
+    options = {}
+    if transaction_per_request:
+        # Plug with Pyramid transaction manager
+        options['extension'] = ZopeTransactionExtension()
+    session_factory = scoped_session(sessionmaker(bind=engine, **options))
 
     # Store one client per URI.
     commit_manually = (not transaction_per_request)
