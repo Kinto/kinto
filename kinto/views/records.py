@@ -66,10 +66,7 @@ class Record(resource.ProtectedResource):
             jsonschema.validate(new, schema)
             new[self.schema_field] = collection_timestamp
         except jsonschema_exceptions.ValidationError as e:
-            if e.path or e.validator_value:
-                field = e.path.pop() if e.path else e.validator_value.pop()
-            else:
-                field = 'Unknown'
+            field = e.path.pop() if e.path else e.validator_value.pop()
             raise_invalid(self.request, name=field, description=e.message)
 
         return new

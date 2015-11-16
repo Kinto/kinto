@@ -80,21 +80,29 @@ class SchemaValidationTest(BaseLoadTest):
         collection = os.getenv('VALIDATE_COLLECTION')
         if collection is None:
             collection = random.choice(COLLECTIONS)
-        self.incr_counter(collection)
+        self.incr_counter('collection-%s' % collection)
 
         action = os.getenv('LOAD_ACTION')
         if action is None:
             action = random.choice(ACTIONS)
-        self.incr_counter(action)
+        self.incr_counter('action-%s' % action)
 
         return getattr(self, action)(collection)
 
     def create_put(self, collection):
-        record = self._build_record(collection)
         record_id = uuid.uuid4()
         record_url = self.record_url(record_id,
                                      bucket='blocklist',
                                      collection=collection)
+        # Check that invalid record fails
+        resp = self.session.put(record_url,
+                                data=json.dumps({'data': {}}),
+                                headers={'If-None-Match': '*'})
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 400)
+
+        # Create valid record succeeds
+        record = self._build_record(collection)
         resp = self.session.put(record_url,
                                 data=json.dumps({'data': record}),
                                 headers={'If-None-Match': '*'})
