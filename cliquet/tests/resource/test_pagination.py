@@ -95,12 +95,12 @@ class PaginationTest(BaseTest):
         self.resource.collection_get()
         self.assertNotIn('Next-Page', self.last_response.headers)
 
-    # def test_stops_giving_next_page_at_the_end_sets_on_exact_limit(self):
-    #     self.resource.request.GET = {'_limit': '10'}
-    #     self.resource.collection_get()
-    #     self._setup_next_page()
-    #     self.resource.collection_get()
-    #     self.assertNotIn('Next-Page', self.last_response.headers)
+    def test_stops_giving_next_page_at_the_end_sets_on_exact_limit(self):
+        self.resource.request.GET = {'_limit': '10'}
+        self.resource.collection_get()
+        self._setup_next_page()
+        self.resource.collection_get()
+        self.assertNotIn('Next-Page', self.last_response.headers)
 
     def test_handle_simple_sorting(self):
         self.resource.request.GET = {'_sort': '-status', '_limit': '20'}
@@ -168,6 +168,13 @@ class PaginationTest(BaseTest):
             '_token': b64encode('{"toto":'.encode('ascii')).decode('ascii')}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 
+    def test_token_wrong_json_fields(self):
+        badtoken = '{"toto": {"tutu": 1}}'
+        self.resource.request.GET = {
+            '_since': '123', '_limit': '20',
+            '_token': b64encode(badtoken.encode('ascii')).decode('ascii')}
+        self.assertRaises(HTTPBadRequest, self.resource.collection_get)
+
     def test_raises_bad_request_if_token_has_bad_data_structure(self):
         invalid_token = json.dumps([[('last_modified', 0, '>')]])
         self.resource.request.GET = {
@@ -185,36 +192,46 @@ class BuildPaginationTokenTest(BaseTest):
             'last_modified': 1234, 'title': 'Title'
         }
 
+    def test_token_contains_current_offset(self):
+        token = self.resource._build_pagination_token([('last_modified', -1)],
+                                                      self.record,
+                                                      42)
+        tokeninfo = json.loads(b64decode(token).decode('ascii'))
+        self.assertEqual(tokeninfo['offset'], 42)
+
     def test_no_sorting_default_to_modified_field(self):
         token = self.resource._build_pagination_token([('last_modified', -1)],
-                                                      self.record)
-        self.assertDictEqual(json.loads(b64decode(token).decode('ascii')),
+                                                      self.record,
+                                                      42)
+        tokeninfo = json.loads(b64decode(token).decode('ascii'))
+        self.assertDictEqual(tokeninfo['last_record'],
                              {"last_modified": 1234})
 
     def test_sorting_handle_both_rules(self):
         token = self.resource._build_pagination_token([
             ('status', -1),
             ('last_modified', -1)
-        ], self.record)
-        self.assertDictEqual(
-            json.loads(b64decode(token).decode('ascii')),
-            {"last_modified": 1234, "status": 2})
+        ], self.record, 34)
+        tokeninfo = json.loads(b64decode(token).decode('ascii'))
+        self.assertDictEqual(tokeninfo['last_record'],
+                             {"last_modified": 1234, "status": 2})
 
     def test_sorting_handle_ordering_direction(self):
         token = self.resource._build_pagination_token([
             ('status', 1),
             ('last_modified', 1)
-        ], self.record)
-        self.assertEqual(
-            json.loads(b64decode(token).decode('ascii')),
-            {"last_modified": 1234, "status": 2})
+        ], self.record, 32)
+        tokeninfo = json.loads(b64decode(token).decode('ascii'))
+        self.assertEqual(tokeninfo['last_record'],
+                         {"last_modified": 1234, "status": 2})
 
     def test_multiple_sorting_keep_all(self):
         token = self.resource._build_pagination_token([
             ('status', 1),
             ('title', -1),
             ('last_modified', -1)
-        ], self.record)
-        self.assertEqual(
-            json.loads(b64decode(token).decode('ascii')),
-            {"last_modified": 1234, "status": 2, 'title': 'Title'})
+        ], self.record, 31)
+        tokeninfo = json.loads(b64decode(token).decode('ascii'))
+        self.assertEqual(tokeninfo['last_record'],
+                         {"last_modified": 1234, "status": 2,
+                          'title': 'Title'})
