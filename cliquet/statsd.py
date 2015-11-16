@@ -34,6 +34,12 @@ class Client(object):
             return self._client.set(key, unique)
 
 
+def statsd_count(request, count_key):
+    statsd = request.registry.statsd
+    if statsd:
+        statsd.count(count_key)
+
+
 def load_from_config(config):
     settings = config.get_settings()
     uri = settings['statsd_url']
