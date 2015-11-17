@@ -7,7 +7,10 @@ This document describes changes between each past release.
 2.10.3 (unreleased)
 -------------------
 
+**Bug fixes**
+
 - Fix principals of permission backend not being plugged by default (#573)
+- Fix pagination loop when number of records is multiple of page size (fixes #366)
 
 
 2.10.2 (2015-11-10)
