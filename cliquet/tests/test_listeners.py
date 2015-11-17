@@ -102,7 +102,7 @@ class ListenerCalledTest(unittest.TestCase):
     def test_redis_is_notified(self):
         with self.redis_listening():
             # let's trigger an event
-            event = ResourceChanged('create', Resource(), Request())
+            event = ResourceChanged('create', Resource(), [], Request())
             self.notify(event)
             self.assertTrue(self.has_redis_changed())
 
@@ -117,7 +117,7 @@ class ListenerCalledTest(unittest.TestCase):
             res = Resource()
             # date time objects cannot be dumped
             res.timestamp = datetime.now()
-            event2 = ResourceChanged('create', res, Request())
+            event2 = ResourceChanged('create', res, [], Request())
             self.notify(event2)
             self.assertFalse(self.has_redis_changed())
 
@@ -127,7 +127,7 @@ class ListenerCalledTest(unittest.TestCase):
             self._save_redis()
 
             with broken_redis():
-                event = ResourceChanged('create', Resource(), Request())
+                event = ResourceChanged('create', Resource(), [], Request())
                 self.config.registry.notify(event)
 
             self.assertFalse(self.has_redis_changed())

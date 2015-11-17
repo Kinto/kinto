@@ -35,6 +35,9 @@ This document describes changes between each past release.
   behaviour.
 - Add custom pool supporting a ``max_backlog`` parameter that limits the
   number of threads waiting for a connection (#509)
+- Add ``impacted_records`` attribute on ``ResourceChanged`` event (#501)
+  This also allows listeners to react on particular field change, since old and
+  new version of records is provided.
 
 **Bug fixes**
 

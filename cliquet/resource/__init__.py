@@ -391,7 +391,7 @@ class UserResource(object):
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
         action = existing and ACTIONS.UPDATE or ACTIONS.CREATE
-        return self.postprocess(record, action=action)
+        return self.postprocess(record, action=action, old=existing)
 
     def patch(self):
         """Record ``PATCH`` endpoint: modify a record and return its
@@ -416,8 +416,8 @@ class UserResource(object):
             :meth:`cliquet.resource.UserResource.process_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
-        old_record = self._get_record_or_404(self.record_id)
-        self._raise_412_if_modified(old_record)
+        existing = self._get_record_or_404(self.record_id)
+        self._raise_412_if_modified(existing)
 
         try:
             # `data` attribute may not be present if only perms are patched.
@@ -431,16 +431,16 @@ class UserResource(object):
             }
             raise_invalid(self.request, **error_details)
 
-        updated = self.apply_changes(old_record, changes=changes)
+        updated = self.apply_changes(existing, changes=changes)
 
         record_id = updated.setdefault(self.model.id_field,
                                        self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
 
-        new_record = self.process_record(updated, old=old_record)
+        new_record = self.process_record(updated, old=existing)
 
         changed_fields = [k for k in changes.keys()
-                          if old_record.get(k) != new_record.get(k)]
+                          if existing.get(k) != new_record.get(k)]
 
         # Save in storage if necessary.
         if changed_fields or self.force_patch_update:
@@ -455,7 +455,7 @@ class UserResource(object):
             # Behave as if storage would have added `id` and `last_modified`.
             for extra_field in [self.model.modified_field,
                                 self.model.id_field]:
-                new_record[extra_field] = old_record[extra_field]
+                new_record[extra_field] = existing[extra_field]
 
         # Adjust response according to ``Response-Behavior`` header
         body_behavior = self.request.headers.get('Response-Behavior', 'full')
@@ -472,10 +472,10 @@ class UserResource(object):
             data = new_record
 
         timestamp = new_record.get(self.model.modified_field,
-                                   old_record[self.model.modified_field])
+                                   existing[self.model.modified_field])
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-        return self.postprocess(data, action=ACTIONS.UPDATE)
+        return self.postprocess(data, action=ACTIONS.UPDATE, old=existing)
 
     def delete(self):
         """Record ``DELETE`` endpoint: delete a record and return it.
@@ -574,26 +574,55 @@ class UserResource(object):
             for field, error in e.asdict().items():
                 raise_invalid(self.request, name=field, description=error)
 
-    def postprocess(self, result, action=ACTIONS.READ):
+    def postprocess(self, result, action=ACTIONS.READ, old=None):
         body = {
             'data': result
         }
 
-        # XXX this should be plugged with the transaction system
-        # when it's added
-        if action != ACTIONS.READ:
-            # the collection has been changed
-            try:
-                event = ResourceChanged(action, self, self.request)
-                self.request.registry.notify(event)
-            except Exception:
-                logger.error("Unable to notify", exc_info=True)
+        self._notify_event(result, action, old)
 
         return body
 
     #
     # Internals
     #
+
+    def _notify_event(self, result, action, old):
+        """
+        Emit a :class:`cliquet.event.ResourceChanged` event with the
+        impacted records.
+
+        # XXX: this should be plugged with the transaction system.
+        When plugged with pyramid_tm, this method will have to be rewritten
+        to just populate the ``bound_data`` attribute of ``self.request``.
+        (since it is shared among batch requests).
+        """
+        # Do not notify read actions.
+        if action == ACTIONS.READ:
+            return
+
+        # When plugged with the transaction system, impacted records will
+        # always be a list. Therefore, here put single operations into a
+        # list.
+        if not isinstance(result, list):
+            result = [result]
+
+        impacted = {}
+        if action == ACTIONS.CREATE:
+            impacted = [{'new': r} for r in result]
+        elif action == ACTIONS.DELETE:
+            impacted = [{'old': r} for r in result]
+        elif action == ACTIONS.UPDATE:
+            # XXX `old` is "always" the same, since currently, we can only
+            # notify one update at a time.
+            # This code will change when plugged with transactions (and batch).
+            impacted = [{'new': r, 'old': old} for r in result]
+
+        try:
+            event = ResourceChanged(action, self, impacted, self.request)
+            self.request.registry.notify(event)
+        except Exception:
+            logger.error("Unable to notify", exc_info=True)
 
     def _get_record_or_404(self, record_id):
         """Retrieve record from storage and raise ``404 Not found`` if missing.
@@ -1060,15 +1089,17 @@ class ShareableResource(UserResource):
         In the protocol, it was decided that ``permissions`` would reside
         outside the ``data`` attribute.
         """
-        result = super(ShareableResource, self).postprocess(result, **kwargs)
-        if isinstance(result['data'], list):
-            # collection endpoint.
-            return result
+        body = {}
 
-        perms = result['data'].pop(self.model.permissions_field, None)
-        if perms is not None:
-            result['permissions'] = {k: list(p) for k, p in perms.items()}
-        return result
+        if not isinstance(result, list):
+            # record endpoint.
+            perms = result.pop(self.model.permissions_field, None)
+            if perms is not None:
+                body['permissions'] = {k: list(p) for k, p in perms.items()}
+
+        data = super(ShareableResource, self).postprocess(result, **kwargs)
+        body.update(data)
+        return body
 
 
 @six.add_metaclass(DeprecatedMeta)
