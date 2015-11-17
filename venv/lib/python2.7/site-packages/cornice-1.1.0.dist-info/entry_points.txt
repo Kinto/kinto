@@ -1,0 +1,4 @@
+[paste.paster_create_template]
+cornice=cornice.scaffolds:CorniceTemplate
+[pyramid.scaffold]
+cornice=cornice.scaffolds:CorniceTemplate

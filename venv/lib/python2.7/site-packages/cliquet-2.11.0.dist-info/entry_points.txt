@@ -1,0 +1,3 @@
+[console_scripts]
+cliquet = cliquet.scripts.cliquet:main
+

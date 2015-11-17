@@ -1,0 +1,11 @@
+msgid "Enter a comma separated list of user names."
+msgstr "Eine kommagetrennte Liste von Benutzernamen."
+
+msgid "Visit ${url}"
+msgstr "Besuchen ${url}"
+
+msgid "Unable to find user: ${users}"
+msgid_plural "Unable to find users: ${users}"
+msgstr[0] "Benutzer konnte nicht gefunden werden: ${users}"
+msgstr[1] "Benutzer konnten nicht gefunden werden: ${users}"
+

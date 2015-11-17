@@ -1,0 +1,10 @@
+#!/home/shweta/Desktop/kinto/venv/bin/python
+# EASY-INSTALL-ENTRY-SCRIPT: 'kinto==1.9.0.dev0','console_scripts','kinto'
+__requires__ = 'kinto==1.9.0.dev0'
+import sys
+from pkg_resources import load_entry_point
+
+if __name__ == '__main__':
+    sys.exit(
+        load_entry_point('kinto==1.9.0.dev0', 'console_scripts', 'kinto')()
+    )
