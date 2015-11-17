@@ -95,6 +95,17 @@ class Service(CorniceService):
     This is useful in order to attach specific behaviours without monkey
     patching the default cornice service (which would impact other uses of it)
     """
+    default_cors_headers = ('Backoff', 'Retry-After', 'Alert',
+                            'Content-Length')
+
+    def error_handler(self, error):
+        return errors.json_error_handler(error)
+
+    @classmethod
+    def init_from_settings(cls, settings):
+        cls.cors_origins = tuple(aslist(settings['cors_origins']))
+        cors_max_age = settings['cors_max_age_seconds']
+        cls.cors_max_age = int(cors_max_age) if cors_max_age else None
 
 
 def includeme(config):
@@ -114,6 +125,9 @@ def includeme(config):
     for app in includes:
         config.include(app)
 
+    # Add CORS settings to the base cliquet Service class.
+    Service.init_from_settings(settings)
+
     # Setup components.
     for step in aslist(settings['initialization_sequence']):
         step_func = config.maybe_dotted(step)
@@ -122,16 +136,6 @@ def includeme(config):
     # # Show settings to output.
     # for key, value in settings.items():
     #     logger.info('Using %s = %s' % (key, value))
-
-    # Add CORS settings to the base cliquet Service class.
-    cors_origins = settings['cors_origins']
-    Service.cors_origins = tuple(aslist(cors_origins))
-    Service.default_cors_headers = ('Backoff', 'Retry-After', 'Alert',
-                                    'Content-Length')
-    cors_max_age = settings['cors_max_age_seconds']
-    Service.cors_max_age = int(cors_max_age) if cors_max_age else None
-
-    Service.error_handler = lambda self, e: errors.json_error_handler(e)
 
     # Custom helpers.
     config.add_request_method(follow_subrequest)
