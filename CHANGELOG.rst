@@ -14,6 +14,10 @@ This document describes changes between each past release.
 - A batch request now fails if one of the subrequests fails (#510)
   (*see new feature about transactions*)
 
+**Breaking changes**
+
+- For PostgreSQL backends, it is recommended to specify ``postgresql://``.
+
 **New features**
 
 - A transaction now covers the whole request/response cycle (#510, Kinto/kinto#194).
@@ -22,13 +26,7 @@ This document describes changes between each past release.
   other words, the rollback has no effect on backends like *Redis* or *Memory*.
 
 - Add the ``protocol_version`` to tell which protocol version is
-  implemented by the service. (#324)
-
-**Breaking changes**
-
-- For PostgreSQL backends, it is recommended to specify ``postgresql://``
-
-**New features**
+  implemented by the service in the hello page. (#324)
 
 - New settings for backends when using PostgreSQL: ``*_pool_maxoverflow``,
   ``*_pool_recycle``, ``*_pool_timeout`` to control connections pool
@@ -45,14 +43,19 @@ This document describes changes between each past release.
 - Fix crash with Redis backend if record parent/id is unicode (fixes #556)
 - Fix principals of permission backend not being plugged by default (#573)
 - Fix Redis error traces not being logged (#560)
+- Fix principals of permission backend not being plugged by default. (#573)
+- Maintain pagination offset to prevent pagination loop in some cases. (#366)
 
 **Internal changes**
 
 - Switch to SQLAlchemy for smarter connections pools.
 - Added a simple end-to-end test on a *Cliquet* sample application, using
-  `Loads <http://github.com/loads/>`_ (fixes #512)
-- Switched to SQLAlchemy sessions instead of raw connections and cursors (#510)
-- Refactor Redis clients instantiation to avoid repeated defaults (#567, #568)
+  `Loads <http://github.com/loads/>`_. (fixes #512)
+- Switched to SQLAlchemy sessions instead of raw connections and cursors. (#510)
+- Refactor Redis clients instantiation to avoid repeated defaults. (#567, #568)
+- Initialize Service class attributes before including plugins. (#578)
+- Add a statsd_count helper function to ease the usage of statsd. (#574)
+- Mention SQLAlchemy on missing PostgreSQL dependencies. (#545)
 
 
 2.10.2 (2015-11-10)
