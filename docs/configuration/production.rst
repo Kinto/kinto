@@ -55,6 +55,19 @@ Beware that if you do so, everyone will be able to list bucket
 information (including user's personal buckets).
 
 
+Handling CDN
+------------
+
+If you want to put your kinto behind a CDN you must make sure to define the right host or you will leak the main server host.
+
+.. code-block:: ini
+
+    kinto.http_host = <cdn_hostname>
+    
+You can make sure your service is correctly configured by looking at the service URL returned on the service home page.
+It should be your CDN service URL.
+
+
 Monitoring
 ----------
 
