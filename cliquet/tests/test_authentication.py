@@ -33,6 +33,39 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         self.headers['Authorization'] = 'Carrier pigeon'
         app.get(self.sample_url, headers=self.headers, status=401)
 
+    def test_principals_are_fetched_from_permission_backend(self):
+        patch = mock.patch(('cliquet.tests.support.'
+                            'AllowAuthorizationPolicy.permits'))
+        self.addCleanup(patch.stop)
+        mocked = patch.start()
+
+        self.permission.add_user_principal(self.principal, 'group:admin')
+        self.app.get(self.collection_url, headers=self.headers)
+
+        _, principals, _ = mocked.call_args[0]
+        self.assertIn('group:admin', principals)
+
+    def test_user_principals_are_cached_per_user(self):
+        patch = mock.patch.object(self.permission, 'user_principals',
+                                  wraps=self.permission.user_principals)
+        self.addCleanup(patch.stop)
+        mocked = patch.start()
+        batch = {
+            "defaults": {
+                "headers": self.headers,
+                "path": "/mushrooms"
+            },
+            "requests": [
+                {},
+                {},
+                {},
+                {"headers": {"Authorization": "Basic Ym9iOg=="}},
+                {"headers": {"Authorization": "Basic bWF0Og=="}},
+            ]
+        }
+        self.app.post_json('/batch', batch)
+        self.assertEqual(mocked.call_count, 3)
+
 
 class BasicAuthenticationPolicyTest(unittest.TestCase):
     def setUp(self):

@@ -80,6 +80,7 @@ DEFAULT_SETTINGS = {
     'userid_hmac_secret': '',
     'version_prefix_redirect_enabled': True,
     'trailing_slash_redirect_enabled': True,
+    'multiauth.groupfinder': 'cliquet.authorization.groupfinder',
     'multiauth.policies': 'basicauth',
     'multiauth.policy.basicauth.use': ('cliquet.authentication.'
                                        'BasicAuthAuthenticationPolicy'),

@@ -7,7 +7,7 @@ This document describes changes between each past release.
 2.10.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fix principals of permission backend not being plugged by default (#573)
 
 
 2.10.2 (2015-11-10)
