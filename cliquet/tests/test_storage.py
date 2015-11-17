@@ -995,6 +995,15 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
             with mocked_mget:
                 self.storage.get_all(**self.storage_kw)  # not raising
 
+    def test_errors_logs_stack_trace(self):
+        self.client_error_patcher.start()
+
+        with mock.patch('cliquet.storage.logger.exception') as exc_handler:
+            with self.assertRaises(exceptions.BackendError):
+                self.storage.get_all(**self.storage_kw)
+
+        self.assertTrue(exc_handler.called)
+
 
 @skip_if_no_postgresql
 class PostgresqlStorageTest(StorageTest, unittest.TestCase):
