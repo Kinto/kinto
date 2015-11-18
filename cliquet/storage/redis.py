@@ -4,7 +4,7 @@ from functools import wraps
 import redis
 from six.moves.urllib import parse as urlparse
 
-from cliquet import utils
+from cliquet import utils, logger
 from cliquet.storage import (
     exceptions, DEFAULT_ID_FIELD,
     DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
@@ -17,6 +17,7 @@ def wrap_redis_error(func):
         try:
             return func(*args, **kwargs)
         except redis.RedisError as e:
+            logger.exception(e)
             raise exceptions.BackendError(original=e)
     return wrapped
 

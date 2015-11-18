@@ -4,10 +4,15 @@ Changelog
 This document describes changes between each past release.
 
 
-2.10.3 (unreleased)
+2.10.3 (2015-11-18)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix Service CORS not being set when plugins are included
+- Fix principals of permission backend not being plugged by default (#573)
+- Fix pagination loop when number of records is multiple of page size (fixes #366)
+- Fix Redis error traces not being logged (#560)
 
 
 2.10.2 (2015-11-10)

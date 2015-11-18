@@ -59,7 +59,7 @@ ENTRY_POINTS = {
 
 
 setup(name='cliquet',
-      version='2.10.3.dev0',
+      version='2.10.3',
       description='Micro service API toolkit',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',

@@ -215,7 +215,7 @@ class BaseResource(object):
         filter_fields = [f.field for f in filters]
         include_deleted = self.model.modified_field in filter_fields
 
-        pagination_rules = self._extract_pagination_rules_from_token(
+        pagination_rules, offset = self._extract_pagination_rules_from_token(
             limit, sorting)
 
         records, total_records = self.model.get_records(
@@ -225,9 +225,12 @@ class BaseResource(object):
             pagination_rules=pagination_rules,
             include_deleted=include_deleted)
 
+        offset = offset + len(records)
         next_page = None
-        if limit and len(records) == limit and total_records > limit:
-            next_page = self._next_page_url(sorting, limit, records[-1])
+
+        if limit and len(records) == limit and offset < total_records:
+            lastrecord = records[-1]
+            next_page = self._next_page_url(sorting, limit, lastrecord, offset)
             headers['Next-Page'] = encode_header(next_page)
 
         # Bind metric about response size.
@@ -910,11 +913,14 @@ class BaseResource(object):
         queryparams = self.request.GET
         token = queryparams.get('_token', None)
         filters = []
+        offset = 0
         if token:
             try:
-                last_record = json.loads(decode64(token))
-                assert isinstance(last_record, dict)
-            except (ValueError, TypeError, AssertionError):
+                tokeninfo = json.loads(decode64(token))
+                assert isinstance(tokeninfo, dict)
+                last_record = tokeninfo['last_record']
+                offset = tokeninfo['offset']
+            except (ValueError, KeyError, TypeError, AssertionError):
                 error_msg = '_token has invalid content'
                 error_details = {
                     'location': 'querystring',
@@ -923,11 +929,11 @@ class BaseResource(object):
                 raise_invalid(self.request, **error_details)
 
             filters = self._build_pagination_rules(sorting, last_record)
-        return filters
+        return filters, offset
 
-    def _next_page_url(self, sorting, limit, last_record):
+    def _next_page_url(self, sorting, limit, last_record, offset):
         """Build the Next-Page header from where we stopped."""
-        token = self._build_pagination_token(sorting, last_record)
+        token = self._build_pagination_token(sorting, last_record, offset)
 
         params = self.request.GET.copy()
         params['_limit'] = limit
@@ -938,17 +944,20 @@ class BaseResource(object):
                                                **self.request.matchdict)
         return next_page_url
 
-    def _build_pagination_token(self, sorting, last_record):
+    def _build_pagination_token(self, sorting, last_record, offset):
         """Build a pagination token.
 
         It is a base64 JSON object with the sorting fields values of
         the last_record.
 
         """
-        token = {}
+        token = {
+            'last_record': {},
+            'offset': offset
+        }
 
         for field, _ in sorting:
-            token[field] = last_record[field]
+            token['last_record'][field] = last_record[field]
 
         return encode64(json.dumps(token))
 
