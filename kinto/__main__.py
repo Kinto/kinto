@@ -3,9 +3,10 @@ import sys
 from cliquet.scripts import cliquet
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
-from config import init
 
-CONFIG_FILE = 'kinto/config/kinto.ini'
+from kinto.config import init
+
+CONFIG_FILE = 'config/kinto.ini'
 
 
 def main(args=None):
@@ -35,12 +36,11 @@ def main(args=None):
 
     args = vars(parser.parse_args())
     config_file = args['ini_file']
-    env = bootstrap(config_file)
 
     if args['which'] == 'init':
-        init()
-        
+        init(config_file)
     elif args['which'] == 'migrate':
+        env = bootstrap(config_file)
         cliquet.init_schema(env)
     elif args['which'] == 'start':
         pserve_argv = ['pserve', config_file, '--reload']
