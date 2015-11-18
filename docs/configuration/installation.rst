@@ -61,8 +61,7 @@ default. In order to install them, run:
 The instructions in the sections below will help you create a local ``postgres``
 database on ``localhost:5432``, with user/password ``postgres``/``postgres``.
 
-Once done, just uncomment the backends lines mentionning *Postgresql* in the
-default configuration file :file:`config/kinto.ini`.
+Once done, run ``kinto init`` and select the PostgreSQL option.
 
 
 Client libraries only

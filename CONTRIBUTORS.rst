@@ -10,5 +10,6 @@ Contributors
 * Mathieu Leplatre <mathieu@mozilla.com>
 * Nicolas Perriault <nperriault@mozilla.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
+* Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
 * Tarek Ziade <tarek@mozilla.com>
