@@ -13,7 +13,8 @@ This document describes changes between each past release.
 
 **New features**
 
-- Add a Kinto command for start and migrate operation (#129)
+- Add a Kinto command for start and migrate operation. (#129)
+- Add a Kinto command to create a configuration file. (#278)
 
 **Bug fixes**
 
