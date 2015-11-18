@@ -16,6 +16,8 @@ possible to refer to this set of examples:
 | Microblogging | A micro blogging platform like twitter                                  |
 +---------------+-------------------------------------------------------------------------+
 
+.. _permissions-setups-blog:
+
 A Blog
 ------
 

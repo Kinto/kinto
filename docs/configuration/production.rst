@@ -229,7 +229,7 @@ run the Kinto application:
 Using nginx
 -----------
 
-nginx can act as a *reverse proxy* in front of :rtd:`uWSGI <uwsgi-docs>`_
+nginx can act as a *reverse proxy* in front of :rtd:`uWSGI <uwsgi-docs>`
 (or any other wsgi server like `Gunicorn <http://gunicorn.org>`_ or :rtd:`Circus <circus>`).
 
 Download the ``uwsgi_params`` file:

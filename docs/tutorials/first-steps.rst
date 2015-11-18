@@ -903,8 +903,8 @@ In this tutorial you have seen some of the concepts exposed by *Kinto*:
 - Creating groups, collections and records
 - Modifying objects permissions, for users and groups
 
-More details about :ref:`permissions <permissions>`, :ref:`HTTP API headers and
-status codes <api-endpoints>`.
+More details about :ref:`permissions <api-permissions>`, :ref:`HTTP API headers and
+status codes <kinto-api-endpoints>`.
 
 .. note::
 

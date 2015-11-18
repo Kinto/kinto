@@ -1,3 +1,5 @@
+.. _kinto-concepts:
+
 Concepts
 ########
 
@@ -103,6 +105,7 @@ Regarding permissions, the following vocabulary is used in the documentation:
 .. glossary::
 
     Principal
+    Principals
         An entity that can be authenticated. Principals can be individual people,
         applications, services, or any group of such things
         (e.g. ``username``, ``group:authors``).
@@ -125,6 +128,14 @@ Regarding permissions, the following vocabulary is used in the documentation:
     ACL
     Access Control List
         A list of ACEs.
+
+    Firefox Accounts
+        Account account system run by Mozilla (https://accounts.firefox.com).
+
+    User id
+    User identifier
+    User identifiers
+        A string that identifies a user.
 
 .. note::
 

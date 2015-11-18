@@ -302,7 +302,7 @@ Retrieving all buckets
         }
 
 
-.. buckets-default-id:
+.. _buckets-default-id:
 
 Personal bucket «default»
 =========================
