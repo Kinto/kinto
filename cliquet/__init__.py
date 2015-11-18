@@ -126,11 +126,6 @@ def includeme(config):
     # Per-request transaction.
     config.include("pyramid_tm")
 
-    # Include cliquet plugins after init, unlike pyramid includes.
-    includes = aslist(settings['includes'])
-    for app in includes:
-        config.include(app)
-
     # Add CORS settings to the base cliquet Service class.
     Service.init_from_settings(settings)
 
@@ -138,6 +133,11 @@ def includeme(config):
     for step in aslist(settings['initialization_sequence']):
         step_func = config.maybe_dotted(step)
         step_func(config)
+
+    # Include cliquet plugins after init, unlike pyramid includes.
+    includes = aslist(settings['includes'])
+    for app in includes:
+        config.include(app)
 
     # # Show settings to output.
     # for key, value in settings.items():

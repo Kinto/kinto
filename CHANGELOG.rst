@@ -7,7 +7,16 @@ This document describes changes between each past release.
 2.12.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- When using *cliquet-fxa*, the setting ``multiauth.policy.fxa.use`` must now
+  be explicitly set to ``cliquet_fxa.authentication.FxAOAuthAuthenticationPolicy``
+
+
+**Bug fixes**
+
+- Include plugins after setting up components (like authn/authz) so that plugins
+  can register views with permissions checking
 
 
 2.11.0 (2015-11-17)
