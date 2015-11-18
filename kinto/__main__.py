@@ -1,4 +1,6 @@
+from __future__ import print_function
 import argparse
+import os
 import sys
 from cliquet.scripts import cliquet
 from pyramid.scripts import pserve
@@ -38,10 +40,16 @@ def main(args=None):
     config_file = args['ini_file']
 
     if args['which'] == 'init':
-        init(config_file)
+        if not os.path.exists(config_file):
+            init(config_file)
+        else:
+            print("%s already exist." % config_file, file=sys.stderr)
+            sys.exit(1)
+
     elif args['which'] == 'migrate':
         env = bootstrap(config_file)
         cliquet.init_schema(env)
+
     elif args['which'] == 'start':
         pserve_argv = ['pserve', config_file, '--reload']
         pserve.main(pserve_argv)

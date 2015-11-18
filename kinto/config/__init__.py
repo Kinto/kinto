@@ -25,15 +25,13 @@ def init(config_file):
 
     if backend == '1':
         # Postgresql configuration
+        postgresql_url = "postgres://postgres:postgres@localhost/postgres"
         values['storage_backend'] = "cliquet.storage.postgresql"
-        values['storage_url'] = ("postgres://postgres:postgres@localhost/"
-                                 "postgres")
+        values['storage_url'] = postgresql_url
         values['cache_backend'] = "cliquet.cache.postgresql"
-        values['cache_url'] = ("postgres://postgres:postgres@localhost/"
-                               "postgres")
+        values['cache_url'] = postgresql_url
         values['permission_backend'] = "cliquet.permission.postgresql"
-        values['permission_url'] = ("postgres://postgres:postgres@localhost/"
-                                    "postgres")
+        values['permission_url'] = postgresql_url
 
     elif backend == '2':
         # Redis configuration
