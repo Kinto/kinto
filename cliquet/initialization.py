@@ -22,6 +22,7 @@ from cliquet import logger
 from cliquet import utils
 from cliquet import statsd
 from cliquet.cache import heartbeat as cache_heartbeat
+from cliquet.events import ResourceRead, ResourceChanged, ACTIONS
 from cliquet.permission import heartbeat as permission_heartbeat
 from cliquet.storage import heartbeat as storage_heartbeat
 
@@ -386,8 +387,6 @@ def _filter_events(callback, actions, resources):
 
 
 def setup_listeners(config):
-    from cliquet.events import ResourceChanged, ACTIONS
-
     write_actions = (ACTIONS.CREATE, ACTIONS.UPDATE, ACTIONS.DELETE)
     settings = config.get_settings()
     listeners = aslist(settings['event_listeners'])
@@ -407,6 +406,11 @@ def setup_listeners(config):
         actions = aslist(settings.get(prefix + 'actions', '')) or write_actions
         resource_names = aslist(settings.get(prefix + 'resources', ''))
         callback = _filter_events(listener, actions, resource_names)
+
+        if ACTIONS.READ in actions:
+            config.add_subscriber(callback, ResourceRead)
+            if len(actions) == 1:
+                return
 
         config.add_subscriber(callback, ResourceChanged)
 

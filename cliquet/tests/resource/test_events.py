@@ -4,7 +4,7 @@ import uuid
 import webtest
 from pyramid.config import Configurator
 
-from cliquet.events import ResourceChanged, ACTIONS
+from cliquet.events import ResourceChanged, ResourceRead, ACTIONS
 from cliquet.tests.testapp import main as testapp
 from cliquet.tests.support import unittest, BaseWebTest, get_request_class
 
@@ -40,11 +40,17 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         settings = self.get_app_settings(settings)
         self.config = Configurator(settings=settings)
         self.config.add_subscriber(self.listener, ResourceChanged)
+        self.config.add_subscriber(self.listener, ResourceRead)
         self.config.commit()
         app = testapp(config=self.config)
         app = webtest.TestApp(app)
         app.RequestClass = get_request_class(self.api_prefix)
         return app
+
+    def test_read_event_triggered_on_get(self):
+        self.app.get(self.collection_url, headers=self.headers)
+        self.assertEqual(len(self.events), 1)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.READ)
 
     def test_event_triggered_on_post(self):
         self.app.post_json(self.collection_url, self.body,
@@ -62,6 +68,16 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
 
     def test_event_no_triggered_on_failed_write(self):
+        record_id = str(uuid.uuid4())
+        record_url = self.get_item_url(record_id)
+        self.app.put_json(record_url, self.body, headers=self.headers)
+        headers = self.headers.copy()
+        headers['If-Match'] = '"12345"'
+        self.app.put_json(record_url, self.body, headers=headers, status=412)
+        self.assertEqual(len(self.events), 1)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
+
+    def test_read_event_triggered_on_post_if_existing(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers, status=201)
         record = resp.json['data']
@@ -71,8 +87,8 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         # a second post with the same record id
         self.app.post_json(self.collection_url, body, headers=self.headers,
                            status=200)
-        self.assertEqual(len(self.events), 1)
-        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
+        self.assertEqual(len(self.events), 2)
+        self.assertEqual(self.events[1].payload['action'], ACTIONS.READ)
 
     def test_event_triggered_on_update_via_patch(self):
         resp = self.app.post_json(self.collection_url, self.body,

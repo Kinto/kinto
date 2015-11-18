@@ -8,7 +8,7 @@ import mock
 from pyramid import testing
 
 from cliquet import initialization
-from cliquet.events import ResourceChanged, ACTIONS
+from cliquet.events import ResourceChanged, ResourceRead, ACTIONS
 from cliquet.listeners import ListenerBase
 from cliquet.storage.redis import create_from_config
 from cliquet.tests.support import unittest
@@ -90,6 +90,49 @@ class ListenerSetupTest(unittest.TestCase):
         config.registry.notify(event)
 
         self.assertFalse(fake_callback.called)
+
+    def test_callback_is_not_called_on_read_by_default(self):
+        config = testing.setUp(settings={
+            'event_listeners': 'cliquet.listeners.redis',
+        })
+        fake_callback = mock.Mock()
+        self.redis_mocked.return_value = fake_callback
+        initialization.setup_listeners(config)
+
+        event = ResourceRead('read', Resource(), [], Request())
+        config.registry.notify(event)
+
+        self.assertFalse(fake_callback.called)
+
+    def test_callback_is_called_on_read_if_specified(self):
+        config = testing.setUp(settings={
+            'event_listeners': 'cliquet.listeners.redis',
+            'event_listeners.redis.actions': 'read',
+        })
+        fake_callback = mock.Mock()
+        self.redis_mocked.return_value = fake_callback
+        initialization.setup_listeners(config)
+
+        event = ResourceRead('read', Resource(), [], Request())
+        config.registry.notify(event)
+
+        self.assertTrue(fake_callback.called)
+
+    def test_same_callback_is_called_for_read_and_write_specified(self):
+        config = testing.setUp(settings={
+            'event_listeners': 'cliquet.listeners.redis',
+            'event_listeners.redis.actions': 'read create delete',
+        })
+        fake_callback = mock.Mock()
+        self.redis_mocked.return_value = fake_callback
+        initialization.setup_listeners(config)
+
+        event = ResourceRead('read', Resource(), [], Request())
+        config.registry.notify(event)
+        event = ResourceChanged('create', Resource(), [], Request())
+        config.registry.notify(event)
+
+        self.assertEqual(fake_callback.call_count, 2)
 
 
 @contextmanager
