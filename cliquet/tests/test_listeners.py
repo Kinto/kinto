@@ -15,15 +15,81 @@ from cliquet.tests.support import unittest
 
 
 class ListenerSetupTest(unittest.TestCase):
-    def test_redis_listener_is_enabled_via_setting(self):
-        listener = 'cliquet.listeners.redis'
-        redis_class = mock.patch(listener + '.Listener')
-        config = testing.setUp()
-        with mock.patch.dict(config.registry.settings,
-                             [('event_listeners', listener)]):
-            with redis_class as redis_mocked:
-                initialization.setup_listeners(config)
-                self.assertTrue(redis_mocked.called)
+    def setUp(self):
+        redis_patch = mock.patch('cliquet.listeners.redis.load_from_config')
+        self.addCleanup(redis_patch.stop)
+        self.redis_mocked = redis_patch.start()
+
+    def test_listener_module_is_specified_via_settings(self):
+        config = testing.setUp(settings={
+            'event_listeners': 'redis',
+            'event_listeners.redis.use': 'cliquet.listeners.redis',
+        })
+        initialization.setup_listeners(config)
+        self.assertTrue(self.redis_mocked.called)
+
+    def test_listener_module_can_be_specified_via_listeners_list(self):
+        config = testing.setUp(settings={
+            'event_listeners': 'cliquet.listeners.redis',
+        })
+        initialization.setup_listeners(config)
+        self.assertTrue(self.redis_mocked.called)
+
+    def test_callback_called_when_action_is_not_filtered(self):
+        config = testing.setUp(settings={
+            'event_listeners': 'cliquet.listeners.redis',
+        })
+        fake_callback = mock.Mock()
+        self.redis_mocked.return_value = fake_callback
+        initialization.setup_listeners(config)
+
+        event = ResourceChanged('create', Resource(), [], Request())
+        config.registry.notify(event)
+
+        self.assertTrue(fake_callback.called)
+
+    def test_callback_is_not_called_when_action_is_filtered(self):
+        config = testing.setUp(settings={
+            'event_listeners': 'cliquet.listeners.redis',
+            'event_listeners.redis.actions': 'delete',
+        })
+        fake_callback = mock.Mock()
+        self.redis_mocked.return_value = fake_callback
+        initialization.setup_listeners(config)
+
+        event = ResourceChanged('create', Resource(), [], Request())
+        config.registry.notify(event)
+
+        self.assertFalse(fake_callback.called)
+
+    def test_callback_called_when_resource_is_not_filtered(self):
+        config = testing.setUp(settings={
+            'event_listeners': 'cliquet.listeners.redis',
+        })
+        fake_callback = mock.Mock()
+        self.redis_mocked.return_value = fake_callback
+        initialization.setup_listeners(config)
+
+        event = ResourceChanged('create', Resource(), [], Request())
+        event.payload['resource_name'] = 'mushroom'
+        config.registry.notify(event)
+
+        self.assertTrue(fake_callback.called)
+
+    def test_callback_is_not_called_when_resource_is_filtered(self):
+        config = testing.setUp(settings={
+            'event_listeners': 'cliquet.listeners.redis',
+            'event_listeners.redis.resources': 'toad',
+        })
+        fake_callback = mock.Mock()
+        self.redis_mocked.return_value = fake_callback
+        initialization.setup_listeners(config)
+
+        event = ResourceChanged('create', Resource(), [], Request())
+        event.payload['resource_name'] = 'mushroom'
+        config.registry.notify(event)
+
+        self.assertFalse(fake_callback.called)
 
 
 @contextmanager

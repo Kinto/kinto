@@ -250,7 +250,10 @@ Notifications
 =============
 
 To activate event listeners, use the *event_handlers* setting,
-which takes a list of python modules.
+which takes a list of either:
+
+* aliases (e.g. ``journal``)
+* python modules (e.g. ``cliquet.listeners.redis``)
 
 Each listener will load load its dedicated settings.
 
@@ -260,11 +263,24 @@ data in the ``queue`` Redis list.
 
 .. code-block:: ini
 
-    cliquet.event_listeners = cliquet.events.redis
+    cliquet.event_listeners = redis
 
+    cliquet.event_listeners.redis.use = cliquet.events.redis
     cliquet.event_listeners.redis.url = redis://localhost:6379/0
     cliquet.event_listeners.redis.pool_size = 5
     cliquet.event_listeners.redis.listname = queue
+
+Filtering
+---------
+
+It is possible to filter events by action and/or resource name. By
+default actions ``create``, ``update`` and ``delete`` are notified
+for every resources.
+
+.. code-block:: ini
+
+    cliquet.event_listeners.redis.actions = create
+    cliquet.event_listeners.redis.resources = article comment
 
 
 Cache

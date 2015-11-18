@@ -373,15 +373,42 @@ def setup_logging(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
-def setup_listeners(config):
-    listeners = aslist(config.get_settings()['event_listeners'])
-    from cliquet.events import ResourceChanged
+def _filter_events(callback, actions, resources):
+    def wrapped(event):
+        action = event.payload.get('action')
+        resource_name = event.payload.get('resource_name')
+        if action and action not in actions:
+            return
+        if resource_name and resources and resource_name not in resources:
+            return
+        return callback(event)
+    return wrapped
 
-    for listener in listeners:
+
+def setup_listeners(config):
+    from cliquet.events import ResourceChanged, ACTIONS
+
+    write_actions = (ACTIONS.CREATE, ACTIONS.UPDATE, ACTIONS.DELETE)
+    settings = config.get_settings()
+    listeners = aslist(settings['event_listeners'])
+
+    for name in listeners:
         logger.info('Setting up %r listener')
-        listener_mod = config.maybe_dotted(listener)
-        listener = listener_mod.load_from_config(config)
-        config.add_subscriber(listener, ResourceChanged)
+        prefix = 'event_listeners.%s.' % name
+
+        try:
+            listener_mod = config.maybe_dotted(name)
+            assert hasattr(listener_mod, 'load_from_config')
+            prefix = 'event_listeners.%s.' % name.split('.')[-1]
+        except (ImportError, AssertionError):
+            listener_mod = config.maybe_dotted(settings[prefix + 'use'])
+        listener = listener_mod.load_from_config(config, prefix)
+
+        actions = aslist(settings.get(prefix + 'actions', '')) or write_actions
+        resource_names = aslist(settings.get(prefix + 'resources', ''))
+        callback = _filter_events(listener, actions, resource_names)
+
+        config.add_subscriber(callback, ResourceChanged)
 
 
 def load_default_settings(config, default_settings):
