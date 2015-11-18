@@ -88,18 +88,6 @@ class InitializationTest(unittest.TestCase):
         self.assertFalse(hasattr(config.registry, 'cache'))
         self.assertFalse(hasattr(config.registry, 'permission'))
 
-    def test_cliquet_includes_are_included_manually(self):
-        config = Configurator(settings=cliquet.DEFAULT_SETTINGS)
-        config.add_settings({'includes': 'elastic history'})
-        config.route_prefix = 'v2'
-
-        with mock.patch.object(config, 'include'):
-            with mock.patch.object(config, 'scan'):
-                cliquet.includeme(config)
-
-                config.include.assert_any_call('elastic')
-                config.include.assert_any_call('history')
-
     def test_environment_values_override_configuration(self):
         import os
 
@@ -424,3 +412,41 @@ class RequestsConfigurationTest(unittest.TestCase):
         app = self._get_app({'http_host': 'server'})
         resp = app.get('/v0/', headers={'Host': 'elb:8888'})
         self.assertEqual(resp.json['url'], 'http://server/v0/')
+
+
+class PluginsTest(unittest.TestCase):
+    def test_cliquet_includes_are_included_manually(self):
+        config = Configurator(settings=cliquet.DEFAULT_SETTINGS)
+        config.add_settings({'includes': 'elastic history'})
+        config.route_prefix = 'v2'
+
+        with mock.patch.object(config, 'include'):
+            with mock.patch.object(config, 'scan'):
+                cliquet.includeme(config)
+
+                config.include.assert_any_call('elastic')
+                config.include.assert_any_call('history')
+
+    def make_app(self):
+        config = Configurator(settings=cliquet.DEFAULT_SETTINGS)
+        config.add_settings({
+            'permission_backend': 'cliquet.permission.memory',
+            'includes': 'cliquet.tests.testplugin'
+        })
+        cliquet.initialize(config, '0.0.1', 'name')
+        return webtest.TestApp(config.make_wsgi_app())
+
+    def test_plugin_can_define_protected_views(self):
+        app = self.make_app()
+        app.post('/v0/attachment', status=401)
+        headers = {'Authorization': 'Basic bWF0OjE='}
+        app.post('/v0/attachment', headers=headers, status=403)
+
+    def test_plugin_benefits_from_cors_setup(self):
+        app = self.make_app()
+        headers = {
+            'Origin': 'lolnet.org',
+            'Access-Control-Request-Method': 'POST'
+        }
+        resp = app.options('/v0/attachment', headers=headers, status=200)
+        self.assertIn('Access-Control-Allow-Origin', resp.headers)
