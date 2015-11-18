@@ -1,2 +1,3 @@
 include *.rst LICENSE Makefile tox.ini .coveragerc
-recursive-include config *.ini
+include kinto/config/kinto.tpl
+recursive-include config *.ini 
