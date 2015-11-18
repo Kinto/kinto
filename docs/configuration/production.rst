@@ -62,7 +62,7 @@ If you want to put your kinto behind a CDN you must make sure to define the righ
 
 .. code-block:: ini
 
-    kinto.http_host = <cdn_hostname>
+    kinto.http_host = cdn.firefox.com
     
 You can make sure your service is correctly configured by looking at the service URL returned on the service home page.
 It should be your CDN service URL.
