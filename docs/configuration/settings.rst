@@ -88,16 +88,25 @@ Storage
 | kinto.storage_backend                 | The Python *dotted* location of the storage backend to use.              |
 | ``cliquet.storage.redis``             |                                                                          |
 +---------------------------------------+--------------------------------------------------------------------------+
+| kinto.storage_url  ``''``             | The URL to use to authenticate to the storage backend. e.g.              |
+|                                       | ``redis://localhost:6378/1`` or ``postgres://user:pass@database/db``     |
++---------------------------------------+--------------------------------------------------------------------------+
 | kinto.storage_max_fetch_size          | The maximum number of items that can be returned by one request to the   |
 | ``10000``                             | storage backend. If no pagination is enabled, this is the maximum number |
 |                                       | of items that can be stored in a collection (otherwise some of them      |
 |                                       | won't be returned). With pagination enabled, this limitation doesn't     |
 |                                       | apply.                                                                   |
 +---------------------------------------+--------------------------------------------------------------------------+
-| kinto.storage_pool_size ``10``        | The size of the pool of connections to use for the storage backend.      |
+| kinto.storage_pool_size ``25``        | The size of the pool of connections to use for the storage backend.      |
 +---------------------------------------+--------------------------------------------------------------------------+
-| kinto.storage_url  ``''``             | The URL to use to authenticate to the storage backend. e.g.              |
-|                                       | ``redis://localhost:6378/1`` or ``postgres://user:pass@database/db``     |
+| kinto.storage_max_overflow ``5``      | Number of connections that can be opened beyond pool size.               |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.storage_pool_recycle ``-1``     | Recycle connections after the given number of seconds has passed.        |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.storage_pool_timeout ``30``     | Number of seconds to wait before giving up on getting a connection from  |
+|                                       | the pool.                                                                |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.storage_max_backlog ``-1``      | Number of threads that can be in the queue waiting for a connection.     |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 .. code-block:: ini
@@ -121,10 +130,19 @@ Cache
 | kinto.cache_backend                   | The Python *dotted* location of the cache backend to use.                |
 | ``cliquet.cache.redis``               |                                                                          |
 +---------------------------------------+--------------------------------------------------------------------------+
-| kinto.cache_pool_size ``10``          | The size of the pool of connections to use for the cache backend.        |
-+---------------------------------------+--------------------------------------------------------------------------+
 | kinto.cache_url  ``''``               | The URL to use to authenticate to the cache backend. e.g.                |
 |                                       | ``redis://localhost:6378/1`` or ``postgres://user:pass@database/db``     |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.cache_pool_size ``25``          | The size of the pool of connections to use for the cache backend.        |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.cache_max_overflow ``5``        | Number of connections that can be opened beyond pool size.               |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.cache_pool_recycle ``-1``       | Recycle connections after the given number of seconds has passed.        |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.cache_pool_timeout ``30``       | Number of seconds to wait before giving up on getting a connection from  |
+|                                       | the pool.                                                                |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.cache_max_backlog ``-1``        | Number of threads that can be in the queue waiting for a connection.     |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 .. code-block:: ini
@@ -147,7 +165,16 @@ Permissions
 | kinto.permission_url ``''``           | The URL to use to authenticate to the permission backend. e.g.           |
 |                                       | ``redis://localhost:6379/1``                                             |
 +---------------------------------------+--------------------------------------------------------------------------+
-| kinto.permission_pool_size ``10``     | The size of the pool of connections to use for the permission backend.   |
+| kinto.permission_pool_size ``25``     | The size of the pool of connections to use for the permission backend.   |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.permission_max_overflow ``5``   | Number of connections that can be opened beyond pool size.               |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.permission_pool_recycle ``-1``  | Recycle connections after the given number of seconds has passed.        |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.permission_pool_timeout ``30``  | Number of seconds to wait before giving up on getting a connection from  |
+|                                       | the pool.                                                                |
++---------------------------------------+--------------------------------------------------------------------------+
+| kinto.permission_max_backlog ``-1``   | Number of threads that can be in the queue waiting for a connection.     |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 .. code-block:: ini

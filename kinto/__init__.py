@@ -25,8 +25,6 @@ DEFAULT_SETTINGS = {
     'bucket_create_principals': Authenticated,
     'multiauth.authorization_policy': (
         'kinto.authorization.AuthorizationPolicy'),
-    'multiauth.groupfinder': (
-        'kinto.authorization.groupfinder'),
     'experimental_collection_schema_validation': 'False',
 }
 
