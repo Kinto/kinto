@@ -20,119 +20,86 @@ class ListenerSetupTest(unittest.TestCase):
         self.addCleanup(redis_patch.stop)
         self.redis_mocked = redis_patch.start()
 
+    def make_app(self, extra_settings={}):
+        settings = {
+            'event_listeners': 'cliquet.listeners.redis',
+        }
+        settings.update(**extra_settings)
+        config = testing.setUp(settings=settings)
+        initialization.setup_listeners(config)
+        return config
+
     def test_listener_module_is_specified_via_settings(self):
-        config = testing.setUp(settings={
+        self.make_app({
             'event_listeners': 'redis',
             'event_listeners.redis.use': 'cliquet.listeners.redis',
         })
-        initialization.setup_listeners(config)
         self.assertTrue(self.redis_mocked.called)
 
     def test_listener_module_can_be_specified_via_listeners_list(self):
-        config = testing.setUp(settings={
-            'event_listeners': 'cliquet.listeners.redis',
-        })
-        initialization.setup_listeners(config)
+        self.make_app()
         self.assertTrue(self.redis_mocked.called)
 
     def test_callback_called_when_action_is_not_filtered(self):
-        config = testing.setUp(settings={
-            'event_listeners': 'cliquet.listeners.redis',
-        })
-        fake_callback = mock.Mock()
-        self.redis_mocked.return_value = fake_callback
-        initialization.setup_listeners(config)
-
+        config = self.make_app()
         event = ResourceChanged('create', Resource(), [], Request())
         config.registry.notify(event)
 
-        self.assertTrue(fake_callback.called)
+        self.assertTrue(self.redis_mocked.return_value.called)
 
     def test_callback_is_not_called_when_action_is_filtered(self):
-        config = testing.setUp(settings={
-            'event_listeners': 'cliquet.listeners.redis',
+        config = self.make_app({
             'event_listeners.redis.actions': 'delete',
         })
-        fake_callback = mock.Mock()
-        self.redis_mocked.return_value = fake_callback
-        initialization.setup_listeners(config)
-
         event = ResourceChanged('create', Resource(), [], Request())
         config.registry.notify(event)
 
-        self.assertFalse(fake_callback.called)
+        self.assertFalse(self.redis_mocked.return_value.called)
 
     def test_callback_called_when_resource_is_not_filtered(self):
-        config = testing.setUp(settings={
-            'event_listeners': 'cliquet.listeners.redis',
-        })
-        fake_callback = mock.Mock()
-        self.redis_mocked.return_value = fake_callback
-        initialization.setup_listeners(config)
-
+        config = self.make_app()
         event = ResourceChanged('create', Resource(), [], Request())
         event.payload['resource_name'] = 'mushroom'
         config.registry.notify(event)
 
-        self.assertTrue(fake_callback.called)
+        self.assertTrue(self.redis_mocked.return_value.called)
 
     def test_callback_is_not_called_when_resource_is_filtered(self):
-        config = testing.setUp(settings={
-            'event_listeners': 'cliquet.listeners.redis',
+        config = self.make_app({
             'event_listeners.redis.resources': 'toad',
         })
-        fake_callback = mock.Mock()
-        self.redis_mocked.return_value = fake_callback
-        initialization.setup_listeners(config)
-
         event = ResourceChanged('create', Resource(), [], Request())
         event.payload['resource_name'] = 'mushroom'
         config.registry.notify(event)
 
-        self.assertFalse(fake_callback.called)
+        self.assertFalse(self.redis_mocked.return_value.called)
 
     def test_callback_is_not_called_on_read_by_default(self):
-        config = testing.setUp(settings={
-            'event_listeners': 'cliquet.listeners.redis',
-        })
-        fake_callback = mock.Mock()
-        self.redis_mocked.return_value = fake_callback
-        initialization.setup_listeners(config)
-
+        config = self.make_app()
         event = ResourceRead('read', Resource(), [], Request())
         config.registry.notify(event)
 
-        self.assertFalse(fake_callback.called)
+        self.assertFalse(self.redis_mocked.return_value.called)
 
     def test_callback_is_called_on_read_if_specified(self):
-        config = testing.setUp(settings={
-            'event_listeners': 'cliquet.listeners.redis',
+        config = self.make_app({
             'event_listeners.redis.actions': 'read',
         })
-        fake_callback = mock.Mock()
-        self.redis_mocked.return_value = fake_callback
-        initialization.setup_listeners(config)
-
         event = ResourceRead('read', Resource(), [], Request())
         config.registry.notify(event)
 
-        self.assertTrue(fake_callback.called)
+        self.assertTrue(self.redis_mocked.return_value.called)
 
     def test_same_callback_is_called_for_read_and_write_specified(self):
-        config = testing.setUp(settings={
-            'event_listeners': 'cliquet.listeners.redis',
+        config = self.make_app({
             'event_listeners.redis.actions': 'read create delete',
         })
-        fake_callback = mock.Mock()
-        self.redis_mocked.return_value = fake_callback
-        initialization.setup_listeners(config)
-
         event = ResourceRead('read', Resource(), [], Request())
         config.registry.notify(event)
         event = ResourceChanged('create', Resource(), [], Request())
         config.registry.notify(event)
 
-        self.assertEqual(fake_callback.call_count, 2)
+        self.assertEqual(self.redis_mocked.return_value.call_count, 2)
 
 
 @contextmanager
