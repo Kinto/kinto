@@ -6,15 +6,39 @@ This document describes changes between each past release.
 1.9.0 (2015-11-18)
 ==================
 
+- Upgraded to *Cliquet* 2.11.0
+
+**Breaking changes**
+
+- For PostgreSQL backends, it is recommended to specify ``postgresql://``.
+
 **Protocol**
 
-- Add a ``bucket`` attribute in ``user`` mapping allowing clients to obtain
-  the actual id of their default bucket.
+- In the hello view:
+
+   - Add a ``bucket`` attribute in ``user`` mapping allowing clients
+     to obtain the actual id of their default bucket
+   - Add the ``protocol_version`` to tell which protocol version is
+     implemented by the service. (#324)
+
+- ``_since`` and ``_before`` now accepts an integer value between quotes ``"``,
+  as it would be returned in the ``ETag`` response header.
+- A batch request now fails if one of the subrequests fails
+  (mozilla-services/cliquet#510) (*see new feature about
+  transactions*)
 
 **New features**
 
 - Add a Kinto command for start and migrate operation. (#129)
 - Add a Kinto command to create a configuration file. (#278)
+- A transaction now covers the whole request/response cycle (#194).
+  If an error occurs during the request processing, every operation performed
+  is rolled back. **Note:** This is only enabled with *PostgreSQL* backends. In
+  other words, the rollback has no effect on backends like *Redis* or *Memory*.
+
+- New settings for backends when using PostgreSQL: ``*_max_backlog``,
+  ``*_max_overflow``, ``*_pool_recycle``, ``*_pool_timeout`` to
+  control connections pool behaviour.
 
 **Bug fixes**
 
@@ -29,7 +53,10 @@ This document describes changes between each past release.
 - Do not build the Docker container when using Docker Compose.
 - Add Python 3.5 on TravisCI
 - Add schema validation loadtest (fixes #201)
-- Multiple documentation improvments.
+- Multiple documentation improvements.
+- The PostgreSQL backends now use SQLAlchemy sessions.
+
+See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/releases/2.11.0>`_
 
 
 1.8.0 (2015-10-30)

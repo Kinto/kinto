@@ -138,20 +138,6 @@ def build_permissions_set(object_uri, unbound_permission,
     return granters
 
 
-def groupfinder(userid, request):
-    authn_type = request.authn_type
-    prefixed_userid = '%s:%s' % (authn_type.lower(), userid)
-
-    cache_key = prefixed_userid + '_principals'
-
-    if cache_key not in request.bound_data:
-        backend = request.registry.permission
-        principals = backend.user_principals(prefixed_userid)
-        request.bound_data[cache_key] = principals
-
-    return request.bound_data[cache_key]
-
-
 @implementer(IAuthorizationPolicy)
 class AuthorizationPolicy(cliquet_authorization.AuthorizationPolicy):
     def get_bound_permissions(self, *args, **kwargs):
