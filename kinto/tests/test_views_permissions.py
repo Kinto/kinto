@@ -1,5 +1,3 @@
-import mock
-
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_BUCKET, MINIMALIST_COLLECTION,
                       MINIMALIST_GROUP, MINIMALIST_RECORD)
