@@ -12,19 +12,19 @@ use = egg:kinto
 #
 # http://kinto.readthedocs.org/en/latest/configuration/settings.html#storage
 #
-# kinto.storage_backend = cliquet.storage.postgresql
-# kinto.storage_url = postgres://postgres:postgres@localhost/postgres
-# kinto.cache_backend = cliquet.cache.postgresql
-# kinto.cache_url = postgres://postgres:postgres@localhost/postgres
-# kinto.permission_backend = cliquet.permission.postgresql
-# kinto.permission_url = postgres://postgres:postgres@localhost/postgres
+kinto.storage_backend = {storage_backend}
+kinto.storage_url = {storage_url}
+kinto.cache_backend = {cache_backend}
+kinto.cache_url = {cache_url}
+kinto.permission_backend = {permission_backend}
+kinto.permission_url = {permission_url}
 
 #
 # Auth configuration.
 #
 # http://kinto.readthedocs.org/en/latest/configuration/settings.html#authentication
 #
-kinto.userid_hmac_secret = XXX-replace-by-a-secret-phrase-XXX
+kinto.userid_hmac_secret = {secret}
 multiauth.policies = basicauth
 # multiauth.policies = fxa basicauth
 
@@ -138,4 +138,3 @@ formatter = generic
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
 
-# End logging configuration

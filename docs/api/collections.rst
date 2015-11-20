@@ -15,18 +15,15 @@ A collection is a mapping with the following attribute:
 .. note::
 
     By default users are assigned to a bucket that is used for their
-    personal data.
+    personal data. When going through the default bucket, the collections are created
+    silently upon first access
 
     Application can use this default bucket with the ``default``
     shortcut: ie ``/buckets/default/collections/contacts`` will be
     the current user contacts.
 
-    Internally the user default bucket is assigned to an ID that can
-    later be used to share data from a user personnal bucket.
-
-    Collections on the "default" bucket are created silently upon first
-    access and therefore don't need to be set beforehand.
-
+    Internally the user default bucket is assigned to an ID, and users can share
+    data from their personnal bucket, by sharing :ref:`its URL using the full ID <buckets-default-id>`.
 
 
 .. _collection-put:

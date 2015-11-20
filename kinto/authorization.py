@@ -138,13 +138,6 @@ def build_permissions_set(object_uri, unbound_permission,
     return granters
 
 
-# XXX: May need caching
-def groupfinder(userid, request):
-    authn_type = request.authn_type
-    prefixed_userid = '%s:%s' % (authn_type.lower(), userid)
-    return request.registry.permission.user_principals(prefixed_userid)
-
-
 @implementer(IAuthorizationPolicy)
 class AuthorizationPolicy(cliquet_authorization.AuthorizationPolicy):
     def get_bound_permissions(self, *args, **kwargs):

@@ -21,9 +21,8 @@ Recommended settings
 Most default setting values in the application code base are suitable
 for production.
 
-Once :ref:`PostgreSQL is installed <postgresql-install>`, the settings about
-backends as shown in :file:`config/kinto.ini` can be uncommented in order
-to use *PostgreSQL*.
+Once :ref:`PostgreSQL is installed <postgresql-install>`, select the
+Postgresql option when running the ``kinto init`` command.
 
 Also, the set of settings mentionned below might deserve some review or
 adjustments:
@@ -34,15 +33,15 @@ adjustments:
     kinto.http_scheme = https
     kinto.paginate_by = 100
     kinto.batch_max_requests = 25
-    kinto.storage_pool_maxconn = 50
-    kinto.cache_pool_maxconn = 50
-    kinto.permission_pool_maxconn = 50
+    kinto.storage_pool_size = 50
+    kinto.cache_pool_size = 50
+    kinto.permission_pool_size = 50
     fxa-oauth.cache_ttl_seconds = 3600
 
 .. note::
 
     For an exhaustive list of available settings and their default values,
-    refer to `the source code <https://github.com/mozilla-services/cliquet/blob/2.10.0/cliquet/__init__.py#L27-L88>`_.
+    refer to `the source code <https://github.com/mozilla-services/cliquet/blob/2.11.0/cliquet/__init__.py#L29-L92>`_.
 
 
 By default, nobody can read buckets list. You can change that using:
@@ -53,6 +52,19 @@ By default, nobody can read buckets list. You can change that using:
 
 Beware that if you do so, everyone will be able to list bucket
 information (including user's personal buckets).
+
+
+Handling CDN
+------------
+
+If you want to put your kinto behind a CDN you must make sure to define the right host or you will leak the main server host.
+
+.. code-block:: ini
+
+    kinto.http_host = cdn.firefox.com
+    
+You can make sure your service is correctly configured by looking at the service URL returned on the service home page.
+It should be your CDN service URL.
 
 
 Monitoring
@@ -217,7 +229,7 @@ run the Kinto application:
 Using nginx
 -----------
 
-nginx can act as a *reverse proxy* in front of :rtd:`uWSGI <uwsgi-docs>`_
+nginx can act as a *reverse proxy* in front of :rtd:`uWSGI <uwsgi-docs>`
 (or any other wsgi server like `Gunicorn <http://gunicorn.org>`_ or :rtd:`Circus <circus>`).
 
 Download the ``uwsgi_params`` file:

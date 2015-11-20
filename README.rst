@@ -1,7 +1,7 @@
 Kinto
 =====
 
-|travis| |master-coverage| |readthedocs|
+|travis| |master-coverage| |readthedocs| |pypi|
 
 .. |travis| image:: https://travis-ci.org/Kinto/kinto.svg?branch=master
     :target: https://travis-ci.org/Kinto/kinto
@@ -14,6 +14,10 @@ Kinto
     https://coveralls.io/repos/Kinto/kinto/badge.png?branch=master
     :alt: Coverage
     :target: https://coveralls.io/r/Kinto/kinto
+    
+.. |pypi| image:: https://img.shields.io/pypi/v/kinto.svg
+    :target: https://pypi.python.org/pypi/kinto
+
 
 Kinto is a server allowing you to store and synchronize arbitrary data,
 attached to your Firefox account.

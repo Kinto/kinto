@@ -133,7 +133,7 @@ Updating a record
 .. http:patch:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
     :synopsis: Update a record in the collection. Specify only the fields to be
-    modified (all the rest will remain intact).
+               modified (all the rest will remain intact).
 
     **Requires authentication**
 

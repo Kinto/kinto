@@ -10,3 +10,4 @@ docs/_build/
 docs/api/cliquet/
 .cache/
 *.un~
+config/*.ini

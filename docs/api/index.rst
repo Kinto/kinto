@@ -1,4 +1,4 @@
-.. _api-endpoints:
+.. _kinto-api-endpoints:
 
 API
 ###
@@ -79,6 +79,7 @@ Full detailed API documentation:
 .. toctree::
    :maxdepth: 2
 
+   cliquet/utilities
    cliquet/versioning
    cliquet/authentication
    cliquet/resource

@@ -40,11 +40,14 @@ build-requirements:
 	$(TEMPDIR)/bin/pip install -Ue .
 	$(TEMPDIR)/bin/pip freeze > requirements.txt
 
-serve: install-dev migrate
-	$(VENV)/bin/pserve $(SERVER_CONFIG) --reload
+$(SERVER_CONFIG):
+	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
 
-migrate: install
-	$(VENV)/bin/cliquet --ini $(SERVER_CONFIG) migrate
+serve: install-dev $(SERVER_CONFIG) migrate
+	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start
+
+migrate: install $(SERVER_CONFIG)
+	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) migrate
 
 tests-once: install-dev
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
@@ -64,7 +67,7 @@ maintainer-clean: distclean
 
 loadtest-check-tutorial: install-postgres
 	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\
-	$(VENV)/bin/pserve loadtests/server.ini > kinto.log & PID=$$! && \
+	$(VENV)/bin/kinto --ini loadtests/server.ini start > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \
 	  sleep 1 && cd loadtests && \
 	  make tutorial SERVER_URL=http://127.0.0.1:8888; \
@@ -72,13 +75,13 @@ loadtest-check-tutorial: install-postgres
 
 loadtest-check-simulation: install-postgres
 	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\
-	$(VENV)/bin/pserve loadtests/server.ini > kinto.log & PID=$$! && \
+	$(VENV)/bin/kinto --ini loadtests/server.ini start > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \
 	  sleep 1 && cd loadtests && \
 	  make simulation SERVER_URL=http://127.0.0.1:8888; \
 	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
 
 docs: install-dev
-	$(VENV)/bin/sphinx-build -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
+	$(VENV)/bin/sphinx-build -a -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"

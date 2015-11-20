@@ -1,13 +1,10 @@
-from six import text_type
-from uuid import UUID
-
 from pyramid import httpexceptions
 from pyramid.settings import asbool
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
 from cliquet import resource
-from cliquet.utils import hmac_digest, build_request, reapply_cors
+from cliquet.utils import build_request, reapply_cors
 from cliquet.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
@@ -144,10 +141,7 @@ def default_bucket(request):
     if asbool(settings['readonly']):
         raise httpexceptions.HTTPMethodNotAllowed()
 
-    hmac_secret = settings['userid_hmac_secret']
-    # Build the user unguessable bucket_id UUID from its user_id
-    digest = hmac_digest(hmac_secret, request.prefixed_userid)
-    bucket_id = text_type(UUID(digest[:32]))
+    bucket_id = request.default_bucket_id
     path = request.path.replace('/buckets/default', '/buckets/%s' % bucket_id)
     querystring = request.url[(request.url.index(request.path) +
                                len(request.path)):]

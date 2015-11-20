@@ -34,6 +34,7 @@ test: install
 
 simulation: install
 	$(VENV)/bin/loads-runner --config=./config/test.ini --server-url=$(SERVER_URL) loadtest.simulation.SimulationLoadTest.test_simulation
+	$(VENV)/bin/loads-runner --config=./config/test.ini --server-url=$(SERVER_URL) loadtest.schemas.SchemaValidationTest.validate_records
 
 tutorial: install
 	$(VENV)/bin/loads-runner --config=./config/test.ini --server-url=$(SERVER_URL) loadtest.tutorial.TutorialLoadTest.test_tutorial
