@@ -6,7 +6,9 @@ This document describes changes between each past release.
 1.10.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix redis default host in kinto init (fixes #289)
 
 
 1.9.0 (2015-11-18)

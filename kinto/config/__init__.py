@@ -36,11 +36,11 @@ def init(config_file):
     elif backend == '2':
         # Redis configuration
         values['storage_backend'] = "cliquet.storage.redis"
-        values['storage_url'] = "redis://localhos:6379/1"
+        values['storage_url'] = "redis://localhots:6379/1"
         values['cache_backend'] = "cliquet.cache.redis"
-        values['cache_url'] = "redis://localhos:6379/2"
+        values['cache_url'] = "redis://localhost:6379/2"
         values['permission_backend'] = "cliquet.permission.redis"
-        values['permission_url'] = "redis://localhos:6379/3"
+        values['permission_url'] = "redis://localhost:6379/3"
 
     else:
         # Memory configuration / default backend
@@ -51,11 +51,4 @@ def init(config_file):
         values['permission_backend'] = "cliquet.permission.memory"
         values['permission_url'] = ""
 
-    render_template("kinto.tpl", config_file,
-                    secret=values['secret'],
-                    storage_backend=values['storage_backend'],
-                    storage_url=values['storage_url'],
-                    cache_backend=values['cache_backend'],
-                    cache_url=values['cache_url'],
-                    permission_backend=values['permission_backend'],
-                    permission_url=values['permission_url'])
+    render_template("kinto.tpl", config_file, **values)
