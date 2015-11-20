@@ -43,7 +43,7 @@ build-requirements:
 $(SERVER_CONFIG):
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
 
-serve: install-dev migrate
+serve: install-dev $(SERVER_CONFIG) migrate
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start
 
 migrate: install
