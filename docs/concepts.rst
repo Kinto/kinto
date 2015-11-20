@@ -130,7 +130,7 @@ Regarding permissions, the following vocabulary is used in the documentation:
         A list of ACEs.
 
     Firefox Accounts
-        Account account system run by Mozilla (https://accounts.firefox.com).
+        Account system run by Mozilla (https://accounts.firefox.com).
 
     User id
     User identifier
