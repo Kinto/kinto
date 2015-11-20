@@ -36,7 +36,7 @@ def init(config_file):
     elif backend == '2':
         # Redis configuration
         values['storage_backend'] = "cliquet.storage.redis"
-        values['storage_url'] = "redis://localhots:6379/1"
+        values['storage_url'] = "redis://localhost:6379/1"
         values['cache_backend'] = "cliquet.cache.redis"
         values['cache_url'] = "redis://localhost:6379/2"
         values['permission_backend'] = "cliquet.permission.redis"
