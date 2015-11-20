@@ -1083,7 +1083,7 @@ class ShareableResource(UserResource):
 
         return annotated
 
-    def postprocess(self, result, **kwargs):
+    def postprocess(self, result, action=ACTIONS.READ, old=None):
         """Add ``permissions`` attribute in response body.
 
         In the protocol, it was decided that ``permissions`` would reside
@@ -1097,7 +1097,11 @@ class ShareableResource(UserResource):
             if perms is not None:
                 body['permissions'] = {k: list(p) for k, p in perms.items()}
 
-        data = super(ShareableResource, self).postprocess(result, **kwargs)
+            if old:
+                # Remove permissions from event payload.
+                old.pop(self.model.permissions_field, None)
+
+        data = super(ShareableResource, self).postprocess(result, action, old)
         body.update(data)
         return body
 
