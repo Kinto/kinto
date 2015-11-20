@@ -86,7 +86,7 @@ Storage
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
 | kinto.storage_backend                 | The Python *dotted* location of the storage backend to use.              |
-| ``cliquet.storage.redis``             |                                                                          |
+| ``cliquet.storage.memory``            |                                                                          |
 +---------------------------------------+--------------------------------------------------------------------------+
 | kinto.storage_url  ``''``             | The URL to use to authenticate to the storage backend. e.g.              |
 |                                       | ``redis://localhost:6378/1`` or ``postgres://user:pass@database/db``     |
@@ -128,7 +128,7 @@ Cache
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
 | kinto.cache_backend                   | The Python *dotted* location of the cache backend to use.                |
-| ``cliquet.cache.redis``               |                                                                          |
+| ``cliquet.cache.memory``              |                                                                          |
 +---------------------------------------+--------------------------------------------------------------------------+
 | kinto.cache_url  ``''``               | The URL to use to authenticate to the cache backend. e.g.                |
 |                                       | ``redis://localhost:6378/1`` or ``postgres://user:pass@database/db``     |
@@ -160,7 +160,7 @@ Permissions
 | Setting name                          | What does it do?                                                         |
 +=======================================+==========================================================================+
 | kinto.permission_backend              | The Python *dotted* location of the permission backend to use.           |
-| ``cliquet.permission.redis``          |                                                                          |
+| ``cliquet.permission.memory``         |                                                                          |
 +---------------------------------------+--------------------------------------------------------------------------+
 | kinto.permission_url ``''``           | The URL to use to authenticate to the permission backend. e.g.           |
 |                                       | ``redis://localhost:6379/1``                                             |
