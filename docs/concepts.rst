@@ -22,7 +22,8 @@ introduces some basic concepts.
 +-----------------+---------------------------------------------------------+
 | **record**      | The actual stored data                                  |
 +-----------------+---------------------------------------------------------+
-| **group**       | A named list of :term:`principals <principal>`.         |
+| **group**       | A named list of :term:`principals <principal>` to       |
+|                 | define permissions.                                     |
 +-----------------+---------------------------------------------------------+
 
 
@@ -86,7 +87,7 @@ For example, if a bucket defines a permission that allows anonymous users to rea
 then every record of every collection in this bucket will also be readable, as
 a result of inheritance.
 
-In general, the permission to create new objects is defined in the parent.
+The permission to create new objects is defined in the parent.
 For example, the permission to create records is defined in the collection, and the permission
 to create collections or groups is defined in the bucket. The permission to create new buckets,
 however, is controlled from the :ref:`server configuration <configuration>`.
