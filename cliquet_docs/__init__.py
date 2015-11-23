@@ -11,5 +11,5 @@ def copy_docs(section, destination):
         resource_file = '%s/%s' % (section, doc_name)
         stream = pkg_resources.resource_stream('cliquet_docs', resource_file)
         dest_filename = os.path.join(destination, doc_name)
-        with open(dest_filename, 'w') as f:
+        with open(dest_filename, 'wb') as f:
             f.write(stream.read())
