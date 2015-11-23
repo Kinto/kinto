@@ -74,29 +74,30 @@ with a specific `route factory
 <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html#route-factories>`_,
 that will take care of checking the appropriate permission for each action.
 
-+------------+--------------------+-------------------------------------+-----------------------------------------------------------------------------+
-| Method     | URL                | :term:`permission`                  | Comments                                                                    |
-+============+====================+=====================================+=============================================================================+
-| GET / HEAD | /{collection}      | ``read``                            | If not allowed by setting ``cliquet.{collection}_read_principals``,         |
-|            |                    |                                     | will return list of records where user has ``read`` permission.             |
-+------------+--------------------+-------------------------------------+-----------------------------------------------------------------------------+
-| POST       | /{collection}      | ``create``                          | Allowed by setting ``cliquet.{collection}_create_principals``               |
-+------------+--------------------+-------------------------------------+-----------------------------------------------------------------------------+
-| DELETE     | /{collection}      | ``write``                           | If not allowed by setting ``cliquet.{collection}_write_principals``,        |
-|            |                    |                                     | will delete the list of records where user has ``write`` permission.        |
-+------------+--------------------+-------------------------------------+-----------------------------------------------------------------------------+
-| GET / HEAD | /{collection}/{id} | ``read``                            | If not allowed by setting ``cliquet.{collection}_read_principals``,         |
-|            |                    |                                     | will check record permissions                                               |
-+------------+--------------------+-------------------------------------+-----------------------------------------------------------------------------+
-| PUT        | /{collection}/{id} | ``create`` if record doesn't exist, | Allowed by setting ``cliquet.{collection}_create_principals``,              |
-|            |                    | ``write`` otherwise                 | or ``cliquet.{collection}_create_principals`` or existing record permissions|
-+------------+--------------------+-------------------------------------+-----------------------------------------------------------------------------+
-| PATCH      | /{collection}/{id} | ``write``                           | If not allowed by setting ``cliquet.{collection}_write_principals``,        |
-|            |                    |                                     | will check record permissions                                               |
-+------------+--------------------+-------------------------------------+-----------------------------------------------------------------------------+
-| DELETE     | /{collection}/{id} | ``write``                           | If not allowed by setting ``cliquet.{collection}_write_principals``,        |
-|            |                    |                                     | will check record permissions                                               |
-+------------+--------------------+-------------------------------------+-----------------------------------------------------------------------------+
++------------+--------------------+----------------------+-----------------------------------------------------------------------------+
+| Method     | URL                | :term:`permission`   | Comments                                                                    |
++============+====================+======================+=============================================================================+
+| GET / HEAD | /{collection}      | ``read``             | If not allowed by setting ``cliquet.{collection}_read_principals``,         |
+|            |                    |                      | will return list of records where user has ``read`` permission.             |
++------------+--------------------+----------------------+-----------------------------------------------------------------------------+
+| POST       | /{collection}      | ``create``           | Allowed by setting ``cliquet.{collection}_create_principals``               |
++------------+--------------------+----------------------+-----------------------------------------------------------------------------+
+| DELETE     | /{collection}      | ``write``            | If not allowed by setting ``cliquet.{collection}_write_principals``,        |
+|            |                    |                      | will delete the list of records where user has ``write`` permission.        |
++------------+--------------------+----------------------+-----------------------------------------------------------------------------+
+| GET / HEAD | /{collection}/{id} | ``read``             | If not allowed by setting ``cliquet.{collection}_read_principals``,         |
+|            |                    |                      | will check record permissions                                               |
++------------+--------------------+----------------------+-----------------------------------------------------------------------------+
+| PUT        | /{collection}/{id} | ``create`` if record | Allowed by setting ``cliquet.{collection}_create_principals``,              |
+|            |                    | doesn't exist,       | or ``cliquet.{collection}_create_principals`` or existing record permissions|
+|            |                    | ``write`` otherwise  |                                                                             |
++------------+--------------------+----------------------+-----------------------------------------------------------------------------+
+| PATCH      | /{collection}/{id} | ``write``            | If not allowed by setting ``cliquet.{collection}_write_principals``,        |
+|            |                    |                      | will check record permissions                                               |
++------------+--------------------+----------------------+-----------------------------------------------------------------------------+
+| DELETE     | /{collection}/{id} | ``write``            | If not allowed by setting ``cliquet.{collection}_write_principals``,        |
+|            |                    |                      | will check record permissions                                               |
++------------+--------------------+----------------------+-----------------------------------------------------------------------------+
 
 The record permissions can be manipulated via the ``permissions`` attribute in the
 JSON payload, aside the ``data`` attribute.
@@ -106,9 +107,9 @@ as detailed in the `API section <resource-permissions-attribute>`_.
 The ``write`` permission is required to be able to modify the permissions
 of an existing record.
 
-When a record is created or modified, the current user is added to
-list of principals for the ``write`` permission. That means that a user is
-always able to replace or delete the records she created.
+When a record is created or modified, the **current user is added to
+list of principals** for the ``write`` permission on this object.
+That means that a user is always able to replace or delete the records she created.
 
 .. note::
 
@@ -117,16 +118,21 @@ always able to replace or delete the records she created.
     * ``system.Authenticated``: any authenticated user
     * ``system.Everyone``: any user
 
+.. warning::
+
+    When using this kind of resource, the ``permission_backend`` setting must be
+    set, :ref:`as described in the configuration section <configuration-permissions>`.
+
 
 BasicAuth trickery
 ------------------
 
-Like for user resources, if *Basic Auth* authentication is enabled, the predicable
+Like for user resources, if *Basic Auth* authentication is enabled, the predictable
 user id can be used to define semi-private or public if the ``user:pass`` is
 known and shared (for example ``public:`` is a valid user:pass combination).
 
-For example, get the user id in the hello :ref:`root view <api-utilities>` and put it in the
-settings or use it in the permissions JSON payloads.
+For example, get the user id obtained in the hello :ref:`root view <api-utilities>` with a
+user:pass combination and use it in the permissions JSON payloads, or settings:
 
 ::
 
@@ -152,12 +158,14 @@ To do so, specify the ``get_bound_permissions`` of the *Cliquet* authorization p
 
     def get_bound_permissions(self, permission_object_id, permission):
         related = [(permission_object_id, permission)]
+        # Grant `read` if user can `write`
         if permission == 'write':
             related.append((permission_object_id, 'read'))
         return related
 
 
 .. code-block:: python
+    :emphasize-lines: 7,8
 
     from pyramid.security import IAuthorizationPolicy
 
@@ -186,6 +194,7 @@ It is also possible to subclass the default :class:`cliquet.authorization.Author
     class MyAuthz(authorization.AuthorizationPolicy):
         def get_bound_permissions(self, permission_object_id, permission):
             related = [(permission_object_id, permission)]
+            # Grant permission on `categories` if permission on `articles`
             if permission_object_id.startswith('/articles'):
                 related.append((permission_object_id + '/categories', permission))
             return related
@@ -199,42 +208,51 @@ Manipulate permissions
 One way of achieving dynamic permissions is to manipulate the permission backend
 manually.
 
-For example, in some admin view:
+For example, in some imaginary admin view:
 
 .. code-block:: python
 
     def admin_view(request):
+        # Custom Pyramid view.
         permission = request.registry.permission
 
+        # Give `create` permission to `user_id` in POST
         some_user_id = request.POST['user_id']
-        perm_object_id = '/{collection}'
-        permission.add_principal_to_ace(perm_object_id,
-                                        'create'
+        permission_object_id = '/articles'
+        permission = 'create'
+        permission.add_principal_to_ace(permission_object_id,
+                                        permission,
                                         some_user_id)
 
 Or during application init (or scripts):
 
 .. code-block:: python
+    :emphasize-lines: 6-11
 
     def main(global_config, **settings):
         # ...
         cliquet.initialize(config, __version__)
         # ...
 
-        config.registry.permission.add_user_principal('basicauth:ut082jghnrgnjnj',
-                                                      'group:admins')
-
+        user_id = 'basicauth:ut082jghnrgnjnj'
+        permission_object_id = '/articles'
+        permission = 'create'
+        config.registry.permission.add_principal_to_ace(permission_object_id,
+                                                        permission,
+                                                        some_user_id)
 
 Alternatively, since :term:`principals` can be anything, it is also possible to use them to
 define groups:
 
 .. code-block:: python
 
-    def my_view(request):
+    def add_to_admins(request):
+        # Custom Pyramid view.
         permission = request.registry.permission
 
-        current_user_id = request.prefixed_userid
-        permission.add_user_principal(current_user_id, 'group:admins')
+        some_user_id = request.POST['user_id']
+        group_name = 'group:admins'
+        permission.add_user_principal(some_user_id, group_name)
 
 
 And then refer as ``group:admins`` in the list of allowed principals.
@@ -243,17 +261,17 @@ And then refer as ``group:admins`` in the list of allowed principals.
 Custom permission checking
 --------------------------
 
-The permissions verification in *Cliquet* is done with Pyramid authorization
-abstractions. Most notably using an implementation of a RootFactory in conjonction with
-an Authorization policy.
+The permissions verification in *Cliquet* is done with usual Pyramid authorization
+abstractions. Most notably using an implementation of a *RootFactory* in conjonction with
+an *Authorization policy*.
 
 In order to completely override (or mimic) the defaults, a custom
-*RootFactory* and a custom Authorization policy can be plugged
+*RootFactory* and a custom *Authorization policy* can be plugged
 on the resource during registration.
 
 
 .. code-block:: python
-    :emphasize-lines: 11,14
+    :emphasize-lines: 10,15
 
     from cliquet import resource
 
