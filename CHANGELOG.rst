@@ -17,7 +17,8 @@ This document describes changes between each past release.
 
 - Include plugins after setting up components (like authn/authz) so that plugins
   can register views with permissions checking
-
+- Remove ``__permissions__`` from impacted records values in ``ResourceChanged``
+  events (#586)
 
 2.11.0 (2015-11-17)
 -------------------

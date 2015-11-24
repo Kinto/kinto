@@ -202,3 +202,17 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         self.assertNotIn('new', impacted_records[0])
         self.assertEqual(impacted_records[0]['old']['id'], record['id'])
         self.assertEqual(impacted_records[0]['old']['deleted'], True)
+
+    def test_permissions_are_stripped_from_event_on_protected_resource(self):
+        app = self.make_app(settings={
+            'psilo_write_principals': 'system.Authenticated'
+        })
+        resp = app.post_json('/psilos', self.body,
+                             headers=self.headers, status=201)
+        record = resp.json['data']
+        record_url = '/psilos/' + record['id']
+        app.patch_json(record_url, {"data": {"name": "De barcelona"}},
+                       headers=self.headers)
+        impacted_records = self.events[-1].impacted_records
+        self.assertNotIn('__permissions__', impacted_records[0]['new'])
+        self.assertNotIn('__permissions__', impacted_records[0]['old'])
