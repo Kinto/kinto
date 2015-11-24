@@ -374,15 +374,13 @@ def setup_logging(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
-def _filter_events(callback, actions, resources):
+def _filter_events(listener_func, actions, resources):
     def wrapped(event):
         action = event.payload.get('action')
-        resource_name = event.payload.get('resource_name')
-        if action and action not in actions:
-            return
-        if resource_name and resources and resource_name not in resources:
-            return
-        return callback(event)
+        resource = event.payload.get('resource_name')
+        if not action or action in actions:
+            if not resource or not resources or resource in resources:
+                listener_func(event)
     return wrapped
 
 
@@ -397,22 +395,22 @@ def setup_listeners(config):
 
         try:
             listener_mod = config.maybe_dotted(name)
-            assert hasattr(listener_mod, 'load_from_config')
             prefix = 'event_listeners.%s.' % name.split('.')[-1]
-        except (ImportError, AssertionError):
+            listener = listener_mod.load_from_config(config, prefix)
+        except (ImportError, AttributeError):
             listener_mod = config.maybe_dotted(settings[prefix + 'use'])
-        listener = listener_mod.load_from_config(config, prefix)
+            listener = listener_mod.load_from_config(config, prefix)
 
         actions = aslist(settings.get(prefix + 'actions', '')) or write_actions
         resource_names = aslist(settings.get(prefix + 'resources', ''))
-        callback = _filter_events(listener, actions, resource_names)
+        decorated = _filter_events(listener, actions, resource_names)
 
         if ACTIONS.READ in actions:
-            config.add_subscriber(callback, ResourceRead)
+            config.add_subscriber(decorated, ResourceRead)
             if len(actions) == 1:
                 return
 
-        config.add_subscriber(callback, ResourceChanged)
+        config.add_subscriber(decorated, ResourceChanged)
 
 
 def load_default_settings(config, default_settings):
