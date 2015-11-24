@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix redis default host in kinto init (fixes #289)
+- Fix DockerFile with default configuration (fixes #296)
 
 
 1.9.0 (2015-11-18)
