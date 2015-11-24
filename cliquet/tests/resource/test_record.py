@@ -81,6 +81,34 @@ class PutTest(BaseTest):
                             result['last_modified'])
         self.assertNotEqual(self.record['field'], 'new')
 
+    def test_last_modified_is_kept_if_present(self):
+        new_last_modified = self.record['last_modified'] + 20
+        self.resource.request.validated = {'data': {
+            'field': 'new',
+            'last_modified': new_last_modified}
+        }
+        result = self.resource.put()['data']
+        self.assertEqual(result['last_modified'], new_last_modified)
+
+    def test_last_modified_is_dropped_if_same_as_previous(self):
+        self.resource.request.validated = {'data': {
+            'field': 'new',
+            'last_modified': self.record['last_modified']}
+        }
+        result = self.resource.put()['data']
+        self.assertGreater(result['last_modified'],
+                           self.record['last_modified'])
+
+    def test_last_modified_is_dropped_if_lesser_than_existing(self):
+        new_last_modified = self.record['last_modified'] - 20
+        self.resource.request.validated = {'data': {
+            'field': 'new',
+            'last_modified': new_last_modified}
+        }
+        result = self.resource.put()['data']
+        self.assertNotEqual(result['last_modified'],
+                            self.record['last_modified'])
+
     def test_cannot_replace_with_different_id(self):
         self.resource.request.validated = {'data': {'id': 'abc'}}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.put)

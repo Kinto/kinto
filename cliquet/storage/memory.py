@@ -55,8 +55,10 @@ class MemoryBasedStorage(StorageBase):
         return deleted
 
     def set_record_timestamp(self, collection_id, parent_id, record,
-                             modified_field=DEFAULT_MODIFIED_FIELD):
-        timestamp = self._bump_timestamp(collection_id, parent_id)
+                             modified_field=DEFAULT_MODIFIED_FIELD,
+                             force_new=False):
+        timestamp = self._bump_timestamp(collection_id, parent_id, record,
+                                         modified_field, force_new)
         record[modified_field] = timestamp
         return record
 
@@ -171,7 +173,8 @@ class Storage(MemoryBasedStorage):
             return ts
         return self._bump_timestamp(collection_id, parent_id)
 
-    def _bump_timestamp(self, collection_id, parent_id):
+    def _bump_timestamp(self, collection_id, parent_id, record=None,
+                        modified_field=None, force_new=False):
         """Timestamp are base on current millisecond.
 
         .. note ::
@@ -180,10 +183,28 @@ class Storage(MemoryBasedStorage):
             the time will slide into the future. It is not problematic since
             the timestamp notion is opaque, and behaves like a revision number.
         """
+        def _ensure_greater(previous, current):
+            if previous and previous >= current:
+                return previous + 1
+            return current
+
         previous = self._timestamps[collection_id].get(parent_id)
-        current = utils.msec_time()
-        if previous and previous >= current:
-            current = previous + 1
+        timestamp = utils.msec_time()
+
+        if force_new:
+            current = timestamp
+        else:
+            if record is not None and modified_field in record:
+                # If there is a timestamp in the new record, try to use it.
+                current = record[modified_field]
+                if current <= previous:
+                    current = timestamp
+            else:
+                # If no timestamp was specified, use a newly genrated one.
+                current = timestamp
+
+        # Only bump the collection timestamp if the new one is greater.
+        current = _ensure_greater(previous, current)
         self._timestamps[collection_id][parent_id] = current
         return current
 
@@ -236,7 +257,8 @@ class Storage(MemoryBasedStorage):
                auth=None):
         existing = self.get(collection_id, parent_id, object_id)
         self.set_record_timestamp(collection_id, parent_id, existing,
-                                  modified_field=modified_field)
+                                  modified_field=modified_field,
+                                  force_new=True)
         existing = self.strip_deleted_record(collection_id,
                                              parent_id,
                                              existing)

@@ -88,7 +88,9 @@ class Storage(MemoryBasedStorage):
         return self._bump_timestamp(collection_id, parent_id)
 
     @wrap_redis_error
-    def _bump_timestamp(self, collection_id, parent_id):
+    def _bump_timestamp(self, collection_id, parent_id, record=None,
+                        modified_field=None, force_new=False):
+
         key = '{0}.{1}.timestamp'.format(collection_id, parent_id)
         while 1:
             with self._client.pipeline() as pipe:
@@ -96,7 +98,11 @@ class Storage(MemoryBasedStorage):
                     pipe.watch(key)
                     previous = pipe.get(key)
                     pipe.multi()
-                    current = utils.msec_time()
+                    if (force_new is False and
+                            record is not None and modified_field in record):
+                        current = record[modified_field]
+                    else:
+                        current = utils.msec_time()
 
                     if previous and int(previous) >= current:
                         current = int(previous) + 1
@@ -212,7 +218,8 @@ class Storage(MemoryBasedStorage):
         existing = self._decode(encoded_item)
 
         self.set_record_timestamp(collection_id, parent_id, existing,
-                                  modified_field=modified_field)
+                                  modified_field=modified_field,
+                                  force_new=True)
         existing = self.strip_deleted_record(collection_id, parent_id,
                                              existing)
 

@@ -253,6 +253,12 @@ class BaseTestStorage(object):
                           self.create_record,
                           record=record)
 
+    def test_create_does_generate_a_new_last_modified_field(self):
+        record = self.record.copy()
+        self.assertNotIn(self.modified_field, record)
+        created = self.create_record(record=record)
+        self.assertIn(self.modified_field, created)
+
     def test_get_raise_on_record_not_found(self):
         self.assertRaises(
             exceptions.RecordNotFoundError,
@@ -283,6 +289,44 @@ class BaseTestStorage(object):
                             **self.storage_kw)
         retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
         self.assertEquals(retrieved[self.id_field], record_id)
+
+    def test_update_generates_a_new_last_modified_field_if_not_present(self):
+        stored = self.create_record()
+        record_id = stored[self.id_field]
+
+        self.assertNotIn(self.modified_field, self.record)
+        self.storage.update(object_id=record_id, record=self.record,
+                            **self.storage_kw)
+        retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
+        self.assertIn(self.modified_field, retrieved)
+        self.assertGreater(retrieved[self.modified_field],
+                           stored[self.modified_field])
+
+    def test_update_uses_the_passed_last_modified_when_provided(self):
+        stored = self.create_record()
+        record_id = stored[self.id_field]
+        record = self.record.copy()
+        record[self.modified_field] = stored[self.modified_field] + 10
+
+        self.storage.update(object_id=record_id, record=record,
+                            **self.storage_kw)
+        retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
+        self.assertIn(self.modified_field, retrieved)
+        self.assertEquals(retrieved[self.modified_field],
+                          record[self.modified_field])
+
+    def test_update_bypasses_last_modified_when_lesser_then_existing(self):
+        stored = self.create_record()
+        record_id = stored[self.id_field]
+        record = self.record.copy()
+        record[self.modified_field] = stored[self.modified_field] - 10
+
+        self.storage.update(object_id=record_id, record=record,
+                            **self.storage_kw)
+        retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
+        self.assertIn(self.modified_field, retrieved)
+        self.assertGreater(retrieved[self.modified_field],
+                           stored[self.modified_field])
 
     def test_delete_works_properly(self):
         stored = self.create_record()

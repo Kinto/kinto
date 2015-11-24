@@ -528,6 +528,15 @@ class UserResource(object):
         :returns: the processed record.
         :rtype: dict
         """
+        if old is None or self.model.modified_field not in old:
+            return new
+
+        # Drop the new last_modified if lesser or equal to the old one.
+        new_last_modified = new.get(self.model.modified_field)
+        if (new_last_modified and
+                new_last_modified <= old[self.model.modified_field]):
+            del new[self.model.modified_field]
+
         return new
 
     def apply_changes(self, record, changes):
@@ -1069,6 +1078,7 @@ class ShareableResource(UserResource):
         """Read permissions from request body, and in the case of ``PUT`` every
         existing ACE is removed (using empty list).
         """
+        new = super(ShareableResource, self).process_record(new, old)
         permissions = self.request.validated.get('permissions', {})
 
         annotated = new.copy()
