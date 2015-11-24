@@ -50,9 +50,11 @@ URLs
 ====
 
 By default, a resource defines two URLs:
+
 * ``/{classname}s`` for the list of records
 * ``/{classname}s/{id}`` for single records
 
+Since adding a ``s`` suffix for the plural form might not always be relevant,
 URLs can be specified during registration:
 
 .. code-block:: python
@@ -96,10 +98,10 @@ any authenticated request, but the records are isolated by :term:`user id`.
 
 In order to define resources whose records are not isolated, open publicly or
 controlled with individual fined-permissions, a :class:`cliquet.resource.ShareableResource`
-could be used. A custom :ref:`viewset` or :class:`~pyramid:pyramid.authorization.RouteFactory`
-could also be used.
+could be used.
 
-Please refer to `dedicated section about permissions <resource-permissions>`.
+But there are other strategies, please refer to :ref:`dedicated section about permissions
+<resource-permissions>`.
 
 
 HTTP methods and options
@@ -125,7 +127,7 @@ Plug custom model
 -----------------
 
 In order to customize the interaction of a HTTP resource with its storage,
-a custom collection can be plugged-in:
+a custom model can be plugged-in:
 
 .. code-block:: python
 
@@ -221,7 +223,7 @@ As an example, let's build a code that will copy a collection into another:
 Custom record ids
 =================
 
-By default, records ids are `UUID4 <http://en.wikipedia.org/wiki/Universally_unique_identifier>_`.
+By default, records ids are `UUID4 <http://en.wikipedia.org/wiki/Universally_unique_identifier>`_.
 
 A custom record ID generator can be set globally in :ref:`configuration`,
 or at the resource level:

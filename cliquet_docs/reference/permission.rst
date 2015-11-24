@@ -234,14 +234,14 @@ Or during application init (or scripts):
         cliquet.initialize(config, __version__)
         # ...
 
-        user_id = 'basicauth:ut082jghnrgnjnj'
+        some_user_id = 'basicauth:ut082jghnrgnjnj'
         permission_object_id = '/articles'
         permission = 'create'
         config.registry.permission.add_principal_to_ace(permission_object_id,
                                                         permission,
                                                         some_user_id)
 
-Alternatively, since :term:`principals` can be anything, it is also possible to use them to
+Since :term:`principals` can be anything, it is also possible to use them to
 define groups:
 
 .. code-block:: python
