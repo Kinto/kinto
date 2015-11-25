@@ -20,10 +20,18 @@ This document describes changes between each past release.
 - Remove ``__permissions__`` from impacted records values in ``ResourceChanged``
   events (#586)
 
+**New features**
+
+- New options in configuration of listeners to specify filtered actions and
+  resource names (#492, #555)
+- Add ability to listen to read action on resource (disabled by default)
+  (#493)
+
 **Internal**
 
 - Fixed a few details in quickstart docs since backends are not Redis by default
   anymore
+
 
 2.11.0 (2015-11-17)
 -------------------

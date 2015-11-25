@@ -12,12 +12,12 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 from cliquet import logger
 from cliquet import Service
 from cliquet.errors import http_error, raise_invalid, send_alert, ERRORS
+from cliquet.events import ResourceChanged, ResourceRead, ACTIONS
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
     current_service, encode_header, decode_header, DeprecatedMeta
 )
-from cliquet.events import ResourceChanged, ACTIONS
 
 from .model import Model, ShareableModel
 from .schema import ResourceSchema
@@ -597,18 +597,20 @@ class UserResource(object):
         to just populate the ``bound_data`` attribute of ``self.request``.
         (since it is shared among batch requests).
         """
-        # Do not notify read actions.
-        if action == ACTIONS.READ:
-            return
-
         # When plugged with the transaction system, impacted records will
         # always be a list. Therefore, here put single operations into a
         # list.
         if not isinstance(result, list):
             result = [result]
 
-        impacted = {}
-        if action == ACTIONS.CREATE:
+        if action == ACTIONS.READ:
+            event_cls = ResourceRead
+        else:
+            event_cls = ResourceChanged
+
+        if action == ACTIONS.READ:
+            impacted = result
+        elif action == ACTIONS.CREATE:
             impacted = [{'new': r} for r in result]
         elif action == ACTIONS.DELETE:
             impacted = [{'old': r} for r in result]
@@ -619,7 +621,7 @@ class UserResource(object):
             impacted = [{'new': r, 'old': old} for r in result]
 
         try:
-            event = ResourceChanged(action, self, impacted, self.request)
+            event = event_cls(action, self, impacted, self.request)
             self.request.registry.notify(event)
         except Exception:
             logger.error("Unable to notify", exc_info=True)

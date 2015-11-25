@@ -8,22 +8,98 @@ import mock
 from pyramid import testing
 
 from cliquet import initialization
-from cliquet.events import ResourceChanged, ACTIONS
+from cliquet.events import ResourceChanged, ResourceRead, ACTIONS
 from cliquet.listeners import ListenerBase
 from cliquet.storage.redis import create_from_config
 from cliquet.tests.support import unittest
 
 
 class ListenerSetupTest(unittest.TestCase):
-    def test_redis_listener_is_enabled_via_setting(self):
-        listener = 'cliquet.listeners.redis'
-        redis_class = mock.patch(listener + '.Listener')
-        config = testing.setUp()
-        with mock.patch.dict(config.registry.settings,
-                             [('event_listeners', listener)]):
-            with redis_class as redis_mocked:
-                initialization.setup_listeners(config)
-                self.assertTrue(redis_mocked.called)
+    def setUp(self):
+        redis_patch = mock.patch('cliquet.listeners.redis.load_from_config')
+        self.addCleanup(redis_patch.stop)
+        self.redis_mocked = redis_patch.start()
+
+    def make_app(self, extra_settings={}):
+        settings = {
+            'event_listeners': 'cliquet.listeners.redis',
+        }
+        settings.update(**extra_settings)
+        config = testing.setUp(settings=settings)
+        initialization.setup_listeners(config)
+        return config
+
+    def test_listener_module_is_specified_via_settings(self):
+        self.make_app({
+            'event_listeners': 'redis',
+            'event_listeners.redis.use': 'cliquet.listeners.redis',
+        })
+        self.assertTrue(self.redis_mocked.called)
+
+    def test_listener_module_can_be_specified_via_listeners_list(self):
+        self.make_app()
+        self.assertTrue(self.redis_mocked.called)
+
+    def test_callback_called_when_action_is_not_filtered(self):
+        config = self.make_app()
+        event = ResourceChanged('create', Resource(), [], Request())
+        config.registry.notify(event)
+
+        self.assertTrue(self.redis_mocked.return_value.called)
+
+    def test_callback_is_not_called_when_action_is_filtered(self):
+        config = self.make_app({
+            'event_listeners.redis.actions': 'delete',
+        })
+        event = ResourceChanged('create', Resource(), [], Request())
+        config.registry.notify(event)
+
+        self.assertFalse(self.redis_mocked.return_value.called)
+
+    def test_callback_called_when_resource_is_not_filtered(self):
+        config = self.make_app()
+        event = ResourceChanged('create', Resource(), [], Request())
+        event.payload['resource_name'] = 'mushroom'
+        config.registry.notify(event)
+
+        self.assertTrue(self.redis_mocked.return_value.called)
+
+    def test_callback_is_not_called_when_resource_is_filtered(self):
+        config = self.make_app({
+            'event_listeners.redis.resources': 'toad',
+        })
+        event = ResourceChanged('create', Resource(), [], Request())
+        event.payload['resource_name'] = 'mushroom'
+        config.registry.notify(event)
+
+        self.assertFalse(self.redis_mocked.return_value.called)
+
+    def test_callback_is_not_called_on_read_by_default(self):
+        config = self.make_app()
+        event = ResourceRead('read', Resource(), [], Request())
+        config.registry.notify(event)
+
+        self.assertFalse(self.redis_mocked.return_value.called)
+
+    def test_callback_is_called_on_read_if_specified(self):
+        config = self.make_app({
+            'event_listeners.redis.actions': 'read',
+        })
+        event = ResourceRead('read', Resource(), [], Request())
+        config.registry.notify(event)
+
+        self.assertTrue(self.redis_mocked.return_value.called)
+
+    def test_same_callback_is_called_for_read_and_write_specified(self):
+        config = self.make_app({
+            'event_listeners.redis.actions': 'read create delete',
+        })
+        event = ResourceRead('read', Resource(), [], Request())
+        config.registry.notify(event)
+        event = ResourceChanged('create', Resource(), [], Request())
+        config.registry.notify(event)
+
+        self.assertEqual(self.redis_mocked.return_value.call_count, 2)
 
 
 @contextmanager

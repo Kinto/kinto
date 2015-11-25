@@ -1,9 +1,8 @@
 from __future__ import absolute_import
-from six.moves.urllib import parse as urlparse
-import redis
 import json
 
 from cliquet.listeners import ListenerBase
+from cliquet.storage.redis import create_from_config
 from cliquet import logger
 
 
@@ -15,11 +14,10 @@ class Listener(ListenerBase):
     This listener allows actions to be performed asynchronously, using Redis
     Pub/Sub notifications, or scheduled inspections of the queue.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, client, listname, *args, **kwargs):
         super(Listener, self).__init__(*args, **kwargs)
-        self.listname = kwargs.pop('listname')
-        connection_pool = redis.BlockingConnectionPool(**kwargs)
-        self._client = redis.StrictRedis(connection_pool=connection_pool)
+        self._client = client
+        self.listname = listname
 
     def __call__(self, event):
         try:
@@ -27,35 +25,16 @@ class Listener(ListenerBase):
         except TypeError:
             logger.error("Unable to dump the payload", exc_info=True)
             return
-
         try:
             self._client.lpush(self.listname, payload)
         except Exception:
             logger.error("Unable to send the payload to Redis", exc_info=True)
 
 
-def _get_options(config, prefix='event_listeners.redis.'):
-    options = {}
-
-    for name, value in config.get_settings().items():
-        if not name.startswith(prefix):
-            continue
-        options[name[len(prefix):]] = value
-
-    return options
-
-
-def load_from_config(config):
-    options = _get_options(config)
-
-    uri = options.get('url', 'http://localhost:6379')
-    uri = urlparse.urlparse(uri)
-    pool_size = int(options.get('pool_size', 1))
-    listname = options.get('listname', 'cliquet.events')
-
-    return Listener(listname=listname,
-                    max_connections=pool_size,
-                    host=uri.hostname or 'localhost',
-                    port=uri.port or 6379,
-                    password=uri.password or None,
-                    db=int(uri.path[1:]) if uri.path else 0)
+def load_from_config(config, prefix):
+    settings = config.get_settings()
+    settings.setdefault(prefix + 'url', '')
+    settings.setdefault(prefix + 'pool_size', 25)
+    listname = settings.get(prefix + 'listname', 'cliquet.events')
+    client = create_from_config(config, prefix)
+    return Listener(client, listname=listname)
