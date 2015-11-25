@@ -183,29 +183,23 @@ class Storage(MemoryBasedStorage):
             the time will slide into the future. It is not problematic since
             the timestamp notion is opaque, and behaves like a revision number.
         """
-        def _ensure_greater(previous, current):
-            if previous and previous >= current:
-                return previous + 1
-            return current
+        is_specified = record is not None and modified_field in record
+        if force_new is False and is_specified:
+            # If there is a timestamp in the new record, try to use it.
+            current = record[modified_field]
+        else:
+            current = utils.msec_time()
 
         previous = self._timestamps[collection_id].get(parent_id)
-        timestamp = utils.msec_time()
-
-        if force_new:
-            current = timestamp
+        if previous and previous >= current:
+            collection_timestamp = previous + 1
         else:
-            if record is not None and modified_field in record:
-                # If there is a timestamp in the new record, try to use it.
-                current = record[modified_field]
-                if current <= previous:
-                    current = timestamp
-            else:
-                # If no timestamp was specified, use a newly genrated one.
-                current = timestamp
+            collection_timestamp = current
+        if force_new:
+            current = collection_timestamp
 
-        # Only bump the collection timestamp if the new one is greater.
-        current = _ensure_greater(previous, current)
-        self._timestamps[collection_id][parent_id] = current
+        self._timestamps[collection_id][parent_id] = collection_timestamp
+        print(current, collection_timestamp, force_new)
         return current
 
     def create(self, collection_id, parent_id, record, id_generator=None,

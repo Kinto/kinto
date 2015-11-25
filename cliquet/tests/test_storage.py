@@ -293,7 +293,6 @@ class BaseTestStorage(object):
     def test_update_generates_a_new_last_modified_field_if_not_present(self):
         stored = self.create_record()
         record_id = stored[self.id_field]
-
         self.assertNotIn(self.modified_field, self.record)
         self.storage.update(object_id=record_id, record=self.record,
                             **self.storage_kw)
@@ -302,7 +301,7 @@ class BaseTestStorage(object):
         self.assertGreater(retrieved[self.modified_field],
                            stored[self.modified_field])
 
-    def test_update_uses_the_passed_last_modified_when_provided(self):
+    def test_update_preserves_the_passed_last_modified_when_provided(self):
         stored = self.create_record()
         record_id = stored[self.id_field]
         record = self.record.copy()
@@ -314,8 +313,12 @@ class BaseTestStorage(object):
         self.assertIn(self.modified_field, retrieved)
         self.assertEquals(retrieved[self.modified_field],
                           record[self.modified_field])
+        # collection timestamp should not be modified.
+        collection_timestamp = self.storage.collection_timestamp(
+            **self.storage_kw)
+        self.assertEquals(collection_timestamp, record[self.modified_field])
 
-    def test_update_bypasses_last_modified_when_lesser_then_existing(self):
+    def test_update_preserves_record_timestamp_if_less_than_collection(self):
         stored = self.create_record()
         record_id = stored[self.id_field]
         record = self.record.copy()
@@ -325,8 +328,12 @@ class BaseTestStorage(object):
                             **self.storage_kw)
         retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
         self.assertIn(self.modified_field, retrieved)
-        self.assertGreater(retrieved[self.modified_field],
-                           stored[self.modified_field])
+        self.assertEquals(retrieved[self.modified_field],
+                          record[self.modified_field])
+        # collection timestamp should not be modified.
+        collection_timestamp = self.storage.collection_timestamp(
+            **self.storage_kw)
+        self.assertNotEquals(collection_timestamp, record[self.modified_field])
 
     def test_delete_works_properly(self):
         stored = self.create_record()
@@ -598,6 +605,7 @@ class FieldsUnicityTest(object):
 class DeletedRecordsTest(object):
     def _get_last_modified_filters(self):
         start = self.storage.collection_timestamp(**self.storage_kw)
+        time.sleep(0.1)
         return [
             Filter(self.modified_field, start, utils.COMPARISON.GT)
         ]
@@ -880,9 +888,9 @@ class DeletedRecordsTest(object):
         records, count = self.storage.get_all(filters=filters,
                                               include_deleted=True,
                                               **self.storage_kw)
+        self.assertEqual(count, 1)
         self.assertNotIn('deleted', records[0])
         self.assertEqual(len(records), 1)
-        self.assertEqual(count, 1)
 
     def test_return_empty_set_if_filtering_on_deleted_false(self):
         filters = self._get_last_modified_filters()
