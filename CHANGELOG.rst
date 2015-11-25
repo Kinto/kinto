@@ -24,6 +24,9 @@ This document describes changes between each past release.
 
 - Fixed a few details in quickstart docs since backends are not Redis by default
   anymore
+- Replace usage of ``assert`` by explicit exceptions since the former can
+  be ignored when python is ran with ``-O`` (fixes #592)
+
 
 2.11.0 (2015-11-17)
 -------------------
