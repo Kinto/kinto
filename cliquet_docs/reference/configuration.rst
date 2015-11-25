@@ -271,7 +271,7 @@ data in the ``queue`` Redis list.
     cliquet.event_listeners.redis.listname = queue
 
 Filtering
----------
+:::::::::
 
 It is possible to filter events by action and/or resource name. By
 default actions ``create``, ``update`` and ``delete`` are notified

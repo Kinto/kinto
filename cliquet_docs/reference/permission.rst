@@ -57,6 +57,11 @@ That's how most simple demos of *Kinto* — a *Cliquet*-based application — ar
 Shareable resource
 ==================
 
+.. warning::
+
+    When using this kind of resource, the ``permission_backend`` setting must be
+    set, :ref:`as described in the configuration section <configuration-permissions>`.
+
 To introduce more flexibility, the :class:`cliquet.resource.ShareableResource`
 can be used instead.
 
@@ -74,35 +79,53 @@ with a specific `route factory
 <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html#route-factories>`_,
 that will take care of checking the appropriate permission for each action.
 
-+------------+--------------------+----------------------+-----------------------------------------------------------------------------+
-| Method     | URL                | :term:`permission`   | Comments                                                                    |
-+============+====================+======================+=============================================================================+
-| GET / HEAD | /{collection}      | ``read``             | If not allowed by setting ``cliquet.{collection}_read_principals``,         |
-|            |                    |                      | will return list of records where user has ``read`` permission.             |
-+------------+--------------------+----------------------+-----------------------------------------------------------------------------+
-| POST       | /{collection}      | ``create``           | Allowed by setting ``cliquet.{collection}_create_principals``               |
-+------------+--------------------+----------------------+-----------------------------------------------------------------------------+
-| DELETE     | /{collection}      | ``write``            | If not allowed by setting ``cliquet.{collection}_write_principals``,        |
-|            |                    |                      | will delete the list of records where user has ``write`` permission.        |
-+------------+--------------------+----------------------+-----------------------------------------------------------------------------+
-| GET / HEAD | /{collection}/{id} | ``read``             | If not allowed by setting ``cliquet.{collection}_read_principals``,         |
-|            |                    |                      | will check record permissions                                               |
-+------------+--------------------+----------------------+-----------------------------------------------------------------------------+
-| PUT        | /{collection}/{id} | ``create`` if record | Allowed by setting ``cliquet.{collection}_create_principals``,              |
-|            |                    | doesn't exist,       | or ``cliquet.{collection}_create_principals`` or existing record permissions|
-|            |                    | ``write`` otherwise  |                                                                             |
-+------------+--------------------+----------------------+-----------------------------------------------------------------------------+
-| PATCH      | /{collection}/{id} | ``write``            | If not allowed by setting ``cliquet.{collection}_write_principals``,        |
-|            |                    |                      | will check record permissions                                               |
-+------------+--------------------+----------------------+-----------------------------------------------------------------------------+
-| DELETE     | /{collection}/{id} | ``write``            | If not allowed by setting ``cliquet.{collection}_write_principals``,        |
-|            |                    |                      | will check record permissions                                               |
-+------------+--------------------+----------------------+-----------------------------------------------------------------------------+
++------------+--------------------+----------------------+-----------------------------------------------+
+| Method     | URL                | :term:`permission`   | Comments                                      |
++============+====================+======================+===============================================+
+| GET / HEAD | /{collection}      | ``read``             | If not allowed by setting                     |
+|            |                    |                      | ``cliquet.{collection}_read_principals``,     |
+|            |                    |                      | will return list of records where user        |
+|            |                    |                      | has ``read`` permission.                      |
++------------+--------------------+----------------------+-----------------------------------------------+
+| POST       | /{collection}      | ``create``           | Allowed by setting                            |
+|            |                    |                      | ``cliquet.{collection}_create_principals``    |
++------------+--------------------+----------------------+-----------------------------------------------+
+| DELETE     | /{collection}      | ``write``            | If not allowed by setting                     |
+|            |                    |                      | ``cliquet.{collection}_write_principals``,    |
+|            |                    |                      | will delete the list of records where         |
+|            |                    |                      | user has ``write`` permission.                |
++------------+--------------------+----------------------+-----------------------------------------------+
+| GET / HEAD | /{collection}/{id} | ``read``             | If not allowed by setting                     |
+|            |                    |                      | ``cliquet.{collection}_read_principals``,     |
+|            |                    |                      | will check record permissions                 |
++------------+--------------------+----------------------+-----------------------------------------------+
+| PUT        | /{collection}/{id} | ``create`` if record | Allowed by setting                            |
+|            |                    | doesn't exist,       | ``cliquet.{collection}_create_principals``,   |
+|            |                    | ``write`` otherwise  | or ``cliquet.{collection}_create_principals`` |
+|            |                    |                      | or existing record permissions                |
++------------+--------------------+----------------------+-----------------------------------------------+
+| PATCH      | /{collection}/{id} | ``write``            | If not allowed by setting                     |
+|            |                    |                      | ``cliquet.{collection}_write_principals``,    |
+|            |                    |                      | will check record permissions                 |
+|            |                    |                      |                                               |
++------------+--------------------+----------------------+-----------------------------------------------+
+| DELETE     | /{collection}/{id} | ``write``            | If not allowed by setting                     |
+|            |                    |                      | ``cliquet.{collection}_write_principals``,    |
+|            |                    |                      | will check record permissions                 |
++------------+--------------------+----------------------+-----------------------------------------------+
 
 The record permissions can be manipulated via the ``permissions`` attribute in the
 JSON payload, aside the ``data`` attribute.
 It allows to specify the list of :term:`principals` allowed for each ``permission``,
 as detailed in the `API section <resource-permissions-attribute>`_.
+
+.. important::
+
+    When defining permissions, there are two specific principals:
+
+    * ``system.Authenticated``: any authenticated user
+    * ``system.Everyone``: any user
+
 
 The ``write`` permission is required to be able to modify the permissions
 of an existing record.
@@ -113,15 +136,8 @@ That means that a user is always able to replace or delete the records she creat
 
 .. note::
 
-    When defining permissions, there are two specific principals:
-
-    * ``system.Authenticated``: any authenticated user
-    * ``system.Everyone``: any user
-
-.. warning::
-
-    When using this kind of resource, the ``permission_backend`` setting must be
-    set, :ref:`as described in the configuration section <configuration-permissions>`.
+    Don't hesitate to submit a contribution to introduce a way to control the
+    current behaviour instead of always granting ``write`` on current user!
 
 
 BasicAuth trickery
@@ -262,8 +278,8 @@ Custom permission checking
 --------------------------
 
 The permissions verification in *Cliquet* is done with usual Pyramid authorization
-abstractions. Most notably using an implementation of a *RootFactory* in conjonction with
-an *Authorization policy*.
+abstractions. Most notably using an implementation of a `RootFactory in conjonction with an Authorization policy
+<http://docs.pylonsproject.org/projects/pyramid/en/latest/quick_tutorial/authorization.html>`_.
 
 In order to completely override (or mimic) the defaults, a custom
 *RootFactory* and a custom *Authorization policy* can be plugged

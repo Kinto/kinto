@@ -54,7 +54,7 @@ By default, a resource defines two URLs:
 * ``/{classname}s`` for the list of records
 * ``/{classname}s/{id}`` for single records
 
-Since adding a ``s`` suffix for the plural form might not always be relevant,
+Since adding an ``s`` suffix for the plural form might not always be relevant,
 URLs can be specified during registration:
 
 .. code-block:: python

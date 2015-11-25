@@ -697,8 +697,8 @@ Notes on permissions attribute
 ==============================
 
 Shareable resources allow :term:`permissions` management via the ``permissions`` attribute
-in the JSON payloads, along the ``data`` attributes. Permissions can be replaced
-or modified independantly from data.
+in the JSON payloads, along the ``data`` attribute. Permissions can be replaced
+or modified independently from data.
 
 On a request, ``permissions`` is a JSON dict with the following structure::
 
