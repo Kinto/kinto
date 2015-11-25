@@ -492,7 +492,11 @@ class UserResource(object):
         record = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(record)
 
-        deleted = self.model.delete_record(record)
+        # Retreive the last_modified information from a querystring if present.
+        last_modified = self.request.querystring.get('last_modified')
+
+        deleted = self.model.delete_record(
+            record, last_modified=last_modified)
         return self.postprocess(deleted, action=ACTIONS.DELETE)
 
     #

@@ -345,6 +345,19 @@ class BaseTestStorage(object):
             **self.storage_kw
         )
 
+    def test_delete_can_specify_the_last_modified(self):
+        stored = self.create_record()
+        last_modified = stored[self.modified_field] + 10
+        self.storage.delete(
+            object_id=stored['id'],
+            last_modified=last_modified,
+            **self.storage_kw)
+
+        records, count = self.storage.get_all(
+            include_deleted=True, **self.storage_kw)
+
+        self.assertEquals(records[0][self.modified_field], last_modified)
+
     def test_delete_raise_when_unknown(self):
         self.assertRaises(
             exceptions.RecordNotFoundError,

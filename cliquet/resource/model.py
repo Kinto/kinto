@@ -209,7 +209,7 @@ class Model(object):
                                    modified_field=self.modified_field,
                                    auth=self.auth)
 
-    def delete_record(self, record, parent_id=None):
+    def delete_record(self, record, parent_id=None, last_modified=None):
         """Delete a record in the collection.
 
         Override to perform actions or post-process records after deletion
@@ -237,7 +237,8 @@ class Model(object):
                                    id_field=self.id_field,
                                    modified_field=self.modified_field,
                                    deleted_field=self.deleted_field,
-                                   auth=self.auth)
+                                   auth=self.auth,
+                                   last_modified=last_modified)
 
 
 class ShareableModel(Model):
