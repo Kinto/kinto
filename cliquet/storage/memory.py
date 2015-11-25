@@ -55,10 +55,9 @@ class MemoryBasedStorage(StorageBase):
         return deleted
 
     def set_record_timestamp(self, collection_id, parent_id, record,
-                             modified_field=DEFAULT_MODIFIED_FIELD,
-                             force_new=False):
+                             modified_field=DEFAULT_MODIFIED_FIELD):
         timestamp = self._bump_timestamp(collection_id, parent_id, record,
-                                         modified_field, force_new)
+                                         modified_field)
         record[modified_field] = timestamp
         return record
 
@@ -174,7 +173,7 @@ class Storage(MemoryBasedStorage):
         return self._bump_timestamp(collection_id, parent_id)
 
     def _bump_timestamp(self, collection_id, parent_id, record=None,
-                        modified_field=None, force_new=False):
+                        modified_field=None):
         """Timestamp are base on current millisecond.
 
         .. note ::
@@ -184,7 +183,7 @@ class Storage(MemoryBasedStorage):
             the timestamp notion is opaque, and behaves like a revision number.
         """
         is_specified = record is not None and modified_field in record
-        if force_new is False and is_specified:
+        if is_specified:
             # If there is a timestamp in the new record, try to use it.
             current = record[modified_field]
         else:
@@ -195,11 +194,11 @@ class Storage(MemoryBasedStorage):
             collection_timestamp = previous + 1
         else:
             collection_timestamp = current
-        if force_new:
+
+        if not is_specified:
             current = collection_timestamp
 
         self._timestamps[collection_id][parent_id] = collection_timestamp
-        print(current, collection_timestamp, force_new)
         return current
 
     def create(self, collection_id, parent_id, record, id_generator=None,
@@ -250,9 +249,11 @@ class Storage(MemoryBasedStorage):
                deleted_field=DEFAULT_DELETED_FIELD,
                auth=None):
         existing = self.get(collection_id, parent_id, object_id)
+
+        # Remove the last_modified value so it's bumped automatically.
+        del existing[modified_field]
         self.set_record_timestamp(collection_id, parent_id, existing,
-                                  modified_field=modified_field,
-                                  force_new=True)
+                                  modified_field=modified_field)
         existing = self.strip_deleted_record(collection_id,
                                              parent_id,
                                              existing)
