@@ -51,27 +51,7 @@ just add some extra initialization code:
 
 By doing that, basic features like authentication, monitoring, error formatting,
 deprecation indicators are now available, and rely on configuration present
-in ``myproject.ini``.
-
-.. note::
-
-    **Shortcut!**
-
-    In order to bypass the installation and configuration of *Redis* required by the
-    default storage, permission manager and cache, use the «in-memory» backend
-    in :file:`development.ini`:
-
-    .. code-block:: ini
-
-        # development.ini
-        cliquet.cache_backend = cliquet.cache.memory
-        cliquet.storage_backend = cliquet.storage.memory
-        cliquet.permission_backend = cliquet.permission.memory
-
-
-Now is a good time to install the *Cliquet* project locally::
-
-    $ pip install -e .
+in :file:`myproject.ini`.
 
 
 Run!
@@ -82,14 +62,14 @@ A generic command is provided to accomplish this:
 
 ::
 
-    $ cliquet --ini development.ini migrate
+    $ cliquet --ini myproject.ini migrate
 
 
 Like any *Pyramid* application, it can be served locally with:
 
 ::
 
-    $ pserve development.ini --reload
+    $ pserve myproject.ini --reload
 
 A *hello* view is now available at `http://localhost:6543/v0/ <http://localhost:6543/v0/>`_
 (As well as basic endpoints like the :ref:`utilities <api-utilities>`).
@@ -119,6 +99,7 @@ Using `HTTPie <http://httpie.org>`_, it is as easy as:
     In the case of *Basic Auth*, there is no need of registering a user/password.
     Pick any combination, and include them in each request.
 
+
 Define resources
 ================
 
@@ -147,8 +128,18 @@ In application initialization, make *Pyramid* aware of it:
         return config.make_wsgi_app()
 
 
-By doing that, a Mushroom resource API is now available at the ``/mushrooms/``
-endpoint.
+In order to bypass the installation and configuration of *Redis* or *PostgreSQL*,
+specify the «in-memory» backends in :file:`myproject.ini`:
+
+.. code-block:: ini
+
+    # myproject.ini
+    cliquet.cache_backend = cliquet.cache.memory
+    cliquet.storage_backend = cliquet.storage.memory
+    cliquet.permission_backend = cliquet.permission.memory
+
+
+A Mushroom resource API is now available at the ``/mushrooms/`` URL.
 
 It will accept a bunch of REST operations, as defined in the :ref:`API section
 <api-endpoints>`.

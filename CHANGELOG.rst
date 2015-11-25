@@ -20,6 +20,11 @@ This document describes changes between each past release.
 - Remove ``__permissions__`` from impacted records values in ``ResourceChanged``
   events (#586)
 
+**Internal**
+
+- Fixed a few details in quickstart docs since backends are not Redis by default
+  anymore
+
 2.11.0 (2015-11-17)
 -------------------
 
