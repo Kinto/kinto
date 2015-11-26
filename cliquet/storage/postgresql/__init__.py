@@ -108,7 +108,8 @@ class Storage(StorageBase):
             expected = migration[0]
             current = self._get_installed_version()
             error_msg = "Expected version %s. Found version %s."
-            assert expected == current, error_msg % (expected, current)
+            if expected != current:
+                raise AssertionError(error_msg % (expected, current))
 
             logger.info('Migrate schema from version %s to %s.' % migration)
             filepath = 'migration_%03d_%03d.sql' % migration
@@ -139,7 +140,8 @@ class Storage(StorageBase):
             result = conn.execute(query)
             record = result.fetchone()
         encoding = record['encoding'].lower()
-        assert encoding == 'utf8', 'Unexpected database encoding %s' % encoding
+        if encoding != 'utf8':  # pragma: no cover
+            raise AssertionError('Unexpected database encoding %s' % encoding)
 
     def _get_installed_version(self):
         """Return current version of schema or None if not any found.

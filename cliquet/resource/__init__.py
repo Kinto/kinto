@@ -707,9 +707,10 @@ class UserResource(object):
         if_none_match = decode_header(if_none_match)
 
         try:
-            assert if_none_match[0] == if_none_match[-1] == '"'
+            if not (if_none_match[0] == if_none_match[-1] == '"'):
+                raise ValueError()
             modified_since = int(if_none_match[1:-1])
-        except (IndexError, AssertionError, ValueError):
+        except (IndexError, ValueError):
             if if_none_match != '*':
                 error_details = {
                     'location': 'headers',
@@ -746,9 +747,10 @@ class UserResource(object):
             modified_since = -1  # Always raise.
         elif if_match:
             try:
-                assert if_match[0] == if_match[-1] == '"'
+                if not (if_match[0] == if_match[-1] == '"'):
+                    raise ValueError()
                 modified_since = int(if_match[1:-1])
-            except (IndexError, AssertionError, ValueError):
+            except (IndexError, ValueError):
                 message = ("Invalid value for If-Match. The value should "
                            "be integer between double quotes.")
                 error_details = {
@@ -959,10 +961,11 @@ class UserResource(object):
         if token:
             try:
                 tokeninfo = json.loads(decode64(token))
-                assert isinstance(tokeninfo, dict)
+                if not isinstance(tokeninfo, dict):
+                    raise ValueError()
                 last_record = tokeninfo['last_record']
                 offset = tokeninfo['offset']
-            except (ValueError, KeyError, TypeError, AssertionError):
+            except (ValueError, KeyError, TypeError):
                 error_msg = '_token has invalid content'
                 error_details = {
                     'location': 'querystring',
