@@ -27,7 +27,12 @@ Project info
 
     cliquet.project_name = project
     cliquet.project_docs = https://project.rtfd.org/
-    # cliquet.project_version = 1.0
+    # cliquet.project_version = 1.3-stable
+    # cliquet.http_api_version = 1.0
+
+It can be useful to set the ``project_version`` to a custom string, in order
+to prevent disclosing information about the currently running version
+(when there are known vulnerabilities for example).
 
 
 Feature settings

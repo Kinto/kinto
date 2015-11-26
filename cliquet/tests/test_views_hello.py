@@ -7,11 +7,11 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
 
     def test_returns_info_about_url_and_version(self):
         response = self.app.get('/')
-        self.assertEqual(response.json['version'], "0.0.1")
-        self.assertEqual(response.json['protocol_version'], "2")
+        self.assertEqual(response.json['project_version'], "0.0.1")
+        self.assertEqual(response.json['cliquet_protocol_version'], "2")
         self.assertEqual(response.json['url'], 'http://localhost/v0/')
-        self.assertEqual(response.json['hello'], 'myapp')
-        self.assertEqual(response.json['documentation'],
+        self.assertEqual(response.json['project_name'], 'myapp')
+        self.assertEqual(response.json['project_docs'],
                          'https://cliquet.rtfd.org/')
 
     def test_do_not_returns_eos_if_empty_in_settings(self):
@@ -57,3 +57,11 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         userid = response.json['user']['id']
         self.assertTrue(userid.startswith('basicauth:'),
                         '"%s" does not starts with "basicauth:"' % userid)
+
+    def test_return_http_api_version_when_set(self):
+        with mock.patch.dict(
+                self.app.app.registry.settings,
+                [('http_api_version', '1.2')]):
+            response = self.app.get('/')
+
+        self.assertTrue(response.json['http_api_version'])
