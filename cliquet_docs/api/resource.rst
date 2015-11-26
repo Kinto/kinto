@@ -521,7 +521,7 @@ Create or replace a record with its id. The PUT body is a JSON mapping containin
 
 - ``data``: the values of the resource schema fields;
 - ``permissions``: *optional* a json dict containing the permissions for
-  the record to be created.
+  the record to be created/replaced.
 
 The PUT response body is a JSON mapping containing:
 
@@ -604,7 +604,7 @@ Modify a specific record by its id. The PATCH body is a JSON mapping containing:
 The PATCH response body is a JSON mapping containing:
 
 - ``data``: the modified record (*full by default*);
-- ``permissions``: *optional* the newly created permissions dict, containing
+- ``permissions``: *optional* the modified permissions dict, containing
   the permissions for the modified record.
 
 If a request header ``Response-Behavior`` is set to ``light``,
@@ -691,30 +691,47 @@ HTTP Status Code
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
 
 
-Shareable resources
-===================
+.. _resource-permissions-attribute:
 
-All of the described endpoints can be either *shareable* or not.
+Notes on permissions attribute
+==============================
 
-With a shareable resource, only *principals* which have been granted access will
-be able to issue requests successfully.
+Shareable resources allow :term:`permissions` management via the ``permissions`` attribute
+in the JSON payloads, along the ``data`` attribute. Permissions can be replaced
+or modified independently from data.
 
-Shareable resources allow permissions management via ``permissions`` attribute
-in the JSON payloads, along the ``data`` attributes. Permissions can also be
-replaced and modified independantly from data.
+On a request, ``permissions`` is a JSON dict with the following structure::
 
-On a request, ``permissions`` is a json dict containing the permissions for
-the record to be modified. It has the following signature::
+    "permissions": {<permission>: [<list_of_principals>]}
 
-    'permissions': {'{permission}': [{list_of_principals}]}
+Where ``<permission>`` is the permission name (e.g. ``read``, ``write``)
+and ``<list_of_principals>`` should be replaced by an actual list of
+:term:`principals`.
 
-`{permission}` is a placeholder for the permission name (e.g. `read`, `write`,
-`create`) and `{list_of_principals}` should be replaced by an actual list of
-principals.
+Example:
 
-``permissions`` is also added to JSON mapping response bodies, and contains
-the *modified* version of the permissions in case of a modification, or the
-list of permissions in case of a read operation.
+::
+
+    {
+        "data": {
+            "title": "No Backend"
+        },
+        "permissions": {
+            "write": ["twitter:leplatrem", "group:ldap:42"],
+            "read": ["system.Authenticated"]
+        }
+    }
+
+
+In a response, ``permissions`` contains the current permissions of the record
+(i.e. the *modified* version in case of a creation/modification).
+
+.. note::
+
+    When a record is created or modified, the current :term`user id`
+    **is always added** among the ``write`` principals.
+
+`Read more about leveraging resource permissions <resource-permissions>`.
 
 
 .. versionchanged:: 2.6::

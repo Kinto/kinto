@@ -7,6 +7,7 @@ Glossary
         Acronym for Create, Read, Update, Delete
 
     endpoint
+    endpoints
         An endpoint handles a particular HTTP verb at a particular URL.
 
     extensible
@@ -25,21 +26,21 @@ Glossary
         It differs from «:term:`extensible`».
 
     resource
-        A resource is a collection of records.
+        A resource is a collection of records. A resource has two URLs, one for
+        the collection and one for individual records.
 
     user id
     user identifier
     user identifiers
-        A string that identifies a user. By default, *Cliquet* uses a HMAC on
-        authentication credentials to generate users identifications strings.
+        A string that identifies a user. When using the built-in *Basic Auth*
+        authentication, *Cliquet* uses cryptography (HMAC) to generate an
+        identification string.
 
         See `Pyramid authentication`_.
 
     object
     objects
-        The data that is stored into *Cliquet*. Objects usually match
-        the resources you defined; For one resource there are two objects: resource's
-        collection and resource's records.
+        Also refered as «records», objects are stored by *Cliquet* resources.
 
     tombstone
     tombstones
