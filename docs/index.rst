@@ -20,6 +20,7 @@ Table of content
    troubleshooting
    contributing
    changelog
+   cliquet_glossary
 
 Indices and tables
 ==================

@@ -13,6 +13,9 @@ from kinto.authorization import RouteFactory
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution(__package__).version
 
+# Implemented HTTP API Version
+HTTP_API_VERSION = '1.0'
+
 # Main kinto logger
 logger = logging.getLogger(__name__)
 
@@ -26,6 +29,7 @@ DEFAULT_SETTINGS = {
     'multiauth.authorization_policy': (
         'kinto.authorization.AuthorizationPolicy'),
     'experimental_collection_schema_validation': 'False',
+    'http_api_version': HTTP_API_VERSION
 }
 
 
