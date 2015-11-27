@@ -17,6 +17,10 @@ Glossary
     Firefox Accounts
         Account account system run by Mozilla (https://accounts.firefox.com).
 
+    HTTP API
+        Multiple publicly exposed endpoints that accept HTTP requests and
+        respond with the requested data, in the form of JSON.
+
     KISS
         «Keep it simple, stupid» is a design priciple which states that most
         systems work best if they are kept simple rather than made complicated.
