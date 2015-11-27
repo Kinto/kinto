@@ -225,7 +225,7 @@ class UserResource(object):
         filters = self._extract_filters()
         sorting = self._extract_sorting()
         limit = self._extract_limit()
-        fields = self._extract_fields()
+        partial_fields = self._extract_fields()
 
         filter_fields = [f.field for f in filters]
         include_deleted = self.model.modified_field in filter_fields
@@ -248,10 +248,11 @@ class UserResource(object):
             next_page = self._next_page_url(sorting, limit, lastrecord, offset)
             headers['Next-Page'] = encode_header(next_page)
 
-        records = [
-            {field: val for field, val in record.items() if field in fields}
-            for record in records
-        ]
+        if partial_fields:
+            records = [
+                self._do_projection(record, partial_fields)
+                for record in records
+            ]
 
         # Bind metric about response size.
         logger.bind(nb_records=len(records), limit=limit)
@@ -342,6 +343,10 @@ class UserResource(object):
         self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified(record)
         self._raise_412_if_modified(record)
+
+        partial_fields = self._extract_fields()
+        if partial_fields:
+            record = self._do_projection(record, partial_fields)
 
         return self.postprocess(record)
 
@@ -824,14 +829,19 @@ class UserResource(object):
             }
             raise_invalid(self.request, **error_details)
 
+    def _do_projection(self, record, partial_fields):
+        """Project record on partial_fields."""
+
+        return {field: record.get(field) for field in partial_fields}
+
     def _extract_fields(self):
         """Extract the fields to do the projection from QueryString parameters.
         """
 
-        known_fields = self._get_known_fields()
         fields = self.request.GET.get('_fields', None)
         if fields:
             fields = fields.split(',')
+            known_fields = self._get_known_fields()
             if set(fields) - set(known_fields):
                 error_msg = "Fields {} do not exist".\
                     format(set(fields) - set(known_fields))
@@ -841,7 +851,7 @@ class UserResource(object):
                 }
                 raise_invalid(self.request, **error_details)
 
-        return fields or known_fields
+        return fields
 
     def _extract_limit(self):
         """Extract limit value from QueryString parameters."""
@@ -1077,6 +1087,17 @@ class ShareableResource(UserResource):
         :returns: A constant empty value.
         """
         return ''
+
+    def _extract_fields(self):
+        """Override default fields extraction from QueryString to allow
+        the permission_field to exist.
+        """
+
+        fields = super(ShareableResource, self)._extract_fields()
+        if fields:
+            fields.append(self.model.permissions_field)
+
+        return fields
 
     def _extract_filters(self, queryparams=None):
         """Override default filters extraction from QueryString to allow
