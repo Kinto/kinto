@@ -4,8 +4,18 @@ Changelog
 This document describes changes between each past release.
 
 
-2.12.0 (unreleased)
+2.12.0 (2015-11-27)
 -------------------
+
+**Protocol**
+
+Minor changes in the root URL (hello view):
+
+- Added ``http_api_version`` (#600)
+- Renamed ``hello`` to ``project_name``
+- Renamed ``protocol_version`` to ``cliquet_protocol_version``
+- Renamed ``documentation`` to ``project_docs``
+- Renamed ``version`` to ``project_version``
 
 **Breaking changes**
 
@@ -26,8 +36,6 @@ This document describes changes between each past release.
   resource names (#492, #555)
 - Add ability to listen to read action on resource (disabled by default)
   (#493)
-- Added the ``http_api_version`` in the root view (#600)
-
 
 **Internal**
 
@@ -35,7 +43,8 @@ This document describes changes between each past release.
   anymore
 - Replace usage of ``assert`` by explicit exceptions since the former can
   be ignored when python is ran with ``-O`` (fixes #592)
-
+- Improved documentation about permissions (#572, thanks for the feedback @MrChoclate)
+- Fixed docs building under Python 3 (#591)
 
 
 2.11.0 (2015-11-17)
