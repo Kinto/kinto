@@ -27,6 +27,7 @@ from cliquet.permission import heartbeat as permission_heartbeat
 from cliquet.storage import heartbeat as storage_heartbeat
 
 from pyramid.events import NewRequest, NewResponse
+from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -496,13 +497,20 @@ def initialize(config, version=None, project_name='', default_settings=None):
 
     load_default_settings(config, cliquet_defaults)
 
-    # The API version is derivated from the module version.
+    # Override project version from settings.
     project_version = settings.get('project_version') or version
-    settings['project_version'] = project_version
-    try:
-        api_version = 'v%s' % project_version.split('.')[0]
-    except (AttributeError, ValueError):
-        raise ValueError('Invalid project version')
+    if not project_version:
+        error_msg = "Invalid project version: %s" % project_version
+        raise ConfigurationError(error_msg)
+    settings['project_version'] = project_version = str(project_version)
+
+    # HTTP API version.
+    http_api_version = settings.get('http_api_version')
+    if http_api_version is None:
+        # The API version is derivated from the module version if not provided.
+        http_api_version = '.'.join(project_version.split('.')[0:2])
+    settings['http_api_version'] = http_api_version = str(http_api_version)
+    api_version = 'v%s' % http_api_version.split('.')[0]
 
     # Include cliquet views with the correct api version prefix.
     config.include("cliquet", route_prefix=api_version)

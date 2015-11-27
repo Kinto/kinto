@@ -11,7 +11,7 @@ This document describes changes between each past release.
 
 - When using *cliquet-fxa*, the setting ``multiauth.policy.fxa.use`` must now
   be explicitly set to ``cliquet_fxa.authentication.FxAOAuthAuthenticationPolicy``
-
+- Fields in the root view were renamed (#600)
 
 **Bug fixes**
 
@@ -26,6 +26,8 @@ This document describes changes between each past release.
   resource names (#492, #555)
 - Add ability to listen to read action on resource (disabled by default)
   (#493)
+- Added the ``http_api_version`` in the root view (#600)
+
 
 **Internal**
 

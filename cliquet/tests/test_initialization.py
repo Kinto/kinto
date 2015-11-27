@@ -4,6 +4,7 @@ import webtest
 
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
+from pyramid.exceptions import ConfigurationError
 
 import cliquet
 from cliquet import initialization
@@ -13,11 +14,7 @@ from .support import unittest
 class InitializationTest(unittest.TestCase):
     def test_fails_if_no_version_is_specified(self):
         config = Configurator()
-        self.assertRaises(ValueError, cliquet.initialize, config)
-
-    def test_fails_if_specified_version_is_not_string(self):
-        config = Configurator()
-        self.assertRaises(ValueError, cliquet.initialize, config, 1.0)
+        self.assertRaises(ConfigurationError, cliquet.initialize, config)
 
     def test_uses_the_version_for_prefix(self):
         config = Configurator()
@@ -27,14 +24,22 @@ class InitializationTest(unittest.TestCase):
     def test_set_the_project_version_if_specified(self):
         config = Configurator()
         cliquet.initialize(config, '0.0.1', 'name')
-        self.assertEqual(config.registry.settings['project_version'],
-                         '0.0.1')
+        self.assertEqual(config.registry.settings['project_version'], '0.0.1')
 
-    def test_set_the_project_version_from_settings_even_if_specified(self):
+    def test_project_version_uses_setting_if_specified(self):
         config = Configurator(settings={'cliquet.project_version': '1.0.0'})
         cliquet.initialize(config, '0.0.1', 'name')
-        self.assertEqual(config.registry.settings['project_version'],
-                         '1.0.0')
+        self.assertEqual(config.registry.settings['project_version'], '1.0.0')
+
+    def test_http_api_version_relies_on_project_version_by_default(self):
+        config = Configurator()
+        cliquet.initialize(config, '0.1.0', 'name')
+        self.assertEqual(config.registry.settings['http_api_version'], '0.1')
+
+    def test_http_api_version_uses_setting_if_specified(self):
+        config = Configurator(settings={'cliquet.http_api_version': '1.3'})
+        cliquet.initialize(config, '0.0.1', 'name')
+        self.assertEqual(config.registry.settings['http_api_version'], '1.3')
 
     def test_warns_if_project_name_is_empty(self):
         config = Configurator(settings={'cliquet.project_name': ''})
