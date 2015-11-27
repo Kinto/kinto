@@ -341,8 +341,8 @@ See :ref:`details on error responses <error-responses>`.
 Conflicts
 ---------
 
-Since some fields can be :ref:`defined as unique <resource-class>` per collection
-(per user), some conflicts may appear when creating records.
+Since some fields can be defined as unique per collection, some conflicts
+may appear when creating records.
 
 .. note::
 
