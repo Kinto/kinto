@@ -10,7 +10,7 @@ JavaScript application for example.
 It is described :ref:`here <api-endpoints>` and is subject to changes.
 
 When the :term:`HTTP API` is changed, its version is incremented.
-The :term:`HTTP API` version follows a `Semantic Versioning <http://semver.org/>`_
+The :term:`HTTP API` version follows a :term:`Semantic Versioning`
 pattern and uses this rule to be incremented:
 
 1. any change to the :term:`HTTP API` that is backward compatible increments

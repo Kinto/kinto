@@ -3,6 +3,11 @@ Glossary
 
 .. glossary::
 
+    Cliquet Protocol
+        A system of rules that explains the way to interact with the HTTP API
+        :term:`endpoints` (utilities, synchronization, headers etc.), and how data
+        is organized (JSON responses etc.).
+
     CRUD
         Acronym for Create, Read, Update, Delete
 
@@ -61,6 +66,10 @@ Glossary
     permissions
         An action that can be authorized or denied. read, write, create are
         permissions.
+
+    Semantic Versioning
+        A standard MAJOR.MINOR.PATCH versioning scheme.
+        See http://semver.org/.
 
     ACE
     ACEs
