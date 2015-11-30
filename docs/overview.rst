@@ -87,7 +87,7 @@ Bi-directionnal synchronisation of records is a very hard topic.
 and polling for changes, and not trying to resolve conflicts automatically.
 
 Basically, each object has a revision number which is guaranteed to be incremented after
-each modification. *Kinto* does not keep any history.
+each modification. *Kinto* does not keep old revision of objects.
 
 Clients can retrieve the list of changes that occured on a collection of records
 since a specified revision. *Kinto* can also use it to avoid accidental updates
@@ -107,14 +107,17 @@ of objects.
 Comparison with other solutions
 ===============================
 
-Before we started on Yet Another Data Storage Service, we took a look at what
-was already out there, with a view to extending an existing community project
-(rather than reinventing the wheel). In the end, the solutions we reviewed
-didn't quite solve the problems we had - notably regarding fine-grained
-permission settings.
+Before we started building our own data storage service, we took a look at what
+was already out there. Our initial intent was to use and possibly extend
+an existing community project rather than reinventing the wheel.
+
+However, since none of the existing solutions we tried was a perfect fit for the
+problems we needed to solve, notably regarding fine-grained permissions, we started
+our own stack using the experience we gained from building Firefox Sync.
 
 What follows is a comparison table showing how Kinto stacks up compared to some
 other projects in this space.
+
 
 ===========================  ======  ======  ========  =======  ==============
 Project                      Kinto   Parse   Firebase  CouchDB  Remote-Storage
@@ -161,58 +164,54 @@ FAQ
 How does Kinto compares to CouchDB / Remote Storage?
 ----------------------------------------------------
 
-Before starting to create yet another data storage service, we had a long
-look to the existing solutions, to see if that would make sense to extend
-the community effort rather than re-inventing the wheel.
-
-It appeared that solutions we looked at weren't solving the problems we had,
-especially regarding fine-grained permissions.
-
-To see how Kinto compares to these solutions,
-read :ref:`the comparison table <comparison>`.
+To see how Kinto compares to CouchDB & Remote Storage, read :ref:`the comparison table <comparison>`.
 
 Can I encrypt my data?
 ----------------------
 
-Kinto server stores any data you pass to it, be it encrypted or not.
-We make it easy to use encryption in our Kinto.js client
-`using transformers <http://kintojs.readthedocs.org/en/latest/api/#transformers>`_.
+Kinto server stores any data you pass to it, whether it's encrypted or not. We believe
+encryption should always be done on the client-side, and we make it easy to use encryption in
+our Kinto.js client `using transformers <http://kintojs.readthedocs.org/en/latest/api/#transformers>`_.
 
 Is there a package for my Operating System?
 -------------------------------------------
 
-No, but it's a great idea. Packaging is hard and we're a small team, so if
-you'd like to help us out by maintaining packages for your favourite OS,
-we'd be delighted to collaborate with you!
+No, but it's a great idea. Maintaining packages for several platforms is time-consuming
+and we're a small team. At this time we're just making sure it's easy to run our server
+using our Makefile or our Dockerfile.
 
-That said, Kinto is :ref:`easy to install with pip <installation>` and
+Kinto is :ref:`easy to install with pip <installation>` and
 we've got `an image set up <https://hub.docker.com/r/kinto/kinto-server/>`_
 on the Docker hub, too.
+
+But if you'd like to help us out by maintaining packages for your favourite OS,
+we'd be delighted to collaborate with you!
+
 
 Why did you chose to use Python rather than X?
 ----------------------------------------------
 
-We know and love `Python <python.org>`_ for its simplicity and short
-learning curve, so it was an obvious choice for the development team. In
-addition, the Operations team at Mozilla is comfortable with deploying and
+We love `Python <python.org>`_ because it's a concise & expressive
+language with powerful data structures & easy to learn,
+so it was an obvious choice for the development team.
+
+In addition, the Operations team at Mozilla is comfortable with deploying and
 managing Python applications in production.
 
-However, the protocol and concepts behind Kinto don't rely on Python *per
-se*, so it is possible to have other Kinto implementations using other
-languages.
+However, Python is just an implementation detail *per se*. Kinto is
+defined by an HTTP protocol that could be implemented in any language.
+
 
 Is it Web Scale?
 ----------------
 
 YES™. Have a look at the ``/dev/null`` backend. ;-)
 
+
 Can I store files inside Kinto?
 -------------------------------
 
-No. Kinto is a JSON storage service and is not designed to store arbitrary
-files. We'd be open to exploring file storage should a solid use-case
-present itself in the future; however, at this time, it's not on our
-roadmap.
+Not yet, but we're working on it and should have it sometimes in 2016.
 
 
 What is Cliquet? What is the difference between Cliquet and Kinto ?
