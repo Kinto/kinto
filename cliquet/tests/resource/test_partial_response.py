@@ -31,6 +31,12 @@ class BasicTest(PartialResponseBase):
         self.assertRaises(
             httpexceptions.HTTPBadRequest, self.resource.collection_get)
 
+    def test_can_have_multiple_fields(self):
+        self.resource.request.GET['_fields'] = 'field,other'
+        record = self.resource.get()
+        self.assertIn('field', record['data'])
+        self.assertIn('other', record['data'])
+
 class PermissionTest(PartialResponseBase):
     resource_class = ShareableResource
 

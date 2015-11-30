@@ -842,7 +842,8 @@ class UserResource(object):
         if fields:
             fields = fields.split(',')
             known_fields = self._get_known_fields()
-            if set(fields) - set(known_fields):
+            invalid_fields = set(fields) - set(known_fields)
+            if invalid_fields:
                 error_msg = "Fields {} do not exist".\
                     format(set(fields) - set(known_fields))
                 error_details = {
