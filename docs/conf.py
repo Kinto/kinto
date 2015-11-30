@@ -13,6 +13,7 @@
 # serve to show the default.
 
 import os
+import shutil
 import cliquet_docs
 
 __HERE__ = os.path.dirname(os.path.abspath(__file__))
@@ -32,7 +33,10 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 destination = os.path.join(__HERE__, 'api', '1.x', 'cliquet')
 cliquet_docs.copy_docs('api', destination)
 os.remove(os.path.join(destination, 'index.rst'))
-os.remove(os.path.join(destination, 'versioning.rst'))
+
+# the versioning doc goes in api/versionning
+shutil.move(os.path.join(destination, 'versioning.rst'),
+            os.path.join(__HERE__, 'api', 'versioning.rst'))
 
 # Copy the cliquet glossary
 destination = os.path.join(__HERE__, 'cliquet_glossary.rst')
