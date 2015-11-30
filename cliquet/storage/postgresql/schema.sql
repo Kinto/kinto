@@ -12,6 +12,13 @@ END;
 $$ LANGUAGE plpgsql
 IMMUTABLE;
 
+CREATE OR REPLACE FUNCTION from_epoch(epoch BIGINT) RETURNS TIMESTAMP AS $$
+BEGIN
+    RETURN TIMESTAMP WITH TIME ZONE 'epoch' + epoch * INTERVAL '1 millisecond';
+END;
+$$ LANGUAGE plpgsql
+IMMUTABLE;
+
 --
 -- Actual records
 --
@@ -161,6 +168,7 @@ RETURNS trigger AS $$
 DECLARE
     previous TIMESTAMP;
     current TIMESTAMP;
+
 BEGIN
     --
     -- This bumps the current timestamp to 1 msec in the future if the previous
@@ -172,13 +180,14 @@ BEGIN
     -- See https://github.com/mozilla-services/cliquet/issues/25
     --
     previous := collection_timestamp(NEW.parent_id, NEW.collection_id);
-    current := clock_timestamp();
 
-    IF previous >= current THEN
-        current := previous + INTERVAL '1 milliseconds';
+    IF NEW.last_modified IS NULL THEN
+        current := clock_timestamp();
+        IF previous >= current THEN
+            current := previous + INTERVAL '1 milliseconds';
+        END IF;
+        NEW.last_modified := current;
     END IF;
-
-    NEW.last_modified := current;
 
     RETURN NEW;
 END;

@@ -319,21 +319,28 @@ class BaseTestStorage(object):
         self.assertEquals(collection_timestamp, record[self.modified_field])
 
     def test_update_preserves_record_timestamp_if_less_than_collection(self):
-        stored = self.create_record()
-        record_id = stored[self.id_field]
-        record = self.record.copy()
-        record[self.modified_field] = stored[self.modified_field] - 10
+        first_record = self.create_record()
+        second_record = self.create_record()
 
+        # Update the second record to have a last_modified of t0-10
+        record_id = second_record[self.id_field]
+        record = self.record.copy()
+        record[self.modified_field] = second_record[self.modified_field] - 10
         self.storage.update(object_id=record_id, record=record,
                             **self.storage_kw)
+
+        # Retrieve back the updated record.
         retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
         self.assertIn(self.modified_field, retrieved)
         self.assertEquals(retrieved[self.modified_field],
                           record[self.modified_field])
-        # collection timestamp should not be modified.
+
+        # The collection timestamp should be bumped in this case.
         collection_timestamp = self.storage.collection_timestamp(
             **self.storage_kw)
-        self.assertNotEquals(collection_timestamp, record[self.modified_field])
+        self.assertNotEquals(
+            collection_timestamp,
+            first_record[self.modified_field])
 
     def test_delete_works_properly(self):
         stored = self.create_record()
@@ -355,7 +362,6 @@ class BaseTestStorage(object):
 
         records, count = self.storage.get_all(
             include_deleted=True, **self.storage_kw)
-
         self.assertEquals(records[0][self.modified_field], last_modified)
 
     def test_delete_raise_when_unknown(self):
@@ -1148,3 +1154,27 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                         'warnings.warn') as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
             mocked.assert_any_call(msg)
+
+    def test_update_preserves_record_timestamp_if_less_than_collection(self):
+        first_record = self.create_record()
+        second_record = self.create_record()
+
+        # Update the second record to have a last_modified of t0-10
+        record_id = second_record[self.id_field]
+        record = self.record.copy()
+        record[self.modified_field] = second_record[self.modified_field] - 10
+        self.storage.update(object_id=record_id, record=record,
+                            **self.storage_kw)
+
+        # Retrieve back the updated record.
+        retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
+        self.assertIn(self.modified_field, retrieved)
+        self.assertEquals(retrieved[self.modified_field],
+                          record[self.modified_field])
+
+        # The collection timestamp should be bumped in this case.
+        collection_timestamp = self.storage.collection_timestamp(
+            **self.storage_kw)
+        self.assertEquals(
+            collection_timestamp,
+            first_record[self.modified_field])
