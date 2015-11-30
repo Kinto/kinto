@@ -324,11 +324,11 @@ class ShareableModel(Model):
         annotated[self.permissions_field] = permissions
         return annotated
 
-    def delete_record(self, record_id, parent_id=None):
+    def delete_record(self, record_id, parent_id=None, last_modified=None):
         """Delete record and its associated permissions.
         """
-        record = super(ShareableModel, self).delete_record(record_id,
-                                                           parent_id)
+        record = super(ShareableModel, self).delete_record(
+            record_id, parent_id, last_modified=last_modified)
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.delete_object_permissions(perm_object_id)
 

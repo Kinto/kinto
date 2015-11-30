@@ -142,6 +142,23 @@ class DeleteTest(BaseTest):
         self.assertNotIn('field', result)
         self.assertIn('last_modified', result)
 
+    def test_delete_uses_last_modified_from_querystring(self):
+        record = self.model.create_record({'field': 'value'})
+        last_modified = record[self.model.modified_field] + 20
+        self.resource.record_id = record['id']
+        self.resource.request.GET = {
+            'last_modified': last_modified
+        }
+
+        result = self.resource.delete()['data']
+        self.assertEqual(result[self.model.modified_field], last_modified)
+
+        self.resource.request.GET = {'_since': '0', 'deleted': 'true'}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 1)
+        retrieved = result['data'][0]
+        self.assertEqual(retrieved[self.model.modified_field], last_modified)
+
 
 class PatchTest(BaseTest):
     def setUp(self):

@@ -493,7 +493,7 @@ class UserResource(object):
         self._raise_412_if_modified(record)
 
         # Retreive the last_modified information from a querystring if present.
-        last_modified = self.request.querystring.get('last_modified')
+        last_modified = self.request.GET.get('last_modified')
 
         deleted = self.model.delete_record(
             record, last_modified=last_modified)
