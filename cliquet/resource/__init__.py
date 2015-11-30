@@ -1089,17 +1089,6 @@ class ShareableResource(UserResource):
         """
         return ''
 
-    def _extract_fields(self):
-        """Override default fields extraction from QueryString to allow
-        the permission_field to exist.
-        """
-
-        fields = super(ShareableResource, self)._extract_fields()
-        if fields:
-            fields.append(self.model.permissions_field)
-
-        return fields
-
     def _extract_filters(self, queryparams=None):
         """Override default filters extraction from QueryString to allow
         partial collection of records.

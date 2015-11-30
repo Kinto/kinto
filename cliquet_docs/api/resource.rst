@@ -244,6 +244,51 @@ Pagination works with sorting, filtering and polling.
     ``If-None-Match``), in order to detect changes on collection while
     iterating through the pages.
 
+Partial response
+----------------
+
+If the ``_fields`` parameter is provided, only the fields specified are returned.
+Fields are separated with a comma. It is currently not possible to ask
+for nested field.
+
+This is vital in mobile contexts (UMTS) where bandwidth usage must be optimized.
+
+**Request**:
+
+.. code-block:: http
+
+    GET /articles?_fields=title,url
+    Accept: application/json
+    Authorization: Basic bWF0Og==
+    Host: localhost:8000
+
+**Response**:
+
+.. code-block:: http
+
+    HTTP/1.1 200 OK
+    Access-Control-Allow-Origin: *
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, ETag, Next-Page, Total-Records, Last-Modified
+    Content-Length: 436
+    Content-Type: application/json; charset=UTF-8
+    Date: Tue, 28 Apr 2015 12:08:11 GMT
+    Last-Modified: Mon, 12 Apr 2015 11:12:07 GMT
+    ETag: "1430222877724"
+    Total-Records: 2
+
+    {
+        "data": [
+            {
+                "title": "MoCo",
+                "url": "https://mozilla.com",
+            },
+            {
+                "title": "MoFo",
+                "url": "https://mozilla.org",
+            }
+        ]
+    }
+
 
 List of available URL parameters
 --------------------------------

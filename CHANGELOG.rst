@@ -26,6 +26,8 @@ This document describes changes between each past release.
   resource names (#492, #555)
 - Add ability to listen to read action on resource (disabled by default)
   (#493)
+- Add ability to ask for partial response via ``_fields`` parameter on GET
+  endpoints
 
 **Internal**
 

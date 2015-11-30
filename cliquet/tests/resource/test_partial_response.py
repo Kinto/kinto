@@ -40,7 +40,7 @@ class BasicTest(PartialResponseBase):
 class PermissionTest(PartialResponseBase):
     resource_class = ShareableResource
 
-    def test_permissions_are_not_filtered(self):
+    def test_permissions_are_not_displayed(self):
         self.resource.request.GET['_fields'] = 'field'
         result = self.resource.get()
-        self.assertIn('permissions', result)
+        self.assertNotIn('permissions', result)
