@@ -4,6 +4,18 @@
 Resource endpoints
 ##################
 
+All :term:`endpoints` URLs are prefixed by the major version of the :term:`HTTP API`
+(e.g /v1 for 1.4).
+
+e.g. the URL for all the endpoints is structured as follows:::
+
+    https://<server name>/<api MAJOR version>/<further instruction>
+
+
+The full URL prefix will be implied throughout the rest of this document and
+it will only describe the **<further instruction>** part.
+
+
 GET /{collection}
 =================
 
