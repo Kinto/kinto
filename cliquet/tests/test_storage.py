@@ -253,6 +253,22 @@ class BaseTestStorage(object):
                           self.create_record,
                           record=record)
 
+    def test_create_preserves_the_passed_last_modified_when_provided(self):
+        last_modified = 1448881675541
+        record = self.record.copy()
+        record[self.id_field] = RECORD_ID
+        record[self.modified_field] = last_modified
+        self.create_record(record=record)
+
+        retrieved = self.storage.get(object_id=RECORD_ID, **self.storage_kw)
+        self.assertIn(self.modified_field, retrieved)
+        self.assertEquals(retrieved[self.modified_field], last_modified)
+
+        # collection timestamp should not be modified.
+        collection_timestamp = self.storage.collection_timestamp(
+            **self.storage_kw)
+        self.assertEquals(collection_timestamp, last_modified)
+
     def test_create_does_generate_a_new_last_modified_field(self):
         record = self.record.copy()
         self.assertNotIn(self.modified_field, record)
