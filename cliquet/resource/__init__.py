@@ -495,8 +495,7 @@ class UserResource(object):
         # Retreive the last_modified information from a querystring if present.
         last_modified = self.request.GET.get('last_modified')
 
-        deleted = self.model.delete_record(
-            record, last_modified=last_modified)
+        deleted = self.model.delete_record(record, last_modified=last_modified)
         return self.postprocess(deleted, action=ACTIONS.DELETE)
 
     #
@@ -537,8 +536,8 @@ class UserResource(object):
 
         # Drop the new last_modified if lesser or equal to the old one.
         new_last_modified = new.get(self.model.modified_field)
-        if (new_last_modified and
-                new_last_modified <= old[self.model.modified_field]):
+        is_greater = new_last_modified <= old[self.model.modified_field]
+        if (new_last_modified and is_greater):
             del new[self.model.modified_field]
 
         return new

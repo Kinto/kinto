@@ -265,9 +265,8 @@ class BaseTestStorage(object):
         self.assertEquals(retrieved[self.modified_field], last_modified)
 
         # collection timestamp should not be modified.
-        collection_timestamp = self.storage.collection_timestamp(
-            **self.storage_kw)
-        self.assertEquals(collection_timestamp, last_modified)
+        collection_ts = self.storage.collection_timestamp(**self.storage_kw)
+        self.assertEquals(collection_ts, last_modified)
 
     def test_create_does_generate_a_new_last_modified_field(self):
         record = self.record.copy()

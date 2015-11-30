@@ -194,14 +194,19 @@ class Storage(MemoryBasedStorage):
             else:
                 current = record[modified_field]
         else:
+            # Otherwise, use a new one.
             current = utils.msec_time()
 
+        # Bump the timestamp only if it's more than the previous one.
         previous = self._timestamps[collection_id].get(parent_id)
         if previous and previous >= current:
             collection_timestamp = previous + 1
         else:
             collection_timestamp = current
 
+        # In case the timestamp was specified, the collection timestamp will
+        # be different from the updated timestamp. As such, we want to return
+        # the one of the record, and not the collection one.
         if not is_specified:
             current = collection_timestamp
 
@@ -256,8 +261,7 @@ class Storage(MemoryBasedStorage):
                deleted_field=DEFAULT_DELETED_FIELD,
                auth=None, last_modified=None):
         existing = self.get(collection_id, parent_id, object_id)
-        # Need to delete the last_modified field of the record for it to not
-        # be kept (in no case we want to keep the old one).
+        # Need to delete the last_modified field of the record.
         del existing[modified_field]
 
         self.set_record_timestamp(collection_id, parent_id, existing,

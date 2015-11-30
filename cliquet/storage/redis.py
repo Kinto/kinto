@@ -121,8 +121,6 @@ class Storage(MemoryBasedStorage):
                     if not is_specified:
                         current = collection_timestamp
 
-                    print(is_specified, current, collection_timestamp, record)
-
                     pipe.set(key, collection_timestamp)
                     pipe.execute()
                     return current
@@ -234,10 +232,9 @@ class Storage(MemoryBasedStorage):
 
         existing = self._decode(encoded_item)
 
-        # Need to delete the last_modified field of the record for it to not
-        # be kept (in no case we want to keep the old one).
+        # Need to delete the last_modified field.
         del existing[modified_field]
-        
+
         self.set_record_timestamp(collection_id, parent_id, existing,
                                   modified_field=modified_field,
                                   last_modified=last_modified)
