@@ -32,7 +32,7 @@ pattern and uses this rule to be incremented:
 We want to avoid **MAJOR** changes as much as possible in the future, and stick
 with 1.x as long as we can.
 
-A client that interacts with a Kinto server can query the server to know what
+A client that interacts with the service can query the server to know what
 is its :term:`HTTP API` version. This is done with a query on the root view,
 as described in :ref:`the root API description <api-utilities>`.
 
