@@ -87,7 +87,7 @@ Bi-directionnal synchronisation of records is a very hard topic.
 and polling for changes, and not trying to resolve conflicts automatically.
 
 Basically, each object has a revision number which is guaranteed to be incremented after
-each modification. *Kinto* does not keep old revision of objects.
+each modification. *Kinto* does not keep old revisions of objects.
 
 Clients can retrieve the list of changes that occured on a collection of records
 since a specified revision. *Kinto* can also use it to avoid accidental updates
@@ -211,7 +211,13 @@ YES™. Have a look at the ``/dev/null`` backend. ;-)
 Can I store files inside Kinto?
 -------------------------------
 
-Not yet, but we're working on it and should have it sometimes in 2016.
+Not yet, but we've designed a file storage feature and
+we're `working on its implementaton <https://github.com/Kinto/kinto-attachment/>`_.
+It should land in a release sometimes in 2016.
+
+In the meantime, we're always looking for early feeback if you want to
+try our cutting edge version.
+
 
 
 What is Cliquet? What is the difference between Cliquet and Kinto ?
