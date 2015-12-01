@@ -4,13 +4,26 @@ Changelog
 This document describes changes between each past release.
 
 
-2.12.1 (unreleased)
+2.13.0 (2015-12-01)
 -------------------
 
 **Bug fixes**
 
 - Fixes duplicated records in paginated results when limit is forced via
   settings (fixes #588)
+- Fix a bug where the records were returned multiple times when paginating
+  (fixes #607)
+
+**New features**
+
+- Allow to keep the ``last_modified`` field of records when updating or
+  creating them (fixes #604)
+
+**Internal changes**
+
+- Documentation has been updated to explain better how versionning is
+  handled (fixes #603)
+
 
 
 2.12.0 (2015-11-27)

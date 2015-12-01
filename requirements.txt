@@ -19,7 +19,7 @@ statsd==3.2.1
 structlog==15.3.0
 transaction==1.4.4
 translationstring==1.3
-ujson==1.33
+ujson==1.34
 venusian==1.0
 WebOb==1.5.1
 Werkzeug==0.11.2
