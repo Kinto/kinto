@@ -492,7 +492,10 @@ class UserResource(object):
         record = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(record)
 
-        deleted = self.model.delete_record(record)
+        # Retreive the last_modified information from a querystring if present.
+        last_modified = self.request.GET.get('last_modified')
+
+        deleted = self.model.delete_record(record, last_modified=last_modified)
         return self.postprocess(deleted, action=ACTIONS.DELETE)
 
     #
@@ -506,6 +509,7 @@ class UserResource(object):
         .. code-block:: python
 
             def process_record(self, new, old=None):
+                new = super(MyResource, self).process_record(new, old)
                 version = old['version'] if old else 0
                 new['version'] = version + 1
                 return new
@@ -517,6 +521,7 @@ class UserResource(object):
             from cliquet.errors import raise_invalid
 
             def process_record(self, new, old=None):
+                new = super(MyResource, self).process_record(new, old)
                 if new['browser'] not in request.headers['User-Agent']:
                     raise_invalid(self.request, name='browser', error='Wrong')
                 return new
@@ -528,6 +533,17 @@ class UserResource(object):
         :returns: the processed record.
         :rtype: dict
         """
+        new_last_modified = new.get(self.model.modified_field)
+        not_specified = old is None or self.model.modified_field not in old
+
+        if new_last_modified is None or not_specified:
+            return new
+
+        # Drop the new last_modified if lesser or equal to the old one.
+        is_greater = new_last_modified <= old[self.model.modified_field]
+        if new_last_modified and is_greater:
+            del new[self.model.modified_field]
+
         return new
 
     def apply_changes(self, record, changes):
@@ -1073,6 +1089,7 @@ class ShareableResource(UserResource):
         """Read permissions from request body, and in the case of ``PUT`` every
         existing ACE is removed (using empty list).
         """
+        new = super(ShareableResource, self).process_record(new, old)
         permissions = self.request.validated.get('permissions', {})
 
         annotated = new.copy()

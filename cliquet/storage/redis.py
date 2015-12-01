@@ -88,7 +88,9 @@ class Storage(MemoryBasedStorage):
         return self._bump_timestamp(collection_id, parent_id)
 
     @wrap_redis_error
-    def _bump_timestamp(self, collection_id, parent_id):
+    def _bump_timestamp(self, collection_id, parent_id, record=None,
+                        modified_field=None, last_modified=None):
+
         key = '{0}.{1}.timestamp'.format(collection_id, parent_id)
         while 1:
             with self._client.pipeline() as pipe:
@@ -96,11 +98,31 @@ class Storage(MemoryBasedStorage):
                     pipe.watch(key)
                     previous = pipe.get(key)
                     pipe.multi()
-                    current = utils.msec_time()
+                    # XXX factorize code from memory and redis backends.
+                    is_specified = (record is not None
+                                    and modified_field in record
+                                    or last_modified is not None)
+                    if is_specified:
+                        # If there is a timestamp in the new record,
+                        # try to use it.
+                        if last_modified is not None:
+                            current = last_modified
+                        else:
+                            current = record[modified_field]
+                    else:
+                        current = utils.msec_time()
 
                     if previous and int(previous) >= current:
-                        current = int(previous) + 1
-                    pipe.set(key, current)
+                        collection_timestamp = int(previous) + 1
+                    else:
+                        collection_timestamp = current
+
+                    # Return the newly generated timestamp as the current one
+                    # only if nothing else was specified.
+                    if not is_specified:
+                        current = collection_timestamp
+
+                    pipe.set(key, collection_timestamp)
                     pipe.execute()
                     return current
                 except redis.WatchError:  # pragma: no cover
@@ -192,7 +214,7 @@ class Storage(MemoryBasedStorage):
                id_field=DEFAULT_ID_FIELD, with_deleted=True,
                modified_field=DEFAULT_MODIFIED_FIELD,
                deleted_field=DEFAULT_DELETED_FIELD,
-               auth=None):
+               auth=None, last_modified=None):
         record_key = '{0}.{1}.{2}.records'.format(collection_id,
                                                   parent_id,
                                                   object_id)
@@ -211,8 +233,12 @@ class Storage(MemoryBasedStorage):
 
         existing = self._decode(encoded_item)
 
+        # Need to delete the last_modified field.
+        del existing[modified_field]
+
         self.set_record_timestamp(collection_id, parent_id, existing,
-                                  modified_field=modified_field)
+                                  modified_field=modified_field,
+                                  last_modified=last_modified)
         existing = self.strip_deleted_record(collection_id, parent_id,
                                              existing)
 

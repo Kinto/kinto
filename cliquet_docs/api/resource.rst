@@ -512,10 +512,17 @@ The consumer might decide to ignore it.
 If the request header ``If-Match`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
+The timestamp value of the deleted record can be enforced via the
+``last_modified`` QueryString parameter.
+
 .. note::
 
     Once deleted, a record will appear in the collection when polling for changes,
     with a deleted status (``delete=true``) and will have most of its fields empty.
+
+.. versionadded:: 2.13::
+
+  Enforcement of the timestamp value for records has been added.
 
 HTTP Status Code
 ----------------
@@ -546,6 +553,9 @@ Validation and conflicts behaviour is similar to creating records (``POST``).
 If the request header ``If-Match`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
+.. versionadded:: 2.13::
+
+  Enforcement of the timestamp value for records has been added.
 
 **Request**:
 

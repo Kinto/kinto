@@ -216,14 +216,16 @@ class Storage(StorageBase):
                AND parent_id = :parent_id
                AND collection_id = :collection_id
         )
-        INSERT INTO records (id, parent_id, collection_id, data)
+        INSERT INTO records (id, parent_id, collection_id, data, last_modified)
         VALUES (:object_id, :parent_id,
-                :collection_id, (:data)::JSONB)
+                :collection_id, (:data)::JSONB,
+                from_epoch(:last_modified))
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(object_id=record_id,
                             parent_id=parent_id,
                             collection_id=collection_id,
+                            last_modified=record.get(modified_field),
                             data=json.dumps(record))
         with self.client.connect() as conn:
             # Check that it does violate the resource unicity rules.
@@ -267,14 +269,16 @@ class Storage(StorageBase):
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
         query_create = """
-        INSERT INTO records (id, parent_id, collection_id, data)
+        INSERT INTO records (id, parent_id, collection_id, data, last_modified)
         VALUES (:object_id, :parent_id,
-                :collection_id, (:data)::JSONB)
+                :collection_id, (:data)::JSONB,
+                from_epoch(:last_modified))
         RETURNING as_epoch(last_modified) AS last_modified;
         """
 
         query_update = """
-        UPDATE records SET data=(:data)::JSONB
+        UPDATE records SET data=(:data)::JSONB,
+                           last_modified=from_epoch(:last_modified)
         WHERE id = :object_id
            AND parent_id = :parent_id
            AND collection_id = :collection_id
@@ -283,6 +287,7 @@ class Storage(StorageBase):
         placeholders = dict(object_id=object_id,
                             parent_id=parent_id,
                             collection_id=collection_id,
+                            last_modified=record.get(modified_field),
                             data=json.dumps(record))
 
         record = record.copy()
@@ -312,7 +317,7 @@ class Storage(StorageBase):
                id_field=DEFAULT_ID_FIELD, with_deleted=True,
                modified_field=DEFAULT_MODIFIED_FIELD,
                deleted_field=DEFAULT_DELETED_FIELD,
-               auth=None):
+               auth=None, last_modified=None):
         if with_deleted:
             query = """
             WITH deleted_record AS (
@@ -323,8 +328,8 @@ class Storage(StorageBase):
                   AND collection_id = :collection_id
                 RETURNING id
             )
-            INSERT INTO deleted (id, parent_id, collection_id)
-            SELECT id, :parent_id, :collection_id
+            INSERT INTO deleted (id, parent_id, collection_id, last_modified)
+            SELECT id, :parent_id, :collection_id, from_epoch(:last_modified)
               FROM deleted_record
             RETURNING as_epoch(last_modified) AS last_modified;
             """
@@ -339,7 +344,8 @@ class Storage(StorageBase):
             """
         placeholders = dict(object_id=object_id,
                             parent_id=parent_id,
-                            collection_id=collection_id)
+                            collection_id=collection_id,
+                            last_modified=last_modified)
 
         with self.client.connect() as conn:
             result = conn.execute(query, placeholders)

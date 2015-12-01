@@ -35,6 +35,7 @@ Full example
         mapping = BookmarkSchema()
 
         def process_record(self, new, old=None):
+            new = super(Bookmark, self).process_record(new, old)
             if new['device'] != old['device']:
                 new['device'] = self.request.headers.get('User-Agent')
 
