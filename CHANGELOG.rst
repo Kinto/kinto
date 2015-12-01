@@ -3,14 +3,45 @@ Changelog
 
 This document describes changes between each past release.
 
-1.10.0 (unreleased)
+1.10.0 (2015-12-01)
 ===================
+
+**Breaking changes**
+
+- When using *cliquet-fxa*, the setting ``multiauth.policy.fxa.use`` must now
+  be explicitly set to ``cliquet_fxa.authentication.FxAOAuthAuthenticationPolicy``
+- Fields in the root view were renamed (mozilla-services/cliquet#600)
 
 **Bug fixes**
 
 - Fix redis default host in kinto init (fixes #289)
 - Fix DockerFile with default configuration (fixes #296)
+- Include plugins after setting up components (like authn/authz) so that plugins
+  can register views with permissions checking
+- Remove ``__permissions__`` from impacted records values in ``ResourceChanged``
+  events (mozilla-services/cliquet#586)
 
+**Protocol**
+
+Changed the naming in the root URL (hello view) (mozilla-services/cliquet#600)
+
+- Added ``http_api_version``
+- Renamed ``hello`` to ``project_name``
+- Renamed ``protocol_version`` to ``cliquet_protocol_version``
+- Renamed ``documentation`` to ``project_docs``
+- Renamed ``version`` to ``project_version``
+
+
+**New features**
+
+- New options in configuration of listeners to specify filtered actions and
+  resource names (mozilla-services/cliquet#492, mozilla-services/cliquet#555)
+- Add ability to be notified on read actions on a resource (disabled by
+  default) (mozilla-services/cliquet#493)
+
+**Internal**
+
+- Clarified how Kinto is versionned in the documentation (#305)
 
 1.9.0 (2015-11-18)
 ==================
