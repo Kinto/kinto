@@ -41,7 +41,7 @@ adjustments:
 .. note::
 
     For an exhaustive list of available settings and their default values,
-    refer to `the source code <https://github.com/mozilla-services/cliquet/blob/2.11.0/cliquet/__init__.py#L30-L93>`_.
+    refer to `the source code <https://github.com/mozilla-services/cliquet/blob/2.13.0/cliquet/__init__.py#L30-L93>`_.
 
 
 By default, nobody can read buckets list. You can change that using:
