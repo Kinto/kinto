@@ -249,9 +249,9 @@ Partial response
 
 If the ``_fields`` parameter is provided, only the fields specified are returned.
 Fields are separated with a comma. It is currently not possible to ask
-for nested field.
+for nested fields.
 
-This is vital in mobile contexts (UMTS) where bandwidth usage must be optimized.
+This is vital in mobile contexts where bandwidth usage must be optimized.
 
 **Request**:
 
@@ -298,6 +298,7 @@ List of available URL parameters
 - ``_sort``: order list
 - ``_limit``: pagination max size
 - ``_token``: pagination token
+- ``_fields``: filter the fields of the records
 
 
 Filtering, sorting and paginating can all be combined together.
