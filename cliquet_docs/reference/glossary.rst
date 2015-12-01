@@ -3,10 +3,16 @@ Glossary
 
 .. glossary::
 
+    Cliquet Protocol
+        A system of rules that explains the way to interact with the HTTP API
+        :term:`endpoints` (utilities, synchronization, headers etc.), and how data
+        is organized (JSON responses etc.).
+
     CRUD
         Acronym for Create, Read, Update, Delete
 
     endpoint
+    endpoints
         An endpoint handles a particular HTTP verb at a particular URL.
 
     extensible
@@ -15,6 +21,10 @@ Glossary
 
     Firefox Accounts
         Account account system run by Mozilla (https://accounts.firefox.com).
+
+    HTTP API
+        Multiple publicly exposed endpoints that accept HTTP requests and
+        respond with the requested data, in the form of JSON.
 
     KISS
         «Keep it simple, stupid» is a design priciple which states that most
@@ -25,21 +35,21 @@ Glossary
         It differs from «:term:`extensible`».
 
     resource
-        A resource is a collection of records.
+        A resource is a collection of records. A resource has two URLs, one for
+        the collection and one for individual records.
 
     user id
     user identifier
     user identifiers
-        A string that identifies a user. By default, *Cliquet* uses a HMAC on
-        authentication credentials to generate users identifications strings.
+        A string that identifies a user. When using the built-in *Basic Auth*
+        authentication, *Cliquet* uses cryptography (HMAC) to generate an
+        identification string.
 
         See `Pyramid authentication`_.
 
     object
     objects
-        The data that is stored into *Cliquet*. Objects usually match
-        the resources you defined; For one resource there are two objects: resource's
-        collection and resource's records.
+        Also refered as «records», objects are stored by *Cliquet* resources.
 
     tombstone
     tombstones
@@ -56,6 +66,10 @@ Glossary
     permissions
         An action that can be authorized or denied. read, write, create are
         permissions.
+
+    Semantic Versioning
+        A standard MAJOR.MINOR.PATCH versioning scheme.
+        See http://semver.org/.
 
     ACE
     ACEs

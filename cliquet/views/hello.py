@@ -10,12 +10,14 @@ def get_hello(request):
     """Return information regarding the current instance."""
     settings = request.registry.settings
     project_name = settings['project_name']
+    project_version = settings['project_version']
     data = dict(
-        hello=project_name,
-        version=settings['project_version'],
-        protocol_version=PROTOCOL_VERSION,
-        url=request.route_url(hello.name),
-        documentation=settings['project_docs']
+        project_name=project_name,
+        project_version=project_version,
+        http_api_version=settings['http_api_version'],
+        project_docs=settings['project_docs'],
+        cliquet_protocol_version=PROTOCOL_VERSION,
+        url=request.route_url(hello.name)
     )
 
     eos = get_eos(request)

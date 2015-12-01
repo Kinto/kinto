@@ -22,10 +22,12 @@ from cliquet import logger
 from cliquet import utils
 from cliquet import statsd
 from cliquet.cache import heartbeat as cache_heartbeat
+from cliquet.events import ResourceRead, ResourceChanged, ACTIONS
 from cliquet.permission import heartbeat as permission_heartbeat
 from cliquet.storage import heartbeat as storage_heartbeat
 
 from pyramid.events import NewRequest, NewResponse
+from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -373,15 +375,43 @@ def setup_logging(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
-def setup_listeners(config):
-    listeners = aslist(config.get_settings()['event_listeners'])
-    from cliquet.events import ResourceChanged
+def _filter_events(listener_func, actions, resources):
+    def wrapped(event):
+        action = event.payload.get('action')
+        resource = event.payload.get('resource_name')
+        if not action or action in actions:
+            if not resource or not resources or resource in resources:
+                listener_func(event)
+    return wrapped
 
-    for listener in listeners:
+
+def setup_listeners(config):
+    write_actions = (ACTIONS.CREATE, ACTIONS.UPDATE, ACTIONS.DELETE)
+    settings = config.get_settings()
+    listeners = aslist(settings['event_listeners'])
+
+    for name in listeners:
         logger.info('Setting up %r listener')
-        listener_mod = config.maybe_dotted(listener)
-        listener = listener_mod.load_from_config(config)
-        config.add_subscriber(listener, ResourceChanged)
+        prefix = 'event_listeners.%s.' % name
+
+        try:
+            listener_mod = config.maybe_dotted(name)
+            prefix = 'event_listeners.%s.' % name.split('.')[-1]
+            listener = listener_mod.load_from_config(config, prefix)
+        except (ImportError, AttributeError):
+            listener_mod = config.maybe_dotted(settings[prefix + 'use'])
+            listener = listener_mod.load_from_config(config, prefix)
+
+        actions = aslist(settings.get(prefix + 'actions', '')) or write_actions
+        resource_names = aslist(settings.get(prefix + 'resources', ''))
+        decorated = _filter_events(listener, actions, resource_names)
+
+        if ACTIONS.READ in actions:
+            config.add_subscriber(decorated, ResourceRead)
+            if len(actions) == 1:
+                return
+
+        config.add_subscriber(decorated, ResourceChanged)
 
 
 def load_default_settings(config, default_settings):
@@ -467,13 +497,20 @@ def initialize(config, version=None, project_name='', default_settings=None):
 
     load_default_settings(config, cliquet_defaults)
 
-    # The API version is derivated from the module version.
+    # Override project version from settings.
     project_version = settings.get('project_version') or version
-    settings['project_version'] = project_version
-    try:
-        api_version = 'v%s' % project_version.split('.')[0]
-    except (AttributeError, ValueError):
-        raise ValueError('Invalid project version')
+    if not project_version:
+        error_msg = "Invalid project version: %s" % project_version
+        raise ConfigurationError(error_msg)
+    settings['project_version'] = project_version = str(project_version)
+
+    # HTTP API version.
+    http_api_version = settings.get('http_api_version')
+    if http_api_version is None:
+        # The API version is derivated from the module version if not provided.
+        http_api_version = '.'.join(project_version.split('.')[0:2])
+    settings['http_api_version'] = http_api_version = str(http_api_version)
+    api_version = 'v%s' % http_api_version.split('.')[0]
 
     # Include cliquet views with the correct api version prefix.
     config.include("cliquet", route_prefix=api_version)

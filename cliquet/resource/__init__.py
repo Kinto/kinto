@@ -12,12 +12,12 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 from cliquet import logger
 from cliquet import Service
 from cliquet.errors import http_error, raise_invalid, send_alert, ERRORS
+from cliquet.events import ResourceChanged, ResourceRead, ACTIONS
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
     current_service, encode_header, decode_header, DeprecatedMeta
 )
-from cliquet.events import ResourceChanged, ACTIONS
 
 from .model import Model, ShareableModel
 from .schema import ResourceSchema
@@ -217,8 +217,8 @@ class UserResource(object):
 
         headers = self.request.response.headers
         filters = self._extract_filters()
-        sorting = self._extract_sorting()
         limit = self._extract_limit()
+        sorting = self._extract_sorting(limit)
         filter_fields = [f.field for f in filters]
         include_deleted = self.model.modified_field in filter_fields
 
@@ -613,18 +613,20 @@ class UserResource(object):
         to just populate the ``bound_data`` attribute of ``self.request``.
         (since it is shared among batch requests).
         """
-        # Do not notify read actions.
-        if action == ACTIONS.READ:
-            return
-
         # When plugged with the transaction system, impacted records will
         # always be a list. Therefore, here put single operations into a
         # list.
         if not isinstance(result, list):
             result = [result]
 
-        impacted = {}
-        if action == ACTIONS.CREATE:
+        if action == ACTIONS.READ:
+            event_cls = ResourceRead
+        else:
+            event_cls = ResourceChanged
+
+        if action == ACTIONS.READ:
+            impacted = result
+        elif action == ACTIONS.CREATE:
             impacted = [{'new': r} for r in result]
         elif action == ACTIONS.DELETE:
             impacted = [{'old': r} for r in result]
@@ -635,7 +637,7 @@ class UserResource(object):
             impacted = [{'new': r, 'old': old} for r in result]
 
         try:
-            event = ResourceChanged(action, self, impacted, self.request)
+            event = event_cls(action, self, impacted, self.request)
             self.request.registry.notify(event)
         except Exception:
             logger.error("Unable to notify", exc_info=True)
@@ -721,9 +723,10 @@ class UserResource(object):
         if_none_match = decode_header(if_none_match)
 
         try:
-            assert if_none_match[0] == if_none_match[-1] == '"'
+            if not (if_none_match[0] == if_none_match[-1] == '"'):
+                raise ValueError()
             modified_since = int(if_none_match[1:-1])
-        except (IndexError, AssertionError, ValueError):
+        except (IndexError, ValueError):
             if if_none_match != '*':
                 error_details = {
                     'location': 'headers',
@@ -760,9 +763,10 @@ class UserResource(object):
             modified_since = -1  # Always raise.
         elif if_match:
             try:
-                assert if_match[0] == if_match[-1] == '"'
+                if not (if_match[0] == if_match[-1] == '"'):
+                    raise ValueError()
                 modified_since = int(if_match[1:-1])
-            except (IndexError, AssertionError, ValueError):
+            except (IndexError, ValueError):
                 message = ("Invalid value for If-Match. The value should "
                            "be integer between double quotes.")
                 error_details = {
@@ -908,10 +912,9 @@ class UserResource(object):
 
         return filters
 
-    def _extract_sorting(self):
+    def _extract_sorting(self, limit):
         """Extracts filters from QueryString parameters."""
         specified = self.request.GET.get('_sort', '').split(',')
-        limit = '_limit' in self.request.GET
         sorting = []
         modified_field_used = self.model.modified_field in specified
         for field in specified:
@@ -973,10 +976,11 @@ class UserResource(object):
         if token:
             try:
                 tokeninfo = json.loads(decode64(token))
-                assert isinstance(tokeninfo, dict)
+                if not isinstance(tokeninfo, dict):
+                    raise ValueError()
                 last_record = tokeninfo['last_record']
                 offset = tokeninfo['offset']
-            except (ValueError, KeyError, TypeError, AssertionError):
+            except (ValueError, KeyError, TypeError):
                 error_msg = '_token has invalid content'
                 error_details = {
                     'location': 'querystring',
@@ -1100,7 +1104,7 @@ class ShareableResource(UserResource):
 
         return annotated
 
-    def postprocess(self, result, **kwargs):
+    def postprocess(self, result, action=ACTIONS.READ, old=None):
         """Add ``permissions`` attribute in response body.
 
         In the protocol, it was decided that ``permissions`` would reside
@@ -1114,7 +1118,11 @@ class ShareableResource(UserResource):
             if perms is not None:
                 body['permissions'] = {k: list(p) for k, p in perms.items()}
 
-        data = super(ShareableResource, self).postprocess(result, **kwargs)
+            if old:
+                # Remove permissions from event payload.
+                old.pop(self.model.permissions_field, None)
+
+        data = super(ShareableResource, self).postprocess(result, action, old)
         body.update(data)
         return body
 

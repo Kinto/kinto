@@ -4,19 +4,56 @@ Changelog
 This document describes changes between each past release.
 
 
-2.12.0 (unreleased)
+2.12.1 (unreleased)
 -------------------
+
+**Bug fixes**
+
+- Fixes duplicated records in paginated results when limit is forced via
+  settings (fixes #588)
+
+
+2.12.0 (2015-11-27)
+-------------------
+
+**Protocol**
+
+Minor changes in the root URL (hello view):
+
+- Added ``http_api_version`` (#600)
+- Renamed ``hello`` to ``project_name``
+- Renamed ``protocol_version`` to ``cliquet_protocol_version``
+- Renamed ``documentation`` to ``project_docs``
+- Renamed ``version`` to ``project_version``
 
 **Breaking changes**
 
 - When using *cliquet-fxa*, the setting ``multiauth.policy.fxa.use`` must now
   be explicitly set to ``cliquet_fxa.authentication.FxAOAuthAuthenticationPolicy``
-
+- Fields in the root view were renamed (#600)
 
 **Bug fixes**
 
 - Include plugins after setting up components (like authn/authz) so that plugins
   can register views with permissions checking
+- Remove ``__permissions__`` from impacted records values in ``ResourceChanged``
+  events (#586)
+
+**New features**
+
+- New options in configuration of listeners to specify filtered actions and
+  resource names (#492, #555)
+- Add ability to listen to read action on resource (disabled by default)
+  (#493)
+
+**Internal**
+
+- Fixed a few details in quickstart docs since backends are not Redis by default
+  anymore
+- Replace usage of ``assert`` by explicit exceptions since the former can
+  be ignored when python is ran with ``-O`` (fixes #592)
+- Improved documentation about permissions (#572, thanks for the feedback @MrChoclate)
+- Fixed docs building under Python 3 (#591)
 
 
 2.11.0 (2015-11-17)

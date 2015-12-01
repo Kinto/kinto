@@ -1,12 +1,12 @@
 colander==1.0
 cornice==1.1.0
 iso8601==0.1.11
-newrelic==2.58.0.43
+newrelic==2.58.2.45
 PasteDeploy==1.5.2
 psycopg2==2.6.1
 pyramid==1.5.7
 pyramid-multiauth==0.5.0
-pyramid-tm==0.12
+pyramid-tm==0.12.1
 python-dateutil==2.4.2
 raven==5.8.1
 redis==2.10.5

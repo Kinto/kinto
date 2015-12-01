@@ -27,7 +27,12 @@ Project info
 
     cliquet.project_name = project
     cliquet.project_docs = https://project.rtfd.org/
-    # cliquet.project_version = 1.0
+    # cliquet.project_version = 1.3-stable
+    # cliquet.http_api_version = 1.0
+
+It can be useful to set the ``project_version`` to a custom string, in order
+to prevent disclosing information about the currently running version
+(when there are known vulnerabilities for example).
 
 
 Feature settings
@@ -250,7 +255,10 @@ Notifications
 =============
 
 To activate event listeners, use the *event_handlers* setting,
-which takes a list of python modules.
+which takes a list of either:
+
+* aliases (e.g. ``journal``)
+* python modules (e.g. ``cliquet.listeners.redis``)
 
 Each listener will load load its dedicated settings.
 
@@ -260,11 +268,24 @@ data in the ``queue`` Redis list.
 
 .. code-block:: ini
 
-    cliquet.event_listeners = cliquet.events.redis
+    cliquet.event_listeners = redis
 
+    cliquet.event_listeners.redis.use = cliquet.events.redis
     cliquet.event_listeners.redis.url = redis://localhost:6379/0
     cliquet.event_listeners.redis.pool_size = 5
     cliquet.event_listeners.redis.listname = queue
+
+Filtering
+:::::::::
+
+It is possible to filter events by action and/or resource name. By
+default actions ``create``, ``update`` and ``delete`` are notified
+for every resources.
+
+.. code-block:: ini
+
+    cliquet.event_listeners.redis.actions = create
+    cliquet.event_listeners.redis.resources = article comment
 
 
 Cache
@@ -397,10 +418,28 @@ values for OAuth2 client settings.
 See :github:`mozilla-services/cliquet-fxa`.
 
 
-Permission configuration
-::::::::::::::::::::::::
+.. _configuration-permissions:
 
-ACE are usually set on objects using the permission backend.
+Permissions
+===========
+
+Backend
+:::::::
+
+.. code-block:: ini
+
+    cliquet.permission_backend = cliquet.permission.redis
+    cliquet.permission_url = redis://localhost:6379/1
+
+    # Control number of pooled connections
+    # cliquet.permission_pool_size = 50
+
+See :ref:`permission backend documentation <permissions-backend>` for more details.
+
+Resources
+:::::::::
+
+:term:`ACEs` are usually set on objects using the permission backend.
 
 It is also possible to configure them from settings, and it will **bypass**
 the permission backend.
@@ -414,6 +453,8 @@ authenticated people to create bucket records:
 
 The format of these permission settings is
 ``<resource_name>_<permission>_principals = comma,separated,principals``.
+
+See :ref:`shareable resource documentation <permission-shareable-resource>` for more details.
 
 
 Application profiling

@@ -1,21 +1,24 @@
+.. _viewset:
+
 Viewsets
 ########
 
-*Cliquet* maps URLs and permissions to resources using *ViewSets*.
+*Cliquet* maps URLs, :term:`endpoints` and :term:`permissions` to resources
+using *ViewSets*.
 
-View sets can be viewed as a set of rules which can be applied to a resource in
-order to define what should be inserted in the routing mechanism of pyramid.
+Since a resource defines two URLs with several HTTP methods, a view set can
+be considered as a set of rules for registring the resource views into the
+routing mechanism of Pyramid.
+
+To use *Cliquet* in a basic fashion, there is no need to understand how
+viewsets work in full detail.
 
 
-Configuring a viewset
-=====================
+Override defaults
+=================
 
-To use *Cliquet* in a basic fashion, there is not need to understand how
-viewsets work in full detail, but it might be useful to know how to extend the
-defaults.
-
-Default viewset can be extended by passing viewset arguments to the
-`resource.register` class decorator:
+Viewsets defaults can be overriden by passing arguments to the
+:func:`cliquet.resource.register` class decorator:
 
 .. code-block:: python
 
@@ -27,39 +30,33 @@ Default viewset can be extended by passing viewset arguments to the
         mapping = BookmarkSchema()
 
 
-Subclassing a viewset
-=====================
+Subclassing
+===========
 
-In case this isn't enough to update the default properties, the default
-`ViewSet` class can be subclassed in a more specific viewset, and then be
-passed during the registration phase:
+In case this isn't enough, the :class:`cliquet.resource.viewset.ViewSet` class
+can be subclassed and specified during registration:
 
 
 .. code-block:: python
+    :emphasize-lines: 10
 
     from cliquet import resource
 
 
-    class MyViewSet(resource.ViewSet):
+    class NoSchemaViewSet(resource.ViewSet):
 
-        def get_service_name(self, endpoint_type, resource):
-            """Returns the name of the service, depending a given type and
-            resource.
-            """
-            # Get the resource name from an akwards location.
-            return name
+        def get_record_schema(self, resource_cls, method):
+            simple_mapping = colander.MappingSchema(unknown='preserve')
+            return simple_mapping
 
 
-    @resource.register(viewset=MyViewSet())
+    @resource.register(viewset=NoSchemaViewSet())
     class Resource(resource.UserResource):
         mapping = BookmarkSchema()
 
 
 ViewSet class
 =============
-
-In order to customize the resource URLs or permissions, the viewset class can
-be extended:
 
 .. autoclass:: cliquet.resource.ViewSet
     :members:

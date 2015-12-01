@@ -7,11 +7,8 @@ ACTIONS = Enum(CREATE='create',
                UPDATE='update')
 
 
-class ResourceChanged(object):
-    """Triggered when a resource is changed.
-    """
-    def __init__(self, action, resource, impacted_records, request):
-        self.impacted_records = impacted_records
+class _ResourceEvent(object):
+    def __init__(self, action, resource, request):
         self.request = request
         service = current_service(request)
         resource_name = service.viewset.get_name(resource.__class__)
@@ -28,3 +25,19 @@ class ResourceChanged(object):
             matchdict[resource_name + '_id'] = matchdict.pop('id')
 
         self.payload.update(**matchdict)
+
+
+class ResourceRead(_ResourceEvent):
+    """Triggered when a resource is read.
+    """
+    def __init__(self, action, resource, read_records, request):
+        super(ResourceRead, self).__init__(action, resource, request)
+        self.read_records = read_records
+
+
+class ResourceChanged(_ResourceEvent):
+    """Triggered when a resource is changed.
+    """
+    def __init__(self, action, resource, impacted_records, request):
+        super(ResourceChanged, self).__init__(action, resource, request)
+        self.impacted_records = impacted_records

@@ -21,9 +21,13 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
 # otherwise, readthedocs.org uses their theme by default, so no need
 # to specify it
+
+
+def setup(app):
+    # path relative to _static
+    app.add_stylesheet('theme_overrides.css')
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -66,9 +70,9 @@ copyright = u'2015, Mozilla Services — Da French Team'
 # built documents.
 #
 # The short X.Y version.
-version = '2.11'
+version = '2.12'
 # The full version, including alpha/beta/rc tags.
-release = '2.11.0'
+release = '2.12.0'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
