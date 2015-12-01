@@ -531,11 +531,13 @@ class UserResource(object):
         :returns: the processed record.
         :rtype: dict
         """
-        if old is None or self.model.modified_field not in old:
+        new_last_modified = new.get(self.model.modified_field)
+        not_specified = old is None or self.model.modified_field not in old
+
+        if new_last_modified is None or not_specified:
             return new
 
         # Drop the new last_modified if lesser or equal to the old one.
-        new_last_modified = new.get(self.model.modified_field)
         is_greater = new_last_modified <= old[self.model.modified_field]
         if (new_last_modified and is_greater):
             del new[self.model.modified_field]
