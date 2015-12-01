@@ -509,6 +509,7 @@ class UserResource(object):
         .. code-block:: python
 
             def process_record(self, new, old=None):
+                new = super(MyResource, self).process_record(new, old)
                 version = old['version'] if old else 0
                 new['version'] = version + 1
                 return new
@@ -520,6 +521,7 @@ class UserResource(object):
             from cliquet.errors import raise_invalid
 
             def process_record(self, new, old=None):
+                new = super(MyResource, self).process_record(new, old)
                 if new['browser'] not in request.headers['User-Agent']:
                     raise_invalid(self.request, name='browser', error='Wrong')
                 return new

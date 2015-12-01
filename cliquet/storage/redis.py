@@ -98,6 +98,7 @@ class Storage(MemoryBasedStorage):
                     pipe.watch(key)
                     previous = pipe.get(key)
                     pipe.multi()
+                    # XXX factorize code from memory and redis backends.
                     is_specified = (record is not None
                                     and modified_field in record
                                     or last_modified is not None)
