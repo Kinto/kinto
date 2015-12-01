@@ -67,7 +67,7 @@ class PaginationTest(BaseTest):
         self.assertIn('_limit', queryparams)
         self.assertIn('_token', queryparams)
 
-    def test_next_page_url_gives_next_page(self):
+    def test_next_page_url_gives_distinct_records(self):
         self.resource.request.GET = {'_limit': '10'}
         results1 = self.resource.collection_get()
         self._setup_next_page()
@@ -75,6 +75,17 @@ class PaginationTest(BaseTest):
         results_id1 = set([x['id'] for x in results1['data']])
         results_id2 = set([x['id'] for x in results2['data']])
         self.assertFalse(results_id1.intersection(results_id2))
+
+    def test_next_page_url_gives_distinct_records_with_forced_limit(self):
+        with mock.patch.dict(self.resource.request.registry.settings, [
+                ('paginate_by', 5)]):
+            results1 = self.resource.collection_get()
+            self._setup_next_page()
+            results2 = self.resource.collection_get()
+
+            results_id1 = set([x['id'] for x in results1['data']])
+            results_id2 = set([x['id'] for x in results2['data']])
+            self.assertFalse(results_id1.intersection(results_id2))
 
     def test_twice_the_same_next_page(self):
         self.resource.request.GET = {'_limit': '10'}
