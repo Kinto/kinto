@@ -7,7 +7,10 @@ This document describes changes between each past release.
 2.12.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fixes duplicated records in paginated results when limit is forced via
+  settings (fixes #588)
 
 
 2.12.0 (2015-11-27)

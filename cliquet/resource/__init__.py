@@ -217,8 +217,8 @@ class UserResource(object):
 
         headers = self.request.response.headers
         filters = self._extract_filters()
-        sorting = self._extract_sorting()
         limit = self._extract_limit()
+        sorting = self._extract_sorting(limit)
         filter_fields = [f.field for f in filters]
         include_deleted = self.model.modified_field in filter_fields
 
@@ -896,10 +896,9 @@ class UserResource(object):
 
         return filters
 
-    def _extract_sorting(self):
+    def _extract_sorting(self, limit):
         """Extracts filters from QueryString parameters."""
         specified = self.request.GET.get('_sort', '').split(',')
-        limit = '_limit' in self.request.GET
         sorting = []
         modified_field_used = self.model.modified_field in specified
         for field in specified:
