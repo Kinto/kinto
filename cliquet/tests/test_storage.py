@@ -1172,12 +1172,13 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
 
     def test_update_preserves_record_timestamp_if_less_than_collection(self):
         first_record = self.create_record()
+        t0 = first_record[self.modified_field]
         second_record = self.create_record()
 
-        # Update the second record to have a last_modified of t0-10
+        # Update the second record to have a last_modified of t0-100
         record_id = second_record[self.id_field]
         record = self.record.copy()
-        record[self.modified_field] = second_record[self.modified_field] - 10
+        record[self.modified_field] = second_record[self.modified_field] - 100
         self.storage.update(object_id=record_id, record=record,
                             **self.storage_kw)
 
@@ -1187,9 +1188,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         self.assertEquals(retrieved[self.modified_field],
                           record[self.modified_field])
 
-        # The collection timestamp should be bumped in this case.
+        # The collection timestamp should equal to the max last_modified (t0).
         collection_timestamp = self.storage.collection_timestamp(
             **self.storage_kw)
-        self.assertEquals(
-            collection_timestamp,
-            first_record[self.modified_field])
+        self.assertEquals(collection_timestamp, t0)
