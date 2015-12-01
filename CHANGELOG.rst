@@ -11,13 +11,11 @@ This document describes changes between each past release.
 
 - Fixes duplicated records in paginated results when limit is forced via
   settings (fixes #588)
-- Fix a bug where the records were returned multiple times when paginating
-  (fixes #607)
 
 **New features**
 
 - Allow to keep the ``last_modified`` field of records when updating or
-  creating them (fixes #604)
+  creating them. Useful for replication of remote collections (fixes #604)
 
 **Internal changes**
 
