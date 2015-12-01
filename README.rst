@@ -11,7 +11,7 @@ Kinto
     :alt: Documentation Status
 
 .. |master-coverage| image::
-    https://coveralls.io/repos/Kinto/kinto/badge.png?branch=master
+    https://coveralls.io/repos/Kinto/kinto/badge.svg?branch=master
     :alt: Coverage
     :target: https://coveralls.io/r/Kinto/kinto
     
