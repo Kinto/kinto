@@ -62,7 +62,7 @@ If you want to put your kinto behind a CDN you must make sure to define the righ
 .. code-block:: ini
 
     kinto.http_host = cdn.firefox.com
-    
+
 You can make sure your service is correctly configured by looking at the service URL returned on the service home page.
 It should be your CDN service URL.
 
@@ -259,6 +259,17 @@ Configure nginx to listen to a uwsgi running:
             uwsgi_pass  kinto;
             include     /path/to/uwsgi_params; # the uwsgi_params file previously downloaded
         }
+    }
+
+
+It is also wise to restrict the private URLs (like for ``__heartbeat__``):
+
+::
+
+    location ~ /v1/__(.+)__ {
+        allow 127.0.0.1;
+        allow 172.31.17.16;
+        deny all;
     }
 
 
