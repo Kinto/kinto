@@ -6,7 +6,9 @@ This document describes changes between each past release.
 1.11.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+**Internal**
+
+- Run tests of *Kinto* with *cliquet* master on TravisCI
 
 
 1.10.0 (2015-12-01)
