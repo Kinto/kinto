@@ -6,7 +6,9 @@ This document describes changes between each past release.
 1.11.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix ``kinto init`` when containing folder does not exist (fixes #302)
 
 
 1.10.0 (2015-12-01)
