@@ -298,10 +298,59 @@ Retrieving a specific record
         }
 
 
+.. _records-delete:
+
+Delete stored records
+=====================
+
+.. http:delete:: /buckets/(bucket_id)/collections/(collection_id)/records
+
+    :synopsis: Delete all the records in the collection.
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:" --verbose
+
+    .. sourcecode:: http
+
+        DELETE /v1/buckets/blog/collections/articles/records HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOg==
+        Connection: keep-alive
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.2
+
+    **Example Response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified, ETag
+        Content-Length: 211
+        Content-Type: application/json; charset=UTF-8
+        Date: Thu, 18 Jun 2015 17:29:59 GMT
+        Etag: "1434648599199"
+        Last-Modified: Thu, 18 Jun 2015 17:29:59 GMT
+        Server: waitress
+
+        {
+            "data": [{
+                "deleted": true,
+                "id": "89881454-e4e9-4ef0-99a9-404d95900352",
+                "last_modified": 1434648749173
+            }]
+        }
+
+
 .. _record-delete:
 
-Deleting a record
-=================
+Deleting a single record
+========================
 
 .. http:delete:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 

@@ -57,6 +57,8 @@ Cheatsheet
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `GET`    | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records <records-get>`                | :ref:`Retrieve stored records <records-get>`            |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
+| `DELETE  | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records <records-delete>`             | :ref:`Delete stored records <records-delete>            |
++----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `PUT`    | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records/(record_id) <record-put>`     | :ref:`Replace a record <record-put>`                    |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `PATCH`  | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records/(record_id) <record-patch>`   | :ref:`Update a record <record-patch>`                   |
