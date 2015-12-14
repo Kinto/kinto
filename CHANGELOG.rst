@@ -6,9 +6,10 @@ This document describes changes between each past release.
 1.11.0 (unreleased)
 ===================
 
-**Internal**
+**Internal changes**
 
 - Added missing DELETE endoint for list of records (fixes #238)
+- Mention how to restrict private URLs with NGinx (fixes #250)
 
 
 1.10.1 (2015-12-11)
@@ -18,7 +19,7 @@ This document describes changes between each past release.
 
 - Fix ``kinto init`` when containing folder does not exist (fixes #302)
 
-**Internal**
+**Internal changes**
 
 - Added Hoodie in the comparison matrix (#282, thanks @Niraj8!)
 - Added a get started button in documentation (#315, thanks @Niraj8!)
@@ -60,7 +61,7 @@ Changed the naming in the root URL (hello view) (mozilla-services/cliquet#600)
 - Add ability to be notified on read actions on a resource (disabled by
   default) (mozilla-services/cliquet#493)
 
-**Internal**
+**Internal changes**
 
 - Clarified how Kinto is versionned in the documentation (#305)
 
