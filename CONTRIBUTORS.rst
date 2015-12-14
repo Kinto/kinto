@@ -9,6 +9,7 @@ Contributors
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
 * Nicolas Perriault <nperriault@mozilla.com>
+* Niraj <https://github.com/niraj8>
 * Rémy Hubscher <rhubscher@mozilla.com>
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>

@@ -3,12 +3,17 @@ Changelog
 
 This document describes changes between each past release.
 
-1.11.0 (unreleased)
+1.10.1 (2015-12-11)
 ===================
 
 **Bug fixes**
 
 - Fix ``kinto init`` when containing folder does not exist (fixes #302)
+
+**Internal**
+
+- Added Hoodie in the comparison matrix (#282, thanks @Niraj8!)
+- Added a get started button in documentation (#315, thanks @Niraj8!)
 
 
 1.10.0 (2015-12-01)
