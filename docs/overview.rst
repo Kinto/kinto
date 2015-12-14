@@ -119,24 +119,24 @@ What follows is a comparison table showing how Kinto stacks up compared to some
 other projects in this space.
 
 
-===========================  ======  ======  ========  =======  ==============  ======
-Project                      Kinto   Parse   Firebase  CouchDB  Remote-Storage  Hoodie
----------------------------  ------  ------  --------  -------  --------------  ------
+===========================  ======  ======  ========  =======  ==============  ======  =========
+Project                      Kinto   Parse   Firebase  CouchDB  Remote-Storage  Hoodie  BrowserFS
+---------------------------  ------  ------  --------  -------  --------------  ------  ---------
 Fine-grained permissions     ✔       ✔       ✔                                  [#]_
 Easy query mechanism         ✔       ✔       ✔         [#]_     [#]_            ✔
 Conflict resolution          ✔       ✔       ✔         ✔        ✔ [#]_          ✔
 Validation                   ✔       ✔       ✔         ✔                        ✔
 Revision history                                       ✔                        ✔
-File storage                         ✔                 ✔        ✔               ✔
+File storage                         ✔                 ✔        ✔               ✔       ✔
 Batch/bulk operations        ✔       ✔                 ✔                        ✔
 Changes stream               [#]_    ✔       ✔         ✔                        ✔
-Pluggable authentication     ✔                         ✔        [#]_            ✔
+Pluggable authentication     ✔                         ✔        [#]_            ✔       ✔
 Pluggable storage / cache    ✔                                  ✔              
-Self-hostable                ✔                         ✔        ✔               ✔
+Self-hostable                ✔                         ✔        ✔               ✔       ✔
 Decentralised discovery      [#]_                               ✔               
-Open source                  ✔                         ✔        ✔               ✔
-Language                     Python                    Erlang   Node.js [#]_    Node.js
-===========================  ======  ======  ========  =======  ==============  ======
+Open source                  ✔                         ✔        ✔               ✔       ✔
+Language                     Python                    Erlang   Node.js [#]_    Node.js Node.js
+===========================  ======  ======  ========  =======  ==============  ======  =========
 
 .. [#] Currently, user plugin in Hoodie auto-approves users, but they are working on it.
 .. [#] CouchDB uses Map/Reduce as a query mechanism, which isn't easy to
