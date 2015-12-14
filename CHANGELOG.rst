@@ -6,7 +6,9 @@ This document describes changes between each past release.
 1.11.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+**Internal**
+
+- Added missing DELETE endoint for list of records (fixes #238)
 
 
 1.10.1 (2015-12-11)
