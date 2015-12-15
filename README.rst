@@ -14,13 +14,12 @@ Kinto
     https://coveralls.io/repos/Kinto/kinto/badge.svg?branch=master
     :alt: Coverage
     :target: https://coveralls.io/r/Kinto/kinto
-    
+
 .. |pypi| image:: https://img.shields.io/pypi/v/kinto.svg
     :target: https://pypi.python.org/pypi/kinto
 
 
-Kinto is a server allowing you to store and synchronize arbitrary data,
-attached to your Firefox account.
+Kinto is a lightweight JSON storage service with synchronisation and sharing abilities.
 
 * `Online documentation <http://kinto.readthedocs.org/en/latest/>`_
 * `Tutorial <http://kinto.readthedocs.org/en/latest/tutorials/first-steps.html>`_
