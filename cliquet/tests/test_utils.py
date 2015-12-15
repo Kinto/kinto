@@ -8,7 +8,7 @@ import six
 from pyramid import httpexceptions
 
 from cliquet.utils import (
-    native_value, strip_whitespace, random_bytes_hex, read_env,
+    native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
     current_service, encode_header, decode_header, follow_subrequest
 )
 
@@ -72,6 +72,16 @@ class CryptographicRandomBytesTest(unittest.TestCase):
     def test_return_text_string(self):
         value = random_bytes_hex(16)
         self.assertIsInstance(value, six.text_type)
+
+
+class HmacDigestTest(unittest.TestCase):
+    def test_supports_secret_as_text(self):
+        value = hmac_digest("blah", "input data")
+        self.assertTrue(value.startswith("d4f5c51db246c7faeb42240545b47274b6"))
+
+    def test_supports_secret_as_bytes(self):
+        value = hmac_digest(b"blah", "input data")
+        self.assertTrue(value.startswith("d4f5c51db246c7faeb42240545b47274b6"))
 
 
 class ReadEnvironmentTest(unittest.TestCase):

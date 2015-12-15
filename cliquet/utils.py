@@ -130,7 +130,9 @@ def decode64(encoded_content, encoding='utf-8'):
 
 def hmac_digest(secret, message, encoding='utf-8'):
     """Return hex digest of a message HMAC using secret"""
-    return hmac.new(secret.encode(encoding),
+    if isinstance(secret, six.text_type):
+        secret = secret.encode(encoding)
+    return hmac.new(secret,
                     message.encode(encoding),
                     hashlib.sha256).hexdigest()
 
