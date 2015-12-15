@@ -20,46 +20,51 @@ Use cases
 - Store encrypted data at a location you control.
 - Synchronise application data between different devices.
 
+.. note::
+
+    At Mozilla, *Kinto* is used in *Firefox* and *Firefox OS* for global synchronization
+    of settings and assets, as well as a first-class solution for personal data in
+    browser extensions and Web apps.
+
 
 Key features
 ============
 
 .. |logo-synchronisation| image:: images/logo-synchronisation.svg
    :alt: https://thenounproject.com/search/?q=syncing&i=31170
-   :width: 100px
-
-.. |logo-offline| image:: images/logo-offline.svg
-   :alt: https://thenounproject.com/search/?q=offline&i=90580
-   :width: 100px
+   :width: 70px
 
 .. |logo-permissions| image:: images/logo-permissions.svg
    :alt: https://thenounproject.com/search/?q=permissions&i=23303
-   :width: 100px
+   :width: 70px
 
 .. |logo-multiapps| image:: images/logo-multiapps.svg
    :alt: https://thenounproject.com/search/?q=community&i=189189
-   :width: 100px
+   :width: 70px
 
 .. |logo-selfhostable| image:: images/logo-selfhostable.svg
    :alt: https://thenounproject.com/search/?q=free&i=669
-   :width: 100px
+   :width: 70px
 
 .. |logo-community| image:: images/logo-community.svg
    :alt: https://thenounproject.com/search/?q=community&i=189189
-   :width: 100px
+   :width: 70px
+
+.. |logo-schema| image:: images/logo-jsonschema.svg
+   :alt: https://thenounproject.com/search/?q=quality+control&i=170795
+   :width: 70px
 
 +---------------------------------------------+---------------------------------------+
-| |logo-synchronisation|                      | |logo-offline|                        |
-| :ref:`Synchronisation <api-synchronisation>`| `Offline-first JS client              |
-|                                             | <https://kintojs.readthedocs.org>`_   |
+| |logo-synchronisation|                      | |logo-permissions|                    |
+| Synchronisation                             | Fined grained permissions             |
+|                                             |                                       |
 +---------------------------------------------+---------------------------------------+
-| |logo-permissions|                          | |logo-multiapps|                      |
-| **Fined grained permissions**               | **Plug multiple clients**             |
+| |logo-schema|                               | |logo-multiapps|                      |
+| JSON Schema validation                      | Universal and multi clients           |
 +---------------------------------------------+---------------------------------------+
 | |logo-selfhostable|                         | |logo-community|                      |
-| **Open Source and Self-hostable**           | **Designed in the open**              |
+| Open Source and Self-hostable               | Designed in the open                  |
 +---------------------------------------------+---------------------------------------+
-
 
 **Also**
 
@@ -67,14 +72,58 @@ Key features
 - Pluggable authentication
 - :ref:`Pluggable storage, cache, and permission backends
   <configuration-backends>`
-- Configuration via a single INI file
+- Configuration via a INI file or environment variables
 - Built-in monitoring
+- Cache control
 
+**Ecosystem**
+
+.. |logo-offline| image:: images/logo-offline.svg
+   :alt: https://thenounproject.com/search/?q=offline&i=90580
+   :width: 50px
+
+.. |logo-python| image:: images/logo-python.svg
+   :alt:
+   :width: 50px
+
+.. |logo-attachment| image:: images/logo-attachment.svg
+   :alt: https://thenounproject.com/search/?q=attachment&i=169265
+   :width: 50px
+
+.. |logo-livesync| image:: images/logo-livesync.svg
+   :alt: https://thenounproject.com/search/?q=refresh&i=110628
+   :width: 50px
+
+.. |logo-boilerplate| image:: images/logo-react.svg
+   :alt: https://commons.wikimedia.org/wiki/File:React.js_logo.svg
+   :width: 50px
+
+.. |logo-demos| image:: images/logo-demos.svg
+   :alt: https://thenounproject.com/search/?q=tutorial&i=24313
+   :width: 50px
+
++---------------------------------------------+---------------------------------------------+
+| |logo-offline|                              | |logo-python|                               |
+| Offline-first `JavaScript client            | :github:`Python client                      |
+| <https://kintojs.readthedocs.org>`_         | <Kinto/kinto.py>`                           |
++---------------------------------------------+---------------------------------------------+
+| |logo-attachment|                           | |logo-livesync|                             |
+| :github:`File attachments on records        | Live :github:`Push notifications            |
+| <Kinto/kinto-attachment>`                   | <leplatrem/cliquet-pusher>`                 |
++---------------------------------------------+---------------------------------------------+
+| |logo-boilerplate|                          | |logo-demos|                                |
+| :github:`Kinto+React boilerplate            | :github:`Demo applications                  |
+| <Kinto/kinto-react-boilerplate>`            | <Kinto/kinto/wiki/App-examples>`            |
++---------------------------------------------+---------------------------------------------+
 
 **Coming soon**
 
-- Schema validation
-- Push notifications
+- Administration console
+- Automatic service discovery
+- Push notifications using `the Push API <https://developer.mozilla.org/en-US/docs/Web/API/Push_API>`_
+
+(See `our roadmap <https://github.com/Kinto/kinto/wiki/Roadmap>`_)
+
 
 .. _overview-synchronisation:
 
