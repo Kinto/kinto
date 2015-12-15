@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+         "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     id="canvas" 
+     width="2000" 
+     height="2000"
+     onload="init()">
+    
+  <style type="text/css">
+      .ellipse
+      {
+        stroke: red;
+        stroke-width: 2;
+        fill: blue;
+        fill-opacity: 0.1;
+      }
+
+      .axes
+      {
+        stroke: blue;
+        stroke-width: 1;
+      }   
+  </style>
+
+  <script>
+      <![CDATA[
+      var COLS = 4;
+      var ROWS = 4;
+      var RX   = 80;
+      var RY   = 30;
+
+      function init()
+      {
+        var canvas = document.getElementById("canvas");
+
+        var angleStep = 360.0/(COLS*ROWS);
+        var spacing = 2*Math.max(RX, RY)+10;
+        for (var c = 0; c < COLS; ++c) {
+          for (var r = 0; r < ROWS; ++r) {
+            var ellipse = createEllipse((c+ COLS*r)*angleStep, spacing*(c+0.5), spacing*(r+0.5), RX, RY);
+            canvas.appendChild(ellipse);
+          }
+        }
+      }
+
+      function createEllipse(phi, x, y, rx, ry)
+      {
+        var degPerRad = Math.PI/180.0;
+        var e1x = rx*Math.cos(phi*degPerRad);
+        var e1y = rx*Math.sin(phi*degPerRad);
+        var e2x = ry*Math.cos((phi+90)*degPerRad);
+        var e2y = ry*Math.sin((phi+90)*degPerRad);
+
+        var axes  = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        axes.setAttribute("class", "axes");
+        axes.setAttribute("d", "M"+x+","+y+" l"+e1x+","+e1y+"M"+x+","+y+" l"+e2x+","+e2y);
+        var ellipse = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        ellipse.setAttribute("class", "ellipse");
+        ellipse.setAttribute("d", "M" + (x+e1x) + "," + (y+e1y) +
+                                  "A" + rx + "," + ry + " " + phi + " 0,1 " + (x+e2x) + "," + (y+e2y) +
+                                  "A" + rx + "," + ry + " " + phi + " 1,1 " + (x+e1x) + "," + (y+e1y) +"z");
+
+        var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        group.appendChild(axes);
+        group.appendChild(ellipse);
+        return group;
+      }
+
+      ]]>
+    </script>
+</svg>

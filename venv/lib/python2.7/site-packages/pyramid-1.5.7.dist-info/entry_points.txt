@@ -1,0 +1,17 @@
+        [pyramid.scaffold]
+        starter=pyramid.scaffolds:StarterProjectTemplate
+        zodb=pyramid.scaffolds:ZODBProjectTemplate
+        alchemy=pyramid.scaffolds:AlchemyProjectTemplate
+        [console_scripts]
+        pcreate = pyramid.scripts.pcreate:main
+        pserve = pyramid.scripts.pserve:main
+        pshell = pyramid.scripts.pshell:main
+        proutes = pyramid.scripts.proutes:main
+        pviews = pyramid.scripts.pviews:main
+        ptweens = pyramid.scripts.ptweens:main
+        prequest = pyramid.scripts.prequest:main
+        pdistreport = pyramid.scripts.pdistreport:main
+        [paste.server_runner]
+        wsgiref = pyramid.scripts.pserve:wsgiref_server_runner
+        cherrypy = pyramid.scripts.pserve:cherrypy_server_runner
+      

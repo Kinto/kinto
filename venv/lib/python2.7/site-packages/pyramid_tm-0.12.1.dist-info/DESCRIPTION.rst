@@ -1,0 +1,208 @@
+``pyramid_tm``
+==============
+
+.. image:: https://travis-ci.org/Pylons/pyramid_tm.png?branch=master
+        :target: https://travis-ci.org/Pylons/pyramid_tm
+
+.. image:: https://readthedocs.org/projects/pyramid_tm/badge/?version=latest
+        :target: http://docs.pylonsproject.org/projects/pyramid_tm/en/latest/
+        :alt: Documentation Status
+
+``pyramid_tm`` is a package which allows Pyramid requests to join
+the active transaction as provided by the `transaction
+<http://pypi.python.org/pypi/transaction>`_ package.
+
+See `http://docs.pylonsproject.org/projects/pyramid_tm/en/latest/
+<http://docs.pylonsproject.org/projects/pyramid_tm/en/latest/>`_ 
+or ``docs/index.rst`` in this distribution for detailed
+documentation.
+
+
+Changes
+=======
+
+0.12.1 (2015-11-25)
+-------------------
+
+- Fix compatibility with 1.2 and 1.3 again. This wasn't fully fixed in the
+  0.12 release as the tween was relying on request properties working (which
+  they do not inside tweens in older versions).
+  See https://github.com/Pylons/pyramid_tm/pull/39
+
+0.12 (2015-05-20)
+-----------------
+
+- Expose a ``tm.annotate_user`` option to avoid computing
+  ``request.unauthenticated_userid`` on every request.
+  See https://github.com/Pylons/pyramid_tm/pull/36
+
+- Restore compatibility with Pyramid 1.2 and 1.3.
+
+0.11 (2015-02-04)
+-----------------
+
+- Add a hook to override creation of the transaction manager (the default
+  remains the thread-local one accessed through ``transaction.manager``).
+  See: https://github.com/Pylons/pyramid_tm/pull/31
+
+0.10 (2015-01-06)
+-----------------
+
+- Fix recording transactions with non-text, non-bytes userids.
+  See: https://github.com/Pylons/pyramid_tm/issues/28
+
+0.9 (2014-12-30)
+----------------
+
+- Work around recording transaction userid containing unicode.
+  See https://github.com/Pylons/pyramid_tm/pull/15, although the fix
+  is different, to ensure Python3 compatibility.
+
+- Work around recording transaction notes containing unicode.
+  https://github.com/Pylons/pyramid_tm/pull/25
+
+0.8 (2014-11-12)
+----------------
+
+- Add a new ``tm.activate_hook`` hook which can control when the
+  transaction manager is active. For example, this may be useful in
+  situations where the manager should be disabled for a particular URL.
+  https://github.com/Pylons/pyramid_tm/pull/12
+
+- Fix unit tests under Pyramid 1.5.
+
+- Fix a bug preventing retryable exceptions from actually being retried.
+  https://github.com/Pylons/pyramid_tm/pull/8
+
+- Don't call ``setUser`` on transaction if there is no user logged in.
+  This could cause the username set on the transaction to be a strange
+  string: " None". https://github.com/Pylons/pyramid_tm/pull/9
+
+- Avoid crash when the ``path_info`` cannot be decoded from the request
+  object. https://github.com/Pylons/pyramid_tm/pull/19
+
+0.7 (2012-12-30)
+----------------
+
+- Write unauthenticated userid and ``request.path_info`` as transaction
+  metadata via ``t.setUser`` and ``t.note`` respectively during a commit.
+
+0.6 (2012-12-26)
+----------------
+
+- Disuse the confusing and bug-ridden generator-plus-context-manager "attempts"
+  mechanism from the transaction package for retrying retryable exceptions
+  (e.g. ZODB ConflictError).  Use a simple while loop plus a counter and
+  imperative logic instead.
+
+0.5 (2012-06-26)
+----------------
+
+Bug Fixes
+~~~~~~~~~
+
+- When a non-retryable exception was raised as the result of a call to
+  ``transaction.manager.commit``, the exception was not reraised properly.
+  Symptom: an unrecoverable exception such as ``Unsupported: Storing blobs in
+  <somestorage> is not supported.`` would be swallowed inappropriately.
+
+0.4 (2012-03-28)
+----------------
+
+Bug Fixes
+~~~~~~~~~
+
+- Work around failure to retry ConflictError properly at commit time by the
+  ``transaction`` 1.2.0 package.  See
+  https://mail.zope.org/pipermail/zodb-dev/2012-March/014603.html for
+  details.
+
+Testing
+~~~~~~~
+
+- No longer tested under Python 2.5 by ``tox.ini`` (and therefore no longer
+  tested under 2.5 by the Pylons Jenkins server).  The package may still work
+  under 2.5, but automated tests will no longer show breakage when it changes
+  in ways that break 2.5 support.
+
+- Squash test deprecation warnings under Python 3.2.
+
+0.3 (2011-09-27)
+----------------
+
+Features
+~~~~~~~~
+
+- The transaction manager has been converted to a Pyramid 1.2 "tween"
+  (instead of an event subscriber).  It will be slotted directly "below" the
+  exception view handler, meaning it will have a chance to handle exceptions
+  before they are turned into responses.  This means it's best to "raise
+  HTTPFound(...)" instead of "return HTTPFound(...)" if you want an HTTP
+  exception to abort the transaction.
+
+- The transaction manager will now retry retryable exceptions (such as a ZODB
+  conflict error) if ``tm.attempts`` is configured to be more than the
+  default of ``1``.  See the ``Retrying`` section of the documentation.
+
+- Python 3.2 compatibility (requires Pyramid 1.3dev+).
+
+Backwards Incompatibilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Incompatible with Pyramid < 1.2a1.  Use ``pyramid_tm`` version 0.2 if you
+  need compatibility with an older Pyramid installation.
+
+- The ``default_commit_veto`` commit veto callback is no longer configured
+  into the system by default.  Use ``tm.commit_veto =
+  pyramid_tm.default_commit_veto`` in the deployment settings to add it.
+  This is for parity with ``repoze.tm2``, which doesn't configure in a commit
+  veto by default either.
+
+- The ``default_commit_veto`` no longer checks for the presence of the
+  ``X-Tm-Abort`` header when attempting to figure out whether the transaction
+  should be aborted (although it still checks for the ``X-Tm`` header).  Use
+  version 0.2 or a custom commit veto function if your application depends on
+  the ``X-Tm-Abort`` header.
+
+- A commit veto is now called with two arguments: ``request`` and
+  ``response``.  The ``request`` is the webob request that caused the
+  transaction manager to become active.  The ``response`` is the response
+  returned by the Pyramid application.  This call signature is incompatible
+  with older versions.  The call signature of a ``pyramid_tm`` 0.2 and older
+  commit veto accepted three arguments: ``environ``, ``status``, and
+  ``headers``.  If you're using a custom ``commit_veto`` function, you'll
+  need to either convert your existing function to use the new calling
+  convention or use a wrapper to make it compatible with the new calling
+  convention.  Here's a simple wrapper function
+  (``bwcompat_commit_veto_wrapper``) that will allow you to use your existing
+  custom commit veto function::
+
+     def bwcompat_commit_veto_wrapper(request, response):
+         return my_custom_commit_veto(request.environ, response.status, 
+                                      response.headerlist)
+
+Deprecations
+~~~~~~~~~~~~
+
+- The ``pyramid_tm.commit_veto`` configuration setting is now canonically
+  spelled as ``tm.commit_veto``.  The older spelling will continue to work,
+  but may raise a deprecation error when used.
+
+0.2 (2011-07-18)
+----------------
+
+- A new header ``X-Tm`` is now honored by the ``default_commit_veto`` commit
+  veto hook. If this header exists in the headerlist, its value must be a
+  string. If its value is ``commit``, the transaction will be committed
+  regardless of the status code or the value of ``X-Tm-Abort``. If the value
+  of the ``X-Tm`` header is ``abort`` (or any other string value except
+  ``commit``), the transaction will be aborted, regardless of the status code
+  or the value of ``X-Tm-Abort``.
+
+0.1 (2011-02-23)
+----------------
+
+- Initial release, based on repoze.tm2
+
+
+
