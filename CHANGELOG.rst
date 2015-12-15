@@ -4,10 +4,16 @@ Changelog
 This document describes changes between each past release.
 
 
-2.13.1 (unreleased)
+2.13.1 (2015-12-15)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix hmac digest with python3 (fixes Kinto/kinto#288)
+
+**Documentation**
+
+- Fixed typo in RHEL package manager command (#610, thanks @FooBarQuaxx)
 
 
 2.13.0 (2015-12-01)
