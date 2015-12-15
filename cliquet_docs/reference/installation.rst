@@ -80,7 +80,7 @@ On Debian / Ubuntu based systems::
 
 On RHEL-derivatives::
 
-    apt-get install libffi-devel openssl-devel
+    yum install libffi-devel openssl-devel
 
 OS X
 ----
