@@ -49,7 +49,6 @@ def main(args=None):
         if os.path.exists(config_file):
             print("%s already exist." % config_file, file=sys.stderr)
             sys.exit(1)
-        
         backend = args['backend']
         if not backend:
             while True:
