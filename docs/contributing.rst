@@ -73,7 +73,6 @@ Communication channels
   `Click here to access the web client <http://chat.mibbit.com/?server=irc.mozilla.org&channel=%23storage>`_!
 * Our team blog http://www.servicedenuages.fr/
 * `The Kinto mailing list <https://mail.mozilla.org/listinfo/kinto>`_.
-* Some `#Kinto <https://twitter.com/search?q=%23Kinto>`_ mentions on Twitter :)
 
 
 Hack
