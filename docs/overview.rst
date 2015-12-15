@@ -112,15 +112,15 @@ Key features
 | <Kinto/kinto-attachment>`                   | <leplatrem/cliquet-pusher>`                 |
 +---------------------------------------------+---------------------------------------------+
 | |logo-boilerplate|                          | |logo-demos|                                |
-| :github:`Kinto+React boilerplate            | :github:`Demo applications                  |
-| <Kinto/kinto-react-boilerplate>`            | <Kinto/kinto/wiki/App-examples>`            |
+| :github:`Kinto+React boilerplate            | :ref:`Example applications <app-examples>`  |
+| <Kinto/kinto-react-boilerplate>`            |                                             |
 +---------------------------------------------+---------------------------------------------+
 
 **Coming soon**
 
-- Administration console
+- Web Administration (:github:`under construction <Kinto/kinto-admin`)
 - Automatic service discovery
-- Push notifications using `the Push API <https://developer.mozilla.org/en-US/docs/Web/API/Push_API>`_
+- Push notifications using `the Push API <https://developer.mozilla.org/en-US/docs/Web/API/Push_API>`_ (:github:`under construction <Kinto/kinto-webpush`)
 
 (See `our roadmap <https://github.com/Kinto/kinto/wiki/Roadmap>`_)
 
@@ -180,9 +180,9 @@ File storage                         ✔                 ✔        ✔         
 Batch/bulk operations        ✔       ✔                 ✔                        ✔
 Changes stream               [#]_    ✔       ✔         ✔                        ✔
 Pluggable authentication     ✔                         ✔        [#]_            ✔        ✔
-Pluggable storage / cache    ✔                                  ✔              
+Pluggable storage / cache    ✔                                  ✔
 Self-hostable                ✔                         ✔        ✔               ✔        ✔
-Decentralised discovery      [#]_                               ✔               
+Decentralised discovery      [#]_                               ✔
 Open source                  ✔                         ✔        ✔               ✔        ✔
 Language                     Python                    Erlang   Node.js [#]_    Node.js  Node.js
 ===========================  ======  ======  ========  =======  ==============  =======  =========

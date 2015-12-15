@@ -1,10 +1,9 @@
+.. _app-examples:
+
 Application examples
 ####################
 
-Existing applications
-=====================
+Demos
+=====
 
-* :github:`Kinto React Boilerplate <Kinto/kinto-react-boilerplate>`: A starter kit for JavaScript application.
-* :github:`Routina <leplatrem/Routina>`: An offline-first demo Web app.
-
-*Add yours!*
+* :github:`Complete list <Kinto/kinto/wiki/App-examples>`. It's a Wiki, *add yours!*
