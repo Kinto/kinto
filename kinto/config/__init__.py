@@ -7,8 +7,6 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 def render_template(template, destination, values):
    
-   from pdb import set_trace; set_trace();
-
    here = os.path.abspath(os.path.dirname(__file__))
    template = os.path.join(here, 'kinto.tpl') 
    destination = os.path.join(here, 'kinto.ini')
