@@ -168,24 +168,25 @@ What follows is a comparison table showing how Kinto stacks up compared to some
 other projects in this space.
 
 
-===========================  ======  ======  ========  =======  ==============  =======  =========
-Project                      Kinto   Parse   Firebase  CouchDB  Remote-Storage  Hoodie   BrowserFS
----------------------------  ------  ------  --------  -------  --------------  -------  ---------
-Fine-grained permissions     ✔       ✔       ✔                                  [#]_
-Easy query mechanism         ✔       ✔       ✔         [#]_     [#]_            ✔
-Conflict resolution          ✔       ✔       ✔         ✔        ✔ [#]_          ✔
-Validation                   ✔       ✔       ✔         ✔                        ✔
-Revision history                                       ✔                        ✔
-File storage                         ✔                 ✔        ✔               ✔        ✔
-Batch/bulk operations        ✔       ✔                 ✔                        ✔
-Changes stream               [#]_    ✔       ✔         ✔                        ✔
-Pluggable authentication     ✔                         ✔        [#]_            ✔        ✔
-Pluggable storage / cache    ✔                                  ✔
-Self-hostable                ✔                         ✔        ✔               ✔        ✔
-Decentralised discovery      [#]_                               ✔
-Open source                  ✔                         ✔        ✔               ✔        ✔
-Language                     Python                    Erlang   Node.js [#]_    Node.js  Node.js
-===========================  ======  ======  ========  =======  ==============  =======  =========
+===========================  ======  ======  ========  =======  ======= ==============  =======  =========
+Project                      Kinto   Parse   Firebase  CouchDB  Kuzzle  Remote-Storage  Hoodie   BrowserFS
+---------------------------  ------  ------  --------  -------  ------- --------------  -------  ---------
+Offline-first client         ✔       ✔       ✔         ✔        ✔       ✔               ✔
+Fine-grained permissions     ✔       ✔       ✔                  ~                       [#]_
+Easy query mechanism         ✔       ✔       ✔         [#]_     ✔       [#]_            ✔
+Conflict resolution          ✔       ✔       ✔         ✔        ✔       ✔ [#]_          ✔
+Validation                   ✔       ✔       ✔         ✔        ✔                       ✔
+Revision history                                       ✔                                ✔
+File storage                 ✔       ✔                 ✔                ✔               ✔        ✔
+Batch/bulk operations        ✔       ✔                 ✔        ✔                       ✔
+Changes stream               ✔       ✔       ✔         ✔        ✔                       ✔
+Pluggable authentication     ✔                         ✔                [#]_            ✔        ✔
+Pluggable storage / cache    ✔                                          ✔
+Self-hostable                ✔                         ✔        ✔       ✔               ✔        ✔
+Decentralised discovery      [#]_                                       ✔
+Open source                  ✔                         ✔        ✔       ✔               ✔        ✔
+Language                     Python                    Erlang   Node.js Node.js [#]_    Node.js  Node.js
+===========================  ======  ======  ========  =======  ======= ==============  =======  =========
 
 .. [#] Currently, user plugin in Hoodie auto-approves users, but they are working on it.
 .. [#] CouchDB uses Map/Reduce as a query mechanism, which isn't easy to
@@ -193,7 +194,6 @@ Language                     Python                    Erlang   Node.js [#]_    
 .. [#] Remote Storage allows "ls" on a folder, but items are not sorted or
        paginated.
 .. [#] Kinto uses the same mechanisms as Remote storage for conflict handling.
-.. [#] Notifications support is currently in the work.
 .. [#] Remote Storage supports OAuth2.0 implicit grant flow.
 .. [#] Support for decentralised discovery
        `is planned <https://github.com/Kinto/kinto/issues/125>`_ but not
