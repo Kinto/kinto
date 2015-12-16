@@ -6,6 +6,11 @@ This document describes changes between each past release.
 1.11.0 (unreleased)
 ===================
 
+**Bug fixes**
+
+- Add explicit dependency for functools32 when Kinto is installed with an old
+  pip version (fixes #303)
+
 **Internal changes**
 
 - Added missing DELETE endoint for list of records (fixes #238)

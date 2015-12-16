@@ -1,5 +1,6 @@
-import os
 import codecs
+import os
+import sys
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -20,6 +21,11 @@ REQUIREMENTS = [
     'cliquet>=2.13,<3',
     'jsonschema',
 ]
+
+if sys.version_info < (3,):
+    REQUIREMENTS.extend([
+        'functools32',  # not installed by jsonschema with old pip versions.
+    ])
 
 POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
     'cliquet[postgresql]>=2.13,<3'
