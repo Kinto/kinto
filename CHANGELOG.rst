@@ -10,7 +10,7 @@ This document describes changes between each past release.
 
 - Added missing DELETE endoint for list of records (fixes #238)
 - Mention how to restrict private URLs with NGinx (fixes #250)
-
+- Do not require cliquet master branch in dev. Now moved as tox env in TravisCI
 
 1.10.1 (2015-12-11)
 ===================

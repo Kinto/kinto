@@ -8,6 +8,7 @@ env:
     - TOX_ENV=py34
     - TOX_ENV=py35
     - TOX_ENV=pypy
+    - TOX_ENV=cliquet-master
     - TOX_ENV=flake8
     - TOX_ENV=docs
     - ACTION=loadtest_tutorial
