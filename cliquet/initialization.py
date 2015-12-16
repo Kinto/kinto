@@ -375,17 +375,35 @@ def setup_logging(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
-def _filter_events(listener_func, actions, resources):
-    def wrapped(event):
+class EventsFilterActions(object):
+    def __init__(self, actions, config):
+        self.actions = actions
+
+    def phash(self):
+        return 'for_actions = %s' % (','.join(self.actions))
+
+    def __call__(self, event):
         action = event.payload.get('action')
+        return not action or action in self.actions
+
+
+class EventsFilterResources(object):
+    def __init__(self, resources, config):
+        self.resources = resources
+
+    def phash(self):
+        return 'for_resources = %s' % (','.join(self.resources))
+
+    def __call__(self, event):
         resource = event.payload.get('resource_name')
-        if not action or action in actions:
-            if not resource or not resources or resource in resources:
-                listener_func(event)
-    return wrapped
+        return not resource or not self.resources or resource in self.resources
 
 
 def setup_listeners(config):
+    # Register basic subscriber predicates, to filter events.
+    config.add_subscriber_predicate('for_actions', EventsFilterActions)
+    config.add_subscriber_predicate('for_resources', EventsFilterResources)
+
     write_actions = (ACTIONS.CREATE, ACTIONS.UPDATE, ACTIONS.DELETE)
     settings = config.get_settings()
     listeners = aslist(settings['event_listeners'])
@@ -404,14 +422,14 @@ def setup_listeners(config):
 
         actions = aslist(settings.get(prefix + 'actions', '')) or write_actions
         resource_names = aslist(settings.get(prefix + 'resources', ''))
-        decorated = _filter_events(listener, actions, resource_names)
+        options = dict(for_actions=actions, for_resources=resource_names)
 
         if ACTIONS.READ in actions:
-            config.add_subscriber(decorated, ResourceRead)
+            config.add_subscriber(listener, ResourceRead, **options)
             if len(actions) == 1:
                 return
 
-        config.add_subscriber(decorated, ResourceChanged)
+        config.add_subscriber(listener, ResourceChanged, **options)
 
 
 def load_default_settings(config, default_settings):

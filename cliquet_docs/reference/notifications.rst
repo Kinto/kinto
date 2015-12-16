@@ -30,6 +30,24 @@ Event listeners can then pick up those events and act upon them.
     config.add_subscriber(on_resource_changed, ResourceChanged)
 
 
+Filtering
+---------
+
+It is possible to filter events based on its action or the name of the resource where
+it occured.
+
+For example:
+
+.. code-block:: python
+
+    config.add_subscriber(on_mushroom_changed, ResourceChanged, for_resources=('mushroom',))
+    config.add_subscriber(on_record_deleted, ResourceChanged, for_actions=('delete',))
+
+
+Payload
+-------
+
+
 The :class:`cliquet.events.ResourceChanged` event contains a ``payload`` attribute with
 the following information:
 
