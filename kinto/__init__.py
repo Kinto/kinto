@@ -14,7 +14,7 @@ from kinto.authorization import RouteFactory
 __version__ = pkg_resources.get_distribution(__package__).version
 
 # Implemented HTTP API Version
-HTTP_API_VERSION = '1.0'
+HTTP_API_VERSION = '1.1'
 
 # Main kinto logger
 logger = logging.getLogger(__name__)
