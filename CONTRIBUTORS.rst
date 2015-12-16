@@ -6,6 +6,7 @@ Contributors
 * Balthazar Rouberol <br@imap.cc>
 * Dan Phrawzty <phrawzty+github@gmail.com>
 * Éric Lemoine <eric.lemoine@gmail.com>
+* FooBarQuaxx
 * Greeshma <greeshmabalabadra@gmail.com>
 * Hiromipaw <silvia@nopressure.co.uk>
 * Mathieu Leplatre <mathieu@mozilla.com>
