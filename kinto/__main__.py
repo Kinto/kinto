@@ -9,7 +9,7 @@ from pyramid.paster import bootstrap
 
 from kinto.config import init
 
-CONFIG_FILE = 'config/kinto.ini'
+CONFIG_FILE = 'configuration/kinto.ini'
 
 
 def main(args=None):
@@ -49,7 +49,6 @@ def main(args=None):
         if os.path.exists(config_file):
             print("%s already exist." % config_file, file=sys.stderr)
             sys.exit(1)
-
         backend = args['backend']
         if not backend:
             while True:
@@ -65,7 +64,9 @@ def main(args=None):
 
         init(config_file, backend)
 
-    elif args['which'] == 'migrate':
+    env = bootstrap(config_file)
+
+    if args['which'] == 'migrate':
         env = bootstrap(config_file)
         cliquet.init_schema(env)
 
