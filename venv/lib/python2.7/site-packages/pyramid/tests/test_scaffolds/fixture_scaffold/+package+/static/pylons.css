@@ -1,0 +1,65 @@
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;/* 16px */
+vertical-align:baseline;background:transparent;}
+body{line-height:1;}
+ol,ul{list-style:none;}
+blockquote,q{quotes:none;}
+blockquote:before,blockquote:after,q:before,q:after{content:'';content:none;}
+:focus{outline:0;}
+ins{text-decoration:none;}
+del{text-decoration:line-through;}
+table{border-collapse:collapse;border-spacing:0;}
+sub{vertical-align:sub;font-size:smaller;line-height:normal;}
+sup{vertical-align:super;font-size:smaller;line-height:normal;}
+ul,menu,dir{display:block;list-style-type:disc;margin:1em 0;padding-left:40px;}
+ol{display:block;list-style-type:decimal-leading-zero;margin:1em 0;padding-left:40px;}
+li{display:list-item;}
+ul ul,ul ol,ul dir,ul menu,ul dl,ol ul,ol ol,ol dir,ol menu,ol dl,dir ul,dir ol,dir dir,dir menu,dir dl,menu ul,menu ol,menu dir,menu menu,menu dl,dl ul,dl ol,dl dir,dl menu,dl dl{margin-top:0;margin-bottom:0;}
+ol ul,ul ul,menu ul,dir ul,ol menu,ul menu,menu menu,dir menu,ol dir,ul dir,menu dir,dir dir{list-style-type:circle;}
+ol ol ul,ol ul ul,ol menu ul,ol dir ul,ol ol menu,ol ul menu,ol menu menu,ol dir menu,ol ol dir,ol ul dir,ol menu dir,ol dir dir,ul ol ul,ul ul ul,ul menu ul,ul dir ul,ul ol menu,ul ul menu,ul menu menu,ul dir menu,ul ol dir,ul ul dir,ul menu dir,ul dir dir,menu ol ul,menu ul ul,menu menu ul,menu dir ul,menu ol menu,menu ul menu,menu menu menu,menu dir menu,menu ol dir,menu ul dir,menu menu dir,menu dir dir,dir ol ul,dir ul ul,dir menu ul,dir dir ul,dir ol menu,dir ul menu,dir menu menu,dir dir menu,dir ol dir,dir ul dir,dir menu dir,dir dir dir{list-style-type:square;}
+.hidden{display:none;}
+p{line-height:1.5em;}
+h1{font-size:1.75em;line-height:1.7em;font-family:helvetica,verdana;}
+h2{font-size:1.5em;line-height:1.7em;font-family:helvetica,verdana;}
+h3{font-size:1.25em;line-height:1.7em;font-family:helvetica,verdana;}
+h4{font-size:1em;line-height:1.7em;font-family:helvetica,verdana;}
+html,body{width:100%;height:100%;}
+body{margin:0;padding:0;background-color:#ffffff;position:relative;font:16px/24px "NobileRegular","Lucida Grande",Lucida,Verdana,sans-serif;}
+a{color:#1b61d6;text-decoration:none;}
+a:hover{color:#e88f00;text-decoration:underline;}
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6{font-family:"NeutonRegular","Lucida Grande",Lucida,Verdana,sans-serif;font-weight:normal;color:#373839;font-style:normal;}
+#wrap{min-height:100%;}
+#header,#footer{width:100%;color:#ffffff;height:40px;position:absolute;text-align:center;line-height:40px;overflow:hidden;font-size:12px;vertical-align:middle;}
+#header{background:#000000;top:0;font-size:14px;}
+#footer{bottom:0;background:#000000 url(footerbg.png) repeat-x 0 top;position:relative;margin-top:-40px;clear:both;}
+.header,.footer{width:750px;margin-right:auto;margin-left:auto;}
+.wrapper{width:100%}
+#top,#top-small,#bottom{width:100%;}
+#top{color:#000000;height:230px;background:#ffffff url(headerbg.png) repeat-x 0 top;position:relative;}
+#top-small{color:#000000;height:60px;background:#ffffff url(headerbg.png) repeat-x 0 top;position:relative;}
+#bottom{color:#222;background-color:#ffffff;}
+.top,.top-small,.middle,.bottom{width:750px;margin-right:auto;margin-left:auto;}
+.top{padding-top:40px;}
+.top-small{padding-top:10px;}
+#middle{width:100%;height:100px;background:url(middlebg.png) repeat-x;border-top:2px solid #ffffff;border-bottom:2px solid #b2b2b2;}
+.app-welcome{margin-top:25px;}
+.app-name{color:#000000;font-weight:bold;}
+.bottom{padding-top:50px;}
+#left{width:350px;float:left;padding-right:25px;}
+#right{width:350px;float:right;padding-left:25px;}
+.align-left{text-align:left;}
+.align-right{text-align:right;}
+.align-center{text-align:center;}
+ul.links{margin:0;padding:0;}
+ul.links li{list-style-type:none;font-size:14px;}
+form{border-style:none;}
+fieldset{border-style:none;}
+input{color:#222;border:1px solid #ccc;font-family:sans-serif;font-size:12px;line-height:16px;}
+input[type=text],input[type=password]{width:205px;}
+input[type=submit]{background-color:#ddd;font-weight:bold;}
+/*Opera Fix*/
+body:before{content:"";height:100%;float:left;width:0;margin-top:-32767px;}

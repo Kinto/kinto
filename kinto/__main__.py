@@ -9,7 +9,7 @@ from pyramid.paster import bootstrap
 
 from kinto.config import init
 
-CONFIG_FILE = 'config/kinto.ini'
+CONFIG_FILE = 'configuration/kinto.ini'
 
 
 def main(args=None):

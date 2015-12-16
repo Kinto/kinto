@@ -1,0 +1,89 @@
+{
+ "type": "//rec",
+ "optional": {
+   "expected_status": {
+        "type"    : "//arr",
+        "contents": {
+        "type": "//int"
+      }
+   },
+   "base_url":       "//str",
+   "description":    "//str",
+   "authentication": "//bool",
+   "unattended_params": "//bool",
+   "version":        "//str",
+   "authority":      "//str",
+   "formats": {
+     "type"    : "//arr",
+     "contents": { "type":"//str" }
+   },
+   "meta": {
+     "type": "//map",
+     "values": {
+       "type": "//str"
+     }
+   }
+ },
+ "required": {
+   "name": "//str",
+   "methods": {
+     "type": "//map",
+     "values": {
+       "type": "//rec",
+       "required": {
+         "method": "//str",
+         "path":   "//str"
+       },
+       "optional": {
+         "expected_status": {
+           "type"    : "//arr",
+           "contents": {
+             "type": "//int"
+           }
+         },
+         "required_params": {
+           "type"    : "//arr",
+           "contents": {
+             "type": "//str"
+           }
+         },
+         "optional_params": {
+           "type": "//arr",
+           "contents": {
+             "type": "//str"
+           }
+         },
+         "payload" : {
+           "type": "//arr",
+           "contents": {
+             "type": "//str"
+           }
+         },
+         "form-data" : {
+           "type": "//map",
+           "values": {
+             "type": "//str"
+           }
+         },
+         "headers" : {
+           "type": "//map",
+           "values": {
+             "type": "//str"
+           }
+         },
+         "required_payload": "//bool",
+         "optional_payload": "//bool",
+         "unattended_params": "//bool",
+         "description":    "//str",
+         "deprecated": "//bool",
+         "authentication": "//bool",
+         "base_url":       "//str",
+         "formats": {
+           "type"    : "//arr",
+           "contents": { "type":"//str" }
+         }
+       }
+     }
+   }
+ }
+}

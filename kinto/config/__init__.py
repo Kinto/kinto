@@ -9,7 +9,7 @@ def render_template(template, destination, values):
    
    here = os.path.abspath(os.path.dirname(__file__))
    template = os.path.join(here, 'kinto.tpl') 
-   destination = os.path.join(here, 'kinto.ini')
+ #  destination = os.path.join(here, 'kinto.ini')
 
    with codecs.open(template, 'r', encoding='utf-8') as f:
         raw_template = f.read()
