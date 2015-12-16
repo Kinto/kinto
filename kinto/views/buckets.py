@@ -4,6 +4,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
 from cliquet import resource
+from cliquet.errors import raise_invalid
 from cliquet.utils import build_request, reapply_cors
 from cliquet.storage import exceptions as storage_exceptions
 
@@ -112,6 +113,12 @@ def create_collection(request, bucket_id):
                              id=collection_id,
                              **request.matchdict)
     resource = Collection(request, context)
+    if not resource.model.id_generator.match(collection_id):
+        error_details = {
+            'location': 'path',
+            'description': "Invalid collection_id id"
+        }
+        raise_invalid(request, **error_details)
     try:
         collection = resource.model.create_record({'id': collection_id})
     except storage_exceptions.UnicityError as e:

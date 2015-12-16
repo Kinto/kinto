@@ -159,6 +159,14 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
             self.app.post_json('/batch', batch, headers=self.headers)
             self.assertEqual(patched.call_count, 0)
 
+    def test_collection_id_is_validated(self):
+        collection_url = '/buckets/default/collections/__files__/records'
+        self.app.get(collection_url, headers=self.headers, status=400)
+
+    def test_collection_id_does_not_support_unicode(self):
+        collection_url = '/buckets/default/collections/%E8%A6%8B/records'
+        self.app.get(collection_url, headers=self.headers, status=400)
+
     def test_405_is_a_valid_formatted_error(self):
         response = self.app.post(self.collection_url,
                                  headers=self.headers, status=405)
