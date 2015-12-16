@@ -9,7 +9,11 @@ def render_template(template, destination, **kwargs):
     template = os.path.join(HERE, template)
 
     folder = os.path.dirname(destination)
-    os.makedirs(folder)
+    if os.path.exists(folder):
+            print("%s already exists. kinto.ini will be created" % folder)
+         
+    else:
+            os.makedirs(folder)
 
     with codecs.open(template, 'r', encoding='utf-8') as f:
         raw_template = f.read()
