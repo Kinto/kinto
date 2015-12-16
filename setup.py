@@ -19,6 +19,7 @@ REQUIREMENTS = [
     'waitress',
     'cliquet>=2.13,<3',
     'jsonschema',
+    'functools32',  # for old pip versions.
 ]
 
 POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
