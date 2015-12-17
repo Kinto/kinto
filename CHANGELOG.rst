@@ -7,7 +7,13 @@ This document describes changes between each past release.
 2.14.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Protocol**
+
+- Fields can be filtered in GET requests using ``_fields=f1,f2`` in querystring (fixes #384)
+
+**New features**
+
+- Add ability to filter fields from querystring (#601, thanks @MrChoclate)
 
 
 2.13.1 (2015-12-15)
@@ -74,6 +80,8 @@ Minor changes in the root URL (hello view):
   resource names (#492, #555)
 - Add ability to listen to read action on resource (disabled by default)
   (#493)
+- Add ability to ask for partial response via ``_fields`` parameter on GET
+  endpoints
 
 **Internal**
 
