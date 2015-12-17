@@ -187,7 +187,6 @@ class UserResource(object):
                         self.model.deleted_field]
         return known_fields
 
-
     def is_known_field(self, field):
         """Return ``True`` if `field` is defined in the resource mapping.
 

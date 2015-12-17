@@ -3,13 +3,16 @@ from pyramid import httpexceptions
 from cliquet.resource import ShareableResource
 from cliquet.tests.resource import BaseTest
 
+
 class PartialResponseBase(BaseTest):
     def setUp(self):
         super(PartialResponseBase, self).setUp()
         self.resource._get_known_fields = lambda: ['field', 'other']
-        self.record = self.model.create_record({'field': 'value', 'other': 'val'})
+        self.record = self.model.create_record(
+            {'field': 'value', 'other': 'val'})
         self.resource.record_id = self.record['id']
         self.resource.request = self.get_request()
+
 
 class BasicTest(PartialResponseBase):
 
@@ -36,6 +39,7 @@ class BasicTest(PartialResponseBase):
         record = self.resource.get()
         self.assertIn('field', record['data'])
         self.assertIn('other', record['data'])
+
 
 class PermissionTest(PartialResponseBase):
     resource_class = ShareableResource
