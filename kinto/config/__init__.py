@@ -4,7 +4,6 @@ import codecs
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
-
 def render_template(template, destination, **kwargs):
     template = os.path.join(HERE, template)
 
