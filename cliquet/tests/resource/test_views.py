@@ -704,3 +704,33 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get(self.collection_url + '?_limit=1',
                             headers=headers)
         self.assertIn('https://server.name:443', resp.headers['Next-Page'])
+
+
+class PartialResponseTest(BaseWebTest, unittest.TestCase):
+    """Extra tests for :mod:`cliquet.tests.resource.test_partial_response`
+    """
+    collection_url = '/spores'
+
+    def setUp(self):
+        super(PartialResponseTest, self).setUp()
+        body = {'data': {'size': 42, 'category': 'some-cat', 'owner': 'loco'}}
+        resp = self.app.post_json(self.collection_url,
+                                  body,
+                                  headers=self.headers)
+        self.record = resp.json
+
+    def test_unspecified_fields_are_excluded(self):
+        resp = self.app.get(self.collection_url + '?_fields=size,category')
+        result = resp.json['data'][0]
+        self.assertNotIn('owner', result)
+
+    def test_specified_fields_are_included(self):
+        resp = self.app.get(self.collection_url + '?_fields=size,category')
+        result = resp.json['data'][0]
+        self.assertIn('size', result)
+        self.assertIn('category', result)
+
+    def test_unknown_fields_are_ignored(self):
+        resp = self.app.get(self.collection_url + '?_fields=nationality')
+        result = resp.json['data'][0]
+        self.assertNotIn('nationality', result)

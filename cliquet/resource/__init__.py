@@ -16,7 +16,8 @@ from cliquet.events import ResourceChanged, ResourceRead, ACTIONS
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
-    current_service, encode_header, decode_header, DeprecatedMeta
+    current_service, encode_header, decode_header, DeprecatedMeta,
+    dict_subset
 )
 
 from .model import Model, ShareableModel
@@ -249,7 +250,7 @@ class UserResource(object):
 
         if partial_fields:
             records = [
-                self._do_projection(record, partial_fields)
+                dict_subset(record, partial_fields)
                 for record in records
             ]
 
@@ -345,7 +346,7 @@ class UserResource(object):
 
         partial_fields = self._extract_fields()
         if partial_fields:
-            record = self._do_projection(record, partial_fields)
+            record = dict_subset(record, partial_fields)
 
         return self.postprocess(record)
 
@@ -844,23 +845,17 @@ class UserResource(object):
             }
             raise_invalid(self.request, **error_details)
 
-    def _do_projection(self, record, partial_fields):
-        """Project record on partial_fields."""
-
-        return {field: record.get(field) for field in partial_fields}
-
     def _extract_fields(self):
         """Extract the fields to do the projection from QueryString parameters.
         """
-
         fields = self.request.GET.get('_fields', None)
         if fields:
             fields = fields.split(',')
             known_fields = self._get_known_fields()
             invalid_fields = set(fields) - set(known_fields)
-            if invalid_fields:
-                error_msg = "Fields {} do not exist".\
-                    format(set(fields) - set(known_fields))
+            preserve_unknown = self.mapping.get_option('preserve_unknown')
+            if not preserve_unknown and invalid_fields:
+                error_msg = "Fields %s do not exist" % ','.join(invalid_fields)
                 error_details = {
                     'name': "Invalid _fields parameter",
                     'description': error_msg

@@ -85,7 +85,7 @@ Override the base schema to add extra fields using the `Colander API <http://doc
         genre = colander.SchemaNode(colander.String(),
                                     validator=colander.OneOf(['Sci-Fi', 'Comedy']))
 
-See the `resource schema options <resource-schema>`_ to define *schema-less* resources or specify rules
+See the :ref:`resource schema options <resource-schema>` to define *schema-less* resources or specify rules
 for unicity or readonly.
 
 
