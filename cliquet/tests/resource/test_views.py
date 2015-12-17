@@ -706,13 +706,13 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
         self.assertIn('https://server.name:443', resp.headers['Next-Page'])
 
 
-class PartialResponseTest(BaseWebTest, unittest.TestCase):
+class SchemaLessPartialResponseTest(BaseWebTest, unittest.TestCase):
     """Extra tests for :mod:`cliquet.tests.resource.test_partial_response`
     """
     collection_url = '/spores'
 
     def setUp(self):
-        super(PartialResponseTest, self).setUp()
+        super(SchemaLessPartialResponseTest, self).setUp()
         body = {'data': {'size': 42, 'category': 'some-cat', 'owner': 'loco'}}
         resp = self.app.post_json(self.collection_url,
                                   body,
