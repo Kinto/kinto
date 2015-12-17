@@ -8,24 +8,24 @@ GET /
 
 The returned value is a JSON mapping containing:
 
-.. versionchanged:: 2.12::
+.. versionchanged:: 2.12
 
 - ``project_name``: the name of the service (e.g. ``"reading list"``)
 - ``project_docs``: The URL to the service documentation. (this document!)
 - ``project_version``: complete application/project version (``"3.14.116"``)
 - ``http_api_version``: the MAJOR.MINOR version of the exposed HTTP API (``"1.1"``)
-   defined in configuration.
+  defined in configuration.
 - ``cliquet_protocol_version``: the cliquet protocol version (``"2"``)
 - ``url``: absolute URI (without a trailing slash) of the API (*can be used by client to build URIs*)
 - ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)
 - ``settings``: a mapping with the values of relevant public settings for clients
-    - ``batch_max_requests``: Number of requests that can be made in a batch request.
-    - ``readonly``: Only requests with read operations are allowed.
+  - ``batch_max_requests``: Number of requests that can be made in a batch request.
+  - ``readonly``: Only requests with read operations are allowed.
 
 **Optional**
 
 - ``user``: A mapping with an ``id`` field for the currently connected user id.
-   The field is not present when no Authorization header is provided.
+  The field is not present when no Authorization header is provided.
 
 
 .. note::
