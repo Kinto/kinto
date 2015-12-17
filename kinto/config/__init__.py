@@ -9,8 +9,8 @@ def render_template(template, destination, **kwargs):
     template = os.path.join(HERE, template)
 
     folder = os.path.dirname(destination)
-    if os.path.exists(folder) == False:
-            os.makedirs(folder)
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
     with codecs.open(template, 'r', encoding='utf-8') as f:
         raw_template = f.read()
