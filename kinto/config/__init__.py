@@ -8,8 +8,11 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 def render_template(template, destination, **kwargs):
     template = os.path.join(HERE, template)
 
+   
     folder = os.path.dirname(destination)
-    os.makedirs(folder)
+   
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
     with codecs.open(template, 'r', encoding='utf-8') as f:
         raw_template = f.read()
