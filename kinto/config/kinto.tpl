@@ -11,7 +11,7 @@ use = egg:kinto
 # Backends.
 #
 # http://kinto.readthedocs.org/en/latest/configuration/settings.html#storage
-[backends]
+#
 kinto.storage_backend = {storage_backend}
 kinto.storage_url = {storage_url}
 kinto.cache_backend = {cache_backend}

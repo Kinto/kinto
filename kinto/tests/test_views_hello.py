@@ -7,11 +7,11 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
 
     def test_returns_info_about_url_and_version(self):
         response = self.app.get('/')
-        self.assertEqual(response.json['version'], VERSION)
-        self.assertEqual(response.json['url'], 'http://localhost/v1/')
-        self.assertEqual(response.json['hello'], 'kinto')
-        self.assertEqual(response.json['documentation'],
+        self.assertEqual(response.json['project_name'], 'kinto')
+        self.assertEqual(response.json['project_version'], VERSION)
+        self.assertEqual(response.json['project_docs'],
                          'https://kinto.readthedocs.org/')
+        self.assertEqual(response.json['url'], 'http://localhost/v1/')
 
     def test_hides_user_info_if_anonymous(self):
         response = self.app.get('/')
