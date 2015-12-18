@@ -19,6 +19,7 @@ The returned value is a JSON mapping containing:
 - ``url``: absolute URI (without a trailing slash) of the API (*can be used by client to build URIs*)
 - ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)
 - ``settings``: a mapping with the values of relevant public settings for clients
+
   - ``batch_max_requests``: Number of requests that can be made in a batch request.
   - ``readonly``: Only requests with read operations are allowed.
 
