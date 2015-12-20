@@ -1,6 +1,7 @@
 import os
 import binascii
 import codecs
+from kinto import logger
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -10,6 +11,8 @@ def render_template(template, destination, **kwargs):
 
     folder = os.path.dirname(destination)
     os.makedirs(folder)
+
+    logger.info("Created config {}".format(os.path.abspath(destination)))
 
     with codecs.open(template, 'r', encoding='utf-8') as f:
         raw_template = f.read()
