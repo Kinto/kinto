@@ -11,6 +11,9 @@ def render_template(template, destination, **kwargs):
     folder = os.path.dirname(destination)
     os.makedirs(folder)
 
+    print("Created config {}".format(os.path.abspath(destination)))
+
+
     with codecs.open(template, 'r', encoding='utf-8') as f:
         raw_template = f.read()
         rendered = raw_template.format(**kwargs)
