@@ -48,3 +48,17 @@
 #overview #key-features .wy-table-responsive:nth-of-type(1) table td {
     font-size: 1.2em;
 }
+
+/* tweak to limit width of column for settings default values */
+
+.wy-table-responsive table tr td:nth-child(2), .wy-table-responsive tr table th:nth-child(2) {
+    white-space: -pre-wrap !important;
+}
+
+#settings table tr td:nth-child(2) code {
+    max-width: 100px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
