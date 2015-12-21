@@ -40,6 +40,12 @@ class BasicTest(PartialResponseBase):
         self.assertIn('field', record['data'])
         self.assertIn('other', record['data'])
 
+    def test_id_and_last_modified_are_not_filtered(self):
+        self.resource.request.GET['_fields'] = 'field'
+        record = self.resource.get()
+        self.assertIn('id', record['data'])
+        self.assertIn('last_modified', record['data'])
+
 
 class PermissionTest(PartialResponseBase):
     resource_class = ShareableResource
