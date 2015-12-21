@@ -11,6 +11,10 @@ This document describes changes between each past release.
 - Add explicit dependency for functools32 when Kinto is installed with an old
   pip version (fixes #303)
 
+**Protocol**
+
+- Bump protocol version to 1.1 because of protocol changes in release 1.9
+
 **Internal changes**
 
 - Added missing DELETE endoint for list of records (fixes #238)
