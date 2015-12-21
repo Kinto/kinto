@@ -137,6 +137,11 @@ def hmac_digest(secret, message, encoding='utf-8'):
                     hashlib.sha256).hexdigest()
 
 
+def dict_subset(d, keys):
+    """Return a dict with the specified keys"""
+    return {k: d[k] for k in keys if k in d}
+
+
 def Enum(**enums):
     return type('Enum', (), enums)
 

@@ -32,3 +32,13 @@ class PsilocybinSchema(resource.ResourceSchema):
 @resource.register()
 class Psilo(resource.ShareableResource):
     mapping = PsilocybinSchema()
+
+
+class SchemaLess(resource.ResourceSchema):
+    class Options:
+        preserve_unknown = True
+
+
+@resource.register()
+class Spore(resource.ShareableResource):
+    mapping = SchemaLess()
