@@ -1,9 +1,9 @@
 import codecs
 import mock
 import os
-import shutil
 import tempfile
 import unittest
+
 from kinto.config import render_template, init
 
 
@@ -32,7 +32,7 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(destination_temp, sample)
 
     def test_create_destination_directory(self):
-        dest = os.path.join(tempfile.gettempdir(), 'config', 'kinto.ini')
+        dest = os.path.join(tempfile.mkdtemp(), 'config', 'kinto.ini')
 
         render_template("kinto.tpl", dest,
                         secret='secret',
@@ -44,7 +44,6 @@ class ConfigTest(unittest.TestCase):
                         permission_url='permission_url')
 
         self.assertTrue(os.path.exists(dest))
-        shutil.rmtree(os.path.dirname(dest))
 
     @mock.patch('kinto.config.render_template')
     def test_init_postgresql_values(self, mocked_render_template):
