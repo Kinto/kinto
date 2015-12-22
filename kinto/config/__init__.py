@@ -6,9 +6,9 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 
 def render_template(template, destination, **kwargs):
-    template = os.path.join(HERE, template)  
+    template = os.path.join(HERE, template)
     folder = os.path.dirname(destination)
-   
+
     if not os.path.exists(folder):
         os.makedirs(folder)
 
