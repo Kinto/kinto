@@ -49,8 +49,9 @@ def get_user_info(request):
     return user_info
 
 
-def main(global_config, **settings):
-    config = Configurator(settings=settings, root_factory=RouteFactory)
+def main(global_config, config=None, **settings):
+    if not config:
+        config = Configurator(settings=settings, root_factory=RouteFactory)
 
     # Force project name, since it determines settings prefix.
     config.add_settings({'cliquet.project_name': 'kinto'})

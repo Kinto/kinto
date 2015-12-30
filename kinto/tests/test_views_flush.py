@@ -1,3 +1,10 @@
+import webtest
+from pyramid.config import Configurator
+
+from cliquet.tests import support as cliquet_support
+from kinto import main
+from kinto.events import ServerFlushed
+
 from .support import (BaseWebTest, unittest, get_user_headers,
                       MINIMALIST_BUCKET, MINIMALIST_COLLECTION,
                       MINIMALIST_RECORD)
@@ -9,6 +16,8 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(FlushViewTest, self).setUp()
+
+        self.events = []
 
         bucket = MINIMALIST_BUCKET.copy()
 
@@ -35,12 +44,29 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
                            headers=self.alice_headers,
                            status=201)
 
+    def tearDown(self):
+        self.events = []
+        super(FlushViewTest, self).tearDown()
+
+    def _get_test_app(self, settings=None):
+        app_settings = self.get_app_settings(settings)
+        self.config = Configurator(settings=app_settings)
+        self.config.add_subscriber(self.listener, ServerFlushed)
+        self.config.commit()
+        app = webtest.TestApp(main({}, config=self.config, **app_settings))
+        app.RequestClass = cliquet_support.get_request_class(prefix="v1")
+
+        return app
+
     def get_app_settings(self, extra=None):
         if extra is None:
             extra = {}
         extra.setdefault('kinto.flush_endpoint_enabled', True)
         settings = super(FlushViewTest, self).get_app_settings(extra)
         return settings
+
+    def listener(self, event):
+        self.events.append(event)
 
     def test_returns_404_if_not_enabled_in_configuration(self):
         extra = {'kinto.flush_endpoint_enabled': False}
@@ -57,3 +83,10 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.collection_url,
                      headers=self.alice_headers,
                      status=403)
+
+    def test_event_triggered_post(self):
+        self.app.get(self.collection_url, headers=self.headers)
+        self.app.get(self.collection_url, headers=self.alice_headers)
+        self.app.post('/__flush__', headers=self.headers, status=202)
+        self.assertEqual(len(self.events), 1)
+        self.assertTrue(isinstance(self.events[0], ServerFlushed))
