@@ -265,6 +265,11 @@ for nested fields.
 
 This is vital in mobile contexts where bandwidth usage must be optimized.
 
+.. note::
+
+    The ``id`` and ``last_modified`` fields are always returned.
+
+
 **Request**:
 
 .. code-block:: http
@@ -291,10 +296,14 @@ This is vital in mobile contexts where bandwidth usage must be optimized.
     {
         "data": [
             {
+                "id": "dc86afa9-a839-4ce1-ae02-3d538b75496f",
+                "last_modified": 1430222877724,
                 "title": "MoCo",
                 "url": "https://mozilla.com",
             },
             {
+                "id": "23160c47-27a5-41f6-9164-21d46141804d",
+                "last_modified": 1430140411480,
                 "title": "MoFo",
                 "url": "https://mozilla.org",
             }

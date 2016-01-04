@@ -250,7 +250,7 @@ class UserResource(object):
 
         if partial_fields:
             records = [
-                dict_subset(record, partial_fields)
+                self._filter_fields(record, partial_fields)
                 for record in records
             ]
 
@@ -346,7 +346,7 @@ class UserResource(object):
 
         partial_fields = self._extract_fields()
         if partial_fields:
-            record = dict_subset(record, partial_fields)
+            record = self._filter_fields(record, partial_fields)
 
         return self.postprocess(record)
 
@@ -863,6 +863,12 @@ class UserResource(object):
                 raise_invalid(self.request, **error_details)
 
         return fields
+
+    def _filter_fields(self, record, fields):
+        """Extract from specified fields from record.
+        """
+        fields = fields + [self.model.id_field, self.model.modified_field]
+        return dict_subset(record, fields)
 
     def _extract_limit(self):
         """Extract limit value from QueryString parameters."""
