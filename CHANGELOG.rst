@@ -15,6 +15,10 @@ This document describes changes between each past release.
 
 - Add ability to filter fields from querystring (#601, thanks @MrChoclate)
 
+**Internal changes**
+
+- Refactor filtering of events to use Pyramid subscribers predicates (fixes #609)
+
 
 2.13.1 (2015-12-15)
 -------------------
