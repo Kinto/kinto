@@ -375,7 +375,7 @@ def setup_logging(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
-class EventsFilterActions(object):
+class EventActionFilter(object):
     def __init__(self, actions, config):
         self.actions = actions
 
@@ -387,7 +387,7 @@ class EventsFilterActions(object):
         return not action or action in self.actions
 
 
-class EventsFilterResources(object):
+class EventResourceFilter(object):
     def __init__(self, resources, config):
         self.resources = resources
 
@@ -401,8 +401,8 @@ class EventsFilterResources(object):
 
 def setup_listeners(config):
     # Register basic subscriber predicates, to filter events.
-    config.add_subscriber_predicate('for_actions', EventsFilterActions)
-    config.add_subscriber_predicate('for_resources', EventsFilterResources)
+    config.add_subscriber_predicate('for_actions', EventActionFilter)
+    config.add_subscriber_predicate('for_resources', EventResourceFilter)
 
     write_actions = (ACTIONS.CREATE, ACTIONS.UPDATE, ACTIONS.DELETE)
     settings = config.get_settings()
