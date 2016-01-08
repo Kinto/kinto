@@ -135,6 +135,12 @@ def includeme(config):
         step_func = config.maybe_dotted(step)
         step_func(config)
 
+    # Custom helpers.
+    config.add_request_method(follow_subrequest)
+    config.add_request_method(lambda request: {'id': request.prefixed_userid},
+                              name='get_user_info')
+    config.commit()
+
     # Include cliquet plugins after init, unlike pyramid includes.
     includes = aslist(settings['includes'])
     for app in includes:
@@ -143,11 +149,6 @@ def includeme(config):
     # # Show settings to output.
     # for key, value in settings.items():
     #     logger.info('Using %s = %s' % (key, value))
-
-    # Custom helpers.
-    config.add_request_method(follow_subrequest)
-    config.add_request_method(lambda request: {'id': request.prefixed_userid},
-                              name='get_user_info')
 
     # Scan views.
     config.scan("cliquet.views")
