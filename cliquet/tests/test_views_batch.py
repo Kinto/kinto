@@ -63,7 +63,6 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/batch', body, headers=self.headers)
         error = resp.json['responses'][0]
         self.assertEqual(error['body']['code'], 404)
-        self.assertIn('message', error['body'])
 
     def test_internal_errors_makes_the_batch_fail(self):
         request = {'path': '/v0/'}
@@ -111,6 +110,22 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         response = resp.json['responses'][0]
         record = response['body']['data']
         self.assertEqual(record['name'], 'Trompette de la mort')
+
+    def test_400_error_message_is_forwarded(self):
+        headers = self.headers.copy()
+        headers['If-Match'] = '"*"'
+        request = {
+            'method': 'PUT',
+            'path': '/mushrooms/%s' % str(uuid.uuid4()),
+            'body': {'data': {'name': 'Trompette de la mort'}},
+            'headers': headers
+        }
+        body = {'requests': [request, request]}
+        resp = self.app.post_json('/batch', body)
+        self.assertEqual(resp.json['responses'][1]['status'], 400)
+        self.assertEqual(resp.json['responses'][1]['body']['message'],
+                         ('headers: Invalid value for If-Match. The value '
+                          'should be integer between double quotes.'))
 
 
 class BatchSchemaTest(unittest.TestCase):

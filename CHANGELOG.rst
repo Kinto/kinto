@@ -15,6 +15,10 @@ This document describes changes between each past release.
 
 - Add ability to filter fields from querystring (#601, thanks @MrChoclate)
 
+**Bug fixes**
+
+- Do not overwrite original error message and details in batch requests (fixes #617)
+
 **Internal changes**
 
 - Refactor filtering of events to use Pyramid subscribers predicates (fixes #609)
