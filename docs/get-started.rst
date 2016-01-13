@@ -17,8 +17,16 @@ Mozilla demo server
 
 A Kinto instance is running at https://kinto.dev.mozaws.net/v1/
 
-It should be enough to get started, but the records are flushed every day
-at 7:00 AM UTC.
+It should be enough to get started, but the records are flushed every
+day at 7:00 AM UTC.
+
+
+Deploy an instance on Heroku
+============================
+
+You want to get started with a working online Kinto server right now?
+
+`Click here to deploy your instance <https://dashboard.heroku.com/new?button-url=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku&template=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku>`_ for free on Heroku (Free plan for less than 10000 rows).
 
 
 .. _run-kinto-docker:
@@ -67,7 +75,7 @@ with a *PostgreSQL* container.
 
 ::
 
-    wget https://raw.githubusercontent.com/Kinto/kinto/master/docker-compose.yml
+    wget http://kinto-storage.org/docker-compose.yml
     sudo docker-compose up
 
 
@@ -131,6 +139,7 @@ Then install the package using the default configuration:
 
     pip install kinto
     kinto init
+    kinto migrate
     kinto start
 
 The server should now be running on http://localhost:8888
@@ -152,7 +161,6 @@ Make sure you have the system requirements listed in the Python package section.
 
     git clone https://github.com/Kinto/kinto.git
     cd kinto/
-
     make serve
 
 
