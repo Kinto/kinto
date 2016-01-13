@@ -26,7 +26,11 @@ Deploy an instance on Heroku
 
 You want to get started with a working online Kinto server right now?
 
-`Click here to deploy your instance <https://dashboard.heroku.com/new?button-url=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku&template=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku>`_ for free on Heroku (Free plan for less than 10000 rows).
+.. image:: https://www.herokucdn.com/deploy/button.png
+   :target: https://dashboard.heroku.com/new?button-url=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku&template=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku>
+   :alt: Deploy on Heroku
+
+You have got a free plan for up to 10000 rows.
 
 
 .. _run-kinto-docker:
