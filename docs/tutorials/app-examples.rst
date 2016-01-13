@@ -11,4 +11,4 @@ An open Wiki page gives :github:`a complete list of apps in the wild <Kinto/kint
 
     We would be delighted to highlight demos, use-cases, tutorials,
     or applications made by the community, so don't hesitate to
-    **add a link to yours**!
+    :github:`add a link to yours <Kinto/kinto/wiki/App-examples/_edit>`!
