@@ -185,9 +185,9 @@ class Storage(MemoryBasedStorage):
             the timestamp notion is opaque, and behaves like a revision number.
         """
         # XXX factorize code from memory and redis backends.
-        is_specified = (record is not None
-                        and modified_field in record
-                        or last_modified is not None)
+        is_specified = (record is not None and
+                        modified_field in record or
+                        last_modified is not None)
         if is_specified:
             # If there is a timestamp in the new record, try to use it.
             if last_modified is not None:

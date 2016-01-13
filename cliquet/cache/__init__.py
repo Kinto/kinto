@@ -1,5 +1,6 @@
 import random
-from cliquet import logger
+
+from cliquet.logs import logger
 
 
 _HEARTBEAT_DELETE_RATE = 0.5

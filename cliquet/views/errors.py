@@ -6,8 +6,8 @@ from pyramid.view import (
     forbidden_view_config, notfound_view_config, view_config
 )
 
-from cliquet import logger
 from cliquet.errors import http_error, ERRORS
+from cliquet.logs import logger
 from cliquet.storage import exceptions as storage_exceptions
 from cliquet.utils import reapply_cors, encode_header
 

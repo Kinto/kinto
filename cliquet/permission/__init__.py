@@ -1,5 +1,7 @@
 from pyramid.settings import asbool
-from cliquet import logger
+
+from cliquet.logs import logger
+
 
 __HEARTBEAT_KEY__ = '__heartbeat__'
 

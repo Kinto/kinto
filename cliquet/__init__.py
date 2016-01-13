@@ -2,19 +2,15 @@
 """
 import pkg_resources
 
-import structlog
 from cornice import Service as CorniceService
 from pyramid.settings import aslist
-
-
-# Main Cliquet logger.
-logger = structlog.get_logger()
 
 from cliquet import errors
 from cliquet.initialization import (  # NOQA
     initialize, initialize_cliquet, install_middlewares,
     load_default_settings)
 from cliquet.utils import follow_subrequest
+from cliquet.logs import logger
 
 
 # Module version, as defined in PEP-0396.

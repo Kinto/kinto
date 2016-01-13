@@ -18,9 +18,9 @@ except ImportError:  # pragma: no cover
 
 import cliquet
 from cliquet import errors
-from cliquet import logger
 from cliquet import utils
 from cliquet import statsd
+from cliquet.logs import logger
 from cliquet.cache import heartbeat as cache_heartbeat
 from cliquet.events import ResourceRead, ResourceChanged, ACTIONS
 from cliquet.permission import heartbeat as permission_heartbeat
