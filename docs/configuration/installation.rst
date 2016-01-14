@@ -45,92 +45,22 @@ Install and setup PostgreSQL
 
 (*requires PostgreSQL 9.4 or higher*).
 
-*Kinto* dependencies do not include *PostgreSQL* tooling and drivers by
-default. In order to install them, run:
+*Kinto* dependencies do not include *PostgreSQL* tooling and drivers by default.
 
-::
-
-    make install-postgres
-
-.. note::
-
-        The ``make`` commands are only available when Kinto was installed from
-        sources. The `underlying commands are available on Github
-        <https://github.com/Kinto/kinto/blob/684c31c/Makefile#L22-L26>`_.
-
-The instructions in the sections below will help you create a local ``postgres``
-database on ``localhost:5432``, with user/password ``postgres``/``postgres``.
-
-Once done, run ``kinto init`` and select the PostgreSQL option.
-
-
-Client libraries only
----------------------
-
-Install PostgreSQL client headers::
+First, make sure you have PostgreSQL client headers::
 
     sudo apt-get install libpq-dev
 
-
-Full server
------------
-
-In Ubuntu/Debian based::
-
-    sudo apt-get install postgresql
+Once done, run ``kinto init`` and select the PostgreSQL option,
+the Python dependencies for PostgreSQL will be installed.
 
 
-By default, the ``postgres`` user has no password and can hence only connect
-if ran by the ``postgres`` system user. The following command will assign it:
+Run a PostgreSQL server
+-----------------------
 
-::
+The instructions to run local ``postgres``
+database on ``localhost:5432``, with user/password ``postgres``/``postgres`` are out of scope here.
 
-    sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
-
-
-Server using Docker
--------------------
-
-Install `Docker <https://docker.com/>`_:
-
-On Ubuntu you can do:
-
-::
-
-    sudo apt-get install docker.io
-
-Run the official PostgreSQL container locally:
-
-::
-
-    postgres=$(sudo docker run -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres)
-
-Tag and save the current state with::
-
-    sudo docker commit $postgres kinto-db
+A detailed guide is :github:`available on the Kinto Wiki <Kinto/kinto/wiki/How-to-run-a-PostgreSQL-server%3F>`.
 
 
-In the future, run the tagged version of the container ::
-
-    kintodb=$(sudo docker run -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 kinto-db)
-
-    ...
-
-    sudo docker stop $kintodb
-
-
-OS X
-----
-
-Assuming `brew <http://brew.sh/>`_ is installed:
-
-::
-
-    brew update
-    brew install postgresql
-
-Create the initial database:
-
-::
-
-    initdb /usr/local/var/postgres
