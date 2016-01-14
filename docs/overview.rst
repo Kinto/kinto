@@ -230,9 +230,7 @@ No, but it's a great idea. Maintaining packages for several platforms is time-co
 and we're a small team. At this time we're just making sure it's easy to run our server
 using our Makefile or our Dockerfile.
 
-Kinto is :ref:`easy to install with pip <installation>` and
-we've got `an image set up <https://hub.docker.com/r/kinto/kinto-server/>`_
-on the Docker hub, too.
+Kinto is :ref:`easy to run with Docker or Python pip <get-started>`.
 
 But if you'd like to help us out by maintaining packages for your favourite OS,
 we'd be delighted to collaborate with you!

@@ -1,7 +1,14 @@
-.. _run-kinto:
+.. _get-started:
 
-Run Kinto
-#########
+Get started
+###########
+
+Use the demo server or run your own Kinto, and follow our :ref:`tutorials <tutorials>`
+for the JavaScript client or the raw HTTP API!
+
+.. contents::
+    :local:
+
 
 .. _run-kinto-mozilla-demo:
 
@@ -14,6 +21,8 @@ It should be enough to get started, but the records are flushed every day
 at 7:00 AM UTC.
 
 
+.. _run-kinto-docker:
+
 Using Docker
 ============
 
@@ -24,6 +33,10 @@ If you have `Docker <https://docker.com/>`_, *Kinto* can be started locally with
     sudo docker run -p 8888:8888 kinto/kinto-server
 
 The server should now be running on http://localhost:8888
+
+
+Custom configuration
+--------------------
 
 It is possible to specify every Kinto setting through environment variables.
 For example, using an environment file:
@@ -58,18 +71,41 @@ with a *PostgreSQL* container.
     sudo docker-compose up
 
 
+.. _run-kinto-python:
+
 Using Python package
 ====================
 
-Python tooling
---------------
+System requirements
+-------------------
 
-The following tools are necessary to initiate the local installation and use
-our helpers:
+Depending on the platform, and chosen configuration, some libraries or
+extra services are required.
 
-* `Virtualenv <https://virtualenv.pypa.io/>`_
+The following commands will install necessary tools for cryptography
+and Python packaging like `Virtualenv <https://virtualenv.pypa.io/>`_.
 
-On Ubuntu/Debian, ``sudo apt-get install python-virtualenv`` is enough.
+Linux
+'''''
+
+On Debian / Ubuntu based systems::
+
+    apt-get install libffi-dev libssl-dev python-dev python-virtualenv
+
+On RHEL-derivatives::
+
+    apt-get install libffi-devel openssl-devel python-devel python-virtualenv
+
+OS X
+''''
+
+Assuming `brew <http://brew.sh/>`_ is installed:
+
+::
+
+    brew install libffi openssl pkg-config python
+
+    pip install virtualenv
 
 
 Quick start
@@ -110,6 +146,8 @@ If you plan on contributing, this is the way to go!
 This will install every necessary packages to run the tests, build the
 documentation etc.
 
+Make sure you have the system requirements listed in the Python package section.
+
 ::
 
     git clone https://github.com/Kinto/kinto.git
@@ -139,7 +177,6 @@ Go further
 
 Some suggestions for the next steps:
 
-* :rtd:`Follow the Kinto.js tutorial <kintojs>`
+* :ref:`Follow our tutorials <tutorials>`
 * :ref:`Configure PostgreSQL <postgresql-install>`
-* :ref:`Play with the HTTP API <tutorial-first-steps>`
 * :ref:`Run in production <run-production>`
