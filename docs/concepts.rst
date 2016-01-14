@@ -97,7 +97,9 @@ however, is controlled from the :ref:`server configuration <configuration>`.
     If a parent defines a permission, it is (*currently*) not possible to restrict
     it in its child objects.
 
-.. note::
 
-    Check out :blog:`our blog post <en/handling-permissions>` on permissions
-    in *Kinto* for more information.
+See also
+---------
+
+* :term:`Kinto glossary <CRUD>`, for formal definitions of terms used in the documentation
+* :blog:`Our blog post <en/handling-permissions>` on permissions design in *Kinto*
