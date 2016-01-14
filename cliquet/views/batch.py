@@ -100,8 +100,12 @@ def post_batch(request):
             resp, subrequest = request.follow_subrequest(subrequest,
                                                          use_tweens=False)
         except httpexceptions.HTTPException as e:
-            error_msg = 'Failed batch subrequest'
-            resp = errors.http_error(e, message=error_msg)
+            if e.content_type == 'application/json':
+                resp = e
+            else:
+                # JSONify raw Pyramid errors.
+                resp = errors.http_error(e)
+
         sublogger.bind(code=resp.status_code)
         sublogger.info('subrequest.summary')
 
