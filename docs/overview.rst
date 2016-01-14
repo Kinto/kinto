@@ -118,9 +118,9 @@ Key features
 
 **Coming soon**
 
-- Web Administration (:github:`under construction <Kinto/kinto-admin`)
+- Web Administration (:github:`under construction <Kinto/kinto-admin>`)
 - Automatic service discovery
-- Push notifications using `the Push API <https://developer.mozilla.org/en-US/docs/Web/API/Push_API>`_ (:github:`under construction <Kinto/kinto-webpush`)
+- Push notifications using `the Push API <https://developer.mozilla.org/en-US/docs/Web/API/Push_API>`_ (:github:`under construction <Kinto/kinto-webpush>`)
 
 (See `our roadmap <https://github.com/Kinto/kinto/wiki/Roadmap>`_)
 
