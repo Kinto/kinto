@@ -210,6 +210,9 @@ def build_request(original, dict_obj):
     """
     Transform a dict object into a ``pyramid.request.Request`` object.
 
+    It sets a ``parent`` attribute on the resulting request assigned with
+    the `original` request specified.
+
     :param original: the original request.
     :param dict_obj: a dict object with the sub-request specifications.
     """
@@ -239,6 +242,10 @@ def build_request(original, dict_obj):
                             headers=headers,
                             POST=payload,
                             method=method)
+
+    # This is used to distinguish subrequests from direct incoming requests.
+    # See :func:`cliquet.initialization.setup_logging()`
+    request.parent = original
 
     return request
 

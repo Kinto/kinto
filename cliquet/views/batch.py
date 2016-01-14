@@ -91,7 +91,6 @@ def post_batch(request):
 
     for subrequest_spec in requests:
         subrequest = build_request(request, subrequest_spec)
-        subrequest.parent = request
 
         sublogger.bind(path=subrequest.path,
                        method=subrequest.method)
