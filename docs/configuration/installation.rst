@@ -47,9 +47,15 @@ Install and setup PostgreSQL
 
 *Kinto* dependencies do not include *PostgreSQL* tooling and drivers by default.
 
-First, make sure you have PostgreSQL client headers::
 
-    sudo apt-get install libpq-dev
+PostgreSQL client
+-----------------
+
+On Debian / Ubuntu based systems::
+
+    apt-get install libpq-dev
+
+On Mac OS X, `install a server or use port <http://superuser.com/questions/296873/install-libpq-dev-on-mac-os>`_.
 
 Once done, run ``kinto init`` and select the PostgreSQL option,
 the Python dependencies for PostgreSQL will be installed.
