@@ -2,6 +2,8 @@ from __future__ import print_function
 import argparse
 import os
 import sys
+
+import pip
 from six.moves import input
 from cliquet.scripts import cliquet
 from pyramid.scripts import pserve
@@ -64,6 +66,13 @@ def main(args=None):
                     pass
 
         init(config_file, backend)
+
+        # Install postgresql libraries if necessary
+        if backend == "postgresql":
+            try:
+                import psycopg2  # NOQA
+            except ImportError:
+                pip.main(['install', "cliquet[postgresql]"])
 
     elif args['which'] == 'migrate':
         env = bootstrap(config_file)
