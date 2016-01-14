@@ -12,6 +12,59 @@ Because we use it for most of our deploys, *PostgreSQL* is the recommended
 backend for production.
 
 
+.. _postgresql-install:
+
+Install and setup PostgreSQL
+============================
+
+(*requires PostgreSQL 9.4 or higher*).
+
+*Kinto* dependencies do not include *PostgreSQL* tooling and drivers by default.
+
+
+PostgreSQL client
+-----------------
+
+On Debian / Ubuntu based systems::
+
+    $ sudo apt-get install libpq-dev
+
+On Mac OS X, `install a server or use port <http://superuser.com/questions/296873/install-libpq-dev-on-mac-os>`_.
+
+
+Run a PostgreSQL server
+-----------------------
+
+The instructions to run a local PostgreSQL database are out of scope here.
+
+A detailed guide is :github:`available on the Kinto Wiki <Kinto/kinto/wiki/How-to-run-a-PostgreSQL-server%3F>`.
+
+
+Initialization
+--------------
+
+Once a PostgreSQL is up and running somewhere, select the Postgresql option when
+running the ``init`` command:
+
+.. code-block :: bash
+
+    $ kinto --ini production.ini init
+
+By default, the generated configuration refers to a ``postgres`` database on
+``localhost:5432``, with user/password ``postgres``/``postgres``.
+
+The last step consists in creating the necessary tables and indices, run the ``migrate`` command:
+
+.. code-block :: bash
+
+    $ kinto --ini production.ini migrate
+
+.. note::
+
+    Alternatively the SQL initialization files can be found in the
+    *Cliquet* :github:`source code <mozilla-services/cliquet>`.
+
+
 Production checklist
 ====================
 
@@ -20,9 +73,6 @@ Recommended settings
 
 Most default setting values in the application code base are suitable
 for production.
-
-Once :ref:`PostgreSQL is installed <postgresql-install>`, select the
-Postgresql option when running the ``kinto init`` command.
 
 Also, the set of settings mentionned below might deserve some review or
 adjustments:
@@ -41,7 +91,7 @@ adjustments:
 .. note::
 
     For an exhaustive list of available settings and their default values,
-    refer to `the source code <https://github.com/mozilla-services/cliquet/blob/2.13.0/cliquet/__init__.py#L30-L93>`_.
+    refer to the *Cliquet* :github:`source code <mozilla-services/cliquet/blob/2.13.0/cliquet/__init__.py#L30-L93>`.
 
 
 By default, nobody can read buckets list. You can change that using:
@@ -174,32 +224,6 @@ A `Sentry <https://getsentry.com>`_ logger is also enabled.
     [formatter_heka]
     format = %(message)s
 
-
-PostgreSQL setup
-----------------
-
-In production, it is wise to run the application with a dedicated database and
-user.
-
-::
-
-    postgres=# CREATE USER prod;
-    postgres=# CREATE DATABASE prod OWNER prod;
-    CREATE DATABASE
-
-
-Once storage and cache are modified in ``.ini``, the tables need to be created
-with the `cliquet` command-line tool:
-
-.. code-block :: bash
-
-    $ kinto --ini production.ini migrate
-
-.. note::
-
-    Alternatively the SQL initialization files can be found in the
-    *Cliquet* source code (``cliquet/cache/postgresql/schema.sql`` and
-    ``cliquet/storage/postgresql/schema.sql``).
 
 
 Run the Kinto application

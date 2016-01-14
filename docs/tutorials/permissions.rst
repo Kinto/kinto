@@ -1,7 +1,7 @@
 .. _tutorial-permissions:
 
-Step by step permissions tutorial
-#################################
+Step by step permissions API tutorial
+#####################################
 
 Let's use one of the :ref:`application examples <permissions-setups-blog>`: using *Kinto* as
 a storage API for a blog application.

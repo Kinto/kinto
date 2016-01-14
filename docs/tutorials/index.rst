@@ -6,8 +6,8 @@ Tutorials
 .. toctree::
    :maxdepth: 2
 
-   run-kinto
    first-steps
+   javascript
    permissions
    permission-setups
    app-examples
