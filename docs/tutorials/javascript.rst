@@ -6,20 +6,22 @@ Kinto for JavaScript applications
 Kinto is particularly relevant for the Web, thus it is very probable that you'll
 want to interact with the server using JavaScript.
 
-This tutorial presents the basics, but you can look at
+This tutorial presents the basics, but you can also look at
 :ref:`the applications examples <app-examples>`, most of them use JavaScript.
 
 
-Offline and synchronization
+Offline and synchronisation
 ---------------------------
 
 We built :github:`kinto.js <Kinto/kinto.js>`, a JavaScript client dedicated
-to synchronizing remote records with a local database.
+to synchronising remote records with a local database. That's what we call
+*offline first*: the data is also available locally, and can be synced when
+a connection is available.
 
 The best way to start is :rtd:`to follow the dedicated tutorial <kintojs>` !
 
 Using an offline-first client is not mandatory, see the following section for
-a tutorial using «*vanilla JS*».
+a tutorial using raw requests to the server.
 
 
 Using the standard Fetch API
@@ -101,7 +103,7 @@ And of course retrieve them:
       });
 
 In order to :ref:`poll for changes <api-synchronisation>`, store the last
-synchronization timestamp, and reuse it:
+synchronisation timestamp, and reuse it:
 
 
 .. code-block:: javascript
