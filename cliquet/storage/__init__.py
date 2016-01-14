@@ -2,7 +2,7 @@ import random
 from collections import namedtuple
 from pyramid.settings import asbool
 
-from cliquet import logger
+from cliquet.logs import logger
 from . import generators
 
 
