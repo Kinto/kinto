@@ -2,8 +2,8 @@ from __future__ import print_function
 import argparse
 import os
 import sys
-from subprocess import call
 
+import pip
 from six.moves import input
 from cliquet.scripts import cliquet
 from pyramid.scripts import pserve
@@ -72,10 +72,7 @@ def main(args=None):
             try:
                 import psycopg2  # NOQA
             except ImportError:
-                ret = call('pip install cliquet[postgresql]'.split())
-                if ret > 0:
-                    print(("\n\nAn error occured, please refer to "
-                           "Kinto troubleshooting documentation."))
+                pip.main(['install', "cliquet[postgresql]"])
 
     elif args['which'] == 'migrate':
         env = bootstrap(config_file)
