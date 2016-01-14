@@ -191,7 +191,7 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         cliquet_logs.structlog.reset_defaults()
 
     def test_request_summary_is_sent_as_info(self):
-        with mock.patch('cliquet.logger.info') as mocked:
+        with mock.patch('cliquet.logs.logger.info') as mocked:
             self.app.get('/')
             mocked.assert_called_with('request.summary')
 
@@ -258,9 +258,23 @@ class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
         event_dict = logger_context()
         self.assertEqual(event_dict['batch_size'], 1)
 
-    def test_subrequest_summaries_are_logged(self):
-        # XXX: how ?
-        pass
+    def test_subrequests_are_not_logged_as_request_summary(self):
+        with mock.patch('cliquet.logs.logger.info') as log_patched:
+            body = {
+                'requests': [{'path': '/unknown1'}, {'path': '/unknown2'}]
+            }
+            self.app.post_json('/batch', body)
+            self.assertEqual(log_patched.call_count, 1)
+            log_patched.assert_called_with('request.summary')
+
+    def test_subrequests_are_logged_as_subrequest_summary(self):
+        with mock.patch('cliquet.logger.new') as log_patched:
+            body = {
+                'requests': [{'path': '/unknown1'}, {'path': '/unknown2'}]
+            }
+            self.app.post_json('/batch', body)
+            self.assertEqual(log_patched().info.call_count, 2)
+            log_patched().info.assert_called_with('subrequest.summary')
 
 
 class ResourceInfoTest(BaseWebTest, unittest.TestCase):

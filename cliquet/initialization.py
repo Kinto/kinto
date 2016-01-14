@@ -370,7 +370,8 @@ def setup_logging(config):
                     t=duration)
 
         # Ouput application request summary.
-        logger.info('request.summary')
+        if not hasattr(request, 'parent'):
+            logger.info('request.summary')
 
     config.add_subscriber(on_new_response, NewResponse)
 
