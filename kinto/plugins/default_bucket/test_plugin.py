@@ -9,9 +9,9 @@ from cliquet.storage import exceptions as storage_exceptions
 from cliquet.tests.support import FormattedErrorMixin
 from cliquet.utils import hmac_digest
 
-from kinto.views.buckets import default_bucket
-from .support import (BaseWebTest, unittest, get_user_headers,
-                      MINIMALIST_RECORD)
+from kinto.plugins.default_bucket import default_bucket
+from kinto.tests.support import (BaseWebTest, unittest, get_user_headers,
+                                 MINIMALIST_RECORD)
 
 
 class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
@@ -189,8 +189,8 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
                               errno=ERRORS.INVALID_PARAMETERS,
                               message='Yop')
 
-        with mock.patch('kinto.views.buckets.create_bucket'):
-            with mock.patch('kinto.views.buckets.create_collection'):
+        with mock.patch('kinto.plugins.default_bucket.create_bucket'):
+            with mock.patch('kinto.plugins.default_bucket.create_collection'):
                 request.invoke_subrequest.side_effect = response
                 resp = default_bucket(request)
                 self.assertEqual(resp.body, response.body)
