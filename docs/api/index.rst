@@ -11,6 +11,12 @@ API
 Changelog
 ---------
 
+1.2 (2016-01-15)
+''''''''''''''''
+
+- Fields can be filtered in GET requests using ``_fields=f1,f2`` in querystring
+
+
 1.1 (2015-12-01)
 ''''''''''''''''
 
