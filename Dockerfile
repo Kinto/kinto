@@ -10,8 +10,8 @@ ENV KINTO_INI /etc/kinto/kinto.ini
 # dependencies all at once to build a small image.
 RUN \
     apt-get update; \
-    apt-get install -y python3 libpq5; \
-    apt-get install -y build-essential git python3-dev python3-setuptools libssl-dev libffi-dev libpq-dev; \
+    apt-get install -y python3 python3-setuptools libpq5; \
+    apt-get install -y build-essential git python3-dev libssl-dev libffi-dev libpq-dev; \
     easy_install3 pip; \
     pip install cliquet[postgresql,monitoring]; \
     pip install -e /code; \
