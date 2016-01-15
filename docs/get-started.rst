@@ -79,7 +79,7 @@ with a *PostgreSQL* container.
 
 ::
 
-    wget http://kinto-storage.org/docker-compose.yml
+    wget https://raw.githubusercontent.com/Kinto/kinto/master/docker-compose.yml
     sudo docker-compose up
 
 
