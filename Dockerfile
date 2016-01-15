@@ -15,6 +15,7 @@ RUN \
     easy_install3 pip; \
     pip install cliquet[postgresql,monitoring]; \
     pip install -e /code; \
+    pip install cliquet-pusher cliquet-fxa kinto-attachment ; \
     kinto --ini $KINTO_INI --backend=memory init; \
     apt-get remove -y -qq build-essential git python3-dev libssl-dev libffi-dev libpq-dev; \
     apt-get autoremove -y -qq; \
