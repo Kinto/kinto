@@ -146,8 +146,12 @@ def get_user_info(request):
 
 def includeme(config):
     # Redirect default to the right endpoint
-    config.add_view(default_bucket, route_name='default_bucket', permission=NO_PERMISSION_REQUIRED)
-    config.add_view(default_bucket, route_name='default_bucket_collection', permission=NO_PERMISSION_REQUIRED)
+    config.add_view(default_bucket,
+                    route_name='default_bucket',
+                    permission=NO_PERMISSION_REQUIRED)
+    config.add_view(default_bucket,
+                    route_name='default_bucket_collection',
+                    permission=NO_PERMISSION_REQUIRED)
 
     config.add_route('default_bucket_collection',
                      '/buckets/default/{subpath:.*}')

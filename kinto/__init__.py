@@ -2,8 +2,6 @@ import pkg_resources
 import logging
 
 import cliquet
-import uuid
-import six
 from pyramid.config import Configurator
 from pyramid.settings import asbool
 from pyramid.security import Authenticated
