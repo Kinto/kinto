@@ -86,12 +86,22 @@ class InitializationTest(unittest.TestCase):
                            default_settings=defaults)
         self.assertEqual(config.registry.settings['paginate_by'], 5)
 
-    def test_backend_are_not_instantiated_by_default(self):
+    def test_backends_are_not_instantiated_by_default(self):
         config = Configurator(settings=cliquet.DEFAULT_SETTINGS)
         cliquet.initialize(config, '0.0.1', 'project_name')
         self.assertFalse(hasattr(config.registry, 'storage'))
         self.assertFalse(hasattr(config.registry, 'cache'))
         self.assertFalse(hasattr(config.registry, 'permission'))
+
+    def test_backends_type_is_checked_when_instantiated(self):
+        def config_fails(settings):
+            config = Configurator(settings=settings)
+            with self.assertRaises(ConfigurationError):
+                cliquet.initialize(config, '0.0.1', 'project_name')
+
+        config_fails({'cliquet.storage_backend': 'cliquet.cache.memory'})
+        config_fails({'cliquet.cache_backend': 'cliquet.storage.memory'})
+        config_fails({'cliquet.permission_backend': 'cliquet.storage.memory'})
 
     def test_environment_values_override_configuration(self):
         import os

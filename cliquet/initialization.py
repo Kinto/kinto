@@ -20,11 +20,11 @@ import cliquet
 from cliquet import errors
 from cliquet import utils
 from cliquet import statsd
+from cliquet import cache
+from cliquet import storage
+from cliquet import permission
 from cliquet.logs import logger
-from cliquet.cache import heartbeat as cache_heartbeat
 from cliquet.events import ResourceRead, ResourceChanged, ACTIONS
-from cliquet.permission import heartbeat as permission_heartbeat
-from cliquet.storage import heartbeat as storage_heartbeat
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
@@ -215,40 +215,54 @@ def _end_of_life_tween_factory(handler, registry):
 
 def setup_storage(config):
     settings = config.get_settings()
-    storage_class = settings['storage_backend']
-    if not storage_class:
-        return
 
-    storage = config.maybe_dotted(storage_class)
-    config.registry.storage = storage.load_from_config(config)
-    config.registry.heartbeats['storage'] = storage_heartbeat(
-        config.registry.storage)
     id_generator = config.maybe_dotted(settings['id_generator'])
     config.registry.id_generator = id_generator()
+
+    storage_mod = settings['storage_backend']
+    if not storage_mod:
+        return
+
+    storage_mod = config.maybe_dotted(storage_mod)
+    backend = storage_mod.load_from_config(config)
+    if not isinstance(backend, storage.StorageBase):
+        raise ConfigurationError("Invalid storage backend: %s" % backend)
+    config.registry.storage = backend
+
+    heartbeat = storage.heartbeat(backend)
+    config.registry.heartbeats['storage'] = heartbeat
 
 
 def setup_permission(config):
     settings = config.get_settings()
-    permission_class = settings['permission_backend']
-    if not permission_class:
+    permission_mod = settings['permission_backend']
+    if not permission_mod:
         return
 
-    permission = config.maybe_dotted(permission_class)
-    config.registry.permission = permission.load_from_config(config)
-    config.registry.heartbeats['permission'] = permission_heartbeat(
-        config.registry.permission)
+    permission_mod = config.maybe_dotted(permission_mod)
+    backend = permission_mod.load_from_config(config)
+    if not isinstance(backend, permission.PermissionBase):
+        raise ConfigurationError("Invalid permission backend: %s" % backend)
+    config.registry.permission = backend
+
+    heartbeat = permission.heartbeat(backend)
+    config.registry.heartbeats['permission'] = heartbeat
 
 
 def setup_cache(config):
     settings = config.get_settings()
-    cache_class = settings['cache_backend']
-    if not cache_class:
+    cache_mod = settings['cache_backend']
+    if not cache_mod:
         return
 
-    cache = config.maybe_dotted(cache_class)
-    config.registry.cache = cache.load_from_config(config)
-    config.registry.heartbeats['cache'] = cache_heartbeat(
-        config.registry.cache)
+    cache_mod = config.maybe_dotted(cache_mod)
+    backend = cache_mod.load_from_config(config)
+    if not isinstance(backend, cache.CacheBase):
+        raise ConfigurationError("Invalid cache backend: %s" % backend)
+    config.registry.cache = backend
+
+    heartbeat = cache.heartbeat(backend)
+    config.registry.heartbeats['cache'] = heartbeat
 
 
 def setup_statsd(config):
