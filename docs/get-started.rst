@@ -17,8 +17,20 @@ Mozilla demo server
 
 A Kinto instance is running at https://kinto.dev.mozaws.net/v1/
 
-It should be enough to get started, but the records are flushed every day
-at 7:00 AM UTC.
+It should be enough to get started, but the records are flushed every
+day at 7:00 AM UTC.
+
+
+Deploy an instance on Heroku
+============================
+
+You want to get started with a working online Kinto server right now?
+
+.. image:: https://www.herokucdn.com/deploy/button.png
+   :target: https://dashboard.heroku.com/new?button-url=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku&template=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku>
+   :alt: Deploy on Heroku
+
+You have got a free plan for up to 10000 rows.
 
 
 .. _run-kinto-docker:
@@ -131,6 +143,7 @@ Then install the package using the default configuration:
 
     pip install kinto
     kinto init
+    kinto migrate
     kinto start
 
 The server should now be running on http://localhost:8888
@@ -152,7 +165,6 @@ Make sure you have the system requirements listed in the Python package section.
 
     git clone https://github.com/Kinto/kinto.git
     cd kinto/
-
     make serve
 
 
