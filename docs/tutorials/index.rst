@@ -4,10 +4,12 @@ Tutorials
 #########
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    first-steps
    javascript
+   notifications-websockets
+   notifications-custom
    permissions
    permission-setups
    app-examples

@@ -108,8 +108,8 @@ Key features
 | <https://kintojs.readthedocs.org>`_         | <Kinto/kinto.py>`                           |
 +---------------------------------------------+---------------------------------------------+
 | |logo-attachment|                           | |logo-livesync|                             |
-| :github:`File attachments on records        | Live :github:`Push notifications            |
-| <Kinto/kinto-attachment>`                   | <leplatrem/cliquet-pusher>`                 |
+| :github:`File attachments on records        | Live :ref:`Push notifications               |
+| <Kinto/kinto-attachment>`                   | <tutorials>`                                |
 +---------------------------------------------+---------------------------------------------+
 | |logo-boilerplate|                          | |logo-demos|                                |
 | :github:`Kinto+React boilerplate            | :ref:`Example applications <app-examples>`  |
@@ -149,6 +149,21 @@ of objects.
 
     *Kinto* synchronisation was designed and built by the `Mozilla Firefox Sync
     <https://en.wikipedia.org/wiki/Firefox_Sync>`_ team.
+
+
+.. _overview-notifications:
+
+Notifications
+=============
+
+*Kinto* can execute some code when a particular event occurs.
+For example, when a record is created or updated in a particular collection.
+
+It can send a notification to clients using `WebSockets <https://en.wikipedia.org/wiki/WebSocket>`_
+or fill a queue of messages in `Redis <http://redis.io/>`_ or execute any custom code of your choice,
+like for sending emails or pinging a third-party.
+
+See :ref:`our tutorials <tutorials>`!
 
 
 .. _comparison:
