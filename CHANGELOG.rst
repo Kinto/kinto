@@ -14,14 +14,18 @@ This document describes changes between each past release.
 **New features**
 
 - Add ability to filter fields from querystring (#601, thanks @MrChoclate)
+- Check backends configuration at startup (fixes Kinto/kinto#228)
 
 **Bug fixes**
 
 - Do not overwrite original error message and details in batch requests (fixes #617)
+- Fix plugins not being able to use custom requests methods (#618)
+- Do not log batch subrequests twice (fixes #450, fixes Kinto/kinto#264)
 
 **Internal changes**
 
 - Refactor filtering of events to use Pyramid subscribers predicates (fixes #609)
+- Refactor logger imports (fixes #102)
 
 
 2.13.1 (2015-12-15)
