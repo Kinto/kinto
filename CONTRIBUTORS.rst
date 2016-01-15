@@ -4,6 +4,7 @@ Contributors
 * Alexis Metaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
 * Balthazar Rouberol <br@imap.cc>
+* choclate <choclatefr@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>
 * Éric Lemoine <eric.lemoine@gmail.com>
 * FooBarQuaxx
