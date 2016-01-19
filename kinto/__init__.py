@@ -42,13 +42,17 @@ def main(global_config, config=None, **settings):
                        version=__version__,
                        default_settings=DEFAULT_SETTINGS)
 
-    config.include('kinto.plugins.default_bucket')
+    settings = config.get_settings()
+
+    # In Kinto API 1.x, a default bucket is available.
+    # Force its inclusion if not specified in settings.
+    if 'kinto.plugins.default_bucket' not in settings['includes']:
+        config.include('kinto.plugins.default_bucket')
 
     # Retro-compatibility with first Kinto clients.
     config.registry.public_settings.add('cliquet.batch_max_requests')
 
     # Scan Kinto views.
-    settings = config.get_settings()
     kwargs = {}
     flush_enabled = asbool(settings.get('flush_endpoint_enabled'))
     if not flush_enabled:
