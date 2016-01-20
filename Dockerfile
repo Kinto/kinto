@@ -2,8 +2,7 @@
 FROM debian:sid
 MAINTAINER Storage Team irc://irc.freenode.net/#kinto
 
-ADD kinto /code/kinto
-ADD CHANGELOG.rst README.rst CONTRIBUTORS.rst setup.py MANIFEST.in /code/
+ADD . /code
 ENV KINTO_INI /etc/kinto/kinto.ini
 
 # Install build dependencies, build the virtualenv and remove build
