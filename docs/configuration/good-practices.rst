@@ -172,22 +172,6 @@ Pooling
 * automatic refresh of connections (TODO in Kinto)
 
 
-Sharding
---------
-
-* Use buckets+collections or userid to shard ?
-
-Via pgPool:
-
-* Flexible
-* Tedious to configure
-
-Via Kinto code:
-
-* not implemented yet
-* battery-included (via INI configuration)
-
-
 Using Amazon RDS
 ----------------
 
@@ -221,3 +205,53 @@ Scheduled down time
 ===================
 
 * Change Backoff setting in application configuration
+
+
+
+
+About sharding
+==============
+
+Sharding is horizontal scaling, where data is partitionned.
+
+A client is automatically assigned a particular node, depending for example:
+
+* on request authorization header
+* on bucket or collection id
+
+Sharding configuration from Kinto settings is on the roadmap but not implemented yet
+ [#]_.
+
+However it is already possible to set it up manually.
+
+
+.. [#] http://www.craigkerstiens.com/2012/11/30/sharding-your-database/
+
+
+At the HTTP level
+-----------------
+
+Using a third-party service that assigns a node to a particular user (e.g. Token Server in Sync).
+
+This has the advantage to be very flexible: new instances can be added and this service
+is in charge of partitionning.
+
+
+At the load balancer level
+--------------------------
+
+The load balancer can make sure to route requests to a particular node.
+
+It is basically the same idea as the previous one except that the server URL always remains the same.
+
+
+At the storage level
+--------------------
+
+PostgreSQL and Redis have sharding support.
+
+The right storage instance is chosen based on some elements of the data query
+(most probably bucket or collection id) and partionning is performed automatically.
+
+See `pgPool <http://www.pgpool.net/mediawiki/index.php/Main_Page>`_ or
+:github:`pgShard <citusdata/pg_shard>`.
