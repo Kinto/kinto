@@ -13,3 +13,4 @@ docs/cliquet_glossary.rst
 .cache/
 *.un~
 config/*.ini
+dist
