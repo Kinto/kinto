@@ -13,3 +13,4 @@ Tutorials
    permissions
    permission-setups
    app-examples
+   write-plugin
