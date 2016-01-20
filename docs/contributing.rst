@@ -164,11 +164,6 @@ Run a particular type of action instead of random:
 their respective randomness.*)
 
 
-Troubleshooting
-===============
-
-*Coming soon* !
-
 How to release
 ==============
 
