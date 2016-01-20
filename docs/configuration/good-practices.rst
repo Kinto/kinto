@@ -237,6 +237,12 @@ This has the advantage to be very flexible: new instances can be added and
 this service is in charge of partitioning, downside being maintaining a new
 service for it.
 
+The `tokenserver <https://github.com/mozilla-services/tokenserver>`_ is a good
+example of how sharding is done in Firefox Sync.
+
+The first time they connect, clients are asking the token server for a node, and
+then they talk directly with the node itself, without going trough the token
+server anymore, until a problem arises.
 
 At the load balancer level
 --------------------------
