@@ -212,18 +212,17 @@ Scheduled down time
 About sharding
 ==============
 
-Sharding is horizontal scaling, where data is partitionned.
+`Sharding <https://en.wikipedia.org/wiki/Shard_%28database_architecture%29>`_ is
+horizontal scaling, where the data is partitioned in different *shards*.
 
-A client is automatically assigned a particular node, depending for example:
+A client is then automatically assigned a particular shard, depending for
+example:
 
-* on request authorization header
-* on bucket or collection id
+* on the request authorization headers
+* on the bucket or collection id
 
-Sharding configuration from Kinto settings is on the roadmap but not implemented yet
- [#]_.
-
-However it is already possible to set it up manually.
-
+It is currently not possible to setup the sharding directly from the kinto
+settings, however it is already possible to set it up manually. [#]_
 
 .. [#] http://www.craigkerstiens.com/2012/11/30/sharding-your-database/
 
@@ -231,27 +230,35 @@ However it is already possible to set it up manually.
 At the HTTP level
 -----------------
 
-Using a third-party service that assigns a node to a particular user (e.g. Token Server in Sync).
+It is possible to handle the sharding at the HTTP level. For instance, using
+a third-party service that assigns a node to a particular user.
 
-This has the advantage to be very flexible: new instances can be added and this service
-is in charge of partitionning.
+This has the advantage to be very flexible: new instances can be added and
+this service is in charge of partitioning, downside being maintaining a new
+service for it.
 
 
 At the load balancer level
 --------------------------
 
-The load balancer can make sure to route requests to a particular node.
+The load balancer is the piece of software that takes all the requests upfront
+and route them to a different node, to make sure the load is equivalent on each
+nodes.
 
-It is basically the same idea as the previous one except that the server URL always remains the same.
+It is possible to have the load balancer routing requests to a particular node.
 
+It is basically the same idea as the previous one except that the server URL
+always remains the same.
 
-At the storage level
---------------------
+At the database level
+----------------------
 
-PostgreSQL and Redis have sharding support.
+PostgreSQL and Redis have sharding support built-in.
 
-The right storage instance is chosen based on some elements of the data query
-(most probably bucket or collection id) and partionning is performed automatically.
+The right database node is chosen based on some elements of the data query
+(most probably bucket or collection id) and partionning is then performed
+automatically.
 
-See `pgPool <http://www.pgpool.net/mediawiki/index.php/Main_Page>`_ or
-:github:`pgShard <citusdata/pg_shard>`.
+As an example, see `pgPool <http://www.pgpool.net/mediawiki/index.php/Main_Page>`_
+or :github:`pgShard <citusdata/pg_shard>` for ways to shard a PostgreSQL
+database.
