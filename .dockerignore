@@ -1,0 +1,8 @@
+.git
+.tox
+.venv
+docs
+loadtests
+kinto/tests
+kinto.egg-info
+config
