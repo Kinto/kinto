@@ -43,6 +43,8 @@ Cheatsheet
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | **Collections**                                                                                                                                                   |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
+| `POST`   | :ref:`/buckets/(bucket_id)/collections <collection-post>`                                    | :ref:`Create a collection <collection-put>`             |
++----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `PUT`    | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-put>`                     | :ref:`Create or replace a collection <collection-put>`  |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `PATCH`  | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-patch>`                   | :ref:`Update a collection <collection-patch>`           |
@@ -57,7 +59,7 @@ Cheatsheet
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `GET`    | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records <records-get>`                | :ref:`Retrieve stored records <records-get>`            |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
-| `DELETE  | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records <records-delete>`             | :ref:`Delete stored records <records-delete>            |
+| `DELETE` | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records <records-delete>`             | :ref:`Delete stored records <records-delete>`           |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `PUT`    | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records/(record_id) <record-put>`     | :ref:`Replace a record <record-put>`                    |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
