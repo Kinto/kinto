@@ -7,7 +7,9 @@ This document describes changes between each past release.
 2.14.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Protocol**
+
+- Forward slashes (``/``) are not escaped anymore in JSON responses (ref #537)
 
 
 2.14.0 (2016-01-15)
