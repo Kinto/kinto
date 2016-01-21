@@ -16,7 +16,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
 
     def test_does_not_escape_forward_slashes(self):
         response = self.app.get('/')
-        self.assertNotIn('\\/', response.body)
+        self.assertNotIn('\\/', str(response.body))
 
     def test_do_not_returns_eos_if_empty_in_settings(self):
         response = self.app.get('/')

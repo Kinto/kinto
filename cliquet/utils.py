@@ -11,7 +11,7 @@ from binascii import hexlify
 from six.moves.urllib import parse as urlparse
 
 # ujson is not installable with pypy
-try:
+try:  # pragma: no cover
     import ujson as json  # NOQA
 
     def json_serializer(v, **kw):
