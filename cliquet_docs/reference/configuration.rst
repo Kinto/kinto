@@ -270,7 +270,7 @@ data in the ``queue`` Redis list.
 
     cliquet.event_listeners = redis
 
-    cliquet.event_listeners.redis.use = cliquet.events.redis
+    cliquet.event_listeners.redis.use = cliquet.listeners.redis
     cliquet.event_listeners.redis.url = redis://localhost:6379/0
     cliquet.event_listeners.redis.pool_size = 5
     cliquet.event_listeners.redis.listname = queue
