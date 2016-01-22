@@ -14,6 +14,10 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(response.json['project_docs'],
                          'https://cliquet.rtfd.org/')
 
+    def test_does_not_escape_forward_slashes(self):
+        response = self.app.get('/')
+        self.assertNotIn('\\/', str(response.body))
+
     def test_do_not_returns_eos_if_empty_in_settings(self):
         response = self.app.get('/')
         self.assertNotIn('eos', response.json)
