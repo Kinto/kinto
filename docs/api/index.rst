@@ -15,6 +15,7 @@ Changelog
 ''''''''''''''''
 
 - Fields can be filtered in GET requests using ``_fields=f1,f2`` in querystring
+- New collections can be created via ``POST`` requests
 
 
 1.1 (2015-12-01)

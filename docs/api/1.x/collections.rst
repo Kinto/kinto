@@ -26,10 +26,68 @@ A collection is a mapping with the following attribute:
     data from their personnal bucket, by sharing :ref:`its URL using the full ID <buckets-default-id>`.
 
 
-.. _collection-put:
+.. _collection-post:
 
 Creating a collection
 =====================
+
+.. http:post:: /buckets/(bucket_id)/collections
+
+   :synopsis: Creates a new collection. If ``id`` is not provided, it is automatically generated.
+
+   **Requires authentication**
+
+   **Example Request**
+
+   .. sourcecode:: bash
+
+      $ echo '{"data": {"id": "articles"}}' | http POST http://localhost:8888/v1/buckets/blog/collections --auth="bob:" --verbose
+
+   .. sourcecode:: http
+
+      POST /v1/buckets/blog/collections HTTP/1.1
+      Accept: application/json
+      Accept-Encoding: gzip, deflate
+      Authorization: Basic Ym9iOg==
+      Connection: keep-alive
+      Content-Length: 29
+      Content-Type: application/json
+      Host: 127.0.0.1:8888
+      User-Agent: HTTPie/0.9.2
+
+      {
+          "data": {
+              "id": "articles"
+          }
+      }
+
+   .. sourcecode:: http
+
+      HTTP/1.1 201 Created
+      Access-Control-Expose-Headers: Retry-After, Content-Length, Alert, Backoff
+      Content-Length: 159
+      Content-Type: application/json; charset=UTF-8
+      Date: Thu, 21 Jan 2016 00:41:25 GMT
+      Server: waitress
+
+      {
+          "data": {
+              "id": "articles",
+              "last_modified": 1453336885287
+          },
+          "permissions": {
+              "write": [
+                  "basicauth:797df8e4abfb8426cccaeba3b69109c9e8d09fcdfe264d5bba1eb2a239bcf832"
+              ]
+          }
+      }
+
+
+
+.. _collection-put:
+
+Replacing a collection
+======================
 
 
 .. http:put:: /buckets/(bucket_id)/collections/(collection_id)
