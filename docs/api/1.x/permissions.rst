@@ -35,7 +35,7 @@ of object.
 +----------------+------------------------+----------------------------------+
 | Object         | Associated permissions | Description                      |
 +================+========================+==================================+
-| Configuration  | ``buckets:create``     | Create new buckets.              |
+| Configuration  | ``bucket:create``      | Create new buckets.              |
 |                |                        |                                  |
 +----------------+------------------------+----------------------------------+
 | Bucket         | ``read``               | Read all objects in the bucket.  |
@@ -44,10 +44,10 @@ of object.
 |                | ``write``              | Write + read on the              |
 |                |                        | bucket and all children objects. |
 |                +------------------------+----------------------------------+
-|                | ``collections:create`` | Create new                       |
+|                | ``collection:create``  | Create new                       |
 |                |                        | collections in the bucket.       |
 |                +------------------------+----------------------------------+
-|                | ``groups:create``      | Create new groups                |
+|                | ``group:create``       | Create new groups                |
 |                |                        | in the bucket.                   |
 +----------------+------------------------+----------------------------------+
 | Collection     | ``read``               | Read all                         |
@@ -56,7 +56,7 @@ of object.
 |                | ``write``              | Write and read all objects in    |
 |                |                        | the collection.                  |
 |                +------------------------+----------------------------------+
-|                | ``records:create``     | Create new records               |
+|                | ``record:create``      | Create new records               |
 |                |                        | in the collection.               |
 +----------------+------------------------+----------------------------------+
 | Record         | ``read``               | Read the record.                 |
