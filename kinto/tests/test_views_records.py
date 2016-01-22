@@ -4,7 +4,7 @@ import mock
 from cliquet.utils import decode_header
 from .support import (BaseWebTest, unittest, MINIMALIST_RECORD,
                       MINIMALIST_GROUP, MINIMALIST_BUCKET,
-                      MINIMALIST_COLLECTION)
+                      MINIMALIST_COLLECTION, get_user_headers)
 
 
 class RecordsViewTest(BaseWebTest, unittest.TestCase):
@@ -182,3 +182,23 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         new_timestamp = int(
             decode_header(json.loads(collection_resp.headers['ETag'])))
         assert old_timestamp < new_timestamp
+
+    def test_record_is_accessible_by_group_member(self):
+        collection_resp = self.app.get(self.collection_url,
+                                       headers=self.headers)
+
+        self.create_group('beers', 'moderators', ['aegaas'])
+
+
+        record = MINIMALIST_RECORD.copy()
+        record['permissions'] = {'read': ['group:moderators']}
+        self.app.put_json(self.record_url,
+                          record,
+                          headers=self.headers,
+                          status=200)
+
+        # access as aegaas
+        headers = self.headers.update(get_user_headers('aegaas'))
+        self.app.get(self.record_url,
+                          headers=headers,
+                          status=200)
