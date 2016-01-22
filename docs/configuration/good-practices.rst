@@ -207,8 +207,6 @@ Scheduled down time
 * Change Backoff setting in application configuration
 
 
-
-
 About sharding
 ==============
 
@@ -242,16 +240,17 @@ example of how sharding is done in Firefox Sync.
 
 The first time they connect, clients are asking the token server for a node, and
 then they talk directly with the node itself, without going trough the token
-server anymore, until a problem arises.
+server anymore, unless the node becomes unreachable.
 
 At the load balancer level
 --------------------------
 
 The load balancer is the piece of software that takes all the requests upfront
-and route them to a different node, to make sure the load is equivalent on each
-nodes.
+and routes them to a different node, to make sure the load is equivalent on each
+node.
 
-It is possible to have the load balancer routing requests to a particular node.
+It is possible to have the load balancer forcing the routing of a particular
+request to a specific node.
 
 It is basically the same idea as the previous one except that the server URL
 always remains the same.
