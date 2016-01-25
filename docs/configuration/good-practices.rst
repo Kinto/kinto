@@ -172,22 +172,6 @@ Pooling
 * automatic refresh of connections (TODO in Kinto)
 
 
-Sharding
---------
-
-* Use buckets+collections or userid to shard ?
-
-Via pgPool:
-
-* Flexible
-* Tedious to configure
-
-Via Kinto code:
-
-* not implemented yet
-* battery-included (via INI configuration)
-
-
 Using Amazon RDS
 ----------------
 
@@ -221,3 +205,64 @@ Scheduled down time
 ===================
 
 * Change Backoff setting in application configuration
+
+
+About sharding
+==============
+
+`Sharding <https://en.wikipedia.org/wiki/Shard_%28database_architecture%29>`_ is
+horizontal scaling, where the data is partitioned in different *shards*.
+
+A client is automatically assigned a particular shard, depending for example:
+
+* on the request authorization headers
+* on the bucket or collection id
+
+It is currently not possible to setup the sharding directly from the kinto
+settings, however it is already possible to set it up manually. [#]_
+
+.. [#] http://www.craigkerstiens.com/2012/11/30/sharding-your-database/
+
+
+At the HTTP level
+-----------------
+
+It is possible to handle the sharding at the HTTP level. For instance, using
+a third-party service that assigns a node to a particular user.
+
+This has the advantage to be very flexible: new instances can be added and
+this service is in charge of partitioning, downside being maintaining a new
+service for it.
+
+The `tokenserver <https://github.com/mozilla-services/tokenserver>`_ is a good
+example of how sharding is done in Firefox Sync.
+
+The first time they connect, clients are asking the token server for a node, and
+then they talk directly with the node itself, without going through the token
+server anymore, unless the node becomes unreachable.
+
+At the load balancer level
+--------------------------
+
+The load balancer is the piece of software that takes all the requests upfront
+and routes them to a different node, to make sure the load is equivalent on each
+node.
+
+It is possible to have the load balancer forcing the routing of a particular
+request to a specific node.
+
+It is basically the same idea as the previous one except that the server URL
+always remains the same.
+
+At the database level
+----------------------
+
+PostgreSQL and Redis have sharding support built-in.
+
+The right database node is chosen based on some elements of the data query
+(most probably bucket or collection id) and partionning is then performed
+automatically.
+
+As an example, see `pgPool <http://www.pgpool.net/mediawiki/index.php/Main_Page>`_
+or :github:`pgShard <citusdata/pg_shard>` for ways to shard a PostgreSQL
+database.
