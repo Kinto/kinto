@@ -213,8 +213,7 @@ About sharding
 `Sharding <https://en.wikipedia.org/wiki/Shard_%28database_architecture%29>`_ is
 horizontal scaling, where the data is partitioned in different *shards*.
 
-A client is then automatically assigned a particular shard, depending for
-example:
+A client is automatically assigned a particular shard, depending for example:
 
 * on the request authorization headers
 * on the bucket or collection id
@@ -239,7 +238,7 @@ The `tokenserver <https://github.com/mozilla-services/tokenserver>`_ is a good
 example of how sharding is done in Firefox Sync.
 
 The first time they connect, clients are asking the token server for a node, and
-then they talk directly with the node itself, without going trough the token
+then they talk directly with the node itself, without going through the token
 server anymore, unless the node becomes unreachable.
 
 At the load balancer level
