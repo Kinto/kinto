@@ -184,21 +184,20 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         assert old_timestamp < new_timestamp
 
     def test_record_is_accessible_by_group_member(self):
-        collection_resp = self.app.get(self.collection_url,
-                                       headers=self.headers)
-
-        self.create_group('beers', 'moderators', ['aegaas'])
-
-
+        self.create_group('beers', 'brewers', ['aaron'])
         record = MINIMALIST_RECORD.copy()
-        record['permissions'] = {'read': ['group:moderators']}
+        record['permissions'] = {'read': ['group:brewers']}
         self.app.put_json(self.record_url,
                           record,
                           headers=self.headers,
                           status=200)
+        # access as aaron
+        self.aaron_headers = self.headers.copy()
+        self.aaron_headers.update(**get_user_headers('aaron'))
 
-        # access as aegaas
-        headers = self.headers.update(get_user_headers('aegaas'))
+        self.app.get('/',
+                     headers=self.aaron_headers,
+                     status=200)
         self.app.get(self.record_url,
-                          headers=headers,
-                          status=200)
+                     headers=self.aaron_headers,
+                     status=200)
