@@ -1,7 +1,7 @@
 .. _tutorial-first-steps:
 
-First steps with Kinto
-######################
+First steps with Kinto HTTP API
+###############################
 
 There are actually two kinds of applications where *Kinto* is
 particulary relevant as a storage backend:

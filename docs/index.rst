@@ -14,6 +14,7 @@ Table of content
 
    overview
    concepts
+   get-started
    tutorials/index
    configuration/index
    api/index

@@ -6,7 +6,7 @@ Settings
 .. image:: /images/overview-features.png
     :align: center
 
-If you are looking for installation instructions, please refer to :ref:`installation`.
+If you are looking for installation instructions, please refer to :ref:`get-started`.
 
 Kinto is built to be highly configurable. As a result, the related
 configuration can be verbose, but don't worry, all configuration flags are
@@ -42,30 +42,18 @@ Feature settings
 +-------------------------------------------------+--------------+--------------------------------------------------------------------------+
 | kinto.paginate_by                               | ``None``     | The maximum number of items to include on a response before enabling     |
 |                                                 |              | pagination. If set to ``None``, no pagination will be used.              |
-|                                                 |              | It is recommended to set-up pagination. If not defined, a collection     |
-|                                                 |              | connot contain more elements than defined by the                         |
+|                                                 |              | It is recommended to set-up pagination if the server is under high load. |
+|                                                 |              | If not defined, a collection response cannot contain                     |
+|                                                 |              | more elements than defined by the                                        |
 |                                                 |              | ``kinto.storage_max_fetch_size`` setting.                                |
 +-------------------------------------------------+--------------+--------------------------------------------------------------------------+
 | kinto.id_generator                              | ``UUID4``    | The Python *dotted* location of the generator class that should be used  |
-|                                                 |              | to generate identifiers on a POST on a collection endpoint.              |
+|                                                 |              | to generate identifiers on a POST on a records endpoint.                 |
 +-------------------------------------------------+--------------+--------------------------------------------------------------------------+
 | kinto.experimental_collection_schema_validation | ``False``    | *Experimental*: Allow definition of JSON schema at the collection level, |
 |                                                 |              | in order to :ref:`validate submitted records <collection-json-schema>`.  |
 |                                                 |              | It is marked as experimental because the API might subjet to changes.    |
 +-------------------------------------------------+--------------+--------------------------------------------------------------------------+
-
-Example:
-
-.. code-block:: ini
-
-    # Limit number of batch operations per request
-    # kinto.batch_max_requests = 25
-
-    # Force pagination *(recommended)*
-    # kinto.paginate_by = 200
-
-    # Custom record ID generator class
-    # kinto.id_generator = cliquet.storage.generators.UUID4
 
 
 .. _configuration-backends:
@@ -73,11 +61,10 @@ Example:
 Backends
 ========
 
-While there are a number of useful settings to assist in configuring the
-backend, the most important are ``{backend_type}_backend`` and ``{backend_type}_url``,
-where ``backend_type`` is one of "storage", "permission" or "cache".
+Kinto relies on three types of backends: storage, cache and permission. The
+settings names have a different prefix for each.
 
-Supported backends are currently PostgreSQL, Redis, and Memory.
+For each of them, the supported services are currently PostgreSQL, Redis, and Memory.
 
 Storage
 :::::::
@@ -151,7 +138,7 @@ Cache
     kinto.cache_url = redis://localhost:6379/0
 
     # Control number of pooled connections
-    # kinto.storage_pool_size = 50
+    # kinto.cache_pool_size = 50
 
 Permissions
 :::::::::::
@@ -209,19 +196,13 @@ Scheme, host, and port
 By default, Kinto relies on WSGI for underlying details like host, port, or
 request scheme. Tuning these settings may be necessary when the application
 runs behind proxies or load balancers, but most implementations
-(such as uWSGI) provide adequate configuration details.
+(such as uWSGI) provide adequate values automatically.
 
 That said, if ever these items need to be controlled at the application layer,
 the following settings are available:
 
-.. code-block :: ini
-
-   # kinto.http_scheme = https
-   # kinto.http_host = production.server:7777
-
-
 Check the behaviour of the server with the ``url`` value returned in :ref:`the
-hello view <batch>`.
+hello view <api-utilities>`.
 
 +-------------------+----------+--------------------------------------------------------------------------+
 | Setting name      | Default  | What does it do?                                                         |
@@ -233,8 +214,14 @@ hello view <batch>`.
 |                   |          | HTTP scheme is read from the HTTP headers or WSGI environment.           |
 +-------------------+----------+--------------------------------------------------------------------------+
 
-Logging
-=======
+.. code-block :: ini
+
+   # kinto.http_scheme = https
+   # kinto.http_host = production.server.com:7777
+
+
+Logging and Monitoring
+======================
 
 +------------------------+-------------------------------------+--------------------------------------------------------------------------+
 | Setting name           | Default                             | What does it do?                                                         |
@@ -338,6 +325,7 @@ New Relic can be enabled (disabled by default):
     kinto.newrelic_config = /location/of/newrelic.ini
     kinto.newrelic_env = prod
 
+
 .. _configuration-authentication:
 
 Authentication
@@ -348,28 +336,20 @@ By default, *Kinto* relies on *Basic Auth* to authenticate users.
 User registration is not necessary. A unique user idenfier will be created
 for each ``username:password`` pair.
 
-*Kinto* is compatible with *Firefox Accounts*. To install and
-configure it refer to their documentation at :github:`mozilla-services/cliquet-fxa`.
+*Kinto* is compatible with any third-party authentication service.
 
 +--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
 | Setting name                   | Default                                               | What does it do?                                                         |
 +================================+=======================================================+==========================================================================+
-| kinto.userid_hmac_secret       | ``''``                                                | The secret used by the server to derive the shareable user ID. This      |
-|                                |                                                       | value should be unique to each instance and kept secret. By              |
-|                                |                                                       | default, Kinto doesn't define a secret for you, and won't start unless   |
-|                                |                                                       | you generate one.                                                        |
+| kinto.userid_hmac_secret       | ``''``                                                | The secret used to create the user ID from a ``username:password`` pair. |
+|                                |                                                       | This value should be unique to each instance and kept secret.            |
 +--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
-| multiauth.policies             | ``basicauth``                                         | `MultiAuthenticationPolicy <https://github.com/mozilla-                  |
-|                                |                                                       | services/pyramid_multiauth>`_ is a Pyramid authentication policy that    |
-|                                |                                                       | proxies to a stack of other IAuthenticationPolicy objects, in order to   |
-|                                |                                                       | provide a combined auth solution from individual pieces. Simply pass it  |
-|                                |                                                       | a list of policies that should be tried in order.                        |
+| multiauth.policies             | ``basicauth``                                         | The list of authentication policies aliases that are enabled.            |
+|                                |                                                       | Each alias is configuration using dedicated settings as explained        |
+|                                |                                                       | below.                                                                   |
 +--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
-| multiauth.policy.basicauth.use | ``kinto.authentication.BasicAuthAuthenticationPolicy``| Python *dotted* path to the authentication policy to use for basicauth.  |
-|                                |                                                       | By default, any `login:password` pair will be accepted, meaning          |
-|                                |                                                       | that no account creation is required.                                    |
-+--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
-| multiauth.authorization_policy | ``kinto.authorization.AuthorizationPolicy``           | Python *dotted* path the authorisation policy to use for basicAuth.      |
+| multiauth.authorization_policy | ``kinto.authorization.AuthorizationPolicy``           | Python *dotted* path the authorisation policy to use for the permission  |
+|                                |                                                       | mecanism.                                                                |
 +--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
 
 
@@ -406,7 +386,8 @@ Basic Auth
 
     multiauth.policies = basicauth
 
-By default an internal *Basic Auth* policy is used.
+By default an internal *Basic Auth* policy is used, where any `login:password` pair
+will be accepted, meaning that no account creation is required.
 
 In order to replace it by another one:
 
@@ -434,6 +415,48 @@ values for OAuth2 client settings.
 See :github:`mozilla-services/cliquet-fxa`.
 
 
+.. _configuring-notifications:
+
+Notifications
+=============
+
+*Kinto* has a notification system, and the event listeners are configured using
+the *event_handlers* setting, which takes a list of aliases.
+
+In the example below, the Redis listener is activated and will send events
+data in the ``queue`` Redis list.
+
+.. code-block:: ini
+
+    cliquet.event_listeners = redis
+
+    cliquet.event_listeners.redis.use = cliquet.events.redis
+    cliquet.event_listeners.redis.url = redis://localhost:6379/0
+    cliquet.event_listeners.redis.pool_size = 5
+    cliquet.event_listeners.redis.listname = queue
+
+Filtering
+:::::::::
+
+It is possible to filter events by action and/or types of object. By
+default actions ``create``, ``update`` and ``delete`` are notified
+for every kinds of objects.
+
+.. code-block:: ini
+
+    cliquet.event_listeners.redis.actions = create
+    cliquet.event_listeners.redis.resources = bucket collection
+
+Third-party
+:::::::::::
+
+Enabling push notifications to clients consists in enabling an event listener
+that will be in charge of forwarding events data to remote clients.
+
+A Kinto plugin was made using the *Pusher* (commercial) service.
+See :github:`leplatrem/cliquet-pusher`.
+
+
 Cross Origin requests (CORS)
 ============================
 
@@ -446,6 +469,7 @@ Kinto supports `CORS <http://www.w3.org/TR/cors/>`_ out of the box. Use the
 | kinto.cors_origins | ``*``   | This List of CORS origins to support on all endpoints. By default allow  |
 |                    |         | all cross origin requests.                                               |
 +--------------------+---------+--------------------------------------------------------------------------+
+
 
 Backoff indicators
 ==================
@@ -515,6 +539,7 @@ following setting should be declared in the ``.ini`` file:
 
     # Disable mushroom record PATCH endpoint
     kinto.record_mushroom_patch_enabled = false
+
 
 Activating the flush endpoint
 =============================
@@ -594,64 +619,3 @@ Example:
 
     kinto.project_docs = https://project.rtfd.org/
     # kinto.project_version = 1.0
-
-Application profiling
-=====================
-
-It is possible to profile the application while its running. Graphs of calls
-will be generated, highlighting the calls taking the most of the time.
-
-This is very useful when trying to find slowness in the application.
-
-+------------------------+-----------+--------------------------------------------------------------------------+
-| Setting name           | Default   | What does it do?                                                         |
-+========================+===========+==========================================================================+
-| kinto.profiler_enabled | ``False`` | If enabled, each request will generate an image file with information to |
-|                        |           | profile the application.                                                 |
-+------------------------+-----------+--------------------------------------------------------------------------+
-| kinto.profiler_dir     | ``/tmp``  | The Location where the profiler should output its images.                |
-+------------------------+-----------+--------------------------------------------------------------------------+
-
-Update the configuration file with the following values:
-
-.. code-block:: ini
-
-    kinto.profiler_enabled = true
-    kinto.profiler_dir = /tmp/profiling
-
-Render execution graphs using GraphViz. On debuntu:
-
-::
-
-    sudo apt-get install graphviz
-
-::
-
-    pip install gprof2dot
-    gprof2dot -f pstats POST.v1.batch.000176ms.1427458675.prof | dot -Tpng -o output.png
-
-
-Initialization sequence
-=======================
-
-In order to control what part of *Kinto* should be run during application
-startup, or add custom initialization steps from configuration, it is
-possible to change the ``initialization_sequence`` setting.
-
-.. warning::
-
-    This is considered a very advanced configuration feature and should be used
-    with caution.
-
-.. code-block:: ini
-
-    kinto.initialization_sequence = cliquet.initialization.setup_json_serializer
-                                    cliquet.initialization.setup_logging
-                                    cliquet.initialization.setup_storage
-                                    cliquet.initialization.setup_cache
-                                    cliquet.initialization.setup_requests_scheme
-                                    cliquet.initialization.setup_version_redirection
-                                    cliquet.initialization.setup_deprecation
-                                    cliquet.initialization.setup_authentication
-                                    cliquet.initialization.setup_backoff
-                                    cliquet.initialization.setup_stats

@@ -22,10 +22,6 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]['id'], 'barley')
 
-    def test_collections_do_not_support_post(self):
-        self.app.post(self.collections_url, headers=self.headers,
-                      status=405)
-
     def test_collections_can_be_put_with_simple_name(self):
         self.assertEqual(self.record['id'], 'barley')
 
@@ -107,3 +103,39 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('%s/records?_since=0' % self.collection_url,
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
+
+
+class CollectionCreationTest(BaseWebTest, unittest.TestCase):
+
+    collections_url = '/buckets/beers/collections'
+
+    def setUp(self):
+        super(CollectionCreationTest, self).setUp()
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
+
+    def test_collection_can_be_created_with_post(self):
+        r = self.app.post_json(self.collections_url,
+                               MINIMALIST_COLLECTION,
+                               headers=self.headers)
+        self.assertEqual(r.status_code, 201)
+        self.assertTrue(len(r.json['data']['id']) == 8)
+
+    def test_collection_can_be_specified_in_post(self):
+        collection = 'barley'
+        r = self.app.post_json(self.collections_url,
+                               {'data': {'id': collection}},
+                               headers=self.headers)
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(r.json['data']['id'], collection)
+
+    def test_collection_already_exists_post(self):
+        collection = "barley"
+        self.app.post_json(self.collections_url,
+                           {'data': {'id': collection}},
+                           headers=self.headers)
+        r = self.app.post_json(self.collections_url,
+                               {'data': {'id': collection}},
+                               headers=self.headers)
+        self.assertEqual(r.json['data']['id'], collection)
+        self.assertEqual(r.status_code, 200)

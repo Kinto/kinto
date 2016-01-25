@@ -98,47 +98,8 @@ however, is controlled from the :ref:`server configuration <configuration>`.
     it in its child objects.
 
 
-Terminology
------------
+See also
+---------
 
-Regarding permissions, the following vocabulary is used in the documentation:
-
-.. glossary::
-
-    Principal
-    Principals
-        An entity that can be authenticated. Principals can be individual people,
-        applications, services, or any group of such things
-        (e.g. ``username``, ``group:authors``).
-
-    Permission
-    Permissions
-        A permission is an action that can be performed on an object.
-        Examples of permissions are "read", "write", or "create".
-
-    Object
-        The subject on which a permission is applied. Buckets, Collection, and
-        Records are examples of objects.
-
-    ACE
-    Access Control Entity
-        An ACE associates a permission to both objects and principals.
-        This allows you to describe rules like "*Members of group admins can
-        create collections*" (e.g ``collections:create = ['group:admins',]``).
-
-    ACL
-    Access Control List
-        A list of ACEs.
-
-    Firefox Accounts
-        Account system run by Mozilla (https://accounts.firefox.com).
-
-    User id
-    User identifier
-    User identifiers
-        A string that identifies a user.
-
-.. note::
-
-    Check out :blog:`our blog post <en/handling-permissions>` on permissions
-    in *Kinto* for more information.
+* :term:`Kinto glossary <CRUD>`, for formal definitions of terms used in the documentation
+* :blog:`Our blog post <en/handling-permissions>` on permissions design in *Kinto*

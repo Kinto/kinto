@@ -1,4 +1,4 @@
-cliquet==2.13.0
+cliquet==2.14.0
 colander==1.0
 cornice==1.1.0
 functools32==3.2.3.post2

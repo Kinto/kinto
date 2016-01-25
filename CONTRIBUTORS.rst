@@ -14,3 +14,4 @@ Contributors
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
 * Tarek Ziade <tarek@mozilla.com>
+* John Giannelos <jgiannelos@mozilla.com>
