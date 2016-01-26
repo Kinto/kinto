@@ -174,7 +174,8 @@ enable a new listener pointing to your python module:
 
 Kinto should load the listeners without errors:
 
-::
+.. code-block:: shell
+    :emphasize-lines: 3
 
     $ kinto start
     Starting subprocess with file monitor
@@ -188,11 +189,11 @@ In a separate terminal, run a fake SMTP server on ``localhost:1025``:
 
 ::
 
-    python -m smtpd -n -c DebuggingServer localhost:1025
+    $ python -m smtpd -n -c DebuggingServer localhost:1025
 
 Create a record (using `HTTPie <http://httpie.org>`_):
 
-::
+.. code-block:: shell
 
     $ echo '{"data": {"note": "kinto"}}' | \
         http --auth alice: --verbose POST http://localhost:8888/v1/buckets/default/collections/notes/records
@@ -233,7 +234,7 @@ is also very easy to run a server on ``localhost:6379``:
 
 ::
 
-    sudo docker run -p 6379:6379 redis
+    $ sudo docker run -p 6379:6379 redis
 
 
 Setup Kinto queue
@@ -242,7 +243,7 @@ Setup Kinto queue
 In configuration, we setup the listener to post the message to a queue named
 ``eventqueue``:
 
-::
+.. code-block:: ini
 
     kinto.event_listeners = redis
 
@@ -253,7 +254,8 @@ In configuration, we setup the listener to post the message to a queue named
 
 Kinto should load the listeners without errors:
 
-::
+.. code-block:: shell
+    :emphasize-lines: 3
 
     $ kinto start
     Starting subprocess with file monitor
@@ -297,7 +299,7 @@ Test it!
 
 Create a record (using `HTTPie <http://httpie.org>`_):
 
-::
+.. code-block:: shell
 
     $ echo '{"data": {"note": "kinto"}}' | \
         http --auth alice: --verbose POST http://localhost:8888/v1/buckets/default/collections/notes/records

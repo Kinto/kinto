@@ -31,28 +31,13 @@ Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
 ``tasks`` collection:
 Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#proxies>`_ for more information If you need to configure a proxy for instance.
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"data": {"description": "Write a tutorial explaining Kinto", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
              -v --auth 'user:password'
 
-    POST /v1/buckets/default/collections/tasks/records HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 81
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "data": {
-            "description": "Write a tutorial explaining Kinto",
-            "status": "todo"
-        }
-    }
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -86,17 +71,12 @@ Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#
 
 Let us fetch our new collection of tasks:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
            -v --auth 'user:password'
-    GET /v1/buckets/default/collections/tasks/records HTTP/1.1
-    Accept: */*
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
+
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified, ETag
@@ -128,27 +108,13 @@ example.
 
 We can also update one of our tasks using its ``id``:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"data": {"status": "doing"}}' | \
          http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
               -v  --auth 'user:password'
 
-    PATCH /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 30
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "data": {
-            "status": "doing"
-        }
-    }
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -188,29 +154,14 @@ data field you had for this record.
 Let's try to modify the record using an obsolete value of ``ETag`` (obtained
 while we fetched the collection earlier - you kept a note, didn't you?):
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1434641515332"' \
             -v  --auth 'user:password'
 
-    PATCH /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 29
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    If-Match: "1436171996916"
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "data": {
-            "status": "done"
-        }
-    }
+.. code-block:: http
 
     HTTP/1.1 412 Precondition Failed
     Connection: keep-alive
@@ -234,19 +185,12 @@ error response.
 In order to update this record safely we can fetch the last version of this
 single record and merge attributes locally:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
            -v  --auth 'user:password'
 
-    GET /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
-    Accept: */*
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Last-Modified, ETag
@@ -281,29 +225,14 @@ to decide what version should be kept might also be an option.
 Once merged, we can send back again our modifications using the last
 record ``ETag`` value:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1436172229372"' \
             -v  --auth 'user:password'
 
-    PATCH /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 29
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    If-Match: "1436172229372"
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "data": {
-            "status": "done"
-        }
-    }
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -331,22 +260,13 @@ record ``ETag`` value:
 
 You can also delete the record and use the same mechanism to avoid conflicts:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ http DELETE https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
            If-Match:'"1436172442466"' \
            -v  --auth 'user:password'
 
-    DELETE /v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 HTTP/1.1
-    Accept: */*
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 0
-    Host: kinto.dev.mozaws.net
-    If-Match: "1436172442466"
-    User-Agent: HTTPie/0.9.2
-
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -372,19 +292,12 @@ since we last fetched the collection.
 Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
 ``last_modified`` data field):
 
-.. code-block:: http
+.. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since=1434642603605 \
            -v  --auth 'user:password'
 
-    GET /v1/buckets/default/collections/tasks/records?_since=1434642603605 HTTP/1.1
-    Accept: */*
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified, ETag
@@ -420,19 +333,12 @@ Sync and share data between users
 In this example, instead of using the *personal bucket* we will create an
 application-specific bucket called ``todo``.
 
-.. code-block:: http
+.. code-block:: shell
 
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/todo \
         -v --auth 'user:password'
 
-    PUT /v1/buckets/todo HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 0
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -463,29 +369,13 @@ In our case, we want people to be able to create and share tasks, so we will
 create a ``tasks`` collection with the ``record:create`` permission for
 authenticated users (i.e. ``system.Authenticated``):
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks \
             -v --auth 'user:password'
 
-    PUT /v1/buckets/todo/collections/tasks HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 61
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "permissions": {
-            "record:create": [
-                "system.Authenticated"
-            ]
-        }
-    }
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -519,28 +409,13 @@ authenticated users (i.e. ``system.Authenticated``):
 
 Now Alice can create a task in this collection:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"data": {"description": "Alice task", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
         -v --auth 'alice:alicepassword'
 
-    POST /v1/buckets/todo/collections/tasks/records HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic YWxpY2U6YWxpY2VwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 59
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "data": {
-            "description": "Alice task",
-            "status": "todo"
-        }
-    }
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -567,28 +442,13 @@ Now Alice can create a task in this collection:
 
 And Bob can also create a task:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"data": {"description": "Bob new task", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
         -v --auth 'bob:bobpassword'
 
-    POST /v1/buckets/todo/collections/tasks/records HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic Ym9iOmJvYnBhc3N3b3Jk
-    Connection: keep-alive
-    Content-Length: 60
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "data": {
-            "description": "Bob new task",
-            "status": "todo"
-        }
-    }
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -617,7 +477,7 @@ And Bob can also create a task:
 If Alice wants to share a task with Bob, she can give him the ``read``
 permission on her records:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"permissions": {
         "read": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
@@ -625,23 +485,7 @@ permission on her records:
     http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
         -v --auth 'alice:alicepassword'
 
-    PATCH /v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic YWxpY2U6YWxpY2VwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 118
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "permissions": {
-            "read": [
-                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
-            ]
-        }
-    }
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -672,19 +516,12 @@ permission on her records:
 
 If Bob want's to get the record list, he will get his records as well as Alice's ones:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
            -v --auth 'bob:bobpassword'
 
-    GET /v1/buckets/todo/collections/tasks/records HTTP/1.1
-    Accept: */*
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic Ym9iOmJvYnBhc3N3b3Jk
-    Connection: keep-alive
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag
@@ -720,29 +557,13 @@ of users.
 Let's add the permission for authenticated users to create groups in the ``todo``
 bucket:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"permissions": {"group:create": ["system.Authenticated"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo \
             -v --auth 'user:password'
 
-    PATCH /v1/buckets/todo HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 72
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "permissions": {
-            "group:create": [
-                "system.Authenticated"
-            ]
-        }
-    }
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -770,7 +591,7 @@ bucket:
 
 Now Alice can create a group of her friends (Bob and Mary):
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"data": {
         "members": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
@@ -778,24 +599,7 @@ Now Alice can create a group of her friends (Bob and Mary):
     }}' | http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/groups/alice-friends \
         -v --auth 'alice:alicepassword'
 
-    PUT /v1/buckets/todo/groups/alice-friends HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic YWxpY2U6YWxpY2VwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 180
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "data": {
-            "members": [
-                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
-                "basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"
-            ]
-        }
-    }
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -824,7 +628,7 @@ Now Alice can create a group of her friends (Bob and Mary):
 
 Now Alice can share records directly with her group of friends:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{
         "permissions": {
@@ -834,23 +638,7 @@ Now Alice can share records directly with her group of friends:
     http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
         -v --auth 'alice:alicepassword'
 
-    PATCH /v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e HTTP/1.1
-    Accept: application/json
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic YWxpY2U6YWxpY2VwYXNzd29yZA==
-    Connection: keep-alive
-    Content-Length: 122
-    Content-Type: application/json
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
-
-    {
-        "permissions": {
-            "read": [
-                "/buckets/todo/groups/alice-friends"
-            ]
-        }
-    }
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert
@@ -879,7 +667,7 @@ Now Alice can share records directly with her group of friends:
 
 And now Mary can access the record:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
         -v --auth 'mary:marypassword'

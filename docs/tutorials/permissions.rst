@@ -20,11 +20,13 @@ The ``servicedenuages-blog`` bucket will contain two collections: ``articles`` a
 
 Let's start by giving all authenticated users read access to the bucket.
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"permissions": {"read": ["system.Authenticated"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog \
         --auth user:pass
+
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
@@ -55,10 +57,12 @@ Let's start by giving all authenticated users read access to the bucket.
 Now, with that same user, let's create two collections in this
 buckets: ``articles`` and ``comments``.
 
-.. code-block:: http
+.. code-block:: shell
 
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles \
         --auth user:pass
+
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
@@ -82,8 +86,12 @@ buckets: ``articles`` and ``comments``.
         }
     }
 
+.. code-block:: shell
+
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments \
         --auth user:pass
+
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
@@ -112,11 +120,13 @@ will be able to read both collections.
 
 Let's verify that. Create an article:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"data":{"title": "My article", "content": "my content", "published_at": "Thu Jul 16 16:44:15 CEST 2015"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
         --auth user:pass
+
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
@@ -144,10 +154,13 @@ Let's verify that. Create an article:
 
 Indeed, using another user like *natim*, we can read the article:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records/b8c4cc34-f184-4b4d-8cad-e135a3f0308c \
         --auth natim:secret
+
+.. code-block:: http
+
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Last-Modified, ETag
     Connection: keep-alive
@@ -176,11 +189,13 @@ Indeed, using another user like *natim*, we can read the article:
 If we want authenticated users to be able to create a comment, we can PATCH the
 permissions of the ``comments`` collections:
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments \
         --auth user:pass
+
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
@@ -209,11 +224,13 @@ permissions of the ``comments`` collections:
 
 Now every authenticated user, like *natim* here, can add a comment.
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"data":{"article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", "comment": "my comment", "author": "*natim*"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
         --auth natim:secret
+
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
@@ -248,11 +265,13 @@ articles. Let's invite some writers to create articles!
 We will create a new group called ``writers`` with *natim* as a principal
 member.
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"data": {"members": ["basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/groups/writers \
         --auth user:pass
+
+.. code-block:: http
 
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
@@ -281,11 +300,13 @@ member.
 
 Now we grant the `write` permission on the blog bucket to the ``writers`` group.
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"permissions": {"write": ["/buckets/servicedenuages-blog/groups/writers"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog \
         --auth user:pass
+
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
@@ -315,11 +336,14 @@ Now we grant the `write` permission on the blog bucket to the ``writers`` group.
 
 Now *natim* can write new articles!
 
-.. code-block:: http
+.. code-block:: shell
 
     $ echo '{"data":{"title": "natim article", "content": "natims content", "published_at": "Thu Jul 16 16:59:16 CEST 2015"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
         --auth natim:
+
+.. code-block:: http
+
     HTTP/1.1 201 Created
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
     Connection: keep-alive
@@ -349,11 +373,13 @@ Listing records
 
 One can fetch the list of articles.
 
-.. code-block:: http
+.. code-block:: shell
 
     $ http GET \
         https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
         --auth alice:secret
+
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag
@@ -387,11 +413,13 @@ One can fetch the list of articles.
 
 Or the list of comments.
 
-.. code-block:: http
+.. code-block:: shell
 
     $ http GET \
         https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
         --auth alice:secret
+
+.. code-block:: http
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag
