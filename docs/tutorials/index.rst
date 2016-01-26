@@ -10,6 +10,7 @@ Tutorials
    javascript
    notifications-websockets
    notifications-custom
+   authentication-github
    permissions
    permission-setups
    app-examples
