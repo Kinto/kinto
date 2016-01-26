@@ -231,7 +231,7 @@ Let's try to create an object on Kinto, it should fail using a ``401 Unauthorize
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 26 Jan 2016 11:07:05 GMT
     Server: waitress
-    Www-Authenticate: Bearer realm="Realm"
+    Www-Authenticate: Github+Bearer realm="Realm"
     Www-Authenticate: Basic realm="Realm"
 
     {
