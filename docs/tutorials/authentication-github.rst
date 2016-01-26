@@ -148,7 +148,7 @@ Let's limit this policy to requests with ``github+Bearer`` in ``Authorization`` 
             return user_id
 
         def forget(self, request):
-            return [('WWW-Authenticate', 'Bearer realm="%s"' % self.realm)]
+            return [('WWW-Authenticate', '%s realm="%s"' % (GITHUB_METHOD, self.realm)]
 
         def _get_credentials(self, request):
             authorization = request.headers.get('Authorization', '')
@@ -157,7 +157,7 @@ Let's limit this policy to requests with ``github+Bearer`` in ``Authorization`` 
                 authmeth = authmeth.lower()
             except ValueError:
                 return None
-            if authmeth != GITHUB_METHOD:
+            if authmeth != GITHUB_METHOD.lower():
                 return None
             print('Check Github')
 
@@ -183,7 +183,7 @@ We will simply make a call to the Github user API and try to obtain the ``login`
     from pyramid.interfaces import IAuthenticationPolicy
     from zope.interface import implementer
 
-    GITHUB_METHOD = 'github+bearer'
+    GITHUB_METHOD = 'Github+Bearer'
 
     @implementer(IAuthenticationPolicy)
     class GithubAuthenticationPolicy(CallbackAuthenticationPolicy):
@@ -195,7 +195,7 @@ We will simply make a call to the Github user API and try to obtain the ``login`
             return user_id
 
         def forget(self, request):
-            return [('WWW-Authenticate', 'Bearer realm="%s"' % self.realm)]
+            return [('WWW-Authenticate', '%s realm="%s"' % (GITHUB_METHOD, self.realm)]
 
         def _get_credentials(self, request):
             authorization = request.headers.get('Authorization', '')
@@ -204,7 +204,7 @@ We will simply make a call to the Github user API and try to obtain the ``login`
                 authmeth = authmeth.lower()
             except ValueError:
                 return None
-            if authmeth != GITHUB_METHOD:
+            if authmeth != GITHUB_METHOD.lower():
                 return None
             try:
                 headers = {"Authorization": "token %s" % token}
