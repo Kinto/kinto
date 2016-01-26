@@ -194,7 +194,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
         self.create_group('beers', 'brewers', [resp.json['user']['id']])
         record = MINIMALIST_RECORD.copy()
-        record['permissions'] = {'read': ['group:brewers']}
+        record['permissions'] = {'read': ['/buckets/beers/groups/brewers']}
         self.app.put_json(self.record_url,
                           record,
                           headers=self.headers,
