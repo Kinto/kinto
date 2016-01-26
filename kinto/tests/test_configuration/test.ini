@@ -36,6 +36,11 @@ multiauth.policies = basicauth
 # kinto.experimental_collection_schema_validation = true
 
 #
+# Plugins
+#
+kinto.includes = kinto.plugins.default_bucket
+
+#
 # Firefox Accounts configuration.
 #   These are working FxA credentials for localhost:8888
 # kinto.includes  = cliquet_fxa
