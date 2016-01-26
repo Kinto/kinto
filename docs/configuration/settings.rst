@@ -415,6 +415,25 @@ values for OAuth2 client settings.
 See :github:`mozilla-services/cliquet-fxa`.
 
 
+.. _configuring-plugins:
+
+Plugins
+=======
+
+It is possible to extend the default Kinto behaviors by using "plugins".
+
+The list of plugins to load at startup can be specified in the settings, as a
+list of Python modules:
+
+.. code-block:: ini
+
+    kinto.includes = kinto.plugins.default_bucket
+                     kinto-attachment
+                     custom-myplugin
+
+See also: :ref:`tutorial-write-plugin` for more in-depth informations on how
+to create your own plugin.
+
 .. _configuring-notifications:
 
 Notifications
