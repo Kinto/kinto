@@ -67,7 +67,7 @@ Enable in configuration
 -----------------------
 
 :ref:`As explained in the settings section <configuration-authentication>`, just
-enable a new policy pointing to your python module:
+enable a new policy pointing to your Python class:
 
 .. code-block:: ini
 
