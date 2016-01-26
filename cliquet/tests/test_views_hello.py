@@ -1,4 +1,5 @@
 import mock
+from pyramid import testing
 
 from .support import BaseWebTest, unittest
 
@@ -69,3 +70,43 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
             response = self.app.get('/')
 
         self.assertTrue(response.json['http_api_version'])
+
+
+class APICapabilitiesTest(BaseWebTest, unittest.TestCase):
+    def test_list_of_capabilities_is_empty_by_default(self):
+        app = self.make_app()
+        response = app.get('/')
+        capabilities = response.json['capabilities']
+        self.assertEqual(capabilities, {})
+
+    def test_capabilities_can_be_specified_via_config(self):
+        config = testing.setUp(settings=self.get_app_settings())
+        app = self.make_app(config=config)
+
+        config.add_api_capability("cook-coffee")
+
+        response = app.get('/')
+        capabilities = response.json['capabilities']
+        expected = {"cook-coffee": {"description": "", "url": ""}}
+        self.assertEqual(capabilities, expected)
+
+    def test_capabilities_can_have_arbitrary_attributes(self):
+        config = testing.setUp(settings=self.get_app_settings())
+        app = self.make_app(config=config)
+
+        capability = dict(description="Track record change",
+                          url="https://github.com/Kinto/kinto-changes",
+                          status="beta")
+        config.add_api_capability("record-changes", **capability)
+
+        response = app.get('/')
+        capabilities = response.json['capabilities']
+        self.assertEqual(capabilities["record-changes"], capability)
+
+    def test_capability_fails_if_already_registered(self):
+        config = testing.setUp(settings=self.get_app_settings())
+        self.make_app(config=config)
+
+        config.add_api_capability("cook-coffee")
+        with self.assertRaises(ValueError):
+            config.add_api_capability("cook-coffee")

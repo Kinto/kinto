@@ -23,6 +23,10 @@ The returned value is a JSON mapping containing:
   - ``batch_max_requests``: Number of requests that can be made in a batch request.
   - ``readonly``: Only requests with read operations are allowed.
 
+- ``capabilities``: a mapping used by clients to detect optional features of the API.
+
+  - Example: ``{"auth-fxa": {"description": "Firefox Account authentication", "url": "http://github.com/mozilla-services/cliquet-fxa"}}``
+
 **Optional**
 
 - ``user``: A mapping with an ``id`` field for the currently connected user id.

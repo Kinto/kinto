@@ -88,8 +88,9 @@ class BaseWebTest(object):
             'Authorization': 'Basic bWF0OjE='
         }
 
-    def make_app(self, settings=None):
-        app = webtest.TestApp(testapp(self.get_app_settings(settings)))
+    def make_app(self, settings=None, config=None):
+        wsgi_app = testapp(self.get_app_settings(settings), config=config)
+        app = webtest.TestApp(wsgi_app)
         app.RequestClass = get_request_class(self.api_prefix)
         return app
 

@@ -117,6 +117,18 @@ def includeme(config):
     # Public settings registry.
     config.registry.public_settings = {'batch_max_requests', 'readonly'}
 
+    # Directive to declare arbitrary API capabilities.
+    def add_api_capability(config, identifier, description="", url="", **kw):
+        if identifier in config.registry.api_capabilities:
+            error_msg = "API capability '%s' already exists." % identifier
+            raise ValueError(error_msg)
+
+        capability = dict(description=description, url=url, **kw)
+        config.registry.api_capabilities[identifier] = capability
+
+    config.add_directive('add_api_capability', add_api_capability)
+    config.registry.api_capabilities = {}
+
     # Setup cornice.
     config.include("cornice")
 
