@@ -80,16 +80,16 @@ The following objects are created:
 - An ``articles`` collection;
 - An ``employees`` group.
 
-+--------------------------+--------------+------------------------------------------+
-| Object                   | Permissions  | Principals                               |
-+==========================+==============+==========================================+
-| Bucket ``companywiki``   | ``write``    | ``fxa:<wiki administrator id>``          |
-+--------------------------+--------------+------------------------------------------+
-| Group ``employees``      | ``write``    | ``/buckets/companywiki/groups/managers`` |
-+--------------------------+--------------+------------------------------------------+
-| Collection ``articles``  | ``write``    | ``group:employees``                      |
-|                          |              | ``group:managers``                       |
-+--------------------------+--------------+------------------------------------------+
++--------------------------+--------------+-------------------------------------------+
+| Object                   | Permissions  | Principals                                |
++==========================+==============+===========================================+
+| Bucket ``companywiki``   | ``write``    | ``fxa:<wiki administrator id>``           |
++--------------------------+--------------+-------------------------------------------+
+| Group ``employees``      | ``write``    | ``/buckets/companywiki/groups/managers``  |
++--------------------------+--------------+-------------------------------------------+
+| Collection ``articles``  | ``write``    | ``/buckets/companywiki/groups/employees`` |
+|                          |              | ``/buckets/companywiki/groups/managers``  |
++--------------------------+--------------+-------------------------------------------+
 
 
 A microblogging
