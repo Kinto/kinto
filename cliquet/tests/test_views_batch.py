@@ -121,11 +121,25 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
             'headers': headers
         }
         body = {'requests': [request, request]}
-        resp = self.app.post_json('/batch', body)
+        resp = self.app.post_json('/batch', body, status=200)
         self.assertEqual(resp.json['responses'][1]['status'], 400)
         self.assertEqual(resp.json['responses'][1]['body']['message'],
                          ('headers: Invalid value for If-Match. The value '
                           'should be integer between double quotes.'))
+
+    def test_412_errors_are_forwarded(self):
+        headers = self.headers.copy()
+        headers['If-None-Match'] = '*'
+        request = {
+            'method': 'PUT',
+            'path': '/mushrooms/%s' % str(uuid.uuid4()),
+            'body': {'data': {'name': 'Trompette de la mort'}},
+            'headers': headers
+        }
+        body = {'requests': [request, request]}
+        resp = self.app.post_json('/batch', body, status=200)
+        self.assertEqual(resp.json['responses'][0]['status'], 201)
+        self.assertEqual(resp.json['responses'][1]['status'], 412)
 
 
 class BatchSchemaTest(unittest.TestCase):
