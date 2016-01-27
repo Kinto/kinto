@@ -18,7 +18,7 @@ This document describes changes between each past release.
 
 - Batch now relies on custom views responses (``@viewconfig(context=Error)``)
   (fixes mozilla-services/syncto#78, rel #629)
-- Fix listener name logging (#626)
+- Fix listener name logging during startup (#626)
 
 
 2.14.0 (2016-01-15)
