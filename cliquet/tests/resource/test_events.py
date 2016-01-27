@@ -25,15 +25,15 @@ def notif_broken(app):
     app.registry.notify = old
 
 
-class ResourceChangedTest(BaseWebTest, unittest.TestCase):
+class BaseEventTest(BaseWebTest):
     def setUp(self):
-        super(ResourceChangedTest, self).setUp()
+        super(BaseEventTest, self).setUp()
         self.events = []
         self.body = {'data': {'name': 'de Paris'}}
 
     def tearDown(self):
         self.events = []
-        super(ResourceChangedTest, self).tearDown()
+        super(BaseEventTest, self).tearDown()
 
     def listener(self, event):
         self.events.append(event)
@@ -49,10 +49,40 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         app.RequestClass = get_request_class(self.api_prefix)
         return app
 
+
+class ResourceReadTest(BaseEventTest, unittest.TestCase):
+
     def test_read_event_triggered_on_get(self):
+        resp = self.app.post_json(self.collection_url, self.body,
+                                  headers=self.headers, status=201)
+        record_id = resp.json['data']['id']
+        record_url = self.get_item_url(record_id)
+        self.app.get(record_url, headers=self.headers)
+        self.assertEqual(len(self.events), 2)
+        self.assertEqual(self.events[1].payload['action'], ACTIONS.READ)
+        self.assertEqual(len(self.events[1].read_records), 1)
+
+    def test_read_event_triggered_on_collection_get(self):
         self.app.get(self.collection_url, headers=self.headers)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload['action'], ACTIONS.READ)
+        self.assertEqual(len(self.events[0].read_records), 0)
+
+    def test_read_event_triggered_on_post_if_existing(self):
+        resp = self.app.post_json(self.collection_url, self.body,
+                                  headers=self.headers, status=201)
+        record = resp.json['data']
+        body = dict(self.body)
+        body['data']['id'] = record['id']
+
+        # a second post with the same record id
+        self.app.post_json(self.collection_url, body, headers=self.headers,
+                           status=200)
+        self.assertEqual(len(self.events), 2)
+        self.assertEqual(self.events[1].payload['action'], ACTIONS.READ)
+
+
+class ResourceChangedTest(BaseEventTest, unittest.TestCase):
 
     def test_event_triggered_on_post(self):
         self.app.post_json(self.collection_url, self.body,
@@ -78,19 +108,6 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(record_url, self.body, headers=headers, status=412)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
-
-    def test_read_event_triggered_on_post_if_existing(self):
-        resp = self.app.post_json(self.collection_url, self.body,
-                                  headers=self.headers, status=201)
-        record = resp.json['data']
-        body = dict(self.body)
-        body['data']['id'] = record['id']
-
-        # a second post with the same record id
-        self.app.post_json(self.collection_url, body, headers=self.headers,
-                           status=200)
-        self.assertEqual(len(self.events), 2)
-        self.assertEqual(self.events[1].payload['action'], ACTIONS.READ)
 
     def test_event_triggered_on_update_via_patch(self):
         resp = self.app.post_json(self.collection_url, self.body,
@@ -143,7 +160,7 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(self.events[1].payload['action'], ACTIONS.CREATE)
         self.assertEqual(self.events[2].payload['action'], ACTIONS.DELETE)
 
-    def test_event_not_triggered(self):
+    def test_event_not_triggered_if_notify_fails(self):
         # if the notification system is broken we should still see
         # the record created
         with notif_broken(self.app.app):
@@ -163,6 +180,9 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
                       headers=self.headers, status=201)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
+
+
+class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
 
     def test_impacted_records_on_create(self):
         resp = self.app.post_json(self.collection_url, self.body,
@@ -235,19 +255,9 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         self.assertNotIn('__permissions__', impacted_records[0]['new'])
         self.assertNotIn('__permissions__', impacted_records[0]['old'])
 
-    def test_only_one_event_is_sent_per_batch_request(self):
-        request_create = {
-            "method": "POST",
-            "body": self.body,
-            "path": self.collection_url
-        }
-        body = {
-            "requests": [request_create, request_create]
-        }
-        self.app.post_json("/batch", body, headers=self.headers)
-        self.assertEqual(len(self.events), 1)
 
-    def test_impacted_records_are_merged_per_batch_request(self):
+class BatchEventsTest(BaseEventTest, unittest.TestCase):
+    def test_impacted_records_are_merged(self):
         record_id = str(uuid.uuid4())
         record_url = self.get_item_url(record_id)
         body = {
@@ -282,7 +292,7 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(len(delete_event.impacted_records), 1)
         self.assertNotIn('new', delete_event.impacted_records[0])
 
-    def test_one_event_is_sent_per_resource_on_batch_request(self):
+    def test_one_event_is_sent_per_resource(self):
         body = {
             "defaults": {
                 "method": "POST",
@@ -297,7 +307,7 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         self.app.post_json("/batch", body, headers=self.headers)
         self.assertEqual(len(self.events), 2)
 
-    def test_one_event_is_sent_per_action_on_batch_request(self):
+    def test_one_event_is_sent_per_action(self):
         body = {
             "defaults": {
                 "path": '/mushrooms',
@@ -311,7 +321,7 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         self.app.post_json("/batch", body, headers=self.headers)
         self.assertEqual(len(self.events), 3)
 
-    def test_events_are_not_sent_if_batch_subrequest_fails(self):
+    def test_events_are_not_sent_if_subrequest_fails(self):
         patch = mock.patch.object(self.storage,
                                   'delete_all',
                                   side_effect=BackendError('boom'))
