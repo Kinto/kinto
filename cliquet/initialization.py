@@ -444,6 +444,29 @@ def setup_listeners(config):
 
         config.add_subscriber(listener, ResourceChanged, **options)
 
+    # XXX right place?
+    # Resource events
+    from cliquet import events as cliquet_events
+    import transaction
+
+    def send_resource_events(success, request):
+        if success:
+            events = request.bound_data.get("resource_events", [])
+            per_resource = cliquet_events.merge_by_resource(events)
+            for event in per_resource:
+                try:
+                    request.registry.notify(event)
+                except Exception:
+                    logger.error("Unable to notify", exc_info=True)
+
+    def on_new_request(event):
+        if hasattr(event.request, 'parent'):
+            return
+        current = transaction.get()
+        current.addAfterCommitHook(send_resource_events, args=(event.request,))
+
+    config.add_subscriber(on_new_request, NewRequest)
+
 
 def load_default_settings(config, default_settings):
     """Read settings provided in Paste ini file, set default values and

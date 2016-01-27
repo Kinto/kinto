@@ -1,10 +1,12 @@
-from contextlib import contextmanager
+import mock
 import uuid
+from contextlib import contextmanager
 
 import webtest
 from pyramid.config import Configurator
 
 from cliquet.events import ResourceChanged, ResourceRead, ACTIONS
+from cliquet.storage.exceptions import BackendError
 from cliquet.tests.testapp import main as testapp
 from cliquet.tests.support import unittest, BaseWebTest, get_request_class
 
@@ -245,6 +247,41 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         self.app.post_json("/batch", body, headers=self.headers)
         self.assertEqual(len(self.events), 1)
 
+    def test_impacted_records_are_merged_per_batch_request(self):
+        record_id = str(uuid.uuid4())
+        record_url = self.get_item_url(record_id)
+        body = {
+            "defaults": {
+                "method": "PUT",
+                "path": record_url
+            },
+            "requests": [
+                {"body": {'data': {'name': 'foo'}}},
+                {"body": {'data': {'name': 'bar'}}},
+                {"body": {'data': {'name': 'baz'}}},
+                {"method": "DELETE"}
+            ]
+        }
+        self.app.post_json("/batch", body, headers=self.headers)
+        self.assertEqual(len(self.events), 3)
+
+        create_event = self.events[0]
+        self.assertEqual(create_event.payload['action'], 'create')
+        self.assertEqual(len(create_event.impacted_records), 1)
+        self.assertNotIn('old', create_event.impacted_records[0])
+        update_event = self.events[1]
+        self.assertEqual(update_event.payload['action'], 'update')
+        impacted = update_event.impacted_records
+        self.assertEqual(len(impacted), 2)
+        self.assertEqual(impacted[0]['old']['name'], 'foo')
+        self.assertEqual(impacted[0]['new']['name'], 'bar')
+        self.assertEqual(impacted[1]['old']['name'], 'bar')
+        self.assertEqual(impacted[1]['new']['name'], 'baz')
+        delete_event = self.events[2]
+        self.assertEqual(delete_event.payload['action'], 'delete')
+        self.assertEqual(len(delete_event.impacted_records), 1)
+        self.assertNotIn('new', delete_event.impacted_records[0])
+
     def test_one_event_is_sent_per_resource_on_batch_request(self):
         body = {
             "defaults": {
@@ -260,6 +297,40 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         self.app.post_json("/batch", body, headers=self.headers)
         self.assertEqual(len(self.events), 2)
 
+    def test_one_event_is_sent_per_action_on_batch_request(self):
+        body = {
+            "defaults": {
+                "path": '/mushrooms',
+            },
+            "requests": [
+                {"method": "POST", "body": self.body},
+                {"method": "DELETE"},
+                {"method": "GET"},
+            ]
+        }
+        self.app.post_json("/batch", body, headers=self.headers)
+        self.assertEqual(len(self.events), 3)
+
     def test_events_are_not_sent_if_batch_subrequest_fails(self):
-        #XXX
-        pass
+        patch = mock.patch.object(self.storage,
+                                  'delete_all',
+                                  side_effect=BackendError('boom'))
+        patch.start()
+        self.addCleanup(patch.stop)
+        request_create = {
+            "method": "POST",
+            "body": self.body,
+        }
+        request_delete_all = {
+            "method": "DELETE",
+            "body": self.body,
+        }
+        body = {
+            "defaults": {
+                "path": self.collection_url
+            },
+            "requests": [request_create, request_delete_all]
+        }
+        self.app.post_json("/batch", body, headers=self.headers,
+                           status=503)
+        self.assertEqual(len(self.events), 0)
