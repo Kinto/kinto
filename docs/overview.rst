@@ -292,8 +292,28 @@ using that toolkit.
 `Read more (in french) about the differences <http://www.servicedenuages.fr/pourquoi-cliquet>`_.
 
 
+How does Kinto authenticate users ?
+-----------------------------------
+
+Kinto authentication system is pluggable and controlled from settings.
+
+By default it ships with a very simple (but limited) *Basic Authentication* policy, which
+distinguishes users using the value provided in the header.
+
+See also:
+
+* :ref:`How to implement a custom authentication <tutorial-github>`
+* :ref:`Kinto API documentation about authentication <authentication>`
+
+.. note::
+
+    We'd be delighted to add more built-in authentication methods into Kinto.
+    Please reach out if you're interested!
+
+
 I am seeing an Exception error, what's wrong?
 ---------------------------------------------
 
 Have a look at the :ref:`Troubleshooting section <troubleshooting>` to
 see what to do.
+
