@@ -232,3 +232,34 @@ class ResourceChangedTest(BaseWebTest, unittest.TestCase):
         impacted_records = self.events[-1].impacted_records
         self.assertNotIn('__permissions__', impacted_records[0]['new'])
         self.assertNotIn('__permissions__', impacted_records[0]['old'])
+
+    def test_only_one_event_is_sent_per_batch_request(self):
+        request_create = {
+            "method": "POST",
+            "body": self.body,
+            "path": self.collection_url
+        }
+        body = {
+            "requests": [request_create, request_create]
+        }
+        self.app.post_json("/batch", body, headers=self.headers)
+        self.assertEqual(len(self.events), 1)
+
+    def test_one_event_is_sent_per_resource_on_batch_request(self):
+        body = {
+            "defaults": {
+                "method": "POST",
+                "body": self.body,
+            },
+            "requests": [
+                {"path": '/mushrooms'},
+                {"path": '/mushrooms'},
+                {"path": '/psilos'},
+            ]
+        }
+        self.app.post_json("/batch", body, headers=self.headers)
+        self.assertEqual(len(self.events), 2)
+
+    def test_events_are_not_sent_if_batch_subrequest_fails(self):
+        #XXX
+        pass
