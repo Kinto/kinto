@@ -26,6 +26,7 @@ class ListenerSetupTest(unittest.TestCase):
         }
         settings.update(**extra_settings)
         config = testing.setUp(settings=settings)
+        config.commit()
         initialization.setup_listeners(config)
         return config
 
@@ -42,7 +43,7 @@ class ListenerSetupTest(unittest.TestCase):
 
     def test_callback_called_when_action_is_not_filtered(self):
         config = self.make_app()
-        event = ResourceChanged('create', Resource(), [], Request())
+        event = ResourceChanged('create', 123456, [], Request())
         config.registry.notify(event)
 
         self.assertTrue(self.redis_mocked.return_value.called)
@@ -51,14 +52,14 @@ class ListenerSetupTest(unittest.TestCase):
         config = self.make_app({
             'event_listeners.redis.actions': 'delete',
         })
-        event = ResourceChanged('create', Resource(), [], Request())
+        event = ResourceChanged('create', 123456, [], Request())
         config.registry.notify(event)
 
         self.assertFalse(self.redis_mocked.return_value.called)
 
     def test_callback_called_when_resource_is_not_filtered(self):
         config = self.make_app()
-        event = ResourceChanged('create', Resource(), [], Request())
+        event = ResourceChanged('create', 123456, [], Request())
         event.payload['resource_name'] = 'mushroom'
         config.registry.notify(event)
 
@@ -68,7 +69,7 @@ class ListenerSetupTest(unittest.TestCase):
         config = self.make_app({
             'event_listeners.redis.resources': 'toad',
         })
-        event = ResourceChanged('create', Resource(), [], Request())
+        event = ResourceChanged('create', 123456, [], Request())
         event.payload['resource_name'] = 'mushroom'
         config.registry.notify(event)
 
@@ -76,7 +77,7 @@ class ListenerSetupTest(unittest.TestCase):
 
     def test_callback_is_not_called_on_read_by_default(self):
         config = self.make_app()
-        event = ResourceRead('read', Resource(), [], Request())
+        event = ResourceRead('read', 123456, [], Request())
         config.registry.notify(event)
 
         self.assertFalse(self.redis_mocked.return_value.called)
@@ -85,7 +86,7 @@ class ListenerSetupTest(unittest.TestCase):
         config = self.make_app({
             'event_listeners.redis.actions': 'read',
         })
-        event = ResourceRead('read', Resource(), [], Request())
+        event = ResourceRead('read', 123456, [], Request())
         config.registry.notify(event)
 
         self.assertTrue(self.redis_mocked.return_value.called)
@@ -94,9 +95,9 @@ class ListenerSetupTest(unittest.TestCase):
         config = self.make_app({
             'event_listeners.redis.actions': 'read create delete',
         })
-        event = ResourceRead('read', Resource(), [], Request())
+        event = ResourceRead('read', 123456, [], Request())
         config.registry.notify(event)
-        event = ResourceChanged('create', Resource(), [], Request())
+        event = ResourceChanged('create', 123456, [], Request())
         config.registry.notify(event)
 
         self.assertEqual(self.redis_mocked.return_value.call_count, 2)
@@ -141,6 +142,7 @@ class Request(object):
     prefixed_userid = 'tarek'
     matchdict = {'id': UID}
     registry = matched_route = Match()
+    current_resource_name = 'bucket'
 
 
 class ListenerCalledTest(unittest.TestCase):
@@ -178,7 +180,7 @@ class ListenerCalledTest(unittest.TestCase):
     def test_redis_is_notified(self):
         with self.redis_listening():
             # let's trigger an event
-            event = ResourceChanged('create', Resource(), [], Request())
+            event = ResourceChanged('create', 123456, [], Request())
             self.notify(event)
             self.assertTrue(self.has_redis_changed())
 
@@ -190,10 +192,8 @@ class ListenerCalledTest(unittest.TestCase):
     def test_notification_is_broken(self):
         with self.redis_listening():
             # an event with a bad JSON should silently break and send nothing
-            res = Resource()
             # date time objects cannot be dumped
-            res.timestamp = datetime.now()
-            event2 = ResourceChanged('create', res, [], Request())
+            event2 = ResourceChanged('create', datetime.now(), [], Request())
             self.notify(event2)
             self.assertFalse(self.has_redis_changed())
 
@@ -203,7 +203,7 @@ class ListenerCalledTest(unittest.TestCase):
             self._save_redis()
 
             with broken_redis():
-                event = ResourceChanged('create', Resource(), [], Request())
+                event = ResourceChanged('create', 123456, [], Request())
                 self.config.registry.notify(event)
 
             self.assertFalse(self.has_redis_changed())

@@ -613,7 +613,7 @@ class UserResource(object):
             'data': result
         }
 
-        self.request.notify_resource_event(resource=self,
+        self.request.notify_resource_event(timestamp=self.timestamp,
                                            data=result,
                                            action=action,
                                            old=old)

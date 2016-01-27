@@ -112,9 +112,9 @@ class RouteFactoryTest(unittest.TestCase):
             resource = mock.MagicMock()
             current_service().resource.return_value = resource
             current_service().collection_path = '/buckets'
-            current_service().viewset.get_name.return_value = 'bucket'
             # Do the actual call.
             request = DummyRequest(method='post')
+            request.current_resource_name = 'bucket'
             request.upath_info = '/buckets'
             request.matchdict = {}
             request.registry = mock.Mock()

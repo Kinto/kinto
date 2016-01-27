@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from cliquet.utils import strip_uri_prefix, Enum, current_service
+from cliquet.utils import strip_uri_prefix, Enum
 
 
 ACTIONS = Enum(CREATE='create',
@@ -10,13 +10,11 @@ ACTIONS = Enum(CREATE='create',
 
 
 class _ResourceEvent(object):
-    def __init__(self, action, resource, request):
+    def __init__(self, action, timestamp, request):
         self.request = request
-        # XXX: Move to reified request method.
-        service = current_service(request)
-        resource_name = service.viewset.get_name(resource.__class__)
+        resource_name = request.current_resource_name
 
-        self.payload = {'timestamp': resource.timestamp,
+        self.payload = {'timestamp': timestamp,
                         'action': action,
                         'uri': strip_uri_prefix(request.path),
                         'user_id': request.prefixed_userid,
@@ -33,29 +31,38 @@ class _ResourceEvent(object):
 class ResourceRead(_ResourceEvent):
     """Triggered when a resource is read.
     """
-    def __init__(self, action, resource, read_records, request):
-        super(ResourceRead, self).__init__(action, resource, request)
+    def __init__(self, action, timestamp, read_records, request):
+        super(ResourceRead, self).__init__(action, timestamp, request)
         self.read_records = read_records
 
 
 class ResourceChanged(_ResourceEvent):
     """Triggered when a resource is changed.
     """
-    def __init__(self, action, resource, impacted_records, request):
-        super(ResourceChanged, self).__init__(action, resource, request)
+    def __init__(self, action, timestamp, impacted_records, request):
+        super(ResourceChanged, self).__init__(action, timestamp, request)
         self.impacted_records = impacted_records
 
 
-def get_resource_events(request, ):
+def get_resource_events(request):
+    """
+    Return the list of events triggered on resources.
+    The list is sorted chronologically.
+    """
     events = request.bound_data.get("resource_events")
     if events is None:
         return []
     return events.values()
 
 
-def notify_resource_event(request, resource, data, action, old):
+def notify_resource_event(request, timestamp, data, action, old=None):
     """
-    XXX
+    Stack a resource event.
+
+    If a similar event already occured during the current transaction
+    (e.g. batch) then just extend the impacted records of the previous one.
+
+    XXX: Would be nicer if resource instance could be determined from request.
     """
     if action == ACTIONS.READ:
         if not isinstance(data, list):
@@ -72,18 +79,19 @@ def notify_resource_event(request, resource, data, action, old):
 
     # Get previously triggered events.
     events = request.bound_data.setdefault("resource_events", OrderedDict())
-    # XXX: Move to reified request method
-    service = current_service(request)
-    resource_name = service.viewset.get_name(resource.__class__)
+    resource_name = request.current_resource_name
 
     # Add to impacted records or create new event.
     group_by = resource_name + action
     if group_by in events:
-        events[group_by].impacted_records.extend(impacted)
+        if action == ACTIONS.READ:
+            events[group_by].read_records.extend(impacted)
+        else:
+            events[group_by].impacted_records.extend(impacted)
     else:
         if action == ACTIONS.READ:
             event_cls = ResourceRead
         else:
             event_cls = ResourceChanged
-        event = event_cls(action, resource, impacted, request)
+        event = event_cls(action, timestamp, impacted, request)
         events[group_by] = event

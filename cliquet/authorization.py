@@ -150,7 +150,7 @@ class RouteFactory(object):
                 method = request.method.lower()
                 self.required_permission = self.method_permissions.get(method)
 
-            self.resource_name = service.viewset.get_name(service.resource)
+            self.resource_name = request.current_resource_name
 
             if self.on_collection:
                 object_id_match = self.get_permission_object_id(request, '*')
