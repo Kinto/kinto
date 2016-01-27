@@ -347,7 +347,7 @@ class StatsDConfigurationTest(unittest.TestCase):
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
         app.get('/v0/__heartbeat__', headers=headers)
-        mocked().count.assert_any_call('authn_type.BasicAuth')
+        mocked().count.assert_any_call('authn_type.basicauth')
 
 
 class RequestsConfigurationTest(unittest.TestCase):
