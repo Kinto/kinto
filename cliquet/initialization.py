@@ -449,23 +449,32 @@ def setup_listeners(config):
     from cliquet import events as cliquet_events
     import transaction
 
-    def send_resource_events(success, request):
-        if success:
-            events = request.bound_data.get("resource_events", [])
-            per_resource = cliquet_events.merge_by_resource(events)
-            for event in per_resource:
-                try:
-                    request.registry.notify(event)
-                except Exception:
-                    logger.error("Unable to notify", exc_info=True)
+    def notify_resource_events(success, request):
+        """Notify the accumlated resource events if transaction succeeds.
+        """
+        if not success:
+            return
+        for event in request.get_resource_events():
+            try:
+                request.registry.notify(event)
+            except Exception:
+                logger.error("Unable to notify", exc_info=True)
 
     def on_new_request(event):
+        """When a new request comes in, hook on transaction commit.
+        """
+        # Since there is one transaction per batch, ignore subrequests.
         if hasattr(event.request, 'parent'):
             return
         current = transaction.get()
-        current.addAfterCommitHook(send_resource_events, args=(event.request,))
+        current.addAfterCommitHook(notify_resource_events,
+                                   args=(event.request,))
 
     config.add_subscriber(on_new_request, NewRequest)
+    config.add_request_method(cliquet_events.get_resource_events,
+                              name='get_resource_events')
+    config.add_request_method(cliquet_events.notify_resource_event,
+                              name='notify_resource_event')
 
 
 def load_default_settings(config, default_settings):

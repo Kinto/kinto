@@ -12,6 +12,7 @@ ACTIONS = Enum(CREATE='create',
 class _ResourceEvent(object):
     def __init__(self, action, resource, request):
         self.request = request
+        # XXX: Move to reified request method.
         service = current_service(request)
         resource_name = service.viewset.get_name(resource.__class__)
 
@@ -45,44 +46,44 @@ class ResourceChanged(_ResourceEvent):
         self.impacted_records = impacted_records
 
 
-def merge_by_resource(events):
-    """
-    Emit a :class:`cliquet.event.ResourceChanged` event with the
-    impacted records.
-    """
-    merged = OrderedDict()
-    for event in events:
-        group_by = '{resource_name}-{action}'.format(**event.payload)
-        if group_by not in merged:
-            merged[group_by] = event
-        else:
-            impacted_records = event.impacted_records
-            merged[group_by].impacted_records.extend(impacted_records)
-    return merged.values()
+def get_resource_events(request, ):
+    events = request.bound_data.get("resource_events")
+    if events is None:
+        return []
+    return events.values()
 
 
-def build_event(resource, request, result, action, old):
+def notify_resource_event(request, resource, data, action, old):
     """
+    XXX
     """
-    if not isinstance(result, list):
-        result = [result]
-
     if action == ACTIONS.READ:
-        event_cls = ResourceRead
-    else:
-        event_cls = ResourceChanged
-
-    if action == ACTIONS.READ:
-        impacted = result
+        if not isinstance(data, list):
+            data = [data]
+        impacted = data
     elif action == ACTIONS.CREATE:
-        impacted = [{'new': r} for r in result]
+        impacted = [{'new': data}]
     elif action == ACTIONS.DELETE:
-        impacted = [{'old': r} for r in result]
+        if not isinstance(data, list):
+            data = [data]
+        impacted = [{'old': r} for r in data]
     elif action == ACTIONS.UPDATE:
-        # XXX `old` is "always" the same, since currently, we can only
-        # notify one update at a time.
-        # This code will change when plugged with transactions (and batch).
-        impacted = [{'new': r, 'old': old} for r in result]
+        impacted = [{'new': data, 'old': old}]
 
-    event = event_cls(action, resource, impacted, request)
-    return event
+    # Get previously triggered events.
+    events = request.bound_data.setdefault("resource_events", OrderedDict())
+    # XXX: Move to reified request method
+    service = current_service(request)
+    resource_name = service.viewset.get_name(resource.__class__)
+
+    # Add to impacted records or create new event.
+    group_by = resource_name + action
+    if group_by in events:
+        events[group_by].impacted_records.extend(impacted)
+    else:
+        if action == ACTIONS.READ:
+            event_cls = ResourceRead
+        else:
+            event_cls = ResourceChanged
+        event = event_cls(action, resource, impacted, request)
+        events[group_by] = event

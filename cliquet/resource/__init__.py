@@ -12,7 +12,7 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 from cliquet import logger
 from cliquet import Service
 from cliquet.errors import http_error, raise_invalid, send_alert, ERRORS
-from cliquet.events import build_event, ACTIONS
+from cliquet.events import ACTIONS
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
@@ -613,9 +613,10 @@ class UserResource(object):
             'data': result
         }
 
-        events = self.request.bound_data.setdefault("resource_events", [])
-        event = build_event(self, self.request, result, action, old)
-        events.append(event)
+        self.request.notify_resource_event(resource=self,
+                                           data=result,
+                                           action=action,
+                                           old=old)
 
         return body
 
