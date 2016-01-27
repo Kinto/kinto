@@ -235,20 +235,24 @@ Can I encrypt my data?
 ----------------------
 
 Kinto server stores any data you pass to it, whether it's encrypted or not. We believe
-encryption should always be done on the client-side, and we make it easy to use encryption in
-our Kinto.js client `using transformers <http://kintojs.readthedocs.org/en/latest/api/#transformers>`_.
+encryption should always be done on the client-side, and we make it `easy to use encryption in our Kinto.js client
+<http://www.servicedenuages.fr/en/kinto-encryption-example>`_.
+
 
 Is there a package for my Operating System?
 -------------------------------------------
 
 No, but it's a great idea. Maintaining packages for several platforms is time-consuming
-and we're a small team. At this time we're just making sure it's easy to run our server
-using our Makefile or our Dockerfile.
+and we're a small team.
 
-Kinto is :ref:`easy to run with Docker or Python pip <get-started>`.
+Currently we make sure it's :ref:`easy to run with Docker or Python pip <get-started>`.
 
-But if you'd like to help us out by maintaining packages for your favourite OS,
-we'd be delighted to collaborate with you!
+We also have a `single-click deployment on Heroku <get-started>`.
+
+.. important::
+
+    If you'd like to help us out by maintaining packages for your favourite OS,
+    we'd be delighted to collaborate with you!
 
 
 Why did you chose to use Python rather than X?
@@ -274,13 +278,7 @@ YES™. Have a look at the ``/dev/null`` backend. ;-)
 Can I store files inside Kinto?
 -------------------------------
 
-Not yet, but we've designed a file storage feature and
-we're `working on its implementaton <https://github.com/Kinto/kinto-attachment/>`_.
-It should land in a release sometimes in 2016.
-
-In the meantime, we're always looking for early feeback if you want to
-try our cutting edge version.
-
+Yes, using the :github:`Kinto/kinto-attachment` plugin.
 
 
 What is Cliquet? What is the difference between Cliquet and Kinto ?
