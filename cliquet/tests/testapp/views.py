@@ -1,3 +1,8 @@
+from pyramid import httpexceptions
+from pyramid.view import view_config
+from pyramid.security import NO_PERMISSION_REQUIRED
+from requests.exceptions import HTTPError
+
 from cliquet import resource
 import colander
 
@@ -42,3 +47,11 @@ class SchemaLess(resource.ResourceSchema):
 @resource.register()
 class Spore(resource.ShareableResource):
     mapping = SchemaLess()
+
+
+@view_config(context=HTTPError, permission=NO_PERMISSION_REQUIRED)
+def response_error(context, request):
+    if context.response.status_code == 404:
+        error_msg = "Handled in tests/testapp/views.py"
+        return httpexceptions.HTTPNotFound(body=error_msg)
+    raise context

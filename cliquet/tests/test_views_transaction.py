@@ -84,6 +84,21 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
         resp = self.app.get('/mushrooms', headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
+    def test_modifications_are_not_rolled_back_on_4XX_error(self):
+        request_create = {
+            'method': 'POST',
+            'path': '/mushrooms',
+            'body': {'data': {'name': 'Vesse de loup'}}
+        }
+        request_get = {
+            'method': 'GET',
+            'path': '/this-is-an-unknown-url',
+        }
+        body = {'requests': [request_create, request_get]}
+        resp = self.app.post_json('/batch', body, headers=self.headers)
+        resp = self.app.get('/mushrooms', headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 1)
+
     def test_modifications_are_rolled_back_on_error_accross_backends(self):
         self.run_failing_post()
 
