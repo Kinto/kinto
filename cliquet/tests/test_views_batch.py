@@ -73,6 +73,20 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
             self.app.post_json('/batch', body, headers=self.headers,
                                status=500)
 
+    def test_errors_handled_by_view_does_not_make_the_batch_fail(self):
+        from requests.exceptions import HTTPError
+
+        request = {'path': '/v0/'}
+        body = {'requests': [request]}
+
+        with mock.patch('cliquet.views.hello.get_eos') as mocked:
+            response = mock.MagicMock(status_code=404)
+            mocked.side_effect = HTTPError(response=response)
+            resp = self.app.post_json('/batch', body, headers=self.headers,
+                                      status=200)
+            subresponse = resp.json['responses'][0]['body']
+            self.assertEqual(subresponse, 'Handled in tests/testapp/views.py')
+
     def test_batch_cannot_be_recursive(self):
         requests = {'requests': [{'path': '/v0/'}]}
         request = {'method': 'POST', 'path': '/v0/batch', 'body': requests}

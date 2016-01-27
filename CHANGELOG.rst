@@ -11,6 +11,10 @@ This document describes changes between each past release.
 
 - Forward slashes (``/``) are not escaped anymore in JSON responses (ref #537)
 
+**Bug fixes**
+
+- Batch now relies on custom views responses (``@viewconfig(context=Error)``)
+  (fixes mozilla-services/syncto#78, rel #629)
 
 2.14.0 (2016-01-15)
 -------------------
