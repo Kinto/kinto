@@ -1,7 +1,7 @@
 .. _tutorial-github:
 
 How to setup Github authentication?
-###################################
+===================================
 
 In this tutorial, we will authenticate users using Github.
 
@@ -9,7 +9,7 @@ Users obtain a Bearer token from Github and use it in an ``Authenticatìon`` hea
 Leveraging Kinto pluggability, a custom authentication policy is specified in settings in order to validate it.
 
 Custom authentication
-=====================
+---------------------
 
 Create a file :file:`kinto_github.py` with the following scaffold:
 
@@ -40,7 +40,7 @@ Don't be scared by those lines. It just implements the necessary methods to matc
 
 
 Add it to Python path
----------------------
+'''''''''''''''''''''
 
 For the simplicity in this tutorial, we will just alter the ``PYTHONPATH`` system
 environment variable. Specify the path to the folder containing the :file:`kinto_github.py`:
@@ -64,7 +64,7 @@ In order to test that it works, simply try to import it from a ``python`` script
 
 
 Enable in configuration
------------------------
+'''''''''''''''''''''''
 
 :ref:`As explained in the settings section <configuration-authentication>`, just
 enable a new policy pointing to your Python class:
@@ -79,7 +79,7 @@ Kinto should start without errors.
 
 
 Test it
--------
+'''''''
 
 Since we left ``basicauth`` in settings, it should still be accepted:
 
@@ -123,7 +123,7 @@ should see its output in the console when a request comes in.
 
 
 Github token validation
-=======================
+-----------------------
 
 We don't want to make a call to the Github API if the request does not use a Github ``Bearer`` token.
 
@@ -170,7 +170,7 @@ Now using Basic Authentication it should be skipped, but with this request it sh
 
 
 Validate token while obtaining user id from Github
---------------------------------------------------
+''''''''''''''''''''''''''''''''''''''''''''''''''
 
 We will simply make a call to the Github user API and try to obtain the ``login`` attribute (i.e. user name).
 
@@ -243,10 +243,10 @@ Let's try to create an object on Kinto, it should fail using a ``401 Unauthorize
 
 
 Test it!
-========
+--------
 
 Obtain a Personal Access token
-------------------------------
+''''''''''''''''''''''''''''''
 
 Create a *Personal access token* using the Github API using your user/pass:
 
@@ -289,7 +289,7 @@ It is returned in the ``token`` attribute in the JSON response:
 
 
 Check your user id
-------------------
+''''''''''''''''''
 
 .. code-block:: shell
 
@@ -326,7 +326,7 @@ Check your user id
 
 
 Use it in permissions
----------------------
+'''''''''''''''''''''
 
 The user id ``github:<username>`` can now be used in permissions definitions.
 It is much more convenient than Basic Auth identifiers!
@@ -338,7 +338,7 @@ It is much more convenient than Basic Auth identifiers!
 
 
 Cache the token validation
---------------------------
+''''''''''''''''''''''''''
 
 Using the following snippet you can cache the association between a token and the user id, in order to avoid requesting Github at each request.
 
@@ -358,7 +358,7 @@ It uses Kinto internal cache backend (*if configured*):
 
 
 Next steps
-==========
+----------
 
 Now that this policy works as expected, you can bring it to the next level!
 
