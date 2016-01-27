@@ -52,7 +52,7 @@ class BaseEventTest(BaseWebTest):
 
 class ResourceReadTest(BaseEventTest, unittest.TestCase):
 
-    def test_read_event_triggered_on_get(self):
+    def test_get_sends_read_event(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers, status=201)
         record_id = resp.json['data']['id']
@@ -62,13 +62,13 @@ class ResourceReadTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(self.events[1].payload['action'], ACTIONS.READ)
         self.assertEqual(len(self.events[1].read_records), 1)
 
-    def test_read_event_triggered_on_collection_get(self):
+    def test_collection_get_sends_read_event(self):
         self.app.get(self.collection_url, headers=self.headers)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload['action'], ACTIONS.READ)
         self.assertEqual(len(self.events[0].read_records), 0)
 
-    def test_read_event_triggered_on_post_if_existing(self):
+    def test_post_sends_read_if_id_already_exists(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers, status=201)
         record = resp.json['data']
@@ -84,13 +84,13 @@ class ResourceReadTest(BaseEventTest, unittest.TestCase):
 
 class ResourceChangedTest(BaseEventTest, unittest.TestCase):
 
-    def test_event_triggered_on_post(self):
+    def test_post_sends_create_action(self):
         self.app.post_json(self.collection_url, self.body,
                            headers=self.headers, status=201)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
 
-    def test_event_triggered_on_put(self):
+    def test_put_sends_create_action(self):
         body = dict(self.body)
         body['data']['id'] = record_id = str(uuid.uuid4())
         record_url = self.get_item_url(record_id)
@@ -99,7 +99,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
 
-    def test_event_no_triggered_on_failed_write(self):
+    def test_not_triggered_on_failed_put(self):
         record_id = str(uuid.uuid4())
         record_url = self.get_item_url(record_id)
         self.app.put_json(record_url, self.body, headers=self.headers)
@@ -109,7 +109,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
 
-    def test_event_triggered_on_update_via_patch(self):
+    def test_patch_sends_update_action(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers, status=201)
         record = resp.json['data']
@@ -121,7 +121,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
         self.assertEqual(self.events[1].payload['action'], ACTIONS.UPDATE)
 
-    def test_event_triggered_on_update_via_put(self):
+    def test_put_sends_update_action_if_record_exists(self):
         body = dict(self.body)
         body['data']['id'] = record_id = str(uuid.uuid4())
         record_url = self.get_item_url(record_id)
@@ -136,7 +136,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
         self.assertEqual(self.events[1].payload['action'], ACTIONS.UPDATE)
 
-    def test_event_triggered_on_delete(self):
+    def test_delete_sends_delete_action(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers, status=201)
         record = resp.json['data']
@@ -147,7 +147,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
         self.assertEqual(self.events[1].payload['action'], ACTIONS.DELETE)
 
-    def test_event_triggered_collection_delete(self):
+    def test_collection_delete_sends_delete_action(self):
         self.app.post_json(self.collection_url, self.body,
                            headers=self.headers, status=201)
         self.app.post_json(self.collection_url, self.body,
@@ -160,7 +160,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(self.events[1].payload['action'], ACTIONS.CREATE)
         self.assertEqual(self.events[2].payload['action'], ACTIONS.DELETE)
 
-    def test_event_not_triggered_if_notify_fails(self):
+    def test_not_triggered_if_notify_fails(self):
         # if the notification system is broken we should still see
         # the record created
         with notif_broken(self.app.app):
@@ -172,7 +172,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertNotEqual(record_url, None)
         self.assertEqual(len(self.events), 0)
 
-    def test_event_triggered_on_protected_resource(self):
+    def test_triggered_on_protected_resource(self):
         app = self.make_app(settings={
             'psilo_write_principals': 'system.Authenticated'
         })
@@ -181,10 +181,24 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
 
+    def test_permissions_are_stripped_from_event_on_protected_resource(self):
+        app = self.make_app(settings={
+            'psilo_write_principals': 'system.Authenticated'
+        })
+        resp = app.post_json('/psilos', self.body,
+                             headers=self.headers, status=201)
+        record = resp.json['data']
+        record_url = '/psilos/' + record['id']
+        app.patch_json(record_url, {"data": {"name": "De barcelona"}},
+                       headers=self.headers)
+        impacted_records = self.events[-1].impacted_records
+        self.assertNotIn('__permissions__', impacted_records[0]['new'])
+        self.assertNotIn('__permissions__', impacted_records[0]['old'])
+
 
 class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
 
-    def test_impacted_records_on_create(self):
+    def test_create_has_new_record_and_no_old_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers)
         record = resp.json['data']
@@ -193,7 +207,7 @@ class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
         self.assertNotIn('old', impacted_records[0])
         self.assertEqual(impacted_records[0]['new'], record)
 
-    def test_impacted_records_on_collection_delete(self):
+    def test_collection_delete_has_old_record_and_no_new_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers)
         record1 = resp.json['data']
@@ -213,7 +227,7 @@ class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
                        impacted_records[1]['old']['id']}
         self.assertEqual(deleted_ids, {record1['id'], record2['id']})
 
-    def test_impacted_records_on_update(self):
+    def test_update_has_old_and_new_record(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers, status=201)
         record = resp.json['data']
@@ -228,7 +242,7 @@ class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(impacted_records[0]['old']['name'], 'de Paris')
         self.assertEqual(impacted_records[0]['new']['name'], 'en boite')
 
-    def test_impacted_records_on_delete(self):
+    def test_delete_has_old_record_and_no_new_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers, status=201)
         record = resp.json['data']
@@ -240,20 +254,6 @@ class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
         self.assertNotIn('new', impacted_records[0])
         self.assertEqual(impacted_records[0]['old']['id'], record['id'])
         self.assertEqual(impacted_records[0]['old']['deleted'], True)
-
-    def test_permissions_are_stripped_from_event_on_protected_resource(self):
-        app = self.make_app(settings={
-            'psilo_write_principals': 'system.Authenticated'
-        })
-        resp = app.post_json('/psilos', self.body,
-                             headers=self.headers, status=201)
-        record = resp.json['data']
-        record_url = '/psilos/' + record['id']
-        app.patch_json(record_url, {"data": {"name": "De barcelona"}},
-                       headers=self.headers)
-        impacted_records = self.events[-1].impacted_records
-        self.assertNotIn('__permissions__', impacted_records[0]['new'])
-        self.assertNotIn('__permissions__', impacted_records[0]['old'])
 
 
 class BatchEventsTest(BaseEventTest, unittest.TestCase):
