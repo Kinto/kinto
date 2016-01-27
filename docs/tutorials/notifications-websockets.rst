@@ -35,7 +35,7 @@ Python version, first install it:
 :ref:`As explained in the settings section <configuring-notifications>`,
 add these lines to setup a listener, and be notified of record updates per collection:
 
-.. code-block:: bash
+.. code-block:: ini
 
     kinto.includes = cliquet_pusher
 
@@ -59,7 +59,7 @@ should be able to see them in the *Debug Console* of your *Pusher dashboard*.
 
 For example, create an arbitrary record with `httpie <http://httpie.org>`_
 
-::
+.. code-block:: shell
 
     $ echo '{"data":{"name":"bob"}}' | \
         http POST http://localhost:8888/v1/buckets/default/collections/tasks/records --auth alice:secret

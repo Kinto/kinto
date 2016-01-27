@@ -85,7 +85,7 @@ Since we left ``basicauth`` in settings, it should still be accepted:
 
 ::
 
-    http GET http://localhost:8888/v1/ --auth alice:secret
+    $ http GET http://localhost:8888/v1/ --auth alice:secret
 
 .. code-block:: javascript
     :emphasize-lines: 16
@@ -166,7 +166,7 @@ Now using Basic Authentication it should be skipped, but with this request it sh
 
 ::
 
-    http http://localhost:8888/v1/ "Authorization: github+Bearer foobartoken"
+    $ http http://localhost:8888/v1/ "Authorization: github+Bearer foobartoken"
 
 
 Validate token while obtaining user id from Github
@@ -221,7 +221,7 @@ Let's try to create an object on Kinto, it should fail using a ``401 Unauthorize
 
 ::
 
-    http PUT http://localhost:8888/v1/buckets/test "Authorization: github+Bearer foobartoken"
+    $ http PUT http://localhost:8888/v1/buckets/test "Authorization: github+Bearer foobartoken"
 
 .. code-block:: http
 
@@ -250,9 +250,9 @@ Obtain a Personal Access token
 
 Create a *Personal access token* using the Github API using your user/pass:
 
-::
+.. code-block:: shell
 
-    echo '{"note": "Kinto Github tutorial"}' | http POST https://api.github.com/authorizations --auth user:password
+    $ echo '{"note": "Kinto Github tutorial"}' | http POST https://api.github.com/authorizations --auth user:password
 
 It is returned in the ``token`` attribute in the JSON response:
 
@@ -262,7 +262,6 @@ It is returned in the ``token`` attribute in the JSON response:
     HTTP/1.1 201 Created
     Access-Control-Allow-Credentials: true
     Access-Control-Allow-Origin: *
-    ...
 
     {
         "app": {
@@ -292,9 +291,9 @@ It is returned in the ``token`` attribute in the JSON response:
 Check your user id
 ------------------
 
-::
+.. code-block:: shell
 
-    http http://localhost:8888/v1/ "Authorization: github+Bearer 7f7f911969279d8b16a12f44b8bc6e2d216dc51e"
+    $ http http://localhost:8888/v1/ "Authorization: github+Bearer 7f7f911969279d8b16a12f44b8bc6e2d216dc51e"
 
 .. code-block:: http
     :emphasize-lines: 23
@@ -334,7 +333,7 @@ It is much more convenient than Basic Auth identifiers!
 
 ::
 
-    echo '{"permissions": {"read": ["github:leplatrem"]}}' | \
+    $ echo '{"permissions": {"read": ["github:leplatrem"]}}' | \
         http PUT http://localhost:8888/v0/buckets/test  --auth='another:userpass'
 
 
