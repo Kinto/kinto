@@ -415,7 +415,7 @@ values for OAuth2 client settings.
 See :github:`mozilla-services/cliquet-fxa`.
 
 
-.. _configuring-plugins:
+.. _configuration-plugins:
 
 Plugins
 =======

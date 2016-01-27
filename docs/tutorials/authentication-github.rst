@@ -1,4 +1,4 @@
-.. _tutorial-first-steps:
+.. _tutorial-github:
 
 How to setup Github authentication?
 ###################################
