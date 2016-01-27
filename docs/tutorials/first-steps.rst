@@ -35,7 +35,7 @@ Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#
 
     $ echo '{"data": {"description": "Write a tutorial explaining Kinto", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-             -v --auth 'user:password'
+             -v --auth 'token:your-user-token'
 
 .. code-block:: http
 
@@ -74,9 +74,16 @@ Let us fetch our new collection of tasks:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-           -v --auth 'user:password'
+           -v --auth 'token:your-user-token'
 
 .. code-block:: http
+    GET /v1/buckets/default/collections/tasks/records HTTP/1.1
+    Accept: */*
+    Accept-Encoding: gzip, deflate
+    Authorization: Basic dXNlcjpwYXNzd29yZA==
+    Connection: keep-alive
+    Host: kinto.dev.mozaws.net
+    User-Agent: HTTPie/0.9.2
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified, ETag
@@ -112,7 +119,7 @@ We can also update one of our tasks using its ``id``:
 
     $ echo '{"data": {"status": "doing"}}' | \
          http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
-              -v  --auth 'user:password'
+              -v  --auth 'token:your-user-token'
 
 .. code-block:: http
 
@@ -159,7 +166,7 @@ while we fetched the collection earlier - you kept a note, didn't you?):
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1434641515332"' \
-            -v  --auth 'user:password'
+            -v  --auth 'token:your-user-token'
 
 .. code-block:: http
 
@@ -188,7 +195,7 @@ single record and merge attributes locally:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
-           -v  --auth 'user:password'
+           -v  --auth 'token:your-user-token'
 
 .. code-block:: http
 
@@ -230,7 +237,7 @@ record ``ETag`` value:
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1436172229372"' \
-            -v  --auth 'user:password'
+            -v  --auth 'token:your-user-token'
 
 .. code-block:: http
 
@@ -264,7 +271,7 @@ You can also delete the record and use the same mechanism to avoid conflicts:
 
     $ http DELETE https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
            If-Match:'"1436172442466"' \
-           -v  --auth 'user:password'
+           -v  --auth 'token:your-user-token'
 
 .. code-block:: http
 
@@ -295,7 +302,7 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since=1434642603605 \
-           -v  --auth 'user:password'
+           -v  --auth 'token:your-user-token'
 
 .. code-block:: http
 
@@ -336,7 +343,7 @@ application-specific bucket called ``todo``.
 .. code-block:: shell
 
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/todo \
-        -v --auth 'user:password'
+        -v --auth 'token:your-user-token'
 
 .. code-block:: http
 
@@ -373,7 +380,7 @@ authenticated users (i.e. ``system.Authenticated``):
 
     $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks \
-            -v --auth 'user:password'
+            -v --auth 'token:your-user-token'
 
 .. code-block:: http
 
@@ -561,7 +568,7 @@ bucket:
 
     $ echo '{"permissions": {"group:create": ["system.Authenticated"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo \
-            -v --auth 'user:password'
+            -v --auth 'token:your-user-token'
 
 .. code-block:: http
 
