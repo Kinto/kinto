@@ -4,12 +4,12 @@ Changelog
 This document describes changes between each past release.
 
 
-2.14.1 (unreleased)
+2.15.0 (2016-01-27)
 -------------------
 
 **Protocol**
 
-- Forward slashes (``/``) are not escaped anymore in JSON responses (ref #537)
+- Forward slashes (``/``) are not escaped anymore in JSON responses (#537)
 - The API capabilities can be exposed in a ``capabilities`` attribute in the
   root URL (#628). Clients can rely on this to detect optional features on the
   server (e.g. enabled plugins).
@@ -18,6 +18,8 @@ This document describes changes between each past release.
 
 - Batch now relies on custom views responses (``@viewconfig(context=Error)``)
   (fixes mozilla-services/syncto#78, rel #629)
+- Fix listener name logging (#626)
+
 
 2.14.0 (2016-01-15)
 -------------------
