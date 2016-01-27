@@ -452,13 +452,12 @@ def setup_listeners(config):
     def notify_resource_events(success, request):
         """Notify the accumlated resource events if transaction succeeds.
         """
-        if not success:
-            return
-        for event in request.get_resource_events():
-            try:
-                request.registry.notify(event)
-            except Exception:
-                logger.error("Unable to notify", exc_info=True)
+        if success:
+            for event in request.get_resource_events():
+                try:
+                    request.registry.notify(event)
+                except Exception:
+                    logger.error("Unable to notify", exc_info=True)
 
     def on_new_request(event):
         """When a new request comes in, hook on transaction commit.
