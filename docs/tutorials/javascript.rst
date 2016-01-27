@@ -1,7 +1,7 @@
 .. _tutorial-javascript:
 
 Kinto for JavaScript applications
-#################################
+=================================
 
 Kinto is particularly relevant for the Web, thus it is very probable that you'll
 want to interact with the server using JavaScript.

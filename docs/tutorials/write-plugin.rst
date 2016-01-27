@@ -1,7 +1,7 @@
 .. _tutorial-write-plugin:
 
-How to write a Kinto plugin
-###########################
+How to write a Kinto plugin?
+============================
 
 *Kinto* plugins allow to add extra-features to *Kinto*. Most notably:
 

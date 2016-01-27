@@ -281,8 +281,8 @@ Can I store files inside Kinto?
 Yes, using the :github:`Kinto/kinto-attachment` plugin.
 
 
-What is Cliquet? What is the difference between Cliquet and Kinto ?
--------------------------------------------------------------------
+What is Cliquet? What is the difference between Cliquet and Kinto?
+------------------------------------------------------------------
 
 Cliquet is a toolkit for designing micro-services. Kinto is a server built
 using that toolkit.

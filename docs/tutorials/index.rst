@@ -12,6 +12,6 @@ Tutorials
    notifications-custom
    authentication-github
    permissions
+   write-plugin
    permission-setups
    app-examples
-   write-plugin

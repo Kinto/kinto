@@ -1,7 +1,7 @@
 .. _tutorial-notifications-custom-code:
 
-How to run custom code on notifications ?
-=========================================
+How to run custom code on notifications?
+========================================
 
 Kinto is able to execute some custom code when a particular event occurs.
 For example, when a record is created or updated in a particular collection.
