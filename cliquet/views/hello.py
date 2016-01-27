@@ -43,6 +43,9 @@ def get_hello(request):
     if prefixed_userid:
         data['user'] = request.get_user_info()
 
+    # Application can register and expose arbitrary capabilities.
+    data['capabilities'] = request.registry.api_capabilities
+
     return data
 
 
