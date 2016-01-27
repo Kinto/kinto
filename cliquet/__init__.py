@@ -119,9 +119,10 @@ def includeme(config):
 
     # Directive to declare arbitrary API capabilities.
     def add_api_capability(config, identifier, description="", url="", **kw):
-        if identifier in config.registry.api_capabilities:
-            error_msg = "API capability '%s' already exists." % identifier
-            raise ValueError(error_msg)
+        existing = config.registry.api_capabilities.get(identifier)
+        if existing:
+            error_msg = "The '%s' API capability was already registered (%s)."
+            raise ValueError(error_msg % (identifier, existing))
 
         capability = dict(description=description, url=url, **kw)
         config.registry.api_capabilities[identifier] = capability

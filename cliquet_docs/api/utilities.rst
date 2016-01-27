@@ -25,7 +25,16 @@ The returned value is a JSON mapping containing:
 
 - ``capabilities``: a mapping used by clients to detect optional features of the API.
 
-  - Example: ``{"auth-fxa": {"description": "Firefox Account authentication", "url": "http://github.com/mozilla-services/cliquet-fxa"}}``
+  - Example:
+
+    .. code-block:: javascript
+
+        {
+          "auth-fxa": {
+            "description": "Firefox Account authentication",
+            "url": "http://github.com/mozilla-services/cliquet-fxa"
+          }
+        }
 
 **Optional**
 

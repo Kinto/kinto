@@ -200,33 +200,6 @@ Advanced initialization
 .. autofunction:: cliquet.initialize
 
 
-
-Declare API capabilities
-------------------------
-
-Arbitrary capabilities can be declared and exposed in the :ref:`root URL <api-utilities>`.
-
-Clients can rely on this to detect optional features on the server (e.g. enabled plugins).
-
-.. code-block:: python
-    :emphasize-lines: 7-11
-
-    def main(global_config, **settings):
-        config = Configurator(settings=settings)
-
-        cliquet.initialize(config, __version__)
-        config.scan("myproject.views")
-
-        settings = config.get_settings()
-        if settings['flush_enabled']:
-            config.add_api_capability("flush",
-                                      description="Flush server using endpoint",
-                                      url="http://kinto.readthedocs.org/en/latest/configuration/settings.html#activating-the-flush-endpoint")
-
-        return config.make_wsgi_app()
-
-
-
 Beyond Cliquet
 --------------
 
