@@ -21,7 +21,7 @@ REQUIREMENTS = [
     'colander',
     'cornice >= 1.1',  # Fix cache CORS
     'python-dateutil',
-    'pyramid_multiauth >= 0.5',  # Pluggable authz
+    'pyramid_multiauth >= 0.6',  # Policy name in event.
     'pyramid_tm',
     'redis',  # Default backend
     'requests',

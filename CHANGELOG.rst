@@ -27,6 +27,12 @@ This document describes changes between each past release.
 - Fix listener name logging during startup (#626)
 
 
+**New features**
+
+- The policy name used to configure authentication in settings is now used for
+  the user id prefix and StatsD ``authn_type`` counters.
+
+
 2.14.0 (2016-01-15)
 -------------------
 

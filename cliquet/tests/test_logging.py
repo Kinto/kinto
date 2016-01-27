@@ -232,7 +232,7 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         app = self.make_app({'multiauth.policies': 'basicauth'})
         app.get('/mushrooms', headers={'Authorization': 'Basic bWF0OjE='})
         event_dict = logger_context()
-        self.assertEqual(event_dict['authn_type'], 'BasicAuth')
+        self.assertEqual(event_dict['authn_type'], 'basicauth')
 
 
 class BatchSubrequestTest(BaseWebTest, unittest.TestCase):

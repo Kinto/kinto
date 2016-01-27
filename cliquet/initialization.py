@@ -126,9 +126,7 @@ def setup_authentication(config):
 
     # Track policy used, for prefixing user_id and for logging.
     def on_policy_selected(event):
-        value = event.policy.__class__.__name__
-        authn_type = value.replace('Authentication', '').replace('Policy', '')
-        event.request.authn_type = authn_type
+        event.request.authn_type = event.policy_name.lower()
 
     config.add_subscriber(on_policy_selected, MultiAuthPolicySelected)
 
