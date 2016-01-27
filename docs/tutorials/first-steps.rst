@@ -10,6 +10,81 @@ particulary relevant as a storage backend:
   - Sync and share data between users, with fined-grained permissions.
 
 
+A word about users with Kinto
+=============================
+
+First of all Kinto doesn't handle users managements.
+
+You do not have such thing as user creation, user removal, user
+password modifications, etc.
+
+However Kinto handle users permissions, which means users are uniquely
+identified in Kinto.
+
+
+How is that possible?
+---------------------
+
+This is possible by plugging in Kinto with an Identity provider.
+
+Multiple identity providers solutions are available such as OAuth,
+SAML, x509, Hawk sessions, etc.
+
+With regards to the application you are building you may want to plug
+Github, Facebook or your company identity provider.
+
+You may also want to use arbitrary tokens by making sure:
+
+ - each user has a different one;
+ - a user always uses the same token.
+
+This is what we are doing within the the scope of this tutorial and
+this documentation.
+
+We use the Basic Auth protocol like that: ``token:my-secret-token``
+
+
+How can I generate a strong token for production use?
+-----------------------------------------------------
+
+I would recommand you to use 32 random bytes digest as either a Base64
+or a Hexadecimal string:
+
+.. code-block:: js
+
+    var crypto = require("crypto");
+
+	crypto.randomBytes(32).toString("hex"));
+    // 8d11dfa2ab1fab42c841bcda834a66553624b03e8ef6bb5e8ec6fdd791a9398d
+
+    crypto.randomBytes(32).toString("base64");
+    // nkz6+hN9KVtXX6bZ9+RPof0NgF9hmm5gFhKpWbiMGgw=
+
+.. code-block:: python
+
+    import base64, os
+
+    print(base64.b64encode(os.urandom(32)))
+    # ElVLPnEDV31M72BijtVLeIx7nt96TXc+8NiSiga/lTU=
+
+    print(os.urandom(32).encode('hex'))
+    # 6573ba5016f740b04a0af7b59fe47045c0b9d4f94b1f613eaa11d276bc5e9abc
+
+Then you can use:
+
+.. code-block:: shell
+
+    $ http GET https://kinto.dev.mozaws.net/v1/ \
+        --auth "token:6573ba5016f740b04a0af7b59fe47045c0b9d4f94b1f613eaa11d276bc5e9abc"
+
+or:
+
+.. code-block:: shell
+
+    $ http GET https://kinto.dev.mozaws.net/v1/ \
+        --auth "token:nkz6+hN9KVtXX6bZ9+RPof0NgF9hmm5gFhKpWbiMGgw="
+
+
 Sync user data between devices
 ==============================
 
