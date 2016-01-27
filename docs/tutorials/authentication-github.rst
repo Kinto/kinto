@@ -1,7 +1,7 @@
 .. _tutorial-first-steps:
 
-How to setup Github authentication ?
-####################################
+How to setup Github authentication?
+###################################
 
 In this tutorial, we will authenticate users using Github.
 

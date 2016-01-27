@@ -1,7 +1,7 @@
 .. _tutorial-notifications-websockets:
 
-How to setup push notifications using WebSockets ?
-==================================================
+How to setup push notifications using WebSockets?
+=================================================
 
 This tutorial presents the basic steps to implement live synchronisation of
 records between clients.

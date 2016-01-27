@@ -283,8 +283,8 @@ try our cutting edge version.
 
 
 
-What is Cliquet? What is the difference between Cliquet and Kinto ?
--------------------------------------------------------------------
+What is Cliquet? What is the difference between Cliquet and Kinto?
+------------------------------------------------------------------
 
 Cliquet is a toolkit for designing micro-services. Kinto is a server built
 using that toolkit.
