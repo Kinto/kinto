@@ -110,7 +110,7 @@ The currently authenticated *user ID* can be obtained on the root URL.
 .. code-block:: http
     :emphasize-lines: 17
 
-    $ http GET http://localhost:8888/v1/ --auth user:pass
+    $ http GET http://localhost:8888/v1/ --auth token:my-secret
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
     Content-Length: 288
@@ -154,7 +154,7 @@ Retrieve permissions
 
     .. sourcecode:: bash
 
-        $ http GET http://localhost:8888/v1/buckets/default --auth="bob:" --verbose
+        $ http GET http://localhost:8888/v1/buckets/default --auth token:bob --verbose
 
     .. sourcecode:: http
 
@@ -208,7 +208,7 @@ Add a permission
 
         $ echo '{"permissions": {"read": ["system.Authenticated"]}}' | \
           http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks \
-          --auth bob:
+          --auth token:bob
 
     .. sourcecode:: http
 
@@ -282,7 +282,7 @@ Replace or remove permissions
 
         $ echo '{"permissions": {"write": ["groups:writers"]}}' | \
           http PUT https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks \
-          --auth bob:
+          --auth token:bob
 
     .. sourcecode:: http
 

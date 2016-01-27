@@ -85,7 +85,7 @@ Since we left ``basicauth`` in settings, it should still be accepted:
 
 ::
 
-    $ http GET http://localhost:8888/v1/ --auth alice:secret
+    $ http GET http://localhost:8888/v1/ --auth token:alice
 
 .. code-block:: javascript
     :emphasize-lines: 16
@@ -252,7 +252,7 @@ Create a *Personal access token* using the Github API using your user/pass:
 
 .. code-block:: shell
 
-    $ echo '{"note": "Kinto Github tutorial"}' | http POST https://api.github.com/authorizations --auth user:password
+    $ echo '{"note": "Kinto Github tutorial"}' | http POST https://api.github.com/authorizations --auth token:user
 
 It is returned in the ``token`` attribute in the JSON response:
 
@@ -334,7 +334,7 @@ It is much more convenient than Basic Auth identifiers!
 ::
 
     $ echo '{"permissions": {"read": ["github:leplatrem"]}}' | \
-        http PUT http://localhost:8888/v0/buckets/test  --auth='another:userpass'
+        http PUT http://localhost:8888/v0/buckets/test  --auth='token:another-user'
 
 
 Cache the token validation

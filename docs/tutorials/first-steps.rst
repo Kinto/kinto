@@ -35,7 +35,7 @@ Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#
 
     $ echo '{"data": {"description": "Write a tutorial explaining Kinto", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-             -v --auth 'token:your-user-token'
+             -v --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -74,7 +74,7 @@ Let us fetch our new collection of tasks:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-           -v --auth 'token:your-user-token'
+           -v --auth 'token:my-secret'
 
 .. code-block:: http
     GET /v1/buckets/default/collections/tasks/records HTTP/1.1
@@ -119,7 +119,7 @@ We can also update one of our tasks using its ``id``:
 
     $ echo '{"data": {"status": "doing"}}' | \
          http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
-              -v  --auth 'token:your-user-token'
+              -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -166,7 +166,7 @@ while we fetched the collection earlier - you kept a note, didn't you?):
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1434641515332"' \
-            -v  --auth 'token:your-user-token'
+            -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -195,7 +195,7 @@ single record and merge attributes locally:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
-           -v  --auth 'token:your-user-token'
+           -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -237,7 +237,7 @@ record ``ETag`` value:
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1436172229372"' \
-            -v  --auth 'token:your-user-token'
+            -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -271,7 +271,7 @@ You can also delete the record and use the same mechanism to avoid conflicts:
 
     $ http DELETE https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
            If-Match:'"1436172442466"' \
-           -v  --auth 'token:your-user-token'
+           -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -302,7 +302,7 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since=1434642603605 \
-           -v  --auth 'token:your-user-token'
+           -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -343,7 +343,7 @@ application-specific bucket called ``todo``.
 .. code-block:: shell
 
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/todo \
-        -v --auth 'token:your-user-token'
+        -v --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -380,7 +380,7 @@ authenticated users (i.e. ``system.Authenticated``):
 
     $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks \
-            -v --auth 'token:your-user-token'
+            -v --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -420,7 +420,7 @@ Now Alice can create a task in this collection:
 
     $ echo '{"data": {"description": "Alice task", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-        -v --auth 'alice:alicepassword'
+        -v --auth 'token:alice'
 
 .. code-block:: http
 
@@ -453,7 +453,7 @@ And Bob can also create a task:
 
     $ echo '{"data": {"description": "Bob new task", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-        -v --auth 'bob:bobpassword'
+        -v --auth 'token:bob'
 
 .. code-block:: http
 
@@ -490,7 +490,7 @@ permission on her records:
         "read": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
     }}' | \
     http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'alice:alicepassword'
+        -v --auth 'token:alice'
 
 .. code-block:: http
 
@@ -526,7 +526,7 @@ If Bob want's to get the record list, he will get his records as well as Alice's
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-           -v --auth 'bob:bobpassword'
+           -v --auth 'token:bob'
 
 .. code-block:: http
 
@@ -568,7 +568,7 @@ bucket:
 
     $ echo '{"permissions": {"group:create": ["system.Authenticated"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo \
-            -v --auth 'token:your-user-token'
+            -v --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -604,7 +604,7 @@ Now Alice can create a group of her friends (Bob and Mary):
         "members": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
                     "basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"]
     }}' | http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/groups/alice-friends \
-        -v --auth 'alice:alicepassword'
+        -v --auth 'token:alice'
 
 .. code-block:: http
 
@@ -643,7 +643,7 @@ Now Alice can share records directly with her group of friends:
         }
     }' | \
     http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'alice:alicepassword'
+        -v --auth 'token:alice'
 
 .. code-block:: http
 
@@ -677,7 +677,7 @@ And now Mary can access the record:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'mary:marypassword'
+        -v --auth 'token:mary'
 
 
 .. note::

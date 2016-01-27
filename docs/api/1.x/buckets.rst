@@ -25,7 +25,7 @@ Creating a bucket
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"id": "blog"}}' | http POST http://localhost:8888/v1/buckets --auth="bob:" --verbose
+        $ echo '{"data": {"id": "blog"}}' | http POST http://localhost:8888/v1/buckets --auth="token:bob" --verbose
 
     .. sourcecode:: http
 
@@ -88,7 +88,7 @@ Replacing a bucket
 
     .. sourcecode:: bash
 
-        $ http put http://localhost:8888/v1/buckets/blog --auth="bob:"
+        $ http put http://localhost:8888/v1/buckets/blog --auth="token:bob"
 
     .. sourcecode:: http
 
@@ -146,7 +146,7 @@ Retrieve an existing bucket
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog --auth="bob:" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog --auth="token:bob" --verbose
 
     .. sourcecode:: http
 
@@ -218,7 +218,7 @@ Deleting a bucket
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog --auth="bob:" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog --auth="token:bob" --verbose
 
     .. sourcecode:: http
 
@@ -266,7 +266,7 @@ Retrieving all buckets
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets --auth="bob:" --verbose
+        $ http get http://localhost:8888/v1/buckets --auth="token:bob" --verbose
 
     .. sourcecode:: http
 
@@ -321,7 +321,7 @@ bucket implicitly creates the collections objects on their first use.
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/default -v --auth='bob:'
+        $ http get http://localhost:8888/v1/buckets/default -v --auth='token:bob'
 
     .. sourcecode:: http
 
@@ -372,7 +372,7 @@ For convenience, the actual default bucket id is provided in the root URL of *Ki
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/ -v --follow --auth='bob:'
+        $ http get http://localhost:8888/v1/ -v --follow --auth='token:bob'
 
     **Example Response**
 
