@@ -164,7 +164,7 @@ class TutorialLoadTest(BaseLoadTest):
                       record['permissions']['record:create'])
 
         # Create a new tasks for Alice
-        alice_auth = HTTPBasicAuth('alice', 'secret-%s' % uuid.uuid4())
+        alice_auth = HTTPBasicAuth('token', 'alice-secret-%s' % uuid.uuid4())
         alice_task = build_task()
         resp = self.session.post(
             collection_url,
@@ -177,7 +177,7 @@ class TutorialLoadTest(BaseLoadTest):
         alice_task_id = record['data']['id']
 
         # Create a new tasks for Bob
-        bob_auth = HTTPBasicAuth('bob', 'secret-%s' % uuid.uuid4())
+        bob_auth = HTTPBasicAuth('token', 'bob-secret-%s' % uuid.uuid4())
         bob_task = build_task()
         resp = self.session.post(
             collection_url,
@@ -209,7 +209,7 @@ class TutorialLoadTest(BaseLoadTest):
         self.assertEqual(resp.status_code, 200)
 
         # Get mary's userid
-        mary_auth = HTTPBasicAuth('mary', 'secret-%s' % uuid.uuid4())
+        mary_auth = HTTPBasicAuth('token', 'mary-secret-%s' % uuid.uuid4())
         resp = self.session.get(self.api_url(''), auth=mary_auth)
         self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
