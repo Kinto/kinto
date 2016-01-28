@@ -82,5 +82,6 @@ setup(name='kinto',
           'monitoring': MONITORING_REQUIREMENTS,
           'fxa': FXA_REQUIREMENTS,
       },
+      test_suite="kinto.tests",
       entry_points=ENTRY_POINTS,
       dependency_links=DEPENDENCY_LINKS)
