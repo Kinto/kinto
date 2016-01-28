@@ -213,6 +213,18 @@ def current_service(request):
             return service
 
 
+def current_resource_name(request):
+    """Return the name used when the Cliquet resource was registered along its
+    viewset.
+
+    :returns: the resource identifier.
+    :rtype: str
+    """
+    service = current_service(request)
+    resource_name = service.viewset.get_name(service.resource)
+    return resource_name
+
+
 def build_request(original, dict_obj):
     """
     Transform a dict object into a ``pyramid.request.Request`` object.

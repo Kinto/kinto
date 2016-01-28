@@ -6,10 +6,11 @@ from cornice import Service as CorniceService
 from pyramid.settings import aslist
 
 from cliquet import errors
+from cliquet import events
 from cliquet.initialization import (  # NOQA
     initialize, initialize_cliquet, install_middlewares,
     load_default_settings)
-from cliquet.utils import follow_subrequest
+from cliquet.utils import follow_subrequest, current_resource_name
 from cliquet.logs import logger
 
 
@@ -130,6 +131,13 @@ def includeme(config):
     config.add_directive('add_api_capability', add_api_capability)
     config.registry.api_capabilities = {}
 
+    # Resource events helpers.
+    events.setup_transaction_hook(config)
+    config.add_request_method(events.get_resource_events,
+                              name='get_resource_events')
+    config.add_request_method(events.notify_resource_event,
+                              name='notify_resource_event')
+
     # Setup cornice.
     config.include("cornice")
 
@@ -148,6 +156,7 @@ def includeme(config):
     config.add_request_method(follow_subrequest)
     config.add_request_method(lambda request: {'id': request.prefixed_userid},
                               name='get_user_info')
+    config.add_request_method(current_resource_name, reify=True)
     config.commit()
 
     # Include cliquet plugins after init, unlike pyramid includes.

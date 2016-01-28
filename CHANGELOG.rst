@@ -7,7 +7,15 @@ This document describes changes between each past release.
 2.16.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**New features**
+
+- Resource events are now merged in batch requests. One event per resource and
+  per action is emitted when a transaction is committed (#634)
+
+**Bug fixes**
+
+- Resource events are not emitted if the transaction is rolledback (e.g. a batch
+  subrequest fails) (#634)
 
 
 2.15.0 (2016-01-27)
