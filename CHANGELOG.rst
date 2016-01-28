@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-1.11.0 (unreleased)
+1.11.0 (2016-01-28)
 ===================
 
 **Bug fixes**
@@ -407,7 +407,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 Settings
 
 - ``cliquet.permission_backend`` and ``cliquet.permission_url`` are now configured
-  to use PostgreSQL instead of *Redis* (see default :file:`config/kinto.ini`)
+  to use PostgreSQL instead of *Redis* (see default ``config/kinto.ini``)
 - ``cliquet.basic_auth_enabled`` is now deprecated (`see *Cliquet*
   docs to enable authentication backends
   <http://cliquet.readthedocs.org/en/latest/reference/configuration.html#basic-auth>`_)
