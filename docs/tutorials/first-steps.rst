@@ -438,7 +438,7 @@ Now Alice can create a task in this collection:
 
     $ echo '{"data": {"description": "Alice task", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-        -v --auth 'token:alice'
+        -v --auth 'token:alice-token'
 
 .. code-block:: http
 
@@ -471,7 +471,7 @@ And Bob can also create a task:
 
     $ echo '{"data": {"description": "Bob new task", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-        -v --auth 'token:bob'
+        -v --auth 'token:bob-token'
 
 .. code-block:: http
 
@@ -508,7 +508,7 @@ permission on her records:
         "read": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
     }}' | \
     http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'token:alice'
+        -v --auth 'token:alice-token'
 
 .. code-block:: http
 
@@ -544,7 +544,7 @@ If Bob want's to get the record list, he will get his records as well as Alice's
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-           -v --auth 'token:bob'
+           -v --auth 'token:bob-token'
 
 .. code-block:: http
 
@@ -622,7 +622,7 @@ Now Alice can create a group of her friends (Bob and Mary):
         "members": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
                     "basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"]
     }}' | http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/groups/alice-friends \
-        -v --auth 'token:alice'
+        -v --auth 'token:alice-token'
 
 .. code-block:: http
 
@@ -661,7 +661,7 @@ Now Alice can share records directly with her group of friends:
         }
     }' | \
     http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'token:alice'
+        -v --auth 'token:alice-token'
 
 .. code-block:: http
 
@@ -695,7 +695,7 @@ And now Mary can access the record:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'token:mary'
+        -v --auth 'token:mary-token'
 
 
 .. note::

@@ -62,7 +62,7 @@ For example, create an arbitrary record with `httpie <http://httpie.org>`_
 .. code-block:: shell
 
     $ echo '{"data":{"name":"bob"}}' | \
-        http POST http://localhost:8888/v1/buckets/default/collections/tasks/records --auth token:alice
+        http POST http://localhost:8888/v1/buckets/default/collections/tasks/records --auth token:alice-token
 
 This created a record, and you should see the generated event in the dashboard.
 

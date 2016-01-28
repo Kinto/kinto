@@ -196,7 +196,7 @@ Create a record (using `HTTPie <http://httpie.org>`_):
 .. code-block:: shell
 
     $ echo '{"data": {"note": "kinto"}}' | \
-        http --auth token:alice --verbose POST http://localhost:8888/v1/buckets/default/collections/notes/records
+        http --auth token:alice-token --verbose POST http://localhost:8888/v1/buckets/default/collections/notes/records
 
 And observe the fake server output:
 
@@ -302,7 +302,7 @@ Create a record (using `HTTPie <http://httpie.org>`_):
 .. code-block:: shell
 
     $ echo '{"data": {"note": "kinto"}}' | \
-        http --auth token:alice --verbose POST http://localhost:8888/v1/buckets/default/collections/notes/records
+        http --auth token:alice-token --verbose POST http://localhost:8888/v1/buckets/default/collections/notes/records
 
 The server response is returned immediately.
 

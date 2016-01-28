@@ -22,7 +22,7 @@ Uploading a record
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"foo": "bar"}}' | http post http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="token:bob" --verbose
+        $ echo '{"data": {"foo": "bar"}}' | http post http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -80,7 +80,7 @@ Replacing a record
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"foo": "baz"}}' | http put http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob" --verbose
+        $ echo '{"data": {"foo": "baz"}}' | http put http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -141,7 +141,7 @@ Updating a record
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"status": "done"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob" --verbose
+        $ echo '{"data": {"status": "done"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -207,7 +207,7 @@ operations on collection retrieval.
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="token:bob" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -258,7 +258,7 @@ Retrieving a specific record
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -313,7 +313,7 @@ Delete stored records
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="token:bob" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -360,7 +360,7 @@ Deleting a single record
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 

@@ -157,7 +157,7 @@ Indeed, using another user like *natim*, we can read the article:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records/b8c4cc34-f184-4b4d-8cad-e135a3f0308c \
-        --auth token:natim
+        --auth token:natim-token
 
 .. code-block:: http
 
@@ -228,7 +228,7 @@ Now every authenticated user, like *natim* here, can add a comment.
 
     $ echo '{"data":{"article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", "comment": "my comment", "author": "*natim*"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
-        --auth token:natim
+        --auth token:natim-token
 
 .. code-block:: http
 
@@ -340,7 +340,7 @@ Now *natim* can write new articles!
 
     $ echo '{"data":{"title": "natim article", "content": "natims content", "published_at": "Thu Jul 16 16:59:16 CEST 2015"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
-        --auth token:natim
+        --auth token:natim-token
 
 .. code-block:: http
 
@@ -377,7 +377,7 @@ One can fetch the list of articles.
 
     $ http GET \
         https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
-        --auth token:alice
+        --auth token:alice-token
 
 .. code-block:: http
 
@@ -417,7 +417,7 @@ Or the list of comments.
 
     $ http GET \
         https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
-        --auth token:alice
+        --auth token:alice-token
 
 .. code-block:: http
 

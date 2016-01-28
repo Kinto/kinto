@@ -154,7 +154,7 @@ Retrieve permissions
 
     .. sourcecode:: bash
 
-        $ http GET http://localhost:8888/v1/buckets/default --auth token:bob --verbose
+        $ http GET http://localhost:8888/v1/buckets/default --auth token:bob-token --verbose
 
     .. sourcecode:: http
 
@@ -208,7 +208,7 @@ Add a permission
 
         $ echo '{"permissions": {"read": ["system.Authenticated"]}}' | \
           http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks \
-          --auth token:bob
+          --auth token:bob-token
 
     .. sourcecode:: http
 
@@ -282,7 +282,7 @@ Replace or remove permissions
 
         $ echo '{"permissions": {"write": ["groups:writers"]}}' | \
           http PUT https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks \
-          --auth token:bob
+          --auth token:bob-token
 
     .. sourcecode:: http
 
