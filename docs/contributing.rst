@@ -182,22 +182,36 @@ Install `zest.releaser` with the `recommended` dependencies. They contain
 Step 1
 ------
 
-- Merge remaining pull requests
-- Update ``CHANGELOG.rst``
-- Update version in ``docs/conf.py``
-- Known good versions of dependencies in ``requirements.txt``
-- Update ``CONTRIBUTORS.rst`` using: ``git shortlog -sne | awk '{$1=""; sub(" ", ""); print}' | awk -F'<' '!x[$1]++' | awk -F'<' '!x[$2]++' | sort``
-
 .. code-block:: bash
 
      $ git checkout -b prepare-X.Y.Z
      $ prerelease
      $ vim docs/conf.py
+
+- Merge remaining pull requests
+- Update ``CHANGELOG.rst``
+- If protocol was updated (via *Cliquet* for example), update API changelog in
+  :file:`docs/api/index.rst`
+- If *Cliquet* was updated, update the link in :file:`docs/configuration/production.rst`
+- Update :file:`CONTRIBUTORS.rst`. The following hairy command will output the full list:
+
+.. code-block:: bash
+
+     $ git shortlog -sne | awk '{$1=""; sub(" ", ""); print}' | awk -F'<' '!x[$1]++' | awk -F'<' '!x[$2]++' | sort
+
+- Update known good versions of dependencies in ``requirements.txt`` with this command:
+
+.. code-block:: bash
+
      $ make build-requirements
+
+- Open a pull-request to release the new version.
+
+.. code-block:: bash
+
      $ git commit -a --amend
      $ git push origin prepare-X.Y.Z
 
-- Open a pull-request with to release the version.
 
 Step 2
 ------
