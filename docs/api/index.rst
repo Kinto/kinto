@@ -19,6 +19,7 @@ Changelog
   root URL (#628). Clients can rely on this to detect optional features on the
   server (e.g. enabled plugins).
 
+
 1.2 (2016-01-15)
 ''''''''''''''''
 

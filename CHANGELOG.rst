@@ -6,20 +6,80 @@ This document describes changes between each past release.
 1.11.0 (2016-01-28)
 ===================
 
+**Protocol**
+
+- Forward slashes (``/``) are not escaped anymore in JSON responses (mozilla-services/cliquet#537)
+- Fields can be filtered in GET requests using ``_fields=f1,f2`` in querystring (#399)
+- New collections can be created via ``POST`` requests (thanks John Giannelos)
+- The API capabilities can be exposed in a ``capabilities`` attribute in the
+  root URL (#628). Clients can rely on this to detect optional features on the
+  server (e.g. enabled plugins)
+
+Protocol is now version 1.3. See `API changelog <http://kinto.readthedocs.org/en/latest/api/>`_.
+
+**New features**
+
+- Add a Heroku single-clic deploy button (#362)
+- Install postgresql libraries on kinto init (fixes #313)
+- Smaller Docker container image (#375, #376, #383)
+- Install major plugins in Dockerfile (fixes #317)
+- The policy name used to configure authentication in settings is now used for
+  the user id prefix and StatsD ``authn_type`` counters.
+- Check backends configuration at startup (#228)
+- Output message for config file creation (#351, thanks Aditya Basin)
+- Trigger internal event on server flush (#354)
+
 **Bug fixes**
 
+- Fix validation of collection id in default bucket (fixes #260)
+- Fix kinto init failure when the config folder already exists (#349)
+- Fix Docker compose startup (fixes #325)
+- Run migrate command when docker container starts (fixes #363)
+- Fix listener name logging during startup (#626)
+- Do not log batch subrequests twice (#264)
+- Fix hmac digest with python3 (#288)
 - Add explicit dependency for functools32 when Kinto is installed with an old
   pip version (fixes #303)
 
-**Protocol**
+**Documentation**
 
-- Bump protocol version to 1.1 because of protocol changes in release 1.9
+Highlights:
 
-**Internal changes**
+- Add tutorials about notifications (ref #353)
+- Add tutorial how to write a plugin (#382)
+- Add tutorial how to setup Github authentication (#390)
+- Move default values to dedicated column in docs (fixes #255)
+- Move run-kinto to get-started and remove platform specific installation
+  instructions (#373)
+
+Improved:
+
+- Update features table in overview
+- Update overview comparisons (#294, #324, #328)
+- Update FAQ (#397, #398)
+- Simplify some aspects of the settings page (#374)
+- Sharding documentation (#381)
+
+Minor:
 
 - Added missing DELETE endoint for list of records (fixes #238)
 - Mention how to restrict private URLs with NGinx (fixes #250)
-- Do not require cliquet master branch in dev. Now moved as tox env in TravisCI
+- Fix link to the freenode #kinto channel in the docs (#333)
+- Remove Firefox Account mention from README (fixes #326)
+- Move application examples page to wiki (ref #321)
+- Move postgresql server docs to wiki (fixes #321)
+- Change colors of logo (#359)
+- Add invitation for community to point their demos/use cases (fixes #356)
+- Remove duplicate glossary in docs (#372)
+- Remove troubleshooting paragraph from contributing page (#385)
+- Fix wrong groups name and permissions names in the documentation (#389)
+- Improve formatting of code block in tutorials (#391, #396)
+
+**Internal changes**
+
+- Default bucket feature is now a built-in plugin (fixes #277, fixes #311, #380)
+- Do not require cliquet master branch in dev (#341, #400). Now moved as tox env in TravisCI
+
 
 1.10.1 (2015-12-11)
 ===================
