@@ -10,7 +10,7 @@ This document describes changes between each past release.
 **New features**
 
 - Resource events are now merged in batch requests. One event per resource and
-  per action is emitted when transaction is committed (#634)
+  per action is emitted when a transaction is committed (#634)
 
 **Bug fixes**
 
