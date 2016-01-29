@@ -18,7 +18,7 @@ CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
     'waitress',
-    'cliquet>=2.14,<3',
+    'cliquet>=2.15,<3',
     'jsonschema',
 ]
 
@@ -28,15 +28,15 @@ if sys.version_info < (3,):
     ])
 
 POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[postgresql]>=2.14,<3'
+    'cliquet[postgresql]>=2.15,<3'
 ]
 
 MONITORING_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[monitoring]>=2.14,<3'
+    'cliquet[monitoring]>=2.15,<3'
 ]
 
 FXA_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet-fxa'
+    'cliquet-fxa<2'
 ]
 
 ENTRY_POINTS = {
@@ -52,7 +52,7 @@ DEPENDENCY_LINKS = [
 ]
 
 setup(name='kinto',
-      version='1.11.0.dev0',
+      version='1.11.0',
       description='Kinto Web Service - Store, Sync, Share, and Self-Host.',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',
@@ -69,9 +69,9 @@ setup(name='kinto',
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
           "License :: OSI Approved :: Apache Software License"
       ],
-      keywords="web services",
+      keywords="web sync json storage",
       author='Mozilla Services',
-      author_email='services-dev@mozilla.com',
+      author_email='storage-team@mozilla.com',
       url='https://github.com/Kinto/kinto',
       packages=find_packages(),
       include_package_data=True,
@@ -82,5 +82,6 @@ setup(name='kinto',
           'monitoring': MONITORING_REQUIREMENTS,
           'fxa': FXA_REQUIREMENTS,
       },
+      test_suite="kinto.tests",
       entry_points=ENTRY_POINTS,
       dependency_links=DEPENDENCY_LINKS)

@@ -447,12 +447,12 @@ data in the ``queue`` Redis list.
 
 .. code-block:: ini
 
-    cliquet.event_listeners = redis
+    kinto.event_listeners = redis
 
-    cliquet.event_listeners.redis.use = cliquet.events.redis
-    cliquet.event_listeners.redis.url = redis://localhost:6379/0
-    cliquet.event_listeners.redis.pool_size = 5
-    cliquet.event_listeners.redis.listname = queue
+    kinto.event_listeners.redis.use = cliquet.events.redis
+    kinto.event_listeners.redis.url = redis://localhost:6379/0
+    kinto.event_listeners.redis.pool_size = 5
+    kinto.event_listeners.redis.listname = queue
 
 Filtering
 :::::::::

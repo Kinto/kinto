@@ -11,6 +11,15 @@ API
 Changelog
 ---------
 
+1.3 (2016-01-28)
+''''''''''''''''
+
+- Forward slashes (``/``) are not escaped anymore in JSON responses (#537)
+- The API capabilities can be exposed in a ``capabilities`` attribute in the
+  root URL (#628). Clients can rely on this to detect optional features on the
+  server (e.g. enabled plugins).
+
+
 1.2 (2016-01-15)
 ''''''''''''''''
 
