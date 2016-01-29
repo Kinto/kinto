@@ -3,11 +3,24 @@
 First steps with Kinto HTTP API
 ###############################
 
-There are actually two kinds of applications where *Kinto* is
-particulary relevant as a storage backend:
+There are several kinds of applications where *Kinto* is
+particulary relevant as a storage backend.
+
+The following tutorial should provide enough information to understand how to:
 
   - Sync user data between devices;
-  - Sync and share data between users, with fined-grained permissions.
+  - Sync and share data between users, leveraging permissions.
+
+
+.. important::
+
+    In this tutorial we will use a Basic Authentication, which computes a
+    user id based on the token provided in the request.
+
+    This method has many limitations but has the advantage to avoid
+    specific setup or third-party services to get started immediately.
+
+    :ref:`Read more about authentication in Kinto <authentication>`.
 
 
 Sync user data between devices
@@ -29,13 +42,19 @@ We'll start with a relatively simple data model:
 
 Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
 ``tasks`` collection:
-Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#proxies>`_ for more information If you need to configure a proxy for instance.
+
+.. note::
+
+    Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#proxies>`_
+    for more information If you need to configure a proxy for instance.
+
+We use the Mozilla demo server:
 
 .. code-block:: shell
 
     $ echo '{"data": {"description": "Write a tutorial explaining Kinto", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-             -v --auth 'user:password'
+             -v --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -65,16 +84,16 @@ Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#
 .. note::
 
     With *Basic Auth* a unique identifier needs to be associated with each
-    user. This identifier is built using a combination of username and
-    password, therefore users cannot change their password without losing
-    access to their data.
+    user. This identifier is built using the token value provided in the request.
+    Therefore users cannot change their password easily without losing
+    access to their data. :ref:`More information <authentication>`.
 
 Let us fetch our new collection of tasks:
 
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-           -v --auth 'user:password'
+           -v --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -112,7 +131,7 @@ We can also update one of our tasks using its ``id``:
 
     $ echo '{"data": {"status": "doing"}}' | \
          http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
-              -v  --auth 'user:password'
+              -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -147,9 +166,8 @@ With the request shown above the answer is *yes*.
 If you want the server to reject changes if the record was modified in the
 interim, you must send the ``If-Match`` header.
 
-In the ``If-Match`` header, you can send either the ``ETag`` header value you
-obtained while fetching the collection, or the value of the ``last_modified``
-data field you had for this record.
+In the ``If-Match`` header, you must send the ``ETag`` header value you
+obtained while fetching the collection.
 
 Let's try to modify the record using an obsolete value of ``ETag`` (obtained
 while we fetched the collection earlier - you kept a note, didn't you?):
@@ -159,7 +177,7 @@ while we fetched the collection earlier - you kept a note, didn't you?):
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1434641515332"' \
-            -v  --auth 'user:password'
+            -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -188,7 +206,7 @@ single record and merge attributes locally:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
-           -v  --auth 'user:password'
+           -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -217,10 +235,16 @@ single record and merge attributes locally:
         }
     }
 
+
 The strategy to merge local changes is left to the client and might depend on
 the client specifications. A *three-way merge* is possible when changes do
 not affect the same fields or if both objects are equal. Prompting the user
 to decide what version should be kept might also be an option.
+
+.. note::
+
+    Do not run away! You will most likely use :github:`Kinto/kinto.js`, which provides nice abstractions
+    to interact with the Kinto API.
 
 Once merged, we can send back again our modifications using the last
 record ``ETag`` value:
@@ -230,7 +254,7 @@ record ``ETag`` value:
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1436172229372"' \
-            -v  --auth 'user:password'
+            -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -264,7 +288,7 @@ You can also delete the record and use the same mechanism to avoid conflicts:
 
     $ http DELETE https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
            If-Match:'"1436172442466"' \
-           -v  --auth 'user:password'
+           -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -294,8 +318,8 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
 
 .. code-block:: shell
 
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since=1434642603605 \
-           -v  --auth 'user:password'
+    $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since="1434642603605" \
+           -v  --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -336,7 +360,7 @@ application-specific bucket called ``todo``.
 .. code-block:: shell
 
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/todo \
-        -v --auth 'user:password'
+        -v --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -361,9 +385,9 @@ application-specific bucket called ``todo``.
         }
     }
 
-By default the creator is granted sole administrator privilees (see ``write``
+By default the creator is granted sole administrator privileges (see ``write``
 permission). In order to allow collaboration additional permissions will need
-to be granted.
+to be added.
 
 In our case, we want people to be able to create and share tasks, so we will
 create a ``tasks`` collection with the ``record:create`` permission for
@@ -373,7 +397,7 @@ authenticated users (i.e. ``system.Authenticated``):
 
     $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks \
-            -v --auth 'user:password'
+            -v --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -404,7 +428,7 @@ authenticated users (i.e. ``system.Authenticated``):
 .. note::
 
    As you may noticed, you are automatically added to the ``write``
-   permission of any objects you are creating.
+   permission of any objects you create.
 
 
 Now Alice can create a task in this collection:
@@ -413,7 +437,7 @@ Now Alice can create a task in this collection:
 
     $ echo '{"data": {"description": "Alice task", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-        -v --auth 'alice:alicepassword'
+        -v --auth 'token:alice-token'
 
 .. code-block:: http
 
@@ -446,7 +470,7 @@ And Bob can also create a task:
 
     $ echo '{"data": {"description": "Bob new task", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-        -v --auth 'bob:bobpassword'
+        -v --auth 'token:bob-token'
 
 .. code-block:: http
 
@@ -483,7 +507,7 @@ permission on her records:
         "read": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
     }}' | \
     http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'alice:alicepassword'
+        -v --auth 'token:alice-token'
 
 .. code-block:: http
 
@@ -519,7 +543,7 @@ If Bob want's to get the record list, he will get his records as well as Alice's
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-           -v --auth 'bob:bobpassword'
+           -v --auth 'token:bob-token'
 
 .. code-block:: http
 
@@ -561,7 +585,7 @@ bucket:
 
     $ echo '{"permissions": {"group:create": ["system.Authenticated"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo \
-            -v --auth 'user:password'
+            -v --auth 'token:my-secret'
 
 .. code-block:: http
 
@@ -597,7 +621,7 @@ Now Alice can create a group of her friends (Bob and Mary):
         "members": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
                     "basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"]
     }}' | http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/groups/alice-friends \
-        -v --auth 'alice:alicepassword'
+        -v --auth 'token:alice-token'
 
 .. code-block:: http
 
@@ -636,7 +660,7 @@ Now Alice can share records directly with her group of friends:
         }
     }' | \
     http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'alice:alicepassword'
+        -v --auth 'token:alice-token'
 
 .. code-block:: http
 
@@ -670,7 +694,7 @@ And now Mary can access the record:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'mary:marypassword'
+        -v --auth 'token:mary-token'
 
 
 .. note::

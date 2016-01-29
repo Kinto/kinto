@@ -41,7 +41,7 @@ Creating a collection
 
    .. sourcecode:: bash
 
-      $ echo '{"data": {"id": "articles"}}' | http POST http://localhost:8888/v1/buckets/blog/collections --auth="bob:" --verbose
+      $ echo '{"data": {"id": "articles"}}' | http POST http://localhost:8888/v1/buckets/blog/collections --auth="token:bob-token" --verbose
 
    .. sourcecode:: http
 
@@ -102,7 +102,7 @@ Replacing a collection
 
     .. sourcecode:: bash
 
-        $ http put http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
+        $ http put http://localhost:8888/v1/buckets/blog/collections/articles --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -162,7 +162,7 @@ Updating a collection
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"fingerprint": "9cae1b2d0f2b7d09bcf5c1bf51544274"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
+        $ echo '{"data": {"fingerprint": "9cae1b2d0f2b7d09bcf5c1bf51544274"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -220,7 +220,7 @@ Retrieving an existing collection
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/collections/articles --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -274,7 +274,7 @@ Deleting a collection
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -350,7 +350,7 @@ Just modify the ``schema`` attribute of the collection object:
           "required": ["title"]
         }
       }
-    }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth admin: --verbose
+    }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth token:admin-token --verbose
 
 .. code-block:: http
 
@@ -435,7 +435,7 @@ Once a schema has been defined, the posted records must match it:
 
     $ echo '{"data": {
         "body": "Fails if no title"
-    }}' | http POST http://localhost:8888/v1/buckets/blog/collections/articles/records --auth "admin:"
+    }}' | http POST http://localhost:8888/v1/buckets/blog/collections/articles/records --auth "token:admin-token"
 
 .. code-block:: http
 
@@ -489,7 +489,7 @@ to an empty mapping.
 
 .. code-block:: bash
 
-    echo '{"data": {"schema": {}} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth admin: --verbose
+    echo '{"data": {"schema": {}} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth token:admin-token --verbose
 
 .. code-block:: http
 
@@ -550,13 +550,13 @@ For example, set it to ``3600`` (1 hour):
 
 .. code-block:: bash
 
-    echo '{"data": {"cache_expires": 3600} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth admin:
+    echo '{"data": {"cache_expires": 3600} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth token:admin-token
 
 From now on, the cache control headers are set for the `GET` requests:
 
 .. code-block:: bash
 
-    http  "http://localhost:8888/v1/buckets/default/collections/articles/records" --auth admin:
+    http  "http://localhost:8888/v1/buckets/default/collections/articles/records" --auth token:admin-token
 
 .. code-block:: http
     :emphasize-lines: 3,8
@@ -582,7 +582,7 @@ If set to ``0``, the collection records become explicitly uncacheable (``no-cach
 
 .. code-block:: bash
 
-    echo '{"data": {"cache_expires": 0} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth admin:
+    echo '{"data": {"cache_expires": 0} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth token:admin-token
 
 .. code-block:: http
     :emphasize-lines: 3,8,10

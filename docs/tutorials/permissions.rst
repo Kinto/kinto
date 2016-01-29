@@ -24,7 +24,7 @@ Let's start by giving all authenticated users read access to the bucket.
 
     $ echo '{"permissions": {"read": ["system.Authenticated"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog \
-        --auth user:pass
+        --auth token:my-secret
 
 .. code-block:: http
 
@@ -60,7 +60,7 @@ buckets: ``articles`` and ``comments``.
 .. code-block:: shell
 
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles \
-        --auth user:pass
+        --auth token:my-secret
 
 .. code-block:: http
 
@@ -89,7 +89,7 @@ buckets: ``articles`` and ``comments``.
 .. code-block:: shell
 
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments \
-        --auth user:pass
+        --auth token:my-secret
 
 .. code-block:: http
 
@@ -124,7 +124,7 @@ Let's verify that. Create an article:
 
     $ echo '{"data":{"title": "My article", "content": "my content", "published_at": "Thu Jul 16 16:44:15 CEST 2015"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
-        --auth user:pass
+        --auth token:my-secret
 
 .. code-block:: http
 
@@ -157,7 +157,7 @@ Indeed, using another user like *natim*, we can read the article:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records/b8c4cc34-f184-4b4d-8cad-e135a3f0308c \
-        --auth natim:secret
+        --auth token:natim-token
 
 .. code-block:: http
 
@@ -193,7 +193,7 @@ permissions of the ``comments`` collections:
 
     $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments \
-        --auth user:pass
+        --auth token:my-secret
 
 .. code-block:: http
 
@@ -228,7 +228,7 @@ Now every authenticated user, like *natim* here, can add a comment.
 
     $ echo '{"data":{"article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", "comment": "my comment", "author": "*natim*"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
-        --auth natim:secret
+        --auth token:natim-token
 
 .. code-block:: http
 
@@ -269,7 +269,7 @@ member.
 
     $ echo '{"data": {"members": ["basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/groups/writers \
-        --auth user:pass
+        --auth token:my-secret
 
 .. code-block:: http
 
@@ -304,7 +304,7 @@ Now we grant the `write` permission on the blog bucket to the ``writers`` group.
 
     $ echo '{"permissions": {"write": ["/buckets/servicedenuages-blog/groups/writers"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog \
-        --auth user:pass
+        --auth token:my-secret
 
 .. code-block:: http
 
@@ -340,7 +340,7 @@ Now *natim* can write new articles!
 
     $ echo '{"data":{"title": "natim article", "content": "natims content", "published_at": "Thu Jul 16 16:59:16 CEST 2015"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
-        --auth natim:
+        --auth token:natim-token
 
 .. code-block:: http
 
@@ -377,7 +377,7 @@ One can fetch the list of articles.
 
     $ http GET \
         https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
-        --auth alice:secret
+        --auth token:alice-token
 
 .. code-block:: http
 
@@ -417,7 +417,7 @@ Or the list of comments.
 
     $ http GET \
         https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
-        --auth alice:secret
+        --auth token:alice-token
 
 .. code-block:: http
 

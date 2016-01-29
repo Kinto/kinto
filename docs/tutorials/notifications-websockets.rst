@@ -16,7 +16,7 @@ Currently, it relies on a plugin that sends events through WebSockets using `Pus
 Setup a Pusher account
 ----------------------
 
-* Go to `Pusher.com <http://pusher.com/>`_
+* Go to `Pusher.com <https://pusher.com/>`_
 * Create a new app
 * Get your app credentials (``app_id``, ``key``, ``secret``)
 
@@ -62,7 +62,7 @@ For example, create an arbitrary record with `httpie <http://httpie.org>`_
 .. code-block:: shell
 
     $ echo '{"data":{"name":"bob"}}' | \
-        http POST http://localhost:8888/v1/buckets/default/collections/tasks/records --auth alice:secret
+        http POST http://localhost:8888/v1/buckets/default/collections/tasks/records --auth token:alice-token
 
 This created a record, and you should see the generated event in the dashboard.
 

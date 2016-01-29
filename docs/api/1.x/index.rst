@@ -84,7 +84,7 @@ Full detailed API documentation:
    :maxdepth: 2
 
    cliquet/utilities
-   cliquet/authentication
+   authentication
    cliquet/batch
    cliquet/timestamps
    cliquet/backoff

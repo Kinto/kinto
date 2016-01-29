@@ -27,7 +27,7 @@ Creating a group
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"members": ["basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http POST http://localhost:8888/v1/buckets/blog/groups --auth="bob:" --verbose
+        $ echo '{"data": {"members": ["basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http POST http://localhost:8888/v1/buckets/blog/groups --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -90,7 +90,7 @@ Replacing a group
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"members": ["basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http put http://localhost:8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
+        $ echo '{"data": {"members": ["basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http put http://localhost:8888/v1/buckets/blog/groups/readers --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -159,7 +159,7 @@ Retrieving a group
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/groups/readers --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -215,7 +215,7 @@ Retrieving all groups
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/groups --auth="bob:" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/groups --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
@@ -270,7 +270,7 @@ Deleting a group
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog/groups/readers --auth="bob:" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/groups/readers --auth="token:bob-token" --verbose
 
     .. sourcecode:: http
 
