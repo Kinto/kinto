@@ -3,13 +3,18 @@
 Authenticating to the Kinto API
 ###############################
 
-First of all **Kinto doesn't handle users managements**.
+A word about users with Kinto
+=============================
 
-You do not have such thing as user creation, user removal, user
-password modifications, etc.
+First of all Kinto doesn't handle users management.
 
-However Kinto handle users permissions, which means users are uniquely
-identified in Kinto.
+There is no such thing as user sign-up, password modification, etc.
+
+However, since Kinto handle permissions on objects, users are uniquely
+identified.
+
+If you are wondering how it is possible, you probably want to read
+the explanation about :ref:`authenticating with Kinto <authenticating>`.
 
 
 How is that possible?
@@ -18,62 +23,59 @@ How is that possible?
 This is possible by plugging in Kinto with an Identity provider.
 
 Multiple identity providers solutions are available such as OAuth,
-SAML, x509, Hawk sessions, or Basic Tokens.
+SAML, x509, Hawk sessions, JWT, or Basic Auth tokens.
 
 With regards to the application you are building you may want to plug
 Github, Facebook, Google, or your company identity provider.
 
-You may also want to use arbitrary tokens by making sure:
+In these documentation examples we will use a Basic Authentication,
+which computes a user id based on the token provided in the request.
+
+This method has many limitations but has the advantage to avoid
+specific setup or third-party services to get started immediately.
+
+When using arbitrary tokens make sure that:
 
  - each user has a different one;
  - a user always uses the same token.
 
-This is what we are doing within the the scope of this documentation.
 
-We use the Basic Auth protocol like that: ``token:my-secret-token``
+How can we generate strong unique tokens?
+-----------------------------------------
 
+We recommand you to use at least a 16 random bytes strings such as an UUID:
 
-How can I generate a strong unique tokens?
-------------------------------------------
+Using the ``uuidgen`` cli tool:
 
-I would recommand you to use more than 16 random bytes digested as
-either a Base64 or a Hexadecimal string:
+.. code-block:: shell
 
-Here are two examples using Node and Python to generate 30 random bytes tokens:
+    $ uuidgen
+    3a96294b-4e75-4e32-958d-fea44f2fe5aa
+
+Using Python:
+
+.. code-block:: pycon
+
+    >>> from uuid import uuid4
+    >>> print(uuid4())
+    6f8dfa43-668c-4e5c-89bc-eaabcb866342
+
+Using Node:
 
 .. code-block:: js
 
-    var crypto = require("crypto");
-
-	crypto.randomBytes(30).toString("hex"));
-    // 8d11dfa2ab1fab42c841bcda834a66553624b03e8ef6bb5e8ec6fdd791a9
-
-    crypto.randomBytes(30).toString("base64");
-    // nkz6+hN9KVtXX6bZ9+RPof0NgF9hmm5gFhKpWbiM
-
-.. code-block:: python
-
-    import base64, os
-
-    print(base64.b64encode(os.urandom(30)))
-    # BxFNjp97FprmbdijOM78srl5DI+jjbYcLyRg5AVv
-
-    print(os.urandom(30).encode('hex'))
-    # 6573ba5016f740b04a0af7b59fe47045c0b9d4f94b1f613eaa11d276bc5e
+    > var uuid = require('node-uuid');
+    > console.log(uuid.v4());
+    0a859a0e-4e6e-4014-896a-aa85d9587c48
 
 Then you can use:
 
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/ \
-        --auth "token:6573ba5016f740b04a0af7b59fe47045c0b9d4f94b1f613eaa11d276bc5e"
+        --auth "token:6f8dfa43-668c-4e5c-89bc-eaabcb866342"
 
-or:
-
-.. code-block:: shell
-
-    $ http GET https://kinto.dev.mozaws.net/v1/ \
-        --auth "token:nkz6+hN9KVtXX6bZ9+RPof0NgF9hmm5gFhKpWbiM"
+And observe the user ID in the response.
 
 
 How Kinto knows it is a valid Basic Auth token?
@@ -87,22 +89,38 @@ related to your Kinto instance ``user_hmac_secret`` configuration.
     Two Kinto instances using the same ``user_hmac_secret`` will
     generate the same user ID for a given Basic Auth token.
 
-You can get the user ID generated for your token on the Kinto hello page:
+You can get the :term:`user ID` generated for your token on the Kinto hello page:
 
 .. code-block:: shell
 
     $ http https://kinto.dev.mozaws.net/v1/ --auth "token:my-secret"
 
 .. code-block:: json
+    :emphasize-lines: 24
 
     HTTP/1.1 200 OK
-    
+    Access-Control-Expose-Headers: Retry-After, Content-Length, Alert, Backoff
+    Connection: keep-alive
+    Content-Length: 498
+    Content-Type: application/json; charset=UTF-8
+    Date: Fri, 29 Jan 2016 09:13:33 GMT
+    Server: nginx
+
     {
-        "project_name": "kinto",
-        "project_docs": "https://kinto.readthedocs.org/",
-        "[...]": "[...]",
+        "cliquet_protocol_version": "2", 
+        "http_api_version": "1.0", 
+        "project_docs": "https://kinto.readthedocs.org/", 
+        "project_name": "kinto", 
+        "project_version": "1.10.0", 
+        "settings": {
+            "attachment.base_url": "https://kinto.dev.mozaws.net/attachments/", 
+            "batch_max_requests": 25, 
+            "cliquet.batch_max_requests": 25, 
+            "readonly": false
+        }, 
+        "url": "https://kinto.dev.mozaws.net/v1/", 
         "user": {
-            "bucket": "...default-bucket-id...", 
+            "bucket": "e777874f-2936-11a1-3269-68a6c1648a92", 
             "id": "basicauth:c635be9375673027e9b2f357a3955a0a46b58aeface61930838b61e946008ab0"
         }
     }
@@ -116,9 +134,9 @@ How can I change the token for a given user?
 --------------------------------------------
 
 Asking yourself this question is a first sign that you should not be
-using the Basic Auth authentication backend for your app.
+using the Basic Auth authentication backend for your use case.
 
-Because the user ID is calculated from the token, changing the token,
+Because the user ID is calculated from the token, changing the token
 will change the user ID.
 
 You can generate other user IDs based on other tokens and give
@@ -128,9 +146,16 @@ You can even create a group that could handle all the available tokens
 for a given user, and change the token once for all without having to
 change the permission of each object.
 
-However you may prefer to use an identity provider who will handle the
-user management part and always give you back the same user ID for the
-same user (even if they use a different token to authenticated).
+You can generate new tokens and give the ``write`` permission to their
+respective user id.
 
-You can read our
+You can also create a group per « user » whose members are the different
+user IDs obtained from tokens. And then use this group in permission
+definitions on objects.
+
+Most likely, you would use an identity provider which will be in
+charge of user and token management (generate, refresh, validate,
+...). `See this example with Django <http://django-oauth-toolkit.readthedocs.org/en/latest/tutorial/tutorial_01.html>`_.
+
+You can also read our
 :ref:`tutorial about how to plug the Github authorisation backend <tutorial-github>`.

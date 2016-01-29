@@ -13,19 +13,21 @@ particulary relevant as a storage backend:
 A word about users with Kinto
 =============================
 
-First of all Kinto doesn't handle users managements.
+First of all Kinto doesn't handle users management.
 
-You do not have such thing as user creation, user removal, user
-password modifications, etc.
+There is no such thing as user sign-up, password modification, etc.
 
-However Kinto handle users permissions, which means users are uniquely
-identified in Kinto.
+However, since Kinto handle permissions on objects, users are uniquely
+identified.
 
 If you are wondering how it is possible, you probably want to read
 the explanation about :ref:`authenticating with Kinto <authenticating>`.
 
-In this tutorial we will use the Basic Auth backend with random user
-tokens.
+In this tutorial we will use a Basic Authentication, which computes a
+user id based on the token provided in the request.
+
+This method has many limitations but has the advantage to avoid
+specific setup or third-party services to get started immediately.
 
 
 Sync user data between devices
@@ -95,6 +97,7 @@ Let us fetch our new collection of tasks:
            -v --auth 'token:my-secret'
 
 .. code-block:: http
+
     GET /v1/buckets/default/collections/tasks/records HTTP/1.1
     Accept: */*
     Accept-Encoding: gzip, deflate
