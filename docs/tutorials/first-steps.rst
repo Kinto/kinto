@@ -21,7 +21,7 @@ However, since Kinto handle permissions on objects, users are uniquely
 identified.
 
 If you are wondering how it is possible, you probably want to read
-the explanation about :ref:`authenticating with Kinto <authenticating>`.
+the explanation about :ref:`authenticating with Kinto <authentication>`.
 
 In this tutorial we will use a Basic Authentication, which computes a
 user id based on the token provided in the request.

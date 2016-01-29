@@ -33,6 +33,7 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 destination = os.path.join(__HERE__, 'api', '1.x', 'cliquet')
 cliquet_docs.copy_docs('api', destination)
 os.remove(os.path.join(destination, 'index.rst'))
+os.remove(os.path.join(destination, 'authentication.rst'))
 
 # the versioning doc goes in api/versionning
 shutil.move(os.path.join(destination, 'versioning.rst'),
