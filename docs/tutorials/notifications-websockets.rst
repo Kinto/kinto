@@ -16,7 +16,7 @@ Currently, it relies on a plugin that sends events through WebSockets using `Pus
 Setup a Pusher account
 ----------------------
 
-* Go to `Pusher.com <http://pusher.com/>`_
+* Go to `Pusher.com <https://pusher.com/>`_
 * Create a new app
 * Get your app credentials (``app_id``, ``key``, ``secret``)
 

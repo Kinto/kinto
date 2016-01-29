@@ -3,31 +3,24 @@
 First steps with Kinto HTTP API
 ###############################
 
-There are actually two kinds of applications where *Kinto* is
-particulary relevant as a storage backend:
+There are several kinds of applications where *Kinto* is
+particulary relevant as a storage backend.
+
+The following tutorial should provide enough information to understand how to:
 
   - Sync user data between devices;
-  - Sync and share data between users, with fined-grained permissions.
+  - Sync and share data between users, leveraging permissions.
 
 
-A word about users with Kinto
-=============================
+.. important::
 
-First of all Kinto doesn't handle users management.
+    In this tutorial we will use a Basic Authentication, which computes a
+    user id based on the token provided in the request.
 
-There is no such thing as user sign-up, password modification, etc.
+    This method has many limitations but has the advantage to avoid
+    specific setup or third-party services to get started immediately.
 
-However, since Kinto handle permissions on objects, users are uniquely
-identified.
-
-If you are wondering how it is possible, you probably want to read
-the explanation about :ref:`authenticating with Kinto <authentication>`.
-
-In this tutorial we will use a Basic Authentication, which computes a
-user id based on the token provided in the request.
-
-This method has many limitations but has the advantage to avoid
-specific setup or third-party services to get started immediately.
+    :ref:`Read more about authentication in Kinto <authentication>`.
 
 
 Sync user data between devices
@@ -49,7 +42,13 @@ We'll start with a relatively simple data model:
 
 Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
 ``tasks`` collection:
-Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#proxies>`_ for more information If you need to configure a proxy for instance.
+
+.. note::
+
+    Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#proxies>`_
+    for more information If you need to configure a proxy for instance.
+
+We use the Mozilla demo server:
 
 .. code-block:: shell
 
@@ -85,9 +84,9 @@ Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#
 .. note::
 
     With *Basic Auth* a unique identifier needs to be associated with each
-    user. This identifier is built using a combination of username and
-    password, therefore users cannot change their password without losing
-    access to their data.
+    user. This identifier is built using the token value provided in the request.
+    Therefore users cannot change their password easily without losing
+    access to their data. :ref:`More information <authentication>`.
 
 Let us fetch our new collection of tasks:
 
@@ -97,14 +96,6 @@ Let us fetch our new collection of tasks:
            -v --auth 'token:my-secret'
 
 .. code-block:: http
-
-    GET /v1/buckets/default/collections/tasks/records HTTP/1.1
-    Accept: */*
-    Accept-Encoding: gzip, deflate
-    Authorization: Basic dXNlcjpwYXNzd29yZA==
-    Connection: keep-alive
-    Host: kinto.dev.mozaws.net
-    User-Agent: HTTPie/0.9.2
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified, ETag
@@ -175,9 +166,8 @@ With the request shown above the answer is *yes*.
 If you want the server to reject changes if the record was modified in the
 interim, you must send the ``If-Match`` header.
 
-In the ``If-Match`` header, you can send either the ``ETag`` header value you
-obtained while fetching the collection, or the value of the ``last_modified``
-data field you had for this record.
+In the ``If-Match`` header, you must send the ``ETag`` header value you
+obtained while fetching the collection.
 
 Let's try to modify the record using an obsolete value of ``ETag`` (obtained
 while we fetched the collection earlier - you kept a note, didn't you?):
@@ -245,10 +235,16 @@ single record and merge attributes locally:
         }
     }
 
+
 The strategy to merge local changes is left to the client and might depend on
 the client specifications. A *three-way merge* is possible when changes do
 not affect the same fields or if both objects are equal. Prompting the user
 to decide what version should be kept might also be an option.
+
+.. note::
+
+    Do not run away! You will most likely use :github:`Kinto/kinto.js`, which provides nice abstractions
+    to interact with the Kinto API.
 
 Once merged, we can send back again our modifications using the last
 record ``ETag`` value:
@@ -322,7 +318,7 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
 
 .. code-block:: shell
 
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since=1434642603605 \
+    $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since="1434642603605" \
            -v  --auth 'token:my-secret'
 
 .. code-block:: http
@@ -389,9 +385,9 @@ application-specific bucket called ``todo``.
         }
     }
 
-By default the creator is granted sole administrator privilees (see ``write``
+By default the creator is granted sole administrator privileges (see ``write``
 permission). In order to allow collaboration additional permissions will need
-to be granted.
+to be added.
 
 In our case, we want people to be able to create and share tasks, so we will
 create a ``tasks`` collection with the ``record:create`` permission for
@@ -432,7 +428,7 @@ authenticated users (i.e. ``system.Authenticated``):
 .. note::
 
    As you may noticed, you are automatically added to the ``write``
-   permission of any objects you are creating.
+   permission of any objects you create.
 
 
 Now Alice can create a task in this collection:

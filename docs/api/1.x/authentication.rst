@@ -4,83 +4,165 @@ Authentication
 
 .. _authentication:
 
-Depending on the authentication policies initialized in the application,
-the HTTP method to authenticate requests may differ.
+A word about users
+==================
 
-A policy based on *OAuth2 bearer tokens* is recommended, but not mandatory.
-See :ref:`configuration <configuration-authentication>` for further
-information.
+First of all, Kinto **doesn't provide users management**. There is no such thing
+as user sign-up, password modification, etc.
 
-In the current implementation, when multiple policies are configured,
-:term:`user identifiers` are isolated by policy. In other words, there is no way to
-access the same set of records using different authentication methods.
-
-
-A word about users with Kinto
-=============================
-
-First of all Kinto doesn't handle users management.
-
-There is no such thing as user sign-up, password modification, etc.
-
-However, since Kinto handle permissions on objects, users are uniquely
+However, since Kinto handles permissions on objects, users are uniquely
 identified.
-
 
 How is that possible?
 ---------------------
 
-This is possible by plugging in Kinto with an Identity provider.
+Kinto uses the request headers to authenticate the current user.
 
-Multiple identity providers solutions are available such as OAuth,
-SAML, x509, Hawk sessions, JWT, or Basic Auth tokens.
+Depending on the authentication methods enabled in configuration,
+the HTTP method to authenticate requests may differ.
 
-With regards to the application you are building you may want to plug
-Github, Facebook, Google, or your company identity provider.
+Kinto can rely on a third-party called «`Identity provider <https://en.wikipedia.org/wiki/Identity_provider>`_»
+to authenticate the request and assign a :term:`user id`.
+
+There are many identity providers solutions in the wild. The most common are OAuth,
+JWT, SAML, x509, Hawk sessions...
+
+A policy based on *OAuth2 bearer tokens* is recommended, but not mandatory.
+
+Low tech included
+-----------------
+
+Kinto has no third-party policy included (yet!), and only provides a policy based on
+Basic Authentication.
+
+Depending on your use case, you may want to plug Github, Facebook, Google, or your
+company identity provider. It is rather easy, :ref:`follow our tutorial <tutorial-github>`!
+
+.. note::
+
+    If you believe that Kinto must provide some third parties providers by default,
+    please come reach us!
+
+    There are many tools in the Python/Pyramid ecosystem, it is probably just
+    a matter of documenting their setup.
+
+
+Multiple policies
+-----------------
+
+It is possible to enable several authentication methods.
+See :ref:`configuration <configuration-authentication>`.
+
+In the current implementation, when multiple policies are configured,
+the first one in the list that succeeds is picked.
+
+:term:`User identifiers` are prefixed with the policy name being used.
+
 
 Basic Auth
 ==========
 
-In these documentation examples we will use a Basic Authentication,
+In most examples in this documentation we use the built-in Basic Authentication,
 which computes a user id based on the token provided in the request.
 
-This method has many limitations but has the advantage to avoid
-specific setup or third-party services to get started immediately.
+.. warning::
+
+    This method has many limitations but has the advantage to avoid
+    specific setup or third-party services to get started immediately.
 
 When using arbitrary tokens make sure that:
 
  - each user has a different one;
  - a user always uses the same token.
 
+
 How to Authenticate with Basic Auth?
 ------------------------------------
 
-If enabled in configuration, using a *Basic Auth* token will associate a unique
-:term:`user identifier` to an username/password combination.
+Depending on configuration (*enabled by default*), using a *Basic Auth* token
+will associate a unique :term:`user identifier` to any username/password combination.
 
 ::
 
     Authorization: Basic <basic_token>
 
-The token shall be built using this formula ``base64("token:my-secret")``.
+The token shall be built using this formula ``base64("token:<secret>")``.
 
-Empty passwords are accepted, and usernames can be anything (custom, UUID, etc.)
+Since any string is accepted, here we use ``token`` only by convention.
+Empty secrets are accepted and can be anything (custom, UUID, etc.)
 
-If the token has an invalid format, or if *Basic Auth* is not enabled,
+If the header has an invalid format, or if *Basic Auth* is not enabled,
 this will result in a ``401`` error response.
 
 .. warning::
 
-    Since :term:`user id` is derived from username and password, there is no way
-    to change the password without loosing access to existing records.
+    Since :term:`user id` is derived from the token, there is no way
+    to change the token without «loosing» permissions on existing records.
+    See below for more information.
+
+
+How does Kinto know it is a valid Basic Auth token?
+---------------------------------------------------
+
+For each token, Kinto will calculate a unique user ID which is
+related to your Kinto instance. It uses a bit of cryptography and the value of
+the ``user_hmac_secret`` setting.
+
+.. note::
+
+    Two Kinto instances using the same ``user_hmac_secret`` will
+    generate the same user ID for a given Basic Auth token.
+
+You can obtain the :term:`user ID` generated for your token on the :ref:`Kinto root URL <api-utilities>`:
+
+.. code-block:: shell
+
+    $ http https://kinto.dev.mozaws.net/v1/ --auth "token:my-secret"
+
+.. code-block:: http
+    :emphasize-lines: 24
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Retry-After, Content-Length, Alert, Backoff
+    Connection: keep-alive
+    Content-Length: 498
+    Content-Type: application/json; charset=UTF-8
+    Date: Fri, 29 Jan 2016 09:13:33 GMT
+    Server: nginx
+
+    {
+        "cliquet_protocol_version": "2",
+        "http_api_version": "1.0",
+        "project_docs": "https://kinto.readthedocs.org/",
+        "project_name": "kinto",
+        "project_version": "1.10.0",
+        "settings": {
+            "attachment.base_url": "https://kinto.dev.mozaws.net/attachments/",
+            "batch_max_requests": 25,
+            "cliquet.batch_max_requests": 25,
+            "readonly": false
+        },
+        "url": "https://kinto.dev.mozaws.net/v1/",
+        "user": {
+            "bucket": "e777874f-2936-11a1-3269-68a6c1648a92",
+            "id": "basicauth:c635be9375673027e9b2f357a3955a0a46b58aeface61930838b61e946008ab0"
+        }
+    }
+
+As soon as this user ID is used to give permission on an object
+(buckets, groups, collections, records), the user will be granted that
+permission when using this token.
 
 
 How can we generate strong unique tokens?
 -----------------------------------------
 
-We recommand you to use at least a 16 random bytes strings such as an UUID:
+For certain use cases, tokens can be public and shared publicly. For others, they must
+be kept secret.
 
-Using the ``uuidgen`` cli tool:
+For the latter, we recommend using at least a 16 random bytes strings, such as UUIDs:
+
+Using the ``uuidgen`` CLI tool:
 
 .. code-block:: shell
 
@@ -103,7 +185,7 @@ Using Node:
     > console.log(uuid.v4());
     0a859a0e-4e6e-4014-896a-aa85d9587c48
 
-Then you can use:
+Then the string obtained can be used as it is:
 
 .. code-block:: shell
 
@@ -113,88 +195,29 @@ Then you can use:
 And observe the user ID in the response.
 
 
-How Kinto knows it is a valid Basic Auth token?
------------------------------------------------
-
-For each token, Kinto will calculate a unique user ID which is
-related to your Kinto instance ``user_hmac_secret`` configuration.
-
-.. note::
-
-    Two Kinto instances using the same ``user_hmac_secret`` will
-    generate the same user ID for a given Basic Auth token.
-
-You can get the :term:`user ID` generated for your token on the Kinto hello page:
-
-.. code-block:: shell
-
-    $ http https://kinto.dev.mozaws.net/v1/ --auth "token:my-secret"
-
-.. code-block:: json
-    :emphasize-lines: 24
-
-    HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Retry-After, Content-Length, Alert, Backoff
-    Connection: keep-alive
-    Content-Length: 498
-    Content-Type: application/json; charset=UTF-8
-    Date: Fri, 29 Jan 2016 09:13:33 GMT
-    Server: nginx
-
-    {
-        "cliquet_protocol_version": "2", 
-        "http_api_version": "1.0", 
-        "project_docs": "https://kinto.readthedocs.org/", 
-        "project_name": "kinto", 
-        "project_version": "1.10.0", 
-        "settings": {
-            "attachment.base_url": "https://kinto.dev.mozaws.net/attachments/", 
-            "batch_max_requests": 25, 
-            "cliquet.batch_max_requests": 25, 
-            "readonly": false
-        }, 
-        "url": "https://kinto.dev.mozaws.net/v1/", 
-        "user": {
-            "bucket": "e777874f-2936-11a1-3269-68a6c1648a92", 
-            "id": "basicauth:c635be9375673027e9b2f357a3955a0a46b58aeface61930838b61e946008ab0"
-        }
-    }
-
-As soon as this user ID is used to give permission on an object
-(buckets, groups, collections, records), the user will be grant that
-permission using the token.
-
-
 How can I change the token for a given user?
 --------------------------------------------
 
 Asking yourself this question is a first sign that you should not be
-using the Basic Auth authentication backend for your use case.
+using the Basic Auth authentication method for your use case.
 
-Because the user ID is calculated from the token, changing the token
+Because the user ID is computed from the token, changing the token
 will change the user ID.
 
-You can generate other user IDs based on other tokens and give
-permissions to them.
+Some possible strategies:
 
-You can even create a group that could handle all the available tokens
-for a given user, and change the token once for all without having to
-change the permission of each object.
+- You can generate new tokens and give the ``write`` permission to their
+  respective user id.
 
-You can generate new tokens and give the ``write`` permission to their
-respective user id.
+- You can also create a group per « user » whose members are the different
+  user IDs obtained from tokens. And then use this group in permission
+  definitions on objects.
 
-You can also create a group per « user » whose members are the different
-user IDs obtained from tokens. And then use this group in permission
-definitions on objects.
+- Most likely, you would use an identity provider which will be in
+  charge of user and token management (generate, refresh, validate, ...).
+  `See this example with Django <http://django-oauth-toolkit.readthedocs.org/en/latest/tutorial/tutorial_01.html>`_.
 
-Most likely, you would use an identity provider which will be in
-charge of user and token management (generate, refresh, validate,
-...).
-`See this example with Django <http://django-oauth-toolkit.readthedocs.org/en/latest/tutorial/tutorial_01.html>`_.
-
-You can also read our
-:ref:`tutorial about how to plug the Github authorisation backend <tutorial-github>`.
+You can also read our :ref:`tutorial about how to plug the Github authorisation backend <tutorial-github>`.
 
 
 OAuth Bearer token
@@ -216,7 +239,7 @@ The policy will verify the provided *OAuth2 bearer token* on a remote server.
 
 
 Firefox Accounts
-================
+----------------
 
 In order to enable authentication with :term:`Firefox Accounts`, install and
 configure :github:`mozilla-services/cliquet-fxa`.
