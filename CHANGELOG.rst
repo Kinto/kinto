@@ -20,7 +20,7 @@ Protocol is now version 1.3. See `API changelog <http://kinto.readthedocs.org/en
 **New features**
 
 - Add a Heroku single-clic deploy button (#362)
-- Install postgresql libraries on kinto init (fixes #313)
+- Install PostgreSQL libraries on ``kinto init`` (fixes #313)
 - Smaller Docker container image (#375, #376, #383)
 - Install major plugins in Dockerfile (fixes #317)
 - The policy name used to configure authentication in settings is now used for
@@ -34,10 +34,10 @@ Protocol is now version 1.3. See `API changelog <http://kinto.readthedocs.org/en
 - Fix validation of collection id in default bucket (fixes #260)
 - Fix kinto init failure when the config folder already exists (#349)
 - Fix Docker compose startup (fixes #325)
-- Run migrate command when docker container starts (fixes #363)
+- Run migrate command when Docker container starts (fixes #363)
 - Fix listener name logging during startup (#626)
 - Do not log batch subrequests twice (#264)
-- Fix hmac digest with python3 (#288)
+- Fix hmac digest with Python 3 (#288)
 - Add explicit dependency for functools32 when Kinto is installed with an old
   pip version (fixes #303)
 
@@ -67,7 +67,7 @@ Minor:
 - Fix link to the freenode #kinto channel in the docs (#333)
 - Remove Firefox Account mention from README (fixes #326)
 - Move application examples page to wiki (ref #321)
-- Move postgresql server docs to wiki (fixes #321)
+- Move PostgreSQL server docs to wiki (fixes #321)
 - Change colors of logo (#359)
 - Add invitation for community to point their demos/use cases (fixes #356)
 - Remove duplicate glossary in docs (#372)

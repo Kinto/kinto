@@ -18,7 +18,7 @@ CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
     'waitress',
-    'cliquet>=2.14,<3',
+    'cliquet>=2.15,<3',
     'jsonschema',
 ]
 
@@ -36,7 +36,7 @@ MONITORING_REQUIREMENTS = REQUIREMENTS + [
 ]
 
 FXA_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet-fxa'
+    'cliquet-fxa<2'
 ]
 
 ENTRY_POINTS = {
@@ -69,9 +69,9 @@ setup(name='kinto',
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
           "License :: OSI Approved :: Apache Software License"
       ],
-      keywords="web services",
+      keywords="web sync json storage",
       author='Mozilla Services',
-      author_email='services-dev@mozilla.com',
+      author_email='storage-team@mozilla.com',
       url='https://github.com/Kinto/kinto',
       packages=find_packages(),
       include_package_data=True,

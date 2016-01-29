@@ -3,7 +3,7 @@ Contributors
 
 * Aaron Egaas <me@aaronegaas.com>
 * Aditya Bhasin <conlini@gmail.com>
-* Alexis Métaireau <alexis@notmyidea.org>
+* Alexis Métaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>
 * David Larlet <david@larlet.fr>
@@ -16,9 +16,9 @@ Contributors
 * Nicolas Perriault <nperriault@mozilla.com>
 * Nicolas Hoizey <nicolas@hoizey.com>
 * Niraj <https://github.com/niraj8>
-* rektide <rektide@voodoowarez.com>
-* Rémy HUBSCHER <rhubscher@mozilla.com>
+* Rektide <rektide@voodoowarez.com>
+* Rémy Hubscher <rhubscher@mozilla.com>
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
-* Tarek Ziade <tarek@ziade.org>
+* Tarek Ziade <tarek@mozilla.com>
 * Wil Clouser <wclouser@mozilla.com>
