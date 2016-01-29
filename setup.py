@@ -22,11 +22,6 @@ REQUIREMENTS = [
     'jsonschema',
 ]
 
-if sys.version_info < (3,):
-    REQUIREMENTS.extend([
-        'functools32',  # not installed by jsonschema with old pip versions.
-    ])
-
 POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
     'cliquet[postgresql]>=2.15,<3'
 ]
