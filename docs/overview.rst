@@ -258,7 +258,7 @@ We also have a `single-click deployment on Heroku <get-started>`.
 Why did you chose to use Python rather than X?
 ----------------------------------------------
 
-We love `Python <python.org>`_ because it's a concise & expressive
+We love `Python <https://python.org>`_ because it's a concise & expressive
 language with powerful data structures & easy to learn,
 so it was an obvious choice for the development team.
 
