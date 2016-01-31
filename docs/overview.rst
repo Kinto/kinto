@@ -247,7 +247,7 @@ and we're a small team.
 
 Currently we make sure it's :ref:`easy to run with Docker or Python pip <get-started>`.
 
-We also have a `single-click deployment on Heroku <get-started>`.
+We also have a `single-click deployment on Heroku <get-started.html#deploy-an-instance-on-heroku>`.
 
 .. important::
 
