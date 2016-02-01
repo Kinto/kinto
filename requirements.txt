@@ -4,7 +4,6 @@ cornice==1.2.0
 functools32==3.2.3.post2
 iso8601==0.1.11
 jsonschema==2.5.1
--e git+git@github.com:Kinto/kinto.git@bf6171267cb02b0bcb01261ad2cca3ffae691a6b#egg=kinto
 PasteDeploy==1.5.2
 pyramid==1.6
 pyramid-multiauth==0.6.0

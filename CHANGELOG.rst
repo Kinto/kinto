@@ -8,8 +8,8 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
-- Fix wheels for python 3 that were requiring the functools32 package that is
-  incompatible with python 3.
+- Fix wheels for Python 3 that were requiring the functools32 package that is
+  for Python 2 only (fixes #303).
 
 **Documentation**
 
