@@ -21,6 +21,8 @@ It should be enough to get started, but the records are flushed every
 day at 7:00 AM UTC.
 
 
+.. _deploy-an-instance-on-heroku:
+
 Deploy an instance on Heroku
 ============================
 
