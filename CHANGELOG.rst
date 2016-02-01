@@ -3,10 +3,18 @@ Changelog
 
 This document describes changes between each past release.
 
-1.12.0 (unreleased)
+1.11.1 (2016-02-01)
 ===================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix wheels for python 3 that were requiring the functools32 package that is
+  incompatible with python 3.
+
+**Documentation**
+
+- Fix a broken hyperlink in the overview section. (#406, thanks William Hoang)
+- Talk about tokens rather than user:password (#393)
 
 
 1.11.0 (2016-01-28)
