@@ -6,13 +6,18 @@ addons:
 env:
     - TOX_ENV=py27
     - TOX_ENV=py34
-    - TOX_ENV=py35
+    #- TOX_ENV=py35
     - TOX_ENV=pypy
     - TOX_ENV=cliquet-master
     - TOX_ENV=flake8
     - TOX_ENV=docs
     - ACTION=loadtest_tutorial
     - ACTION=loadtest_simulation
+matrix:
+  include:
+    - python: 3.5
+      env:
+        - TOX_ENV=py35
 before_script:
     - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
 install:
