@@ -22,11 +22,6 @@ REQUIREMENTS = [
     'jsonschema',
 ]
 
-if sys.version_info < (3,):
-    REQUIREMENTS.extend([
-        'functools32',  # not installed by jsonschema with old pip versions.
-    ])
-
 POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
     'cliquet[postgresql]>=2.15,<3'
 ]
@@ -81,6 +76,7 @@ setup(name='kinto',
           'postgresql': POSTGRESQL_REQUIREMENTS,
           'monitoring': MONITORING_REQUIREMENTS,
           'fxa': FXA_REQUIREMENTS,
+          ":python_version=='2.7'": ["functools32"],
       },
       test_suite="kinto.tests",
       entry_points=ENTRY_POINTS,

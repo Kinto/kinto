@@ -22,3 +22,13 @@ was added in PostgreSQL 9.4.
 This is a hard requirement for postgresql backends, therefore you
 will either need to **use PostgreSQL 9.4 (or greater)**, or
 :ref:`use a different backend <configuration-backends>` entirely.
+
+No module named functools
+=========================
+
+With some old version of pip, the jsonschema package does not install properly
+because one if its dependencies is missing.
+
+To fix this, you can either install it locally or upgrade your version of pip::
+
+  $ pip install --upgrade pip
