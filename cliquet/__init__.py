@@ -10,7 +10,8 @@ from cliquet import events
 from cliquet.initialization import (  # NOQA
     initialize, initialize_cliquet, install_middlewares,
     load_default_settings)
-from cliquet.utils import follow_subrequest, current_resource_name
+from cliquet.utils import (
+    follow_subrequest, current_service, current_resource_name)
 from cliquet.logs import logger
 
 
@@ -157,6 +158,7 @@ def includeme(config):
     config.add_request_method(lambda request: {'id': request.prefixed_userid},
                               name='get_user_info')
     config.add_request_method(current_resource_name, reify=True)
+    config.add_request_method(current_service, reify=True)
     config.commit()
 
     # Include cliquet plugins after init, unlike pyramid includes.
