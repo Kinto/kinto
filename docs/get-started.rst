@@ -34,6 +34,18 @@ You want to get started with a working online Kinto server right now?
 
 You have got a free plan for up to 10000 rows.
 
+.. _deploy-an-instance-on-heroku:
+
+Deploy an instance on Scalingo
+==============================
+
+You want to get started with a working online Kinto server right now?
+
+.. image:: https://cdn.scalingo.com/deploy/button.svg
+   :target: https://my.scalingo.com/deploy?source=https://github.com/Scalingo/kinto-scalingo>
+   :alt: Deploy on Scalingo
+
+You have got a free plan for a 512MB (512MB RAM, 512MB on disk) PostgreSQL database.
 
 .. _run-kinto-docker:
 
