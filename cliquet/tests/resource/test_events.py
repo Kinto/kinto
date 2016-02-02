@@ -9,6 +9,7 @@ from cliquet.events import ResourceChanged, ResourceRead, ACTIONS
 from cliquet.storage.exceptions import BackendError
 from cliquet.tests.testapp import main as testapp
 from cliquet.tests.support import unittest, BaseWebTest, get_request_class
+from cliquet import statsd
 
 
 @contextmanager
@@ -344,3 +345,33 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
         self.app.post_json("/batch", body, headers=self.headers,
                            status=503)
         self.assertEqual(len(self.events), 0)
+
+
+def load_from_config(config, prefix):
+    class ClassListener(object):
+        def __call__(self, event):
+            pass
+    return ClassListener()
+
+
+@unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
+class StatsDTest(BaseWebTest, unittest.TestCase):
+    def get_app_settings(self, *args, **kwargs):
+        settings = super(StatsDTest, self).get_app_settings(*args, **kwargs)
+        if not statsd.statsd_module:
+            return settings
+
+        settings['statsd_url'] = 'udp://localhost:8125'
+        this_module = 'cliquet.tests.resource.test_events'
+        settings['event_listeners'] = 'test'
+        settings['event_listeners.test.use'] = this_module
+        return settings
+
+    def test_statds_tracks_listeners_execution_duration(self):
+        statsd_client = self.app.app.registry.statsd._client
+        with mock.patch.object(statsd_client, 'timing') as mocked:
+            self.app.post_json(self.collection_url,
+                               {"data": {"name": "pouet"}},
+                               headers=self.headers)
+            timers = set(c[0][0] for c in mocked.call_args_list)
+            self.assertIn('listeners.test', timers)

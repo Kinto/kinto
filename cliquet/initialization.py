@@ -433,6 +433,12 @@ def setup_listeners(config):
             listener_mod = config.maybe_dotted(settings[prefix + 'use'])
             listener = listener_mod.load_from_config(config, prefix)
 
+        # If StatsD is enabled, monitor execution time of listeners.
+        if getattr(config.registry, "statsd", None):
+            statsd_client = config.registry.statsd
+            key = 'listeners.%s' % name
+            listener = statsd_client.timer(key)(listener.__call__)
+
         actions = aslist(settings.get(prefix + 'actions', '')) or write_actions
         resource_names = aslist(settings.get(prefix + 'resources', ''))
         options = dict(for_actions=actions, for_resources=resource_names)
