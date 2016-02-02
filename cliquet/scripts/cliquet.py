@@ -8,6 +8,8 @@ import warnings
 from pyramid.paster import bootstrap
 from pyramid.settings import asbool
 
+from cliquet import __version__
+
 
 def deprecated_init(env):
     message = '"cliquet init" is deprecated. Use "cliquet migrate" instead.'
@@ -42,6 +44,8 @@ def main():
                         help='Application configuration file',
                         dest='ini_file',
                         required=True)
+    parser.add_argument('--version', action='version', version=__version__,
+                        help='Print the cliquet version and exit.')
 
     subparsers = parser.add_subparsers()
 
