@@ -95,6 +95,23 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
         resp = self.app.get(self.collection_url + '/records',
                             headers=headers, status=304)
         self.assertIn('Access-Control-Allow-Origin', resp.headers)
+        self.assertIn('ETag', resp.headers['Access-Control-Expose-Headers'])
+
+    def test_etag_is_present_and_exposed_in_304_error(self):
+        resp = self.app.post_json(self.collection_url + '/records',
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers)
+        current = resp.json['data']['last_modified']
+        headers = self.headers.copy()
+        headers.update({
+            'Origin': 'http://localhost:8000',
+            'If-None-Match': ('"%s"' % current).encode('utf-8')
+        })
+        resp = self.app.get(self.collection_url + '/records',
+                            headers=headers, status=304)
+        self.assertIn('Access-Control-Expose-Headers', resp.headers)
+        self.assertIn('ETag', resp.headers)
+        self.assertIn('ETag', resp.headers['Access-Control-Expose-Headers'])
 
     def test_bucket_id_starting_with_default_can_still_be_created(self):
         # We need to create the bucket first since it is not the default bucket

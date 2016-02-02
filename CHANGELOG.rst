@@ -6,7 +6,9 @@ This document describes changes between each past release.
 1.12.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Expose the ETag header in 304 responses for default bucket (ref mozilla-services/cliquet#631)
 
 
 1.11.1 (2016-02-01)
