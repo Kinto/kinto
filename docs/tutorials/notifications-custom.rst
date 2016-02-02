@@ -6,16 +6,23 @@ How to run custom code on notifications?
 Kinto is able to execute some custom code when a particular event occurs.
 For example, when a record is created or updated in a particular collection.
 
-This tutorial presents the basic steps to run code:
+Kinto uses the same thread to trigger notifications on events, so any custom
+code that is executed through a notification will block the incoming 
+request until it's done. 
+
+This design is useful when we want to ensure that something is done on the 
+server before we send back the result to the client. But sometimes it's 
+preferrable to run the notifications asynchronously.
+
+For the latter, the simplest way to run our custom code asynchronously
+is to use separate process workers that are notified via a job queue
+
+This tutorial presents the basic steps to run code both ways:
 
 * synchronously in Python;
-* asynchronously using a Redis queue, consumed via the language of your choice.
+* asynchronously using a Redis queue, consumed via any third-party application.
 
-.. important::
-
-    Synchronously means that if the code takes 5 secondes to execute, then the server
-    response to the HTTP request will last as long.
-
+    
 
 Run synchronous code
 --------------------
