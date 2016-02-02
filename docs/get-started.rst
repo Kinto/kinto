@@ -34,7 +34,7 @@ You want to get started with a working online Kinto server right now?
 
 You have got a free plan for up to 10000 rows.
 
-.. _deploy-an-instance-on-heroku:
+.. _deploy-an-instance-on-scalingo:
 
 Deploy an instance on Scalingo
 ==============================
