@@ -63,7 +63,7 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         t2 = time.time()
         self.assertEquals(len(self.connections), 3)
         # This checks that it failed immediately rather than timing out.
-        self.assertTrue(t2 - t1 < 0.9)
+        self.assertTrue(t2 - t1 < 1.1)
         self.assertTrue(len(self.errors) >= 1)
 
         # And eventually, the blocked threads will time out.
