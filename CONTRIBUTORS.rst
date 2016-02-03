@@ -5,6 +5,7 @@ Contributors
 * Aditya Bhasin <conlini@gmail.com>
 * Alexis Métaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
+* Chirag B. Jadwani <chirag.jadwani@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>
 * David Larlet <david@larlet.fr>
 * Eric Bréhault <ebrehault@gmail.com>
@@ -21,4 +22,6 @@ Contributors
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
 * Tarek Ziade <tarek@mozilla.com>
+* Taylor Zane Glaeser <tzglaeser@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
+* Yann Klis <yann.klis@gmail.com>

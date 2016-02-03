@@ -3,12 +3,18 @@ Changelog
 
 This document describes changes between each past release.
 
-1.12.0 (unreleased)
+1.11.2 (2016-02-03)
 ===================
 
 **Bug fixes**
 
 - Expose the ETag header in 304 responses for default bucket (ref mozilla-services/cliquet#631)
+
+**Documentation**
+
+- Add Scalingo *one-click deploy* button (#418, thanks @yannski)
+- Improve introduction of notifications tutorial (#419, thanks @tarekziade)
+- Fix typos (thanks @magopian)
 
 
 1.11.1 (2016-02-01)
