@@ -88,7 +88,7 @@ Using Docker Compose
 --------------------
 
 A sample configuration for `Docker Compose <http://docs.docker.com/compose/>`_
-is provided in the Kinto repository. It pulls the *Kinto* container and run it
+is provided in the Kinto repository. It pulls the *Kinto* container and runs it
 with a *PostgreSQL* container.
 
 ::
@@ -99,13 +99,13 @@ with a *PostgreSQL* container.
 
 .. _run-kinto-python:
 
-Using Python package
-====================
+Using the Python package
+========================
 
 System requirements
 -------------------
 
-Depending on the platform, and chosen configuration, some libraries or
+Depending on the platform and chosen configuration, some libraries or
 extra services are required.
 
 The following commands will install necessary tools for cryptography
@@ -173,7 +173,8 @@ If you plan on contributing, this is the way to go!
 This will install every necessary packages to run the tests, build the
 documentation etc.
 
-Make sure you have the system requirements listed in the Python package section.
+Make sure you have the system requirements listed in the
+:ref:`Python package <run-kinto-python>` section.
 
 ::
 
