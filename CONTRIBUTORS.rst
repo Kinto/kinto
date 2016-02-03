@@ -14,6 +14,7 @@ Contributors
 * John Giannelos <johngiannelos@gmail.com>
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
+* Michiel de Jong <michiel@unhosted.org>
 * Nicolas Perriault <nperriault@mozilla.com>
 * Nicolas Hoizey <nicolas@hoizey.com>
 * Niraj <https://github.com/niraj8>
