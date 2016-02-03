@@ -338,15 +338,15 @@ class StatsDConfigurationTest(unittest.TestCase):
         cliquet.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
-        app.get('/v0/__heartbeat__', headers=headers)
-        mocked().count.assert_any_call('users', unique='mat')
+        app.get('/v0/', headers=headers)
+        mocked().count.assert_any_call('users', unique='basicauth:mat')
 
     @mock.patch('cliquet.statsd.Client')
     def test_statsd_counts_authentication_types(self, mocked):
         cliquet.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
-        app.get('/v0/__heartbeat__', headers=headers)
+        app.get('/v0/', headers=headers)
         mocked().count.assert_any_call('authn_type.basicauth')
 
 

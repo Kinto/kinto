@@ -1,4 +1,4 @@
-from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
 from cliquet import Service, PROTOCOL_VERSION
 
@@ -39,8 +39,9 @@ def get_hello(request):
             value = settings[setting]
         data['settings'][setting] = value
 
-    prefixed_userid = getattr(request, 'prefixed_userid', None)
-    if prefixed_userid:
+    # If current user is authenticated, add user info:
+    # (Note: this will call authenticated_userid() with multiauth+groupfinder)
+    if Authenticated in request.effective_principals:
         data['user'] = request.get_user_info()
 
     # Application can register and expose arbitrary capabilities.

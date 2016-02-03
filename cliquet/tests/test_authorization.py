@@ -3,6 +3,7 @@ import mock
 from pyramid.request import Request
 
 from .support import DummyRequest, unittest
+from cliquet import authentication
 from cliquet.authorization import RouteFactory, AuthorizationPolicy
 from cliquet.storage import exceptions as storage_exceptions
 
@@ -86,6 +87,7 @@ class RouteFactoryTest(unittest.TestCase):
         request = Request.blank(path='/')
         request.registry = mock.Mock(settings={})
         request.authn_type = 'fxa'
+        request.prefixed_userid = property(authentication.prefixed_userid)
         context = RouteFactory(request)
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.current_record)
@@ -95,12 +97,12 @@ class RouteFactoryTest(unittest.TestCase):
     def test_attributes_are_none_with_non_resource_requests(self):
         basic_service = object()
         request = Request.blank(path='/')
+        request.prefixed_userid = property(authentication.prefixed_userid)
         request.matched_route = mock.Mock(pattern='foo')
         request.registry = mock.Mock(cornice_services={'foo': basic_service})
         request.registry.settings = {}
 
         context = RouteFactory(request)
-        self.assertIsNone(context.prefixed_userid)
         self.assertIsNone(context.current_record)
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.resource_name)
@@ -131,7 +133,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.authz = AuthorizationPolicy()
         self.authz.get_bound_permissions = mock.sentinel.get_bound_perms
         self.context = mock.MagicMock()
-        self.context.prefixed_userid = None
+        self.context.get_prefixed_userid.return_value = None
         self.context.allowed_principals = []
         self.context.object_id = mock.sentinel.object_id
         self.context.required_permission = 'read'
@@ -191,7 +193,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.assertTrue(has_permission)
 
     def test_prefixed_userid_is_added_to_principals(self):
-        self.context.prefixed_userid = 'fxa:userid'
+        self.context.get_prefixed_userid.return_value = 'fxa:userid'
         self.authz.permits(self.context, self.principals, 'foobar')
         self.context.check_permission.assert_called_with(
             'foobar',
@@ -199,7 +201,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
             get_bound_permissions=mock.sentinel.get_bound_perms)
 
     def test_unprefixed_userid_is_removed_from_principals(self):
-        self.context.prefixed_userid = 'fxa:userid'
+        self.context.get_prefixed_userid.return_value = 'fxa:userid'
         self.authz.permits(self.context, ['userid'], 'foobar')
         self.context.check_permission.assert_called_with(
             'foobar',
@@ -222,7 +224,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
         self.context.fetch_shared_records.assert_called_with(
             'read',
-            ['userid', 'basicauth:bob', 'basicauth_bob'],
+            ['userid'],
             get_bound_permissions=mock.sentinel.get_bound_perms)
         self.assertTrue(allowed)
 
@@ -243,6 +245,6 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
         self.context.fetch_shared_records.assert_called_with(
             'read',
-            ['userid', 'basicauth:bob', 'basicauth_bob'],
+            ['userid'],
             get_bound_permissions=mock.sentinel.get_bound_perms)
         self.assertFalse(allowed)
