@@ -70,7 +70,7 @@ maintainer-clean: distclean
 	rm -fr .venv/ .tox/ dist/ build/
 
 loadtest-check-tutorial: install-postgres
-	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\
+	$(VENV)/bin/kinto --ini loadtests/server.ini migrate > kinto.log &&\
 	$(VENV)/bin/kinto --ini loadtests/server.ini start > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \
 	  sleep 1 && cd loadtests && \
@@ -78,7 +78,7 @@ loadtest-check-tutorial: install-postgres
 	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
 
 loadtest-check-simulation: install-postgres
-	$(VENV)/bin/cliquet --ini loadtests/server.ini migrate > kinto.log &&\
+	$(VENV)/bin/kinto --ini loadtests/server.ini migrate > kinto.log &&\
 	$(VENV)/bin/kinto --ini loadtests/server.ini start > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \
 	  sleep 1 && cd loadtests && \

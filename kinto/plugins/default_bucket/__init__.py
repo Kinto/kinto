@@ -120,7 +120,8 @@ def default_bucket(request):
     try:
         response = request.invoke_subrequest(subrequest)
     except httpexceptions.HTTPException as error:
-        if error.content_type == 'application/json':
+        is_redirect = error.status_code < 400
+        if error.content_type == 'application/json' or is_redirect:
             response = reapply_cors(subrequest, error)
         else:
             # Ask the upper level to format the error.
