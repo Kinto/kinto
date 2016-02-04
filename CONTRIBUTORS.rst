@@ -5,6 +5,7 @@ Contributors
 * Aditya Bhasin <conlini@gmail.com>
 * Alexis Métaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
+* Chirag B. Jadwani <chirag.jadwani@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>
 * David Larlet <david@larlet.fr>
 * Eric Bréhault <ebrehault@gmail.com>
@@ -13,6 +14,7 @@ Contributors
 * John Giannelos <johngiannelos@gmail.com>
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
+* Michiel de Jong <michiel@unhosted.org>
 * Nicolas Perriault <nperriault@mozilla.com>
 * Nicolas Hoizey <nicolas@hoizey.com>
 * Niraj <https://github.com/niraj8>
@@ -21,4 +23,6 @@ Contributors
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
 * Tarek Ziade <tarek@mozilla.com>
+* Taylor Zane Glaeser <tzglaeser@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
+* Yann Klis <yann.klis@gmail.com>

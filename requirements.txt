@@ -5,7 +5,7 @@ functools32==3.2.3.post2
 iso8601==0.1.11
 jsonschema==2.5.1
 PasteDeploy==1.5.2
-pyramid==1.6
+pyramid==1.6.1
 pyramid-multiauth==0.6.0
 pyramid-tm==0.12.1
 python-dateutil==2.4.2
