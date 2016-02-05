@@ -6,7 +6,10 @@ This document describes changes between each past release.
 1.12.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+**Internal changes**
+
+- Changed default duration between retries on error (``Retry-After`` header)
+  from 30 to 3 seconds.
 
 
 1.11.2 (2016-02-03)
