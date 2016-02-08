@@ -305,6 +305,56 @@ Retrieving all buckets
         }
 
 
+.. _buckets-delete:
+
+Delete all buckets
+=======================
+
+.. http:delete:: /buckets
+
+    :synopsis: Delete every writable buckets for this user
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http delete http://localhost:8888/v1/buckets --auth="token:bob-token" --verbose
+
+    .. sourcecode:: http
+
+        DELETE /v1/buckets HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic YWxpY2U6
+        Connection: keep-alive
+        Content-Length: 0
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.2
+
+    **Example Response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Retry-After, Content-Length, Alert, Backoff
+        Content-Length: 101
+        Content-Type: application/json; charset=UTF-8
+        Date: Fri, 26 Feb 2016 14:12:22 GMT
+        Server: waitress
+
+        {
+            "data": [
+                {
+                    "deleted": true,
+                    "id": "e64db3f9-6a60-1acf-fc3a-7d1ba7e823aa",
+                    "last_modified": 1456495942515
+                }
+            ]
+        }
+
+
 .. _buckets-default-id:
 
 Personal bucket «default»

@@ -26,7 +26,126 @@ A collection is a mapping with the following attribute:
     data from their personnal bucket, by sharing :ref:`its URL using the full ID <buckets-default-id>`.
 
 
-.. _collection-post:
+
+.. _collections-get:
+
+List bucket collections
+=======================
+
+.. http:post:: /buckets/(bucket_id)/collections
+
+   :synopsis: List bucket's readable collections
+
+   **Requires authentication**
+
+   **Example Request**
+
+   .. sourcecode:: bash
+
+      $ http GET http://localhost:8888/v1/buckets/blog/collections --auth="token:bob-token" --verbose
+
+   .. sourcecode:: http
+
+      GET /v1/buckets/blog/collections HTTP/1.1
+      Accept: */*
+      Accept-Encoding: gzip, deflate
+      Authorization: Basic YWxpY2U6
+      Connection: keep-alive
+      Host: localhost:8888
+      User-Agent: HTTPie/0.9.2
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Access-Control-Expose-Headers: Content-Length, Expires, Alert, Retry-After, Last-Modified, Total-Records, ETag, Pragma, Cache-Control, Backoff, Next-Page
+      Cache-Control: no-cache
+      Content-Length: 144
+      Content-Type: application/json; charset=UTF-8
+      Date: Fri, 26 Feb 2016 14:14:40 GMT
+      Etag: "1456496072475"
+      Last-Modified: Fri, 26 Feb 2016 14:14:32 GMT
+      Server: waitress
+      Total-Records: 3
+
+      {
+          "data": [
+              {
+                  "id": "scores",
+                  "last_modified": 1456496072475
+              },
+              {
+                  "id": "game",
+                  "last_modified": 1456496060675
+              },
+              {
+                  "id": "articles",
+                  "last_modified": 1456496056908
+              }
+          ]
+      }
+
+
+.. _collections-delete:
+
+Delete bucket collections
+=======================
+
+.. http:delete:: /buckets/(bucket_id)/collections
+
+    :synopsis: Delete every writable collections in this bucket
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http delete http://localhost:8888/v1/buckets/blog/collections --auth="token:bob-token" --verbose
+
+    .. sourcecode:: http
+
+        DELETE /v1/buckets/blog/collections HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic YWxpY2U6
+        Connection: keep-alive
+        Content-Length: 0
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.2
+
+    **Example Response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Retry-After, Content-Length, Alert, Backoff
+        Content-Length: 189
+        Content-Type: application/json; charset=UTF-8
+        Date: Fri, 26 Feb 2016 14:19:21 GMT
+        Server: waitress
+
+        {
+            "data": [
+                {
+                    "deleted": true,
+                    "id": "articles",
+                    "last_modified": 1456496361303
+                },
+                {
+                    "deleted": true,
+                    "id": "game",
+                    "last_modified": 1456496361304
+                },
+                {
+                    "deleted": true,
+                    "id": "scores",
+                    "last_modified": 1456496361305
+                }
+            ]
+        }
+
+
+.. _collections-post:
 
 Creating a collection
 =====================
