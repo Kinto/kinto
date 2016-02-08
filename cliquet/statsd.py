@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import types
 
 try:
     import statsd as statsd_module
@@ -19,7 +20,8 @@ class Client(object):
         members = dir(obj)
         for name in members:
             value = getattr(obj, name)
-            if not name.startswith('_') and hasattr(value, '__call__'):
+            is_method = isinstance(value, types.MethodType)
+            if not name.startswith('_') and is_method:
                 statsd_key = "%s.%s.%s" % (prefix, classname, name)
                 decorated_method = self.timer(statsd_key)(value)
                 setattr(obj, name, decorated_method)

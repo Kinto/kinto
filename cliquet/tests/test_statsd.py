@@ -2,7 +2,7 @@ import mock
 
 from pyramid import testing
 
-from cliquet.tests.support import unittest
+from cliquet.tests.support import unittest, BaseWebTest
 from cliquet import statsd
 
 
@@ -80,3 +80,20 @@ class StatsdClientTest(unittest.TestCase):
         request.registry.statsd = self.mocked_client
         statsd.statsd_count(request, 'toto')
         self.mocked_client.count.assert_called_with('toto')
+
+
+@unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
+class TimingTest(BaseWebTest, unittest.TestCase):
+    def get_app_settings(self, *args, **kwargs):
+        settings = super(TimingTest, self).get_app_settings(*args, **kwargs)
+        if not statsd.statsd_module:
+            return settings
+
+        settings['statsd_url'] = 'udp://localhost:8125'
+        return settings
+
+    def test_statds_tracks_listeners_execution_duration(self):
+        statsd_client = self.app.app.registry.statsd._client
+        with mock.patch.object(statsd_client, 'timing') as mocked:
+            self.app.get('/', headers=self.headers)
+            self.assertTrue(mocked.called)
