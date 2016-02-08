@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_SETTINGS = {
+    'retry_after_seconds': 3,
     'cache_backend': 'cliquet.cache.memory',
     'permission_backend': 'cliquet.permission.memory',
     'storage_backend': 'cliquet.storage.memory',
