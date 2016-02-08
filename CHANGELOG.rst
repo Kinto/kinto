@@ -11,6 +11,7 @@ This document describes changes between each past release.
 
 - Resource events are now merged in batch requests. One event per resource and
   per action is emitted when a transaction is committed (#634)
+- Monitor time of events listeners execution (fixes #503)
 
 **Bug fixes**
 
