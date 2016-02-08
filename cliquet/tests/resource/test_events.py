@@ -277,11 +277,11 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(len(self.events), 3)
 
         create_event = self.events[0]
-        self.assertEqual(create_event.payload['action'], 'create')
+        self.assertEqual(create_event.payload['action'], ACTIONS.CREATE)
         self.assertEqual(len(create_event.impacted_records), 1)
         self.assertNotIn('old', create_event.impacted_records[0])
         update_event = self.events[1]
-        self.assertEqual(update_event.payload['action'], 'update')
+        self.assertEqual(update_event.payload['action'], ACTIONS.UPDATE)
         impacted = update_event.impacted_records
         self.assertEqual(len(impacted), 2)
         self.assertEqual(impacted[0]['old']['name'], 'foo')
@@ -289,7 +289,7 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(impacted[1]['old']['name'], 'bar')
         self.assertEqual(impacted[1]['new']['name'], 'baz')
         delete_event = self.events[2]
-        self.assertEqual(delete_event.payload['action'], 'delete')
+        self.assertEqual(delete_event.payload['action'], ACTIONS.DELETE)
         self.assertEqual(len(delete_event.impacted_records), 1)
         self.assertNotIn('new', delete_event.impacted_records[0])
 

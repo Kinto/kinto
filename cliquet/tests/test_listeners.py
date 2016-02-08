@@ -187,7 +187,7 @@ class ListenerCalledTest(unittest.TestCase):
         # okay, we should have the first event in Redis
         last = self._redis.lpop('cliquet.events')
         last = json.loads(last.decode('utf8'))
-        self.assertEqual(last['action'], ACTIONS.CREATE)
+        self.assertEqual(last['action'], ACTIONS.CREATE.value)
 
     def test_notification_is_broken(self):
         with self.redis_listening():

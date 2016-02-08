@@ -91,14 +91,14 @@ class MemoryBasedStorage(StorageBase):
         """Filter the specified records, using basic iteration.
         """
         operators = {
-            COMPARISON.LT: operator.lt,
-            COMPARISON.MAX: operator.le,
-            COMPARISON.EQ: operator.eq,
-            COMPARISON.NOT: operator.ne,
-            COMPARISON.MIN: operator.ge,
-            COMPARISON.GT: operator.gt,
-            COMPARISON.IN: operator.contains,
-            COMPARISON.EXCLUDE: lambda x, y: not operator.contains(x, y),
+            COMPARISON.LT.value: operator.lt,
+            COMPARISON.MAX.value: operator.le,
+            COMPARISON.EQ.value: operator.eq,
+            COMPARISON.NOT.value: operator.ne,
+            COMPARISON.MIN.value: operator.ge,
+            COMPARISON.GT.value: operator.gt,
+            COMPARISON.IN.value: operator.contains,
+            COMPARISON.EXCLUDE.value: lambda x, y: not operator.contains(x, y),
         }
 
         for record in records:
@@ -106,7 +106,8 @@ class MemoryBasedStorage(StorageBase):
             for f in filters:
                 left = record.get(f.field)
                 right = f.value
-                if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
+                if f.operator in (COMPARISON.IN.value,
+                                  COMPARISON.EXCLUDE.value):
                     right = left
                     left = f.value
                 matches = matches and operators[f.operator](left, right)
@@ -330,11 +331,11 @@ def get_unicity_rules(collection_id, parent_id, record, unique_fields,
         if value is None:
             continue
 
-        filters = [Filter(field, value, COMPARISON.EQ)]
+        filters = [Filter(field, value, COMPARISON.EQ.value)]
 
         if not for_creation:
             object_id = record[id_field]
-            exclude = Filter(id_field, object_id, COMPARISON.NOT)
+            exclude = Filter(id_field, object_id, COMPARISON.NOT.value)
             filters.append(exclude)
 
         rules.append(filters)

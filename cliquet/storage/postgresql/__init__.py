@@ -566,10 +566,10 @@ class Storage(StorageBase):
         :rtype: tuple
         """
         operators = {
-            COMPARISON.EQ: '=',
-            COMPARISON.NOT: '<>',
-            COMPARISON.IN: 'IN',
-            COMPARISON.EXCLUDE: 'NOT IN',
+            COMPARISON.EQ.value: '=',
+            COMPARISON.NOT.value: '<>',
+            COMPARISON.IN.value: 'IN',
+            COMPARISON.EXCLUDE.value: 'NOT IN',
         }
 
         conditions = []
@@ -589,7 +589,8 @@ class Storage(StorageBase):
                 # If field is missing, we default to ''.
                 sql_field = "coalesce(data->>:%s, '')" % field_holder
 
-            if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
+            if filtr.operator not in (COMPARISON.IN.value,
+                                      COMPARISON.EXCLUDE.value):
                 # For the IN operator, let psycopg escape the values list.
                 # Otherwise JSON-ify the native value (e.g. True -> 'true')
                 if not isinstance(filtr.value, six.string_types):
@@ -703,7 +704,7 @@ class Storage(StorageBase):
             if value is None:
                 continue
             sql, holders = self._format_conditions(
-                [Filter(field, value, COMPARISON.EQ)],
+                [Filter(field, value, COMPARISON.EQ.value)],
                 id_field,
                 modified_field,
                 prefix=field)
@@ -720,7 +721,7 @@ class Storage(StorageBase):
         if not for_creation:
             object_id = record[id_field]
             sql, holders = self._format_conditions(
-                [Filter(id_field, object_id, COMPARISON.NOT)],
+                [Filter(id_field, object_id, COMPARISON.NOT.value)],
                 id_field,
                 modified_field)
             safeholders['condition_record'] = sql

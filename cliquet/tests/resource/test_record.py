@@ -295,7 +295,7 @@ class ReadonlyFieldsTest(BaseTest):
         except httpexceptions.HTTPBadRequest as e:
             error = e
         self.assertEqual(error.json, {
-            'errno': ERRORS.INVALID_PARAMETERS,
+            'errno': ERRORS.INVALID_PARAMETERS.value,
             'message': 'Cannot modify {0}'.format(field),
             'code': 400,
             'error': 'Invalid parameters',

@@ -80,7 +80,7 @@ class ModifiedMeanwhileTest(BaseTest):
         except httpexceptions.HTTPPreconditionFailed as e:
             error = e
         self.assertEqual(error.json, {
-            'errno': ERRORS.MODIFIED_MEANWHILE,
+            'errno': ERRORS.MODIFIED_MEANWHILE.value,
             'details': {},
             'message': 'Resource was modified meanwhile',
             'code': 412,
