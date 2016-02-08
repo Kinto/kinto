@@ -18,6 +18,9 @@ This document describes changes between each past release.
 - Resource events are not emitted if the transaction is rolledback (e.g. a batch
   subrequest fails) (#634)
 
+**Internal changes**
+
+- Moved ``utils.current_service(request)`` to reified request method (ref #631)
 
 2.15.0 (2016-01-27)
 -------------------

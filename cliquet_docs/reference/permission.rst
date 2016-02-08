@@ -322,12 +322,11 @@ For example, a simplistic example with the previous resource viewset:
 .. code-block:: python
 
     from pyramid.security import IAuthorizationPolicy
-    from cliquet import utils
 
     class MyRootFactory(object):
         def __init__(self, request):
             self.current_resource = None
-            service = utils.current_service(request)
+            service = request.current_service
             if service and hasattr(service, 'resource'):
                 self.current_resource = service.resource
 

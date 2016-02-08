@@ -16,8 +16,7 @@ from cliquet.events import ACTIONS
 from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
 from cliquet.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
-    current_service, encode_header, decode_header, DeprecatedMeta,
-    dict_subset
+    encode_header, decode_header, DeprecatedMeta, dict_subset
 )
 
 from .model import Model, ShareableModel
@@ -1006,7 +1005,7 @@ class UserResource(object):
         params['_limit'] = limit
         params['_token'] = token
 
-        service = current_service(self.request)
+        service = self.request.current_service
         next_page_url = self.request.route_url(service.name, _query=params,
                                                **self.request.matchdict)
         return next_page_url

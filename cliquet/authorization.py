@@ -182,7 +182,7 @@ class RouteFactory(object):
             # With the current request on a collection, the record URI must
             # be found out by inspecting the collection service and its sibling
             # record service.
-            service = utils.current_service(request)
+            service = request.current_service
             # XXX: Why not use service.path.format(id=) ?
             record_service = service.name.replace('-collection', '-record')
             matchdict = request.matchdict.copy()

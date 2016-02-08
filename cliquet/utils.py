@@ -172,7 +172,7 @@ def reapply_cors(request, response):
     recreating the response from scratch.
 
     """
-    service = current_service(request)
+    service = request.current_service
     if service:
         request.info['cors_checked'] = False
         cors.apply_cors_post_request(service, request, response)
