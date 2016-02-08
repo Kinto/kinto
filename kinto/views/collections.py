@@ -34,7 +34,7 @@ class CollectionSchema(resource.ResourceSchema):
 
 
 @resource.register(name='collection',
-                   collection_methods=('GET', 'POST'),
+                   collection_methods=('GET', 'POST', 'DELETE'),
                    collection_path='/buckets/{{bucket_id}}/collections',
                    record_path='/buckets/{{bucket_id}}/collections/{{id}}')
 class Collection(resource.ProtectedResource):

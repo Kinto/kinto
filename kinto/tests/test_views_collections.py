@@ -1,5 +1,6 @@
 from .support import (BaseWebTest, unittest, MINIMALIST_BUCKET,
-                      MINIMALIST_COLLECTION, MINIMALIST_RECORD)
+                      MINIMALIST_COLLECTION, MINIMALIST_RECORD,
+                      get_user_headers)
 
 
 class CollectionViewTest(BaseWebTest, unittest.TestCase):
@@ -79,7 +80,10 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(CollectionDeletionTest, self).setUp()
-        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+        bucket = MINIMALIST_BUCKET.copy()
+        bucket['permissions'] = {'collection:create': ['system.Everyone'],
+                                 'read': ['system.Everyone']}
+        self.app.put_json('/buckets/beers', bucket,
                           headers=self.headers)
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
                           headers=self.headers)
@@ -93,6 +97,19 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
     def test_collections_can_be_deleted(self):
         self.app.get(self.collection_url, headers=self.headers,
                      status=404)
+
+    def test_collections_can_be_deleted_in_bulk(self):
+        alice_headers = get_user_headers('alice')
+        self.app.put_json('/buckets/beers/collections/1',
+                          MINIMALIST_COLLECTION, headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/2',
+                          MINIMALIST_COLLECTION, headers=alice_headers)
+        self.app.put_json('/buckets/beers/collections/3',
+                          MINIMALIST_COLLECTION, headers=alice_headers)
+        self.app.delete('/buckets/beers/collections',
+                        headers=alice_headers)
+        resp = self.app.get('/buckets/beers/collections', headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 1)
 
     def test_records_of_collection_are_deleted_too(self):
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
