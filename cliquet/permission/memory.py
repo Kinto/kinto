@@ -43,6 +43,13 @@ class Permission(PermissionBase):
         else:
             self._store[user_key] = user_principals
 
+    def remove_principal(self, principal):
+        for user_principals in self._store.values():
+            try:
+                user_principals.remove(principal)
+            except KeyError:
+                pass
+
     def user_principals(self, user_id):
         user_key = 'user:%s' % user_id
         members = self._store.get(user_key, set())

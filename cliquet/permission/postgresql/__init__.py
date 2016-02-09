@@ -105,6 +105,13 @@ class Permission(PermissionBase):
         with self.client.connect() as conn:
             conn.execute(query, dict(user_id=user_id, principal=principal))
 
+    def remove_principal(self, principal):
+        query = """
+        DELETE FROM user_principals
+         WHERE principal = :principal;"""
+        with self.client.connect() as conn:
+            conn.execute(query, dict(principal=principal))
+
     def user_principals(self, user_id):
         query = """
         SELECT principal

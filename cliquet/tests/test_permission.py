@@ -148,6 +148,21 @@ class BaseTestPermission(object):
         retrieved = self.permission.user_principals(user_id)
         self.assertEquals(retrieved, set())
 
+    def test_can_remove_principal_from_every_users(self):
+        user_id1 = 'foo1'
+        user_id2 = 'foo2'
+        principal1 = 'bar'
+        principal2 = 'foobar'
+        self.permission.add_user_principal(user_id1, principal1)
+        self.permission.add_user_principal(user_id2, principal1)
+        self.permission.add_user_principal(user_id2, principal2)
+        self.permission.remove_principal(principal1)
+
+        retrieved = self.permission.user_principals(user_id1)
+        self.assertEquals(retrieved, set())
+        retrieved = self.permission.user_principals(user_id2)
+        self.assertEquals(retrieved, {principal2})
+
     def test_can_add_a_principal_to_an_object_permission(self):
         object_id = 'foo'
         permission = 'write'

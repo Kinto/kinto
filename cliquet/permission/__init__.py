@@ -39,6 +39,13 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
+    def remove_principal(self, principal):
+        """Remove a principal from every user.
+
+        :param str principal: The principal to remove.
+        """
+        raise NotImplementedError
+
     def user_principals(self, user_id):
         """Return the set of additionnal principals given to a user.
 
