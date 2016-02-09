@@ -22,6 +22,7 @@ class PermissionBaseTest(unittest.TestCase):
             (self.permission.flush,),
             (self.permission.add_user_principal, '', ''),
             (self.permission.remove_user_principal, '', ''),
+            (self.permission.remove_principal, ''),
             (self.permission.user_principals, ''),
             (self.permission.add_principal_to_ace, '', '', ''),
             (self.permission.remove_principal_from_ace, '', '', ''),
@@ -157,6 +158,7 @@ class BaseTestPermission(object):
         self.permission.add_user_principal(user_id2, principal1)
         self.permission.add_user_principal(user_id2, principal2)
         self.permission.remove_principal(principal1)
+        self.permission.remove_principal('unknown')
 
         retrieved = self.permission.user_principals(user_id1)
         self.assertEquals(retrieved, set())
