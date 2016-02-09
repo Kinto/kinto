@@ -39,7 +39,7 @@ class _ResourceEvent(object):
 
 
 class ResourceRead(_ResourceEvent):
-    """Triggered when a resource is read.
+    """Triggered when a resource is being read.
     """
     def __init__(self, action, timestamp, read_records, request):
         super(ResourceRead, self).__init__(action, timestamp, request)
@@ -47,10 +47,26 @@ class ResourceRead(_ResourceEvent):
 
 
 class ResourceChanged(_ResourceEvent):
-    """Triggered when a resource is changed.
+    """Triggered when a resource is being changed.
     """
     def __init__(self, action, timestamp, impacted_records, request):
         super(ResourceChanged, self).__init__(action, timestamp, request)
+        self.impacted_records = impacted_records
+
+
+class AfterResourceRead(_ResourceEvent):
+    """Triggered after a resource was successfully read.
+    """
+    def __init__(self, action, timestamp, read_records, request):
+        super(AfterResourceRead, self).__init__(action, timestamp, request)
+        self.read_records = read_records
+
+
+class AfterResourceChanged(_ResourceEvent):
+    """Triggered after a resource was successfully changed.
+    """
+    def __init__(self, action, timestamp, impacted_records, request):
+        super(AfterResourceChanged, self).__init__(action, timestamp, request)
         self.impacted_records = impacted_records
 
 
@@ -58,14 +74,20 @@ def setup_transaction_hook(config):
     """
     Resource events are plugged with the transactions of ``pyramid_tm``.
 
-    When a transaction is committed, events are sent.
-    On rollback nothing happens.
+    Once a transaction is committed, ``AfterResourceRead`` and
+    ``AfterResourceChanged`` events are sent.
     """
-    def _notify_resource_events(success, request):
+    def _notify_resource_events_before(request):
+        """Notify the accumulated resource events before end of transaction.
+        """
+        for event in request.get_resource_events():
+            request.registry.notify(event)
+
+    def _notify_resource_events_after(success, request):
         """Notify the accumulated resource events if transaction succeeds.
         """
         if success:
-            for event in request.get_resource_events():
+            for event in request.get_resource_events(after=True):
                 try:
                     request.registry.notify(event)
                 except Exception:
@@ -78,21 +100,35 @@ def setup_transaction_hook(config):
         if hasattr(event.request, 'parent'):
             return
         current = transaction.get()
-        current.addAfterCommitHook(_notify_resource_events,
+        current.addBeforeCommitHook(_notify_resource_events_before,
+                                    args=(event.request,))
+        current.addAfterCommitHook(_notify_resource_events_after,
                                    args=(event.request,))
 
     config.add_subscriber(on_new_request, NewRequest)
 
 
-def get_resource_events(request):
+def get_resource_events(request, after=False):
     """
     Request helper to return the list of events triggered on resources.
     The list is sorted chronologically (see OrderedDict)
     """
-    events = request.bound_data.get("resource_events")
-    if events is None:
-        return []
-    return events.values()
+    by_resource = request.bound_data.get("resource_events", {})
+    events = []
+    for (action, timestamp, impacted, request) in by_resource.values():
+        if after:
+            if action == ACTIONS.READ:
+                event_cls = AfterResourceRead
+            else:
+                event_cls = AfterResourceChanged
+        else:
+            if action == ACTIONS.READ:
+                event_cls = ResourceRead
+            else:
+                event_cls = ResourceChanged
+        event = event_cls(action, timestamp, impacted, request)
+        events.append(event)
+    return events
 
 
 def notify_resource_event(request, timestamp, data, action, old=None):
@@ -124,14 +160,7 @@ def notify_resource_event(request, timestamp, data, action, old=None):
     group_by = resource_name + action.value
 
     if group_by in events:
-        if action == ACTIONS.READ:
-            events[group_by].read_records.extend(impacted)
-        else:
-            events[group_by].impacted_records.extend(impacted)
+        already_impacted = events[group_by][2]
+        already_impacted.extend(impacted)
     else:
-        if action == ACTIONS.READ:
-            event_cls = ResourceRead
-        else:
-            event_cls = ResourceChanged
-        event = event_cls(action, timestamp, impacted, request)
-        events[group_by] = event
+        events[group_by] = (action, timestamp, impacted, request)

@@ -1,8 +1,13 @@
 import mock
 
+from pyramid import testing
+from pyramid import httpexceptions
+
 from cliquet.storage.exceptions import BackendError
 from cliquet.utils import sqlalchemy
-from .support import BaseWebTest, unittest, skip_if_no_postgresql
+from cliquet import events
+from .support import (BaseWebTest, unittest, skip_if_no_postgresql,
+                      USER_PRINCIPAL)
 
 
 class PostgreSQLTest(BaseWebTest):
@@ -104,6 +109,77 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
 
         resp = self.app.get('/psilos', headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
+
+
+@skip_if_no_postgresql
+class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
+    def make_app_with_subscribers(self, subscribers):
+        settings = self.get_app_settings({})
+        config = testing.setUp(settings=settings)
+        app = self.make_app(config=config)
+        for event, subscriber in subscribers:
+            config.add_subscriber(subscriber, event)
+        config.commit()
+        return app
+
+    def send_batch_create(self, app, **kwargs):
+        body = {
+            "defaults": {
+                "method": "POST",
+                "body": {'data': {'name': 'Vesse de loup'}},
+            },
+            "requests": [
+                {"path": '/mushrooms'},
+                {"path": '/mushrooms'}
+            ]
+        }
+        return app.post_json("/batch", body, headers=self.headers, **kwargs)
+
+    def test_resourcechanged_is_executed_within_transaction(self):
+        def store_record(event):
+            storage = event.request.registry.storage
+            extra_record = {"id": "3.14", "z": 42}
+            storage.create("mushroom", USER_PRINCIPAL, extra_record)
+
+        app = self.make_app_with_subscribers([(events.ResourceChanged,
+                                               store_record)])
+        self.send_batch_create(app)
+        resp = app.get('/mushrooms', headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 2 + 1)
+
+    def test_resourcechanged_is_rolledback_with_transaction(self):
+        def store_record(event):
+            storage = event.request.registry.storage
+            extra_record = {"id": "3.14", "z": 42}
+            storage.create("mushroom", USER_PRINCIPAL, extra_record)
+
+        app = self.make_app_with_subscribers([(events.ResourceChanged,
+                                               store_record)])
+        with mock.patch('pyramid_tm.transaction.manager.commit') as mocked:
+            mocked.side_effect = ValueError
+            self.send_batch_create(app, status=500)
+        resp = app.get('/mushrooms', headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 0)
+
+    def test_resourcechanged_can_rollback_whole_request(self):
+        def store_record(event):
+            raise httpexceptions.HTTPInsufficientStorage()
+
+        app = self.make_app_with_subscribers([(events.ResourceChanged,
+                                               store_record)])
+        self.send_batch_create(app, status=507)
+        resp = app.get('/mushrooms', headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 0)
+
+    def test_afterresourcechanged_cannot_rollback_whole_request(self):
+        def store_record(event):
+            raise httpexceptions.HTTPInsufficientStorage()
+
+        app = self.make_app_with_subscribers([(events.AfterResourceChanged,
+                                               store_record)])
+        self.send_batch_create(app, status=200)
+        resp = app.get('/mushrooms', headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 2)
 
 
 @skip_if_no_postgresql
