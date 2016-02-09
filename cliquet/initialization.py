@@ -33,7 +33,8 @@ from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.settings import asbool, aslist
-from pyramid_multiauth import MultiAuthPolicySelected
+from pyramid_multiauth import (MultiAuthenticationPolicy,
+                               MultiAuthPolicySelected)
 
 
 def setup_request_bound_data(config):
@@ -280,7 +281,13 @@ def setup_statsd(config):
         # Commit so that configured policy can be queried.
         config.commit()
         policy = config.registry.queryUtility(IAuthenticationPolicy)
-        client.watch_execution_time(policy, prefix='authentication')
+        if isinstance(policy, MultiAuthenticationPolicy):
+            for name, subpolicy in policy.get_policies():
+                client.watch_execution_time(subpolicy,
+                                            prefix='authentication',
+                                            classname=name)
+        else:
+            client.watch_execution_time(policy, prefix='authentication')
 
         def on_new_response(event):
             request = event.request

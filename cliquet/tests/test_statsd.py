@@ -97,3 +97,11 @@ class TimingTest(BaseWebTest, unittest.TestCase):
         with mock.patch.object(statsd_client, 'timing') as mocked:
             self.app.get('/', headers=self.headers)
             self.assertTrue(mocked.called)
+
+    def test_statds_tracks_authentication_policies(self):
+        statsd_client = self.app.app.registry.statsd._client
+        with mock.patch.object(statsd_client, 'timing') as mocked:
+            self.app.get('/', headers=self.headers)
+            timers = set(c[0][0] for c in mocked.call_args_list)
+            self.assertIn('authentication.basicauth.unauthenticated_userid',
+                          timers)
