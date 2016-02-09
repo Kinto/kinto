@@ -282,10 +282,7 @@ def setup_statsd(config):
         config.commit()
         policy = config.registry.queryUtility(IAuthenticationPolicy)
         if isinstance(policy, MultiAuthenticationPolicy):
-            # XXX: add method in pyramid_multiauth
-            # https://github.com/mozilla-services/pyramid_multiauth/pull/13
-            for subpolicy in policy._policies:
-                name = getattr(subpolicy, "_pyramid_multiauth_name", None)
+            for name, subpolicy in policy.get_policies():
                 client.watch_execution_time(subpolicy,
                                             prefix='authentication',
                                             classname=name)
