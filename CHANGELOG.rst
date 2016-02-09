@@ -10,7 +10,7 @@ This document describes changes between each past release.
 
 - Allow buckets to store arbitrary properties. (#462)
 - Delete every (writable) buckets using ``DELETE /v1/buckets``
-- Delete every (writable) collections using ``DELETE /v1/buckets/<>/collections``
+- Delete every (writable) collections using ``DELETE /v1/buckets/<bucket-id>/collections``
 - Clients are redirected to URLs without trailing slash only if the current URL
   does not exist (#656)
 - Partial responses can now be specified for nested objects (#445)
