@@ -59,7 +59,7 @@ class Permission(PermissionBase):
         with self._client.pipeline() as pipe:
             user_keys = self._client.scan_iter(match='user:*')
             for user_key in user_keys:
-                self._client.srem(user_key, principal)
+                pipe.srem(user_key, principal)
             pipe.execute()
 
     @wrap_redis_error
