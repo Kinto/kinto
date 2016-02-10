@@ -6,7 +6,7 @@ iso8601==0.1.11
 jsonschema==2.5.1
 PasteDeploy==1.5.2
 pyramid==1.6.1
-pyramid-multiauth==0.6.0
+pyramid-multiauth==0.7.0
 pyramid-tm==0.12.1
 python-dateutil==2.4.2
 redis==2.10.5
@@ -21,6 +21,6 @@ ujson==1.35
 venusian==1.0
 waitress==0.8.10
 WebOb==1.5.1
-wheel==0.24.0
+wheel==0.29.0
 zope.deprecation==4.1.2
 zope.interface==4.1.3
