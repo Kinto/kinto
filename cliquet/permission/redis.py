@@ -55,6 +55,13 @@ class Permission(PermissionBase):
         if self._client.scard(user_key) == 0:
             self._client.delete(user_key)
 
+    def remove_principal(self, principal):
+        with self._client.pipeline() as pipe:
+            user_keys = self._client.scan_iter(match='user:*')
+            for user_key in user_keys:
+                pipe.srem(user_key, principal)
+            pipe.execute()
+
     @wrap_redis_error
     def user_principals(self, user_id):
         user_key = 'user:%s' % user_id
