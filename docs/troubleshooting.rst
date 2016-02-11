@@ -32,3 +32,15 @@ because one if its dependencies is missing.
 To fix this, you can either install it locally or upgrade your version of pip::
 
   $ pip install --upgrade pip
+
+socket.error: [Errno 48] Address already in use
+===============================================
+Kinto runs on default port 8888 and this error is produced when another service has occupied port 8888
+
+To fix this, see which service is running on port 8888::
+
+$ sudo lsof -i :8888
+
+and kill the process using PID from output::
+
+$ kill -kill [PID]
