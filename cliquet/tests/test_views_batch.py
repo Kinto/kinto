@@ -292,7 +292,6 @@ class BatchServiceTest(unittest.TestCase):
     def setUp(self):
         self.method, self.view, self.options = batch_service.definitions[0]
         self.request = DummyRequest()
-        self.request.registry = mock.Mock(settings=DEFAULT_SETTINGS)
 
     def post(self, validated):
         self.request.validated = validated

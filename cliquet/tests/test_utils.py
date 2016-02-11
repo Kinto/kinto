@@ -9,7 +9,8 @@ from pyramid import httpexceptions
 
 from cliquet.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
-    current_service, encode_header, decode_header, follow_subrequest
+    current_service, encode_header, decode_header, follow_subrequest,
+    build_request
 )
 
 from .support import unittest, DummyRequest
@@ -116,6 +117,26 @@ class CurrentServiceTest(unittest.TestCase):
         request.registry.cornice_services = {}
 
         self.assertEqual(current_service(request), None)
+
+
+def build_real_request(wsgi_environ):
+    from pyramid import request as pyramid_request
+    from pyramid import testing
+    from cliquet import includeme
+    from cliquet import DEFAULT_SETTINGS
+    config = testing.setUp(settings=DEFAULT_SETTINGS)
+    includeme(config)
+    request = pyramid_request.Request(wsgi_environ)
+    request.registry = config.registry
+    return request
+
+
+class BuildRequestTest(unittest.TestCase):
+
+    def test_built_request_has_cliquet_custom_methods(self):
+        original = build_real_request({'PATH_INFO': '/foo'})
+        request = build_request(original, {"path": "bar"})
+        self.assertIsNone(request.current_service)
 
 
 class EncodeHeaderTest(unittest.TestCase):
