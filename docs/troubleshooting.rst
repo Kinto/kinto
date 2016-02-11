@@ -44,3 +44,7 @@ $ sudo lsof -i :8888
 and kill the process using PID from output::
 
 $ kill -kill [PID]
+
+cliquet.storage.exceptions.BackendError: OperationalError [Postgres Service]
+===========================================================================
+This error is produced when there is a problem to connect to postgres database or postgres service is not running. 
