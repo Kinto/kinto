@@ -18,6 +18,7 @@ This document describes changes between each past release.
 
 - Resource events are not emitted if the transaction is rolledback (e.g. a batch
   subrequest fails) (#634)
+- Fix PostgreSQL backend timestamps when collection is empty (ref Kinto/kinto#433)
 
 **Internal changes**
 

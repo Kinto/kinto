@@ -4,7 +4,7 @@
 Server timestamps
 #################
 
-In order to avoid race conditions, each change is guaranteed to 
+In order to avoid race conditions, each change is guaranteed to
 increment the timestamp of the related collection.
 If two changes happen at the same millisecond, they will still have two different
 timestamps.
@@ -18,7 +18,6 @@ the current user will be given on collection endpoints.
 
 On record enpoints, the ``ETag`` header value will contain the timestamp of the
 record.
-
 
 In order to bypass costly and error-prone HTTP date parsing, ``ETag`` headers
 are not HTTP date values.
@@ -43,6 +42,11 @@ in the ``Last-Modified`` response headers:
 
     The client may send ``If-Unmodified-Since`` or ``If-Modified-Since`` requests
     headers, but in the current implementation, they will be ignored.
+
+.. important::
+
+    When collection is empty, its timestamp remains the same until new records
+    are created.
 
 
 Cache control

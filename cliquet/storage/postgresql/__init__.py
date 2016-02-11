@@ -66,7 +66,7 @@ class Storage(StorageBase):
 
     """  # NOQA
 
-    schema_version = 8
+    schema_version = 9
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
         super(Storage, self).__init__(*args, **kwargs)
@@ -196,7 +196,7 @@ class Storage(StorageBase):
             AS last_modified;
         """
         placeholders = dict(parent_id=parent_id, collection_id=collection_id)
-        with self.client.connect(readonly=True) as conn:
+        with self.client.connect(readonly=False) as conn:
             result = conn.execute(query, placeholders)
             record = result.fetchone()
         return record['last_modified']

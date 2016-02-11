@@ -127,33 +127,37 @@ BEGIN
   END IF;
 END$$;
 
+
+CREATE TABLE IF NOT EXISTS timestamps (
+  parent_id TEXT NOT NULL,
+  collection_id TEXT NOT NULL,
+  last_modified TIMESTAMP NOT NULL,
+  PRIMARY KEY (parent_id, collection_id)
+);
+
+
 --
 -- Helper that returns the current collection timestamp.
 --
 CREATE OR REPLACE FUNCTION collection_timestamp(uid VARCHAR, resource VARCHAR)
 RETURNS TIMESTAMP AS $$
 DECLARE
-    ts_records TIMESTAMP;
-    ts_deleted TIMESTAMP;
+    ts TIMESTAMP;
 BEGIN
-    --
-    -- This is fast because an index was created for ``parent_id``,
-    -- ``collection_id``, and ``last_modified`` with descending sorting order.
-    --
-    SELECT last_modified INTO ts_records
-      FROM records
-     WHERE parent_id = uid
-       AND collection_id = resource
-     ORDER BY last_modified DESC LIMIT 1;
+    ts := NULL;
 
-    SELECT last_modified INTO ts_deleted
-      FROM deleted
+    SELECT last_modified INTO ts
+      FROM timestamps
      WHERE parent_id = uid
-       AND collection_id = resource
-     ORDER BY last_modified DESC LIMIT 1;
+       AND collection_id = resource;
 
-    -- Latest of records/deleted or current if empty
-    RETURN coalesce(greatest(ts_deleted, ts_records), clock_timestamp());
+    IF ts IS NULL THEN
+      ts := clock_timestamp();
+      INSERT INTO timestamps (parent_id, collection_id, last_modified)
+      VALUES (uid, resource, ts);
+    END IF;
+
+    RETURN ts;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -179,15 +183,26 @@ BEGIN
     -- an error (operation is cancelled).
     -- See https://github.com/mozilla-services/cliquet/issues/25
     --
-    previous := collection_timestamp(NEW.parent_id, NEW.collection_id);
-
     IF NEW.last_modified IS NULL THEN
+        previous := collection_timestamp(NEW.parent_id, NEW.collection_id);
         current := clock_timestamp();
         IF previous >= current THEN
             current := previous + INTERVAL '1 milliseconds';
         END IF;
         NEW.last_modified := current;
     END IF;
+
+    --
+    -- Upsert current collection timestamp.
+    --
+    WITH upsert AS (
+        UPDATE timestamps SET last_modified = NEW.last_modified
+         WHERE parent_id = NEW.parent_id AND collection_id = NEW.collection_id
+        RETURNING *
+    )
+    INSERT INTO timestamps (parent_id, collection_id, last_modified)
+    SELECT NEW.parent_id, NEW.collection_id, NEW.last_modified
+    WHERE NOT EXISTS (SELECT * FROM upsert);
 
     RETURN NEW;
 END;
@@ -213,4 +228,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``cliquet.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '8');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '9');
