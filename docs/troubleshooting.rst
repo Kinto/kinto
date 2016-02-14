@@ -52,4 +52,4 @@ $ kill -kill [PID]
 cliquet.storage.exceptions.BackendError: OperationalError [Postgres Service]
 ============================================================================
 
-Make sure sure the postgres server is running properly.
+Make sure that postgres server is running properly.
