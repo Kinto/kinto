@@ -23,6 +23,7 @@ This is a hard requirement for postgresql backends, therefore you
 will either need to **use PostgreSQL 9.4 (or greater)**, or
 :ref:`use a different backend <configuration-backends>` entirely.
 
+
 No module named functools
 =========================
 
@@ -33,9 +34,11 @@ To fix this, you can either install it locally or upgrade your version of pip::
 
   $ pip install --upgrade pip
 
+
 socket.error: [Errno 48] Address already in use
 ===============================================
-Kinto runs on default port 8888 and this error is produced when another service has occupied port 8888
+
+Another process has occupied Kinto's default port 8888.
 
 To fix this, see which service is running on port 8888::
 
@@ -45,6 +48,8 @@ and kill the process using PID from output::
 
 $ kill -kill [PID]
 
+
 cliquet.storage.exceptions.BackendError: OperationalError [Postgres Service]
-===========================================================================
-This error is produced when there is a problem to connect to postgres database or postgres service is not running. 
+============================================================================
+
+Make sure sure the postgres server is running properly.
