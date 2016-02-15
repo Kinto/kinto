@@ -1,7 +1,7 @@
 from functools import wraps
 
 from pyramid import httpexceptions
-from pyramid.security import forget, NO_PERMISSION_REQUIRED
+from pyramid.security import forget, NO_PERMISSION_REQUIRED, Authenticated
 from pyramid.view import (
     forbidden_view_config, notfound_view_config, view_config
 )
@@ -32,7 +32,7 @@ def authorization_required(request):
     """Distinguish authentication required (``401 Unauthorized``) from
     not allowed (``403 Forbidden``).
     """
-    if not request.authenticated_userid:
+    if Authenticated not in request.effective_principals:
         error_msg = "Please authenticate yourself to use this endpoint."
         response = http_error(httpexceptions.HTTPUnauthorized(),
                               errno=ERRORS.MISSING_AUTH_TOKEN,

@@ -170,7 +170,7 @@ class AllowAuthorizationPolicy(object):
         if Everyone in principals:
             return True
         # Cliquet default authz policy uses prefixed_userid.
-        prefixed = [getattr(context, 'prefixed_userid', None)]
+        prefixed = [context.prefixed_userid]
         return USER_PRINCIPAL in (principals + prefixed)
 
     def principals_allowed_by_permission(self, context, permission):

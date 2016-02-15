@@ -1,4 +1,5 @@
 import mock
+import uuid
 
 from cliquet import authentication
 from cliquet import utils
@@ -61,6 +62,16 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         }
         self.app.post_json('/batch', batch)
         self.assertEqual(mocked.call_count, 3)
+
+    def test_basicauth_hash_is_computed_only_once(self):
+        # hmac_digest() is used in Basic Authentication only.
+        patch = mock.patch('cliquet.utils.hmac_digest')
+        self.addCleanup(patch.stop)
+        mocked = patch.start()
+        body = {"data": {"name": "haha"}}
+        record_url = self.get_item_url(uuid.uuid4())
+        self.app.put_json(record_url, body, headers=self.headers)
+        self.assertEqual(mocked.call_count, 1)
 
 
 class BasicAuthenticationPolicyTest(unittest.TestCase):

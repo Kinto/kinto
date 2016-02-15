@@ -1,10 +1,12 @@
 import functools
+
 from pyramid.settings import aslist
 from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
 from cliquet import utils
 from cliquet.storage import exceptions as storage_exceptions
+from cliquet.authentication import prefixed_userid
 
 # A permission is called "dynamic" when it's computed at request time.
 DYNAMIC = 'dynamic'
@@ -23,15 +25,14 @@ def groupfinder(userid, request):
     if not backend:
         return []
 
-    # Anonymous safety check.
-    if not hasattr(request, 'prefixed_userid'):
-        return []
+    # Safety check when Cliquet is used without pyramid_multiauth.
+    if request.prefixed_userid:
+        userid = request.prefixed_userid
 
     # Query the permission backend only once per request (e.g. batch).
-
-    reify_key = request.prefixed_userid + '_principals'
+    reify_key = userid + '_principals'
     if reify_key not in request.bound_data:
-        principals = backend.user_principals(request.prefixed_userid)
+        principals = backend.user_principals(userid)
         request.bound_data[reify_key] = principals
 
     return request.bound_data[reify_key]
@@ -48,9 +49,10 @@ class AuthorizationPolicy(object):
             return Authenticated in principals
 
         # Add prefixed user id to principals.
-        if context.prefixed_userid:
-            principals = principals + [context.prefixed_userid]
-            prefix, user_id = context.prefixed_userid.split(':', 1)
+        prefixed_userid = context.get_prefixed_userid()
+        if prefixed_userid and ':' in prefixed_userid:
+            principals = principals + [prefixed_userid]
+            prefix, user_id = prefixed_userid.split(':', 1)
             # Remove unprefixed user id to avoid conflicts.
             # (it is added via Pyramid Authn policy effective principals)
             if user_id in principals:
@@ -110,7 +112,7 @@ class RouteFactory(object):
 
     def __init__(self, request):
         # Make it available for the authorization policy.
-        self.prefixed_userid = getattr(request, "prefixed_userid", None)
+        self.get_prefixed_userid = functools.partial(prefixed_userid, request)
 
         self._check_permission = request.registry.permission.check_permission
 

@@ -127,23 +127,13 @@ def setup_authentication(config):
 
     # Track policy used, for prefixing user_id and for logging.
     def on_policy_selected(event):
-        event.request.authn_type = event.policy_name.lower()
+        authn_type = event.policy_name.lower()
+        event.request.authn_type = authn_type
+        event.request.selected_userid = event.userid
+        # Add authentication info to context.
+        logger.bind(uid=event.userid, authn_type=authn_type)
 
     config.add_subscriber(on_policy_selected, MultiAuthPolicySelected)
-
-    # Build the prefixed_userid
-    def on_new_request(event):
-        authn_type = getattr(event.request, 'authn_type', None)
-
-        # Prefix the user id with the authn policy type name.
-        user_id = event.request.authenticated_userid
-
-        event.request.prefixed_userid = None
-        if user_id and authn_type:
-            event.request.prefixed_userid = '%s:%s' % (authn_type.lower(),
-                                                       user_id)
-
-    config.add_subscriber(on_new_request, NewRequest)
 
 
 def setup_backoff(config):
@@ -293,7 +283,7 @@ def setup_statsd(config):
             request = event.request
 
             # Count unique users.
-            user_id = request.authenticated_userid
+            user_id = request.prefixed_userid
             if user_id:
                 client.count('users', unique=user_id)
 
@@ -367,9 +357,9 @@ def setup_logging(config):
                    path=event.request.path,
                    method=request.method,
                    querystring=dict(request.GET),
-                   uid=request.authenticated_userid,
                    lang=request.headers.get('Accept-Language'),
-                   authn_type=getattr(request, 'authn_type', None),
+                   uid=None,
+                   authn_type=None,
                    errno=None)
 
     config.add_subscriber(on_new_request, NewRequest)

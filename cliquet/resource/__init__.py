@@ -177,7 +177,7 @@ class UserResource(object):
         :rtype: str
 
         """
-        return getattr(request, 'prefixed_userid', None)
+        return request.prefixed_userid
 
     def _get_known_fields(self):
         """Return all the `field` defined in the ressource mapping."""

@@ -5,6 +5,7 @@ import pkg_resources
 from cornice import Service as CorniceService
 from pyramid.settings import aslist
 
+from cliquet import authentication
 from cliquet import errors
 from cliquet import events
 from cliquet.initialization import (  # NOQA
@@ -78,6 +79,7 @@ DEFAULT_SETTINGS = {
     'storage_url': '',
     'storage_max_fetch_size': 10000,
     'storage_pool_size': 25,
+    'tm.annotate_user': False,  # Do annotate transactions with the user-id.
     'transaction_per_request': True,
     'userid_hmac_secret': '',
     'version_prefix_redirect_enabled': True,
@@ -155,7 +157,8 @@ def includeme(config):
 
     # Custom helpers.
     config.add_request_method(follow_subrequest)
-    config.add_request_method(lambda request: {'id': request.prefixed_userid},
+    config.add_request_method(authentication.prefixed_userid, property=True)
+    config.add_request_method(lambda r: {'id': r.prefixed_userid},
                               name='get_user_info')
     config.add_request_method(current_resource_name, reify=True)
     config.add_request_method(current_service, reify=True)

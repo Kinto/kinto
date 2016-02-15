@@ -61,7 +61,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get('/', headers=self.headers)
         userid = response.json['user']['id']
         self.assertTrue(userid.startswith('basicauth:'),
-                        '"%s" does not starts with "basicauth:"' % userid)
+                        '"%s" does not start with "basicauth:"' % userid)
 
     def test_return_http_api_version_when_set(self):
         with mock.patch.dict(
