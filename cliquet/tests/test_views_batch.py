@@ -5,7 +5,6 @@ import uuid
 
 from pyramid.response import Response
 
-from cliquet import DEFAULT_SETTINGS
 from cliquet.views.batch import BatchPayloadSchema, batch as batch_service
 from cliquet.tests.support import BaseWebTest, unittest, DummyRequest
 from cliquet.utils import json
@@ -292,7 +291,6 @@ class BatchServiceTest(unittest.TestCase):
     def setUp(self):
         self.method, self.view, self.options = batch_service.definitions[0]
         self.request = DummyRequest()
-        self.request.registry = mock.Mock(settings=DEFAULT_SETTINGS)
 
     def post(self, validated):
         self.request.validated = validated

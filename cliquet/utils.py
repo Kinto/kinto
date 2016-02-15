@@ -36,7 +36,7 @@ except ImportError:  # pragma: no cover
     sqlalchemy = None
 
 from pyramid import httpexceptions
-from pyramid.request import Request
+from pyramid.request import Request, apply_request_extensions
 from pyramid.settings import aslist
 from cornice import cors
 from colander import null
@@ -261,6 +261,8 @@ def build_request(original, dict_obj):
                             headers=headers,
                             POST=payload,
                             method=method)
+    request.registry = original.registry
+    apply_request_extensions(request)
 
     # This is used to distinguish subrequests from direct incoming requests.
     # See :func:`cliquet.initialization.setup_logging()`
