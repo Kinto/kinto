@@ -11,7 +11,7 @@ def prefixed_userid(request):
     """
     # If pyramid_multiauth is used, a ``authn_type`` is set on request
     # when a policy succesfully authenticates a user.
-    # (see :func:`cliquet.initializatio.setup_authentication`)
+    # (see :func:`cliquet.initialization.setup_authentication`)
     authn_type = getattr(request, 'authn_type', None)
     if authn_type is not None:
         return authn_type + ':' + request.selected_userid
@@ -32,10 +32,9 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
                                                             **kwargs)
 
     def effective_principals(self, request):
-        """Bypass default Pyramid construction of principals because
-        Pyramid multiauth already adds userid, Authenticated and Everyone
-        principals.
-        """
+        # Bypass default Pyramid construction of principals because
+        # Pyramid multiauth already adds userid, Authenticated and Everyone
+        # principals.
         return []
 
     def unauthenticated_userid(self, request):
