@@ -5,7 +5,11 @@ import os
 import colander
 import mock
 import six
+from cliquet import includeme
+from cliquet import DEFAULT_SETTINGS
 from pyramid import httpexceptions
+from pyramid import request as pyramid_request
+from pyramid import testing
 
 from cliquet.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
@@ -14,6 +18,16 @@ from cliquet.utils import (
 )
 
 from .support import unittest, DummyRequest
+
+
+def build_real_request(wsgi_environ):
+    """Build a Pyramid request, as if it was instantiated by Pyramid.
+    """
+    config = testing.setUp(settings=DEFAULT_SETTINGS)
+    includeme(config)
+    request = pyramid_request.Request(wsgi_environ)
+    request.registry = config.registry
+    return request
 
 
 class NativeValueTest(unittest.TestCase):
@@ -119,24 +133,12 @@ class CurrentServiceTest(unittest.TestCase):
         self.assertEqual(current_service(request), None)
 
 
-def build_real_request(wsgi_environ):
-    from pyramid import request as pyramid_request
-    from pyramid import testing
-    from cliquet import includeme
-    from cliquet import DEFAULT_SETTINGS
-    config = testing.setUp(settings=DEFAULT_SETTINGS)
-    includeme(config)
-    request = pyramid_request.Request(wsgi_environ)
-    request.registry = config.registry
-    return request
-
-
 class BuildRequestTest(unittest.TestCase):
 
     def test_built_request_has_cliquet_custom_methods(self):
         original = build_real_request({'PATH_INFO': '/foo'})
         request = build_request(original, {"path": "bar"})
-        self.assertIsNone(request.current_service)
+        self.assertIsTrue(hasattr(request, 'current_service'))
 
 
 class EncodeHeaderTest(unittest.TestCase):

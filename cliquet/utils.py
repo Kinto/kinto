@@ -261,9 +261,7 @@ def build_request(original, dict_obj):
                             headers=headers,
                             POST=payload,
                             method=method)
-
     request.registry = original.registry
-
     apply_request_extensions(request)
 
     # This is used to distinguish subrequests from direct incoming requests.
