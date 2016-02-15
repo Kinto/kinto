@@ -138,7 +138,7 @@ class BuildRequestTest(unittest.TestCase):
     def test_built_request_has_cliquet_custom_methods(self):
         original = build_real_request({'PATH_INFO': '/foo'})
         request = build_request(original, {"path": "bar"})
-        self.assertIsTrue(hasattr(request, 'current_service'))
+        self.assertTrue(hasattr(request, 'current_service'))
 
 
 class EncodeHeaderTest(unittest.TestCase):
