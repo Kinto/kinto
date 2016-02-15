@@ -404,7 +404,7 @@ class EventActionFilter(object):
 
     def __call__(self, event):
         action = event.payload.get('action')
-        return not action or action.value in self.actions
+        return not action or action in self.actions
 
 
 class EventResourceFilter(object):

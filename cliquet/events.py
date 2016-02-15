@@ -25,7 +25,7 @@ class _ResourceEvent(object):
         resource_name = request.current_resource_name
 
         self.payload = {'timestamp': timestamp,
-                        'action': action,
+                        'action': action.value,
                         'uri': strip_uri_prefix(request.path),
                         'user_id': request.prefixed_userid,
                         'resource_name': resource_name}
