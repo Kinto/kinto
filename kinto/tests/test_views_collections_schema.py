@@ -1,8 +1,9 @@
 from .support import BaseWebTest, unittest
 
 
-COLLECTION_URL = '/buckets/default/collections/articles'
-RECORDS_URL = '/buckets/default/collections/articles/records'
+BUCKET_URL = '/buckets/blog'
+COLLECTION_URL = '/buckets/blog/collections/articles'
+RECORDS_URL = '/buckets/blog/collections/articles/records'
 
 
 SCHEMA = {
@@ -22,6 +23,8 @@ class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
     def test_schema_should_be_json_schema(self):
         newschema = SCHEMA.copy()
         newschema['type'] = 'Washmachine'
+        self.app.put_json(BUCKET_URL, headers=self.headers)
+        self.app.put(COLLECTION_URL, headers=self.headers)
         resp = self.app.put_json(COLLECTION_URL,
                                  {'data': {'schema': newschema}},
                                  headers=self.headers,
@@ -30,6 +33,8 @@ class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
         self.assertIn(error_msg, resp.json['message'])
 
     def test_records_are_not_invalid_if_do_not_match_schema(self):
+        self.app.put_json(BUCKET_URL, headers=self.headers)
+        self.app.put(COLLECTION_URL, headers=self.headers)
         resp = self.app.put_json(COLLECTION_URL,
                                  {'data': {'schema': SCHEMA}},
                                  headers=self.headers)
@@ -47,6 +52,11 @@ class BaseWebTestWithSchema(BaseWebTest):
             additional_settings)
         settings['experimental_collection_schema_validation'] = 'True'
         return settings
+
+    def setUp(self):
+        super(BaseWebTestWithSchema, self).setUp()
+        self.app.put_json(BUCKET_URL, headers=self.headers)
+        self.app.put_json(COLLECTION_URL, headers=self.headers)
 
 
 class MissingSchemaTest(BaseWebTestWithSchema, unittest.TestCase):

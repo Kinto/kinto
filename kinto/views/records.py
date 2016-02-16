@@ -2,6 +2,7 @@ import jsonschema
 from cliquet import resource, schema
 from cliquet.errors import raise_invalid
 from jsonschema import exceptions as jsonschema_exceptions
+from pyramid.security import Authenticated
 from pyramid.settings import asbool
 
 from kinto.views import object_exists_or_404
@@ -90,7 +91,7 @@ class Record(resource.ProtectedResource):
             Those headers are also sent if the
             ``kinto.record_cache_expires_seconds`` setting is defined.
         """
-        is_anonymous = self.request.prefixed_userid is None
+        is_anonymous = Authenticated not in self.request.effective_principals
         if not is_anonymous:
             return
 
