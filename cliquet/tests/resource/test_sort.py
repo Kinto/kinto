@@ -42,7 +42,7 @@ class SortingTest(BaseTest):
         except httpexceptions.HTTPBadRequest as e:
             error = e
         self.assertEqual(error.json, {
-            'errno': ERRORS.INVALID_PARAMETERS,
+            'errno': ERRORS.INVALID_PARAMETERS.value,
             'message': "querystring: Unknown sort field 'foo'",
             'code': 400,
             'error': 'Invalid parameters',

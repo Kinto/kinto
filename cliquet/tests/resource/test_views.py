@@ -316,7 +316,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                                   status=400)
         # XXX: weird resp.json['message']
         self.assertDictEqual(resp.json, {
-            'errno': ERRORS.INVALID_PARAMETERS,
+            'errno': ERRORS.INVALID_PARAMETERS.value,
             'message': "data.name in body: 42 is not a string: {'name': ''}",
             'code': 400,
             'error': 'Invalid parameters',
@@ -443,7 +443,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
         error_msg = ("Invalid JSON request body: Expecting property name"
                      " enclosed in double quotes: line 1 column 2 (char 1)")
         self.assertDictEqual(resp.json, {
-            'errno': ERRORS.INVALID_PARAMETERS,
+            'errno': ERRORS.INVALID_PARAMETERS.value,
             'message': "body: %s" % error_msg,
             'code': 400,
             'error': 'Invalid parameters',
@@ -544,7 +544,7 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
                                   headers=self.headers,
                                   status=400)
         self.assertDictEqual(resp.json, {
-            'errno': ERRORS.INVALID_PARAMETERS,
+            'errno': ERRORS.INVALID_PARAMETERS.value,
             'message': 'permissions.read in body: "book" is not iterable',
             'code': 400,
             'error': 'Invalid parameters',

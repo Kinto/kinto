@@ -2,15 +2,21 @@ from collections import OrderedDict
 
 import transaction
 from pyramid.events import NewRequest
+from enum import Enum
 
 from cliquet.logs import logger
-from cliquet.utils import strip_uri_prefix, Enum
+from cliquet.utils import strip_uri_prefix
 
 
-ACTIONS = Enum(CREATE='create',
-               DELETE='delete',
-               READ='read',
-               UPDATE='update')
+class ACTIONS(Enum):
+    CREATE = 'create'
+    DELETE = 'delete'
+    READ = 'read'
+    UPDATE = 'update'
+
+    @staticmethod
+    def from_string_list(elements):
+        return tuple(ACTIONS(el) for el in elements)
 
 
 class _ResourceEvent(object):
@@ -19,7 +25,7 @@ class _ResourceEvent(object):
         resource_name = request.current_resource_name
 
         self.payload = {'timestamp': timestamp,
-                        'action': action,
+                        'action': action.value,
                         'uri': strip_uri_prefix(request.path),
                         'user_id': request.prefixed_userid,
                         'resource_name': resource_name}
@@ -115,7 +121,8 @@ def notify_resource_event(request, timestamp, data, action, old=None):
     resource_name = request.current_resource_name
 
     # Add to impacted records or create new event.
-    group_by = resource_name + action
+    group_by = resource_name + action.value
+
     if group_by in events:
         if action == ACTIONS.READ:
             events[group_by].read_records.extend(impacted)

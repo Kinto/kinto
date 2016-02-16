@@ -1,31 +1,33 @@
 import six
 from pyramid import httpexceptions
+from enum import Enum
 
 from cliquet.logs import logger
-from cliquet.utils import Enum, json, reapply_cors, encode_header
+from cliquet.utils import json, reapply_cors, encode_header
 
 
-ERRORS = Enum(
-    MISSING_AUTH_TOKEN=104,
-    INVALID_AUTH_TOKEN=105,
-    BADJSON=106,
-    INVALID_PARAMETERS=107,
-    MISSING_PARAMETERS=108,
-    INVALID_POSTED_DATA=109,
-    INVALID_RESOURCE_ID=110,
-    MISSING_RESOURCE=111,
-    MISSING_CONTENT_LENGTH=112,
-    REQUEST_TOO_LARGE=113,
-    MODIFIED_MEANWHILE=114,
-    METHOD_NOT_ALLOWED=115,
-    VERSION_NOT_AVAILABLE=116,
-    CLIENT_REACHED_CAPACITY=117,
-    FORBIDDEN=121,
-    CONSTRAINT_VIOLATED=122,
-    UNDEFINED=999,
-    BACKEND=201,
-    SERVICE_DEPRECATED=202
-)
+class ERRORS(Enum):
+    MISSING_AUTH_TOKEN = 104
+    INVALID_AUTH_TOKEN = 105
+    BADJSON = 106
+    INVALID_PARAMETERS = 107
+    MISSING_PARAMETERS = 108
+    INVALID_POSTED_DATA = 109
+    INVALID_RESOURCE_ID = 110
+    MISSING_RESOURCE = 111
+    MISSING_CONTENT_LENGTH = 112
+    REQUEST_TOO_LARGE = 113
+    MODIFIED_MEANWHILE = 114
+    METHOD_NOT_ALLOWED = 115
+    VERSION_NOT_AVAILABLE = 116
+    CLIENT_REACHED_CAPACITY = 117
+    FORBIDDEN = 121
+    CONSTRAINT_VIOLATED = 122
+    UNDEFINED = 999
+    BACKEND = 201
+    SERVICE_DEPRECATED = 202
+
+
 """Predefined errors as specified by the protocol.
 
 +-------------+-------+------------------------------------------------+
@@ -88,6 +90,9 @@ def http_error(httpexception, errno=None,
     """
     errno = errno or ERRORS.UNDEFINED
 
+    if isinstance(errno, Enum):
+        errno = errno.value
+
     # Track error number for request summary
     logger.bind(errno=errno)
 
@@ -144,7 +149,7 @@ def json_error_handler(errors):
         message = '%(location)s: %(description)s' % error
 
     response = http_error(httpexceptions.HTTPBadRequest(),
-                          errno=ERRORS.INVALID_PARAMETERS,
+                          errno=ERRORS.INVALID_PARAMETERS.value,
                           error='Invalid parameters',
                           message=message,
                           details=errors)

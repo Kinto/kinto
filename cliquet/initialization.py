@@ -387,7 +387,7 @@ def setup_logging(config):
 
 class EventActionFilter(object):
     def __init__(self, actions, config):
-        self.actions = actions
+        self.actions = [action.value for action in actions]
 
     def phash(self):
         return 'for_actions = %s' % (','.join(self.actions))
@@ -436,7 +436,12 @@ def setup_listeners(config):
             key = 'listeners.%s' % name
             listener = statsd_client.timer(key)(listener.__call__)
 
-        actions = aslist(settings.get(prefix + 'actions', '')) or write_actions
+        actions = aslist(settings.get(prefix + 'actions', ''))
+        if len(actions) > 0:
+            actions = ACTIONS.from_string_list(actions)
+        else:
+            actions = write_actions
+
         resource_names = aslist(settings.get(prefix + 'resources', ''))
         options = dict(for_actions=actions, for_resources=resource_names)
 

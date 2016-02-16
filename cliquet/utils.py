@@ -9,6 +9,7 @@ import warnings
 from base64 import b64decode, b64encode
 from binascii import hexlify
 from six.moves.urllib import parse as urlparse
+from enum import Enum
 
 # ujson is not installable with pypy
 try:  # pragma: no cover
@@ -149,20 +150,15 @@ def dict_subset(d, keys):
     return {k: d[k] for k in keys if k in d}
 
 
-def Enum(**enums):
-    return type('Enum', (), enums)
-
-
-COMPARISON = Enum(
-    LT='<',
-    MIN='>=',
-    MAX='<=',
-    NOT='!=',
-    EQ='==',
-    GT='>',
-    IN='in',
-    EXCLUDE='exclude',
-)
+class COMPARISON(Enum):
+    LT = '<'
+    MIN = '>='
+    MAX = '<='
+    NOT = '!='
+    EQ = '=='
+    GT = '>'
+    IN = 'in'
+    EXCLUDE = 'exclude'
 
 
 def reapply_cors(request, response):

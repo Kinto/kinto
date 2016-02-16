@@ -420,7 +420,7 @@ class BaseTestStorage(object):
     def test_get_all_can_filter_with_list_of_values(self):
         for l in ['a', 'b', 'c']:
             self.create_record({'code': l})
-        filters = [Filter('code', ['a', 'b'], utils.COMPARISON.IN)]
+        filters = [Filter('code', ['a', 'b'], utils.COMPARISON.IN.value)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 2)
@@ -429,7 +429,7 @@ class BaseTestStorage(object):
         record1 = self.create_record({'code': 'a'})
         record2 = self.create_record({'code': 'b'})
         filters = [Filter('id', [record1['id'], record2['id']],
-                          utils.COMPARISON.IN)]
+                          utils.COMPARISON.IN.value)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 2)
@@ -437,7 +437,7 @@ class BaseTestStorage(object):
     def test_get_all_can_filter_with_list_of_excluded_values(self):
         for l in ['a', 'b', 'c']:
             self.create_record({'code': l})
-        filters = [Filter('code', ('a', 'b'), utils.COMPARISON.EXCLUDE)]
+        filters = [Filter('code', ('a', 'b'), utils.COMPARISON.EXCLUDE.value)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 1)
@@ -451,7 +451,7 @@ class BaseTestStorage(object):
         records, total_records = self.storage.get_all(
             limit=5,
             pagination_rules=[
-                [Filter('number', 1, utils.COMPARISON.GT)]
+                [Filter('number', 1, utils.COMPARISON.GT.value)]
             ], **self.storage_kw)
         self.assertEqual(total_records, 10)
         self.assertEqual(len(records), 3)
@@ -464,8 +464,8 @@ class BaseTestStorage(object):
 
         records, total_records = self.storage.get_all(
             limit=5, pagination_rules=[
-                [Filter('number', 1, utils.COMPARISON.GT)],
-                [Filter('id', last_record['id'], utils.COMPARISON.EQ)],
+                [Filter('number', 1, utils.COMPARISON.GT.value)],
+                [Filter('id', last_record['id'], utils.COMPARISON.EQ.value)],
             ], **self.storage_kw)
         self.assertEqual(total_records, 10)
         self.assertEqual(len(records), 4)
@@ -641,7 +641,7 @@ class DeletedRecordsTest(object):
         start = self.storage.collection_timestamp(**self.storage_kw)
         time.sleep(0.1)
         return [
-            Filter(self.modified_field, start, utils.COMPARISON.GT)
+            Filter(self.modified_field, start, utils.COMPARISON.GT.value)
         ]
 
     def create_and_delete_record(self, record=None):
@@ -772,7 +772,7 @@ class DeletedRecordsTest(object):
     def test_delete_all_can_delete_partially(self):
         self.create_record({'foo': 'po'})
         self.create_record()
-        filters = [Filter('foo', 'bar', utils.COMPARISON.EQ)]
+        filters = [Filter('foo', 'bar', utils.COMPARISON.EQ.value)]
         self.storage.delete_all(filters=filters, **self.storage_kw)
         _, count = self.storage.get_all(**self.storage_kw)
         self.assertEqual(count, 1)
@@ -893,7 +893,7 @@ class DeletedRecordsTest(object):
         self.create_record({'status': 0})
         self.create_and_delete_record({'status': 0})
 
-        filters += [Filter('status', 0, utils.COMPARISON.EQ)]
+        filters += [Filter('status', 0, utils.COMPARISON.EQ.value)]
         records, count = self.storage.get_all(filters=filters,
                                               include_deleted=True,
                                               **self.storage_kw)
@@ -905,7 +905,7 @@ class DeletedRecordsTest(object):
         self.create_record()
         self.create_and_delete_record()
 
-        filters += [Filter('deleted', True, utils.COMPARISON.EQ)]
+        filters += [Filter('deleted', True, utils.COMPARISON.EQ.value)]
         records, count = self.storage.get_all(filters=filters,
                                               include_deleted=True,
                                               **self.storage_kw)
@@ -918,7 +918,7 @@ class DeletedRecordsTest(object):
         self.create_record()
         self.create_and_delete_record()
 
-        filters += [Filter('deleted', True, utils.COMPARISON.NOT)]
+        filters += [Filter('deleted', True, utils.COMPARISON.NOT.value)]
         records, count = self.storage.get_all(filters=filters,
                                               include_deleted=True,
                                               **self.storage_kw)
@@ -931,7 +931,7 @@ class DeletedRecordsTest(object):
         self.create_record()
         self.create_and_delete_record()
 
-        filters += [Filter('deleted', False, utils.COMPARISON.EQ)]
+        filters += [Filter('deleted', False, utils.COMPARISON.EQ.value)]
         records, count = self.storage.get_all(filters=filters,
                                               include_deleted=True,
                                               **self.storage_kw)
@@ -942,7 +942,7 @@ class DeletedRecordsTest(object):
         self.create_record()
         self.create_and_delete_record()
 
-        filters = [Filter('deleted', True, utils.COMPARISON.EQ)]
+        filters = [Filter('deleted', True, utils.COMPARISON.EQ.value)]
         records, count = self.storage.get_all(filters=filters,
                                               **self.storage_kw)
         self.assertEqual(len(records), 0)
@@ -960,7 +960,8 @@ class DeletedRecordsTest(object):
             else:
                 self.create_record()
 
-        pagination = [[Filter('last_modified', 314, utils.COMPARISON.GT)]]
+        pagination = [[Filter('last_modified', 314,
+                       utils.COMPARISON.GT.value)]]
         sorting = [Sort('last_modified', 1)]
         records, count = self.storage.get_all(sorting=sorting,
                                               pagination_rules=pagination,

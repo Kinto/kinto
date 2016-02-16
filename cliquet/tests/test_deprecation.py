@@ -48,7 +48,7 @@ class DeprecationTest(BaseWebTest, unittest.TestCase):
                 'message': 'This service had been decommissioned'
             })
             self.assertDictEqual(response.json, {
-                "errno": ERRORS.SERVICE_DEPRECATED,
+                "errno": ERRORS.SERVICE_DEPRECATED.value,
                 "message": "The service you are trying to connect no longer "
                            "exists at this location.",
                 "code": 410,
