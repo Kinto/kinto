@@ -3,7 +3,7 @@ import uuid
 import six
 from pyramid import httpexceptions
 from pyramid.settings import asbool
-from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
 from cliquet.errors import raise_invalid
 from cliquet.utils import build_request, reapply_cors, hmac_digest
@@ -90,7 +90,7 @@ def default_bucket(request):
         })
         return request.invoke_subrequest(subrequest)
 
-    if getattr(request, 'prefixed_userid', None) is None:
+    if Authenticated not in request.effective_principals:
         # Pass through the forbidden_view_config
         raise httpexceptions.HTTPForbidden()
 
