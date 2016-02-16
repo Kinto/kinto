@@ -89,7 +89,7 @@ class Cache(CacheBase):
          WHERE key = :key
            AND ttl IS NOT NULL;
         """
-        with self.client.connect() as conn:
+        with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, dict(key=key))
             if result.rowcount > 0:
                 return result.fetchone()['ttl']

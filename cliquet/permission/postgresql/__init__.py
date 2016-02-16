@@ -117,7 +117,7 @@ class Permission(PermissionBase):
         SELECT principal
           FROM user_principals
          WHERE user_id = :user_id;"""
-        with self.client.connect() as conn:
+        with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, dict(user_id=user_id))
             results = result.fetchall()
         return set([r['principal'] for r in results])
@@ -155,7 +155,7 @@ class Permission(PermissionBase):
           FROM access_control_entries
          WHERE object_id = :object_id
            AND permission = :permission;"""
-        with self.client.connect() as conn:
+        with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, dict(object_id=object_id,
                                               permission=permission))
             results = result.fetchall()
@@ -181,7 +181,7 @@ class Permission(PermissionBase):
           FROM required_perms JOIN access_control_entries
             ON (object_id = column1 AND permission = column2);
         """ % perms_values
-        with self.client.connect() as conn:
+        with self.client.connect(readonly=True) as conn:
             result = conn.execute(query)
             results = result.fetchall()
         return set([r['principal'] for r in results])
@@ -224,7 +224,7 @@ class Permission(PermissionBase):
         """ % dict(perms=perms_values,
                    principals=principals_values)
 
-        with self.client.connect() as conn:
+        with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, placeholders)
             results = result.fetchall()
         return set([r['object_id'] for r in results])
@@ -258,7 +258,7 @@ class Permission(PermissionBase):
             ON (required_principals.column1 = principal);
         """ % dict(perms=perms_values, principals=principals_values)
 
-        with self.client.connect() as conn:
+        with self.client.connect(readonly=True) as conn:
             result = conn.execute(query)
             total = result.fetchone()
         return total['matched'] > 0
@@ -274,7 +274,7 @@ class Permission(PermissionBase):
             query += """
         AND permission IN :permissions;"""
             placeholders["permissions"] = tuple(permissions)
-        with self.client.connect() as conn:
+        with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, placeholders)
             results = result.fetchall()
         permissions = defaultdict(set)
