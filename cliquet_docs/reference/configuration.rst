@@ -4,7 +4,7 @@ Configuration
 #############
 
 
-See `Pyramid settings documentation <http://docs.pylonsproject.org/docs/pyramid/en/latest/narr/environment.html>`_.
+See `Pyramid settings documentation <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/environment.html>`_.
 
 
 .. _configuration-environment:
