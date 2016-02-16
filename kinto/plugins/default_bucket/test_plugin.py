@@ -9,7 +9,6 @@ from cliquet.storage import exceptions as storage_exceptions
 from cliquet.tests.support import FormattedErrorMixin
 from cliquet.utils import hmac_digest
 
-from kinto.plugins.default_bucket import default_bucket
 from kinto.tests.support import (BaseWebTest, unittest, get_user_headers,
                                  MINIMALIST_RECORD)
 
