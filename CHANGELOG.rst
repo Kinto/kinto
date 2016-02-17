@@ -9,8 +9,8 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
-- Errors are not swallowed during execution of ``ResourceChanged`` subscribers
-  anymore.
+- Errors are not swallowed anymore during the execution of ``ResourceChanged``
+  events subscribers.
 
   Subscribers are still executed within the transaction like before.
 
@@ -18,7 +18,7 @@ This document describes changes between each past release.
   Every subscriber execution succeeds, or none.
 
   Thus, subscribers of these events should only perform operations that are reversed
-  on transaction rollback (e.g. database storage operations).
+  on transaction rollback: most likely database storage operations.
 
   For irreversible operations see the new ``AfterResourceChanged`` event.
 
@@ -39,15 +39,15 @@ This document describes changes between each past release.
 - Add method to remove a principal from every user
 - Validate that the client can accept JSON response. (#667)
 - Validate that the client can only send JSON request body. (#667)
-- Added new event ``AfterResourceChanged``, that is sent only when the commit
+- Added new ``AfterResourceChanged`` event, that is sent only when the commit
   in database is successful.
 
   Subscribers of this event can fail, errors are swallowed and logged. The
   final transaction result cannot be altered.
 
-  Since commit occured and operations will not rolledback, subcribers running
-  irreversible actions like sending messages, deleting files, or run asynchronous tasks
-  should subscribe to this event.
+  Since commit occured and operations will not be rolledback, subcribers running
+  irreversible actions should subscribe to this event
+  (like sending messages, deleting files, or run asynchronous tasks).
 
 **Bug fixes**
 

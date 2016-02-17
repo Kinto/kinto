@@ -87,7 +87,7 @@ def setup_transaction_hook(config):
         """Notify the accumulated resource events if transaction succeeds.
         """
         if success:
-            for event in request.get_resource_events(after=True):
+            for event in request.get_resource_events(after_commit=True):
                 try:
                     request.registry.notify(event)
                 except Exception:
@@ -108,7 +108,7 @@ def setup_transaction_hook(config):
     config.add_subscriber(on_new_request, NewRequest)
 
 
-def get_resource_events(request, after=False):
+def get_resource_events(request, after_commit=False):
     """
     Request helper to return the list of events triggered on resources.
     The list is sorted chronologically (see OrderedDict)
@@ -116,7 +116,7 @@ def get_resource_events(request, after=False):
     by_resource = request.bound_data.get("resource_events", {})
     events = []
     for (action, timestamp, impacted, request) in by_resource.values():
-        if after:
+        if after_commit:
             if action == ACTIONS.READ:
                 event_cls = AfterResourceRead
             else:
