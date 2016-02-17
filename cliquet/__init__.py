@@ -50,7 +50,6 @@ DEFAULT_SETTINGS = {
         'cliquet.initialization.setup_permission',
         'cliquet.initialization.setup_cache',
         'cliquet.initialization.setup_requests_scheme',
-        'cliquet.initialization.setup_trailing_slash_redirection',
         'cliquet.initialization.setup_version_redirection',
         'cliquet.initialization.setup_deprecation',
         'cliquet.initialization.setup_authentication',
