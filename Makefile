@@ -33,7 +33,7 @@ $(DEV_STAMP): $(PYTHON) dev-requirements.txt
 
 virtualenv: $(PYTHON)
 $(PYTHON):
-	virtualenv $(VENV)
+	$(VIRTUALENV) $(VENV)
 
 build-requirements:
 	$(VIRTUALENV) $(TEMPDIR)
