@@ -3,7 +3,6 @@ import six
 
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
-from pyramid.view import render_view_to_response
 
 from cliquet import errors
 from cliquet import logger
