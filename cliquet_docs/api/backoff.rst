@@ -32,10 +32,5 @@ requests.
 Retry-After indicators
 ======================
 
-A ``Retry-After`` header will be added to error responses (>=500),
-telling the client how many seconds it should wait before trying
-again.
-
-::
-
-    Retry-After: 30
+A ``Retry-After`` header will be added if response is an error (>=500).
+See more details about :ref:`error responses <error-responses>`.
