@@ -105,10 +105,6 @@ def post_batch(request):
             else:
                 # JSONify raw Pyramid errors.
                 resp = errors.http_error(e)
-        except Exception as e:
-            resp = render_view_to_response(e, subrequest)
-            if resp.status_code >= 500:
-                raise e
 
         sublogger.bind(code=resp.status_code)
         sublogger.info('subrequest.summary')

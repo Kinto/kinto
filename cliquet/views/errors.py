@@ -61,8 +61,7 @@ def page_not_found(request):
         errno = ERRORS.VERSION_NOT_AVAILABLE
         error_msg = ("The requested protocol version is not available "
                      "on this server.")
-    elif request and request.path.endswith('/') and \
-            trailing_slash_redirection_enabled:
+    elif request.path.endswith('/') and trailing_slash_redirection_enabled:
         path = request.path.rstrip('/')
         querystring = request.url[(request.url.rindex(request.path) +
                                    len(request.path)):]
