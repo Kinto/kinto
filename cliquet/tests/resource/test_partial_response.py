@@ -9,7 +9,18 @@ class PartialResponseBase(BaseTest):
         super(PartialResponseBase, self).setUp()
         self.resource._get_known_fields = lambda: ['field', 'other']
         self.record = self.model.create_record(
-            {'field': 'value', 'other': 'val'})
+            {
+                'field': 'value',
+                'other': 'val',
+                'original': {
+                    'foo': 'food',
+                    'bar': 'baz',
+                    'nested': {
+                        'size': 12546,
+                        'hash': '0x1254',
+                    }
+                }
+            })
         self.resource.record_id = self.record['id']
         self.resource.request = self.get_request()
 
@@ -45,6 +56,22 @@ class BasicTest(PartialResponseBase):
         record = self.resource.get()
         self.assertIn('id', record['data'])
         self.assertIn('last_modified', record['data'])
+
+    def test_nested_parameter_can_be_filtered(self):
+        self.resource.request.GET['_fields'] = 'original.foo'
+        record = self.resource.get()
+        self.assertIn('original', record['data'])
+        self.assertIn('foo', record['data']['original'])
+        self.assertNotIn('other', record['data'])
+        self.assertNotIn('bar', record['data']['original'])
+        self.assertNotIn('nested', record['data']['original'])
+
+    def test_nested_parameter_can_be_filtered_on_multiple_levels(self):
+        self.resource.request.GET['_fields'] = 'original.nested.size'
+        record = self.resource.get()
+        self.assertIn('nested', record['data']['original'])
+        self.assertIn('size', record['data']['original']['nested'])
+        self.assertNotIn('hash', record['data']['original']['nested'])
 
 
 class PermissionTest(PartialResponseBase):
