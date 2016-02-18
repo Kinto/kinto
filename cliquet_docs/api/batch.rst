@@ -136,13 +136,13 @@ About transactions
 The whole batch of requests is executed under one transaction only.
 
 In order words, if one of the sub-request fails with a 503 status for example, then
-every previous operation is rolledback.
+every previous operation is rolled back.
 
 .. important::
 
     With the current implementation, if a sub-request fails with a 4XX status
     (eg. ``412 Precondition failed`` or ``403 Unauthorized`` for example) the
-    transaction is **not** rolledback.
+    transaction is **not** rolled back.
 
 
 Pros & Cons
