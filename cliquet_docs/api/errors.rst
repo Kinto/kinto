@@ -34,6 +34,18 @@ If the HTTP status is not OK (<200 or >=400), the response contains a JSON mappi
 Refer yourself to the ref:`set of errors codes <errors>`.
 
 
+Retry-After indicators
+======================
+
+A ``Retry-After`` header will be added to error responses (>=500),
+telling the client how many seconds it should wait before trying
+again.
+
+::
+
+    Retry-After: 30
+
+
 Precondition errors
 ===================
 
