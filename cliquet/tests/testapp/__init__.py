@@ -1,9 +1,13 @@
 from pyramid.config import Configurator
+from pyramid.static import static_view
 import cliquet
 
 
 def includeme(config):
     config.scan("cliquet.tests.testapp.views")
+    static = static_view('cliquet:tests/testapp/static', use_subpath=True)
+    config.add_route('catchall_static', '/static/*subpath')
+    config.add_view(static, route_name="catchall_static")
 
 
 def main(settings=None, config=None, *args, **additional_settings):
