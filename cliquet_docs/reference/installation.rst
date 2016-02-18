@@ -65,7 +65,7 @@ OS X
 
 ::
 
-    brew install python3.4
+    brew install python3
 
 
 Cryptography libraries
