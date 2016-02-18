@@ -517,14 +517,15 @@ class TimestampsTest(object):
         # No duplicated timestamps
         self.assertEqual(len(set(obtained)), len(obtained))
 
-    def test_collection_timestamp_returns_now_when_collection_is_empty(self):
-        before = utils.msec_time()
-        time.sleep(0.001)  # 1 msec
-        now = self.storage.collection_timestamp(**self.storage_kw)
-        time.sleep(0.001)  # 1 msec
-        after = utils.msec_time()
-        self.assertTrue(before < now < after,
-                        '%s < %s < %s' % (before, now, after))
+    def test_the_timestamp_is_not_updated_when_collection_remains_empty(self):
+        # Get timestamp once.
+        first = self.storage.collection_timestamp(**self.storage_kw)
+
+        time.sleep(0.002)  # wait some time.
+
+        # Check that second time returns the same value.
+        second = self.storage.collection_timestamp(**self.storage_kw)
+        self.assertEqual(first, second)
 
     def test_the_timestamp_are_based_on_real_time_milliseconds(self):
         before = utils.msec_time()
@@ -1170,26 +1171,3 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                         'warnings.warn') as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
             mocked.assert_any_call(msg)
-
-    def test_update_preserves_record_timestamp_if_less_than_collection(self):
-        first_record = self.create_record()
-        t0 = first_record[self.modified_field]
-        second_record = self.create_record()
-
-        # Update the second record to have a last_modified of t0-100
-        record_id = second_record[self.id_field]
-        record = self.record.copy()
-        record[self.modified_field] = second_record[self.modified_field] - 100
-        self.storage.update(object_id=record_id, record=record,
-                            **self.storage_kw)
-
-        # Retrieve back the updated record.
-        retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
-        self.assertIn(self.modified_field, retrieved)
-        self.assertEquals(retrieved[self.modified_field],
-                          record[self.modified_field])
-
-        # The collection timestamp should equal to the max last_modified (t0).
-        collection_timestamp = self.storage.collection_timestamp(
-            **self.storage_kw)
-        self.assertEquals(collection_timestamp, t0)
