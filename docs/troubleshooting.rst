@@ -63,11 +63,11 @@ exists.
 
 To fix this::
 
-socket = /var/run/uwsgi/kinto.sock
+  socket = /var/run/uwsgi/kinto.sock
 
 Make repository::
 
-sudo mkdir -p /var/run/uwsgi
+  sudo mkdir -p /var/run/uwsgi
 
 Also, make sure the user that runs uwsgi can access /var/run/uwsgi and can
 write in the uwsgi directory.
