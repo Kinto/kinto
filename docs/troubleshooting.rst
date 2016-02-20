@@ -58,8 +58,8 @@ Make sure that postgres server is running properly.
 bind(): No such file or directory [uwsgi error]
 ===============================================
 
-Make sure that the repository that you defined for the socket parameter of uwsgi
-exists.
+Make sure that the path you defined for the socket parameter of the uwsgi
+configuration exists.
 
 To fix this::
 
