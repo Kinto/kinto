@@ -7,12 +7,12 @@ from cliquet.tests.resource import BaseTest
 class PartialResponseBase(BaseTest):
     def setUp(self):
         super(PartialResponseBase, self).setUp()
-        self.resource._get_known_fields = lambda: ['field', 'other']
+        self.resource._get_known_fields = lambda: ['field', 'other', 'orig']
         self.record = self.model.create_record(
             {
                 'field': 'value',
                 'other': 'val',
-                'original': {
+                'orig': {
                     'foo': 'food',
                     'bar': 'baz',
                     'nested': {
@@ -58,20 +58,20 @@ class BasicTest(PartialResponseBase):
         self.assertIn('last_modified', record['data'])
 
     def test_nested_parameter_can_be_filtered(self):
-        self.resource.request.GET['_fields'] = 'original.foo'
+        self.resource.request.GET['_fields'] = 'orig.foo'
         record = self.resource.get()
-        self.assertIn('original', record['data'])
-        self.assertIn('foo', record['data']['original'])
+        self.assertIn('orig', record['data'])
+        self.assertIn('foo', record['data']['orig'])
         self.assertNotIn('other', record['data'])
-        self.assertNotIn('bar', record['data']['original'])
-        self.assertNotIn('nested', record['data']['original'])
+        self.assertNotIn('bar', record['data']['orig'])
+        self.assertNotIn('nested', record['data']['orig'])
 
     def test_nested_parameter_can_be_filtered_on_multiple_levels(self):
-        self.resource.request.GET['_fields'] = 'original.nested.size'
+        self.resource.request.GET['_fields'] = 'orig.nested.size'
         record = self.resource.get()
-        self.assertIn('nested', record['data']['original'])
-        self.assertIn('size', record['data']['original']['nested'])
-        self.assertNotIn('hash', record['data']['original']['nested'])
+        self.assertIn('nested', record['data']['orig'])
+        self.assertIn('size', record['data']['orig']['nested'])
+        self.assertNotIn('hash', record['data']['orig']['nested'])
 
 
 class PermissionTest(PartialResponseBase):

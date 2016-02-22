@@ -224,7 +224,7 @@ class UserResource(object):
         filters = self._extract_filters()
         limit = self._extract_limit()
         sorting = self._extract_sorting(limit)
-        partial_fields = self._extract_fields()
+        partial_fields = self._extract_partial_fields()
 
         filter_fields = [f.field for f in filters]
         include_deleted = self.model.modified_field in filter_fields
@@ -249,7 +249,7 @@ class UserResource(object):
 
         if partial_fields:
             records = [
-                self._filter_fields(record, partial_fields)
+                dict_subset(record, partial_fields)
                 for record in records
             ]
 
@@ -343,9 +343,9 @@ class UserResource(object):
         self._raise_304_if_not_modified(record)
         self._raise_412_if_modified(record)
 
-        partial_fields = self._extract_fields()
+        partial_fields = self._extract_partial_fields()
         if partial_fields:
-            record = self._filter_fields(record, partial_fields)
+            record = dict_subset(record, partial_fields)
 
         return self.postprocess(record)
 
@@ -808,14 +808,15 @@ class UserResource(object):
             }
             raise_invalid(self.request, **error_details)
 
-    def _extract_fields(self):
+    def _extract_partial_fields(self):
         """Extract the fields to do the projection from QueryString parameters.
         """
         fields = self.request.GET.get('_fields', None)
         if fields:
             fields = fields.split(',')
+            root_fields = [f.split('.')[0] for f in fields]
             known_fields = self._get_known_fields()
-            invalid_fields = set(fields) - set(known_fields)
+            invalid_fields = set(root_fields) - set(known_fields)
             preserve_unknown = self.mapping.get_option('preserve_unknown')
             if not preserve_unknown and invalid_fields:
                 error_msg = "Fields %s do not exist" % ','.join(invalid_fields)
@@ -825,13 +826,9 @@ class UserResource(object):
                 }
                 raise_invalid(self.request, **error_details)
 
-        return fields
+            fields = fields + [self.model.id_field, self.model.modified_field]
 
-    def _filter_fields(self, record, fields):
-        """Extract from specified fields from record.
-        """
-        fields = fields + [self.model.id_field, self.model.modified_field]
-        return dict_subset(record, fields)
+        return fields
 
     def _extract_limit(self):
         """Extract limit value from QueryString parameters."""
