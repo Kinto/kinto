@@ -40,8 +40,10 @@ For example:
 
 .. code-block:: python
 
+    from cliquet.events import ResourceChanged, ACTIONS
+
     config.add_subscriber(on_mushroom_changed, ResourceChanged, for_resources=('mushroom',))
-    config.add_subscriber(on_record_deleted, ResourceChanged, for_actions=('delete',))
+    config.add_subscriber(on_record_deleted, ResourceChanged, for_actions=(ACTIONS.DELETE,))
 
 
 Payload
