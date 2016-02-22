@@ -13,67 +13,129 @@ This section describes the basic aspects of synchronisation using *Kinto*.
 
 
 
-The basic idea is to keep a local database up to date with the Kinto server.
-Remote changes are downloaded and applied
-on the local data. Local changes are uploaded using HTTP headers to control
-concurrency and overwrite.
+The basic idea is to keep a local database up to date with the Kinto server:
+
+* Remote changes are downloaded and applied on the local data.
+* Local changes are uploaded using HTTP headers to control concurrency and overwrites.
+
 
 In short:
 
 #. Poll for remote changes using ``?_since=<timestamp>``
 #. Apply changes locally
-#. Apply creations remotely
-#. Use concurrency control to send updates and deletes
+#. Send local creations
+#. Use concurrency control to send local updates and deletes
 
 
-Polling for changes
-===================
+Polling for remote changes
+==========================
 
-When fetching the collection records with ``?_since=<timestamp>``, *Kinto* returns
-every records that was created/updated/deleted **after** this timestamp.
+*Kinto* supports range queries for timestamps. Combining them with the sort parameter
+allows to fetch changes in a particular order.
 
-#. Cold sync → no ``?_since``.
-#. ``GET /buckets/default/collections/articles?_since=<timestamp>`` (with header ``If-Match: <timestamp>``)
-#. If response is ``304 Not modified``, done → up to date, nothing to do.
-#. If response is ``200 OK`` store ``ETag`` response header value for next
-   synchronisation and handle the obtained list of changes.
+Depending on the context (latest first, readonly, etc.), there are several
+strategies to poll the server for changes.
 
-.. note::
+.. important::
 
     * Deleted records have an attribute ``delete: true``.
     * Created/updated records are both returned in their new version.
     * Since *Kinto* does not keep any history, there is no *diff* for updates.
 
 
-Paginated changes
------------------
+Pagination
+----------
 
-By default, *Kinto* does not paginate the records list. If an explicit limit is
-set in the server settings or using the ``?_limit=<nb>`` parameter, then polling for
-changes will be paginated.
+By default, *Kinto* does not paginate the records list. Since an explicit limit can
+be set in the server settings, clients must handle pagination when polling for
+changes.
 
-It basically consists in fetching the list until the ``Next-Page`` is present.
+In order to reduce the size of response payloads, the client can also force the
+pagination using the ``?_limit=<nb>`` querystring parameter.
 
-Since changes can occur between the first and the last page, the synchronisation
-process is a bit more complex.
+Pagination basically consists in fetching the list until the ``Next-Page`` response header
+is present. The ``Next-Page`` header is the **full** URL of the next page.
 
-#. Cold sync → no ``?_since``.
-#. ``GET /buckets/default/collections/articles?_since=<timestamp>`` (with header ``If-Match: <timestamp>``)
-#. If response is ``304 Not modified``, done → up to date, nothing to do.
-#. If no ``Next-Page`` response header, done → store ``ETag`` response header value for next
-   synchronisation.
-#. If ``Next-Page`` response header is present → store the ``ETag`` response header value into a variable ``timestamp``
-   and go on to it (it's an url) using a ``If-Match: <timestamp>`` request header.
-#. If response is ``200 OK`` → repeat previous step.
-#. If response is ``412 Precondition Failed``, some changes occured since the last
-   page → Store the ``ETag``response header into ``before``
-#. Fetch and handle the changes using ``GET collections?_since=<timestamp>&_before=<before>``,
-   and store the ``ETag``response header in to ``timestamp``
-#. Go back to step 5 (follow the ``Next-Page``)
+.. note::
+
+    Pagination requests carry every necessary parameter to be reproduced in case
+    of connectivity error.
 
 
-Apply changes
-=============
+Strategy #1 — Oldest first
+--------------------------
+
+The simplest way to obtain the changes is to sort the records by timestamp
+ascending.
+
+We will use ``sort=last_modified`` and ``_since=<timestamp>``:
+
+#. First sync: ``timestamp := 0``
+#. Next sync: ``timestamp := MAX(local_records['last_modified'])``
+#. Fetch ``GET /buckets/<bid>/collections/<cid>/records?_sort=last_modified&_since=<timestamp>``
+#. If response is ``200 OK``, handle the list of remote changes.
+#. If response has ``Next-Page`` header, follow full URL in header.
+#. If list of changes is empty, **done** → up-to-date.
+
+.. image:: ../../images/sync-oldest.svg
+
+If an error occurs during the obtention of pages,
+the synchronisation can be resumed transparently, since it relies on the highest
+timestamp successfully stored locally.
+
+
+Strategy #2 — Newest first
+--------------------------
+
+In order to populate a UI, it might be relevant to obtain the latest changes first.
+
+Syncing newest records first is a bit more complex since changes can occur between
+the obtention of the first and the last pages.
+
+We will use ``sort=-last_modified`` (desc), ``_before`` to omit later changes,
+and ``_since`` to include changes after last sync:
+
+#. First sync: ``timestamp := 0``
+#. Next sync: use ``timestamp`` stored in last successful sync.
+#. Fetch current collection timestamp ``HEAD /buckets/<bid>/collections/<cid>/records``
+   in ``ETag`` response header and store its value in ``start``.
+#. Fetch ``GET /buckets/<bid>/collections/<cid>/records?_sort=-last_modified&_before=<start>&_since=<timestamp>``
+#. If response is ``200 OK``, stack the obtained list of remote changes.
+#. If response has ``Next-Page`` header, follow full URL in header.
+#. If list of changes is empty, **done** → handle the stack of remote changes
+   and update the timestamp: ``timestamp := MAX(local_records['last_modified'])``
+
+.. image:: ../../images/sync-newest.svg
+
+With this approach, the main algorithm is rather simple but if an error occurs
+between the first and the last step, the client must redownload every page obtained
+from *step 1* until it succeeds to fetch every page of the sync.
+
+In order to avoid that, the algorithm should slightly be complexified in order to
+track additional info obtained from the page that failed. The upper and lower
+values of timestamps (``_before`` and ``_since``) can then
+be specified manually to resume the synchronisation.
+
+
+Strategy #3 — Newest then oldest
+--------------------------------
+
+For very large collections, it could be interesting to mix both previously presented
+strategies.
+
+When a new client wants to sync, it gets some recent records using the newest
+strategy, and then fetches the old records in a second phase, in background
+for example.
+
+#. Synchronize a few pages using the *newest first* strategy
+#. In background fetch old records using ``_sort=-lastmodified`` and ``_before=MIN(local_records[last_modified])``
+#. Continue to synchronize new changes using ``_sort=-lastmodified`` and ``_since=MAX(local_records[last_modified])``
+
+.. image:: ../../images/sync-both.svg
+
+
+Apply changes locally
+=====================
 
 Applying remote changes to the local database consists in adding new records,
 updating changed records and remove deleted records.
