@@ -232,9 +232,6 @@ class UserResource(object):
         pagination_rules, offset = self._extract_pagination_rules_from_token(
             limit, sorting)
 
-        #Sort the Get requests according to last_modified
-        sorting.append(Sort('last_modified',-1))
-
 
         records, total_records = self.model.get_records(
             filters=filters,
@@ -944,7 +941,7 @@ class UserResource(object):
                 direction = -1 if order == '-' else 1
                 sorting.append(Sort(field, direction))
 
-        if not modified_field_used and limit:
+        if not modified_field_used:
             # Add a sort by the ``modified_field`` in descending order
             # useful for pagination
             sorting.append(Sort(self.model.modified_field, -1))
