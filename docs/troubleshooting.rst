@@ -53,3 +53,21 @@ cliquet.storage.exceptions.BackendError: OperationalError [Postgres Service]
 ============================================================================
 
 Make sure that postgres server is running properly.
+
+
+bind(): No such file or directory [uwsgi error]
+===============================================
+
+Make sure that the path you defined for the socket parameter of the uwsgi
+configuration exists.
+
+To fix this::
+
+  socket = /var/run/uwsgi/kinto.sock
+
+Make repository::
+
+  sudo mkdir -p /var/run/uwsgi
+
+Also, make sure the user that runs uwsgi can access /var/run/uwsgi and can
+write in the uwsgi directory.
