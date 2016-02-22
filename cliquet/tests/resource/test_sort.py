@@ -100,3 +100,9 @@ class SortingTest(BaseTest):
         result = self.resource.collection_get()
         self.assertEqual(result['data'][0]['unread'], False)
         self.assertEqual(result['data'][-1]['unread'], True)
+
+    def test_default_sort_is_last_modified_desc_by_default(self):
+        self.resource.request.GET = {'_sort': ''}
+        result = self.resource.collection_get()
+        tstamp = self.model.timestamp()
+        self.assertEqual(result['data'][0]['last_modified'], tstamp)
