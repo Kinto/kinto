@@ -27,6 +27,8 @@ listed below.
     application ``.ini``, and finally from internal defaults.
 
 
+.. _configuration-features:
+
 Feature settings
 ================
 
