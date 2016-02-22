@@ -120,8 +120,8 @@ be specified manually to resume the synchronisation.
 Strategy #3 — Newest then oldest
 --------------------------------
 
-For very large collections, it could be interesting to mix both previously presented
-strategies.
+For very large collections, it could be interesting to perform a first partial
+synchronisation, and then fetch old records in background.
 
 When a new client wants to sync, it gets some recent records using the newest
 strategy, and then fetches the old records in a second phase, in background
