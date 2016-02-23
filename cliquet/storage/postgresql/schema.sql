@@ -174,6 +174,12 @@ DECLARE
     current TIMESTAMP;
 
 BEGIN
+    previous := NULL;
+    SELECT last_modified INTO previous
+      FROM timestamps
+     WHERE parent_id = NEW.parent_id
+       AND collection_id = NEW.collection_id;
+
     --
     -- This bumps the current timestamp to 1 msec in the future if the previous
     -- timestamp is equal to the current one (or higher if was bumped already).
@@ -183,25 +189,32 @@ BEGIN
     -- an error (operation is cancelled).
     -- See https://github.com/mozilla-services/cliquet/issues/25
     --
+    current := clock_timestamp();
+    IF previous IS NOT NULL AND previous >= current THEN
+        current := previous + INTERVAL '1 milliseconds';
+    END IF;
+
+
     IF NEW.last_modified IS NULL THEN
-        previous := collection_timestamp(NEW.parent_id, NEW.collection_id);
-        current := clock_timestamp();
-        IF previous >= current THEN
-            current := previous + INTERVAL '1 milliseconds';
-        END IF;
+        -- If record does not carry last-modified, assign it to current.
         NEW.last_modified := current;
+    ELSE
+        -- Use record last-modified as collection timestamp.
+        IF previous IS NULL OR NEW.last_modified > previous THEN
+            current := NEW.last_modified;
+        END IF;
     END IF;
 
     --
     -- Upsert current collection timestamp.
     --
     WITH upsert AS (
-        UPDATE timestamps SET last_modified = NEW.last_modified
+        UPDATE timestamps SET last_modified = current
          WHERE parent_id = NEW.parent_id AND collection_id = NEW.collection_id
         RETURNING *
     )
     INSERT INTO timestamps (parent_id, collection_id, last_modified)
-    SELECT NEW.parent_id, NEW.collection_id, NEW.last_modified
+    SELECT NEW.parent_id, NEW.collection_id, current
     WHERE NOT EXISTS (SELECT * FROM upsert);
 
     RETURN NEW;

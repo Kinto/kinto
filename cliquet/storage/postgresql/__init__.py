@@ -184,6 +184,7 @@ class Storage(StorageBase):
         query = """
         DELETE FROM deleted;
         DELETE FROM records;
+        DELETE FROM timestamps;
         DELETE FROM metadata;
         """
         with self.client.connect(force_commit=True) as conn:
