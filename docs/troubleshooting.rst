@@ -71,3 +71,11 @@ Make repository::
 
 Also, make sure the user that runs uwsgi can access /var/run/uwsgi and can
 write in the uwsgi directory.
+
+Unexpected database encoding sql_ascii
+======================================
+
+On some configuration, the default encoding is SQL_ASCII instead of UTF-8. To
+remediate to this, you can issue the following command, once ``pgsql`` open::
+
+  update pg_database set encoding = pg_char_to_encoding('UTF8') where datname = '<your db name>';
