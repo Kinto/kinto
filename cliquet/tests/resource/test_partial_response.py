@@ -19,9 +19,6 @@ class PartialResponseBase(BaseTest):
                         'size': 12546,
                         'hash': '0x1254',
                     }
-                },
-                'fields.name': {
-                    'value': 'name'
                 }
             })
         self.resource.record_id = self.record['id']
@@ -75,12 +72,6 @@ class BasicTest(PartialResponseBase):
         self.assertIn('nested', record['data']['orig'])
         self.assertIn('size', record['data']['orig']['nested'])
         self.assertNotIn('hash', record['data']['orig']['nested'])
-
-    def test_can_filter_fields_name_with_dots(self):
-        self.resource.request.GET['_fields'] = 'fields.name.value'
-        record = self.resource.get()
-        self.assertIn('fields.name', record['data'])
-        self.assertIn('value', record['data']['fields.name'])
 
 
 class PermissionTest(PartialResponseBase):
