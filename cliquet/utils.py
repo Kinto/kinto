@@ -39,6 +39,7 @@ except ImportError:  # pragma: no cover
 from pyramid import httpexceptions
 from pyramid.request import Request, apply_request_extensions
 from pyramid.settings import aslist
+from pyramid.view import render_view_to_response
 from cornice import cors
 from colander import null
 
@@ -299,7 +300,13 @@ def follow_subrequest(request, subrequest, **kwargs):
               if no redirection happened.)
     """
     try:
-        return request.invoke_subrequest(subrequest, **kwargs), subrequest
+        try:
+            return request.invoke_subrequest(subrequest, **kwargs), subrequest
+        except Exception as e:
+            resp = render_view_to_response(e, subrequest)
+            if not resp or resp.status_code >= 500:
+                raise e
+            raise resp
     except httpexceptions.HTTPRedirection as e:
         new_location = e.headers['Location']
         new_request = Request.blank(path=new_location,

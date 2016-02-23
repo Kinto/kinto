@@ -1,6 +1,8 @@
 from functools import wraps
 
 from pyramid import httpexceptions
+from pyramid.httpexceptions import HTTPTemporaryRedirect
+from pyramid.settings import asbool
 from pyramid.security import forget, NO_PERMISSION_REQUIRED, Authenticated
 from pyramid.view import (
     forbidden_view_config, notfound_view_config, view_config
@@ -51,13 +53,23 @@ def authorization_required(request):
 @cors
 def page_not_found(request):
     """Return a JSON 404 error response."""
-    if request.path.startswith('/' + request.registry.route_prefix):
-        errno = ERRORS.MISSING_RESOURCE
-        error_msg = "The resource you are looking for could not be found."
-    else:
+    config_key = 'trailing_slash_redirect_enabled'
+    redirect_enabled = request.registry.settings[config_key]
+    trailing_slash_redirection_enabled = asbool(redirect_enabled)
+
+    if not request.path.startswith('/' + request.registry.route_prefix):
         errno = ERRORS.VERSION_NOT_AVAILABLE
         error_msg = ("The requested protocol version is not available "
                      "on this server.")
+    elif request.path.endswith('/') and trailing_slash_redirection_enabled:
+        path = request.path.rstrip('/')
+        querystring = request.url[(request.url.rindex(request.path) +
+                                   len(request.path)):]
+        redirect = '%s%s' % (path, querystring)
+        return HTTPTemporaryRedirect(redirect)
+    elif request.path.startswith('/' + request.registry.route_prefix):
+        errno = ERRORS.MISSING_RESOURCE
+        error_msg = "The resource you are looking for could not be found."
 
     response = http_error(httpexceptions.HTTPNotFound(),
                           errno=errno,

@@ -198,3 +198,6 @@ class TrailingSlashRedirectViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get('/home/articles/?_since=42')
         self.assertEqual(response.location,
                          'http://localhost/v0/home/articles?_since=42')
+
+    def test_it_does_not_redirect_if_the_url_exists(self):
+        self.app.get('/static/', status=200)

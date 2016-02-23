@@ -7,6 +7,11 @@ This document describes changes between each past release.
 2.16.0 (unreleased)
 -------------------
 
+**Protocol**
+
+- Clients are redirected to URLs without trailing slash only if the current URL
+  does not exist (#656)
+
 **New features**
 
 - Resource events are now merged in batch requests. One event per resource and

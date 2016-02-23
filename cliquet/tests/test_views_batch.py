@@ -84,7 +84,11 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
             resp = self.app.post_json('/batch', body, headers=self.headers,
                                       status=200)
             subresponse = resp.json['responses'][0]['body']
-            self.assertEqual(subresponse, 'Handled in tests/testapp/views.py')
+            self.assertEqual(subresponse, {
+                'errno': 999,
+                'code': 404,
+                'error': 'Not Found'
+            })
 
     def test_batch_cannot_be_recursive(self):
         requests = {'requests': [{'path': '/v0/'}]}
@@ -121,6 +125,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         body = {'requests': [request]}
         resp = self.app.post_json('/batch', body, headers=self.headers)
         response = resp.json['responses'][0]
+        self.assertEqual(response['status'], 201)
         record = response['body']['data']
         self.assertEqual(record['name'], 'Trompette de la mort')
 
