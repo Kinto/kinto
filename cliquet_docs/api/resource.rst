@@ -424,6 +424,18 @@ A ``details`` attribute in the response provides the offending record and
 field name. See :ref:`dedicated section about errors <error-responses>`.
 
 
+Timestamp
+---------
+
+When a record is created, the timestamp of the collection is incremented.
+
+It is possible to force the timestamp if the specified record has a
+``last_modified`` attribute.
+
+The specified value will be ignored if it is less than the current collection
+timestamp.
+
+
 HTTP Status Codes
 -----------------
 
@@ -433,6 +445,10 @@ HTTP Status Codes
 * ``400 Bad Request``: The request body is invalid
 * ``409 Conflict``: Unicity constraint on fields is violated
 * ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
+
+.. versionadded:: 2.13::
+
+  Enforcement of the timestamp value for records has been added.
 
 
 DELETE /{collection}
@@ -567,23 +583,33 @@ The consumer might decide to ignore it.
 If the request header ``If-Match`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
-The timestamp value of the deleted record can be enforced via the
-``last_modified`` QueryString parameter.
-
 .. note::
 
     Once deleted, a record will appear in the collection when polling for changes,
     with a deleted status (``delete=true``) and will have most of its fields empty.
 
-.. versionadded:: 2.13::
 
-  Enforcement of the timestamp value for records has been added.
+Timestamp
+---------
+
+When a record is deleted, the timestamp of the collection is incremented.
+
+It is possible to force the timestamp by passing it in the
+querystring with ``?last_modified=<value>``.
+
+The specified value will be ignored if it is less than the current collection
+timestamp.
+
 
 HTTP Status Code
 ----------------
 
 * ``200 OK``: The record was deleted
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
+
+.. versionadded:: 2.13::
+
+  Enforcement of the timestamp value for records has been added.
 
 
 PUT /{collection}/<id>
@@ -608,9 +634,6 @@ Validation and conflicts behaviour is similar to creating records (``POST``).
 If the request header ``If-Match`` is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
-.. versionadded:: 2.13::
-
-  Enforcement of the timestamp value for records has been added.
 
 **Request**:
 
@@ -651,6 +674,20 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
     }
 
 
+Timestamp
+---------
+
+When a record is created or replaced, the timestamp of the collection is incremented.
+
+It is possible to force the timestamp if the specified record has a
+``last_modified`` attribute.
+
+The specified value will be ignored if:
+
+* it is less than the current collection timestamp;
+* it is less or equal than the previously existing record timestamp (for replace).
+
+
 HTTP Status Code
 ----------------
 
@@ -665,6 +702,10 @@ HTTP Status Code
 
     A ``If-None-Match: *`` request header can be used to make sure the ``PUT``
     won't overwrite any record.
+
+.. versionadded:: 2.13::
+
+  Enforcement of the timestamp value for records has been added.
 
 
 PATCH /{collection}/<id>
@@ -758,6 +799,21 @@ If changing a record field violates a field unicity constraint, a
 ``409 Conflict`` error response is returned (see :ref:`error channel <error-responses>`).
 
 
+Timestamp
+---------
+
+When a record is modified, the timestamp of the collection is incremented.
+
+It is possible to force the timestamp if the specified record has a
+``last_modified`` attribute.
+
+
+The specified value will be ignored if:
+
+* it is less than the current collection timestamp;
+* it is less or equal than the previously existing record timestamp.
+
+
 HTTP Status Code
 ----------------
 
@@ -766,6 +822,10 @@ HTTP Status Code
   modified
 * ``409 Conflict``: If modifying this record violates a field unicity constraint
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
+
+.. versionadded:: 2.13::
+
+  Enforcement of the timestamp value for records has been added.
 
 
 .. _resource-permissions-attribute:
