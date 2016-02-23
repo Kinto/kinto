@@ -1,7 +1,10 @@
 Kinto
 =====
 
-|travis| |master-coverage| |readthedocs| |pypi|
+|irc| |readthedocs| |pypi| |travis| |master-coverage|
+
+.. |irc| image:: https://img.shields.io/badge/irc%20channel-%23kinto%20on%20freenode-blue.svg
+    :target: https://kiwiirc.com/client/irc.freenode.net/?#kinto
 
 .. |travis| image:: https://travis-ci.org/Kinto/kinto.svg?branch=master
     :target: https://travis-ci.org/Kinto/kinto
