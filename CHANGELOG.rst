@@ -9,7 +9,7 @@ This document describes changes between each past release.
 
 **Protocol**
 
-- Clients are redirected to URLs without trailing slash only if current URL
+- Clients are redirected to URLs without trailing slash only if the current URL
   does not exist (#656)
 
 **New features**
