@@ -361,6 +361,7 @@ def setup_logging(config):
 
 class EventActionFilter(object):
     def __init__(self, actions, config):
+        actions = ACTIONS.from_string_list(actions)
         self.actions = [action.value for action in actions]
 
     def phash(self):

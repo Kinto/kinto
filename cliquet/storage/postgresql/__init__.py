@@ -566,10 +566,10 @@ class Storage(StorageBase):
         :rtype: tuple
         """
         operators = {
-            COMPARISON.EQ.value: '=',
-            COMPARISON.NOT.value: '<>',
-            COMPARISON.IN.value: 'IN',
-            COMPARISON.EXCLUDE.value: 'NOT IN',
+            COMPARISON.EQ: '=',
+            COMPARISON.NOT: '<>',
+            COMPARISON.IN: 'IN',
+            COMPARISON.EXCLUDE: 'NOT IN',
         }
 
         conditions = []
@@ -589,8 +589,7 @@ class Storage(StorageBase):
                 # If field is missing, we default to ''.
                 sql_field = "coalesce(data->>:%s, '')" % field_holder
 
-            if filtr.operator not in (COMPARISON.IN.value,
-                                      COMPARISON.EXCLUDE.value):
+            if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 # For the IN operator, let psycopg escape the values list.
                 # Otherwise JSON-ify the native value (e.g. True -> 'true')
                 if not isinstance(filtr.value, six.string_types):
@@ -602,7 +601,8 @@ class Storage(StorageBase):
             value_holder = '%s_value_%s' % (prefix, i)
             holders[value_holder] = value
 
-            sql_operator = operators.setdefault(filtr.operator, filtr.operator)
+            sql_operator = operators.setdefault(filtr.operator,
+                                                filtr.operator.value)
             cond = "%s %s :%s" % (sql_field, sql_operator, value_holder)
             conditions.append(cond)
 
@@ -704,7 +704,7 @@ class Storage(StorageBase):
             if value is None:
                 continue
             sql, holders = self._format_conditions(
-                [Filter(field, value, COMPARISON.EQ.value)],
+                [Filter(field, value, COMPARISON.EQ)],
                 id_field,
                 modified_field,
                 prefix=field)
@@ -721,7 +721,7 @@ class Storage(StorageBase):
         if not for_creation:
             object_id = record[id_field]
             sql, holders = self._format_conditions(
-                [Filter(id_field, object_id, COMPARISON.NOT.value)],
+                [Filter(id_field, object_id, COMPARISON.NOT)],
                 id_field,
                 modified_field)
             safeholders['condition_record'] = sql

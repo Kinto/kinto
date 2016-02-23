@@ -376,8 +376,7 @@ class UserResource(object):
             existing = self._get_record_or_404(self.record_id)
         except HTTPNotFound:
             # Look if this record used to exist (for preconditions check).
-            filter_by_id = Filter(id_field, self.record_id,
-                                  COMPARISON.EQ.value)
+            filter_by_id = Filter(id_field, self.record_id, COMPARISON.EQ)
             tombstones, _ = self.model.get_records(filters=[filter_by_id],
                                                    include_deleted=True)
             if len(tombstones) > 0:
@@ -883,7 +882,7 @@ class UserResource(object):
                     raise_invalid(self.request, **error_details)
 
                 if param == '_since':
-                    operator = COMPARISON.GT.value
+                    operator = COMPARISON.GT
                 else:
                     if param == '_to':
                         message = ('_to is now deprecated, '
@@ -891,7 +890,7 @@ class UserResource(object):
                         url = ('http://cliquet.rtfd.org/en/2.4.0/api/resource'
                                '.html#list-of-available-url-parameters')
                         send_alert(self.request, message, url)
-                    operator = COMPARISON.LT.value
+                    operator = COMPARISON.LT
                 filters.append(
                     Filter(self.model.modified_field, value, operator)
                 )
@@ -900,9 +899,9 @@ class UserResource(object):
             m = re.match(r'^(min|max|not|lt|gt|in|exclude)_(\w+)$', param)
             if m:
                 keyword, field = m.groups()
-                operator = getattr(COMPARISON, keyword.upper()).value
+                operator = getattr(COMPARISON, keyword.upper())
             else:
-                operator, field = COMPARISON.EQ.value, param
+                operator, field = COMPARISON.EQ, param
 
             if not self.is_known_field(field):
                 error_details = {
@@ -912,7 +911,7 @@ class UserResource(object):
                 raise_invalid(self.request, **error_details)
 
             value = native_value(paramvalue)
-            if operator in (COMPARISON.IN.value, COMPARISON.EXCLUDE.value):
+            if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = set([native_value(v) for v in paramvalue.split(',')])
 
             filters.append(Filter(field, value, operator))
@@ -958,17 +957,14 @@ class UserResource(object):
         next_sorting = sorting[:-1]
 
         for field, _ in next_sorting:
-            rule.append(Filter(field, last_record.get(field),
-                               COMPARISON.EQ.value))
+            rule.append(Filter(field, last_record.get(field), COMPARISON.EQ))
 
         field, direction = sorting[-1]
 
         if direction == -1:
-            rule.append(Filter(field, last_record.get(field),
-                               COMPARISON.LT.value))
+            rule.append(Filter(field, last_record.get(field), COMPARISON.LT))
         else:
-            rule.append(Filter(field, last_record.get(field),
-                               COMPARISON.GT.value))
+            rule.append(Filter(field, last_record.get(field), COMPARISON.GT))
 
         rules.append(rule)
 
@@ -1081,8 +1077,7 @@ class ShareableResource(UserResource):
 
         ids = self.context.shared_ids
         if ids:
-            filter_by_id = Filter(self.model.id_field, ids,
-                                  COMPARISON.IN.value)
+            filter_by_id = Filter(self.model.id_field, ids, COMPARISON.IN)
             filters.insert(0, filter_by_id)
 
         return filters
