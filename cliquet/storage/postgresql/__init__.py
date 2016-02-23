@@ -158,7 +158,7 @@ class Storage(StorageBase):
         SELECT value AS version
           FROM metadata
          WHERE name = 'storage_schema_version'
-         ORDER BY value DESC;
+         ORDER BY LPAD(value, 3, '0') DESC;
         """
         with self.client.connect() as conn:
             result = conn.execute(query)
