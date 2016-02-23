@@ -826,6 +826,8 @@ class UserResource(object):
                 }
                 raise_invalid(self.request, **error_details)
 
+            # Since id and last_modified are part of the synchronisation
+            # protocol, force their presence in payloads.
             fields = fields + [self.model.id_field, self.model.modified_field]
 
         return fields

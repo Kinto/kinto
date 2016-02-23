@@ -262,14 +262,13 @@ Partial response
 If the ``_fields`` parameter is provided, only the fields specified are returned.
 Fields are separated with a comma.
 
-Nested fields are specified using ``.`` (dot).
-
 This is vital in mobile contexts where bandwidth usage must be optimized.
+
+Nested objects fields are specified using dots (e.g. ``address.street``).
 
 .. note::
 
     The ``id`` and ``last_modified`` fields are always returned.
-
 
 **Request**:
 
