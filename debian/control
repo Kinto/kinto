@@ -1,0 +1,12 @@
+Source: kinto-server
+Section: python
+Priority: extra
+Maintainer: Kinto Developers <developers@kinto-storage.org>
+Build-Depends: debhelper (>= 9), python, dh-virtualenv (>= 0.8)
+Standards-Version: 3.9.5
+
+Package: kinto-server
+Architecture: any
+Pre-Depends: dpkg (>= 1.16.1), python2.7 | python2.6, ${misc:Pre-Depends}
+Depends: ${python:Depends}, ${misc:Depends}, python-cryptography
+Description: A lightweight JSON storage service with synchronisation and sharing abilities.
