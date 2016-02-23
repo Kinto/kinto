@@ -72,7 +72,7 @@ class ResourceReadTest(BaseEventTest, unittest.TestCase):
     def test_collection_get_sends_read_event(self):
         self.app.get(self.collection_url, headers=self.headers)
         self.assertEqual(len(self.events), 1)
-        self.assertEqual(self.events[0].payload['action'], ACTIONS.READ)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.READ.value)
         self.assertEqual(len(self.events[0].read_records), 0)
 
     def test_post_sends_read_if_id_already_exists(self):
@@ -97,7 +97,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.app.post_json(self.collection_url, self.body,
                            headers=self.headers, status=201)
         self.assertEqual(len(self.events), 1)
-        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE.value)
 
     def test_put_sends_create_action(self):
         body = dict(self.body)
@@ -106,7 +106,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.app.put_json(record_url, body,
                           headers=self.headers, status=201)
         self.assertEqual(len(self.events), 1)
-        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE.value)
 
     def test_not_triggered_on_failed_put(self):
         record_id = str(uuid.uuid4())
@@ -116,7 +116,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         headers['If-Match'] = '"12345"'
         self.app.put_json(record_url, self.body, headers=headers, status=412)
         self.assertEqual(len(self.events), 1)
-        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE.value)
 
     def test_patch_sends_update_action(self):
         resp = self.app.post_json(self.collection_url, self.body,
@@ -127,8 +127,8 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.app.patch_json(record_url, self.body, headers=self.headers,
                             status=200)
         self.assertEqual(len(self.events), 2)
-        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
-        self.assertEqual(self.events[1].payload['action'], ACTIONS.UPDATE)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE.value)
+        self.assertEqual(self.events[1].payload['action'], ACTIONS.UPDATE.value)
 
     def test_put_sends_update_action_if_record_exists(self):
         body = dict(self.body)
@@ -142,8 +142,8 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
                           headers=self.headers, status=200)
 
         self.assertEqual(len(self.events), 2)
-        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
-        self.assertEqual(self.events[1].payload['action'], ACTIONS.UPDATE)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE.value)
+        self.assertEqual(self.events[1].payload['action'], ACTIONS.UPDATE.value)
 
     def test_delete_sends_delete_action(self):
         resp = self.app.post_json(self.collection_url, self.body,
@@ -153,8 +153,8 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
 
         self.app.delete(record_url, headers=self.headers, status=200)
         self.assertEqual(len(self.events), 2)
-        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
-        self.assertEqual(self.events[1].payload['action'], ACTIONS.DELETE)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE.value)
+        self.assertEqual(self.events[1].payload['action'], ACTIONS.DELETE.value)
 
     def test_collection_delete_sends_delete_action(self):
         self.app.post_json(self.collection_url, self.body,
@@ -165,9 +165,9 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.app.delete(self.collection_url, headers=self.headers, status=200)
 
         self.assertEqual(len(self.events), 3)
-        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
-        self.assertEqual(self.events[1].payload['action'], ACTIONS.CREATE)
-        self.assertEqual(self.events[2].payload['action'], ACTIONS.DELETE)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE.value)
+        self.assertEqual(self.events[1].payload['action'], ACTIONS.CREATE.value)
+        self.assertEqual(self.events[2].payload['action'], ACTIONS.DELETE.value)
 
     def test_request_fails_if_notify_fails(self):
         with notif_broken(self.app.app, ResourceChanged):
@@ -182,7 +182,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         app.post_json('/psilos', self.body,
                       headers=self.headers, status=201)
         self.assertEqual(len(self.events), 1)
-        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE.value)
 
     def test_permissions_are_stripped_from_event_on_protected_resource(self):
         app = self.make_app(settings={

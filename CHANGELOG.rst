@@ -39,14 +39,14 @@ This document describes changes between each past release.
 - Add method to remove a principal from every user
 - Validate that the client can accept JSON response. (#667)
 - Validate that the client can only send JSON request body. (#667)
-- Added new ``AfterResourceChanged`` event, that is sent only when the commit
-  in database is successful.
+- Added a new ``AfterResourceChanged`` event, that is sent only when the commit
+  in database is done and successful.
 
   Subscribers of this event can fail, errors are swallowed and logged. The
-  final transaction result cannot be altered.
+  final transaction result (or response) cannot be altered.
 
-  Since commit occured and operations will not be rolledback, subcribers running
-  irreversible actions should subscribe to this event
+  Since commit occured successfully and operations will not be rolledback,
+  subcribers running irreversible actions should subscribe to this event
   (like sending messages, deleting files, or run asynchronous tasks).
 
 **Bug fixes**

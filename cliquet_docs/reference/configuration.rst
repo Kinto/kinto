@@ -526,13 +526,17 @@ possible to change the ``initialization_sequence`` setting.
 
 .. code-block:: ini
 
-    cliquet.initialization_sequence = cliquet.initialization.setup_json_serializer
+    cliquet.initialization_sequence = cliquet.initialization.setup_request_bound_data
+                                      cliquet.initialization.setup_json_serializer
                                       cliquet.initialization.setup_logging
                                       cliquet.initialization.setup_storage
+                                      cliquet.initialization.setup_permission
                                       cliquet.initialization.setup_cache
                                       cliquet.initialization.setup_requests_scheme
                                       cliquet.initialization.setup_version_redirection
                                       cliquet.initialization.setup_deprecation
                                       cliquet.initialization.setup_authentication
                                       cliquet.initialization.setup_backoff
-                                      cliquet.initialization.setup_stats
+                                      cliquet.initialization.setup_statsd
+                                      cliquet.initialization.setup_listeners
+                                      cliquet.events.setup_transaction_hook
