@@ -3,7 +3,7 @@
 Running in production
 #####################
 
-*Kinto* is a standard python application.
+*Kinto* is a standard Python application.
 
 Recommended settings for production are listed below. Some :ref:`general insights about deployment strategies
 <deployment>` are also provided.
@@ -107,14 +107,23 @@ information (including user's personal buckets).
 Handling CDN
 ------------
 
-If you want to put your kinto behind a CDN you must make sure to define the right host or you will leak the main server host.
+If you want to put your Kinto behind a CDN you must make sure to define the
+right host or you will leak the main server host.
 
 .. code-block:: ini
 
     kinto.http_host = cdn.firefox.com
 
-You can make sure your service is correctly configured by looking at the service URL returned on the service home page.
-It should be your CDN service URL.
+You can make sure your service is correctly configured by looking at the service URL
+returned on the service home page. It should be your CDN service URL.
+
+It might also be relevant to set your main server :ref:`as readonly <configuration-features>`_.
+
+In the configuration of the CDN service, you should also:
+
+- Allow ``OPTIONS`` requests (CORS)
+- Pass through cache and concurrency control headers: ``ETag``, ``Last-Modified``, ``Expire``
+- Cached responses should depend on querystring parameters (e.g. try with different ``?_limit=`` values)
 
 
 Monitoring
