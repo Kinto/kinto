@@ -20,7 +20,7 @@ or
 IOError: [Errno 24] Too many open files
 =======================================
 
-Make sure `/etc/hosts` has correct mapping to localhost.
+Make sure ` /etc/hosts ` has correct mapping to localhost.
 
 Also, Make sure that max number of connections to redis-server and the max
 number of file handlers in operating system have access to required memory.
