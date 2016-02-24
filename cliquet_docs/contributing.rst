@@ -133,6 +133,8 @@ In order to have your changes incorporated, you need to respect these rules:
 * **Documentation is up to date**;
 
 
+.. _communication_channels:
+
 IRC channel
 ===========
 
