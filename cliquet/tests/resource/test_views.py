@@ -393,6 +393,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                              '',
                              headers=headers,
                              status=406)
+        self.assertEqual(resp.json['code'], 406)
         message = "Accept header should be one of ['application/json']"
         self.assertEqual(resp.json['message'], message)
 
@@ -403,6 +404,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                              '',
                              headers=headers,
                              status=415)
+        self.assertEqual(resp.json['code'], 415)
         message = "Content-Type header should be one of ['application/json']"
         self.assertEqual(resp.json['message'], message)
 
@@ -412,16 +414,20 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get(self.get_item_url(),
                             headers=headers,
                             status=406)
+        self.assertEqual(resp.json['code'], 406)
         message = "Accept header should be one of ['application/json']"
         self.assertEqual(resp.json['message'], message)
 
     def test_invalid_content_type_header_on_record_returns_415(self):
         headers = self.headers.copy()
         headers['Content-Type'] = 'text/plain'
-        self.app.patch_json(self.get_item_url(),
-                            '',
-                            headers=headers,
-                            status=415)
+        resp = self.app.patch_json(self.get_item_url(),
+                                   '',
+                                   headers=headers,
+                                   status=415)
+        self.assertEqual(resp.json['code'], 415)
+        message = "Accept header should be one of ['application/json']"
+        self.assertEqual(resp.json['message'], message)
 
 
 class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
