@@ -35,7 +35,8 @@ class ViewSet(object):
     }
 
     default_arguments = {
-        'permission': authorization.PRIVATE
+        'permission': authorization.PRIVATE,
+        'accept': content_types,
     }
 
     default_post_arguments = {
