@@ -100,6 +100,11 @@ class ViewSetTest(unittest.TestCase):
         default_arguments = {
             'cors_headers': mock.sentinel.cors_headers,
         }
+
+        default_get_arguments = {
+            'accept': mock.sentinel.accept,
+        }
+
         default_collection_arguments = {
             'cors_origins': mock.sentinel.cors_origins,
         }
@@ -110,6 +115,7 @@ class ViewSetTest(unittest.TestCase):
 
         viewset = ViewSet(
             default_arguments=default_arguments,
+            default_get_arguments=default_get_arguments,
             default_collection_arguments=default_collection_arguments,
             collection_get_arguments=collection_get_arguments
         )
@@ -119,6 +125,7 @@ class ViewSetTest(unittest.TestCase):
         self.assertDictEqual(
             arguments,
             {
+                'accept': mock.sentinel.accept,
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.cors_origins,
                 'error_handler': mock.sentinel.error_handler,
@@ -129,6 +136,11 @@ class ViewSetTest(unittest.TestCase):
         default_arguments = {
             'cors_headers': mock.sentinel.cors_headers,
         }
+
+        default_get_arguments = {
+            'accept': mock.sentinel.accept,
+        }
+
         default_record_arguments = {
             'cors_origins': mock.sentinel.record_cors_origins,
         }
@@ -139,6 +151,7 @@ class ViewSetTest(unittest.TestCase):
 
         viewset = ViewSet(
             default_arguments=default_arguments,
+            default_get_arguments=default_get_arguments,
             default_record_arguments=default_record_arguments,
             record_get_arguments=record_get_arguments
         )
@@ -149,6 +162,7 @@ class ViewSetTest(unittest.TestCase):
         self.assertDictEqual(
             arguments,
             {
+                'accept': mock.sentinel.accept,
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.record_cors_origins,
                 'error_handler': mock.sentinel.error_handler,
