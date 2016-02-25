@@ -426,7 +426,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                                    headers=headers,
                                    status=415)
         self.assertEqual(resp.json['code'], 415)
-        message = "Accept header should be one of ['application/json']"
+        message = "Content-Type header should be one of ['application/json']"
         self.assertEqual(resp.json['message'], message)
 
 
