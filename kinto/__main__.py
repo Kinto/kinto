@@ -8,7 +8,7 @@ from six.moves import input
 from cliquet.scripts import cliquet
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
-
+from kinto import __version__
 from kinto.config import init
 
 CONFIG_FILE = 'config/kinto.ini'
@@ -30,6 +30,8 @@ def main(args=None):
                         dest='backend',
                         required=False,
                         default=None)
+    parser.add_argument('--version', action='version', version=__version__,
+                            help='Print the Kinto version and exit.')
 
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='valid subcommands',
