@@ -1,5 +1,5 @@
 import jsonschema
-from cliquet import resource, schema
+from cliquet import resource
 from cliquet.errors import raise_invalid
 from jsonschema import exceptions as jsonschema_exceptions
 from pyramid.security import Authenticated
@@ -8,7 +8,7 @@ from pyramid.settings import asbool
 from kinto.views import object_exists_or_404
 
 
-class RecordSchema(schema.ResourceSchema):
+class RecordSchema(resource.ResourceSchema):
     class Options:
         preserve_unknown = True
 
