@@ -11,6 +11,7 @@ Tutorials
    notifications-websockets
    notifications-custom
    authentication-github
+   custom-id-generator
    permissions
    write-plugin
    permission-setups
