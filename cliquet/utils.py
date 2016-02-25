@@ -148,7 +148,21 @@ def hmac_digest(secret, message, encoding='utf-8'):
 
 def dict_subset(d, keys):
     """Return a dict with the specified keys"""
-    return {k: d[k] for k in keys if k in d}
+    result = {}
+
+    for key in keys:
+        if '.' in key:
+            field, subfield = key.split('.', 1)
+            if isinstance(d.get(field), dict):
+                subvalue = dict_subset(d[field], [subfield])
+                result.setdefault(field, {}).update(subvalue)
+            elif field in d:
+                result[field] = d[field]
+        else:
+            if key in d:
+                result[key] = d[key]
+
+    return result
 
 
 class COMPARISON(Enum):

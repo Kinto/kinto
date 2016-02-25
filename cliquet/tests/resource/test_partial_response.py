@@ -7,9 +7,20 @@ from cliquet.tests.resource import BaseTest
 class PartialResponseBase(BaseTest):
     def setUp(self):
         super(PartialResponseBase, self).setUp()
-        self.resource._get_known_fields = lambda: ['field', 'other']
+        self.resource._get_known_fields = lambda: ['field', 'other', 'orig']
         self.record = self.model.create_record(
-            {'field': 'value', 'other': 'val'})
+            {
+                'field': 'value',
+                'other': 'val',
+                'orig': {
+                    'foo': 'food',
+                    'bar': 'baz',
+                    'nested': {
+                        'size': 12546,
+                        'hash': '0x1254',
+                    }
+                }
+            })
         self.resource.record_id = self.record['id']
         self.resource.request = self.get_request()
 
@@ -45,6 +56,22 @@ class BasicTest(PartialResponseBase):
         record = self.resource.get()
         self.assertIn('id', record['data'])
         self.assertIn('last_modified', record['data'])
+
+    def test_nested_parameter_can_be_filtered(self):
+        self.resource.request.GET['_fields'] = 'orig.foo'
+        record = self.resource.get()
+        self.assertIn('orig', record['data'])
+        self.assertIn('foo', record['data']['orig'])
+        self.assertNotIn('other', record['data'])
+        self.assertNotIn('bar', record['data']['orig'])
+        self.assertNotIn('nested', record['data']['orig'])
+
+    def test_nested_parameter_can_be_filtered_on_multiple_levels(self):
+        self.resource.request.GET['_fields'] = 'orig.nested.size'
+        record = self.resource.get()
+        self.assertIn('nested', record['data']['orig'])
+        self.assertIn('size', record['data']['orig']['nested'])
+        self.assertNotIn('hash', record['data']['orig']['nested'])
 
 
 class PermissionTest(PartialResponseBase):

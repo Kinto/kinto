@@ -11,6 +11,8 @@ This document describes changes between each past release.
 
 - Clients are redirected to URLs without trailing slash only if the current URL
   does not exist (#656)
+- Partial responses can now be specified for nested objects (#660, Kinto/kinto#445)
+  For example, ``/records?_fields=address.street``.
 
 **New features**
 

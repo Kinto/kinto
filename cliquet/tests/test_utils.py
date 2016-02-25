@@ -14,7 +14,7 @@ from pyramid import testing
 from cliquet.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
     current_service, encode_header, decode_header, follow_subrequest,
-    build_request
+    build_request, dict_subset
 )
 
 from .support import unittest, DummyRequest
@@ -200,3 +200,49 @@ class FollowSubrequestTest(unittest.TestCase):
         _, redirected = follow_subrequest(request, subrequest)
         self.assertEqual(subrequest.parent, redirected.parent)
         self.assertEqual(subrequest.bound_data, redirected.bound_data)
+
+
+class DictSubsetTest(unittest.TestCase):
+
+    def test_extract_by_keys(self):
+        obtained = dict_subset(dict(a=1, b=2), ["b"])
+        expected = dict(b=2)
+        self.assertEqual(obtained, expected)
+
+    def test_is_noop_if_no_keys(self):
+        obtained = dict_subset(dict(a=1, b=2), [])
+        expected = dict()
+        self.assertEqual(obtained, expected)
+
+    def test_ignores_unknown_keys(self):
+        obtained = dict_subset(dict(a=1, b=2), ["a", "c"])
+        expected = dict(a=1)
+        self.assertEqual(obtained, expected)
+
+    def test_ignores_duplicated_keys(self):
+        obtained = dict_subset(dict(a=1, b=2), ["a", "a"])
+        expected = dict(a=1)
+        self.assertEqual(obtained, expected)
+
+    def test_can_filter_subobjects(self):
+        obtained = dict_subset(dict(a=1, b=dict(c=2, d=3)), ["a", "b.c"])
+        expected = dict(a=1, b=dict(c=2))
+        self.assertEqual(obtained, expected)
+
+    def test_can_filter_subobjects_keys(self):
+        input = dict(a=1, b=dict(c=2, d=3, e=4))
+        obtained = dict_subset(input, ["a", "b.d", "b.e"])
+        expected = dict(a=1, b=dict(d=3, e=4))
+        self.assertEqual(obtained, expected)
+
+    def test_can_filter_subobjects_recursively(self):
+        input = dict(a=1, b=dict(c=2, d=dict(e=4, f=5)))
+        obtained = dict_subset(input, ["a", "b.d.e"])
+        expected = dict(a=1, b=dict(d=dict(e=4)))
+        self.assertEqual(obtained, expected)
+
+    def test_ignores_if_subobject_is_not_dict(self):
+        input = dict(a=1, b=dict(c=2, d=3))
+        obtained = dict_subset(input, ["a", "b.c.d", "b.d"])
+        expected = dict(a=1, b=dict(c=2, d=3))
+        self.assertEqual(obtained, expected)

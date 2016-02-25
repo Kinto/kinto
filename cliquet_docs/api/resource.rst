@@ -260,15 +260,15 @@ Partial response
 ----------------
 
 If the ``_fields`` parameter is provided, only the fields specified are returned.
-Fields are separated with a comma. It is currently not possible to ask
-for nested fields.
+Fields are separated with a comma.
 
 This is vital in mobile contexts where bandwidth usage must be optimized.
+
+Nested objects fields are specified using dots (e.g. ``address.street``).
 
 .. note::
 
     The ``id`` and ``last_modified`` fields are always returned.
-
 
 **Request**:
 
@@ -322,7 +322,7 @@ List of available URL parameters
 - ``_fields``: filter the fields of the records
 
 
-Filtering, sorting, partial responsses and paginating can all be combined together.
+Filtering, sorting, partial responses and paginating can all be combined together.
 
 * ``/collection?_sort=-last_modified&_limit=100&_fields=title``
 
