@@ -2,11 +2,17 @@ from cliquet import resource
 from kinto.views import NameGenerator
 
 
+class BucketSchema(resource.ResourceSchema):
+    class Options:
+        preserve_unknown = True
+
+
 @resource.register(name='bucket',
                    collection_methods=('GET', 'POST'),
                    collection_path='/buckets',
                    record_path='/buckets/{{id}}')
 class Bucket(resource.ProtectedResource):
+    mapping = BucketSchema()
     permissions = ('read', 'write', 'collection:create', 'group:create')
 
     def __init__(self, *args, **kwargs):
