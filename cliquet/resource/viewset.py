@@ -28,12 +28,26 @@ class ViewSet(object):
 
     readonly_methods = ('GET', 'OPTIONS', 'HEAD')
 
+    content_types = ["application/json"]
+
     service_arguments = {
         'description': 'Collection of {resource_name}',
     }
 
     default_arguments = {
         'permission': authorization.PRIVATE
+    }
+
+    default_post_arguments = {
+        "content_type": content_types,
+    }
+
+    default_put_arguments = {
+        "content_type": content_types,
+    }
+
+    default_patch_arguments = {
+        "content_type": content_types,
     }
 
     default_collection_arguments = {}
@@ -72,9 +86,13 @@ class ViewSet(object):
                                     'default_%s_arguments' % endpoint_type)
         args.update(**default_arguments)
 
-        by_method = '%s_%s_arguments' % (endpoint_type, method.lower())
-        method_args = getattr(self, by_method, {})
+        by_http_verb = 'default_%s_arguments' % method.lower()
+        method_args = getattr(self, by_http_verb, {})
         args.update(**method_args)
+
+        by_method = '%s_%s_arguments' % (endpoint_type, method.lower())
+        endpoint_args = getattr(self, by_method, {})
+        args.update(**endpoint_args)
 
         args['schema'] = self.get_record_schema(resource_cls, method)
 
