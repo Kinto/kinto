@@ -140,6 +140,9 @@ def json_error_handler(errors):
     name = error['name']
     description = error['description']
 
+    if isinstance(description, six.binary_type):
+        description = error['description'].decode('utf-8')
+
     if name is not None:
         if name in description:
             message = description
