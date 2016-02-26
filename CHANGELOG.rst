@@ -10,6 +10,7 @@ This document describes changes between each past release.
 
 - Changed default duration between retries on error (``Retry-After`` header)
   from 30 to 3 seconds.
+- Allow bucket to get arbitrary properties. (#462)
 
 
 1.11.2 (2016-02-03)
