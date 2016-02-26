@@ -15,15 +15,15 @@ If you do not find a solution to your problem here, please
 ConnectionError: localhost:6379. nodename nor servname provided, or not known
 =============================================================================
 
-or
+Make sure */etc/hosts* has correct mapping to localhost.
+
 
 IOError: [Errno 24] Too many open files
 =======================================
 
-Make sure */etc/hosts* has correct mapping to localhost.
-
-Also, Make sure that max number of connections to redis-server and the max
-number of file handlers in operating system have access to required memory.
+Make sure that max number of connections to redis-server and the max
+number of file handlers in operating system have access to required
+memory.
 
 To fix this, increase the open file limit for non-root user::
 
@@ -33,8 +33,5 @@ To fix this, increase the open file limit for non-root user::
 ERROR: InterpreterNotFound: pypy
 ================================
 
-Download `Pypy <http://pypy.org/>`_ and add it to virtualenv of cliquet.
-
-To add *Pypy* to virtualenv::
-
-  $ virtualenv -p <Path to Pypy executable file> <Path to virtualenv directory>
+You need to install `Pypy <http://pypy.org/>`_ so that it can be found
+by tox.
