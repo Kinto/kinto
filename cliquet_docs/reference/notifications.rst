@@ -20,7 +20,7 @@ events:
 
   Subscribers of this event are likely to perform database operations,
   alter the server response, or cancel the transaction (by raising an HTTP
-  exeception for example).
+  exception for example).
   Do not subscribe to this event for operations that will not be rolled-back
   automatically.
 
