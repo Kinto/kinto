@@ -44,7 +44,8 @@ def main():
                         help='Application configuration file',
                         dest='ini_file',
                         required=True)
-    parser.add_argument('--version', action='version', version=__version__,
+    parser.add_argument('-v', '--version',
+                        action='version', version=__version__,
                         help='Print the cliquet version and exit.')
 
     subparsers = parser.add_subparsers()
