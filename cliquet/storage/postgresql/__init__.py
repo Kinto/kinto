@@ -66,7 +66,7 @@ class Storage(StorageBase):
 
     """  # NOQA
 
-    schema_version = 9
+    schema_version = 10
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
         super(Storage, self).__init__(*args, **kwargs)
@@ -158,7 +158,7 @@ class Storage(StorageBase):
         SELECT value AS version
           FROM metadata
          WHERE name = 'storage_schema_version'
-         ORDER BY value DESC;
+         ORDER BY LPAD(value, 3, '0') DESC;
         """
         with self.client.connect() as conn:
             result = conn.execute(query)
@@ -184,6 +184,7 @@ class Storage(StorageBase):
         query = """
         DELETE FROM deleted;
         DELETE FROM records;
+        DELETE FROM timestamps;
         DELETE FROM metadata;
         """
         with self.client.connect(force_commit=True) as conn:

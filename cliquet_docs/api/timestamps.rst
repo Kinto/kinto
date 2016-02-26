@@ -68,3 +68,21 @@ The client can then choose to:
 
 * overwrite by repeating the request without ``If-Match``;
 * reconcile the resource by fetching, merging and repeating the request.
+
+
+Replication
+===========
+
+In order to replicate the timestamps when importing existing records,
+it is possible to force the last modified values.
+
+When a record is created (via POST or PUT), the specified timestamp becomes
+the new collection timestamp if it is in the future (i.e. greater than current
+one). If it is in the past, the record is created with the timestamp in the past
+but the collection timestamp is bumped into the future as usual.
+
+When a record is replaced, modified or deleted, if the specified timestamp is less
+or equal than the existing record, the value is simply ignored and the timestamp
+is bumped into the future as usual.
+
+See :ref:`the resource endpoints documentation <resource-endpoints>`.
