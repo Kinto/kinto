@@ -53,7 +53,7 @@ changes.
 In order to reduce the size of response payloads, the client can also force the
 pagination using the ``?_limit=<nb>`` querystring parameter.
 
-Pagination basically consists in fetching the list until the ``Next-Page`` response header
+Pagination basically consists in fetching the list while the ``Next-Page`` response header
 is present. The ``Next-Page`` header is the **full** URL of the next page.
 
 .. note::
