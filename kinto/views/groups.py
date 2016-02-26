@@ -1,12 +1,11 @@
 import colander
 
 from cliquet import resource
-from cliquet import schema
 
 from kinto.views import NameGenerator
 
 
-class GroupSchema(schema.ResourceSchema):
+class GroupSchema(resource.ResourceSchema):
     members = colander.SchemaNode(colander.Sequence(),
                                   colander.SchemaNode(colander.String()))
 

@@ -70,6 +70,18 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
+    def test_buckets_can_handle_arbitrary_attributes(self):
+        bucket = MINIMALIST_BUCKET.copy()
+        public_key = "5866f245a00bb3a39100d31b2f14d453"
+        bucket['data'] = {'public_key': public_key}
+        resp = self.app.put_json('/buckets/beers',
+                                 bucket,
+                                 headers=self.headers,
+                                 status=200)
+        data = resp.json['data']
+        self.assertIn('public_key', data)
+        self.assertEqual(data['public_key'], public_key)
+
 
 class BucketCreationTest(BaseWebTest, unittest.TestCase):
     def test_buckets_can_be_created_with_post(self):

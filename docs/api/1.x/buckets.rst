@@ -69,6 +69,9 @@ Creating a bucket
             }
         }
 
+A bucket also accept arbitrary attributes.
+For example, you may want to store some application settings there.
+
 
 .. _bucket-put:
 
