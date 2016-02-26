@@ -558,8 +558,8 @@ class UserResource(object):
             return new
 
         # Drop the new last_modified if lesser or equal to the old one.
-        is_greater = new_last_modified <= old[self.model.modified_field]
-        if new_last_modified and is_greater:
+        is_less_or_equal = new_last_modified <= old[self.model.modified_field]
+        if new_last_modified and is_less_or_equal:
             del new[self.model.modified_field]
 
         return new

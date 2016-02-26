@@ -76,12 +76,13 @@ Replication
 In order to replicate the timestamps when importing existing records,
 it is possible to force the last modified values.
 
-When a timestamp is specified, it should be strictly greater than the current
-collection timestamp.
+When a record is created (via POST or PUT), the specified timestamp becomes
+the new collection timestamp if it is in the future (i.e. greater than current
+one). If it is in the past, the record is created with the timestamp in the past
+but the collection timestamp is bumped into the future as usual.
 
-It will be ignored if:
-
-* it is less than the current collection timestamp;
-* it is less or equal than previously existing record timestamp (in case of replacement or modification).
+When a record is replaced, modified or deleted, if the specified timestamp is less
+or equal than the existing record, the value is simply ignored and the timestamp
+is bumped into the future as usual.
 
 See :ref:`the resource endpoints documentation <resource-endpoints>`.

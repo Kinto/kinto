@@ -432,8 +432,8 @@ When a record is created, the timestamp of the collection is incremented.
 It is possible to force the timestamp if the specified record has a
 ``last_modified`` attribute.
 
-The specified value will be ignored if it is less than the current collection
-timestamp.
+If the specified timestamp is in the past, the collection timestamp does not
+take the value of the created record but is bumped into the future as usual.
 
 
 HTTP Status Codes
@@ -597,8 +597,8 @@ When a record is deleted, the timestamp of the collection is incremented.
 It is possible to force the timestamp by passing it in the
 querystring with ``?last_modified=<value>``.
 
-The specified value will be ignored if it is less than the current collection
-timestamp.
+If the specified timestamp is in the past, the collection timestamp does not
+take the value of the deleted record but is bumped into the future as usual.
 
 
 HTTP Status Code
@@ -682,10 +682,11 @@ When a record is created or replaced, the timestamp of the collection is increme
 It is possible to force the timestamp if the specified record has a
 ``last_modified`` attribute.
 
-The specified value will be ignored if:
+For replace, if the specified timestamp is less or equal than the existing record,
+the value is simply ignored and the timestamp is bumped into the future as usual.
 
-* it is less than the current collection timestamp;
-* it is less or equal than the previously existing record timestamp (for replace).
+For creation, if the specified timestamp is in the past, the collection timestamp does not
+take the value of the created/updated record but is bumped into the future as usual.
 
 
 HTTP Status Code
@@ -807,11 +808,8 @@ When a record is modified, the timestamp of the collection is incremented.
 It is possible to force the timestamp if the specified record has a
 ``last_modified`` attribute.
 
-
-The specified value will be ignored if:
-
-* it is less than the current collection timestamp;
-* it is less or equal than the previously existing record timestamp.
+If the specified timestamp is less or equal than the existing record,
+the value is simply ignored and the timestamp is bumped into the future as usual.
 
 
 HTTP Status Code
