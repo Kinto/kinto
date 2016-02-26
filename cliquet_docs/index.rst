@@ -22,6 +22,7 @@ Table of content
    api/index
    reference/index
    ecosystem
+   troubleshooting
    contributing
    changelog
    contributors
