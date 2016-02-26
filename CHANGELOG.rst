@@ -13,6 +13,8 @@ This document describes changes between each past release.
   does not exist (#656)
 - Partial responses can now be specified for nested objects (#660, Kinto/kinto#445)
   For example, ``/records?_fields=address.street``.
+- List responses are now sorted by to last_modified descending by default (#662,
+  thanks @ayusharma)
 
 **New features**
 
