@@ -140,6 +140,9 @@ def json_error_handler(errors):
     name = error['name']
     description = error['description']
 
+    if isinstance(description, six.binary_type):
+        description = error['description'].decode('utf-8')
+
     if name is not None:
         if name in description:
             message = description
@@ -149,6 +152,7 @@ def json_error_handler(errors):
         message = '%(location)s: %(description)s' % error
 
     response = http_error(httpexceptions.HTTPBadRequest(),
+                          code=errors.status,
                           errno=ERRORS.INVALID_PARAMETERS.value,
                           error='Invalid parameters',
                           message=message,

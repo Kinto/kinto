@@ -386,6 +386,49 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                            headers=self.headers,
                            status=200)
 
+    def test_invalid_accept_header_on_collections_returns_406(self):
+        headers = self.headers.copy()
+        headers['Accept'] = 'text/plain'
+        resp = self.app.post(self.collection_url,
+                             '',
+                             headers=headers,
+                             status=406)
+        self.assertEqual(resp.json['code'], 406)
+        message = "Accept header should be one of ['application/json']"
+        self.assertEqual(resp.json['message'], message)
+
+    def test_invalid_content_type_header_on_collections_returns_415(self):
+        headers = self.headers.copy()
+        headers['Content-Type'] = 'text/plain'
+        resp = self.app.post(self.collection_url,
+                             '',
+                             headers=headers,
+                             status=415)
+        self.assertEqual(resp.json['code'], 415)
+        message = "Content-Type header should be one of ['application/json']"
+        self.assertEqual(resp.json['message'], message)
+
+    def test_invalid_accept_header_on_record_returns_406(self):
+        headers = self.headers.copy()
+        headers['Accept'] = 'text/plain'
+        resp = self.app.get(self.get_item_url(),
+                            headers=headers,
+                            status=406)
+        self.assertEqual(resp.json['code'], 406)
+        message = "Accept header should be one of ['application/json']"
+        self.assertEqual(resp.json['message'], message)
+
+    def test_invalid_content_type_header_on_record_returns_415(self):
+        headers = self.headers.copy()
+        headers['Content-Type'] = 'text/plain'
+        resp = self.app.patch_json(self.get_item_url(),
+                                   '',
+                                   headers=headers,
+                                   status=415)
+        self.assertEqual(resp.json['code'], 415)
+        message = "Content-Type header should be one of ['application/json']"
+        self.assertEqual(resp.json['message'], message)
+
 
 class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
     def setUp(self):

@@ -333,6 +333,7 @@ HTTP Status Codes
 * ``200 OK``: The request was processed
 * ``304 Not Modified``: Collection did not change since value in ``If-None-Match`` header
 * ``400 Bad Request``: The request querystring is invalid
+* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
 * ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
 
 
@@ -443,8 +444,10 @@ HTTP Status Codes
 
 * ``201 Created``: The record was created
 * ``400 Bad Request``: The request body is invalid
+* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
 * ``409 Conflict``: Unicity constraint on fields is violated
 * ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
+* ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
 
 .. versionadded:: 2.13::
 
@@ -509,6 +512,7 @@ HTTP Status Codes
 
 * ``200 OK``: The records were deleted;
 * ``405 Method Not Allowed``: This endpoint is not available;
+* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
 * ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
 
 
@@ -563,6 +567,7 @@ HTTP Status Code
 
 * ``200 OK``: The request was processed
 * ``304 Not Modified``: Record did not change since value in ``If-None-Match`` header
+* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
 
 
@@ -605,6 +610,7 @@ HTTP Status Code
 ----------------
 
 * ``200 OK``: The record was deleted
+* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
 
 .. versionadded:: 2.13::
@@ -695,9 +701,11 @@ HTTP Status Code
 * ``201 Created``: The record was created
 * ``200 OK``: The record was replaced
 * ``400 Bad Request``: The record is invalid
+* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
 * ``409 Conflict``: If replacing this record violates a field unicity constraint
 * ``412 Precondition Failed``: Record was changed or deleted since value
   in ``If-Match`` header.
+* ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
 
 .. note::
 
@@ -818,8 +826,10 @@ HTTP Status Code
 * ``200 OK``: The record was modified
 * ``400 Bad Request``: The request body is invalid, or a read-only field was
   modified
+* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
 * ``409 Conflict``: If modifying this record violates a field unicity constraint
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
+* ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
 
 .. versionadded:: 2.13::
 

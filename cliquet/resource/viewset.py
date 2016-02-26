@@ -8,6 +8,8 @@ from cliquet import authorization
 from cliquet.resource.schema import PermissionsSchema
 from cliquet.utils import DeprecatedMeta
 
+CONTENT_TYPES = ["application/json"]
+
 
 class ViewSet(object):
     """The default ViewSet object.
@@ -33,7 +35,20 @@ class ViewSet(object):
     }
 
     default_arguments = {
-        'permission': authorization.PRIVATE
+        'permission': authorization.PRIVATE,
+        'accept': CONTENT_TYPES,
+    }
+
+    default_post_arguments = {
+        "content_type": CONTENT_TYPES,
+    }
+
+    default_put_arguments = {
+        "content_type": CONTENT_TYPES,
+    }
+
+    default_patch_arguments = {
+        "content_type": CONTENT_TYPES,
     }
 
     default_collection_arguments = {}
@@ -72,9 +87,13 @@ class ViewSet(object):
                                     'default_%s_arguments' % endpoint_type)
         args.update(**default_arguments)
 
-        by_method = '%s_%s_arguments' % (endpoint_type, method.lower())
-        method_args = getattr(self, by_method, {})
+        by_http_verb = 'default_%s_arguments' % method.lower()
+        method_args = getattr(self, by_http_verb, {})
         args.update(**method_args)
+
+        by_method = '%s_%s_arguments' % (endpoint_type, method.lower())
+        endpoint_args = getattr(self, by_method, {})
+        args.update(**endpoint_args)
 
         args['schema'] = self.get_record_schema(resource_cls, method)
 

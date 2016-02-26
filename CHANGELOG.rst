@@ -22,6 +22,8 @@ This document describes changes between each past release.
   per action is emitted when a transaction is committed (#634)
 - Monitor time of events listeners execution (fixes #503)
 - Add method to remove a principal from every user
+- Validate that the client can accept JSON response. (#667)
+- Validate that the client can only send JSON request body. (#667)
 
 **Bug fixes**
 
