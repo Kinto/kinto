@@ -8,6 +8,8 @@ from cliquet import authorization
 from cliquet.resource.schema import PermissionsSchema
 from cliquet.utils import DeprecatedMeta
 
+CONTENT_TYPES = ["application/json"]
+
 
 class ViewSet(object):
     """The default ViewSet object.
@@ -28,27 +30,25 @@ class ViewSet(object):
 
     readonly_methods = ('GET', 'OPTIONS', 'HEAD')
 
-    content_types = ["application/json"]
-
     service_arguments = {
         'description': 'Collection of {resource_name}',
     }
 
     default_arguments = {
         'permission': authorization.PRIVATE,
-        'accept': content_types,
+        'accept': CONTENT_TYPES,
     }
 
     default_post_arguments = {
-        "content_type": content_types,
+        "content_type": CONTENT_TYPES,
     }
 
     default_put_arguments = {
-        "content_type": content_types,
+        "content_type": CONTENT_TYPES,
     }
 
     default_patch_arguments = {
-        "content_type": content_types,
+        "content_type": CONTENT_TYPES,
     }
 
     default_collection_arguments = {}
