@@ -80,7 +80,8 @@ We will use ``sort=last_modified`` and ``_since=<timestamp>``:
 .. image:: ../../images/sync-oldest.svg
 
 If an error occurs during the obtention of pages,
-the synchronisation can be resumed transparently, since it relies on the highest
+the synchronisation can be resumed transparently, since the pages are obtained
+with ascending timestamps, and the next sync relies on the highest
 timestamp successfully stored locally.
 
 
@@ -107,7 +108,8 @@ and ``_since`` to include changes after last sync:
 
 .. image:: ../../images/sync-newest.svg
 
-With this approach, the main algorithm is rather simple but if an error occurs
+With this approach, the main algorithm is rather simple but since we track the
+*last sync timestamp* when the last page is done, if an error occurs
 between the first and the last step, the client must redownload every page obtained
 from *step 1* until it succeeds to fetch every page of the sync.
 
@@ -120,16 +122,19 @@ be specified manually to resume the synchronisation.
 Strategy #3 — Newest then oldest
 --------------------------------
 
-For very large collections, it could be interesting to perform a first partial
+For very large collections, it could be interesting to perform a first *partial*
 synchronisation, and then fetch old records in background.
 
-When a new client wants to sync, it gets some recent records using the newest
-strategy, and then fetches the old records in a second phase, in background
-for example.
+When a new client wants to sync, instead of syncing hundreds of pages on the
+first synchronization, a combination of the two previous strategy can be
+implemented.
 
-#. Synchronize a few pages using the *newest first* strategy
-#. In background fetch old records using ``_sort=-lastmodified`` and ``_before=MIN(local_records[last_modified])``
-#. Continue to synchronize new changes using ``_sort=-lastmodified`` and ``_since=MAX(local_records[last_modified])``
+For example, it would allow to populate a UI with some recent records,
+and then fetch older records in background.
+
+#. Obtain a few pages of recent records using the *newest first* strategy from above
+#. In background, fetch old records using ``_sort=-lastmodified`` and ``_before=MIN(local_records[last_modified])``
+#. Recent changes can be obtained using ``_sort=-lastmodified`` and ``_since=MAX(local_records[last_modified])``
 
 .. image:: ../../images/sync-both.svg
 
