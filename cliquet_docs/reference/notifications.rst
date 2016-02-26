@@ -7,27 +7,73 @@ Knowing some records have been modified in a resource is very
 useful to integrate a Cliquet-based application with other services.
 
 For example, a search service that gets notified everytime something
-has changed, can continuously update its indexes.
+has changed, can continuously update its index.
 
-Cliquet leverages Pyramid's built-in event system and produces
-a :class:`cliquet.events.ResourceChanged` event everytime a record in a
-:ref:`resource` has been modified.
+Cliquet leverages Pyramid's built-in event system and produces the following
+events:
 
-Event listeners can then pick up those events and act upon them.
+- :class:`cliquet.events.ResourceRead`: a read operation occured on the resource.
+
+- :class:`cliquet.events.ResourceChanged`: a resource **is being changed**. This
+  event occurs synchronously within the transaction and within the
+  request/response cycle. Commit is not yet done and rollback is still possible.
+
+  Subscribers of this event are likely to perform database operations,
+  alter the server response, or cancel the transaction (by raising an HTTP
+  exception for example).
+  Do not subscribe to this event for operations that will not be rolled-back
+  automatically.
+
+- :class:`cliquet.events.AfterResourceChanged`: a resource **was changed** and
+  **committed**.
+
+  Subscribers of this event can fail, errors are swallowed and logged. The
+  final transaction result (or response) cannot be altered.
+
+  Subscribers of this event are likely to perform irreversible actions that
+  requires data to be committed in database
+  (like sending messages, deleting files on disk, or run asynchronous tasks).
+
+
+Event subscribers can then pick up those events and act upon them.
+
+.. code-block:: python
+
+    from cliquet.events import AfterResourceChanged
+
+
+    def on_resource_changed(event):
+        for change in event.impacted_records:
+            start_download(change['new']['url'])
+
+    config.add_subscriber(on_resource_changed, AfterResourceChanged)
+
+
+Transactions
+------------
+
+Only one event is sent per transaction, per resource and per action.
+
+In other words, if every requests of a :ref:`batch requests <batch>`_
+perform the same action on the same resource, only one event will be sent.
+
+The ``AfterResourceChanged`` is sent only if the transaction was comitted
+successfully.
+
+It is possible to cancel the current transaction by raising an HTTP Exception
+from a ``ResourceChanged`` event. For example:
 
 .. code-block:: python
 
     from cliquet.events import ResourceChanged
+    from pyramid import httpexceptions
 
+    def check_quota(event):
+         max_quota = event.request.registry.settings['max_quota']
+         if check_quota(event, max_quota):
+            raise httpexceptions.HTTPInsufficientStorage()
 
-    def on_resource_changed(event):
-        resource_name = event.payload['resource_name']
-        action = event.payload['action']
-
-        if resource_name == 'article' and action == 'create':
-            start_download(event.payload['article_id'])
-
-    config.add_subscriber(on_resource_changed, ResourceChanged)
+    config.add_subscriber(check_quota, ResourceChanged)
 
 
 Filtering
@@ -49,9 +95,8 @@ For example:
 Payload
 -------
 
-
-The :class:`cliquet.events.ResourceChanged` event contains a ``payload`` attribute with
-the following information:
+The :class:`cliquet.events.ResourceChanged` and :class:`cliquet.events.AfterResourceChanged`
+events contain a ``payload`` attribute with the following information:
 
 - **timestamp**: the time of the event
 - **action**: what happened. 'create', 'update' or 'delete'
@@ -69,7 +114,7 @@ events, only ``new`` is provided. For deletion events, only ``old`` is provided.
 This also allows listeners to react on particular field change or handle *diff*
 between versions.
 
-Example, when deleting a collection:
+Example, when deleting a collection with two records:
 
 ::
 

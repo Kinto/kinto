@@ -7,6 +7,21 @@ This document describes changes between each past release.
 2.16.0 (unreleased)
 -------------------
 
+**Breaking changes**
+
+- Errors are not swallowed anymore during the execution of ``ResourceChanged``
+  events subscribers.
+
+  Subscribers are still executed within the transaction like before.
+
+  Subscribers are still executed even if transaction is eventually rolledback.
+  Every subscriber execution succeeds, or none.
+
+  Thus, subscribers of these events should only perform operations that are reversed
+  on transaction rollback: most likely database storage operations.
+
+  For irreversible operations see the new ``AfterResourceChanged`` event.
+
 **Protocol**
 
 - Clients are redirected to URLs without trailing slash only if the current URL
@@ -24,11 +39,20 @@ This document describes changes between each past release.
 - Add method to remove a principal from every user
 - Validate that the client can accept JSON response. (#667)
 - Validate that the client can only send JSON request body. (#667)
+- Added a new ``AfterResourceChanged`` event, that is sent only when the commit
+  in database is done and successful.
+
+  Subscribers of this event can fail, errors are swallowed and logged. The
+  final transaction result (or response) cannot be altered.
+
+  Since commit occured successfully and operations will not be rolledback,
+  subcribers running irreversible actions should subscribe to this event
+  (like sending messages, deleting files, or run asynchronous tasks).
 
 **Bug fixes**
 
-- Resource events are not emitted if the transaction is rolledback (e.g. a batch
-  subrequest fails) (#634)
+- ``ResourceChanged`` events are not emitted if a batch subrequest fails (#634)
+  There are still emitted if the whole batch transaction is eventually rolledback.
 - Fix a migration of PostgreSQL schema introduced in #604 that was never executed
 - Fix PostgreSQL backend timestamps when collection is empty (ref Kinto/kinto#433)
 

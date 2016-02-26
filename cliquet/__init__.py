@@ -55,7 +55,8 @@ DEFAULT_SETTINGS = {
         'cliquet.initialization.setup_authentication',
         'cliquet.initialization.setup_backoff',
         'cliquet.initialization.setup_statsd',
-        'cliquet.initialization.setup_listeners'
+        'cliquet.initialization.setup_listeners',
+        'cliquet.events.setup_transaction_hook',
     ),
     'event_listeners': '',
     'logging_renderer': 'cliquet.logs.ClassicLogRenderer',
@@ -134,7 +135,6 @@ def includeme(config):
     config.registry.api_capabilities = {}
 
     # Resource events helpers.
-    events.setup_transaction_hook(config)
     config.add_request_method(events.get_resource_events,
                               name='get_resource_events')
     config.add_request_method(events.notify_resource_event,

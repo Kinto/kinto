@@ -5,7 +5,8 @@ from contextlib import contextmanager
 import webtest
 from pyramid.config import Configurator
 
-from cliquet.events import ResourceChanged, ResourceRead, ACTIONS
+from cliquet.events import (ResourceChanged, AfterResourceChanged,
+                            ResourceRead, AfterResourceRead, ACTIONS)
 from cliquet.storage.exceptions import BackendError
 from cliquet.tests.testapp import main as testapp
 from cliquet.tests.support import unittest, BaseWebTest, get_request_class
@@ -13,11 +14,11 @@ from cliquet import statsd
 
 
 @contextmanager
-def notif_broken(app):
+def notif_broken(app, event_cls):
     old = app.registry.notify
 
     def buggy(event):
-        if not isinstance(event, ResourceChanged):
+        if not isinstance(event, event_cls):
             return old(event)
         raise Exception("boom")
 
@@ -27,6 +28,9 @@ def notif_broken(app):
 
 
 class BaseEventTest(BaseWebTest):
+
+    subscribed = tuple()
+
     def setUp(self):
         super(BaseEventTest, self).setUp()
         self.events = []
@@ -42,8 +46,8 @@ class BaseEventTest(BaseWebTest):
     def make_app(self, settings=None):
         settings = self.get_app_settings(settings)
         self.config = Configurator(settings=settings)
-        self.config.add_subscriber(self.listener, ResourceChanged)
-        self.config.add_subscriber(self.listener, ResourceRead)
+        for event_cls in self.subscribed:
+            self.config.add_subscriber(self.listener, event_cls)
         self.config.commit()
         app = testapp(config=self.config)
         app = webtest.TestApp(app)
@@ -53,15 +57,17 @@ class BaseEventTest(BaseWebTest):
 
 class ResourceReadTest(BaseEventTest, unittest.TestCase):
 
+    subscribed = (ResourceRead,)
+
     def test_get_sends_read_event(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers, status=201)
         record_id = resp.json['data']['id']
         record_url = self.get_item_url(record_id)
         self.app.get(record_url, headers=self.headers)
-        self.assertEqual(len(self.events), 2)
-        self.assertEqual(self.events[1].payload['action'], ACTIONS.READ.value)
-        self.assertEqual(len(self.events[1].read_records), 1)
+        self.assertEqual(len(self.events), 1)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.READ.value)
+        self.assertEqual(len(self.events[0].read_records), 1)
 
     def test_collection_get_sends_read_event(self):
         self.app.get(self.collection_url, headers=self.headers)
@@ -79,11 +85,13 @@ class ResourceReadTest(BaseEventTest, unittest.TestCase):
         # a second post with the same record id
         self.app.post_json(self.collection_url, body, headers=self.headers,
                            status=200)
-        self.assertEqual(len(self.events), 2)
-        self.assertEqual(self.events[1].payload['action'], ACTIONS.READ.value)
+        self.assertEqual(len(self.events), 1)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.READ.value)
 
 
 class ResourceChangedTest(BaseEventTest, unittest.TestCase):
+
+    subscribed = (ResourceChanged,)
 
     def test_post_sends_create_action(self):
         self.app.post_json(self.collection_url, self.body,
@@ -173,16 +181,10 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(self.events[2].payload['action'],
                          ACTIONS.DELETE.value)
 
-    def test_not_triggered_if_notify_fails(self):
-        # if the notification system is broken we should still see
-        # the record created
-        with notif_broken(self.app.app):
-            resp = self.app.post_json(self.collection_url, self.body,
-                                      headers=self.headers, status=201)
-
-        record = resp.json['data']
-        record_url = self.get_item_url(record['id'])
-        self.assertNotEqual(record_url, None)
+    def test_request_fails_if_notify_fails(self):
+        with notif_broken(self.app.app, ResourceChanged):
+            self.app.post_json(self.collection_url, self.body,
+                               headers=self.headers, status=500)
         self.assertEqual(len(self.events), 0)
 
     def test_triggered_on_protected_resource(self):
@@ -210,7 +212,33 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertNotIn('__permissions__', impacted_records[0]['old'])
 
 
+class AfterResourceChangedTest(BaseEventTest, unittest.TestCase):
+
+    subscribed = (AfterResourceChanged,)
+
+    def test_request_succeeds_if_notify_fails(self):
+        with notif_broken(self.app.app, AfterResourceChanged):
+            self.app.post_json(self.collection_url, self.body,
+                               headers=self.headers)
+
+        self.assertEqual(len(self.events), 0)
+
+
+class AfterResourceReadTest(BaseEventTest, unittest.TestCase):
+
+    subscribed = (AfterResourceRead,)
+
+    def test_request_succeeds_if_notify_fails(self):
+        with notif_broken(self.app.app, AfterResourceChanged):
+            self.app.post_json(self.collection_url, self.body,
+                               headers=self.headers)
+
+        self.assertEqual(len(self.events), 0)
+
+
 class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
+
+    subscribed = (ResourceChanged,)
 
     def test_create_has_new_record_and_no_old_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body,
@@ -271,6 +299,9 @@ class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
 
 
 class BatchEventsTest(BaseEventTest, unittest.TestCase):
+
+    subscribed = (ResourceChanged, ResourceRead)
+
     def test_impacted_records_are_merged(self):
         record_id = str(uuid.uuid4())
         record_url = self.get_item_url(record_id)
@@ -290,11 +321,11 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(len(self.events), 3)
 
         create_event = self.events[0]
-        self.assertEqual(create_event.payload['action'], ACTIONS.CREATE.value)
+        self.assertEqual(create_event.payload['action'], 'create')
         self.assertEqual(len(create_event.impacted_records), 1)
         self.assertNotIn('old', create_event.impacted_records[0])
         update_event = self.events[1]
-        self.assertEqual(update_event.payload['action'], ACTIONS.UPDATE.value)
+        self.assertEqual(update_event.payload['action'], 'update')
         impacted = update_event.impacted_records
         self.assertEqual(len(impacted), 2)
         self.assertEqual(impacted[0]['old']['name'], 'foo')
@@ -302,7 +333,7 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(impacted[1]['old']['name'], 'bar')
         self.assertEqual(impacted[1]['new']['name'], 'baz')
         delete_event = self.events[2]
-        self.assertEqual(delete_event.payload['action'], ACTIONS.DELETE.value)
+        self.assertEqual(delete_event.payload['action'], 'delete')
         self.assertEqual(len(delete_event.impacted_records), 1)
         self.assertNotIn('new', delete_event.impacted_records[0])
 
