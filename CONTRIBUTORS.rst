@@ -3,6 +3,7 @@ Contributors
 
 * Alexis Metaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
+* Ayush Sharma <ayush.aceit@gmail.com>
 * Balthazar Rouberol <br@imap.cc>
 * Clément Villain <choclatefr@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>

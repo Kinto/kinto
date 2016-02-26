@@ -232,7 +232,6 @@ class UserResource(object):
         pagination_rules, offset = self._extract_pagination_rules_from_token(
             limit, sorting)
 
-
         records, total_records = self.model.get_records(
             filters=filters,
             sorting=sorting,

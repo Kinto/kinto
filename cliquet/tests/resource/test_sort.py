@@ -112,4 +112,5 @@ class SortingTest(BaseTest):
         result = self.resource.collection_get()
         self.assertEqual(result['data'][0]['status'], 0)
         self.assertEqual(result['data'][1]['status'], 0)
-        self.assertEqual(result['data'][0]['last_modified']>result['data'][1]['last_modified'],True )
+        self.assertGreater(result['data'][0]['last_modified'],
+                           result['data'][1]['last_modified'])
