@@ -119,17 +119,16 @@ values of timestamps (``_before`` and ``_since``) can then
 be specified manually to resume the synchronisation.
 
 
-Strategy #3 — Newest then oldest
---------------------------------
+Strategy #3 — Newest first, partially
+-------------------------------------
 
 For very large collections, it could be interesting to perform a first *partial*
 synchronisation, and then fetch old records in background.
 
 When a new client wants to sync, instead of syncing hundreds of pages on the
-first synchronization, a combination of the two previous strategy can be
-implemented.
+first synchronization, two distinct synchronization processes can be combined.
 
-For example, it would allow to populate a UI with some recent records,
+For example, start with some recent records in order to populate a UI,
 and then fetch older records in background.
 
 #. Obtain a few pages of recent records using the *newest first* strategy from above
