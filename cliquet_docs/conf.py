@@ -70,9 +70,9 @@ copyright = u'2015, Mozilla Services — Da French Team'
 # built documents.
 #
 # The short X.Y version.
-version = '2.15'
+version = '3.0'
 # The full version, including alpha/beta/rc tags.
-release = '2.15.0'
+release = '3.0.0'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

@@ -4,8 +4,8 @@ Changelog
 This document describes changes between each past release.
 
 
-2.16.0 (unreleased)
--------------------
+3.0.0 (2016-02-26)
+------------------
 
 **Breaking changes**
 
@@ -48,6 +48,8 @@ This document describes changes between each past release.
   Since commit occured successfully and operations will not be rolledback,
   subcribers running irreversible actions should subscribe to this event
   (like sending messages, deleting files, or run asynchronous tasks).
+- Track execution time on StatsD for each authentication sub-policy (#639)
+- Output the cliquet version with --version (#636)
 
 **Bug fixes**
 
@@ -55,10 +57,24 @@ This document describes changes between each past release.
   There are still emitted if the whole batch transaction is eventually rolledback.
 - Fix a migration of PostgreSQL schema introduced in #604 that was never executed
 - Fix PostgreSQL backend timestamps when collection is empty (ref Kinto/kinto#433)
+- Fix statsd initialization on storage (#637)
+- Providing bad last modified values on delete now returns 400 (#665)
+- Providing last modified in the past for delete now follows behaviour create/update (#665)
 
 **Internal changes**
 
 - Moved ``utils.current_service(request)`` to reified request method (ref #631)
+- Optimized (and cleaned) usage of (un)authenticated_userid (#641)
+- Apply request extensions on forged requests (ref Kinto/kinto#438)
+- Get rid of custom Enum (fixes #645)
+- Pyramid config link updated (#654, thanks @ayusharma)
+- Add missing readonly param for read operations in PostgreSQL (#653)
+- Move Retry-After to error responses in documentation (#657)
+- Improve batch endpoint documentation about transactions (ref #629)
+- Mac OS python installation command updated (#661)
+- Added details about forced timestamps (#665)
+- Added troubleshooting section in docs (thanks @ayusharma)
+
 
 2.15.0 (2016-01-27)
 -------------------
