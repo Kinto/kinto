@@ -512,6 +512,19 @@ class UserResource(object):
 
         # Retreive the last_modified information from a querystring if present.
         last_modified = self.request.GET.get('last_modified')
+        if last_modified:
+            last_modified = native_value(last_modified.strip('"'))
+            if not isinstance(last_modified, six.integer_types):
+                error_details = {
+                    'name': 'last_modified',
+                    'location': 'querystring',
+                    'description': 'Invalid value for %s' % last_modified
+                }
+                raise_invalid(self.request, **error_details)
+
+            # If less or equal than current record. Ignore it.
+            if last_modified <= record[self.model.modified_field]:
+                last_modified = None
 
         deleted = self.model.delete_record(record, last_modified=last_modified)
         return self.postprocess(deleted, action=ACTIONS.DELETE)
