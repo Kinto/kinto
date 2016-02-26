@@ -72,15 +72,15 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
     def test_buckets_can_handle_arbitrary_attributes(self):
         bucket = MINIMALIST_BUCKET.copy()
-        fingerprint = "5866f245a00bb3a39100d31b2f14d453"
-        bucket['data'] = {'fingerprint': fingerprint}
+        public_key = "5866f245a00bb3a39100d31b2f14d453"
+        bucket['data'] = {'public_key': public_key}
         resp = self.app.put_json('/buckets/beers',
                                  bucket,
                                  headers=self.headers,
                                  status=200)
         data = resp.json['data']
-        self.assertIn('fingerprint', data)
-        self.assertEqual(data['fingerprint'], fingerprint)
+        self.assertIn('public_key', data)
+        self.assertEqual(data['public_key'], public_key)
 
 
 class BucketCreationTest(BaseWebTest, unittest.TestCase):
