@@ -11,6 +11,16 @@ from .support import (BaseWebTest, unittest, skip_if_no_postgresql,
 
 
 class PostgreSQLTest(BaseWebTest):
+    def setUp(self):
+        super(PostgreSQLTest, self).setUp()
+        self.storage.initialize_schema()
+        self.permission.initialize_schema()
+
+    def tearDown(self):
+        super(BaseWebTest, self).tearDown()
+        self.storage.flush()
+        self.permission.flush()
+
     def get_app_settings(self, extras=None):
         settings = super(PostgreSQLTest, self).get_app_settings(extras)
         if sqlalchemy is not None:
@@ -116,11 +126,10 @@ class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
     def make_app_with_subscribers(self, subscribers):
         settings = self.get_app_settings({})
         config = testing.setUp(settings=settings)
-        app = self.make_app(config=config)
         for event, subscriber in subscribers:
             config.add_subscriber(subscriber, event)
         config.commit()
-        return app
+        return self.make_app(config=config)
 
     def send_batch_create(self, app, **kwargs):
         body = {
