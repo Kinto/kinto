@@ -31,7 +31,7 @@ class DummyRequest(mock.MagicMock):
     def __init__(self, *args, **kwargs):
         super(DummyRequest, self).__init__(*args, **kwargs)
         self.upath_info = '/v0/'
-        self.registry = mock.MagicMock(settings=DEFAULT_SETTINGS)
+        self.registry = mock.MagicMock(settings=DEFAULT_SETTINGS.copy())
         self.registry.id_generator = generators.UUID4()
         self.GET = {}
         self.headers = {}
