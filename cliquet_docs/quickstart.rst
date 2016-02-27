@@ -51,7 +51,7 @@ just add some extra initialization code:
 
 By doing that, basic features like authentication, monitoring, error formatting,
 deprecation indicators are now available, and rely on configuration present
-in :file:`myproject.ini`.
+in :file:`development.ini`.
 
 
 Run!
@@ -62,14 +62,14 @@ A generic command is provided to accomplish this:
 
 ::
 
-    $ cliquet --ini myproject.ini migrate
+    $ cliquet --ini development.ini migrate
 
 
 Like any *Pyramid* application, it can be served locally with:
 
 ::
 
-    $ pserve myproject.ini --reload
+    $ pserve development.ini --reload
 
 A *hello* view is now available at `http://localhost:6543/v0/ <http://localhost:6543/v0/>`_
 (As well as basic endpoints like the :ref:`utilities <api-utilities>`).
@@ -129,11 +129,11 @@ In application initialization, make *Pyramid* aware of it:
 
 
 In order to bypass the installation and configuration of *Redis* or *PostgreSQL*,
-specify the «in-memory» backends in :file:`myproject.ini`:
+specify the «in-memory» backends in :file:`development.ini`:
 
 .. code-block:: ini
 
-    # myproject.ini
+    # development.ini
     cliquet.cache_backend = cliquet.cache.memory
     cliquet.storage_backend = cliquet.storage.memory
     cliquet.permission_backend = cliquet.permission.memory
