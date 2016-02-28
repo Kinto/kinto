@@ -59,7 +59,7 @@ def main(args=None):
         backend = args['backend']
         if not backend:
             while True:
-                prompt = ("Which backend to use? "
+                prompt = ("Select the backend you would like to use: "
                           "(1 - postgresql, 2 - redis, default - memory) ")
                 answer = input(prompt).strip()
                 try:
