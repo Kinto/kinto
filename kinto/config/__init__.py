@@ -1,6 +1,8 @@
 import os
-import binascii
 import codecs
+
+from cliquet import utils as cliquet_utils
+
 from kinto import logger
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -24,7 +26,8 @@ def render_template(template, destination, **kwargs):
 
 def init(config_file, backend):
     values = {}
-    values['secret'] = binascii.b2a_hex(os.urandom(32))
+
+    values['secret'] = cliquet_utils.random_bytes_hex(32)
 
     values['storage_backend'] = "cliquet.storage.%s" % backend
     values['cache_backend'] = "cliquet.cache.%s" % backend
