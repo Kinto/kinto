@@ -4,6 +4,8 @@ import os
 import tempfile
 import unittest
 
+import six
+
 from kinto.config import render_template, init
 
 
@@ -44,6 +46,12 @@ class ConfigTest(unittest.TestCase):
                         permission_url='permission_url')
 
         self.assertTrue(os.path.exists(dest))
+
+    @mock.patch('kinto.config.render_template')
+    def test_hmac_secret_is_text(self, mocked_render_template):
+        init('kinto.ini', 'postgresql')
+        args, kwargs = list(mocked_render_template.call_args)
+        self.assertEquals(type(kwargs['secret']), six.text_type)
 
     @mock.patch('kinto.config.render_template')
     def test_init_postgresql_values(self, mocked_render_template):
