@@ -54,7 +54,7 @@ Transactions
 
 Only one event is sent per transaction, per resource and per action.
 
-In other words, if every requests of a :ref:`batch requests <batch>`_
+In other words, if every requests of a :ref:`batch requests <batch>`
 perform the same action on the same resource, only one event will be sent.
 
 The ``AfterResourceChanged`` is sent only if the transaction was comitted
