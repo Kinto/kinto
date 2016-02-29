@@ -108,18 +108,17 @@ class ConfigTest(unittest.TestCase):
 
     def test_render_template_creates_directory_if_necessary(self):
         temp_path = tempfile.mkdtemp()
-        config.render_template(
-            'kinto.tpl', os.path.join(temp_path, 'config/kinto.ini'),
-            **{
-                'secret': "abcd-ceci-est-un-secret",
-                'storage_backend': 'cliquet.storage.memory',
-                'cache_backend': 'cliquet.cache.memory',
-                'permission_backend': 'cliquet.permission.memory',
-                'storage_url': '',
-                'cache_url':  '',
-                'permission_url': ''
-            })
-        self.assertTrue(os.path.exists('/tmp/config/kinto.ini'))
+        destination = os.path.join(temp_path, 'config/kinto.ini')
+        config.render_template('kinto.tpl', destination, **{
+            'secret': "abcd-ceci-est-un-secret",
+            'storage_backend': 'cliquet.storage.memory',
+            'cache_backend': 'cliquet.cache.memory',
+            'permission_backend': 'cliquet.permission.memory',
+            'storage_url': '',
+            'cache_url':  '',
+            'permission_url': ''
+        })
+        self.assertTrue(os.path.exists(destination))
 
     def test_render_template_works_with_file_in_cwd(self):
         temp_path = tempfile.mkdtemp()
