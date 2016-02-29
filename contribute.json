@@ -1,0 +1,27 @@
+{
+  "name": "Kinto",
+  "description": "Kinto is a minimalist JSON storage service with synchronisation and sharing abilities.",
+  "repository": {
+    "url": "https://github.com/Kinto/kinto",
+    "license": "Apache License (2.0)",
+    "tests": "https://travis-ci.org/Kinto/kinto"
+  },
+  "participate": {
+    "home": "https://kinto.readthedocs.org/en/latest/contributing.html",
+    "docs": "https://kinto.readthedocs.org/",
+    "irc": "irc://irc.freenode.org/#kinto",
+    "irc-contacts": ["alexis", "leplatrem", "magopian", "natim", "NiKo`"]
+  },
+  "bugs": {
+    "list": "https://github.com/Kinto/kinto/issues",
+    "report": "https://github.com/Kinto/kinto/issues/new"
+  },
+  "urls": {
+    "dev": "https://kinto.dev.mozaws.net/v1/"
+  },
+  "keywords": [
+    "JSON",
+    "Python",
+    "Pyramid"
+  ]
+}
