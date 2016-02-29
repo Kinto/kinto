@@ -132,8 +132,8 @@ For example, start with some recent records in order to populate a UI,
 and then fetch older records in background.
 
 #. Obtain a few pages of recent records using the *newest first* strategy from above
-#. In background, fetch old records using ``_sort=-lastmodified`` and ``_before=MIN(local_records[last_modified])``
-#. Recent changes can be obtained using ``_sort=-lastmodified`` and ``_since=MAX(local_records[last_modified])``
+#. In background, fetch old records using ``_sort=-last_modified`` and ``_before=MIN(local_records[last_modified])``
+#. Recent changes can be obtained using ``_sort=-last_modified`` and ``_since=MAX(local_records[last_modified])``
 
 .. image:: ../../images/sync-both.svg
 
