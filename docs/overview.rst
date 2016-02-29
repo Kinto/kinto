@@ -4,7 +4,7 @@ Overview
 .. image:: images/overview-use-cases.png
     :align: right
 
-*Kinto* is a lightweight JSON storage service with synchronisation and sharing
+*Kinto* is a minimalist JSON storage service with synchronisation and sharing
 abilities. It is meant to be **easy to use** and **easy to self-host**.
 
 *Kinto* is used at Mozilla and released under the Apache v2 licence.
