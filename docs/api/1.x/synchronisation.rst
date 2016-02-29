@@ -38,6 +38,7 @@ strategies to poll the server for changes.
 
 .. important::
 
+    * Timestamps are unique.
     * Deleted records have an attribute ``delete: true``.
     * Created/updated records are both returned in their new version.
     * Since *Kinto* does not keep any history, there is no *diff* for updates.
