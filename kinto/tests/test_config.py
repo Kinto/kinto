@@ -49,7 +49,7 @@ class ConfigTest(unittest.TestCase):
 
     @mock.patch('kinto.config.render_template')
     def test_hmac_secret_is_text(self, mocked_render_template):
-        init('kinto.ini', 'postgresql')
+        config.init('kinto.ini', 'postgresql')
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(type(kwargs['secret']), six.text_type)
 
