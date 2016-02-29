@@ -1,5 +1,4 @@
 import os
-import binascii
 import codecs
 
 from cliquet import utils as cliquet_utils
