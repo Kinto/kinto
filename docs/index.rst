@@ -3,7 +3,7 @@
 
     **Kinto** — Store, Sync, Share, and Self-Host.
 
-Kinto is a lightweight JSON storage service with synchronisation and sharing
+Kinto is a minimalist JSON storage service with synchronisation and sharing
 abilities.
 
 Table of content

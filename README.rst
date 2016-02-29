@@ -22,7 +22,7 @@ Kinto
     :target: https://pypi.python.org/pypi/kinto
 
 
-Kinto is a lightweight JSON storage service with synchronisation and sharing abilities.
+Kinto is a minimalist JSON storage service with synchronisation and sharing abilities.
 
 * `Online documentation <http://kinto.readthedocs.org/en/latest/>`_
 * `Tutorial <http://kinto.readthedocs.org/en/latest/tutorials/first-steps.html>`_
