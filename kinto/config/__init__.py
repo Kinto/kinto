@@ -12,7 +12,7 @@ def render_template(template, destination, **kwargs):
     template = os.path.join(HERE, template)
     folder = os.path.dirname(destination)
 
-    if not os.path.exists(folder):
+    if folder and not os.path.exists(folder):
         os.makedirs(folder)
 
     logger.info("Created config {}".format(os.path.abspath(destination)))
