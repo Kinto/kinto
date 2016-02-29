@@ -6,13 +6,61 @@ This document describes changes between each past release.
 1.12.0 (unreleased)
 ===================
 
+**Protocol**
+
+- Allow buckets to store arbitrary properties. (#462)
+- Clients are redirected to URLs without trailing slash only if the current URL
+  does not exist (#656)
+- Partial responses can now be specified for nested objects (#445)
+  For example, ``/records?_fields=address.street``.
+- List responses are now sorted by last_modified descending by default (#434,
+  thanks @ayusharma)
+- Server now returns 415 error response if client cannot accept JSON response (#461, mozilla-services/cliquet#667)
+- Server now returns 415 error response if client does not send JSON request (#461, mozilla-services/cliquet#667)
+
+**Breaking changes**
+
+- Errors are not swallowed anymore during the execution of ``ResourceChanged``
+  events subscribers.
+
+  Subscribers are still executed within the transaction like before.
+
+  Subscribers are still executed even if the transaction is eventually rolledback.
+  Every subscriber execution succeeds, or none.
+
+  Thus, subscribers of these events should only perform operations that are reversed
+  on transaction rollback: most likely database storage operations.
+
+  For irreversible operations see the new ``AfterResourceChanged`` event.
+
+**New features**
+
+- Event subscribers are now ran synchronously and can thus alter responses (#421)
+- Resource events are now merged in batch requests. One event per resource and
+  per action is emitted when a transaction is committed (mozilla-services/cliquet#634)
+- Monitor time of events listeners execution (mozilla-services/cliquet#503)
+- Added a new ``AfterResourceChanged`` event, that is sent only when the commit
+  in database is done and successful.
+  `See more details <http://cliquet.readthedocs.org/en/latest/reference/notifications.html>`_.
+- Track execution time on StatsD for each authentication sub-policy (mozilla-services/cliquet#639)
+
+**Bug fixes**
+
+- Fix PostgreSQL backend timestamps when collection is empty (#433)
+- ``ResourceChanged`` events are not emitted if a batch subrequest fails (mozilla-services/cliquet#634)
+  There are still emitted if the whole batch transaction is eventually rolledback.
+- Fix a migration of PostgreSQL schema introduced that was never executed (mozilla-services/cliquet#604)
+- Fix statsd initialization on storage (mozilla-services/cliquet#637)
+- Providing bad last modified values on delete now returns 400 (mozilla-services/cliquet#665)
+- Providing last modified in the past for delete now follows behaviour create/update (mozilla-services/cliquet#665)
+
 **Internal changes**
 
 - Changed default duration between retries on error (``Retry-After`` header)
   from 30 to 3 seconds.
 - Allow buckets to store arbitrary properties. (#462)
 - Speed-up startup (ref #490)
-
+- Optimized (and cleaned) usage of (un)authenticated_userid (#424, mozilla-services/cliquet#641)
 
 1.11.2 (2016-02-03)
 ===================
