@@ -19,6 +19,7 @@ installed_with_pypy = platform.python_implementation() == 'PyPy'
 
 REQUIREMENTS = [
     'colander',
+    'colorama',
     'cornice >= 1.1',  # Fix cache CORS
     'python-dateutil',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
