@@ -29,3 +29,9 @@ Kinto is a minimalist JSON storage service with synchronisation and sharing abil
 * `Issue tracker <https://github.com/Kinto/kinto/issues>`_
 * `Contributing <http://kinto.readthedocs.org/en/latest/contributing.html>`_
 * `Try our daily flushed instance at: https://kinto.dev.mozaws.net/v1/ <https://kinto.dev.mozaws.net/v1/>`_
+
+Requirements
+------------
+
+* **Python**: 2.7, 3.4+
+* **Backends**: In-memory (development), Redis or Postgresql 9.4+ (production)
