@@ -33,5 +33,5 @@ Kinto is a lightweight JSON storage service with synchronisation and sharing abi
 Requirements
 ------------
 
-- **Supported Python versions:** 2.7, 3.4+
-- **Supported Backends:** Redis or Postgresql 9.4+
+* **Python**: 2.7, 3.4+
+* **Backends**: In-memory (development), Redis or Postgresql 9.4+ (production)
