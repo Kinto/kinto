@@ -1,5 +1,6 @@
 import os
 
+import colorama
 import six
 import structlog
 
@@ -28,9 +29,19 @@ class ClassicLogRenderer(object):
         pass
 
     def __call__(self, logger, name, event_dict):
+        RESET_ALL = colorama.Style.RESET_ALL
+        BRIGHT = colorama.Style.BRIGHT
+        CYAN = colorama.Fore.CYAN
+        MAGENTA = colorama.Fore.MAGENTA
+        YELLOW = colorama.Fore.YELLOW
+
         if 'path' in event_dict:
-            pattern = (u'"{method: <5} {path}{querystring}" {code} ({t} ms)'
-                       ' {event} {context}')
+            pattern = (BRIGHT +
+                       u'"{method: <5} {path}{querystring}"' +
+                       RESET_ALL +
+                       YELLOW + u' {code} ({t} ms)' +
+                       RESET_ALL +
+                       u' {event} {context}')
         else:
             pattern = u'{event} {context}'
 
@@ -42,8 +53,13 @@ class ClassicLogRenderer(object):
         params = [decode_value('%s=%s' % qs) for qs in querystring.items()]
         output['querystring'] = '?%s' % '&'.join(params) if params else ''
 
-        context = [decode_value('%s=%s' % c) for c in event_dict.items()]
-        output['context'] = '; '.join(context)
+        output['context'] = " ".join(
+            CYAN + key + RESET_ALL +
+            "=" +
+            MAGENTA + decode_value(event_dict[key]) +
+            RESET_ALL
+            for key in sorted(event_dict.keys())
+        )
 
         log_msg = pattern.format(**output)
         return log_msg

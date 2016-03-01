@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
+import re
 
 import mock
 import six
@@ -16,6 +17,15 @@ from .support import BaseWebTest, unittest
 
 def logger_context():
     return cliquet_logs.logger._context._dict
+
+
+def strip_ansi(text):
+    """
+    Strip ANSI sequences (colors) from text.
+    Source: http://stackoverflow.com/a/15780675
+    """
+    SEQUENCES = r'\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-9]{3})?)?[m|K]?'
+    return re.sub(SEQUENCES, '', text)
 
 
 class LoggingSetupTest(unittest.TestCase):
@@ -76,7 +86,7 @@ class ClassicLogRendererTest(unittest.TestCase):
             'nb_records': 5,
         }
         value = self.renderer(self.logger, 'debug', event_dict)
-        self.assertIn('nb_records=5', value)
+        self.assertIn('nb_records=5', strip_ansi(value))
 
     def test_every_event_dict_entry_appears_in_log_message(self):
         event_dict = {
@@ -90,7 +100,7 @@ class ClassicLogRendererTest(unittest.TestCase):
         }
         value = self.renderer(self.logger, 'debug', event_dict)
         self.assertEqual(('"GET   /v1/?_sort=field" 200 (32 ms)'
-                          ' app.event nb_records=5'), value)
+                          ' app.event nb_records=5'), strip_ansi(value))
 
     def test_fields_values_support_unicode(self):
         value = self.renderer(self.logger, 'critical', {'value': u'\u2014'})
