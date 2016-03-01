@@ -103,3 +103,46 @@ See also
 
 * :term:`Kinto glossary <CRUD>`, for formal definitions of terms used in the documentation
 * :blog:`Our blog post <en/handling-permissions>` on permissions design in *Kinto*
+
+
+.. _technical-architecture:
+
+Technical Architecture
+======================
+
+Every concept of bucket, group, collection or record leverages the REST *resource*
+notion of :rtd:`Cliquet <cliquet>`.
+
+*Cliquet* is a toolkit which brings abstractions and
+good practices to build HTTP microservices, such as data-driven REST APIs.
+
+*Cliquet* relies on :rtd:`Cornice <cornice>` and :rtd:`Pyramid <pyramid>`
+to implement the endpoints and HTTP request/response handling.
+
+.. image:: images/architecture.svg
+
+
+Sequence diagrams
+-----------------
+
+The following sequence diagram gives a rough overview of how *Kinto* handles
+a request and stores it into the storage:
+
+.. https://www.websequencediagrams.com
+
+.. title PUT Request → Response cycle
+
+.. Client->WSGI: HTTP PUT request
+.. WSGI->Pyramid: WebOb request
+.. Pyramid->Kinto: Match route
+.. Kinto->Resource: put()
+.. Resource->Storage: create_record()
+.. Storage->PostgreSQL: SQL INSERT
+.. PostgreSQL->Storage: timestamp
+.. Storage->Resource: record
+.. Resource->Listeners: send notifications
+.. Resource->Pyramid: Python dict
+.. Pyramid->WSGI: WebOb response
+.. WSGI->Client: HTTP response
+
+.. image:: images/sequence-storage.png
