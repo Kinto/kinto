@@ -7,7 +7,9 @@ This document describes changes between each past release.
 3.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**New features**
+
+- Default console log renderer now has colours (#671)
 
 
 3.0.0 (2016-02-26)
