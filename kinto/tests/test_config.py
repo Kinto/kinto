@@ -6,7 +6,7 @@ import unittest
 
 import six
 
-from kinto.config import render_template, init
+from kinto import config
 
 
 class ConfigTest(unittest.TestCase):
@@ -14,14 +14,14 @@ class ConfigTest(unittest.TestCase):
         self.maxDiff = None
         template = "kinto.tpl"
         dest = tempfile.mktemp()
-        render_template(template, dest,
-                        secret='secret',
-                        storage_backend='storage_backend',
-                        cache_backend='cache_backend',
-                        permission_backend='permission_backend',
-                        storage_url='storage_url',
-                        cache_url='cache_url',
-                        permission_url='permission_url')
+        config.render_template(template, dest,
+                               secret='secret',
+                               storage_backend='storage_backend',
+                               cache_backend='cache_backend',
+                               permission_backend='permission_backend',
+                               storage_url='storage_url',
+                               cache_url='cache_url',
+                               permission_url='permission_url')
 
         with codecs.open(dest, 'r', encoding='utf-8') as d:
             destination_temp = d.read()
@@ -36,26 +36,26 @@ class ConfigTest(unittest.TestCase):
     def test_create_destination_directory(self):
         dest = os.path.join(tempfile.mkdtemp(), 'config', 'kinto.ini')
 
-        render_template("kinto.tpl", dest,
-                        secret='secret',
-                        storage_backend='storage_backend',
-                        cache_backend='cache_backend',
-                        permission_backend='permission_backend',
-                        storage_url='storage_url',
-                        cache_url='cache_url',
-                        permission_url='permission_url')
+        config.render_template("kinto.tpl", dest,
+                               secret='secret',
+                               storage_backend='storage_backend',
+                               cache_backend='cache_backend',
+                               permission_backend='permission_backend',
+                               storage_url='storage_url',
+                               cache_url='cache_url',
+                               permission_url='permission_url')
 
         self.assertTrue(os.path.exists(dest))
 
     @mock.patch('kinto.config.render_template')
     def test_hmac_secret_is_text(self, mocked_render_template):
-        init('kinto.ini', 'postgresql')
+        config.init('kinto.ini', 'postgresql')
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(type(kwargs['secret']), six.text_type)
 
     @mock.patch('kinto.config.render_template')
     def test_init_postgresql_values(self, mocked_render_template):
-        init('kinto.ini', 'postgresql')
+        config.init('kinto.ini', 'postgresql')
 
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
@@ -73,7 +73,7 @@ class ConfigTest(unittest.TestCase):
 
     @mock.patch('kinto.config.render_template')
     def test_init_redis_values(self, mocked_render_template):
-        init('kinto.ini', 'redis')
+        config.init('kinto.ini', 'redis')
 
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
@@ -91,7 +91,7 @@ class ConfigTest(unittest.TestCase):
 
     @mock.patch('kinto.config.render_template')
     def test_init_memory_values(self, mocked_render_template):
-        init('kinto.ini', 'memory')
+        config.init('kinto.ini', 'memory')
 
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
@@ -105,3 +105,33 @@ class ConfigTest(unittest.TestCase):
             'cache_url':  '',
             'permission_url': ''
         })
+
+    def test_render_template_creates_directory_if_necessary(self):
+        temp_path = tempfile.mkdtemp()
+        destination = os.path.join(temp_path, 'config/kinto.ini')
+        config.render_template('kinto.tpl', destination, **{
+            'secret': "abcd-ceci-est-un-secret",
+            'storage_backend': 'cliquet.storage.memory',
+            'cache_backend': 'cliquet.cache.memory',
+            'permission_backend': 'cliquet.permission.memory',
+            'storage_url': '',
+            'cache_url':  '',
+            'permission_url': ''
+        })
+        self.assertTrue(os.path.exists(destination))
+
+    def test_render_template_works_with_file_in_cwd(self):
+        temp_path = tempfile.mkdtemp()
+        os.chdir(temp_path)
+        config.render_template('kinto.tpl', 'kinto.ini', **{
+            'secret': "abcd-ceci-est-un-secret",
+            'storage_backend': 'cliquet.storage.memory',
+            'cache_backend': 'cliquet.cache.memory',
+            'permission_backend': 'cliquet.permission.memory',
+            'storage_url': '',
+            'cache_url':  '',
+            'permission_url': ''
+        })
+        self.assertTrue(os.path.exists(
+            os.path.join(temp_path, 'kinto.ini')
+        ))
