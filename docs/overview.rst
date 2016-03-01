@@ -10,6 +10,38 @@ abilities. It is meant to be **easy to use** and **easy to self-host**.
 *Kinto* is used at Mozilla and released under the Apache v2 licence.
 
 
+.. _why:
+
+Why use Kinto?
+==============
+
+We believe data belongs to the users, and not to the application authors. When
+writing applications, data should be made available to any device, connected or
+offline, and everything should be in sync.
+
+Rather than spending a non-trivial amount of time and expertise on implementing
+all that (and then maintaining it!), you could use Kinto, that does all that
+for you:
+
+- Expose your data over an HTTP interface, unlike databases like PostgreSQL
+- Use simple HTTP requests rather than SQL
+- Use `Kinto.js <https://kintojs.readthedocs.org/en/latest/>`_ to easily
+  implement offline first clients
+- Choose the database you want from those that Kinto supports, and use a
+  unified API to access its data
+- Manage your data using the handy
+  `admin UI <http://kinto.github.io/kinto-admin/>`_
+- Easily
+  :ref:`set up live push notifications <tutorial-notifications-websockets>`
+  for live synchronisation
+- Make it possible to
+  :ref:`share data between users <api-permissions>`
+  (using fine-grained permissions)
+- Take advantage of
+  :ref:`schema validation <collection-json-schema>`
+  if you need it
+
+
 .. _use-cases:
 
 Use cases
