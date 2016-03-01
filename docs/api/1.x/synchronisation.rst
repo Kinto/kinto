@@ -138,6 +138,11 @@ and then fetch older records in background.
 
 .. image:: ../../images/sync-both.svg
 
+.. warning::
+
+     This will not work using :github:`Syncto <mozilla-services/syncto/>`,
+     you should use ``Next-Page`` headers only there.
+     `More details <https://github.com/mozilla-services/syncto/issues/82>`_.
 
 Apply changes locally
 =====================
