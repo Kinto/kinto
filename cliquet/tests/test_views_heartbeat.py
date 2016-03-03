@@ -43,3 +43,9 @@ class FailureTest(BaseWebTest, unittest.TestCase):
         get_mocked.return_value = httpOK
         response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['cache'], False)
+
+
+class LoadBalancerHeartbeat(BaseWebTest, unittest.TestCase):
+    def test_returns_200_with_empty_body(self):
+        resp = self.app.get('/__lbheartbeat__', status=200)
+        self.assertEqual(resp.json, {})
