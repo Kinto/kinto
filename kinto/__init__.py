@@ -54,12 +54,15 @@ def main(global_config, config=None, **settings):
     config.registry.public_settings.add('cliquet.batch_max_requests')
 
     # Expose capability
-    schema_enabled = asbool(settings.get('experimental_collection_schema_validation'))
+    schema_enabled = asbool(
+        settings.get('experimental_collection_schema_validation')
+    )
     if schema_enabled:
-        config.add_api_capability("schema",
-                                  description="Enforce a schema for collection records.",
-                                  url="http://kinto.readthedocs.org/en/latest/api/1.x/"
-                                      "collections.html#collection-json-schema")
+        config.add_api_capability(
+            "schema",
+            description="Enforce a schema for collection records.",
+            url="http://kinto.readthedocs.org/en/latest/api/1.x/"
+            "collections.html#collection-json-schema")
 
     # Scan Kinto views.
     kwargs = {}
