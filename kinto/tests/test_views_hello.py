@@ -29,12 +29,12 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
                          '23bb0efc-e80d-829e-6757-79d41e16640f')
 
 
-class HelloViewSettingTrueTest(BaseWebTest, unittest.TestCase):
+class HelloViewSchemaCapabilityExposedTest(BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, additional_settings=None):
-        settings = super(HelloViewSettingTrueTest, self).get_app_settings(
-            additional_settings
-        )
+        settings = super(
+            HelloViewSchemaCapabilityExposedTest,
+            self).get_app_settings(additional_settings)
         settings['experimental_collection_schema_validation'] = True
         return settings
 
@@ -50,10 +50,10 @@ class HelloViewSettingTrueTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(expected, capabilities['schema'])
 
 
-class HelloViewSettingFalseTest(BaseWebTest, unittest.TestCase):
+class HelloViewSchemaCapabilityTest(BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, additional_settings=None):
-        settings = super(HelloViewSettingFalseTest, self).get_app_settings(
+        settings = super(HelloViewSchemaCapabilityTest, self).get_app_settings(
             additional_settings
         )
         settings['experimental_collection_schema_validation'] = False
@@ -62,4 +62,4 @@ class HelloViewSettingFalseTest(BaseWebTest, unittest.TestCase):
     def test_capability_is_exposed_if_setting_is_not_set(self):
         resp = self.app.get('/')
         capabilities = resp.json['capabilities']
-        self.assertEqual(dict(), capabilities)
+        self.assertNotIn('schema', capabilities)
