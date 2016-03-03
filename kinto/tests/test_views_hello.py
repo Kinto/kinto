@@ -36,7 +36,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         capabilities = resp.json['capabilities']
         self.assertIn('schema', capabilities)
         expected = {
-            "description": "Enforce a schema for collection records.",
+            "description": "Validates collection records with JSON schemas.",
             "url": "http://kinto.readthedocs.org/en/latest/api/1.x/"
                    "collections.html#collection-json-schema",
         }

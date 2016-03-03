@@ -55,14 +55,14 @@ def main(global_config, config=None, **settings):
 
     # Expose capability
     schema_enabled = asbool(
-        settings.get('experimental_collection_schema_validation')
+        settings['experimental_collection_schema_validation']
     )
     if schema_enabled:
         config.add_api_capability(
             "schema",
-            description="Enforce a schema for collection records.",
+            description="Validates collection records with JSON schemas.",
             url="http://kinto.readthedocs.org/en/latest/api/1.x/"
-            "collections.html#collection-json-schema")
+                "collections.html#collection-json-schema")
 
     # Scan Kinto views.
     kwargs = {}
