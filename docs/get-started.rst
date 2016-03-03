@@ -182,6 +182,11 @@ Make sure you have the system requirements listed in the
     cd kinto/
     make serve
 
+At the end of the installation, you will be asked which backend you would like to use:
+
+    $ Select the backend you would like to use: (1 - postgresql, 2 - redis, default - memory)
+
+Choose the default (just push "enter"), when you will need another one, you will know it.
 
 The server should now be running with the default configuration on http://localhost:8888
 
