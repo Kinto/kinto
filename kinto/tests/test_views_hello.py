@@ -27,3 +27,39 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get('/', headers=self.headers)
         self.assertEqual(response.json['user']['bucket'],
                          '23bb0efc-e80d-829e-6757-79d41e16640f')
+
+
+class HelloViewSettingTrueTest(BaseWebTest, unittest.TestCase):
+
+    def get_app_settings(self, additional_settings=None):
+        settings = super(HelloViewSettingTrueTest, self).get_app_settings(
+            additional_settings
+        )
+        settings['experimental_collection_schema_validation'] = True
+        return settings
+
+    def test_capability_is_exposed_if_setting_is_set(self):
+        resp = self.app.get('/')
+        capabilities = resp.json['capabilities']
+        self.assertIn('schema', capabilities)
+        expected = {
+            "description": "Enforce a schema for collection records.",
+            "url": "http://kinto.readthedocs.org/en/latest/api/1.x/"
+                   "collections.html#collection-json-schema",
+        }
+        self.assertEqual(expected, capabilities['schema'])
+
+
+class HelloViewSettingFalseTest(BaseWebTest, unittest.TestCase):
+
+    def get_app_settings(self, additional_settings=None):
+        settings = super(HelloViewSettingFalseTest, self).get_app_settings(
+            additional_settings
+        )
+        settings['experimental_collection_schema_validation'] = False
+        return settings
+
+    def test_capability_is_exposed_if_setting_is_not_set(self):
+        resp = self.app.get('/')
+        capabilities = resp.json['capabilities']
+        self.assertEqual(dict(), capabilities)
