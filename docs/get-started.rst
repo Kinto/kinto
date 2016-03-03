@@ -186,7 +186,7 @@ At the end of the installation, you will be asked which backend you would like t
 
     $ Select the backend you would like to use: (1 - postgresql, 2 - redis, default - memory)
 
-Choose the default (just push "enter"), when you will need another one, you will know it.
+If you don't know, just push "enter" to choose the default Memory backend, when you will need another one you will know it :)
 
 The server should now be running with the default configuration on http://localhost:8888
 
