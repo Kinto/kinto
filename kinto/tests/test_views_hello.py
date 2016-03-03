@@ -28,18 +28,11 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(response.json['user']['bucket'],
                          '23bb0efc-e80d-829e-6757-79d41e16640f')
 
-
-class HelloViewSchemaCapabilityExposedTest(BaseWebTest, unittest.TestCase):
-
-    def get_app_settings(self, additional_settings=None):
-        settings = super(
-            HelloViewSchemaCapabilityExposedTest,
-            self).get_app_settings(additional_settings)
-        settings['experimental_collection_schema_validation'] = True
-        return settings
-
     def test_capability_is_exposed_if_setting_is_set(self):
-        resp = self.app.get('/')
+        settings = self.get_app_settings()
+        settings['experimental_collection_schema_validation'] = True
+        app = self._get_test_app(settings=settings)
+        resp = app.get('/')
         capabilities = resp.json['capabilities']
         self.assertIn('schema', capabilities)
         expected = {
@@ -49,17 +42,10 @@ class HelloViewSchemaCapabilityExposedTest(BaseWebTest, unittest.TestCase):
         }
         self.assertEqual(expected, capabilities['schema'])
 
-
-class HelloViewSchemaCapabilityTest(BaseWebTest, unittest.TestCase):
-
-    def get_app_settings(self, additional_settings=None):
-        settings = super(HelloViewSchemaCapabilityTest, self).get_app_settings(
-            additional_settings
-        )
-        settings['experimental_collection_schema_validation'] = False
-        return settings
-
     def test_capability_is_exposed_if_setting_is_not_set(self):
-        resp = self.app.get('/')
+        settings = self.get_app_settings()
+        settings['experimental_collection_schema_validation'] = False
+        app = self._get_test_app(settings=settings)
+        resp = app.get('/')
         capabilities = resp.json['capabilities']
         self.assertNotIn('schema', capabilities)
