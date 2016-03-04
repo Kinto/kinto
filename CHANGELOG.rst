@@ -7,6 +7,10 @@ This document describes changes between each past release.
 3.1.0 (unreleased)
 ------------------
 
+**Protocol**
+
+- Add the ``__lbheartbeat__`` endpoint, for load balancer membership test.
+
 **New features**
 
 - Default console log renderer now has colours (#671)
