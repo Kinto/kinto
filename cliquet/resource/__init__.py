@@ -276,16 +276,18 @@ class UserResource(object):
             Add custom behaviour by overriding
             :meth:`cliquet.resource.UserResource.process_record`
         """
-        self._raise_412_if_modified()
+        existing = None
         new_record = self.request.validated['data']
-
-        # Since ``id`` does not belong to schema, it can only be found in body.
         try:
             id_field = self.model.id_field
+            # Since ``id`` does not belong to schema, look up in body.
             new_record[id_field] = _id = self.request.json['data'][id_field]
             self._raise_400_if_invalid_id(_id)
-        except (KeyError, ValueError):
+            existing = self._get_record_or_404(_id)
+        except (HTTPNotFound, KeyError, ValueError):
             pass
+
+        self._raise_412_if_modified(record=existing)
 
         new_record = self.process_record(new_record)
         try:
@@ -753,7 +755,7 @@ class UserResource(object):
 
         if_match = decode_header(if_match) if if_match else None
 
-        if if_none_match and decode_header(if_none_match) == '*':
+        if record and if_none_match and decode_header(if_none_match) == '*':
             modified_since = -1  # Always raise.
         elif if_match:
             try:
