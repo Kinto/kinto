@@ -2,30 +2,7 @@ import warnings
 from datetime import datetime
 from dateutil import parser as dateparser
 
-import requests
 import structlog
-import webob
-
-try:
-    import newrelic.agent
-except ImportError:  # pragma: no cover
-    newrelic = None
-
-try:
-    from werkzeug.contrib.profiler import ProfilerMiddleware
-except ImportError:  # pragma: no cover
-    pass
-
-import cliquet
-from cliquet import errors
-from cliquet import utils
-from cliquet import statsd
-from cliquet import cache
-from cliquet import storage
-from cliquet import permission
-from cliquet.logs import logger
-from cliquet.events import ResourceRead, ResourceChanged, ACTIONS
-
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
@@ -35,6 +12,23 @@ from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.settings import asbool, aslist
 from pyramid_multiauth import (MultiAuthenticationPolicy,
                                MultiAuthPolicySelected)
+try:
+    import newrelic.agent
+except ImportError:  # pragma: no cover
+    newrelic = None
+try:
+    from werkzeug.contrib.profiler import ProfilerMiddleware
+except ImportError:  # pragma: no cover
+    pass
+
+from cliquet import errors
+from cliquet import utils
+from cliquet import statsd
+from cliquet import cache
+from cliquet import storage
+from cliquet import permission
+from cliquet.logs import logger
+from cliquet.events import ResourceRead, ResourceChanged, ACTIONS
 
 
 def setup_request_bound_data(config):
@@ -48,6 +42,9 @@ def setup_request_bound_data(config):
 
 
 def setup_json_serializer(config):
+    import requests
+    import webob
+
     # Monkey patch to use ujson
     webob.request.json = utils.json
     requests.models.json = utils.json
@@ -279,7 +276,6 @@ def setup_statsd(config):
 
 def install_middlewares(app, settings):
     "Install a set of middlewares defined in the ini file on the given app."
-
     # Setup new-relic.
     if settings.get('newrelic_config'):
         ini_file = settings['newrelic_config']
@@ -496,6 +492,8 @@ def initialize(config, version=None, project_name='', default_settings=None):
         in application settings.
     :param dict default_settings: Override cliquet default settings values.
     """
+    from cliquet import DEFAULT_SETTINGS
+
     settings = config.get_settings()
 
     project_name = settings.pop('cliquet.project_name',
@@ -504,7 +502,7 @@ def initialize(config, version=None, project_name='', default_settings=None):
     if not project_name:
         warnings.warn('No value specified for `project_name`')
 
-    cliquet_defaults = cliquet.DEFAULT_SETTINGS.copy()
+    cliquet_defaults = DEFAULT_SETTINGS.copy()
 
     if default_settings:
         cliquet_defaults.update(default_settings)
