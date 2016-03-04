@@ -3,7 +3,6 @@ import argparse
 import os
 import sys
 
-import pip
 from six.moves import input
 from cliquet.scripts import cliquet
 from pyramid.scripts import pserve
@@ -76,6 +75,7 @@ def main(args=None):
             try:
                 import psycopg2  # NOQA
             except ImportError:
+                import pip
                 pip.main(['install', "cliquet[postgresql]"])
 
     elif args['which'] == 'migrate':
