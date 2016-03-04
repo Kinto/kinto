@@ -45,7 +45,7 @@ $(SERVER_CONFIG):
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
 
 serve: install-dev $(SERVER_CONFIG) migrate
-	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start
+	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start --reload
 
 migrate: install $(SERVER_CONFIG)
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) migrate
