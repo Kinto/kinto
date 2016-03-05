@@ -129,6 +129,7 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertIsNotNone(error.headers.get('Last-Modified'))
 
     def test_create_returns_412_if_changed_meanwhile(self):
+        self.resource.request.validated = {'data': {'field': 'new'}}
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.collection_post)
 
@@ -159,15 +160,38 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
-    def test_if_none_match_star_fails_if_record_exists(self):
+    def test_put_if_none_match_star_fails_if_record_exists(self):
         self.resource.request.headers.pop('If-Match')
         self.resource.request.headers['If-None-Match'] = '*'
         self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
+
+    def test_put_if_none_match_star_succeeds_if_record_does_not_exist(self):
+        self.resource.request.headers.pop('If-Match')
+        self.resource.request.headers['If-None-Match'] = '*'
         self.resource.request.validated = {'data': {'field': 'new'}}
         self.resource.record_id = self.resource.model.id_generator()
         self.resource.put()  # not raising.
+
+    def test_post_if_none_match_star_fails_if_record_exists(self):
+        self.resource.request.headers.pop('If-Match')
+        self.resource.request.headers['If-None-Match'] = '*'
+        self.resource.request.json = self.resource.request.validated = {
+            'data': {
+                'id': self.stored['id'],
+                'field': 'new'}}
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed,
+                          self.resource.collection_post)
+
+    def test_post_if_none_match_star_succeeds_if_record_does_not_exist(self):
+        self.resource.request.headers.pop('If-Match')
+        self.resource.request.headers['If-None-Match'] = '*'
+        self.resource.request.validated = {
+            'data': {
+                'id': self.resource.model.id_generator(),
+                'field': 'new'}}
+        self.resource.collection_post()  # not raising.
 
     def test_patch_returns_412_if_changed_meanwhile(self):
         self.resource.record_id = self.stored['id']
