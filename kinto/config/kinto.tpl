@@ -1,3 +1,6 @@
+# Created at {config_creation_time}
+# Using Kinto version {kinto_version}
+
 [server:main]
 use = egg:waitress#main
 host = 0.0.0.0
@@ -142,4 +145,3 @@ formatter = generic
 
 [formatter_generic]
 format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
-
