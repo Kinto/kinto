@@ -1,9 +1,11 @@
 import os
 import codecs
 from time import strftime
+
 from cliquet import utils as cliquet_utils
-from kinto import __version__
+
 from kinto import logger
+from kinto import __version__
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -27,10 +29,10 @@ def render_template(template, destination, **kwargs):
 def init(config_file, backend):
     values = {}
 
-    values['kinto_version'] = __version__
-    values['config_creation_time'] = strftime('%a, %d %b %Y %H:%M:%S %z')
-
     values['secret'] = cliquet_utils.random_bytes_hex(32)
+
+    values['kinto_version'] = __version__
+    values['config_file_timestamp'] = strftime('%a, %d %b %Y %H:%M:%S %z')
 
     values['storage_backend'] = "cliquet.storage.%s" % backend
     values['cache_backend'] = "cliquet.cache.%s" % backend

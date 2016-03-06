@@ -1,5 +1,6 @@
-# Created at {config_creation_time}
+# Created at {config_file_timestamp}
 # Using Kinto version {kinto_version}
+
 
 [server:main]
 use = egg:waitress#main
