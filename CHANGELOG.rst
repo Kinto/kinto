@@ -9,6 +9,8 @@ This document describes changes between each past release.
 **Protocol**
 
 - Allow buckets to store arbitrary properties. (#462)
+- Delete every (writable) buckets using ``DELETE /v1/buckets``
+- Delete every (writable) collections using ``DELETE /v1/buckets/<bucket-id>/collections``
 - Clients are redirected to URLs without trailing slash only if the current URL
   does not exist (#656)
 - Partial responses can now be specified for nested objects (#445)
@@ -17,6 +19,8 @@ This document describes changes between each past release.
   thanks @ayusharma)
 - Server now returns 415 error response if client cannot accept JSON response (#461, mozilla-services/cliquet#667)
 - Server now returns 415 error response if client does not send JSON request (#461, mozilla-services/cliquet#667)
+
+Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en/latest/api/>`_.
 
 **Breaking changes**
 

@@ -158,6 +158,18 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         settings['kinto.bucket_read_principals'] = self.principal
         return settings
 
+    def test_buckets_can_be_deleted_in_bulk(self):
+        self.app.put_json('/buckets/1', MINIMALIST_BUCKET,
+                          headers=get_user_headers('alice'))
+        self.app.put_json('/buckets/2', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/3', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.delete('/buckets', headers=self.headers)
+        self.app.get('/buckets/1', headers=self.headers, status=200)
+        self.app.get('/buckets/2', headers=self.headers, status=404)
+        self.app.get('/buckets/3', headers=self.headers, status=404)
+
     def test_buckets_can_be_deleted(self):
         self.app.get(self.bucket_url, headers=self.headers,
                      status=404)

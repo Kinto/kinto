@@ -15,6 +15,8 @@ Changelog
 ''''''''''''''''
 
 - Allow bucket to get arbitrary attributes.
+- Delete every (writable) buckets using ``DELETE /v1/buckets``
+- Delete every (writable) collections using ``DELETE /v1/buckets/<bucket-id>/collections``
 - URLs with trailing slash are redirected only if the current URL does not exist
 - Partial responses can now be specified for nested objects.
   For example, ``/records?_fields=address.street``.
