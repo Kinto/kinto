@@ -13,6 +13,9 @@ This document describes changes between each past release.
 - Allow buckets to store arbitrary properties. (#462)
 - Speed-up startup (ref #490)
 
+**Breaking changes**
+- kinto.plugins.default_bucket plugin is no longer assumed. We invite users to check that the kinto.plugins.default_bucket is present in the includes setting if they expect it. (ref #495)
+
 
 1.11.2 (2016-02-03)
 ===================
