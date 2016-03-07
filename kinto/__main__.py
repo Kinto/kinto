@@ -45,6 +45,11 @@ def main(args=None):
     parser_migrate.set_defaults(which='migrate')
 
     parser_start = subparsers.add_parser('start')
+    parser_start.add_argument('--reload',
+                              action='store_true',
+                              help='Restart when code or config changes',
+                              required=False,
+                              default=False)
     parser_start.set_defaults(which='start')
 
     args = vars(parser.parse_args())
@@ -83,7 +88,9 @@ def main(args=None):
         cliquet.init_schema(env)
 
     elif args['which'] == 'start':
-        pserve_argv = ['pserve', config_file, '--reload']
+        pserve_argv = ['pserve', config_file]
+        if args['reload']:
+            pserve_argv.append('--reload')
         pserve.main(pserve_argv)
 
 

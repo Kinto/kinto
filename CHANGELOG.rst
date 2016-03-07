@@ -20,6 +20,8 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
+- ``kinto start`` must be explicitly run with ``--reload`` in order to
+  restart the server when code or configuration changes (ref #490).
 - Errors are not swallowed anymore during the execution of ``ResourceChanged``
   events subscribers.
 
