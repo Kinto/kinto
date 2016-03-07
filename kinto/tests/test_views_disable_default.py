@@ -36,12 +36,12 @@ class DisableDefaultBucketViewTest(BaseWebTest, unittest.TestCase):
         settings = super(DisableDefaultBucketViewTest, self).get_app_settings(extra)
         return settings
 
-    def test_returns_503_if_excluded_in_configuration(self):
-        extra = {'kinto.excludes': 'kinto.plugins.default_bucket'}
+    def test_returns_403_if_excluded_in_configuration(self):
+        extra = {'includes': ''}
         app = self._get_test_app(settings=extra)
         app.get(self.test_url, headers=self.headers, status=403)
 
-    def test_returns_200_if_not_excluded_in_configuration(self):
-        extra = {'kinto.excludes': ''}
+    def test_returns_200_if_included_in_configuration(self):
+        extra = {'includes': 'kinto.plugins.default_bucket'}
         app = self._get_test_app(settings=extra)
         app.get(self.test_url, headers=self.headers, status=200)

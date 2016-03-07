@@ -45,15 +45,6 @@ def main(global_config, config=None, **settings):
 
     settings = config.get_settings()
 
-    # In Kinto API 1.x, a default bucket is available.
-    default_bucket_plugin='kinto.plugins.default_bucket'
-    if 'excludes' in settings and default_bucket_plugin in settings['excludes']:
-        # do not include the default bucket plugin
-        pass
-    # Force its inclusion if not specified in settings and not explictly excluded
-    elif default_bucket_plugin not in settings['includes']:
-        config.include(default_bucket_plugin)
-
     # Retro-compatibility with first Kinto clients.
     config.registry.public_settings.add('cliquet.batch_max_requests')
 
