@@ -342,7 +342,7 @@ Here's an example:
     single-interpreter = true
     buffer-size = 65535
     post-buffering = 65535
-    plugins = python
+    plugin = python
 
 To use a different ini file, the ``KINTO_INI`` environment variable
 should be present with a path to it.

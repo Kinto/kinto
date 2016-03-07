@@ -108,6 +108,7 @@ kinto.includes = kinto.plugins.default_bucket
 # single-interpreter = true
 # buffer-size = 65535
 # post-buffering = 65535
+# plugin = python
 
 
 #
