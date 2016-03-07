@@ -67,7 +67,16 @@ def main(global_config, config=None, **settings):
     # Scan Kinto views.
     kwargs = {}
     flush_enabled = asbool(settings.get('flush_endpoint_enabled'))
-    if not flush_enabled:
+
+    if flush_enabled:
+        config.add_api_capability(
+            "flush_endpoint",
+            description="The __flush__ endpoint can be used to remove all "
+                        "data from all backends.",
+            url="http://kinto.readthedocs.org/en/latest/configuration/"
+                "settings.html#activating-the-flush-endpoint"
+        )
+    else:
         kwargs['ignore'] = 'kinto.views.flush'
     config.scan("kinto.views", **kwargs)
 
