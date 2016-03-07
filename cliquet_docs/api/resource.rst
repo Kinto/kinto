@@ -167,7 +167,7 @@ When filtering on ``last_modified`` every deleted records will appear in the
 list with a ``deleted`` flag and a ``last_modified`` value that corresponds
 to the deletion event.
 
-If the request header ``If-None-Match`` is provided as described in
+If the request header ``If-None-Match: "<timestamp>"`` is provided as described in
 the :ref:`section about timestamps <server-timestamps>` and if the
 collection was not changed, a ``304 Not Modified`` response is returned.
 
@@ -355,8 +355,13 @@ The POST response body is a JSON mapping containing:
 - ``permissions``: *optional* a json dict containing the permissions for
   the requested resource.
 
-If the request header ``If-Match`` is provided, and if the record has
+If the request header ``If-Match: "<timestamp>"`` is provided as described in
+the :ref:`section about timestamps <server-timestamps>`, and if the collection has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
+
+If the request header ``If-None-Match: *`` is provided, and if the provided ``data``
+contains an ``id`` field, and if there is already an existing record with this ``id``,
+a ``412 Precondition failed`` error is returned.
 
 
 **Request**:
@@ -440,8 +445,7 @@ take the value of the created record but is bumped into the future as usual.
 HTTP Status Codes
 -----------------
 
-.. * ``200 OK``: This record already exists, here is the one stored on the database;
-
+* ``200 OK``: This record already exists, the one stored on the database is returned.
 * ``201 Created``: The record was created
 * ``400 Bad Request``: The request body is invalid
 * ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
@@ -449,7 +453,7 @@ HTTP Status Codes
 * ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
 * ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
 
-.. versionadded:: 2.13::
+.. versionadded:: 2.13
 
   Enforcement of the timestamp value for records has been added.
 
@@ -467,7 +471,7 @@ The DELETE response is a JSON mapping containing:
 
 It supports the same filtering capabilities as GET.
 
-If the request header ``If-Match`` is provided, and if the collection
+If the request header ``If-Match: "<timestamp>"`` is provided, and if the collection
 has changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 
@@ -528,8 +532,8 @@ containing:
 - ``permissions``: *optional* a json dict containing the permissions for
   the requested record.
 
-If the request header ``If-None-Match`` is provided, and if the record has not
-changed meanwhile, a ``304 Not Modified`` is returned.
+If the request header ``If-None-Match: "<timestamp>"`` is provided, and
+if the record has not changed meanwhile, a ``304 Not Modified`` is returned.
 
 **Request**:
 
@@ -613,7 +617,7 @@ HTTP Status Code
 * ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
 
-.. versionadded:: 2.13::
+.. versionadded:: 2.13
 
   Enforcement of the timestamp value for records has been added.
 
@@ -637,8 +641,12 @@ The PUT response body is a JSON mapping containing:
 
 Validation and conflicts behaviour is similar to creating records (``POST``).
 
-If the request header ``If-Match`` is provided, and if the record has
+If the request header ``If-Match: "<timestamp>"`` is provided as described in
+the :ref:`section about timestamps <server-timestamps>`, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
+
+If the request header ``If-None-Match: *`` is provided  and if there is already
+an existing record with this ``id``, a ``412 Precondition failed`` error is returned.
 
 
 **Request**:
@@ -707,12 +715,8 @@ HTTP Status Code
   in ``If-Match`` header.
 * ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
 
-.. note::
 
-    A ``If-None-Match: *`` request header can be used to make sure the ``PUT``
-    won't overwrite any record.
-
-.. versionadded:: 2.13::
+.. versionadded:: 2.13
 
   Enforcement of the timestamp value for records has been added.
 
@@ -738,7 +742,6 @@ If a request header ``Response-Behavior`` is set to ``light``,
 only the fields whose value was changed are returned. If set to
 ``diff``, only the fields whose value became different than
 the one provided are returned.
-
 
 **Request**:
 
@@ -781,8 +784,10 @@ the one provided are returned.
 If the record is missing (or already deleted), a ``404 Not Found`` error is returned.
 The consumer might decide to ignore it.
 
-If the request header ``If-Match`` is provided, and if the record has
+If the request header ``If-Match: "<timestamp>"`` is provided as described in
+the :ref:`section about timestamps <server-timestamps>`, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
+
 
 .. note::
 
@@ -831,7 +836,7 @@ HTTP Status Code
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
 * ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
 
-.. versionadded:: 2.13::
+.. versionadded:: 2.13
 
   Enforcement of the timestamp value for records has been added.
 
@@ -879,7 +884,7 @@ In a response, ``permissions`` contains the current permissions of the record
 `Read more about leveraging resource permissions <resource-permissions>`.
 
 
-.. versionchanged:: 2.6::
+.. versionchanged:: 2.6
 
     With a ``PATCH`` request, the list of principals for the specified permissions
     is now replaced by the one provided.

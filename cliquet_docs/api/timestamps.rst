@@ -56,6 +56,14 @@ In order to check that the client version has not changed, a ``If-None-Match``
 request header can be used. If the response is ``304 Not Modified`` then
 the cached version if still good.
 
++----------------------------------+-------------------------+-----------------------------------+
+| **If-None-Match: "<timestamp>"** | Changed meanwhile       | Not changed                       |
++==================================+=========================+===================================+
+| GET {resource}                   | Return response content | Return empty ``304 Not modified`` |
++----------------------------------+-------------------------+-----------------------------------+
+| GET {resource}/{id}              | Return response content | Return empty ``304 Not modified`` |
++----------------------------------+-------------------------+-----------------------------------+
+
 
 Concurrency control
 ===================
@@ -64,9 +72,32 @@ In order to prevent race conditions, like overwriting changes occured in the int
 a ``If-Match`` request header can be used. If the response is ``412 Precondition failed``
 then the resource has changed meanwhile.
 
-The client can then choose to:
++-----------------------------+-----------------------------+-------------------+
+| **If-Match: "<timestamp>"** | Changed meanwhile           | Not changed       |
++=============================+=============================+===================+
+| POST {resource}             | ``412 Precondition failed`` | Create            |
++-----------------------------+-----------------------------+-------------------+
+| PUT {resource}/{id}         | ``412 Precondition failed`` | Create or replace |
++-----------------------------+-----------------------------+-------------------+
+| PATCH {resource}/{id}       | ``412 Precondition failed`` | Modify            |
++-----------------------------+-----------------------------+-------------------+
+| DELETE {resource}/{id}      | ``412 Precondition failed`` | Delete            |
++-----------------------------+-----------------------------+-------------------+
 
-* overwrite by repeating the request without ``If-Match``;
+Concurrency control also allows to make sure a creation won't overwrite any record:
+
++---------------------+-----------------------------+------------+
+| **If-None-Match: ***| Id exists                   | Id unknown |
++=====================+=============================+============+
+| POST {resource}     | ``412 Precondition failed`` | Create     |
++---------------------+-----------------------------+------------+
+| PUT {resource}/{id} | ``412 Precondition failed`` | Create     |
++---------------------+-----------------------------+------------+
+
+
+When the client receives a ``412 Precondition failed``, it can then choose to:
+
+* overwrite by repeating the request without concurrency control;
 * reconcile the resource by fetching, merging and repeating the request.
 
 
