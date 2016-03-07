@@ -50,6 +50,14 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
+    def test_buckets_should_reject_unaccepted_request_content_type(self):
+        headers = self.headers.copy()
+        headers['Content-Type'] = 'text/plain'
+        self.app.put('/buckets/beers',
+                     MINIMALIST_BUCKET,
+                     headers=headers,
+                     status=415)
+
     def test_create_permissions_can_be_added_on_buckets(self):
         bucket = MINIMALIST_BUCKET.copy()
         bucket['permissions'] = {'collection:create': ['fxa:user'],
