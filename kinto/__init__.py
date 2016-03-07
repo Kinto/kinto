@@ -47,7 +47,8 @@ def main(global_config, config=None, **settings):
 
     # In Kinto API 1.x, a default bucket is available.
     # Force its inclusion if not specified in settings.
-    if 'kinto.plugins.default_bucket' not in settings['includes']:
+    if 'kinto.plugins.default_bucket' not in settings['includes'] \
+	 and 'kinto.plugins.default_bucket' not in settings['excludes']:
         config.include('kinto.plugins.default_bucket')
 
     # Retro-compatibility with first Kinto clients.
