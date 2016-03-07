@@ -69,7 +69,7 @@ Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en
 - Optimized (and cleaned) usage of (un)authenticated_userid (#424, mozilla-services/cliquet#641)
 
 **Breaking changes**
-- kinto.plugins.default_bucket plugin is no longer assumed. We invite users to check that the kinto.plugins.default_bucket is present in the includes setting if they expect it. (ref #495)
+- ``kinto.plugins.default_bucket`` plugin is no longer assumed. We invite users to check that the ``kinto.plugins.default_bucket`` is present in the ``includes`` setting if they expect it. (ref #495)
 
 
 1.11.2 (2016-02-03)
