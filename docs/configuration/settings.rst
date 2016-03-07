@@ -438,12 +438,6 @@ to create your own plugin.
 
 .. _configuring-notifications:
 
-It is also possible to exclude the default bucket plugin:
-
-.. code-block:: ini
-
-    kinto.excludes = kinto.plugins.default_bucket
-
 Notifications
 =============
 
