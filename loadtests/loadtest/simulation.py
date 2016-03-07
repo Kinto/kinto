@@ -108,7 +108,7 @@ class SimulationLoadTest(BaseLoadTest):
             self.collection_url(),
             data=json.dumps({'data': article}),
             headers={'Content-Type': 'application/json'})
-        self.incr_counter(resp.status_code)
+        self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 201)
 
     def create_put(self):
@@ -117,7 +117,7 @@ class SimulationLoadTest(BaseLoadTest):
             self.record_url(uuid.uuid4()),
             data=json.dumps({'data': article}),
             headers={'Content-Type': 'application/json'})
-        self.incr_counter(resp.status_code)
+        self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 201)
 
     def batch_create(self):
@@ -158,13 +158,13 @@ class SimulationLoadTest(BaseLoadTest):
         query_url = '&'.join(['='.join(param) for param in queryparams])
         url = self.collection_url() + '?' + query_url
         resp = self.session.get(url)
-        self.incr_counter(resp.status_code)
+        self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def _patch(self, url, data, status=200):
         data = json.dumps(data)
         resp = self.session.patch(url, data)
-        self.incr_counter(resp.status_code)
+        self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, status)
 
     def _run_batch(self, data):
@@ -217,7 +217,7 @@ class SimulationLoadTest(BaseLoadTest):
 
     def delete(self):
         resp = self.session.delete(self.random_url)
-        self.incr_counter(resp.status_code)
+        self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def batch_delete(self):
