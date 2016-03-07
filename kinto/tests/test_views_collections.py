@@ -31,6 +31,14 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
+    def test_collections_should_reject_unaccepted_request_content_type(self):
+        headers = self.headers.copy()
+        headers['Content-Type'] = 'text/plain'
+        self.app.put('/buckets/beers/collections/barley',
+                     MINIMALIST_COLLECTION,
+                     headers=headers,
+                     status=415)
+
     def test_unknown_bucket_raises_403(self):
         other_bucket = self.collections_url.replace('beers', 'sodas')
         self.app.get(other_bucket, headers=self.headers, status=403)

@@ -203,3 +203,27 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.record_url,
                      headers=self.aaron_headers,
                      status=200)
+
+    def test_records_should_reject_unaccepted_request_content_type(self):
+        headers = self.headers.copy()
+        headers['Content-Type'] = 'text/plain'
+        self.app.put(self.record_url,
+                     MINIMALIST_RECORD,
+                     headers=headers,
+                     status=415)
+
+    def test_records_should_reject_unaccepted_client_accept(self):
+        headers = self.headers.copy()
+        headers['Accept'] = 'text/plain'
+        self.app.get(self.record_url,
+                     MINIMALIST_RECORD,
+                     headers=headers,
+                     status=406)
+
+    def test_records_should_accept_client_accept(self):
+        headers = self.headers.copy()
+        headers['Accept'] = '*/*'
+        self.app.get(self.record_url,
+                     MINIMALIST_RECORD,
+                     headers=headers,
+                     status=200)
