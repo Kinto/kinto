@@ -17,7 +17,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
-- Do not always return 412 errors when request header `If-None-Match: *``
+- Do not always return 412 errors when request header ``If-None-Match: *``
   is sent on ``POST /collection`` (fixes #673)
 
 **Internal changes**
