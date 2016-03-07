@@ -34,11 +34,22 @@ Let's define a "name generator", which will output 8 random characters
 Note that you actually need to define both the generator **and** the validator,
 which can be provided as a regexp.
 
+.. important::
+
+    The id generator should be random enough to avoid collisions.
+
+    The random approach here serves the purpose of this tutorial, but for a production
+    ready implementation, have a look at :github:`dylang/shortid` for example.
+
+
+Enable in configuration
+-----------------------
+
 Okay, once we've got this new generator, we can put it in a file named
-``name_generator.py``, and then configure the kinto server to use this
+``name_generator.py``, and then configure the Kinto server to use this
 generator to actually generate the record IDs.
 
-In your `kinto.ini` configuration file, set the ``kinto.id_generator``
+In your :file:`config/kinto.ini` configuration file, set the ``kinto.id_generator``
 setting:
 
 .. code-block:: ini
@@ -49,7 +60,7 @@ And then run your server as usual
 
 .. code-block:: bash
 
-    $ pserve config/kinto.ini
+    $ kinto --ini config/kinto.ini start
 
 Now, if you try to generate a new record, you should have the new ID used,
 well done!
@@ -80,3 +91,16 @@ well done!
             ]
         }
     }
+
+.. note::
+
+    Currently the configuration of the custom generator applies to every resources
+    (buckets, groups, collections, records). This tiny limitation can easily be
+    fixed, don't hesitate to :ref:`get in touch with us <communication_channels>`!
+
+
+Kinto.js client
+---------------
+
+The offline-first client :github:`Kinto/kinto.js` can also be configured to
+generate custom ids. See `its documentation <https://kintojs.readthedocs.org/en/latest/api/#custom-id-generation-using-an-id-schema>`_ for more details.
