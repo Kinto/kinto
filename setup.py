@@ -18,16 +18,16 @@ CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
     'waitress',
-    'cliquet>=3,<4',
+    'cliquet>=3.1,<4',
     'jsonschema',
 ]
 
 POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[postgresql]>=3,<4'
+    'cliquet[postgresql]>=3.1,<4'
 ]
 
 MONITORING_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[monitoring]>=3,<4'
+    'cliquet[monitoring]>=3.1,<4'
 ]
 
 FXA_REQUIREMENTS = REQUIREMENTS + [
