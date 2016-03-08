@@ -23,7 +23,8 @@ Changelog
 - List responses are now sorted by last_modified descending by default
 - Return 415 error response if client cannot accept JSON response
 - Return 415 error response if client does not send JSON request
-- Add the ``GET /v1/__lbheartbeat__`` endpoint, for load balancer membership test.
+- Add the ``GET /v1/__lbheartbeat__`` endpoint, for load balancer membership test
+- Expose the experimental json-schema feature in the public settings (root URL)
 
 1.3 (2016-01-28)
 ''''''''''''''''

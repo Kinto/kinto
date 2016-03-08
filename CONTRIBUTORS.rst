@@ -5,12 +5,15 @@ Contributors
 * Aditya Bhasin <conlini@gmail.com>
 * Alexis Métaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
+* Ayush Sharma <ayush.aceit@gmail.com>
 * Chirag B. Jadwani <chirag.jadwani@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>
 * David Larlet <david@larlet.fr>
+* Enguerran <engcolson@gmail.com>
 * Eric Bréhault <ebrehault@gmail.com>
 * Fil <fil@rezo.net>
 * Greeshma <https://github.com/greeshmab>
+* Jelmer van der Ploeg <jelmer@woovar.com>
 * John Giannelos <johngiannelos@gmail.com>
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
