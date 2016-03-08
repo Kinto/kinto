@@ -20,6 +20,8 @@ This document describes changes between each past release.
 - Server now returns 415 error response if client cannot accept JSON response (#461, mozilla-services/cliquet#667)
 - Server now returns 415 error response if client does not send JSON request (#461, mozilla-services/cliquet#667)
 - Add the ``__lbheartbeat__`` endpoint, for load balancer membership test.
+- Added the ``flush_endpoint``, ``schema`` and ``default_bucket`` capabilities
+  if enabled in settings
 
 Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en/latest/api/>`_.
 
