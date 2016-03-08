@@ -3,10 +3,12 @@ import mock
 import os
 import tempfile
 import unittest
+from time import strftime
 
 import six
 
 from kinto import config
+from kinto import __version__
 
 
 class ConfigTest(unittest.TestCase):
@@ -21,7 +23,9 @@ class ConfigTest(unittest.TestCase):
                                permission_backend='permission_backend',
                                storage_url='storage_url',
                                cache_url='cache_url',
-                               permission_url='permission_url')
+                               permission_url='permission_url',
+                               kinto_version='kinto_version',
+                               config_file_timestamp='config_file_timestamp')
 
         with codecs.open(dest, 'r', encoding='utf-8') as d:
             destination_temp = d.read()
@@ -43,7 +47,9 @@ class ConfigTest(unittest.TestCase):
                                permission_backend='permission_backend',
                                storage_url='storage_url',
                                cache_url='cache_url',
-                               permission_url='permission_url')
+                               permission_url='permission_url',
+                               kinto_version='kinto_version',
+                               config_file_timestamp='config_file_timestamp')
 
         self.assertTrue(os.path.exists(dest))
 
@@ -68,7 +74,9 @@ class ConfigTest(unittest.TestCase):
             'permission_backend': 'cliquet.permission.postgresql',
             'storage_url': postgresql_url,
             'cache_url':  postgresql_url,
-            'permission_url': postgresql_url
+            'permission_url': postgresql_url,
+            'kinto_version': __version__,
+            'config_file_timestamp': strftime('%a, %d %b %Y %H:%M:%S %z')
         })
 
     @mock.patch('kinto.config.render_template')
@@ -86,7 +94,9 @@ class ConfigTest(unittest.TestCase):
             'permission_backend': 'cliquet.permission.redis',
             'storage_url': redis_url + '/1',
             'cache_url':  redis_url + '/2',
-            'permission_url': redis_url + '/3'
+            'permission_url': redis_url + '/3',
+            'kinto_version': __version__,
+            'config_file_timestamp': strftime('%a, %d %b %Y %H:%M:%S %z')
         })
 
     @mock.patch('kinto.config.render_template')
@@ -103,7 +113,9 @@ class ConfigTest(unittest.TestCase):
             'permission_backend': 'cliquet.permission.memory',
             'storage_url': '',
             'cache_url':  '',
-            'permission_url': ''
+            'permission_url': '',
+            'kinto_version': __version__,
+            'config_file_timestamp': strftime('%a, %d %b %Y %H:%M:%S %z')
         })
 
     def test_render_template_creates_directory_if_necessary(self):
@@ -116,7 +128,9 @@ class ConfigTest(unittest.TestCase):
             'permission_backend': 'cliquet.permission.memory',
             'storage_url': '',
             'cache_url':  '',
-            'permission_url': ''
+            'permission_url': '',
+            'kinto_version': '',
+            'config_file_timestamp': ''
         })
         self.assertTrue(os.path.exists(destination))
 
@@ -130,7 +144,9 @@ class ConfigTest(unittest.TestCase):
             'permission_backend': 'cliquet.permission.memory',
             'storage_url': '',
             'cache_url':  '',
-            'permission_url': ''
+            'permission_url': '',
+            'kinto_version': '',
+            'config_file_timestamp': ''
         })
         self.assertTrue(os.path.exists(
             os.path.join(temp_path, 'kinto.ini')
