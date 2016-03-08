@@ -162,3 +162,10 @@ def includeme(config):
     config.add_request_method(default_bucket_id, reify=True)
     # Override Cliquet default user info
     config.add_request_method(get_user_info)
+
+    config.add_api_capability(
+        "default_bucket",
+        description="The default bucket is an alias for a personal"
+                    " bucket where collections are created implicitly.",
+        url="http://kinto.readthedocs.org/en/latest/api/1.x/"
+            "buckets.html#personal-bucket-default")

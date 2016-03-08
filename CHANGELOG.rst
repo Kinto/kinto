@@ -54,6 +54,8 @@ Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en
   `See more details <http://cliquet.readthedocs.org/en/latest/reference/notifications.html>`_.
 - Track execution time on StatsD for each authentication sub-policy (mozilla-services/cliquet#639)
 - Default console log renderer now has colours (mozilla-service/cliquet#671)
+- Added the ``flush_endpoint``, ``schema`` and ``default_bucket`` to the capabilities
+  if enabled in settings
 
 **Bug fixes**
 

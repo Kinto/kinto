@@ -207,6 +207,19 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
             self.assertEqual(resp.body, response.body)
 
 
+class HelloViewTest(BaseWebTest, unittest.TestCase):
+
+    def test_returns_bucket_id_and_url_if_authenticated(self):
+        response = self.app.get('/', headers=self.headers)
+        self.assertEqual(response.json['user']['bucket'],
+                         '23bb0efc-e80d-829e-6757-79d41e16640f')
+
+    def test_flush_capability_if_enabled(self):
+        resp = self.app.get('/')
+        capabilities = resp.json['capabilities']
+        self.assertIn('default_bucket', capabilities)
+
+
 class ReadonlyDefaultBucket(BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extras=None):

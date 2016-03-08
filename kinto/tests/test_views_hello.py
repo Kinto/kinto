@@ -23,11 +23,6 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
                          ('basicauth:3a0c56d278def4113f38d0cfff6db1b06b'
                           '84fcc4384ee890cf7bbaa772317e10'))
 
-    def test_returns_bucket_id_and_url_if_authenticated(self):
-        response = self.app.get('/', headers=self.headers)
-        self.assertEqual(response.json['user']['bucket'],
-                         '23bb0efc-e80d-829e-6757-79d41e16640f')
-
     def test_capability_is_exposed_if_setting_is_set(self):
         settings = self.get_app_settings()
         settings['experimental_collection_schema_validation'] = True
