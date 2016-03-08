@@ -1,12 +1,4 @@
-import webtest
-from pyramid.config import Configurator
-
-from cliquet.tests import support as cliquet_support
-from kinto import main
-
-from .support import (BaseWebTest, unittest, get_user_headers,
-                      MINIMALIST_BUCKET, MINIMALIST_COLLECTION,
-                      MINIMALIST_RECORD)
+from .support import (BaseWebTest, unittest)
 
 
 class DisableDefaultBucketViewTest(BaseWebTest, unittest.TestCase):
