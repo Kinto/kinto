@@ -19,6 +19,7 @@ This document describes changes between each past release.
   thanks @ayusharma)
 - Server now returns 415 error response if client cannot accept JSON response (#461, mozilla-services/cliquet#667)
 - Server now returns 415 error response if client does not send JSON request (#461, mozilla-services/cliquet#667)
+- Add the ``__lbheartbeat__`` endpoint, for load balancer membership test.
 
 Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en/latest/api/>`_.
 
@@ -52,6 +53,7 @@ Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en
   in database is done and successful.
   `See more details <http://cliquet.readthedocs.org/en/latest/reference/notifications.html>`_.
 - Track execution time on StatsD for each authentication sub-policy (mozilla-services/cliquet#639)
+- Default console log renderer now has colours (mozilla-service/cliquet#671)
 
 **Bug fixes**
 
@@ -62,6 +64,8 @@ Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en
 - Fix statsd initialization on storage (mozilla-services/cliquet#637)
 - Providing bad last modified values on delete now returns 400 (mozilla-services/cliquet#665)
 - Providing last modified in the past for delete now follows behaviour create/update (mozilla-services/cliquet#665)
+- Do not always return 412 errors when request header ``If-None-Match: *``
+  is sent on ``POST /collection`` (fixes #489, mozilla-service/cliquet#673)
 
 **Internal changes**
 
