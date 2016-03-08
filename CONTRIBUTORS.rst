@@ -15,6 +15,7 @@ Contributors
 * Greeshma <https://github.com/greeshmab>
 * Jelmer van der Ploeg <jelmer@woovar.com>
 * John Giannelos <johngiannelos@gmail.com>
+* Lavish Aggarwal <lucky.lavish@gmail.com>
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
 * Michiel de Jong <michiel@unhosted.org>
