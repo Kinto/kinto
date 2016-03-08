@@ -360,6 +360,8 @@ Delete all buckets
 Personal bucket «default»
 =========================
 
+When the built-in plugin ``kinto.plugins.default_bucket`` is enabled in configuration, a bucket ``default`` is available.
+
 As explained in the :ref:`section about collections<collections>`, the ``default``
 bucket implicitly creates the collections objects on their first use.
 
