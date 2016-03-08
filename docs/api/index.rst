@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.4 (unreleased)
+1.4 (2016-03-08)
 ''''''''''''''''
 
 - Allow bucket to get arbitrary attributes.
