@@ -48,6 +48,7 @@ class BaseWebTest(object):
         settings['storage_backend'] = 'cliquet.storage.memory'
         settings['permission_backend'] = 'cliquet.permission.memory'
         settings['userid_hmac_secret'] = "this is not a secret"
+        settings['includes'] = "kinto.plugins.default_bucket"
 
         if additional_settings is not None:
             settings.update(additional_settings)
