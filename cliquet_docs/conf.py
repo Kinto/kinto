@@ -63,16 +63,16 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Cliquet'
-copyright = u'2015, Mozilla Services — Da French Team'
+copyright = u'2015-2016, Mozilla Services — Da French Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = '3.0'
+version = '3.1'
 # The full version, including alpha/beta/rc tags.
-release = '3.0.0'
+release = '3.1.0'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

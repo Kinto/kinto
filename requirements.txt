@@ -1,4 +1,5 @@
 colander==1.2
+colorama==0.3.6
 contextlib2==0.5.1
 cornice==1.2.0
 enum34==1.1.2
@@ -9,8 +10,8 @@ psycopg2==2.6.1
 pyramid==1.6.1
 pyramid-multiauth==0.8.0
 pyramid-tm==0.12.1
-python-dateutil==2.4.2
-raven==5.10.2
+python-dateutil==2.5.0
+raven==5.11.0
 redis==2.10.5
 repoze.lru==0.6
 requests==2.9.1

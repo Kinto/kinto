@@ -4,7 +4,7 @@ Changelog
 This document describes changes between each past release.
 
 
-3.1.0 (unreleased)
+3.1.0 (2016-03-07)
 ------------------
 
 **Protocol**
@@ -14,6 +14,15 @@ This document describes changes between each past release.
 **New features**
 
 - Default console log renderer now has colours (#671)
+
+**Bug fixes**
+
+- Do not always return 412 errors when request header ``If-None-Match: *``
+  is sent on ``POST /collection`` (fixes #673)
+
+**Internal changes**
+
+- Remove some imports at initialization to speed startup (#674)
 
 
 3.0.0 (2016-02-26)
