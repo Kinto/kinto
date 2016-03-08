@@ -38,6 +38,9 @@ Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en
   on transaction rollback: most likely database storage operations.
 
   For irreversible operations see the new ``AfterResourceChanged`` event.
+- ``kinto.plugins.default_bucket`` plugin is no longer assumed. We invite users
+  to check that the ``kinto.plugins.default_bucket`` is present in the
+  ``includes`` setting if they expect it. (ref #495)
 
 **New features**
 
@@ -67,6 +70,7 @@ Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en
 - Allow buckets to store arbitrary properties. (#462)
 - Speed-up startup (ref #490)
 - Optimized (and cleaned) usage of (un)authenticated_userid (#424, mozilla-services/cliquet#641)
+
 
 1.11.2 (2016-02-03)
 ===================

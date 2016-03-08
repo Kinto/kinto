@@ -14,17 +14,20 @@ A collection is a mapping with the following attribute:
 
 .. note::
 
-    By default users are assigned to a bucket that is used for their
-    personal data. When going through the default bucket, the collections are created
-    silently upon first access
 
-    Application can use this default bucket with the ``default``
-    shortcut: ie ``/buckets/default/collections/contacts`` will be
-    the current user contacts.
+    When the built-in plugin ``kinto.plugins.default_bucket`` is enabled in
+    configuration, a bucket ``default`` is available.
+
+    Users are assigned to that bucket which can be used for their personal data.
+
+    When going through the ``default`` bucket, the collections are created
+    silently upon first access.
+
+    Applications can use this default bucket (e.g. ``/buckets/default/collections/contacts`` will be
+    the contacts of the current user.
 
     Internally the user default bucket is assigned to an ID, and users can share
     data from their personnal bucket, by sharing :ref:`its URL using the full ID <buckets-default-id>`.
-
 
 
 .. _collections-get:
@@ -469,11 +472,11 @@ Just modify the ``schema`` attribute of the collection object:
           "required": ["title"]
         }
       }
-    }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth token:admin-token --verbose
+    }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth token:admin-token --verbose
 
 .. code-block:: http
 
-    PATCH /v1/buckets/default/collections/articles HTTP/1.1
+    PATCH /v1/buckets/blog/collections/articles HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic YWRtaW46
@@ -594,7 +597,7 @@ It becomes possible to use this ``schema`` field as a filter on the collection
 records endpoint in order to obtain the records that were not validated against a particular
 version of the schema.
 
-For example, ``GET /buckets/default/collections/articles/records?min_schema=123456``.
+For example, ``GET /buckets/blog/collections/articles/records?min_schema=123456``.
 
 
 Remove a schema
@@ -608,11 +611,11 @@ to an empty mapping.
 
 .. code-block:: bash
 
-    echo '{"data": {"schema": {}} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth token:admin-token --verbose
+    echo '{"data": {"schema": {}} }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth token:admin-token --verbose
 
 .. code-block:: http
 
-    PATCH /v1/buckets/default/collections/articles HTTP/1.1
+    PATCH /v1/buckets/blog/collections/articles HTTP/1.1
     Accept: application/json
     Accept-Encoding: gzip, deflate
     Authorization: Basic YWRtaW46
@@ -669,13 +672,13 @@ For example, set it to ``3600`` (1 hour):
 
 .. code-block:: bash
 
-    echo '{"data": {"cache_expires": 3600} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth token:admin-token
+    echo '{"data": {"cache_expires": 3600} }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth token:admin-token
 
 From now on, the cache control headers are set for the `GET` requests:
 
 .. code-block:: bash
 
-    http  "http://localhost:8888/v1/buckets/default/collections/articles/records" --auth token:admin-token
+    http  "http://localhost:8888/v1/buckets/blog/collections/articles/records" --auth token:admin-token
 
 .. code-block:: http
     :emphasize-lines: 3,8
@@ -701,7 +704,7 @@ If set to ``0``, the collection records become explicitly uncacheable (``no-cach
 
 .. code-block:: bash
 
-    echo '{"data": {"cache_expires": 0} }' | http PATCH "http://localhost:8888/v1/buckets/default/collections/articles" --auth token:admin-token
+    echo '{"data": {"cache_expires": 0} }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth token:admin-token
 
 .. code-block:: http
     :emphasize-lines: 3,8,10
