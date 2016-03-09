@@ -54,7 +54,7 @@ Cache control
 
 In order to check that the client version has not changed, a ``If-None-Match``
 request header can be used. If the response is ``304 Not Modified`` then
-the cached version if still good.
+the cached version is still good.
 
 +----------------------------------+-------------------------+-----------------------------------+
 | **If-None-Match: "<timestamp>"** | Changed meanwhile       | Not changed                       |
@@ -72,28 +72,24 @@ In order to prevent race conditions, like overwriting changes occured in the int
 a ``If-Match`` request header can be used. If the response is ``412 Precondition failed``
 then the resource has changed meanwhile.
 
-+-----------------------------+-----------------------------+-------------------+
-| **If-Match: "<timestamp>"** | Changed meanwhile           | Not changed       |
-+=============================+=============================+===================+
-| POST {resource}             | ``412 Precondition failed`` | Create            |
-+-----------------------------+-----------------------------+-------------------+
-| PUT {resource}/{id}         | ``412 Precondition failed`` | Create or replace |
-+-----------------------------+-----------------------------+-------------------+
-| PATCH {resource}/{id}       | ``412 Precondition failed`` | Modify            |
-+-----------------------------+-----------------------------+-------------------+
-| DELETE {resource}/{id}      | ``412 Precondition failed`` | Delete            |
-+-----------------------------+-----------------------------+-------------------+
+Concurrency control also allows to make sure a creation won't overwrite any record using
+the ``If-None-Match: *`` request header.
 
-Concurrency control also allows to make sure a creation won't overwrite any record:
+The following table gives a summary of the expected behaviour of a resource:
 
-+---------------------+-----------------------------+------------+
-| **If-None-Match: ***| Id exists                   | Id unknown |
-+=====================+=============================+============+
-| POST {resource}     | ``412 Precondition failed`` | Create     |
-+---------------------+-----------------------------+------------+
-| PUT {resource}/{id} | ``412 Precondition failed`` | Create     |
-+---------------------+-----------------------------+------------+
-
++-----------------------------+-------------------------------------------------+-------------------------------------------------+
+|                             | **If-Match: "<timestamp>"**                     | **If-None-Match: ***                            |
++                             +-----------------------------+-------------------+-----------------------------+-------------------+
+|                             | Changed meanwhile           | Not changed       | Id exists                   | Id unknown        |
++=============================+=============================+===================+=============================+===================+
+| POST {resource}             | ``412 Precondition failed`` | Create            | ``412 Precondition failed`` | Create            |
++-----------------------------+-----------------------------+-------------------+-----------------------------+-------------------+
+| PUT {resource}/{id}         | ``412 Precondition failed`` | Create or replace | ``412 Precondition failed`` | Create            |
++-----------------------------+-----------------------------+-------------------+-----------------------------+-------------------+
+| PATCH {resource}/{id}       | ``412 Precondition failed`` | Modify            |                             |                   |
++-----------------------------+-----------------------------+-------------------+-----------------------------+-------------------+
+| DELETE {resource}/{id}      | ``412 Precondition failed`` | Delete            |                             |                   |
++-----------------------------+-----------------------------+-------------------+-----------------------------+-------------------+
 
 When the client receives a ``412 Precondition failed``, it can then choose to:
 
