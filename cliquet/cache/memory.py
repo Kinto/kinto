@@ -51,4 +51,7 @@ class Cache(CacheBase):
 
 
 def load_from_config(config):
-    return Cache()
+    settings = config.get_settings()
+    prefix = settings['cache_prefix']
+    backend = Cache(prefix=prefix)
+    return backend
