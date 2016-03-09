@@ -24,7 +24,12 @@ Changelog
 - Return 415 error response if client cannot accept JSON response
 - Return 415 error response if client does not send JSON request
 - Add the ``GET /v1/__lbheartbeat__`` endpoint, for load balancer membership test
-- Expose the experimental json-schema feature in the public settings (root URL)
+
+.. note::
+
+    The ``capabilities`` object in the :ref:`root URL <api-utilities>` response
+    now contains some ``flush_endpoint``, ``schema``, and ``default_bucket`` entries
+    if the features are enabled in settings (#270).
 
 1.3 (2016-01-28)
 ''''''''''''''''
