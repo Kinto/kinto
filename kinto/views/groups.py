@@ -15,7 +15,7 @@ class GroupSchema(resource.ResourceSchema):
 @resource.register(name='group',
                    collection_path='/buckets/{{bucket_id}}/groups',
                    record_path='/buckets/{{bucket_id}}/groups/{{id}}')
-class Group(resource.ProtectedResource):
+class Group(resource.ShareableResource):
 
     mapping = GroupSchema()
 

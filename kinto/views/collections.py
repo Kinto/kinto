@@ -39,7 +39,7 @@ class CollectionSchema(resource.ResourceSchema):
                    collection_methods=('GET', 'POST', 'DELETE'),
                    collection_path='/buckets/{{bucket_id}}/collections',
                    record_path='/buckets/{{bucket_id}}/collections/{{id}}')
-class Collection(resource.ProtectedResource):
+class Collection(resource.ShareableResource):
     mapping = CollectionSchema()
     permissions = ('read', 'write', 'record:create')
 
