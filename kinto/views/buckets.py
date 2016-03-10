@@ -14,7 +14,7 @@ class BucketSchema(resource.ResourceSchema):
                    collection_methods=('GET', 'POST', 'DELETE'),
                    collection_path='/buckets',
                    record_path='/buckets/{{id}}')
-class Bucket(resource.ProtectedResource):
+class Bucket(resource.ShareableResource):
     mapping = BucketSchema()
     permissions = ('read', 'write', 'collection:create', 'group:create')
 

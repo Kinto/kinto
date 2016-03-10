@@ -19,7 +19,7 @@ _parent_path = '/buckets/{{bucket_id}}/collections/{{collection_id}}'
 @resource.register(name='record',
                    collection_path=_parent_path + '/records',
                    record_path=_parent_path + '/records/{{id}}')
-class Record(resource.ProtectedResource):
+class Record(resource.ShareableResource):
 
     mapping = RecordSchema()
     schema_field = 'schema'
