@@ -146,6 +146,20 @@ class BaseTestCache(object):
 
 class MemoryCacheTest(BaseTestCache, unittest.TestCase):
     backend = memory_backend
+    settings = {
+        'cache_prefix': ''
+    }
+
+    def get_backend_prefix(self, prefix):
+        settings_prefix = self.settings.copy()
+        if prefix:
+            settings_prefix['cache_prefix'] = prefix
+        config_prefix = self._get_config(settings=settings_prefix)
+
+        # initiating cache backend with prefix:
+        backend_prefix = self.backend.load_from_config(config_prefix)
+
+        return backend_prefix
 
     def test_backend_error_is_raised_anywhere(self):
         pass
@@ -156,12 +170,65 @@ class MemoryCacheTest(BaseTestCache, unittest.TestCase):
     def test_ping_logs_error_if_unavailable(self):
         pass
 
+    def test_cache_prefix_is_set(self):
+        backend_prefix = self.get_backend_prefix(prefix='prefix_')
+
+        # set a value with a cache that has no prefix
+        backend_prefix.set('key', 'foo')
+
+        # obtain the value of cache that has prefix
+        obtained = backend_prefix.get('key')
+
+        self.assertEqual(obtained, 'foo')
+
+    def test_cache_when_prefix_is_not_set(self):
+        backend_prefix = self.get_backend_prefix(prefix=None)
+
+        # set a value with a cache that has no prefix
+        backend_prefix.set('key', 'foo')
+        obtained = backend_prefix.get('key')
+        self.assertEqual(obtained, 'foo')
+
+    def test_prefix_value_use_to_delete_data(self):
+        backend_prefix = self.get_backend_prefix(prefix='prefix_')
+        # set a value with a cache that has no prefix
+        backend_prefix.set('key', 'foo')
+
+        # deleting data
+        backend_prefix.delete('key')
+
+        obtained = backend_prefix.get('key')
+        self.assertEqual(obtained, None)
+
+    def test_prefix_value_used_with_ttl(self):
+        backend_prefix = self.get_backend_prefix(prefix='prefix_')
+
+        # set a value with a cache that has no prefix
+        backend_prefix.set('key', 'foo', 10.0)
+        obtained = backend_prefix.ttl('key')
+        self.assertEqual(obtained, 10.0)
+
+    def test_prefix_value_used_with_expire(self):
+        backend_prefix = self.get_backend_prefix(prefix='prefix_')
+
+        # set a value with a cache that has no prefix
+        backend_prefix.set('key', 'foo', 10.0)
+
+        # expiring the ttl of key
+        backend_prefix.expire('key', 0)
+
+        # obtaining the value of ttl
+        obtained = backend_prefix.ttl('key')
+
+        self.assertEqual(obtained, 0.0)
+
 
 class RedisCacheTest(BaseTestCache, unittest.TestCase):
     backend = redis_backend
     settings = {
         'cache_url': '',
-        'cache_pool_size': 10
+        'cache_pool_size': 10,
+        'cache_prefix': ''
     }
 
     def setUp(self):
@@ -185,7 +252,8 @@ class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     backend = postgresql_backend
     settings = {
         'cache_pool_size': 10,
-        'cache_url': 'postgres://postgres:postgres@localhost:5432/testdb'
+        'cache_url': 'postgres://postgres:postgres@localhost:5432/testdb',
+        'cache_prefix': ''
     }
 
     def setUp(self):
