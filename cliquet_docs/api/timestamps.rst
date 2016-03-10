@@ -56,20 +56,22 @@ In order to check that the client version has not changed, a ``If-None-Match``
 request header can be used. If the response is ``304 Not Modified`` then
 the cached version is still good.
 
-+----------------------------------+-------------------------+-----------------------------------+
-| **If-None-Match: "<timestamp>"** | Changed meanwhile       | Not changed                       |
-+==================================+=========================+===================================+
-| GET {resource}                   | Return response content | Return empty ``304 Not modified`` |
-+----------------------------------+-------------------------+-----------------------------------+
-| GET {resource}/{id}              | Return response content | Return empty ``304 Not modified`` |
-+----------------------------------+-------------------------+-----------------------------------+
++-----------------------------+--------------------------+
+|                             | GET                      |
++=============================+==========================+
+|| **If-None-Match: "<timestamp>"**                      |
++-----------------------------+--------------------------+
+| Changed meanwhile           | Return response content  |
++-----------------------------+--------------------------+
+| Not changed                 | Empty ``HTTP 304``       |
++-----------------------------+--------------------------+
 
 
 Concurrency control
 ===================
 
 In order to prevent race conditions, like overwriting changes occured in the interim for example,
-a ``If-Match`` request header can be used. If the response is ``412 Precondition failed``
+a ``If-Match: "timestamp"`` request header can be used. If the response is ``412 Precondition failed``
 then the resource has changed meanwhile.
 
 Concurrency control also allows to make sure a creation won't overwrite any record using
@@ -77,19 +79,21 @@ the ``If-None-Match: *`` request header.
 
 The following table gives a summary of the expected behaviour of a resource:
 
-+-----------------------------+-------------------------------------------------+-------------------------------------------------+
-|                             | **If-Match: "<timestamp>"**                     | **If-None-Match: ***                            |
-+                             +-----------------------------+-------------------+-----------------------------+-------------------+
-|                             | Changed meanwhile           | Not changed       | Id exists                   | Id unknown        |
-+=============================+=============================+===================+=============================+===================+
-| POST {resource}             | ``412 Precondition failed`` | Create            | ``412 Precondition failed`` | Create            |
-+-----------------------------+-----------------------------+-------------------+-----------------------------+-------------------+
-| PUT {resource}/{id}         | ``412 Precondition failed`` | Create or replace | ``412 Precondition failed`` | Create            |
-+-----------------------------+-----------------------------+-------------------+-----------------------------+-------------------+
-| PATCH {resource}/{id}       | ``412 Precondition failed`` | Modify            |                             |                   |
-+-----------------------------+-----------------------------+-------------------+-----------------------------+-------------------+
-| DELETE {resource}/{id}      | ``412 Precondition failed`` | Delete            |                             |                   |
-+-----------------------------+-----------------------------+-------------------+-----------------------------+-------------------+
++-----------------------------+-------------+--------------+---------------+---------------+
+|                             | POST        | PUT          | PATCH         | DELETE        |
++=============================+=============+==============+===============+===============+
+|| **If-Match: "timestamp"**                                                               |
++-----------------------------+-------------+--------------+---------------+---------------+
+| Changed meanwhile           | ``HTTP 412``| ``HTTP 412`` | ``HTTP 412``  | ``HTTP 412``  |
++-----------------------------+-------------+--------------+---------------+---------------+
+| Not changed                 | Create      | Overwrite    | Modify        | Delete        |
++-----------------------------+-------------+--------------+---------------+---------------+
+|| **If-None-Match: ***                                                                    |
++-----------------------------+-------------+--------------+---------------+---------------+
+| Id exists                   | ``HTTP 412``| ``HTTP 412`` | No effect     | No effect     |
++-----------------------------+-------------+--------------+---------------+---------------+
+| Id unknown                  | Create      | Create       | No effect     | No effect     |
++-----------------------------+-------------+--------------+---------------+---------------+
 
 When the client receives a ``412 Precondition failed``, it can then choose to:
 
