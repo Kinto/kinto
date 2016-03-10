@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.4 (unreleased)
+1.4 (2016-03-08)
 ''''''''''''''''
 
 - Allow bucket to get arbitrary attributes.
@@ -23,7 +23,13 @@ Changelog
 - List responses are now sorted by last_modified descending by default
 - Return 415 error response if client cannot accept JSON response
 - Return 415 error response if client does not send JSON request
-- Add the ``GET /v1/__lbheartbeat__`` endpoint, for load balancer membership test.
+- Add the ``GET /v1/__lbheartbeat__`` endpoint, for load balancer membership test
+
+.. note::
+
+    The ``capabilities`` object in the :ref:`root URL <api-utilities>` response
+    now contains some ``flush_endpoint``, ``schema``, and ``default_bucket`` entries
+    if the features are enabled in settings (#270).
 
 1.3 (2016-01-28)
 ''''''''''''''''

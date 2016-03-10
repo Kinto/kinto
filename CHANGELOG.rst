@@ -3,12 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-1.12.0 (unreleased)
-===================
+2.0.0 (2016-03-08)
+==================
 
 **Protocol**
 
-- Allow buckets to store arbitrary properties. (#462)
+- Allow buckets to store arbitrary properties. (#239, #462)
 - Delete every (writable) buckets using ``DELETE /v1/buckets``
 - Delete every (writable) collections using ``DELETE /v1/buckets/<bucket-id>/collections``
 - Clients are redirected to URLs without trailing slash only if the current URL
@@ -20,11 +20,16 @@ This document describes changes between each past release.
 - Server now returns 415 error response if client cannot accept JSON response (#461, mozilla-services/cliquet#667)
 - Server now returns 415 error response if client does not send JSON request (#461, mozilla-services/cliquet#667)
 - Add the ``__lbheartbeat__`` endpoint, for load balancer membership test.
+- Add the ``flush_endpoint``, ``schema`` and ``default_bucket`` to the capabilities
+  if enabled in settings (#270)
 
-Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en/latest/api/>`_.
+Protocol is now in version **1.4**. See `API changelog <http://kinto.readthedocs.org/en/latest/api/>`_.
 
 **Breaking changes**
 
+- ``kinto.plugins.default_bucket`` plugin is no longer assumed. We invite users
+  to check that the ``kinto.plugins.default_bucket`` is present in the
+  ``includes`` setting if they expect it. (ref #495)
 - ``kinto start`` must be explicitly run with ``--reload`` in order to
   restart the server when code or configuration changes (ref #490).
 - Errors are not swallowed anymore during the execution of ``ResourceChanged``
@@ -39,9 +44,6 @@ Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en
   on transaction rollback: most likely database storage operations.
 
   For irreversible operations see the new ``AfterResourceChanged`` event.
-- ``kinto.plugins.default_bucket`` plugin is no longer assumed. We invite users
-  to check that the ``kinto.plugins.default_bucket`` is present in the
-  ``includes`` setting if they expect it. (ref #495)
 
 **New features**
 
@@ -54,8 +56,7 @@ Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en
   `See more details <http://cliquet.readthedocs.org/en/latest/reference/notifications.html>`_.
 - Track execution time on StatsD for each authentication sub-policy (mozilla-services/cliquet#639)
 - Default console log renderer now has colours (mozilla-service/cliquet#671)
-- Added the ``flush_endpoint``, ``schema`` and ``default_bucket`` to the capabilities
-  if enabled in settings
+- Output Kinto version with ``kinto --version`` (thanks @ayusharma)
 
 **Bug fixes**
 
@@ -68,14 +69,36 @@ Protocol is now version 1.4. See `API changelog <http://kinto.readthedocs.org/en
 - Providing last modified in the past for delete now follows behaviour create/update (mozilla-services/cliquet#665)
 - Do not always return 412 errors when request header ``If-None-Match: *``
   is sent on ``POST /collection`` (fixes #489, mozilla-service/cliquet#673)
+- Fix secret in ini on Python 3 (fixes #341)
+- Error when trying to create an empty directory (fixes #475)
+- Text plain body should be rejected with an error (#461)
+
+**Documentation**
+
+- Additions in troubleshooting docs (thanks @ayusharma)
+- Add uwsgi bind error to troubleshooting (fixes #447)
+- Mention python plugin for Uwsgi (#448)
+- Add how to troubleshoot psql encoding problems. (#453)
+- Add mini checklist for CDN deployment (#450)
+- Replace subjective ligthweight by minimalist (fixes #417)
+- Improve synchronisation docs (#451)
+- Add the requirements in the Readme (#465)
+- Add docs about architecture (fixes #430)
+- Add a 'why' paragraph to the docs (Kinto value proposition) (#482)
+- Update docs: how to choose the backend (#485, thanks @Enguerran)
+- Add a custom id generator tutorial (#464)
 
 **Internal changes**
 
 - Changed default duration between retries on error (``Retry-After`` header)
   from 30 to 3 seconds.
-- Allow buckets to store arbitrary properties. (#462)
 - Speed-up startup (ref #490)
 - Optimized (and cleaned) usage of (un)authenticated_userid (#424, mozilla-services/cliquet#641)
+- Fixed usage of virtualenv in Makefile (#443)
+- Add a badge for the irc channel (#459)
+- Change phrasing for backend selection (#470)
+- Add a CONTRIBUTING file (#471, thanks @magopian)
+- Add a contribute.json file (#478, #480, thanks @magopian)
 
 
 1.11.2 (2016-02-03)
