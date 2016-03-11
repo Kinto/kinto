@@ -158,7 +158,7 @@ class BaseTestCache(object):
         backend_prefix = self.get_backend_prefix(prefix='prefix_')
 
         # set a value with a cache that has no prefix
-        backend_prefix.set('key', 'foo')
+        self.cache.set('prefix_key', 'foo')
 
         # obtain the value of cache that has prefix
         obtained = backend_prefix.get('key')
@@ -169,14 +169,14 @@ class BaseTestCache(object):
         backend_prefix = self.get_backend_prefix(prefix=None)
 
         # set a value with a cache that has no prefix
-        backend_prefix.set('key', 'foo')
+        self.cache.set('key', 'foo')
         obtained = backend_prefix.get('key')
         self.assertEqual(obtained, 'foo')
 
     def test_prefix_value_use_to_delete_data(self):
         backend_prefix = self.get_backend_prefix(prefix='prefix_')
         # set a value with a cache that has no prefix
-        backend_prefix.set('key', 'foo')
+        self.cache.set('prefix_key', 'foo')
 
         # deleting data
         backend_prefix.delete('key')
@@ -188,20 +188,19 @@ class BaseTestCache(object):
         backend_prefix = self.get_backend_prefix(prefix='prefix_')
 
         # set a value with a cache that has no prefix
-        backend_prefix.set('key', 'foo', 10)
+        self.cache.set('prefix_key', 'foo', 10)
         obtained = backend_prefix.ttl('key')
         self.assertLessEqual(obtained, 10)
+        self.assertGreater(obtained, 9)
 
     def test_prefix_value_used_with_expire(self):
         backend_prefix = self.get_backend_prefix(prefix='prefix_')
 
         # set a value with a cache that has no prefix
-        backend_prefix.set('foobar', 'toto', 10)
+        self.cache.set('prefix_foobar', 'toto', 10)
 
         # expiring the ttl of key
         backend_prefix.expire('foobar', 0)
-
-        time.sleep(0.02)
 
         # Get the TTL
         ttl = backend_prefix.ttl('foobar')
