@@ -13,7 +13,6 @@ class Cache(CacheBase):
     """
 
     def __init__(self, *args, **kwargs):
-        self.prefix = kwargs['prefix']
         super(Cache, self).__init__(*args, **kwargs)
         self.flush()
 
@@ -26,29 +25,25 @@ class Cache(CacheBase):
         self._store = {}
 
     def ttl(self, key):
-        key = self.prefix + key
-        ttl = self._ttl.get(key)
+        ttl = self._ttl.get(self.prefix + key)
         if ttl is not None:
             return (ttl - utils.msec_time()) / 1000.0
         return -1
 
     def expire(self, key, ttl):
-        key = self.prefix + key
-        self._ttl[key] = utils.msec_time() + int(ttl * 1000.0)
+        self._ttl[self.prefix + key] = utils.msec_time() + int(ttl * 1000.0)
 
     def set(self, key, value, ttl=None):
         if ttl is not None:
             self.expire(key, ttl)
-        key = self.prefix + key
-        self._store[key] = value
+        self._store[self.prefix + key] = value
 
     def get(self, key):
-        key = self.prefix + key
         current = utils.msec_time()
         expired = [k for k, v in self._ttl.items() if current > v]
-        for key in expired:
-            self.delete(key)
-        return self._store.get(key)
+        for k in expired:
+            self.delete(self.prefix + k)
+        return self._store.get(self.prefix + key)
 
     def delete(self, key):
         key = self.prefix + key
@@ -58,4 +53,4 @@ class Cache(CacheBase):
 
 def load_from_config(config):
     settings = config.get_settings()
-    return Cache(prefix=settings['cache_prefix'])
+    return Cache(cache_prefix=settings['cache_prefix'])

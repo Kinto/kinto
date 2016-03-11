@@ -15,7 +15,7 @@ from .support import unittest, skip_if_no_postgresql
 
 class CacheBaseTest(unittest.TestCase):
     def setUp(self):
-        self.cache = CacheBase()
+        self.cache = CacheBase(cache_prefix='')
 
     def test_mandatory_overrides(self):
         calls = [

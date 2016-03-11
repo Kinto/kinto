@@ -90,7 +90,7 @@ class Cache(CacheBase):
            AND ttl IS NOT NULL;
         """
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, dict(key=key))
+            result = conn.execute(query, dict(key=self.prefix + key))
             if result.rowcount > 0:
                 return result.fetchone()['ttl']
         return -1
@@ -100,7 +100,7 @@ class Cache(CacheBase):
         UPDATE cache SET ttl = sec2ttl(:ttl) WHERE key = :key;
         """
         with self.client.connect() as conn:
-            conn.execute(query, dict(ttl=ttl, key=key))
+            conn.execute(query, dict(ttl=ttl, key=self.prefix + key))
 
     def set(self, key, value, ttl=None):
         query = """
@@ -114,14 +114,15 @@ class Cache(CacheBase):
         """
         value = json.dumps(value)
         with self.client.connect() as conn:
-            conn.execute(query, dict(key=key, value=value, ttl=ttl))
+            conn.execute(query, dict(key=self.prefix + key,
+                                     value=value, ttl=ttl))
 
     def get(self, key):
         purge = "DELETE FROM cache WHERE ttl IS NOT NULL AND now() > ttl;"
         query = "SELECT value FROM cache WHERE key = :key;"
         with self.client.connect() as conn:
             conn.execute(purge)
-            result = conn.execute(query, dict(key=key))
+            result = conn.execute(query, dict(key=self.prefix + key))
             if result.rowcount > 0:
                 value = result.fetchone()['value']
                 return json.loads(value)
@@ -129,9 +130,10 @@ class Cache(CacheBase):
     def delete(self, key):
         query = "DELETE FROM cache WHERE key = :key"
         with self.client.connect() as conn:
-            conn.execute(query, dict(key=key))
+            conn.execute(query, dict(key=self.prefix + key))
 
 
 def load_from_config(config):
+    settings = config.get_settings()
     client = create_from_config(config, prefix='cache_')
-    return Cache(client=client)
+    return Cache(client=client, cache_prefix=settings['cache_prefix'])
