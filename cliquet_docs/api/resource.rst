@@ -167,7 +167,7 @@ When filtering on ``last_modified`` every deleted records will appear in the
 list with a ``deleted`` flag and a ``last_modified`` value that corresponds
 to the deletion event.
 
-If the request header ``If-None-Match`` is provided as described in
+If the ``If-None-Match: "<timestamp>"`` request header is provided as described in
 the :ref:`section about timestamps <server-timestamps>` and if the
 collection was not changed, a ``304 Not Modified`` response is returned.
 
@@ -181,12 +181,6 @@ collection was not changed, a ``304 Not Modified`` response is returned.
     ``_since`` and ``_before`` also accept a value between quotes (``"``) as
     it would be returned in the ``ETag`` response header
     (see :ref:`response timestamps <server-timestamps>`).
-
-.. versionchanged:: 2.4::
-
-   ``_to`` was renamed ``_before`` and is now deprecated.
-    It will be supported until the next major version of Cliquet.
-
 
 **Request**:
 
@@ -333,7 +327,10 @@ HTTP Status Codes
 * ``200 OK``: The request was processed
 * ``304 Not Modified``: Collection did not change since value in ``If-None-Match`` header
 * ``400 Bad Request``: The request querystring is invalid
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
+* ``401 Unauthorized``: The request is missing authentication headers
+* ``403 Forbidden``: The user is not allowed to perform the operation, or the
+  resource is not accessible
+* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type
 * ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
 
 
@@ -355,8 +352,13 @@ The POST response body is a JSON mapping containing:
 - ``permissions``: *optional* a json dict containing the permissions for
   the requested resource.
 
-If the request header ``If-Match`` is provided, and if the record has
+If the ``If-Match: "<timestamp>"`` request header is provided as described in
+the :ref:`section about timestamps <server-timestamps>`, and if the collection has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
+
+If the ``If-None-Match: *`` request header is provided, and if the provided ``data``
+contains an ``id`` field, and if there is already an existing record with this ``id``,
+a ``412 Precondition failed`` error is returned.
 
 
 **Request**:
@@ -440,18 +442,16 @@ take the value of the created record but is bumped into the future as usual.
 HTTP Status Codes
 -----------------
 
-.. * ``200 OK``: This record already exists, here is the one stored on the database;
-
+* ``200 OK``: This record already exists, the one stored on the database is returned
 * ``201 Created``: The record was created
 * ``400 Bad Request``: The request body is invalid
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
+* ``401 Unauthorized``: The request is missing authentication headers
+* ``403 Forbidden``: The user is not allowed to perform the operation, or the
+  resource is not accessible
+* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type
 * ``409 Conflict``: Unicity constraint on fields is violated
 * ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
-* ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
-
-.. versionadded:: 2.13::
-
-  Enforcement of the timestamp value for records has been added.
+* ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type
 
 
 DELETE /{collection}
@@ -467,7 +467,7 @@ The DELETE response is a JSON mapping containing:
 
 It supports the same filtering capabilities as GET.
 
-If the request header ``If-Match`` is provided, and if the collection
+If the ``If-Match: "<timestamp>"`` request header is provided, and if the collection
 has changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 
@@ -510,9 +510,12 @@ has changed meanwhile, a ``412 Precondition failed`` error is returned.
 HTTP Status Codes
 -----------------
 
-* ``200 OK``: The records were deleted;
-* ``405 Method Not Allowed``: This endpoint is not available;
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
+* ``200 OK``: The records were deleted
+* ``401 Unauthorized``: The request is missing authentication headers
+* ``403 Forbidden``: The user is not allowed to perform the operation, or the
+  resource is not accessible
+* ``405 Method Not Allowed``: This endpoint is not available
+* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type
 * ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
 
 
@@ -528,8 +531,8 @@ containing:
 - ``permissions``: *optional* a json dict containing the permissions for
   the requested record.
 
-If the request header ``If-None-Match`` is provided, and if the record has not
-changed meanwhile, a ``304 Not Modified`` is returned.
+If the ``If-None-Match: "<timestamp>"`` request header is provided, and
+if the record has not changed meanwhile, a ``304 Not Modified`` is returned.
 
 **Request**:
 
@@ -567,7 +570,10 @@ HTTP Status Code
 
 * ``200 OK``: The request was processed
 * ``304 Not Modified``: Record did not change since value in ``If-None-Match`` header
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
+* ``401 Unauthorized``: The request is missing authentication headers
+* ``403 Forbidden``: The user is not allowed to perform the operation, or the
+  resource is not accessible
+* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
 
 
@@ -585,7 +591,7 @@ The DELETE response is the record that was deleted. The DELETE response is a JSO
 If the record is missing (or already deleted), a ``404 Not Found`` is returned.
 The consumer might decide to ignore it.
 
-If the request header ``If-Match`` is provided, and if the record has
+If the ``If-Match`` request header is provided, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
 
 .. note::
@@ -610,12 +616,11 @@ HTTP Status Code
 ----------------
 
 * ``200 OK``: The record was deleted
+* ``401 Unauthorized``: The request is missing authentication headers
+* ``403 Forbidden``: The user is not allowed to perform the operation, or the
+  resource is not accessible
 * ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
-
-.. versionadded:: 2.13::
-
-  Enforcement of the timestamp value for records has been added.
 
 
 PUT /{collection}/<id>
@@ -637,8 +642,12 @@ The PUT response body is a JSON mapping containing:
 
 Validation and conflicts behaviour is similar to creating records (``POST``).
 
-If the request header ``If-Match`` is provided, and if the record has
+If the ``If-Match: "<timestamp>"`` request header is provided as described in
+the :ref:`section about timestamps <server-timestamps>`, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
+
+If the ``If-None-Match: *`` request header is provided  and if there is already
+an existing record with this ``id``, a ``412 Precondition failed`` error is returned.
 
 
 **Request**:
@@ -701,20 +710,14 @@ HTTP Status Code
 * ``201 Created``: The record was created
 * ``200 OK``: The record was replaced
 * ``400 Bad Request``: The record is invalid
+* ``401 Unauthorized``: The request is missing authentication headers
+* ``403 Forbidden``: The user is not allowed to perform the operation, or the
+  resource is not accessible
 * ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
 * ``409 Conflict``: If replacing this record violates a field unicity constraint
 * ``412 Precondition Failed``: Record was changed or deleted since value
   in ``If-Match`` header.
 * ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
-
-.. note::
-
-    A ``If-None-Match: *`` request header can be used to make sure the ``PUT``
-    won't overwrite any record.
-
-.. versionadded:: 2.13::
-
-  Enforcement of the timestamp value for records has been added.
 
 
 PATCH /{collection}/<id>
@@ -734,11 +737,10 @@ The PATCH response body is a JSON mapping containing:
 - ``permissions``: *optional* the modified permissions dict, containing
   the permissions for the modified record.
 
-If a request header ``Response-Behavior`` is set to ``light``,
+If a ``Response-Behavior`` request header is set to ``light``,
 only the fields whose value was changed are returned. If set to
 ``diff``, only the fields whose value became different than
 the one provided are returned.
-
 
 **Request**:
 
@@ -781,8 +783,10 @@ the one provided are returned.
 If the record is missing (or already deleted), a ``404 Not Found`` error is returned.
 The consumer might decide to ignore it.
 
-If the request header ``If-Match`` is provided, and if the record has
+If the ``If-Match: "<timestamp>"`` request header is provided as described in
+the :ref:`section about timestamps <server-timestamps>`, and if the record has
 changed meanwhile, a ``412 Precondition failed`` error is returned.
+
 
 .. note::
 
@@ -826,14 +830,13 @@ HTTP Status Code
 * ``200 OK``: The record was modified
 * ``400 Bad Request``: The request body is invalid, or a read-only field was
   modified
+* ``401 Unauthorized``: The request is missing authentication headers
+* ``403 Forbidden``: The user is not allowed to perform the operation, or the
+  resource is not accessible
 * ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
 * ``409 Conflict``: If modifying this record violates a field unicity constraint
 * ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
 * ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
-
-.. versionadded:: 2.13::
-
-  Enforcement of the timestamp value for records has been added.
 
 
 .. _resource-permissions-attribute:
@@ -877,9 +880,3 @@ In a response, ``permissions`` contains the current permissions of the record
     **is always added** among the ``write`` principals.
 
 `Read more about leveraging resource permissions <resource-permissions>`.
-
-
-.. versionchanged:: 2.6::
-
-    With a ``PATCH`` request, the list of principals for the specified permissions
-    is now replaced by the one provided.

@@ -54,19 +54,50 @@ Cache control
 
 In order to check that the client version has not changed, a ``If-None-Match``
 request header can be used. If the response is ``304 Not Modified`` then
-the cached version if still good.
+the cached version is still good.
+
++-----------------------------+--------------------------+
+|                             | GET                      |
++=============================+==========================+
+|| **If-None-Match: "<timestamp>"**                      |
++-----------------------------+--------------------------+
+| Changed meanwhile           | Return response content  |
++-----------------------------+--------------------------+
+| Not changed                 | Empty ``HTTP 304``       |
++-----------------------------+--------------------------+
 
 
 Concurrency control
 ===================
 
 In order to prevent race conditions, like overwriting changes occured in the interim for example,
-a ``If-Match`` request header can be used. If the response is ``412 Precondition failed``
+a ``If-Match: "timestamp"`` request header can be used. If the response is ``412 Precondition failed``
 then the resource has changed meanwhile.
 
-The client can then choose to:
+Concurrency control also allows to make sure a creation won't overwrite any record using
+the ``If-None-Match: *`` request header.
 
-* overwrite by repeating the request without ``If-Match``;
+The following table gives a summary of the expected behaviour of a resource:
+
++-----------------------------+-------------+--------------+---------------+---------------+
+|                             | POST        | PUT          | PATCH         | DELETE        |
++=============================+=============+==============+===============+===============+
+|| **If-Match: "timestamp"**                                                               |
++-----------------------------+-------------+--------------+---------------+---------------+
+| Changed meanwhile           | ``HTTP 412``| ``HTTP 412`` | ``HTTP 412``  | ``HTTP 412``  |
++-----------------------------+-------------+--------------+---------------+---------------+
+| Not changed                 | Create      | Overwrite    | Modify        | Delete        |
++-----------------------------+-------------+--------------+---------------+---------------+
+|| **If-None-Match: ***                                                                    |
++-----------------------------+-------------+--------------+---------------+---------------+
+| Id exists                   | ``HTTP 412``| ``HTTP 412`` | No effect     | No effect     |
++-----------------------------+-------------+--------------+---------------+---------------+
+| Id unknown                  | Create      | Create       | No effect     | No effect     |
++-----------------------------+-------------+--------------+---------------+---------------+
+
+When the client receives a ``412 Precondition failed``, it can then choose to:
+
+* overwrite by repeating the request without concurrency control;
 * reconcile the resource by fetching, merging and repeating the request.
 
 
