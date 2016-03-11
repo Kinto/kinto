@@ -58,8 +58,7 @@ class BaseTestCache(object):
 
     def get_backend_prefix(self, prefix):
         settings_prefix = self.settings.copy()
-        if prefix:
-            settings_prefix['cache_prefix'] = prefix
+        settings_prefix['cache_prefix'] = prefix
         config_prefix = self._get_config(settings=settings_prefix)
 
         # initiating cache backend with prefix:
@@ -158,19 +157,19 @@ class BaseTestCache(object):
         backend_prefix = self.get_backend_prefix(prefix='prefix_')
 
         # set a value with a cache that has no prefix
-        self.cache.set('prefix_key', 'foo')
+        backend_prefix.set('key', 'foo')
 
         # obtain the value of cache that has prefix
-        obtained = backend_prefix.get('key')
+        obtained = self.cache.get('prefix_key')
 
         self.assertEqual(obtained, 'foo')
 
     def test_cache_when_prefix_is_not_set(self):
-        backend_prefix = self.get_backend_prefix(prefix=None)
+        backend_prefix = self.get_backend_prefix(prefix='')
 
         # set a value with a cache that has no prefix
-        self.cache.set('key', 'foo')
-        obtained = backend_prefix.get('key')
+        backend_prefix.set('key', 'foo')
+        obtained = self.cache.get('key')
         self.assertEqual(obtained, 'foo')
 
     def test_prefix_value_use_to_delete_data(self):
@@ -202,6 +201,8 @@ class BaseTestCache(object):
         # expiring the ttl of key
         backend_prefix.expire('foobar', 0)
 
+        time.sleep(0.02)
+
         # Get the TTL
         ttl = backend_prefix.ttl('foobar')
         self.assertLessEqual(ttl, 0)
@@ -216,6 +217,15 @@ class MemoryCacheTest(BaseTestCache, unittest.TestCase):
     settings = {
         'cache_prefix': ''
     }
+
+    def get_backend_prefix(self, prefix):
+        backend_prefix = BaseTestCache.get_backend_prefix(self, prefix)
+
+        # Share the store between both client for tests.
+        backend_prefix._ttl = self.cache._ttl
+        backend_prefix._store = self.cache._store
+
+        return backend_prefix
 
     def test_backend_error_is_raised_anywhere(self):
         pass
