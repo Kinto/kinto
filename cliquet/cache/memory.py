@@ -41,8 +41,8 @@ class Cache(CacheBase):
     def get(self, key):
         current = utils.msec_time()
         expired = [k for k, v in self._ttl.items() if current > v]
-        for k in expired:
-            self.delete(self.prefix + k)
+        for expired_item_key in expired:
+            self.delete(expired_item_key.replace(self.prefix, ''))
         return self._store.get(self.prefix + key)
 
     def delete(self, key):
