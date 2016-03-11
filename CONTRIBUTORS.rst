@@ -11,6 +11,7 @@ Contributors
 * FooBarQuaxx
 * Greeshma <greeshmabalabadra@gmail.com>
 * Hiromipaw <silvia@nopressure.co.uk>
+* Lavish Aggarwal <lucky.lavish@gmail.com>
 * Mathieu Leplatre <mathieu@mozilla.com>
 * Michiel de Jong <michiel@unhosted.org>
 * Nicolas Perriault <nperriault@mozilla.com>
