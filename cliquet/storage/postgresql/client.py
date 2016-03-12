@@ -76,6 +76,7 @@ def create_from_config(config, prefix=''):
     # Custom Cliquet settings, unsupported by SQLAlchemy.
     settings.pop(prefix + 'backend', None)
     settings.pop(prefix + 'max_fetch_size', None)
+    settings.pop(prefix + 'prefix', None)
     transaction_per_request = settings.pop('transaction_per_request', False)
 
     url = settings[prefix + 'url']

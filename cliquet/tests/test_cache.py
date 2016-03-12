@@ -15,7 +15,7 @@ from .support import unittest, skip_if_no_postgresql
 
 class CacheBaseTest(unittest.TestCase):
     def setUp(self):
-        self.cache = CacheBase()
+        self.cache = CacheBase(cache_prefix='')
 
     def test_mandatory_overrides(self):
         calls = [
@@ -55,6 +55,16 @@ class BaseTestCache(object):
         mock.patch.stopall()
         super(BaseTestCache, self).tearDown()
         self.cache.flush()
+
+    def get_backend_prefix(self, prefix):
+        settings_prefix = self.settings.copy()
+        settings_prefix['cache_prefix'] = prefix
+        config_prefix = self._get_config(settings=settings_prefix)
+
+        # initiating cache backend with prefix:
+        backend_prefix = self.backend.load_from_config(config_prefix)
+
+        return backend_prefix
 
     def test_backend_error_is_raised_anywhere(self):
         self.client_error_patcher.start()
@@ -143,9 +153,89 @@ class BaseTestCache(object):
         ttl = self.cache.ttl('unknown')
         self.assertTrue(ttl < 0)
 
+    def test_cache_prefix_is_set(self):
+        backend_prefix = self.get_backend_prefix(prefix='prefix_')
+
+        # Set the value
+        backend_prefix.set('key', 'foo')
+
+        # Validate that it was set with the prefix.
+        obtained = self.cache.get('prefix_key')
+        self.assertEqual(obtained, 'foo')
+
+    def test_cache_when_prefix_is_not_set(self):
+        backend_prefix = self.get_backend_prefix(prefix='')
+
+        # Set a value
+        backend_prefix.set('key', 'foo')
+
+        # Validate that it was set with no prefix
+        obtained = self.cache.get('key')
+        self.assertEqual(obtained, 'foo')
+
+    def test_prefix_value_use_to_get_data(self):
+        backend_prefix = self.get_backend_prefix(prefix='prefix_')
+
+        # Set the value with the prefix
+        self.cache.set('prefix_key', 'foo')
+
+        # Validate that the prefix was added
+        obtained = backend_prefix.get('key')
+        self.assertEqual(obtained, 'foo')
+
+    def test_prefix_value_use_to_delete_data(self):
+        backend_prefix = self.get_backend_prefix(prefix='prefix_')
+        # Set the value
+        self.cache.set('prefix_key', 'foo')
+
+        # Delete the value
+        backend_prefix.delete('key')
+
+        # Validate that the value was deleted
+        obtained = self.cache.get('prefix_key')
+        self.assertEqual(obtained, None)
+
+    def test_prefix_value_used_with_ttl(self):
+        backend_prefix = self.get_backend_prefix(prefix='prefix_')
+
+        self.cache.set('prefix_key', 'foo', 10)
+
+        # Validate that the ttl add the prefix to the key.
+        obtained = backend_prefix.ttl('key')
+        self.assertLessEqual(obtained, 10)
+        self.assertGreater(obtained, 9)
+
+    def test_prefix_value_used_with_expire(self):
+        backend_prefix = self.get_backend_prefix(prefix='prefix_')
+
+        self.cache.set('prefix_foobar', 'toto', 10)
+
+        # expiring the ttl of key
+        backend_prefix.expire('foobar', 0)
+
+        # Make sure the TTL was set accordingly.
+        ttl = self.cache.ttl('prefix_foobar')
+        self.assertLessEqual(ttl, 0)
+
+        # The record should have expired
+        retrieved = self.cache.get('prefix_foobar')
+        self.assertIsNone(retrieved)
+
 
 class MemoryCacheTest(BaseTestCache, unittest.TestCase):
     backend = memory_backend
+    settings = {
+        'cache_prefix': ''
+    }
+
+    def get_backend_prefix(self, prefix):
+        backend_prefix = BaseTestCache.get_backend_prefix(self, prefix)
+
+        # Share the store between both client for tests.
+        backend_prefix._ttl = self.cache._ttl
+        backend_prefix._store = self.cache._store
+
+        return backend_prefix
 
     def test_backend_error_is_raised_anywhere(self):
         pass
@@ -161,7 +251,8 @@ class RedisCacheTest(BaseTestCache, unittest.TestCase):
     backend = redis_backend
     settings = {
         'cache_url': '',
-        'cache_pool_size': 10
+        'cache_pool_size': 10,
+        'cache_prefix': ''
     }
 
     def setUp(self):
@@ -185,7 +276,8 @@ class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
     backend = postgresql_backend
     settings = {
         'cache_pool_size': 10,
-        'cache_url': 'postgres://postgres:postgres@localhost:5432/testdb'
+        'cache_url': 'postgres://postgres:postgres@localhost:5432/testdb',
+        'cache_prefix': ''
     }
 
     def setUp(self):

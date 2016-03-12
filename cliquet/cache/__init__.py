@@ -11,6 +11,7 @@ _HEARTBEAT_TTL_SECONDS = 3600
 class CacheBase(object):
 
     def __init__(self, *args, **kwargs):
+        self.prefix = kwargs['cache_prefix']
         pass
 
     def initialize_schema(self):

@@ -20,6 +20,7 @@ This document describes changes between each past release.
 **New features**
 
 - Default console log renderer now has colours (#671)
+- A ``cache_prefix`` setting was added for cache backends. (#680)
 
 **Bug fixes**
 

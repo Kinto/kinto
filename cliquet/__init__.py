@@ -32,6 +32,7 @@ DEFAULT_SETTINGS = {
     'cache_backend': '',
     'cache_url': '',
     'cache_pool_size': 25,
+    'cache_prefix': '',
     'cors_origins': '*',
     'cors_max_age_seconds': 3600,
     'eos': None,

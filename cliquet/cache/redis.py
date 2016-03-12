@@ -20,7 +20,13 @@ class Cache(CacheBase):
 
         cliquet.cache_pool_size = 50
 
+    If the database is used for multiple Kinto deployement cache, you
+    may want to add a prefix to every key to avoid collision::
+
+        cliquet.cache_prefix = stack1_
+
     :noindex:
+
     """
 
     def __init__(self, client, *args, **kwargs):
@@ -41,32 +47,33 @@ class Cache(CacheBase):
 
     @wrap_redis_error
     def ttl(self, key):
-        return self._client.ttl(key)
+        return self._client.ttl(self.prefix + key)
 
     @wrap_redis_error
     def expire(self, key, ttl):
-        self._client.pexpire(key, int(ttl * 1000))
+        self._client.pexpire(self.prefix + key, int(ttl * 1000))
 
     @wrap_redis_error
     def set(self, key, value, ttl=None):
         value = json.dumps(value)
         if ttl:
-            self._client.psetex(key, int(ttl * 1000), value)
+            self._client.psetex(self.prefix + key, int(ttl * 1000), value)
         else:
-            self._client.set(key, value)
+            self._client.set(self.prefix + key, value)
 
     @wrap_redis_error
     def get(self, key):
-        value = self._client.get(key)
+        value = self._client.get(self.prefix + key)
         if value:
             value = value.decode('utf-8')
             return json.loads(value)
 
     @wrap_redis_error
     def delete(self, key):
-        self._client.delete(key)
+        self._client.delete(self.prefix + key)
 
 
 def load_from_config(config):
+    settings = config.get_settings()
     client = create_from_config(config, prefix='cache_')
-    return Cache(client)
+    return Cache(client, cache_prefix=settings['cache_prefix'])
