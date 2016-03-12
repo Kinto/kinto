@@ -10,7 +10,7 @@ This document describes changes between each past release.
 **New features**
 
 - Default console log renderer now has colours (#671)
-- ``cache_prefix`` key option added for cache.
+- A ``cache_prefix`` setting was added for cache backends. (#680)
 
 
 3.0.0 (2016-02-26)
