@@ -298,6 +298,7 @@ Backend
 
     cliquet.cache_backend = cliquet.cache.redis
     cliquet.cache_url = redis://localhost:6379/0
+    cliquet.cache_prefix = stack1_
 
     # Control number of pooled connections
     # cliquet.storage_pool_size = 50

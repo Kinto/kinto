@@ -20,7 +20,13 @@ class Cache(CacheBase):
 
         cliquet.cache_pool_size = 50
 
+    If the database is used for multiple Kinto deployement cache, you
+    may want to add a prefix to every key to avoid collision::
+
+        cliquet.cache_prefix = stack1_
+
     :noindex:
+
     """
 
     def __init__(self, client, *args, **kwargs):
