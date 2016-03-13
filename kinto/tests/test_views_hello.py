@@ -76,10 +76,11 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         capabilities = resp.json['capabilities']
         self.assertIn('changes', capabilities)
         expected = {
-            "description": "Track modifications of records in Kinto and store the" 
-	       		   " collection timestamps into a specific bucket and collection.",
+            "description": "Track modifications of records in Kinto and store "
+                           "the collection timestamps into a specific bucket "
+                           "and collection.",
             "url": "http://kinto.readthedocs.org/en/latest/api/1.x/"
-               	   "synchronisation.html#polling-for-remote-changes"
+                   "synchronisation.html#polling-for-remote-changes"
         }
         self.assertEqual(expected, capabilities['changes'])
 
