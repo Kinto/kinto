@@ -169,3 +169,12 @@ def includeme(config):
                     " bucket where collections are created implicitly.",
         url="http://kinto.readthedocs.org/en/latest/api/1.x/"
             "buckets.html#personal-bucket-default")
+
+    changes_enabled = asbool(settings['changes_validation'])
+    if changes_enabled:
+    config.add_api_capability(
+        "changes",
+        description="Track modifications of records in Kinto and store the" 
+		    " collection timestamps into a specific bucket and collection.",
+        url="http://kinto.readthedocs.org/en/latest/api/1.x/"
+            "synchronisation.html#polling-for-remote-changes")
