@@ -67,3 +67,27 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         resp = app.get('/')
         capabilities = resp.json['capabilities']
         self.assertNotIn('flush_endpoint', capabilities)
+
+    def test_changes_capability_if_setting_is_set(self):
+        settings = self.get_app_settings()
+        settings['changes_validation'] = True
+        app = self._get_test_app(settings=settings)
+        resp = app.get('/')
+        capabilities = resp.json['capabilities']
+        self.assertIn('changes', capabilities)
+        expected = {
+            "description": "Track modifications of records in Kinto and store "
+                           "the collection timestamps into a specific bucket "
+                           "and collection.",
+            "url": "http://kinto.readthedocs.org/en/latest/api/1.x/"
+                   "synchronisation.html#polling-for-remote-changes"
+        }
+        self.assertEqual(expected, capabilities['changes'])
+
+    def test_changes_capability_if_setting_is_not_set(self):
+        settings = self.get_app_settings()
+        settings['changes_validation'] = False
+        app = self._get_test_app(settings=settings)
+        resp = app.get('/')
+        capabilities = resp.json['capabilities']
+        self.assertNotIn('changes', capabilities)

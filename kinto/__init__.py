@@ -73,6 +73,18 @@ def main(global_config, config=None, **settings):
         )
     else:
         kwargs['ignore'] = 'kinto.views.flush'
+
+    changes_enabled = asbool(settings.get('changes_validation'))
+
+    if changes_enabled:
+        config.add_api_capability(
+            "changes",
+            description="Track modifications of records in Kinto and store"
+                        " the collection timestamps into a specific bucket"
+                        " and collection.",
+            url="http://kinto.readthedocs.org/en/latest/api/1.x/"
+                "synchronisation.html#polling-for-remote-changes")
+
     config.scan("kinto.views", **kwargs)
 
     app = config.make_wsgi_app()
