@@ -108,24 +108,28 @@ Installing Python 2.7/3.4+ on Ubuntu
 Use the following commands to install prerequisites for Python:
 
 ::
+
     sudo apt-get install build-essential checkinstall
     sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
 
 Download Python 2.7 using the following commands. You can also download the latest version in place of the one specified below.
 
 ::
+
     cd ~/Downloads/
     wget http://wwww.python.org/ftp/python/2.7.5/Python-2.7.5.tgz
 
 Extract and go to the directory.
 
 ::
+
     tar -xvf Python-2.7.5.tgz
     cd Python-2.7.5
 
 Now, install using the following commands:
 
 ::
+
     ./configure
     make
     sudo make install
@@ -141,6 +145,7 @@ Postgresql
 To install the server locally, use the following command
 
 ::
+
     sudo apt-get update
     sudo apt-get install postgresql postgresql-contrib
 
@@ -150,6 +155,7 @@ Redis
 Use the following commands to install the prerequisites and dependencies for Redis
 
 ::
+
     sudo apt-get update
     sudo apt-get install build-essential
     sudo apt-get install tcl8.5
@@ -157,6 +163,7 @@ Use the following commands to install the prerequisites and dependencies for Red
 Download Redis, untar it and move into that directory using the following commands
 
 ::
+
     wget http://download.redis.io/releases/redis-stable.tar.gz
     tar xzf redis-stable.tar.gz
     cd redis-stable
@@ -164,6 +171,7 @@ Download Redis, untar it and move into that directory using the following comman
 Install using the following commands
 
 ::
+
     make
     make test
     sudo make install
@@ -171,6 +179,7 @@ Install using the following commands
 To access the script move into the utils directory and run the install script
 
 ::
+
     cd utils
     sudo ./install_server.sh
 
@@ -178,6 +187,7 @@ As the script runs, you can choose the default options by pressing enter. Once t
 You can start and stop redis with the following commands
 
 ::
+
     sudo service redis_6379 start
     sudo service redis_6379 stop
 
