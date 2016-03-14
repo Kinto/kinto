@@ -105,31 +105,31 @@ Using the Python package
 Installing Python 2.7/3.4+ on Ubuntu
 ------------------------------------
 
-Use the following commands to install prerequisites for Python.
+Use the following commands to install prerequisites for Python:
 
-```
-sudo apt-get install build-essential checkinstall
-sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
-```
+::
+    sudo apt-get install build-essential checkinstall
+    sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
 
 Download Python 2.7 using the following commands. You can also download the latest version in place of the one specified below.
-```
-cd ~/Downloads/
-wget http://wwww.python.org/ftp/python/2.7.5/Python-2.7.5.tgz
-```
+
+::
+    cd ~/Downloads/
+    wget http://wwww.python.org/ftp/python/2.7.5/Python-2.7.5.tgz
 
 Extract and go to the directory.
-```
-tar -xvf Python-2.7.5.tgz
-cd Python-2.7.5
-```
+
+::
+    tar -xvf Python-2.7.5.tgz
+    cd Python-2.7.5
 
 Now, install using the following commands:
-``` 
-./configure
-make
-sudo make install
-```
+
+::
+    ./configure
+    make
+    sudo make install
+
 
 
 Backends
@@ -139,53 +139,55 @@ Postgresql
 ----------
 
 To install the server locally, use the following command
-```
-sudo apt-get update
-sudo apt-get install postgresql postgresql-contrib
-```
+
+::
+    sudo apt-get update
+    sudo apt-get install postgresql postgresql-contrib
 
 Redis
 -----
 
 Use the following commands to install the prerequisites and dependencies for Redis
-```
-sudo apt-get update
-sudo apt-get install build-essential
-sudo apt-get install tcl8.5
-```
+
+::
+    sudo apt-get update
+    sudo apt-get install build-essential
+    sudo apt-get install tcl8.5
 
 Download Redis, untar it and move into that directory using the following commands
-```
-wget http://download.redis.io/releases/redis-stable.tar.gz
-tar xzf redis-stable.tar.gz
-cd redis-stable
-```
+
+::
+    wget http://download.redis.io/releases/redis-stable.tar.gz
+    tar xzf redis-stable.tar.gz
+    cd redis-stable
 
 Install using the following commands
-```
-make
-make test
-sudo make install
-```
+
+::
+    make
+    make test
+    sudo make install
 
 To access the script move into the utils directory and run the install script
-```
-cd utils
-sudo ./install_server.sh
-```
+
+::
+    cd utils
+    sudo ./install_server.sh
 
 As the script runs, you can choose the default options by pressing enter. Once the script completes, the redis-server will be running in the background.  
 You can start and stop redis with the following commands
-```
-sudo service redis_6379 start
-sudo service redis_6379 stop
-```
+
+::
+    sudo service redis_6379 start
+    sudo service redis_6379 stop
 
 You can access the redis database by typing
-`redis-cli`
+::
+    redis-cli
 
 You now have redis installed and running. The prompt will look like this:
-`redis 127.0.0.1:6379>`
+::
+    redis 127.0.0.1:6379>
 
 
 System requirements
