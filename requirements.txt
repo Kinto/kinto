@@ -1,7 +1,7 @@
 cliquet==3.1.0
 colander==1.2
 colorama==0.3.7
-cornice==1.2.0
+cornice==1.2.1
 enum34==1.1.2
 functools32==3.2.3.post2
 iso8601==0.1.11

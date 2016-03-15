@@ -6,7 +6,9 @@ This document describes changes between each past release.
 2.1.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Relax content-type validation when no body is posted (fixes #507)
 
 
 2.0.0 (2016-03-08)
