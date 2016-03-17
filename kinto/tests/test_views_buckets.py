@@ -105,6 +105,11 @@ class BucketCreationTest(BaseWebTest, unittest.TestCase):
                                headers=self.headers)
         self.assertEqual(r.json['data']['id'], bucket)
 
+    def test_bucket_can_be_created_without_body_nor_contenttype(self):
+        headers = self.headers.copy()
+        headers.pop("Content-Type")
+        self.app.put('/buckets/catalog', headers=headers)
+
 
 class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
 
