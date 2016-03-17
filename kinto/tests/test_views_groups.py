@@ -158,6 +158,13 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.assertEquals(self.permission.user_principals('mat'),
                           {group_url})
 
+    def test_groups_can_be_created_after_deletion(self):
+        self.app.delete(self.group_url, headers=self.headers)
+        headers = self.headers.copy()
+        headers['If-None-Match'] = '*'
+        self.app.put_json(self.group_url, MINIMALIST_GROUP,
+                          headers=headers, status=201)
+
 
 class InvalidGroupTest(BaseWebTest, unittest.TestCase):
 

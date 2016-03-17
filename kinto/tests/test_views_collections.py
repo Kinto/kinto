@@ -129,6 +129,12 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
+    def test_can_be_created_after_deletion_with_if_none_match_star(self):
+        headers = self.headers.copy()
+        headers['If-None-Match'] = '*'
+        self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
+                          headers=headers, status=201)
+
 
 class CollectionCreationTest(BaseWebTest, unittest.TestCase):
 
