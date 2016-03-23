@@ -21,31 +21,31 @@ It should be enough to get started, but the records are flushed every
 day at 7:00 AM UTC.
 
 
-.. _deploy-an-instance-on-heroku:
+.. _deploy-an-instance:
 
-Deploy an instance on Heroku
+Deploying on cloud providers
 ============================
 
-You want to get started with a working online Kinto server right now?
+You want to get started with a working online Kinto server right now? You've
+got a few different options:
 
-.. image:: https://www.herokucdn.com/deploy/button.png
+.. |heroku-button| image:: https://www.herokucdn.com/deploy/button.png
    :target: https://dashboard.heroku.com/new?button-url=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku&template=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku>
    :alt: Deploy on Heroku
 
-You have got a free plan for up to 10000 rows.
-
-.. _deploy-an-instance-on-scalingo:
-
-Deploy an instance on Scalingo
-==============================
-
-You want to get started with a working online Kinto server right now?
-
-.. image:: https://cdn.scalingo.com/deploy/button.svg
+.. |scalingo-button| image:: https://cdn.scalingo.com/deploy/button.svg
    :target: https://my.scalingo.com/deploy?source=https://github.com/Scalingo/kinto-scalingo
    :alt: Deploy on Scalingo
 
-You have got a free plan for a 512MB (512MB RAM, 512MB on disk) PostgreSQL database.
++----------------+------------------------------------------------+------------------------+
+| Provider       | What you get / Plan                            | Link / Install button  |
++================+================================================+========================+
+| Heroku         | Free plan for up to 10.000 rows on PostgreSQL. |  |heroku-button|       |
++----------------+------------------------------------------------+------------------------+
+| Scalingo       | 3 months free trial with 512MB RAM, 512MB      |  |scalingo-button|     |
+|                | storage and a PostgreSQL database.             |                        |
++----------------+------------------------------------------------+------------------------+
+
 
 .. _run-kinto-docker:
 
