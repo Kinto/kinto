@@ -451,7 +451,7 @@ data in the ``queue`` Redis list.
 
     kinto.event_listeners = redis
 
-    kinto.event_listeners.redis.use = cliquet.events.redis
+    kinto.event_listeners.redis.use = cliquet.listeners.redis
     kinto.event_listeners.redis.url = redis://localhost:6379/0
     kinto.event_listeners.redis.pool_size = 5
     kinto.event_listeners.redis.listname = queue
