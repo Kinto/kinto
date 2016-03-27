@@ -13,6 +13,26 @@ TEMPDIR := $(shell mktemp -d)
 
 OBJECTS = .venv .coverage
 
+help:
+	@echo "Please use 'make <target>' where <target> is one of"
+	@echo "  install                     install dependencies and prepare environment"
+	@echo "  install-monitoring          enable monitoring feature using NewRelic"
+	@echo "  install-postgres            install postgresql support"
+	@echo "  install-dev                 install dependencies and everything needed to run tests"
+	@echo "  build-requirements          install all requirements and freeze them in requirements.txt"
+	@echo "  serve                       start the kinto server on default port"
+	@echo "  migrate                     run the kinto migrations"
+	@echo "  tests-once                  only run the tests once with the default python interpreter"
+	@echo "  flake8                      run the flake8 linter"
+	@echo "  tests                       run all the tests with all the supported python interpreters (same as travis)"
+	@echo "  clean                       remove *.pyc files and __pycache__ directory"
+	@echo "  distclean                   remove *.egg-info files and *.egg, build and dist directories"
+	@echo "  maintainer-clean            remove the .tox and the .venv directories"
+	@echo "  loadtest-check-tutorial     load test the using tutorial"
+	@echo "  loadtest-check-simulation   load test using a simulation"
+	@echo "  docs                        builds the docs"
+	@echo "Check the Makefile to know exactly what each target is doing."
+
 all: install
 install: $(INSTALL_STAMP)
 $(INSTALL_STAMP): $(PYTHON) setup.py
