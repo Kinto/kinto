@@ -1,7 +1,7 @@
 from cliquet import resource
 from cliquet.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
-
+from pyramid.request import Request
 from kinto.views import NameGenerator
 
 
@@ -37,7 +37,7 @@ def on_buckets_deleted(event):
 
     for change in event.impacted_records:
         bucket = change['old']
-        parent_id = '/buckets/%s' % bucket['id']
+        parent_id = Request.route_path('bucket-record', id=bucket['id'])
 
         # Delete groups.
         storage.delete_all(collection_id='group',
@@ -55,8 +55,9 @@ def on_buckets_deleted(event):
 
         # Delete records.
         for collection in deleted_collections:
-            parent_id = '/buckets/%s/collections/%s' % (bucket['id'],
-                                                        collection['id'])
+            parent_id = Request.route_path('collection-record',
+                                           bucket_id=bucket['id'],
+                                           id=collection['id'])
             storage.delete_all(collection_id='record',
                                parent_id=parent_id,
                                with_deleted=False)

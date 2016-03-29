@@ -4,7 +4,7 @@ from cliquet import resource
 from cliquet.events import ResourceChanged, ACTIONS
 from jsonschema import exceptions as jsonschema_exceptions
 from pyramid.events import subscriber
-
+from pyramid.request import Request
 from kinto.views import NameGenerator
 
 
@@ -49,7 +49,7 @@ class Collection(resource.ShareableResource):
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict['bucket_id']
-        parent_id = '/buckets/%s' % bucket_id
+        parent_id = Request.route_path('bucket-record', id=bucket_id)
         return parent_id
 
 
@@ -63,8 +63,9 @@ def on_collections_deleted(event):
 
     for change in event.impacted_records:
         collection = change['old']
-        parent_id = '/buckets/%s/collections/%s' % (event.payload['bucket_id'],
-                                                    collection['id'])
+        parent_id = Request.route_path('collection-record',
+                                       bucket_id=event.payload['bucket_id'],
+                                       id=collection['id'])
         storage.delete_all(collection_id='record',
                            parent_id=parent_id,
                            with_deleted=False)
