@@ -18,12 +18,15 @@ matrix:
     - python: 3.5
       env:
         - TOX_ENV=py35
+    - env: ACTION=loadtest_tutorial
+      install:
+        - pip install tox
+
 before_script:
     - sudo sed -i "s/fsync/#fsync/" /etc/postgresql/9.4/main/postgresql.conf
     - sudo /etc/init.d/postgresql restart
     - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
-install:
-    - if [[ $ACTION != loadtest_tutorial && $ACTION != loadtest_simulation ]]; then pip install tox; fi
+
 script:
     - if [[ $ACTION != loadtest_tutorial && $ACTION != loadtest_simulation ]]; then tox -e $TOX_ENV; fi
     - if [[ $ACTION == loadtest_simulation ]]; then make loadtest-check-simulation; fi
