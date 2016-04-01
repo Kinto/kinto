@@ -61,10 +61,10 @@ If you have `Docker <https://docker.com/>`_, *Kinto* can be started locally with
 The server should now be running on http://localhost:8888
 
 
-Custom configuration
---------------------
+Environment variables
+---------------------
 
-It is possible to specify every Kinto setting through environment variables.
+It is possible to specify most Kinto settings through environment variables.
 For example, using an environment file:
 
 .. code-block:: shell
@@ -82,6 +82,24 @@ And running the container with:
     docker run --env-file ./kinto.env -p 8888:8888 kinto/kinto-server
 
 The server should now be running on http://localhost:8888
+
+
+Custom configuration file
+-------------------------
+
+Sometimes it is more convenient to specify the settings via an INI file.
+
+Suppose you have a settings file locally in ``config/dev.ini``. With Docker, you can mount
+local folders into the container. Therefore you can mount the ``config`` folder
+into the container on ``/etc/kinto``, and specify that ``/etc/kinto/dev.ini`` is your
+config file:
+
+.. code-block:: shell
+
+    sudo docker run -v `pwd`/config:/etc/kinto \
+                    -e KINTO_INI=/etc/kinto/dev.ini \
+                    -p 8888:8888 \
+                    kinto/kinto-server
 
 
 Using Docker Compose
