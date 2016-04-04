@@ -1,6 +1,6 @@
 .. _kinto-api-endpoints:
 
-1.1
+1.x
 ###
 
 Cheatsheet
