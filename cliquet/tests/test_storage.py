@@ -369,6 +369,17 @@ class BaseTestStorage(object):
                                           **self.storage_kw)
         self.assertEqual(len(records), 2)
 
+    def test_get_all_can_filter_with_list_of_numeric_values(self):
+        for l in [1, 10, 6, 46]:
+            self.create_record({'code': l})
+        sorting = [Sort('code', 1)]
+        filters = [Filter('code', 10, utils.COMPARISON.MAX)]
+        records, _ = self.storage.get_all(sorting=sorting, filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(records[0]['code'], 1)
+        self.assertEqual(records[1]['code'], 6)
+        self.assertEqual(records[2]['code'], 10)
+
     def test_get_all_can_filter_with_list_of_values_on_id(self):
         record1 = self.create_record({'code': 'a'})
         record2 = self.create_record({'code': 'b'})
@@ -893,6 +904,20 @@ class DeletedRecordsTest(object):
         self.assertIn('deleted', records[0])
         self.assertIn('deleted', records[1])
         self.assertNotIn('deleted', records[2])
+
+    def test_sorting_on_numeric_arbitrary_field(self):
+        filters = self._get_last_modified_filters()
+        for l in [1, 10, 6, 46]:
+            self.create_record({'status': l})
+
+        sorting = [Sort('status', -1)]
+        records, _ = self.storage.get_all(sorting=sorting, filters=filters,
+                                          include_deleted=True,
+                                          **self.storage_kw)
+        self.assertEqual(records[0]['status'], 46)
+        self.assertEqual(records[1]['status'], 10)
+        self.assertEqual(records[2]['status'], 6)
+        self.assertEqual(records[3]['status'], 1)
 
     #
     # Filtering
