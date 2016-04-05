@@ -173,6 +173,7 @@ Then install the package using the default configuration:
 
 ::
 
+    pip install --upgrade pip
     pip install kinto
     kinto init
     kinto migrate

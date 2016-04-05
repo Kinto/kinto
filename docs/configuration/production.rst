@@ -117,7 +117,7 @@ right host or you will leak the main server host.
 You can make sure your service is correctly configured by looking at the service URL
 returned on the service home page. It should be your CDN service URL.
 
-It might also be relevant to set your main server :ref:`as readonly <configuration-features>`_.
+It might also be relevant to set your main server :ref:`as readonly <configuration-features>`.
 
 In the configuration of the CDN service, you should also:
 
