@@ -381,6 +381,17 @@ class BaseTestStorage(object):
         self.assertEqual(records[2]['code'], 10)
         self.assertEqual(len(records), 3)
 
+    def test_get_all_can_filter_with_strings(self):
+        for l in ["Rémy", "Alexis", "Marie"]:
+            self.create_record({'name': l})
+        sorting = [Sort('name', 1)]
+        filters = [Filter('name', "Mathieu", utils.COMPARISON.LT)]
+        records, _ = self.storage.get_all(sorting=sorting, filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(records[0]['name'], "Alexis")
+        self.assertEqual(records[1]['name'], "Marie")
+        self.assertEqual(len(records), 2)
+
     def test_get_all_can_filter_with_list_of_values_on_id(self):
         record1 = self.create_record({'code': 'a'})
         record2 = self.create_record({'code': 'b'})
