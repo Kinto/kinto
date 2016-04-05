@@ -578,6 +578,12 @@ class Storage(StorageBase):
         for i, filtr in enumerate(filters):
             value = filtr.value
 
+            try:
+                value = float(value)
+                is_numeric = True
+            except ValueError:
+                is_numeric = False
+
             if filtr.field == id_field:
                 sql_field = 'id'
             elif filtr.field == modified_field:
@@ -586,9 +592,12 @@ class Storage(StorageBase):
                 # Safely escape field name
                 field_holder = '%s_field_%s' % (prefix, i)
                 holders[field_holder] = filtr.field
-                # JSON operator ->> retrieves values as text.
                 # If field is missing, we default to ''.
-                sql_field = "coalesce(data->:%s, '')" % field_holder
+                if is_numeric:
+                    sql_field = "data->:%s" % field_holder
+                else:
+                    # JSON operator ->> retrieves values as text.
+                    sql_field = "coalesce(data->>:%s, '')" % field_holder
 
             if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 # For the IN operator, let psycopg escape the values list.
