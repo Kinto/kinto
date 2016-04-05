@@ -51,7 +51,10 @@ running the ``init`` command:
     $ kinto --ini production.ini init
 
 By default, the generated configuration refers to a ``postgres`` database on
-``localhost:5432``, with user/password ``postgres``/``postgres``.
+``localhost:5432``, with user/password ``postgres``/``postgres``. If you want
+to change that, make sure to update the ``kinto.storage_url``
+:ref:`backend setting <configuration-backends>` (eg:
+``postgres://myuser:mypass@localhost:5432/mydb``).
 
 The last step consists in creating the necessary tables and indices, run the ``migrate`` command:
 
