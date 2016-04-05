@@ -34,31 +34,40 @@ The POST body is a mapping, with the following attributes:
     {
       "defaults": {
         "method" : "POST",
-        "path" : "/v0/articles",
-        "headers" : {
-          ...
-        }
+        "path" : "/articles",
       },
       "requests": [
         {
           "body" : {
-            "title": "MoFo",
-            "url" : "http://mozilla.org",
-            "added_by": "FxOS",
+            "data" : {
+              "title": "MoFo",
+              "url" : "http://mozilla.org",
+              "added_by": "FxOS",
+            },
+            "permissions": {
+              "read": ["system.Everyone"]
+            }
           }
         },
         {
           "body" : {
-            "title": "MoCo",
-            "url" : "http://mozilla.com"
-            "added_by": "FxOS",
+            "data" : {
+              "title": "MoCo",
+              "url" : "http://mozilla.com"
+              "added_by": "FxOS",
+            }
           }
         },
         {
           "method" : "PATCH",
           "path" : "/articles/409",
           "body" : {
-            "read_position" : 3477
+            "data" : {
+              "read_position" : 3477
+            }
+          }
+          "headers" : {
+            "Response-Behavior": "light"
           }
         }
       ]
@@ -78,13 +87,15 @@ The response body is a list of all responses:
     {
       "responses": [
         {
-          "path" : "/articles/409",
-          "status": 200,
+          "status": 201,
+          "path" : "/articles",
           "body" : {
-            "id": 409,
-            "url": "...",
-            ...
-            "read_position" : 3477
+            "data" : {
+              "id": 411,
+              "title": "MoFo",
+              "url" : "http://mozilla.org",
+              ...
+            }
           },
           "headers": {
             ...
@@ -94,22 +105,32 @@ The response body is a list of all responses:
           "status": 201,
           "path" : "/articles",
           "body" : {
-            "id": 411,
-            "title": "MoFo",
-            "url" : "http://mozilla.org",
-            ...
+            "data" : {
+              "id": 412,
+              "title": "MoCo",
+              "url" : "http://mozilla.com",
+              ...
+            }
           },
+          "headers": {
+            ...
+          }
         },
         {
-          "status": 201,
-          "path" : "/articles",
+          "status": 200,
+          "path" : "/articles/409",
           "body" : {
-            "id": 412,
-            "title": "MoCo",
-            "url" : "http://mozilla.com",
-            ...
+            "data" : {
+              "id": 409,
+              "url": "...",
+              ...
+              "read_position" : 3477
+            }
           },
-        },
+          "headers": {
+            ...
+          }
+        }
       ]
     }
 
@@ -143,17 +164,3 @@ every previous operation is rolled back.
     With the current implementation, if a sub-request fails with a 4XX status
     (eg. ``412 Precondition failed`` or ``403 Unauthorized`` for example) the
     transaction is **not** rolled back.
-
-
-Pros & Cons
------------
-
-* This respects REST principles
-* This is easy for the client to handle, since it just has to pile up HTTP requests while offline
-* It looks to be a convention for several REST APIs (`Neo4J <http://neo4j.com/docs/milestone/rest-api-batch-ops.html>`_, `Facebook <https://developers.facebook.com/docs/graph-api/making-multiple-requests>`_, `Parse <ttps://parse.com/docs/rest#objects-batch>`_)
-* Payload of response can be heavy, especially while importing huge collections
-* Payload of response must all be iterated to look-up errors
-
-.. note::
-
-    A form of payload optimization for massive operations is planned.
