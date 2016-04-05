@@ -91,7 +91,7 @@ Filtering
 
 **Minimum and maximum**
 
-Prefix attribute name with ``min_`` or ``max_``:
+Prefix field name with ``min_`` or ``max_``:
 
 * ``/collection?min_field=4000``
 
@@ -106,19 +106,19 @@ Prefix attribute name with ``min_`` or ``max_``:
 
 **Multiple values**
 
-Prefix attribute with ``in_`` and provide comma-separated values.
+Prefix field with ``in_`` and provide comma-separated values.
 
 * ``/collection?in_status=1,2,3``
 
 **Exclude**
 
-Prefix attribute name with ``not_``:
+Prefix field name with ``not_``:
 
 * ``/collection?not_field=0``
 
 **Exclude multiple values**
 
-Prefix attribute name with ``exclude_``:
+Prefix field name with ``exclude_``:
 
 * ``/collection?exclude_field=0,1``
 
@@ -308,7 +308,7 @@ Nested objects fields are specified using dots (e.g. ``address.street``).
 List of available URL parameters
 --------------------------------
 
-- ``<prefix?><attribute name>``: filter by value(s)
+- ``<prefix?><field name>``: filter by value(s)
 - ``_since``, ``_before``: polling changes
 - ``_sort``: order list
 - ``_limit``: pagination max size
@@ -433,7 +433,7 @@ Timestamp
 When a record is created, the timestamp of the collection is incremented.
 
 It is possible to force the timestamp if the specified record has a
-``last_modified`` attribute.
+``last_modified`` field.
 
 If the specified timestamp is in the past, the collection timestamp does not
 take the value of the created record but is bumped into the future as usual.
@@ -695,7 +695,7 @@ Timestamp
 When a record is created or replaced, the timestamp of the collection is incremented.
 
 It is possible to force the timestamp if the specified record has a
-``last_modified`` attribute.
+``last_modified`` field.
 
 For replace, if the specified timestamp is less or equal than the existing record,
 the value is simply ignored and the timestamp is bumped into the future as usual.
@@ -818,7 +818,7 @@ Timestamp
 When a record is modified, the timestamp of the collection is incremented.
 
 It is possible to force the timestamp if the specified record has a
-``last_modified`` attribute.
+``last_modified`` field.
 
 If the specified timestamp is less or equal than the existing record,
 the value is simply ignored and the timestamp is bumped into the future as usual.
