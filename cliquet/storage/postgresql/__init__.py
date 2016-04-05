@@ -586,17 +586,28 @@ class Storage(StorageBase):
                 # Safely escape field name
                 field_holder = '%s_field_%s' % (prefix, i)
                 holders[field_holder] = filtr.field
-                if filtr.operator in (COMPARISON.LT, COMPARISON.MAX,
-                                      COMPARISON.MIN, COMPARISON.GT):
+
+                # JSON operator ->> retrieves values as text.
+                # If field is missing, we default to ''.
+                sql_field = "coalesce(data->>:%s, '')" % field_holder
+
+                # Handle the special cases of numeric values
+                # Digits starting with a 0 are probably strings.
+                # (e.g phone numbers) and Boolean are not digits
+                if not six.text_type(value).startswith('0') and \
+                   value not in (True, False):
                     try:
-                        value = float(value)
-                        sql_field = "data->:%s" % field_holder
+                        value = int(value)
+                        sql_field = "(data->>:%s)::numeric" % field_holder
                     except ValueError:
-                        sql_field = "coalesce(data->>:%s, '')" % field_holder
-                else:
-                    # JSON operator ->> retrieves values as text.
-                    # If field is missing, we default to ''.
-                    sql_field = "coalesce(data->>:%s, '')" % field_holder
+                        try:
+                            value = float(value)
+                            sql_field = "(data->>:%s)::numeric" % field_holder
+                        except ValueError:
+                            pass
+                    except TypeError:
+                        # For list and tuples
+                        pass
 
             if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 # For the IN operator, let psycopg escape the values list.
