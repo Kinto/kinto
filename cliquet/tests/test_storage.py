@@ -373,7 +373,7 @@ class BaseTestStorage(object):
         for l in [1, 10, 6, 46]:
             self.create_record({'code': l})
         sorting = [Sort('code', 1)]
-        filters = [Filter('code', "10", utils.COMPARISON.MAX)]
+        filters = [Filter('code', 10, utils.COMPARISON.MAX)]
         records, _ = self.storage.get_all(sorting=sorting, filters=filters,
                                           **self.storage_kw)
         self.assertEqual(records[0]['code'], 1)
@@ -392,7 +392,7 @@ class BaseTestStorage(object):
     def test_get_all_can_filter_with_float_values(self):
         for l in [10, 11.5, 8.5, 6, 7.5]:
             self.create_record({'note': l})
-        filters = [Filter('note', "9.5", utils.COMPARISON.LT)]
+        filters = [Filter('note', 9.5, utils.COMPARISON.LT)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 3)

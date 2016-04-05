@@ -590,24 +590,9 @@ class Storage(StorageBase):
                 # JSON operator ->> retrieves values as text.
                 # If field is missing, we default to ''.
                 sql_field = "coalesce(data->>:%s, '')" % field_holder
-
-                # Handle the special cases of numeric values
-                # Digits starting with a 0 are probably strings.
-                # (e.g phone numbers) and Boolean are not digits
-                if not six.text_type(value).startswith('0') and \
+                if isinstance(value, (int, float)) and \
                    value not in (True, False):
-                    try:
-                        value = int(value)
-                        sql_field = "(data->>:%s)::numeric" % field_holder
-                    except ValueError:
-                        try:
-                            value = float(value)
-                            sql_field = "(data->>:%s)::numeric" % field_holder
-                        except ValueError:
-                            pass
-                    except TypeError:
-                        # For list and tuples
-                        pass
+                    sql_field = "(data->>:%s)::numeric" % field_holder
 
             if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 # For the IN operator, let psycopg escape the values list.
