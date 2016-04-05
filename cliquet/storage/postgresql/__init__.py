@@ -586,9 +586,13 @@ class Storage(StorageBase):
                 # Safely escape field name
                 field_holder = '%s_field_%s' % (prefix, i)
                 holders[field_holder] = filtr.field
+
                 # JSON operator ->> retrieves values as text.
                 # If field is missing, we default to ''.
                 sql_field = "coalesce(data->>:%s, '')" % field_holder
+                if isinstance(value, (int, float)) and \
+                   value not in (True, False):
+                    sql_field = "(data->>:%s)::numeric" % field_holder
 
             if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 # For the IN operator, let psycopg escape the values list.
@@ -663,7 +667,7 @@ class Storage(StorageBase):
             else:
                 field_holder = 'sort_field_%s' % i
                 holders[field_holder] = sort.field
-                sql_field = 'data->>(:%s)' % field_holder
+                sql_field = 'data->(:%s)' % field_holder
 
             sql_direction = 'ASC' if sort.direction > 0 else 'DESC'
             sql_sort = "%s %s" % (sql_field, sql_direction)
