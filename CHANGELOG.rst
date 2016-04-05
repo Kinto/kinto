@@ -4,10 +4,12 @@ Changelog
 This document describes changes between each past release.
 
 
-3.2.0 (unreleased)
+3.1.1 (2016-04-05)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Allow numeric comparison and sorting with the PostgreSQL backend. (#690)
 
 
 3.1.0 (2016-03-07)
