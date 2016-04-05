@@ -379,6 +379,7 @@ class BaseTestStorage(object):
         self.assertEqual(records[0]['code'], 1)
         self.assertEqual(records[1]['code'], 6)
         self.assertEqual(records[2]['code'], 10)
+        self.assertEqual(len(records), 3)
 
     def test_get_all_can_filter_with_list_of_values_on_id(self):
         record1 = self.create_record({'code': 'a'})
