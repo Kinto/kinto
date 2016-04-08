@@ -378,3 +378,55 @@ The sample *Nginx* configuration file shown above will look like so:
             include     /path/to/uwsgi_params; # the uwsgi_params file previously downloaded
         }
     }
+
+
+Upgrading Kinto
+===============
+
+.. important::
+
+    We follow `semver <http://semver.org/>`_ for version numbers.
+
+    Before upgrading, read the release notes about potential breaking changes.
+
+    See also ref:`API versioning <api-versioning>`.
+
+First, make the potential changes to the configuration file, as described in
+the release notes.
+
+If installed as Python package, make sure the virtualenv is activated:
+
+::
+
+    source env/bin/activate
+
+Now upgrade Kinto (and its dependencies) using the following command:
+
+::
+
+    pip install --upgrade kinto
+
+Since expected database schemas may change, do not forget to run the migration with:
+
+::
+
+    kinto migrate
+
+Once done, restart the server. For example, with uwsgi:
+
+::
+
+    killall -HUP uwsgi
+
+
+Using backoff
+-------------
+
+The :ref:`backoff feature <backoff-indicators>` of the HTTP protocol allows
+to reduce the hits of clients during a period of time.
+
+In order to leverage this, change the ``kinto.backoff`` setting to a number of
+seconds (e.g. 3600) and reload/restart the server some time before starting
+the upgrade process.
+
+Do not forget to revert it once the upgrade is done ;)
