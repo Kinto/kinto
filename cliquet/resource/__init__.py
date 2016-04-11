@@ -756,6 +756,9 @@ class UserResource(object):
         if_match = decode_header(if_match) if if_match else None
 
         if record and if_none_match and decode_header(if_none_match) == '*':
+            if record.get(self.model.deleted_field, False):
+                # Tombstones should not prevent creation.
+                return
             modified_since = -1  # Always raise.
         elif if_match:
             try:

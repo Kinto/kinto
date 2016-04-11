@@ -7,7 +7,10 @@ This document describes changes between each past release.
 3.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix safe creation (``If-None-Match: *``) if a record used to exist with the
+  same id (Kinto/kinto#512)
 
 
 3.1.1 (2016-04-05)
