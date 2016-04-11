@@ -492,6 +492,8 @@ Kinto supports `CORS <http://www.w3.org/TR/cors/>`_ out of the box. Use the
 +--------------------+---------+--------------------------------------------------------------------------+
 
 
+.. _configuring-backoff:
+
 Backoff indicators
 ==================
 

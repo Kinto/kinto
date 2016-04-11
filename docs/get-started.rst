@@ -182,25 +182,6 @@ Then install the package using the default configuration:
 The server should now be running on http://localhost:8888
 
 
-Upgrading Kinto
----------------
-
-Whenever you need to upgrade Kinto, first make sure that the server is stopped,
-and that the virtualenv is activated:
-
-::
-
-    source env/bin/activate
-
-Now upgrade Kinto (and its dependencies) using the following command:
-
-::
-
-    pip install --upgrade kinto
-
-This will install the latest versions of Kinto and its dependencies.
-
-
 .. _run-kinto-from-source:
 
 From sources
