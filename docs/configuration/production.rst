@@ -406,7 +406,7 @@ Now upgrade Kinto (and its dependencies) using the following command:
 
     pip install --upgrade kinto
 
-Since expected database schemas may change, do not forget to run the migration with:
+Since there might be some database schema changes, do not forget to run the migration with:
 
 ::
 
