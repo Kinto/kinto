@@ -6,6 +6,7 @@ from pyramid.settings import asbool
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
 from cliquet.errors import raise_invalid
+from cliquet.events import ACTIONS
 from cliquet.utils import build_request, reapply_cors, hmac_digest
 from cliquet.storage import exceptions as storage_exceptions
 
@@ -31,8 +32,14 @@ def create_bucket(request, bucket_id):
     context = RouteFactory(request)
     context.get_permission_object_id = lambda r, i: '/buckets/%s' % bucket_id
     resource = Bucket(request, context)
+    data = {'id': bucket_id}
     try:
-        bucket = resource.model.create_record({'id': bucket_id})
+        bucket = resource.model.create_record(data)
+        # Since the current request is not a resource (but a straight Service),
+        # we simulate a request on a bucket resource.
+        # This will be used in the resource event payload.
+        request.current_resource_name = 'bucket'
+        resource.postprocess(data, action=ACTIONS.CREATE)
     except storage_exceptions.UnicityError as e:
         bucket = e.record
     already_created[bucket_id] = bucket
@@ -73,8 +80,14 @@ def create_collection(request, bucket_id):
             'description': "Invalid collection_id id"
         }
         raise_invalid(request, **error_details)
+    data = {'id': collection_id}
     try:
-        collection = resource.model.create_record({'id': collection_id})
+        collection = resource.model.create_record(data)
+        # Since the current request is not a resource (but a straight Service),
+        # we simulate a request on a bucket resource.
+        # This will be used in the resource event payload.
+        request.current_resource_name = 'collection'
+        resource.postprocess(data, action=ACTIONS.CREATE)
     except storage_exceptions.UnicityError as e:
         collection = e.record
     already_created[collection_uri] = collection
