@@ -11,6 +11,11 @@ API
 Changelog
 ---------
 
+1.5 (unreleased)
+''''''''''''''''
+
+- Allow groups to get arbitrary attributes.
+
 1.4 (2016-03-08)
 ''''''''''''''''
 

@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Relax content-type validation when no body is posted (fixes #507)
 
+**New features**
+
+- Allow groups to store arbitrary properties. (#469)
+
 
 2.0.0 (2016-03-08)
 ==================

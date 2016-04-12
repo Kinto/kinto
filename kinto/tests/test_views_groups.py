@@ -39,6 +39,17 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
+    def test_groups_can_have_arbitrary_attributes(self):
+        group = MINIMALIST_GROUP.copy()
+        mailinglist = "kinto@mozilla.com"
+        group['data']['mailinglist'] = mailinglist
+        resp = self.app.put_json('/buckets/beers/groups/moderator',
+                                 group,
+                                 headers=self.headers)
+        data = resp.json['data']
+        self.assertIn('mailinglist', data)
+        self.assertEqual(data['mailinglist'], mailinglist)
+
     def test_groups_should_reject_unaccepted_request_content_type(self):
         headers = self.headers.copy()
         headers['Content-Type'] = 'text/plain'
