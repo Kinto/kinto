@@ -34,10 +34,14 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                                  headers=self.headers)
         self.assertEqual(resp.json['data']['id'], 'alexis_beers')
 
-    def test_nobody_can_list_buckets_by_default(self):
-        self.app.get(self.collection_url,
-                     headers=get_user_headers('alice'),
-                     status=403)
+    def test_no_anonymous_can_list_buckets_by_default(self):
+        self.app.get(self.collection_url, status=403)
+
+    def test_anybody_can_list_buckets_by_default(self):
+        resp = self.app.get(self.collection_url,
+                            headers=get_user_headers('alice'))
+        # But it contains no record if no read permission.
+        self.assertEqual(len(resp.json['data']), 0)
 
     def test_nobody_can_read_bucket_information_by_default(self):
         self.app.get(self.record_url,
@@ -126,7 +130,7 @@ class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extra=None):
         settings = super(BucketReadPermissionTest,
                          self).get_app_settings(extra)
-        # Give the right to list buckets (for self.principal and alice).
+        # Give the right to read every buckets (for self.principal and alice).
         settings['kinto.bucket_read_principals'] = Authenticated
         return settings
 
