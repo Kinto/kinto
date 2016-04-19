@@ -216,3 +216,9 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('%s/records?_since=0' % self.collection_url,
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
+
+    def test_can_be_created_after_deletion_with_if_none_match_star(self):
+        headers = self.headers.copy()
+        headers['If-None-Match'] = '*'
+        self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
+                          headers=headers, status=201)

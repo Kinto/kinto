@@ -227,3 +227,12 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                      MINIMALIST_RECORD,
                      headers=headers,
                      status=200)
+
+    def test_records_can_be_created_after_deletion(self):
+        self.app.delete(self.record_url,
+                        headers=self.headers,
+                        status=200)
+        headers = self.headers.copy()
+        headers['If-None-Match'] = '*'
+        self.app.put_json(self.record_url, MINIMALIST_RECORD,
+                          headers=headers, status=201)
