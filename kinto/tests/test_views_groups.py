@@ -159,10 +159,12 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
                           {group_url})
 
     def test_groups_can_be_created_after_deletion(self):
-        self.app.delete(self.group_url, headers=self.headers)
+        self.create_group('beers', 'moderators')
+        group_url = '/buckets/beers/groups/moderators'
+        self.app.delete(group_url, headers=self.headers)
         headers = self.headers.copy()
         headers['If-None-Match'] = '*'
-        self.app.put_json(self.group_url, MINIMALIST_GROUP,
+        self.app.put_json(group_url, MINIMALIST_GROUP,
                           headers=headers, status=201)
 
 
