@@ -220,6 +220,59 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertIn('default_bucket', capabilities)
 
 
+_events = []
+
+
+def load_from_config(config, prefix):
+    def listener(event):
+        _events.append(event)
+
+    return listener
+
+
+class EventsTest(BaseWebTest, unittest.TestCase):
+    def tearDown(self):
+        super(EventsTest, self).tearDown()
+        del _events[:]
+
+    def get_app_settings(self, extra=None):
+        settings = super(EventsTest, self).get_app_settings(extra)
+        settings['event_listeners'] = 'testevent',
+        settings['event_listeners.testevent.use'] = (
+            'kinto.plugins.default_bucket.test_plugin')
+        return settings
+
+    def test_an_event_is_sent_on_implicit_bucket_creation(self):
+        bucket_url = '/buckets/default'
+        self.app.get(bucket_url, headers=self.headers)
+        assert len(_events) == 1
+        payload = _events[-1].payload
+        assert payload['resource_name'] == 'bucket'
+        assert payload['action'] == 'create'
+
+    def test_an_event_is_sent_on_implicit_collection_creation(self):
+        collection_url = '/buckets/default/collections/articles'
+        self.app.get(collection_url, headers=self.headers)
+        assert len(_events) == 2
+        payload = _events[-1].payload
+        assert payload['resource_name'] == 'collection'
+        assert payload['action'] == 'create'
+
+    def test_events_sent_on_bucket_and_collection_creation(self):
+        records_uri = '/buckets/default/collections/articles/records'
+        self.app.get(records_uri, headers=self.headers)
+
+        assert len(_events) == 2
+
+        # XXX: Could not achieve a behaviour the payload uri reflect the
+        # underlying created object.
+        # resp = self.app.get('/', headers=self.headers)
+        # bucket_id = resp.json['user']['bucket']
+        # assert _events[0].payload['uri'] == '/buckets/%s' % bucket_id
+        # assert _events[1].payload['uri'] == (
+        #     '/buckets/%s/collections/articles' % bucket_id)
+
+
 class ReadonlyDefaultBucket(BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extras=None):
