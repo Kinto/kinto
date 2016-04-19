@@ -3,7 +3,7 @@ import colander
 from cliquet import resource
 from cliquet.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
-
+from pyramid.request import Request
 from kinto.views import NameGenerator
 
 
@@ -28,7 +28,7 @@ class Group(resource.ShareableResource):
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict['bucket_id']
-        parent_id = '/buckets/%s' % bucket_id
+        parent_id = Request.route_path('bucket-record', id=bucket_id)
         return parent_id
 
 
