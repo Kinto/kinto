@@ -13,6 +13,7 @@ This document describes changes between each past release.
 **New features**
 
 - Allow groups to store arbitrary properties. (#469)
+- A ``cache_prefix`` setting was added for cache backends. (mozilla-services/cliquet#680)
 
 
 2.0.0 (2016-03-08)
