@@ -174,6 +174,14 @@ class ModifiedMeanwhileTest(BaseTest):
         self.resource.record_id = self.resource.model.id_generator()
         self.resource.put()  # not raising.
 
+    def test_put_if_none_match_star_succeeds_if_tombstone_exists(self):
+        self.model.delete_record(self.stored)
+        self.resource.request.headers.pop('If-Match')
+        self.resource.request.headers['If-None-Match'] = '*'
+        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.record_id = self.stored['id']
+        self.resource.put()  # not raising.
+
     def test_post_if_none_match_star_fails_if_record_exists(self):
         self.resource.request.headers.pop('If-Match')
         self.resource.request.headers['If-None-Match'] = '*'
