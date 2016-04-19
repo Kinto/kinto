@@ -9,7 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Relax content-type validation when no body is posted (fixes #507)
-- Fix creation events not sent for implicit creation of object in the ``default``
+- Fix creation events not sent for implicit creation of objects in the ``default``
   bucket (fixes #529)
 
 
