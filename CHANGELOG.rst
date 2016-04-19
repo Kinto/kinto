@@ -11,11 +11,24 @@ This document describes changes between each past release.
 - Relax content-type validation when no body is posted (fixes #507)
 - Fix creation events not sent for implicit creation of objects in the ``default``
   bucket (fixes #529)
+- Fix the Dockerfile pip install (#522)
+- Fix concurrency control request headers to recreate deleted objects (#512)
 
 **New features**
 
 - Allow groups to store arbitrary properties. (#469)
 - A ``cache_prefix`` setting was added for cache backends. (mozilla-services/cliquet#680)
+
+**Documentation**
+
+- Put the cloud provider links in a comparison table (#514)
+- Fix the module name of Redis event listener (thanks @happy-tanuki, #516)
+- Add Makefile Documentation (thanks @ayusharma, #483)
+- Document how to run Docker with custom config file (#525)
+- Fix API version title (#523)
+- Add a 'upgrade pip' command in the getting-started docs (#531)
+- Document how to configure the postgresql backend (#533)
+- Document how to upgrade Kinto (#537, #538)
 
 
 2.0.0 (2016-03-08)
