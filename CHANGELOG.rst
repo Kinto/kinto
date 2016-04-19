@@ -12,6 +12,10 @@ This document describes changes between each past release.
 - Fix safe creation (``If-None-Match: *``) if a record used to exist with the
   same id (Kinto/kinto#512)
 
+**New features**
+
+- A ``cache_prefix`` setting was added for cache backends. (#680)
+
 
 3.1.1 (2016-04-05)
 ------------------
@@ -31,7 +35,6 @@ This document describes changes between each past release.
 **New features**
 
 - Default console log renderer now has colours (#671)
-- A ``cache_prefix`` setting was added for cache backends. (#680)
 
 **Bug fixes**
 
