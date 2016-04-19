@@ -28,20 +28,11 @@ def create_bucket(request, bucket_id):
     if bucket_id in already_created:
         return
 
-    # Fake context to instantiate a Bucket resource.
-    context = RouteFactory(request)
-    context.get_permission_object_id = lambda r, i: '/buckets/%s' % bucket_id
-    resource = Bucket(request, context)
-    data = {'id': bucket_id}
-    try:
-        bucket = resource.model.create_record(data)
-        # Since the current request is not a resource (but a straight Service),
-        # we simulate a request on a bucket resource.
-        # This will be used in the resource event payload.
-        request.current_resource_name = 'bucket'
-        resource.postprocess(data, action=ACTIONS.CREATE)
-    except storage_exceptions.UnicityError as e:
-        bucket = e.record
+    bucket = resource_create_object(request=request,
+                                    resource_cls=Bucket,
+                                    uri='/buckets/%s' % bucket_id,
+                                    resource_name='bucket',
+                                    obj_id=bucket_id)
     already_created[bucket_id] = bucket
 
 
@@ -65,33 +56,51 @@ def create_collection(request, bucket_id):
     if collection_put:
         return
 
-    # Fake context to instantiate a Collection resource.
-    context = RouteFactory(request)
-    context.get_permission_object_id = lambda r, i: collection_uri
-
-    backup = request.matchdict
+    backup_matchdict = request.matchdict
     request.matchdict = dict(bucket_id=bucket_id,
                              id=collection_id,
                              **request.matchdict)
-    resource = Collection(request, context)
-    if not resource.model.id_generator.match(collection_id):
+    collection = resource_create_object(request=request,
+                                        resource_cls=Collection,
+                                        uri=collection_uri,
+                                        resource_name='collection',
+                                        obj_id=collection_id)
+    already_created[collection_uri] = collection
+    request.matchdict = backup_matchdict
+
+
+def resource_create_object(request, resource_cls, uri, resource_name, obj_id):
+    """In the default bucket, the bucket and collection are implicitly
+    created. This helper instantiate the resource and simulate a request
+    with its RootFactory on the instantiated resource.
+    :returns: the created object
+    :rtype: dict
+    """
+    # Fake context to instantiate a resource.
+    context = RouteFactory(request)
+    context.get_permission_object_id = lambda r, i: uri
+
+    resource = resource_cls(request, context)
+
+    # Check that provided id is valid for this resource.
+    if not resource.model.id_generator.match(obj_id):
         error_details = {
             'location': 'path',
-            'description': "Invalid collection_id id"
+            'description': "Invalid %s id" % resource_name
         }
-        raise_invalid(request, **error_details)
-    data = {'id': collection_id}
+        raise_invalid(resource.request, **error_details)
+
+    data = {'id': obj_id}
     try:
-        collection = resource.model.create_record(data)
+        obj = resource.model.create_record(data)
         # Since the current request is not a resource (but a straight Service),
-        # we simulate a request on a bucket resource.
+        # we simulate a request on a resource.
         # This will be used in the resource event payload.
-        request.current_resource_name = 'collection'
+        resource.request.current_resource_name = resource_name
         resource.postprocess(data, action=ACTIONS.CREATE)
     except storage_exceptions.UnicityError as e:
-        collection = e.record
-    already_created[collection_uri] = collection
-    request.matchdict = backup
+        obj = e.record
+    return obj
 
 
 def default_bucket(request):
