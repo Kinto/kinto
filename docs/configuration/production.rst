@@ -40,6 +40,29 @@ The instructions to run a local PostgreSQL database are out of scope here.
 A detailed guide is :github:`available on the Kinto Wiki <Kinto/kinto/wiki/How-to-run-a-PostgreSQL-server%3F>`.
 
 
+Privileges basics
+-----------------
+
+In order to initialize the database tables and objects, the specified user must
+have some privileges. For example, to create a user from scratch:
+
+.. code-block:: sql
+
+    CREATE USER ${dbuser} WITH PASSWORD '${dbpassword}';
+    GRANT ALL PRIVILEGES ON DATABASE ${dbname} TO ${dbuser};
+
+For a read-only setup, it is possible to define a user that only has the privilege
+to read the tables::
+
+.. code-block:: sql
+
+    CREATE USER ${dbuser} WITH PASSWORD '${dbpassword}';
+    GRANT USAGE ON SCHEMA public TO ${dbuser};
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${dbuser};
+    -- Still grant write operations on cache table (e.g. authent).
+    GRANT UPDATE, INSERT, DELETE ON cache TO ${dbuser};
+
+
 Initialization
 --------------
 
@@ -52,9 +75,8 @@ running the ``init`` command:
 
 By default, the generated configuration refers to a ``postgres`` database on
 ``localhost:5432``, with user/password ``postgres``/``postgres``. If you want
-to change that, make sure to update the ``kinto.storage_url``
-:ref:`backend setting <configuration-backends>` (eg:
-``postgres://myuser:mypass@localhost:5432/mydb``).
+to change that, make sure to update the :ref:`backendss setting <configuration-backends>`
+(eg: ``postgres://myuser:mypass@localhost:5432/mydb``).
 
 The last step consists in creating the necessary tables and indices, run the ``migrate`` command:
 
