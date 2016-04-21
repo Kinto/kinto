@@ -16,6 +16,7 @@ Contributors
 * Jelmer van der Ploeg <jelmer@woovar.com>
 * John Giannelos <johngiannelos@gmail.com>
 * Lavish Aggarwal <lucky.lavish@gmail.com>
+* Masataka Takeuchi <masataka.takeuchi@l-is-b.com>
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
 * Michiel de Jong <michiel@unhosted.org>
