@@ -103,7 +103,7 @@ with a *PostgreSQL* container.
 Installing Python 2.7/3.4+ on Ubuntu/Debian
 -------------------------------------------
 
-Install using the following command:
+Install using the following command:-
 
 ::
 
@@ -117,7 +117,7 @@ Backends
 Redis on Ubuntu/Debian
 ----------------------
 
-Install using the following command:
+Install using the following command:-
 
 ::
 
