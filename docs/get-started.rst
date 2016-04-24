@@ -138,7 +138,7 @@ On Debian / Ubuntu based systems::
 
 On RHEL-derivatives::
 
-    apt-get install libffi-devel openssl-devel python-devel python-virtualenv
+    dnf install libffi-devel openssl-devel python-devel python-virtualenv
 
 OS X
 ''''
