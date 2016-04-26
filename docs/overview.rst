@@ -319,7 +319,9 @@ What is Cliquet? What is the difference between Cliquet and Kinto?
 Cliquet is a toolkit for designing micro-services. Kinto is a server built
 using that toolkit.
 
-`Read more (in french) about the differences <http://www.servicedenuages.fr/pourquoi-cliquet>`_.
+Read more about the differences `in English
+<http://www.servicedenuages.fr/en/why-cliquet>`_ or `in French
+<http://www.servicedenuages.fr/pourquoi-cliquet>`_.
 
 
 How does Kinto authenticate users ?
