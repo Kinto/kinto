@@ -52,21 +52,34 @@ have some privileges. For example, to create a user from scratch:
     GRANT ALL PRIVILEGES ON DATABASE ${dbname} TO ${dbuser};
 
 For a read-only setup, it is possible to define a user that only has the privilege
-to read the tables::
+to read the tables:
 
 .. code-block:: sql
 
     CREATE USER ${dbuser} WITH PASSWORD '${dbpassword}';
     GRANT USAGE ON SCHEMA public TO ${dbuser};
     GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${dbuser};
-    -- Still grant write operations on cache table (e.g. authent).
+
+Even if the stack is read-only, some internal values like authentication tokens
+may still be to be stored in cache. If the cache backend is configured to use
+PostgreSQL, then write operations still must be granted on the ``cache`` table:
+
+.. code-block:: sql
+
     GRANT UPDATE, INSERT, DELETE ON cache TO ${dbuser};
+
+Also, in future versions of Kinto, some new tables may be created. It is possible to
+change the default privileges to allow reading the future tables:
+
+.. code-block:: sql
+
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO ${dbuser};
 
 
 Initialization
 --------------
 
-Once a PostgreSQL is up and running somewhere, select the Postgresql option when
+Once a PostgreSQL is up and running somewhere, select the PostgreSQL option when
 running the ``init`` command:
 
 .. code-block :: bash
@@ -75,7 +88,7 @@ running the ``init`` command:
 
 By default, the generated configuration refers to a ``postgres`` database on
 ``localhost:5432``, with user/password ``postgres``/``postgres``. If you want
-to change that, make sure to update the :ref:`backendss setting <configuration-backends>`
+to change that, make sure to update the :ref:`backends setting <configuration-backends>`
 (eg: ``postgres://myuser:mypass@localhost:5432/mydb``).
 
 The last step consists in creating the necessary tables and indices, run the ``migrate`` command:
