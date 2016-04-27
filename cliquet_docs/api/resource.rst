@@ -879,4 +879,4 @@ In a response, ``permissions`` contains the current permissions of the record
     When a record is created or modified, the current :term:`user id`
     **is always added** among the ``write`` principals.
 
-`Read more about leveraging resource permissions <resource-permissions>`.
+:ref:`Read more about leveraging resource permissions <permissions>`.
