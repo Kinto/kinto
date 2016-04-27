@@ -102,7 +102,7 @@ controlled with individual fined-permissions, a :class:`cliquet.resource.Shareab
 could be used.
 
 But there are other strategies, please refer to :ref:`dedicated section about permissions
-<resource-permissions>`.
+<permissions>`.
 
 
 HTTP methods and options
