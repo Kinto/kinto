@@ -73,7 +73,10 @@ class Record(resource.ShareableResource):
             stripped.pop(self.schema_field, None)
             jsonschema.validate(stripped, schema)
         except jsonschema_exceptions.ValidationError as e:
-            field = e.path.pop() if e.path else e.validator_value.pop()
+            try:
+                field = e.path.pop() if e.path else e.validator_value.pop()
+            except AttributeError:
+                field = None
             raise_invalid(self.request, name=field, description=e.message)
 
         new[self.schema_field] = collection_timestamp
