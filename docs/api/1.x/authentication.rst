@@ -67,8 +67,8 @@ which computes a user id based on the token provided in the request.
 
 .. warning::
 
-    This method has many limitations but has the advantage to avoid
-    specific setup or third-party services to get started immediately.
+    This method has many limitations but has the advantage of not needing
+    specific setup or third-party services before you get started.
 
 When using arbitrary tokens make sure that:
 
