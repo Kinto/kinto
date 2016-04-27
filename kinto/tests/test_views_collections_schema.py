@@ -221,5 +221,4 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                                  {'data': record},
                                  headers=self.headers,
                                  status=400)
-        assert resp.json['message'] == ("body: Additional properties are not "
-                                        "allowed ('extra' was unexpected)")
+        assert "'extra' was unexpected)" in resp.json['message']
