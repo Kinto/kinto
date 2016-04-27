@@ -6,7 +6,9 @@ This document describes changes between each past release.
 2.2.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Strip internal fields before validating JSON schema (fixes #549)
 
 
 2.1.0 (2016-04-19)

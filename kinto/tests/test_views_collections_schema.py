@@ -177,3 +177,38 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
         resp = self.app.get(RECORDS_URL + '?min_schema=%s' % schema_version,
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 1)
+
+
+class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super(ExtraPropertiesValidationTest, self).setUp()
+        schema = SCHEMA.copy()
+        schema['additionalProperties'] = False
+        resp = self.app.put_json(COLLECTION_URL,
+                                 {'data': {'schema': schema}},
+                                 headers=self.headers)
+        self.collection = resp.json['data']
+
+    def test_record_can_be_validated_on_post(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': VALID_RECORD},
+                           headers=self.headers)
+
+    def test_record_can_be_validated_on_put(self):
+        record_id = '5443d83f-852a-481a-8e9d-5aa804b05b08'
+        self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
+                          {'data': VALID_RECORD},
+                          headers=self.headers)
+
+    def test_records_are_validated_on_patch(self):
+        record_id = '5443d83f-852a-481a-8e9d-5aa804b05b08'
+        record_url = '%s/%s' % (RECORDS_URL, record_id)
+        resp = self.app.put_json(record_url,
+                                 {'data': VALID_RECORD},
+                                 headers=self.headers)
+        record = resp.json['data']
+        assert 'schema' in record
+        record['title'] = 'hey'
+        self.app.patch_json(record_url,
+                            {'data': record},
+                            headers=self.headers)

@@ -1,3 +1,5 @@
+import copy
+
 import jsonschema
 from cliquet import resource
 from cliquet.errors import raise_invalid
@@ -64,12 +66,17 @@ class Record(resource.ShareableResource):
         collection_timestamp = self._collection[self.model.modified_field]
 
         try:
-            jsonschema.validate(new, schema)
-            new[self.schema_field] = collection_timestamp
+            stripped = copy.deepcopy(new)
+            stripped.pop(self.model.id_field, None)
+            stripped.pop(self.model.modified_field, None)
+            stripped.pop(self.model.permissions_field, None)
+            stripped.pop(self.schema_field, None)
+            jsonschema.validate(stripped, schema)
         except jsonschema_exceptions.ValidationError as e:
             field = e.path.pop() if e.path else e.validator_value.pop()
             raise_invalid(self.request, name=field, description=e.message)
 
+        new[self.schema_field] = collection_timestamp
         return new
 
     def collection_get(self):
