@@ -217,7 +217,9 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
         record_id = '5443d83f-852a-481a-8e9d-5aa804b05b08'
         record = VALID_RECORD.copy()
         record['extra'] = 'blah!'
-        self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
-                          {'data': record},
-                          headers=self.headers,
-                          status=400)
+        resp = self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
+                                 {'data': record},
+                                 headers=self.headers,
+                                 status=400)
+        assert resp.json['message'] == ("body: Additional properties are not "
+                                        "allowed ('extra' was unexpected)")
