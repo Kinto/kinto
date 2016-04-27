@@ -221,3 +221,30 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                           {'data': record},
                           headers=self.headers,
                           status=400)
+
+
+class TypeMismatchTest(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super(TypeMismatchTest, self).setUp()
+        schema = SCHEMA.copy()
+        schema["properties"] = {
+            "title": {
+                "type": "string",
+                "title": "title",
+                "description": "code number.",
+                "enum": ["0", "1", "2", "3"],
+                "default": "0"
+            }
+        }
+        print schema
+        resp = self.app.put_json(COLLECTION_URL,
+                                 {'data': {'schema': schema}},
+                                 headers=self.headers)
+        self.collection = resp.json['data']
+
+    def test_type_mismatch_is_validated(self):
+        r = self.app.post_json(RECORDS_URL,
+                           {'data': {"title": 0}},
+                           headers=self.headers,
+                           status=400)
+        print r.body
