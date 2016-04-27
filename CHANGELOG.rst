@@ -8,6 +8,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
+- Fix crash in JSON schema validation when additional properties are provided (fixes #548)
 - Strip internal fields before validating JSON schema (fixes #549)
 
 
