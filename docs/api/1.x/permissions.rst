@@ -322,9 +322,7 @@ Modify permissions
             },
             "permissions": {
                 "write": [
-                    "groups:writers"
-                ],
-                "write": [
+                    "groups:writers",
                     "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
