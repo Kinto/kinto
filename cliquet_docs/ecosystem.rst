@@ -148,7 +148,7 @@ features brought by plugins.
         if settings['flush_enabled']:
             config.add_api_capability("flush",
                                       description="Flush server using endpoint",
-                                      url="http://kinto.readthedocs.org/en/latest/configuration/settings.html#activating-the-flush-endpoint")
+                                      url="http://kinto.readthedocs.io/en/latest/configuration/settings.html#activating-the-flush-endpoint")
 
         return config.make_wsgi_app()
 

@@ -570,7 +570,7 @@ Minor changes in the root URL (hello view):
 - Cliquet ``Service`` class now has the default error handler attached (#388)
 - Allow to configure info link in error responses with ``cliquet.error_info_link``
   setting (#395)
-- Storage backend now has a ``purge_deleted()`` to get rid of `tombstones <http://cliquet.readthedocs.org/en/latest/reference/glossary.html>`_ (#400)
+- Storage backend now has a ``purge_deleted()`` to get rid of `tombstones <http://cliquet.readthedocs.io/en/latest/reference/glossary.html>`_ (#400)
 
 **Bug fixes**
 
@@ -797,7 +797,7 @@ Minor
     $ cliquet --ini production.ini migrate
 
 - Sentry custom code was removed. Sentry logging is now managed through the
-  logging configuration, as explained `in docs <http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
+  logging configuration, as explained `in docs <http://raven.readthedocs.io/en/latest/integrations/pyramid.html#logger-setup>`_.
 
 **New features**
 
@@ -946,7 +946,7 @@ Minor
   (*Default: 50*) (#112)
 - Add `StatsD <https://github.com/etsy/statsd/>`_ support,
   enabled with ``cliquet.statsd_url = udp://server:port`` (#114)
-- Add `Sentry <http://sentry.readthedocs.org>`_ support,
+- Add `Sentry <http://sentry.readthedocs.io>`_ support,
   enabled with ``cliquet.sentry_url = http://user:pass@server/1`` (#110)
 
 **Bug fixes**

@@ -21,7 +21,7 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-# otherwise, readthedocs.org uses their theme by default, so no need
+# otherwise, readthedocs.io uses their theme by default, so no need
 # to specify it
 
 
@@ -99,16 +99,16 @@ autodoc_member_order = 'bysource'
 
 extlinks = {
     'github': ('https://github.com/%s/', ''),
-    'rtd': ('http://%s.readthedocs.org', '')
+    'rtd': ('http://%s.readthedocs.io', '')
 }
 
 
 # -- Options for intersphinx --------------------------------------------------
 
 intersphinx_mapping = {
-    'colander': ('http://colander.readthedocs.org/en/latest/', None),
-    'cornice': ('http://cornice.readthedocs.org/en/latest/', None),
-    'pyramid': ('http://pyramid.readthedocs.org/en/latest/', None)
+    'colander': ('http://colander.readthedocs.io/en/latest/', None),
+    'cornice': ('http://cornice.readthedocs.io/en/latest/', None),
+    'pyramid': ('http://pyramid.readthedocs.io/en/latest/', None)
 }
 
 # -- Options for LaTeX output ---------------------------------------------
