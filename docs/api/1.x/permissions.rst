@@ -198,8 +198,8 @@ Modify permissions
 
 .. note::
 
-   The user ID that *updates* the permissions is always granted the `write`
-   permission. This is in order to prevent accidental loss of ownership on an
+   The user ID that updates *any* permissions is always added to the `write`
+   permission list. This is in order to prevent accidental loss of ownership on an
    object.
 
 
