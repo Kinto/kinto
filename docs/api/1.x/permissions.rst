@@ -196,6 +196,11 @@ Retrieve permissions
 Modify permissions
 ==================
 
+An object's permissions can be modified at the same time as the object
+itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
+<record-put>` methods discussed in :ref:`the Records section
+<records>`.
+
 .. note::
 
    The user ID that updates *any* permissions is always added to the `write`
