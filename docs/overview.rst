@@ -25,7 +25,7 @@ for you:
 
 - Expose your data over an HTTP interface, unlike databases like PostgreSQL
 - Use simple HTTP requests rather than SQL
-- Use `Kinto.js <https://kintojs.readthedocs.org/en/latest/>`_ to easily
+- Use `Kinto.js <https://kintojs.readthedocs.io/en/latest/>`_ to easily
   implement offline first clients
 - Choose the database you want from those that Kinto supports, and use a
   unified API to access its data
@@ -137,7 +137,7 @@ Key features
 +---------------------------------------------+---------------------------------------------+
 | |logo-offline|                              | |logo-python|                               |
 | Offline-first `JavaScript client            | :github:`Python client                      |
-| <https://kintojs.readthedocs.org>`_         | <Kinto/kinto.py>`                           |
+| <https://kintojs.readthedocs.io>`_         | <Kinto/kinto.py>`                           |
 +---------------------------------------------+---------------------------------------------+
 | |logo-attachment|                           | |logo-livesync|                             |
 | :github:`File attachments on records        | Live :ref:`Push notifications               |

@@ -209,7 +209,7 @@ During the installation, you will be asked which backend you would like to use:
 
 If you don't know, just push "enter" to choose the default Memory backend.
 You can always change your backend selection
-`later on <https://kinto.readthedocs.org/en/latest/configuration/settings.html#backends>`_.
+`later on <https://kinto.readthedocs.io/en/latest/configuration/settings.html#backends>`_.
 
 The server should now be running with the default configuration on http://localhost:8888
 

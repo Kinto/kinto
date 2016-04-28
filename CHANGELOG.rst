@@ -60,7 +60,7 @@ This document describes changes between each past release.
 - Add the ``flush_endpoint``, ``schema`` and ``default_bucket`` to the capabilities
   if enabled in settings (#270)
 
-Protocol is now in version **1.4**. See `API changelog <http://kinto.readthedocs.org/en/latest/api/>`_.
+Protocol is now in version **1.4**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
 
 **Breaking changes**
 
@@ -90,7 +90,7 @@ Protocol is now in version **1.4**. See `API changelog <http://kinto.readthedocs
 - Monitor time of events listeners execution (mozilla-services/cliquet#503)
 - Added a new ``AfterResourceChanged`` event, that is sent only when the commit
   in database is done and successful.
-  `See more details <http://cliquet.readthedocs.org/en/latest/reference/notifications.html>`_.
+  `See more details <http://cliquet.readthedocs.io/en/latest/reference/notifications.html>`_.
 - Track execution time on StatsD for each authentication sub-policy (mozilla-services/cliquet#639)
 - Default console log renderer now has colours (mozilla-service/cliquet#671)
 - Output Kinto version with ``kinto --version`` (thanks @ayusharma)
@@ -178,7 +178,7 @@ Protocol is now in version **1.4**. See `API changelog <http://kinto.readthedocs
   root URL (#628). Clients can rely on this to detect optional features on the
   server (e.g. enabled plugins)
 
-Protocol is now version 1.3. See `API changelog <http://kinto.readthedocs.org/en/latest/api/>`_.
+Protocol is now version 1.3. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
 
 **New features**
 
@@ -581,7 +581,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 - Add pytest-cache (#98)
 - Add Pypy test on Travis (#99)
 - Update dependencies on ``make install`` (#97)
-- Fix URL of readthedocs.org (#90)
+- Fix URL of readthedocs.io (#90)
 
 
 1.1.0 (2015-06-29)
@@ -633,7 +633,7 @@ Settings
   to use PostgreSQL instead of *Redis* (see default ``config/kinto.ini``)
 - ``cliquet.basic_auth_enabled`` is now deprecated (`see *Cliquet*
   docs to enable authentication backends
-  <http://cliquet.readthedocs.org/en/latest/reference/configuration.html#basic-auth>`_)
+  <http://cliquet.readthedocs.io/en/latest/reference/configuration.html#basic-auth>`_)
 
 
 **Internal changes**

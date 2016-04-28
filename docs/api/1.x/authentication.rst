@@ -133,7 +133,7 @@ You can obtain the :term:`user ID` generated for your token on the :ref:`Kinto r
     {
         "cliquet_protocol_version": "2",
         "http_api_version": "1.0",
-        "project_docs": "https://kinto.readthedocs.org/",
+        "project_docs": "https://kinto.readthedocs.io/",
         "project_name": "kinto",
         "project_version": "1.10.0",
         "settings": {
@@ -215,7 +215,7 @@ Some possible strategies:
 
 - Most likely, you would use an identity provider which will be in
   charge of user and token management (generate, refresh, validate, ...).
-  `See this example with Django <http://django-oauth-toolkit.readthedocs.org/en/latest/tutorial/tutorial_01.html>`_.
+  `See this example with Django <http://django-oauth-toolkit.readthedocs.io/en/latest/tutorial/tutorial_01.html>`_.
 
 You can also read our :ref:`tutorial about how to plug the Github authorisation backend <tutorial-github>`.
 
