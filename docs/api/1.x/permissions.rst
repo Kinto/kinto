@@ -196,6 +196,13 @@ Retrieve permissions
 Modify permissions
 ==================
 
+.. note::
+
+   The user ID that *updates* the permissions is always granted the `write`
+   permission. This is in order to prevent accidental loss of ownership on an
+   object.
+
+
 .. http:patch:: /(object url)
 
     :synopsis: Modify the set of principals granted permissions on the object.
@@ -258,16 +265,6 @@ Modify permissions
                 ]
             }
         }
-
-
-Replace or remove permissions
-=============================
-
-.. note::
-
-   The user ID that *updates* the permissions is always granted the `write`
-   permission. This is in order to prevent accidental loss of ownership on an
-   object.
 
 
 .. http:put:: /(object url)
