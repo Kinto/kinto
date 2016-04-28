@@ -193,12 +193,12 @@ Retrieve permissions
         }
 
 
-Add a permission
-================
+Modify permissions
+==================
 
 .. http:patch:: /(object url)
 
-    :synopsis: Add principals or permissions to the object.
+    :synopsis: Modify the set of principals granted permissions on the object.
 
     **Requires authentication**
 
