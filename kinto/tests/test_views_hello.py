@@ -10,7 +10,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(response.json['project_name'], 'kinto')
         self.assertEqual(response.json['project_version'], VERSION)
         self.assertEqual(response.json['project_docs'],
-                         'https://kinto.readthedocs.org/')
+                         'https://kinto.readthedocs.io/')
         self.assertEqual(response.json['url'], 'http://localhost/v1/')
 
     def test_hides_user_info_if_anonymous(self):
@@ -32,7 +32,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertIn('schema', capabilities)
         expected = {
             "description": "Validates collection records with JSON schemas.",
-            "url": "http://kinto.readthedocs.org/en/latest/api/1.x/"
+            "url": "http://kinto.readthedocs.io/en/latest/api/1.x/"
                    "collections.html#collection-json-schema",
         }
         self.assertEqual(expected, capabilities['schema'])
@@ -55,7 +55,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         expected = {
             "description": "The __flush__ endpoint can be used to remove "
                            "all data from all backends.",
-            "url": "http://kinto.readthedocs.org/en/latest/configuration/"
+            "url": "http://kinto.readthedocs.io/en/latest/configuration/"
                    "settings.html#activating-the-flush-endpoint"
         }
         self.assertEqual(expected, capabilities['flush_endpoint'])

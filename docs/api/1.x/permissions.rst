@@ -119,7 +119,7 @@ The currently authenticated *user ID* can be obtained on the root URL.
     Server: waitress
 
     {
-        "documentation": "https://kinto.readthedocs.org/",
+        "documentation": "https://kinto.readthedocs.io/",
         "hello": "cloud storage",
         "settings": {
             "kinto.batch_max_requests": 25

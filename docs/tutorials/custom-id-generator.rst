@@ -103,4 +103,4 @@ Kinto.js client
 ---------------
 
 The offline-first client :github:`Kinto/kinto.js` can also be configured to
-generate custom ids. See `its documentation <https://kintojs.readthedocs.org/en/latest/api/#custom-id-generation-using-an-id-schema>`_ for more details.
+generate custom ids. See `its documentation <https://kintojs.readthedocs.io/en/latest/api/#custom-id-generation-using-an-id-schema>`_ for more details.

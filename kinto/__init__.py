@@ -23,7 +23,7 @@ DEFAULT_SETTINGS = {
     'cache_backend': 'cliquet.cache.memory',
     'permission_backend': 'cliquet.permission.memory',
     'storage_backend': 'cliquet.storage.memory',
-    'project_docs': 'https://kinto.readthedocs.org/',
+    'project_docs': 'https://kinto.readthedocs.io/',
     'bucket_create_principals': Authenticated,
     'multiauth.authorization_policy': (
         'kinto.authorization.AuthorizationPolicy'),
@@ -56,7 +56,7 @@ def main(global_config, config=None, **settings):
         config.add_api_capability(
             "schema",
             description="Validates collection records with JSON schemas.",
-            url="http://kinto.readthedocs.org/en/latest/api/1.x/"
+            url="http://kinto.readthedocs.io/en/latest/api/1.x/"
                 "collections.html#collection-json-schema")
 
     # Scan Kinto views.
@@ -68,7 +68,7 @@ def main(global_config, config=None, **settings):
             "flush_endpoint",
             description="The __flush__ endpoint can be used to remove all "
                         "data from all backends.",
-            url="http://kinto.readthedocs.org/en/latest/configuration/"
+            url="http://kinto.readthedocs.io/en/latest/configuration/"
                 "settings.html#activating-the-flush-endpoint"
         )
     else:

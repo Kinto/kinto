@@ -93,7 +93,7 @@ Since we left ``basicauth`` in settings, it should still be accepted:
     {
         "cliquet_protocol_version": "2",
         "http_api_version": "1.2",
-        "project_docs": "https://kinto.readthedocs.org/",
+        "project_docs": "https://kinto.readthedocs.io/",
         "project_name": "kinto",
         "project_version": "1.11.0.dev0",
         "settings": {
@@ -308,7 +308,7 @@ Check your user id
     {
         "cliquet_protocol_version": "2",
         "http_api_version": "1.2",
-        "project_docs": "https://kinto.readthedocs.org/",
+        "project_docs": "https://kinto.readthedocs.io/",
         "project_name": "kinto",
         "project_version": "1.11.0.dev0",
         "settings": {

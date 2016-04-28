@@ -247,7 +247,7 @@ Heka is an open source stream processing software system developed by Mozilla.
 Heka is a "Swiss Army Knife" type tool for data processing, and is useful for
 a wide variety of different tasks.
 
-For more information, see https://hekad.readthedocs.org/
+For more information, see https://hekad.readthedocs.io/
 
 Heka logging format can be enabled using:
 
@@ -290,7 +290,7 @@ Handling exceptions with Sentry
 Requires the ``raven`` package.
 
 Sentry logging can be enabled `as explained in official documentation
-<http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
+<http://raven.readthedocs.io/en/latest/integrations/pyramid.html#logger-setup>`_.
 
 .. note::
 
@@ -627,7 +627,7 @@ Project information
 +=======================================+============================================+==========================================================================+
 | kinto.error_info_link                 | ``https://github.com/kinto/kinto/issues/`` | The HTTP link returned when uncaught errors are triggered on the server. |
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
-| kinto.project_docs                    | ``http://kinto.readthedocs.org``           | The URL where the documentation of the Kinto instance can be found. Will |
+| kinto.project_docs                    | ``http://kinto.readthedocs.io``            | The URL where the documentation of the Kinto instance can be found. Will |
 |                                       |                                            | be returned in :ref:`the hello view <api-utilities>`.                    |
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
 | kinto.project_version                 | ``''``                                     | The version of the project. Will be returned in :ref:`the hello view     |

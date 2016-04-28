@@ -7,8 +7,8 @@
     "tests": "https://travis-ci.org/Kinto/kinto"
   },
   "participate": {
-    "home": "https://kinto.readthedocs.org/en/latest/contributing.html",
-    "docs": "https://kinto.readthedocs.org/",
+    "home": "https://kinto.readthedocs.io/en/latest/contributing.html",
+    "docs": "https://kinto.readthedocs.io/",
     "irc": "irc://irc.freenode.org/#kinto",
     "irc-contacts": ["alexis", "leplatrem", "magopian", "natim", "NiKo`"]
   },
