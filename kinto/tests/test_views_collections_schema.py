@@ -212,3 +212,13 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
         self.app.patch_json(record_url,
                             {'data': record},
                             headers=self.headers)
+
+    def test_additional_properties_are_rejected(self):
+        record_id = '5443d83f-852a-481a-8e9d-5aa804b05b08'
+        record = VALID_RECORD.copy()
+        record['extra'] = 'blah!'
+        resp = self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
+                                 {'data': record},
+                                 headers=self.headers,
+                                 status=400)
+        assert "'extra' was unexpected)" in resp.json['message']
