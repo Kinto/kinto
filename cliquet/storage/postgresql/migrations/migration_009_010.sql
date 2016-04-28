@@ -28,6 +28,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS tgr_records_last_modified ON records;
+DROP TRIGGER IF EXISTS tgr_deleted_last_modified ON deleted;
 
 CREATE OR REPLACE FUNCTION bump_timestamp()
 RETURNS trigger AS $$
@@ -82,6 +84,14 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tgr_records_last_modified
+BEFORE INSERT OR UPDATE ON records
+FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
+
+CREATE TRIGGER tgr_deleted_last_modified
+BEFORE INSERT OR UPDATE ON deleted
+FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
 
 
 -- Bump storage schema version.

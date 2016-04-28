@@ -7,7 +7,10 @@ This document describes changes between each past release.
 3.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix migration of triggers in PostgreSQL storage backend when upgrading from <3.0.0.
+  Running the ``migrate`` command will basically re-create them (fixes Kinto/kinto#559)
 
 
 3.1.2 (2016-04-19)
