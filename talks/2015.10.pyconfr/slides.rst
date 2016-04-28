@@ -25,7 +25,7 @@ A toolkit to build HTTP (micro)services.
 
 * PyconFR
 * October 2015
-* https:/cliquet.readthedocs.org
+* https:/cliquet.readthedocs.io
 
 
 ----
@@ -272,7 +272,7 @@ Use Cliquet abstractions with Pyramid or Cornice !
     {
         "data": [
             {
-                "url": "http://cliquet.readthedocs.org",
+                "url": "http://cliquet.readthedocs.io",
                 "id": "cc103eb5-0c80-40ec-b6f5-dad12e7d975e",
                 "last_modified": 1437034418940,
             }

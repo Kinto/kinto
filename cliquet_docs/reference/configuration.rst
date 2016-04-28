@@ -194,7 +194,7 @@ Requires the ``raven`` package, or *Cliquet* installed with
 ``pip install cliquet[monitoring]``.
 
 Sentry logging can be enabled, `as explained in official documentation
-<http://raven.readthedocs.org/en/latest/integrations/pyramid.html#logger-setup>`_.
+<http://raven.readthedocs.io/en/latest/integrations/pyramid.html#logger-setup>`_.
 
 .. note::
 
