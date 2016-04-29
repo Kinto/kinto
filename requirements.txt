@@ -1,8 +1,8 @@
-cliquet==3.1.2
+cliquet==3.1.3
 colander==1.2
 colorama==0.3.7
 cornice==1.2.1
-enum34==1.1.3
+enum34==1.1.4
 functools32==3.2.3.post2
 iso8601==0.1.11
 jsonschema==2.5.1
@@ -10,7 +10,7 @@ PasteDeploy==1.5.2
 pyramid==1.6.1
 pyramid-multiauth==0.8.0
 pyramid-tm==0.12.1
-python-dateutil==2.5.2
+python-dateutil==2.5.3
 redis==2.10.5
 repoze.lru==0.6
 requests==2.9.1
