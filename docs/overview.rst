@@ -162,7 +162,7 @@ Key features
 Synchronisation
 ===============
 
-Bi-directionnal synchronisation of records is a very hard topic.
+Bi-directional synchronisation of records is a very hard topic.
 
 *Kinto* takes some shortcuts by only providing the basics for concurrency control
 and polling for changes, and not trying to resolve conflicts automatically.
