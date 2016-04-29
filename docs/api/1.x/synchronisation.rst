@@ -215,11 +215,13 @@ The **current implementation of reference** for offline-first records synchronis
 
 
 Before that, some other clients were implemented in the context of the
-*ReadingList* project, such as `RL Web client`_ (React.js), `Android RL sync`_ (Java) or `Firefox RL client`_ (asm.js).
+*ReadingList* project. That project was abandoned, but you can still
+see the implementation of the `RL Web client`_ (React.js), `Android RL
+sync`_ (Java) or `Firefox RL client`_ (asm.js).
 
 .. _RL Web client: https://github.com/n1k0/readinglist-client/
-.. _Android RL Sync: https://hg.mozilla.org/releases/mozilla-beta/file/default/mobile/android/base/reading/
-.. _Firefox RL client: https://hg.mozilla.org/releases/mozilla-aurora/file/default/browser/components/readinglist
+.. _Android RL Sync: https://hg.mozilla.org/releases/mozilla-beta/file/FIREFOX_BETA_42_END/mobile/android/base/reading
+.. _Firefox RL client: https://hg.mozilla.org/releases/mozilla-aurora/file/FIREFOX_AURORA_41_END/browser/components/readinglist
 
 
 

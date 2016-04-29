@@ -361,7 +361,7 @@ for each ``username:password`` pair.
 Authentication setup
 ::::::::::::::::::::
 
-*Kinto* relies on :github:`pyramid multiauth <mozilla-service/pyramid_multiauth>`
+*Kinto* relies on :github:`pyramid multiauth <mozilla-services/pyramid_multiauth>`
 to initialise authentication.
 
 Therefore, any authentication policy can be specified through configuration.
