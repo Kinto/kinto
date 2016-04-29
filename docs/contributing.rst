@@ -5,6 +5,8 @@ Contributing
 
 Thanks for your interest in contributing to *Kinto*!
 
+You can check out Kinto on Github at https://github.com/Kinto/kinto/.
+
 .. note::
 
     We love community feedback and are glad to review contributions of any
