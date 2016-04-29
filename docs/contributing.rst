@@ -53,6 +53,13 @@ Write documentation
 official docs, in docstrings, or even on the Web in blog posts,
 articles, and such.
 
+This official documentation is maintained in `Github
+<https://github.com/Kinto/kinto/>`_, in the ``docs`` directory. Just
+run ``make docs`` from the project root to convert the RST source
+files into HTML output (in the ``docs/_build/html`` directory). We
+accept pull requests for this documentation, just as we accept them
+for bug fixes and features!
+
 Submit feedback
 ---------------
 
