@@ -15,6 +15,7 @@ This document describes changes between each past release.
 **Documentation**
 
 - Fix some typos in documentation (#696)
+- Update links to readthedocs (#697)
 
 
 3.1.2 (2016-04-19)
