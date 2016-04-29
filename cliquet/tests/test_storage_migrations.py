@@ -133,8 +133,15 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         version = self.storage._get_installed_version()
         self.assertEqual(version, self.version)
 
+        # Check that previously created record is still here
         migrated, count = self.storage.get_all('test', 'jean-louis')
         self.assertEqual(migrated[0], before)
+
+        # Check that new records can be created
+        r = self.storage.create('test', ',jean-louis', {'drink': 'mate'})
+
+        # And deleted
+        self.storage.delete('test', ',jean-louis', r['id'])
 
     def test_every_available_migration_succeeds_if_tables_were_flushed(self):
         # During tests, tables can be flushed.
