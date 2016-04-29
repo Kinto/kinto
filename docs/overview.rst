@@ -229,9 +229,9 @@ Batch/bulk operations        ✔       ✔                 ✔        ✔       
 Changes stream               ✔       ✔       ✔         ✔        ✔                       ✔
 Pluggable authentication     ✔                         ✔                [#]_            ✔        ✔
 Pluggable storage / cache    ✔                                          ✔
-Self-hostable                ✔                         ✔        ✔       ✔               ✔        ✔
+Self-hostable                ✔       ✔                 ✔        ✔       ✔               ✔        ✔
 Decentralised discovery      [#]_                                       ✔
-Open source                  ✔                         ✔        ✔       ✔               ✔        ✔
+Open source                  ✔       ✔                 ✔        ✔       ✔               ✔        ✔
 Language                     Python                    Erlang   Node.js Node.js [#]_    Node.js  Node.js
 ===========================  ======  ======  ========  =======  ======= ==============  =======  =========
 
