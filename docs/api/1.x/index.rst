@@ -3,6 +3,30 @@
 1.x
 ###
 
+Full reference
+==============
+
+Full detailed API documentation:
+
+.. toctree::
+   :maxdepth: 2
+
+   cliquet/utilities
+   authentication
+   cliquet/batch
+   cliquet/timestamps
+   cliquet/backoff
+   cliquet/errors
+   cliquet/deprecation
+   buckets
+   collections
+   records
+   groups
+   permissions
+   synchronisation
+   cliquet/resource
+
+
 Cheatsheet
 ==========
 
@@ -79,27 +103,3 @@ Cheatsheet
 Buckets, Groups, Collection and Record endpoints are *resource endpoints* which
 can be filtered, paginated, and interacted with as described in
 :ref:`resource-endpoints`.
-
-
-Full reference
-==============
-
-Full detailed API documentation:
-
-.. toctree::
-   :maxdepth: 2
-
-   cliquet/utilities
-   authentication
-   cliquet/batch
-   cliquet/timestamps
-   cliquet/backoff
-   cliquet/errors
-   cliquet/deprecation
-   buckets
-   collections
-   records
-   groups
-   permissions
-   synchronisation
-   cliquet/resource
