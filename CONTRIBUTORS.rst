@@ -8,6 +8,7 @@ Contributors
 * Clément Villain <choclatefr@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>
 * Éric Lemoine <eric.lemoine@gmail.com>
+* Ethan Glasser-Camp <ethan@betacantrips.com>
 * FooBarQuaxx
 * Greeshma <greeshmabalabadra@gmail.com>
 * Hiromipaw <silvia@nopressure.co.uk>
