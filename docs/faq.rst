@@ -3,10 +3,57 @@
 FAQ
 ===
 
-How does Kinto compares to CouchDB / Remote Storage?
-----------------------------------------------------
+How does Kinto compare to other solutions?
+-------------------------------------------
 
-To see how Kinto compares to CouchDB & Remote Storage, read :ref:`the comparison table <comparison>`.
+Before we started building our own data storage service, we took a look at what
+was already out there. Our initial intent was to use and possibly extend
+an existing community project rather than reinventing the wheel.
+
+However, since none of the existing solutions we tried was a perfect fit for the
+problems we needed to solve, notably regarding fine-grained permissions, we started
+our own stack using the experience we gained from building Firefox Sync.
+
+What follows is a comparison table showing how Kinto stacks up compared to some
+other projects in this space.
+
+
+===========================  ======  ======  ========  =======  ======= ==============  =======  =========
+Project                      Kinto   Parse   Firebase  CouchDB  Kuzzle  Remote-Storage  Hoodie   BrowserFS
+---------------------------  ------  ------  --------  -------  ------- --------------  -------  ---------
+Offline-first client         ✔       ✔       ✔         ✔        ✔       ✔               ✔
+Fine-grained permissions     ✔       ✔       ✔                  ~                       [#]_
+Easy query mechanism         ✔       ✔       ✔         [#]_     ✔       [#]_            ✔
+Conflict resolution          ✔       ✔       ✔         ✔        ✔       ✔ [#]_          ✔
+Validation                   ✔       ✔       ✔         ✔        ✔                       ✔
+Revision history                                       ✔                                ✔
+File storage                 ✔       ✔                 ✔                ✔               ✔        ✔
+Batch/bulk operations        ✔       ✔                 ✔        ✔                       ✔
+Changes stream               ✔       ✔       ✔         ✔        ✔                       ✔
+Pluggable authentication     ✔                         ✔                [#]_            ✔        ✔
+Pluggable storage / cache    ✔                                          ✔
+Self-hostable                ✔       ✔                 ✔        ✔       ✔               ✔        ✔
+Decentralised discovery      [#]_                                       ✔
+Open source                  ✔       ✔                 ✔        ✔       ✔               ✔        ✔
+Language                     Python                    Erlang   Node.js Node.js [#]_    Node.js  Node.js
+===========================  ======  ======  ========  =======  ======= ==============  =======  =========
+
+.. [#] Currently, user plugin in Hoodie auto-approves users, but they are working on it.
+.. [#] CouchDB uses Map/Reduce as a query mechanism, which isn't easy to
+       understand for newcomers.
+.. [#] Remote Storage allows "ls" on a folder, but items are not sorted or
+       paginated.
+.. [#] Kinto uses the same mechanisms as Remote storage for conflict handling.
+.. [#] Remote Storage supports OAuth2.0 implicit grant flow.
+.. [#] Support for decentralised discovery
+       `is planned <https://github.com/Kinto/kinto/issues/125>`_ but not
+       implemented yet.
+.. [#] Remote Storage doesn't define any default implementation (as it is
+       a procol) but makes it easy to start with JavaScript and Node.js.
+
+You can also read `a longer explanation of our choices and motivations behind the
+creation of Kinto <http://www.servicedenuages.fr/en/generic-storage-ecosystem>`_
+on our blog.
 
 Can I encrypt my data?
 ----------------------
