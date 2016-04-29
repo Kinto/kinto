@@ -115,7 +115,7 @@ using that toolkit.
 <http://www.servicedenuages.fr/en/why-cliquet>`_.
 
 
-How does Kinto authenticate users ?
+How does Kinto authenticate users?
 -----------------------------------
 
 Kinto authentication system is pluggable and controlled from settings.
