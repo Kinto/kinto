@@ -20,7 +20,7 @@ Table of content
    api/index
    faq
    troubleshooting
-   contributing
+   community
    changelog
    cliquet_glossary
 
