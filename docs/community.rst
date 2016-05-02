@@ -17,6 +17,7 @@ Communication channels
 * `The Kinto mailing list <https://mail.mozilla.org/listinfo/kinto>`_.
 * Some `#Kinto <https://twitter.com/search?q=%23Kinto>`_ mentions on Twitter :)
 
+.. _how-to-contribute:
 
 How to contribute
 =================

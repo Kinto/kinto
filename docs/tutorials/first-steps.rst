@@ -723,5 +723,5 @@ status codes <kinto-api-endpoints>`.
     We plan to improve our documentation and make sure it is as easy as
     possible to get started with *Kinto*.
 
-    Please do not hesitate to :ref:`give us feedback <contributing>`, and if you are
+    Please do not hesitate to :ref:`give us feedback <how-to-contribute>`, and if you are
     interested in making improvements, you're welcome to join us!
