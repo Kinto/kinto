@@ -36,7 +36,9 @@ def main(args=None):
 
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='valid subcommands',
+                                       dest='subcommand',
                                        help='init/start/migrate')
+    subparsers.required = True
 
     parser_init = subparsers.add_parser('init')
     parser_init.set_defaults(which='init')
@@ -58,10 +60,6 @@ def main(args=None):
         return 10
 
     config_file = args['ini_file']
-
-    if 'which' not in args:  # pragma: no cover
-        parser.print_help(sys.stderr)
-        return 10
 
     if args['which'] == 'init':
         if os.path.exists(config_file):
