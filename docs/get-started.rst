@@ -117,8 +117,30 @@ with a *PostgreSQL* container.
 
 .. _run-kinto-python:
 
-Using the Python package
-========================
+
+Installing Python 2.7/3.4+ on Ubuntu/Debian
+-------------------------------------------
+
+Install using the following command:-
+
+::
+
+    sudo apt-get install python2.7 python2.7-dev
+
+
+
+Backends
+--------
+
+Redis on Ubuntu/Debian
+----------------------
+
+Install using the following command:-
+
+::
+
+    sudo apt-get install redis-server
+
 
 System requirements
 -------------------
