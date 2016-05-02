@@ -1,5 +1,3 @@
 [run]
 omit = kinto/tests/*
        kinto/plugins/*/test_*
-       kinto/__main__.py
-

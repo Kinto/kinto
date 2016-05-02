@@ -52,13 +52,21 @@ def main(args=None):
                               default=False)
     parser_start.set_defaults(which='start')
 
-    args = vars(parser.parse_args())
+    try:
+        args = vars(parser.parse_args(args))
+    except SystemExit:  # pragma: no cover for python2
+        return 10
+
     config_file = args['ini_file']
+
+    if 'which' not in args:  # pragma: no cover
+        parser.print_help(sys.stderr)
+        return 10
 
     if args['which'] == 'init':
         if os.path.exists(config_file):
-            print("%s already exist." % config_file, file=sys.stderr)
-            sys.exit(1)
+            print("%s already exists." % config_file, file=sys.stderr)
+            return 1
 
         backend = args['backend']
         if not backend:
@@ -77,9 +85,9 @@ def main(args=None):
 
         # Install postgresql libraries if necessary
         if backend == "postgresql":
-            try:
+            try:  # pragma: no cover
                 import psycopg2  # NOQA
-            except ImportError:
+            except ImportError:  # pragma: no cover
                 import pip
                 pip.main(['install', "cliquet[postgresql]"])
 
@@ -93,6 +101,4 @@ def main(args=None):
             pserve_argv.append('--reload')
         pserve.main(pserve_argv)
 
-
-if __name__ == "__main__":
-    main()
+    return 0
