@@ -17,6 +17,10 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get('/')
         self.assertNotIn('user', response.json)
 
+    def test_redirect_to_hello_page(self):
+        response = self.app.get('', status=307)
+        assert response.request.path == '/v1'
+
     def test_returns_user_id_if_authenticated(self):
         response = self.app.get('/', headers=self.headers)
         self.assertEqual(response.json['user']['id'],
