@@ -11,13 +11,7 @@ Full detailed API documentation:
 .. toctree::
    :maxdepth: 2
 
-   cliquet/utilities
    authentication
-   cliquet/batch
-   cliquet/timestamps
-   cliquet/backoff
-   cliquet/errors
-   cliquet/deprecation
    buckets
    collections
    records
@@ -25,6 +19,12 @@ Full detailed API documentation:
    permissions
    synchronisation
    cliquet/resource
+   cliquet/utilities
+   cliquet/batch
+   cliquet/timestamps
+   cliquet/backoff
+   cliquet/errors
+   cliquet/deprecation
 
 
 Cheatsheet
