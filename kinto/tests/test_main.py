@@ -45,6 +45,9 @@ class TestMain(unittest.TestCase):
         with mock.patch("kinto.__main__.input", create=True, return_value="2"):
             res = main(['--ini', TEMP_KINTO_INI, 'init'])
             assert res == 0
+        with open(TEMP_KINTO_INI) as f:
+            content = f.read()
+        assert 'redis' in content
 
     def test_cli_init_asks_until_backend_is_valid(self):
         with mock.patch("kinto.__main__.input", create=True,
