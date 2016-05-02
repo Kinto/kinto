@@ -54,16 +54,16 @@ def main(args=None):
                               default=False)
     parser_start.set_defaults(which='start')
 
-    args = vars(parser.parse_args(args))
+    parsed_args = vars(parser.parse_args(args))
 
-    config_file = args['ini_file']
+    config_file = parsed_args['ini_file']
 
-    if args['which'] == 'init':
+    if parsed_args['which'] == 'init':
         if os.path.exists(config_file):
             print("%s already exists." % config_file, file=sys.stderr)
             return 1
 
-        backend = args['backend']
+        backend = parsed_args['backend']
         if not backend:
             while True:
                 prompt = ("Select the backend you would like to use: "
@@ -86,13 +86,13 @@ def main(args=None):
                 import pip
                 pip.main(['install', "cliquet[postgresql]"])
 
-    elif args['which'] == 'migrate':
+    elif parsed_args['which'] == 'migrate':
         env = bootstrap(config_file)
         cliquet.init_schema(env)
 
-    elif args['which'] == 'start':
+    elif parsed_args['which'] == 'start':
         pserve_argv = ['pserve', config_file]
-        if args['reload']:
+        if parsed_args['reload']:
             pserve_argv.append('--reload')
         pserve.main(pserve_argv)
 
