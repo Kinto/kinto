@@ -18,7 +18,6 @@ Table of content
    tutorials/index
    configuration/index
    api/index
-   get-started
    faq
    troubleshooting
    changelog
