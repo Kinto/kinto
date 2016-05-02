@@ -5,6 +5,19 @@ Community
 
 You can check out Kinto on Github at https://github.com/Kinto/kinto/.
 
+.. _communication_channels:
+
+Communication channels
+======================
+
+* Questions tagged ``kinto`` on `Stack Overflow <http://stackoverflow.com/questions/tagged/kinto>`_.
+* Our IRC channel ``#kinto`` on ``irc.freenode.net`` —
+  `Click here to access the web client <https://kiwiirc.com/client/irc.freenode.net/?#kinto>`_
+* Our team blog http://www.servicedenuages.fr/
+* `The Kinto mailing list <https://mail.mozilla.org/listinfo/kinto>`_.
+* Some `#Kinto <https://twitter.com/search?q=%23Kinto>`_ mentions on Twitter :)
+
+
 How to contribute
 =================
 
@@ -79,19 +92,6 @@ If you are proposing a feature:
 * Feel free to include any code you might already have, even if it's just a
   rough idea. This is a volunteer-driven project, and contributions
   are welcome :)
-
-
-.. _communication_channels:
-
-Communication channels
-======================
-
-* Questions tagged ``kinto`` on `Stack Overflow <http://stackoverflow.com/questions/tagged/kinto>`_.
-* Our IRC channel ``#kinto`` on ``irc.freenode.net`` —
-  `Click here to access the web client <https://kiwiirc.com/client/irc.freenode.net/?#kinto>`_
-* Our team blog http://www.servicedenuages.fr/
-* `The Kinto mailing list <https://mail.mozilla.org/listinfo/kinto>`_.
-* Some `#Kinto <https://twitter.com/search?q=%23Kinto>`_ mentions on Twitter :)
 
 
 Hack
