@@ -11,11 +11,14 @@ Contributors
 * David Larlet <david@larlet.fr>
 * Enguerran <engcolson@gmail.com>
 * Eric Bréhault <ebrehault@gmail.com>
+* Ethan Glasser-Camp <ethan@betacantrips.com>
 * Fil <fil@rezo.net>
 * Greeshma <https://github.com/greeshmab>
 * Jelmer van der Ploeg <jelmer@woovar.com>
 * John Giannelos <johngiannelos@gmail.com>
+* Julien Bouquillon <contact@revolunet.com>
 * Lavish Aggarwal <lucky.lavish@gmail.com>
+* Maksym Shalenyi <supamaxy@gmail.com>
 * Masataka Takeuchi <masataka.takeuchi@l-is-b.com>
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>

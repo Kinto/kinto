@@ -3,13 +3,23 @@ Changelog
 
 This document describes changes between each past release.
 
-2.2.0 (unreleased)
+2.1.1 (2016-04-29)
 ==================
 
 **Bug fixes**
 
 - Fix crash in JSON schema validation when additional properties are provided (fixes #548)
 - Strip internal fields before validating JSON schema (fixes #549)
+- Fix migration of triggers in PostgreSQL storage backend when upgrading from Kinto<2.0.
+  Run the ``migrate`` command will basically re-create them (fixes #559)
+
+**Documentation**
+
+- Fix typo in RHEL installation instructions (#552, thanks @enkidulan!)
+- Link to english version of kinto presentation article (#553, thanks @glasserc!)
+- Document basics about PostgreSQL privileges (#547)
+- Change links from readthedocs.org to readthedocs.io (#557)
+- Fix Parse server license in docs (#571, thanks @revolunet!)
 
 
 2.1.0 (2016-04-19)
