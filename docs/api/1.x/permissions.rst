@@ -193,12 +193,24 @@ Retrieve permissions
         }
 
 
-Add a permission
-================
+Modify permissions
+==================
+
+An object's permissions can be modified at the same time as the object
+itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
+<record-put>` methods discussed in :ref:`the Records section
+<records>`.
+
+.. note::
+
+   The user ID that updates *any* permissions is always added to the ``write``
+   permission list. This is in order to prevent accidental loss of ownership on an
+   object.
+
 
 .. http:patch:: /(object url)
 
-    :synopsis: Add principals or permissions to the object.
+    :synopsis: Modify the set of principals granted permissions on the object.
 
     **Requires authentication**
 
@@ -260,16 +272,6 @@ Add a permission
         }
 
 
-Replace or remove permissions
-=============================
-
-.. note::
-
-   The user ID that *updates* the permissions is always granted the `write`
-   permission. This is in order to prevent accidental loss of ownership on an
-   object.
-
-
 .. http:put:: /(object url)
 
     :synopsis: Replace existing principals or permissions of the object.
@@ -325,9 +327,7 @@ Replace or remove permissions
             },
             "permissions": {
                 "write": [
-                    "groups:writers"
-                ],
-                "write": [
+                    "groups:writers",
                     "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }

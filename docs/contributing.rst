@@ -5,6 +5,8 @@ Contributing
 
 Thanks for your interest in contributing to *Kinto*!
 
+You can check out Kinto on Github at https://github.com/Kinto/kinto/.
+
 .. note::
 
     We love community feedback and are glad to review contributions of any
@@ -29,13 +31,20 @@ Fix bugs
 --------
 
 Check out the `open bugs <https://github.com/Kinto/kinto/issues>`_ - anything
-tagged with the **[easy-pick]** label could be a good choice for newcomers.
+tagged with the |easy-pick label|_ could be a good choice for newcomers.
+
+.. |easy-pick label| replace:: **easy-pick** label
+.. _`easy-pick label`: https://github.com/Kinto/kinto/labels/easy-pick
+
 
 Implement features
 ------------------
 
-Look through the GitHub issues for features. Anything tagged with **[enhancement]**
+Look through the GitHub issues for features. Anything tagged with |enhancement|_
 is open to whoever wants to implement it.
+
+.. |enhancement| replace:: **enhancement**
+.. _enhancement:  https://github.com/Kinto/kinto/labels/enhancement
 
 Write documentation
 -------------------
@@ -44,11 +53,21 @@ Write documentation
 official docs, in docstrings, or even on the Web in blog posts,
 articles, and such.
 
+This official documentation is maintained in `Github
+<https://github.com/Kinto/kinto/>`_, in the ``docs`` directory. Just
+run ``make docs`` from the project root to convert the RST source
+files into HTML output (in the ``docs/_build/html`` directory). We
+accept pull requests for this documentation, just as we accept them
+for bug fixes and features!
+
 Submit feedback
 ---------------
 
-Any issue with the **[question]** label is open for feedback, so feel free to
+Any issue with the |question label|_ is open for feedback, so feel free to
 share your thoughts with us!
+
+.. |question label| replace:: **question** label
+.. _`question label`: <https://github.com/Kinto/kinto/labels/question>
 
 The best way to send feedback is to
 `file a new issue <https://github.com/Kinto/kinto/issues/new>`_ on GitHub.

@@ -67,8 +67,8 @@ which computes a user id based on the token provided in the request.
 
 .. warning::
 
-    This method has many limitations but has the advantage to avoid
-    specific setup or third-party services to get started immediately.
+    This method has many limitations but has the advantage of not needing
+    specific setup or third-party services before you get started.
 
 When using arbitrary tokens make sure that:
 
@@ -97,7 +97,7 @@ this will result in a ``401`` error response.
 .. warning::
 
     Since :term:`user id` is derived from the token, there is no way
-    to change the token without «loosing» permissions on existing records.
+    to change the token without "losing" permissions on existing records.
     See below for more information.
 
 

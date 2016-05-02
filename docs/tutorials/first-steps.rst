@@ -538,7 +538,7 @@ permission on her records:
     }
 
 
-If Bob want's to get the record list, he will get his records as well as Alice's ones:
+If Bob wants to get the record list, he will get his records as well as Alice's ones:
 
 .. code-block:: shell
 
