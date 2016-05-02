@@ -54,10 +54,7 @@ def main(args=None):
                               default=False)
     parser_start.set_defaults(which='start')
 
-    try:
-        args = vars(parser.parse_args(args))
-    except SystemExit:  # pragma: no cover for python2
-        return 10
+    args = vars(parser.parse_args(args))
 
     config_file = args['ini_file']
 

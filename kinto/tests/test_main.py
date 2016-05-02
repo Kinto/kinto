@@ -7,6 +7,7 @@ except ImportError:
 
 import mock
 import os
+import pytest
 import sys
 import unittest
 
@@ -53,9 +54,10 @@ class TestMain(unittest.TestCase):
 
     def test_fails_if_not_enough_args(self):
         with mock.patch('sys.stderr', new_callable=StringIO) as mock_stderr:
-            res = main(['--ini', '/tmp/kinto.ini'])
-            assert res == 10
+            with pytest.raises(SystemExit) as excinfo:
+                main(['--ini', '/tmp/kinto.ini'])
             assert 'INI_FILE' in mock_stderr.getvalue()
+            assert excinfo.value.code == 2
 
     def test_cli_init_install_postgresql_dependencies_if_needed(self):
         realimport = builtins.__import__
