@@ -203,7 +203,7 @@ itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
 
 .. note::
 
-   The user ID that updates *any* permissions is always added to the `write`
+   The user ID that updates *any* permissions is always added to the ``write``
    permission list. This is in order to prevent accidental loss of ownership on an
    object.
 
