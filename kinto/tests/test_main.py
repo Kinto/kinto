@@ -3,7 +3,7 @@ try:
     builtins_name = 'builtins'
 except ImportError:
     import __builtin__ as builtins
-    builtins_name = '__builtins__'
+    builtins_name = '__builtin__'
 
 import mock
 import os
@@ -66,14 +66,14 @@ class TestMain(unittest.TestCase):
             else:
                 return realimport(name, *args, **kwargs)
 
-            with mock.patch('{}.__import__'.format(builtins_name),
-                            side_effect=myimport):
-                with mock.patch('pip.main', return_value=None) as mocked_pip:
-                    with mock.patch("kinto.__main__.input", create=True,
-                                    return_value="1"):
-                        res = main(['--ini', '/tmp/kinto.ini', 'init'])
-                        assert res == 0
-                        assert mocked_pip.call_count == 1
+        with mock.patch('{}.__import__'.format(builtins_name),
+                        side_effect=myimport):
+            with mock.patch('pip.main', return_value=None) as mocked_pip:
+                with mock.patch("kinto.__main__.input", create=True,
+                                return_value="1"):
+                    res = main(['--ini', '/tmp/kinto.ini', 'init'])
+                    assert res == 0
+                    assert mocked_pip.call_count == 1
 
     def test_main_takes_sys_argv_by_default(self):
         testargs = ["prog", "--ini", "/tmp/kinto.ini",

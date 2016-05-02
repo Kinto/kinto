@@ -85,9 +85,9 @@ def main(args=None):
 
         # Install postgresql libraries if necessary
         if backend == "postgresql":
-            try:  # pragma: no cover
+            try:
                 import psycopg2  # NOQA
-            except ImportError:  # pragma: no cover
+            except ImportError:
                 import pip
                 pip.main(['install', "cliquet[postgresql]"])
 
