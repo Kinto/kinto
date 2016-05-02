@@ -1,21 +1,20 @@
-.. _contributing:
+.. _community:
 
-Contributing
-############
-
-Thanks for your interest in contributing to *Kinto*!
+Community
+#########
 
 You can check out Kinto on Github at https://github.com/Kinto/kinto/.
+
+How to contribute
+=================
+
+Thanks for your interest in contributing to *Kinto*!
 
 .. note::
 
     We love community feedback and are glad to review contributions of any
     size - from typos in the documentation to critical bug fixes - so don't be
     shy!
-
-
-How to contribute
-=================
 
 Report bugs
 -----------
