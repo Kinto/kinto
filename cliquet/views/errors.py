@@ -57,6 +57,11 @@ def page_not_found(request):
     redirect_enabled = request.registry.settings[config_key]
     trailing_slash_redirection_enabled = asbool(redirect_enabled)
 
+    resource_missing = (
+        request.path.startswith('/' + request.registry.route_prefix + '/') or
+        not trailing_slash_redirection_enabled
+    )
+
     if not request.path.startswith('/' + request.registry.route_prefix):
         errno = ERRORS.VERSION_NOT_AVAILABLE
         error_msg = ("The requested protocol version is not available "
@@ -67,11 +72,11 @@ def page_not_found(request):
                                    len(request.path)):]
         redirect = '%s%s' % (path, querystring)
         return HTTPTemporaryRedirect(redirect)
-    elif (request.path.startswith('/' + request.registry.route_prefix + '/') or
-          not trailing_slash_redirection_enabled):
+    elif resource_missing:
         errno = ERRORS.MISSING_RESOURCE
         error_msg = "The resource you are looking for could not be found."
     elif trailing_slash_redirection_enabled:
+        # Case for /v0 -> /v0/
         querystring = request.url[(request.url.rindex(request.path) +
                                    len(request.path)):]
         redirect = '/%s/%s' % (request.registry.route_prefix, querystring)
