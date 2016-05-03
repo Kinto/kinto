@@ -67,7 +67,8 @@ def page_not_found(request):
                                    len(request.path)):]
         redirect = '%s%s' % (path, querystring)
         return HTTPTemporaryRedirect(redirect)
-    elif request.path.startswith('/' + request.registry.route_prefix + '/'):
+    elif (request.path.startswith('/' + request.registry.route_prefix + '/') or
+          not trailing_slash_redirection_enabled):
         errno = ERRORS.MISSING_RESOURCE
         error_msg = "The resource you are looking for could not be found."
     elif trailing_slash_redirection_enabled:
