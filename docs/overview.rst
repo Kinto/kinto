@@ -33,7 +33,7 @@ for you:
   `admin UI <http://kinto.github.io/kinto-admin/>`_
 - Easily
   :ref:`set up live push notifications <tutorial-notifications-websockets>`
-  for live synchronisation
+  for live updates of your application
 - Make it possible to
   :ref:`share data between users <api-permissions>`
   (using fine-grained permissions)
