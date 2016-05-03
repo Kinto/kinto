@@ -30,7 +30,7 @@ The problem
 There are several kinds of applications where *Kinto* is
 particulary relevant as a storage backend.
 
-Let's say that we want to do a `TodoMVC <http://todomvc.com/>`_ backend that
+Let's say that we want to make a `TodoMVC <http://todomvc.com/>`_ backend that
 will sync user tasks between the devices.
 
 Basic data storage APIs
