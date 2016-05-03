@@ -8,6 +8,7 @@ Tutorials
 
    get-started
    first-steps
+   synchronisation
    notifications-websockets
    notifications-custom
    authentication-github
