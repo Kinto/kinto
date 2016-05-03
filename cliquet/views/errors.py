@@ -59,26 +59,26 @@ def page_not_found(request):
 
     querystring = request.url[(request.url.rindex(request.path) +
                                len(request.path)):]
-    resource_missing = (
-        request.path.startswith('/' + request.registry.route_prefix + '/') or
-        not trailing_slash_redirection_enabled
-    )
+
+    errno = ERRORS.MISSING_RESOURCE
+    error_msg = "The resource you are looking for could not be found."
 
     if not request.path.startswith('/' + request.registry.route_prefix):
         errno = ERRORS.VERSION_NOT_AVAILABLE
         error_msg = ("The requested protocol version is not available "
                      "on this server.")
-    elif request.path.endswith('/') and trailing_slash_redirection_enabled:
-        path = request.path.rstrip('/')
-        redirect = '%s%s' % (path, querystring)
-        return HTTPTemporaryRedirect(redirect)
-    elif resource_missing:
-        errno = ERRORS.MISSING_RESOURCE
-        error_msg = "The resource you are looking for could not be found."
     elif trailing_slash_redirection_enabled:
-        # Case for /v0 -> /v0/
-        redirect = '/%s/%s' % (request.registry.route_prefix, querystring)
-        return HTTPTemporaryRedirect(redirect)
+        redirect = None
+
+        if request.path.endswith('/'):
+            path = request.path.rstrip('/')
+            redirect = '%s%s' % (path, querystring)
+        elif request.path == '/' + request.registry.route_prefix:
+            # Case for /v0 -> /v0/
+            redirect = '/%s/%s' % (request.registry.route_prefix, querystring)
+
+        if redirect:
+            return HTTPTemporaryRedirect(redirect)
 
     response = http_error(httpexceptions.HTTPNotFound(),
                           errno=errno,
