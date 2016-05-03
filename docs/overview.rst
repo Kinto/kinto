@@ -170,7 +170,7 @@ and polling for changes, and not trying to resolve conflicts automatically.
 Basically, each object has a revision number which is guaranteed to be incremented after
 each modification. *Kinto* does not keep old revisions of objects.
 
-Clients can retrieve the list of changes that occured on a collection of records
+Clients can retrieve the list of changes that occurred on a collection of records
 since a specified revision. *Kinto* can also use it to avoid accidental updates
 of objects.
 
