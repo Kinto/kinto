@@ -178,10 +178,17 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                          'http://localhost/v0/home/articles?_since=42')
 
 
-class TrailingSlashRedirectViewTest(BaseWebTest, unittest.TestCase):
+class TrailingSlashRedirectViewTest(FormattedErrorMixin, BaseWebTest,
+                                    unittest.TestCase):
     def test_doesnt_redirect_the_home_page(self):
         response = self.app.get('/')
         self.assertEqual(response.status_int, 200)
+
+    def test_does_redirect_the_version_prefix(self):
+        response = self.app.get('')
+        self.assertEqual(response.status_int, 307)
+        self.assertEqual(response.location,
+                         'http://localhost/v0/')
 
     def test_it_redirects_if_it_ends_with_a__slash_(self):
         response = self.app.get('/mushrooms/')
@@ -201,3 +208,10 @@ class TrailingSlashRedirectViewTest(BaseWebTest, unittest.TestCase):
 
     def test_it_does_not_redirect_if_the_url_exists(self):
         self.app.get('/static/', status=200)
+
+    def test_display_an_error_message_if_disabled_in_settings(self):
+        app = self.make_app({'trailing_slash_redirect_enabled': False})
+        response = app.get('', status=404)
+        self.assertFormattedError(
+            response, 404, ERRORS.MISSING_RESOURCE, "Not Found",
+            "The resource you are looking for could not be found.")
