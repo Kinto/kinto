@@ -27,7 +27,7 @@ Kinto is a minimalist JSON storage service with synchronisation and sharing abil
 * `Online documentation <http://kinto.readthedocs.io/en/latest/>`_
 * `Tutorial <http://kinto.readthedocs.io/en/latest/tutorials/first-steps.html>`_
 * `Issue tracker <https://github.com/Kinto/kinto/issues>`_
-* `Contributing <http://kinto.readthedocs.io/en/latest/contributing.html>`_
+* `Contributing <http://kinto.readthedocs.io/en/latest/community.html>#how-to-contribute`_
 * `Try our daily flushed instance at: https://kinto.dev.mozaws.net/v1/ <https://kinto.dev.mozaws.net/v1/>`_
 
 Requirements

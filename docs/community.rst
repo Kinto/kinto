@@ -1,21 +1,34 @@
-.. _contributing:
+.. _community:
 
-Contributing
-############
-
-Thanks for your interest in contributing to *Kinto*!
+Community
+#########
 
 You can check out Kinto on Github at https://github.com/Kinto/kinto/.
+
+.. _communication_channels:
+
+Communication channels
+======================
+
+* Questions tagged ``kinto`` on `Stack Overflow <http://stackoverflow.com/questions/tagged/kinto>`_.
+* Our IRC channel ``#kinto`` on ``irc.freenode.net`` —
+  `Click here to access the web client <https://kiwiirc.com/client/irc.freenode.net/?#kinto>`_
+* Our team blog http://www.servicedenuages.fr/
+* `The Kinto mailing list <https://mail.mozilla.org/listinfo/kinto>`_.
+* Some `#Kinto <https://twitter.com/search?q=%23Kinto>`_ mentions on Twitter :)
+
+.. _how-to-contribute:
+
+How to contribute
+=================
+
+Thanks for your interest in contributing to *Kinto*!
 
 .. note::
 
     We love community feedback and are glad to review contributions of any
     size - from typos in the documentation to critical bug fixes - so don't be
     shy!
-
-
-How to contribute
-=================
 
 Report bugs
 -----------
@@ -80,19 +93,6 @@ If you are proposing a feature:
 * Feel free to include any code you might already have, even if it's just a
   rough idea. This is a volunteer-driven project, and contributions
   are welcome :)
-
-
-.. _communication_channels:
-
-Communication channels
-======================
-
-* Questions tagged ``kinto`` on `Stack Overflow <http://stackoverflow.com/questions/tagged/kinto>`_.
-* Our IRC channel ``#kinto`` on ``irc.freenode.net`` —
-  `Click here to access the web client <https://kiwiirc.com/client/irc.freenode.net/?#kinto>`_
-* Our team blog http://www.servicedenuages.fr/
-* `The Kinto mailing list <https://mail.mozilla.org/listinfo/kinto>`_.
-* Some `#Kinto <https://twitter.com/search?q=%23Kinto>`_ mentions on Twitter :)
 
 
 Hack
@@ -183,6 +183,18 @@ Run a particular type of action instead of random:
 their respective randomness.*)
 
 
+Cleaning your environment
+-------------------------
+
+There are three levels of cleaning your environment:
+
+ - ``make clean`` will remove ``*.pyc`` files and ``__pycache__`` directory.
+ - ``make distclean`` will also remove ``*.egg-info`` files and ``*.egg``,
+   ``build`` and ``dist`` directories.
+ - ``make maintainer-clean`` will also remove the ``.tox`` and the
+   ``.venv`` directories.
+
+
 How to release
 ==============
 
@@ -257,15 +269,3 @@ As a final step:
 - Send mail to ML (If major release)
 
 That's all folks!
-
-
-Cleaning your environment
-=========================
-
-There are three levels of cleaning your environment:
-
- - ``make clean`` will remove ``*.pyc`` files and ``__pycache__`` directory.
- - ``make distclean`` will also remove ``*.egg-info`` files and ``*.egg``,
-   ``build`` and ``dist`` directories.
- - ``make maintainer-clean`` will also remove the ``.tox`` and the
-   ``.venv`` directories.

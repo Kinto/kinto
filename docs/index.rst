@@ -14,13 +14,12 @@ Table of content
 
    overview
    concepts
-   get-started
+   community
    tutorials/index
    configuration/index
    api/index
    faq
    troubleshooting
-   contributing
    changelog
    cliquet_glossary
 

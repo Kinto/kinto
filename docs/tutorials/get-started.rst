@@ -224,7 +224,7 @@ With `make`, it is also possible to specify arguments from environment variables
     make serve -e
 
 
-See :ref:`dedicated section about contributing <contributing>`!
+See :ref:`dedicated section about contributing <how-to-contribute>`!
 
 
 Go further
