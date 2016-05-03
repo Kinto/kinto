@@ -24,15 +24,17 @@ like. We'll be using the :ref:`Mozilla demo server <run-kinto-mozilla-demo>`.
 
     :ref:`Read more about authentication in Kinto <authentication>`.
 
-
-Sync user data between devices
-==============================
+The problem
+===========
 
 There are several kinds of applications where *Kinto* is
 particulary relevant as a storage backend.
 
 Let's say that we want to do a `TodoMVC <http://todomvc.com/>`_ backend that
 will sync user tasks between the devices.
+
+Basic data storage APIs
+=======================
 
 In order to separate data between each user, we will use the default
 *personal bucket*.
@@ -160,6 +162,10 @@ We can also update one of our tasks using its ``id``:
             ]
         }
     }
+
+
+Sync user data between devices
+==============================
 
 Here you should ask yourself: what happens if another device updated the same
 record in the interim - will this request overwrite those changes?
