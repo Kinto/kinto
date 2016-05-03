@@ -3,14 +3,16 @@
 First steps with Kinto HTTP API
 ###############################
 
-There are several kinds of applications where *Kinto* is
-particulary relevant as a storage backend.
+This tutorial will take you through your first API calls with a real
+Kinto server, with an emphasis on those APIs used for syncing data
+between devices and sharing data between users. You probably won't be
+making calls to these APIs directly; instead, you'll use a client
+library like *Kinto.js*.
 
-The following tutorial should provide enough information to understand how to:
-
-  - Sync user data between devices;
-  - Sync and share data between users, leveraging permissions.
-
+In order to get the most out of this tutorial, you may want to have a
+real Kinto server ready. You can read our :ref:`installation
+<install>` guide to see how to set up your own Kinto instance if you
+like. We'll be using the :ref:`Mozilla demo server <run-kinto-mozilla-demo>`.
 
 .. important::
 
@@ -25,6 +27,9 @@ The following tutorial should provide enough information to understand how to:
 
 Sync user data between devices
 ==============================
+
+There are several kinds of applications where *Kinto* is
+particulary relevant as a storage backend.
 
 Let's say that we want to do a `TodoMVC <http://todomvc.com/>`_ backend that
 will sync user tasks between the devices.
@@ -47,8 +52,6 @@ Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
 
     Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#proxies>`_
     for more information If you need to configure a proxy for instance.
-
-We use the Mozilla demo server:
 
 .. code-block:: shell
 
