@@ -9,7 +9,7 @@ Basically, *Kinto* is a service where client applications can store and retrieve
 In order to provide synchronisation and sharing features for these data, *Kinto*
 introduces some basic concepts.
 
-*Kinto* objects in brief :
+*Kinto* objects in brief:
 
 +-----------------+---------------------------------------------------------+
 | Object          | Description                                             |

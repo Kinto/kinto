@@ -153,7 +153,7 @@ Hack core libraries
 If you want to run *Kinto* with some core libraries under development (like *Cliquet* or *Cornice*),
 just install them from your local folder using ``pip``.
 
-For example :
+For example:
 
 ::
 
