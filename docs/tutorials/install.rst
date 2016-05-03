@@ -1,14 +1,14 @@
-.. _get-started:
+.. _install:
 
-Get started
-###########
+Install Kinto
+#############
 
-Use the demo server or run your own Kinto, and follow our :ref:`tutorials <tutorials>`
-for the JavaScript client or the raw HTTP API!
+To get the most out of the :ref:`tutorials <tutorials>`, it helps to
+have a Kinto server running. You can use the Mozilla demo server, or
+set up your own instance.
 
 .. contents::
     :local:
-
 
 .. _run-kinto-mozilla-demo:
 

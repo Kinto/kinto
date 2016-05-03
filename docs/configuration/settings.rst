@@ -6,7 +6,7 @@ Settings
 .. image:: /images/overview-features.png
     :align: center
 
-If you are looking for installation instructions, please refer to :ref:`get-started`.
+If you are looking for installation instructions, please refer to :ref:`install`.
 
 Kinto is built to be highly configurable. As a result, the related
 configuration can be verbose, but don't worry, all configuration flags are

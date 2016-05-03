@@ -69,7 +69,7 @@ Is there a package for my Operating System?
 No, but it's a great idea. Maintaining packages for several platforms is time-consuming
 and we're a small team.
 
-Currently we make sure it's :ref:`easy to run with Docker or Python pip <get-started>`.
+Currently we make sure it's :ref:`easy to run with Docker or Python pip <install>`.
 
 We also have a :ref:`single-click deployment <deploy-an-instance>` on some cloud providers.
 
