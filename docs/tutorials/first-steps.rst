@@ -33,6 +33,11 @@ of the data. The application will always have read/write access to the
 data in the client, even when it's offline. When access to the server
 is available, the client will sync up with it.
 
+Unless you're writing a client library yourself, you won't be making
+any of these API requests yourself, but seeing them may give you a
+better understanding of how a Kinto application works and how to
+structure your data when working with Kinto.
+
 The problem
 ===========
 
