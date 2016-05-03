@@ -19,8 +19,8 @@ like. We'll be using the :ref:`Mozilla demo server <run-kinto-mozilla-demo>`.
     In this tutorial we will use a Basic Authentication, which computes a
     user id based on the token provided in the request.
 
-    This method has many limitations but has the advantage to avoid
-    specific setup or third-party services to get started immediately.
+    This method has many limitations but has the advantage of not needing
+    specific setup or third-party services before you get started.
 
     :ref:`Read more about authentication in Kinto <authentication>`.
 
