@@ -57,6 +57,8 @@ def page_not_found(request):
     redirect_enabled = request.registry.settings[config_key]
     trailing_slash_redirection_enabled = asbool(redirect_enabled)
 
+    querystring = request.url[(request.url.rindex(request.path) +
+                               len(request.path)):]
     resource_missing = (
         request.path.startswith('/' + request.registry.route_prefix + '/') or
         not trailing_slash_redirection_enabled
@@ -68,8 +70,6 @@ def page_not_found(request):
                      "on this server.")
     elif request.path.endswith('/') and trailing_slash_redirection_enabled:
         path = request.path.rstrip('/')
-        querystring = request.url[(request.url.rindex(request.path) +
-                                   len(request.path)):]
         redirect = '%s%s' % (path, querystring)
         return HTTPTemporaryRedirect(redirect)
     elif resource_missing:
@@ -77,8 +77,6 @@ def page_not_found(request):
         error_msg = "The resource you are looking for could not be found."
     elif trailing_slash_redirection_enabled:
         # Case for /v0 -> /v0/
-        querystring = request.url[(request.url.rindex(request.path) +
-                                   len(request.path)):]
         redirect = '/%s/%s' % (request.registry.route_prefix, querystring)
         return HTTPTemporaryRedirect(redirect)
 
