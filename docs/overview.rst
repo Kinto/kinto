@@ -137,7 +137,7 @@ Key features
 +---------------------------------------------+---------------------------------------------+
 | |logo-offline|                              | |logo-python|                               |
 | Offline-first `JavaScript client            | :github:`Python client                      |
-| <https://kintojs.readthedocs.io>`_         | <Kinto/kinto.py>`                           |
+| <https://kintojs.readthedocs.io>`_          | <Kinto/kinto.py>`                           |
 +---------------------------------------------+---------------------------------------------+
 | |logo-attachment|                           | |logo-livesync|                             |
 | :github:`File attachments on records        | Live :ref:`Push notifications               |
