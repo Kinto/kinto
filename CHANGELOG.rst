@@ -7,7 +7,9 @@ This document describes changes between each past release.
 3.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Redirects version prefix to hello page when trailing_slash_redirect is enabled. (#700)
 
 
 3.1.3 (2016-04-29)
