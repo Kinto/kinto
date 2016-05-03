@@ -5,9 +5,6 @@ from .support import BaseWebTest, unittest
 
 
 class HelloViewTest(BaseWebTest, unittest.TestCase):
-    def test_redirect_to_hello_page(self):
-        response = self.app.get('', status=307)
-        assert response.request.path == '/v0'
 
     def test_returns_info_about_url_and_version(self):
         response = self.app.get('/')
