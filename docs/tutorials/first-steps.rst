@@ -24,6 +24,15 @@ like. We'll be using the :ref:`Mozilla demo server <run-kinto-mozilla-demo>`.
 
     :ref:`Read more about authentication in Kinto <authentication>`.
 
+In this tutorial, we'll set out to build an offline-first application,
+following the typical architecture for a Kinto application. We'll have
+a Kinto server somewhere in the cloud (represented here by the Mozilla
+dev server). Our application will use a Kinto client library which
+provides offline-first access. That library will maintain a local copy
+of the data. The application will always have read/write access to the
+data in the client, even when it's offline. When access to the server
+is available, the client will sync up with it.
+
 The problem
 ===========
 
