@@ -53,7 +53,7 @@ Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
 .. note::
 
     Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#proxies>`_
-    for more information If you need to configure a proxy for instance.
+    for more information if you need to configure a proxy for instance.
 
 .. code-block:: shell
 
