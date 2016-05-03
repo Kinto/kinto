@@ -320,7 +320,8 @@ class Permission(PermissionBase):
 
         with self.client.connect() as conn:
             conn.execute(delete_query, placeholders)
-            conn.execute(insert_query, placeholders)
+            if new_perms:
+                conn.execute(insert_query, placeholders)
 
     def delete_object_permissions(self, *object_id_list):
         if len(object_id_list) == 0:
