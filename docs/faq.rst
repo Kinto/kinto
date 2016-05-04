@@ -121,7 +121,9 @@ How does Kinto authenticate users?
 Kinto authentication system is pluggable and controlled from settings.
 
 By default it ships with a very simple (but limited) *Basic Authentication* policy, which
-distinguishes users using the value provided in the header.
+distinguishes users using the value provided in the header. In other words, any
+combination of user:password will be accepted. Kinto will encrypt them and determine a
+unique :term:`user id` from them.
 
 See also:
 
@@ -132,6 +134,23 @@ See also:
 
     We'd be delighted to add more built-in authentication methods into Kinto.
     Please reach out if you're interested!
+
+
+How to disable the permissions system (for development)?
+--------------------------------------------------------
+
+By default, only the creator of the object has permission to write into it.
+
+During development, it can be convenient to give the permission to write to
+any user.
+
+Just create the bucket (or the collection) with ``system.Everyone`` in the
+``write`` principals:
+
+.. code-block:: bash
+
+    echo '{"permissions": {"write": ["system.Everyone"]}}' | \
+        http PUT http://localhost:8888/v1/buckets/a-bucket --auth user:pass
 
 
 I am seeing an Exception error, what's wrong?
