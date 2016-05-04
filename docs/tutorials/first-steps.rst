@@ -274,8 +274,9 @@ to decide what version should be kept might also be an option.
 
 .. note::
 
-    Do not run away! You will most likely use :github:`Kinto/kinto.js`, which provides nice abstractions
-    to interact with the Kinto API.
+    Don't run away! Remember, you will most likely use a library like
+    :github:`Kinto/kinto.js`, which provides nice abstractions to
+    interact with the Kinto API.
 
 Once merged, we can send back again our modifications using the last
 record ``ETag`` value:
