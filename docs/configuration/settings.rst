@@ -56,6 +56,10 @@ Feature settings
 |                                                 |              | in order to :ref:`validate submitted records <collection-json-schema>`.  |
 |                                                 |              | It is marked as experimental because the API might subjet to changes.    |
 +-------------------------------------------------+--------------+--------------------------------------------------------------------------+
+| kinto.trailing_slash_redirect_enabled           | ``True``     | Try to redirect resources removing slash or adding it for the root URL   |
+|                                                 |              | endpoint: ``/v1`` redirects to ``/v1/`` and ``/buckets/default/``        |
+|                                                 |              | to ``/buckets/default``. No redirections are made when turned off.       |
++-------------------------------------------------+--------------+--------------------------------------------------------------------------+
 
 
 .. _configuration-backends:
