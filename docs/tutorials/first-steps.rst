@@ -59,11 +59,8 @@ these fields:
   - ``description``: A string describing the task
   - ``status``: The status of the task, (e.g. ``todo``, ``doing`` or ``done``).
 
-In order to separate data between each user, we will use the default
+In order to keep each user's data separate, we'll use the default
 *personal bucket*.
-
-Unlike other buckets, the :ref:`collections <collections>` in the ``default``
-:ref:`bucket <buckets>` are created implicitly.
 
 Basic data storage APIs
 =======================
@@ -74,7 +71,7 @@ Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
 .. note::
 
     Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#proxies>`_
-    for more information if you need to configure a proxy for instance.
+    for more information (if you need to configure a proxy, for instance).
 
 .. code-block:: shell
 
@@ -113,6 +110,10 @@ Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
     user. This identifier is built using the token value provided in the request.
     Therefore users cannot change their password easily without losing
     access to their data. :ref:`More information <authentication>`.
+
+This also creates the ``tasks`` collection. Unlike other buckets, the
+:ref:`collections <collections>` in the ``default`` :ref:`bucket
+<buckets>` are created implicitly.
 
 Let us fetch our new collection of tasks:
 
