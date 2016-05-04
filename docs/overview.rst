@@ -33,7 +33,7 @@ for you:
   `admin UI <http://kinto.github.io/kinto-admin/>`_
 - Easily
   :ref:`set up live push notifications <tutorial-notifications-websockets>`
-  for live synchronisation
+  for live updates of your application
 - Make it possible to
   :ref:`share data between users <api-permissions>`
   (using fine-grained permissions)
@@ -137,7 +137,7 @@ Key features
 +---------------------------------------------+---------------------------------------------+
 | |logo-offline|                              | |logo-python|                               |
 | Offline-first `JavaScript client            | :github:`Python client                      |
-| <https://kintojs.readthedocs.io>`_         | <Kinto/kinto.py>`                           |
+| <https://kintojs.readthedocs.io>`_          | <Kinto/kinto.py>`                           |
 +---------------------------------------------+---------------------------------------------+
 | |logo-attachment|                           | |logo-livesync|                             |
 | :github:`File attachments on records        | Live :ref:`Push notifications               |
@@ -170,7 +170,7 @@ and polling for changes, and not trying to resolve conflicts automatically.
 Basically, each object has a revision number which is guaranteed to be incremented after
 each modification. *Kinto* does not keep old revisions of objects.
 
-Clients can retrieve the list of changes that occured on a collection of records
+Clients can retrieve the list of changes that occurred on a collection of records
 since a specified revision. *Kinto* can also use it to avoid accidental updates
 of objects.
 

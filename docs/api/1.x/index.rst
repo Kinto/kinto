@@ -17,7 +17,6 @@ Full detailed API documentation:
    records
    groups
    permissions
-   synchronisation
    cliquet/resource
    cliquet/utilities
    cliquet/batch

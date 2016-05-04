@@ -80,7 +80,7 @@ We will use ``sort=last_modified`` and ``_since=<timestamp>``:
 
 .. image:: ../../images/sync-oldest.svg
 
-If an error occurs during the obtention of pages,
+If an error occurs during the retrieval of pages,
 the synchronisation can be resumed transparently, since the pages are obtained
 with ascending timestamps, and the next sync relies on the highest
 timestamp successfully stored locally.
@@ -92,7 +92,7 @@ Strategy #2 — Newest first
 In order to populate a UI, it might be relevant to obtain the latest changes first.
 
 Syncing newest records first is a bit more complex since changes can occur between
-the obtention of the first and the last pages.
+the retrieval of the first and the last pages.
 
 We will use ``sort=-last_modified`` (desc), ``_before`` to omit later changes,
 and ``_since`` to include changes after last sync:

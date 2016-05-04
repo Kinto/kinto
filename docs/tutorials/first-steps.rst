@@ -3,42 +3,67 @@
 First steps with Kinto HTTP API
 ###############################
 
-There are several kinds of applications where *Kinto* is
-particulary relevant as a storage backend.
+This tutorial will take you through your first API calls with a real
+Kinto server, with an emphasis on those APIs used for syncing data
+between devices and sharing data between users. You probably won't be
+making calls to these APIs directly; instead, you'll use a client
+library like *Kinto.js*.
 
-The following tutorial should provide enough information to understand how to:
-
-  - Sync user data between devices;
-  - Sync and share data between users, leveraging permissions.
-
+In order to get the most out of this tutorial, you may want to have a
+real Kinto server ready. You can read our :ref:`installation
+<install>` guide to see how to set up your own Kinto instance if you
+like. We'll be using the :ref:`Mozilla demo server <run-kinto-mozilla-demo>`.
 
 .. important::
 
     In this tutorial we will use a Basic Authentication, which computes a
     user id based on the token provided in the request.
 
-    This method has many limitations but has the advantage to avoid
-    specific setup or third-party services to get started immediately.
+    This method has many limitations but has the advantage of not needing
+    specific setup or third-party services before you get started.
 
     :ref:`Read more about authentication in Kinto <authentication>`.
 
+In this tutorial, we'll set out to build an offline-first application,
+following the typical architecture for a Kinto application. We'll have
+a Kinto server somewhere in the cloud (represented here by the Mozilla
+dev server). Our application will use a Kinto client library which
+provides offline-first access. That library will maintain a local copy
+of the data. The application will always have read/write access to the
+data in the client, even when it's offline. When access to the server
+is available, the client will sync up with it.
 
-Sync user data between devices
-==============================
+Unless you're writing a client library yourself, you won't be making
+any of these API requests yourself, but seeing them may give you a
+better understanding of how a Kinto application works and how to
+structure your data when working with Kinto.
 
-Let's say that we want to do a `TodoMVC <http://todomvc.com/>`_ backend that
-will sync user tasks between the devices.
+The problem
+===========
 
-In order to separate data between each user, we will use the default
-*personal bucket*.
+There are several kinds of applications where *Kinto* is
+particulary relevant as a storage backend.
 
-Unlike other buckets, the :ref:`collections <collections>` in the ``default``
-:ref:`bucket <buckets>` are created implicitly.
+Let's say that we want to make a `TodoMVC <http://todomvc.com/>`_
+backend that will sync user tasks between the devices. The
+requirements are that users can check off tasks as they complete them
+and they can share their tasks with other users. We want tasks and
+their states to be available on all devices.
 
-We'll start with a relatively simple data model:
+Data model
+==========
+
+We'll start with a relatively simple data model. Each record will have
+these fields:
 
   - ``description``: A string describing the task
   - ``status``: The status of the task, (e.g. ``todo``, ``doing`` or ``done``).
+
+In order to keep each user's data separate, we'll use the default
+*personal bucket*.
+
+Basic data storage APIs
+=======================
 
 Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
 ``tasks`` collection:
@@ -46,9 +71,7 @@ Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
 .. note::
 
     Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#proxies>`_
-    for more information If you need to configure a proxy for instance.
-
-We use the Mozilla demo server:
+    for more information (if you need to configure a proxy, for instance).
 
 .. code-block:: shell
 
@@ -88,6 +111,10 @@ We use the Mozilla demo server:
     Therefore users cannot change their password easily without losing
     access to their data. :ref:`More information <authentication>`.
 
+This also creates the ``tasks`` collection. Unlike other buckets, the
+:ref:`collections <collections>` in the ``default`` :ref:`bucket
+<buckets>` are created implicitly.
+
 Let us fetch our new collection of tasks:
 
 .. code-block:: shell
@@ -122,7 +149,7 @@ Let us fetch our new collection of tasks:
 
 
 Keep a note of the ``ETag`` and of the ``last_modified`` values
-returned (here both ``"1436171996916"``) - we'll need them for a later
+returned (here both ``"1436171996916"``) -- we'll need them for a later
 example.
 
 We can also update one of our tasks using its ``id``:
@@ -157,6 +184,10 @@ We can also update one of our tasks using its ``id``:
             ]
         }
     }
+
+
+Sync user data between devices
+==============================
 
 Here you should ask yourself: what happens if another device updated the same
 record in the interim - will this request overwrite those changes?
@@ -236,15 +267,17 @@ single record and merge attributes locally:
     }
 
 
-The strategy to merge local changes is left to the client and might depend on
-the client specifications. A *three-way merge* is possible when changes do
-not affect the same fields or if both objects are equal. Prompting the user
-to decide what version should be kept might also be an option.
+The strategy to merge local changes is left to the application and
+might depend on the application's requirements. A *three-way merge* is
+possible when changes do not affect the same fields or if both objects
+are equal. Prompting the user to decide what version should be kept,
+or to resolve the conflict manually, might also be an option.
 
 .. note::
 
-    Do not run away! You will most likely use :github:`Kinto/kinto.js`, which provides nice abstractions
-    to interact with the Kinto API.
+    Don't run away! Remember, you will most likely use a library like
+    :github:`Kinto/kinto.js`, which provides nice abstractions to
+    interact with the Kinto API.
 
 Once merged, we can send back again our modifications using the last
 record ``ETag`` value:
@@ -699,9 +732,10 @@ And now Mary can access the record:
 
 .. note::
 
-    The records of the personal bucket can also be shared! In order to obtain
-    its ID, just use ``GET /buckets/default`` and then share its content using
-    the full URL (e.g. ``/buckets/b86b26b8-be36-4eaa-9ed9-2e6de63a5252``)!
+    The records of the personal bucket can also be shared! In order to
+    obtain its ID, just use ``GET /buckets/default`` to get its ID,
+    and then share its content using the full URL
+    (e.g. ``/buckets/b86b26b8-be36-4eaa-9ed9-2e6de63a5252``)!
 
 
 Conclusion

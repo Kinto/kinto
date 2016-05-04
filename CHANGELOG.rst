@@ -359,7 +359,7 @@ Changed the naming in the root URL (hello view) (mozilla-services/cliquet#600)
 
 **Internal changes**
 
-- Optimization for obtention of user principals (#263)
+- Optimization for retrieval of user principals (#263)
 - Do not build the Docker container when using Docker Compose.
 - Add Python 3.5 on TravisCI
 - Add schema validation loadtest (fixes #201)

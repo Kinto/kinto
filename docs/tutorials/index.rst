@@ -6,8 +6,9 @@ Tutorials
 .. toctree::
    :maxdepth: 1
 
-   get-started
+   install
    first-steps
+   synchronisation
    notifications-websockets
    notifications-custom
    authentication-github
