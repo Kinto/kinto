@@ -149,7 +149,7 @@ Let us fetch our new collection of tasks:
 
 
 Keep a note of the ``ETag`` and of the ``last_modified`` values
-returned (here both ``"1436171996916"``) - we'll need them for a later
+returned (here both ``"1436171996916"``) -- we'll need them for a later
 example.
 
 We can also update one of our tasks using its ``id``:
