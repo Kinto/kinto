@@ -6,29 +6,34 @@ addons:
 env:
     - TOX_ENV=py27
     - TOX_ENV=py34
-    #- TOX_ENV=py35
     - TOX_ENV=pypy
     - TOX_ENV=cliquet-master
-    - TOX_ENV=flake8
     - TOX_ENV=docs
-    - ACTION=loadtest_tutorial
-    - ACTION=loadtest_simulation
+install:
+    - pip install tox
+before_script:
+    - sudo sed -i "s/fsync/#fsync/" /etc/postgresql/9.4/main/postgresql.conf
+    - sudo /etc/init.d/postgresql restart
+    - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
+script:
+    - tox -e $TOX_ENV
+after_success:
+    # Report coverage results to coveralls.io
+    - pip install coveralls
+    - coveralls
+
 matrix:
   include:
     - python: 3.5
       env:
         - TOX_ENV=py35
-before_script:
-    - sudo sed -i "s/fsync/#fsync/" /etc/postgresql/9.4/main/postgresql.conf
-    - sudo /etc/init.d/postgresql restart
-    - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
-install:
-    - if [[ $ACTION != loadtest_tutorial && $ACTION != loadtest_simulation ]]; then pip install tox; fi
-script:
-    - if [[ $ACTION != loadtest_tutorial && $ACTION != loadtest_simulation ]]; then tox -e $TOX_ENV; fi
-    - if [[ $ACTION == loadtest_simulation ]]; then make loadtest-check-simulation; fi
-    - if [[ $ACTION == loadtest_tutorial ]]; then make loadtest-check-tutorial; fi
-after_success:
-    # Report coverage results to coveralls.io
-    - pip install coveralls
-    - coveralls
+    - env: ACTION=loadtest_tutorial
+      before_script: echo 'Tutorial'
+      script: make loadtest-check-tutorial
+    - env: ACTION=loadtest_simulation
+      before_script: echo 'Simulation'
+      script: make loadtest-check-simulation
+    - env: TOX_ENV=flake8
+      install: pip install flake8
+      before_script: echo 'flake8'
+      script: flake8 kinto
