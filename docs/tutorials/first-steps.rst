@@ -267,10 +267,11 @@ single record and merge attributes locally:
     }
 
 
-The strategy to merge local changes is left to the client and might depend on
-the client specifications. A *three-way merge* is possible when changes do
-not affect the same fields or if both objects are equal. Prompting the user
-to decide what version should be kept might also be an option.
+The strategy to merge local changes is left to the application and
+might depend on the application's requirements. A *three-way merge* is
+possible when changes do not affect the same fields or if both objects
+are equal. Prompting the user to decide what version should be kept,
+or to resolve the conflict manually, might also be an option.
 
 .. note::
 
