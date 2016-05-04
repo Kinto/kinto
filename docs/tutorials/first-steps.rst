@@ -44,11 +44,20 @@ The problem
 There are several kinds of applications where *Kinto* is
 particulary relevant as a storage backend.
 
-Let's say that we want to make a `TodoMVC <http://todomvc.com/>`_ backend that
-will sync user tasks between the devices.
+Let's say that we want to make a `TodoMVC <http://todomvc.com/>`_
+backend that will sync user tasks between the devices. The
+requirements are that users can check off tasks as they complete them
+and they can share their tasks with other users. We want tasks and
+their states to be available on all devices.
 
-Basic data storage APIs
-=======================
+Data model
+==========
+
+We'll start with a relatively simple data model. Each record will have
+these fields:
+
+  - ``description``: A string describing the task
+  - ``status``: The status of the task, (e.g. ``todo``, ``doing`` or ``done``).
 
 In order to separate data between each user, we will use the default
 *personal bucket*.
@@ -56,10 +65,8 @@ In order to separate data between each user, we will use the default
 Unlike other buckets, the :ref:`collections <collections>` in the ``default``
 :ref:`bucket <buckets>` are created implicitly.
 
-We'll start with a relatively simple data model:
-
-  - ``description``: A string describing the task
-  - ``status``: The status of the task, (e.g. ``todo``, ``doing`` or ``done``).
+Basic data storage APIs
+=======================
 
 Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
 ``tasks`` collection:
