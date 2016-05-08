@@ -1,5 +1,5 @@
 from cliquet import authorization as cliquet_authorization
-from pyramid.security import IAuthorizationPolicy
+from pyramid.security import Authenticated, IAuthorizationPolicy
 from zope.interface import implementer
 
 
@@ -142,6 +142,15 @@ def build_permissions_set(object_uri, unbound_permission,
 class AuthorizationPolicy(cliquet_authorization.AuthorizationPolicy):
     def get_bound_permissions(self, *args, **kwargs):
         return build_permissions_set(*args, **kwargs)
+
+    def permits_shared_resource(self, context, principals, permission):
+        is_list_bucket = (context.resource_name == 'bucket' and
+                          permission == 'read' and
+                          Authenticated in principals)
+        if is_list_bucket:
+            return True
+        return super(AuthorizationPolicy, self).permits_shared_resource(
+            context, principals, permission)
 
 
 class RouteFactory(cliquet_authorization.RouteFactory):
