@@ -151,16 +151,20 @@ class FilteringTest(BaseTest):
 
     def test_include_returns_400_if_value_has_wrong_type(self):
         self.resource.request.GET = {'in_id': '0,1'}
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)
+        with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
+            self.resource.collection_get()
+        self.assertIn('in_id', cm.exception.json['message'])
+
         self.resource.request.GET = {'in_last_modified': 'a,b'}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_exclude_returns_400_if_value_has_wrong_type(self):
         self.resource.request.GET = {'exclude_id': '0,1'}
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)
+        with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
+            self.resource.collection_get()
+        self.assertIn('exclude_id', cm.exception.json['message'])
+
         self.resource.request.GET = {'exclude_last_modified': 'a,b'}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
