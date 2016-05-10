@@ -11,6 +11,7 @@ This document describes changes between each past release.
 
 - Redirects version prefix to hello page when trailing_slash_redirect is enabled. (#700)
 - Fix crash when setting empty permission list with PostgreSQL permission backend (fixes Kinto/kinto#575)
+- Fix crash when providing duplicated principals in permissions with PostgreSQL permission backend (fixes #702)
 
 
 3.1.3 (2016-04-29)
