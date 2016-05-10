@@ -71,12 +71,12 @@ class FilteringTest(BaseTest):
             error = e
         self.assertEqual(error.json, {
             'errno': ERRORS.INVALID_PARAMETERS.value,
-            'message': "querystring: Unknown filter field 'foo'",
+            'message': "Unknown filter field 'foo'",
             'code': 400,
             'error': 'Invalid parameters',
             'details': [{'description': "Unknown filter field 'foo'",
                          'location': 'querystring',
-                         'name': None}]})
+                         'name': 'foo'}]})
 
     def test_regexp_is_strict_for_min_and_max(self):
         self.patch_known_field.stop()
@@ -148,3 +148,23 @@ class FilteringTest(BaseTest):
         result = self.resource.collection_get()
         values = [item['status'] for item in result['data']]
         self.assertEqual(sorted(values), [1, 1, 2, 2])
+
+    def test_include_returns_400_if_value_has_wrong_type(self):
+        self.resource.request.GET = {'in_id': '0,1'}
+        with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
+            self.resource.collection_get()
+        self.assertIn('in_id', cm.exception.json['message'])
+
+        self.resource.request.GET = {'in_last_modified': 'a,b'}
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
+
+    def test_exclude_returns_400_if_value_has_wrong_type(self):
+        self.resource.request.GET = {'exclude_id': '0,1'}
+        with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
+            self.resource.collection_get()
+        self.assertIn('exclude_id', cm.exception.json['message'])
+
+        self.resource.request.GET = {'exclude_last_modified': 'a,b'}
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
