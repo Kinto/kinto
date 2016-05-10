@@ -295,7 +295,7 @@ class Permission(PermissionBase):
         for i, (perm, principals) in enumerate(permissions.items()):
             placeholders['perm_%s' % i] = perm
             specified_perms.append("(:perm_%s)" % i)
-            for principal in principals:
+            for principal in set(principals):
                 j = len(new_perms)
                 placeholders['principal_%s' % j] = principal
                 new_perms.append("(:perm_%s, :principal_%s)" % (i, j))
