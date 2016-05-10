@@ -414,6 +414,16 @@ class BaseTestPermission(object):
             "write": {"user1"}
         })
 
+    def test_replace_object_permission_supports_duplicated_entries(self):
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
+        self.permission.replace_object_permissions('/url/a/id/1', {
+            "write": ["user1", "user1"]
+        })
+        object_permissions = self.permission.object_permissions('/url/a/id/1')
+        self.assertDictEqual(object_permissions, {
+            "write": {"user1"}
+        })
+
     def test_replace_object_permission_supports_empty_list(self):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
         self.permission.replace_object_permissions('/url/a/id/1', {
