@@ -369,6 +369,18 @@ class BaseTestStorage(object):
                                           **self.storage_kw)
         self.assertEqual(len(records), 2)
 
+    def test_get_all_returns_no_result_if_list_of_values_has_wrong_type(self):
+        for l in range(3):
+            self.create_record({'code': 'a'})
+        filters = [Filter('id', [1, 2], utils.COMPARISON.IN)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 0)
+        filters = [Filter('last_modified', ['x', 'y'], utils.COMPARISON.IN)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 0)
+
     def test_get_all_can_filter_with_numeric_values(self):
         for l in [1, 10, 6, 46]:
             self.create_record({'code': l})
