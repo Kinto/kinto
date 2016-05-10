@@ -601,12 +601,6 @@ class Storage(StorageBase):
                     value = json.dumps(filtr.value).strip('"')
             else:
                 value = tuple(value)
-                if filtr.field == id_field:
-                    value = tuple([v if isinstance(v, six.string_types)
-                                   else None for v in value])
-                if filtr.field == modified_field:
-                    value = tuple([v if isinstance(v, six.integer_types)
-                                   else None for v in value])
 
             # Safely escape value
             value_holder = '%s_value_%s' % (prefix, i)
