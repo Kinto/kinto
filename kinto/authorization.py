@@ -1,4 +1,4 @@
-from cliquet import authorization as cliquet_authorization
+from kinto.core import authorization as cliquet_authorization
 from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 

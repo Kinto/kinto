@@ -4,8 +4,8 @@ except ImportError:
     import unittest  # NOQA
 
 import webtest
-from cliquet import utils
-from cliquet.tests import support as cliquet_support
+from kinto.core import utils
+from kinto.core.tests import support as cliquet_support
 from kinto import main as testapp
 from kinto import DEFAULT_SETTINGS
 
@@ -44,9 +44,9 @@ class BaseWebTest(object):
     def get_app_settings(self, additional_settings=None):
         settings = cliquet_support.DEFAULT_SETTINGS.copy()
         settings.update(**DEFAULT_SETTINGS)
-        settings['cache_backend'] = 'cliquet.cache.memory'
-        settings['storage_backend'] = 'cliquet.storage.memory'
-        settings['permission_backend'] = 'cliquet.permission.memory'
+        settings['cache_backend'] = 'kinto.core.cache.memory'
+        settings['storage_backend'] = 'kinto.core.storage.memory'
+        settings['permission_backend'] = 'kinto.core.permission.memory'
         settings['userid_hmac_secret'] = "this is not a secret"
         settings['includes'] = "kinto.plugins.default_bucket"
 

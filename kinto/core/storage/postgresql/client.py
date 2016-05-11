@@ -2,9 +2,9 @@ import contextlib
 import warnings
 from collections import defaultdict
 
-from cliquet import logger
-from cliquet.storage import exceptions
-from cliquet.utils import sqlalchemy
+from kinto.core import logger
+from kinto.core.storage import exceptions
+from kinto.core.utils import sqlalchemy
 import transaction as zope_transaction
 
 
@@ -89,7 +89,7 @@ def create_from_config(config, prefix=''):
 
     # Initialize SQLAlchemy engine from settings.
     poolclass_key = prefix + 'poolclass'
-    settings.setdefault(poolclass_key, ('cliquet.storage.postgresql.'
+    settings.setdefault(poolclass_key, ('kinto.core.storage.postgresql.'
                                         'pool.QueuePoolWithMaxBacklog'))
     settings[poolclass_key] = config.maybe_dotted(settings[poolclass_key])
     engine = sqlalchemy.engine_from_config(settings, prefix=prefix, url=url)

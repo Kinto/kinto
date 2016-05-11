@@ -5,9 +5,9 @@ import uuid
 
 from pyramid.response import Response
 
-from cliquet.views.batch import BatchPayloadSchema, batch as batch_service
-from cliquet.tests.support import BaseWebTest, unittest, DummyRequest
-from cliquet.utils import json
+from kinto.core.views.batch import BatchPayloadSchema, batch as batch_service
+from kinto.core.tests.support import BaseWebTest, unittest, DummyRequest
+from kinto.core.utils import json
 
 
 class BatchViewTest(BaseWebTest, unittest.TestCase):
@@ -67,7 +67,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         request = {'path': '/v0/'}
         body = {'requests': [request]}
 
-        with mock.patch('cliquet.views.hello.get_eos') as mocked:
+        with mock.patch('kinto.core.views.hello.get_eos') as mocked:
             mocked.side_effect = AttributeError
             self.app.post_json('/batch', body, headers=self.headers,
                                status=500)
@@ -78,7 +78,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         request = {'path': '/v0/'}
         body = {'requests': [request]}
 
-        with mock.patch('cliquet.views.hello.get_eos') as mocked:
+        with mock.patch('kinto.core.views.hello.get_eos') as mocked:
             response = mock.MagicMock(status_code=404)
             mocked.side_effect = HTTPError(response=response)
             resp = self.app.post_json('/batch', body, headers=self.headers,

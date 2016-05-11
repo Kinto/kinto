@@ -4,11 +4,11 @@ from functools import wraps
 import redis
 from six.moves.urllib import parse as urlparse
 
-from cliquet import utils, logger
-from cliquet.storage import (
+from kinto.core import utils, logger
+from kinto.core.storage import (
     exceptions, DEFAULT_ID_FIELD,
     DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
-from cliquet.storage.memory import MemoryBasedStorage
+from kinto.core.storage.memory import MemoryBasedStorage
 
 
 def wrap_redis_error(func):
@@ -50,15 +50,15 @@ class Storage(MemoryBasedStorage):
 
     Enable in configuration::
 
-        cliquet.storage_backend = cliquet.storage.redis
+        kinto.storage_backend = kinto.core.storage.redis
 
     *(Optional)* Instance location URI can be customized::
 
-        cliquet.storage_url = redis://localhost:6379/0
+        kinto.storage_url = redis://localhost:6379/0
 
     A threaded connection pool is enabled by default::
 
-        cliquet.storage_pool_size = 50
+        kinto.storage_pool_size = 50
     """
 
     def __init__(self, client, *args, **kwargs):

@@ -3,9 +3,9 @@ import mock
 from pyramid import exceptions
 from pyramid import testing
 
-from cliquet import authorization, DEFAULT_SETTINGS
-from cliquet.resource import ViewSet, ShareableViewSet, register_resource
-from cliquet.tests.support import unittest
+from kinto.core import authorization, DEFAULT_SETTINGS
+from kinto.core.resource import ViewSet, ShareableViewSet, register_resource
+from kinto.core.tests.support import unittest
 
 
 class FakeViewSet(ViewSet):
@@ -82,7 +82,7 @@ class ViewSetTest(unittest.TestCase):
         schema = arguments['schema']
         self.assertEquals(schema.children[0], resource.mapping)
 
-    @mock.patch('cliquet.resource.viewset.colander')
+    @mock.patch('kinto.core.resource.viewset.colander')
     def test_a_default_schema_is_added_when_method_doesnt_match(self, mocked):
         viewset = ViewSet(
             validate_schema_for=('GET', )
@@ -365,7 +365,7 @@ class RegisterTest(unittest.TestCase):
         self.resource = FakeResource
         self.viewset = FakeViewSet()
 
-    @mock.patch('cliquet.resource.Service')
+    @mock.patch('kinto.core.resource.Service')
     def test_register_fails_if_no_storage_backend_is_configured(self, *args):
         venusian_callback = register_resource(
             self.resource, viewset=self.viewset)
@@ -378,7 +378,7 @@ class RegisterTest(unittest.TestCase):
             error = e
         self.assertIn('storage backend is missing', str(error))
 
-    @mock.patch('cliquet.resource.Service')
+    @mock.patch('kinto.core.resource.Service')
     def test_viewset_is_updated_if_provided(self, service_class):
         additional_params = {'foo': 'bar'}
         register_resource(self.resource, viewset=self.viewset,
@@ -392,7 +392,7 @@ class RegisterTest(unittest.TestCase):
         register_resource(resource, **additional_params)
         resource.default_viewset.assert_called_with(**additional_params)
 
-    @mock.patch('cliquet.resource.Service')
+    @mock.patch('kinto.core.resource.Service')
     def test_collection_views_are_registered_in_cornice(self, service_class):
         venusian_callback = register_resource(
             self.resource, viewset=self.viewset)
@@ -409,7 +409,7 @@ class RegisterTest(unittest.TestCase):
         service_class().add_view.assert_any_call(
             'GET', 'collection_get', klass=self.resource)
 
-    @mock.patch('cliquet.resource.Service')
+    @mock.patch('kinto.core.resource.Service')
     def test_record_views_are_registered_in_cornice(self, service_class):
         venusian_callback = register_resource(
             self.resource, viewset=self.viewset)
@@ -426,7 +426,7 @@ class RegisterTest(unittest.TestCase):
         service_class().add_view.assert_any_call(
             'PUT', 'put', klass=self.resource)
 
-    @mock.patch('cliquet.resource.Service')
+    @mock.patch('kinto.core.resource.Service')
     def test_collection_methods_are_skipped_if_not_enabled(self, service_cls):
         venusian_callback = register_resource(
             self.resource, viewset=self.viewset)
@@ -447,7 +447,7 @@ class RegisterTest(unittest.TestCase):
         service_cls().add_view.assert_any_call(
             'GET', 'collection_get', klass=self.resource)
 
-    @mock.patch('cliquet.resource.Service')
+    @mock.patch('kinto.core.resource.Service')
     def test_record_methods_are_skipped_if_not_enabled(self, service_class):
         venusian_callback = register_resource(
             self.resource, viewset=self.viewset)

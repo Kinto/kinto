@@ -9,7 +9,7 @@ from .support import unittest, skip_if_no_postgresql
 @skip_if_no_postgresql
 class QueuePoolWithMaxBacklogTest(unittest.TestCase):
     def setUp(self):
-        from cliquet.storage.postgresql.client import create_from_config
+        from kinto.core.storage.postgresql.client import create_from_config
 
         self.connections = []
         self.errors = []
@@ -73,7 +73,7 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         self.assertEquals(len(self.errors), 3)
 
     def test_recreates_reinstantiate_with_same_pool_class(self):
-        from cliquet.storage.postgresql.pool import QueuePoolWithMaxBacklog
+        from kinto.core.storage.postgresql.pool import QueuePoolWithMaxBacklog
         pool = QueuePoolWithMaxBacklog(None, max_backlog=2, pool_size=2)
         other = pool.recreate()
         self.assertEqual(pool._pool.__class__, other._pool.__class__)

@@ -5,8 +5,8 @@ import mock
 from six.moves.urllib.parse import parse_qs, urlparse
 from pyramid.httpexceptions import HTTPBadRequest
 
-from cliquet.tests.resource import BaseTest
-from cliquet.utils import json
+from kinto.core.tests.resource import BaseTest
+from kinto.core.utils import json
 
 
 class PaginationTest(BaseTest):

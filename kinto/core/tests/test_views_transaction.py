@@ -3,9 +3,9 @@ import mock
 from pyramid import testing
 from pyramid import httpexceptions
 
-from cliquet.storage.exceptions import BackendError
-from cliquet.utils import sqlalchemy
-from cliquet import events
+from kinto.core.storage.exceptions import BackendError
+from kinto.core.utils import sqlalchemy
+from kinto.core import events
 from .support import (BaseWebTest, unittest, skip_if_no_postgresql,
                       USER_PRINCIPAL)
 

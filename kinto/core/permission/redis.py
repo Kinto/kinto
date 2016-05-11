@@ -2,8 +2,8 @@ from __future__ import absolute_import
 
 from collections import defaultdict
 
-from cliquet.permission import PermissionBase
-from cliquet.storage.redis import create_from_config, wrap_redis_error
+from kinto.core.permission import PermissionBase
+from kinto.core.storage.redis import create_from_config, wrap_redis_error
 
 
 class Permission(PermissionBase):
@@ -11,15 +11,15 @@ class Permission(PermissionBase):
 
     Enable in configuration::
 
-        cliquet.permission_backend = cliquet.permission.redis
+        kinto.permission_backend = kinto.core.permission.redis
 
     *(Optional)* Instance location URI can be customized::
 
-        cliquet.permission_url = redis://localhost:6379/2
+        kinto.permission_url = redis://localhost:6379/2
 
     A threaded connection pool is enabled by default::
 
-        cliquet.permission_pool_size = 50
+        kinto.permission_pool_size = 50
 
     :noindex:
     """

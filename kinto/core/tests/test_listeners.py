@@ -7,22 +7,22 @@ from datetime import datetime
 import mock
 from pyramid import testing
 
-from cliquet import initialization
-from cliquet.events import ResourceChanged, ResourceRead, ACTIONS
-from cliquet.listeners import ListenerBase
-from cliquet.storage.redis import create_from_config
-from cliquet.tests.support import unittest
+from kinto.core import initialization
+from kinto.core.events import ResourceChanged, ResourceRead, ACTIONS
+from kinto.core.listeners import ListenerBase
+from kinto.core.storage.redis import create_from_config
+from kinto.core.tests.support import unittest
 
 
 class ListenerSetupTest(unittest.TestCase):
     def setUp(self):
-        redis_patch = mock.patch('cliquet.listeners.redis.load_from_config')
+        redis_patch = mock.patch('kinto.core.listeners.redis.load_from_config')
         self.addCleanup(redis_patch.stop)
         self.redis_mocked = redis_patch.start()
 
     def make_app(self, extra_settings={}):
         settings = {
-            'event_listeners': 'cliquet.listeners.redis',
+            'event_listeners': 'kinto.core.listeners.redis',
         }
         settings.update(**extra_settings)
         config = testing.setUp(settings=settings)
@@ -33,7 +33,7 @@ class ListenerSetupTest(unittest.TestCase):
     def test_listener_module_is_specified_via_settings(self):
         self.make_app({
             'event_listeners': 'redis',
-            'event_listeners.redis.use': 'cliquet.listeners.redis',
+            'event_listeners.redis.use': 'kinto.core.listeners.redis',
         })
         self.assertTrue(self.redis_mocked.called)
 
@@ -155,10 +155,10 @@ class ListenerCalledTest(unittest.TestCase):
         self._size = 0
 
     def _save_redis(self):
-        self._size = self._redis.llen('cliquet.events')
+        self._size = self._redis.llen('kinto.core.events')
 
     def has_redis_changed(self):
-        return self._redis.llen('cliquet.events') > self._size
+        return self._redis.llen('kinto.core.events') > self._size
 
     def notify(self, event):
         self._save_redis()
@@ -167,7 +167,7 @@ class ListenerCalledTest(unittest.TestCase):
     @contextmanager
     def redis_listening(self):
         config = self.config
-        listener = 'cliquet.listeners.redis'
+        listener = 'kinto.core.listeners.redis'
 
         # setting up the redis listener
         with mock.patch.dict(config.registry.settings,
@@ -185,7 +185,7 @@ class ListenerCalledTest(unittest.TestCase):
             self.assertTrue(self.has_redis_changed())
 
         # okay, we should have the first event in Redis
-        last = self._redis.lpop('cliquet.events')
+        last = self._redis.lpop('kinto.core.events')
         last = json.loads(last.decode('utf8'))
         self.assertEqual(last['action'], ACTIONS.CREATE.value)
 

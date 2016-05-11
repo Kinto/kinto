@@ -1,7 +1,7 @@
 import mock
 from pyramid import httpexceptions
 
-from cliquet.tests.support import (unittest, BaseWebTest)
+from kinto.core.tests.support import (unittest, BaseWebTest)
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
@@ -94,7 +94,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_readonly_update(self):
-        with mock.patch('cliquet.tests.testapp.views.'
+        with mock.patch('kinto.core.tests.testapp.views.'
                         'MushroomSchema.is_readonly',
                         return_value=True):
             body = {'data': {'name': 'Amanite'}}
@@ -115,14 +115,14 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_internal_error(self):
-        with mock.patch('cliquet.resource.UserResource._extract_filters',
+        with mock.patch('kinto.core.resource.UserResource._extract_filters',
                         side_effect=ValueError):
             response = self.app.get('/mushrooms',
                                     headers=self.headers, status=500)
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_http_error(self):
-        with mock.patch('cliquet.resource.UserResource._extract_filters',
+        with mock.patch('kinto.core.resource.UserResource._extract_filters',
                         side_effect=httpexceptions.HTTPPaymentRequired):
             response = self.app.get('/mushrooms',
                                     headers=self.headers, status=402)

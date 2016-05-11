@@ -2,9 +2,9 @@ import mock
 
 from pyramid import httpexceptions
 
-from cliquet.resource import ShareableResource
-from cliquet.tests.resource import BaseTest
-from cliquet.permission.memory import Permission
+from kinto.core.resource import ShareableResource
+from kinto.core.tests.resource import BaseTest
+from kinto.core.permission.memory import Permission
 
 
 class PermissionTest(BaseTest):

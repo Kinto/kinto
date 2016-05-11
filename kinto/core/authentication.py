@@ -1,6 +1,6 @@
 from pyramid import authentication as base_auth
 
-from cliquet import utils
+from kinto.core import utils
 
 
 def prefixed_userid(request):
@@ -11,7 +11,7 @@ def prefixed_userid(request):
     """
     # If pyramid_multiauth is used, a ``authn_type`` is set on request
     # when a policy succesfully authenticates a user.
-    # (see :func:`cliquet.initialization.setup_authentication`)
+    # (see :func:`kinto.core.initialization.setup_authentication`)
     authn_type = getattr(request, 'authn_type', None)
     if authn_type is not None:
         return authn_type + ':' + request.selected_userid

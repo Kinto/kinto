@@ -3,9 +3,9 @@ import mock
 import redis
 from pyramid import testing
 
-from cliquet.utils import sqlalchemy
-from cliquet.storage import exceptions
-from cliquet.permission import (PermissionBase, redis as redis_backend,
+from kinto.core.utils import sqlalchemy
+from kinto.core.storage import exceptions
+from kinto.core.permission import (PermissionBase, redis as redis_backend,
                                 memory as memory_backend,
                                 postgresql as postgresql_backend, heartbeat)
 
@@ -109,7 +109,7 @@ class BaseTestPermission(object):
             patch.start()
         ping = heartbeat(self.permission)
 
-        with mock.patch('cliquet.permission.logger.exception') as exc_handler:
+        with mock.patch('kinto.core.permission.logger.exception') as exc_handler:
             self.assertFalse(ping(self.request))
 
         self.assertTrue(exc_handler.called)
@@ -499,7 +499,7 @@ class RedisPermissionTest(BaseTestPermission, unittest.TestCase):
 class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = postgresql_backend
     settings = {
-        'permission_backend': 'cliquet.permission.postgresql',
+        'permission_backend': 'kinto.core.permission.postgresql',
         'permission_pool_size': 10,
         'permission_url': 'postgres://postgres:postgres@localhost:5432/testdb'
     }

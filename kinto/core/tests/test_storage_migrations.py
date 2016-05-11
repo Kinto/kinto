@@ -4,8 +4,8 @@ import mock
 import six
 from pyramid import testing
 
-from cliquet.storage import postgresql
-from cliquet.utils import json
+from kinto.core.storage import postgresql
+from kinto.core.utils import json
 
 from .support import unittest, skip_if_no_postgresql
 
@@ -14,7 +14,7 @@ from .support import unittest, skip_if_no_postgresql
 class PostgresqlStorageMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(PostgresqlStorageMigrationTest, self).__init__(*args, **kwargs)
-        from cliquet.utils import sqlalchemy
+        from kinto.core.utils import sqlalchemy
         if sqlalchemy is None:
             return
 
@@ -33,7 +33,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.storage.initialize_schema()
         # Patch to keep track of SQL files executed.
         self.sql_execute_patcher = mock.patch(
-            'cliquet.storage.postgresql.Storage._execute_sql_file')
+            'kinto.core.storage.postgresql.Storage._execute_sql_file')
 
     def tearDown(self):
         postgresql.Storage.schema_version = self.version
@@ -90,7 +90,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             self.assertRaises(AssertionError, self.storage.initialize_schema)
 
     def test_every_available_migration(self):
-        """Test every migration available in cliquet code base since
+        """Test every migration available in kinto.core code base since
         version 1.6.
 
         Records migration test is currently very naive, and should be

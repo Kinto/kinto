@@ -8,7 +8,7 @@ except ImportError:  # pragma: no cover
 
 from six.moves.urllib import parse as urlparse
 
-from cliquet import utils
+from kinto.core import utils
 
 
 class Client(object):

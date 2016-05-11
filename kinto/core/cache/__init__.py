@@ -1,6 +1,6 @@
 import random
 
-from cliquet.logs import logger
+from kinto.core.logs import logger
 
 
 _HEARTBEAT_DELETE_RATE = 0.5
@@ -18,7 +18,7 @@ class CacheBase(object):
         """Create every necessary objects (like tables or indices) in the
         backend.
 
-        This is excuted when the ``cliquet migrate`` command is ran.
+        This is excuted when the ``kinto migrate`` command is ran.
         """
         raise NotImplementedError
 

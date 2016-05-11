@@ -1,5 +1,5 @@
 --
--- This is a copy of storage/postgresql/schema.sql from cliquet 1.6.0.
+-- This is a copy of storage/postgresql/schema.sql from kinto.core 1.6.0.
 -- It is used in schema migration tests to execute every migration scripts,
 -- starting from the first schema version.
 --

@@ -1,5 +1,5 @@
-from cliquet import utils
-from cliquet.cache import CacheBase
+from kinto.core import utils
+from kinto.core.cache import CacheBase
 
 
 class Cache(CacheBase):
@@ -7,7 +7,7 @@ class Cache(CacheBase):
 
     Enable in configuration::
 
-        cliquet.cache_backend = cliquet.cache.memory
+        kinto.cache_backend = kinto.core.cache.memory
 
     :noindex:
     """

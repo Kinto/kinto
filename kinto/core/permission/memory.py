@@ -1,6 +1,6 @@
 import re
 
-from cliquet.permission import PermissionBase
+from kinto.core.permission import PermissionBase
 
 
 class Permission(PermissionBase):
@@ -8,7 +8,7 @@ class Permission(PermissionBase):
 
     Enable in configuration::
 
-        cliquet.permission_backend = cliquet.permission.memory
+        kinto.permission_backend = kinto.core.permission.memory
 
     :noindex:
     """

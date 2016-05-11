@@ -4,9 +4,9 @@ import colander
 import six
 from pyramid.settings import asbool
 
-from cliquet import authorization
-from cliquet.resource.schema import PermissionsSchema
-from cliquet.utils import DeprecatedMeta
+from kinto.core import authorization
+from kinto.core.resource.schema import PermissionsSchema
+from kinto.core.utils import DeprecatedMeta
 
 CONTENT_TYPES = ["application/json"]
 

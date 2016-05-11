@@ -1,6 +1,6 @@
 from pyramid.settings import asbool
 
-from cliquet.logs import logger
+from kinto.core.logs import logger
 
 
 __HEARTBEAT_KEY__ = '__heartbeat__'
@@ -15,7 +15,7 @@ class PermissionBase(object):
         """Create every necessary objects (like tables or indices) in the
         backend.
 
-        This is excuted with the ``cliquet migrate`` command.
+        This is excuted with the ``kinto migrate`` command.
         """
         raise NotImplementedError
 

@@ -1,8 +1,8 @@
 import mock
 
-from cliquet.tests.support import unittest
-from cliquet.resource import UserResource, ShareableResource
-from cliquet.tests.resource import BaseTest
+from kinto.core.tests.support import unittest
+from kinto.core.resource import UserResource, ShareableResource
+from kinto.core.tests.resource import BaseTest
 
 
 class ResourceTest(BaseTest):
@@ -47,12 +47,12 @@ class ParentIdOverrideResourceTest(BaseTest):
 class DeprecatedBaseResourceTest(unittest.TestCase):
 
     def setUp(self):
-        self.patcher = mock.patch('cliquet.utils.warnings.warn')
+        self.patcher = mock.patch('kinto.core.utils.warnings.warn')
         self.addCleanup(self.patcher.stop)
 
     def test_deprecated_usage_of_base_resource(self):
         mocked = self.patcher.start()
-        from cliquet.resource import BaseResource
+        from kinto.core.resource import BaseResource
 
         class User(BaseResource):
             pass

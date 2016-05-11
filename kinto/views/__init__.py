@@ -1,7 +1,7 @@
 import random
 import string
 
-from cliquet.storage import generators, exceptions
+from kinto.core.storage import generators, exceptions
 from pyramid import httpexceptions
 
 

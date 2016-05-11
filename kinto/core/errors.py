@@ -2,8 +2,8 @@ import six
 from pyramid import httpexceptions
 from enum import Enum
 
-from cliquet.logs import logger
-from cliquet.utils import json, reapply_cors, encode_header
+from kinto.core.logs import logger
+from kinto.core.utils import json, reapply_cors, encode_header
 
 
 class ERRORS(Enum):

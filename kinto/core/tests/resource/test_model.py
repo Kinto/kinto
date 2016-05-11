@@ -2,7 +2,7 @@ import mock
 
 from pyramid import httpexceptions
 
-from cliquet.tests.resource import BaseTest
+from kinto.core.tests.resource import BaseTest
 
 
 class ModelTest(BaseTest):
@@ -11,7 +11,7 @@ class ModelTest(BaseTest):
         self.record = self.model.create_record({'field': 'value'})
 
     def test_access_to_collection_is_deprecated(self):
-        with mock.patch('cliquet.resource.warnings.warn') as mocked:
+        with mock.patch('kinto.core.resource.warnings.warn') as mocked:
             self.resource.collection
             self.assertTrue(mocked.called)
 

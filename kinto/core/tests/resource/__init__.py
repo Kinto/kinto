@@ -1,9 +1,9 @@
 import mock
 
-from cliquet.authorization import RouteFactory
-from cliquet.storage import memory
-from cliquet.tests.support import unittest, DummyRequest
-from cliquet.resource import UserResource
+from kinto.core.authorization import RouteFactory
+from kinto.core.storage import memory
+from kinto.core.tests.support import unittest, DummyRequest
+from kinto.core.resource import UserResource
 
 
 class BaseTest(unittest.TestCase):

@@ -3,8 +3,8 @@ import datetime
 import mock
 
 from .support import BaseWebTest, unittest
-from cliquet.errors import ERRORS
-from cliquet.utils import json
+from kinto.core.errors import ERRORS
+from kinto.core.utils import json
 
 
 class DeprecationTest(BaseWebTest, unittest.TestCase):

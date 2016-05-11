@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 
-from cliquet.cache import CacheBase
-from cliquet.storage.redis import wrap_redis_error, create_from_config
-from cliquet.utils import json
+from kinto.core.cache import CacheBase
+from kinto.core.storage.redis import wrap_redis_error, create_from_config
+from kinto.core.utils import json
 
 
 class Cache(CacheBase):
@@ -10,20 +10,20 @@ class Cache(CacheBase):
 
     Enable in configuration::
 
-        cliquet.cache_backend = cliquet.cache.redis
+        kinto.cache_backend = kinto.core.cache.redis
 
     *(Optional)* Instance location URI can be customized::
 
-        cliquet.cache_url = redis://localhost:6379/1
+        kinto.cache_url = redis://localhost:6379/1
 
     A threaded connection pool is enabled by default::
 
-        cliquet.cache_pool_size = 50
+        kinto.cache_pool_size = 50
 
     If the database is used for multiple Kinto deployement cache, you
     may want to add a prefix to every key to avoid collision::
 
-        cliquet.cache_prefix = stack1_
+        kinto.cache_prefix = stack1_
 
     :noindex:
 

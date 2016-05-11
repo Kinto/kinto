@@ -1,8 +1,8 @@
 import mock
 import uuid
 
-from cliquet import authentication
-from cliquet import utils
+from kinto.core import authentication
+from kinto.core import utils
 
 from .support import BaseWebTest, DummyRequest, unittest
 
@@ -31,7 +31,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         app.get(self.collection_url, headers=self.headers, status=401)
 
     def test_principals_are_fetched_from_permission_backend(self):
-        patch = mock.patch(('cliquet.tests.support.'
+        patch = mock.patch(('kinto.core.tests.support.'
                             'AllowAuthorizationPolicy.permits'))
         self.addCleanup(patch.stop)
         mocked = patch.start()
@@ -65,7 +65,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
     def test_basicauth_hash_is_computed_only_once(self):
         # hmac_digest() is used in Basic Authentication only.
-        patch = mock.patch('cliquet.utils.hmac_digest')
+        patch = mock.patch('kinto.core.utils.hmac_digest')
         self.addCleanup(patch.stop)
         mocked = patch.start()
         body = {"data": {"name": "haha"}}
@@ -80,7 +80,7 @@ class BasicAuthenticationPolicyTest(unittest.TestCase):
         self.request = DummyRequest()
         self.request.headers['Authorization'] = 'Basic bWF0Og=='
 
-    @mock.patch('cliquet.utils.hmac_digest')
+    @mock.patch('kinto.core.utils.hmac_digest')
     def test_userid_is_hashed(self, mocked):
         mocked.return_value = 'yeah'
         user_id = self.policy.unauthenticated_userid(self.request)

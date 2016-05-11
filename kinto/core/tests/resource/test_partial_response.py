@@ -1,7 +1,7 @@
 from pyramid import httpexceptions
 
-from cliquet.resource import ShareableResource
-from cliquet.tests.resource import BaseTest
+from kinto.core.resource import ShareableResource
+from kinto.core.tests.resource import BaseTest
 
 
 class PartialResponseBase(BaseTest):

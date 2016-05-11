@@ -1,8 +1,8 @@
 import copy
 
 import jsonschema
-from cliquet import resource
-from cliquet.errors import raise_invalid
+from kinto.core import resource
+from kinto.core.errors import raise_invalid
 from jsonschema import exceptions as jsonschema_exceptions
 from pyramid.security import Authenticated
 from pyramid.settings import asbool

@@ -16,11 +16,11 @@ from pyramid.security import IAuthorizationPolicy, Authenticated, Everyone
 from zope.interface import implementer
 from enum import Enum
 
-from cliquet import DEFAULT_SETTINGS
-from cliquet.authorization import PRIVATE
-from cliquet.storage import generators
-from cliquet.tests.testapp import main as testapp
-from cliquet.utils import sqlalchemy, follow_subrequest
+from kinto.core import DEFAULT_SETTINGS
+from kinto.core.authorization import PRIVATE
+from kinto.core.storage import generators
+from kinto.core.tests.testapp import main as testapp
+from kinto.core.utils import sqlalchemy, follow_subrequest
 
 # This is the principal a connected user should have (in the tests).
 USER_PRINCIPAL = ('basicauth:9f2d363f98418b13253d6d7193fc88690302'
@@ -74,7 +74,7 @@ class BaseWebTest(object):
     """
 
     api_prefix = "v0"
-    authorization_policy = 'cliquet.tests.support.AllowAuthorizationPolicy'
+    authorization_policy = 'kinto.core.tests.support.AllowAuthorizationPolicy'
     collection_url = '/mushrooms'
     principal = USER_PRINCIPAL
 
@@ -98,9 +98,9 @@ class BaseWebTest(object):
     def get_app_settings(self, additional_settings=None):
         settings = DEFAULT_SETTINGS.copy()
 
-        settings['storage_backend'] = 'cliquet.storage.redis'
-        settings['cache_backend'] = 'cliquet.cache.redis'
-        settings['permission_backend'] = 'cliquet.permission.redis'
+        settings['storage_backend'] = 'kinto.core.storage.redis'
+        settings['cache_backend'] = 'kinto.core.cache.redis'
+        settings['permission_backend'] = 'kinto.core.permission.redis'
 
         settings['project_name'] = 'myapp'
         settings['project_version'] = '0.0.1'
@@ -190,7 +190,7 @@ def authorize(permits=True, authz_class=None):
     in :param:permits.
     """
     if authz_class is None:
-        authz_class = 'cliquet.tests.support.AllowAuthorizationPolicy'
+        authz_class = 'kinto.core.tests.support.AllowAuthorizationPolicy'
 
     def wrapper(f):
         @functools.wraps(f)

@@ -1,6 +1,6 @@
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
-from cliquet import Service, PROTOCOL_VERSION
+from kinto.core import Service, PROTOCOL_VERSION
 
 hello = Service(name="hello", path='/', description="Welcome")
 

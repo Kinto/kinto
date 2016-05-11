@@ -4,8 +4,8 @@ import transaction
 from pyramid.events import NewRequest
 from enum import Enum
 
-from cliquet.logs import logger
-from cliquet.utils import strip_uri_prefix
+from kinto.core.logs import logger
+from kinto.core.utils import strip_uri_prefix
 
 
 class ACTIONS(Enum):

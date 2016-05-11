@@ -1,7 +1,7 @@
 import json
 
-from cliquet.errors import send_alert
-from cliquet.utils import decode_header
+from kinto.core.errors import send_alert
+from kinto.core.utils import decode_header
 
 from .support import unittest, DummyRequest
 

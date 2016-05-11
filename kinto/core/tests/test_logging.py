@@ -7,10 +7,10 @@ import mock
 import six
 from pyramid import testing
 
-from cliquet import DEFAULT_SETTINGS
-from cliquet import initialization
-from cliquet import logs as cliquet_logs
-from cliquet.utils import json
+from kinto.core import DEFAULT_SETTINGS
+from kinto.core import initialization
+from kinto.core import logs as cliquet_logs
+from kinto.core.utils import json
 
 from .support import BaseWebTest, unittest
 
@@ -36,19 +36,19 @@ class LoggingSetupTest(unittest.TestCase):
     def test_classic_logger_is_used_by_default(self):
         config = testing.setUp()
         config.registry.settings = DEFAULT_SETTINGS
-        classiclog_class = mock.patch('cliquet.logs.ClassicLogRenderer')
+        classiclog_class = mock.patch('kinto.core.logs.ClassicLogRenderer')
         with classiclog_class as mocked:
             initialization.setup_logging(config)
             mocked.assert_called_with(DEFAULT_SETTINGS)
 
     def test_mozlog_logger_is_enabled_via_setting(self):
-        mozlog_class = mock.patch('cliquet.logs.MozillaHekaRenderer')
-        classiclog_class = mock.patch('cliquet.logs.ClassicLogRenderer')
+        mozlog_class = mock.patch('kinto.core.logs.MozillaHekaRenderer')
+        classiclog_class = mock.patch('kinto.core.logs.ClassicLogRenderer')
 
         config = testing.setUp()
         with mock.patch.dict(config.registry.settings,
                              [('logging_renderer',
-                               'cliquet.logs.MozillaHekaRenderer')]):
+                               'kinto.core.logs.MozillaHekaRenderer')]):
             with mozlog_class as moz_mocked:
                 with classiclog_class as classic_mocked:
                     initialization.setup_logging(config)
@@ -124,7 +124,7 @@ class MozillaHekaRendererTest(unittest.TestCase):
         self.assertIsInstance(value, six.string_types)
 
     def test_standard_entries_are_filled(self):
-        with mock.patch('cliquet.utils.msec_time', return_value=12):
+        with mock.patch('kinto.core.utils.msec_time', return_value=12):
             value = self.renderer(self.logger, 'debug', {})
 
         log = json.loads(value)
@@ -201,7 +201,7 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         cliquet_logs.structlog.reset_defaults()
 
     def test_request_summary_is_sent_as_info(self):
-        with mock.patch('cliquet.logs.logger.info') as mocked:
+        with mock.patch('kinto.core.logs.logger.info') as mocked:
             self.app.get('/')
             mocked.assert_called_with('request.summary')
 
@@ -269,7 +269,7 @@ class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(event_dict['batch_size'], 1)
 
     def test_subrequests_are_not_logged_as_request_summary(self):
-        with mock.patch('cliquet.logs.logger.info') as log_patched:
+        with mock.patch('kinto.core.logs.logger.info') as log_patched:
             body = {
                 'requests': [{'path': '/unknown1'}, {'path': '/unknown2'}]
             }
@@ -278,7 +278,7 @@ class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
             log_patched.assert_called_with('request.summary')
 
     def test_subrequests_are_logged_as_subrequest_summary(self):
-        with mock.patch('cliquet.logger.new') as log_patched:
+        with mock.patch('kinto.core.logger.new') as log_patched:
             body = {
                 'requests': [{'path': '/unknown1'}, {'path': '/unknown2'}]
             }

@@ -4,12 +4,12 @@ from collections import defaultdict
 
 import six
 
-from cliquet import logger
-from cliquet.storage import (
+from kinto.core import logger
+from kinto.core.storage import (
     StorageBase, exceptions, Filter,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
-from cliquet.storage.postgresql.client import create_from_config
-from cliquet.utils import COMPARISON, json
+from kinto.core.storage.postgresql.client import create_from_config
+from kinto.core.utils import COMPARISON, json
 
 
 class Storage(StorageBase):
@@ -19,35 +19,35 @@ class Storage(StorageBase):
 
     Enable in configuration::
 
-        cliquet.storage_backend = cliquet.storage.postgresql
+        kinto.storage_backend = kinto.core.storage.postgresql
 
     Database location URI can be customized::
 
-        cliquet.storage_url = postgres://user:pass@db.server.lan:5432/dbname
+        kinto.storage_url = postgres://user:pass@db.server.lan:5432/dbname
 
     Alternatively, username and password could also rely on system user ident
     or even specified in :file:`~/.pgpass` (*see PostgreSQL documentation*).
 
     .. note::
 
-        Some tables and indices are created when ``cliquet migrate`` is run.
+        Some tables and indices are created when ``kinto migrate`` is run.
         This requires some privileges on the database, or some error will
         be raised.
 
         **Alternatively**, the schema can be initialized outside the
         python application, using the SQL file located in
-        :file:`cliquet/storage/postgresql/schema.sql`. This allows to
+        :file:`kinto/core/storage/postgresql/schema.sql`. This allows to
         distinguish schema manipulation privileges from schema usage.
 
 
     A connection pool is enabled by default::
 
-        cliquet.storage_pool_size = 10
-        cliquet.storage_maxoverflow = 10
-        cliquet.storage_max_backlog = -1
-        cliquet.storage_pool_recycle = -1
-        cliquet.storage_pool_timeout = 30
-        cliquet.cache_poolclass = cliquet.storage.postgresql.pool.QueuePoolWithMaxBacklog
+        kinto.storage_pool_size = 10
+        kinto.storage_maxoverflow = 10
+        kinto.storage_max_backlog = -1
+        kinto.storage_pool_recycle = -1
+        kinto.storage_pool_timeout = 30
+        kinto.cache_poolclass = kinto.core.storage.postgresql.pool.QueuePoolWithMaxBacklog
 
     The ``max_backlog``  limits the number of threads that can be in the queue
     waiting for a connection.  Once this limit has been reached, any further

@@ -119,10 +119,10 @@ kinto.includes = kinto.plugins.default_bucket
 # Logging configuration
 #
 
-# kinto.logging_renderer = cliquet.logs.ClassicLogRenderer
+# kinto.logging_renderer = kinto.core.logs.ClassicLogRenderer
 
 [loggers]
-keys = root, cliquet
+keys = root, kinto_core
 
 [handlers]
 keys = console
@@ -134,10 +134,10 @@ keys = generic
 level = INFO
 handlers = console
 
-[logger_cliquet]
+[logger_kinto_core]
 level = DEBUG
 handlers =
-qualname = cliquet
+qualname = kinto.core
 
 [handler_console]
 class = StreamHandler

@@ -1,7 +1,7 @@
 import colander
 from colander import SchemaNode, String
 
-from cliquet.utils import strip_whitespace, msec_time
+from kinto.core.utils import strip_whitespace, msec_time
 
 
 class ResourceSchema(colander.MappingSchema):
@@ -31,7 +31,7 @@ class ResourceSchema(colander.MappingSchema):
         """Fields that cannot be updated. Values for fields will have to be
         provided either during record creation, through default values using
         ``missing`` attribute or implementing a custom logic in
-        :meth:`cliquet.resource.UserResource.process_record`.
+        :meth:`kinto.core.resource.UserResource.process_record`.
         """
 
         preserve_unknown = False

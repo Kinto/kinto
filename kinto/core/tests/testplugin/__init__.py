@@ -1,5 +1,5 @@
-from cliquet import Service
-from cliquet.authorization import RouteFactory
+from kinto.core import Service
+from kinto.core.authorization import RouteFactory
 
 
 attachment = Service(name='attachment',

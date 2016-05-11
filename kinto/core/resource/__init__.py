@@ -9,12 +9,12 @@ from pyramid import exceptions as pyramid_exceptions
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPNotFound, HTTPConflict)
 
-from cliquet import logger
-from cliquet import Service
-from cliquet.errors import http_error, raise_invalid, send_alert, ERRORS
-from cliquet.events import ACTIONS
-from cliquet.storage import exceptions as storage_exceptions, Filter, Sort
-from cliquet.utils import (
+from kinto.core import logger
+from kinto.core import Service
+from kinto.core.errors import http_error, raise_invalid, send_alert, ERRORS
+from kinto.core.events import ACTIONS
+from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
+from kinto.core.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
     encode_header, decode_header, DeprecatedMeta, dict_subset
 )
@@ -124,12 +124,12 @@ class UserResource(object):
     """Base resource class providing every endpoint."""
 
     default_viewset = ViewSet
-    """Default :class:`cliquet.viewset.ViewSet` class to use when the resource
+    """Default :class:`kinto.core.viewset.ViewSet` class to use when the resource
     is registered."""
 
     default_model = Model
-    """Default :class:`cliquet.resource.model.Model` class to use for
-    interacting the :mod:`cliquet.storage` and :mod:`cliquet.permission`
+    """Default :class:`kinto.core.resource.model.Model` class to use for
+    interacting the :mod:`kinto.core.storage` and :mod:`kinto.core.permission`
     backends."""
 
     mapping = ResourceSchema()
@@ -274,7 +274,7 @@ class UserResource(object):
         .. seealso::
 
             Add custom behaviour by overriding
-            :meth:`cliquet.resource.UserResource.process_record`
+            :meth:`kinto.core.resource.UserResource.process_record`
         """
         existing = None
         new_record = self.request.validated['data']
@@ -368,7 +368,7 @@ class UserResource(object):
         .. seealso::
 
             Add custom behaviour by overriding
-            :meth:`cliquet.resource.UserResource.process_record`.
+            :meth:`kinto.core.resource.UserResource.process_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
         id_field = self.model.id_field
@@ -431,8 +431,8 @@ class UserResource(object):
 
         .. seealso::
             Add custom behaviour by overriding
-            :meth:`cliquet.resource.UserResource.apply_changes` or
-            :meth:`cliquet.resource.UserResource.process_record`.
+            :meth:`kinto.core.resource.UserResource.apply_changes` or
+            :meth:`kinto.core.resource.UserResource.process_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
         existing = self._get_record_or_404(self.record_id)
@@ -550,7 +550,7 @@ class UserResource(object):
 
         .. code-block:: python
 
-            from cliquet.errors import raise_invalid
+            from kinto.core.errors import raise_invalid
 
             def process_record(self, new, old=None):
                 new = super(MyResource, self).process_record(new, old)
@@ -796,7 +796,7 @@ class UserResource(object):
         """Helper to raise conflict responses.
 
         :param exception: the original unicity error
-        :type exception: :class:`cliquet.storage.exceptions.UnicityError`
+        :type exception: :class:`kinto.core.storage.exceptions.UnicityError`
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
         """
         field = exception.field
@@ -905,7 +905,7 @@ class UserResource(object):
                     if param == '_to':
                         message = ('_to is now deprecated, '
                                    'you should use _before instead')
-                        url = ('http://cliquet.rtfd.org/en/2.4.0/api/resource'
+                        url = ('http://kinto.rtfd.org/en/2.4.0/api/resource'
                                '.html#list-of-available-url-parameters')
                         send_alert(self.request, message, url)
                     operator = COMPARISON.LT

@@ -8,10 +8,10 @@ from pyramid.view import (
     forbidden_view_config, notfound_view_config, view_config
 )
 
-from cliquet.errors import http_error, ERRORS
-from cliquet.logs import logger
-from cliquet.storage import exceptions as storage_exceptions
-from cliquet.utils import reapply_cors, encode_header
+from kinto.core.errors import http_error, ERRORS
+from kinto.core.logs import logger
+from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.utils import reapply_cors, encode_header
 
 
 def cors(view):

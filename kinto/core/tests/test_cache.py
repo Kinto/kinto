@@ -4,9 +4,9 @@ import time
 import redis
 from pyramid import testing
 
-from cliquet.utils import sqlalchemy
-from cliquet.storage import exceptions
-from cliquet.cache import (CacheBase, postgresql as postgresql_backend,
+from kinto.core.utils import sqlalchemy
+from kinto.core.storage import exceptions
+from kinto.core.cache import (CacheBase, postgresql as postgresql_backend,
                            redis as redis_backend, memory as memory_backend,
                            heartbeat)
 
@@ -83,23 +83,23 @@ class BaseTestCache(object):
         self.client_error_patcher.start()
         ping = heartbeat(self.cache)
         self.assertFalse(ping(self.request))
-        with mock.patch('cliquet.cache.random.random', return_value=0.6):
+        with mock.patch('kinto.core.cache.random.random', return_value=0.6):
             self.assertFalse(ping(self.request))
-        with mock.patch('cliquet.cache.random.random', return_value=0.4):
+        with mock.patch('kinto.core.cache.random.random', return_value=0.4):
             self.assertFalse(ping(self.request))
 
     def test_ping_returns_true_if_available(self):
         ping = heartbeat(self.cache)
-        with mock.patch('cliquet.cache.random.random', return_value=0.6):
+        with mock.patch('kinto.core.cache.random.random', return_value=0.6):
             self.assertTrue(ping(self.request))
-        with mock.patch('cliquet.cache.random.random', return_value=0.4):
+        with mock.patch('kinto.core.cache.random.random', return_value=0.4):
             self.assertTrue(ping(self.request))
 
     def test_ping_logs_error_if_unavailable(self):
         self.client_error_patcher.start()
         ping = heartbeat(self.cache)
 
-        with mock.patch('cliquet.cache.logger.exception') as exc_handler:
+        with mock.patch('kinto.core.cache.logger.exception') as exc_handler:
             self.assertFalse(ping(self.request))
 
         self.assertTrue(exc_handler.called)

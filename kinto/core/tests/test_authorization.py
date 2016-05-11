@@ -3,9 +3,9 @@ import mock
 from pyramid.request import Request
 
 from .support import DummyRequest, unittest
-from cliquet import authentication
-from cliquet.authorization import RouteFactory, AuthorizationPolicy
-from cliquet.storage import exceptions as storage_exceptions
+from kinto.core import authentication
+from kinto.core.authorization import RouteFactory, AuthorizationPolicy
+from kinto.core.storage import exceptions as storage_exceptions
 
 
 class RouteFactoryTest(unittest.TestCase):
@@ -18,7 +18,7 @@ class RouteFactoryTest(unittest.TestCase):
         if uri is None:
             uri = self.record_uri
 
-        with mock.patch('cliquet.utils.current_service') as current_service:
+        with mock.patch('kinto.core.utils.current_service') as current_service:
             # Patch current service.
             resource = mock.MagicMock()
             resource.record_id = 1
@@ -49,7 +49,7 @@ class RouteFactoryTest(unittest.TestCase):
         self.assert_request_resolves_to("delete", "write")
 
     def test_http_put_unexisting_record_resolves_in_a_create_permission(self):
-        with mock.patch('cliquet.utils.current_service') as current_service:
+        with mock.patch('kinto.core.utils.current_service') as current_service:
             # Patch current service.
             resource = mock.MagicMock()
             resource.record_id = 1
@@ -69,7 +69,7 @@ class RouteFactoryTest(unittest.TestCase):
         self.assert_request_resolves_to("put", "write")
 
     def test_http_put_sets_current_record_attribute(self):
-        with mock.patch('cliquet.utils.current_service') as current_service:
+        with mock.patch('kinto.core.utils.current_service') as current_service:
             # Patch current service.
             resource = mock.MagicMock()
             resource.record_id = 1
@@ -109,7 +109,7 @@ class RouteFactoryTest(unittest.TestCase):
         self.assertIsNone(context.get_shared_ids)
 
     def test_route_factory_adds_allowed_principals_from_settings(self):
-        with mock.patch('cliquet.utils.current_service') as current_service:
+        with mock.patch('kinto.core.utils.current_service') as current_service:
             # Patch current service.
             resource = mock.MagicMock()
             current_service().resource.return_value = resource

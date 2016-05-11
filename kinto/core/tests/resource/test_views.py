@@ -1,16 +1,16 @@
 import mock
 import uuid
 
-from cliquet.storage import exceptions as storage_exceptions
-from cliquet.errors import ERRORS
-from cliquet.tests.support import unittest, BaseWebTest
+from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.errors import ERRORS
+from kinto.core.tests.support import unittest, BaseWebTest
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
 
 
 class UserResourcePermissionTest(BaseWebTest, unittest.TestCase):
-    authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
+    authorization_policy = 'kinto.core.authorization.AuthorizationPolicy'
 
     def test_views_require_authentication(self):
         self.app.get(self.collection_url, status=401)
@@ -45,7 +45,7 @@ class UserResourcePermissionTest(BaseWebTest, unittest.TestCase):
 
 
 class AuthzAuthnTest(BaseWebTest, unittest.TestCase):
-    authorization_policy = 'cliquet.authorization.AuthorizationPolicy'
+    authorization_policy = 'kinto.core.authorization.AuthorizationPolicy'
     # Shareable resource.
     collection_url = '/toadstools'
 
@@ -686,7 +686,7 @@ class StorageErrorTest(BaseWebTest, unittest.TestCase):
         super(StorageErrorTest, self).__init__(*args, **kwargs)
         self.error = storage_exceptions.BackendError(ValueError())
         self.storage_error_patcher = mock.patch(
-            'cliquet.storage.redis.Storage.create',
+            'kinto.core.storage.redis.Storage.create',
             side_effect=self.error)
 
     def test_backend_errors_are_served_as_503(self):
@@ -699,7 +699,7 @@ class StorageErrorTest(BaseWebTest, unittest.TestCase):
 
     def test_backend_errors_original_error_is_logged(self):
         body = {'data': MINIMALIST_RECORD}
-        with mock.patch('cliquet.views.errors.logger.critical') as mocked:
+        with mock.patch('kinto.core.views.errors.logger.critical') as mocked:
             with self.storage_error_patcher:
                 self.app.post_json(self.collection_url,
                                    body,
@@ -710,7 +710,7 @@ class StorageErrorTest(BaseWebTest, unittest.TestCase):
 
 
 class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
-    """Extra tests for `cliquet.tests.resource.test_pagination`
+    """Extra tests for `kinto.core.tests.resource.test_pagination`
     """
 
     def setUp(self):
@@ -750,7 +750,7 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
 
 
 class SchemaLessPartialResponseTest(BaseWebTest, unittest.TestCase):
-    """Extra tests for :mod:`cliquet.tests.resource.test_partial_response`
+    """Extra tests for :mod:`kinto.core.tests.resource.test_partial_response`
     """
     collection_url = '/spores'
 

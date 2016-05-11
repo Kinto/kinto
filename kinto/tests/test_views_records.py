@@ -1,7 +1,7 @@
 import json
 import mock
 
-from cliquet.utils import decode_header
+from kinto.core.utils import decode_header
 from .support import (BaseWebTest, unittest, MINIMALIST_RECORD,
                       MINIMALIST_GROUP, MINIMALIST_BUCKET,
                       MINIMALIST_COLLECTION, get_user_headers)

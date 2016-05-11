@@ -21,14 +21,14 @@ try:
 except ImportError:  # pragma: no cover
     pass
 
-from cliquet import errors
-from cliquet import utils
-from cliquet import statsd
-from cliquet import cache
-from cliquet import storage
-from cliquet import permission
-from cliquet.logs import logger
-from cliquet.events import ResourceRead, ResourceChanged, ACTIONS
+from kinto.core import errors
+from kinto.core import utils
+from kinto.core import statsd
+from kinto.core import cache
+from kinto.core import storage
+from kinto.core import permission
+from kinto.core.logs import logger
+from kinto.core.events import ResourceRead, ResourceChanged, ACTIONS
 
 
 def setup_request_bound_data(config):
@@ -65,7 +65,7 @@ def setup_version_redirection(config):
     config.registry.route_prefix = route_prefix
 
     # Redirect to the current version of the API if the prefix isn't used.
-    # Do not redirect if cliquet.version_prefix_redirect_enabled is set to
+    # Do not redirect if kinto.version_prefix_redirect_enabled is set to
     # False.
     if not version_prefix_redirection_enabled:
         return
@@ -141,7 +141,7 @@ def setup_requests_scheme(config):
 
 
 def setup_deprecation(config):
-    config.add_tween("cliquet.initialization._end_of_life_tween_factory")
+    config.add_tween("kinto.core.initialization._end_of_life_tween_factory")
 
 
 def _end_of_life_tween_factory(handler, registry):
@@ -287,7 +287,7 @@ def install_middlewares(app, settings):
     if asbool(settings.get('profiler_enabled')):
         profile_dir = settings['profiler_dir']
         app = ProfilerMiddleware(app, profile_dir=profile_dir,
-                                 restrictions=('*cliquet*'))
+                                 restrictions=('*kinto.core*'))
 
     return app
 
@@ -434,21 +434,21 @@ def load_default_settings(config, default_settings):
 
     def _prefixed_keys(key):
         unprefixed = key
-        if key.startswith('cliquet.') or key.startswith(project_name + '.'):
+        if key.startswith('kinto.') or key.startswith(project_name + '.'):
             unprefixed = key.split('.', 1)[1]
         project_prefix = project_name + '.' + unprefixed
-        cliquet_prefix = 'cliquet.' + unprefixed
-        return unprefixed, project_prefix, cliquet_prefix
+        kinto_prefix = 'kinto.' + unprefixed
+        return unprefixed, project_prefix, kinto_prefix
 
     # Fill settings with default values if not defined.
     for key, default_value in sorted(default_settings.items()):
-        unprefixed, project_prefix, cliquet_prefix = keys = _prefixed_keys(key)
+        unprefixed, project_prefix, kinto_prefix = keys = _prefixed_keys(key)
         is_defined = len(set(settings.keys()).intersection(set(keys))) > 0
         if not is_defined:
             settings[unprefixed] = default_value
 
     for key, value in sorted(settings.items()):
-        unprefixed, project_prefix, cliquet_prefix = keys = _prefixed_keys(key)
+        unprefixed, project_prefix, kinto_prefix = keys = _prefixed_keys(key)
 
         # Fail if not only one is defined.
         defined = set(settings.keys()).intersection(set(keys))
@@ -459,10 +459,10 @@ def load_default_settings(config, default_settings):
             raise ValueError("Settings '%s' are in conflict." % names)
 
         # Override settings from OS env values.
-        # e.g. HTTP_PORT, KINTO_HTTP_PORT, CLIQUET_HTTP_PORT
+        # e.g. HTTP_PORT, READINGLIST_HTTP_PORT, KINTO_HTTP_PORT
         from_env = utils.read_env(unprefixed, value)
         from_env = utils.read_env(project_prefix, from_env)
-        from_env = utils.read_env(cliquet_prefix, from_env)
+        from_env = utils.read_env(kinto_prefix, from_env)
 
         settings[unprefixed] = from_env
 
@@ -470,18 +470,18 @@ def load_default_settings(config, default_settings):
 
 
 def initialize_cliquet(*args, **kwargs):
-    message = ('cliquet.initialize_cliquet is now deprecated. '
-               'Please use "cliquet.initialize" instead')
+    message = ('kinto.core.initialize_cliquet is now deprecated. '
+               'Please use "kinto.core.initialize" instead')
 
     warnings.warn(message, DeprecationWarning)
     initialize(*args, **kwargs)
 
 
 def initialize(config, version=None, project_name='', default_settings=None):
-    """Initialize Cliquet with the given configuration, version and project
+    """Initialize kinto.core with the given configuration, version and project
     name.
 
-    This will basically include cliquet in Pyramid and set route prefix based
+    This will basically include kinto.core in Pyramid and set route prefix based
     on the specified version.
 
     :param config: Pyramid configuration
@@ -490,24 +490,24 @@ def initialize(config, version=None, project_name='', default_settings=None):
         in application settings.
     :param str project_name: Project name if not defined
         in application settings.
-    :param dict default_settings: Override cliquet default settings values.
+    :param dict default_settings: Override kinto.core default settings values.
     """
-    from cliquet import DEFAULT_SETTINGS
+    from kinto.core import DEFAULT_SETTINGS
 
     settings = config.get_settings()
 
-    project_name = settings.pop('cliquet.project_name',
+    project_name = settings.pop('kinto.project_name',
                                 settings.get('project_name')) or project_name
     settings['project_name'] = project_name
     if not project_name:
         warnings.warn('No value specified for `project_name`')
 
-    cliquet_defaults = DEFAULT_SETTINGS.copy()
+    kinto_core_defaults = DEFAULT_SETTINGS.copy()
 
     if default_settings:
-        cliquet_defaults.update(default_settings)
+        kinto_core_defaults.update(default_settings)
 
-    load_default_settings(config, cliquet_defaults)
+    load_default_settings(config, kinto_core_defaults)
 
     # Override project version from settings.
     project_version = settings.get('project_version') or version
@@ -524,6 +524,6 @@ def initialize(config, version=None, project_name='', default_settings=None):
     settings['http_api_version'] = http_api_version = str(http_api_version)
     api_version = 'v%s' % http_api_version.split('.')[0]
 
-    # Include cliquet views with the correct api version prefix.
-    config.include("cliquet", route_prefix=api_version)
+    # Include kinto.core views with the correct api version prefix.
+    config.include("kinto.core", route_prefix=api_version)
     config.route_prefix = api_version

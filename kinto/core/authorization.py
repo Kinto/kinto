@@ -4,9 +4,9 @@ from pyramid.settings import aslist
 from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
-from cliquet import utils
-from cliquet.storage import exceptions as storage_exceptions
-from cliquet.authentication import prefixed_userid
+from kinto.core import utils
+from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.authentication import prefixed_userid
 
 # A permission is called "dynamic" when it's computed at request time.
 DYNAMIC = 'dynamic'

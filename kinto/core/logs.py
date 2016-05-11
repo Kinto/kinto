@@ -4,7 +4,7 @@ import colorama
 import six
 import structlog
 
-from cliquet import utils
+from kinto.core import utils
 
 
 logger = structlog.get_logger()

@@ -199,8 +199,8 @@ def reapply_cors(request, response):
                 origin = encode_header(origin)
                 response.headers['Access-Control-Allow-Origin'] = origin
 
-        # Import service here because cliquet import utils
-        from cliquet import Service
+        # Import service here because kinto.core import utils
+        from kinto.core import Service
         if Service.default_cors_headers:
             headers = ','.join(Service.default_cors_headers)
             response.headers['Access-Control-Expose-Headers'] = headers
@@ -225,7 +225,7 @@ def current_service(request):
 
 
 def current_resource_name(request):
-    """Return the name used when the Cliquet resource was registered along its
+    """Return the name used when the kinto.core resource was registered along its
     viewset.
 
     :returns: the resource identifier.
@@ -276,7 +276,7 @@ def build_request(original, dict_obj):
     apply_request_extensions(request)
 
     # This is used to distinguish subrequests from direct incoming requests.
-    # See :func:`cliquet.initialization.setup_logging()`
+    # See :func:`kinto.core.initialization.setup_logging()`
     request.parent = original
 
     return request

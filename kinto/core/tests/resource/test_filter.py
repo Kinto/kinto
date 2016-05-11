@@ -1,7 +1,7 @@
 from pyramid import httpexceptions
 
-from cliquet.errors import ERRORS
-from cliquet.tests.resource import BaseTest
+from kinto.core.errors import ERRORS
+from kinto.core.tests.resource import BaseTest
 
 
 class FilteringTest(BaseTest):

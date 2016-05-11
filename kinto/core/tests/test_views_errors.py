@@ -1,7 +1,7 @@
 import mock
 from pyramid import httpexceptions
 
-from cliquet.errors import ERRORS, http_error
+from kinto.core.errors import ERRORS, http_error
 
 from .support import BaseWebTest, unittest, authorize, FormattedErrorMixin
 
@@ -74,7 +74,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                                 errno=ERRORS.METHOD_NOT_ALLOWED,
                                 message="Disabled from conf.")
         with mock.patch(
-                'cliquet.tests.testapp.views.Mushroom._extract_filters',
+                'kinto.core.tests.testapp.views.Mushroom._extract_filters',
                 side_effect=custom_405):
             response = self.app.get(self.sample_url,
                                     headers=self.headers, status=405)
@@ -84,7 +84,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     def test_500_is_valid_formatted_error(self):
         with mock.patch(
-                'cliquet.tests.testapp.views.Mushroom._extract_filters',
+                'kinto.core.tests.testapp.views.Mushroom._extract_filters',
                 side_effect=ValueError):
             response = self.app.get(self.sample_url,
                                     headers=self.headers, status=500)
@@ -95,7 +95,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     def test_info_link_in_error_responses_can_be_configured(self):
         with mock.patch(
-                'cliquet.tests.testapp.views.Mushroom._extract_filters',
+                'kinto.core.tests.testapp.views.Mushroom._extract_filters',
                 side_effect=ValueError):
             link = "https://github.com/mozilla-services/kinto/issues/"
             app = self.make_app({'error_info_link': link,
@@ -109,7 +109,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     def test_503_is_valid_formatted_error(self):
         with mock.patch(
-                'cliquet.tests.testapp.views.Mushroom._extract_filters',
+                'kinto.core.tests.testapp.views.Mushroom._extract_filters',
                 side_effect=httpexceptions.HTTPServiceUnavailable):
             response = self.app.get(self.sample_url,
                                     headers=self.headers, status=503)
@@ -124,7 +124,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                                 errno=ERRORS.BACKEND,
                                 message="Unable to connect the server.")
         with mock.patch(
-                'cliquet.tests.testapp.views.Mushroom._extract_filters',
+                'kinto.core.tests.testapp.views.Mushroom._extract_filters',
                 side_effect=custom_503):
             response = self.app.get(self.sample_url,
                                     headers=self.headers, status=503)
@@ -135,7 +135,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
     def test_500_provides_traceback_on_server(self):
         mock_traceback = mock.patch('logging.traceback.print_exception')
         with mock.patch(
-                'cliquet.tests.testapp.views.Mushroom._extract_filters',
+                'kinto.core.tests.testapp.views.Mushroom._extract_filters',
                 side_effect=ValueError):
             with mock_traceback as mocked_traceback:
                 self.app.get(self.sample_url, headers=self.headers, status=500)

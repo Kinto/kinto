@@ -1,11 +1,11 @@
 import operator
 from collections import defaultdict
 
-from cliquet import utils
-from cliquet.storage import (
+from kinto.core import utils
+from kinto.core.storage import (
     StorageBase, exceptions, Filter,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
-from cliquet.utils import COMPARISON
+from kinto.core.utils import COMPARISON
 
 
 def tree():
@@ -157,7 +157,7 @@ class Storage(MemoryBasedStorage):
 
     Enable in configuration::
 
-        cliquet.storage_backend = cliquet.storage.memory
+        kinto.storage_backend = kinto.core.storage.memory
     """
     def __init__(self, *args, **kwargs):
         super(Storage, self).__init__(*args, **kwargs)

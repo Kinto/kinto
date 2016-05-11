@@ -8,11 +8,11 @@ import warnings
 from pyramid.paster import bootstrap
 from pyramid.settings import asbool
 
-from cliquet import __version__
+from kinto.core import __version__
 
 
 def deprecated_init(env):
-    message = '"cliquet init" is deprecated. Use "cliquet migrate" instead.'
+    message = '"kinto init" is deprecated. Use "kinto migrate" instead.'
     warnings.warn(message, DeprecationWarning)
     init_schema(env)
 
@@ -46,7 +46,7 @@ def main():
                         required=True)
     parser.add_argument('-v', '--version',
                         action='version', version=__version__,
-                        help='Print the cliquet version and exit.')
+                        help='Print the kinto version and exit.')
 
     subparsers = parser.add_subparsers()
 

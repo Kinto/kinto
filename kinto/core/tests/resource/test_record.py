@@ -3,9 +3,9 @@ import mock
 import colander
 from pyramid import httpexceptions
 
-from cliquet.resource import ResourceSchema
-from cliquet.errors import ERRORS
-from cliquet.tests.resource import BaseTest
+from kinto.core.resource import ResourceSchema
+from kinto.core.errors import ERRORS
+from kinto.core.tests.resource import BaseTest
 
 
 class GetTest(BaseTest):

@@ -5,9 +5,9 @@ import time
 import six
 from pyramid import httpexceptions
 
-from cliquet.tests.resource import BaseTest
-from cliquet.tests.support import ThreadMixin
-from cliquet.utils import decode_header
+from kinto.core.tests.resource import BaseTest
+from kinto.core.tests.support import ThreadMixin
+from kinto.core.utils import decode_header
 
 
 class SinceModifiedTest(ThreadMixin, BaseTest):

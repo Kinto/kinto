@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 import json
 
-from cliquet.listeners import ListenerBase
-from cliquet.storage.redis import create_from_config
-from cliquet import logger
+from kinto.core.listeners import ListenerBase
+from kinto.core.storage.redis import create_from_config
+from kinto.core import logger
 
 
 class Listener(ListenerBase):
@@ -35,6 +35,6 @@ def load_from_config(config, prefix):
     settings = config.get_settings()
     settings.setdefault(prefix + 'url', '')
     settings.setdefault(prefix + 'pool_size', 25)
-    listname = settings.get(prefix + 'listname', 'cliquet.events')
+    listname = settings.get(prefix + 'listname', 'kinto.core.events')
     client = create_from_config(config, prefix)
     return Listener(client, listname=listname)

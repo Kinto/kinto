@@ -2,7 +2,7 @@ import random
 from collections import namedtuple
 from pyramid.settings import asbool
 
-from cliquet.logs import logger
+from kinto.core.logs import logger
 from . import generators
 
 
@@ -41,7 +41,7 @@ class StorageBase(object):
         """Create every necessary objects (like tables or indices) in the
         backend.
 
-        This is excuted when the ``cliquet migrate`` command is ran.
+        This is excuted when the ``kinto migrate`` command is ran.
         """
         raise NotImplementedError
 
@@ -72,13 +72,13 @@ class StorageBase(object):
                auth=None):
         """Create the specified `object` in this `collection_id` for this `parent_id`.
         Assign the id to the object, using the attribute
-        :attr:`cliquet.resource.Model.id_field`.
+        :attr:`kinto.core.resource.Model.id_field`.
 
         .. note::
 
             This will update the collection timestamp.
 
-        :raises: :exc:`cliquet.storage.exceptions.UnicityError`
+        :raises: :exc:`kinto.core.storage.exceptions.UnicityError`
 
         :param str collection_id: the collection id.
         :param str parent_id: the collection parent.
@@ -97,7 +97,7 @@ class StorageBase(object):
         """Retrieve the object with specified `object_id`, or raise error
         if not found.
 
-        :raises: :exc:`cliquet.storage.exceptions.RecordNotFoundError`
+        :raises: :exc:`kinto.core.storage.exceptions.RecordNotFoundError`
 
         :param str collection_id: the collection id.
         :param str parent_id: the collection parent.
@@ -122,7 +122,7 @@ class StorageBase(object):
 
             This will update the collection timestamp.
 
-        :raises: :exc:`cliquet.storage.exceptions.UnicityError`
+        :raises: :exc:`kinto.core.storage.exceptions.UnicityError`
 
         :param str collection_id: the collection id.
         :param str parent_id: the collection parent.
@@ -145,13 +145,13 @@ class StorageBase(object):
 
         Deleted objects must be removed from the database, but their ids and
         timestamps of deletion must be tracked for synchronization purposes.
-        (See :meth:`cliquet.storage.StorageBase.get_all`)
+        (See :meth:`kinto.core.storage.StorageBase.get_all`)
 
         .. note::
 
             This will update the collection timestamp.
 
-        :raises: :exc:`cliquet.storage.exceptions.RecordNotFoundError`
+        :raises: :exc:`kinto.core.storage.exceptions.RecordNotFoundError`
 
         :param str collection_id: the collection id.
         :param str parent_id: the collection parent.
@@ -175,7 +175,7 @@ class StorageBase(object):
         :param str parent_id: the collection parent.
 
         :param filters: Optionnally filter the objects to delete.
-        :type filters: list of :class:`cliquet.storage.Filter`
+        :type filters: list of :class:`kinto.core.storage.Filter`
         :param bool with_deleted: track deleted records with a tombstone
 
         :returns: the list of deleted objects, with minimal set of attributes.
@@ -214,21 +214,21 @@ class StorageBase(object):
 
         :param filters: Optionally filter the objects by their attribute.
             Each filter in this list is a tuple of a field, a value and a
-            comparison (see `cliquet.utils.COMPARISON`). All filters
+            comparison (see `kinto.core.utils.COMPARISON`). All filters
             are combined using *AND*.
-        :type filters: list of :class:`cliquet.storage.Filter`
+        :type filters: list of :class:`kinto.core.storage.Filter`
 
         :param sorting: Optionnally sort the objects by attribute.
             Each sort instruction in this list refers to a field and a
             direction (negative means descending). All sort instructions are
             cumulative.
-        :type sorting: list of :class:`cliquet.storage.Sort`
+        :type sorting: list of :class:`kinto.core.storage.Sort`
 
         :param pagination_rules: Optionnally paginate the list of objects.
             This list of rules aims to reduce the set of objects to the current
             page. A rule is a list of filters (see `filters` parameter),
             and all rules are combined using *OR*.
-        :type pagination_rules: list of list of :class:`cliquet.storage.Filter`
+        :type pagination_rules: list of list of :class:`kinto.core.storage.Filter`
 
         :param int limit: Optionnally limit the number of objects to be
             retrieved.

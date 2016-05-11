@@ -5,13 +5,13 @@ import os
 import colander
 import mock
 import six
-from cliquet import includeme
-from cliquet import DEFAULT_SETTINGS
+from kinto.core import includeme
+from kinto.core import DEFAULT_SETTINGS
 from pyramid import httpexceptions
 from pyramid import request as pyramid_request
 from pyramid import testing
 
-from cliquet.utils import (
+from kinto.core.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
     current_service, encode_header, decode_header, follow_subrequest,
     build_request, dict_subset
@@ -104,16 +104,16 @@ class ReadEnvironmentTest(unittest.TestCase):
         self.assertEqual(read_env('missing', 12), 12)
 
     def test_return_env_value_if_defined_in_env(self):
-        os.environ.setdefault('CLIQUET_CONF', 'abc')
-        self.assertEqual(read_env('CLIQUET_CONF', 12), 'abc')
+        os.environ.setdefault('KINTO_CONF', 'abc')
+        self.assertEqual(read_env('KINTO_CONF', 12), 'abc')
 
     def test_return_env_name_as_uppercase(self):
-        os.environ.setdefault('CLIQUET_NAME', 'abc')
-        self.assertEqual(read_env('cliquet.name', 12), 'abc')
+        os.environ.setdefault('KINTO_NAME', 'abc')
+        self.assertEqual(read_env('kinto.name', 12), 'abc')
 
     def test_return_env_value_is_coerced_to_python(self):
-        os.environ.setdefault('CLIQUET_CONF_NAME', '3.14')
-        self.assertEqual(read_env('cliquet-conf.name', 12), 3.14)
+        os.environ.setdefault('KINTO_CONF_NAME', '3.14')
+        self.assertEqual(read_env('kinto-conf.name', 12), 3.14)
 
 
 class CurrentServiceTest(unittest.TestCase):
@@ -135,7 +135,7 @@ class CurrentServiceTest(unittest.TestCase):
 
 class BuildRequestTest(unittest.TestCase):
 
-    def test_built_request_has_cliquet_custom_methods(self):
+    def test_built_request_has_kinto_core_custom_methods(self):
         original = build_real_request({'PATH_INFO': '/foo'})
         request = build_request(original, {"path": "bar"})
         self.assertTrue(hasattr(request, 'current_service'))

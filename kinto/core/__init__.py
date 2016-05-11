@@ -5,19 +5,19 @@ import pkg_resources
 from cornice import Service as CorniceService
 from pyramid.settings import aslist
 
-from cliquet import authentication
-from cliquet import errors
-from cliquet import events
-from cliquet.initialization import (  # NOQA
+from kinto.core import authentication
+from kinto.core import errors
+from kinto.core import events
+from kinto.core.initialization import (  # NOQA
     initialize, initialize_cliquet, install_middlewares,
     load_default_settings)
-from cliquet.utils import (
+from kinto.core.utils import (
     follow_subrequest, current_service, current_resource_name)
-from cliquet.logs import logger
+from kinto.core.logs import logger
 
 
 # Module version, as defined in PEP-0396.
-__version__ = pkg_resources.get_distribution(__package__).version
+__version__ = pkg_resources.get_distribution('kinto').version  # FIXME?
 
 
 # The protocol version, incremented when HTTP API has breaking change.
@@ -41,26 +41,26 @@ DEFAULT_SETTINGS = {
     'error_info_link': 'https://github.com/mozilla-services/cliquet/issues/',
     'http_host': None,
     'http_scheme': None,
-    'id_generator': 'cliquet.storage.generators.UUID4',
+    'id_generator': 'kinto.core.storage.generators.UUID4',
     'includes': '',
     'initialization_sequence': (
-        'cliquet.initialization.setup_request_bound_data',
-        'cliquet.initialization.setup_json_serializer',
-        'cliquet.initialization.setup_logging',
-        'cliquet.initialization.setup_storage',
-        'cliquet.initialization.setup_permission',
-        'cliquet.initialization.setup_cache',
-        'cliquet.initialization.setup_requests_scheme',
-        'cliquet.initialization.setup_version_redirection',
-        'cliquet.initialization.setup_deprecation',
-        'cliquet.initialization.setup_authentication',
-        'cliquet.initialization.setup_backoff',
-        'cliquet.initialization.setup_statsd',
-        'cliquet.initialization.setup_listeners',
-        'cliquet.events.setup_transaction_hook',
+        'kinto.core.initialization.setup_request_bound_data',
+        'kinto.core.initialization.setup_json_serializer',
+        'kinto.core.initialization.setup_logging',
+        'kinto.core.initialization.setup_storage',
+        'kinto.core.initialization.setup_permission',
+        'kinto.core.initialization.setup_cache',
+        'kinto.core.initialization.setup_requests_scheme',
+        'kinto.core.initialization.setup_version_redirection',
+        'kinto.core.initialization.setup_deprecation',
+        'kinto.core.initialization.setup_authentication',
+        'kinto.core.initialization.setup_backoff',
+        'kinto.core.initialization.setup_statsd',
+        'kinto.core.initialization.setup_listeners',
+        'kinto.core.events.setup_transaction_hook',
     ),
     'event_listeners': '',
-    'logging_renderer': 'cliquet.logs.ClassicLogRenderer',
+    'logging_renderer': 'kinto.core.logs.ClassicLogRenderer',
     'newrelic_config': None,
     'newrelic_env': 'dev',
     'paginate_by': None,
@@ -74,7 +74,7 @@ DEFAULT_SETTINGS = {
     'project_version': '',
     'readonly': False,
     'retry_after_seconds': 30,
-    'statsd_prefix': 'cliquet',
+    'statsd_prefix': 'kinto.core',
     'statsd_url': None,
     'storage_backend': '',
     'storage_url': '',
@@ -85,11 +85,11 @@ DEFAULT_SETTINGS = {
     'userid_hmac_secret': '',
     'version_prefix_redirect_enabled': True,
     'trailing_slash_redirect_enabled': True,
-    'multiauth.groupfinder': 'cliquet.authorization.groupfinder',
+    'multiauth.groupfinder': 'kinto.core.authorization.groupfinder',
     'multiauth.policies': 'basicauth',
-    'multiauth.policy.basicauth.use': ('cliquet.authentication.'
+    'multiauth.policy.basicauth.use': ('kinto.core.authentication.'
                                        'BasicAuthAuthenticationPolicy'),
-    'multiauth.authorization_policy': ('cliquet.authorization.'
+    'multiauth.authorization_policy': ('kinto.core.authorization.'
                                        'AuthorizationPolicy')
 }
 
@@ -147,7 +147,7 @@ def includeme(config):
     # Per-request transaction.
     config.include("pyramid_tm")
 
-    # Add CORS settings to the base cliquet Service class.
+    # Add CORS settings to the base kinto.core Service class.
     Service.init_from_settings(settings)
 
     # Setup components.
@@ -164,7 +164,7 @@ def includeme(config):
     config.add_request_method(current_service, reify=True)
     config.commit()
 
-    # Include cliquet plugins after init, unlike pyramid includes.
+    # Include plugins after init, unlike pyramid includes.
     includes = aslist(settings['includes'])
     for app in includes:
         config.include(app)
@@ -174,7 +174,7 @@ def includeme(config):
     #     logger.info('Using %s = %s' % (key, value))
 
     # Scan views.
-    config.scan("cliquet.views")
+    config.scan("kinto.core.views")
 
     # Give sign of life.
     msg = "%(project_name)s %(project_version)s starting."

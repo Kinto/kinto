@@ -1,6 +1,6 @@
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from cliquet import Service
+from kinto.core import Service
 
 heartbeat = Service(name="heartbeat", path='/__heartbeat__',
                     description="Server health")

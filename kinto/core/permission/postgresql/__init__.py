@@ -4,9 +4,9 @@ import os
 
 from collections import defaultdict
 
-from cliquet import logger
-from cliquet.permission import PermissionBase
-from cliquet.storage.postgresql.client import create_from_config
+from kinto.core import logger
+from kinto.core.permission import PermissionBase
+from kinto.core.storage.postgresql.client import create_from_config
 
 
 class Permission(PermissionBase):
@@ -14,35 +14,35 @@ class Permission(PermissionBase):
 
     Enable in configuration::
 
-        cliquet.permission_backend = cliquet.permission.postgresql
+        kinto.permission_backend = kinto.core.permission.postgresql
 
     Database location URI can be customized::
 
-        cliquet.permission_url = postgres://user:pass@db.server.lan:5432/dbname
+        kinto.permission_url = postgres://user:pass@db.server.lan:5432/dbname
 
     Alternatively, username and password could also rely on system user ident
     or even specified in :file:`~/.pgpass` (*see PostgreSQL documentation*).
 
     .. note::
 
-        Some tables and indices are created when ``cliquet migrate`` is run.
+        Some tables and indices are created when ``kinto migrate`` is run.
         This requires some privileges on the database, or some error will
         be raised.
 
         **Alternatively**, the schema can be initialized outside the
         python application, using the SQL file located in
-        :file:`cliquet/permission/postgresql/schema.sql`. This allows to
+        :file:`kinto/core/permission/postgresql/schema.sql`. This allows to
         distinguish schema manipulation privileges from schema usage.
 
 
     A connection pool is enabled by default::
 
-        cliquet.permission_pool_size = 10
-        cliquet.permission_maxoverflow = 10
-        cliquet.permission_max_backlog = -1
-        cliquet.permission_pool_recycle = -1
-        cliquet.permission_pool_timeout = 30
-        cliquet.cache_poolclass = cliquet.storage.postgresql.pool.QueuePoolWithMaxBacklog
+        kinto.permission_pool_size = 10
+        kinto.permission_maxoverflow = 10
+        kinto.permission_max_backlog = -1
+        kinto.permission_pool_recycle = -1
+        kinto.permission_pool_timeout = 30
+        kinto.cache_poolclass = kinto.core.storage.postgresql.pool.QueuePoolWithMaxBacklog
 
     The ``max_backlog``  limits the number of threads that can be in the queue
     waiting for a connection.  Once this limit has been reached, any further

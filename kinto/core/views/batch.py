@@ -4,10 +4,10 @@ import six
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from cliquet import errors
-from cliquet import logger
-from cliquet import Service
-from cliquet.utils import merge_dicts, build_request, build_response
+from kinto.core import errors
+from kinto.core import logger
+from kinto.core import Service
+from kinto.core.utils import merge_dicts, build_request, build_response
 
 
 valid_http_method = colander.OneOf(('GET', 'HEAD', 'DELETE', 'TRACE',

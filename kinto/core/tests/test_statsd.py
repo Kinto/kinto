@@ -2,8 +2,8 @@ import mock
 
 from pyramid import testing
 
-from cliquet.tests.support import unittest, BaseWebTest
-from cliquet import statsd
+from kinto.core.tests.support import unittest, BaseWebTest
+from kinto.core import statsd
 
 
 class TestedClass(object):
@@ -53,7 +53,7 @@ class StatsdClientTest(unittest.TestCase):
             self.client.count('click', unique='menu')
             mocked_client.set.assert_called_with('click', 'menu')
 
-    @mock.patch('cliquet.statsd.statsd_module')
+    @mock.patch('kinto.core.statsd.statsd_module')
     def test_load_from_config(self, module_mock):
         config = testing.setUp()
         config.registry.settings = self.settings
@@ -61,7 +61,7 @@ class StatsdClientTest(unittest.TestCase):
         module_mock.StatsClient.assert_called_with('foo', 1234,
                                                    prefix='prefix')
 
-    @mock.patch('cliquet.statsd.statsd_module')
+    @mock.patch('kinto.core.statsd.statsd_module')
     def test_load_from_config_uses_project_name_if_defined(self, module_mock):
         config = testing.setUp()
         config.registry.settings = self.settings.copy()

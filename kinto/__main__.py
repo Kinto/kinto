@@ -4,7 +4,7 @@ import os
 import sys
 
 from six.moves import input
-from cliquet.scripts import cliquet
+from kinto.core.scripts import cliquet
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
 from kinto import __version__
@@ -84,7 +84,7 @@ def main(args=None):
                 import psycopg2  # NOQA
             except ImportError:
                 import pip
-                pip.main(['install', "cliquet[postgresql]"])
+                pip.main(['install', "kinto[postgresql]"])
 
     elif parsed_args['which'] == 'migrate':
         env = bootstrap(config_file)

@@ -1,7 +1,7 @@
 import webtest
 from pyramid.config import Configurator
 
-from cliquet.tests import support as cliquet_support
+from kinto.core.tests import support as cliquet_support
 from kinto import main
 from kinto.events import ServerFlushed
 

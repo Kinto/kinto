@@ -5,9 +5,9 @@ import mock
 import redis
 from pyramid import testing
 
-from cliquet.utils import sqlalchemy
-from cliquet import utils
-from cliquet.storage import (
+from kinto.core.utils import sqlalchemy
+from kinto.core import utils
+from kinto.core.storage import (
     exceptions, Filter, generators, memory,
     redis as redisbackend, postgresql,
     Sort, StorageBase, heartbeat
@@ -172,22 +172,22 @@ class BaseTestStorage(object):
         request.registry.settings = {'readonly': 'false'}
         ping = heartbeat(self.storage)
 
-        with mock.patch('cliquet.storage.random.random', return_value=0.7):
+        with mock.patch('kinto.core.storage.random.random', return_value=0.7):
             ping(request)
 
         self.client_error_patcher.start()
-        with mock.patch('cliquet.storage.random.random', return_value=0.7):
+        with mock.patch('kinto.core.storage.random.random', return_value=0.7):
             self.assertFalse(ping(request))
-        with mock.patch('cliquet.storage.random.random', return_value=0.5):
+        with mock.patch('kinto.core.storage.random.random', return_value=0.5):
             self.assertFalse(ping(request))
 
     def test_ping_returns_true_when_working(self):
         request = DummyRequest()
         request.headers['Authorization'] = 'Basic bWF0OjI='
         ping = heartbeat(self.storage)
-        with mock.patch('cliquet.storage.random.random', return_value=0.7):
+        with mock.patch('kinto.core.storage.random.random', return_value=0.7):
             self.assertTrue(ping(request))
-        with mock.patch('cliquet.storage.random.random', return_value=0.5):
+        with mock.patch('kinto.core.storage.random.random', return_value=0.5):
             self.assertTrue(ping(request))
 
     def test_ping_returns_true_when_working_in_readonly_mode(self):
@@ -211,7 +211,7 @@ class BaseTestStorage(object):
         self.client_error_patcher.start()
         ping = heartbeat(self.storage)
 
-        with mock.patch('cliquet.storage.logger.exception') as exc_handler:
+        with mock.patch('kinto.core.storage.logger.exception') as exc_handler:
             self.assertFalse(ping(request))
 
         self.assertTrue(exc_handler.called)
@@ -526,7 +526,7 @@ class TimestampsTest(object):
         current = record['last_modified']
 
         # Patch the clock to return a time in the past, before the big bang
-        with mock.patch('cliquet.utils.msec_time') as time_mocked:
+        with mock.patch('kinto.core.utils.msec_time') as time_mocked:
             time_mocked.return_value = -1
 
             record = self.create_record()
@@ -1165,7 +1165,7 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
     def test_errors_logs_stack_trace(self):
         self.client_error_patcher.start()
 
-        with mock.patch('cliquet.storage.logger.exception') as exc_handler:
+        with mock.patch('kinto.core.storage.logger.exception') as exc_handler:
             with self.assertRaises(exceptions.BackendError):
                 self.storage.get_all(**self.storage_kw)
 
@@ -1177,7 +1177,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
         'storage_max_fetch_size': 10000,
-        'storage_backend': 'cliquet.storage.postgresql',
+        'storage_backend': 'kinto.core.storage.postgresql',
         'storage_poolclass': 'sqlalchemy.pool.StaticPool',
         'storage_url': 'postgres://postgres:postgres@localhost:5432/testdb',
     }
@@ -1240,7 +1240,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         settings['storage_pool_size'] = 1
         msg = ('Reuse existing PostgreSQL connection. Parameters storage_* '
                'will be ignored.')
-        with mock.patch('cliquet.storage.postgresql.client.'
+        with mock.patch('kinto.core.storage.postgresql.client.'
                         'warnings.warn') as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
             mocked.assert_any_call(msg)
