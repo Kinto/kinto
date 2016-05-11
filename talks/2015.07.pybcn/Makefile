@@ -1,0 +1,3 @@
+dist:
+	landslide config.cfg
+

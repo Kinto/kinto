@@ -41,10 +41,10 @@ $(INSTALL_STAMP): $(PYTHON) setup.py
 	touch $(INSTALL_STAMP)
 
 install-monitoring: $(INSTALL_STAMP)
-	$(VENV)/bin/pip install "cliquet[monitoring]"
+	$(VENV)/bin/pip install -Ue ".[monitoring]"
 
 install-postgres: $(INSTALL_STAMP) $(DEV_STAMP)
-	$(VENV)/bin/pip install "cliquet[postgresql]"
+	$(VENV)/bin/pip install -Ue ".[postgresql]"
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON) dev-requirements.txt
@@ -58,7 +58,7 @@ $(PYTHON):
 build-requirements:
 	$(VIRTUALENV) $(TEMPDIR)
 	$(TEMPDIR)/bin/pip install -U pip
-	$(TEMPDIR)/bin/pip install -Ue .
+	$(TEMPDIR)/bin/pip install -Ue ".[monitoring,postgresql]"
 	$(TEMPDIR)/bin/pip freeze > requirements.txt
 
 $(SERVER_CONFIG):
@@ -82,12 +82,13 @@ tests:
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d | xargs rm -fr
+	rm -fr docs/_build/
 
 distclean: clean
-	rm -fr *.egg *.egg-info/
+	rm -fr *.egg *.egg-info/ dist/ build/
 
 maintainer-clean: distclean
-	rm -fr .venv/ .tox/ dist/ build/
+	rm -fr .venv/ .tox/
 
 loadtest-check-tutorial: install-postgres
 	$(VENV)/bin/kinto --ini loadtests/server.ini migrate > kinto.log &&\
@@ -97,7 +98,7 @@ loadtest-check-tutorial: install-postgres
 	  make tutorial SERVER_URL=http://127.0.0.1:8888; \
 	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
 
-loadtest-check-simulation: install-postgres
+loadtest-check-simulation: install-postgres install-monitoring
 	$(VENV)/bin/kinto --ini loadtests/server.ini migrate > kinto.log &&\
 	$(VENV)/bin/kinto --ini loadtests/server.ini start > kinto.log & PID=$$! && \
 	  rm kinto.log || cat kinto.log; \

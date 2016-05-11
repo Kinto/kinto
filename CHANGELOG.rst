@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-2.2.0 (unreleased)
+3.0.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Major version update. Merged cliquet into kinto.core. This is
+  intended to simplify the experience of people who are new to Kinto.
+  Addresses #687.
 
 
 2.1.1 (2016-04-29)

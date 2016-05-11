@@ -14,3 +14,4 @@ docs/cliquet_glossary.rst
 *.un~
 config/*.ini
 dist
+cliquet_docs/_build/
