@@ -91,7 +91,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertFormattedError(
             response, 500, ERRORS.UNDEFINED, "Internal Server Error",
             "A programmatic error occured, developers have been informed.",
-            "https://github.com/mozilla-services/cliquet/issues/")
+            "https://github.com/Kinto/kinto/issues/")
 
     def test_info_link_in_error_responses_can_be_configured(self):
         with mock.patch(

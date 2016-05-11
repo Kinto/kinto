@@ -38,7 +38,7 @@ DEFAULT_SETTINGS = {
     'eos': None,
     'eos_message': None,
     'eos_url': None,
-    'error_info_link': 'https://github.com/mozilla-services/cliquet/issues/',
+    'error_info_link': 'https://github.com/Kinto/kinto/issues/',
     'http_host': None,
     'http_scheme': None,
     'id_generator': 'kinto.core.storage.generators.UUID4',

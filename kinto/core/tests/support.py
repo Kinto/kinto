@@ -104,7 +104,7 @@ class BaseWebTest(object):
 
         settings['project_name'] = 'myapp'
         settings['project_version'] = '0.0.1'
-        settings['project_docs'] = 'https://cliquet.rtfd.org/'
+        settings['project_docs'] = 'https://kinto.rtfd.org/'
         settings['multiauth.authorization_policy'] = self.authorization_policy
 
         if additional_settings is not None:
