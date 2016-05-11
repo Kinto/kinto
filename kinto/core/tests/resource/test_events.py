@@ -8,7 +8,7 @@ from pyramid.config import Configurator
 from kinto.core.events import (ResourceChanged, AfterResourceChanged,
                             ResourceRead, AfterResourceRead, ACTIONS)
 from kinto.core.storage.exceptions import BackendError
-from kinto.core.tests.testapp import main as testapp
+from kinto.core.tests.testapp import main as make_testapp
 from kinto.core.tests.support import unittest, BaseWebTest, get_request_class
 from kinto.core import statsd
 
@@ -49,7 +49,7 @@ class BaseEventTest(BaseWebTest):
         for event_cls in self.subscribed:
             self.config.add_subscriber(self.listener, event_cls)
         self.config.commit()
-        app = testapp(config=self.config)
+        app = make_testapp(config=self.config)
         app = webtest.TestApp(app)
         app.RequestClass = get_request_class(self.api_prefix)
         return app
