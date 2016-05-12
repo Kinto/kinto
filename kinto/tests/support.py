@@ -5,7 +5,7 @@ except ImportError:
 
 import webtest
 from kinto.core import utils
-from kinto.tests.core import support as cliquet_support
+from kinto.tests.core import support as core_support
 from kinto import main as testapp
 from kinto import DEFAULT_SETTINGS
 
@@ -38,11 +38,11 @@ class BaseWebTest(object):
 
     def _get_test_app(self, settings=None):
         app = webtest.TestApp(testapp({}, **self.get_app_settings(settings)))
-        app.RequestClass = cliquet_support.get_request_class(prefix="v1")
+        app.RequestClass = core_support.get_request_class(prefix="v1")
         return app
 
     def get_app_settings(self, additional_settings=None):
-        settings = cliquet_support.DEFAULT_SETTINGS.copy()
+        settings = core_support.DEFAULT_SETTINGS.copy()
         settings.update(**DEFAULT_SETTINGS)
         settings['cache_backend'] = 'kinto.core.cache.memory'
         settings['storage_backend'] = 'kinto.core.storage.memory'

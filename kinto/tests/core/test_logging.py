@@ -9,14 +9,14 @@ from pyramid import testing
 
 from kinto.core import DEFAULT_SETTINGS
 from kinto.core import initialization
-from kinto.core import logs as cliquet_logs
+from kinto.core import logs as core_logs
 from kinto.core.utils import json
 
 from .support import BaseWebTest, unittest
 
 
 def logger_context():
-    return cliquet_logs.logger._context._dict
+    return core_logs.logger._context._dict
 
 
 def strip_ansi(text):
@@ -31,7 +31,7 @@ def strip_ansi(text):
 class LoggingSetupTest(unittest.TestCase):
     def tearDown(self):
         super(LoggingSetupTest, self).tearDown()
-        cliquet_logs.structlog.reset_defaults()
+        core_logs.structlog.reset_defaults()
 
     def test_classic_logger_is_used_by_default(self):
         config = testing.setUp()
@@ -58,7 +58,7 @@ class LoggingSetupTest(unittest.TestCase):
 
 class ClassicLogRendererTest(unittest.TestCase):
     def setUp(self):
-        self.renderer = cliquet_logs.ClassicLogRenderer({})
+        self.renderer = core_logs.ClassicLogRenderer({})
         self.logger = logging.getLogger(__name__)
 
     def test_output_is_serialized_as_string(self):
@@ -116,7 +116,7 @@ class ClassicLogRendererTest(unittest.TestCase):
 class MozillaHekaRendererTest(unittest.TestCase):
     def setUp(self):
         self.settings = {'project_name': ''}
-        self.renderer = cliquet_logs.MozillaHekaRenderer(self.settings)
+        self.renderer = core_logs.MozillaHekaRenderer(self.settings)
         self.logger = logging.getLogger(__name__)
 
     def test_output_is_serialized_json(self):
@@ -141,7 +141,7 @@ class MozillaHekaRendererTest(unittest.TestCase):
 
     def test_hostname_can_be_specified_via_environment(self):
         os.environ['HOSTNAME'] = 'abc'
-        renderer = cliquet_logs.MozillaHekaRenderer(self.settings)
+        renderer = core_logs.MozillaHekaRenderer(self.settings)
         os.environ.pop('HOSTNAME')
         self.assertEqual(renderer.hostname, 'abc')
 
@@ -198,7 +198,7 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
 
     def tearDown(self):
         super(RequestSummaryTest, self).tearDown()
-        cliquet_logs.structlog.reset_defaults()
+        core_logs.structlog.reset_defaults()
 
     def test_request_summary_is_sent_as_info(self):
         with mock.patch('kinto.core.logs.logger.info') as mocked:
@@ -296,7 +296,7 @@ class ResourceInfoTest(BaseWebTest, unittest.TestCase):
 
     def tearDown(self):
         super(ResourceInfoTest, self).tearDown()
-        cliquet_logs.structlog.reset_defaults()
+        core_logs.structlog.reset_defaults()
 
     def test_collection_id_is_bound(self):
         self.app.get('/mushrooms', headers=self.headers)
