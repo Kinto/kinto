@@ -1,6 +1,6 @@
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
-from kinto.core import Service, PROTOCOL_VERSION
+from kinto.core import Service
 
 hello = Service(name="hello", path='/', description="Welcome")
 
@@ -16,7 +16,6 @@ def get_hello(request):
         project_version=project_version,
         http_api_version=settings['http_api_version'],
         project_docs=settings['project_docs'],
-        cliquet_protocol_version=PROTOCOL_VERSION,
         url=request.route_url(hello.name)
     )
 

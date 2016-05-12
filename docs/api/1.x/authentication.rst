@@ -131,7 +131,6 @@ You can obtain the :term:`user ID` generated for your token on the :ref:`Kinto r
     Server: nginx
 
     {
-        "cliquet_protocol_version": "2",
         "http_api_version": "1.0",
         "project_docs": "https://kinto.readthedocs.io/",
         "project_name": "kinto",

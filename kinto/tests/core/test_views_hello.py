@@ -9,7 +9,6 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
     def test_returns_info_about_url_and_version(self):
         response = self.app.get('/')
         self.assertEqual(response.json['project_version'], "0.0.1")
-        self.assertEqual(response.json['cliquet_protocol_version'], "2")
         self.assertEqual(response.json['url'], 'http://localhost/v0/')
         self.assertEqual(response.json['project_name'], 'myapp')
         self.assertEqual(response.json['project_docs'],

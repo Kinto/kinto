@@ -8,14 +8,13 @@ GET /
 
 The returned value is a JSON mapping containing:
 
-.. versionchanged:: 2.12
+.. versionchanged:: 3.0
 
 - ``project_name``: the name of the service (e.g. ``"reading list"``)
 - ``project_docs``: The URL to the service documentation. (this document!)
 - ``project_version``: complete application/project version (``"3.14.116"``)
 - ``http_api_version``: the MAJOR.MINOR version of the exposed HTTP API (``"1.1"``)
-  defined in configuration.
-- ``cliquet_protocol_version``: the cliquet protocol version (``"2"``)
+  defined in the project.
 - ``url``: absolute URI (without a trailing slash) of the API (*can be used by client to build URIs*)
 - ``eos``: date of end of support in ISO 8601 format (``"yyyy-mm-dd"``, undefined if unknown)
 - ``settings``: a mapping with the values of relevant public settings for clients
@@ -48,10 +47,6 @@ The returned value is a JSON mapping containing:
 
     The source code of the service can suffer changes and have its *project version*
     incremented, without impacting the publicly exposed HTTP API.
-
-    The ``cliquet_protocol_version`` is an internal notion tracking the version
-    for some aspects of the API (e.g. synchronization of REST resources, utilities endpoints, etc.). It will differ from the ``http_api_version`` since the service
-    will provide additionnal endpoints and conventions.
 
 
 GET /__heartbeat__

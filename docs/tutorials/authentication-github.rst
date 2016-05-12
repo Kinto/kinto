@@ -91,7 +91,6 @@ Since we left ``basicauth`` in settings, it should still be accepted:
     :emphasize-lines: 16
 
     {
-        "cliquet_protocol_version": "2",
         "http_api_version": "1.2",
         "project_docs": "https://kinto.readthedocs.io/",
         "project_name": "kinto",
@@ -306,7 +305,6 @@ Check your user id
     Server: waitress
 
     {
-        "cliquet_protocol_version": "2",
         "http_api_version": "1.2",
         "project_docs": "https://kinto.readthedocs.io/",
         "project_name": "kinto",

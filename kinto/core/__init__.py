@@ -20,12 +20,6 @@ from kinto.core.logs import logger
 __version__ = pkg_resources.get_distribution('kinto').version  # FIXME?
 
 
-# The protocol version, incremented when HTTP API has breaking change.
-# - v1: initial version.
-# - v2: with "data" attribute in payloads and ETags.
-PROTOCOL_VERSION = '2'
-
-
 DEFAULT_SETTINGS = {
     'backoff': None,
     'batch_max_requests': 25,
