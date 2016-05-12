@@ -98,7 +98,6 @@ Since we left ``basicauth`` in settings, it should still be accepted:
         "settings": {
             "attachment.base_url": "http://localhost:7777",
             "batch_max_requests": 25,
-            "cliquet.batch_max_requests": 25,
             "readonly": false
         },
         "url": "http://localhost:8888/v1/",
@@ -312,7 +311,6 @@ Check your user id
         "settings": {
             "attachment.base_url": "http://localhost:7777",
             "batch_max_requests": 25,
-            "cliquet.batch_max_requests": 25,
             "readonly": false
         },
         "url": "http://localhost:8888/v1/",

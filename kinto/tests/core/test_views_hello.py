@@ -37,20 +37,10 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(expected, settings)
 
     def test_public_settings_can_be_set_from_registry(self):
-        self.app.app.registry.public_settings.add('myapp.paginate_by')
+        self.app.app.registry.public_settings.add('paginate_by')
         response = self.app.get('/')
         settings = response.json['settings']
-        self.assertIn('myapp.paginate_by', settings)
-
-    def test_public_settings_can_be_set_with_and_without_prefix(self):
-        self.app.app.registry.public_settings.add('myapp.paginate_by')
-        self.app.app.registry.public_settings.add('cliquet.paginate_by')
-        self.app.app.registry.public_settings.add('project_version')
-        response = self.app.get('/')
-        settings = response.json['settings']
-        self.assertIn('cliquet.paginate_by', settings)
-        self.assertIn('myapp.paginate_by', settings)
-        self.assertIn('project_version', settings)
+        self.assertIn('paginate_by', settings)
 
     def test_if_user_not_authenticated_no_userid_provided(self):
         response = self.app.get('/')

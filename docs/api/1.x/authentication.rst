@@ -138,7 +138,6 @@ You can obtain the :term:`user ID` generated for your token on the :ref:`Kinto r
         "settings": {
             "attachment.base_url": "https://kinto.dev.mozaws.net/attachments/",
             "batch_max_requests": 25,
-            "cliquet.batch_max_requests": 25,
             "readonly": false
         },
         "url": "https://kinto.dev.mozaws.net/v1/",

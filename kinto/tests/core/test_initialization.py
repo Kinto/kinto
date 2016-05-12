@@ -130,12 +130,6 @@ class ProjectSettingsTest(unittest.TestCase):
         }
         self.assertEqual(self.settings(settings)['paginate_by'], 3.14)
 
-    def test_uses_cliquet_prefix(self):
-        settings = {
-            'cliquet.paginate_by': 3.14
-        }
-        self.assertEqual(self.settings(settings)['paginate_by'], 3.14)
-
     def test_uses_project_name(self):
         settings = {
             'kinto.paginate_by': 42,

@@ -25,18 +25,8 @@ def get_hello(request):
 
     data['settings'] = {}
     public_settings = request.registry.public_settings
-    # Public settings will be prefixed with project name, unless explicitly
-    # specified with cliquet. (for retrocompability of clients for example).
     for setting in list(public_settings):
-        if setting.startswith('cliquet.'):
-            unprefixed = setting.replace('cliquet.', '', 1)
-            value = settings[unprefixed]
-        elif setting.startswith(project_name + '.'):
-            unprefixed = setting.replace(project_name + '.', '')
-            value = settings[unprefixed]
-        else:
-            value = settings[setting]
-        data['settings'][setting] = value
+        data['settings'][setting] = settings[setting]
 
     # If current user is authenticated, add user info:
     # (Note: this will call authenticated_userid() with multiauth+groupfinder)

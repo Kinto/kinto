@@ -15,6 +15,14 @@ This document describes changes between each past release.
   ``/v1``). Services based on kinto.core are free to use
   ``http_api_version`` to indicate any additional changes to their
   APIs.
+- Simplify settings code. Previously, ``public_settings`` could be
+  prefixed with a project name, which would be reflected in the output
+  of the ``hello`` view. However, this was never part of the API
+  specification, and was meant to be solely a backwards-compatibility
+  hack for first-generation Kinto clients. Kinto public settings
+  should always be exposed unprefixed. Applications developed against
+  kinto.core can continue using these names even after they transition
+  clients to the new implementation of their service.
 
 
 2.1.1 (2016-04-29)
