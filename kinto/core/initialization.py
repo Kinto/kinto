@@ -469,14 +469,6 @@ def load_default_settings(config, default_settings):
     config.add_settings(settings)
 
 
-def initialize_cliquet(*args, **kwargs):
-    message = ('kinto.core.initialize_cliquet is now deprecated. '
-               'Please use "kinto.core.initialize" instead')
-
-    warnings.warn(message, DeprecationWarning)
-    initialize(*args, **kwargs)
-
-
 def initialize(config, version=None, project_name='', default_settings=None):
     """Initialize kinto.core with the given configuration, version and project
     name.

@@ -117,14 +117,6 @@ class InitializationTest(unittest.TestCase):
         project_used = config.registry.settings['project_name']
         self.assertEqual(project_used, 'abc')
 
-    def test_initialize_cliquet_is_deprecated(self):
-        config = Configurator()
-        with mock.patch('kinto.core.initialization.warnings.warn') as mocked:
-            kinto.core.initialize_cliquet(config, '0.0.1', 'name')
-            msg = ('kinto.core.initialize_cliquet is now deprecated. '
-                   'Please use "kinto.core.initialize" instead')
-            mocked.assert_called_with(msg, DeprecationWarning)
-
 
 class ProjectSettingsTest(unittest.TestCase):
     def settings(self, provided):

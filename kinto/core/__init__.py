@@ -9,7 +9,7 @@ from kinto.core import authentication
 from kinto.core import errors
 from kinto.core import events
 from kinto.core.initialization import (  # NOQA
-    initialize, initialize_cliquet, install_middlewares,
+    initialize, install_middlewares,
     load_default_settings)
 from kinto.core.utils import (
     follow_subrequest, current_service, current_resource_name)

@@ -9,6 +9,7 @@ This document describes changes between each past release.
 - Major version update. Merged cliquet into kinto.core. This is
   intended to simplify the experience of people who are new to Kinto.
   Addresses #687.
+- Removed ``initialize_cliquet()``, which has been deprecated for a while.
 
 
 2.1.1 (2016-04-29)
