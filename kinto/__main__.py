@@ -4,7 +4,7 @@ import os
 import sys
 
 from six.moves import input
-from kinto.core.scripts import cliquet
+from kinto.core import scripts
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
 from kinto import __version__
@@ -88,7 +88,7 @@ def main(args=None):
 
     elif parsed_args['which'] == 'migrate':
         env = bootstrap(config_file)
-        cliquet.init_schema(env)
+        scripts.migrate(env)
 
     elif parsed_args['which'] == 'start':
         pserve_argv = ['pserve', config_file]
