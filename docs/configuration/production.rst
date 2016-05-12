@@ -232,7 +232,7 @@ A `Sentry <https://getsentry.com>`_ logger is also enabled.
 .. code-block:: ini
 
     [loggers]
-    keys = root, kinto, cliquet
+    keys = root, kinto
 
     [handlers]
     keys = console, sentry
@@ -248,11 +248,6 @@ A `Sentry <https://getsentry.com>`_ logger is also enabled.
     level = INFO
     handlers = console, sentry
     qualname = kinto
-
-    [logger_cliquet]
-    level = INFO
-    handlers = console, sentry
-    qualname = cliquet
 
     [handler_console]
     class = StreamHandler
