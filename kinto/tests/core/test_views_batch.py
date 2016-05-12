@@ -6,7 +6,7 @@ import uuid
 from pyramid.response import Response
 
 from kinto.core.views.batch import BatchPayloadSchema, batch as batch_service
-from kinto.core.tests.support import BaseWebTest, unittest, DummyRequest
+from kinto.tests.core.support import BaseWebTest, unittest, DummyRequest
 from kinto.core.utils import json
 
 

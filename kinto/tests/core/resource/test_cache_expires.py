@@ -1,4 +1,4 @@
-from kinto.core.tests.resource import BaseTest
+from kinto.tests.core.resource import BaseTest
 
 
 class CacheExpires(BaseTest):

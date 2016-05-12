@@ -2,7 +2,7 @@ import mock
 
 from kinto.core.authorization import RouteFactory
 from kinto.core.storage import memory
-from kinto.core.tests.support import unittest, DummyRequest
+from kinto.tests.core.support import unittest, DummyRequest
 from kinto.core.resource import UserResource
 
 

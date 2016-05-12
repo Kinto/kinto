@@ -5,7 +5,7 @@ from pyramid import httpexceptions
 
 from kinto.core.resource import ResourceSchema
 from kinto.core.errors import ERRORS
-from kinto.core.tests.resource import BaseTest
+from kinto.tests.core.resource import BaseTest
 
 
 class GetTest(BaseTest):

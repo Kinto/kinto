@@ -2,7 +2,7 @@ import mock
 
 from pyramid import httpexceptions
 
-from kinto.core.tests.resource import BaseTest
+from kinto.tests.core.resource import BaseTest
 
 
 class ModelTest(BaseTest):

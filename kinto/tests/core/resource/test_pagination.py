@@ -5,7 +5,7 @@ import mock
 from six.moves.urllib.parse import parse_qs, urlparse
 from pyramid.httpexceptions import HTTPBadRequest
 
-from kinto.core.tests.resource import BaseTest
+from kinto.tests.core.resource import BaseTest
 from kinto.core.utils import json
 
 

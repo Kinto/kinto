@@ -19,7 +19,7 @@ from enum import Enum
 from kinto.core import DEFAULT_SETTINGS
 from kinto.core.authorization import PRIVATE
 from kinto.core.storage import generators
-from kinto.core.tests.testapp import main as testapp
+from kinto.tests.core.testapp import main as testapp
 from kinto.core.utils import sqlalchemy, follow_subrequest
 
 # This is the principal a connected user should have (in the tests).
@@ -74,7 +74,7 @@ class BaseWebTest(object):
     """
 
     api_prefix = "v0"
-    authorization_policy = 'kinto.core.tests.support.AllowAuthorizationPolicy'
+    authorization_policy = 'kinto.tests.core.support.AllowAuthorizationPolicy'
     collection_url = '/mushrooms'
     principal = USER_PRINCIPAL
 
@@ -190,7 +190,7 @@ def authorize(permits=True, authz_class=None):
     in :param:permits.
     """
     if authz_class is None:
-        authz_class = 'kinto.core.tests.support.AllowAuthorizationPolicy'
+        authz_class = 'kinto.tests.core.support.AllowAuthorizationPolicy'
 
     def wrapper(f):
         @functools.wraps(f)

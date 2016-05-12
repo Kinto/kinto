@@ -5,7 +5,7 @@ except ImportError:
 
 import webtest
 from kinto.core import utils
-from kinto.core.tests import support as cliquet_support
+from kinto.tests.core import support as cliquet_support
 from kinto import main as testapp
 from kinto import DEFAULT_SETTINGS
 

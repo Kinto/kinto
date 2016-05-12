@@ -31,7 +31,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         app.get(self.collection_url, headers=self.headers, status=401)
 
     def test_principals_are_fetched_from_permission_backend(self):
-        patch = mock.patch(('kinto.core.tests.support.'
+        patch = mock.patch(('kinto.tests.core.support.'
                             'AllowAuthorizationPolicy.permits'))
         self.addCleanup(patch.stop)
         mocked = patch.start()

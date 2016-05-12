@@ -446,7 +446,7 @@ class PluginsTest(unittest.TestCase):
         config = Configurator(settings=kinto.core.DEFAULT_SETTINGS)
         config.add_settings({
             'permission_backend': 'kinto.core.permission.memory',
-            'includes': 'kinto.core.tests.testplugin'
+            'includes': 'kinto.tests.core.testplugin'
         })
         kinto.core.initialize(config, '0.0.1', 'name')
         return webtest.TestApp(config.make_wsgi_app())

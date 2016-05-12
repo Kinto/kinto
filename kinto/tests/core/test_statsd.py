@@ -2,7 +2,7 @@ import mock
 
 from pyramid import testing
 
-from kinto.core.tests.support import unittest, BaseWebTest
+from kinto.tests.core.support import unittest, BaseWebTest
 from kinto.core import statsd
 
 

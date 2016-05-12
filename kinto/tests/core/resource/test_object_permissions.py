@@ -3,7 +3,7 @@ import mock
 from pyramid import httpexceptions
 
 from kinto.core.resource import ShareableResource
-from kinto.core.tests.resource import BaseTest
+from kinto.tests.core.resource import BaseTest
 from kinto.core.permission.memory import Permission
 
 

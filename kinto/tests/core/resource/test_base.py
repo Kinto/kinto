@@ -1,8 +1,8 @@
 import mock
 
-from kinto.core.tests.support import unittest
+from kinto.tests.core.support import unittest
 from kinto.core.resource import UserResource, ShareableResource
-from kinto.core.tests.resource import BaseTest
+from kinto.tests.core.resource import BaseTest
 
 
 class ResourceTest(BaseTest):
