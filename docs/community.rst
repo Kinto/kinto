@@ -223,7 +223,7 @@ Step 1
 - Update ``CHANGELOG.rst``
 - If protocol was updated (via *Kinto-Core* for example), update API changelog in
   :file:`docs/api/index.rst`
-- If *Cliquet* was updated, update the link in :file:`docs/configuration/production.rst`
+- Update the link in :file:`docs/configuration/production.rst`
 - Update :file:`CONTRIBUTORS.rst`. The following hairy command will output the full list:
 
 .. code-block:: bash
