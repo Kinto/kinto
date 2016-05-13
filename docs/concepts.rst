@@ -110,11 +110,8 @@ See also
 Technical Architecture
 ======================
 
-Every concept of bucket, group, collection or record leverages the REST *resource*
-notion of :rtd:`Cliquet <cliquet>`.
-
-*Cliquet* is a toolkit which brings abstractions and
-good practices to build HTTP microservices, such as data-driven REST APIs.
+Every concept of bucket, group, collection or record is a REST
+*resource* and behaves according to the conventions of a resource.
 
 *Kinto* relies on :rtd:`Cornice <cornice>` and :rtd:`Pyramid <pyramid>`
 to implement the endpoints and HTTP request/response handling.
