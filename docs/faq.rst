@@ -105,15 +105,18 @@ Can I store files inside Kinto?
 Yes, using the :github:`Kinto/kinto-attachment` plugin.
 
 
-What is Cliquet? What is the difference between Cliquet and Kinto?
-------------------------------------------------------------------
+I want to add business logic to Kinto!
+--------------------------------------
 
-Cliquet is a toolkit for designing micro-services. Kinto is a server built
-using that toolkit.
+We recommend that when you're starting to build a Kinto-based
+application, you use Kinto as the back-end. You can use existing Kinto
+libraries to get up and running quickly.
 
-`Read more about the differences here
-<http://www.servicedenuages.fr/en/why-cliquet>`_.
-
+If you eventually hit a point where you need more logic on the server
+side, you can build your own Kinto-esque service using the library in
+``kinto.core``. In this way, your service will inherit all the best
+practices and conventions that Kinto itself has, and you can
+seamlessly migrate.
 
 How does Kinto authenticate users?
 -----------------------------------
