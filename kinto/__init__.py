@@ -40,8 +40,8 @@ def main(global_config, config=None, **settings):
     config.add_settings({'kinto.project_name': 'kinto'})
 
     kinto.core.initialize(config,
-                       version=__version__,
-                       default_settings=DEFAULT_SETTINGS)
+                          version=__version__,
+                          default_settings=DEFAULT_SETTINGS)
 
     settings = config.get_settings()
 

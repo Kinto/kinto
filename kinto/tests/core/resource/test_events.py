@@ -6,7 +6,7 @@ import webtest
 from pyramid.config import Configurator
 
 from kinto.core.events import (ResourceChanged, AfterResourceChanged,
-                            ResourceRead, AfterResourceRead, ACTIONS)
+                               ResourceRead, AfterResourceRead, ACTIONS)
 from kinto.core.storage.exceptions import BackendError
 from kinto.tests.core.testapp import main as make_testapp
 from kinto.tests.core.support import unittest, BaseWebTest, get_request_class

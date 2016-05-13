@@ -71,7 +71,7 @@ class InitializationTest(unittest.TestCase):
         config = Configurator()
         defaults = {'kinto.paginate_by': 102}
         kinto.core.initialize(config, '0.0.1', 'project_name',
-                           default_settings=defaults)
+                              default_settings=defaults)
         self.assertEqual(config.registry.settings['paginate_by'], 102)
 
     def test_default_settings_are_overriden_by_application(self):
@@ -83,7 +83,7 @@ class InitializationTest(unittest.TestCase):
         config = Configurator(settings={'kinto.paginate_by': 5})
         defaults = {'kinto.paginate_by': 10}
         kinto.core.initialize(config, '0.0.1', 'project_name',
-                           default_settings=defaults)
+                              default_settings=defaults)
         self.assertEqual(config.registry.settings['paginate_by'], 5)
 
     def test_backends_are_not_instantiated_by_default(self):

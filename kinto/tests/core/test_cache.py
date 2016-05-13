@@ -7,8 +7,8 @@ from pyramid import testing
 from kinto.core.utils import sqlalchemy
 from kinto.core.storage import exceptions
 from kinto.core.cache import (CacheBase, postgresql as postgresql_backend,
-                           redis as redis_backend, memory as memory_backend,
-                           heartbeat)
+                              redis as redis_backend, memory as memory_backend,
+                              heartbeat)
 
 from .support import unittest, skip_if_no_postgresql
 
