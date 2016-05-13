@@ -109,7 +109,8 @@ class BaseTestPermission(object):
             patch.start()
         ping = heartbeat(self.permission)
 
-        with mock.patch('kinto.core.permission.logger.exception') as exc_handler:
+        with mock.patch('kinto.core.permission.logger.exception') as \
+                exc_handler:
             self.assertFalse(ping(self.request))
 
         self.assertTrue(exc_handler.called)

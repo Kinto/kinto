@@ -473,8 +473,8 @@ def initialize(config, version=None, project_name='', default_settings=None):
     """Initialize kinto.core with the given configuration, version and project
     name.
 
-    This will basically include kinto.core in Pyramid and set route prefix based
-    on the specified version.
+    This will basically include kinto.core in Pyramid and set route prefix
+    based on the specified version.
 
     :param config: Pyramid configuration
     :type config: ~pyramid:pyramid.config.Configurator

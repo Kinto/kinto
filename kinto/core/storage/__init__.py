@@ -228,7 +228,8 @@ class StorageBase(object):
             This list of rules aims to reduce the set of objects to the current
             page. A rule is a list of filters (see `filters` parameter),
             and all rules are combined using *OR*.
-        :type pagination_rules: list of list of :class:`kinto.core.storage.Filter`
+        :type pagination_rules: list of list of
+            :class:`kinto.core.storage.Filter`
 
         :param int limit: Optionnally limit the number of objects to be
             retrieved.
