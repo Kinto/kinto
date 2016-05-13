@@ -3,14 +3,14 @@
 Viewsets
 ########
 
-*Cliquet* maps URLs, :term:`endpoints` and :term:`permissions` to resources
+*Kinto-Core* maps URLs, :term:`endpoints` and :term:`permissions` to resources
 using *ViewSets*.
 
 Since a resource defines two URLs with several HTTP methods, a view set can
 be considered as a set of rules for registring the resource views into the
 routing mechanism of Pyramid.
 
-To use *Cliquet* in a basic fashion, there is no need to understand how
+To use *Kinto-Core* in a basic fashion, there is no need to understand how
 viewsets work in full detail.
 
 
@@ -18,11 +18,11 @@ Override defaults
 =================
 
 Viewsets defaults can be overriden by passing arguments to the
-:func:`cliquet.resource.register` class decorator:
+:func:`kinto.core.resource.register` class decorator:
 
 .. code-block:: python
 
-    from cliquet import resource
+    from kinto.core import resource
 
 
     @resource.register(collection_methods=('GET',))
@@ -33,14 +33,14 @@ Viewsets defaults can be overriden by passing arguments to the
 Subclassing
 ===========
 
-In case this isn't enough, the :class:`cliquet.resource.viewset.ViewSet` class
+In case this isn't enough, the :class:`kinto.core.resource.viewset.ViewSet` class
 can be subclassed and specified during registration:
 
 
 .. code-block:: python
     :emphasize-lines: 10
 
-    from cliquet import resource
+    from kinto.core import resource
 
 
     class NoSchemaViewSet(resource.ViewSet):
@@ -58,5 +58,5 @@ can be subclassed and specified during registration:
 ViewSet class
 =============
 
-.. autoclass:: cliquet.resource.ViewSet
+.. autoclass:: kinto.core.resource.ViewSet
     :members:

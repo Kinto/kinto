@@ -4,17 +4,17 @@ Notifications
 #############
 
 Knowing some records have been modified in a resource is very
-useful to integrate a Cliquet-based application with other services.
+useful to integrate a Kinto-Core-based application with other services.
 
 For example, a search service that gets notified everytime something
 has changed, can continuously update its index.
 
-Cliquet leverages Pyramid's built-in event system and produces the following
+Kinto-Core leverages Pyramid's built-in event system and produces the following
 events:
 
-- :class:`cliquet.events.ResourceRead`: a read operation occured on the resource.
+- :class:`kinto.core.events.ResourceRead`: a read operation occured on the resource.
 
-- :class:`cliquet.events.ResourceChanged`: a resource **is being changed**. This
+- :class:`kinto.core.events.ResourceChanged`: a resource **is being changed**. This
   event occurs synchronously within the transaction and within the
   request/response cycle. Commit is not yet done and rollback is still possible.
 
@@ -24,7 +24,7 @@ events:
   Do not subscribe to this event for operations that will not be rolled-back
   automatically.
 
-- :class:`cliquet.events.AfterResourceChanged`: a resource **was changed** and
+- :class:`kinto.core.events.AfterResourceChanged`: a resource **was changed** and
   **committed**.
 
   Subscribers of this event can fail, errors are swallowed and logged. The
@@ -39,7 +39,7 @@ Event subscribers can then pick up those events and act upon them.
 
 .. code-block:: python
 
-    from cliquet.events import AfterResourceChanged
+    from kinto.core.events import AfterResourceChanged
 
 
     def on_resource_changed(event):
@@ -65,7 +65,7 @@ from a ``ResourceChanged`` event. For example:
 
 .. code-block:: python
 
-    from cliquet.events import ResourceChanged
+    from kinto.core.events import ResourceChanged
     from pyramid import httpexceptions
 
     def check_quota(event):
@@ -86,7 +86,7 @@ For example:
 
 .. code-block:: python
 
-    from cliquet.events import ResourceChanged, ACTIONS
+    from kinto.core.events import ResourceChanged, ACTIONS
 
     config.add_subscriber(on_mushroom_changed, ResourceChanged, for_resources=('mushroom',))
     config.add_subscriber(on_record_deleted, ResourceChanged, for_actions=(ACTIONS.DELETE,))
@@ -95,7 +95,7 @@ For example:
 Payload
 -------
 
-The :class:`cliquet.events.ResourceChanged` and :class:`cliquet.events.AfterResourceChanged`
+The :class:`kinto.core.events.ResourceChanged` and :class:`kinto.core.events.AfterResourceChanged`
 events contain a ``payload`` attribute with the following information:
 
 - **timestamp**: the time of the event
@@ -129,19 +129,19 @@ Event listeners
 It is possible for an application or a plugin to listen to events and execute
 some code. Triggered code on events is synchronously called when a request is handled.
 
-*Cliquet* offers custom listeners that can be activated through configuration,
-so that every Cliquet-based application can benefit from **pluggable listeners**
+*Kinto-Core* offers custom listeners that can be activated through configuration,
+so that every Kinto-Core-based application can benefit from **pluggable listeners**
 without using `config.add_event_subscriber()` explicitely.
 
 Currently, a simple built-in listener is available, that just delivers the
 events into a Redis queue, allowing asynchronous event handling:
 
-.. autoclass:: cliquet.listeners.redis.Listener
+.. autoclass:: kinto.core.listeners.redis.Listener
 
 To activate it, look at :ref:`the dedicated configuration <configuring-notifications>`.
 
 Implementing a custom listener consists on implementing the following
 interface:
 
-.. autoclass:: cliquet.listeners.ListenerBase
+.. autoclass:: kinto.core.listeners.ListenerBase
     :members: __call__

@@ -1,7 +1,7 @@
 Rationale
 #########
 
-*Cliquet* is a toolkit to ease the implementation of HTTP `microservices`_.
+*Kinto-Core* is a toolkit to ease the implementation of HTTP `microservices`_.
 It is mainly focused on data-driven REST APIs (aka :term:`CRUD`).
 
 .. _microservices: http://en.wikipedia.org/wiki/Microservices
@@ -16,7 +16,7 @@ Philosophy
 * Easy customization;
 * Straightforward component substitution.
 
-*Cliquet* doesn't try to be a framework: any project built with *Cliquet* will
+*Kinto-Core* doesn't try to be a framework: any project built with *Kinto-Core* will
 expose a well defined HTTP protocol for:
 
 * Collection and records manipulation;
@@ -33,7 +33,7 @@ practices (followed at `Mozilla Services`_ and `elsewhere`_).
 The goal is to produce standardized APIs, which follow some
 well known patterns, encouraging genericity in clients code [#]_.
 
-Of course, *Cliquet* can be :term:`extended <extensible>` and customized in
+Of course, *Kinto-Core* can be :term:`extended <extensible>` and customized in
 many ways. It can also be used in any kind of project, for its tooling, utilities
 and helpers.
 
@@ -42,7 +42,7 @@ Features
 ========
 
 It is built around the notion of resources: resources are defined by sub-classing,
-and *Cliquet* brings up the HTTP endpoints automatically.
+and *Kinto-Core* brings up the HTTP endpoints automatically.
 
 Records and synchronization
 ---------------------------
@@ -72,7 +72,7 @@ Toolkit
 .. figure:: images/cliquet-base.png
     :align: center
 
-    *Cliquet* brings a set of simple but essential features to build APIs.
+    *Kinto-Core* brings a set of simple but essential features to build APIs.
 
 * Configuration through INI files or environment variables;
 * Pluggable storage and cache backends;
@@ -88,7 +88,7 @@ Toolkit
 Dependencies
 ============
 
-*Cliquet* is built on the shoulders of giants:
+*Kinto-Core* is built on the shoulders of giants:
 
 * :rtd:`Cornice <cornice>` for the REST helpers;
 * :rtd:`Pyramid <pyramid>` for the heavy HTTP stuff;
@@ -100,7 +100,7 @@ Everything else is meant to be **pluggable and optional**.
 .. figure:: images/cliquet-mozilla.png
     :align: center
 
-    Examples of configuration for a *Cliquet* application in production.
+    Examples of configuration for a *Kinto-Core* application in production.
 
 * *Basic Auth*, *FxA OAuth2* or any other source of authentication;
 * *Default* or custom class for authorization logics;
@@ -111,13 +111,13 @@ Everything else is meant to be **pluggable and optional**.
 * *NewRelic* database profiling (*for development*);
 * *Werkzeug* Python code profiling (*for development*).
 
-A *Cliquet* application can change or force default values for any setting.
+A *Kinto-Core* application can change or force default values for any setting.
 
 
-Built with Cliquet
-==================
+Built with Kinto-Core
+=====================
 
-Some applications in the wild built with *Cliquet*:
+Some applications in the wild built with *Kinto-Core*:
 
 * :rtd:`Reading List <readinglist>`, a service to synchronize articles between
   devices;
@@ -144,7 +144,7 @@ Vision
 General
 -------
 
-Any application built with *Cliquet*:
+Any application built with *Kinto-Core*:
 
 * follows the same conventions regarding the HTTP API;
 * takes advantage of its component :term:`pluggability <pluggable>`;
@@ -157,7 +157,7 @@ Let's build a :ref:`sane ecosystem <ecosystem>` for microservices in Python!
 Roadmap
 -------
 
-The future features we plan to implement in *Cliquet* are currently driven by the
+The future features we plan to implement in *Kinto-Core* are currently driven by the
 use-cases we meet internally at Mozilla. Most notable are:
 
 * Attachments on records (e.g. *Remote Storage* compatibility);
@@ -165,7 +165,7 @@ use-cases we meet internally at Mozilla. Most notable are:
 
 * ... come and discuss `enhancements in the issue tracker`_!
 
-.. _enhancements in the issue tracker: https://github.com/mozilla-services/cliquet/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement
+.. _enhancements in the issue tracker: https://github.com/Kinto/kinto/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement
 
 
 Similar projects
@@ -175,7 +175,7 @@ Similar projects
 * *Please contact us to add more if any*.
 
 Since the protocol is language independant and follows good HTTP/REST principles,
-in the long term *Cliquet* should become only one among several server implementations.
+in the long term *Kinto-Core* should become only one among several server implementations.
 
 .. note::
 

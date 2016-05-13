@@ -7,19 +7,19 @@ Cache
 PostgreSQL
 ==========
 
-.. autoclass:: cliquet.cache.postgresql.Cache
+.. autoclass:: kinto.core.cache.postgresql.Cache
 
 
 Redis
 =====
 
-.. autoclass:: cliquet.cache.redis.Cache
+.. autoclass:: kinto.core.cache.redis.Cache
 
 
 Memory
 ======
 
-.. autoclass:: cliquet.cache.memory.Cache
+.. autoclass:: kinto.core.cache.memory.Cache
 
 
 API
@@ -28,5 +28,5 @@ API
 Implementing a custom cache backend consists on implementing the following
 interface:
 
-.. autoclass:: cliquet.cache.CacheBase
+.. autoclass:: kinto.core.cache.CacheBase
     :members:

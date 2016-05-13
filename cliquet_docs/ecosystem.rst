@@ -3,13 +3,13 @@
 Ecosystem
 #########
 
-This section gathers information about extending *Cliquet*, and third-party packages.
+This section gathers information about extending *Kinto-Core*, and third-party packages.
 
 Packages
 ========
 
 * :github:`mozilla-services/cliquet-fxa`:
-  Add support of :term:`Firefox Accounts` OAuth2 authentication in *Cliquet*
+  Add support of :term:`Firefox Accounts` OAuth2 authentication in *Kinto-Core*
 
 
 .. note::
@@ -18,8 +18,8 @@ Packages
     get in touch with us!
 
 
-Extending Cliquet
-=================
+Extending Kinto-Core
+====================
 
 Pluggable components
 --------------------
@@ -30,9 +30,9 @@ as long as the replacement follows the original component API.
 .. code-block:: ini
 
     # myproject.ini
-    cliquet.logging_renderer = cliquet_fluent.FluentRenderer
+    kinto.logging_renderer = cliquet_fluent.FluentRenderer
 
-This is the simplest way to extend *Cliquet*, but will be limited to its
+This is the simplest way to extend *Kinto-Core*, but will be limited to its
 existing components (cache, storage, log renderer, ...).
 
 In order to add extra features, including external packages is the way to go!
@@ -47,17 +47,17 @@ packages, which can bring views, event listeners etc.
 .. code-block:: python
     :emphasize-lines: 11
 
-    import cliquet
+    import kinto.core
     from pyramid.config import Configurator
 
 
     def main(global_config, **settings):
         config = Configurator(settings=settings)
 
-        cliquet.initialize(config, '0.0.1')
+        kinto.core.initialize(config, '0.0.1')
         config.scan("myproject.views")
 
-        config.include('cliquet_elasticsearch')
+        config.include('kinto_elasticsearch')
 
         return config.make_wsgi_app()
 
@@ -67,7 +67,7 @@ Alternatively, packages can also be included via configuration:
 .. code-block:: ini
 
     # myproject.ini
-    cliquet.includes = cliquet_elasticsearch
+    kinto.includes = kinto_elasticsearch
                        pyramid_debugtoolbar
 
 
@@ -81,7 +81,7 @@ Include me
 
 In order to be included, a package must define an ``includeme(config)`` function.
 
-For example, in :file:`cliquet_elasticsearch/init.py`:
+For example, in :file:`kinto_elasticsearch/init.py`:
 
 .. code-block:: python
 
@@ -94,34 +94,34 @@ For example, in :file:`cliquet_elasticsearch/init.py`:
 Configuration
 -------------
 
-In order to ease the management of settings, *Cliquet* provides a helper that
+In order to ease the management of settings, *Kinto-Core* provides a helper that
 reads values from :ref:`environment variables <configuration-environment>`
 and uses default application values.
 
 .. code-block:: python
     :emphasize-lines: 1,2,5-7,11,14,15
 
-    import cliquet
+    import kinto.core
     from pyramid.settings import asbool
 
 
     DEFAULT_SETTINGS = {
-        'cliquet_elasticsearch.refresh_enabled': False
+        'kinto_elasticsearch.refresh_enabled': False
     }
 
 
     def includeme(config):
-        cliquet.load_default_settings(config, DEFAULT_SETTINGS)
+        kinto.core.load_default_settings(config, DEFAULT_SETTINGS)
         settings = config.get_settings()
 
-        refresh_enabled = settings['cliquet_elasticsearch.refresh_enabled']
+        refresh_enabled = settings['kinto_elasticsearch.refresh_enabled']
         if asbool(refresh_enabled):
             ...
 
         config.add_view(...)
 
 
-In this example, if the environment variable ``CLIQUET_ELASTICSEARCH_REFRESH_ENABLED``
+In this example, if the environment variable ``KINTO_ELASTICSEARCH_REFRESH_ENABLED``
 is set to ``true``, the value present in configuration file is ignored.
 
 
@@ -141,7 +141,7 @@ features brought by plugins.
     def main(global_config, **settings):
         config = Configurator(settings=settings)
 
-        cliquet.initialize(config, __version__)
+        kinto.core.initialize(config, __version__)
         config.scan("myproject.views")
 
         settings = config.get_settings()
@@ -161,13 +161,13 @@ features brought by plugins.
 Custom backend
 ==============
 
-As a simple example, let's add add another kind of cache backend to *Cliquet*.
+As a simple example, let's add add another kind of cache backend to *Kinto-Core*.
 
-:file:`cliquet_riak/cache.py`:
+:file:`kinto_riak/cache.py`:
 
 .. code-block:: python
 
-    from cliquet.cache import CacheBase
+    from kinto.core.cache import CacheBase
     from riak import RiakClient
 
 
@@ -193,7 +193,7 @@ As a simple example, let's add add another kind of cache backend to *Cliquet*.
 
     def load_from_config(config):
         settings = config.get_settings()
-        uri = settings['cliquet.cache_url']
+        uri = settings['kinto.cache_url']
         uri = urlparse.urlparse(uri)
 
         return Riak(pb_port=uri.port or 8087)
@@ -205,7 +205,7 @@ can be specified in application configuration:
 .. code-block:: ini
 
     # myproject.ini
-    cliquet.cache_backend = cliquet_riak.cache
+    kinto.cache_backend = kinto_riak.cache
 
 
 Adding features
@@ -218,25 +218,25 @@ Another use-case would be to add extra-features, like indexing for example.
 * Index records manipulated by resources.
 
 
-Inclusion and startup in :file:`cliquet_indexing/__init__.py`:
+Inclusion and startup in :file:`kinto_indexing/__init__.py`:
 
 .. code-block:: python
 
-    DEFAULT_BACKEND = 'cliquet_indexing.elasticsearch'
+    DEFAULT_BACKEND = 'kinto_indexing.elasticsearch'
 
     def includeme(config):
         settings = config.get_settings()
-        backend = settings.get('cliquet.indexing_backend', DEFAULT_BACKEND)
+        backend = settings.get('kinto.indexing_backend', DEFAULT_BACKEND)
         indexer = config.maybe_dotted(backend)
 
         # Store indexer instance in registry.
         config.registry.indexer = indexer.load_from_config(config)
 
         # Activate end-points.
-        config.scan('cliquet_indexing.views')
+        config.scan('kinto_indexing.views')
 
 
-End-point definitions in :file:`cliquet_indexing/views.py`:
+End-point definitions in :file:`kinto_indexing/views.py`:
 
 .. code-block:: python
 
@@ -258,7 +258,7 @@ End-point definitions in :file:`cliquet_indexing/views.py`:
         return results
 
 
-Example indexer class in :file:`cliquet_indexing/elasticsearch.py`:
+Example indexer class in :file:`kinto_indexing/elasticsearch.py`:
 
 .. code-block:: python
 
@@ -290,11 +290,11 @@ Example indexer class in :file:`cliquet_indexing/elasticsearch.py`:
                 raise
 
 
-Indexed resource in :file:`cliquet_indexing/resource.py`:
+Indexed resource in :file:`kinto_indexing/resource.py`:
 
 .. code-block:: python
 
-    class IndexedModel(cliquet.resource.Model):
+    class IndexedModel(kinto.core.resource.Model):
         def create_record(self, record):
             r = super(IndexedModel, self).create_record(self, record)
 
@@ -302,7 +302,7 @@ Indexed resource in :file:`cliquet_indexing/resource.py`:
 
             return r
 
-    class IndexedResource(cliquet.resource.UserResource):
+    class IndexedResource(kinto.core.resource.UserResource):
         def __init__(self, request):
             super(IndexedResource, self).__init__(request)
             self.model.indexer = request.registry.indexer
@@ -311,7 +311,7 @@ Indexed resource in :file:`cliquet_indexing/resource.py`:
 
     In this example, ``IndexedResource`` must be used explicitly as a
     base resource class in applications.
-    A nicer pattern would be to trigger *Pyramid* events in *Cliquet* and
+    A nicer pattern would be to trigger *Pyramid* events in *Kinto-Core* and
     let packages like this one plug listeners. If you're interested,
     `we started to discuss it <https://github.com/mozilla-services/cliquet/issues/32>`_!
 
@@ -319,14 +319,14 @@ Indexed resource in :file:`cliquet_indexing/resource.py`:
 JavaScript client
 =================
 
-One of the main goal of *Cliquet* is to ease the development of REST
+One of the main goal of *Kinto-Core* is to ease the development of REST
 microservices, most likely to be used in a JavaScript environment.
 
 A client could look like this:
 
 .. code-block:: javascript
 
-    var client = new cliquet.Client({
+    var client = new kinto.Client({
         server: 'https://api.server.com',
         store: localforage
     });

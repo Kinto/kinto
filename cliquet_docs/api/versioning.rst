@@ -9,7 +9,7 @@ The :term:`HTTP API` exposed by the service will be consumed by clients, like
 a Javascript client.
 
 The :term:`HTTP API` is subject to changes. It follows the
-:term:`Cliquet Protocol`.
+:term:`Kinto-Core Protocol`.
 
 When the :term:`HTTP API` is changed, its version is incremented.
 The :term:`HTTP API` version follows a :term:`Semantic Versioning`

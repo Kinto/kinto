@@ -5,5 +5,5 @@ Utils
 #####
 
 
-.. automodule:: cliquet.utils
+.. automodule:: kinto.core.utils
     :members:

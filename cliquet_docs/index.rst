@@ -3,13 +3,9 @@
 .. figure:: images/logo.svg
     :align: center
 
-    A cliquet, or ratchet, is a mechanical device that allows continuous linear
-    or rotary motion in only one direction while preventing motion in the
-    opposite direction.
-
-    A cliquet provides some basic but essential functionality — efficient in a
-    variety of contexts, from bikes rear wheels to most advanced clockmaking!
-
+    Kinto-core is the heart of the `Kinto project
+    <http://kinto.readthedocs.org/>`_, and also serves as a handy
+    toolkit for building Kinto-based backends.
 
 Table of content
 ================

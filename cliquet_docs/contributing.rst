@@ -1,7 +1,7 @@
 Contributing
 ############
 
-Thank you for considering to contribute to *Cliquet*!
+Thank you for considering to contribute to *Kinto-Core*!
 
 .. note::
 
@@ -81,13 +81,13 @@ to speed-up the execution:
 
 ::
 
-    nosetests -s --with-mocha-reporter cliquet.tests.test_views_hello:HelloViewTest.test_returns_info_about_url_and_version
+    nosetests -s --with-mocha-reporter kinto.tests.core.test_views_hello:HelloViewTest.test_returns_info_about_url_and_version
 
 
 Load tests
 ----------
 
-A load test is provided in order to run end-to-end tests on *Cliquet* through a sample application,
+A load test is provided in order to run end-to-end tests on *Kinto-Core* through a sample application,
 or prevent regressions in terms of performance.
 
 The following ``make`` command will check briefly the overall sanity of the API,
@@ -138,7 +138,7 @@ In order to have your changes incorporated, you need to respect these rules:
 IRC channel
 ===========
 
-If you want to discuss with the team behind *Cliquet*, please come and join us
+If you want to discuss with the team behind *Kinto-Core*, please come and join us
 on ``#storage`` on ``irc.mozilla.org``.
 
 * Because of differing time zones, you may not get an immediate response to

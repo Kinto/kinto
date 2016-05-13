@@ -3,7 +3,7 @@
 Permissions
 ###########
 
-*Cliquet* provides a mechanism to handle authorization on the stored :term:`objects`.
+*Kinto-Core* provides a mechanism to handle authorization on the stored :term:`objects`.
 
 This section gives details about the behaviour of resources in regards to
 :term:`permissions`.
@@ -16,7 +16,7 @@ User resource
 
 This is the simplest one, as presented in the :ref:`resource section <resource>`.
 
-When using a :class:`cliquet.resource.UserResource`, every authenticated user
+When using a :class:`kinto.core.resource.UserResource`, every authenticated user
 can manipulate and read their own records. There is no way to restrict this or
 allow sharing of records.
 
@@ -49,7 +49,7 @@ Public BasicAuth
 
 If *Basic Auth* authentication is enabled, private user resources can become semi-private or public
 if the ``user:pass`` is publicly known and shared (for example ``public:`` is a valid user:pass combination).
-That's how most simple demos of *Kinto* — a *Cliquet*-based application — are built by the way!
+That's how most simple demos of *Kinto* — a *Kinto-Core*-based application — are built by the way!
 
 
 .. _permission-shareable-resource:
@@ -62,19 +62,19 @@ Shareable resource
     When using this kind of resource, the ``permission_backend`` setting must be
     set, :ref:`as described in the configuration section <configuration-permissions>`.
 
-To introduce more flexibility, the :class:`cliquet.resource.ShareableResource`
+To introduce more flexibility, the :class:`kinto.core.resource.ShareableResource`
 can be used instead.
 
 .. code-block:: python
 
-    from cliquet import resource
+    from kinto.core import resource
 
     @resource.register()
     class Toadstool(resource.ShareableResource):
         mapping = MushroomSchema()
 
 
-With this alternative resource class, *Cliquet* will register the :term:`endpoints`
+With this alternative resource class, *Kinto-Core* will register the :term:`endpoints`
 with a specific `route factory
 <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html#route-factories>`_,
 that will take care of checking the appropriate permission for each action.
@@ -83,34 +83,34 @@ that will take care of checking the appropriate permission for each action.
 | Method     | URL                | :term:`permission`   | Comments                                      |
 +============+====================+======================+===============================================+
 | GET / HEAD | /{collection}      | ``read``             | If not allowed by setting                     |
-|            |                    |                      | ``cliquet.{collection}_read_principals``,     |
+|            |                    |                      | ``kinto.{collection}_read_principals``,       |
 |            |                    |                      | will return list of records where user        |
 |            |                    |                      | has ``read`` permission.                      |
 +------------+--------------------+----------------------+-----------------------------------------------+
 | POST       | /{collection}      | ``create``           | Allowed by setting                            |
-|            |                    |                      | ``cliquet.{collection}_create_principals``    |
+|            |                    |                      | ``kinto.{collection}_create_principals``      |
 +------------+--------------------+----------------------+-----------------------------------------------+
 | DELETE     | /{collection}      | ``write``            | If not allowed by setting                     |
-|            |                    |                      | ``cliquet.{collection}_write_principals``,    |
+|            |                    |                      | ``kinto.{collection}_write_principals``,      |
 |            |                    |                      | will delete the list of records where         |
 |            |                    |                      | user has ``write`` permission.                |
 +------------+--------------------+----------------------+-----------------------------------------------+
 | GET / HEAD | /{collection}/{id} | ``read``             | If not allowed by setting                     |
-|            |                    |                      | ``cliquet.{collection}_read_principals``,     |
+|            |                    |                      | ``kinto.{collection}_read_principals``,       |
 |            |                    |                      | will check record permissions                 |
 +------------+--------------------+----------------------+-----------------------------------------------+
 | PUT        | /{collection}/{id} | ``create`` if record | Allowed by setting                            |
-|            |                    | doesn't exist,       | ``cliquet.{collection}_create_principals``,   |
-|            |                    | ``write`` otherwise  | or ``cliquet.{collection}_create_principals`` |
+|            |                    | doesn't exist,       | ``kinto.{collection}_create_principals``,     |
+|            |                    | ``write`` otherwise  | or ``kinto.{collection}_create_principals``   |
 |            |                    |                      | or existing record permissions                |
 +------------+--------------------+----------------------+-----------------------------------------------+
 | PATCH      | /{collection}/{id} | ``write``            | If not allowed by setting                     |
-|            |                    |                      | ``cliquet.{collection}_write_principals``,    |
+|            |                    |                      | ``kinto.{collection}_write_principals``,      |
 |            |                    |                      | will check record permissions                 |
 |            |                    |                      |                                               |
 +------------+--------------------+----------------------+-----------------------------------------------+
 | DELETE     | /{collection}/{id} | ``write``            | If not allowed by setting                     |
-|            |                    |                      | ``cliquet.{collection}_write_principals``,    |
+|            |                    |                      | ``kinto.{collection}_write_principals``,      |
 |            |                    |                      | will check record permissions                 |
 +------------+--------------------+----------------------+-----------------------------------------------+
 
@@ -152,7 +152,7 @@ user:pass combination and use it in the permissions JSON payloads, or settings:
 
 ::
 
-    cliquet.{collection}_read_principals = basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6
+    kinto.{collection}_read_principals = basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6
 
 
 
@@ -168,7 +168,7 @@ For example, in order to imply that having permission to ``write`` implies
 permission to ``read``. Or having permission to ``create`` blog articles also means
 permission to ``write`` categories.
 
-To do so, specify the ``get_bound_permissions`` of the *Cliquet* authorization policy.
+To do so, specify the ``get_bound_permissions`` of the *Kinto-Core* authorization policy.
 
 .. code-block:: python
 
@@ -187,7 +187,7 @@ To do so, specify the ``get_bound_permissions`` of the *Cliquet* authorization p
 
     def main(global_settings, **settings):
         ...
-        cliquet.initialize(config, __version__)
+        kinto.core.initialize(config, __version__)
         ...
         authz = config.registry.queryUtility(IAuthorizationPolicy)
         authz.get_bound_permissions = get_bound_permissions
@@ -198,11 +198,11 @@ of permissions between nested objects. The root objects permissions still have t
 via settings though.
 
 
-It is also possible to subclass the default :class:`cliquet.authorization.AuthorizationPolicy`.
+It is also possible to subclass the default :class:`kinto.core.authorization.AuthorizationPolicy`.
 
 .. code-block:: python
 
-    from cliquet import authorization
+    from kinto.core import authorization
     from pyramid.security import IAuthorizationPolicy
     from zope.interface import implementer
 
@@ -247,7 +247,7 @@ Or during application init (or scripts):
 
     def main(global_config, **settings):
         # ...
-        cliquet.initialize(config, __version__)
+        kinto.core.initialize(config, __version__)
         # ...
 
         some_user_id = 'basicauth:ut082jghnrgnjnj'
@@ -277,7 +277,7 @@ And then refer as ``group:admins`` in the list of allowed principals.
 Custom permission checking
 --------------------------
 
-The permissions verification in *Cliquet* is done with usual Pyramid authorization
+The permissions verification in *Kinto-Core* is done with usual Pyramid authorization
 abstractions. Most notably using an implementation of a `RootFactory in conjonction with an Authorization policy
 <http://docs.pylonsproject.org/projects/pyramid/en/latest/quick_tutorial/authorization.html>`_.
 
@@ -289,7 +289,7 @@ on the resource during registration.
 .. code-block:: python
     :emphasize-lines: 10,15
 
-    from cliquet import resource
+    from kinto.core import resource
 
     class MyViewSet(resource.ViewSet):
 
@@ -352,19 +352,19 @@ The :term:`ACLs` are stored in a :term:`permission` backend. Like for
 PostgreSQL
 ----------
 
-.. autoclass:: cliquet.permission.postgresql.Permission
+.. autoclass:: kinto.core.permission.postgresql.Permission
 
 
 Redis
 -----
 
-.. autoclass:: cliquet.permission.redis.Permission
+.. autoclass:: kinto.core.permission.redis.Permission
 
 
 Memory
 ------
 
-.. autoclass:: cliquet.permission.memory.Permission
+.. autoclass:: kinto.core.permission.memory.Permission
 
 
 API
@@ -373,5 +373,5 @@ API
 Implementing a custom permission backend consists in implementating the following
 interface:
 
-.. autoclass:: cliquet.permission.PermissionBase
+.. autoclass:: kinto.core.permission.PermissionBase
   :members:

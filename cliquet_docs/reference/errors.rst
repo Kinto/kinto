@@ -5,5 +5,5 @@ Errors
 ######
 
 
-.. automodule:: cliquet.errors
+.. automodule:: kinto.core.errors
     :members:

@@ -6,8 +6,9 @@ Installation
 
 ::
 
-    $ pip install cliquet
+    $ pip install kinto
 
+You can use *Kinto-Core* by doing ``import kinto.core`` in your application.
 
 More details about installation and storage backend is provided in
 :ref:`a dedicated section <installation>`.
@@ -24,8 +25,8 @@ create a minimal application, or use its scaffolding tool:
     $ pcreate -s starter MyProject
 
 
-Include Cliquet
----------------
+Include Kinto-Core
+------------------
 
 In the application main file (e.g. :file:`MyProject/myproject/__init__.py`),
 just add some extra initialization code:
@@ -35,7 +36,7 @@ just add some extra initialization code:
 
     import pkg_resources
 
-    import cliquet
+    import kinto.core
     from pyramid.config import Configurator
 
     # Module version, as defined in PEP-0396.
@@ -45,7 +46,7 @@ just add some extra initialization code:
     def main(global_config, **settings):
         config = Configurator(settings=settings)
 
-        cliquet.initialize(config, __version__)
+        kinto.core.initialize(config, __version__)
         return config.make_wsgi_app()
 
 
@@ -62,7 +63,7 @@ A generic command is provided to accomplish this:
 
 ::
 
-    $ cliquet --ini development.ini migrate
+    $ kinto --ini development.ini migrate
 
 
 Like any *Pyramid* application, it can be served locally with:
@@ -77,7 +78,7 @@ A *hello* view is now available at `http://localhost:6543/v0/ <http://localhost:
 The next steps will consist in building a custom application using :rtd:`Cornice <cornice>` or
 **the Pyramid ecosystem**.
 
-But most likely, it will consist in **defining REST resources** using *Cliquet*
+But most likely, it will consist in **defining REST resources** using *Kinto-Core*\ 's
 python API !
 
 
@@ -85,7 +86,7 @@ Authentication
 --------------
 
 Currently, if no :ref:`authentication is set in settings <configuration-authentication>`,
-*Cliquet* relies on *Basic Auth*. It will associate a unique :term:`user id`
+*Kinto-Core* relies on *Basic Auth*. It will associate a unique :term:`user id`
 for every user/password combination.
 
 Using `HTTPie <http://httpie.org>`_, it is as easy as:
@@ -103,12 +104,12 @@ Using `HTTPie <http://httpie.org>`_, it is as easy as:
 Define resources
 ================
 
-In order to define a resource, inherit from :class:`cliquet.resource.UserResource`,
+In order to define a resource, inherit from :class:`kinto.core.resource.UserResource`,
 in a subclass, in :file:`myproject/views.py` for example:
 
 .. code-block:: python
 
-    from cliquet import resource
+    from kinto.core import resource
 
     @resource.register()
     class Mushroom(resource.UserResource):
@@ -123,7 +124,7 @@ In application initialization, make *Pyramid* aware of it:
     def main(global_config, **settings):
         config = Configurator(settings=settings)
 
-        cliquet.initialize(config, __version__)
+        kinto.core.initialize(config, __version__)
         config.scan("myproject.views")
         return config.make_wsgi_app()
 
@@ -134,9 +135,9 @@ specify the «in-memory» backends in :file:`development.ini`:
 .. code-block:: ini
 
     # development.ini
-    cliquet.cache_backend = cliquet.cache.memory
-    cliquet.storage_backend = cliquet.storage.memory
-    cliquet.permission_backend = cliquet.permission.memory
+    kinto.cache_backend = kinto.core.cache.memory
+    kinto.storage_backend = kinto.core.storage.memory
+    kinto.permission_backend = kinto.core.permission.memory
 
 
 A Mushroom resource API is now available at the ``/mushrooms/`` URL.
@@ -165,7 +166,7 @@ Currently, only :rtd:`Colander <colander>` is supported, and it looks like this:
     :emphasize-lines: 1,5,6,11
 
     import colander
-    from cliquet import resource
+    from kinto.core import resource
 
 
     class MushroomSchema(resource.ResourceSchema):
@@ -197,13 +198,13 @@ schemaless resources, read-only fields, unicity constraints, record pre-processi
 Advanced initialization
 -----------------------
 
-.. autofunction:: cliquet.initialize
+.. autofunction:: kinto.core.initialize
 
 
-Beyond Cliquet
---------------
+Beyond Kinto-Core
+-----------------
 
-*Cliquet* is just a component! The application can still be built and
+*Kinto-Core* is just a component! The application can still be built and
 extended using the full *Pyramid* ecosystem.
 
-See :ref:`the dedicated section <ecosystem>` for examples of *Cliquet* extensions.
+See :ref:`the dedicated section <ecosystem>` for examples of *Kinto-Core* extensions.

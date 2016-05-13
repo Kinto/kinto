@@ -9,19 +9,19 @@ Backends
 PostgreSQL
 ----------
 
-.. autoclass:: cliquet.storage.postgresql.Storage
+.. autoclass:: kinto.core.storage.postgresql.Storage
 
 
 Redis
 -----
 
-.. autoclass:: cliquet.storage.redis.Storage
+.. autoclass:: kinto.core.storage.redis.Storage
 
 
 Memory
 ------
 
-.. autoclass:: cliquet.storage.memory.Storage
+.. autoclass:: kinto.core.storage.memory.Storage
 
 
 API
@@ -30,14 +30,14 @@ API
 Implementing a custom storage backend consists in implementating the following
 interface:
 
-.. automodule:: cliquet.storage
+.. automodule:: kinto.core.storage
     :members:
 
 
 Exceptions
 ----------
 
-.. automodule:: cliquet.storage.exceptions
+.. automodule:: kinto.core.storage.exceptions
     :members:
 
 

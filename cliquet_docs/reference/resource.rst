@@ -3,7 +3,7 @@
 Resource
 ########
 
-*Cliquet* provides a basic component to build resource oriented APIs.
+*Kinto-Core* provides a basic component to build resource oriented APIs.
 In most cases, the main customization consists in defining the schema of the
 records for this resource.
 
@@ -15,8 +15,8 @@ Full example
 
     import colander
 
-    from cliquet import resource
-    from cliquet import utils
+    from kinto.core import resource
+    from kinto.core import utils
 
 
     class BookmarkSchema(resource.ResourceSchema):
@@ -94,11 +94,11 @@ for unicity or readonly.
 Permissions
 ===========
 
-Using the :class:`cliquet.resource.UserResource`, the resource is accessible by
+Using the :class:`kinto.core.resource.UserResource`, the resource is accessible by
 any authenticated request, but the records are isolated by :term:`user id`.
 
 In order to define resources whose records are not isolated, open publicly or
-controlled with individual fined-permissions, a :class:`cliquet.resource.ShareableResource`
+controlled with individual fined-permissions, a :class:`kinto.core.resource.ShareableResource`
 could be used.
 
 But there are other strategies, please refer to :ref:`dedicated section about permissions
@@ -118,7 +118,7 @@ Events
 
 When a record is created/deleted in a resource, an event is sent.
 See the `dedicated section about notifications <notifications>`_ to plug events
-in your Pyramid/*Cliquet* application or plugin.
+in your Pyramid/*Kinto-Core* application or plugin.
 
 
 Model
@@ -132,7 +132,7 @@ a custom model can be plugged-in:
 
 .. code-block:: python
 
-    from cliquet import resource
+    from kinto.core import resource
 
 
     class TrackedModel(resource.Model):
@@ -152,7 +152,7 @@ a custom model can be plugged-in:
 Relationships
 -------------
 
-With the default model and storage backend, *Cliquet* does not support complex
+With the default model and storage backend, *Kinto-Core* does not support complex
 relations.
 
 However, it is possible to plug a custom :ref:`model class <resource-model>`,
@@ -171,7 +171,7 @@ configured in the application:
 
 .. code-block:: python
 
-    from cliquet import resource
+    from kinto.core import resource
 
     def view(request):
         registry = request.registry
@@ -197,16 +197,16 @@ As an example, let's build a code that will copy a collection into another:
 
 .. code-block:: python
 
-    from cliquet import resource, DEFAULT_SETTINGS
+    from kinto.core import resource, DEFAULT_SETTINGS
     from pyramid import Configurator
 
 
     config = Configurator(settings=DEFAULT_SETTINGS)
     config.add_settings({
-        'cliquet.storage_backend': 'cliquet.storage.postgresql'
-        'cliquet.storage_url': 'postgres://user:pass@db.server.lan:5432/dbname'
+        'kinto.storage_backend': 'kinto.core.storage.postgresql'
+        'kinto.storage_url': 'postgres://user:pass@db.server.lan:5432/dbname'
     })
-    cliquet.initialize(config, '0.0.1')
+    kinto.core.initialize(config, '0.0.1')
 
     local = resource.Model(storage=config.registry.storage,
                            parent_id='browsing',
@@ -231,9 +231,9 @@ or at the resource level:
 
 .. code-block:: python
 
-    from cliquet import resource
-    from cliquet import utils
-    from cliquet.storage import generators
+    from kinto.core import resource
+    from kinto.core import utils
+    from kinto.core.storage import generators
 
 
     class MsecId(generators.Generator):
@@ -256,7 +256,7 @@ Python API
 Resource
 --------
 
-.. autoclass:: cliquet.resource.UserResource
+.. autoclass:: kinto.core.resource.UserResource
     :members:
 
 .. _resource-schema:
@@ -264,7 +264,7 @@ Resource
 Schema
 ------
 
-.. automodule:: cliquet.resource.schema
+.. automodule:: kinto.core.resource.schema
     :members:
 
 .. _resource-model:
@@ -272,11 +272,11 @@ Schema
 Model
 -----
 
-.. autoclass:: cliquet.resource.Model
+.. autoclass:: kinto.core.resource.Model
     :members:
 
 Generators
 ----------
 
-.. automodule:: cliquet.storage.generators
+.. automodule:: kinto.core.storage.generators
     :members:

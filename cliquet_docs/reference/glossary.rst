@@ -3,7 +3,7 @@ Glossary
 
 .. glossary::
 
-    Cliquet Protocol
+    Kinto-Core Protocol
         A system of rules that explains the way to interact with the HTTP API
         :term:`endpoints` (utilities, synchronization, headers etc.), and how data
         is organized (JSON responses etc.).
@@ -42,14 +42,14 @@ Glossary
     user identifier
     user identifiers
         A string that identifies a user. When using the built-in *Basic Auth*
-        authentication, *Cliquet* uses cryptography (HMAC) to generate an
+        authentication, *Kinto-Core* uses cryptography (HMAC) to generate an
         identification string.
 
         See `Pyramid authentication`_.
 
     object
     objects
-        Also refered as «records», objects are stored by *Cliquet* resources.
+        Also refered as «records», objects are stored by *Kinto-Core* resources.
 
     tombstone
     tombstones

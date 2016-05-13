@@ -4,7 +4,7 @@ Installation
 ############
 
 
-By default, a *Cliquet* application persists the records and cache in a local
+By default, a *Kinto-Core* application persists the records and cache in a local
 `Redis <http://redis.io/>`_.
 
 Using the :ref:`application configuration <configuration-storage>`,
@@ -15,29 +15,29 @@ can be enabled afterwards.
 Supported Python versions
 =========================
 
-Cliquet supports Python 2.7, Python 3.4 and PyPy.
+Kinto-Core supports Python 2.7, Python 3.4 and PyPy.
 
 
 Distribute & Pip
 ================
 
-Installing Cliquet with pip:
+Installing Kinto-Core with pip:
 
 ::
 
-    pip install cliquet
+    pip install kinto
 
 
 For *PostgreSQL* and *monitoring* support:
 
 ::
 
-    pip install cliquet[postgresql,monitoring]
+    pip install kinto[postgresql,monitoring]
 
 
 .. note::
 
-    When installing cliquet with postgresql support in a virtualenv using the
+    When installing kinto-core with postgresql support in a virtualenv using the
     `PyPy <http://pypy.org/>`_ interpreter, the
     `psycopg2cffi <https://github.com/chtd/psycopg2cffi>`_ PostgreSQL database
     adapter will be installed, instead of the traditional
@@ -132,9 +132,9 @@ Install PostgreSQL client headers::
 
     sudo apt-get install libpq-dev
 
-Install Cliquet with related dependencies::
+Install Kinto-Core with related dependencies::
 
-    pip install cliquet[postgresql]
+    pip install kinto[postgresql]
 
 
 Full server
@@ -160,7 +160,7 @@ if ran by the ``postgres`` system user. The following command will assign it:
 
     sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
 
-Cliquet requires ``UTC`` to be used as the database timezone, and
+Kinto-Core requires ``UTC`` to be used as the database timezone, and
 ``UTF-8`` as the database encoding. You can for example use the following
 commands to create a database named ``testdb`` with the appropriate timezone
 and encoding::
@@ -192,13 +192,13 @@ Run the official PostgreSQL container locally:
 
 Tag and save the current state with::
 
-    sudo docker commit $postgres cliquet-empty
+    sudo docker commit $postgres kinto-empty
 
 
 In the future, run the tagged version of the container ::
 
-    cliquet=$(sudo docker run -d -p 5432:5432 cliquet-empty)
+    kinto=$(sudo docker run -d -p 5432:5432 kinto-empty)
 
     ...
 
-    sudo docker stop $cliquet
+    sudo docker stop $kinto
