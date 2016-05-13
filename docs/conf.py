@@ -13,6 +13,7 @@
 # serve to show the default.
 
 import os
+import sys
 
 __HERE__ = os.path.dirname(os.path.abspath(__file__))
 
@@ -29,7 +30,7 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-# sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath(os.path.join('..', 'kinto')))
 
 # -- General configuration ------------------------------------------------
 
@@ -40,8 +41,10 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autodoc',
     'sphinxcontrib.httpdomain',
     'sphinx.ext.extlinks',
+    'sphinx.ext.intersphinx',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -89,6 +92,11 @@ html_static_path = ['_static']
 htmlhelp_basename = 'Kintodoc'
 
 
+# -- Options for autodoc --------------------------------------------------
+
+autodoc_member_order = 'bysource'
+
+
 # -- Options of extlinks --------------------------------------------------
 
 extlinks = {
@@ -103,6 +111,14 @@ def setup(app):
     app.add_stylesheet('theme_overrides.css')
     app.add_javascript('piwik.js')
 
+
+# -- Options for intersphinx --------------------------------------------------
+
+intersphinx_mapping = {
+    'colander': ('http://colander.readthedocs.io/en/latest/', None),
+    'cornice': ('http://cornice.readthedocs.io/en/latest/', None),
+    'pyramid': ('http://pyramid.readthedocs.io/en/latest/', None)
+}
 
 # -- Options for LaTeX output ---------------------------------------------
 
