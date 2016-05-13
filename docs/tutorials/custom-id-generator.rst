@@ -15,7 +15,7 @@ Let's define a "name generator", which will output 8 random characters
     import random
     import string
 
-    from cliquet.storage import generators
+    from kinto.core.storage import generators
 
 
     class NameGenerator(generators.Generator):

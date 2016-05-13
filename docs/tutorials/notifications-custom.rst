@@ -41,7 +41,7 @@ Create a file :file:`kinto_email.py` with the following scaffold:
 
 .. code-block:: python
 
-    from cliquet.listeners import ListenerBase
+    from kinto.core.listeners import ListenerBase
 
     class Listener(ListenerBase):
         def __call__(self, event):
@@ -57,7 +57,7 @@ the settings.
 .. code-block:: python
     :emphasize-lines: 2,5-11,17-26
 
-    from cliquet.listeners import ListenerBase
+    from kinto.core.listeners import ListenerBase
     from pyramid.settings import aslist, asbool
 
     class Listener(ListenerBase):
@@ -94,7 +94,7 @@ Now, every time a new event occurs, we send an email:
     import smtplib
     from email.mime.text import MIMEText
 
-    from cliquet.listeners import ListenerBase
+    from kinto.core.listeners import ListenerBase
     from pyramid.settings import aslist, asbool
 
     class Listener(ListenerBase):
@@ -186,7 +186,7 @@ Kinto should load the listeners without errors:
 
     $ kinto start
     Starting subprocess with file monitor
-    2016-01-21 16:21:59,941 INFO  [cliquet.initialization][MainThread] Setting up 'send_email' listener
+    2016-01-21 16:21:59,941 INFO  [kinto.core.initialization][MainThread] Setting up 'send_email' listener
 
 
 Test it
@@ -254,7 +254,7 @@ In configuration, we setup the listener to post the message to a queue named
 
     kinto.event_listeners = redis
 
-    kinto.event_listeners.redis.use = cliquet.listeners.redis
+    kinto.event_listeners.redis.use = kinto.core.listeners.redis
     kinto.event_listeners.redis.url = redis://localhost:6379/0
     kinto.event_listeners.redis.pool_size = 5
     kinto.event_listeners.redis.listname = eventqueue
@@ -266,7 +266,7 @@ Kinto should load the listeners without errors:
 
     $ kinto start
     Starting subprocess with file monitor
-    2016-01-21 16:21:59,941 INFO  [cliquet.initialization][MainThread] Setting up 'redis' listener
+    2016-01-21 16:21:59,941 INFO  [kinto.core.initialization][MainThread] Setting up 'redis' listener
 
 
 Run worker(s)

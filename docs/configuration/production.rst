@@ -100,7 +100,7 @@ The last step consists in creating the necessary tables and indices, run the ``m
 .. note::
 
     Alternatively the SQL initialization files can be found in the
-    *Cliquet* :github:`source code <mozilla-services/cliquet>`.
+    *Kinto* :github:`source code <Kinto/kinto>`.
 
 
 Production checklist
@@ -221,7 +221,7 @@ In order to enable Mozilla *Heka* logging output:
 .. code-block :: ini
 
     # Heka
-    kinto.logging_renderer = cliquet.logs.MozillaHekaRenderer
+    kinto.logging_renderer = kinto.core.logs.MozillaHekaRenderer
 
 
 With the following configuration, all logs are structured in JSON and

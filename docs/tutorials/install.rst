@@ -72,7 +72,7 @@ For example, using an environment file:
     # kinto.env
     KINTO_USERID_HMAC_SECRET = tr0ub4d@ur
     KINTO_BATCH_MAX_REQUESTS = 200
-    # KINTO_STORAGE_BACKEND = cliquet.storage.postgresql
+    # KINTO_STORAGE_BACKEND = kinto.core.storage.postgresql
     # KINTO_STORAGE_URL = postgres://user:pass@localhost/kintodb
 
 And running the container with:
