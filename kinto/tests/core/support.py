@@ -177,7 +177,7 @@ class AllowAuthorizationPolicy(object):
             return Authenticated in principals
         if Everyone in principals:
             return True
-        # Cliquet default authz policy uses prefixed_userid.
+        # Kinto-Core default authz policy uses prefixed_userid.
         prefixed = [context.prefixed_userid]
         return USER_PRINCIPAL in (principals + prefixed)
 

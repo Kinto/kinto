@@ -25,7 +25,7 @@ def groupfinder(userid, request):
     if not backend:
         return []
 
-    # Safety check when Cliquet is used without pyramid_multiauth.
+    # Safety check when Kinto-Core is used without pyramid_multiauth.
     if request.prefixed_userid:
         userid = request.prefixed_userid
 

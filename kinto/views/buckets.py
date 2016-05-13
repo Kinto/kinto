@@ -23,7 +23,7 @@ class Bucket(resource.ShareableResource):
         self.model.id_generator = NameGenerator()
 
     def get_parent_id(self, request):
-        # Buckets are not isolated by user, unlike Cliquet resources.
+        # Buckets are not isolated by user, unlike Kinto-Core resources.
         return ''
 
 
