@@ -15,7 +15,7 @@ class PermissionBase(object):
         """Create every necessary objects (like tables or indices) in the
         backend.
 
-        This is excuted with the ``kinto migrate`` command.
+        This is executed with the ``kinto migrate`` command.
         """
         raise NotImplementedError
 
