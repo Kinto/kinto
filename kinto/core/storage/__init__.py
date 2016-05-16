@@ -41,7 +41,7 @@ class StorageBase(object):
         """Create every necessary objects (like tables or indices) in the
         backend.
 
-        This is executed when the ``kinto migrate`` command is ran.
+        This is executed when the ``kinto migrate`` command is run.
         """
         raise NotImplementedError
 
