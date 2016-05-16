@@ -63,4 +63,4 @@ Firefox Accounts
 ================
 
 In order to enable authentication with :term:`Firefox Accounts`, install and
-configure :github:`mozilla-services/cliquet-fxa`.
+configure :github:`mozilla-services/kinto-fxa`.

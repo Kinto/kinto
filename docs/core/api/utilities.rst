@@ -31,7 +31,7 @@ The returned value is a JSON mapping containing:
         {
           "auth-fxa": {
             "description": "Firefox Account authentication",
-            "url": "http://github.com/mozilla-services/cliquet-fxa"
+            "url": "http://github.com/mozilla-services/kinto-fxa"
           }
         }
 
@@ -59,7 +59,7 @@ returned value is a JSON mapping containing:
 - ``cache`` true if cache backend operational
 - ``permission`` true if permission backend operational
 
-If ``cliquet-fxa`` is installed, an additional key is present:
+If ``kinto-fxa`` is installed, an additional key is present:
 
 - ``oauth`` true if authentication is operational
 

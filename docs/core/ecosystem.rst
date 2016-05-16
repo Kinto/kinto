@@ -8,7 +8,7 @@ This section gathers information about extending *Kinto-Core*, and third-party p
 Packages
 ========
 
-* :github:`mozilla-services/cliquet-fxa`:
+* :github:`mozilla-services/kinto-fxa`:
   Add support of :term:`Firefox Accounts` OAuth2 authentication in *Kinto-Core*
 
 

@@ -412,11 +412,11 @@ to plug any kind of authentication.
 Firefox Accounts
 ::::::::::::::::
 
-Enabling :term:`Firefox Accounts` consists in including ``cliquet_fxa`` in
+Enabling :term:`Firefox Accounts` consists in including ``kinto_fxa`` in
 configuration, mentioning ``fxa`` among policies and providing appropriate
 values for OAuth2 client settings.
 
-See :github:`mozilla-services/cliquet-fxa`.
+See :github:`mozilla-services/kinto-fxa`.
 
 
 .. _configuration-permissions:
