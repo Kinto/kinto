@@ -171,7 +171,7 @@ Step 1
 
 - Merge remaining pull requests
 - Update ``CHANGELOG.rst``
-- Update version in ``cliquet_docs/conf.py``
+- Update version in ``docs/conf.py``
 - Known good versions of dependencies in ``requirements.txt``
 - Update ``CONTRIBUTORS.rst`` using: ``git shortlog -sne | awk '{$1=""; sub(" ", ""); print}' | awk -F'<' '!x[$1]++' | awk -F'<' '!x[$2]++' | sort``
 
@@ -179,7 +179,7 @@ Step 1
 
      $ git checkout -b prepare-X.Y.Z
      $ prerelease
-     $ vim cliquet_docs/conf.py
+     $ vim docs/conf.py
      $ make build-requirements
      $ git commit -a --amend
      $ git push origin prepare-X.Y.Z
