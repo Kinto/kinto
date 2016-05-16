@@ -158,7 +158,7 @@ For example:
 ::
 
     cd ..
-    git clone https://github.com/mozilla-services/cliquet.git
+    git clone https://github.com/mozilla-services/cornice.git
     cd kinto/
     .venv/bin/pip install -e ../cornice/
 
