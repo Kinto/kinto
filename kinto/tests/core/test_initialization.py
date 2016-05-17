@@ -157,13 +157,6 @@ class ProjectSettingsTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.settings(settings)
 
-        # settings = {
-        #     'kinto.paginate_by': 42,
-        #     'kinto.paginate_by': 3.14,
-        # }
-        # with self.assertRaises(ValueError):
-        #     self.settings(settings)
-
     def test_environment_can_specify_project_name(self):
         import os
 
