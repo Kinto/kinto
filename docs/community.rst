@@ -221,8 +221,7 @@ Step 1
 
 - Merge remaining pull requests
 - Update ``CHANGELOG.rst``
-- If protocol was updated (via *Kinto-Core* for example), update API changelog in
-  :file:`docs/api/index.rst`
+- If API was updated, update API changelog in :file:`docs/api/index.rst`
 - Update the link in :file:`docs/configuration/production.rst`
 - Update :file:`CONTRIBUTORS.rst`. The following hairy command will output the full list:
 
