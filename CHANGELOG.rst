@@ -10,8 +10,8 @@ This document describes changes between each past release.
   intended to simplify the experience of people who are new to Kinto.
   Addresses #687.
 - Removed ``initialize_cliquet()``, which has been deprecated for a while.
-- Removed ``cliquet_protocol_version``. Kinto already defines API
-  variations as part of its URL format (e.g. ``/v0``,
+- Removed ``cliquet_protocol_version``. Kinto already defines
+  incompatible API variations as part of its URL format (e.g. ``/v0``,
   ``/v1``). Services based on kinto.core are free to use
   ``http_api_version`` to indicate any additional changes to their
   APIs.
