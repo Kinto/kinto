@@ -140,6 +140,20 @@ def setup_requests_scheme(config):
         config.add_subscriber(on_new_request, NewRequest)
 
 
+def setup_vary_headers(config):
+    """Add Vary headers to each response."""
+    settings = config.get_settings()
+
+    vary = aslist(settings.get('vary', 'Authorization'))
+
+    def on_new_request(event):
+        def vary_callback(request, response):
+            response.vary = vary
+        event.request.add_response_callback(vary_callback)
+
+    config.add_subscriber(on_new_request, NewRequest)
+
+
 def setup_deprecation(config):
     config.add_tween("cliquet.initialization._end_of_life_tween_factory")
 
