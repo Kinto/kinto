@@ -4,10 +4,10 @@ Changelog
 This document describes changes between each past release.
 
 
-3.2.0 (unreleased)
+3.1.5 (2016-05-17)
 ------------------
 
-- Nothing changed yet.
+- Expose Vary: Authorization headers in every responses. (#593)
 
 
 3.1.4 (2016-05-10)
