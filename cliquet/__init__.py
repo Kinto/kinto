@@ -51,6 +51,7 @@ DEFAULT_SETTINGS = {
         'cliquet.initialization.setup_permission',
         'cliquet.initialization.setup_cache',
         'cliquet.initialization.setup_requests_scheme',
+        'cliquet.initialization.setup_vary_headers',
         'cliquet.initialization.setup_version_redirection',
         'cliquet.initialization.setup_deprecation',
         'cliquet.initialization.setup_authentication',
@@ -101,7 +102,7 @@ class Service(CorniceService):
     patching the default cornice service (which would impact other uses of it)
     """
     default_cors_headers = ('Backoff', 'Retry-After', 'Alert',
-                            'Content-Length')
+                            'Content-Length', 'Vary')
 
     def error_handler(self, error):
         return errors.json_error_handler(error)

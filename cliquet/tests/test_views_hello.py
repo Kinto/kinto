@@ -63,6 +63,11 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertTrue(userid.startswith('basicauth:'),
                         '"%s" does not start with "basicauth:"' % userid)
 
+    def test_vary_header_is_present(self):
+        response = self.app.get('/', headers=self.headers)
+        self.assertIn('Vary', response.headers)
+        self.assertIn('Authorization', response.headers['Vary'])
+
     def test_return_http_api_version_when_set(self):
         with mock.patch.dict(
                 self.app.app.registry.settings,
