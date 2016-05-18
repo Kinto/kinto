@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-3.0.0 (unreleased)
+3.0.0 (2016-05-18)
 ==================
 
 - Major version update. Merged cliquet into kinto.core. This is
@@ -29,6 +29,10 @@ This document describes changes between each past release.
 - Add an explicit message when the server is configured as read-only and the
   collection timestamp fails to be saved (ref Kinto/kinto#558)
 - Prevent the browser to cache server responses between two sessions. (#593)
+- Redirects version prefix to hello page when trailing_slash_redirect is enabled. (#700)
+- Fix crash when setting empty permission list with PostgreSQL permission backend (fixes Kinto/kinto#575)
+- Fix crash when type of values in querystring for exclude/include is wrong (fixes Kinto/kinto#587)
+- Fix crash when providing duplicated principals in permissions with PostgreSQL permission backend (fixes #702)
 
 
 2.1.1 (2016-04-29)
