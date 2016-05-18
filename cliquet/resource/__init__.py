@@ -729,6 +729,8 @@ class UserResource(object):
                     'description': "Invalid value for If-None-Match"
                 }
                 raise_invalid(self.request, **error_details)
+            else:
+                return
 
         if record:
             current_timestamp = record[self.model.modified_field]
