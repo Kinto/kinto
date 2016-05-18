@@ -7,7 +7,10 @@ This document describes changes between each past release.
 3.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Add an explicit message when the server is configured as read-only and the
+  collection timestamp fails to be saved (ref Kinto/kinto#558)
 
 
 3.1.5 (2016-05-17)

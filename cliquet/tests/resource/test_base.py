@@ -1,7 +1,9 @@
 import mock
+from pyramid import httpexceptions
 
 from cliquet.tests.support import unittest
 from cliquet.resource import UserResource, ShareableResource
+from cliquet.storage import exceptions as storage_exceptions
 from cliquet.tests.resource import BaseTest
 
 
@@ -11,6 +13,28 @@ class ResourceTest(BaseTest):
         request = self.get_request()
         parent_id = self.resource.get_parent_id(request)
         self.assertEquals(parent_id, 'basicauth:bob')
+
+    def test_raise_if_backend_fails_to_obtain_timestamp(self):
+        request = self.get_request()
+
+        with mock.patch.object(request.registry.storage,
+                               'collection_timestamp',
+                               side_effect=storage_exceptions.BackendError):
+            with self.assertRaises(storage_exceptions.BackendError):
+                self.resource_class(request)
+
+    def test_raise_unavailable_if_fail_to_obtain_timestamp_with_readonly(self):
+        request = self.get_request()
+
+        excepted_exc = httpexceptions.HTTPServiceUnavailable
+
+        request.registry.settings = {'readonly': 'true'}
+        with mock.patch.object(request.registry.storage,
+                               'collection_timestamp',
+                               side_effect=storage_exceptions.BackendError):
+            with self.assertRaises(excepted_exc) as cm:
+                self.resource_class(request)
+                self.assertIn('writable', cm.exception.message)
 
 
 class ShareableResourceTest(BaseTest):
