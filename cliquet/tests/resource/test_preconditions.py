@@ -167,6 +167,13 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
+    def test_get_if_none_match_star_fails_if_record_exists(self):
+        self.resource.request.headers.pop('If-Match')
+        self.resource.request.headers['If-None-Match'] = '*'
+        self.resource.record_id = self.stored['id']
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed,
+                          self.resource.get)
+
     def test_put_if_none_match_star_succeeds_if_record_does_not_exist(self):
         self.resource.request.headers.pop('If-Match')
         self.resource.request.headers['If-None-Match'] = '*'
