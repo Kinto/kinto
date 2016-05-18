@@ -147,11 +147,11 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
         self.assert_expose_headers('GET', self.collection_url, [
             'Alert', 'Backoff', 'ETag', 'Last-Modified', 'Next-Page',
             'Retry-After', 'Total-Records', 'Content-Length',
-            'Cache-Control', 'Expires', 'Pragma'])
+            'Cache-Control', 'Expires', 'Pragma', 'Vary'])
 
     def test_hello_endpoint_exposes_only_minimal_set_of_headers(self):
         self.assert_expose_headers('GET', '/', [
-            'Alert', 'Backoff', 'Retry-After', 'Content-Length'])
+            'Alert', 'Backoff', 'Retry-After', 'Content-Length', 'Vary'])
 
     def test_record_get_exposes_only_used_headers(self):
         body = {'data': MINIMALIST_RECORD}
@@ -163,22 +163,26 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
         self.assert_expose_headers('GET', record_url, [
             'Alert', 'Backoff', 'ETag', 'Retry-After',
             'Last-Modified', 'Content-Length',
-            'Cache-Control', 'Expires', 'Pragma'])
+            'Cache-Control', 'Expires', 'Pragma', 'Vary'])
 
     def test_record_post_exposes_only_minimal_set_of_headers(self):
         body = {'data': MINIMALIST_RECORD}
-        self.assert_expose_headers('POST_JSON', '/mushrooms', [
-            'Alert', 'Backoff', 'Retry-After', 'Content-Length'], body=body)
+        self.assert_expose_headers('POST_JSON', '/mushrooms',
+                                   ['Alert', 'Backoff', 'Retry-After',
+                                    'Content-Length', 'Vary'],
+                                   body=body)
 
     def test_present_on_bad_id_400_errors(self):
         body = {'data': {'name': 'Amanite'}}
         self.assert_expose_headers('PUT_JSON', '/mushrooms/wrong=ids', [
-            'Alert', 'Backoff', 'Retry-After', 'Content-Length'],
+            'Alert', 'Backoff', 'Retry-After', 'Content-Length', 'Vary'],
             body=body, status=400)
 
     def test_present_on_unknown_url(self):
-        self.assert_expose_headers('PUT_JSON', '/unknown', [
-            'Alert', 'Backoff', 'Retry-After', 'Content-Length'], status=404)
+        self.assert_expose_headers('PUT_JSON', '/unknown',
+                                   ['Alert', 'Backoff', 'Retry-After',
+                                    'Content-Length', 'Vary'],
+                                   status=404)
 
 
 class CORSMaxAgeTest(BaseWebTest, unittest.TestCase):

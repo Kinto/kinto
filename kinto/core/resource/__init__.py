@@ -6,8 +6,10 @@ import colander
 import venusian
 import six
 from pyramid import exceptions as pyramid_exceptions
+from pyramid.decorator import reify
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
-                                    HTTPNotFound, HTTPConflict)
+                                    HTTPNotFound, HTTPConflict,
+                                    HTTPServiceUnavailable)
 
 from kinto.core import logger
 from kinto.core import Service
@@ -151,13 +153,35 @@ class UserResource(object):
 
         self.request = request
         self.context = context
-        self.timestamp = self.model.timestamp()
         self.record_id = self.request.matchdict.get('id')
         self.force_patch_update = False
 
         # Log resource context.
         logger.bind(collection_id=self.model.collection_id,
                     collection_timestamp=self.timestamp)
+
+    @reify
+    def timestamp(self):
+        """Return the current collection timestamp.
+
+        :rtype: int
+        """
+        try:
+            return self.model.timestamp()
+        except storage_exceptions.BackendError as e:
+            is_readonly = self.request.registry.settings['readonly']
+            if not is_readonly:
+                raise e
+            # If the instance is configured to be readonly, and if the
+            # collection is empty, the backend will try to bump the timestamp.
+            # It fails if the configured db user has not write privileges.
+            logger.exception()
+            error_msg = ("Collection timestamp cannot be written. "
+                         "Records endpoint must be hit at least once from a "
+                         "writable instance.")
+            raise http_error(HTTPServiceUnavailable(),
+                             errno=ERRORS.BACKEND,
+                             message=error_msg)
 
     @property
     def collection(self):
@@ -723,12 +747,13 @@ class UserResource(object):
                 raise ValueError()
             modified_since = int(if_none_match[1:-1])
         except (IndexError, ValueError):
-            if if_none_match != '*':
-                error_details = {
-                    'location': 'headers',
-                    'description': "Invalid value for If-None-Match"
-                }
-                raise_invalid(self.request, **error_details)
+            if if_none_match == '*':
+                return
+            error_details = {
+                'location': 'headers',
+                'description': "Invalid value for If-None-Match"
+            }
+            raise_invalid(self.request, **error_details)
 
         if record:
             current_timestamp = record[self.model.modified_field]

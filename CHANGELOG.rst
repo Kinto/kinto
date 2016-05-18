@@ -24,6 +24,12 @@ This document describes changes between each past release.
   kinto.core can continue using these names even after they transition
   clients to the new implementation of their service.
 
+**Bug fixes**
+
+- Add an explicit message when the server is configured as read-only and the
+  collection timestamp fails to be saved (ref Kinto/kinto#558)
+- Prevent the browser to cache server responses between two sessions. (#593)
+
 
 2.1.1 (2016-04-29)
 ==================

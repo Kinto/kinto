@@ -45,6 +45,7 @@ DEFAULT_SETTINGS = {
         'kinto.core.initialization.setup_permission',
         'kinto.core.initialization.setup_cache',
         'kinto.core.initialization.setup_requests_scheme',
+        'kinto.core.initialization.setup_vary_headers',
         'kinto.core.initialization.setup_version_redirection',
         'kinto.core.initialization.setup_deprecation',
         'kinto.core.initialization.setup_authentication',
@@ -95,7 +96,7 @@ class Service(CorniceService):
     patching the default cornice service (which would impact other uses of it)
     """
     default_cors_headers = ('Backoff', 'Retry-After', 'Alert',
-                            'Content-Length')
+                            'Content-Length', 'Vary')
 
     def error_handler(self, error):
         return errors.json_error_handler(error)
