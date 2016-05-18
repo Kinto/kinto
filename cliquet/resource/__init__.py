@@ -723,14 +723,14 @@ class UserResource(object):
                 raise ValueError()
             modified_since = int(if_none_match[1:-1])
         except (IndexError, ValueError):
-            if if_none_match != '*':
-                error_details = {
-                    'location': 'headers',
-                    'description': "Invalid value for If-None-Match"
-                }
-                raise_invalid(self.request, **error_details)
-            else:
+            if if_none_match == '*':
                 return
+
+            error_details = {
+                'location': 'headers',
+                'description': "Invalid value for If-None-Match"
+            }
+            raise_invalid(self.request, **error_details)
 
         if record:
             current_timestamp = record[self.model.modified_field]
