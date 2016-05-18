@@ -33,6 +33,7 @@ This document describes changes between each past release.
 - Fix crash when setting empty permission list with PostgreSQL permission backend (fixes Kinto/kinto#575)
 - Fix crash when type of values in querystring for exclude/include is wrong (fixes Kinto/kinto#587)
 - Fix crash when providing duplicated principals in permissions with PostgreSQL permission backend (fixes #702)
+- Add ``app.wsgi`` to the manifest file. This helps address #543.
 
 
 2.1.1 (2016-04-29)
