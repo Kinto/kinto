@@ -1,4 +1,4 @@
-from cliquet import authorization as cliquet_authorization
+from kinto.core import authorization as core_authorization
 from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 
@@ -139,10 +139,10 @@ def build_permissions_set(object_uri, unbound_permission,
 
 
 @implementer(IAuthorizationPolicy)
-class AuthorizationPolicy(cliquet_authorization.AuthorizationPolicy):
+class AuthorizationPolicy(core_authorization.AuthorizationPolicy):
     def get_bound_permissions(self, *args, **kwargs):
         return build_permissions_set(*args, **kwargs)
 
 
-class RouteFactory(cliquet_authorization.RouteFactory):
+class RouteFactory(core_authorization.RouteFactory):
     pass

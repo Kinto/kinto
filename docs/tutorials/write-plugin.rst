@@ -155,7 +155,7 @@ Add an endpoint definition in :file:`kinto_elasticsearch/views.py`:
 
 .. code-block:: python
 
-    from cliquet import Service, logger
+    from kinto.core import Service, logger
 
     search = Service(name="search",
                      path='/buckets/{bucket_id}/collections/{collection_id}/search',
@@ -242,12 +242,12 @@ an action is performed on records.
                                      collection_id,
                                      record=change['new'])
 
-And then we bind this function with the *Cliquet* events (the toolkit used by Kinto):
+And then we bind this function with the *Kinto-Core* events:
 
 .. code-block:: python
     :emphasize-lines: 1,12,13
 
-    from cliquet.events import ResourceChanged
+    from kinto.core.events import ResourceChanged
 
     from . import indexer
 

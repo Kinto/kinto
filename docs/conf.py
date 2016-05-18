@@ -13,8 +13,7 @@
 # serve to show the default.
 
 import os
-import shutil
-import cliquet_docs
+import sys
 
 __HERE__ = os.path.dirname(os.path.abspath(__file__))
 
@@ -28,30 +27,10 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 # otherwise, readthedocs.io uses their theme by default, so no need to specify
 # it
 
-# Copy the docs from Cliquet inside these ones.
-# XXX how do we copy on 2.x ?
-destination = os.path.join(__HERE__, 'api', '1.x', 'cliquet')
-cliquet_docs.copy_docs('api', destination)
-os.remove(os.path.join(destination, 'index.rst'))
-os.remove(os.path.join(destination, 'authentication.rst'))
-
-# the versioning doc goes in api/versionning
-shutil.move(os.path.join(destination, 'versioning.rst'),
-            os.path.join(__HERE__, 'api', 'versioning.rst'))
-
-# Copy the cliquet glossary
-destination = os.path.join(__HERE__, 'cliquet_glossary.rst')
-source = os.path.join(os.path.dirname(cliquet_docs.__file__), 'reference',
-                      'glossary.rst')
-
-with open(destination, 'wb') as d:
-    with open(source, 'rb') as s:
-        d.write(s.read())
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-# sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath(os.path.join('..', 'kinto')))
 
 # -- General configuration ------------------------------------------------
 
@@ -62,8 +41,10 @@ with open(destination, 'wb') as d:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autodoc',
     'sphinxcontrib.httpdomain',
     'sphinx.ext.extlinks',
+    'sphinx.ext.intersphinx',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -91,9 +72,9 @@ copyright = u'2015-2016 — Mozilla Services'
 # built documents.
 #
 # The short X.Y version.
-version = '2.1'
+version = '3.0'
 # The full version, including alpha/beta/rc tags.
-release = '2.1.1'
+release = '3.0.0'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -111,6 +92,11 @@ html_static_path = ['_static']
 htmlhelp_basename = 'Kintodoc'
 
 
+# -- Options for autodoc --------------------------------------------------
+
+autodoc_member_order = 'bysource'
+
+
 # -- Options of extlinks --------------------------------------------------
 
 extlinks = {
@@ -125,6 +111,14 @@ def setup(app):
     app.add_stylesheet('theme_overrides.css')
     app.add_javascript('piwik.js')
 
+
+# -- Options for intersphinx --------------------------------------------------
+
+intersphinx_mapping = {
+    'colander': ('http://colander.readthedocs.io/en/latest/', None),
+    'cornice': ('http://cornice.readthedocs.io/en/latest/', None),
+    'pyramid': ('http://pyramid.readthedocs.io/en/latest/', None)
+}
 
 # -- Options for LaTeX output ---------------------------------------------
 

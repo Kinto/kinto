@@ -1,5 +1,5 @@
-from cliquet import resource
-from cliquet.events import ResourceChanged, ACTIONS
+from kinto.core import resource
+from kinto.core.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
 
 from kinto.views import NameGenerator
@@ -23,7 +23,7 @@ class Bucket(resource.ShareableResource):
         self.model.id_generator = NameGenerator()
 
     def get_parent_id(self, request):
-        # Buckets are not isolated by user, unlike Cliquet resources.
+        # Buckets are not isolated by user, unlike Kinto-Core resources.
         return ''
 
 

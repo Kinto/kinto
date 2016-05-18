@@ -5,10 +5,10 @@ from pyramid import httpexceptions
 from pyramid.settings import asbool
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
-from cliquet.errors import raise_invalid
-from cliquet.events import ACTIONS
-from cliquet.utils import build_request, reapply_cors, hmac_digest
-from cliquet.storage import exceptions as storage_exceptions
+from kinto.core.errors import raise_invalid
+from kinto.core.events import ACTIONS
+from kinto.core.utils import build_request, reapply_cors, hmac_digest
+from kinto.core.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
 from kinto.views.buckets import Bucket
@@ -182,7 +182,7 @@ def includeme(config):
 
     # Provide helpers
     config.add_request_method(default_bucket_id, reify=True)
-    # Override Cliquet default user info
+    # Override kinto.core default user info
     config.add_request_method(get_user_info)
 
     config.add_api_capability(

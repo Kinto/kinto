@@ -7,9 +7,6 @@
 .tox/
 loadtests/.env.install
 docs/_build/
-docs/api/1.x/cliquet/
-docs/api/versioning.rst
-docs/cliquet_glossary.rst
 .cache/
 *.un~
 config/*.ini

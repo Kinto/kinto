@@ -1,10 +1,9 @@
+import platform
 import codecs
 import os
-import sys
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
-
 
 def read_file(filename):
     """Open a related file and return its content."""
@@ -16,22 +15,49 @@ README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
+installed_with_pypy = platform.python_implementation() == 'PyPy'
+
 REQUIREMENTS = [
-    'waitress',
-    'cliquet>=3.1,<4',
+    'colander',
+    'colorama',
+    'cornice >= 1.1',  # Fix cache CORS
     'jsonschema',
+    'python-dateutil',
+    'pyramid_multiauth >= 0.8',  # User on policy selected event.
+    'pyramid_tm',
+    'redis',  # Default backend
+    'requests',
+    'six',
+    'structlog',
+    'enum34',
+    'waitress',
 ]
 
-POSTGRESQL_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[postgresql]>=3.1,<4'
+if installed_with_pypy:
+    # We install psycopg2cffi instead of psycopg2 when dealing with pypy
+    # Note: JSONB support landed after psycopg2cffi 2.7.0
+    POSTGRESQL_REQUIRES = [
+        'SQLAlchemy',
+        'psycopg2cffi>2.7.0',
+        'zope.sqlalchemy',
+    ]
+else:
+    # ujson is not pypy compliant, as it uses the CPython C API
+    REQUIREMENTS.append('ujson >= 1.35')
+    POSTGRESQL_REQUIRES = [
+        'SQLAlchemy',
+        'psycopg2>2.5',
+        'zope.sqlalchemy',
+    ]
+
+DEPENDENCY_LINKS = [
 ]
 
-MONITORING_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet[monitoring]>=3.1,<4'
-]
-
-FXA_REQUIREMENTS = REQUIREMENTS + [
-    'cliquet-fxa<2'
+MONITORING_REQUIRES = [
+    'raven',
+    'statsd',
+    'newrelic',
+    'werkzeug',
 ]
 
 ENTRY_POINTS = {
@@ -43,11 +69,9 @@ ENTRY_POINTS = {
     ],
 }
 
-DEPENDENCY_LINKS = [
-]
 
 setup(name='kinto',
-      version='2.2.0.dev0',
+      version='3.0.0.dev0',
       description='Kinto Web Service - Store, Sync, Share, and Self-Host.',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',
@@ -64,20 +88,20 @@ setup(name='kinto',
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
           "License :: OSI Approved :: Apache Software License"
       ],
-      keywords="web sync json storage",
+      keywords="web sync json storage services",
       author='Mozilla Services',
       author_email='storage-team@mozilla.com',
       url='https://github.com/Kinto/kinto',
       packages=find_packages(),
+      package_data={'': ['*.rst', '*.py']},
       include_package_data=True,
       zip_safe=False,
       install_requires=REQUIREMENTS,
       extras_require={
-          'postgresql': POSTGRESQL_REQUIREMENTS,
-          'monitoring': MONITORING_REQUIREMENTS,
-          'fxa': FXA_REQUIREMENTS,
+          'postgresql': POSTGRESQL_REQUIRES,
+          'monitoring': MONITORING_REQUIRES,
           ":python_version=='2.7'": ["functools32"],
       },
       test_suite="kinto.tests",
-      entry_points=ENTRY_POINTS,
-      dependency_links=DEPENDENCY_LINKS)
+      dependency_links=DEPENDENCY_LINKS,
+      entry_points=ENTRY_POINTS)

@@ -100,7 +100,7 @@ The last step consists in creating the necessary tables and indices, run the ``m
 .. note::
 
     Alternatively the SQL initialization files can be found in the
-    *Cliquet* :github:`source code <mozilla-services/cliquet>`.
+    *Kinto* :github:`source code <Kinto/kinto>`.
 
 
 Production checklist
@@ -129,7 +129,7 @@ adjustments:
 .. note::
 
     For an exhaustive list of available settings and their default values,
-    refer to the *Cliquet* :github:`source code <mozilla-services/cliquet/blob/3.1.3/cliquet/__init__.py#L29-L94>`.
+    refer to the *Kinto* :github:`source code <Kinto/kinto/blob/3.0.0/kinto/core/__init__.py#L23-L88>`.
 
 
 By default, nobody can read buckets list. You can change that using:
@@ -221,7 +221,7 @@ In order to enable Mozilla *Heka* logging output:
 .. code-block :: ini
 
     # Heka
-    kinto.logging_renderer = cliquet.logs.MozillaHekaRenderer
+    kinto.logging_renderer = kinto.core.logs.MozillaHekaRenderer
 
 
 With the following configuration, all logs are structured in JSON and
@@ -232,7 +232,7 @@ A `Sentry <https://getsentry.com>`_ logger is also enabled.
 .. code-block:: ini
 
     [loggers]
-    keys = root, kinto, cliquet
+    keys = root, kinto
 
     [handlers]
     keys = console, sentry
@@ -248,11 +248,6 @@ A `Sentry <https://getsentry.com>`_ logger is also enabled.
     level = INFO
     handlers = console, sentry
     qualname = kinto
-
-    [logger_cliquet]
-    level = INFO
-    handlers = console, sentry
-    qualname = cliquet
 
     [handler_console]
     class = StreamHandler

@@ -49,8 +49,8 @@ and kill the process using PID from output::
 $ kill -kill [PID]
 
 
-cliquet.storage.exceptions.BackendError: OperationalError [Postgres Service]
-============================================================================
+kinto.core.storage.exceptions.BackendError: OperationalError [Postgres Service]
+===============================================================================
 
 Make sure that postgres server is running properly.
 

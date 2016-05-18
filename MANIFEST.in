@@ -1,2 +1,5 @@
 include *.rst LICENSE Makefile tox.ini .coveragerc
 include kinto/config/kinto.tpl
+recursive-include kinto *.sql *.html
+recursive-include docs *.rst *.png *.svg
+prune docs/_build/*

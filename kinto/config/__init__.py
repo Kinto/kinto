@@ -2,7 +2,7 @@ import os
 import codecs
 from time import strftime
 
-from cliquet import utils as cliquet_utils
+from kinto.core import utils as core_utils
 
 from kinto import logger
 from kinto import __version__
@@ -29,14 +29,14 @@ def render_template(template, destination, **kwargs):
 def init(config_file, backend):
     values = {}
 
-    values['secret'] = cliquet_utils.random_bytes_hex(32)
+    values['secret'] = core_utils.random_bytes_hex(32)
 
     values['kinto_version'] = __version__
     values['config_file_timestamp'] = strftime('%a, %d %b %Y %H:%M:%S %z')
 
-    values['storage_backend'] = "cliquet.storage.%s" % backend
-    values['cache_backend'] = "cliquet.cache.%s" % backend
-    values['permission_backend'] = "cliquet.permission.%s" % backend
+    values['storage_backend'] = "kinto.core.storage.%s" % backend
+    values['cache_backend'] = "kinto.core.cache.%s" % backend
+    values['permission_backend'] = "kinto.core.permission.%s" % backend
 
     if backend == 'postgresql':
         postgresql_url = "postgres://postgres:postgres@localhost/postgres"

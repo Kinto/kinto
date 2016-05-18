@@ -94,13 +94,13 @@ class TestMain(unittest.TestCase):
         assert 'memory' in content
 
     def test_cli_migrate_command_runs_init_schema(self):
-        with mock.patch('kinto.__main__.cliquet.init_schema') as mocked_init:
+        with mock.patch('kinto.__main__.scripts.migrate') as mocked_migrate:
             res = main(['--ini', TEMP_KINTO_INI,
                         '--backend', 'memory', 'init'])
             assert res == 0
             res = main(['--ini', TEMP_KINTO_INI, 'migrate'])
             assert res == 0
-            assert mocked_init.call_count == 1
+            assert mocked_migrate.call_count == 1
 
     def test_cli_start_runs_pserve(self):
         with mock.patch('kinto.__main__.pserve.main') as mocked_pserve:

@@ -3,10 +3,26 @@ Changelog
 
 This document describes changes between each past release.
 
-2.2.0 (unreleased)
+3.0.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Major version update. Merged cliquet into kinto.core. This is
+  intended to simplify the experience of people who are new to Kinto.
+  Addresses #687.
+- Removed ``initialize_cliquet()``, which has been deprecated for a while.
+- Removed ``cliquet_protocol_version``. Kinto already defines
+  incompatible API variations as part of its URL format (e.g. ``/v0``,
+  ``/v1``). Services based on kinto.core are free to use
+  ``http_api_version`` to indicate any additional changes to their
+  APIs.
+- Simplify settings code. Previously, ``public_settings`` could be
+  prefixed with a project name, which would be reflected in the output
+  of the ``hello`` view. However, this was never part of the API
+  specification, and was meant to be solely a backwards-compatibility
+  hack for first-generation Kinto clients. Kinto public settings
+  should always be exposed unprefixed. Applications developed against
+  kinto.core can continue using these names even after they transition
+  clients to the new implementation of their service.
 
 
 2.1.1 (2016-04-29)

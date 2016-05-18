@@ -1,7 +1,7 @@
 import colander
 import jsonschema
-from cliquet import resource
-from cliquet.events import ResourceChanged, ACTIONS
+from kinto.core import resource
+from kinto.core.events import ResourceChanged, ACTIONS
 from jsonschema import exceptions as jsonschema_exceptions
 from pyramid.events import subscriber
 

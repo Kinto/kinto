@@ -131,7 +131,6 @@ You can obtain the :term:`user ID` generated for your token on the :ref:`Kinto r
     Server: nginx
 
     {
-        "cliquet_protocol_version": "2",
         "http_api_version": "1.0",
         "project_docs": "https://kinto.readthedocs.io/",
         "project_name": "kinto",
@@ -139,7 +138,6 @@ You can obtain the :term:`user ID` generated for your token on the :ref:`Kinto r
         "settings": {
             "attachment.base_url": "https://kinto.dev.mozaws.net/attachments/",
             "batch_max_requests": 25,
-            "cliquet.batch_max_requests": 25,
             "readonly": false
         },
         "url": "https://kinto.dev.mozaws.net/v1/",
@@ -242,4 +240,4 @@ Firefox Accounts
 ----------------
 
 In order to enable authentication with :term:`Firefox Accounts`, install and
-configure :github:`mozilla-services/cliquet-fxa`.
+configure :github:`mozilla-services/kinto-fxa`.

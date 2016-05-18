@@ -4,10 +4,10 @@ from uuid import UUID
 
 from pyramid.httpexceptions import HTTPBadRequest
 
-from cliquet.errors import ERRORS, http_error
-from cliquet.storage import exceptions as storage_exceptions
-from cliquet.tests.support import FormattedErrorMixin
-from cliquet.utils import hmac_digest
+from kinto.core.errors import ERRORS, http_error
+from kinto.core.storage import exceptions as storage_exceptions
+from kinto.tests.core.support import FormattedErrorMixin
+from kinto.core.utils import hmac_digest
 
 from kinto.tests.support import (BaseWebTest, unittest, get_user_headers,
                                  MINIMALIST_RECORD)

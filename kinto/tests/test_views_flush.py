@@ -1,7 +1,7 @@
 import webtest
 from pyramid.config import Configurator
 
-from cliquet.tests import support as cliquet_support
+from kinto.tests.core import support as core_support
 from kinto import main
 from kinto.events import ServerFlushed
 
@@ -54,7 +54,7 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         self.config.add_subscriber(self.listener, ServerFlushed)
         self.config.commit()
         app = webtest.TestApp(main({}, config=self.config, **app_settings))
-        app.RequestClass = cliquet_support.get_request_class(prefix="v1")
+        app.RequestClass = core_support.get_request_class(prefix="v1")
 
         return app
 

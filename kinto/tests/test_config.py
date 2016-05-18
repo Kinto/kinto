@@ -69,9 +69,9 @@ class ConfigTest(unittest.TestCase):
         postgresql_url = "postgres://postgres:postgres@localhost/postgres"
         self.assertDictEqual(kwargs, {
             'secret': kwargs['secret'],
-            'storage_backend': 'cliquet.storage.postgresql',
-            'cache_backend': 'cliquet.cache.postgresql',
-            'permission_backend': 'cliquet.permission.postgresql',
+            'storage_backend': 'kinto.core.storage.postgresql',
+            'cache_backend': 'kinto.core.cache.postgresql',
+            'permission_backend': 'kinto.core.permission.postgresql',
             'storage_url': postgresql_url,
             'cache_url':  postgresql_url,
             'permission_url': postgresql_url,
@@ -89,9 +89,9 @@ class ConfigTest(unittest.TestCase):
         redis_url = "redis://localhost:6379"
         self.assertDictEqual(kwargs, {
             'secret': kwargs['secret'],
-            'storage_backend': 'cliquet.storage.redis',
-            'cache_backend': 'cliquet.cache.redis',
-            'permission_backend': 'cliquet.permission.redis',
+            'storage_backend': 'kinto.core.storage.redis',
+            'cache_backend': 'kinto.core.cache.redis',
+            'permission_backend': 'kinto.core.permission.redis',
             'storage_url': redis_url + '/1',
             'cache_url':  redis_url + '/2',
             'permission_url': redis_url + '/3',
@@ -108,9 +108,9 @@ class ConfigTest(unittest.TestCase):
 
         self.assertDictEqual(kwargs, {
             'secret': kwargs['secret'],
-            'storage_backend': 'cliquet.storage.memory',
-            'cache_backend': 'cliquet.cache.memory',
-            'permission_backend': 'cliquet.permission.memory',
+            'storage_backend': 'kinto.core.storage.memory',
+            'cache_backend': 'kinto.core.cache.memory',
+            'permission_backend': 'kinto.core.permission.memory',
             'storage_url': '',
             'cache_url':  '',
             'permission_url': '',
@@ -123,9 +123,9 @@ class ConfigTest(unittest.TestCase):
         destination = os.path.join(temp_path, 'config/kinto.ini')
         config.render_template('kinto.tpl', destination, **{
             'secret': "abcd-ceci-est-un-secret",
-            'storage_backend': 'cliquet.storage.memory',
-            'cache_backend': 'cliquet.cache.memory',
-            'permission_backend': 'cliquet.permission.memory',
+            'storage_backend': 'kinto.core.storage.memory',
+            'cache_backend': 'kinto.core.cache.memory',
+            'permission_backend': 'kinto.core.permission.memory',
             'storage_url': '',
             'cache_url':  '',
             'permission_url': '',
@@ -139,9 +139,9 @@ class ConfigTest(unittest.TestCase):
         os.chdir(temp_path)
         config.render_template('kinto.tpl', 'kinto.ini', **{
             'secret': "abcd-ceci-est-un-secret",
-            'storage_backend': 'cliquet.storage.memory',
-            'cache_backend': 'cliquet.cache.memory',
-            'permission_backend': 'cliquet.permission.memory',
+            'storage_backend': 'kinto.core.storage.memory',
+            'cache_backend': 'kinto.core.cache.memory',
+            'permission_backend': 'kinto.core.permission.memory',
             'storage_url': '',
             'cache_url':  '',
             'permission_url': '',

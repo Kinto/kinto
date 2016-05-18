@@ -448,7 +448,6 @@ For convenience, the actual default bucket id is provided in the root URL of *Ki
             "documentation": "https://kinto.readthedocs.io/",
             "settings": {
                 "batch_max_requests": 25,
-                "cliquet.batch_max_requests": 25
             },
             "user": {
                 "id": "basicauth:62e79bedacd2508c7da3dfb16e9724501fb4bdf9a830de7f8abcc8f7f1496c35",

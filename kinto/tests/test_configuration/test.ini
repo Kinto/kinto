@@ -47,7 +47,7 @@ kinto.includes = kinto.plugins.default_bucket
 #
 # Firefox Accounts configuration.
 #   These are working FxA credentials for localhost:8888
-# kinto.includes  = cliquet_fxa
+# kinto.includes  = kinto_fxa
 # fxa-oauth.client_id = 61c3f791f740c19a
 # fxa-oauth.client_secret = b13739d8a905315314b09fb7b947aaeb62b47c6a4a5efb00c378fdecacd1e95e
 # fxa-oauth.oauth_uri = https://oauth-stable.dev.lcip.org/v1
@@ -119,10 +119,10 @@ kinto.includes = kinto.plugins.default_bucket
 # Logging configuration
 #
 
-# kinto.logging_renderer = cliquet.logs.ClassicLogRenderer
+# kinto.logging_renderer = kinto.core.logs.ClassicLogRenderer
 
 [loggers]
-keys = root, cliquet
+keys = root, kinto_core
 
 [handlers]
 keys = console
@@ -134,10 +134,10 @@ keys = generic
 level = INFO
 handlers = console
 
-[logger_cliquet]
+[logger_kinto_core]
 level = DEBUG
 handlers =
-qualname = cliquet
+qualname = kinto.core
 
 [handler_console]
 class = StreamHandler

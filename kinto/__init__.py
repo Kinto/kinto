@@ -1,7 +1,7 @@
 import pkg_resources
 import logging
 
-import cliquet
+import kinto.core
 from pyramid.config import Configurator
 from pyramid.settings import asbool
 from pyramid.security import Authenticated
@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_SETTINGS = {
     'retry_after_seconds': 3,
-    'cache_backend': 'cliquet.cache.memory',
-    'permission_backend': 'cliquet.permission.memory',
-    'storage_backend': 'cliquet.storage.memory',
+    'cache_backend': 'kinto.core.cache.memory',
+    'permission_backend': 'kinto.core.permission.memory',
+    'storage_backend': 'kinto.core.storage.memory',
     'project_docs': 'https://kinto.readthedocs.io/',
     'bucket_create_principals': Authenticated,
     'multiauth.authorization_policy': (
@@ -37,16 +37,13 @@ def main(global_config, config=None, **settings):
         config = Configurator(settings=settings, root_factory=RouteFactory)
 
     # Force project name, since it determines settings prefix.
-    config.add_settings({'cliquet.project_name': 'kinto'})
+    config.add_settings({'kinto.project_name': 'kinto'})
 
-    cliquet.initialize(config,
-                       version=__version__,
-                       default_settings=DEFAULT_SETTINGS)
+    kinto.core.initialize(config,
+                          version=__version__,
+                          default_settings=DEFAULT_SETTINGS)
 
     settings = config.get_settings()
-
-    # Retro-compatibility with first Kinto clients.
-    config.registry.public_settings.add('cliquet.batch_max_requests')
 
     # Expose capability
     schema_enabled = asbool(
@@ -78,4 +75,4 @@ def main(global_config, config=None, **settings):
     app = config.make_wsgi_app()
 
     # Install middleware (idempotent if disabled)
-    return cliquet.install_middlewares(app, settings)
+    return kinto.core.install_middlewares(app, settings)

@@ -11,9 +11,8 @@ RUN \
     apt-get update; \
     apt-get install -y python3 python3-setuptools python3-pip libpq5; \
     apt-get install -y build-essential git python3-dev libssl-dev libffi-dev libpq-dev; \
-    pip3 install cliquet[postgresql,monitoring]; \
-    pip3 install -e /code; \
-    pip3 install cliquet-pusher cliquet-fxa kinto-attachment ; \
+    pip3 install -e /code[postgresql,monitoring]; \
+    pip3 install cliquet-pusher kinto-fxa kinto-attachment ; \
     kinto --ini $KINTO_INI --backend=memory init; \
     apt-get remove -y -qq build-essential git python3-dev libssl-dev libffi-dev libpq-dev; \
     apt-get autoremove -y -qq; \

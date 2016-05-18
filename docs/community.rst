@@ -150,7 +150,7 @@ Before we merge a pull request, we check that it meets these guidelines:
 Hack core libraries
 -------------------
 
-If you want to run *Kinto* with some core libraries under development (like *Cliquet* or *Cornice*),
+If you want to run *Kinto* with some core libraries under development (like *Cornice*),
 just install them from your local folder using ``pip``.
 
 For example:
@@ -158,9 +158,9 @@ For example:
 ::
 
     cd ..
-    git clone https://github.com/mozilla-services/cliquet.git
+    git clone https://github.com/mozilla-services/cornice.git
     cd kinto/
-    .venv/bin/pip install -e ../cliquet/
+    .venv/bin/pip install -e ../cornice/
 
 
 Run load tests
@@ -221,9 +221,8 @@ Step 1
 
 - Merge remaining pull requests
 - Update ``CHANGELOG.rst``
-- If protocol was updated (via *Cliquet* for example), update API changelog in
-  :file:`docs/api/index.rst`
-- If *Cliquet* was updated, update the link in :file:`docs/configuration/production.rst`
+- If API was updated, update API changelog in :file:`docs/api/index.rst`
+- Update the link in :file:`docs/configuration/production.rst`
 - Update :file:`CONTRIBUTORS.rst`. The following hairy command will output the full list:
 
 .. code-block:: bash

@@ -91,7 +91,6 @@ Since we left ``basicauth`` in settings, it should still be accepted:
     :emphasize-lines: 16
 
     {
-        "cliquet_protocol_version": "2",
         "http_api_version": "1.2",
         "project_docs": "https://kinto.readthedocs.io/",
         "project_name": "kinto",
@@ -99,7 +98,6 @@ Since we left ``basicauth`` in settings, it should still be accepted:
         "settings": {
             "attachment.base_url": "http://localhost:7777",
             "batch_max_requests": 25,
-            "cliquet.batch_max_requests": 25,
             "readonly": false
         },
         "url": "http://localhost:8888/v1/",
@@ -119,7 +117,7 @@ should see its output in the console when a request comes in.
     Starting server in PID 8079.
     serving on http://0.0.0.0:8888
     Check Github
-    2016-01-26 11:59:04,918 INFO  [cliquet.initialization][waitress] "GET   /v1/" 200 (1 ms) request.summary lang=None; uid=63279e82e351f8f318eea09ae5e3bcfc3b9e3eee06e9befacbf17102e0595dad; errno=None; agent=HTTPie/0.9.2; authn_type=BasicAuth; time=2016-01-26T11:59:04
+    2016-01-26 11:59:04,918 INFO  [kinto.core.initialization][waitress] "GET   /v1/" 200 (1 ms) request.summary lang=None; uid=63279e82e351f8f318eea09ae5e3bcfc3b9e3eee06e9befacbf17102e0595dad; errno=None; agent=HTTPie/0.9.2; authn_type=BasicAuth; time=2016-01-26T11:59:04
 
 
 Github token validation
@@ -178,7 +176,7 @@ We will simply make a call to the Github user API and try to obtain the ``login`
     :emphasize-lines: 30-38
 
     import requests
-    from cliquet import logger
+    from kinto.core import logger
     from pyramid.authentication import CallbackAuthenticationPolicy
     from pyramid.interfaces import IAuthenticationPolicy
     from zope.interface import implementer
@@ -306,7 +304,6 @@ Check your user id
     Server: waitress
 
     {
-        "cliquet_protocol_version": "2",
         "http_api_version": "1.2",
         "project_docs": "https://kinto.readthedocs.io/",
         "project_name": "kinto",
@@ -314,7 +311,6 @@ Check your user id
         "settings": {
             "attachment.base_url": "http://localhost:7777",
             "batch_max_requests": 25,
-            "cliquet.batch_max_requests": 25,
             "readonly": false
         },
         "url": "http://localhost:8888/v1/",
