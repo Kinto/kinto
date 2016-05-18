@@ -175,7 +175,7 @@ class UserResource(object):
             # If the instance is configured to be readonly, and if the
             # collection is empty, the backend will try to bump the timestamp.
             # It fails if the configured db user has not write privileges.
-            logger.exception()
+            logger.exception(e)
             error_msg = ("Collection timestamp cannot be written. "
                          "Records endpoint must be hit at least once from a "
                          "writable instance.")
