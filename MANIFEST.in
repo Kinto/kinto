@@ -1,5 +1,8 @@
-include *.rst LICENSE Makefile tox.ini .coveragerc
+include *.rst LICENSE Makefile tox.ini .coveragerc app.wsgi
 include kinto/config/kinto.tpl
-recursive-include kinto *.sql *.html
-recursive-include docs *.rst *.png *.svg
+include dev-requirements.txt
+recursive-include kinto *.sql *.html *.ini
+recursive-include docs *.rst *.png *.svg *.css *.html conf.py piwik.js
 prune docs/_build/*
+prune loadtests
+prune talks
