@@ -7,7 +7,9 @@ This document describes changes between each past release.
 3.1.5 (2016-05-17)
 ------------------
 
-- Expose Vary: Authorization headers in every responses. (#593)
+**Bug fixes**
+
+- Prevent the browser to cache server responses between two sessions. (#593)
 
 
 3.1.4 (2016-05-10)
