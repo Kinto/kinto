@@ -34,8 +34,8 @@ class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
 class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extra=None):
         settings = super(SpecificSettingsTest, self).get_app_settings(extra)
-        settings['kinto.blog_record_cache_expires_seconds'] = 30
-        settings['kinto.browser_top500_record_cache_expires_seconds'] = 60
+        settings['kinto.blog_record_cache_expires_seconds'] = '30'
+        settings['kinto.browser_top500_record_cache_expires_seconds'] = '60'
         return settings
 
     def setUp(self):

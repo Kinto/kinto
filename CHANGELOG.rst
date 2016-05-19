@@ -6,7 +6,9 @@ This document describes changes between each past release.
 2.2.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix crash when a cache expires setting is set for a specific bucket or collection.
 
 
 2.1.1 (2016-04-29)
