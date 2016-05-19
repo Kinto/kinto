@@ -245,42 +245,43 @@ class UserResource(object):
         self._raise_412_if_modified()
 
         headers = self.request.response.headers
-        limit = self._extract_limit()
 
         if getattr(self.context, "forced_empty_list", False):
-            records, total_records = [], 0
-        else:
-            filters = self._extract_filters()
-            sorting = self._extract_sorting(limit)
-            partial_fields = self._extract_partial_fields()
+            # Return an empty list.
+            headers['Total-Records'] = encode_header('0')
+            return self.postprocess([])
 
-            filter_fields = [f.field for f in filters]
-            include_deleted = self.model.modified_field in filter_fields
+        filters = self._extract_filters()
+        limit = self._extract_limit()
+        sorting = self._extract_sorting(limit)
+        partial_fields = self._extract_partial_fields()
 
-            rules, offset = self._extract_pagination_rules_from_token(
-                limit, sorting)
+        filter_fields = [f.field for f in filters]
+        include_deleted = self.model.modified_field in filter_fields
 
-            records, total_records = self.model.get_records(
-                filters=filters,
-                sorting=sorting,
-                limit=limit,
-                pagination_rules=rules,
-                include_deleted=include_deleted)
+        pagination_rules, offset = self._extract_pagination_rules_from_token(
+            limit, sorting)
 
-            offset = offset + len(records)
-            next_page = None
+        records, total_records = self.model.get_records(
+            filters=filters,
+            sorting=sorting,
+            limit=limit,
+            pagination_rules=pagination_rules,
+            include_deleted=include_deleted)
 
-            if limit and len(records) == limit and offset < total_records:
-                lastrecord = records[-1]
-                next_page = self._next_page_url(sorting, limit, lastrecord,
-                                                offset)
-                headers['Next-Page'] = encode_header(next_page)
+        offset = offset + len(records)
+        next_page = None
 
-            if partial_fields:
-                records = [
-                    dict_subset(record, partial_fields)
-                    for record in records
-                ]
+        if limit and len(records) == limit and offset < total_records:
+            lastrecord = records[-1]
+            next_page = self._next_page_url(sorting, limit, lastrecord, offset)
+            headers['Next-Page'] = encode_header(next_page)
+
+        if partial_fields:
+            records = [
+                dict_subset(record, partial_fields)
+                for record in records
+            ]
 
         # Bind metric about response size.
         logger.bind(nb_records=len(records), limit=limit)
