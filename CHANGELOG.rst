@@ -9,6 +9,11 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix crash when a cache expires setting is set for a specific bucket or collection.
+- Redirects version prefix to hello page when trailing_slash_redirect is enabled. (mozilla-services/cliquet#700)
+- Fix crash when setting empty permission list with PostgreSQL permission backend (#575)
+- Fix crash when type of values in querystring for exclude/include is wrong (#587)
+- Fix crash when providing duplicated principals in permissions with PostgreSQL permission backend (#702)
+- Prevent the browser to cache server responses between two sessions. (#593)
 
 
 2.1.1 (2016-04-29)
