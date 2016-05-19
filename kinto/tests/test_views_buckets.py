@@ -34,10 +34,11 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                                  headers=self.headers)
         self.assertEqual(resp.json['data']['id'], 'alexis_beers')
 
-    def test_nobody_can_list_buckets_by_default(self):
-        self.app.get(self.collection_url,
-                     headers=get_user_headers('alice'),
-                     status=403)
+    def test_everybody_can_list_buckets_by_default(self):
+        resp = self.app.get(self.collection_url,
+                            headers=get_user_headers('alice'),
+                            status=200)
+        assert resp.json['data'] == []
 
     def test_nobody_can_read_bucket_information_by_default(self):
         self.app.get(self.record_url,
