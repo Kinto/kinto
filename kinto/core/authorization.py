@@ -86,6 +86,9 @@ class AuthorizationPolicy(object):
                 principals,
                 get_bound_permissions=self.get_bound_permissions)
             allowed = len(shared_records) > 0
+            if not allowed and context.force_empty_list:
+                allowed = True
+                context.forced_empty_list = True
 
         return allowed
 
@@ -101,6 +104,7 @@ class RouteFactory(object):
     permission_object_id = None
     current_record = None
     get_shared_ids = None
+    force_empty_list = False
 
     method_permissions = {
         "head": "read",

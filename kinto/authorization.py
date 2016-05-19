@@ -145,4 +145,7 @@ class AuthorizationPolicy(core_authorization.AuthorizationPolicy):
 
 
 class RouteFactory(core_authorization.RouteFactory):
-    pass
+    def __init__(self, request):
+        super(RouteFactory, self).__init__(request)
+        if self.on_collection and self.resource_name == 'bucket':
+            self.force_empty_list = True
