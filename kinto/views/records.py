@@ -107,8 +107,7 @@ class Record(resource.ShareableResource):
 
         cache_expires = self._collection.get('cache_expires')
         if cache_expires is None:
-            by_bucket = 'kinto.%s_record_cache_expires_seconds' % (
-                self.bucket_id)
+            by_bucket = '%s_record_cache_expires_seconds' % (self.bucket_id)
             by_collection = '%s_%s_record_cache_expires_seconds' % (
                 self.bucket_id, self.collection_id)
             settings = self.request.registry.settings
@@ -116,4 +115,4 @@ class Record(resource.ShareableResource):
                                          settings.get(by_bucket))
 
         if cache_expires is not None:
-            response.cache_expires(seconds=cache_expires)
+            response.cache_expires(seconds=int(cache_expires))

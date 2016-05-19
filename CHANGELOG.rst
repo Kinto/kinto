@@ -6,7 +6,9 @@ This document describes changes between each past release.
 3.0.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix crash when a cache expires setting is set for a specific bucket or collection.
 
 
 3.0.0 (2016-05-18)
