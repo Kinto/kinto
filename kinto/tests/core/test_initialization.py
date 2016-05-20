@@ -173,7 +173,17 @@ class ProjectSettingsTest(unittest.TestCase):
         settings = {
             'kinto.permission_backend': 'cliquet.permission.memory'
         }
-        self.settings(settings)
+        with mock.patch('kinto.core.logger.warn') as mocked:
+            new_settings = self.settings(settings)
+            warning_message = ''.join([
+                "Backend settings referring to cliquet are DEPRECATED. ",
+                "Please update your kinto.permission_backend setting to ",
+                "kinto.core.permission.memory ",
+                "(was: cliquet.permission.memory).",
+                ])
+            mocked.assert_called_once_with(warning_message)
+            self.assertEqual(new_settings['permission_backend'],
+                             'kinto.core.permission.memory')
 
 
 class ApplicationWrapperTest(unittest.TestCase):
