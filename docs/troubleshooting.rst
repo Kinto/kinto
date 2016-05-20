@@ -82,3 +82,28 @@ can also happen with other database encoding. The encoding expected by kinto is
 To remediate this, you can issue the following command, once ``pgsql`` open::
 
   update pg_database set encoding = pg_char_to_encoding('UTF8') where datname = '<your db name>';
+
+
+ConnectionError: localhost:6379. nodename nor servname provided, or not known
+=============================================================================
+
+Make sure */etc/hosts* has correct mapping to localhost.
+
+
+IOError: [Errno 24] Too many open files
+=======================================
+
+Make sure that max number of connections to redis-server and the max
+number of file handlers in operating system have access to required
+memory.
+
+To fix this, increase the open file limit for non-root user::
+
+  $ ulimit -n 1024
+
+
+ERROR: InterpreterNotFound: pypy
+================================
+
+You need to install `Pypy <http://pypy.org/>`_ so that it can be found
+by tox.
