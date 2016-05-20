@@ -200,18 +200,6 @@ A ``details`` attribute in the response provides the offending record and
 field name. See :ref:`dedicated section about errors <error-responses>`.
 
 
-Timestamp
----------
-
-When a record is created, the timestamp of the collection is incremented.
-
-It is possible to force the timestamp if the specified record has a
-``last_modified`` field.
-
-If the specified timestamp is in the past, the collection timestamp does not
-take the value of the created record but is bumped into the future as usual.
-
-
 HTTP Status Codes
 -----------------
 
@@ -373,18 +361,6 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
     with a deleted status (``delete=true``) and will have most of its fields empty.
 
 
-Timestamp
----------
-
-When a record is deleted, the timestamp of the collection is incremented.
-
-It is possible to force the timestamp by passing it in the
-querystring with ``?last_modified=<value>``.
-
-If the specified timestamp is in the past, the collection timestamp does not
-take the value of the deleted record but is bumped into the future as usual.
-
-
 HTTP Status Code
 ----------------
 
@@ -460,21 +436,6 @@ an existing record with this ``id``, a ``412 Precondition failed`` error is retu
             "url": "http://www.staticapps.org"
         }
     }
-
-
-Timestamp
----------
-
-When a record is created or replaced, the timestamp of the collection is incremented.
-
-It is possible to force the timestamp if the specified record has a
-``last_modified`` field.
-
-For replace, if the specified timestamp is less or equal than the existing record,
-the value is simply ignored and the timestamp is bumped into the future as usual.
-
-For creation, if the specified timestamp is in the past, the collection timestamp does not
-take the value of the created/updated record but is bumped into the future as usual.
 
 
 HTTP Status Code
@@ -583,18 +544,6 @@ Conflicts
 
 If changing a record field violates a field unicity constraint, a
 ``409 Conflict`` error response is returned (see :ref:`error channel <error-responses>`).
-
-
-Timestamp
----------
-
-When a record is modified, the timestamp of the collection is incremented.
-
-It is possible to force the timestamp if the specified record has a
-``last_modified`` field.
-
-If the specified timestamp is less or equal than the existing record,
-the value is simply ignored and the timestamp is bumped into the future as usual.
 
 
 HTTP Status Code
