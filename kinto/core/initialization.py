@@ -476,8 +476,12 @@ def load_default_settings(config, default_settings):
         # have backend settings like cliquet.foo (which is now
         # kinto.core.foo).
         unprefixed, _, _ = _prefixed_keys(key)
-        if unprefixed in ['storage_backend', 'cache_backend',
-                          'permission_backend'] and \
+        CONTAIN_CLIQUET_MODULE_NAMES = [
+            'storage_backend',
+            'cache_backend',
+            'permission_backend',
+        ]
+        if unprefixed in CONTAIN_CLIQUET_MODULE_NAMES and \
                 value.startswith('cliquet.'):
             new_value = value.replace('cliquet.', 'kinto.core.')
             logger.warn(
