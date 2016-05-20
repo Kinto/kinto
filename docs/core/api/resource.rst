@@ -78,17 +78,6 @@ and ``If-None-Match`` headers (see :ref:`section about timestamps <server-timest
     }
 
 
-Counting
---------
-
-In order to count the number of records, for a specific field value for example,
-without fetching the actual collection, a ``HEAD`` request can be
-used. The ``Total-Records`` response header will then provide the
-total number of records.
-
-See :ref:`batch endpoint <batch>` to count several collections in one request.
-
-
 List of available URL parameters
 --------------------------------
 
