@@ -17,6 +17,10 @@ Full detailed API documentation:
    records
    groups
    permissions
+   filtering
+   sorting
+   pagination
+   selecting_fields
    cliquet/resource
    cliquet/utilities
    cliquet/batch
