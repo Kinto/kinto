@@ -169,6 +169,12 @@ class ProjectSettingsTest(unittest.TestCase):
         os.environ.pop(envkey)
         self.assertEqual(value, 'kinto.core.storage.redis')
 
+    def test_can_continue_to_use_cliquet_names(self):
+        settings = {
+            'kinto.permission_backend': 'cliquet.permission.memory'
+        }
+        self.settings(settings)
+
 
 class ApplicationWrapperTest(unittest.TestCase):
 
