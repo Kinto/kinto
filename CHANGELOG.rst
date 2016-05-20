@@ -8,8 +8,8 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
-- Fix crash when a cache expires setting is set for a specific bucket or collection.
-- Mark old cliquet backend settings as deprecated (but continue to support them).
+- Fix crash when a cache expires setting is set for a specific bucket or collection. (#597)
+- Mark old cliquet backend settings as deprecated (but continue to support them). (#596)
 
 
 3.0.0 (2016-05-18)
