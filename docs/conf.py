@@ -74,7 +74,7 @@ copyright = u'2015-2016 — Mozilla Services'
 # The short X.Y version.
 version = '3.0'
 # The full version, including alpha/beta/rc tags.
-release = '3.0.0'
+release = '3.0.1'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
