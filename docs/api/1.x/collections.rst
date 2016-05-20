@@ -88,6 +88,8 @@ List bucket collections
       }
 
 
+This endpoint is plural and supports :doc:`filtering <filtering>` and :doc:`sorting <sorting>`.
+
 .. _collections-delete:
 
 Delete bucket collections
