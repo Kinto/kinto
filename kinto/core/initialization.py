@@ -472,6 +472,20 @@ def load_default_settings(config, default_settings):
             names = "', '".join(defined)
             raise ValueError("Settings '%s' are in conflict." % names)
 
+        # Maintain backwards compatibility with old settings files that
+        # have backend settings like cliquet.foo (which is now
+        # kinto.core.foo).
+        unprefixed, _, _ = _prefixed_keys(key)
+        if unprefixed in ['storage_backend', 'cache_backend',
+                          'permission_backend'] and \
+                value.startswith('cliquet.'):
+            new_value = value.replace('cliquet.', 'kinto.core.')
+            logger.warn(
+                "Backend settings referring to cliquet are DEPRECATED. "
+                "Please update your {} setting to {} (was: {}).".format(
+                    key, new_value, value))
+            value = new_value
+
         # Override settings from OS env values.
         # e.g. HTTP_PORT, READINGLIST_HTTP_PORT, KINTO_HTTP_PORT
         from_env = utils.read_env(unprefixed, value)
