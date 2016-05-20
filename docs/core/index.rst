@@ -1,8 +1,5 @@
 .. include:: ../README.rst
 
-.. figure:: images/logo.svg
-    :align: center
-
     Kinto-core is the heart of the `Kinto project
     <http://kinto.readthedocs.org/>`_, and also serves as a handy
     toolkit for building Kinto-based backends.
