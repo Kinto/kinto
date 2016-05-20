@@ -480,6 +480,7 @@ def load_default_settings(config, default_settings):
             'storage_backend',
             'cache_backend',
             'permission_backend',
+            'logging_renderer',
         ]
         if unprefixed in CONTAIN_CLIQUET_MODULE_NAMES and \
                 value.startswith('cliquet.'):
