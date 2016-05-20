@@ -98,7 +98,7 @@ HTTP Status Codes
 -----------------
 
 * ``200 OK``: The request was processed
-* ``304 Not Modified``: Collection did not change since value in ``If-None-Match`` header
+* ``304 Not Modified``: Collection has not changed since value in ``If-None-Match`` header
 * ``400 Bad Request``: The request querystring is invalid
 * ``401 Unauthorized``: The request is missing authentication headers
 * ``403 Forbidden``: The user is not allowed to perform the operation, or the
