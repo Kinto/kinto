@@ -21,7 +21,7 @@ Table of content
    faq
    troubleshooting
    changelog
-   cliquet_glossary
+   core/reference/glossary
 
 Indices and tables
 ==================
