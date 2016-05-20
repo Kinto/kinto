@@ -81,12 +81,12 @@ and ``If-None-Match`` headers (see :ref:`section about timestamps <server-timest
 List of available URL parameters
 --------------------------------
 
-- ``<prefix?><field name>``: filter by value(s)
+- ``<prefix?><field name>``: :doc:`filter <filtering>` by value(s)
 - ``_since``, ``_before``: polling changes
-- ``_sort``: order list
-- ``_limit``: pagination max size
-- ``_token``: pagination token
-- ``_fields``: filter the fields of the records
+- ``_sort``: :doc:`order list <sorting>`
+- ``_limit``: :doc:`pagination max size <pagination>`
+- ``_token``: :doc:`pagination token <pagination>`
+- ``_fields``: :doc:`filter the fields of the records <selecting_fields>`
 
 
 Filtering, sorting, partial responses and paginating can all be combined together.

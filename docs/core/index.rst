@@ -12,7 +12,6 @@ Table of content
 
    rationale
    quickstart
-   api/index
    reference/index
    ecosystem
    troubleshooting

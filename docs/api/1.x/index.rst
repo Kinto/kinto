@@ -12,6 +12,7 @@ Full detailed API documentation:
    :maxdepth: 2
 
    authentication
+   resource
    buckets
    collections
    records
@@ -21,13 +22,12 @@ Full detailed API documentation:
    sorting
    pagination
    selecting_fields
-   cliquet/resource
-   cliquet/utilities
-   cliquet/batch
-   cliquet/timestamps
-   cliquet/backoff
-   cliquet/errors
-   cliquet/deprecation
+   utilities
+   batch
+   timestamps
+   backoff
+   errors
+   deprecation
 
 
 Cheatsheet
