@@ -12,7 +12,6 @@ Table of content
    quickstart
    reference/index
    ecosystem
-   troubleshooting
    contributing
 
 
