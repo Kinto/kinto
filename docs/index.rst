@@ -22,6 +22,7 @@ Table of content
    troubleshooting
    changelog
    core/reference/glossary
+   core/index
 
 Indices and tables
 ==================
