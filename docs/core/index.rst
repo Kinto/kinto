@@ -1,9 +1,12 @@
+Kinto-Core
+##########
+
     Kinto-core is the heart of the `Kinto project
     <http://kinto.readthedocs.org/>`_, and also serves as a handy
     toolkit for building Kinto-based backends.
 
-Table of content
-================
+Table of contents
+=================
 
 .. toctree::
    :maxdepth: 1
