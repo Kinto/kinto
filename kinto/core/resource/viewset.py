@@ -30,6 +30,8 @@ class ViewSet(object):
 
     readonly_methods = ('GET', 'OPTIONS', 'HEAD')
 
+    factory = authorization.RouteFactory
+
     service_arguments = {
         'description': 'Collection of {resource_name}',
     }
@@ -226,7 +228,7 @@ class ShareableViewSet(ViewSet):
 
     def get_service_arguments(self):
         args = super(ShareableViewSet, self).get_service_arguments()
-        args['factory'] = authorization.RouteFactory
+        args['factory'] = self.factory
         return args
 
 

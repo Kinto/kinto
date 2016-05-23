@@ -1,7 +1,7 @@
 from kinto.core import resource
 from kinto.core.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
-
+from kinto.authorization import BucketRouteFactory
 from kinto.views import NameGenerator
 
 
@@ -11,9 +11,9 @@ class BucketSchema(resource.ResourceSchema):
 
 
 @resource.register(name='bucket',
-                   collection_methods=('GET', 'POST', 'DELETE'),
                    collection_path='/buckets',
-                   record_path='/buckets/{{id}}')
+                   record_path='/buckets/{{id}}',
+                   factory=BucketRouteFactory)
 class Bucket(resource.ShareableResource):
     mapping = BucketSchema()
     permissions = ('read', 'write', 'collection:create', 'group:create')

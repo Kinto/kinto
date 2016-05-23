@@ -85,7 +85,7 @@ class AuthorizationPolicy(object):
                 permission,
                 principals,
                 get_bound_permissions=self.get_bound_permissions)
-            allowed = len(shared_records) > 0
+            allowed = shared_records is not None
 
         return allowed
 
@@ -117,7 +117,7 @@ class RouteFactory(object):
         self._check_permission = request.registry.permission.check_permission
 
         # Partial collections of ShareableResource:
-        self.shared_ids = []
+        self.shared_ids = None
 
         # Store service, resource, record and required permission.
         service = utils.current_service(request)
@@ -169,12 +169,25 @@ class RouteFactory(object):
         return self._check_permission(self.permission_object_id, *args, **kw)
 
     def fetch_shared_records(self, perm, principals, get_bound_permissions):
-        ids = self.get_shared_ids(
-            permission=perm,
-            principals=principals,
-            get_bound_permissions=get_bound_permissions)
-        # Store for later use in ``ShareableResource``.
-        self.shared_ids = [self.extract_object_id(id_) for id_ in ids]
+        """Fetch records that are readable or writable for the current
+        principals.
+
+        If no record is shared, it returns None.
+
+        .. warning::
+            This sets the ``shared_ids`` attribute to the context with the
+            return value. The attribute is then read by
+            :class:`kinto.core.resource.ShareableResource`
+        """
+        ids = self.get_shared_ids(permission=perm,
+                                  principals=principals,
+                                  get_bound_permissions=get_bound_permissions)
+        if len(ids) > 0:
+            # Store for later use in ``ShareableResource``.
+            self.shared_ids = [self.extract_object_id(id_) for id_ in ids]
+        else:
+            self.shared_ids = None
+
         return self.shared_ids
 
     def get_permission_object_id(self, request, record_id=None):

@@ -219,7 +219,7 @@ class GuestCollectionListTest(PermissionTest):
         self.assertEqual(len(result['data']), 0)
 
     def test_permission_backend_is_not_queried_if_not_guest(self):
-        self.resource.context.shared_ids = []
+        self.resource.context.shared_ids = None
         self.resource.request.registry.permission = None  # would fail!
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 3)

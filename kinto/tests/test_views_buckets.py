@@ -34,15 +34,20 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                                  headers=self.headers)
         self.assertEqual(resp.json['data']['id'], 'alexis_beers')
 
-    def test_nobody_can_list_buckets_by_default(self):
-        self.app.get(self.collection_url,
-                     headers=get_user_headers('alice'),
-                     status=403)
+    def test_everybody_can_list_buckets_by_default(self):
+        resp = self.app.get(self.collection_url,
+                            headers=get_user_headers('alice'),
+                            status=200)
+        assert resp.json['data'] == []
 
-    def test_nobody_can_read_bucket_information_by_default(self):
-        self.app.get(self.record_url,
-                     headers=get_user_headers('alice'),
-                     status=403)
+    def test_no_anonymous_can_list_buckets_by_default(self):
+        self.app.get(self.collection_url, status=401)
+
+    def test_anybody_can_list_buckets_by_default(self):
+        resp = self.app.get(self.collection_url,
+                            headers=get_user_headers('alice'))
+        # But it contains no record if no read permission.
+        self.assertEqual(len(resp.json['data']), 0)
 
     def test_buckets_name_should_be_simple(self):
         self.app.put_json('/buckets/__beers__',
