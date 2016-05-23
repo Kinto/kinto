@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_SETTINGS = {
+    'flush_endpoint_enabled': False,
     'retry_after_seconds': 3,
     'cache_backend': 'kinto.core.cache.memory',
     'permission_backend': 'kinto.core.permission.memory',
