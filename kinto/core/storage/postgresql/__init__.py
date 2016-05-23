@@ -601,6 +601,9 @@ class Storage(StorageBase):
                     value = json.dumps(filtr.value).strip('"')
             else:
                 value = tuple(value)
+                # WHERE field IN ();  -- Fails with syntax error.
+                if len(value) == 0:
+                    value = (None,)
 
             # Safely escape value
             value_holder = '%s_value_%s' % (prefix, i)

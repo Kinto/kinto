@@ -6,7 +6,9 @@ This document describes changes between each past release.
 3.0.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix internal storage filtering when an empty list of values is provided.
 
 
 3.0.1 (2016-05-20)
