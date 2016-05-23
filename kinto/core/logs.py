@@ -10,19 +10,6 @@ from kinto.core import utils
 logger = structlog.get_logger()
 
 
-def reset_logger():
-    """Hack to work around https://github.com/hynek/structlog/issues/71.
-
-    This clears a magic field in the logger so that it will regenerate
-    the right kind of logger on its next use.
-
-    Do this when you call structlog.configure(). Otherwise, some parts
-    of the logger will be outdated and you may get strange behavior.
-
-    """
-    logger._logger = None
-
-
 def decode_value(value):
     try:
         return six.text_type(value)
