@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import mock
 import webtest
+from cStringIO import StringIO
 
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
@@ -8,6 +9,7 @@ from pyramid.exceptions import ConfigurationError
 
 import kinto.core
 from kinto.core import initialization
+from kinto.core.initialization import settings_deprecated_warning
 from .support import unittest
 
 
@@ -180,6 +182,16 @@ class ProjectSettingsTest(unittest.TestCase):
                                            'kinto.core.permission.memory')
             self.assertEqual(new_settings['permission_backend'],
                              'kinto.core.permission.memory')
+
+
+class WarningTest(unittest.TestCase):
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_settings_deprecated_warning(self, stdout):
+        settings_deprecated_warning('logging_renderer',
+                                    'cliquet.permission.memory',
+                                    'kinto.core.permission.memory')
+        # Exact form of the warning isn't important
+        assert stdout.getvalue().startswith("WARNING:")
 
 
 class ApplicationWrapperTest(unittest.TestCase):
