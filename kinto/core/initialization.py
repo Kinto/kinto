@@ -27,7 +27,6 @@ from kinto.core import statsd
 from kinto.core import cache
 from kinto.core import storage
 from kinto.core import permission
-from kinto.core import logs
 from kinto.core.logs import logger
 from kinto.core.events import ResourceRead, ResourceChanged, ACTIONS
 
