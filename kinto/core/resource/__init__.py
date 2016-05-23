@@ -246,11 +246,6 @@ class UserResource(object):
 
         headers = self.request.response.headers
 
-        if getattr(self.context, "forced_empty_list", False):
-            # Return an empty list.
-            headers['Total-Records'] = encode_header('0')
-            return self.postprocess([])
-
         filters = self._extract_filters()
         limit = self._extract_limit()
         sorting = self._extract_sorting(limit)
@@ -1134,7 +1129,7 @@ class ShareableResource(UserResource):
         filters = super(ShareableResource, self)._extract_filters(queryparams)
 
         ids = self.context.shared_ids
-        if ids:
+        if ids is not None:
             filter_by_id = Filter(self.model.id_field, ids, COMPARISON.IN)
             filters.insert(0, filter_by_id)
 

@@ -1,5 +1,5 @@
 from kinto.core import authorization as core_authorization
-from pyramid.security import IAuthorizationPolicy
+from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
 
@@ -145,7 +145,16 @@ class AuthorizationPolicy(core_authorization.AuthorizationPolicy):
 
 
 class RouteFactory(core_authorization.RouteFactory):
-    def __init__(self, request):
-        super(RouteFactory, self).__init__(request)
-        if self.on_collection and self.resource_name == 'bucket':
-            self.force_empty_list = True
+    pass
+
+
+class BucketRouteFactory(RouteFactory):
+    def fetch_shared_records(self, perm, principals, get_bound_permissions):
+        """Buckets list is authorized even if no object is accessible for
+        the current principals.
+        """
+        shared = super(BucketRouteFactory, self).fetch_shared_records(
+            perm, principals, get_bound_permissions)
+        if shared is None and Authenticated in principals:
+            self.shared_ids = []
+        return self.shared_ids
