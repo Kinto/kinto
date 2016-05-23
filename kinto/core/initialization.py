@@ -485,10 +485,7 @@ def load_default_settings(config, default_settings):
         if unprefixed in CONTAIN_CLIQUET_MODULE_NAMES and \
                 value.startswith('cliquet.'):
             new_value = value.replace('cliquet.', 'kinto.core.')
-            logger.warn(
-                "Backend settings referring to cliquet are DEPRECATED. "
-                "Please update your {} setting to {} (was: {}).".format(
-                    key, new_value, value))
+            settings_deprecated_warning(key, value, new_value)
             value = new_value
 
         # Override settings from OS env values.
@@ -500,6 +497,14 @@ def load_default_settings(config, default_settings):
         settings[unprefixed] = from_env
 
     config.add_settings(settings)
+
+
+def settings_deprecated_warning(key, value, new_value):
+    print(
+        "WARNING: "
+        "Backend settings referring to cliquet are DEPRECATED. "
+        "Please update your {} setting to {} (was: {}).".format(
+            key, new_value, value))
 
 
 def initialize(config, version=None, project_name='', default_settings=None):

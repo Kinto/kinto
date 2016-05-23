@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import mock
 import webtest
+from six.moves import StringIO
 
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
@@ -8,6 +9,7 @@ from pyramid.exceptions import ConfigurationError
 
 import kinto.core
 from kinto.core import initialization
+from kinto.core.initialization import settings_deprecated_warning
 from .support import unittest
 
 
@@ -173,17 +175,24 @@ class ProjectSettingsTest(unittest.TestCase):
         settings = {
             'kinto.permission_backend': 'cliquet.permission.memory'
         }
-        with mock.patch('kinto.core.logger.warn') as mocked:
+        with mock.patch('kinto.core.initialization.' +
+                        'settings_deprecated_warning') as mocked:
             new_settings = self.settings(settings)
-            warning_message = ''.join([
-                "Backend settings referring to cliquet are DEPRECATED. ",
-                "Please update your kinto.permission_backend setting to ",
-                "kinto.core.permission.memory ",
-                "(was: cliquet.permission.memory).",
-                ])
-            mocked.assert_called_once_with(warning_message)
+            mocked.assert_called_once_with('kinto.permission_backend',
+                                           'cliquet.permission.memory',
+                                           'kinto.core.permission.memory')
             self.assertEqual(new_settings['permission_backend'],
                              'kinto.core.permission.memory')
+
+
+class WarningTest(unittest.TestCase):
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_settings_deprecated_warning(self, stdout):
+        settings_deprecated_warning('logging_renderer',
+                                    'cliquet.permission.memory',
+                                    'kinto.core.permission.memory')
+        # Exact form of the warning isn't important
+        assert stdout.getvalue().startswith("WARNING:")
 
 
 class ApplicationWrapperTest(unittest.TestCase):
