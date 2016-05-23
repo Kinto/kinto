@@ -50,6 +50,10 @@ else:
         'zope.sqlalchemy',
     ]
 
+MONGO_REQUIRES = [
+    'pymongo'
+]
+
 DEPENDENCY_LINKS = [
 ]
 
@@ -100,6 +104,7 @@ setup(name='kinto',
       extras_require={
           'postgresql': POSTGRESQL_REQUIRES,
           'monitoring': MONITORING_REQUIRES,
+          'mongo': MONGO_REQUIRES,
           ":python_version=='2.7'": ["functools32"],
       },
       test_suite="kinto.tests",

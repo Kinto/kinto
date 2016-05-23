@@ -9,7 +9,7 @@ from kinto.core.utils import sqlalchemy
 from kinto.core import utils
 from kinto.core.storage import (
     exceptions, Filter, generators, memory,
-    redis as redisbackend, postgresql,
+    redis as redisbackend, postgresql, mongo,
     Sort, StorageBase, heartbeat
 )
 
@@ -1170,6 +1170,21 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
                 self.storage.get_all(**self.storage_kw)
 
         self.assertTrue(exc_handler.called)
+
+
+class MongoStorageTest(StorageTest, unittest.TestCase):
+    backend = mongo
+    settings = {
+        'storage_pool_size': 50,
+        'storage_url': 'mongodb://localhost:27017/test'
+    }
+
+    def setUp(self):
+        super(MongoStorageTest, self).setUp()
+        self.client_error_patcher = mock.patch.object(
+            self.storage._client.connection_pool,
+            'get_connection',
+            side_effect=redis.RedisError('connection error'))
 
 
 @skip_if_no_postgresql
