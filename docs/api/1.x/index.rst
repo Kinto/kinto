@@ -9,7 +9,7 @@ Full reference
 Full detailed API documentation:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    authentication
    resource
