@@ -241,7 +241,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         self.assertFalse(allowed)
 
     def test_permits_returns_false_if_collection_is_unknown(self):
-        self.context.fetch_shared_records = mock.MagicMock(return_value=[])
+        self.context.fetch_shared_records = mock.MagicMock(return_value=None)
         allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
         self.context.fetch_shared_records.assert_called_with(
             'read',
