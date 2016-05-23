@@ -9,6 +9,8 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix internal storage filtering when an empty list of values is provided.
+- Authenticated users are now allowed to obtain an empty list of buckets on
+  ``GET /buckets`` even if no bucket is readable (#454)
 
 
 3.0.1 (2016-05-20)
