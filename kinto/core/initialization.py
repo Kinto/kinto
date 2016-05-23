@@ -27,6 +27,7 @@ from kinto.core import statsd
 from kinto.core import cache
 from kinto.core import storage
 from kinto.core import permission
+from kinto.core import logs
 from kinto.core.logs import logger
 from kinto.core.events import ResourceRead, ResourceChanged, ACTIONS
 
@@ -330,6 +331,7 @@ def setup_logging(config):
             structlog.processors.format_exc_info,
             renderer,
         ])
+    logs.reset_logger()
 
     def on_new_request(event):
         request = event.request
