@@ -175,7 +175,8 @@ class ProjectSettingsTest(unittest.TestCase):
         settings = {
             'kinto.permission_backend': 'cliquet.permission.memory'
         }
-        with mock.patch('kinto.core.initialization.settings_deprecated_warning') as mocked:
+        with mock.patch('kinto.core.initialization.' +
+                        'settings_deprecated_warning') as mocked:
             new_settings = self.settings(settings)
             mocked.assert_called_once_with('kinto.permission_backend',
                                            'cliquet.permission.memory',
