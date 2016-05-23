@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import mock
 import webtest
-from cStringIO import StringIO
+from StringIO import StringIO
 
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
