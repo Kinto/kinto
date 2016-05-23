@@ -417,6 +417,13 @@ class BaseTestStorage(object):
                                           **self.storage_kw)
         self.assertEqual(len(records), 2)
 
+    def test_get_all_returns_empty_when_including_list_of_empty_values(self):
+        self.create_record({'code': 'a'})
+        self.create_record({'code': 'b'})
+        filters = [Filter('id', [], utils.COMPARISON.IN)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 0)
+
     def test_get_all_can_filter_with_list_of_excluded_values(self):
         for l in ['a', 'b', 'c']:
             self.create_record({'code': l})
