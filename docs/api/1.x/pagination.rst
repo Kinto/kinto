@@ -1,7 +1,10 @@
 Paginate
 ########
 
-If the ``_limit`` parameter is provided, the number of records returned is limited.
+Plural endpoints support limiting the number of elements returned. For
+example, you can retrieve a fixed number of records in a
+collection. To do this, provide a ``_limit`` query parameter
+specifying the number of records to return.
 
 If there are more records for this collection than the limit, the
 response will provide a ``Next-Page`` header with the URL for the

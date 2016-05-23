@@ -1,9 +1,9 @@
 Sorting
 #######
 
-When requesting elements (such as records) from a plural endpoint
-(such as a collection), the results can be sorted using an additional
-query parameter.
+Plural endpoints support sorting of their contained elements. For
+example, you can sort the records in a collection. To do this, provide
+an additional query parameter specifying the sort key.
 
 * ``/collection?_sort=-last_modified,field``
 
