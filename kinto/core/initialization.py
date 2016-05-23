@@ -500,7 +500,7 @@ def load_default_settings(config, default_settings):
 
 
 def settings_deprecated_warning(key, value, new_value):
-    logger.warn(
+    print(
         "WARNING: "
         "Backend settings referring to cliquet are DEPRECATED. "
         "Please update your {} setting to {} (was: {}).".format(
