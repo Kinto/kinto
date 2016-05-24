@@ -667,6 +667,7 @@ class CacheControlTest(BaseWebTest, unittest.TestCase):
     def test_cache_control_headers_are_not_set_if_authenticated(self):
         resp = self.app.get(self.collection_url, headers=self.headers)
         self.assertIn('no-cache', resp.headers['Cache-Control'])
+        self.assertIn('no-store', resp.headers['Cache-Control'])
         self.assertNotIn('Expires', resp.headers)
 
     def test_cache_control_headers_set_no_cache_if_zero(self):
