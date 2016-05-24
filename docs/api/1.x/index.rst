@@ -9,21 +9,25 @@ Full reference
 Full detailed API documentation:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    authentication
+   resource
    buckets
    collections
    records
    groups
    permissions
-   cliquet/resource
-   cliquet/utilities
-   cliquet/batch
-   cliquet/timestamps
-   cliquet/backoff
-   cliquet/errors
-   cliquet/deprecation
+   filtering
+   sorting
+   pagination
+   selecting_fields
+   utilities
+   batch
+   timestamps
+   backoff
+   errors
+   deprecation
 
 
 Cheatsheet

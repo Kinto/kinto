@@ -142,8 +142,8 @@ specify the «in-memory» backends in :file:`development.ini`:
 
 A Mushroom resource API is now available at the ``/mushrooms/`` URL.
 
-It will accept a bunch of REST operations, as defined in the :ref:`API section
-<api-endpoints>`.
+It will accept a bunch of REST operations, as defined in the :doc:`API section
+</api/index>`.
 
 .. warning ::
 

@@ -116,4 +116,7 @@ When a record is replaced, modified or deleted, if the specified timestamp is le
 or equal than the existing record, the value is simply ignored and the timestamp
 is bumped into the future as usual.
 
+When a record is deleted, a ``last_modified`` timestamp can be forced
+by passing it in the query string using ``?last_modified=<value>``.
+
 See :ref:`the resource endpoints documentation <resource-endpoints>`.

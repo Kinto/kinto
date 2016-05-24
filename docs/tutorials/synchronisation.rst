@@ -78,7 +78,7 @@ We will use ``sort=last_modified`` and ``_since=<timestamp>``:
 #. If response has ``Next-Page`` header, follow full URL in header.
 #. If list of changes is empty, **done** → up-to-date.
 
-.. image:: ../../images/sync-oldest.svg
+.. image:: ../images/sync-oldest.svg
 
 If an error occurs during the retrieval of pages,
 the synchronisation can be resumed transparently, since the pages are obtained
@@ -107,7 +107,7 @@ and ``_since`` to include changes after last sync:
 #. If list of changes is empty, **done** → handle the stack of remote changes
    and update the timestamp: ``timestamp := MAX(local_records['last_modified'])``
 
-.. image:: ../../images/sync-newest.svg
+.. image:: ../images/sync-newest.svg
 
 With this approach, the main algorithm is rather simple but since we track the
 *last sync timestamp* when the last page is done, if an error occurs
@@ -136,7 +136,7 @@ and then fetch older records in background.
 #. In background, fetch old records using ``_sort=-last_modified`` and ``_before=MIN(local_records[last_modified])``
 #. Recent changes can be obtained using ``_sort=-last_modified`` and ``_since=MAX(local_records[last_modified])``
 
-.. image:: ../../images/sync-both.svg
+.. image:: ../images/sync-both.svg
 
 
 Apply changes locally

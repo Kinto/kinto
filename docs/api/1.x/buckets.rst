@@ -304,6 +304,8 @@ Retrieving all buckets
             ]
         }
 
+This endpoint is plural and supports :doc:`filtering <filtering>`,
+:doc:`sorting <sorting>`, and :doc:`pagination <pagination>`.
 
 .. _buckets-delete:
 

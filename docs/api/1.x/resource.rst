@@ -78,242 +78,15 @@ and ``If-None-Match`` headers (see :ref:`section about timestamps <server-timest
     }
 
 
-Filtering
----------
-
-**Single value**
-
-* ``/collection?field=value``
-
-.. **Multiple values**
-..
-.. * ``/collection?field=1,2``
-
-**Minimum and maximum**
-
-Prefix field name with ``min_`` or ``max_``:
-
-* ``/collection?min_field=4000``
-
-.. note::
-
-    The lower and upper bounds are inclusive (*i.e equivalent to
-    greater or equal*).
-
-.. note::
-
-   ``lt_`` and ``gt_`` can also be used to exclude the bound.
-
-**Multiple values**
-
-Prefix field with ``in_`` and provide comma-separated values.
-
-* ``/collection?in_status=1,2,3``
-
-**Exclude**
-
-Prefix field name with ``not_``:
-
-* ``/collection?not_field=0``
-
-**Exclude multiple values**
-
-Prefix field name with ``exclude_``:
-
-* ``/collection?exclude_field=0,1``
-
-.. note::
-
-    Will return an error if a field is unknown.
-
-.. note::
-
-    The ``ETag`` and ``Last-Modified`` response headers will always be the same as
-    the unfiltered collection.
-
-Sorting
--------
-
-* ``/collection?_sort=-last_modified,field``
-
-.. note::
-
-    Ordering on a boolean field gives ``true`` values first.
-
-.. note::
-
-    Will return an error if a field is unknown.
-
-
-Counting
---------
-
-In order to count the number of records, for a specific field value for example,
-without fetching the actual collection, a ``HEAD`` request can be
-used. The ``Total-Records`` response header will then provide the
-total number of records.
-
-See :ref:`batch endpoint <batch>` to count several collections in one request.
-
-
-Polling for changes
--------------------
-
-The ``_since`` parameter is provided as an alias for ``gt_last_modified``.
-
-* ``/collection?_since=1437035923844``
-
-When filtering on ``last_modified`` every deleted records will appear in the
-list with a ``deleted`` flag and a ``last_modified`` value that corresponds
-to the deletion event.
-
-If the ``If-None-Match: "<timestamp>"`` request header is provided as described in
-the :ref:`section about timestamps <server-timestamps>` and if the
-collection was not changed, a ``304 Not Modified`` response is returned.
-
-.. note::
-
-   The ``_before`` parameter is also available, and is an alias for
-   ``lt_last_modified`` (*strictly inferior*).
-
-.. note::
-
-    ``_since`` and ``_before`` also accept a value between quotes (``"``) as
-    it would be returned in the ``ETag`` response header
-    (see :ref:`response timestamps <server-timestamps>`).
-
-**Request**:
-
-.. code-block:: http
-
-    GET /articles?_since=1437035923844 HTTP/1.1
-    Accept: application/json
-    Authorization: Basic bWF0Og==
-    Host: localhost:8000
-
-**Response**:
-
-.. code-block:: http
-
-    HTTP/1.1 200 OK
-    Access-Control-Allow-Origin: *
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, ETag, Next-Page, Total-Records, Last-Modified
-    Content-Length: 436
-    Content-Type: application/json; charset=UTF-8
-    Date: Tue, 28 Apr 2015 12:08:11 GMT
-    Last-Modified: Mon, 12 Apr 2015 11:12:07 GMT
-    ETag: "1430222877724"
-    Total-Records: 2
-
-    {
-        "data": [
-            {
-                "id": "dc86afa9-a839-4ce1-ae02-3d538b75496f",
-                "last_modified": 1430222877724,
-                "title": "MoCo",
-                "url": "https://mozilla.com",
-            },
-            {
-                "id": "23160c47-27a5-41f6-9164-21d46141804d",
-                "last_modified": 1430140411480,
-                "title": "MoFo",
-                "url": "https://mozilla.org",
-            },
-            {
-                "id": "11130c47-37a5-41f6-9112-32d46141804f",
-                "deleted": true,
-                "last_modified": 1430140411480
-            }
-        ]
-    }
-
-
-Paginate
---------
-
-If the ``_limit`` parameter is provided, the number of records returned is limited.
-
-If there are more records for this collection than the limit, the
-response will provide a ``Next-Page`` header with the URL for the
-Next-Page.
-
-When there is no more ``Next-Page`` response header, there is nothing
-more to fetch.
-
-Pagination works with sorting, filtering and polling.
-
-.. note::
-
-    The ``Next-Page`` URL will contain a continuation token (``_token``).
-
-    It is recommended to add precondition headers (``If-Match`` or
-    ``If-None-Match``), in order to detect changes on collection while
-    iterating through the pages.
-
-Partial response
-----------------
-
-If the ``_fields`` parameter is provided, only the fields specified are returned.
-Fields are separated with a comma.
-
-This is vital in mobile contexts where bandwidth usage must be optimized.
-
-Nested objects fields are specified using dots (e.g. ``address.street``).
-
-.. note::
-
-    The ``id`` and ``last_modified`` fields are always returned.
-
-**Request**:
-
-.. code-block:: http
-
-    GET /articles?_fields=title,url
-    Accept: application/json
-    Authorization: Basic bWF0Og==
-    Host: localhost:8000
-
-**Response**:
-
-.. code-block:: http
-
-    HTTP/1.1 200 OK
-    Access-Control-Allow-Origin: *
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, ETag, Next-Page, Total-Records, Last-Modified
-    Content-Length: 436
-    Content-Type: application/json; charset=UTF-8
-    Date: Tue, 28 Apr 2015 12:08:11 GMT
-    Last-Modified: Mon, 12 Apr 2015 11:12:07 GMT
-    ETag: "1430222877724"
-    Total-Records: 2
-
-    {
-        "data": [
-            {
-                "id": "dc86afa9-a839-4ce1-ae02-3d538b75496f",
-                "last_modified": 1430222877724,
-                "title": "MoCo",
-                "url": "https://mozilla.com",
-            },
-            {
-                "id": "23160c47-27a5-41f6-9164-21d46141804d",
-                "last_modified": 1430140411480,
-                "title": "MoFo",
-                "url": "https://mozilla.org",
-            }
-        ]
-    }
-
-
 List of available URL parameters
 --------------------------------
 
-- ``<prefix?><field name>``: filter by value(s)
+- ``<prefix?><field name>``: :doc:`filter <filtering>` by value(s)
 - ``_since``, ``_before``: polling changes
-- ``_sort``: order list
-- ``_limit``: pagination max size
-- ``_token``: pagination token
-- ``_fields``: filter the fields of the records
+- ``_sort``: :doc:`order list <sorting>`
+- ``_limit``: :doc:`pagination max size <pagination>`
+- ``_token``: :doc:`pagination token <pagination>`
+- ``_fields``: :doc:`filter the fields of the records <selecting_fields>`
 
 
 Filtering, sorting, partial responses and paginating can all be combined together.
@@ -325,7 +98,7 @@ HTTP Status Codes
 -----------------
 
 * ``200 OK``: The request was processed
-* ``304 Not Modified``: Collection did not change since value in ``If-None-Match`` header
+* ``304 Not Modified``: Collection has not changed since value in ``If-None-Match`` header
 * ``400 Bad Request``: The request querystring is invalid
 * ``401 Unauthorized``: The request is missing authentication headers
 * ``403 Forbidden``: The user is not allowed to perform the operation, or the
@@ -425,18 +198,6 @@ may appear when creating records.
 If a conflict occurs, an error response is returned with status ``409``.
 A ``details`` attribute in the response provides the offending record and
 field name. See :ref:`dedicated section about errors <error-responses>`.
-
-
-Timestamp
----------
-
-When a record is created, the timestamp of the collection is incremented.
-
-It is possible to force the timestamp if the specified record has a
-``last_modified`` field.
-
-If the specified timestamp is in the past, the collection timestamp does not
-take the value of the created record but is bumped into the future as usual.
 
 
 HTTP Status Codes
@@ -600,18 +361,6 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
     with a deleted status (``delete=true``) and will have most of its fields empty.
 
 
-Timestamp
----------
-
-When a record is deleted, the timestamp of the collection is incremented.
-
-It is possible to force the timestamp by passing it in the
-querystring with ``?last_modified=<value>``.
-
-If the specified timestamp is in the past, the collection timestamp does not
-take the value of the deleted record but is bumped into the future as usual.
-
-
 HTTP Status Code
 ----------------
 
@@ -687,21 +436,6 @@ an existing record with this ``id``, a ``412 Precondition failed`` error is retu
             "url": "http://www.staticapps.org"
         }
     }
-
-
-Timestamp
----------
-
-When a record is created or replaced, the timestamp of the collection is incremented.
-
-It is possible to force the timestamp if the specified record has a
-``last_modified`` field.
-
-For replace, if the specified timestamp is less or equal than the existing record,
-the value is simply ignored and the timestamp is bumped into the future as usual.
-
-For creation, if the specified timestamp is in the past, the collection timestamp does not
-take the value of the created/updated record but is bumped into the future as usual.
 
 
 HTTP Status Code
@@ -810,18 +544,6 @@ Conflicts
 
 If changing a record field violates a field unicity constraint, a
 ``409 Conflict`` error response is returned (see :ref:`error channel <error-responses>`).
-
-
-Timestamp
----------
-
-When a record is modified, the timestamp of the collection is incremented.
-
-It is possible to force the timestamp if the specified record has a
-``last_modified`` field.
-
-If the specified timestamp is less or equal than the existing record,
-the value is simply ignored and the timestamp is bumped into the future as usual.
 
 
 HTTP Status Code
