@@ -29,7 +29,7 @@ as long as the replacement follows the original component API.
 
 .. code-block:: ini
 
-    # myproject.ini
+    # development.ini
     kinto.logging_renderer = cliquet_fluent.FluentRenderer
 
 This is the simplest way to extend *Kinto-Core*, but will be limited to its
@@ -66,9 +66,9 @@ Alternatively, packages can also be included via configuration:
 
 .. code-block:: ini
 
-    # myproject.ini
+    # development.ini
     kinto.includes = kinto_elasticsearch
-                       pyramid_debugtoolbar
+                     pyramid_debugtoolbar
 
 
 There are `many available packages`_, and it is straightforward to build one.
@@ -204,7 +204,7 @@ can be specified in application configuration:
 
 .. code-block:: ini
 
-    # myproject.ini
+    # development.ini
     kinto.cache_backend = kinto_riak.cache
 
 
