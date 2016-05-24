@@ -14,6 +14,10 @@ This document describes changes between each past release.
 - Fix enabling flush enpoint with ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable (fixes #588)
 - Fix reading settings for events listeners from environment variables (fixes #515)
 
+**Documentation**
+
+- Improved documentation about running in production with uWSGI (#543, #545)
+
 
 3.0.1 (2016-05-20)
 ==================

@@ -311,7 +311,7 @@ Configure nginx to listen to a uwsgi running:
 ::
 
     upstream kinto {
-        server unix:///var/run/uwsgi/kinto.sock;
+        server unix:///var/uwsgi/kinto.sock;
     }
 
     server {
@@ -347,30 +347,36 @@ Running with uWSGI
 
     pip install uwsgi
 
-To run the application using uWSGI, an **app.wsgi** file is provided.
-This command can be used to run it::
+To run the application using uWSGI, an **app.wsgi** file must be picked up.
+It is available in the *Kinto* Python package or can be downloaded from Github::
+
+    wget https://raw.githubusercontent.com/Kinto/kinto/master/app.wsgi
+
+uWSGI can be configured from the main ``.ini`` file. Just run it with::
 
     uwsgi --ini config/kinto.ini
 
 uWSGI configuration can be tweaked in the ini file in the dedicated
 ``[uwsgi]`` section.
 
-Here's an example:
+Here's an example, where ``app.wsgi`` is in the current folder, a ``.venv`` folder
+contains the installed app and ``/var/uwsgi`` is writable for the ``kinto`` user:
 
 .. code-block :: ini
+    :emphasize-lines: 2-6
 
     [uwsgi]
     wsgi-file = app.wsgi
+    virtualenv = .venv
+    socket = /var/uwsgi/kinto.sock
+    uid = kinto
+    gid = kinto
     enable-threads = true
-    socket = /var/run/uwsgi/kinto.sock
     chmod-socket = 666
-    processes =  3
+    processes = 3
     master = true
     module = kinto
     harakiri = 120
-    uid = kinto
-    gid = kinto
-    virtualenv = .venv
     lazy = true
     lazy-apps = true
     single-interpreter = true
