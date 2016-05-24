@@ -331,15 +331,6 @@ def setup_logging(config):
             renderer,
         ])
 
-    # Hack to work around https://github.com/hynek/structlog/issues/71.
-    #
-    # This clears a magic field in the logger so that it will regenerate
-    # the right kind of logger on its next use.
-    #
-    # Otherwise, the logging_factory field of the logger will be
-    # outdated and you may get strange behavior.
-    logger._logger = None
-
     def on_new_request(event):
         request = event.request
         # Save the time the request was received by the server.
