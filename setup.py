@@ -28,7 +28,7 @@ REQUIREMENTS = [
     'redis',  # Default backend
     'requests',
     'six',
-    'structlog',
+    'structlog >= 16.1.0',
     'enum34',
     'waitress',
 ]
