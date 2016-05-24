@@ -94,7 +94,7 @@ already in use``.
 This happens when you are trying to start a docker image on the same
 port of an existing service running on your machine.
 
-You can either stop the local service::
+For example, with ``postgresql``, you can either stop the local service::
 
   sudo service postgresql stop
 
