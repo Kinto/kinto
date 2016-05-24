@@ -1,3 +1,4 @@
+import os
 import webtest
 from pyramid.config import Configurator
 
@@ -90,3 +91,10 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         self.app.post('/__flush__', headers=self.headers, status=202)
         self.assertEqual(len(self.events), 1)
         self.assertTrue(isinstance(self.events[0], ServerFlushed))
+
+    def test_can_be_enabled_via_environment(self):
+        os.environ['KINTO_FLUSH_ENDPOINT_ENABLED'] = 'true'
+        extra = {'flush_endpoint_enabled': False}
+        app = self._get_test_app(settings=extra)
+        app.post('/__flush__', headers=self.headers)
+        os.environ.pop('KINTO_FLUSH_ENDPOINT_ENABLED')
