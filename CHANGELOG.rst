@@ -10,7 +10,7 @@ This document describes changes between each past release.
 
 - Added the ``GET /contribute.json`` endpoint for open-source information (fixes #607)
 
-Protocol is now in version **1.6**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+Protocol is now at version **1.6**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
 
 
 **Bug fixes**
