@@ -110,7 +110,7 @@ class ListenerSetupTest(unittest.TestCase):
             "KINTO_EVENT_LISTENERS_KVSTORE_URL": "redis://redis:6379/0",
             "KINTO_EVENT_LISTENERS_KVSTORE_POOL_SIZE": "5",
             "KINTO_EVENT_LISTENERS_KVSTORE_LISTNAME": "queue",
-            "KINTO_EVENT_LISTENERS_KVSTORE_ACTIONS": "read",
+            "KINTO_EVENT_LISTENERS_KVSTORE_ACTIONS": "delete",
             "KINTO_EVENT_LISTENERS_KVSTORE_RESOURCES": "toad",
         }
         os.environ.update(**environ)
@@ -123,6 +123,14 @@ class ListenerSetupTest(unittest.TestCase):
 
         # Listener is instantiated.
         self.assertTrue(self.redis_mocked.called)
+
+        # Action filtering is read from ENV.
+        event = ResourceChanged(ACTIONS.DELETE, 123456, [], Request())
+        event.payload['resource_name'] = 'toad'
+        config.registry.notify(event)
+        self.assertTrue(self.redis_mocked.return_value.called)
+
+        self.redis_mocked.reset_mock()
 
         # Action filtering is read from ENV.
         event = ResourceChanged(ACTIONS.CREATE, 123456, [], Request())
