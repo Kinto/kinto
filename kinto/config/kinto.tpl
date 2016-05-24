@@ -123,7 +123,7 @@ kinto.includes = kinto.plugins.default_bucket
 # kinto.logging_renderer = kinto.core.logs.ClassicLogRenderer
 
 [loggers]
-keys = root, kinto_core
+keys = root
 
 [handlers]
 keys = console
@@ -132,13 +132,8 @@ keys = console
 keys = generic
 
 [logger_root]
-level = INFO
-handlers = console
-
-[logger_kinto_core]
 level = DEBUG
-handlers =
-qualname = kinto.core
+handlers = console
 
 [handler_console]
 class = StreamHandler
