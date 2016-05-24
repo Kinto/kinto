@@ -160,7 +160,7 @@ It might also be relevant to set your main server :ref:`as readonly <configurati
 In the configuration of the CDN service, you should also:
 
 - Allow ``OPTIONS`` requests (CORS)
-- Pass through cache and concurrency control headers: ``ETag``, ``Last-Modified``, ``Expire``, ``Vary``
+- Pass through cache and concurrency control headers: ``ETag``, ``Last-Modified``, ``Expire``
 - Pass through pagination header: ``Next-Page``
 - Cached responses should depend on querystring parameters (e.g. try with different ``?_limit=`` values)
 
