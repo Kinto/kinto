@@ -11,6 +11,7 @@ This document describes changes between each past release.
 - Fix internal storage filtering when an empty list of values is provided.
 - Authenticated users are now allowed to obtain an empty list of buckets on
   ``GET /buckets`` even if no bucket is readable (#454)
+- Fix enabling flush enpoint with ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable (fixes #588)
 
 
 3.0.1 (2016-05-20)
