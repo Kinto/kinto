@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import os
 import uuid
 from contextlib import contextmanager
 from datetime import datetime
@@ -101,6 +102,50 @@ class ListenerSetupTest(unittest.TestCase):
         config.registry.notify(event)
 
         self.assertEqual(self.redis_mocked.return_value.call_count, 2)
+
+    def test_loading_can_read_configuration_from_environment(self):
+        environ = {
+            "KINTO_EVENT_LISTENERS": "kvstore",
+            "KINTO_EVENT_LISTENERS_KVSTORE_USE": "kinto.core.listeners.redis",
+            "KINTO_EVENT_LISTENERS_KVSTORE_URL": "redis://redis:6379/0",
+            "KINTO_EVENT_LISTENERS_KVSTORE_POOL_SIZE": "5",
+            "KINTO_EVENT_LISTENERS_KVSTORE_LISTNAME": "queue",
+            "KINTO_EVENT_LISTENERS_KVSTORE_ACTIONS": "delete",
+            "KINTO_EVENT_LISTENERS_KVSTORE_RESOURCES": "toad",
+        }
+        os.environ.update(**environ)
+
+        config = self.make_app({
+            # With real/full initialization, these should not be necessary:
+            'project_name': 'kinto',
+            'event_listeners': 'kvstore'
+        })
+
+        # Listener is instantiated.
+        self.assertTrue(self.redis_mocked.called)
+
+        # Action filtering is read from ENV.
+        event = ResourceChanged(ACTIONS.DELETE, 123456, [], Request())
+        event.payload['resource_name'] = 'toad'
+        config.registry.notify(event)
+        self.assertTrue(self.redis_mocked.return_value.called)
+
+        self.redis_mocked.reset_mock()
+
+        # Action filtering is read from ENV.
+        event = ResourceChanged(ACTIONS.CREATE, 123456, [], Request())
+        config.registry.notify(event)
+        self.assertFalse(self.redis_mocked.return_value.called)
+
+        # Resource filtering is read from ENV.
+        event = ResourceChanged(ACTIONS.CREATE, 123456, [], Request())
+        event.payload['resource_name'] = 'mushroom'
+        config.registry.notify(event)
+        self.assertFalse(self.redis_mocked.return_value.called)
+
+        # Clean-up.
+        for k in environ.keys():
+            os.environ.pop(k)
 
 
 @contextmanager
