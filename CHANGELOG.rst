@@ -13,6 +13,10 @@ This document describes changes between each past release.
   ``GET /buckets`` even if no bucket is readable (#454)
 - Fix enabling flush enpoint with ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable (fixes #588)
 
+**Documentation**
+
+- Improved documentation about running in production with uWSGI (#543, #545)
+
 
 3.0.1 (2016-05-20)
 ==================
