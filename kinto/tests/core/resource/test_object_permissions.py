@@ -95,6 +95,18 @@ class SpecifyRecordPermissionTest(PermissionTest):
         permissions = result['permissions']
         self.assertEqual(sorted(permissions['write']), ['basicauth:userid'])
 
+    def test_write_permission_is_given_to_anonymous(self):
+        request = self.get_request()
+        # Simulate an anonymous PUT
+        request.method = 'PUT'
+        request.validated = {'data': self.record}
+        request.prefixed_userid = None
+        request.matchdict = {'id': self.record['id']}
+        resource = self.resource_class(request=request,
+                                       context=self.get_context())
+        result = resource.put()
+        self.assertIn('system.Everyone', result['permissions']['write'])
+
     def test_permissions_can_be_specified_in_collection_post(self):
         perms = {'write': ['jean-louis']}
         self.resource.request.method = 'POST'
