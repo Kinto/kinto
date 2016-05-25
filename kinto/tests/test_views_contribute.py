@@ -1,5 +1,3 @@
-from kinto import __version__ as VERSION
-
 from .support import BaseWebTest, unittest
 
 
