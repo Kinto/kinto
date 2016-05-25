@@ -94,6 +94,14 @@ If you are proposing a feature:
   rough idea. This is a volunteer-driven project, and contributions
   are welcome :)
 
+Contribute.json
+---------------
+
+*Kinto* implements the ``GET /contribute.json`` endpoint which provides
+structured open source contribution information.
+
+See :ref:`API docs <api-utilities-contribute>`.
+
 
 Hack
 ====

@@ -79,3 +79,11 @@ always return 200.
 This endpoint is suitable for a load balancer membership test.
 It the load balancer cannot obtain a response from this endpoint, it will
 stop sending traffic to the instance and replace it.
+
+.. _api-utilities-contribute:
+
+GET /contribute.json
+====================
+
+The returned value is a JSON mapping containing open source contribution
+information as advocated by https://www.contributejson.org
