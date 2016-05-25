@@ -110,6 +110,8 @@ This document describes changes between each past release.
 - Document how to configure the postgresql backend (#533)
 - Document how to upgrade Kinto (#537, #538)
 
+Protocol is now in version **1.5**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+
 
 2.0.0 (2016-03-08)
 ==================
