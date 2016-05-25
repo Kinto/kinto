@@ -6,6 +6,13 @@ This document describes changes between each past release.
 3.0.2 (unreleased)
 ==================
 
+**Protocol**
+
+- Added the ``GET /contribute.json`` endpoint for open-source information (fixes #607)
+
+Protocol is now at version **1.6**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+
+
 **Bug fixes**
 
 - Fix internal storage filtering when an empty list of values is provided.
