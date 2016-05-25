@@ -1,9 +1,8 @@
 from cornice import Service
-from pyramid.request import Request
-from pyramid.interfaces import IRoutesMapper
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
+from kinto.core import utils as core_utils
 
 
 permissions = Service(name='permissions',
@@ -13,19 +12,15 @@ permissions = Service(name='permissions',
 
 @permissions.get(permission=NO_PERMISSION_REQUIRED)
 def permissions_get(request):
-    backend = request.registry.permission
-    # XXX : add setting experimental?
-    # XXX : if backend is None, route should be ignored in kinto init
-
-    possible_perms = set([k.split(':', 1)[1]
-                          for k in PERMISSIONS_INHERITANCE_TREE.keys()])
-
+    # Invert the permissions inheritance tree.
     perms_descending_tree = {}
-    for obtained_perm, obtained_from in PERMISSIONS_INHERITANCE_TREE.items():
-        for resource, perms in obtained_from.items():
+    for obtained, obtained_from in PERMISSIONS_INHERITANCE_TREE.items():
+        on_resource, obtained_perm = obtained.split(':', 1)
+        for from_resource, perms in obtained_from.items():
             for perm in perms:
-                perms_descending_tree.setdefault(resource, {})\
-                                     .setdefault(perm, set())\
+                perms_descending_tree.setdefault(from_resource, {})\
+                                     .setdefault(perm, {})\
+                                     .setdefault(on_resource, set())\
                                      .add(obtained_perm)
 
     # Obtain current principals.
@@ -35,38 +30,35 @@ def permissions_get(request):
         userid = request.prefixed_userid
         principals.append(userid)
 
+    # Query every possible permission from backend.
+    # XXX: this is a workaround because there is no "full-list" method.
+    possible_perms = set([k.split(':', 1)[1]
+                          for k in PERMISSIONS_INHERITANCE_TREE.keys()])
+    backend = request.registry.permission
     perms_by_object_uri = {}
     for perm in possible_perms:
         object_uris = backend.principals_accessible_objects(principals, perm)
         for object_uri in object_uris:
             perms_by_object_uri.setdefault(object_uri, []).append(perm)
 
-    api_prefix = '/%s' % request.upath_info.split('/')[1]
-    q = request.registry.queryUtility
-    routes_mapper = q(IRoutesMapper)
-
     entries = []
     for object_uri, perms in perms_by_object_uri.items():
-        # Obtain associated resource to object URI
-        # XXX: move to core.utils
-        fakerequest = Request.blank(path=api_prefix + object_uri)
-        info = routes_mapper(fakerequest)
-        match, route = info['match'], info['route']
-        resource_name = route.name.replace('-record', '')\
-                                  .replace('-collection', '')
-        match['%s_id' % resource_name] = match.pop('id')
+        # Obtain associated resource from object URI
+        resource_name, matchdict = core_utils.view_lookup(request, object_uri)
+        # XXX: do we want bucket_id, record_id or just id ?
+        matchdict['%s_id' % resource_name] = matchdict.pop('id')
 
+        # Expand implicit permissions using descending tree.
         permissions = set(perms)
         for perm in perms:
             obtained = perms_descending_tree[resource_name][perm]
-            shown = [p.split(':', 1)[1]
-                     for p in obtained if p.startswith(resource_name)]
-            permissions |= set(shown)
+            # Related to same resource only (not every sub-objects).
+            permissions |= obtained[resource_name]
 
         entry = dict(uri=object_uri,
                      resource_name=resource_name,
                      permissions=list(permissions),
-                     **match)
+                     **matchdict)
         entries.append(entry)
 
     return {"data": entries}
