@@ -15,6 +15,7 @@ This document describes changes between each past release.
 - Fix reading settings for events listeners from environment variables (fixes #515)
 - Fix principal added to ``write`` permission when a publicly writable object
   is created/edited (fixes #645)
+- Prevent client to cache and validate authenticated requests (fixes #635)
 
 **Documentation**
 

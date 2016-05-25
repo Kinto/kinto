@@ -717,6 +717,7 @@ class UserResource(object):
             # resolution in seconds, do not use Pyramid `cache_expires()` in
             # order to omit it.
             response.cache_control.no_cache = True
+            response.cache_control.no_store = True
 
     def _raise_400_if_invalid_id(self, record_id):
         """Raise 400 if specified record id does not match the format excepted
