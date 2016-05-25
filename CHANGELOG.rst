@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-3.0.2 (unreleased)
+3.1.0 (2016-05-24)
 ==================
 
 **Protocol**
@@ -23,6 +23,8 @@ Protocol is now at version **1.6**. See `API changelog <http://kinto.readthedocs
 - Fix principal added to ``write`` permission when a publicly writable object
   is created/edited (fixes #645)
 - Prevent client to cache and validate authenticated requests (fixes #635)
+- Fix bug that prevented startup if old Cliquet configuration values
+  were still around (#633)
 
 **Documentation**
 
