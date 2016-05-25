@@ -13,6 +13,8 @@ This document describes changes between each past release.
   ``GET /buckets`` even if no bucket is readable (#454)
 - Fix enabling flush enpoint with ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable (fixes #588)
 - Fix reading settings for events listeners from environment variables (fixes #515)
+- Fix principal added to ``write`` permission when a publicly writable object
+  is created/edited (fixes #645)
 
 **Documentation**
 

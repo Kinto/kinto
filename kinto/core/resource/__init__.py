@@ -7,6 +7,7 @@ import venusian
 import six
 from pyramid import exceptions as pyramid_exceptions
 from pyramid.decorator import reify
+from pyramid.security import Everyone
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPNotFound, HTTPConflict,
                                     HTTPServiceUnavailable)
@@ -1105,7 +1106,12 @@ class ShareableResource(UserResource):
 
         # Required by the ShareableModel class.
         self.model.permission = self.request.registry.permission
-        self.model.current_principal = self.request.prefixed_userid
+        if self.request.prefixed_userid is None:
+            # The principal of an anonymous is system.Everyone
+            self.model.current_principal = Everyone
+        else:
+            self.model.current_principal = self.request.prefixed_userid
+
         if self.context:
             self.model.get_permission_object_id = functools.partial(
                 self.context.get_permission_object_id,
