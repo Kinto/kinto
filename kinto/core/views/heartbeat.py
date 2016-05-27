@@ -1,6 +1,8 @@
 from pyramid.security import NO_PERMISSION_REQUIRED
+from timeoutcontext import timeout
 
 from kinto.core import Service
+
 
 heartbeat = Service(name="heartbeat", path='/__heartbeat__',
                     description="Server health")
@@ -10,10 +12,11 @@ heartbeat = Service(name="heartbeat", path='/__heartbeat__',
 def get_heartbeat(request):
     """Return information about server health."""
     status = {}
-
     heartbeats = request.registry.heartbeats
-    for name, callable in heartbeats.items():
-        status[name] = callable(request)
+    seconds = float(request.registry.settings['heartbeat_timeout_seconds'])
+    with timeout(seconds):
+        for name, callable in heartbeats.items():
+            status[name] = callable(request)
 
     has_error = not all([v or v is None for v in status.values()])
     if has_error:
