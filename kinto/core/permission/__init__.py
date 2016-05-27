@@ -141,7 +141,7 @@ class PermissionBase(object):
             object_id, permission, get_bound_permissions)
         return len(authorized_principals & principals) > 0
 
-    def object_permissions(self, object_id, permissions=None):
+    def get_object_permissions(self, object_id, permissions=None):
         """Return the set of principals for each object permission.
 
         :param str object_id: The object_id the permission is set to.

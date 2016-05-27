@@ -125,7 +125,7 @@ class Permission(PermissionBase):
         return set()
 
     @wrap_redis_error
-    def object_permissions(self, object_id, permissions=None):
+    def get_object_permissions(self, object_id, permissions=None):
         if permissions is not None:
             keys = ['permission:%s:%s' % (object_id, permission)
                     for permission in permissions]
