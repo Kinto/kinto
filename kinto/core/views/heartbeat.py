@@ -1,6 +1,7 @@
 from pyramid.security import NO_PERMISSION_REQUIRED
-from timeoutcontext import timeout
+from timeoutcontext import timeout, TimeoutException
 
+from kinto import logger
 from kinto.core import Service
 
 
@@ -14,9 +15,13 @@ def get_heartbeat(request):
     status = {}
     heartbeats = request.registry.heartbeats
     seconds = float(request.registry.settings['heartbeat_timeout_seconds'])
-    with timeout(seconds):
-        for name, callable in heartbeats.items():
-            status[name] = callable(request)
+    for name, callable in heartbeats.items():
+        try:
+            with timeout(seconds):
+                status[name] = callable(request)
+        except TimeoutException:
+            error_msg = "'%s' heartbeat has exceeded timeout of %s seconds."
+            logger.exception(error_msg % (name, seconds))
 
     has_error = not all([v or v is None for v in status.values()])
     if has_error:

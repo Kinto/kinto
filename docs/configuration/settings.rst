@@ -60,8 +60,9 @@ Feature settings
 |                                                 |              | endpoint: ``/v1`` redirects to ``/v1/`` and ``/buckets/default/``        |
 |                                                 |              | to ``/buckets/default``. No redirections are made when turned off.       |
 +-------------------------------------------------+--------------+--------------------------------------------------------------------------+
-| kinto.heartbeat_timeout_seconds                 | ``5``        | The maximum duration of the heartbeat endpoint, which pings every        |
-|                                                 |              | backend.                                                                 |
+| kinto.heartbeat_timeout_seconds                 | ``2``        | The maximum duration of each heartbeat entry. Depending of the amount of |
+|                                                 |              | heartbeat entries (default: 3), this should be adjusted so that the      |
+|                                                 |              | maximum total remains below the WSGI worker timeout (usually 30 seconds) |
 +-------------------------------------------------+--------------+--------------------------------------------------------------------------+
 
 
