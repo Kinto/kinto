@@ -5,7 +5,7 @@
 [server:main]
 use = egg:waitress#main
 host = 0.0.0.0
-port = 8888
+port = %(http_port)s
 
 
 [app:main]
