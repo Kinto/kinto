@@ -30,7 +30,7 @@ class PermissionBaseTest(unittest.TestCase):
             (self.permission.object_permissions, ''),
             (self.permission.replace_object_permissions, '', {}),
             (self.permission.delete_object_permissions, ''),
-            (self.permission.principals_accessible_objects, [], ''),
+            (self.permission.get_accessible_objects, [], ''),
             (self.permission.object_permission_authorized_principals, '', ''),
         ]
         for call in calls:
@@ -76,7 +76,7 @@ class BaseTestPermission(object):
             (self.permission.object_permissions, ''),
             (self.permission.replace_object_permissions, '', {'write': []}),
             (self.permission.delete_object_permissions, ''),
-            (self.permission.principals_accessible_objects, [], ''),
+            (self.permission.get_accessible_objects, [], ''),
             (self.permission.object_permission_authorized_principals, '', ''),
         ]
         for call in calls:
@@ -297,15 +297,14 @@ class BaseTestPermission(object):
         self.permission.add_principal_to_ace('id2', 'read', 'user2')
         self.permission.add_principal_to_ace('id2', 'read', 'group')
         self.permission.add_principal_to_ace('id3', 'read', 'user2')
-        object_ids = self.permission.principals_accessible_objects(['user1',
-                                                                    'group'],
-                                                                   'read')
+        object_ids = self.permission.get_accessible_objects(['user1', 'group'],
+                                                            'read')
         self.assertEquals(object_ids, set(['id1', 'id2']))
 
     def test_obtain_object_ids_can_be_filtered_with_pattern(self):
         self.permission.add_principal_to_ace('/url1/id', 'write', 'user1')
         self.permission.add_principal_to_ace('/url2/id', 'write', 'user1')
-        object_ids = self.permission.principals_accessible_objects(
+        object_ids = self.permission.get_accessible_objects(
             ['user1'],
             'write',
             object_id_match='*url1*')
@@ -315,7 +314,7 @@ class BaseTestPermission(object):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
         self.permission.add_principal_to_ace('/url/a/id/2', 'read', 'user1')
         self.permission.add_principal_to_ace('/url/_/id/2', 'read', 'user1')
-        object_ids = self.permission.principals_accessible_objects(
+        object_ids = self.permission.get_accessible_objects(
             ['user1'],
             'read',
             object_id_match='/url/a/id/*',
@@ -329,7 +328,7 @@ class BaseTestPermission(object):
         self.permission.add_principal_to_ace('/url/b/id/1', 'write', 'user1')
         self.permission.add_principal_to_ace('/url/a/id/2', 'read', 'user1')
         self.permission.add_principal_to_ace('/url/b/id/2', 'read', 'user1')
-        object_ids = self.permission.principals_accessible_objects(
+        object_ids = self.permission.get_accessible_objects(
             ['user1'],
             'read',
             get_bound_permissions=lambda o, p: [('/url/a', 'write'),

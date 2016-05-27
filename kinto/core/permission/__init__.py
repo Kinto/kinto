@@ -86,9 +86,9 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def principals_accessible_objects(self, principals, permission,
-                                      object_id_match=None,
-                                      get_bound_permissions=None):
+    def get_accessible_objects(self, principals, permission,
+                               object_id_match=None,
+                               get_bound_permissions=None):
         """Return the list of objects id where the specified `principals`
         have the specified `permission`.
 

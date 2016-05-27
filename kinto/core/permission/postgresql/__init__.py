@@ -149,7 +149,7 @@ class Permission(PermissionBase):
                                      permission=permission,
                                      principal=principal))
 
-    def object_permission_principals(self, object_id, permission):
+    def get_object_permission_principals(self, object_id, permission):
         query = """
         SELECT principal
           FROM access_control_entries
@@ -186,9 +186,9 @@ class Permission(PermissionBase):
             results = result.fetchall()
         return set([r['principal'] for r in results])
 
-    def principals_accessible_objects(self, principals, permission,
-                                      object_id_match=None,
-                                      get_bound_permissions=None):
+    def get_accessible_objects(self, principals, permission,
+                               object_id_match=None,
+                               get_bound_permissions=None):
         placeholders = {'permission': permission}
 
         if object_id_match is None:

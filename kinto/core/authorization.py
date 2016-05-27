@@ -157,7 +157,7 @@ class RouteFactory(object):
             if self.on_collection:
                 object_id_match = self.get_permission_object_id(request, '*')
                 self.get_shared_ids = functools.partial(
-                    request.registry.permission.principals_accessible_objects,
+                    request.registry.permission.get_accessible_objects,
                     object_id_match=object_id_match)
 
             settings = request.registry.settings

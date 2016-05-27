@@ -79,9 +79,9 @@ class Permission(PermissionBase):
         members = self._store.get(permission_key, set())
         return members
 
-    def principals_accessible_objects(self, principals, permission,
-                                      object_id_match=None,
-                                      get_bound_permissions=None):
+    def get_accessible_objects(self, principals, permission,
+                               object_id_match=None,
+                               get_bound_permissions=None):
         principals = set(principals)
         if object_id_match is None:
             object_id_match = '*'
