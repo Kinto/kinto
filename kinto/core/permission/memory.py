@@ -74,7 +74,7 @@ class Permission(PermissionBase):
         else:
             self._store[permission_key] = object_permission_principals
 
-    def object_permission_principals(self, object_id, permission):
+    def get_object_permission_principals(self, object_id, permission):
         permission_key = 'permission:%s:%s' % (object_id, permission)
         members = self._store.get(permission_key, set())
         return members
@@ -112,7 +112,7 @@ class Permission(PermissionBase):
             keys = get_bound_permissions(object_id, permission)
         principals = set()
         for obj_id, perm in keys:
-            principals |= self.object_permission_principals(obj_id, perm)
+            principals |= self.get_object_permission_principals(obj_id, perm)
         return principals
 
     def object_permissions(self, object_id, permissions=None):

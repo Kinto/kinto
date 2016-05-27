@@ -74,7 +74,7 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def object_permission_principals(self, object_id, permission):
+    def get_object_permission_principals(self, object_id, permission):
         """Return the set of principals of a bound permission
         (unbound permission + object id).
 

@@ -66,7 +66,8 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
                                   headers=self.headers)
         object_uri = self.get_item_url(resp.json['data']['id'])
         backend = self.permission
-        stored_perms = backend.object_permission_principals(object_uri, 'read')
+        stored_perms = backend.get_object_permission_principals(object_uri,
+                                                                'read')
         self.assertEqual(stored_perms, {'group:readers'})
 
     def test_permissions_are_not_modified_if_not_specified(self):

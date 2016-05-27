@@ -26,7 +26,7 @@ class PermissionBaseTest(unittest.TestCase):
             (self.permission.get_user_principals, ''),
             (self.permission.add_principal_to_ace, '', '', ''),
             (self.permission.remove_principal_from_ace, '', '', ''),
-            (self.permission.object_permission_principals, '', ''),
+            (self.permission.get_object_permission_principals, '', ''),
             (self.permission.object_permissions, ''),
             (self.permission.replace_object_permissions, '', {}),
             (self.permission.delete_object_permissions, ''),
@@ -72,7 +72,7 @@ class BaseTestPermission(object):
             (self.permission.get_user_principals, ''),
             (self.permission.add_principal_to_ace, '', '', ''),
             (self.permission.remove_principal_from_ace, '', '', ''),
-            (self.permission.object_permission_principals, '', ''),
+            (self.permission.get_object_permission_principals, '', ''),
             (self.permission.object_permissions, ''),
             (self.permission.replace_object_permissions, '', {'write': []}),
             (self.permission.delete_object_permissions, ''),
@@ -171,7 +171,7 @@ class BaseTestPermission(object):
         permission = 'write'
         principal = 'bar'
         self.permission.add_principal_to_ace(object_id, permission, principal)
-        retrieved = self.permission.object_permission_principals(
+        retrieved = self.permission.get_object_permission_principals(
             object_id, permission)
         self.assertEquals(retrieved, {principal})
 
@@ -181,7 +181,7 @@ class BaseTestPermission(object):
         principal = 'bar'
         self.permission.add_principal_to_ace(object_id, permission, principal)
         self.permission.add_principal_to_ace(object_id, permission, principal)
-        retrieved = self.permission.object_permission_principals(
+        retrieved = self.permission.get_object_permission_principals(
             object_id, permission)
         self.assertEquals(retrieved, {principal})
 
@@ -194,7 +194,7 @@ class BaseTestPermission(object):
         self.permission.add_principal_to_ace(object_id, permission, principal2)
         self.permission.remove_principal_from_ace(object_id, permission,
                                                   principal)
-        retrieved = self.permission.object_permission_principals(
+        retrieved = self.permission.get_object_permission_principals(
             object_id, permission)
         self.assertEquals(retrieved, {principal2})
 
@@ -205,7 +205,7 @@ class BaseTestPermission(object):
         self.permission.add_principal_to_ace(object_id, permission, principal)
         self.permission.remove_principal_from_ace(object_id, permission,
                                                   principal)
-        retrieved = self.permission.object_permission_principals(
+        retrieved = self.permission.get_object_permission_principals(
             object_id, permission)
         self.assertEquals(retrieved, set())
 
@@ -217,7 +217,7 @@ class BaseTestPermission(object):
         self.permission.add_principal_to_ace(object_id, permission, principal2)
         self.permission.remove_principal_from_ace(object_id, permission,
                                                   principal)
-        retrieved = self.permission.object_permission_principals(
+        retrieved = self.permission.get_object_permission_principals(
             object_id, permission)
         self.assertEquals(retrieved, {principal2})
 

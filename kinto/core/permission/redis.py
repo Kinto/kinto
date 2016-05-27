@@ -80,7 +80,7 @@ class Permission(PermissionBase):
             self._client.delete(permission_key)
 
     @wrap_redis_error
-    def object_permission_principals(self, object_id, permission):
+    def get_object_permission_principals(self, object_id, permission):
         permission_key = 'permission:%s:%s' % (object_id, permission)
         members = self._client.smembers(permission_key)
         return self._decode_set(members)

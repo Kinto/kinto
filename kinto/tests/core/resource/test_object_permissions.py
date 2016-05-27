@@ -186,14 +186,14 @@ class DeletedRecordPermissionTest(PermissionTest):
 
     def test_permissions_are_deleted_when_record_is_deleted(self):
         self.resource.delete()
-        principals = self.permission.object_permission_principals(
+        principals = self.permission.get_object_permission_principals(
             self.record_uri, 'read')
         self.assertEqual(len(principals), 0)
 
     def test_permissions_are_deleted_when_collection_is_deleted(self):
         self.resource.context.on_collection = True
         self.resource.collection_delete()
-        principals = self.permission.object_permission_principals(
+        principals = self.permission.get_object_permission_principals(
             self.record_uri, 'read')
         self.assertEqual(len(principals), 0)
 
