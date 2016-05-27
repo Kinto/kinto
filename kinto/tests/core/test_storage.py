@@ -1148,6 +1148,12 @@ class RedisStorageTest(MemoryStorageTest, unittest.TestCase):
             backend.settings,
             {'host': 'store.loc', 'password': 'blah', 'db': 6, 'port': 7777})
 
+    def test_timeout_is_passed_to_redis_client(self):
+        config = testing.setUp(settings=self.settings)
+        config.add_settings({'storage_pool_timeout': '1.5'})
+        backend = self.backend.load_from_config(config)
+        self.assertEqual(backend._client.connection_pool.timeout, 1.5)
+
     def test_backend_error_provides_original_exception(self):
         StorageTest.test_backend_error_provides_original_exception(self)
 

@@ -36,6 +36,10 @@ def create_from_config(config, prefix=''):
         "password": uri.password or None,
         "db": int(uri.path[1:]) if uri.path else 0
     }
+    block_timeout = settings.get(prefix + 'pool_timeout')
+    if block_timeout is not None:
+        kwargs["timeout"] = float(block_timeout)
+
     connection_pool = redis.BlockingConnectionPool(**kwargs)
     return redis.StrictRedis(connection_pool=connection_pool)
 
