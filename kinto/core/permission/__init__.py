@@ -46,7 +46,7 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def user_principals(self, user_id):
+    def get_user_principals(self, user_id):
         """Return the set of additionnal principals given to a user.
 
         :param str user_id: The user_id to get the list of groups for.
@@ -182,7 +182,7 @@ def heartbeat(backend):
         try:
             if asbool(request.registry.settings.get('readonly')):
                 # Do not try to write in readonly mode.
-                backend.user_principals(__HEARTBEAT_KEY__)
+                backend.get_user_principals(__HEARTBEAT_KEY__)
             else:
                 backend.add_user_principal(__HEARTBEAT_KEY__, 'alive')
                 backend.remove_user_principal(__HEARTBEAT_KEY__, 'alive')

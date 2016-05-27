@@ -23,7 +23,7 @@ class PermissionBaseTest(unittest.TestCase):
             (self.permission.add_user_principal, '', ''),
             (self.permission.remove_user_principal, '', ''),
             (self.permission.remove_principal, ''),
-            (self.permission.user_principals, ''),
+            (self.permission.get_user_principals, ''),
             (self.permission.add_principal_to_ace, '', '', ''),
             (self.permission.remove_principal_from_ace, '', '', ''),
             (self.permission.object_permission_principals, '', ''),
@@ -69,7 +69,7 @@ class BaseTestPermission(object):
             (self.permission.flush,),
             (self.permission.add_user_principal, '', ''),
             (self.permission.remove_user_principal, '', ''),
-            (self.permission.user_principals, ''),
+            (self.permission.get_user_principals, ''),
             (self.permission.add_principal_to_ace, '', '', ''),
             (self.permission.remove_principal_from_ace, '', '', ''),
             (self.permission.object_permission_principals, '', ''),
@@ -95,7 +95,7 @@ class BaseTestPermission(object):
     def test_ping_returns_false_if_unavailable_in_readonly_mode(self):
         self.request.registry.settings['readonly'] = 'true'
         ping = heartbeat(self.permission)
-        with mock.patch.object(self.permission, 'user_principals',
+        with mock.patch.object(self.permission, 'get_user_principals',
                                side_effect=exceptions.BackendError("Boom!")):
             self.assertFalse(ping(self.request))
 
@@ -119,7 +119,7 @@ class BaseTestPermission(object):
         user_id = 'foo'
         principal = 'bar'
         self.permission.add_user_principal(user_id, principal)
-        retrieved = self.permission.user_principals(user_id)
+        retrieved = self.permission.get_user_principals(user_id)
         self.assertEquals(retrieved, {principal})
 
     def test_add_twice_a_principal_to_a_user_add_it_once(self):
@@ -127,7 +127,7 @@ class BaseTestPermission(object):
         principal = 'bar'
         self.permission.add_user_principal(user_id, principal)
         self.permission.add_user_principal(user_id, principal)
-        retrieved = self.permission.user_principals(user_id)
+        retrieved = self.permission.get_user_principals(user_id)
         self.assertEquals(retrieved, {principal})
 
     def test_can_remove_a_principal_for_a_user(self):
@@ -137,7 +137,7 @@ class BaseTestPermission(object):
         self.permission.add_user_principal(user_id, principal)
         self.permission.add_user_principal(user_id, principal2)
         self.permission.remove_user_principal(user_id, principal)
-        retrieved = self.permission.user_principals(user_id)
+        retrieved = self.permission.get_user_principals(user_id)
         self.assertEquals(retrieved, {principal2})
 
     def test_can_remove_a_unexisting_principal_to_a_user(self):
@@ -147,7 +147,7 @@ class BaseTestPermission(object):
         self.permission.add_user_principal(user_id, principal2)
         self.permission.remove_user_principal(user_id, principal)
         self.permission.remove_user_principal(user_id, principal2)
-        retrieved = self.permission.user_principals(user_id)
+        retrieved = self.permission.get_user_principals(user_id)
         self.assertEquals(retrieved, set())
 
     def test_can_remove_principal_from_every_users(self):
@@ -161,9 +161,9 @@ class BaseTestPermission(object):
         self.permission.remove_principal(principal1)
         self.permission.remove_principal('unknown')
 
-        retrieved = self.permission.user_principals(user_id1)
+        retrieved = self.permission.get_user_principals(user_id1)
         self.assertEquals(retrieved, set())
-        retrieved = self.permission.user_principals(user_id2)
+        retrieved = self.permission.get_user_principals(user_id2)
         self.assertEquals(retrieved, {principal2})
 
     def test_can_add_a_principal_to_an_object_permission(self):

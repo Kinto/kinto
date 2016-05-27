@@ -50,7 +50,7 @@ class Permission(PermissionBase):
             except KeyError:
                 pass
 
-    def user_principals(self, user_id):
+    def get_user_principals(self, user_id):
         user_key = 'user:%s' % user_id
         members = self._store.get(user_key, set())
         return members

@@ -112,7 +112,7 @@ class Permission(PermissionBase):
         with self.client.connect() as conn:
             conn.execute(query, dict(principal=principal))
 
-    def user_principals(self, user_id):
+    def get_user_principals(self, user_id):
         query = """
         SELECT principal
           FROM user_principals
