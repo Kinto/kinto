@@ -263,7 +263,7 @@ class Permission(PermissionBase):
             total = result.fetchone()
         return total['matched'] > 0
 
-    def object_permissions(self, object_id, permissions=None):
+    def get_object_permissions(self, object_id, permissions=None):
         query = """
         SELECT permission, principal
         FROM access_control_entries

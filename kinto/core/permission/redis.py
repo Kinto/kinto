@@ -63,7 +63,7 @@ class Permission(PermissionBase):
             pipe.execute()
 
     @wrap_redis_error
-    def user_principals(self, user_id):
+    def get_user_principals(self, user_id):
         user_key = 'user:%s' % user_id
         return self._decode_set(self._client.smembers(user_key))
 
