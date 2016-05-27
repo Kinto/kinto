@@ -32,7 +32,7 @@ def groupfinder(userid, request):
     # Query the permission backend only once per request (e.g. batch).
     reify_key = userid + '_principals'
     if reify_key not in request.bound_data:
-        principals = backend.user_principals(userid)
+        principals = backend.get_user_principals(userid)
         request.bound_data[reify_key] = principals
 
     return request.bound_data[reify_key]
@@ -157,7 +157,7 @@ class RouteFactory(object):
             if self.on_collection:
                 object_id_match = self.get_permission_object_id(request, '*')
                 self.get_shared_ids = functools.partial(
-                    request.registry.permission.principals_accessible_objects,
+                    request.registry.permission.get_accessible_objects,
                     object_id_match=object_id_match)
 
             settings = request.registry.settings

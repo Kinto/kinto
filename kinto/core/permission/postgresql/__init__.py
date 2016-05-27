@@ -112,7 +112,7 @@ class Permission(PermissionBase):
         with self.client.connect() as conn:
             conn.execute(query, dict(principal=principal))
 
-    def user_principals(self, user_id):
+    def get_user_principals(self, user_id):
         query = """
         SELECT principal
           FROM user_principals
@@ -149,7 +149,7 @@ class Permission(PermissionBase):
                                      permission=permission,
                                      principal=principal))
 
-    def object_permission_principals(self, object_id, permission):
+    def get_object_permission_principals(self, object_id, permission):
         query = """
         SELECT principal
           FROM access_control_entries
@@ -161,8 +161,8 @@ class Permission(PermissionBase):
             results = result.fetchall()
         return set([r['principal'] for r in results])
 
-    def object_permission_authorized_principals(self, object_id, permission,
-                                                get_bound_permissions=None):
+    def get_authorized_principals(self, object_id, permission,
+                                  get_bound_permissions=None):
         # XXX: this method is not used, except in test suites :(
         if get_bound_permissions is None:
             perms = [(object_id, permission)]
@@ -186,9 +186,9 @@ class Permission(PermissionBase):
             results = result.fetchall()
         return set([r['principal'] for r in results])
 
-    def principals_accessible_objects(self, principals, permission,
-                                      object_id_match=None,
-                                      get_bound_permissions=None):
+    def get_accessible_objects(self, principals, permission,
+                               object_id_match=None,
+                               get_bound_permissions=None):
         placeholders = {'permission': permission}
 
         if object_id_match is None:
@@ -263,7 +263,7 @@ class Permission(PermissionBase):
             total = result.fetchone()
         return total['matched'] > 0
 
-    def object_permissions(self, object_id, permissions=None):
+    def get_object_permissions(self, object_id, permissions=None):
         query = """
         SELECT permission, principal
         FROM access_control_entries

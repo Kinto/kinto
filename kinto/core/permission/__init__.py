@@ -46,7 +46,7 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def user_principals(self, user_id):
+    def get_user_principals(self, user_id):
         """Return the set of additionnal principals given to a user.
 
         :param str user_id: The user_id to get the list of groups for.
@@ -74,7 +74,7 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def object_permission_principals(self, object_id, permission):
+    def get_object_permission_principals(self, object_id, permission):
         """Return the set of principals of a bound permission
         (unbound permission + object id).
 
@@ -86,9 +86,9 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def principals_accessible_objects(self, principals, permission,
-                                      object_id_match=None,
-                                      get_bound_permissions=None):
+    def get_accessible_objects(self, principals, permission,
+                               object_id_match=None,
+                               get_bound_permissions=None):
         """Return the list of objects id where the specified `principals`
         have the specified `permission`.
 
@@ -105,8 +105,8 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def object_permission_authorized_principals(self, object_id, permission,
-                                                get_bound_permissions=None):
+    def get_authorized_principals(self, object_id, permission,
+                                  get_bound_permissions=None):
         """Return the full set of authorized principals for a given
         permission + object (bound permission).
 
@@ -137,11 +137,11 @@ class PermissionBase(object):
 
         """
         principals = set(principals)
-        authorized_principals = self.object_permission_authorized_principals(
+        authorized_principals = self.get_authorized_principals(
             object_id, permission, get_bound_permissions)
         return len(authorized_principals & principals) > 0
 
-    def object_permissions(self, object_id, permissions=None):
+    def get_object_permissions(self, object_id, permissions=None):
         """Return the set of principals for each object permission.
 
         :param str object_id: The object_id the permission is set to.
@@ -182,7 +182,7 @@ def heartbeat(backend):
         try:
             if asbool(request.registry.settings.get('readonly')):
                 # Do not try to write in readonly mode.
-                backend.user_principals(__HEARTBEAT_KEY__)
+                backend.get_user_principals(__HEARTBEAT_KEY__)
             else:
                 backend.add_user_principal(__HEARTBEAT_KEY__, 'alive')
                 backend.remove_user_principal(__HEARTBEAT_KEY__, 'alive')

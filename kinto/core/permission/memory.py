@@ -50,7 +50,7 @@ class Permission(PermissionBase):
             except KeyError:
                 pass
 
-    def user_principals(self, user_id):
+    def get_user_principals(self, user_id):
         user_key = 'user:%s' % user_id
         members = self._store.get(user_key, set())
         return members
@@ -74,14 +74,14 @@ class Permission(PermissionBase):
         else:
             self._store[permission_key] = object_permission_principals
 
-    def object_permission_principals(self, object_id, permission):
+    def get_object_permission_principals(self, object_id, permission):
         permission_key = 'permission:%s:%s' % (object_id, permission)
         members = self._store.get(permission_key, set())
         return members
 
-    def principals_accessible_objects(self, principals, permission,
-                                      object_id_match=None,
-                                      get_bound_permissions=None):
+    def get_accessible_objects(self, principals, permission,
+                               object_id_match=None,
+                               get_bound_permissions=None):
         principals = set(principals)
         if object_id_match is None:
             object_id_match = '*'
@@ -104,18 +104,18 @@ class Permission(PermissionBase):
                             objects.add(object_id)
         return objects
 
-    def object_permission_authorized_principals(self, object_id, permission,
-                                                get_bound_permissions=None):
+    def get_authorized_principals(self, object_id, permission,
+                                  get_bound_permissions=None):
         if get_bound_permissions is None:
             keys = [(object_id, permission)]
         else:
             keys = get_bound_permissions(object_id, permission)
         principals = set()
         for obj_id, perm in keys:
-            principals |= self.object_permission_principals(obj_id, perm)
+            principals |= self.get_object_permission_principals(obj_id, perm)
         return principals
 
-    def object_permissions(self, object_id, permissions=None):
+    def get_object_permissions(self, object_id, permissions=None):
         if permissions is None:
             aces = [k for k in self._store.keys()
                     if k.startswith('permission:%s' % object_id)]

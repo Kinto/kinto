@@ -43,8 +43,8 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         self.assertIn('group:admin', principals)
 
     def test_user_principals_are_cached_per_user(self):
-        patch = mock.patch.object(self.permission, 'user_principals',
-                                  wraps=self.permission.user_principals)
+        patch = mock.patch.object(self.permission, 'get_user_principals',
+                                  wraps=self.permission.get_user_principals)
         self.addCleanup(patch.stop)
         mocked = patch.start()
         batch = {

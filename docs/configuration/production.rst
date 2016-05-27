@@ -207,7 +207,7 @@ Timers
    "``view.{resource}-{type}.{method}``", "Time needed to process the specified *{method}* on a *{resource}* (e.g. bucket, collection or record). Different timers exists for the different type of resources (record or collection)"
    "``cache.{method}``", "Time needed to execute a method of the cache backend. Methods are ``ping``, ``ttl``, ``expire``, ``set``, ``get`` and ``delete``"
    "``storage.{method}``", "Time needed to execute a method of the storage backend. Methods are ``ping``, ``collection_timestamp``, ``create``, ``get``, ``update``, ``delete``, ``delete_all``, ``get_all``"
-   "``permission.{method}``", "Time needed to execute a method of the permission backend. Methods are ``add_user_principal``, ``remove_user_principal``, ``user_principals``, ``add_principal_to_ace``, ``remove_principal_from_ace``, ``object_permission_principals``, ``check_permission``"
+   "``permission.{method}``", "Time needed to execute a method of the permission backend. Methods are ``add_user_principal``, ``remove_user_principal``, ``get_user_principals``, ``add_principal_to_ace``, ``remove_principal_from_ace``, ``get_object_permission_principals``, ``check_permission``"
 
 
 Heka Logging

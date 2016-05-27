@@ -278,7 +278,7 @@ class ShareableModel(Model):
         """
         record = super(ShareableModel, self).get_record(record_id, parent_id)
         perm_object_id = self.get_permission_object_id(record_id)
-        permissions = self.permission.object_permissions(perm_object_id)
+        permissions = self.permission.get_object_permissions(perm_object_id)
 
         annotated = record.copy()
         annotated[self.permissions_field] = permissions
@@ -297,7 +297,7 @@ class ShareableModel(Model):
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)
         self._allow_write(perm_object_id)
-        permissions = self.permission.object_permissions(perm_object_id)
+        permissions = self.permission.get_object_permissions(perm_object_id)
 
         annotated = record.copy()
         annotated[self.permissions_field] = permissions
@@ -319,7 +319,7 @@ class ShareableModel(Model):
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)
         self._allow_write(perm_object_id)
-        permissions = self.permission.object_permissions(perm_object_id)
+        permissions = self.permission.get_object_permissions(perm_object_id)
 
         annotated = record.copy()
         annotated[self.permissions_field] = permissions

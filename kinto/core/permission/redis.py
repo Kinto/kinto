@@ -63,7 +63,7 @@ class Permission(PermissionBase):
             pipe.execute()
 
     @wrap_redis_error
-    def user_principals(self, user_id):
+    def get_user_principals(self, user_id):
         user_key = 'user:%s' % user_id
         return self._decode_set(self._client.smembers(user_key))
 
@@ -80,15 +80,15 @@ class Permission(PermissionBase):
             self._client.delete(permission_key)
 
     @wrap_redis_error
-    def object_permission_principals(self, object_id, permission):
+    def get_object_permission_principals(self, object_id, permission):
         permission_key = 'permission:%s:%s' % (object_id, permission)
         members = self._client.smembers(permission_key)
         return self._decode_set(members)
 
     @wrap_redis_error
-    def principals_accessible_objects(self, principals, permission,
-                                      object_id_match=None,
-                                      get_bound_permissions=None):
+    def get_accessible_objects(self, principals, permission,
+                               object_id_match=None,
+                               get_bound_permissions=None):
         if object_id_match is None:
             object_id_match = '*'
 
@@ -112,8 +112,8 @@ class Permission(PermissionBase):
         return objects
 
     @wrap_redis_error
-    def object_permission_authorized_principals(self, object_id, permission,
-                                                get_bound_permissions=None):
+    def get_authorized_principals(self, object_id, permission,
+                                  get_bound_permissions=None):
         if get_bound_permissions is None:
             def get_bound_permissions(object_id, permission):
                 return [(object_id, permission)]
@@ -125,7 +125,7 @@ class Permission(PermissionBase):
         return set()
 
     @wrap_redis_error
-    def object_permissions(self, object_id, permissions=None):
+    def get_object_permissions(self, object_id, permissions=None):
         if permissions is not None:
             keys = ['permission:%s:%s' % (object_id, permission)
                     for permission in permissions]
