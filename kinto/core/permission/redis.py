@@ -112,8 +112,8 @@ class Permission(PermissionBase):
         return objects
 
     @wrap_redis_error
-    def object_permission_authorized_principals(self, object_id, permission,
-                                                get_bound_permissions=None):
+    def get_authorized_principals(self, object_id, permission,
+                                  get_bound_permissions=None):
         if get_bound_permissions is None:
             def get_bound_permissions(object_id, permission):
                 return [(object_id, permission)]

@@ -105,8 +105,8 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def object_permission_authorized_principals(self, object_id, permission,
-                                                get_bound_permissions=None):
+    def get_authorized_principals(self, object_id, permission,
+                                  get_bound_permissions=None):
         """Return the full set of authorized principals for a given
         permission + object (bound permission).
 
@@ -137,7 +137,7 @@ class PermissionBase(object):
 
         """
         principals = set(principals)
-        authorized_principals = self.object_permission_authorized_principals(
+        authorized_principals = self.get_authorized_principals(
             object_id, permission, get_bound_permissions)
         return len(authorized_principals & principals) > 0
 

@@ -104,8 +104,8 @@ class Permission(PermissionBase):
                             objects.add(object_id)
         return objects
 
-    def object_permission_authorized_principals(self, object_id, permission,
-                                                get_bound_permissions=None):
+    def get_authorized_principals(self, object_id, permission,
+                                  get_bound_permissions=None):
         if get_bound_permissions is None:
             keys = [(object_id, permission)]
         else:

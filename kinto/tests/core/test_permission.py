@@ -31,7 +31,7 @@ class PermissionBaseTest(unittest.TestCase):
             (self.permission.replace_object_permissions, '', {}),
             (self.permission.delete_object_permissions, ''),
             (self.permission.get_accessible_objects, [], ''),
-            (self.permission.object_permission_authorized_principals, '', ''),
+            (self.permission.get_authorized_principals, '', ''),
         ]
         for call in calls:
             self.assertRaises(NotImplementedError, *call)
@@ -77,7 +77,7 @@ class BaseTestPermission(object):
             (self.permission.replace_object_permissions, '', {'write': []}),
             (self.permission.delete_object_permissions, ''),
             (self.permission.get_accessible_objects, [], ''),
-            (self.permission.object_permission_authorized_principals, '', ''),
+            (self.permission.get_authorized_principals, '', ''),
         ]
         for call in calls:
             self.assertRaises(exceptions.BackendError, *call)
@@ -252,22 +252,22 @@ class BaseTestPermission(object):
             lambda object_id, permission: permissions)
         self.assertTrue(check_permission)
 
-    def test_object_permission_authorized_principals_inherit_principals(self):
+    def test_get_authorized_principals_inherit_principals(self):
         object_id = 'foo'
         permissions = [(object_id, 'write'), (object_id, 'read')]
         user_id = 'bar'
         self.permission.add_principal_to_ace(object_id, 'write',
                                                         user_id)
-        principals = self.permission.object_permission_authorized_principals(
+        principals = self.permission.get_authorized_principals(
             object_id, 'read', lambda object_id, permission: permissions)
         self.assertEquals(principals, {user_id})
 
-    def test_object_permission_authorized_principals_handles_empty_set(self):
+    def test_get_authorized_principals_handles_empty_set(self):
         object_id = 'foo'
         permissions = set()
         user_id = 'bar'
         self.permission.add_principal_to_ace(object_id, 'write', user_id)
-        principals = self.permission.object_permission_authorized_principals(
+        principals = self.permission.get_authorized_principals(
             object_id, 'read', lambda object_id, permission: permissions)
         self.assertEquals(principals, set())
 

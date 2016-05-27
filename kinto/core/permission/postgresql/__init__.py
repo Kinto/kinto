@@ -161,8 +161,8 @@ class Permission(PermissionBase):
             results = result.fetchall()
         return set([r['principal'] for r in results])
 
-    def object_permission_authorized_principals(self, object_id, permission,
-                                                get_bound_permissions=None):
+    def get_authorized_principals(self, object_id, permission,
+                                  get_bound_permissions=None):
         # XXX: this method is not used, except in test suites :(
         if get_bound_permissions is None:
             perms = [(object_id, permission)]
