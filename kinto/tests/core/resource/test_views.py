@@ -94,6 +94,20 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
 
         self.assertEqual(resp.json['data']['name'], MINIMALIST_RECORD['name'])
 
+    def test_data_are_not_modified_if_not_specified_on_schemaless(self):
+        self.add_permission('/spores', 'spore:create')
+        body = {'data': MINIMALIST_RECORD,
+                'permissions': {'read': ['group:readers']}}
+        resp = self.app.post_json('/spores', body,
+                                  headers=self.headers)
+        object_uri = '/spores/' + resp.json['data']['id']
+        self.add_permission(object_uri, 'write')
+
+        body.pop('data')
+        resp = self.app.put_json(object_uri, body, headers=self.headers)
+
+        self.assertEqual(resp.json['data']['name'], MINIMALIST_RECORD['name'])
+
     def test_permissions_can_be_modified_using_patch(self):
         body = {'data': MINIMALIST_RECORD,
                 'permissions': {'read': ['group:readers']}}
