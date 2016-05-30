@@ -6,7 +6,12 @@ This document describes changes between each past release.
 3.1.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+**New features**
+
+- ``kinto start`` now accepts a ``--port`` option to specify which port to listen to.
+  **Important**: Because of a limitation in `Pyramid tooling <http://stackoverflow.com/a/21228232/147077>`_,
+  it won't work if the port is hard-coded in your existing ``.ini`` file. Replace
+  it by ``%(http_port)s`` or regenerate a new configuration file with ``kinto init``.
 
 
 3.1.0 (2016-05-24)

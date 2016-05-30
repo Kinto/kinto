@@ -52,6 +52,11 @@ def main(args=None):
                               help='Restart when code or config changes',
                               required=False,
                               default=False)
+    parser_start.add_argument('--port',
+                              type=int,
+                              help='Listening port number',
+                              required=False,
+                              default=8888)
     parser_start.set_defaults(which='start')
 
     parsed_args = vars(parser.parse_args(args))
@@ -94,6 +99,7 @@ def main(args=None):
         pserve_argv = ['pserve', config_file]
         if parsed_args['reload']:
             pserve_argv.append('--reload')
+        pserve_argv.append('http_port=%s' % parsed_args['port'])
         pserve.main(pserve_argv)
 
     return 0
