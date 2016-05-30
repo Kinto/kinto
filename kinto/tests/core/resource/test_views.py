@@ -82,6 +82,18 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
         resp = self.app.put_json(object_uri, body, headers=self.headers)
         self.assertEqual(resp.json['permissions']['read'], ['group:readers'])
 
+    def test_data_are_not_modified_if_not_specified(self):
+        body = {'data': MINIMALIST_RECORD,
+                'permissions': {'read': ['group:readers']}}
+        resp = self.app.post_json(self.collection_url, body,
+                                  headers=self.headers)
+        object_uri = self.get_item_url(resp.json['data']['id'])
+
+        body.pop('data')
+        resp = self.app.put_json(object_uri, body, headers=self.headers)
+
+        self.assertEqual(resp.json['data']['name'], MINIMALIST_RECORD['name'])
+
     def test_permissions_can_be_modified_using_patch(self):
         body = {'data': MINIMALIST_RECORD,
                 'permissions': {'read': ['group:readers']}}
