@@ -254,8 +254,12 @@ def build_request(original, dict_obj):
     path = path.encode('utf-8')
 
     method = dict_obj.get('method') or 'GET'
+
     headers = dict(original.headers)
     headers.update(**dict_obj.get('headers') or {})
+    # Body can have different length, do not use original header.
+    headers.pop('Content-Length', None)
+
     payload = dict_obj.get('body') or ''
 
     # Payload is always a dict (from ``BatchRequestSchema.body``).

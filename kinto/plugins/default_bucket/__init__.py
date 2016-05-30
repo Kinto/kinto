@@ -126,6 +126,13 @@ def default_bucket(request):
     querystring = request.url[(request.url.index(request.path) +
                                len(request.path)):]
 
+    try:
+        # If 'id' is provided as 'default', replace with actual bucket id.
+        body = request.json
+        body['data']['id'] = body['data']['id'].replace('default', bucket_id)
+    except:
+        body = request.body
+
     # Make sure bucket exists
     create_bucket(request, bucket_id)
 
@@ -135,7 +142,7 @@ def default_bucket(request):
     subrequest = build_request(request, {
         'method': request.method,
         'path': path + querystring,
-        'body': request.body
+        'body': body,
     })
     subrequest.bound_data = request.bound_data
 

@@ -130,6 +130,12 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
                             headers=self.headers)
         self.assertEquals(resp.json['data'][0]['id'], 'default')
 
+    def test_bucket_id_in_body_can_be_default(self):
+        self.app.put_json('/buckets/default',
+                          {'data': {'id': 'default'}},
+                          headers=self.headers,
+                          status=201)
+
     def test_default_bucket_objects_are_checked_only_once_in_batch(self):
         batch = {'requests': []}
         nb_create = 25
