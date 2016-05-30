@@ -413,7 +413,8 @@ class UserResource(object):
             if existing:
                 self._raise_412_if_modified(existing)
 
-        post_record = self.request.validated['data']
+        # If `data` is not provided, use existing record (or empty if creation)
+        post_record = self.request.validated.get('data', existing) or {}
 
         record_id = post_record.setdefault(id_field, self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
