@@ -115,14 +115,6 @@ class ViewSet(object):
         else:
             record_mapping = resource_cls.mapping
 
-            try:
-                record_mapping.deserialize({})
-                # Empty data accepted.
-                record_mapping.missing = colander.drop
-                record_mapping.default = {}
-            except colander.Invalid:
-                pass
-
         class PayloadSchema(colander.MappingSchema):
             data = record_mapping
 
@@ -200,7 +192,14 @@ class ShareableViewSet(ViewSet):
         if method.lower() not in map(str.lower, self.validate_schema_for):
             return schema
 
-        if method.lower() == 'patch':
+        try:
+            empty_allowed = False
+            schema.deserialize({"data": {}})
+            empty_allowed = True
+        except colander.Invalid:
+            pass
+
+        if empty_allowed or method.lower() == 'patch':
             # Data is optional when patching permissions.
             schema.children[-1].missing = colander.drop
 

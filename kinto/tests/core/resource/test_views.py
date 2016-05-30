@@ -90,9 +90,16 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
         object_uri = self.get_item_url(resp.json['data']['id'])
 
         body.pop('data')
-        resp = self.app.put_json(object_uri, body, headers=self.headers)
-
-        self.assertEqual(resp.json['data']['name'], MINIMALIST_RECORD['name'])
+        # With the current Cornice limitations, it is not possible to define
+        # a validator that makes sure that at least of `data` or `permissions`
+        # is specified in body.
+        # Currently, only "schemaless" resources can have their permissions
+        # replaced via PUT with specifying the `data`.
+        # resp = self.app.put_json(object_uri, body, headers=self.headers)
+        # self.assertEqual(resp.json['data']['name'],
+        #                  MINIMALIST_RECORD['name'])
+        resp = self.app.put_json(object_uri, body, headers=self.headers,
+                                 status=400)
 
     def test_data_are_not_modified_if_not_specified_on_schemaless(self):
         self.add_permission('/spores', 'spore:create')

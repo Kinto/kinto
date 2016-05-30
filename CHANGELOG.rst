@@ -13,6 +13,10 @@ This document describes changes between each past release.
   it won't work if the port is hard-coded in your existing ``.ini`` file. Replace
   it by ``%(http_port)s`` or regenerate a new configuration file with ``kinto init``.
 
+**Bug fixes**
+
+- Fix loss of data attributes when permissions are replaced with ``PUT`` (fixes #601)
+
 
 3.1.0 (2016-05-24)
 ==================

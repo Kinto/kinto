@@ -303,7 +303,7 @@ class UserResource(object):
             :meth:`kinto.core.resource.UserResource.process_record`
         """
         existing = None
-        new_record = self.request.validated['data']
+        new_record = self.request.validated.get('data', {})
         try:
             id_field = self.model.id_field
             # Since ``id`` does not belong to schema, look up in body.
