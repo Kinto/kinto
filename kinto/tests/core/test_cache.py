@@ -270,6 +270,12 @@ class RedisCacheTest(BaseTestCache, unittest.TestCase):
             backend.settings,
             {'host': 'peer.loc', 'password': 'secret', 'db': 7, 'port': 4444})
 
+    def test_timeout_is_passed_to_redis_client(self):
+        config = testing.setUp(settings=self.settings)
+        config.add_settings({'cache_pool_timeout': '1.5'})
+        backend = self.backend.load_from_config(config)
+        self.assertEqual(backend._client.connection_pool.timeout, 1.5)
+
 
 @skip_if_no_postgresql
 class PostgreSQLCacheTest(BaseTestCache, unittest.TestCase):
