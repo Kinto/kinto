@@ -27,11 +27,18 @@ def get_heartbeat(request):
         future.__heartbeat_name = name  # For logging purposes.
         futures.append(future)
 
-    # Wait the results, with timeout.
+    # Wait for the results, with timeout.
     seconds = float(request.registry.settings['heartbeat_timeout_seconds'])
     done, not_done = wait(futures, timeout=seconds)
-    if len(not_done) > 0:
-        name = not_done.pop().__heartbeat_name
+
+    # A heartbeat is supposed to return True or False, and never raise.
+    # Just in case, go though results to spot any potential exception.
+    for future in done:
+        future.result()  # Will re-raise.
+
+    # Log timed-out heartbeats.
+    for future in not_done:
+        name = future.__heartbeat_name
         error_msg = "'%s' heartbeat has exceeded timeout of %s seconds."
         logger.error(error_msg % (name, seconds))
 

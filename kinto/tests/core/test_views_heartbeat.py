@@ -41,6 +41,10 @@ class FailureTest(BaseWebTest, unittest.TestCase):
             response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['cache'], False)
 
+    def test_fails_will_500_if_heartbeat_crashes(self):
+        self.app.app.registry.heartbeats['cache'] = lambda r: 1 / 0
+        self.app.get('/__heartbeat__', status=500)
+
 
 class LoadBalancerHeartbeat(BaseWebTest, unittest.TestCase):
     def test_returns_200_with_empty_body(self):
