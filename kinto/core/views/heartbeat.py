@@ -20,7 +20,7 @@ def get_heartbeat(request):
 
     # Start executing heartbeats concurrently.
     heartbeats = request.registry.heartbeats
-    pool = ThreadPoolExecutor(max_workers=len(heartbeats.keys()))
+    pool = ThreadPoolExecutor(max_workers=min(1, len(heartbeats.keys())))
     futures = []
     for name, func in heartbeats.items():
         future = pool.submit(heartbeat_check, name, func)
