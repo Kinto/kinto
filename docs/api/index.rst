@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.6 (unreleased)
+1.6 (2016-05-24)
 ''''''''''''''''
 
 - Added the ``GET /contribute.json`` endpoint for open-source information.
