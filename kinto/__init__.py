@@ -29,8 +29,7 @@ DEFAULT_SETTINGS = {
     'multiauth.authorization_policy': (
         'kinto.authorization.AuthorizationPolicy'),
     'experimental_collection_schema_validation': 'False',
-    'http_api_version': HTTP_API_VERSION,
-    'heartbeat_timeout_seconds': 5
+    'http_api_version': HTTP_API_VERSION
 }
 
 
