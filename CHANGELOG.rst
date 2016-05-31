@@ -17,6 +17,11 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix loss of data attributes when permissions are replaced with ``PUT`` (fixes #601)
+- Fix 400 response when posting data with ``id: "default"`` in default bucket.
+
+**Internal changes**
+
+- Renamed some permission backend methods for consistency with other classes (fixes #608)
 
 
 3.1.0 (2016-05-24)
