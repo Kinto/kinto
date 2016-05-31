@@ -81,8 +81,6 @@ def heartbeat(backend):
         """
         # No specific case for readonly mode because the cache should
         # continue to work in that mode.
-        import time
-        time.sleep(30)
         try:
             if random.random() < _HEARTBEAT_DELETE_RATE:
                 backend.delete(_HEARTBEAT_KEY)
