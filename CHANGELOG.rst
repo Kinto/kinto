@@ -8,6 +8,10 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
+**Bug fixes**
+
+- Fix loss of data attributes when permissions are replaced with ``PUT`` (fixes #601)
+
 
 3.1.0 (2016-05-24)
 ==================

@@ -178,6 +178,14 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(group_url, MINIMALIST_GROUP,
                           headers=headers, status=201)
 
+    def test_groups_data_is_optional_with_patch(self):
+        valid = {'permissions': {'write': ['github:me']}}
+        self.app.put_json(self.group_url, MINIMALIST_GROUP,
+                          headers=self.headers)
+        self.app.patch_json(self.group_url,
+                            valid,
+                            headers=self.headers)
+
 
 class InvalidGroupTest(BaseWebTest, unittest.TestCase):
 
@@ -187,16 +195,18 @@ class InvalidGroupTest(BaseWebTest, unittest.TestCase):
         super(InvalidGroupTest, self).setUp()
         self.create_bucket('beers')
 
-    def test_groups_must_have_members_attribute(self):
-        invalid = {}
+    def test_groups_data_is_required_with_put(self):
+        invalid = {'permissions': {'write': ['github:me']}}
         resp = self.app.put_json(self.group_url,
                                  invalid,
                                  headers=self.headers,
                                  status=400)
-        self.assertEqual(resp.json['message'],
-                         "data is missing")
-        self.assertDictEqual(resp.json['details'][0], {
-            "description": "data is missing",
-            "location": "body",
-            "name": "data"
-        })
+        self.assertEqual(resp.json['message'], "data is missing")
+
+    def test_groups_must_have_members_attribute(self):
+        invalid = {'data': {'alias': 'admins'}}
+        resp = self.app.put_json(self.group_url,
+                                 invalid,
+                                 headers=self.headers,
+                                 status=400)
+        self.assertIn('data.members in body', resp.json['message'])

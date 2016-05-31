@@ -147,10 +147,10 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
         self.assertEqual(resp.json['details'][0]['name'], 'title')
 
     def test_records_of_other_bucket_are_not_impacted(self):
-        self.app.put_json('/buckets/blog', headers=self.headers)
-        self.app.put_json('/buckets/blog/collections/articles',
+        self.app.put_json('/buckets/cms', headers=self.headers)
+        self.app.put_json('/buckets/cms/collections/articles',
                           headers=self.headers)
-        self.app.post_json('/buckets/blog/collections/articles/records',
+        self.app.post_json('/buckets/cms/collections/articles/records',
                            {'data': {'body': '<h1>Without title</h1>'}},
                            headers=self.headers)
 
