@@ -82,6 +82,40 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
         resp = self.app.put_json(object_uri, body, headers=self.headers)
         self.assertEqual(resp.json['permissions']['read'], ['group:readers'])
 
+    def test_data_are_not_modified_if_not_specified(self):
+        body = {'data': MINIMALIST_RECORD,
+                'permissions': {'read': ['group:readers']}}
+        resp = self.app.post_json(self.collection_url, body,
+                                  headers=self.headers)
+        object_uri = self.get_item_url(resp.json['data']['id'])
+
+        body.pop('data')
+        # With the current Cornice limitations, it is not possible to define
+        # a validator that makes sure that at least of `data` or `permissions`
+        # is specified in body.
+        # https://github.com/mozilla-services/cornice/pull/330
+        # Currently, only "schemaless" resources can have their permissions
+        # replaced via PUT with specifying the `data`.
+        # resp = self.app.put_json(object_uri, body, headers=self.headers)
+        # self.assertEqual(resp.json['data']['name'],
+        #                  MINIMALIST_RECORD['name'])
+        resp = self.app.put_json(object_uri, body, headers=self.headers,
+                                 status=400)
+
+    def test_data_are_not_modified_if_not_specified_on_schemaless(self):
+        self.add_permission('/spores', 'spore:create')
+        body = {'data': MINIMALIST_RECORD,
+                'permissions': {'read': ['group:readers']}}
+        resp = self.app.post_json('/spores', body,
+                                  headers=self.headers)
+        object_uri = '/spores/' + resp.json['data']['id']
+        self.add_permission(object_uri, 'write')
+
+        body.pop('data')
+        resp = self.app.put_json(object_uri, body, headers=self.headers)
+
+        self.assertEqual(resp.json['data']['name'], MINIMALIST_RECORD['name'])
+
     def test_permissions_can_be_modified_using_patch(self):
         body = {'data': MINIMALIST_RECORD,
                 'permissions': {'read': ['group:readers']}}
