@@ -1,5 +1,6 @@
+from multiprocessing import TimeoutError
+from multiprocessing.pool import ThreadPool
 from pyramid.security import NO_PERMISSION_REQUIRED
-from timeoutcontext import timeout, TimeoutException
 
 from kinto import logger
 from kinto.core import Service
@@ -12,14 +13,20 @@ heartbeat = Service(name="heartbeat", path='/__heartbeat__',
 @heartbeat.get(permission=NO_PERMISSION_REQUIRED)
 def get_heartbeat(request):
     """Return information about server health."""
-    status = {}
     heartbeats = request.registry.heartbeats
     seconds = float(request.registry.settings['heartbeat_timeout_seconds'])
+
+    pool = ThreadPool(processes=1)
+
+    async_results = []
     for name, callable in heartbeats.items():
+        async_results.append((name, pool.apply_async(callable, (request,))))
+
+    status = {}
+    for name, async_result in async_results:
         try:
-            with timeout(seconds):
-                status[name] = callable(request)
-        except TimeoutException:
+            status[name] = async_result.get(timeout=seconds)
+        except TimeoutError:
             error_msg = "'%s' heartbeat has exceeded timeout of %s seconds."
             logger.exception(error_msg % (name, seconds))
 

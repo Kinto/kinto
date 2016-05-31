@@ -29,7 +29,6 @@ REQUIREMENTS = [
     'requests',
     'six',
     'structlog >= 16.1.0',
-    'timeoutcontext',
     'enum34',
     'waitress',
 ]
