@@ -54,7 +54,7 @@ DEFAULT_SETTINGS = {
         'kinto.core.events.setup_transaction_hook',
     ),
     'event_listeners': '',
-    'heartbeat_timeout_seconds': 5,
+    'heartbeat_timeout_seconds': 10,
     'logging_renderer': 'kinto.core.logs.ClassicLogRenderer',
     'newrelic_config': None,
     'newrelic_env': 'dev',
