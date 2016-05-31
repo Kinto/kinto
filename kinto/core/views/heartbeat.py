@@ -1,5 +1,4 @@
-from multiprocessing import TimeoutError
-from multiprocessing.pool import ThreadPool
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto import logger
@@ -13,23 +12,26 @@ heartbeat = Service(name="heartbeat", path='/__heartbeat__',
 @heartbeat.get(permission=NO_PERMISSION_REQUIRED)
 def get_heartbeat(request):
     """Return information about server health."""
+
+    # Start executing heartbeats concurrently.
     heartbeats = request.registry.heartbeats
-    seconds = float(request.registry.settings['heartbeat_timeout_seconds'])
-
-    pool = ThreadPool(processes=1)
-
-    async_results = []
+    pool = ThreadPoolExecutor(max_workers=len(heartbeats.keys()))
+    futures = []
     for name, callable in heartbeats.items():
-        async_results.append((name, pool.apply_async(callable, (request,))))
+        futures.append((name, pool.submit(callable, request)))
 
+    # Wait the results, with timeout.
+    seconds = float(request.registry.settings['heartbeat_timeout_seconds'])
     status = {}
-    for name, async_result in async_results:
+    for name, future in futures:
         try:
-            status[name] = async_result.get(timeout=seconds)
+            status[name] = future.result(timeout=seconds)
         except TimeoutError:
+            status[name] = False
             error_msg = "'%s' heartbeat has exceeded timeout of %s seconds."
             logger.exception(error_msg % (name, seconds))
 
+    # If any has failed, return a 503 error response.
     has_error = not all([v or v is None for v in status.values()])
     if has_error:
         request.response.status = 503
