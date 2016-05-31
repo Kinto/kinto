@@ -93,6 +93,7 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
         # With the current Cornice limitations, it is not possible to define
         # a validator that makes sure that at least of `data` or `permissions`
         # is specified in body.
+        # https://github.com/mozilla-services/cornice/pull/330
         # Currently, only "schemaless" resources can have their permissions
         # replaced via PUT with specifying the `data`.
         # resp = self.app.put_json(object_uri, body, headers=self.headers)
