@@ -6,6 +6,12 @@ This document describes changes between each past release.
 3.1.1 (unreleased)
 ==================
 
+**Protocol**
+
+- Allow record ids to be any string instead of just UUIDs (fixes #655).
+
+Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+
 **New features**
 
 - ``kinto start`` now accepts a ``--port`` option to specify which port to listen to.
