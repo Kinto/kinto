@@ -1,6 +1,9 @@
+from concurrent.futures import ThreadPoolExecutor, wait
 from pyramid.security import NO_PERMISSION_REQUIRED
 
+from kinto import logger
 from kinto.core import Service
+
 
 heartbeat = Service(name="heartbeat", path='/__heartbeat__',
                     description="Server health")
@@ -11,10 +14,38 @@ def get_heartbeat(request):
     """Return information about server health."""
     status = {}
 
-    heartbeats = request.registry.heartbeats
-    for name, callable in heartbeats.items():
-        status[name] = callable(request)
+    def heartbeat_check(name, func):
+        status[name] = False
+        status[name] = func(request)
 
+    # Start executing heartbeats concurrently.
+    heartbeats = request.registry.heartbeats
+    pool = ThreadPoolExecutor(max_workers=max(1, len(heartbeats.keys())))
+    futures = []
+    for name, func in heartbeats.items():
+        future = pool.submit(heartbeat_check, name, func)
+        future.__heartbeat_name = name  # For logging purposes.
+        futures.append(future)
+
+    # Wait for the results, with timeout.
+    seconds = float(request.registry.settings['heartbeat_timeout_seconds'])
+    done, not_done = wait(futures, timeout=seconds)
+
+    # A heartbeat is supposed to return True or False, and never raise.
+    # Just in case, go though results to spot any potential exception.
+    for future in done:
+        exc = future.exception()
+        if exc is not None:
+            logger.error("%r heartbeat failed." % future.__heartbeat_name)
+            logger.error(exc)
+
+    # Log timed-out heartbeats.
+    for future in not_done:
+        name = future.__heartbeat_name
+        error_msg = "%r heartbeat has exceeded timeout of %s seconds."
+        logger.error(error_msg % (name, seconds))
+
+    # If any has failed, return a 503 error response.
     has_error = not all([v or v is None for v in status.values()])
     if has_error:
         request.response.status = 503

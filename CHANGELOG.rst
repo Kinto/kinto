@@ -13,11 +13,15 @@ This document describes changes between each past release.
   it won't work if the port is hard-coded in your existing ``.ini`` file. Replace
   it by ``%(http_port)s`` or regenerate a new configuration file with ``kinto init``.
 - Add support for ``pool_timeout`` option in Redis backend (fixes #620)
+- Add new setting ``kinto.heartbeat_timeout_seconds`` to control the maximum duration
+  of the heartbeat endpoint (fixes #601)
 
 **Bug fixes**
 
 - Fix loss of data attributes when permissions are replaced with ``PUT`` (fixes #601)
 - Fix 400 response when posting data with ``id: "default"`` in default bucket.
+- Fix 500 on heartbeat endpoint when a check does not follow the specs and raises instead of
+  returning false.
 
 **Internal changes**
 

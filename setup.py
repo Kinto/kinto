@@ -100,7 +100,7 @@ setup(name='kinto',
       extras_require={
           'postgresql': POSTGRESQL_REQUIRES,
           'monitoring': MONITORING_REQUIRES,
-          ":python_version=='2.7'": ["functools32"],
+          ":python_version=='2.7'": ["functools32", "futures"],
       },
       test_suite="kinto.tests",
       dependency_links=DEPENDENCY_LINKS,

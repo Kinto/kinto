@@ -1,24 +1,15 @@
 import mock
-import requests
 
 from .support import BaseWebTest, unittest
 
 
-httpOK = requests.models.Response()
-httpOK.status_code = 200
-
-
 class SuccessTest(BaseWebTest, unittest.TestCase):
 
-    @mock.patch('requests.get')
-    def test_returns_storage_true_if_ok(self, get_mocked):
-        get_mocked.return_value = httpOK
+    def test_returns_storage_true_if_ok(self):
         response = self.app.get('/__heartbeat__')
         self.assertEqual(response.json['storage'], True)
 
-    @mock.patch('requests.get')
-    def test_returns_cache_true_if_ok(self, get_mocked):
-        get_mocked.return_value = httpOK
+    def test_returns_cache_true_if_ok(self):
         response = self.app.get('/__heartbeat__')
         self.assertEqual(response.json['cache'], True)
 
@@ -30,19 +21,34 @@ class SuccessTest(BaseWebTest, unittest.TestCase):
 
 class FailureTest(BaseWebTest, unittest.TestCase):
 
-    @mock.patch('requests.get')
-    def test_returns_storage_false_if_ko(self, get_mocked):
+    def test_returns_storage_false_if_ko(self):
         self.app.app.registry.heartbeats['storage'] = lambda r: False
-        get_mocked.return_value = httpOK
         response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['storage'], False)
+        self.assertEqual(response.json['cache'], True)
 
-    @mock.patch('requests.get')
-    def test_returns_cache_false_if_ko(self, get_mocked):
+    def test_returns_cache_false_if_ko(self):
         self.app.app.registry.heartbeats['cache'] = lambda r: False
-        get_mocked.return_value = httpOK
         response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['cache'], False)
+        self.assertEqual(response.json['storage'], True)
+
+    def test_returns_false_if_heartbeat_times_out(self):
+        def sleepy(request):
+            import time
+            time.sleep(1)
+        self.app.app.registry.heartbeats['cache'] = sleepy
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('heartbeat_timeout_seconds', 0.1)]):
+            response = self.app.get('/__heartbeat__', status=503)
+        self.assertEqual(response.json['cache'], False)
+        self.assertEqual(response.json['storage'], True)
+
+    def test_returns_false_if_heartbeat_fails(self):
+        self.app.app.registry.heartbeats['cache'] = lambda r: 1 / 0
+        response = self.app.get('/__heartbeat__', status=503)
+        self.assertEqual(response.json['cache'], False)
+        self.assertEqual(response.json['storage'], True)
 
 
 class LoadBalancerHeartbeat(BaseWebTest, unittest.TestCase):
