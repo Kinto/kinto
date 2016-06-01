@@ -1,8 +1,3 @@
-import six
-
-from kinto.core.utils import DeprecatedMeta
-
-
 class Model(object):
     """A collection stores and manipulate records in its attached storage.
 
@@ -334,9 +329,3 @@ class ShareableModel(Model):
         self.permission.delete_object_permissions(perm_object_id)
 
         return record
-
-
-@six.add_metaclass(DeprecatedMeta)
-class ProtectedModel(ShareableModel):
-    __deprecation_warning__ = ('ProtectedModel is deprecated. '
-                               'Use ShareableModel instead.')

@@ -26,6 +26,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Renamed some permission backend methods for consistency with other classes (fixes #608)
+- Removed some deprecated code that had been in ``kinto.core`` for too long.
 
 
 3.1.0 (2016-05-24)

@@ -1,12 +1,11 @@
 import functools
 
 import colander
-import six
 from pyramid.settings import asbool
 
 from kinto.core import authorization
 from kinto.core.resource.schema import PermissionsSchema
-from kinto.core.utils import DeprecatedMeta
+
 
 CONTENT_TYPES = ["application/json"]
 
@@ -229,9 +228,3 @@ class ShareableViewSet(ViewSet):
         args = super(ShareableViewSet, self).get_service_arguments()
         args['factory'] = self.factory
         return args
-
-
-@six.add_metaclass(DeprecatedMeta)
-class ProtectedViewSet(ShareableViewSet):
-    __deprecation_warning__ = ('ProtectedViewSet is deprecated. '
-                               'Use ShareableViewSet instead.')

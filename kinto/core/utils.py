@@ -5,7 +5,6 @@ import os
 import re
 import six
 import time
-import warnings
 from base64 import b64decode, b64encode
 from binascii import hexlify
 from six.moves.urllib import parse as urlparse
@@ -361,16 +360,3 @@ def strip_uri_prefix(path):
     Remove potential version prefix in URI.
     """
     return re.sub(r'^(/v\d+)?', '', six.text_type(path))
-
-
-class DeprecatedMeta(type):
-    """A metaclass to be set on deprecated classes.
-
-    Warning will happen when class is inherited.
-    """
-    def __new__(meta, name, bases, attrs):
-        for b in bases:
-            if isinstance(b, DeprecatedMeta):
-                error_msg = b.__deprecation_warning__
-                warnings.warn(error_msg, DeprecationWarning, stacklevel=2)
-        return super(DeprecatedMeta, meta).__new__(meta, name, bases, attrs)
