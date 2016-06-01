@@ -25,11 +25,13 @@ class FailureTest(BaseWebTest, unittest.TestCase):
         self.app.app.registry.heartbeats['storage'] = lambda r: False
         response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['storage'], False)
+        self.assertEqual(response.json['cache'], True)
 
     def test_returns_cache_false_if_ko(self):
         self.app.app.registry.heartbeats['cache'] = lambda r: False
         response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['cache'], False)
+        self.assertEqual(response.json['storage'], True)
 
     def test_returns_false_if_heartbeat_times_out(self):
         def sleepy(request):
@@ -40,10 +42,13 @@ class FailureTest(BaseWebTest, unittest.TestCase):
                              [('heartbeat_timeout_seconds', 0.1)]):
             response = self.app.get('/__heartbeat__', status=503)
         self.assertEqual(response.json['cache'], False)
+        self.assertEqual(response.json['storage'], True)
 
-    def test_fails_will_500_if_heartbeat_crashes(self):
+    def test_returns_false_if_heartbeat_fails(self):
         self.app.app.registry.heartbeats['cache'] = lambda r: 1 / 0
-        self.app.get('/__heartbeat__', status=500)
+        response = self.app.get('/__heartbeat__', status=503)
+        self.assertEqual(response.json['cache'], False)
+        self.assertEqual(response.json['storage'], True)
 
 
 class LoadBalancerHeartbeat(BaseWebTest, unittest.TestCase):

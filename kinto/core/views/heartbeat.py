@@ -34,7 +34,10 @@ def get_heartbeat(request):
     # A heartbeat is supposed to return True or False, and never raise.
     # Just in case, go though results to spot any potential exception.
     for future in done:
-        future.result()  # Will re-raise.
+        exc = future.exception()
+        if exc is not None:
+            logger.error("'%s' heartbeat failed." % future.__heartbeat_name)
+            logger.error(exc)
 
     # Log timed-out heartbeats.
     for future in not_done:
