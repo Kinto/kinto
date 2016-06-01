@@ -8,7 +8,7 @@ This document describes changes between each past release.
 
 **Protocol**
 
-- Allow record ids to be any string instead of just UUIDs (fixes #655).
+- Allow record IDs to be any string instead of just UUIDs (fixes #655).
 
 Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
 

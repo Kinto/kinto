@@ -14,7 +14,7 @@ Changelog
 1.7 (unreleased)
 ''''''''''''''''
 
-- Allow record ids to be any string instead of just UUID.
+- Allow record IDs to be any string instead of just UUID.
 
 1.6 (2016-05-24)
 ''''''''''''''''
