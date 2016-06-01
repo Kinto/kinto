@@ -13,5 +13,5 @@ Before doing so, here are a few guidelines:
 * [TravisCI integration tests](https://travis-ci.org/Kinto/kinto) should be
   green.
 * If you're interested, you can also check the [contributing
-  documentation](http://kinto.readthedocs.io/en/latest/contributing.html)
+  documentation](http://kinto.readthedocs.io/en/latest/community.html#how-to-contribute)
   which goes into more details.
