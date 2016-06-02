@@ -1,6 +1,5 @@
 import re
 import functools
-import warnings
 
 import colander
 import venusian
