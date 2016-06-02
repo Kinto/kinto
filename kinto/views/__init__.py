@@ -15,6 +15,12 @@ class NameGenerator(generators.Generator):
         return ''.join(letters)
 
 
+class RelaxedUUID(generators.UUID4):
+    """A generator that generates UUIDs but accepts any string.
+    """
+    regexp = generators.Generator.regexp
+
+
 def object_exists_or_404(request, collection_id, object_id, parent_id=''):
     storage = request.registry.storage
     try:

@@ -7,7 +7,7 @@ from jsonschema import exceptions as jsonschema_exceptions
 from pyramid.security import Authenticated
 from pyramid.settings import asbool
 
-from kinto.views import object_exists_or_404
+from kinto.views import RelaxedUUID, object_exists_or_404
 
 
 class RecordSchema(resource.ResourceSchema):
@@ -28,6 +28,8 @@ class Record(resource.ShareableResource):
 
     def __init__(self, *args, **kwargs):
         super(Record, self).__init__(*args, **kwargs)
+
+        self.model.id_generator = RelaxedUUID()
 
         # Check if already fetched before (in batch).
         collections = self.request.bound_data.setdefault('collections', {})

@@ -1,5 +1,6 @@
 import json
 import mock
+import re
 
 from kinto.core.utils import decode_header
 from .support import (BaseWebTest, unittest, MINIMALIST_RECORD,
@@ -153,6 +154,48 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         new_timestamp = int(
             decode_header(json.loads(collection_resp.headers['ETag'])))
         assert old_timestamp < new_timestamp
+
+    def test_create_a_record_without_id_generates_a_uuid(self):
+        resp = self.app.post_json(self.collection_url,
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers,
+                                  status=201)
+        regexp = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-'
+                            r'[0-9a-f]{4}-[0-9a-f]{12}$')
+        self.assertTrue(regexp.match(resp.json['data']['id']))
+
+    def test_create_a_record_with_an_id_uses_it(self):
+        record = {'data': dict(id='a-simple-id', **MINIMALIST_RECORD['data'])}
+        resp = self.app.post_json(self.collection_url,
+                                  record,
+                                  headers=self.headers,
+                                  status=201)
+        self.assertEqual(resp.json['data']['id'], 'a-simple-id')
+
+    def test_create_a_record_with_an_existing_id_returns_existing(self):
+        resp = self.app.post_json(self.collection_url,
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers,
+                                  status=201)
+        existing_id = resp.json['data']['id']
+        record = {'data': {'id': existing_id, 'stars': 8}}
+        resp = self.app.post_json(self.collection_url,
+                                  record,
+                                  headers=self.headers,
+                                  status=200)
+        self.assertNotIn('stars', resp.json['data'])
+
+    def test_create_a_record_with_existing_from_someone_else_gives_403(self):
+        resp = self.app.post_json(self.collection_url,
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers,
+                                  status=201)
+        existing_id = resp.json['data']['id']
+        record = {'data': {'id': existing_id, 'stars': 8}}
+        resp = self.app.post_json(self.collection_url,
+                                  record,
+                                  headers=get_user_headers('tartanpion'),
+                                  status=403)
 
     def test_update_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,

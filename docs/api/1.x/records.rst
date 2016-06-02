@@ -64,6 +64,14 @@ Uploading a record
             }
         }
 
+.. important::
+
+    If the posted record has an ``id`` field, it will be taken into account.
+
+    However, if a record already exists with the same ``id``, a ``200 OK`` response
+    is returned with the existing record in body (instead of ``201 Created``).
+    See https://github.com/Kinto/kinto/issues/140
+
 
 .. _record-put:
 
