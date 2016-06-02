@@ -63,7 +63,7 @@ Groups
 Kinto has a concept of *groups* of users. A group has a list of members and
 belongs to a bucket.
 
-Permissions can refer to the *group* instead of an individual user - this makes
+Permissions can refer to the *group* URI instead of an individual user - this makes
 it easy to define "roles", especially if the same set of permissions is applied
 to several objects.
 

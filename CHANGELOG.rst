@@ -27,6 +27,10 @@ This document describes changes between each past release.
 
 - Renamed some permission backend methods for consistency with other classes (fixes #608)
 
+**Documentation**
+
+- Mention in groups documentation that the principal of a group to be used in a permissions
+  definition is the full URI (e.g. ``"write": ["/buckets/blog/groups/authors"]``)
 
 3.1.0 (2016-05-24)
 ==================
