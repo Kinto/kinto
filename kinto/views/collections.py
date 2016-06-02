@@ -5,8 +5,6 @@ from kinto.core.events import ResourceChanged, ACTIONS
 from jsonschema import exceptions as jsonschema_exceptions
 from pyramid.events import subscriber
 
-from kinto.views import NameGenerator
-
 
 class JSONSchemaMapping(colander.SchemaNode):
     def schema_type(self, **kw):
@@ -41,10 +39,6 @@ class CollectionSchema(resource.ResourceSchema):
 class Collection(resource.ShareableResource):
     mapping = CollectionSchema()
     permissions = ('read', 'write', 'record:create')
-
-    def __init__(self, *args, **kwargs):
-        super(Collection, self).__init__(*args, **kwargs)
-        self.model.id_generator = NameGenerator()
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict['bucket_id']

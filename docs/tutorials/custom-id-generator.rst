@@ -92,11 +92,15 @@ well done!
         }
     }
 
-.. note::
+If you need to define different name generator per type of object, the setting name must be prefixed by the object type.
+For example:
 
-    Currently the configuration of the custom generator applies to every resources
-    (buckets, groups, collections, records). This tiny limitation can easily be
-    fixed, don't hesitate to :ref:`get in touch with us <communication_channels>`!
+.. code-block:: ini
+
+    kinto.bucket_id_generator = name_generator.BucketNameGenerator
+    kinto.group_id_generator = name_generator.GroupNameGenerator
+    kinto.collection_id_generator = name_generator.CollectionNameGenerator
+    kinto.record_id_generator = kinto.core.storage.generators.UUID4
 
 
 Kinto.js client

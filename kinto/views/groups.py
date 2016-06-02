@@ -4,8 +4,6 @@ from kinto.core import resource
 from kinto.core.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
 
-from kinto.views import NameGenerator
-
 
 class GroupSchema(resource.ResourceSchema):
     members = colander.SchemaNode(colander.Sequence(),
@@ -21,10 +19,6 @@ class GroupSchema(resource.ResourceSchema):
 class Group(resource.ShareableResource):
 
     mapping = GroupSchema()
-
-    def __init__(self, *args, **kwargs):
-        super(Group, self).__init__(*args, **kwargs)
-        self.model.id_generator = NameGenerator()
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict['bucket_id']

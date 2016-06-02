@@ -41,6 +41,7 @@ Protocol is now at version **1.7**. See `API changelog <https://kinto.readthedoc
 - Add support for ``pool_timeout`` option in Redis backend (fixes #620)
 - Add new setting ``kinto.heartbeat_timeout_seconds`` to control the maximum duration
   of the heartbeat endpoint (fixes #601)
+- Ability to define ID generators per object type via the settings
 
 **Bug fixes**
 
