@@ -12,6 +12,16 @@ A group is a mapping with the following attributes:
 * ``permissions``: (*optional*) the :term:`ACLs <ACL>` for the group object
   (e.g who is allowed to read or update the group itself.)
 
+When used in permissions definitions, the full group URI has to be used:
+
+.. code-block::
+
+    {
+        "write": ["/buckets/blog/groups/authors", "github:lili"],
+        "read": ["system.Everyone"]
+    }
+
+
 .. _groups-post:
 
 Creating a group
