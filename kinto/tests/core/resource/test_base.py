@@ -1,7 +1,6 @@
 import mock
 from pyramid import httpexceptions
 
-from kinto.tests.core.support import unittest
 from kinto.core.resource import UserResource, ShareableResource
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.tests.core.resource import BaseTest
@@ -66,20 +65,3 @@ class ParentIdOverrideResourceTest(BaseTest):
         parent_id = self.resource.get_parent_id(request)
         self.assertEquals(parent_id, 'overrided')
         self.assertEquals(self.resource.model.parent_id, 'overrided')
-
-
-class DeprecatedBaseResourceTest(unittest.TestCase):
-
-    def setUp(self):
-        self.patcher = mock.patch('kinto.core.utils.warnings.warn')
-        self.addCleanup(self.patcher.stop)
-
-    def test_deprecated_usage_of_base_resource(self):
-        mocked = self.patcher.start()
-        from kinto.core.resource import BaseResource
-
-        class User(BaseResource):
-            pass
-
-        error_msg = 'BaseResource is deprecated. Use UserResource instead.'
-        mocked.assert_called_with(error_msg, DeprecationWarning, stacklevel=2)

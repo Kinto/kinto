@@ -28,14 +28,6 @@ class URLTest(unittest.TestCase):
 
 class ResourceSchemaTest(unittest.TestCase):
 
-    def test_old_resource_schema_is_deprecated(self):
-        from kinto.core.schema import ResourceSchema
-        with mock.patch('kinto.core.schema.warnings.warn') as mocked:
-            ResourceSchema()
-            error_msg = ('kinto.core.schema is now deprecated. Please use '
-                         '`kinto.core.resource.schema` instead')
-            mocked.assert_called_with(error_msg, DeprecationWarning)
-
     def test_preserves_unknown_fields_when_specified(self):
         class PreserveSchema(schema.ResourceSchema):
             class Options:

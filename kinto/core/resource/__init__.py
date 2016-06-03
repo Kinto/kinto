@@ -1,6 +1,5 @@
 import re
 import functools
-import warnings
 
 import colander
 import venusian
@@ -19,7 +18,7 @@ from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
-    encode_header, decode_header, DeprecatedMeta, dict_subset
+    encode_header, decode_header, dict_subset
 )
 
 from .model import Model, ShareableModel
@@ -183,14 +182,6 @@ class UserResource(object):
             raise http_error(HTTPServiceUnavailable(),
                              errno=ERRORS.BACKEND,
                              message=error_msg)
-
-    @property
-    def collection(self):
-        """The collection property."""
-        message = ('``self.collection`` is now deprecated. '
-                   'Please use ``self.model`` instead')
-        warnings.warn(message, DeprecationWarning)
-        return self.model
 
     def get_parent_id(self, request):
         """Return the parent_id of the resource with regards to the current
@@ -1084,12 +1075,6 @@ class UserResource(object):
         return encode64(json.dumps(token))
 
 
-@six.add_metaclass(DeprecatedMeta)
-class BaseResource(UserResource):
-    __deprecation_warning__ = ('BaseResource is deprecated. '
-                               'Use UserResource instead.')
-
-
 class ShareableResource(UserResource):
     """Shareable resources allow to set permissions on records, in order to
     share their access or protect their modification.
@@ -1192,9 +1177,3 @@ class ShareableResource(UserResource):
         data = super(ShareableResource, self).postprocess(result, action, old)
         body.update(data)
         return body
-
-
-@six.add_metaclass(DeprecatedMeta)
-class ProtectedResource(ShareableResource):
-    __deprecation_warning__ = ('ProtectedResource is deprecated. '
-                               'Use ShareableResource instead.')

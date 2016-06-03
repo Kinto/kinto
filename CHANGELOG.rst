@@ -32,6 +32,7 @@ Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs
 **Internal changes**
 
 - Renamed some permission backend methods for consistency with other classes (fixes #608)
+- Removed some deprecated code that had been in ``kinto.core`` for too long.
 
 **Documentation**
 
