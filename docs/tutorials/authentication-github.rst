@@ -146,7 +146,7 @@ Let's limit this policy to requests with ``github+Bearer`` in ``Authorization`` 
             return user_id
 
         def forget(self, request):
-            return [('WWW-Authenticate', '%s realm="%s"' % (GITHUB_METHOD, self.realm)]
+            return [('WWW-Authenticate', '%s realm="%s"' % (GITHUB_METHOD, self.realm))]
 
         def _get_credentials(self, request):
             authorization = request.headers.get('Authorization', '')
