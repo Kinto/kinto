@@ -13,6 +13,7 @@ Communication channels
 * Questions tagged ``kinto`` on `Stack Overflow <http://stackoverflow.com/questions/tagged/kinto>`_.
 * Our IRC channel ``#kinto`` on ``irc.freenode.net`` —
   `Click here to access the web client <https://kiwiirc.com/client/irc.freenode.net/?#kinto>`_
+* If you prefer to use slack, head over to: https://slack.kinto-storage.org/
 * Our team blog http://www.servicedenuages.fr/
 * `The Kinto mailing list <https://mail.mozilla.org/listinfo/kinto>`_.
 * Some `#Kinto <https://twitter.com/search?q=%23Kinto>`_ mentions on Twitter :)
