@@ -187,3 +187,12 @@ PostgreSQL and its tooling.
 
 Do not hesitate to mix both if you can, for instance you can use PostgreSQL for the
 storage backend and Redis for the permission and cache backends.
+
+What about aggregation/reporting around data, is Kinto ready for that?
+----------------------------------------------------------------------
+
+No, and it will not. This is something that should be done on top of Kinto, with
+ElasticSearch for instance. In order to do this, you could listen to the events that
+Kinto triggers and send the data to your ElasticSearch cluster.
+`There is a tutorial <http://kinto.readthedocs.io/en/latest/tutorials/write-plugin.html>`_
+for that on the documentation.
