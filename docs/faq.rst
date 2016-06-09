@@ -161,3 +161,50 @@ I am seeing an Exception error, what's wrong?
 
 Have a look at the :ref:`Troubleshooting section <troubleshooting>` to
 see what to do.
+
+If two users modify the same collection offline, how does that conflict get resolved?
+-------------------------------------------------------------------------------------
+
+There are three conflict resolution strategies:
+
+* SERVER_WINS: local changes are overridden by remote ones ;
+* CLIENT_WINS: remote changes are overriden by local one ;
+* MANUAL (default): handle them on your own.
+
+There is, of course, a convenient API to handle conflict one by one
+http://kintojs.readthedocs.io/en/latest/api/#resolving-conflicts-manually
+
+Would you recommend Redis or PostgreSQL?
+--------------------------------------
+
+You can use both of them:
+
+* Redis will let you start easily and you will have a database running in memory which
+means your database should be smaller than your server RAM. It is a good solution for
+experimentation and you will also be able to use a Redis cluster to scale in production.
+* PostgreSQL is a good solution for a Kinto server and will let you use all the power of
+PostgreSQL and its tooling.
+
+Do not hesitate to mix both if you can, for instance you can use PostgreSQL for the
+storage backend and Redis for the permission and cache backends.
+
+What about aggregation/reporting around data, is Kinto ready for that?
+----------------------------------------------------------------------
+
+No, and it will not. This is something that should be done on top of Kinto, with
+ElasticSearch for instance. In order to do this, you could listen to the events that
+Kinto triggers and send the data to your ElasticSearch cluster.
+`There is a tutorial <http://kinto.readthedocs.io/en/latest/tutorials/write-plugin.html>`_
+for that in the documentation.
+
+Say I wanted to move all my Kinto data out of the database, would the best way to be via the backend?
+-----------------------------------------------------------------------------------------------------
+
+It really depends on how you setup things, and what kind of data is there. One really
+simple way is to use the HTTP API.  But depending the access you have to the user's data,
+it might or might not be the solution you're looking for. If you have access to the
+server, then  doing a dump would get you the data out, but it won't be in any documented
+format (it will be in an internal representation).
+
+Nevertheless Kinto protocol is build in order for you to sync data. Therefore you can use
+the protocol to sync two databases.
