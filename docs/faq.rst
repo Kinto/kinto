@@ -196,3 +196,15 @@ ElasticSearch for instance. In order to do this, you could listen to the events 
 Kinto triggers and send the data to your ElasticSearch cluster.
 `There is a tutorial <http://kinto.readthedocs.io/en/latest/tutorials/write-plugin.html>`_
 for that on the documentation.
+
+Say I wanted to move all my Kinto data out of the database, would the best way to be via the backend?
+-----------------------------------------------------------------------------------------------------
+
+It really depends on how you setup things, and what kind of data is there. One really
+simple way is to use the HTTP API.  But depending the access you have to the user's data,
+it might or might not be the solution you're looking for. If you have access to the
+server, then  doing a dump would get you the data out, but it won't be in any documented
+format (it will be in an internal representation).
+
+Nevertheless Kinto protocol is build in order for you to sync data. Therefore you can use
+the protocol to sync two databases.
