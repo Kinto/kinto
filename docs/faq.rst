@@ -161,3 +161,15 @@ I am seeing an Exception error, what's wrong?
 
 Have a look at the :ref:`Troubleshooting section <troubleshooting>` to
 see what to do.
+
+If two users modify the same collection offline, how does that conflict get resolved?
+-------------------------------------------------------------------------------------
+
+There are three conflict resolution strategies:
+
+* SERVER_WINS: local changes are overridden by remote ones ;
+* CLIENT_WINS: remote changes are overriden by local one ;
+* MANUAL (default): handle them on your own.
+
+There is, of course, a convenient API to handle conflict one by one
+http://kintojs.readthedocs.io/en/latest/api/#resolving-conflicts-manually
