@@ -195,7 +195,7 @@ No, and it will not. This is something that should be done on top of Kinto, with
 ElasticSearch for instance. In order to do this, you could listen to the events that
 Kinto triggers and send the data to your ElasticSearch cluster.
 `There is a tutorial <http://kinto.readthedocs.io/en/latest/tutorials/write-plugin.html>`_
-for that on the documentation.
+for that in the documentation.
 
 Say I wanted to move all my Kinto data out of the database, would the best way to be via the backend?
 -----------------------------------------------------------------------------------------------------
