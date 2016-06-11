@@ -112,7 +112,7 @@ We've made several demos with live sync.
 For example, open these in several browser windows and observe the
 live changes:
 
-* `Online map <https://leplatrem.github.io/cliquet-pusher/>`_
-* `Calendar <https://leplatrem.github.io/cliquet-pusher/>`_
+* `Online map <https://kinto.github.io/kinto-pusher/>`_
+* `Calendar <https://leplatrem.github.io/kinto-demo-calendar/>`_
 
 :ref:`More demos are available. <app-examples>`
