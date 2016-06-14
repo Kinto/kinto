@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-3.1.1 (unreleased)
+3.2.0 (2016-06-14)
 ==================
 
 **Protocol**
@@ -38,6 +38,12 @@ Protocol is now at version **1.7**. See `API changelog <http://kinto.readthedocs
 
 - Mention in groups documentation that the principal of a group to be used in a permissions
   definition is the full URI (e.g. ``"write": ["/buckets/blog/groups/authors"]``)
+- Fix typo in Github tutorial (thanks @SwhGo_oN, #673)
+- New Kinto logo (thanks @AymericFaivre, #676)
+- Add a slack badge to the README (#675)
+- Add new questions on FAQ (thanks @enguerran, #678)
+- Fix links to examples (thanks @maxdow, #680)
+
 
 3.1.0 (2016-05-24)
 ==================

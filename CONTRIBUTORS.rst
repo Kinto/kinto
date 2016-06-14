@@ -5,6 +5,7 @@ Contributors
 * Aditya Bhasin <conlini@gmail.com>
 * Alexis Metaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
+* Aymeric Faivre <miho@miho-stories.com>
 * Ayush Sharma <ayush.aceit@gmail.com>
 * Balthazar Rouberol <br@imap.cc>
 * Chirag B. Jadwani <chirag.jadwani@gmail.com>
@@ -13,6 +14,7 @@ Contributors
 * David Larlet <david@larlet.fr>
 * Enguerran <engcolson@gmail.com>
 * Eric Bréhault <ebrehault@gmail.com>
+* Éric Lemoine <eric.lemoine@gmail.com>
 * Ethan Glasser-Camp <ethan@betacantrips.com>
 * Fil <fil@rezo.net>
 * FooBarQuaxx
@@ -26,6 +28,7 @@ Contributors
 * Masataka Takeuchi <masataka.takeuchi@l-is-b.com>
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
+* Maxime Varnier <marmax@gmail.com>
 * Michiel de Jong <michiel@unhosted.org>
 * Nicolas Hoizey <nicolas@hoizey.com>
 * Nicolas Perriault <nperriault@mozilla.com>
@@ -35,8 +38,8 @@ Contributors
 * Rémy Hubscher <rhubscher@mozilla.com>
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
+* SwhGo_oN
 * Tarek Ziade <tarek@mozilla.com>
 * Taylor Zane Glaeser <tzglaeser@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
-* Éric Lemoine <eric.lemoine@gmail.com>
