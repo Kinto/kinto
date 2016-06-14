@@ -5,8 +5,8 @@ Kinto
 
 .. |irc| image:: https://img.shields.io/badge/Live%20chat-%23kinto%20on%20freenode-blue.svg
     :target: https://kiwiirc.com/client/irc.freenode.net/?#kinto
-    
-.. |slack| image:: https://kinto.dev.mozaws.net/attachments/badge.svg
+
+.. |slack| image:: https://img.shields.io/badge/slack-kinto-e01865.svg
     :target: https://slack.kinto-storage.org/
 
 .. |travis| image:: https://travis-ci.org/Kinto/kinto.svg?branch=master
