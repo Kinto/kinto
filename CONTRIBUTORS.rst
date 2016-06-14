@@ -5,7 +5,7 @@ Contributors
 * Aditya Bhasin <conlini@gmail.com>
 * Alexis Metaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
-* Aymeric Faivre
+* Aymeric Faivre <miho@miho-stories.com>
 * Ayush Sharma <ayush.aceit@gmail.com>
 * Balthazar Rouberol <br@imap.cc>
 * Chirag B. Jadwani <chirag.jadwani@gmail.com>
