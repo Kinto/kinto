@@ -365,7 +365,13 @@ def strip_uri_prefix(path):
 
 def view_lookup(request, uri):
     """
-    XXX
+    Look-up the specified `uri` and return the associated resource name
+    along the match dict.
+
+    :param request: the current request (used to obtain registry).
+    :param uri: a plural or object endpoint URI.
+    :rtype: tuple
+    :returns: the resource name and the associated matchdict.
     """
     api_prefix = '/%s' % request.upath_info.split('/')[1]
     q = request.registry.queryUtility

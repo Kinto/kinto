@@ -26,18 +26,22 @@ def permissions_get(request):
     # Obtain current principals.
     principals = request.effective_principals
     if Authenticated in principals:
-        # XXX: since view does not require permission, had to do this:
+        # Since this view does not require any permission (can be used to
+        # obtain public users permissions), we have to add the prefixed userid
+        # among the principals (see :mode:`kinto.core.authentication`)
         userid = request.prefixed_userid
         principals.append(userid)
 
-    # Query every possible permission from backend.
-    # XXX: this is a workaround because there is no "full-list" method.
+    # Query every possible permission of the current user from backend.
+    # Since there is no "full-list" method, we query for each possible
+    # permission (read, write, group:create, collection:create, record:create).
+    # XXX: could be optimized into one call to backend when needed.
     possible_perms = set([k.split(':', 1)[1]
                           for k in PERMISSIONS_INHERITANCE_TREE.keys()])
     backend = request.registry.permission
     perms_by_object_uri = {}
     for perm in possible_perms:
-        object_uris = backend.principals_accessible_objects(principals, perm)
+        object_uris = backend.get_accessible_objects(principals, perm)
         for object_uri in object_uris:
             perms_by_object_uri.setdefault(object_uri, []).append(perm)
 
@@ -45,14 +49,15 @@ def permissions_get(request):
     for object_uri, perms in perms_by_object_uri.items():
         # Obtain associated resource from object URI
         resource_name, matchdict = core_utils.view_lookup(request, object_uri)
-        # XXX: do we want bucket_id, record_id or just id ?
-        matchdict['%s_id' % resource_name] = matchdict.pop('id')
+        # For consistency with events payloads, prefix id with resource name
+        matchdict[resource_name + '_id'] = matchdict.get('id')
 
         # Expand implicit permissions using descending tree.
         permissions = set(perms)
         for perm in perms:
             obtained = perms_descending_tree[resource_name][perm]
-            # Related to same resource only (not every sub-objects).
+            # Related to same resource only and not every sub-objects.
+            # (e.g "bucket:write" gives "bucket:read" but not "group:read")
             permissions |= obtained[resource_name]
 
         entry = dict(uri=object_uri,

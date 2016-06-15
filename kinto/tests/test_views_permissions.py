@@ -26,6 +26,12 @@ class PermissionsViewTest(BaseWebTest, unittest.TestCase):
         self.app.put_json('/buckets/water', MINIMALIST_BUCKET,
                           headers=get_user_headers('alice'))
 
+    def get_app_settings(self, additional_settings=None):
+        settings = super(PermissionsViewTest, self).get_app_settings(
+            additional_settings)
+        settings['experimental_permissions_endpoint'] = 'True'
+        return settings
+
     def test_permissions_list_entries_for_current_principal(self):
         resp = self.app.get('/permissions', headers=self.headers)
         permissions = resp.json['data']
@@ -44,7 +50,10 @@ class PermissionsViewTest(BaseWebTest, unittest.TestCase):
         permissions = resp.json['data']
         bucket_permissions = permissions[0]
         self.assertEqual(sorted(bucket_permissions['permissions']),
-                         ['collection:create', 'read', 'write'])
+                         ['collection:create',
+                          'group:create',
+                          'read',
+                          'write'])
 
     def test_object_details_are_provided(self):
         resp = self.app.get('/permissions', headers=self.headers)
