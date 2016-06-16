@@ -125,12 +125,13 @@ Definition of done
 In order to have your changes incorporated, you need to respect these rules:
 
 * **Tests pass**; Travis-CI will build the tests for you on the branch when you
-  push it.
+  push it;
 * **Code added comes with tests**; We try to have a 100% coverage on the codebase to avoid
   surprises. No code should be untested :) If you fail to see how to test your
   changes, feel welcome to say so in the pull request, we'll gladly help you to
-  find out.
+  find out;
 * **Documentation is up to date**;
+* A changelog entry describes the changes.
 
 
 .. _communication_channels:
@@ -171,6 +172,7 @@ Step 1
 
 - Merge remaining pull requests
 - Update ``CHANGELOG.rst``
+- Update ``docs/api/index.rst`` API release date
 - Update version in ``docs/conf.py``
 - Known good versions of dependencies in ``requirements.txt``
 - Update ``CONTRIBUTORS.rst`` using: ``git shortlog -sne | awk '{$1=""; sub(" ", ""); print}' | awk -F'<' '!x[$1]++' | awk -F'<' '!x[$2]++' | sort``
