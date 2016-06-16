@@ -6,7 +6,12 @@ This document describes changes between each past release.
 3.3.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Protocol**
+
+- Add new endpoint ``GET /v1/permissions`` to retrieve the list of permissions
+  granted on every kind of object (#600).
+
+Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
 
 
 3.2.0 (2016-06-14)
