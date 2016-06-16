@@ -336,6 +336,9 @@ itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
 List every permissions
 ======================
 
+**Requires setting** ``kinto.experimental_permissions_endpoint`` to ``True``.
+
+
 .. http:get:: /permissions
 
     :synopsis: Retrieve the list of permissions granted on every kind of objects.

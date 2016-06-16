@@ -8,8 +8,9 @@ This document describes changes between each past release.
 
 **Protocol**
 
-- Add new endpoint ``GET /v1/permissions`` to retrieve the list of permissions
+- Add new *experimental* endpoint ``GET /v1/permissions`` to retrieve the list of permissions
   granted on every kind of object (#600).
+  Requires setting ``kinto.experimental_permissions_endpoint`` to be set to ``true``.
 
 Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
 
