@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.7 (unreleased)
+1.7 (2016-06-14)
 ''''''''''''''''
 
 - Allow record IDs to be any string instead of just UUID.
