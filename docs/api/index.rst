@@ -17,8 +17,7 @@ Changelog
 - Add new endpoint ``GET /v1/permissions`` to retrieve the list of permissions
   granted on every kind of object.
 
-
-1.7 (unreleased)
+1.7 (2016-06-14)
 ''''''''''''''''
 
 - Allow record IDs to be any string instead of just UUID.
