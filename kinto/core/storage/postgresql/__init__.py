@@ -74,34 +74,41 @@ class Storage(StorageBase):
         self._max_fetch_size = max_fetch_size
 
     def _execute_sql_file(self, filepath):
-        here = os.path.abspath(os.path.dirname(__file__))
-        schema = open(os.path.join(here, filepath)).read()
+        schema = open(filepath).read()
         # Since called outside request, force commit.
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
 
-    def initialize_schema(self):
+    def initialize_schema(self, is_dry=False):
         """Create PostgreSQL tables, and run necessary schema migrations.
 
         .. note::
 
             Relies on JSONB fields, available in recent versions of PostgreSQL.
         """
+        here = os.path.abspath(os.path.dirname(__file__))
+
         version = self._get_installed_version()
         if not version:
+            filepath = os.path.join(here, 'schema.sql')
+            if is_dry:
+                logger.info("Create PostgreSQL storage schema at version "
+                            "%s from %s" % (self.schema_version, filepath))
             # Create full schema.
             self._check_database_encoding()
             self._check_database_timezone()
             # Create full schema.
-            self._execute_sql_file('schema.sql')
-            logger.info('Created PostgreSQL storage tables '
-                        '(version %s).' % self.schema_version)
+            if not is_dry:
+                self._execute_sql_file(filepath)
+                logger.info('Created PostgreSQL storage schema '
+                            '(version %s).' % self.schema_version)
             return
 
-        logger.debug('Detected PostgreSQL schema version %s.' % version)
+        logger.info('Detected PostgreSQL storage schema version %s.' % version)
         migrations = [(v, v + 1) for v in range(version, self.schema_version)]
         if not migrations:
-            logger.info('Schema is up-to-date.')
+            logger.info('PostgreSQL storage schema is up-to-date.')
+            return
 
         for migration in migrations:
             # Check order of migrations.
@@ -111,11 +118,17 @@ class Storage(StorageBase):
             if expected != current:
                 raise AssertionError(error_msg % (expected, current))
 
-            logger.info('Migrate schema from version %s to %s.' % migration)
-            filepath = 'migration_%03d_%03d.sql' % migration
-            self._execute_sql_file(os.path.join('migrations', filepath))
-
-        logger.info('Schema migration done.')
+            logger.info('Migrate PostgreSQL storage schema from'
+                        ' version %s to %s.' % migration)
+            filename = 'migration_%03d_%03d.sql' % migration
+            filepath = os.path.join(here, 'migrations', filename)
+            if is_dry:
+                logger.info("Execute PostgreSQL storage migration"
+                            " from %s" % filepath)
+            else:
+                self._execute_sql_file(filepath)
+        logger.info("PostgreSQL storage schema migration " +
+                    ("simulated." if is_dry else "done."))
 
     def _check_database_timezone(self):
         # Make sure database has UTC timezone.

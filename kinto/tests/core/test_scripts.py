@@ -23,3 +23,9 @@ class InitSchemaTest(unittest.TestCase):
                                    'while in readonly mode.')
             mocked.assert_any_call('Cannot migrate the permission backend '
                                    'while in readonly mode.')
+
+    def test_migrate_in_dry_run_mode(self):
+        scripts.migrate({'registry': self.registry}, dry=True)
+        self.assertTrue(self.registry.storage.initialize_schema.called)
+        self.assertTrue(self.registry.cache.initialize_schema.called)
+        self.assertTrue(self.registry.permission.initialize_schema.called)

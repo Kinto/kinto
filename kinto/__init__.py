@@ -43,7 +43,6 @@ def main(global_config, config=None, **settings):
     kinto.core.initialize(config,
                           version=__version__,
                           default_settings=DEFAULT_SETTINGS)
-
     settings = config.get_settings()
 
     # Expose capability

@@ -8,7 +8,7 @@ import warnings
 from pyramid.settings import asbool
 
 
-def migrate(env):
+def migrate(env, dry=False):
     """
     User-friendly frontend to run database migrations.
     """
@@ -24,4 +24,4 @@ def migrate(env):
                            'in readonly mode.' % backend)
                 warnings.warn(message)
             else:
-                getattr(registry, backend).initialize_schema()
+                getattr(registry, backend).initialize_schema(dry)
