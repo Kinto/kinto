@@ -37,7 +37,7 @@ if installed_with_pypy:
     # We install psycopg2cffi instead of psycopg2 when dealing with pypy
     # Note: JSONB support landed after psycopg2cffi 2.7.0
     POSTGRESQL_REQUIRES = [
-        'SQLAlchemy<1.1',  # zopefoundation/zope.sqlalchemy#15
+        'SQLAlchemy==1.0',  # zopefoundation/zope.sqlalchemy#15
         'psycopg2cffi>2.7.0',
         'zope.sqlalchemy',
     ]
@@ -45,7 +45,7 @@ else:
     # ujson is not pypy compliant, as it uses the CPython C API
     REQUIREMENTS.append('ujson >= 1.35')
     POSTGRESQL_REQUIRES = [
-        'SQLAlchemy<1.1',  # zopefoundation/zope.sqlalchemy#15
+        'SQLAlchemy==1.0',  # zopefoundation/zope.sqlalchemy#15
         'psycopg2>2.5',
         'zope.sqlalchemy',
     ]
