@@ -717,7 +717,7 @@ class UserResource(object):
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        is_string = isinstance(record_id, six.text_type)
+        is_string = isinstance(record_id, six.string_types)
         if not is_string or not self.model.id_generator.match(record_id):
             error_details = {
                 'location': 'path',
