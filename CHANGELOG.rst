@@ -9,6 +9,8 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix HTTP API version number exposed (1.7)
+- Fix crash with PostgreSQL storage backend when provided id in POST is an integer (#688).
+  Regression introduced in 3.2.0 with #655.
 
 
 3.2.0 (2016-06-14)
