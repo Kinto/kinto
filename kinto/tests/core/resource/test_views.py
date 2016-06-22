@@ -405,6 +405,13 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                            headers=self.headers,
                            status=400)
 
+        with mock.patch.object(self.app.app.registry.id_generator, 'match',
+                               return_value=True):
+            self.app.post_json(self.collection_url,
+                               {'data': record},
+                               headers=self.headers,
+                               status=400)
+
     def test_id_is_preserved_on_post(self):
         record = MINIMALIST_RECORD.copy()
         record_id = record['id'] = '472be9ec-26fe-461b-8282-9c4e4b207ab3'

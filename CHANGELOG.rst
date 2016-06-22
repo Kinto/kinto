@@ -14,6 +14,11 @@ This document describes changes between each past release.
 
 Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
 
+**Bug fixes**
+
+- Fix crash with PostgreSQL storage backend when provided id in POST is an integer (#688).
+  Regression introduced in 3.2.0 with #655.
+
 
 3.2.0 (2016-06-14)
 ==================
