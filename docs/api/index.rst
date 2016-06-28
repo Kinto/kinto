@@ -11,6 +11,12 @@ API
 Changelog
 ---------
 
+1.8 (unreleased)
+''''''''''''''''
+
+- Add new endpoint ``GET /v1/permissions`` to retrieve the list of permissions
+  granted on every kind of object.
+
 1.7 (2016-06-14)
 ''''''''''''''''
 

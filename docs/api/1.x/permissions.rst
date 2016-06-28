@@ -140,9 +140,8 @@ In this case the user ID is: ``basicauth:631c2d625ee5726172cf67c6750de10a3e1a04b
     user ID - this is an easy way to obtain that ID.
 
 
-
-Retrieve permissions
-====================
+Retrieve objects permissions
+============================
 
 .. http:get:: /(object url)
 
@@ -193,8 +192,8 @@ Retrieve permissions
         }
 
 
-Modify permissions
-==================
+Modify object permissions
+=========================
 
 An object's permissions can be modified at the same time as the object
 itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
@@ -331,4 +330,72 @@ itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
                     "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
                 ]
             }
+        }
+
+
+List every permissions
+======================
+
+**Requires setting** ``kinto.experimental_permissions_endpoint`` to ``True``.
+
+
+.. http:get:: /permissions
+
+    :synopsis: Retrieve the list of permissions granted on every kind of objects.
+
+    **Optional authentication**
+
+    **Example request**
+
+    .. sourcecode:: bash
+
+        $ http GET https://kinto.dev.mozaws.net/v1/permissions --auth token:bob-token
+
+    .. sourcecode:: http
+
+        GET /v1/permissions HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOg==
+        Connection: keep-alive
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.2
+
+    **Example response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Length: 487
+        Content-Type: application/json; charset=UTF-8
+        Date: Wed, 15 Jun 2016 16:00:22 GMT
+        Server: waitress
+
+        {
+            "data": [
+                {
+                    "bucket_id": "2f9b1aaa-552d-48e8-1b78-371dd08688b3",
+                    "collection_id": "test",
+                    "id": "test",
+                    "permissions": [
+                        "write",
+                        "read",
+                        "record:create"
+                    ],
+                    "resource_name": "collection",
+                    "uri": "/buckets/2f9b1aaa-552d-48e8-1b78-371dd08688b3/collections/test"
+                },
+                {
+                    "bucket_id": "2f9b1aaa-552d-48e8-1b78-371dd08688b3",
+                    "id": "2f9b1aaa-552d-48e8-1b78-371dd08688b3",
+                    "permissions": [
+                        "write",
+                        "read",
+                        "collection:create",
+                        "group:create"
+                    ],
+                    "resource_name": "bucket",
+                    "uri": "/buckets/2f9b1aaa-552d-48e8-1b78-371dd08688b3"
+                }
+            ]
         }

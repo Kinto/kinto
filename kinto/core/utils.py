@@ -36,6 +36,7 @@ except ImportError:  # pragma: no cover
     sqlalchemy = None
 
 from pyramid import httpexceptions
+from pyramid.interfaces import IRoutesMapper
 from pyramid.request import Request, apply_request_extensions
 from pyramid.settings import aslist
 from pyramid.view import render_view_to_response
@@ -360,3 +361,25 @@ def strip_uri_prefix(path):
     Remove potential version prefix in URI.
     """
     return re.sub(r'^(/v\d+)?', '', six.text_type(path))
+
+
+def view_lookup(request, uri):
+    """
+    Look-up the specified `uri` and return the associated resource name
+    along the match dict.
+
+    :param request: the current request (used to obtain registry).
+    :param uri: a plural or object endpoint URI.
+    :rtype: tuple
+    :returns: the resource name and the associated matchdict.
+    """
+    api_prefix = '/%s' % request.upath_info.split('/')[1]
+    q = request.registry.queryUtility
+    routes_mapper = q(IRoutesMapper)
+
+    fakerequest = Request.blank(path=api_prefix + uri)
+    info = routes_mapper(fakerequest)
+    matchdict, route = info['match'], info['route']
+    resource_name = route.name.replace('-record', '')\
+                              .replace('-collection', '')
+    return resource_name, matchdict

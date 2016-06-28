@@ -6,6 +6,14 @@ This document describes changes between each past release.
 3.3.0 (unreleased)
 ==================
 
+**Protocol**
+
+- Add new *experimental* endpoint ``GET /v1/permissions`` to retrieve the list of permissions
+  granted on every kind of object (#600).
+  Requires setting ``kinto.experimental_permissions_endpoint`` to be set to ``true``.
+
+Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+
 **Bug fixes**
 
 - Fix crash with PostgreSQL storage backend when provided id in POST is an integer (#688).
