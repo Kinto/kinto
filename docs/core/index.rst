@@ -2,7 +2,7 @@ Kinto-Core
 ##########
 
     Kinto-core is the heart of the `Kinto project
-    <http://kinto.readthedocs.org/>`_, and also serves as a handy
+    <https://kinto.readthedocs.io/>`_, and also serves as a handy
     toolkit for building Kinto-based backends.
 
 Table of contents

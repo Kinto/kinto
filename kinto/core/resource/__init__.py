@@ -926,7 +926,7 @@ class UserResource(object):
                     if param == '_to':
                         message = ('_to is now deprecated, '
                                    'you should use _before instead')
-                        url = ('http://kinto.rtfd.org/en/2.4.0/api/resource'
+                        url = ('https://kinto.readthedocs.io/en/2.4.0/api/resource'
                                '.html#list-of-available-url-parameters')
                         send_alert(self.request, message, url)
                     operator = COMPARISON.LT

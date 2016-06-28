@@ -172,7 +172,7 @@ There are three conflict resolution strategies:
 * MANUAL (default): handle them on your own.
 
 There is, of course, a convenient API to handle conflict one by one
-http://kintojs.readthedocs.io/en/latest/api/#resolving-conflicts-manually
+https://kintojs.readthedocs.io/en/latest/api/#resolving-conflicts-manually
 
 Would you recommend Redis or PostgreSQL?
 --------------------------------------
@@ -194,7 +194,7 @@ What about aggregation/reporting around data, is Kinto ready for that?
 No, and it will not. This is something that should be done on top of Kinto, with
 ElasticSearch for instance. In order to do this, you could listen to the events that
 Kinto triggers and send the data to your ElasticSearch cluster.
-`There is a tutorial <http://kinto.readthedocs.io/en/latest/tutorials/write-plugin.html>`_
+`There is a tutorial <https://kinto.readthedocs.io/en/latest/tutorials/write-plugin.html>`_
 for that in the documentation.
 
 Say I wanted to move all my Kinto data out of the database, would the best way to be via the backend?

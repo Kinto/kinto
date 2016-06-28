@@ -13,7 +13,7 @@ Kinto
     :target: https://travis-ci.org/Kinto/kinto
 
 .. |readthedocs| image:: https://readthedocs.org/projects/kinto/badge/?version=latest
-    :target: http://kinto.readthedocs.io/en/latest/
+    :target: https://kinto.readthedocs.io/en/latest/
     :alt: Documentation Status
 
 .. |master-coverage| image::
@@ -27,10 +27,10 @@ Kinto
 
 Kinto is a minimalist JSON storage service with synchronisation and sharing abilities.
 
-* `Online documentation <http://kinto.readthedocs.io/en/latest/>`_
-* `Tutorial <http://kinto.readthedocs.io/en/latest/tutorials/first-steps.html>`_
+* `Online documentation <https://kinto.readthedocs.io/en/latest/>`_
+* `Tutorial <https://kinto.readthedocs.io/en/latest/tutorials/first-steps.html>`_
 * `Issue tracker <https://github.com/Kinto/kinto/issues>`_
-* `Contributing <http://kinto.readthedocs.io/en/latest/community.html#how-to-contribute>`_
+* `Contributing <https://kinto.readthedocs.io/en/latest/community.html#how-to-contribute>`_
 * `Try our daily flushed instance at: https://kinto.dev.mozaws.net/v1/ <https://kinto.dev.mozaws.net/v1/>`_
 
 Requirements

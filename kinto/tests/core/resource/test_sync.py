@@ -49,7 +49,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
                 'code': 'soft-eol',
                 'message': ('_to is now deprecated, '
                             'you should use _before instead'),
-                'url': ('http://kinto.rtfd.org/en/2.4.0/api/resource'
+                'url': ('https://kinto.readthedocs.io/en/2.4.0/api/resource'
                         '.html#list-of-available-url-parameters')
             })
 

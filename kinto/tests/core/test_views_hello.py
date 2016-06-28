@@ -12,7 +12,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(response.json['url'], 'http://localhost/v0/')
         self.assertEqual(response.json['project_name'], 'myapp')
         self.assertEqual(response.json['project_docs'],
-                         'https://kinto.rtfd.org/')
+                         'https://kinto.readthedocs.io/')
 
     def test_does_not_escape_forward_slashes(self):
         response = self.app.get('/')
