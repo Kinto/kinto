@@ -1,8 +1,7 @@
-from cornice import Service
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
-from kinto.core import utils as core_utils
+from kinto.core import Service, utils as core_utils
 
 
 permissions = Service(name='permissions',
