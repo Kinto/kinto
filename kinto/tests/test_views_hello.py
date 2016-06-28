@@ -32,7 +32,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertIn('schema', capabilities)
         expected = {
             "description": "Validates collection records with JSON schemas.",
-            "url": "http://kinto.readthedocs.io/en/latest/api/1.x/"
+            "url": "https://kinto.readthedocs.io/en/latest/api/1.x/"
                    "collections.html#collection-json-schema",
         }
         self.assertEqual(expected, capabilities['schema'])
@@ -55,7 +55,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         expected = {
             "description": "The __flush__ endpoint can be used to remove "
                            "all data from all backends.",
-            "url": "http://kinto.readthedocs.io/en/latest/configuration/"
+            "url": "https://kinto.readthedocs.io/en/latest/configuration/"
                    "settings.html#activating-the-flush-endpoint"
         }
         self.assertEqual(expected, capabilities['flush_endpoint'])

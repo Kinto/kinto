@@ -26,7 +26,7 @@ Project info
 .. code-block:: ini
 
     kinto.project_name = project
-    kinto.project_docs = https://project.rtfd.org/
+    kinto.project_docs = https://project.readthedocs.io/
     # kinto.project_version = 1.3-stable
     # kinto.http_api_version = 1.0
 
@@ -194,7 +194,7 @@ Requires the ``raven`` package, or *Kinto-Core* installed with
 ``pip install kinto[monitoring]``.
 
 Sentry logging can be enabled, `as explained in official documentation
-<http://raven.readthedocs.io/en/latest/integrations/pyramid.html#logger-setup>`_.
+<https://raven.readthedocs.io/en/latest/integrations/pyramid.html#logger-setup>`_.
 
 .. note::
 

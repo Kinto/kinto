@@ -296,7 +296,7 @@ Handling exceptions with Sentry
 Requires the ``raven`` package.
 
 Sentry logging can be enabled `as explained in official documentation
-<http://raven.readthedocs.io/en/latest/integrations/pyramid.html#logger-setup>`_.
+<https://raven.readthedocs.io/en/latest/integrations/pyramid.html#logger-setup>`_.
 
 .. note::
 
@@ -633,7 +633,7 @@ Project information
 +=======================================+============================================+==========================================================================+
 | kinto.error_info_link                 | ``https://github.com/kinto/kinto/issues/`` | The HTTP link returned when uncaught errors are triggered on the server. |
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
-| kinto.project_docs                    | ``http://kinto.readthedocs.io``            | The URL where the documentation of the Kinto instance can be found. Will |
+| kinto.project_docs                    | ``https://kinto.readthedocs.io``           | The URL where the documentation of the Kinto instance can be found. Will |
 |                                       |                                            | be returned in :ref:`the hello view <api-utilities>`.                    |
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
 | kinto.project_version                 | ``''``                                     | The version of the project. Will be returned in :ref:`the hello view     |
@@ -649,5 +649,5 @@ Example:
 
 .. code-block:: ini
 
-    kinto.project_docs = https://project.rtfd.org/
+    kinto.project_docs = https://project.readthedocs.io/
     # kinto.project_version = 1.0

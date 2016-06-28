@@ -272,7 +272,7 @@ Use Cliquet abstractions with Pyramid or Cornice !
     {
         "data": [
             {
-                "url": "http://cliquet.readthedocs.io",
+                "url": "https://cliquet.readthedocs.io",
                 "id": "cc103eb5-0c80-40ec-b6f5-dad12e7d975e",
                 "last_modified": 1437034418940,
             }

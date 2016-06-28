@@ -214,7 +214,7 @@ Heka Logging
 ------------
 
 At Mozilla, applications log files follow a specific JSON schema, that is
-processed through `Heka <http://hekad.readthedocs.io>`_.
+processed through `Heka <https://hekad.readthedocs.io>`_.
 
 In order to enable Mozilla *Heka* logging output:
 
