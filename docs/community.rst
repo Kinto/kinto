@@ -231,6 +231,7 @@ Step 1
 - Merge remaining pull requests
 - Update ``CHANGELOG.rst``
 - If API was updated, update API changelog in :file:`docs/api/index.rst`
+- Make sure ``HTTP_API_VERSION`` is up-to-date in kinto/__init__.py``
 - Update the link in :file:`docs/configuration/production.rst`
 - Update :file:`CONTRIBUTORS.rst`. The following hairy command will output the full list:
 
@@ -273,7 +274,17 @@ As a final step:
 - Close the milestone in Github
 - Create next milestone in Github in the case of a major release
 - Add entry in Github release page
-- Configure the version in ReadTheDocs
+- Check that the version in ReadTheDocs is up-to-date
+- Check that a Docker image was built
 - Send mail to ML (If major release)
+- Tweet about it!
+
+Upgrade:
+
+- Deploy new version on demo server
+- Upgrade dependency in ``kinto-dist`` repo
+- Upgrade version targetted in ``kinto-heroku`` repo
+- Upgrade version of Kinto server for the tests of clients and plugins repos
+  (*kinto-http.js, kinto-http.py, kinto-attachment, etc.*)
 
 That's all folks!
