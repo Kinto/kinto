@@ -37,6 +37,15 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         other_collection = self.collection_url.replace('barley', 'pills')
         self.app.get(other_collection, headers=self.headers, status=404)
 
+    def test_unknown_collection_does_not_query_timestamp(self):
+        other_collection = self.collection_url.replace('barley', 'pills')
+        patch = mock.patch.object(self.app.app.registry.storage,
+                                  'collection_timestamp')
+        self.addCleanup(patch.stop)
+        mocked = patch.start()
+        self.app.get(other_collection, headers=self.headers, status=404)
+        self.assertFalse(mocked.called)
+
     def test_parent_collection_is_fetched_only_once_in_batch(self):
         batch = {'requests': []}
         nb_create = 25
