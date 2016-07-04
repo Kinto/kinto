@@ -8,9 +8,11 @@ def on_resource_changed(event):
 
     # XXX: POST on /buckets/test/collections does not give collection_id
 
+    userid = event.request.prefixed_userid
+
     storage = event.request.registry.storage
     for impacted in event.impacted_records:
-        entry = dict(userid=event.request.prefixed_userid,
+        entry = dict(userid=userid,
                      date=datetime.now().isoformat(),
                      **event.payload)
         storage.create(parent_id="/buckets/%s" % bucket_id,

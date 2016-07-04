@@ -1,6 +1,6 @@
 import re
 
-from kinto.tests.support import (BaseWebTest, unittest)
+from kinto.tests.support import (BaseWebTest, unittest, get_user_headers)
 
 
 class HelloViewTest(BaseWebTest, unittest.TestCase):
@@ -79,3 +79,78 @@ class HistoryViewTest(BaseWebTest, unittest.TestCase):
         assert entry['collection_id'] == collection['id']
         assert entry['record_id'] == record['id']
         assert entry['action'] == 'create'
+
+
+class PermissionsTest(BaseWebTest, unittest.TestCase):
+
+    def get_app_settings(self, extra=None):
+        settings = super(PermissionsTest, self).get_app_settings(extra)
+        settings['includes'] = 'kinto.plugins.history'
+        return settings
+
+    def setUp(self):
+        self.alice_headers = get_user_headers('alice:')
+        self.julia_headers = get_user_headers('julia:')
+        alice_principal = 'basicauth:845a151f1fbb0063738943a4531f8b7ef521fa488ed5ac7d077aa7ee1f349ef7'  # NOQA
+        julia_principal = 'basicauth:2f5fcddb299319097b9ae72f609d071d99aaf46ef9c3bc82bcc0212d14e35c4f'  # NOQA
+        bucket = {
+            'permissions': {
+                'read': [alice_principal]
+            }
+        }
+        collection = {
+            'permissions': {
+                'read': [julia_principal]
+            }
+        }
+        record = {
+            'permissions': {
+                'read': ['system.Authenticated'],
+                'write': [alice_principal],
+            }
+        }
+        self.app.put('/buckets/author-only',
+                     headers=self.headers)
+        self.app.put_json('/buckets/test',
+                          bucket,
+                          headers=self.headers)
+        self.app.put_json('/buckets/test/groups/admins',
+                          {'data': {'members': []}},
+                          headers=self.headers)
+        self.app.put_json('/buckets/test/collections/with-alice',
+                          collection,
+                          headers=self.headers)
+        self.app.put_json('/buckets/test/collections/without-julia',
+                          collection,
+                          headers=self.headers)
+        self.app.post_json('/buckets/test/collections/with-alice/records',
+                           record,
+                           headers=self.headers)
+
+    def test_author_can_read_everything(self):
+        resp = self.app.get('/buckets/test/history',
+                            headers=self.headers)
+        entries = resp.json['data']
+        assert len(entries) == 5
+
+    def test_alice_can_read_everything_in_test_bucket(self):
+        resp = self.app.get('/buckets/test/history',
+                            headers=self.alice_headers)
+        entries = resp.json['data']
+        assert len(entries) == 5
+
+        self.app.get('/buckets/author-only/history',
+                     headers=self.alice_headers,
+                     status=403)
+
+    # def test_julia_can_read_everything_in_collection(self):
+    #     resp = self.app.get('/buckets/test/history',
+    #                         headers=self.julia_headers)
+    #     entries = resp.json['data']
+    #     assert len(entries) == 2
+
+    # def test_any_authenticated_can_read_about_record(self):
+    #     resp = self.app.get('/buckets/test/history',
+    #                         headers=get_user_headers('jack:'))
+    #     entries = resp.json['data']
+    #     assert len(entries) == 1
