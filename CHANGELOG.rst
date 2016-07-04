@@ -6,7 +6,10 @@ This document describes changes between each past release.
 3.2.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix HTTP API version number exposed (1.7)
+
 
 3.2.0 (2016-06-14)
 ==================
