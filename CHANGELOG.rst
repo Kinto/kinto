@@ -18,6 +18,8 @@ Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs
 
 - Fix crash with PostgreSQL storage backend when provided id in POST is an integer (#688).
   Regression introduced in 3.2.0 with #655.
+- Fix crash with PostgreSQL storage backend is configured as read-only and reaching
+  the records endpoint of an unknown collection (fixes #693, related #558)
 
 
 3.2.0 (2016-06-14)
