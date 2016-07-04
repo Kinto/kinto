@@ -26,23 +26,22 @@ class Record(resource.ShareableResource):
     mapping = RecordSchema()
     schema_field = 'schema'
 
-    def __init__(self, *args, **kwargs):
-        super(Record, self).__init__(*args, **kwargs)
-
-        self.model.id_generator = RelaxedUUID()
-
+    def __init__(self, request, **kwargs):
+        # Before all, first check that the parent collection exists.
         # Check if already fetched before (in batch).
-        collections = self.request.bound_data.setdefault('collections', {})
-        collection_uri = self.get_parent_id(self.request)
+        collections = request.bound_data.setdefault('collections', {})
+        collection_uri = self.get_parent_id(request)
         if collection_uri not in collections:
             # Unknown yet, fetch from storage.
             collection_parent_id = '/buckets/%s' % self.bucket_id
-            collection = object_exists_or_404(self.request,
+            collection = object_exists_or_404(request,
                                               collection_id='collection',
                                               parent_id=collection_parent_id,
                                               object_id=self.collection_id)
             collections[collection_uri] = collection
 
+        super(Record, self).__init__(request, **kwargs)
+        self.model.id_generator = RelaxedUUID()
         self._collection = collections[collection_uri]
 
     def get_parent_id(self, request):
