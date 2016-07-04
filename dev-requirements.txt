@@ -10,7 +10,7 @@ requests
 sphinx_rtd_theme
 sphinxcontrib-httpdomain
 Sphinx
-SQLAlchemy<1.1.0b1
+SQLAlchemy
 tox
 unittest2
 WebTest
