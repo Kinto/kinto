@@ -1,7 +1,9 @@
-from kinto.core import authorization as core_authorization
+import re
+
 from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
+from kinto.core import authorization as core_authorization
 
 # Vocab really matters when you deal with permissions. Let's do a quick recap
 # of the terms used here:
@@ -69,23 +71,15 @@ PERMISSIONS_INHERITANCE_TREE = {
 
 def get_object_type(object_uri):
     """Return the type of an object from its id."""
-
-    obj_parts = object_uri.split('/')
-    if len(obj_parts) % 2 == 0:
-        object_uri = '/'.join(obj_parts[:-1])
-
-    # Order matters here. More precise is tested first.
-    if 'records' in object_uri:
-        obj_type = 'record'
-    elif 'collections' in object_uri:
-        obj_type = 'collection'
-    elif 'groups' in object_uri:
-        obj_type = 'group'
-    elif 'buckets' in object_uri:
-        obj_type = 'bucket'
-    else:
-        obj_type = None
-    return obj_type
+    if re.match(r'/buckets/(.+)/collections/(.+)/records/(.+)?', object_uri):
+        return 'record'
+    if re.match(r'/buckets/(.+)/collections/(.+)?', object_uri):
+        return 'collection'
+    if re.match(r'/buckets/(.+)/groups/(.+)?', object_uri):
+        return 'group'
+    if re.match(r'/buckets/(.+)?', object_uri):
+        return 'bucket'
+    return None
 
 
 def build_permission_tuple(obj_type, unbound_permission, obj_parts):
