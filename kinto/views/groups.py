@@ -28,8 +28,8 @@ class Group(resource.ShareableResource):
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict['bucket_id']
-        parent_id = request.route_path('bucket-record', id=bucket_id)
-        return utils.strip_uri_prefix(parent_id)
+        parent_id = utils.instance_uri(request, 'bucket', id=bucket_id)
+        return parent_id
 
 
 @subscriber(ResourceChanged,
@@ -43,11 +43,10 @@ def on_groups_deleted(event):
     for change in event.impacted_records:
         group = change['old']
         bucket_id = event.payload['bucket_id']
-        group_uri = utils.strip_uri_prefix(
-            event.request.route_path('group-record',
-                                     bucket_id=bucket_id,
-                                     id=group['id'])
-        )
+        group_uri = utils.instance_uri(event.request, 'group',
+                                       bucket_id=bucket_id,
+                                       id=group['id'])
+
         permission_backend.remove_principal(group_uri)
 
 

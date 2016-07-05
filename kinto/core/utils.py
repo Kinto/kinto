@@ -383,3 +383,9 @@ def view_lookup(request, uri):
     resource_name = route.name.replace('-record', '')\
                               .replace('-collection', '')
     return resource_name, matchdict
+
+
+def instance_uri(request, resource_name, **params):
+    """Return the URI for the given resource."""
+    return strip_uri_prefix(request.route_path('%s-record' % resource_name,
+                                               **params))
