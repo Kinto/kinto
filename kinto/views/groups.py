@@ -1,6 +1,6 @@
 import colander
 
-from kinto.core import resource
+from kinto.core import resource, utils
 from kinto.core.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
 
@@ -28,8 +28,8 @@ class Group(resource.ShareableResource):
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict['bucket_id']
-        parent_id = '/buckets/%s' % bucket_id
-        return parent_id
+        parent_id = request.route_path('bucket-record', id=bucket_id)
+        return utils.strip_uri_prefix(parent_id)
 
 
 @subscriber(ResourceChanged,
@@ -42,8 +42,12 @@ def on_groups_deleted(event):
 
     for change in event.impacted_records:
         group = change['old']
-        group_uri = '/buckets/{bucket_id}/groups/{id}'.format(id=group['id'],
-                                                              **event.payload)
+        bucket_id = event.payload['bucket_id']
+        group_uri = utils.strip_uri_prefix(
+            event.request.route_path('group-record',
+                                     bucket_id=bucket_id,
+                                     id=group['id'])
+        )
         permission_backend.remove_principal(group_uri)
 
 
