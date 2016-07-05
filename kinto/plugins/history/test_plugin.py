@@ -263,6 +263,37 @@ class FilteringTest(HistoryWebTest):
                                                        'last_modified', 'uri']
 
 
+class BulkTest(HistoryWebTest):
+    def setUp(self):
+        body = {
+            'defaults': {
+                'method': 'POST',
+                'path': '/buckets/bid/collections/cid/records',
+            },
+            'requests': [{
+                'path': '/buckets/bid',
+                'method': 'PUT'
+            }, {
+                'path': '/buckets/bid/collections',
+                'body': {'data': {'id': 'cid'}}
+            }, {
+                'body': {'data': {'id': 'a', 'attr': 1}},
+            }, {
+                'body': {'data': {'id': 'b', 'attr': 2}},
+            }, {
+                'body': {'data': {'id': 'c', 'attr': 3}}
+            }]
+        }
+        self.app.post_json('/batch', body, headers=self.headers)
+
+    def test_post_on_collection(self):
+        resp = self.app.get('/buckets/bid/history', headers=self.headers)
+        entries = resp.json['data']
+        assert len(entries) == 5
+        assert entries[0]['uri'] == '/buckets/bid/collections/cid/records/c'
+        assert entries[-2]['uri'] == '/buckets/bid/collections/cid'
+
+
 class PermissionsTest(HistoryWebTest):
 
     def setUp(self):

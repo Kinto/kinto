@@ -1,29 +1,44 @@
+import copy
 from datetime import datetime
 
 from kinto.core.events import ResourceChanged
 
 
 def on_resource_changed(event):
-    action = event.payload['action']
-    uri = event.payload['uri']
-    bucket_id = event.payload['bucket_id']
-    bucket_uri = '/buckets/%s' % bucket_id
-
-    # XXX: POST on /buckets/test/collections does not give collection_id
-
+    """
+    Everytime an object is created/changed/deleted, we create an entry in the
+    ``history`` resource. The entries are served as read-only in the
+    :mod:`kinto.plugins.history.views` module.
+    """
     userid = event.request.prefixed_userid
+    payload = copy.deepcopy(event.payload)
+    action = payload['action']
+    bucket_id = payload['bucket_id']
+    bucket_uri = '/buckets/%s' % bucket_id
 
     storage = event.request.registry.storage
     permission = event.request.registry.permission
 
     for impacted in event.impacted_records:
-        perms = permission.get_object_permissions(uri)
-
         target = impacted['new' if action != 'delete' else 'old']
+        # On POST .../records, the URI does not contain the newly created
+        # record id. Make sure it does:
+        obj_id = target['id']
+        if not payload['uri'].endswith(obj_id):
+            payload['uri'] = payload['uri'] + '/' + obj_id
+
+        # Prepare the history entry attributes.
+        # XXX: Fetching the permissions of each impacted records one by one
+        # is not efficient.
+        perms = permission.get_object_permissions(payload['uri'])
         attrs = dict(userid=userid,
                      date=datetime.now().isoformat(),
                      target={'data': target, 'permissions': perms},
-                     **event.payload)
+                     **payload)
+
+        # Create a record for the 'history' resource, whose parent_id is
+        # the bucket URI (c.f. views.py).
+        # Note: this will be rolledback if the transaction is rolledback.
         storage.create(parent_id=bucket_uri,
                        collection_id='history',
                        record=attrs)
