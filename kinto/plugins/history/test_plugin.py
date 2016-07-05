@@ -1,3 +1,4 @@
+import mock
 import re
 
 from kinto.tests.support import (BaseWebTest, unittest, get_user_headers)
@@ -347,6 +348,14 @@ class PermissionsTest(HistoryWebTest):
         entries = resp.json['data']
         assert len(entries) == 5
 
+    def test_read_permission_can_be_given_to_anybody_via_settings(self):
+        with mock.patch.dict(self.app.app.registry.settings,
+                             [('history_read_principals', 'system.Everyone')]):
+            resp = self.app.get('/buckets/test/history',
+                                headers=get_user_headers('tartan:pion'))
+            entries = resp.json['data']
+            assert len(entries) == 5
+
     def test_alice_can_read_everything_in_test_bucket(self):
         resp = self.app.get('/buckets/test/history',
                             headers=self.alice_headers)
@@ -368,3 +377,6 @@ class PermissionsTest(HistoryWebTest):
     #                         headers=get_user_headers('jack:'))
     #     entries = resp.json['data']
     #     assert len(entries) == 1
+
+    # def test_new_entries_are_not_readable_if_permission_is_removed(self):
+    #     pass
