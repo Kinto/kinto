@@ -467,3 +467,19 @@ class RegisterTest(unittest.TestCase):
                                       **self.viewset.get_service_arguments())
         service_class().add_view.assert_any_call(
             'PUT', 'put', klass=self.resource)
+
+    @mock.patch('kinto.core.resource.Service')
+    def test_endpoint_is_skipped_if_record_path_is_none(self, service_cls):
+        self.viewset.record_path = None
+
+        venusian_callback = register_resource(self.resource,
+                                              viewset=self.viewset)
+        config = mock.MagicMock()
+        config.registry.settings = DEFAULT_SETTINGS
+        context = mock.MagicMock()
+        context.config.with_package.return_value = config
+        venusian_callback(context, None, None)
+
+        paths = [call[1][1] for call in service_cls.mock_calls]
+        self.assertIn('/fake', paths)
+        self.assertNotIn('/fake/{id}', paths)

@@ -22,6 +22,10 @@ Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs
 - Fix crash with PostgreSQL storage backend is configured as read-only and reaching
   the records endpoint of an unknown collection (fixes #693, related #558)
 
+**Internal changes**
+
+- Fix crash when a resource is registered without record path.
+
 
 3.2.0 (2016-06-14)
 ==================
