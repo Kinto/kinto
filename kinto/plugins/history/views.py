@@ -8,11 +8,12 @@ class HistorySchema(resource.ResourceSchema):
     uri = colander.SchemaNode(colander.String())
     action = colander.SchemaNode(colander.String())
     resource_name = colander.SchemaNode(colander.String())
+    bucket_id = colander.SchemaNode(colander.String())
+    # XXX not mandatory
+    collection_id = colander.SchemaNode(colander.String())
+    group_id = colander.SchemaNode(colander.String())
+    record_id = colander.SchemaNode(colander.String())
     # XXX
-    # bucket_id
-    # collection_id
-    # group_id
-    # record_id
     # target : object(data, permissions)
 
 

@@ -250,6 +250,12 @@ class FilteringTest(HistoryWebTest):
                             headers=self.headers)
         assert len(resp.json['data']) == 3  # create / update / delete
 
+    def test_filter_by_collection(self):
+        uri = '/buckets/bid/history?bucket_id=bid&collection_id=cid'
+        resp = self.app.get(uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 4
+
     def test_limit_results(self):
         resp = self.app.get('/buckets/bid/history?_limit=2',
                             headers=self.headers)
