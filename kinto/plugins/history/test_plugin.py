@@ -3,25 +3,23 @@ import re
 from kinto.tests.support import (BaseWebTest, unittest, get_user_headers)
 
 
-class HelloViewTest(BaseWebTest, unittest.TestCase):
+class HistoryWebTest(BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extra=None):
-        settings = super(HelloViewTest, self).get_app_settings(extra)
+        settings = super(HistoryWebTest, self).get_app_settings(extra)
         settings['includes'] = 'kinto.plugins.history'
         return settings
 
-    def test_flush_capability_if_enabled(self):
+
+class HelloViewTest(HistoryWebTest):
+
+    def test_history_capability_if_enabled(self):
         resp = self.app.get('/')
         capabilities = resp.json['capabilities']
         self.assertIn('history', capabilities)
 
 
-class HistoryViewTest(BaseWebTest, unittest.TestCase):
-
-    def get_app_settings(self, extra=None):
-        settings = super(HistoryViewTest, self).get_app_settings(extra)
-        settings['includes'] = 'kinto.plugins.history'
-        return settings
+class HistoryViewTest(HistoryWebTest):
 
     def setUp(self):
         self.bucket_uri = '/buckets/test'
@@ -30,6 +28,11 @@ class HistoryViewTest(BaseWebTest, unittest.TestCase):
         self.collection_uri = self.bucket_uri + '/collections/col'
         resp = self.app.put(self.collection_uri, headers=self.headers)
         self.collection = resp.json['data']
+
+        self.group_uri = self.bucket_uri + '/groups/grp'
+        body = {'data': {'members': ['elle']}}
+        resp = self.app.put_json(self.group_uri, body, headers=self.headers)
+        self.group = resp.json['data']
 
         self.record_uri = '/buckets/test/collections/col/records/rec'
         body = {'data': {'foo': 42}}
@@ -94,7 +97,7 @@ class HistoryViewTest(BaseWebTest, unittest.TestCase):
 
     def test_tracks_collection_creation(self):
         resp = self.app.get(self.history_uri, headers=self.headers)
-        entry = resp.json['data'][1]
+        entry = resp.json['data'][2]
         assert entry['resource_name'] == 'collection'
         assert entry['bucket_id'] == 'test'
         assert entry['collection_id'] == self.collection['id']
@@ -120,6 +123,44 @@ class HistoryViewTest(BaseWebTest, unittest.TestCase):
 
     def test_tracks_collection_delete(self):
         self.app.delete(self.collection_uri, headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'delete'
+        assert entry['target']['data']['deleted'] is True
+
+    #
+    # Group
+    #
+
+    def test_tracks_group_creation(self):
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][1]
+        assert entry['resource_name'] == 'group'
+        assert entry['bucket_id'] == 'test'
+        assert entry['group_id'] == self.group['id']
+        assert entry['action'] == 'create'
+
+    def test_tracks_group_attributes_update(self):
+        body = {'data': {'foo': 'baz', 'members': ['lui']}}
+        self.app.patch_json(self.group_uri, body,
+                            headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'update'
+        assert entry['target']['data']['foo'] == 'baz'
+        assert entry['target']['data']['members'] == ['lui']
+
+    def test_tracks_group_permissions_update(self):
+        body = {'permissions': {'read': ['admins']}}
+        self.app.patch_json(self.group_uri, body,
+                            headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'update'
+        assert entry['target']['permissions']['read'] == ['admins']
+
+    def test_tracks_group_delete(self):
+        self.app.delete(self.group_uri, headers=self.headers)
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
@@ -165,12 +206,53 @@ class HistoryViewTest(BaseWebTest, unittest.TestCase):
         assert entry['target']['data']['deleted'] is True
 
 
-class PermissionsTest(BaseWebTest, unittest.TestCase):
+class FilteringTest(HistoryWebTest):
 
-    def get_app_settings(self, extra=None):
-        settings = super(PermissionsTest, self).get_app_settings(extra)
-        settings['includes'] = 'kinto.plugins.history'
-        return settings
+    def setUp(self):
+        self.app.put('/buckets/bid', headers=self.headers)
+        self.app.put('/buckets/bid/collections/cid',
+                     headers=self.headers)
+        body = {'data': {'foo': 42}}
+        self.app.put_json('/buckets/bid/collections/cid/records/rid',
+                          body,
+                          headers=self.headers)
+        body = {'data': {'foo': 'bar'}}
+        self.app.patch_json('/buckets/bid/collections/cid/records/rid',
+                            body,
+                            headers=self.headers)
+        self.app.delete('/buckets/bid/collections/cid/records/rid',
+                        headers=self.headers)
+
+    def test_filter_by_action(self):
+        resp = self.app.get('/buckets/bid/history?action=delete',
+                            headers=self.headers)
+        assert len(resp.json['data']) == 1
+
+    def test_filter_by_resource(self):
+        resp = self.app.get('/buckets/bid/history?resource_name=bucket',
+                            headers=self.headers)
+        assert len(resp.json['data']) == 1
+
+    def test_filter_by_uri(self):
+        uri = '/buckets/bid/collections/cid/records/rid'
+        resp = self.app.get('/buckets/bid/history?uri=%s' % uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 3  # create / update / delete
+
+    def test_limit_results(self):
+        resp = self.app.get('/buckets/bid/history?_limit=2',
+                            headers=self.headers)
+        assert len(resp.json['data']) == 2
+        assert 'Next-Page' in resp.headers
+
+    def test_filter_returned_fields(self):
+        resp = self.app.get('/buckets/bid/history?_fields=uri,action',
+                            headers=self.headers)
+        assert sorted(resp.json['data'][0].keys()) == ['action', 'id',
+                                                       'last_modified', 'uri']
+
+
+class PermissionsTest(HistoryWebTest):
 
     def setUp(self):
         self.alice_headers = get_user_headers('alice:')
