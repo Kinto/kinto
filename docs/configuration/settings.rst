@@ -54,7 +54,7 @@ Feature settings
 +-------------------------------------------------+--------------+---------------------------------------------------------------------------+
 | kinto.<object-type>_id_generator                | ``UUID4``    | The Python *dotted* location of the generator class that should be used   |
 |                                                 |              | to generate identifiers on a POST endpoint.                               |
-|                                                 |              | Object type is one of ``bucket``, ``collection``, ``group``, ``records``. |
+|                                                 |              | Object type is one of ``bucket``, ``collection``, ``group``, ``record``.  |
 |                                                 |              | See :ref:`tutorial-id-generator`.                                         |
 +-------------------------------------------------+--------------+---------------------------------------------------------------------------+
 | kinto.experimental_collection_schema_validation | ``False``    | *Experimental*: Allow definition of JSON schema at the collection level,  |
