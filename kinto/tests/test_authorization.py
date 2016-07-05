@@ -55,6 +55,11 @@ class PermissionInheritanceTest(unittest.TestCase):
             'bucket', 'write', obj_parts),
             (self.bucket_uri, 'write'))
 
+    def test_build_perm_set_supports_buckets_named_collections(self):
+        uri = '/buckets/collections'
+        self.assertEquals(build_permissions_set(uri, 'write'),
+                          set([(uri, 'write')]))
+
     def test_build_permission_tuple_fail_construct_children_set_uris(self):
         obj_parts = self.bucket_uri.split('/')
         # Cannot build record_uri from bucket obj_parts
