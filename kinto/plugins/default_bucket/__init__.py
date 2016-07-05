@@ -7,7 +7,8 @@ from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
 from kinto.core.errors import raise_invalid
 from kinto.core.events import ACTIONS
-from kinto.core.utils import build_request, reapply_cors, hmac_digest
+from kinto.core.utils import (
+    build_request, reapply_cors, hmac_digest, instance_uri)
 from kinto.core.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
@@ -28,9 +29,10 @@ def create_bucket(request, bucket_id):
     if bucket_id in already_created:
         return
 
+    bucket_uri = instance_uri(request, 'bucket', id=bucket_id)
     bucket = resource_create_object(request=request,
                                     resource_cls=Bucket,
-                                    uri='/buckets/%s' % bucket_id,
+                                    uri=bucket_uri,
                                     resource_name='bucket',
                                     obj_id=bucket_id)
     already_created[bucket_id] = bucket
@@ -43,7 +45,9 @@ def create_collection(request, bucket_id):
         return
 
     collection_id = subpath.split('/')[1]
-    collection_uri = '/buckets/%s/collections/%s' % (bucket_id, collection_id)
+    collection_uri = instance_uri(request, 'collection',
+                                  bucket_id=bucket_id,
+                                  id=collection_id)
 
     # Do not intent to create multiple times per request (e.g. in batch).
     already_created = request.bound_data.setdefault('collections', {})

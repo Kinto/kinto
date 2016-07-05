@@ -1,7 +1,7 @@
 import copy
 
 import jsonschema
-from kinto.core import resource
+from kinto.core import resource, utils
 from kinto.core.errors import raise_invalid
 from jsonschema import exceptions as jsonschema_exceptions
 from pyramid.security import Authenticated
@@ -33,7 +33,8 @@ class Record(resource.ShareableResource):
         collection_uri = self.get_parent_id(request)
         if collection_uri not in collections:
             # Unknown yet, fetch from storage.
-            collection_parent_id = '/buckets/%s' % self.bucket_id
+            collection_parent_id = utils.instance_uri(request, 'bucket',
+                                                      id=self.bucket_id)
             collection = object_exists_or_404(request,
                                               collection_id='collection',
                                               parent_id=collection_parent_id,
@@ -47,8 +48,9 @@ class Record(resource.ShareableResource):
     def get_parent_id(self, request):
         self.bucket_id = request.matchdict['bucket_id']
         self.collection_id = request.matchdict['collection_id']
-        return '/buckets/%s/collections/%s' % (self.bucket_id,
-                                               self.collection_id)
+        return utils.instance_uri(request, 'collection',
+                                  bucket_id=self.bucket_id,
+                                  id=self.collection_id)
 
     def is_known_field(self, field_name):
         """Without schema, any field is considered as known."""

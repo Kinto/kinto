@@ -1,4 +1,4 @@
-from kinto.core import resource
+from kinto.core import resource, utils
 from kinto.core.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
 from kinto.authorization import BucketRouteFactory
@@ -37,7 +37,8 @@ def on_buckets_deleted(event):
 
     for change in event.impacted_records:
         bucket = change['old']
-        parent_id = '/buckets/%s' % bucket['id']
+        parent_id = utils.instance_uri(event.request, 'bucket',
+                                       id=bucket['id'])
 
         # Delete groups.
         storage.delete_all(collection_id='group',
@@ -55,8 +56,10 @@ def on_buckets_deleted(event):
 
         # Delete records.
         for collection in deleted_collections:
-            parent_id = '/buckets/%s/collections/%s' % (bucket['id'],
-                                                        collection['id'])
+            parent_id = utils.instance_uri(event.request, 'collection',
+                                           bucket_id=bucket['id'],
+                                           id=collection['id'])
+
             storage.delete_all(collection_id='record',
                                parent_id=parent_id,
                                with_deleted=False)
