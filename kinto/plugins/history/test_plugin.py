@@ -301,6 +301,53 @@ class BulkTest(HistoryWebTest):
         assert entries[-2]['uri'] == '/buckets/bid/collections/cid'
 
 
+class DefaultBucketTest(HistoryWebTest):
+
+    def get_app_settings(self, extra=None):
+        settings = super(HistoryWebTest, self).get_app_settings(extra)
+        settings['includes'] = ('kinto.plugins.default_bucket '
+                                'kinto.plugins.history')
+        return settings
+
+    def setUp(self):
+        resp = self.app.get('/', headers=self.headers)
+        self.bucket_id = resp.json['user']['bucket']
+        self.history_uri = '/buckets/%s/history' % self.bucket_id
+
+    def test_implicit_creations_are_listed(self):
+        body = {'data': {'foo': 42}}
+        resp = self.app.post_json('/buckets/default/collections/blah/records',
+                                  body,
+                                  headers=self.headers)
+        record = resp.json['data']
+
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entries = resp.json['data']
+        assert len(entries) == 3
+
+        bucket_uri = '/buckets/%s' % self.bucket_id
+        assert entries[2]['resource_name'] == 'bucket'
+        assert entries[2]['bucket_id'] == self.bucket_id
+        assert entries[2]['uri'] == bucket_uri
+        assert 'basicauth:3' in entries[2]['target']['permissions']['write'][0]
+
+        collection_uri = bucket_uri + '/collections/blah'
+        assert entries[1]['resource_name'] == 'collection'
+        assert entries[1]['bucket_id'] == self.bucket_id
+        assert entries[1]['collection_id'] == 'blah'
+        assert entries[1]['uri'] == collection_uri
+        assert 'basicauth:3' in entries[1]['target']['permissions']['write'][0]
+
+        record_uri = collection_uri + '/records/%s' % record['id']
+        assert entries[0]['resource_name'] == 'record'
+        assert entries[0]['bucket_id'] == self.bucket_id
+        assert entries[0]['collection_id'] == 'blah'
+        assert entries[0]['record_id'] == record['id']
+        assert entries[0]['uri'] == record_uri
+        assert entries[0]['target']['data']['foo'] == 42
+        assert 'basicauth:3' in entries[0]['target']['permissions']['write'][0]
+
+
 class PermissionsTest(HistoryWebTest):
 
     def setUp(self):
