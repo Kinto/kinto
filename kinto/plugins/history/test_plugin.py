@@ -55,6 +55,13 @@ class HistoryViewTest(HistoryWebTest):
         self.app.patch(url, headers=self.headers, status=404)
         self.app.delete(url, headers=self.headers, status=404)
 
+    def test_tracks_user_and_date(self):
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][-1]
+        assert entry['userid'].startswith('basicauth:3a0c56')
+        assert re.match('^\d{4}\-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}',
+                        entry['date'])
+
     #
     # Bucket
     #
@@ -65,9 +72,7 @@ class HistoryViewTest(HistoryWebTest):
         assert entry['resource_name'] == 'bucket'
         assert entry['bucket_id'] == 'test'
         assert entry['action'] == 'create'
-        assert entry['userid'].startswith('basicauth:3a0c56')
-        assert re.match('^\d{4}\-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}',
-                        entry['date'])
+        assert entry['uri'] == '/buckets/test'
 
     def test_tracks_bucket_attributes_update(self):
         body = {'data': {'foo': 'baz'}}
@@ -98,10 +103,12 @@ class HistoryViewTest(HistoryWebTest):
     def test_tracks_collection_creation(self):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][2]
+        cid = self.collection['id']
         assert entry['resource_name'] == 'collection'
         assert entry['bucket_id'] == 'test'
-        assert entry['collection_id'] == self.collection['id']
+        assert entry['collection_id'] == cid
         assert entry['action'] == 'create'
+        assert entry['uri'] == '/buckets/test/collections/%s' % cid
 
     def test_tracks_collection_attributes_update(self):
         body = {'data': {'foo': 'baz'}}
@@ -139,6 +146,7 @@ class HistoryViewTest(HistoryWebTest):
         assert entry['bucket_id'] == 'test'
         assert entry['group_id'] == self.group['id']
         assert entry['action'] == 'create'
+        assert entry['uri'] == '/buckets/test/groups/%s' % self.group['id']
 
     def test_tracks_group_attributes_update(self):
         body = {'data': {'foo': 'baz', 'members': ['lui']}}
@@ -173,11 +181,14 @@ class HistoryViewTest(HistoryWebTest):
     def test_tracks_record_creation(self):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
+        cid = self.collection['id']
+        rid = self.record['id']
         assert entry['resource_name'] == 'record'
         assert entry['bucket_id'] == 'test'
-        assert entry['collection_id'] == self.collection['id']
-        assert entry['record_id'] == self.record['id']
+        assert entry['collection_id'] == cid
+        assert entry['record_id'] == rid
         assert entry['action'] == 'create'
+        assert entry['uri'] == '/buckets/test/collections/%s/records/%s' % (cid, rid)  # NOQA
         assert entry['target']['data']['foo'] == 42
         assert entry['target']['permissions']['write'][0].startswith('basicauth:')  # NOQA
 
