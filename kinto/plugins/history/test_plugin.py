@@ -24,27 +24,41 @@ class HistoryViewTest(BaseWebTest, unittest.TestCase):
         return settings
 
     def setUp(self):
-        self.app.put('/buckets/test', headers=self.headers)
+        self.bucket_uri = '/buckets/test'
+        self.app.put(self.bucket_uri, headers=self.headers)
+
+        self.collection_uri = self.bucket_uri + '/collections/col'
+        resp = self.app.put(self.collection_uri, headers=self.headers)
+        self.collection = resp.json['data']
+
+        self.record_uri = '/buckets/test/collections/col/records/rec'
+        body = {'data': {'foo': 42}}
+        resp = self.app.put_json(self.record_uri, body, headers=self.headers)
+        self.record = resp.json['data']
+
+        self.history_uri = '/buckets/test/history'
 
     def test_only_get_on_collection_is_allowed(self):
-        url = '/buckets/test/history'
-        self.app.put(url, headers=self.headers, status=405)
-        self.app.patch(url, headers=self.headers, status=405)
-        self.app.delete(url, headers=self.headers, status=405)
+        self.app.put(self.history_uri, headers=self.headers, status=405)
+        self.app.patch(self.history_uri, headers=self.headers, status=405)
+        self.app.delete(self.history_uri, headers=self.headers, status=405)
 
     def test_only_collection_endpoint_is_available(self):
-        resp = self.app.get('/buckets/test/history', headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
-        url = '/buckets/test/history/%s' % entry['id']
+        url = '%s/%s' % (self.bucket_uri, entry['id'])
         self.app.get(url, headers=self.headers, status=404)
         self.app.put(url, headers=self.headers, status=404)
         self.app.patch(url, headers=self.headers, status=404)
         self.app.delete(url, headers=self.headers, status=404)
 
+    #
+    # Bucket
+    #
+
     def test_history_contains_bucket_creation(self):
-        resp = self.app.get('/buckets/test/history',
-                            headers=self.headers)
-        entry = resp.json['data'][0]
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][-1]
         assert entry['resource_name'] == 'bucket'
         assert entry['bucket_id'] == 'test'
         assert entry['action'] == 'create'
@@ -52,33 +66,103 @@ class HistoryViewTest(BaseWebTest, unittest.TestCase):
         assert re.match('^\d{4}\-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}',
                         entry['date'])
 
-    def test_tracks_collection_creation(self):
-        resp = self.app.put('/buckets/test/collections/collec',
+    def test_tracks_bucket_attributes_update(self):
+        body = {'data': {'foo': 'baz'}}
+        self.app.patch_json(self.bucket_uri, body,
                             headers=self.headers)
-        collection = resp.json['data']
-        resp = self.app.get('/buckets/test/history',
-                            headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
+        assert entry['action'] == 'update'
+        assert entry['target']['data']['foo'] == 'baz'
+
+    def test_tracks_bucket_permissions_update(self):
+        body = {'permissions': {'read': ['admins']}}
+        self.app.patch_json(self.bucket_uri, body,
+                            headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'update'
+        assert entry['target']['permissions']['read'] == ['admins']
+
+    def test_bucket_delete_destroys_history(self):
+        self.app.delete(self.bucket_uri, headers=self.headers)
+        self.app.get(self.history_uri, headers=self.headers, status=403)
+
+    #
+    # Collection
+    #
+
+    def test_tracks_collection_creation(self):
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][1]
         assert entry['resource_name'] == 'collection'
         assert entry['bucket_id'] == 'test'
-        assert entry['collection_id'] == collection['id']
+        assert entry['collection_id'] == self.collection['id']
         assert entry['action'] == 'create'
 
+    def test_tracks_collection_attributes_update(self):
+        body = {'data': {'foo': 'baz'}}
+        self.app.patch_json(self.collection_uri, body,
+                            headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'update'
+        assert entry['target']['data']['foo'] == 'baz'
+
+    def test_tracks_collection_permissions_update(self):
+        body = {'permissions': {'read': ['admins']}}
+        self.app.patch_json(self.collection_uri, body,
+                            headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'update'
+        assert entry['target']['permissions']['read'] == ['admins']
+
+    def test_tracks_collection_delete(self):
+        self.app.delete(self.collection_uri, headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'delete'
+        assert entry['target']['data']['deleted'] is True
+
+    #
+    # Record
+    #
+
     def test_tracks_record_creation(self):
-        resp = self.app.put('/buckets/test/collections/collec',
-                            headers=self.headers)
-        collection = resp.json['data']
-        resp = self.app.put('/buckets/test/collections/collec/records/rec',
-                            headers=self.headers)
-        record = resp.json['data']
-        resp = self.app.get('/buckets/test/history',
-                            headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
         assert entry['resource_name'] == 'record'
         assert entry['bucket_id'] == 'test'
-        assert entry['collection_id'] == collection['id']
-        assert entry['record_id'] == record['id']
+        assert entry['collection_id'] == self.collection['id']
+        assert entry['record_id'] == self.record['id']
         assert entry['action'] == 'create'
+        assert entry['target']['data']['foo'] == 42
+        assert entry['target']['permissions']['write'][0].startswith('basicauth:')  # NOQA
+
+    def test_tracks_record_attributes_update(self):
+        resp = self.app.patch_json(self.record_uri, {'data': {'foo': 'baz'}},
+                                   headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'update'
+        assert entry['target']['data']['foo'] == 'baz'
+
+    def test_tracks_record_permissions_update(self):
+        body = {'permissions': {'read': ['admins']}}
+        resp = self.app.patch_json(self.record_uri, body,
+                                   headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'update'
+        assert entry['target']['permissions']['read'] == ['admins']
+
+    def test_tracks_record_delete(self):
+        resp = self.app.delete(self.record_uri, headers=self.headers)
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'delete'
+        assert entry['target']['data']['deleted'] is True
 
 
 class PermissionsTest(BaseWebTest, unittest.TestCase):
