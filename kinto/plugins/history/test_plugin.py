@@ -251,6 +251,19 @@ class FilteringTest(HistoryWebTest):
                             headers=self.headers)
         assert len(resp.json['data']) == 3  # create / update / delete
 
+    def test_allows_diff_between_two_versions_of_a_record(self):
+        uri = '/buckets/bid/collections/cid/records/rid'
+        querystring = '?uri=%s&_limit=2&_sort=last_modified' % uri
+        resp = self.app.get('/buckets/bid/history' + querystring,
+                            headers=self.headers)
+        entries = resp.json['data']
+        version1 = entries[0]['target']['data']
+        version2 = entries[1]['target']['data']
+        diff = [(k, version1[k], version2[k])
+                for k in version1.keys()
+                if k != 'last_modified' and version2[k] != version1[k]]
+        assert diff == [('foo', 42, 'bar')]
+
     def test_filter_by_bucket(self):
         uri = '/buckets/bid/history?bucket_id=bid'
         resp = self.app.get(uri,
