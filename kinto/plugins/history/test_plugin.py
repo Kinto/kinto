@@ -314,6 +314,12 @@ class DefaultBucketTest(HistoryWebTest):
         self.bucket_id = resp.json['user']['bucket']
         self.history_uri = '/buckets/%s/history' % self.bucket_id
 
+    def test_history_can_be_accessed_via_default_alias(self):
+        self.app.get('/buckets/default/collections/blah',
+                     headers=self.headers)
+        resp = self.app.get('/buckets/default/history', headers=self.headers)
+        assert len(resp.json['data']) == 2
+
     def test_implicit_creations_are_listed(self):
         body = {'data': {'foo': 42}}
         resp = self.app.post_json('/buckets/default/collections/blah/records',

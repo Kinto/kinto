@@ -9,12 +9,10 @@ class HistorySchema(resource.ResourceSchema):
     action = colander.SchemaNode(colander.String())
     resource_name = colander.SchemaNode(colander.String())
     bucket_id = colander.SchemaNode(colander.String())
-    # XXX not mandatory
     collection_id = colander.SchemaNode(colander.String())
     group_id = colander.SchemaNode(colander.String())
     record_id = colander.SchemaNode(colander.String())
-    # XXX
-    # target : object(data, permissions)
+    target = colander.SchemaNode(colander.Mapping())
 
 
 @resource.register(name='history',
