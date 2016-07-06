@@ -13,7 +13,7 @@ def on_resource_changed(event):
     userid = event.request.prefixed_userid
     payload = copy.deepcopy(event.payload)
     action = payload['action']
-    bucket_id = payload['bucket_id']
+    bucket_id = payload.pop('bucket_id')
     bucket_uri = '/buckets/%s' % bucket_id
     resource_name = payload['resource_name']
     event_uri = payload['uri']

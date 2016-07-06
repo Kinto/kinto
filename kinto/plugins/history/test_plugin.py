@@ -106,7 +106,7 @@ class HistoryViewTest(HistoryWebTest):
         entry = resp.json['data'][2]
         cid = self.collection['id']
         assert entry['resource_name'] == 'collection'
-        assert entry['bucket_id'] == 'test'
+        assert 'bucket_id' not in entry
         assert entry['collection_id'] == cid
         assert entry['action'] == 'create'
         assert entry['uri'] == '/buckets/test/collections/%s' % cid
@@ -144,7 +144,7 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][1]
         assert entry['resource_name'] == 'group'
-        assert entry['bucket_id'] == 'test'
+        assert 'bucket_id' not in entry
         assert entry['group_id'] == self.group['id']
         assert entry['action'] == 'create'
         assert entry['uri'] == '/buckets/test/groups/%s' % self.group['id']
@@ -185,7 +185,7 @@ class HistoryViewTest(HistoryWebTest):
         cid = self.collection['id']
         rid = self.record['id']
         assert entry['resource_name'] == 'record'
-        assert entry['bucket_id'] == 'test'
+        assert 'bucket_id' not in entry
         assert entry['collection_id'] == cid
         assert entry['record_id'] == rid
         assert entry['action'] == 'create'
@@ -251,8 +251,16 @@ class FilteringTest(HistoryWebTest):
                             headers=self.headers)
         assert len(resp.json['data']) == 3  # create / update / delete
 
+    def test_filter_by_bucket(self):
+        uri = '/buckets/bid/history?bucket_id=bid'
+        resp = self.app.get(uri,
+                            headers=self.headers)
+        # This is equivalent to filtering by resource_name=bucket,
+        # since only entries for bucket have ``bucket_id`` attribute.
+        assert len(resp.json['data']) == 1
+
     def test_filter_by_collection(self):
-        uri = '/buckets/bid/history?bucket_id=bid&collection_id=cid'
+        uri = '/buckets/bid/history?collection_id=cid'
         resp = self.app.get(uri,
                             headers=self.headers)
         assert len(resp.json['data']) == 4
@@ -339,14 +347,14 @@ class DefaultBucketTest(HistoryWebTest):
 
         collection_uri = bucket_uri + '/collections/blah'
         assert entries[1]['resource_name'] == 'collection'
-        assert entries[1]['bucket_id'] == self.bucket_id
+        assert 'bucket_id' not in entries[1]
         assert entries[1]['collection_id'] == 'blah'
         assert entries[1]['uri'] == collection_uri
         assert 'basicauth:3' in entries[1]['target']['permissions']['write'][0]
 
         record_uri = collection_uri + '/records/%s' % record['id']
         assert entries[0]['resource_name'] == 'record'
-        assert entries[0]['bucket_id'] == self.bucket_id
+        assert 'bucket_id' not in entries[1]
         assert entries[0]['collection_id'] == 'blah'
         assert entries[0]['record_id'] == record['id']
         assert entries[0]['uri'] == record_uri
