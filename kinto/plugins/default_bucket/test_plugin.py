@@ -265,18 +265,36 @@ class EventsTest(BaseWebTest, unittest.TestCase):
         assert payload['action'] == 'create'
 
     def test_events_sent_on_bucket_and_collection_creation(self):
-        records_uri = '/buckets/default/collections/articles/records'
-        self.app.get(records_uri, headers=self.headers)
+        records_uri = '/buckets/default/collections/articles/records/implicit'
+        body = {"data": {"implicit": "creations"}}
+        self.app.put_json(records_uri, body, headers=self.headers)
 
-        assert len(_events) == 2
+        assert len(_events) == 3
 
-        # XXX: Could not achieve a behaviour the payload uri reflect the
-        # underlying created object.
-        # resp = self.app.get('/', headers=self.headers)
-        # bucket_id = resp.json['user']['bucket']
-        # assert _events[0].payload['uri'] == '/buckets/%s' % bucket_id
-        # assert _events[1].payload['uri'] == (
-        #     '/buckets/%s/collections/articles' % bucket_id)
+        # Implicit creation of bucket
+        resp = self.app.get('/', headers=self.headers)
+        bucket_id = resp.json['user']['bucket']
+        assert 'subpath' not in _events[0].payload
+        assert _events[0].payload['action'] == 'create'
+        assert _events[0].payload['bucket_id'] == bucket_id
+        assert _events[0].payload['uri'] == '/buckets/%s' % bucket_id
+
+        # Implicit creation of collection
+        assert 'subpath' not in _events[1].payload
+        assert _events[1].payload['action'] == 'create'
+        assert _events[1].payload['resource_name'] == 'collection'
+        assert _events[1].payload['bucket_id'] == bucket_id
+        assert _events[1].payload['collection_id'] == 'articles'
+        assert _events[1].payload['uri'] == ('/buckets/%s/collections'
+                                             '/articles') % bucket_id
+
+        # Creation of record
+        assert _events[2].payload['action'] == 'create'
+        assert _events[2].payload['resource_name'] == 'record'
+        assert _events[2].payload['bucket_id'] == bucket_id
+        assert _events[2].payload['collection_id'] == 'articles'
+        assert _events[2].payload['uri'] == records_uri.replace('default',
+                                                                bucket_id)
 
 
 class ReadonlyDefaultBucket(BaseWebTest, unittest.TestCase):

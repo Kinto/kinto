@@ -20,53 +20,40 @@ class ACTIONS(Enum):
 
 
 class _ResourceEvent(object):
-    def __init__(self, action, timestamp, request):
+    def __init__(self, payload, request):
+        self.payload = payload
         self.request = request
-        resource_name = request.current_resource_name
-
-        self.payload = {'timestamp': timestamp,
-                        'action': action.value,
-                        'uri': strip_uri_prefix(request.path),
-                        'user_id': request.prefixed_userid,
-                        'resource_name': resource_name}
-
-        matchdict = dict(request.matchdict)
-
-        if 'id' in request.matchdict:
-            matchdict[resource_name + '_id'] = matchdict.pop('id')
-
-        self.payload.update(**matchdict)
 
 
 class ResourceRead(_ResourceEvent):
     """Triggered when a resource is being read.
     """
-    def __init__(self, action, timestamp, read_records, request):
-        super(ResourceRead, self).__init__(action, timestamp, request)
+    def __init__(self, payload, read_records, request):
+        super(ResourceRead, self).__init__(payload, request)
         self.read_records = read_records
 
 
 class ResourceChanged(_ResourceEvent):
     """Triggered when a resource is being changed.
     """
-    def __init__(self, action, timestamp, impacted_records, request):
-        super(ResourceChanged, self).__init__(action, timestamp, request)
+    def __init__(self, payload, impacted_records, request):
+        super(ResourceChanged, self).__init__(payload, request)
         self.impacted_records = impacted_records
 
 
 class AfterResourceRead(_ResourceEvent):
     """Triggered after a resource was successfully read.
     """
-    def __init__(self, action, timestamp, read_records, request):
-        super(AfterResourceRead, self).__init__(action, timestamp, request)
+    def __init__(self, payload, read_records, request):
+        super(AfterResourceRead, self).__init__(payload, request)
         self.read_records = read_records
 
 
 class AfterResourceChanged(_ResourceEvent):
     """Triggered after a resource was successfully changed.
     """
-    def __init__(self, action, timestamp, impacted_records, request):
-        super(AfterResourceChanged, self).__init__(action, timestamp, request)
+    def __init__(self, payload, impacted_records, request):
+        super(AfterResourceChanged, self).__init__(payload, request)
         self.impacted_records = impacted_records
 
 
@@ -115,7 +102,7 @@ def get_resource_events(request, after_commit=False):
     """
     by_resource = request.bound_data.get("resource_events", {})
     events = []
-    for (action, timestamp, impacted, request) in by_resource.values():
+    for (action, payload, impacted, request) in by_resource.values():
         if after_commit:
             if action == ACTIONS.READ:
                 event_cls = AfterResourceRead
@@ -126,7 +113,7 @@ def get_resource_events(request, after_commit=False):
                 event_cls = ResourceRead
             else:
                 event_cls = ResourceChanged
-        event = event_cls(action, timestamp, impacted, request)
+        event = event_cls(payload, impacted, request)
         events.append(event)
     return events
 
@@ -156,11 +143,26 @@ def notify_resource_event(request, timestamp, data, action, old=None):
     events = request.bound_data.setdefault("resource_events", OrderedDict())
     resource_name = request.current_resource_name
 
-    # Add to impacted records or create new event.
+    # Group events by resource and action.
     group_by = resource_name + action.value
 
     if group_by in events:
+        # Add to impacted records of existing event.
         already_impacted = events[group_by][2]
         already_impacted.extend(impacted)
     else:
-        events[group_by] = (action, timestamp, impacted, request)
+        # Create new event.
+        payload = {'timestamp': timestamp,
+                   'action': action.value,
+                   'uri': strip_uri_prefix(request.path),
+                   'user_id': request.prefixed_userid,
+                   'resource_name': resource_name}
+
+        matchdict = dict(request.matchdict)
+
+        if 'id' in request.matchdict:
+            matchdict[resource_name + '_id'] = matchdict.pop('id')
+
+        payload.update(**matchdict)
+
+        events[group_by] = (action, payload, impacted, request)

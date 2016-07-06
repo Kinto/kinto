@@ -8,7 +8,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 from kinto.core.errors import raise_invalid
 from kinto.core.events import ACTIONS
 from kinto.core.utils import (
-    build_request, reapply_cors, hmac_digest, instance_uri)
+    build_request, reapply_cors, hmac_digest, instance_uri, view_lookup)
 from kinto.core.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
@@ -32,9 +32,7 @@ def create_bucket(request, bucket_id):
     bucket_uri = instance_uri(request, 'bucket', id=bucket_id)
     bucket = resource_create_object(request=request,
                                     resource_cls=Bucket,
-                                    uri=bucket_uri,
-                                    resource_name='bucket',
-                                    obj_id=bucket_id)
+                                    uri=bucket_uri)
     already_created[bucket_id] = bucket
 
 
@@ -60,32 +58,40 @@ def create_collection(request, bucket_id):
     if collection_put:
         return
 
-    backup_matchdict = request.matchdict
-    request.matchdict = dict(bucket_id=bucket_id,
-                             id=collection_id,
-                             **request.matchdict)
     collection = resource_create_object(request=request,
                                         resource_cls=Collection,
-                                        uri=collection_uri,
-                                        resource_name='collection',
-                                        obj_id=collection_id)
+                                        uri=collection_uri)
     already_created[collection_uri] = collection
-    request.matchdict = backup_matchdict
 
 
-def resource_create_object(request, resource_cls, uri, resource_name, obj_id):
+def resource_create_object(request, resource_cls, uri):
     """In the default bucket, the bucket and collection are implicitly
     created. This helper instantiate the resource and simulate a request
     with its RootFactory on the instantiated resource.
     :returns: the created object
     :rtype: dict
     """
-    # Fake context to instantiate a resource.
-    context = RouteFactory(request)
-    context.get_permission_object_id = lambda r, i: uri
-    context.resource_name = resource_name
+    resource_name, matchdict = view_lookup(request, uri)
 
-    resource = resource_cls(request, context)
+    # Build a fake request, mainly used to populate the create events that
+    # will be triggered by the resource.
+    fakerequest = build_request(request, {
+        'method': 'PUT',
+        'path': uri,
+    })
+    fakerequest.matchdict = matchdict
+    fakerequest.bound_data = request.bound_data
+    fakerequest.authn_type = request.authn_type
+    fakerequest.selected_userid = request.selected_userid
+    fakerequest.errors = request.errors
+    fakerequest.current_resource_name = resource_name
+
+    obj_id = matchdict['id']
+
+    # Fake context, required to instantiate a resource.
+    context = RouteFactory(fakerequest)
+    context.resource_name = resource_name
+    resource = resource_cls(fakerequest, context)
 
     # Check that provided id is valid for this resource.
     if not resource.model.id_generator.match(obj_id):
@@ -101,7 +107,6 @@ def resource_create_object(request, resource_cls, uri, resource_name, obj_id):
         # Since the current request is not a resource (but a straight Service),
         # we simulate a request on a resource.
         # This will be used in the resource event payload.
-        resource.request.current_resource_name = resource_name
         resource.postprocess(data, action=ACTIONS.CREATE)
     except storage_exceptions.UnicityError as e:
         obj = e.record
@@ -127,23 +132,22 @@ def default_bucket(request):
         raise httpexceptions.HTTPMethodNotAllowed()
 
     bucket_id = request.default_bucket_id
+
+    # Implicit object creations.
+    # Make sure bucket exists
+    create_bucket(request, bucket_id)
+    # Make sure the collection exists
+    create_collection(request, bucket_id)
+
     path = request.path.replace('/buckets/default', '/buckets/%s' % bucket_id)
     querystring = request.url[(request.url.index(request.path) +
                                len(request.path)):]
-
     try:
         # If 'id' is provided as 'default', replace with actual bucket id.
         body = request.json
         body['data']['id'] = body['data']['id'].replace('default', bucket_id)
     except:
         body = request.body
-
-    # Make sure bucket exists
-    create_bucket(request, bucket_id)
-
-    # Make sure the collection exists
-    create_collection(request, bucket_id)
-
     subrequest = build_request(request, {
         'method': request.method,
         'path': path + querystring,
