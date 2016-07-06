@@ -15,6 +15,8 @@ def on_resource_changed(event):
     action = payload['action']
     bucket_id = payload['bucket_id']
     bucket_uri = '/buckets/%s' % bucket_id
+    resource_name = payload['resource_name']
+    event_uri = payload['uri']
 
     storage = event.request.registry.storage
     permission = event.request.registry.permission
@@ -24,8 +26,9 @@ def on_resource_changed(event):
         # On POST .../records, the URI does not contain the newly created
         # record id. Make sure it does:
         obj_id = target['id']
-        if not payload['uri'].endswith(obj_id):
-            payload['uri'] = payload['uri'] + '/' + obj_id
+        payload.setdefault('%s_id' % resource_name, obj_id)
+        if not event_uri.endswith(obj_id):
+            payload['uri'] = event_uri + '/' + obj_id
 
         # Prepare the history entry attributes.
         # XXX: Fetching the permissions of each impacted records one by one
