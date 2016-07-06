@@ -374,10 +374,13 @@ def view_lookup(request, uri):
     :returns: the resource name and the associated matchdict.
     """
     api_prefix = '/%s' % request.upath_info.split('/')[1]
+    # Path should be bytes
+    path = (api_prefix + uri).encode('utf-8')
+
     q = request.registry.queryUtility
     routes_mapper = q(IRoutesMapper)
 
-    fakerequest = Request.blank(path=api_prefix + uri)
+    fakerequest = Request.blank(path=path)
     info = routes_mapper(fakerequest)
     matchdict, route = info['match'], info['route']
     resource_name = route.name.replace('-record', '')\
