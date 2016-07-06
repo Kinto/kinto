@@ -92,11 +92,12 @@ class Permission(PermissionBase):
         if object_id_match is None:
             object_id_match = '*'
 
-        if get_bound_permissions is None:
-            def get_bound_permissions(object_id, permission):
-                return [(object_id, permission)]
+        keys = []
+        if get_bound_permissions is not None:
+            keys = get_bound_permissions(object_id_match, permission)
+        if not keys:
+            keys = [(object_id_match, permission)]
 
-        keys = get_bound_permissions(object_id_match, permission)
         keys = ['permission:%s:%s' % key for key in keys
                 if key[0].endswith(object_id_match)]
         principals = set(principals)

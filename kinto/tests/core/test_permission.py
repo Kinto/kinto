@@ -337,6 +337,19 @@ class BaseTestPermission(object):
                                                 ('/url/a/id/*', 'read')])
         self.assertEquals(object_ids, set(['/url/a/id/1', '/url/a/id/2']))
 
+    def test_obtain_object_ids_with_get_bound_permissions_as_empty_list(self):
+        self.permission.add_principal_to_ace('/url/a', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/b/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/2', 'read', 'user1')
+        self.permission.add_principal_to_ace('/url/b/id/2', 'read', 'user1')
+        object_ids = self.permission.get_accessible_objects(
+            ['user1'],
+            'read',
+            object_id_match='/url/a/id/*',
+            get_bound_permissions=lambda o, p: [])
+        self.assertEquals(object_ids, set(['/url/a/id/2']))
+
     def test_object_permissions_return_all_object_acls(self):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
