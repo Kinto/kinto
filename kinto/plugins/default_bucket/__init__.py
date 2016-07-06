@@ -29,12 +29,15 @@ def create_bucket(request, bucket_id):
     if bucket_id in already_created:
         return
 
+    backup_matchdict = request.matchdict
+    request.matchdict = dict(id=bucket_id)
     bucket_uri = instance_uri(request, 'bucket', id=bucket_id)
     bucket = resource_create_object(request=request,
                                     resource_cls=Bucket,
                                     uri=bucket_uri,
                                     resource_name='bucket',
                                     obj_id=bucket_id)
+    request.matchdict = backup_matchdict
     already_created[bucket_id] = bucket
 
 
@@ -62,8 +65,7 @@ def create_collection(request, bucket_id):
 
     backup_matchdict = request.matchdict
     request.matchdict = dict(bucket_id=bucket_id,
-                             id=collection_id,
-                             **request.matchdict)
+                             id=collection_id)
     collection = resource_create_object(request=request,
                                         resource_cls=Collection,
                                         uri=collection_uri,

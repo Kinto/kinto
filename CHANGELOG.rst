@@ -22,6 +22,11 @@ Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs
 - Fix crash with PostgreSQL storage backend is configured as read-only and reaching
   the records endpoint of an unknown collection (fixes #693, related #558)
 
+**Internal changes**
+
+- Resource events constructors signatures were changed (#704). The event payload is now
+  built immediately when event is fired instead of during transactoin commit.
+
 
 3.2.0 (2016-06-14)
 ==================
