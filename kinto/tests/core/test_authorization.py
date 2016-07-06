@@ -249,20 +249,20 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
             get_bound_permissions=mock.sentinel.get_bound_perms)
         self.assertFalse(allowed)
 
-    def test_perm_object_id_is_list_if_no_record_path_exists(self):
+    def test_perm_object_id_is_naive_if_no_record_path_exists(self):
         def route_path(service_name, **kwargs):
             if service_name == 'article-record':
                 raise KeyError
-            return '/comments/{id}'.format(**kwargs)
+            return '/comments/sub/{id}'.format(**kwargs)
 
         self.request.route_path.side_effect = route_path
 
         self.request.path = '/comments'
         self.request.current_service.name = 'comment-collection'
         obj_id = self.context.get_permission_object_id(self.request, '*')
-        self.assertEquals(obj_id, '/comments/*')
+        self.assertEquals(obj_id, '/comments/sub/*')
 
         self.request.path = '/articles'
         self.request.current_service.name = 'article-collection'
         obj_id = self.context.get_permission_object_id(self.request, '*')
-        self.assertEquals(obj_id, '/articles')
+        self.assertEquals(obj_id, '/articles/*')
