@@ -337,6 +337,10 @@ def follow_subrequest(request, subrequest, **kwargs):
 
 
 def encode_header(value, encoding='utf-8'):
+    return _encoded(value, encoding)
+
+
+def _encoded(value, encoding='utf-8'):
     """Make sure the value is of type ``str`` in both PY2 and PY3."""
     value_type = type(value)
     if value_type != str:
@@ -374,8 +378,8 @@ def view_lookup(request, uri):
     :returns: the resource name and the associated matchdict.
     """
     api_prefix = '/%s' % request.upath_info.split('/')[1]
-    # Path should be bytes
-    path = (api_prefix + uri).encode('utf-8')
+    # Path should be bytes in PY2, and unicode in PY3
+    path = _encoded(api_prefix + uri)
 
     q = request.registry.queryUtility
     routes_mapper = q(IRoutesMapper)
