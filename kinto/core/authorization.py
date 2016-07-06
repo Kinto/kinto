@@ -190,10 +190,10 @@ class RouteFactory(object):
 
         return self.shared_ids
 
-    def get_permission_object_id(self, request, record_id=None):
-        record_uri = request.path
+    def get_permission_object_id(self, request, object_id=None):
+        object_uri = request.path
 
-        if self.on_collection and record_id is not None:
+        if self.on_collection and object_id is not None:
             # With the current request on a collection, the record URI must
             # be found out by inspecting the collection service and its sibling
             # record service.
@@ -201,13 +201,18 @@ class RouteFactory(object):
             # XXX: Why not use service.path.format(id=) ?
             record_service = service.name.replace('-collection', '-record')
             matchdict = request.matchdict.copy()
-            matchdict['id'] = record_id
-            record_uri = request.route_path(record_service, **matchdict)
+            matchdict['id'] = object_id
+            try:
+                object_uri = request.route_path(record_service, **matchdict)
+                if object_id == '*':
+                    object_uri = object_uri.replace('%2A', '*')
+            except KeyError:
+                # Maybe the resource has no single record endpoint.
+                # We consider that object URIs in permissions backend will
+                # be stored naively:
+                object_uri = object_uri + '/' + object_id
 
-            if record_id == '*':
-                record_uri = record_uri.replace('%2A', '*')
-
-        return utils.strip_uri_prefix(record_uri)
+        return utils.strip_uri_prefix(object_uri)
 
     def extract_object_id(self, object_uri):
         # XXX: Help needed: use something like route.matchdict.get('id').

@@ -65,14 +65,12 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
 
     resource_name = viewset.get_name(resource_cls)
 
-    path_formatters = {
-        'resource_name': resource_name
-    }
-
     def register_service(endpoint_type, settings):
-        """Registers a service in cornice, for the given type."""
+        """Registers a service in cornice, for the given type.
+        """
         path_pattern = getattr(viewset, '%s_path' % endpoint_type)
-        path = path_pattern.format(**path_formatters)
+        path_values = {'resource_name': resource_name}
+        path = path_pattern.format(**path_values)
 
         name = viewset.get_service_name(endpoint_type, resource_cls)
 
@@ -82,10 +80,11 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
         # Attach viewset and resource to the service for later reference.
         service.viewset = viewset
         service.resource = resource_cls
-        service.collection_path = viewset.collection_path.format(
-            **path_formatters)
-        service.record_path = viewset.record_path.format(**path_formatters)
         service.type = endpoint_type
+        # Attach collection and record paths.
+        service.collection_path = viewset.collection_path.format(**path_values)
+        service.record_path = (viewset.record_path.format(**path_values)
+                               if viewset.record_path is not None else None)
 
         methods = getattr(viewset, '%s_methods' % endpoint_type)
         for method in methods:
@@ -112,9 +111,12 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
             msg = 'Mandatory storage backend is missing from configuration.'
             raise pyramid_exceptions.ConfigurationError(msg)
 
-        services = [register_service('collection', config.registry.settings),
-                    register_service('record', config.registry.settings)]
-        for service in services:
+        # A service for the list.
+        service = register_service('collection', config.registry.settings)
+        config.add_cornice_service(service)
+        # An optional one for record endpoint.
+        if getattr(viewset, 'record_path') is not None:
+            service = register_service('record', config.registry.settings)
             config.add_cornice_service(service)
 
     info = venusian.attach(resource_cls, callback, category='pyramid',
