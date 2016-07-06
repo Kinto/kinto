@@ -72,6 +72,9 @@ def resource_create_object(request, resource_cls, uri):
     :rtype: dict
     """
     resource_name, matchdict = view_lookup(request, uri)
+
+    # Build a fake request, mainly used to populate the create events that
+    # will be triggered by the resource.
     fakerequest = build_request(request, {
         'method': 'PUT',
         'path': uri,
@@ -81,10 +84,11 @@ def resource_create_object(request, resource_cls, uri):
     fakerequest.authn_type = request.authn_type
     fakerequest.selected_userid = request.selected_userid
     fakerequest.errors = request.errors
+    fakerequest.current_resource_name = resource_name
 
     obj_id = matchdict['id']
 
-    # Fake context to instantiate a resource.
+    # Fake context, required to instantiate a resource.
     context = RouteFactory(fakerequest)
     context.resource_name = resource_name
     resource = resource_cls(fakerequest, context)
@@ -103,7 +107,6 @@ def resource_create_object(request, resource_cls, uri):
         # Since the current request is not a resource (but a straight Service),
         # we simulate a request on a resource.
         # This will be used in the resource event payload.
-        resource.request.current_resource_name = resource_name
         resource.postprocess(data, action=ACTIONS.CREATE)
     except storage_exceptions.UnicityError as e:
         obj = e.record
