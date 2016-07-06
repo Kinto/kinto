@@ -275,17 +275,26 @@ class EventsTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('/', headers=self.headers)
         bucket_id = resp.json['user']['bucket']
         assert 'subpath' not in _events[0].payload
-        assert _events[0].payload['resource_name'] == 'bucket'
+        assert _events[0].payload['action'] == 'create'
         assert _events[0].payload['bucket_id'] == bucket_id
+        assert _events[0].payload['uri'] == '/buckets/%s' % bucket_id
 
         # Implicit creation of collection
         assert 'subpath' not in _events[1].payload
+        assert _events[1].payload['action'] == 'create'
         assert _events[1].payload['resource_name'] == 'collection'
         assert _events[1].payload['bucket_id'] == bucket_id
         assert _events[1].payload['collection_id'] == 'articles'
+        assert _events[1].payload['uri'] == ('/buckets/%s/collections'
+                                             '/articles') % bucket_id
 
         # Creation of record
+        assert _events[2].payload['action'] == 'create'
         assert _events[2].payload['resource_name'] == 'record'
+        assert _events[2].payload['bucket_id'] == bucket_id
+        assert _events[2].payload['collection_id'] == 'articles'
+        assert _events[2].payload['uri'] == records_uri.replace('default',
+                                                                bucket_id)
 
 
 class ReadonlyDefaultBucket(BaseWebTest, unittest.TestCase):

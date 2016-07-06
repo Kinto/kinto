@@ -2,8 +2,8 @@
 import json
 import os
 import uuid
-from contextlib import contextmanager
 from datetime import datetime
+from contextlib import contextmanager
 
 import mock
 from pyramid import testing
