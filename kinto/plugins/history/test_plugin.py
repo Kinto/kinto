@@ -380,8 +380,10 @@ class PermissionsTest(HistoryWebTest):
     def setUp(self):
         self.alice_headers = get_user_headers('alice:')
         self.julia_headers = get_user_headers('julia:')
+        self.mike_headers = get_user_headers('mike:')
         alice_principal = 'basicauth:845a151f1fbb0063738943a4531f8b7ef521fa488ed5ac7d077aa7ee1f349ef7'  # NOQA
         julia_principal = 'basicauth:2f5fcddb299319097b9ae72f609d071d99aaf46ef9c3bc82bcc0212d14e35c4f'  # NOQA
+        mike_principal = 'basicauth:b3c35f5b528685cbd68b084a3aa3404f81c06e3d068000c2a109150356e45241'  # NOQA
         bucket = {
             'permissions': {
                 'read': [alice_principal]
@@ -394,8 +396,7 @@ class PermissionsTest(HistoryWebTest):
         }
         record = {
             'permissions': {
-                'read': ['system.Authenticated'],
-                'write': [alice_principal],
+                'write': [mike_principal, alice_principal],
             }
         }
         self.app.put('/buckets/author-only',
@@ -406,21 +407,23 @@ class PermissionsTest(HistoryWebTest):
         self.app.put_json('/buckets/test/groups/admins',
                           {'data': {'members': []}},
                           headers=self.headers)
-        self.app.put_json('/buckets/test/collections/with-alice',
+        self.app.put_json('/buckets/test/collections/alice-julia',
                           collection,
                           headers=self.headers)
-        self.app.put_json('/buckets/test/collections/without-julia',
-                          collection,
+        self.app.put_json('/buckets/test/collections/author-only',
                           headers=self.headers)
-        self.app.post_json('/buckets/test/collections/with-alice/records',
+        self.app.post_json('/buckets/test/collections/alice-julia/records',
                            record,
+                           headers=self.headers)
+        self.app.post_json('/buckets/test/collections/alice-julia/records',
+                           {'permissions': {'read': ['system.Authenticated']}},
                            headers=self.headers)
 
     def test_author_can_read_everything(self):
         resp = self.app.get('/buckets/test/history',
                             headers=self.headers)
         entries = resp.json['data']
-        assert len(entries) == 5
+        assert len(entries) == 6
 
     def test_read_permission_can_be_given_to_anybody_via_settings(self):
         with mock.patch.dict(self.app.app.registry.settings,
@@ -428,29 +431,50 @@ class PermissionsTest(HistoryWebTest):
             resp = self.app.get('/buckets/test/history',
                                 headers=get_user_headers('tartan:pion'))
             entries = resp.json['data']
-            assert len(entries) == 5
+            assert len(entries) == 6
 
-    def test_alice_can_read_everything_in_test_bucket(self):
+    def test_bucket_read_allows_whole_history(self):
         resp = self.app.get('/buckets/test/history',
                             headers=self.alice_headers)
         entries = resp.json['data']
-        assert len(entries) == 5
+        assert len(entries) == 6
 
         self.app.get('/buckets/author-only/history',
                      headers=self.alice_headers,
                      status=403)
 
-    # def test_julia_can_read_everything_in_collection(self):
-    #     resp = self.app.get('/buckets/test/history',
-    #                         headers=self.julia_headers)
-    #     entries = resp.json['data']
-    #     assert len(entries) == 2
+    def test_collection_read_restricts_to_collection(self):
+        resp = self.app.get('/buckets/test/history',
+                            headers=self.julia_headers)
+        entries = resp.json['data']
+        assert len(entries) == 3
 
-    # def test_any_authenticated_can_read_about_record(self):
-    #     resp = self.app.get('/buckets/test/history',
-    #                         headers=get_user_headers('jack:'))
-    #     entries = resp.json['data']
-    #     assert len(entries) == 1
+    def test_write_on_record_restricts_to_record(self):
+        resp = self.app.get('/buckets/test/history',
+                            headers=self.mike_headers)
+        entries = resp.json['data']
+        assert len(entries) == 1
 
-    # def test_new_entries_are_not_readable_if_permission_is_removed(self):
-    #     pass
+    def test_publicly_readable_record_allows_any_authenticated(self):
+        resp = self.app.get('/buckets/test/history',
+                            headers=get_user_headers('jack:'))
+        entries = resp.json['data']
+        assert len(entries) == 1
+
+    def test_new_entries_are_not_readable_if_permission_is_removed(self):
+        resp = self.app.get('/buckets/test/history',
+                            headers=self.alice_headers)
+        before = len(resp.json['data'])
+
+        # Remove alice from read permission.
+        self.app.patch_json('/buckets/test',
+                            {'permissions': {'read': []}},
+                            headers=self.headers)
+        # Create new collection.
+        self.app.put_json('/buckets/test/collections/new-one',
+                          headers=self.headers)
+
+        # History did not evolve for alice.
+        resp = self.app.get('/buckets/test/history',
+                            headers=self.alice_headers)
+        assert len(resp.json['data']) == before

@@ -42,9 +42,25 @@ def on_resource_changed(event):
         # Create a record for the 'history' resource, whose parent_id is
         # the bucket URI (c.f. views.py).
         # Note: this will be rolledback if the transaction is rolledback.
-        storage.create(parent_id=bucket_uri,
-                       collection_id='history',
-                       record=attrs)
+        entry = storage.create(parent_id=bucket_uri,
+                               collection_id='history',
+                               record=attrs)
+
+        # XXX : careful, for each impacted record
+        read_principals = set(perms.get('read', []))
+
+        bucket_uri = '/buckets/%s' % bucket_id
+        bucket_perms = permission.get_object_permissions(bucket_uri)
+        read_principals.update(bucket_perms.get('read', []))
+
+        if 'collection_id' in payload:
+            collection_uri = bucket_uri + '/collections/%s' % payload['collection_id']
+            collection_perms = permission.get_object_permissions(collection_uri)
+            read_principals.update(collection_perms.get('read', []))
+
+        entry_perm_id = '/buckets/%s/history/%s' % (bucket_id, entry['id'])
+        for principal in read_principals:
+            permission.add_principal_to_ace(entry_perm_id, 'read', principal)
 
 
 def includeme(config):

@@ -17,6 +17,7 @@ class HistorySchema(resource.ResourceSchema):
 
 @resource.register(name='history',
                    collection_path='/buckets/{{bucket_id}}/history',
+                   record_path=None,
                    collection_methods=('GET',))
 class History(resource.ShareableResource):
 
