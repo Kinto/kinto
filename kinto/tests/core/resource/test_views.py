@@ -405,8 +405,8 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                            headers=self.headers,
                            status=400)
 
-        with mock.patch.object(self.app.app.registry.id_generator, 'match',
-                               return_value=True):
+        with mock.patch.object(self.app.app.registry.id_generators[''],
+                               'match', return_value=True):
             self.app.post_json(self.collection_url,
                                {'data': record},
                                headers=self.headers,

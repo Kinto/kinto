@@ -2,7 +2,6 @@ from kinto.core import resource, utils
 from kinto.core.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
 from kinto.authorization import BucketRouteFactory
-from kinto.views import NameGenerator
 
 
 class BucketSchema(resource.ResourceSchema):
@@ -17,10 +16,6 @@ class BucketSchema(resource.ResourceSchema):
 class Bucket(resource.ShareableResource):
     mapping = BucketSchema()
     permissions = ('read', 'write', 'collection:create', 'group:create')
-
-    def __init__(self, *args, **kwargs):
-        super(Bucket, self).__init__(*args, **kwargs)
-        self.model.id_generator = NameGenerator()
 
     def get_parent_id(self, request):
         # Buckets are not isolated by user, unlike Kinto-Core resources.

@@ -1,3 +1,4 @@
+import re
 import warnings
 from datetime import datetime
 from dateutil import parser as dateparser
@@ -176,8 +177,15 @@ def _end_of_life_tween_factory(handler, registry):
 def setup_storage(config):
     settings = config.get_settings()
 
-    id_generator = config.maybe_dotted(settings['id_generator'])
-    config.registry.id_generator = id_generator()
+    # Id generators by resource name.
+    config.registry.id_generators = {}
+    for key, value in settings.items():
+        m = re.match(r'^([^_]*)_?id_generator', key)
+        if m is None:
+            continue
+        resource_name = m.group(1)
+        id_generator = config.maybe_dotted(value)
+        config.registry.id_generators[resource_name] = id_generator()
 
     storage_mod = settings['storage_backend']
     if not storage_mod:

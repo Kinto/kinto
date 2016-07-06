@@ -32,36 +32,41 @@ listed below.
 Feature settings
 ================
 
-+-------------------------------------------------+--------------+--------------------------------------------------------------------------+
-| Setting name                                    | Default      | What does it do?                                                         |
-+=================================================+==============+==========================================================================+
-| kinto.readonly                                  | ``False``    | If set to true, the whole service will reject every write operation.     |
-|                                                 |              | Note that with this option, the ``default`` bucket cannot be used and    |
-|                                                 |              | request will be rejected with a ``405 Method Not Allowed`` error         |
-|                                                 |              | response.                                                                |
-+-------------------------------------------------+--------------+--------------------------------------------------------------------------+
-| kinto.batch_max_requests                        | ``25``       | The maximum number of requests that can be sent to the batch endpoint.   |
-+-------------------------------------------------+--------------+--------------------------------------------------------------------------+
-| kinto.paginate_by                               | ``None``     | The maximum number of items to include on a response before enabling     |
-|                                                 |              | pagination. If set to ``None``, no pagination will be used.              |
-|                                                 |              | It is recommended to set-up pagination if the server is under high load. |
-|                                                 |              | If not defined, a collection response cannot contain                     |
-|                                                 |              | more elements than defined by the                                        |
-|                                                 |              | ``kinto.storage_max_fetch_size`` setting.                                |
-+-------------------------------------------------+--------------+--------------------------------------------------------------------------+
-| kinto.id_generator                              | ``UUID4``    | The Python *dotted* location of the generator class that should be used  |
-|                                                 |              | to generate identifiers on a POST on a records endpoint.                 |
-+-------------------------------------------------+--------------+--------------------------------------------------------------------------+
-| kinto.experimental_collection_schema_validation | ``False``    | *Experimental*: Allow definition of JSON schema at the collection level, |
-|                                                 |              | in order to :ref:`validate submitted records <collection-json-schema>`.  |
-|                                                 |              | It is marked as experimental because the API might subjet to changes.    |
-+-------------------------------------------------+--------------+--------------------------------------------------------------------------+
-| kinto.trailing_slash_redirect_enabled           | ``True``     | Try to redirect resources removing slash or adding it for the root URL   |
-|                                                 |              | endpoint: ``/v1`` redirects to ``/v1/`` and ``/buckets/default/``        |
-|                                                 |              | to ``/buckets/default``. No redirections are made when turned off.       |
-+-------------------------------------------------+--------------+--------------------------------------------------------------------------+
-| kinto.heartbeat_timeout_seconds                 | ``10``       | The maximum duration of each heartbeat entry, in seconds.                |
-+-------------------------------------------------+--------------+--------------------------------------------------------------------------+
++-------------------------------------------------+--------------+---------------------------------------------------------------------------+
+| Setting name                                    | Default      | What does it do?                                                          |
++=================================================+==============+===========================================================================+
+| kinto.readonly                                  | ``False``    | If set to true, the whole service will reject every write operation.      |
+|                                                 |              | Note that with this option, the ``default`` bucket cannot be used and     |
+|                                                 |              | request will be rejected with a ``405 Method Not Allowed`` error          |
+|                                                 |              | response.                                                                 |
++-------------------------------------------------+--------------+---------------------------------------------------------------------------+
+| kinto.batch_max_requests                        | ``25``       | The maximum number of requests that can be sent to the batch endpoint.    |
++-------------------------------------------------+--------------+---------------------------------------------------------------------------+
+| kinto.paginate_by                               | ``None``     | The maximum number of items to include on a response before enabling      |
+|                                                 |              | pagination. If set to ``None``, no pagination will be used.               |
+|                                                 |              | It is recommended to set-up pagination if the server is under high load.  |
+|                                                 |              | If not defined, a collection response cannot contain                      |
+|                                                 |              | more elements than defined by the                                         |
+|                                                 |              | ``kinto.storage_max_fetch_size`` setting.                                 |
++-------------------------------------------------+--------------+---------------------------------------------------------------------------+
+| kinto.id_generator                              | ``UUID4``    | The Python *dotted* location of the generator class that should be used   |
+|                                                 |              | to generate identifiers on a POST on a records endpoint.                  |
++-------------------------------------------------+--------------+---------------------------------------------------------------------------+
+| kinto.<object-type>_id_generator                | ``UUID4``    | The Python *dotted* location of the generator class that should be used   |
+|                                                 |              | to generate identifiers on a POST endpoint.                               |
+|                                                 |              | Object type is one of ``bucket``, ``collection``, ``group``, ``record``.  |
+|                                                 |              | See :ref:`tutorial-id-generator`.                                         |
++-------------------------------------------------+--------------+---------------------------------------------------------------------------+
+| kinto.experimental_collection_schema_validation | ``False``    | *Experimental*: Allow definition of JSON schema at the collection level,  |
+|                                                 |              | in order to :ref:`validate submitted records <collection-json-schema>`.   |
+|                                                 |              | It is marked as experimental because the API might subjet to changes.     |
++-------------------------------------------------+--------------+---------------------------------------------------------------------------+
+| kinto.trailing_slash_redirect_enabled           | ``True``     | Try to redirect resources removing slash or adding it for the root URL    |
+|                                                 |              | endpoint: ``/v1`` redirects to ``/v1/`` and ``/buckets/default/``         |
+|                                                 |              | to ``/buckets/default``. No redirections are made when turned off.        |
++-------------------------------------------------+--------------+---------------------------------------------------------------------------+
+| kinto.heartbeat_timeout_seconds                 | ``10``       | The maximum duration of each heartbeat entry, in seconds.                 |
++-------------------------------------------------+--------------+---------------------------------------------------------------------------+
 
 
 .. _configuration-backends:

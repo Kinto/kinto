@@ -144,9 +144,15 @@ class UserResource(object):
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get('Authorization')
 
+        # ID generator by resource name in settings.
+        default_id_generator = request.registry.id_generators['']
+        resource_name = context.resource_name if context else ''
+        id_generator = request.registry.id_generators.get(resource_name,
+                                                          default_id_generator)
+
         self.model = self.default_model(
             storage=request.registry.storage,
-            id_generator=request.registry.id_generator,
+            id_generator=id_generator,
             collection_id=classname(self),
             parent_id=parent_id,
             auth=auth)

@@ -83,6 +83,7 @@ def resource_create_object(request, resource_cls, uri, resource_name, obj_id):
     # Fake context to instantiate a resource.
     context = RouteFactory(request)
     context.get_permission_object_id = lambda r, i: uri
+    context.resource_name = resource_name
 
     resource = resource_cls(request, context)
 

@@ -7,7 +7,7 @@ from jsonschema import exceptions as jsonschema_exceptions
 from pyramid.security import Authenticated
 from pyramid.settings import asbool
 
-from kinto.views import RelaxedUUID, object_exists_or_404
+from kinto.views import object_exists_or_404
 
 
 class RecordSchema(resource.ResourceSchema):
@@ -42,7 +42,6 @@ class Record(resource.ShareableResource):
             collections[collection_uri] = collection
 
         super(Record, self).__init__(request, **kwargs)
-        self.model.id_generator = RelaxedUUID()
         self._collection = collections[collection_uri]
 
     def get_parent_id(self, request):
