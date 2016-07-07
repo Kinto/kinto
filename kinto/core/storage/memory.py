@@ -267,15 +267,24 @@ class Storage(MemoryBasedStorage):
                       id_field=DEFAULT_ID_FIELD,
                       modified_field=DEFAULT_MODIFIED_FIELD,
                       auth=None):
-        num_deleted = len(self._cemetery[parent_id][collection_id].keys())
-        if before is not None:
-            kept = {key: value for key, value in
-                    self._cemetery[parent_id][collection_id].items()
-                    if value[modified_field] >= before}
-        else:
-            kept = {}
-        self._cemetery[parent_id][collection_id] = kept
-        return num_deleted - len(kept.keys())
+        parent_id_match = re.compile(parent_id.replace('*', '.*'))
+        by_parent_id = {pid: collections
+                        for pid, collections in self._cemetery.items()
+                        if parent_id_match.match(pid)}
+        num_deleted = 0
+        for pid, collections in by_parent_id.items():
+            if collection_id is not None:
+                collections = {collection_id: collections[collection_id]}
+            for collection, colrecords in collections.items():
+                if before is None:
+                    kept = {}
+                else:
+                    kept = {key: value for key, value in
+                            colrecords.items()
+                            if value[modified_field] >= before}
+                self._cemetery[pid][collection] = kept
+                num_deleted += (len(colrecords) - len(kept))
+        return num_deleted
 
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,

@@ -945,6 +945,16 @@ class DeletedRecordsTest(object):
         self.assertEqual(count, 0)
         self.assertEqual(len(records), 0)
 
+    def test_purge_deleted_remove_all_tombstones_by_parent_id(self):
+        self.create_record(parent_id='abc', collection_id='c')
+        self.create_record(parent_id='abc', collection_id='c')
+        self.create_record(parent_id='efg', collection_id='c')
+        self.storage.delete_all(parent_id='abc', collection_id='c')
+        self.storage.delete_all(parent_id='efg', collection_id='c')
+        num_removed = self.storage.purge_deleted(parent_id='ab*',
+                                                 collection_id=None)
+        self.assertEqual(num_removed, 2)
+
     def test_purge_deleted_works_when_no_tombstones(self):
         num_removed = self.storage.purge_deleted(**self.storage_kw)
         self.assertEqual(num_removed, 0)
@@ -956,6 +966,8 @@ class DeletedRecordsTest(object):
         self.storage.delete(object_id=newer['id'], **self.storage_kw)
         records, count = self.storage.get_all(include_deleted=True,
                                               **self.storage_kw)
+        self.assertEqual(count, 0)
+        self.assertEqual(len(records), 2)
         num_removed = self.storage.purge_deleted(
             before=max([r['last_modified'] for r in records]),
             **self.storage_kw)
