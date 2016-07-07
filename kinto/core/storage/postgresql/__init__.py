@@ -377,31 +377,41 @@ class Storage(StorageBase):
             WITH deleted_records AS (
                 DELETE
                 FROM records
-                WHERE parent_id = :parent_id
-                  AND collection_id = :collection_id
-                  %(conditions_filter)s
-                RETURNING id
+                WHERE %(parent_id)s
+                      %(collection_id)s
+                      %(conditions_filter)s
+                RETURNING id, parent_id, collection_id
             )
             INSERT INTO deleted (id, parent_id, collection_id)
-            SELECT id, :parent_id, :collection_id
+            SELECT id, parent_id, collection_id
               FROM deleted_records
             RETURNING id, as_epoch(last_modified) AS last_modified;
             """
         else:
             query = """
-                DELETE
-                FROM records
-                WHERE parent_id = :parent_id
-                  AND collection_id = :collection_id
+            DELETE
+            FROM records
+            WHERE %(parent_id)s
+                  %(collection_id)s
                   %(conditions_filter)s
-                RETURNING id, as_epoch(last_modified) AS last_modified;
+            RETURNING id, as_epoch(last_modified) AS last_modified;
             """
+
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
         placeholders = dict(parent_id=parent_id,
                             collection_id=collection_id)
         # Safe strings
         safeholders = defaultdict(six.text_type)
+        # Handle parent_id as a regex if contains *
+        safeholders['parent_id'] = 'parent_id = :parent_id'
+        if '*' in parent_id:
+            parent_id = parent_id.replace('*', '.*')
+            safeholders['parent_id'] = 'parent_id ~ :parent_id'
+        # If collection is None, remove it from query.
+        safeholders['collection_id'] = 'AND collection_id = :collection_id'
+        if collection_id is None:
+            safeholders['collection_id'] = ''
 
         if filters:
             safe_sql, holders = self._format_conditions(filters,

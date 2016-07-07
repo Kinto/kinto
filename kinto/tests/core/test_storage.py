@@ -887,6 +887,14 @@ class DeletedRecordsTest(object):
         _, count = self.storage.get_all(**self.storage_kw)
         self.assertEqual(count, 0)
 
+    def test_delete_all_can_delete_by_parent_id(self):
+        self.create_record()
+        self.create_record()
+        self.storage.delete_all(parent_id='12*',
+                                collection_id=None)
+        _, count = self.storage.get_all(**self.storage_kw)
+        self.assertEqual(count, 0)
+
     def test_delete_all_can_delete_partially(self):
         self.create_record({'foo': 'po'})
         self.create_record()
