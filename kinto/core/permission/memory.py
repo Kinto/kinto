@@ -118,7 +118,7 @@ class Permission(PermissionBase):
     def get_object_permissions(self, object_id, permissions=None):
         if permissions is None:
             aces = [k for k in self._store.keys()
-                    if k.startswith('permission:%s' % object_id)]
+                    if k.startswith('permission:%s:' % object_id)]
         else:
             aces = ['permission:%s:%s' % (object_id, permission)
                     for permission in permissions]

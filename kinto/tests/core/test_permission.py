@@ -342,6 +342,7 @@ class BaseTestPermission(object):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
         self.permission.add_principal_to_ace('/url/a/id/1', 'read', 'user3')
         self.permission.add_principal_to_ace('/url/a/id/1', 'obj:del', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1/sub', 'create', 'me')
         permissions = self.permission.get_object_permissions('/url/a/id/1')
         self.assertDictEqual(permissions, {
             "write": {"user1", "user2"},
