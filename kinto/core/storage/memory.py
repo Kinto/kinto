@@ -40,7 +40,7 @@ class MemoryBasedStorage(StorageBase):
                    for r in records]
         return deleted
 
-    def strip_deleted_record(self, resource, parent_id, record,
+    def strip_deleted_record(self, collection_id, parent_id, record,
                              id_field=DEFAULT_ID_FIELD,
                              modified_field=DEFAULT_MODIFIED_FIELD,
                              deleted_field=DEFAULT_DELETED_FIELD):
@@ -50,7 +50,6 @@ class MemoryBasedStorage(StorageBase):
         deleted = {}
         deleted[id_field] = record[id_field]
         deleted[modified_field] = record[modified_field]
-
         deleted[deleted_field] = True
         return deleted
 
