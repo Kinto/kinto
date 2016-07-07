@@ -1,6 +1,7 @@
 import colander
 
 from kinto.core import resource
+from kinto.core.utils import instance_uri
 
 
 class HistorySchema(resource.ResourceSchema):
@@ -25,4 +26,4 @@ class History(resource.ShareableResource):
 
     def get_parent_id(self, request):
         self.bucket_id = request.matchdict['bucket_id']
-        return '/buckets/%s' % self.bucket_id
+        return instance_uri(request, 'bucket', id=self.bucket_id)

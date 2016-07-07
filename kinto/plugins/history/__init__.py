@@ -21,6 +21,13 @@ def on_resource_changed(event):
     storage = event.request.registry.storage
     permission = event.request.registry.permission
 
+    # XXX instead of this, modify on_buckets_delete() to remove from
+    # storage every object whose parent_id starts with /buckets/{id}
+    if resource_name == 'bucket' and action == 'delete':
+        storage.delete_all(parent_id=bucket_uri,
+                           collection_id='history')
+        return
+
     for impacted in event.impacted_records:
         target = impacted['new' if action != 'delete' else 'old']
         # On POST .../records, the URI does not contain the newly created
@@ -48,15 +55,18 @@ def on_resource_changed(event):
 
         # XXX : careful, for each impacted record
         read_principals = set(perms.get('read', []))
+        read_principals.update(perms.get('write', []))
 
         bucket_uri = '/buckets/%s' % bucket_id
         bucket_perms = permission.get_object_permissions(bucket_uri)
         read_principals.update(bucket_perms.get('read', []))
+        read_principals.update(bucket_perms.get('write', []))
 
         if 'collection_id' in payload:
             collection_uri = bucket_uri + '/collections/%s' % payload['collection_id']
             collection_perms = permission.get_object_permissions(collection_uri)
             read_principals.update(collection_perms.get('read', []))
+            read_principals.update(collection_perms.get('write', []))
 
         entry_perm_id = '/buckets/%s/history/%s' % (bucket_id, entry['id'])
         for principal in read_principals:
