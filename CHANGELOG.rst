@@ -6,7 +6,7 @@ This document describes changes between each past release.
 3.2.2 (2016-07-13)
 ==================
 
-- Nothing changed yet.
+- Fix bug in object permissions with memory backend (#708)
 
 3.2.1 (2016-07-04)
 ==================
