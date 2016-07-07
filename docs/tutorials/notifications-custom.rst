@@ -7,11 +7,11 @@ Kinto is able to execute some custom code when a particular event occurs.
 For example, when a record is created or updated in a particular collection.
 
 Kinto uses the same thread to trigger notifications on events, so any custom
-code that is executed through a notification will block the incoming 
-request until it's done. 
+code that is executed through a notification will block the incoming
+request until it's done.
 
-This design is useful when we want to ensure that something is done on the 
-server before we send back the result to the client. But sometimes it's 
+This design is useful when we want to ensure that something is done on the
+server before we send back the result to the client. But sometimes it's
 preferrable to run the notifications asynchronously.
 
 For the latter, the simplest way to run our custom code asynchronously
@@ -22,7 +22,7 @@ This tutorial presents the basic steps to run code both ways:
 * synchronously in Python;
 * asynchronously using a Redis queue, consumed via any third-party application.
 
-    
+
 
 Run synchronous code
 --------------------

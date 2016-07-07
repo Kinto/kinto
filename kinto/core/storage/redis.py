@@ -308,13 +308,27 @@ class Storage(MemoryBasedStorage):
                 deleted_field=DEFAULT_DELETED_FIELD,
                 auth=None):
         records_ids_key = '{0}.{1}.records'.format(collection_id, parent_id)
-        ids = self._client.smembers(records_ids_key)
 
-        keys = ('{0}.{1}.{2}.records'.format(collection_id, parent_id,
-                                             _id.decode('utf-8'))
-                for _id in ids)
+        if parent_id.endswith('*') or collection_id is None:
+            records_ids_key = records_ids_key.replace('None', '*')
+            resource_keys = [key for key in self._client.keys(records_ids_key)
+                             if len(key.split('.')) == 3]
+            keys = []
+            with self._client.pipeline() as pipe:
+                for key in resource_keys:
+                    pipe.smembers(key)
+                results = pipe.execute()
+            for i, ids in enumerate(results):
+                keys += [resource_keys[i].replace('.records', '.%s.records'
+                                                  % _id.decode('utf-8'))
+                         for _id in ids]
+        else:
+            ids = self._client.smembers(records_ids_key)
+            keys = ('{0}.{1}.{2}.records'.format(collection_id, parent_id,
+                                                 _id.decode('utf-8'))
+                    for _id in ids)
 
-        if len(ids) == 0:
+        if len(keys) == 0:
             records = []
         else:
             encoded_results = self._client.mget(keys)
@@ -347,11 +361,14 @@ class Storage(MemoryBasedStorage):
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
                    auth=None):
+
         records, count = self.get_all(collection_id, parent_id,
                                       filters=filters,
                                       id_field=id_field,
                                       modified_field=modified_field,
                                       deleted_field=deleted_field)
+        # XXX: Here we need to have the correct coolection_id and
+        # parent_id for the record id
         deleted = [self.delete(collection_id, parent_id, r[id_field],
                                id_field=id_field, with_deleted=with_deleted,
                                modified_field=modified_field,
