@@ -28,10 +28,9 @@ Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs
 
 - Resource events constructors signatures were changed. The event payload is now
   built immediately when event is fired instead of during transactoin commit (#704).
-
-**Internal changes**
-
 - Fix crash when a resource is registered without record path.
+- Changed behaviour of accessible objects in permissions backend when list of
+  bound permissions is empty.
 
 
 3.2.0 (2016-06-14)

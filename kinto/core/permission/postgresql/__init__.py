@@ -194,10 +194,11 @@ class Permission(PermissionBase):
         if object_id_match is None:
             object_id_match = '*'
 
-        if get_bound_permissions is None:
-            perms = [(object_id_match, permission)]
-        else:
+        perms = []
+        if get_bound_permissions is not None:
             perms = get_bound_permissions(object_id_match, permission)
+        if not perms:
+            perms = [(object_id_match, permission)]
 
         perms = [(o.replace('*', '.*'), p) for (o, p) in perms
                  if o.endswith(object_id_match)]
