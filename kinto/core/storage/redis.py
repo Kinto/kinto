@@ -335,8 +335,7 @@ class Storage(MemoryBasedStorage):
                 encoded_results = self._client.mget(keys)
                 deleted = [self._decode(r) for r in encoded_results if r]
 
-        records, count = self.extract_record_set(collection_id,
-                                                 records + deleted,
+        records, count = self.extract_record_set(records + deleted,
                                                  filters, sorting,
                                                  id_field, deleted_field,
                                                  pagination_rules, limit)

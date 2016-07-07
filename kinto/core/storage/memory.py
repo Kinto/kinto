@@ -117,7 +117,7 @@ class MemoryBasedStorage(StorageBase):
         """
         return apply_sorting(records, sorting)
 
-    def extract_record_set(self, collection_id, records,
+    def extract_record_set(self, records,
                            filters, sorting, id_field, deleted_field,
                            pagination_rules=None, limit=None):
         """Take the list of records and handle filtering, sorting and
@@ -168,7 +168,7 @@ class Storage(MemoryBasedStorage):
         self._timestamps = defaultdict(dict)
 
     def collection_timestamp(self, collection_id, parent_id, auth=None):
-        ts = self._timestamps[collection_id].get(parent_id)
+        ts = self._timestamps[parent_id].get(collection_id)
         if ts is not None:
             return ts
         return self._bump_timestamp(collection_id, parent_id)
@@ -198,7 +198,7 @@ class Storage(MemoryBasedStorage):
             current = utils.msec_time()
 
         # Bump the timestamp only if it's more than the previous one.
-        previous = self._timestamps[collection_id].get(parent_id)
+        previous = self._timestamps[parent_id].get(collection_id)
         if previous and previous >= current:
             collection_timestamp = previous + 1
         else:
@@ -210,7 +210,7 @@ class Storage(MemoryBasedStorage):
         if not is_specified or previous == current:
             current = collection_timestamp
 
-        self._timestamps[collection_id][parent_id] = collection_timestamp
+        self._timestamps[parent_id][collection_id] = collection_timestamp
         return current
 
     def create(self, collection_id, parent_id, record, id_generator=None,
@@ -226,15 +226,15 @@ class Storage(MemoryBasedStorage):
         _id = record.setdefault(id_field, id_generator())
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
-        self._store[collection_id][parent_id][_id] = record
-        self._cemetery[collection_id][parent_id].pop(_id, None)
+        self._store[parent_id][collection_id][_id] = record
+        self._cemetery[parent_id][collection_id].pop(_id, None)
         return record
 
     def get(self, collection_id, parent_id, object_id,
             id_field=DEFAULT_ID_FIELD,
             modified_field=DEFAULT_MODIFIED_FIELD,
             auth=None):
-        collection = self._store[collection_id][parent_id]
+        collection = self._store[parent_id][collection_id]
         if object_id not in collection:
             raise exceptions.RecordNotFoundError(object_id)
         return collection[object_id]
@@ -252,8 +252,8 @@ class Storage(MemoryBasedStorage):
 
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
-        self._store[collection_id][parent_id][object_id] = record
-        self._cemetery[collection_id][parent_id].pop(object_id, None)
+        self._store[parent_id][collection_id][object_id] = record
+        self._cemetery[parent_id][collection_id].pop(object_id, None)
         return record
 
     def delete(self, collection_id, parent_id, object_id,
@@ -275,23 +275,22 @@ class Storage(MemoryBasedStorage):
         # Add to deleted items, remove from store.
         if with_deleted:
             deleted = existing.copy()
-            self._cemetery[collection_id][parent_id][object_id] = deleted
-        self._store[collection_id][parent_id].pop(object_id)
-
+            self._cemetery[parent_id][collection_id][object_id] = deleted
+        self._store[parent_id][collection_id].pop(object_id)
         return existing
 
     def purge_deleted(self, collection_id, parent_id, before=None,
                       id_field=DEFAULT_ID_FIELD,
                       modified_field=DEFAULT_MODIFIED_FIELD,
                       auth=None):
-        num_deleted = len(self._cemetery[collection_id][parent_id].keys())
+        num_deleted = len(self._cemetery[parent_id][collection_id].keys())
         if before is not None:
             kept = {key: value for key, value in
-                    self._cemetery[collection_id][parent_id].items()
+                    self._cemetery[parent_id][collection_id].items()
                     if value[modified_field] >= before}
         else:
             kept = {}
-        self._cemetery[collection_id][parent_id] = kept
+        self._cemetery[parent_id][collection_id] = kept
         return num_deleted - len(kept.keys())
 
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
@@ -300,18 +299,16 @@ class Storage(MemoryBasedStorage):
                 modified_field=DEFAULT_MODIFIED_FIELD,
                 deleted_field=DEFAULT_DELETED_FIELD,
                 auth=None):
-        records = list(self._store[collection_id][parent_id].values())
+        records = list(self._store[parent_id][collection_id].values())
 
         deleted = []
         if include_deleted:
-            deleted = list(self._cemetery[collection_id][parent_id].values())
+            deleted = list(self._cemetery[parent_id][collection_id].values())
 
-        records, count = self.extract_record_set(collection_id,
-                                                 records + deleted,
+        records, count = self.extract_record_set(records + deleted,
                                                  filters, sorting,
                                                  id_field, deleted_field,
                                                  pagination_rules, limit)
-
         return records, count
 
 
