@@ -1,3 +1,4 @@
+import re
 import operator
 from collections import defaultdict
 
@@ -22,23 +23,6 @@ class MemoryBasedStorage(StorageBase):
     def initialize_schema(self):
         # Nothing to do.
         pass
-
-    def delete_all(self, collection_id, parent_id, filters=None,
-                   id_field=DEFAULT_ID_FIELD, with_deleted=True,
-                   modified_field=DEFAULT_MODIFIED_FIELD,
-                   deleted_field=DEFAULT_DELETED_FIELD,
-                   auth=None):
-        records, count = self.get_all(collection_id, parent_id,
-                                      filters=filters,
-                                      id_field=id_field,
-                                      modified_field=modified_field,
-                                      deleted_field=deleted_field)
-        deleted = [self.delete(collection_id, parent_id, r[id_field],
-                               id_field=id_field, with_deleted=with_deleted,
-                               modified_field=modified_field,
-                               deleted_field=deleted_field)
-                   for r in records]
-        return deleted
 
     def strip_deleted_record(self, collection_id, parent_id, record,
                              id_field=DEFAULT_ID_FIELD,
@@ -310,6 +294,39 @@ class Storage(MemoryBasedStorage):
                                                  id_field, deleted_field,
                                                  pagination_rules, limit)
         return records, count
+
+    def delete_all(self, collection_id, parent_id, filters=None,
+                   id_field=DEFAULT_ID_FIELD, with_deleted=True,
+                   modified_field=DEFAULT_MODIFIED_FIELD,
+                   deleted_field=DEFAULT_DELETED_FIELD,
+                   auth=None):
+        parent_id_match = re.compile(parent_id.replace('*', '.*'))
+        by_parent_id = {pid: collections
+                        for pid, collections in self._store.items()
+                        if parent_id_match.match(pid)}
+
+        records = []
+        for pid, collections in by_parent_id.items():
+            if collection_id is not None:
+                collections = {collection_id: collections[collection_id]}
+            for collection, colrecords in collections.items():
+                for r in colrecords.values():
+                    records.append(dict(__col_id__=collection,
+                                        __pid__=pid,
+                                        **r))
+
+        records, count = self.extract_record_set(records,
+                                                 filters, None,
+                                                 id_field, deleted_field)
+
+        deleted = [self.delete(r.pop('__col_id__'),
+                               r.pop('__pid__'),
+                               r[id_field],
+                               id_field=id_field, with_deleted=with_deleted,
+                               modified_field=modified_field,
+                               deleted_field=deleted_field)
+                   for r in records]
+        return deleted
 
 
 def get_unicity_rules(collection_id, parent_id, record, unique_fields,

@@ -342,6 +342,23 @@ class Storage(MemoryBasedStorage):
 
         return records, count
 
+    def delete_all(self, collection_id, parent_id, filters=None,
+                   id_field=DEFAULT_ID_FIELD, with_deleted=True,
+                   modified_field=DEFAULT_MODIFIED_FIELD,
+                   deleted_field=DEFAULT_DELETED_FIELD,
+                   auth=None):
+        records, count = self.get_all(collection_id, parent_id,
+                                      filters=filters,
+                                      id_field=id_field,
+                                      modified_field=modified_field,
+                                      deleted_field=deleted_field)
+        deleted = [self.delete(collection_id, parent_id, r[id_field],
+                               id_field=id_field, with_deleted=with_deleted,
+                               modified_field=modified_field,
+                               deleted_field=deleted_field)
+                   for r in records]
+        return deleted
+
 
 def load_from_config(config):
     client = create_from_config(config, prefix='storage_')
