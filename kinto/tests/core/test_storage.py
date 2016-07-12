@@ -590,6 +590,27 @@ class TimestampsTest(object):
         timestamp = self.storage.collection_timestamp(**self.storage_kw)
         self.assertGreater(timestamp, timestamp_before)
 
+    def test_create_ignores_specified_last_modified_if_equal(self):
+        # Create a first record, and get the timestamp.
+        first_record = self.create_record()
+        timestamp_before = first_record[self.modified_field]
+
+        # Create a new record with its timestamp in the past.
+        record = self.record.copy()
+        record[self.id_field] = RECORD_ID
+        record[self.modified_field] = timestamp_before
+        self.create_record(record=record)
+
+        # Check that record timestamp is the one specified.
+        retrieved = self.storage.get(object_id=RECORD_ID, **self.storage_kw)
+        self.assertGreater(retrieved[self.modified_field], timestamp_before)
+        self.assertGreater(retrieved[self.modified_field],
+                           record[self.modified_field])
+
+        # Check that collection timestamp was bumped (change happened).
+        timestamp = self.storage.collection_timestamp(**self.storage_kw)
+        self.assertGreater(timestamp, timestamp_before)
+
     def test_update_uses_specified_last_modified_if_in_future(self):
         stored = self.create_record()
         record_id = stored[self.id_field]
@@ -625,6 +646,25 @@ class TimestampsTest(object):
         self.assertLess(retrieved[self.modified_field], timestamp_before)
         self.assertEquals(retrieved[self.modified_field],
                           stored[self.modified_field])
+
+        # Check that collection timestamp was bumped (change happened).
+        timestamp = self.storage.collection_timestamp(**self.storage_kw)
+        self.assertGreater(timestamp, timestamp_before)
+
+    def test_update_ignores_specified_last_modified_if_equal(self):
+        stored = self.create_record()
+        record_id = stored[self.id_field]
+        timestamp_before = stored[self.modified_field]
+
+        # Do not change the timestamp.
+        self.storage.update(object_id=record_id, record=stored,
+                            **self.storage_kw)
+
+        # Check that record timestamp was bumped.
+        retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
+        self.assertGreater(retrieved[self.modified_field], timestamp_before)
+        self.assertGreater(retrieved[self.modified_field],
+                           stored[self.modified_field])
 
         # Check that collection timestamp was bumped (change happened).
         timestamp = self.storage.collection_timestamp(**self.storage_kw)

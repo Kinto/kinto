@@ -66,7 +66,7 @@ class Storage(StorageBase):
 
     """  # NOQA
 
-    schema_version = 12
+    schema_version = 13
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
         super(Storage, self).__init__(*args, **kwargs)
