@@ -2,6 +2,7 @@ import copy
 from datetime import datetime
 
 from kinto.core.events import ResourceChanged
+from kinto.core.utils import instance_uri
 
 
 def on_resource_changed(event):
@@ -14,19 +15,12 @@ def on_resource_changed(event):
     payload = copy.deepcopy(event.payload)
     action = payload['action']
     bucket_id = payload.pop('bucket_id')
-    bucket_uri = '/buckets/%s' % bucket_id
+    bucket_uri = instance_uri('bucket', id=bucket_id)
     resource_name = payload['resource_name']
     event_uri = payload['uri']
 
     storage = event.request.registry.storage
     permission = event.request.registry.permission
-
-    # XXX instead of this, modify on_buckets_delete() to remove from
-    # storage every object whose parent_id starts with /buckets/{id}
-    if resource_name == 'bucket' and action == 'delete':
-        storage.delete_all(parent_id=bucket_uri,
-                           collection_id='history')
-        return
 
     for impacted in event.impacted_records:
         target = impacted['new' if action != 'delete' else 'old']
@@ -63,11 +57,14 @@ def on_resource_changed(event):
         read_principals.update(bucket_perms.get('write', []))
 
         if 'collection_id' in payload:
-            collection_uri = bucket_uri + '/collections/%s' % payload['collection_id']
-            collection_perms = permission.get_object_permissions(collection_uri)
-            read_principals.update(collection_perms.get('read', []))
-            read_principals.update(collection_perms.get('write', []))
+            collection_uri = instance_uri('collection',
+                                          bucket_id=bucket_id,
+                                          id=payload['collection_id'])
+            col_perms = permission.get_object_permissions(collection_uri)
+            read_principals.update(col_perms.get('read', []))
+            read_principals.update(col_perms.get('write', []))
 
+        # /buckets/{id}/history is the URI for the list of history entries.
         entry_perm_id = '/buckets/%s/history/%s' % (bucket_id, entry['id'])
         for principal in read_principals:
             permission.add_principal_to_ace(entry_perm_id, 'read', principal)
