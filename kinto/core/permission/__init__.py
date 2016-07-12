@@ -131,15 +131,18 @@ class PermissionBase(object):
         return len(authorized & principals) > 0
 
     def get_object_permissions(self, object_id, permissions=None):
-        """Return the set of principals for each object permission.
+        return self.get_objects_permissions([object_id], permissions)[0]
 
-        :param str object_id: The object_id the permission is set to.
-        :param list permissions: List of permissions to retrieve.
-                                 If not define will try to find them all.
-        :returns: The dictionnary with the list of user principals for
-                  each object permissions
-        :rtype: dict
+    def get_objects_permissions(self, objects_ids, permissions=None):
+        """Return a list of mapping, for each object id specified, with the
+        set of principals for each permission.
 
+        :param list objects_ids: The list of object_ids.
+        :param list permissions: Optional list of permissions to limit the
+            results. If not specified, retrieve all.
+        :returns: A list of dictionnaries with the list of user principals for
+            each object permission.
+        :rtype: list
         """
         raise NotImplementedError
 

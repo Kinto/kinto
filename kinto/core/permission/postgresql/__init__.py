@@ -253,24 +253,37 @@ class Permission(PermissionBase):
             total = result.fetchone()
         return total['matched'] > 0
 
-    def get_object_permissions(self, object_id, permissions=None):
+    def get_objects_permissions(self, objects_ids, permissions=None):
         query = """
-        SELECT permission, principal
-        FROM access_control_entries
-        WHERE object_id = :object_id"""
-
-        placeholders = dict(object_id=object_id)
+        WITH required_object_ids AS (
+          VALUES %(object_ids)s
+        )
+        SELECT object_id, permission, principal
+            FROM required_object_ids JOIN access_control_entries
+              ON (object_id = column1)
+            %(permissions_condition)s;
+        """
+        obj_ids_values = ','.join(["('%s')" % p for p in objects_ids])
+        safeholders = {
+            'objects_ids': obj_ids_values,
+            'permissions_condition': ''
+        }
+        placeholders = {}
         if permissions is not None:
-            query += """
-        AND permission IN :permissions;"""
+            safeholders['permissions_condition'] = """
+              WHERE permission IN :permissions"""
             placeholders["permissions"] = tuple(permissions)
+
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, placeholders)
+            result = conn.execute(query % safeholders, placeholders)
             results = result.fetchall()
-        permissions = defaultdict(set)
+
+        result = {}
         for r in results:
+            object_id = r['object_id']
+            permissions = result.setdefault(object_id, defaultdict(set))
             permissions[r['permission']].add(r['principal'])
-        return permissions
+        return result.values()
 
     def replace_object_permissions(self, object_id, permissions):
         if not permissions:

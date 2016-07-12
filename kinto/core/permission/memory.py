@@ -108,19 +108,22 @@ class Permission(PermissionBase):
             principals |= self.get_object_permission_principals(obj_id, perm)
         return principals
 
-    def get_object_permissions(self, object_id, permissions=None):
-        if permissions is None:
-            aces = [k for k in self._store.keys()
-                    if k.startswith('permission:%s' % object_id)]
-        else:
-            aces = ['permission:%s:%s' % (object_id, permission)
-                    for permission in permissions]
-        permissions = {}
-        for ace in aces:
-            # Should work with stuff like 'permission:/url/id:record:create'.
-            permission = ace.split(':', 2)[2]
-            permissions[permission] = set(self._store[ace])
-        return permissions
+    def get_objects_permissions(self, objects_ids, permissions=None):
+        result = []
+        for object_id in objects_ids:
+            if permissions is None:
+                aces = [k for k in self._store.keys()
+                        if k.startswith('permission:%s' % object_id)]
+            else:
+                aces = ['permission:%s:%s' % (object_id, permission)
+                        for permission in permissions]
+            permissions = {}
+            for ace in aces:
+                # Should work with 'permission:/url/id:record:create'.
+                permission = ace.split(':', 2)[2]
+                permissions[permission] = set(self._store[ace])
+            result.append(permissions)
+        return result
 
     def replace_object_permissions(self, object_id, permissions):
         for permission, principals in permissions.items():

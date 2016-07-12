@@ -110,26 +110,28 @@ class Permission(PermissionBase):
         return set()
 
     @wrap_redis_error
-    def get_object_permissions(self, object_id, permissions=None):
-        if permissions is not None:
-            keys = ['permission:%s:%s' % (object_id, permission)
-                    for permission in permissions]
-        else:
-            keys = [key.decode('utf-8') for key in self._client.scan_iter(
-                match='permission:%s:*' % object_id)]
+    def get_objects_permissions(self, objects_ids, permissions=None):
+        result = []
+        for object_id in objects_ids:
+            if permissions is not None:
+                keys = ['permission:%s:%s' % (object_id, permission)
+                        for permission in permissions]
+            else:
+                keys = [key.decode('utf-8') for key in self._client.scan_iter(
+                    match='permission:%s:*' % object_id)]
 
-        with self._client.pipeline() as pipe:
-            for permission_key in keys:
-                pipe.smembers(permission_key)
+            with self._client.pipeline() as pipe:
+                for permission_key in keys:
+                    pipe.smembers(permission_key)
 
-            results = pipe.execute()
+                results = pipe.execute()
 
-        permissions = defaultdict(set)
-        for i, result in enumerate(results):
-            permission = keys[i].split(':', 2)[-1]
-            permissions[permission] = self._decode_set(result)
-
-        return permissions
+            permissions = defaultdict(set)
+            for i, result in enumerate(results):
+                permission = keys[i].split(':', 2)[-1]
+                permissions[permission] = self._decode_set(result)
+            result.append(permissions)
+        return result
 
     @wrap_redis_error
     def replace_object_permissions(self, object_id, permissions):
