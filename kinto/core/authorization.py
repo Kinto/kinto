@@ -100,7 +100,6 @@ class RouteFactory(object):
     allowed_principals = None
     permission_object_id = None
     current_record = None
-    get_shared_ids = None
 
     method_permissions = {
         "head": "read",
@@ -115,6 +114,7 @@ class RouteFactory(object):
         self.get_prefixed_userid = functools.partial(prefixed_userid, request)
 
         self._check_permission = request.registry.permission.check_permission
+        self._get_accessible_objects = request.registry.permission.get_accessible_objects
 
         # Partial collections of ShareableResource:
         self.shared_ids = None
@@ -154,19 +154,22 @@ class RouteFactory(object):
 
             self.resource_name = request.current_resource_name
 
+            self._object_id_match = '*'
             if self.on_collection:
-                object_id_match = self.get_permission_object_id(request, '*')
-                self.get_shared_ids = functools.partial(
-                    request.registry.permission.get_accessible_objects,
-                    object_id_match=object_id_match)
+                self._object_id_match = self.get_permission_object_id(request, '*')
 
             settings = request.registry.settings
             setting = '%s_%s_principals' % (self.resource_name,
                                             self.required_permission)
             self.allowed_principals = aslist(settings.get(setting, ''))
 
-    def check_permission(self, *args, **kw):
-        return self._check_permission(self.permission_object_id, *args, **kw)
+    def check_permission(self, permission, principals, get_bound_permissions):
+        object_id = self.permission_object_id
+        if get_bound_permissions is None:
+            bound_perms = [(object_id, permission)]
+        else:
+            bound_perms = self.get_bound_permissions(object_id, permission)
+        return self._check_permission(principals, bound_perms)
 
     def fetch_shared_records(self, perm, principals, get_bound_permissions):
         """Fetch records that are readable or writable for the current
@@ -179,9 +182,17 @@ class RouteFactory(object):
             return value. The attribute is then read by
             :class:`kinto.core.resource.ShareableResource`
         """
-        ids = self.get_shared_ids(permission=perm,
-                                  principals=principals,
-                                  get_bound_permissions=get_bound_permissions)
+        bound_permissions = []
+        if get_bound_permissions is not None:
+            bound_permissions = [(o, p) for (o, p) in
+                                 get_bound_permissions(self._object_id_match,
+                                                       perm)
+                                 if o.endswith(self._object_id_match)]
+        if len(bound_permissions) == 0:
+            bound_permissions = [(self._object_id_match, perm)]
+
+        by_obj_id = self._get_accessible_objects(principals, bound_permissions)
+        ids = by_obj_id.keys()
         if len(ids) > 0:
             # Store for later use in ``ShareableResource``.
             self.shared_ids = [self.extract_object_id(id_) for id_ in ids]

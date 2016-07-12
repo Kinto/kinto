@@ -86,41 +86,25 @@ class Permission(PermissionBase):
         return self._decode_set(members)
 
     @wrap_redis_error
-    def get_accessible_objects(self, principals, permission,
-                               object_id_match=None,
-                               get_bound_permissions=None):
-        if object_id_match is None:
-            object_id_match = '*'
-
-        keys = []
-        if get_bound_permissions is not None:
-            keys = get_bound_permissions(object_id_match, permission)
-        if not keys:
-            keys = [(object_id_match, permission)]
-
-        keys = ['permission:%s:%s' % key for key in keys
-                if key[0].endswith(object_id_match)]
+    def get_accessible_objects(self, principals, bound_permissions=None):
         principals = set(principals)
-        objects = set()
+
+        keys = ['permission:%s:%s' % (o, p) for (o, p) in bound_permissions]
+
+        perms_by_id = dict()
         for key_pattern in keys:
             matched = self._client.scan_iter(match=key_pattern)
             for key in matched:
                 authorized = self._decode_set(self._client.smembers(key))
                 if len(authorized & principals) > 0:
-                    object_id = key.decode('utf-8').split(':')[1]
-                    objects.add(object_id)
+                    _, object_id, permission = key.decode('utf-8').split(':')
+                    perms_by_id.setdefault(object_id, set()).add(permission)
 
-        return objects
+        return perms_by_id
 
     @wrap_redis_error
-    def get_authorized_principals(self, object_id, permission,
-                                  get_bound_permissions=None):
-        if get_bound_permissions is None:
-            def get_bound_permissions(object_id, permission):
-                return [(object_id, permission)]
-
-        keys = get_bound_permissions(object_id, permission)
-        keys = ['permission:%s:%s' % key for key in keys]
+    def get_authorized_principals(self, bound_permissions):
+        keys = ['permission:%s:%s' % (o, p) for (o, p) in bound_permissions]
         if keys:
             return self._decode_set(self._client.sunion(*list(keys)))
         return set()

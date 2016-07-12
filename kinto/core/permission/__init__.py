@@ -86,60 +86,49 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def get_accessible_objects(self, principals, permission,
-                               object_id_match=None,
-                               get_bound_permissions=None):
-        """Return the list of objects id where the specified `principals`
-        have the specified `permission`.
+    def get_accessible_objects(self, principals, bound_permissions=None):
+        """Return the list of objects where the specified `principals`
+        have some permissions.
 
-        :param list principal: List of user principals
-        :param str permission: The permission to query.
-        :param str object_id_match: Filter object ids based on a pattern
-            (e.g. ``'*articles*'``).
-        :param function get_bound_permissions:
-            The methods to call in order to generate the list of permission to
-            verify against. (ie: if you can write, you can read)
-        :returns: The list of object ids
-        :rtype: set
+        If `bound_permissions` parameter is specified, the list is limited to
+        the specified object or permissions.
 
+        :param list principals: List of user principals
+        :param list bound_permissions: An optional list of tuples
+            (object_id, permission) to limit the results.
+            The object ids can be a pattern, (e.g. ``*``, ``'/my/articles*'``).
+
+        :returns: A mapping whose keys are the object_ids and the values are
+            the related list of permissions.
+        :rtype: dict
         """
         raise NotImplementedError
 
-    def get_authorized_principals(self, object_id, permission,
-                                  get_bound_permissions=None):
-        """Return the full set of authorized principals for a given
-        permission + object (bound permission).
+    def get_authorized_principals(self, bound_permissions):
+        """Return the full set of authorized principals for a list of bound
+        permissions (object + permission).
 
         :param str object_id: The object_id the permission is set to.
-        :param str permission: The permission to query.
-        :param function get_bound_permissions:
-            The methods to call in order to generate the list of permission to
-            verify against. (ie: if you can write, you can read)
-
+        :param list bound_permissions: An list of tuples
+            (object_id, permission) to be fetched.
         :returns: The list of user principals
         :rtype: set
 
         """
         raise NotImplementedError
 
-    def check_permission(self, object_id, permission, principals,
-                         get_bound_permissions=None):
+    def check_permission(self, principals, bound_permissions):
         """Test if a principal set have got a permission on an object.
 
-        :param str object_id:
-            The identifier of the object concerned by the permission.
-        :param str permission: The permission to test.
         :param set principals:
             A set of user principals to test the permission against.
-        :param function get_bound_permissions:
-            The method to call in order to generate the set of
-            permission to verify against. (ie: if you can write, you can read)
-
+        :param list bound_permissions: An list of tuples
+            (object_id, permission) to be checked.
+        :rtype: boolean
         """
         principals = set(principals)
-        authorized_principals = self.get_authorized_principals(
-            object_id, permission, get_bound_permissions)
-        return len(authorized_principals & principals) > 0
+        authorized = self.get_authorized_principals(bound_permissions)
+        return len(authorized & principals) > 0
 
     def get_object_permissions(self, object_id, permissions=None):
         """Return the set of principals for each object permission.

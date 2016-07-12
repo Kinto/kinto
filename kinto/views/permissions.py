@@ -32,17 +32,8 @@ def permissions_get(request):
         principals.append(userid)
 
     # Query every possible permission of the current user from backend.
-    # Since there is no "full-list" method, we query for each possible
-    # permission (read, write, group:create, collection:create, record:create).
-    # XXX: could be optimized into one call to backend when needed.
-    possible_perms = set([k.split(':', 1)[1]
-                          for k in PERMISSIONS_INHERITANCE_TREE.keys()])
     backend = request.registry.permission
-    perms_by_object_uri = {}
-    for perm in possible_perms:
-        object_uris = backend.get_accessible_objects(principals, perm)
-        for object_uri in object_uris:
-            perms_by_object_uri.setdefault(object_uri, []).append(perm)
+    perms_by_object_uri = backend.get_accessible_objects(principals)
 
     entries = []
     for object_uri, perms in perms_by_object_uri.items():
