@@ -208,7 +208,7 @@ class Storage(MemoryBasedStorage):
         # In case the timestamp was specified, the collection timestamp will
         # be different from the updated timestamp. As such, we want to return
         # the one of the record, and not the collection one.
-        if not is_specified:
+        if not is_specified or previous == current:
             current = collection_timestamp
 
         self._timestamps[collection_id][parent_id] = collection_timestamp
