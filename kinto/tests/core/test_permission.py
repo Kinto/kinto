@@ -335,7 +335,7 @@ class BaseTestPermission(object):
             ['user1'],
             [('/url/a/id/*', 'read'),
              ('/url/a/id/*', 'write')])
-        self.assertEquals(per_object_ids.keys(),
+        self.assertEquals(sorted(per_object_ids.keys()),
                           ['/url/a/id/1', '/url/a/id/2'])
 
     def test_accessible_objects_without_match(self):
