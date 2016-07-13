@@ -34,6 +34,10 @@ Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs
   bound permissions is empty.
 - Bump ``last_modified`` on record when provided value is equal to previous
   in storage ``update()`` method (#713)
+- Added ``get_objects_permissions()`` method in ``permission`` backend (#714)
+- Changed ``get_accessible_objects()``, ``get_authorized_principals()`` methods
+  in ``permission`` backend (#714)
+
 
 3.2.0 (2016-06-14)
 ==================
