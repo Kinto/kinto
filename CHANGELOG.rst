@@ -7,6 +7,7 @@ This document describes changes between each past release.
 ==================
 
 - Fix bug in object permissions with memory backend (#708)
+- Make sure the tombstone is deleted when the record is created with PUT. (#715)
 
 3.2.1 (2016-07-04)
 ==================

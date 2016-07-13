@@ -254,6 +254,7 @@ class Storage(MemoryBasedStorage):
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
         self._store[collection_id][parent_id][object_id] = record
+        self._cemetery[collection_id][parent_id].pop(object_id, None)
         return record
 
     def delete(self, collection_id, parent_id, object_id,

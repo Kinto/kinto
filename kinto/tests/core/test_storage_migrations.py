@@ -151,6 +151,52 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         version = self.storage._get_installed_version()
         self.assertEqual(version, self.version)
 
+    def test_migration_12_clean_tombstones(self):
+        self._delete_everything()
+        postgresql.Storage.schema_version = 11
+        self.storage.initialize_schema()
+        # Set the schema version back to 11 in the base as well
+        with self.storage.client.connect() as conn:
+            query = """
+            UPDATE metadata SET value = '11'
+            WHERE name = 'storage_schema_version';
+            """
+            conn.execute(query)
+        r = self.storage.create('test', 'jean-louis', {'drink': 'mate'})
+        self.storage.delete('test', 'jean-louis', r['id'])
+
+        # Insert back the record without removing the tombstone.
+        with self.storage.client.connect() as conn:
+            query = """
+            INSERT INTO records (id, parent_id, collection_id,
+                                 data, last_modified)
+            VALUES (:id, :parent_id, :collection_id,
+                    (:data)::JSONB, from_epoch(:last_modified));
+            """
+            placeholders = dict(id=r['id'],
+                                collection_id='test',
+                                parent_id='jean-louis',
+                                data=json.dumps({'drink': 'mate'}),
+                                last_modified=1468400666777)
+            conn.execute(query, placeholders)
+
+        records, count = self.storage.get_all('test', 'jean-louis',
+                                              include_deleted=True)
+        # Check that we have the tombstone
+        assert len(records) == 2
+        assert count == 1
+
+        # Execute the 011 to 012 migration
+        postgresql.Storage.schema_version = 12
+        self.storage.initialize_schema()
+
+        # Check that the rotted tombstone have been removed.
+        records, count = self.storage.get_all('test', 'jean-louis',
+                                              include_deleted=True)
+        # Only the record remains.
+        assert len(records) == 1
+        assert count == 1
+
 
 class PostgresqlExceptionRaisedTest(unittest.TestCase):
     def setUp(self):

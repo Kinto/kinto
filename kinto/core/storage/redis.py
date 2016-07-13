@@ -209,6 +209,10 @@ class Storage(MemoryBasedStorage):
                 '{0}.{1}.records'.format(collection_id, parent_id),
                 object_id
             )
+            multi.srem(
+                '{0}.{1}.deleted'.format(collection_id, parent_id),
+                object_id
+            )
             multi.execute()
 
         return record
