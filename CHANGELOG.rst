@@ -34,6 +34,10 @@ Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs
   bound permissions is empty.
 - Bump ``last_modified`` on record when provided value is equal to previous
   in storage ``update()`` method (#713)
+- Add ability to delete records and purge tombstones with just the ``parent_id``
+  parameter (#711)
+- Buckets deletion is now a lot more efficient, since every sub-objects are
+  deleted with a single operation on storage backend (#711)
 
 3.2.0 (2016-06-14)
 ==================

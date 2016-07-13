@@ -1,4 +1,5 @@
-from kinto.core import resource, utils
+from kinto.core import resource
+from kinto.core.utils import instance_uri
 from kinto.core.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
 from kinto.authorization import BucketRouteFactory
@@ -32,31 +33,12 @@ def on_buckets_deleted(event):
 
     for change in event.impacted_records:
         bucket = change['old']
-        parent_id = utils.instance_uri(event.request, 'bucket',
-                                       id=bucket['id'])
-
-        # Delete groups.
-        storage.delete_all(collection_id='group',
-                           parent_id=parent_id,
+        bucket_uri = instance_uri(event.request, 'bucket', id=bucket['id'])
+        # Delete everything whose parent_id starts with bucket_uri.
+        parent_pattern = bucket_uri + '*'
+        storage.delete_all(parent_id=parent_pattern,
+                           collection_id=None,
                            with_deleted=False)
-        storage.purge_deleted(collection_id='group',
-                              parent_id=parent_id)
-
-        # Delete collections.
-        deleted_collections = storage.delete_all(collection_id='collection',
-                                                 parent_id=parent_id,
-                                                 with_deleted=False)
-        storage.purge_deleted(collection_id='collection',
-                              parent_id=parent_id)
-
-        # Delete records.
-        for collection in deleted_collections:
-            parent_id = utils.instance_uri(event.request, 'collection',
-                                           bucket_id=bucket['id'],
-                                           id=collection['id'])
-
-            storage.delete_all(collection_id='record',
-                               parent_id=parent_id,
-                               with_deleted=False)
-            storage.purge_deleted(collection_id='record',
-                                  parent_id=parent_id)
+        # Remove remaining tombstones too.
+        storage.purge_deleted(parent_id=parent_pattern,
+                              collection_id=None)
