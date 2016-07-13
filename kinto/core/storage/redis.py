@@ -291,7 +291,7 @@ class Storage(MemoryBasedStorage):
 
         number_deleted = 0
         for i, ids in enumerate(results):
-            if len(ids) == 0:
+            if len(ids) == 0:  # pragma: no cover
                 continue
 
             collection_key = collections_keys[i]
@@ -300,7 +300,7 @@ class Storage(MemoryBasedStorage):
                                                  _id.decode('utf-8'))
                     for _id in ids]
 
-            if len(keys) == 0:
+            if len(keys) == 0:  # pragma: no cover
                 continue
 
             encoded_results = self._client.mget(keys)
@@ -388,7 +388,7 @@ class Storage(MemoryBasedStorage):
         for i, ids in enumerate(results):
             collection_id, parent_id, _ = collections_keys[i].split('.')
 
-            if len(ids) == 0:
+            if len(ids) == 0:  # pragma: no cover
                 continue
 
             records_keys = ['{0}.{1}.{2}.records'.format(collection_id,
