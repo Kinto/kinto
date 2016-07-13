@@ -81,23 +81,22 @@ class Permission(PermissionBase):
 
     def get_accessible_objects(self, principals, bound_permissions=None):
         principals = set(principals)
-        if bound_permissions is not None:
-            bound_permissions = [(re.compile(obj_id.replace('*', '.*')), perm)
-                                 for (obj_id, perm) in bound_permissions]
-
+        candidates = []
         if bound_permissions is None:
-            candidates = self._store.items()
+            for key, value in self._store.items():
+                _, object_id, permission = key.split(':', 2)
+                candidates.append((object_id, permission, value))
         else:
-            candidates = []
-            for obj_id, perm in bound_permissions:
+            for pattern, perm in bound_permissions:
+                regexp = re.compile(pattern.replace('*', '.*'))
                 for key, value in self._store.items():
                     if key.endswith(perm):
                         object_id = key.split(':')[1]
-                        if obj_id.match(object_id):
-                            candidates.append((obj_id, perm, value))
+                        if regexp.match(object_id):
+                            candidates.append((object_id, perm, value))
 
         perms_by_object_id = {}
-        for object_id, perm, value in candidates:
+        for (object_id, perm, value) in candidates:
             if len(principals & value) > 0:
                 perms_by_object_id.setdefault(object_id, set()).add(perm)
         return perms_by_object_id
@@ -113,7 +112,7 @@ class Permission(PermissionBase):
         for object_id in objects_ids:
             if permissions is None:
                 aces = [k for k in self._store.keys()
-                        if k.startswith('permission:%s' % object_id)]
+                        if k.startswith('permission:%s:' % object_id)]
             else:
                 aces = ['permission:%s:%s' % (object_id, permission)
                         for permission in permissions]

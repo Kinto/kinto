@@ -89,7 +89,10 @@ class Permission(PermissionBase):
     def get_accessible_objects(self, principals, bound_permissions=None):
         principals = set(principals)
 
-        keys = ['permission:%s:%s' % (o, p) for (o, p) in bound_permissions]
+        if bound_permissions:
+            keys = ['permission:%s:%s' % op for op in bound_permissions]
+        else:
+            keys = ['permission:*']
 
         perms_by_id = dict()
         for key_pattern in keys:
@@ -111,7 +114,7 @@ class Permission(PermissionBase):
 
     @wrap_redis_error
     def get_objects_permissions(self, objects_ids, permissions=None):
-        result = []
+        objects_perms = []
         for object_id in objects_ids:
             if permissions is not None:
                 keys = ['permission:%s:%s' % (object_id, permission)
@@ -130,8 +133,8 @@ class Permission(PermissionBase):
             for i, result in enumerate(results):
                 permission = keys[i].split(':', 2)[-1]
                 permissions[permission] = self._decode_set(result)
-            result.append(permissions)
-        return result
+            objects_perms.append(permissions)
+        return objects_perms
 
     @wrap_redis_error
     def replace_object_permissions(self, object_id, permissions):

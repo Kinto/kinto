@@ -114,7 +114,8 @@ class RouteFactory(object):
         self.get_prefixed_userid = functools.partial(prefixed_userid, request)
 
         self._check_permission = request.registry.permission.check_permission
-        self._get_accessible_objects = request.registry.permission.get_accessible_objects
+        permission = request.registry.permission
+        self._get_accessible_objects = permission.get_accessible_objects
 
         # Partial collections of ShareableResource:
         self.shared_ids = None
@@ -129,6 +130,11 @@ class RouteFactory(object):
         if is_on_resource:
             self.on_collection = getattr(service, "type", None) == "collection"
             self.permission_object_id = self.get_permission_object_id(request)
+
+            self._object_id_match = '*'
+            if self.on_collection:
+                self._object_id_match = self.get_permission_object_id(request,
+                                                                      '*')
 
             # Decide what the required unbound permission is depending on the
             # method that's being requested.
@@ -153,11 +159,6 @@ class RouteFactory(object):
                 self.required_permission = self.method_permissions.get(method)
 
             self.resource_name = request.current_resource_name
-
-            self._object_id_match = '*'
-            if self.on_collection:
-                self._object_id_match = self.get_permission_object_id(request, '*')
-
             settings = request.registry.settings
             setting = '%s_%s_principals' % (self.resource_name,
                                             self.required_permission)
@@ -168,7 +169,7 @@ class RouteFactory(object):
         if get_bound_permissions is None:
             bound_perms = [(object_id, permission)]
         else:
-            bound_perms = self.get_bound_permissions(object_id, permission)
+            bound_perms = get_bound_permissions(object_id, permission)
         return self._check_permission(principals, bound_perms)
 
     def fetch_shared_records(self, perm, principals, get_bound_permissions):

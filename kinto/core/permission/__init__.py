@@ -131,7 +131,8 @@ class PermissionBase(object):
         return len(authorized & principals) > 0
 
     def get_object_permissions(self, object_id, permissions=None):
-        return self.get_objects_permissions([object_id], permissions)[0]
+        perms = self.get_objects_permissions([object_id], permissions)
+        return perms[0] if perms else {}
 
     def get_objects_permissions(self, objects_ids, permissions=None):
         """Return a list of mapping, for each object id specified, with the

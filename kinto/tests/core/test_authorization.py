@@ -92,7 +92,6 @@ class RouteFactoryTest(unittest.TestCase):
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.current_record)
         self.assertIsNone(context.resource_name)
-        self.assertIsNone(context.get_shared_ids)
 
     def test_attributes_are_none_with_non_resource_requests(self):
         basic_service = object()
@@ -106,7 +105,6 @@ class RouteFactoryTest(unittest.TestCase):
         self.assertIsNone(context.current_record)
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.resource_name)
-        self.assertIsNone(context.get_shared_ids)
 
     def test_route_factory_adds_allowed_principals_from_settings(self):
         with mock.patch('kinto.core.utils.current_service') as current_service:
@@ -126,6 +124,65 @@ class RouteFactoryTest(unittest.TestCase):
             context = RouteFactory(request)
 
             self.assertEquals(context.allowed_principals, ['fxa:user'])
+
+    def test_fetch_shared_records_uses_star_if_not_on_collection(self):
+        request = DummyRequest()
+        context = RouteFactory(request)
+
+        context.fetch_shared_records('read', ['userid'], None)
+
+        request.registry.permission.get_accessible_objects.assert_called_with(
+            ['userid'],
+            [('*', 'read')])
+
+    def test_fetch_shared_records_uses_pattern_if_on_collection(self):
+        request = DummyRequest()
+        request.route_path.return_value = '/v1/buckets/%2A'
+        service = mock.MagicMock()
+        service.type = 'collection'
+        with mock.patch('kinto.core.authorization.utils.current_service') as m:
+            m.return_value = service
+            context = RouteFactory(request)
+        self.assertTrue(context.on_collection)
+
+        context.fetch_shared_records('read', ['userid'],
+                                     get_bound_permissions=lambda o, p: [])
+
+        request.registry.permission.get_accessible_objects.assert_called_with(
+            ['userid'],
+            [('/buckets/*', 'read')])
+
+    def test_fetch_shared_records_sets_shared_ids_from_results(self):
+        request = DummyRequest()
+        context = RouteFactory(request)
+        request.registry.permission.get_accessible_objects.return_value = {
+            '/obj/1': ['read', 'write'],
+            '/obj/3': ['obj:create']
+        }
+        context.fetch_shared_records('read', ['userid'],
+                                     get_bound_permissions=lambda o, p: [])
+        self.assertEquals(sorted(context.shared_ids), ['1', '3'])
+
+    def test_fetch_shared_records_sets_shared_ids_to_none_if_empty(self):
+        request = DummyRequest()
+        context = RouteFactory(request)
+        request.registry.permission.get_accessible_objects.return_value = {}
+
+        context.fetch_shared_records('read', ['userid'],
+                                     get_bound_permissions=lambda o, p: [])
+
+        self.assertIsNone(context.shared_ids)
+
+    def test_uses_object_id_match_if_bound_permissions_is_empty(self):
+        request = DummyRequest()
+        context = RouteFactory(request)
+
+        context.fetch_shared_records('read', ['userid'],
+                                     get_bound_permissions=lambda o, p: [])
+
+        request.registry.permission.get_accessible_objects.assert_called_with(
+            ['userid'],
+            [('*', 'read')])
 
 
 class AuthorizationPolicyTest(unittest.TestCase):

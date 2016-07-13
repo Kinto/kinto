@@ -203,7 +203,7 @@ class Permission(PermissionBase):
               VALUES %(principals)s
             ),
             potential_objects AS (
-              SELECT object_id, required_perms.column1 AS pattern
+              SELECT object_id, permission, required_perms.column1 AS pattern
                 FROM access_control_entries
                 JOIN user_principals
                   ON (principal = user_principals.column1)
@@ -256,14 +256,16 @@ class Permission(PermissionBase):
     def get_objects_permissions(self, objects_ids, permissions=None):
         query = """
         WITH required_object_ids AS (
-          VALUES %(object_ids)s
+          VALUES %(objects_ids)s
         )
         SELECT object_id, permission, principal
             FROM required_object_ids JOIN access_control_entries
-              ON (object_id = column1)
-            %(permissions_condition)s;
+              ON (object_id = column2)
+              %(permissions_condition)s
+        ORDER BY column1 ASC;
         """
-        obj_ids_values = ','.join(["('%s')" % p for p in objects_ids])
+        obj_ids_values = ','.join(["(%s, '%s')" % t
+                                   for t in enumerate(objects_ids)])
         safeholders = {
             'objects_ids': obj_ids_values,
             'permissions_condition': ''
