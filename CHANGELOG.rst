@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-3.2.2 (unreleased)
+3.2.2 (2016-07-13)
 ==================
 
 - Nothing changed yet.
