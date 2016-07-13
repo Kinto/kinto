@@ -377,31 +377,43 @@ class Storage(StorageBase):
             WITH deleted_records AS (
                 DELETE
                 FROM records
-                WHERE parent_id = :parent_id
-                  AND collection_id = :collection_id
-                  %(conditions_filter)s
-                RETURNING id
+                WHERE %(parent_id_filter)s
+                      %(collection_id_filter)s
+                      %(conditions_filter)s
+                RETURNING id, parent_id, collection_id
             )
             INSERT INTO deleted (id, parent_id, collection_id)
-            SELECT id, :parent_id, :collection_id
+            SELECT id, parent_id, collection_id
               FROM deleted_records
             RETURNING id, as_epoch(last_modified) AS last_modified;
             """
         else:
             query = """
-                DELETE
-                FROM records
-                WHERE parent_id = :parent_id
-                  AND collection_id = :collection_id
+            DELETE
+            FROM records
+            WHERE %(parent_id_filter)s
+                  %(collection_id_filter)s
                   %(conditions_filter)s
-                RETURNING id, as_epoch(last_modified) AS last_modified;
+            RETURNING id, as_epoch(last_modified) AS last_modified;
             """
+
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
         placeholders = dict(parent_id=parent_id,
                             collection_id=collection_id)
         # Safe strings
         safeholders = defaultdict(six.text_type)
+        # Handle parent_id as a regex only if it contains *
+        if '*' in parent_id:
+            safeholders['parent_id_filter'] = 'parent_id ~ :parent_id'
+            placeholders['parent_id'] = parent_id.replace('*', '.*')
+        else:
+            safeholders['parent_id_filter'] = 'parent_id = :parent_id'
+        # If collection is None, remove it from query.
+        if collection_id is None:
+            safeholders['collection_id_filter'] = ''
+        else:
+            safeholders['collection_id_filter'] = 'AND collection_id = :collection_id'  # NOQA
 
         if filters:
             safe_sql, holders = self._format_conditions(filters,
@@ -431,9 +443,9 @@ class Storage(StorageBase):
         query = """
         DELETE
         FROM deleted
-        WHERE parent_id = :parent_id
-          AND collection_id = :collection_id
-          %(conditions_filter)s;
+        WHERE %(parent_id_filter)s
+              %(collection_id_filter)s
+              %(conditions_filter)s;
         """
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
@@ -441,6 +453,17 @@ class Storage(StorageBase):
                             collection_id=collection_id)
         # Safe strings
         safeholders = defaultdict(six.text_type)
+        # Handle parent_id as a regex only if it contains *
+        if '*' in parent_id:
+            safeholders['parent_id_filter'] = 'parent_id ~ :parent_id'
+            placeholders['parent_id'] = parent_id.replace('*', '.*')
+        else:
+            safeholders['parent_id_filter'] = 'parent_id = :parent_id'
+        # If collection is None, remove it from query.
+        if collection_id is None:
+            safeholders['collection_id_filter'] = ''
+        else:
+            safeholders['collection_id_filter'] = 'AND collection_id = :collection_id'  # NOQA
 
         if before is not None:
             safeholders['conditions_filter'] = (

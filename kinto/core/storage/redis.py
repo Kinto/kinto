@@ -273,31 +273,51 @@ class Storage(MemoryBasedStorage):
                       id_field=DEFAULT_ID_FIELD,
                       modified_field=DEFAULT_MODIFIED_FIELD,
                       auth=None):
-        deleted_ids = '{0}.{1}.deleted'.format(collection_id, parent_id)
-        ids = self._client.smembers(deleted_ids)
 
-        keys = ['{0}.{1}.{2}.deleted'.format(collection_id, parent_id,
-                                             _id.decode('utf-8'))
-                for _id in ids]
+        if collection_id is None:
+            collection_id = '*'
 
-        if len(keys) == 0:
-            deleted = []
-        else:
+        keys_pattern = '{0}.{1}.deleted'.format(collection_id, parent_id)
+
+        collections_keys = [key.decode('utf-8') for key in
+                            self._client.scan_iter(match=keys_pattern)]
+
+        collections_keys = [key for key in collections_keys
+                            if len(key.split('.')) == 3]
+        with self._client.pipeline() as multi:
+            for key in collections_keys:
+                multi.smembers(key)
+            results = multi.execute()
+
+        number_deleted = 0
+        for i, ids in enumerate(results):
+            if len(ids) == 0:  # pragma: no cover
+                continue
+
+            collection_key = collections_keys[i]
+            collection_id, parent_id, _ = collection_key.split('.')
+            keys = ['{0}.{1}.{2}.deleted'.format(collection_id, parent_id,
+                                                 _id.decode('utf-8'))
+                    for _id in ids]
+
+            if len(keys) == 0:  # pragma: no cover
+                continue
+
             encoded_results = self._client.mget(keys)
             deleted = [self._decode(r) for r in encoded_results if r]
-        if before is not None:
-            to_remove = [d['id'] for d in deleted
-                         if d[modified_field] < before]
-        else:
-            to_remove = [d['id'] for d in deleted]
+            if before is not None:
+                to_remove = [d['id'] for d in deleted
+                             if d[modified_field] < before]
+            else:
+                to_remove = [d['id'] for d in deleted]
 
-        if len(to_remove) > 0:
-            with self._client.pipeline() as pipe:
-                pipe.delete(*['{0}.{1}.{2}.deleted'.format(
-                    collection_id, parent_id, _id) for _id in to_remove])
-                pipe.srem(deleted_ids, *to_remove)
-                pipe.execute()
-        number_deleted = len(to_remove)
+            if len(to_remove) > 0:
+                with self._client.pipeline() as pipe:
+                    pipe.delete(*['{0}.{1}.{2}.deleted'.format(
+                        collection_id, parent_id, _id) for _id in to_remove])
+                    pipe.srem(collection_key, *to_remove)
+                    pipe.execute()
+            number_deleted += len(to_remove)
         return number_deleted
 
     @wrap_redis_error
@@ -335,13 +355,65 @@ class Storage(MemoryBasedStorage):
                 encoded_results = self._client.mget(keys)
                 deleted = [self._decode(r) for r in encoded_results if r]
 
-        records, count = self.extract_record_set(collection_id,
-                                                 records + deleted,
+        records, count = self.extract_record_set(records + deleted,
                                                  filters, sorting,
                                                  id_field, deleted_field,
                                                  pagination_rules, limit)
 
         return records, count
+
+    @wrap_redis_error
+    def delete_all(self, collection_id, parent_id, filters=None,
+                   id_field=DEFAULT_ID_FIELD, with_deleted=True,
+                   modified_field=DEFAULT_MODIFIED_FIELD,
+                   deleted_field=DEFAULT_DELETED_FIELD,
+                   auth=None):
+
+        if collection_id is None:
+            collection_id = '*'
+
+        keys_pattern = '{0}.{1}.records'.format(collection_id, parent_id)
+
+        collections_keys = [key.decode('utf-8') for key in
+                            self._client.scan_iter(match=keys_pattern)]
+
+        collections_keys = [key for key in collections_keys
+                            if len(key.split('.')) == 3]
+        with self._client.pipeline() as multi:
+            for key in collections_keys:
+                multi.smembers(key)
+            results = multi.execute()
+
+        records = []
+        for i, ids in enumerate(results):
+            collection_id, parent_id, _ = collections_keys[i].split('.')
+
+            if len(ids) == 0:  # pragma: no cover
+                continue
+
+            records_keys = ['{0}.{1}.{2}.records'.format(collection_id,
+                                                         parent_id,
+                                                         _id.decode('utf-8'))
+                            for _id in ids]
+            results = self._client.mget(records_keys)
+            collection_records = [dict(__collection_id__=collection_id,
+                                       __parent_id__=parent_id,
+                                       **self._decode(r))
+                                  for r in results if r]
+            records.extend(collection_records)
+
+        records, count = self.extract_record_set(records,
+                                                 filters, None,
+                                                 id_field, deleted_field)
+
+        deleted = [self.delete(r.pop('__collection_id__'),
+                               r.pop('__parent_id__'),
+                               r[id_field],
+                               id_field=id_field, with_deleted=with_deleted,
+                               modified_field=modified_field,
+                               deleted_field=deleted_field)
+                   for r in records]
+        return deleted
 
 
 def load_from_config(config):
