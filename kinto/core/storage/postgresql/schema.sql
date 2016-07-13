@@ -194,9 +194,10 @@ BEGIN
         current := previous + INTERVAL '1 milliseconds';
     END IF;
 
-
-    IF NEW.last_modified IS NULL THEN
-        -- If record does not carry last-modified, assign it to current.
+    IF NEW.last_modified IS NULL OR
+       (previous IS NOT NULL AND as_epoch(NEW.last_modified) = as_epoch(previous)) THEN
+        -- If record does not carry last-modified, or if the one specified
+        -- is equal to previous, assign it to current (i.e. bump it).
         NEW.last_modified := current;
     ELSE
         -- Use record last-modified as collection timestamp.
@@ -241,4 +242,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '11');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '13');

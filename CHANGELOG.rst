@@ -3,10 +3,14 @@ Changelog
 
 This document describes changes between each past release.
 
-3.2.2 (unreleased)
+3.2.2 (2016-07-13)
 ==================
 
-- Nothing changed yet.
+- Fix bug in object permissions with memory backend (#708)
+- Make sure the tombstone is deleted when the record is created with PUT. (#715)
+- Bump ``last_modified`` on record when provided value is equal to previous
+  in storage ``update()`` method (#713)
+
 
 3.2.1 (2016-07-04)
 ==================
