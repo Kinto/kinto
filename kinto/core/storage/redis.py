@@ -396,8 +396,8 @@ class Storage(MemoryBasedStorage):
                                                          _id.decode('utf-8'))
                             for _id in ids]
             results = self._client.mget(records_keys)
-            collection_records = [dict(__col_id__=collection_id,
-                                       __pid__=parent_id,
+            collection_records = [dict(__collection_id__=collection_id,
+                                       __parent_id__=parent_id,
                                        **self._decode(r))
                                   for r in results if r]
             records.extend(collection_records)
@@ -406,8 +406,8 @@ class Storage(MemoryBasedStorage):
                                                  filters, None,
                                                  id_field, deleted_field)
 
-        deleted = [self.delete(r.pop('__col_id__'),
-                               r.pop('__pid__'),
+        deleted = [self.delete(r.pop('__collection_id__'),
+                               r.pop('__parent_id__'),
                                r[id_field],
                                id_field=id_field, with_deleted=with_deleted,
                                modified_field=modified_field,

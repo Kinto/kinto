@@ -320,16 +320,16 @@ class Storage(MemoryBasedStorage):
                 collections = {collection_id: collections[collection_id]}
             for collection, colrecords in collections.items():
                 for r in colrecords.values():
-                    records.append(dict(__col_id__=collection,
-                                        __pid__=pid,
+                    records.append(dict(__collection_id__=collection,
+                                        __parent_id__=pid,
                                         **r))
 
         records, count = self.extract_record_set(records,
                                                  filters, None,
                                                  id_field, deleted_field)
 
-        deleted = [self.delete(r.pop('__col_id__'),
-                               r.pop('__pid__'),
+        deleted = [self.delete(r.pop('__collection_id__'),
+                               r.pop('__parent_id__'),
                                r[id_field],
                                id_field=id_field, with_deleted=with_deleted,
                                modified_field=modified_field,
