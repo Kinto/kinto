@@ -123,7 +123,8 @@ class Storage(MemoryBasedStorage):
 
                     # Return the newly generated timestamp as the current one
                     # only if nothing else was specified.
-                    if not is_specified:
+                    is_equal = previous and int(previous) == current
+                    if not is_specified or is_equal:
                         current = collection_timestamp
 
                     pipe.set(key, collection_timestamp)
