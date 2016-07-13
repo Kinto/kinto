@@ -66,7 +66,7 @@ class Storage(StorageBase):
 
     """  # NOQA
 
-    schema_version = 11
+    schema_version = 12
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
         super(Storage, self).__init__(*args, **kwargs)
@@ -270,6 +270,12 @@ class Storage(StorageBase):
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
         query_create = """
+        WITH delete_potential_tombstone AS (
+            DELETE FROM deleted
+             WHERE id = :object_id
+               AND parent_id = :parent_id
+               AND collection_id = :collection_id
+        )
         INSERT INTO records (id, parent_id, collection_id, data, last_modified)
         VALUES (:object_id, :parent_id,
                 :collection_id, (:data)::JSONB,

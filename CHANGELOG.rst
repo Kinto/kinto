@@ -23,6 +23,7 @@ Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs
   the records endpoint of an unknown collection (fixes #693, related #558)
 - Fix events payloads for actions in the default bucket (fixes #704)
 - Fix bug in object permissions with memory backend
+- Make sure the tombstone is deleted when the record is created with PUT. (#715)
 
 **Internal changes**
 

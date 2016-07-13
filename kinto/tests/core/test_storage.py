@@ -311,6 +311,16 @@ class BaseTestStorage(object):
             **self.storage_kw
         )
 
+    def test_delete_works_even_on_second_time(self):
+        # Create a record
+        self.storage.create('test', '1234', {"id": "demo"})
+        # Delete the record
+        self.storage.delete('test', '1234', "demo", with_deleted=True)
+        # Update a record (it recreates it.)
+        self.storage.update('test', '1234', "demo", {"id": "demo"})
+        # Delete the record without errors
+        self.storage.delete('test', '1234', "demo", with_deleted=True)
+
     def test_delete_can_specify_the_last_modified(self):
         stored = self.create_record()
         last_modified = stored[self.modified_field] + 10
