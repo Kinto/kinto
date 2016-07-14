@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import os
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from kinto.core import logger
 from kinto.core.permission import PermissionBase
@@ -278,14 +278,16 @@ class Permission(PermissionBase):
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query % safeholders, placeholders)
-            results = result.fetchall()
+            rows = result.fetchall()
 
-        result = {}
-        for r in results:
-            object_id = r['object_id']
-            permissions = result.setdefault(object_id, defaultdict(set))
-            permissions[r['permission']].add(r['principal'])
-        return result.values()
+        groupby_id = OrderedDict()
+        for row in rows:
+            object_id, permission, principal = (row['object_id'],
+                                                row['permission'],
+                                                row['principal'])
+            permissions = groupby_id.setdefault(object_id, {})
+            permissions.setdefault(permission, set()).add(principal)
+        return list(groupby_id.values())
 
     def replace_object_permissions(self, object_id, permissions):
         if not permissions:

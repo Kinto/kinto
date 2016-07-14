@@ -27,7 +27,7 @@ class PermissionBaseTest(unittest.TestCase):
             (self.permission.add_principal_to_ace, '', '', ''),
             (self.permission.remove_principal_from_ace, '', '', ''),
             (self.permission.get_object_permission_principals, '', ''),
-            (self.permission.get_object_permissions, ''),
+            (self.permission.get_objects_permissions, ''),
             (self.permission.replace_object_permissions, '', {}),
             (self.permission.delete_object_permissions, ''),
             (self.permission.get_accessible_objects, [], ''),
