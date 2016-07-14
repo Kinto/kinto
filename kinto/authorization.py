@@ -143,12 +143,12 @@ class RouteFactory(core_authorization.RouteFactory):
 
 
 class BucketRouteFactory(RouteFactory):
-    def fetch_shared_records(self, perm, principals, get_bound_permissions):
+    def fetch_shared_records(self, perm, principals):
         """Buckets list is authorized even if no object is accessible for
         the current principals.
         """
         shared = super(BucketRouteFactory, self).fetch_shared_records(
-            perm, principals, get_bound_permissions)
+            perm, principals)
         if shared is None and Authenticated in principals:
             self.shared_ids = []
         return self.shared_ids

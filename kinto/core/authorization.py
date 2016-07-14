@@ -70,22 +70,21 @@ class AuthorizationPolicy(object):
         if context.allowed_principals:
             allowed = bool(set(context.allowed_principals) & set(principals))
         else:
-            allowed = context.check_permission(
-                permission,
-                principals,
-                get_bound_permissions=self.get_bound_permissions)
+            object_id = context.permission_object_id
+            if self.get_bound_permissions is None:
+                bound_perms = [(object_id, permission)]
+            else:
+                bound_perms = self.get_bound_permissions(object_id, permission)
+            allowed = context.check_permission(principals, bound_perms)
 
         # If not allowed on this collection, but some records are shared with
         # the current user, then authorize.
         # The ShareableResource class will take care of the filtering.
         is_list_operation = (context.on_collection and
-                             'create' not in permission)
+                             not permission.endswith('create'))
         if not allowed and is_list_operation:
-            shared_records = context.fetch_shared_records(
-                permission,
-                principals,
-                get_bound_permissions=self.get_bound_permissions)
-            allowed = shared_records is not None
+            shared = context.fetch_shared_records(permission, principals)
+            allowed = shared is not None
 
         return allowed
 
@@ -100,6 +99,7 @@ class RouteFactory(object):
     allowed_principals = None
     permission_object_id = None
     current_record = None
+    shared_ids = None
 
     method_permissions = {
         "head": "read",
@@ -113,68 +113,37 @@ class RouteFactory(object):
         # Make it available for the authorization policy.
         self.get_prefixed_userid = functools.partial(prefixed_userid, request)
 
-        self._check_permission = request.registry.permission.check_permission
+        # Store some shortcuts.
         permission = request.registry.permission
+        self.check_permission = permission.check_permission
         self._get_accessible_objects = permission.get_accessible_objects
 
-        # Partial collections of ShareableResource:
-        self.shared_ids = None
-
-        # Store service, resource, record and required permission.
+        # Store current resource and required permission.
         service = utils.current_service(request)
-
         is_on_resource = (service is not None and
                           hasattr(service, 'viewset') and
                           hasattr(service, 'resource'))
-
         if is_on_resource:
-            self.on_collection = getattr(service, "type", None) == "collection"
-            self.permission_object_id = self.get_permission_object_id(request)
-
-            self._object_id_match = '*'
-            if self.on_collection:
-                self._object_id_match = self.get_permission_object_id(request,
-                                                                      '*')
-
-            # Decide what the required unbound permission is depending on the
-            # method that's being requested.
-            if request.method.lower() == "put":
-                # In the case of a "PUT", check if the targetted record already
-                # exists, return "write" if it does, "create" otherwise.
-
-                # If the view exists, use its collection to catch an
-                # eventual NotFound.
-                resource = service.resource(request=request, context=self)
-                try:
-                    record = resource.model.get_record(resource.record_id)
-                    self.current_record = record
-                except storage_exceptions.RecordNotFoundError:
-                    self.permission_object_id = service.collection_path.format(
-                        **request.matchdict)
-                    self.required_permission = "create"
-                else:
-                    self.required_permission = "write"
-            else:
-                method = request.method.lower()
-                self.required_permission = self.method_permissions.get(method)
-
             self.resource_name = request.current_resource_name
+            self.on_collection = getattr(service, "type", None) == "collection"
+
+            self.permission_object_id, self.required_permission = (
+                self._find_required_permission(request, service))
+
+            # To obtain shared records on a collection endpoint, use a match:
+            self._object_id_match = self.get_permission_object_id(request, '*')
+
+            # Check if principals are allowed explicitly from settings.
             settings = request.registry.settings
             setting = '%s_%s_principals' % (self.resource_name,
                                             self.required_permission)
             self.allowed_principals = aslist(settings.get(setting, ''))
 
-    def check_permission(self, permission, principals, get_bound_permissions):
-        object_id = self.permission_object_id
-        if get_bound_permissions is None:
-            bound_perms = [(object_id, permission)]
-        else:
-            bound_perms = get_bound_permissions(object_id, permission)
-        return self._check_permission(principals, bound_perms)
-
-    def fetch_shared_records(self, perm, principals, get_bound_permissions):
+    def fetch_shared_records(self, perm, principals):
         """Fetch records that are readable or writable for the current
         principals.
+
+        See :meth:`kinto.core.authorization.AuthorizationPolicy.permits`
 
         If no record is shared, it returns None.
 
@@ -183,39 +152,38 @@ class RouteFactory(object):
             return value. The attribute is then read by
             :class:`kinto.core.resource.ShareableResource`
         """
-        bound_permissions = []
-        if get_bound_permissions is not None:
-            bound_permissions = [(o, p) for (o, p) in
-                                 get_bound_permissions(self._object_id_match,
-                                                       perm)
-                                 if o.endswith(self._object_id_match)]
-        if len(bound_permissions) == 0:
-            bound_permissions = [(self._object_id_match, perm)]
-
+        bound_permissions = [(self._object_id_match, perm)]
         by_obj_id = self._get_accessible_objects(principals, bound_permissions)
         ids = by_obj_id.keys()
         if len(ids) > 0:
             # Store for later use in ``ShareableResource``.
-            self.shared_ids = [self.extract_object_id(id_) for id_ in ids]
+            self.shared_ids = [self._extract_object_id(id_) for id_ in ids]
         else:
             self.shared_ids = None
 
         return self.shared_ids
 
     def get_permission_object_id(self, request, object_id=None):
-        object_uri = request.path
+        """Returns the permission object id for the current request.
+        In the nominal case, it is just the current URI without version prefix.
+        For collections, it is the related record URI using the specified
+        `object_id`.
+
+        See :meth:`kinto.core.resource.model.SharableModel` and
+        :meth:`kinto.core.authorization.RouteFactory.__init__`
+        """
+        object_uri = utils.strip_uri_prefix(request.path)
 
         if self.on_collection and object_id is not None:
             # With the current request on a collection, the record URI must
             # be found out by inspecting the collection service and its sibling
             # record service.
-            service = request.current_service
-            # XXX: Why not use service.path.format(id=) ?
-            record_service = service.name.replace('-collection', '-record')
             matchdict = request.matchdict.copy()
             matchdict['id'] = object_id
             try:
-                object_uri = request.route_path(record_service, **matchdict)
+                object_uri = utils.instance_uri(request,
+                                                self.resource_name,
+                                                **matchdict)
                 if object_id == '*':
                     object_uri = object_uri.replace('%2A', '*')
             except KeyError:
@@ -224,8 +192,41 @@ class RouteFactory(object):
                 # be stored naively:
                 object_uri = object_uri + '/' + object_id
 
-        return utils.strip_uri_prefix(object_uri)
+        return object_uri
 
-    def extract_object_id(self, object_uri):
-        # XXX: Help needed: use something like route.matchdict.get('id').
+    def _extract_object_id(self, object_uri):
+        # XXX: Rewrite using kinto.core.utils.view_lookup() and matchdict['id']
         return object_uri.split('/')[-1]
+
+    def _find_required_permission(self, request, service):
+        """Find out what is the permission object id and the required
+        permission.
+
+        .. note::
+            This method saves an attribute ``self.current_record`` used
+            in :class:`kinto.core.resource.UserResource`.
+        """
+        # By default, it's a URI a and permission associated to the method.
+        permission_object_id = self.get_permission_object_id(request)
+        method = request.method.lower()
+        required_permission = self.method_permissions.get(method)
+
+        # In the case of a "PUT", check if the targetted record already
+        # exists, return "write" if it does, "create" otherwise.
+        if request.method.lower() == "put":
+            resource = service.resource(request=request, context=self)
+            try:
+                record = resource.model.get_record(resource.record_id)
+                # Save a reference, to avoid refetching from storage in
+                # resource.
+                self.current_record = record
+            except storage_exceptions.RecordNotFoundError:
+                # The record does not exist, the permission to create on
+                # the related collection is required.
+                permission_object_id = service.collection_path.format(
+                    **request.matchdict)
+                required_permission = "create"
+            else:
+                required_permission = "write"
+
+        return (permission_object_id, required_permission)

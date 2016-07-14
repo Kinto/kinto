@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import os
 
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 
 from kinto.core import logger
 from kinto.core.permission import PermissionBase
