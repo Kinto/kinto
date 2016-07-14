@@ -41,6 +41,8 @@ Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs
 - Added ``get_objects_permissions()`` method in ``permission`` backend (#714)
 - Changed ``get_accessible_objects()``, ``get_authorized_principals()`` methods
   in ``permission`` backend (#714)
+- Simplified and improved the code quality of ``kinto.core.authorization``,
+  mainly by keeping usage of ``get_bound_permissions`` callback in one place only.
 
 
 3.2.0 (2016-06-14)
