@@ -176,8 +176,14 @@ class TutorialLoadTest(BaseLoadTest):
         self.assertIn('write', record['permissions'])
         alice_task_id = record['data']['id']
 
-        # Create a new tasks for Bob
         bob_auth = HTTPBasicAuth('token', 'bob-secret-%s' % uuid.uuid4())
+
+        # Bob has no task yet, he should get a 403.
+        resp = self.session.get(collection_url, auth=bob_auth)
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 403)
+
+        # Create a new tasks for Bob
         bob_task = build_task()
         resp = self.session.post(
             collection_url,
@@ -189,6 +195,14 @@ class TutorialLoadTest(BaseLoadTest):
         self.assertIn('write', record['permissions'])
         bob_user_id = record['permissions']['write'][0]
         bob_task_id = record['data']['id']
+
+        # Now that he has a task, he should see his.
+        resp = self.session.get(collection_url, auth=bob_auth)
+        self.incr_counter("status-%s" % resp.status_code)
+        self.assertEqual(resp.status_code, 200)
+        records = resp.json()['data']
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]['id'], bob_task_id)
 
         # Share Alice's task with Bob
         resp = self.session.patch(

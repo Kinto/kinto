@@ -135,11 +135,31 @@ class RouteFactoryTest(unittest.TestCase):
             context = RouteFactory(request)
         self.assertTrue(context.on_collection)
 
-        context.fetch_shared_records('read', ['userid'])
+        context.fetch_shared_records('read', ['userid'], None)
 
         request.registry.permission.get_accessible_objects.assert_called_with(
             ['userid'],
             [('/buckets/*', 'read')])
+
+    def test_fetch_shared_records_uses_get_bound_permission_callback(self):
+        request = DummyRequest()
+        service = mock.MagicMock()
+        request.route_path.return_value = '/v1/buckets/%2A'
+        service.type = 'collection'
+        with mock.patch('kinto.core.authorization.utils.current_service') as m:
+            m.return_value = service
+            context = RouteFactory(request)
+        self.assertTrue(context.on_collection)
+
+        # Define a callback where write means read:
+        def get_bound_perms(obj_id, perm):
+            return [(obj_id, 'write'), (obj_id, 'read')]
+
+        context.fetch_shared_records('read', ['userid'], get_bound_perms)
+
+        request.registry.permission.get_accessible_objects.assert_called_with(
+            ['userid'],
+            [('/buckets/*', 'write'), ('/buckets/*', 'read')])
 
     def test_fetch_shared_records_sets_shared_ids_from_results(self):
         request = DummyRequest()
@@ -148,7 +168,7 @@ class RouteFactoryTest(unittest.TestCase):
             '/obj/1': ['read', 'write'],
             '/obj/3': ['obj:create']
         }
-        context.fetch_shared_records('read', ['userid'])
+        context.fetch_shared_records('read', ['userid'], None)
         self.assertEquals(sorted(context.shared_ids), ['1', '3'])
 
     def test_fetch_shared_records_sets_shared_ids_to_none_if_empty(self):
@@ -156,7 +176,7 @@ class RouteFactoryTest(unittest.TestCase):
         context = RouteFactory(request)
         request.registry.permission.get_accessible_objects.return_value = {}
 
-        context.fetch_shared_records('read', ['userid'])
+        context.fetch_shared_records('read', ['userid'], None)
 
         self.assertIsNone(context.shared_ids)
 
@@ -251,6 +271,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
 class GuestAuthorizationPolicyTest(unittest.TestCase):
     def setUp(self):
         self.authz = AuthorizationPolicy()
+        self.authz.get_bound_permissions = lambda o, p: []
         self.request = DummyRequest(method='GET')
         self.context = RouteFactory(self.request)
         self.context.on_collection = True
@@ -262,7 +283,8 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
         self.context.fetch_shared_records.assert_called_with(
             'read',
-            ['userid'])
+            ['userid'],
+            self.authz.get_bound_permissions)
         self.assertTrue(allowed)
 
     def test_permits_does_not_return_true_if_not_collection(self):
@@ -282,7 +304,8 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         allowed = self.authz.permits(self.context, ['userid'], 'dynamic')
         self.context.fetch_shared_records.assert_called_with(
             'read',
-            ['userid'])
+            ['userid'],
+            self.authz.get_bound_permissions)
         self.assertFalse(allowed)
 
     def test_perm_object_id_is_naive_if_no_record_path_exists(self):

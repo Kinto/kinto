@@ -83,7 +83,9 @@ class AuthorizationPolicy(object):
         is_list_operation = (context.on_collection and
                              not permission.endswith('create'))
         if not allowed and is_list_operation:
-            shared = context.fetch_shared_records(permission, principals)
+            shared = context.fetch_shared_records(permission,
+                                                  principals,
+                                                  self.get_bound_permissions)
             allowed = shared is not None
 
         return allowed
@@ -139,7 +141,7 @@ class RouteFactory(object):
                                             self.required_permission)
             self.allowed_principals = aslist(settings.get(setting, ''))
 
-    def fetch_shared_records(self, perm, principals):
+    def fetch_shared_records(self, perm, principals, get_bound_permissions):
         """Fetch records that are readable or writable for the current
         principals.
 
@@ -152,8 +154,11 @@ class RouteFactory(object):
             return value. The attribute is then read by
             :class:`kinto.core.resource.ShareableResource`
         """
-        bound_permissions = [(self._object_id_match, perm)]
-        by_obj_id = self._get_accessible_objects(principals, bound_permissions)
+        if get_bound_permissions:
+            bound_perms = get_bound_permissions(self._object_id_match, perm)
+        else:
+            bound_perms = [(self._object_id_match, perm)]
+        by_obj_id = self._get_accessible_objects(principals, bound_perms)
         ids = by_obj_id.keys()
         if len(ids) > 0:
             # Store for later use in ``ShareableResource``.
