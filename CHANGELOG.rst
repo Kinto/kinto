@@ -25,6 +25,7 @@ Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs
 - Fix bug in object permissions with memory backend
 - Make sure the tombstone is deleted when the record is created with PUT. (#715)
 - Allow filtering and sorting by any attribute on buckets, collections and groups list endpoints
+- Fix crash in memory backend with Python3 when filtering on unknown field
 
 **Internal changes**
 

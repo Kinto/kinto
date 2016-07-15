@@ -418,6 +418,19 @@ class BaseTestStorage(object):
         self.assertEqual(records[1]['name'], "Marie")
         self.assertEqual(len(records), 2)
 
+    def test_get_all_can_filter_with_none_values(self):
+        self.create_record({"name": "Alexis"})
+        self.create_record({"title": "haha"})
+        self.create_record({"name": "Mathieu"})
+        filters = [Filter("name", "Fanny", utils.COMPARISON.GT)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)  # None is not greater than "Fanny"
+        self.assertEqual(records[0]["name"], "Mathieu")
+
+        filters = [Filter("name", "Fanny", utils.COMPARISON.LT)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 2)  # None is less than "Fanny"
+
     def test_get_all_can_filter_with_list_of_values_on_id(self):
         record1 = self.create_record({'code': 'a'})
         record2 = self.create_record({'code': 'b'})
