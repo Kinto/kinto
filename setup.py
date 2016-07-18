@@ -37,7 +37,7 @@ if installed_with_pypy:
     # We install psycopg2cffi instead of psycopg2 when dealing with pypy
     # Note: JSONB support landed after psycopg2cffi 2.7.0
     POSTGRESQL_REQUIRES = [
-        'SQLAlchemy<1.1.0b1',  # zopefoundation/zope.sqlalchemy#15
+        'SQLAlchemy',
         'psycopg2cffi>2.7.0',
         'zope.sqlalchemy',
     ]
@@ -45,7 +45,7 @@ else:
     # ujson is not pypy compliant, as it uses the CPython C API
     REQUIREMENTS.append('ujson >= 1.35')
     POSTGRESQL_REQUIRES = [
-        'SQLAlchemy<1.1.0b1',  # zopefoundation/zope.sqlalchemy#15
+        'SQLAlchemy',
         'psycopg2>2.5',
         'zope.sqlalchemy',
     ]
@@ -71,7 +71,7 @@ ENTRY_POINTS = {
 
 
 setup(name='kinto',
-      version='3.3.0.dev0',
+      version='3.3.0',
       description='Kinto Web Service - Store, Sync, Share, and Self-Host.',
       long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
       license='Apache License (2.0)',

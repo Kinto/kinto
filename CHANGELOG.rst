@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-3.3.0 (unreleased)
+3.3.0 (2016-07-18)
 ==================
 
 **Protocol**

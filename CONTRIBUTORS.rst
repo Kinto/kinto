@@ -1,6 +1,7 @@
 Contributors
 ============
 
+* Adam Chainz <adam@adamj.eu>
 * Aaron Egaas <me@aaronegaas.com>
 * Aditya Bhasin <conlini@gmail.com>
 * Alexis Metaireau <alexis@mozilla.com>
