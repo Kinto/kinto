@@ -31,6 +31,10 @@ class Group(resource.ShareableResource):
         parent_id = '/buckets/%s' % bucket_id
         return parent_id
 
+    def is_known_field(self, field_name):
+        """Without schema, any field is considered as known."""
+        return True
+
 
 @subscriber(ResourceChanged,
             for_resources=('group',),

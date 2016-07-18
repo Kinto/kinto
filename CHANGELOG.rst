@@ -6,7 +6,10 @@ This document describes changes between each past release.
 3.2.3 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Allow filtering and sorting by any attribute on buckets, collections and groups list endpoints
+- Fix crash in memory backend with Python3 when filtering on unknown field
 
 
 3.2.2 (2016-07-13)
