@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import os
 
-from collections import defaultdict
+from collections import OrderedDict
 
 from kinto.core import logger
 from kinto.core.permission import PermissionBase
@@ -161,18 +161,12 @@ class Permission(PermissionBase):
             results = result.fetchall()
         return set([r['principal'] for r in results])
 
-    def get_authorized_principals(self, object_id, permission,
-                                  get_bound_permissions=None):
+    def get_authorized_principals(self, bound_permissions):
         # XXX: this method is not used, except in test suites :(
-        if get_bound_permissions is None:
-            perms = [(object_id, permission)]
-        else:
-            perms = get_bound_permissions(object_id, permission)
-
-        if not perms:
+        if not bound_permissions:
             return set()
 
-        perms_values = ','.join(["('%s', '%s')" % p for p in perms])
+        perm_values = ','.join(["('%s', '%s')" % p for p in bound_permissions])
         query = """
         WITH required_perms AS (
           VALUES %s
@@ -180,68 +174,63 @@ class Permission(PermissionBase):
         SELECT principal
           FROM required_perms JOIN access_control_entries
             ON (object_id = column1 AND permission = column2);
-        """ % perms_values
+        """ % perm_values
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query)
             results = result.fetchall()
         return set([r['principal'] for r in results])
 
-    def get_accessible_objects(self, principals, permission,
-                               object_id_match=None,
-                               get_bound_permissions=None):
-        placeholders = {'permission': permission}
-
-        if object_id_match is None:
-            object_id_match = '*'
-
-        perms = []
-        if get_bound_permissions is not None:
-            perms = get_bound_permissions(object_id_match, permission)
-        if not perms:
-            perms = [(object_id_match, permission)]
-
-        perms = [(o.replace('*', '.*'), p) for (o, p) in perms
-                 if o.endswith(object_id_match)]
-        perms_values = ','.join(["('%s', '%s')" % p for p in perms])
+    def get_accessible_objects(self, principals, bound_permissions=None):
         principals_values = ','.join(["('%s')" % p for p in principals])
-        query = """
-        WITH required_perms AS (
-          VALUES %(perms)s
-        ),
-        user_principals AS (
-          VALUES %(principals)s
-        ),
-        potential_objects AS (
-          SELECT object_id, required_perms.column1 AS pattern
-            FROM access_control_entries
-            JOIN user_principals
-              ON (principal = user_principals.column1)
-            JOIN required_perms
-              ON (permission = required_perms.column2)
-        )
-        SELECT object_id
-          FROM potential_objects
-         WHERE object_id ~ pattern;
-        """ % dict(perms=perms_values,
-                   principals=principals_values)
+        if bound_permissions is None:
+            query = """
+            WITH user_principals AS (
+              VALUES %(principals)s
+            )
+            SELECT object_id, permission
+              FROM access_control_entries
+              JOIN user_principals
+                ON (principal = user_principals.column1);
+            """ % dict(principals=principals_values)
+        else:
+            perms = [(o.replace('*', '.*'), p) for (o, p) in bound_permissions]
+            perms_values = ','.join(["('%s', '%s')" % p for p in perms])
+            query = """
+            WITH required_perms AS (
+              VALUES %(perms)s
+            ),
+            user_principals AS (
+              VALUES %(principals)s
+            ),
+            potential_objects AS (
+              SELECT object_id, permission, required_perms.column1 AS pattern
+                FROM access_control_entries
+                JOIN user_principals
+                  ON (principal = user_principals.column1)
+                JOIN required_perms
+                  ON (permission = required_perms.column2)
+            )
+            SELECT object_id, permission
+              FROM potential_objects
+             WHERE object_id ~ pattern;
+            """ % dict(perms=perms_values,
+                       principals=principals_values)
 
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, placeholders)
+            result = conn.execute(query)
             results = result.fetchall()
-        return set([r['object_id'] for r in results])
 
-    def check_permission(self, object_id, permission, principals,
-                         get_bound_permissions=None):
-        if get_bound_permissions is None:
-            perms = [(object_id, permission)]
-        else:
-            perms = get_bound_permissions(object_id, permission)
+        perms_by_id = {}
+        for r in results:
+            perms_by_id.setdefault(r['object_id'], set()).add(r['permission'])
+        return perms_by_id
 
-        if not perms:
+    def check_permission(self, principals, bound_permissions):
+        if not bound_permissions:
             return False
 
-        perms_values = ','.join(["('%s', '%s')" % p for p in perms])
         principals_values = ','.join(["('%s')" % p for p in principals])
+        perm_values = ','.join(["('%s', '%s')" % p for p in bound_permissions])
         query = """
         WITH required_perms AS (
           VALUES %(perms)s
@@ -257,31 +246,48 @@ class Permission(PermissionBase):
         SELECT COUNT(*) AS matched
           FROM required_principals JOIN allowed_principals
             ON (required_principals.column1 = principal);
-        """ % dict(perms=perms_values, principals=principals_values)
+        """ % dict(perms=perm_values, principals=principals_values)
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query)
             total = result.fetchone()
         return total['matched'] > 0
 
-    def get_object_permissions(self, object_id, permissions=None):
+    def get_objects_permissions(self, objects_ids, permissions=None):
         query = """
-        SELECT permission, principal
-        FROM access_control_entries
-        WHERE object_id = :object_id"""
-
-        placeholders = dict(object_id=object_id)
+        WITH required_object_ids AS (
+          VALUES %(objects_ids)s
+        )
+        SELECT object_id, permission, principal
+            FROM required_object_ids JOIN access_control_entries
+              ON (object_id = column2)
+              %(permissions_condition)s
+        ORDER BY column1 ASC;
+        """
+        obj_ids_values = ','.join(["(%s, '%s')" % t
+                                   for t in enumerate(objects_ids)])
+        safeholders = {
+            'objects_ids': obj_ids_values,
+            'permissions_condition': ''
+        }
+        placeholders = {}
         if permissions is not None:
-            query += """
-        AND permission IN :permissions;"""
+            safeholders['permissions_condition'] = """
+              WHERE permission IN :permissions"""
             placeholders["permissions"] = tuple(permissions)
+
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, placeholders)
-            results = result.fetchall()
-        permissions = defaultdict(set)
-        for r in results:
-            permissions[r['permission']].add(r['principal'])
-        return permissions
+            result = conn.execute(query % safeholders, placeholders)
+            rows = result.fetchall()
+
+        groupby_id = OrderedDict()
+        for row in rows:
+            object_id, permission, principal = (row['object_id'],
+                                                row['permission'],
+                                                row['principal'])
+            permissions = groupby_id.setdefault(object_id, {})
+            permissions.setdefault(permission, set()).add(principal)
+        return list(groupby_id.values())
 
     def replace_object_permissions(self, object_id, permissions):
         if not permissions:

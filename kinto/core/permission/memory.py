@@ -79,56 +79,50 @@ class Permission(PermissionBase):
         members = self._store.get(permission_key, set())
         return members
 
-    def get_accessible_objects(self, principals, permission,
-                               object_id_match=None,
-                               get_bound_permissions=None):
+    def get_accessible_objects(self, principals, bound_permissions=None):
         principals = set(principals)
-        if object_id_match is None:
-            object_id_match = '*'
-
-        keys = []
-        if get_bound_permissions is not None:
-            keys = get_bound_permissions(object_id_match, permission)
-            keys = [(re.compile(obj_id.replace('*', '.*')), p) for (obj_id, p)
-                    in keys if obj_id.endswith(object_id_match)]
-        if not keys:
-            object_id_match = object_id_match.replace('*', '.*')
-            keys = [(re.compile(object_id_match), permission)]
-
-        objects = set()
-        for obj_id, perm in keys:
+        candidates = []
+        if bound_permissions is None:
             for key, value in self._store.items():
-                if key.endswith(perm):
-                    if len(principals & value) > 0:
-                        object_id = key.split(':')[1]
-                        if obj_id.match(object_id):
-                            objects.add(object_id)
-        return objects
-
-    def get_authorized_principals(self, object_id, permission,
-                                  get_bound_permissions=None):
-        if get_bound_permissions is None:
-            keys = [(object_id, permission)]
+                _, object_id, permission = key.split(':', 2)
+                candidates.append((object_id, permission, value))
         else:
-            keys = get_bound_permissions(object_id, permission)
+            for pattern, perm in bound_permissions:
+                regexp = re.compile(pattern.replace('*', '.*'))
+                for key, value in self._store.items():
+                    if key.endswith(perm):
+                        object_id = key.split(':')[1]
+                        if regexp.match(object_id):
+                            candidates.append((object_id, perm, value))
+
+        perms_by_object_id = {}
+        for (object_id, perm, value) in candidates:
+            if len(principals & value) > 0:
+                perms_by_object_id.setdefault(object_id, set()).add(perm)
+        return perms_by_object_id
+
+    def get_authorized_principals(self, bound_permissions):
         principals = set()
-        for obj_id, perm in keys:
+        for obj_id, perm in bound_permissions:
             principals |= self.get_object_permission_principals(obj_id, perm)
         return principals
 
-    def get_object_permissions(self, object_id, permissions=None):
-        if permissions is None:
-            aces = [k for k in self._store.keys()
-                    if k.startswith('permission:%s:' % object_id)]
-        else:
-            aces = ['permission:%s:%s' % (object_id, permission)
-                    for permission in permissions]
-        permissions = {}
-        for ace in aces:
-            # Should work with stuff like 'permission:/url/id:record:create'.
-            permission = ace.split(':', 2)[2]
-            permissions[permission] = set(self._store[ace])
-        return permissions
+    def get_objects_permissions(self, objects_ids, permissions=None):
+        result = []
+        for object_id in objects_ids:
+            if permissions is None:
+                aces = [k for k in self._store.keys()
+                        if k.startswith('permission:%s:' % object_id)]
+            else:
+                aces = ['permission:%s:%s' % (object_id, permission)
+                        for permission in permissions]
+            permissions = {}
+            for ace in aces:
+                # Should work with 'permission:/url/id:record:create'.
+                permission = ace.split(':', 2)[2]
+                permissions[permission] = set(self._store[ace])
+            result.append(permissions)
+        return result
 
     def replace_object_permissions(self, object_id, permissions):
         for permission, principals in permissions.items():
