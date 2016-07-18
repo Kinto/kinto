@@ -100,7 +100,6 @@ class MemoryBasedStorage(StorageBase):
             COMPARISON.IN: operator.contains,
             COMPARISON.EXCLUDE: lambda x, y: not operator.contains(x, y),
         }
-
         for record in records:
             matches = True
             for f in filters:
@@ -109,6 +108,14 @@ class MemoryBasedStorage(StorageBase):
                 if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                     right = left
                     left = f.value
+                else:
+                    # Python3 cannot compare None to other value.
+                    if left is None:
+                        if f.operator in (COMPARISON.GT, COMPARISON.MIN):
+                            matches = False
+                            continue
+                        elif f.operator in (COMPARISON.LT, COMPARISON.MAX):
+                            continue  # matches = matches and True
                 matches = matches and operators[f.operator](left, right)
             if matches:
                 yield record

@@ -81,6 +81,17 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         self.assertIn('fingerprint', data)
         self.assertEqual(data['fingerprint'], fingerprint)
 
+    def test_collections_can_be_filtered_by_arbitrary_attribute(self):
+        collection = MINIMALIST_COLLECTION.copy()
+        collection['data'] = {'size': 3}
+        self.app.put_json('/buckets/beers/collections/moderator',
+                          collection,
+                          headers=self.headers)
+        resp = self.app.get('/buckets/beers/collections?min_size=2',
+                            headers=self.headers)
+        data = resp.json['data']
+        self.assertEqual(len(data), 1)
+
 
 class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
 
