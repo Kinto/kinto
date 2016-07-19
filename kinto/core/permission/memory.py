@@ -116,12 +116,12 @@ class Permission(PermissionBase):
             else:
                 aces = ['permission:%s:%s' % (object_id, permission)
                         for permission in permissions]
-            permissions = {}
+            perms = {}
             for ace in aces:
                 # Should work with 'permission:/url/id:record:create'.
                 permission = ace.split(':', 2)[2]
-                permissions[permission] = set(self._store[ace])
-            result.append(permissions)
+                perms[permission] = set(self._store[ace])
+            result.append(perms)
         return result
 
     def replace_object_permissions(self, object_id, permissions):
