@@ -3,8 +3,10 @@ Changelog
 
 This document describes changes between each past release.
 
-3.4.0 (unreleased)
+3.3.1 (2016-07-19)
 ==================
+
+**Protocol**
 
 - Add the ``permissions_endpoint`` capability. (#722)
 
