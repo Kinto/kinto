@@ -77,7 +77,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertIn('permissions_endpoint', capabilities)
         expected = {
             "description": "The permissions endpoint can be used to list "
-                           "all user ressources permissions.",
+                           "all user objects permissions.",
             "url": "https://kinto.readthedocs.io/en/latest/configuration/"
                    "settings.html#activating-the-permissions-endpoint"
         }

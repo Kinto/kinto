@@ -84,7 +84,7 @@ def main(global_config, config=None, **settings):
         config.add_api_capability(
             "permissions_endpoint",
             description="The permissions endpoint can be used to list all "
-                        "user ressources permissions.",
+                        "user objects permissions.",
             url="https://kinto.readthedocs.io/en/latest/configuration/"
                 "settings.html#activating-the-permissions-endpoint")
     else:
