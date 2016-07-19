@@ -6,7 +6,7 @@ This document describes changes between each past release.
 3.4.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add the ``permissions_endpoint`` capability. (#722)
 
 
 3.3.0 (2016-07-18)
