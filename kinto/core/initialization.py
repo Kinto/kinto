@@ -549,6 +549,10 @@ def initialize(config, version=None, project_name='', default_settings=None):
     if not project_name:
         warnings.warn('No value specified for `project_name`')
 
+    http_scheme = settings.get('kinto.http_scheme')
+    if http_scheme != 'https':
+        warnings.warn('HTTPS is not enabled')
+
     kinto_core_defaults = DEFAULT_SETTINGS.copy()
 
     if default_settings:

@@ -40,6 +40,7 @@ Contributors
 * Rémy Hubscher <rhubscher@mozilla.com>
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
+* Surya Prashanth <prashantsurya@ymail.com>
 * SwhGo_oN
 * Tarek Ziade <tarek@mozilla.com>
 * Taylor Zane Glaeser <tzglaeser@gmail.com>
