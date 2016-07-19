@@ -59,7 +59,11 @@ Feature settings
 +-------------------------------------------------+--------------+---------------------------------------------------------------------------+
 | kinto.experimental_collection_schema_validation | ``False``    | *Experimental*: Allow definition of JSON schema at the collection level,  |
 |                                                 |              | in order to :ref:`validate submitted records <collection-json-schema>`.   |
-|                                                 |              | It is marked as experimental because the API might subjet to changes.     |
+|                                                 |              | It is marked as experimental because the API might be subject to changes. |
++-------------------------------------------------+--------------+---------------------------------------------------------------------------+
+| kinto.experimental_permissions_endpoint         | ``False``    | *Experimental*: Add a new permissions endpoint to let the user grab the   |
+|                                                 |              | list of ressources they can access to. Buckets/Collections/Records/Groups.|
+|                                                 |              | It is marked as experimental because the API might be subject to changes. |
 +-------------------------------------------------+--------------+---------------------------------------------------------------------------+
 | kinto.trailing_slash_redirect_enabled           | ``True``     | Try to redirect resources removing slash or adding it for the root URL    |
 |                                                 |              | endpoint: ``/v1`` redirects to ``/v1/`` and ``/buckets/default/``         |
@@ -592,6 +596,23 @@ dangerous to leave on by default, and must therefore be enabled explicitly.
 
 Then, issue a `POST` request to the `/__flush__` endpoint to flush all
 the data.
+
+
+Activating the permissions endpoint
+===================================
+
+
+The Permissions endpoint is used to get a list of all user accessible
+ressources in the server as well as their permissions. It enable
+applications such as the kinto-admin to discover what the user can do
+and which data can be managed.
+
+.. code-block :: ini
+
+    kinto.permissions_endpoint_enabled = true
+
+Then, issue a `GET` request to the `/permissions` endpoint to get the
+list of the user permissions on the server ressources.
 
 
 .. _configuration-client-caching:
