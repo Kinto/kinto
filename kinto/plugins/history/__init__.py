@@ -18,12 +18,13 @@ def on_resource_changed(event):
     event_uri = payload['uri']
 
     bucket_id = payload.pop('bucket_id')
-    bucket_uri = instance_uri('bucket', id=bucket_id)
+    bucket_uri = instance_uri(event.request, 'bucket', id=bucket_id)
     collection_id = None
     collection_uri = None
     if 'collection_id' in payload:
         collection_id = payload['collection_id']
-        collection_uri = instance_uri('collection',
+        collection_uri = instance_uri(event.request,
+                                      'collection',
                                       bucket_id=bucket_id,
                                       id=collection_id)
 
@@ -48,6 +49,7 @@ def on_resource_changed(event):
     all_perms_objects_ids.append(bucket_uri)
     if collection_uri is not None:
         all_perms_objects_ids.append(collection_uri)
+    all_perms_objects_ids = list(set(all_perms_objects_ids))
     all_permissions = permission.get_objects_permissions(all_perms_objects_ids)
     perms_by_object_id = dict(zip(all_perms_objects_ids, all_permissions))
 
@@ -85,7 +87,7 @@ def on_resource_changed(event):
 
         # The read permission on the newly created history entry is the union
         # of the record permissions with the one from bucket and collection.
-        entry_principals = set(*read_principals)
+        entry_principals = set(read_principals)
         entry_principals.update(perms.get('read', []))
         entry_principals.update(perms.get('write', []))
         entry_perms = {'read': list(entry_principals)}

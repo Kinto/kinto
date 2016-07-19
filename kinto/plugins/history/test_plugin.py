@@ -479,7 +479,7 @@ class PermissionsTest(HistoryWebTest):
     def test_new_entries_are_not_readable_if_permission_is_removed(self):
         resp = self.app.get('/buckets/test/history',
                             headers=self.alice_headers)
-        before = len(resp.json['data'])
+        before = resp.headers['ETag']
 
         # Remove alice from read permission.
         self.app.patch_json('/buckets/test',
@@ -493,4 +493,4 @@ class PermissionsTest(HistoryWebTest):
         # History did not evolve for alice.
         resp = self.app.get('/buckets/test/history',
                             headers=self.alice_headers)
-        assert len(resp.json['data']) == before
+        assert resp.headers['ETag'] != before
