@@ -67,3 +67,26 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         resp = app.get('/')
         capabilities = resp.json['capabilities']
         self.assertNotIn('flush_endpoint', capabilities)
+
+    def test_permissions_capability_if_enabled(self):
+        settings = self.get_app_settings()
+        settings['experimental_permissions_endpoint'] = True
+        app = self._get_test_app(settings=settings)
+        resp = app.get('/')
+        capabilities = resp.json['capabilities']
+        self.assertIn('permissions_endpoint', capabilities)
+        expected = {
+            "description": "The permissions endpoint can be used to list "
+                           "all user objects permissions.",
+            "url": "https://kinto.readthedocs.io/en/latest/configuration/"
+                   "settings.html#activating-the-permissions-endpoint"
+        }
+        self.assertEqual(expected, capabilities['permissions_endpoint'])
+
+    def test_permissions_capability_if_not_enabled(self):
+        settings = self.get_app_settings()
+        settings['experimental_permissions_endpoint'] = False
+        app = self._get_test_app(settings=settings)
+        resp = app.get('/')
+        capabilities = resp.json['capabilities']
+        self.assertNotIn('permissions_endpoint', capabilities)

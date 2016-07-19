@@ -80,7 +80,14 @@ def main(global_config, config=None, **settings):
     permissions_endpoint_enabled = (
         asbool(settings['experimental_permissions_endpoint']) and
         hasattr(config.registry, 'permission'))
-    if not permissions_endpoint_enabled:
+    if permissions_endpoint_enabled:
+        config.add_api_capability(
+            "permissions_endpoint",
+            description="The permissions endpoint can be used to list all "
+                        "user objects permissions.",
+            url="https://kinto.readthedocs.io/en/latest/configuration/"
+                "settings.html#activating-the-permissions-endpoint")
+    else:
         kwargs.setdefault('ignore', []).append('kinto.views.permissions')
 
     config.scan("kinto.views", **kwargs)
