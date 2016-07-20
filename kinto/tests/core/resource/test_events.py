@@ -93,6 +93,13 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
 
     subscribed = (ResourceChanged,)
 
+    def test_events_have_custom_representation(self):
+        self.app.post_json(self.collection_url, self.body,
+                           headers=self.headers, status=201)
+        self.assertEqual(repr(self.events[0]),
+                         "<ResourceChanged action=create "
+                         "uri=%s>" % self.collection_url)
+
     def test_post_sends_create_action(self):
         self.app.post_json(self.collection_url, self.body,
                            headers=self.headers, status=201)

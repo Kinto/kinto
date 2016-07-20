@@ -24,6 +24,11 @@ class _ResourceEvent(object):
         self.payload = payload
         self.request = request
 
+    def __repr__(self):
+        return "<{klass} action={action} uri={uri}>".format(
+            klass=self.__class__.__name__,
+            **self.payload)
+
 
 class ResourceRead(_ResourceEvent):
     """Triggered when a resource is being read.
