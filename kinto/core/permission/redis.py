@@ -100,8 +100,8 @@ class Permission(PermissionBase):
             for key in matched:
                 authorized = self._decode_set(self._client.smembers(key))
                 if len(authorized & principals) > 0:
-                    _, object_id, permission = key.decode('utf-8').split(':')
-                    perms_by_id.setdefault(object_id, set()).add(permission)
+                    _, obj_id, permission = key.decode('utf-8').split(':', 2)
+                    perms_by_id.setdefault(obj_id, set()).add(permission)
 
         return perms_by_id
 
