@@ -36,6 +36,10 @@ This document describes changes between each past release.
 - Add a flag to to run simulation load tests on ``default`` bucket. Uses ``blog``
   bucket by default (#733)
 
+**New features**
+
+- Add a ``delete-collection`` action to the ``kinto`` command. (#727)
+
 
 3.3.1 (2016-07-19)
 ==================
