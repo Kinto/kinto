@@ -9,7 +9,7 @@ Contributors
 * Aymeric Faivre <miho@miho-stories.com>
 * Ayush Sharma <ayush.aceit@gmail.com>
 * Balthazar Rouberol <br@imap.cc>
-* Boris FELD <lothiraldan@gmail.com>
+* Boris Feld <lothiraldan@gmail.com>
 * Chirag B. Jadwani <chirag.jadwani@gmail.com>
 * Clément Villain <choclatefr@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>

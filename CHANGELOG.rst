@@ -8,7 +8,7 @@ This document describes changes between each past release.
 
 **Protocol**
 
-- Add the ``permissions_endpoint`` capability. (#722)
+- Add the ``permissions_endpoint`` capability when the ``kinto.experimental_permissions_endpoint`` is set. (#722)
 
 
 3.3.0 (2016-07-18)
