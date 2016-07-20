@@ -1,5 +1,7 @@
-Paginate
-########
+.. _paginating:
+
+Paginating
+##########
 
 Plural endpoints support limiting the number of elements returned. For
 example, you can retrieve a fixed number of records in a

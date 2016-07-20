@@ -22,6 +22,7 @@ Full detailed API documentation:
    sorting
    pagination
    selecting_fields
+   history
    utilities
    batch
    timestamps
