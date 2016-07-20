@@ -57,7 +57,18 @@ def main(args=None):
     bucket = '/buckets/%s' % bucket_id
     registry.storage.delete('collection', bucket, collection_id,
                             with_deleted=False)
-    print('%r collection have been deleted' % collection)
+    print('%r collection has been deleted.' % collection)
+
+    record_uri = ('/buckets/{bucket_id}'
+                  '/collections/{collection_id}'
+                  '/records/{record_id}')
+
+    registry.permission.delete_object_permissions(
+        collection.rstrip('/'),
+        *[record_uri.format(bucket_id=bucket_id,
+                            collection_id=collection_id,
+                            record_id=r['id']) for r in deleted])
+    print('Related permissions cleaned up.')
 
 
 if __name__ == '__main__':
