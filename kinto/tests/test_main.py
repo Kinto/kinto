@@ -102,6 +102,18 @@ class TestMain(unittest.TestCase):
             assert res == 0
             assert mocked_migrate.call_count == 1
 
+    def test_cli_delete_collection_run_delete_collection_script(self):
+        with mock.patch('kinto.__main__.scripts.delete_collection') as del_col:
+            del_col.return_value = mock.sentinel.del_col_code
+            res = main(['--ini', TEMP_KINTO_INI,
+                        '--backend', 'memory', 'init'])
+            assert res == 0
+            res = main(['--ini', TEMP_KINTO_INI, 'delete-collection',
+                        '--bucket', 'test_bucket',
+                        '--collection', 'test_collection'])
+            assert res == mock.sentinel.del_col_code
+            assert del_col.call_count == 1
+
     def test_cli_start_runs_pserve(self):
         with mock.patch('kinto.__main__.pserve.main') as mocked_pserve:
             res = main(['--ini', TEMP_KINTO_INI,
