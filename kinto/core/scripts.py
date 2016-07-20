@@ -33,7 +33,7 @@ def delete_collection(env, bucket_id, collection_id):
     readonly_mode = asbool(settings.get('readonly', False))
 
     if readonly_mode:
-        message = ('Cannot cleanup the collection while in readonly mode.')
+        message = ('Cannot delete the collection while in readonly mode.')
         warnings.warn(message)
         return 31
 
@@ -52,7 +52,7 @@ def delete_collection(env, bucket_id, collection_id):
               '/records/{record_id}')
 
     registry.permission.delete_object_permissions(
-        collection.rstrip('/'),
+        collection,
         *[record.format(bucket_id=bucket_id,
                         collection_id=collection_id,
                         record_id=r['id']) for r in deleted])
