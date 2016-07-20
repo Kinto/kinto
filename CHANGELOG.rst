@@ -3,6 +3,14 @@ Changelog
 
 This document describes changes between each past release.
 
+3.3.2 (unreleased)
+==================
+
+**Bug fixes**
+
+- Fix Redis get_accessible_object implementation (#725)
+
+
 3.3.1 (2016-07-19)
 ==================
 
