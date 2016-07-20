@@ -5,7 +5,7 @@ from kinto.core.utils import instance_uri
 
 
 class HistorySchema(resource.ResourceSchema):
-    userid = colander.SchemaNode(colander.String())
+    user_id = colander.SchemaNode(colander.String())
     uri = colander.SchemaNode(colander.String())
     action = colander.SchemaNode(colander.String())
     resource_name = colander.SchemaNode(colander.String())

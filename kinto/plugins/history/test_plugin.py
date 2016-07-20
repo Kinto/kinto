@@ -59,7 +59,7 @@ class HistoryViewTest(HistoryWebTest):
     def test_tracks_user_and_date(self):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][-1]
-        assert entry['userid'].startswith('basicauth:3a0c56')
+        assert entry['user_id'].startswith('basicauth:3a0c56')
         assert re.match('^\d{4}\-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}',
                         entry['date'])
 

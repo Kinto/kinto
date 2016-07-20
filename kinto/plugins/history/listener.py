@@ -9,7 +9,6 @@ def on_resource_changed(event):
     ``history`` resource. The entries are served as read-only in the
     :mod:`kinto.plugins.history.views` module.
     """
-    userid = event.request.prefixed_userid
     payload = copy.deepcopy(event.payload)
     action = payload['action']
     resource_name = payload['resource_name']
@@ -71,8 +70,7 @@ def on_resource_changed(event):
         eventattrs = dict(**payload)
         eventattrs.setdefault('%s_id' % resource_name, obj_id)
         eventattrs['uri'] = uri
-        attrs = dict(userid=userid,
-                     date=datetime.now().isoformat(),
+        attrs = dict(date=datetime.now().isoformat(),
                      target={'data': target, 'permissions': perms},
                      **eventattrs)
 
