@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.8 (unreleased)
+1.8 (2016-07-19)
 ''''''''''''''''
 
 - Add new endpoint ``GET /v1/permissions`` to retrieve the list of permissions

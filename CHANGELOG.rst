@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-3.4.0 (unreleased)
+3.3.1 (2016-07-19)
 ==================
 
-- Add the ``permissions_endpoint`` capability. (#722)
+**Protocol**
+
+- Add the ``permissions_endpoint`` capability when the ``kinto.experimental_permissions_endpoint`` is set. (#722)
 
 
 3.3.0 (2016-07-18)
