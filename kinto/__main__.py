@@ -5,6 +5,7 @@ import sys
 import logging
 import logging.config
 from six.moves import input, configparser
+
 from kinto.core import scripts
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
@@ -38,7 +39,7 @@ def main(args=None):
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='valid subcommands',
                                        dest='subcommand',
-                                       help='init/start/migrate')
+                                       help='init/start/migrate/delete-collection')
     subparsers.required = True
 
     parser_init = subparsers.add_parser('init')
@@ -53,6 +54,18 @@ def main(args=None):
                                 required=False,
                                 default=False)
     parser_migrate.set_defaults(which='migrate')
+
+    parser_delete_collection = subparsers.add_parser('delete-collection')
+    parser_delete_collection.add_argument(
+        '--bucket',
+        help='The bucket the collection is in.',
+        required=True)
+    parser_delete_collection.add_argument(
+        '--collection',
+        help='The collection to remove.',
+        required=True)
+    parser_delete_collection.set_defaults(which='delete-collection')
+
     parser_start = subparsers.add_parser('start')
     parser_start.add_argument('--reload',
                               action='store_true',
@@ -107,7 +120,13 @@ def main(args=None):
         env = bootstrap(config_file)
         scripts.migrate(env, dry_run=dry_run)
 
-    elif parsed_args['which'] == 'start':
+    elif parsed_args['which'] == 'delete-collection':
+        env = bootstrap(config_file)
+        return scripts.delete_collection(env,
+                                         parsed_args['bucket'],
+                                         parsed_args['collection'])
+
+    elif which_command == 'start':
         pserve_argv = ['pserve', config_file]
         if parsed_args['reload']:
             pserve_argv.append('--reload')
