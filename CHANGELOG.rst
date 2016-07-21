@@ -3,6 +3,16 @@ Changelog
 
 This document describes changes between each past release.
 
+3.3.2 (2016-07-21)
+==================
+
+**Bug fixes**
+
+- Fix Redis get_accessible_object implementation (#725)
+- Fix bug where the resource events of a request targetting two groups/collection
+  from different buckets would be grouped together.
+
+
 3.3.1 (2016-07-19)
 ==================
 
