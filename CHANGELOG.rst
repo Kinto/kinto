@@ -6,6 +6,12 @@ This document describes changes between each past release.
 3.4.0 (unreleased)
 ==================
 
+**New features**
+
+- Added a new built-in plugin ``kinto.plugins.history`` that keeps track of every action
+  that occured within a bucket and serves a stream of changes that can be synced.
+  See `API documentation <https://kinto.readthedocs.io/en/latest/api/1.x/history.html>`_.
+
 **Bug fixes**
 
 - Fix Redis get_accessible_object implementation (#725)
