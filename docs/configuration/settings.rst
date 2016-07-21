@@ -449,8 +449,21 @@ list of Python modules:
 .. code-block:: ini
 
     kinto.includes = kinto.plugins.default_bucket
+                     kinto.plugins.history
                      kinto-attachment
                      custom-myplugin
+
++---------------------------------------+--------------------------------------------------------------------------+
+| Built-in plugins                      | What does it do?                                                         |
++=======================================+==========================================================================+
+| ``kinto.plugins.default_bucket``      | It enables a personnal bucket ``default``, where collections are created |
+|                                       | implicitly (:ref:`more details <buckets-default-id>`).                   |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.history``             | It tracks every action performed on objects within a bucket              |
+|                                       | (:ref:`more details <history>`).                                         |
++---------------------------------------+--------------------------------------------------------------------------+
+
+See `our list of community plugins <https://github.com/Kinto/kinto/wiki/Plugins>`_.
 
 See also: :ref:`tutorial-write-plugin` for more in-depth informations on how
 to create your own plugin.

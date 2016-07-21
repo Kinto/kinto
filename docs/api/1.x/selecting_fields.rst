@@ -1,3 +1,5 @@
+.. _selecting-fields:
+
 Selecting fields
 ################
 

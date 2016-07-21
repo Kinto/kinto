@@ -4,7 +4,7 @@ from kinto.core import utils
 
 
 def prefixed_userid(request):
-    """In Cliquet users ids are prefixed with the policy name that is
+    """In Kinto users ids are prefixed with the policy name that is
     contained in Pyramid Multiauth.
     If a custom authn policy is used, without authn_type, this method returns
     the user id without prefix.
