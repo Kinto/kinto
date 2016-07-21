@@ -90,7 +90,7 @@ Retrieve history
             ]
         }
 
-As other plural endpoints, the entries can be filtered and sorted using the querystring.
+As other list endpoints, the entries can be filtered and sorted using the querystring.
 
 * ``?_since="<timestamp>"`` and ``?_before="<timestamp>"`` to filter by timestamp/last_modified
 * ``?_limit=<N>``: limits to N entries (use ``Next-Page`` response header for pagination)
