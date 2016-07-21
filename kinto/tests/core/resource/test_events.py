@@ -352,6 +352,25 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
         self.app.post_json("/batch", body, headers=self.headers)
         self.assertEqual(len(self.events), 2)
 
+    def test_one_event_is_sent_per_parent_id(self):
+        # /mushrooms is a UserResource (see testapp.views), which means
+        # that parent_id depends on the authenticated user.
+        body = {
+            "defaults": {
+                "path": '/mushrooms',
+                "method": "POST",
+                "body": self.body
+            },
+            "requests": [
+                {"headers": {"Authorization": "Basic bWF0OjE="}},
+                {"headers": {"Authorization": "Basic dG90bzp0dXR1"}},
+                {"headers": {"Authorization": "Basic bWF0OjE="}},
+            ]
+        }
+        self.app.post_json("/batch", body, headers=self.headers)
+        # Two different auth headers, thus two different parent_id:
+        self.assertEqual(len(self.events), 2)
+
     def test_one_event_is_sent_per_action(self):
         body = {
             "defaults": {

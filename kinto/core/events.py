@@ -131,7 +131,8 @@ def get_resource_events(request, after_commit=False):
     return events
 
 
-def notify_resource_event(request, timestamp, data, action, old=None):
+def notify_resource_event(request, parent_id, timestamp, data, action,
+                          old=None):
     """
     Request helper to stack a resource event.
 
@@ -156,8 +157,8 @@ def notify_resource_event(request, timestamp, data, action, old=None):
     events = request.bound_data.setdefault("resource_events", OrderedDict())
     resource_name = request.current_resource_name
 
-    # Add to impacted records or create new event.
-    group_by = resource_name + action.value
+    # Group events by resource and action.
+    group_by = resource_name + parent_id + action.value
 
     if group_by in events:
         already_impacted = events[group_by][2]
