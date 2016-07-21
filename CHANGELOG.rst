@@ -6,7 +6,10 @@ This document describes changes between each past release.
 3.2.4 (unreleased)
 ==================
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix bug where the resource events of a request targetting two groups/collection
+  from different buckets would be grouped together.
 
 
 3.2.3 (2016-07-18)
