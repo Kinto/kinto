@@ -653,7 +653,9 @@ class UserResource(object):
             'data': result
         }
 
-        self.request.notify_resource_event(timestamp=self.timestamp,
+        parent_id = self.get_parent_id(self.request)
+        self.request.notify_resource_event(parent_id=parent_id,
+                                           timestamp=self.timestamp,
                                            data=result,
                                            action=action,
                                            old=old)
