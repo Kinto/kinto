@@ -1,4 +1,4 @@
-.. figure :: images/kinto-logo.png
+.. figure :: images/kinto-logo.svg
     :align: center
 
     **Kinto** — Store, Sync, Share, and Self-Host.
