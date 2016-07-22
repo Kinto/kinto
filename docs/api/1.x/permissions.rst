@@ -107,10 +107,13 @@ Get the current user ID
 
 The currently authenticated *user ID* can be obtained on the root URL.
 
-.. code-block:: http
-    :emphasize-lines: 17
+.. code-block:: bash
 
     $ http GET http://localhost:8888/v1/ --auth token:my-secret
+
+.. code-block:: http
+    :emphasize-lines: 16
+
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
     Content-Length: 288

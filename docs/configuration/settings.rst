@@ -473,7 +473,7 @@ list of Python modules:
 |                                       | implicitly (:ref:`more details <buckets-default-id>`).                   |
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.history``             | It tracks every action performed on objects within a bucket              |
-|                                       | (:ref:`more details <history>`).                                         |
+|                                       | (:ref:`more details <api-history>`).                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 There are `many available packages`_ in Pyramid ecosystem, and it is straightforward to build one,

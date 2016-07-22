@@ -35,6 +35,7 @@ Uploading a record
         Content-Type: application/json
         Host: localhost:8888
         User-Agent: HTTPie/0.9.2
+
         {
             "data": {
                 "foo": "bar"
@@ -51,6 +52,7 @@ Uploading a record
         Content-Type: application/json; charset=UTF-8
         Date: Thu, 18 Jun 2015 17:02:23 GMT
         Server: waitress
+
         {
             "data": {
                 "foo": "bar",

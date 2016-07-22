@@ -48,17 +48,17 @@ have some privileges. For example, to create a user from scratch:
 
 .. code-block:: sql
 
-    CREATE USER ${dbuser} WITH PASSWORD '${dbpassword}';
-    GRANT ALL PRIVILEGES ON DATABASE ${dbname} TO ${dbuser};
+    CREATE USER dbuser WITH PASSWORD 'dbpassword';
+    GRANT ALL PRIVILEGES ON DATABASE dbname TO dbuser;
 
 For a read-only setup, it is possible to define a user that only has the privilege
 to read the tables:
 
 .. code-block:: sql
 
-    CREATE USER ${dbuser} WITH PASSWORD '${dbpassword}';
-    GRANT USAGE ON SCHEMA public TO ${dbuser};
-    GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${dbuser};
+    CREATE USER dbuser WITH PASSWORD 'dbpassword';
+    GRANT USAGE ON SCHEMA public TO dbuser;
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO dbuser;
 
 Even if the stack is read-only, some internal values like authentication tokens
 may still be to be stored in cache. If the cache backend is configured to use
@@ -66,14 +66,14 @@ PostgreSQL, then write operations still must be granted on the ``cache`` table:
 
 .. code-block:: sql
 
-    GRANT UPDATE, INSERT, DELETE ON cache TO ${dbuser};
+    GRANT UPDATE, INSERT, DELETE ON cache TO dbuser;
 
 Also, in future versions of Kinto, some new tables may be created. It is possible to
 change the default privileges to allow reading the future tables:
 
 .. code-block:: sql
 
-    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO ${dbuser};
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO dbuser;
 
 
 Initialization
@@ -399,7 +399,7 @@ or set :ref:`on collections <collection-caching>`).
 
 The sample *Nginx* configuration file shown above will look like so:
 
-.. code-block:: javascript
+.. code-block:: none
     :emphasize-lines: 1,2,8
 
     proxy_cache_path /tmp/nginx levels=1:2 keys_zone=my_zone:100m inactive=200m;

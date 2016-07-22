@@ -21,10 +21,11 @@ Nested objects fields are specified using dots (e.g. ``address.street``).
 
 .. code-block:: http
 
-    GET /articles?_fields=title,url
+    GET /articles?_fields=title,url HTTP/1.1
     Accept: application/json
     Authorization: Basic bWF0Og==
     Host: localhost:8000
+
 
 **Response**:
 
