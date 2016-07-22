@@ -94,7 +94,7 @@ This endpoint is plural and supports :doc:`filtering <filtering>`,
 .. _collections-delete:
 
 Delete bucket collections
-=======================
+=========================
 
 .. http:delete:: /buckets/(bucket_id)/collections
 
@@ -699,7 +699,7 @@ From now on, the cache control headers are set for the `GET` requests:
     Total-Records: 0
 
     {
-        "data": [...]
+        "data": [{}]
     }
 
 

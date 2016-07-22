@@ -1,26 +1,24 @@
-Kinto-Core
-##########
+.. _kinto-core:
 
-    Kinto-core is the heart of the `Kinto project
-    <https://kinto.readthedocs.io/>`_, and also serves as a handy
-    toolkit for building Kinto-based backends.
+Kinto Core
+==========
 
-Table of contents
-=================
+Kinto-core is the heart of the Kinto projects, and also serves as a handy
+toolkit for building Kinto-based backends.
+
+This documentation can also be useful if you want to learn about Kinto internals
+like notifications when you write a plugin.
 
 .. toctree::
    :maxdepth: 1
 
    rationale
    quickstart
-   reference/index
-   ecosystem
-   contributing
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   resource
+   viewsets
+   storage
+   cache
+   notifications
+   permission
+   errors
+   utils

@@ -26,8 +26,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.3286105"
-     inkscape:cx="237.26041"
-     inkscape:cy="339.98382"
+     inkscape:cx="203.39044"
+     inkscape:cy="338.47849"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -48,7 +48,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -130,7 +130,7 @@
          sodipodi:role="line"
          id="tspan4160"
          x="42.142864"
-         y="625.93365">Cliquet</tspan></text>
+         y="625.93365">Kinto.core</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:25px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#999999;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -355,7 +355,7 @@
        inkscape:export-ydpi="96" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:25px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#999999;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
+       style="font-style:normal;font-weight:normal;font-size:25px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#999999;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="542.54639"
        y="607.7002"
        id="text4176-6-1"
@@ -366,7 +366,7 @@
          sodipodi:role="line"
          x="542.54639"
          y="607.7002"
-         id="tspan4184-1-3">- protocol</tspan><tspan
+         id="tspan4184-1-3">- REST API</tspan><tspan
          sodipodi:role="line"
          x="542.54639"
          y="638.9502"
@@ -531,7 +531,7 @@
        inkscape:export-ydpi="96" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:25px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#999999;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
+       style="font-style:normal;font-weight:normal;font-size:25px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#999999;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="543.76709"
        y="419.00372"
        id="text4176-6-1-9"
@@ -550,10 +550,14 @@
          sodipodi:role="line"
          x="543.76709"
          y="481.50372"
-         id="tspan4223">- CLI</tspan><tspan
+         id="tspan3416">- API endpoints</tspan><tspan
          sodipodi:role="line"
          x="543.76709"
          y="512.75372"
+         id="tspan4223">- CLI</tspan><tspan
+         sodipodi:role="line"
+         x="543.76709"
+         y="544.00372"
          id="tspan4190-0-4-2" /></text>
     <text
        xml:space="preserve"

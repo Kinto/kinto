@@ -29,11 +29,11 @@ Deploying on cloud providers
 You want to get started with a working online Kinto server right now? You've
 got a few different options:
 
-.. |heroku-button| image:: https://www.herokucdn.com/deploy/button.png
+.. |heroku-button| image:: ../images/heroku-button.png
    :target: https://dashboard.heroku.com/new?button-url=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku&template=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku>
    :alt: Deploy on Heroku
 
-.. |scalingo-button| image:: https://cdn.scalingo.com/deploy/button.svg
+.. |scalingo-button| image:: ../images/scalingo-button.svg
    :target: https://my.scalingo.com/deploy?source=https://github.com/Scalingo/kinto-scalingo
    :alt: Deploy on Scalingo
 

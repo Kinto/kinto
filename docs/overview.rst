@@ -40,6 +40,7 @@ for you:
 - Take advantage of
   :ref:`schema validation <collection-json-schema>`
   if you need it
+- :ref:`Track changes <api-history>` on your application data
 
 
 .. _use-cases:
@@ -54,9 +55,10 @@ Use cases
 
 .. note::
 
-    At Mozilla, *Kinto* is used in *Firefox* and *Firefox OS* for global synchronization
-    of settings and assets, as well as a first-class solution for personal data in
-    browser extensions and Web apps.
+    At Mozilla, *Kinto* is used in *Firefox* for global synchronization
+    of frequently changed settings like blocklists, and the Web Extensions storage.sync API;
+    as well as in *Firefox for Android* for A/B testing and delivering extra
+    assets like fonts or hyphenation dictionnaries.
 
 
 Key features
@@ -110,20 +112,36 @@ Key features
 
 **Ecosystem**
 
-.. |logo-offline| image:: images/logo-offline.svg
-   :alt: https://thenounproject.com/search/?q=offline&i=90580
+.. |logo-javascript| image:: images/logo-javascript.svg
+   :alt:
    :width: 50px
 
 .. |logo-python| image:: images/logo-python.svg
    :alt:
    :width: 50px
 
-.. |logo-attachment| image:: images/logo-attachment.svg
-   :alt: https://thenounproject.com/search/?q=attachment&i=169265
+.. |logo-offline| image:: images/logo-offline.svg
+   :alt: https://thenounproject.com/search/?q=offline&i=90580
+   :width: 50px
+
+.. |logo-admin| image:: images/logo-admin.svg
+   :alt: control panel by Gregor Črešnar from the Noun Project
+   :width: 50px
+
+.. |logo-history| image:: images/logo-history.svg
+   :alt: restore by Francesco Terzini from the Noun Project
    :width: 50px
 
 .. |logo-livesync| image:: images/logo-livesync.svg
    :alt: https://thenounproject.com/search/?q=refresh&i=110628
+   :width: 50px
+
+.. |logo-attachment| image:: images/logo-attachment.svg
+   :alt: https://thenounproject.com/search/?q=attachment&i=169265
+   :width: 50px
+
+.. |logo-signature| image:: images/logo-signature.svg
+   :alt: approved by Gregor Črešnar from the Noun Project
    :width: 50px
 
 .. |logo-boilerplate| image:: images/logo-react.svg
@@ -135,13 +153,21 @@ Key features
    :width: 50px
 
 +---------------------------------------------+---------------------------------------------+
-| |logo-offline|                              | |logo-python|                               |
-| Offline-first `JavaScript client            | :github:`Python client                      |
-| <https://kintojs.readthedocs.io>`_          | <Kinto/kinto.py>`                           |
+| |logo-javascript|                           | |logo-python|                               |
+| :github:`JavaScript HTTP API client         | :github:`Python HTTP API client             |
+| <Kinto/kinto-http.js/>`                     | <Kinto/kinto.py>`                           |
 +---------------------------------------------+---------------------------------------------+
-| |logo-attachment|                           | |logo-livesync|                             |
-| :github:`File attachments on records        | Live :ref:`Push notifications               |
-| <Kinto/kinto-attachment>`                   | <tutorials>`                                |
+| |logo-offline|                              | |logo-admin|                                |
+| Offline-first `JavaScript client            | :github:`Web Admin UI                       |
+| <https://kintojs.readthedocs.io>`_          | <Kinto/kinto-admin>`                        |
++---------------------------------------------+---------------------------------------------+
+| |logo-history|                              | |logo-livesync|                             |
+| :ref:`History of changes and authorship     | Live :ref:`Push notifications               |
+| <api-history>`                              | <tutorials>`                                |
++---------------------------------------------+---------------------------------------------+
+| |logo-attachment|                           | |logo-signature|                            |
+| :github:`File attachments on records        | :github:`Digital signature and workflows    |
+| <Kinto/kinto-attachment>`                   | <Kinto/kinto-signer>`                       |
 +---------------------------------------------+---------------------------------------------+
 | |logo-boilerplate|                          | |logo-demos|                                |
 | :github:`Kinto+React boilerplate            | :ref:`Example applications <app-examples>`  |
@@ -150,9 +176,9 @@ Key features
 
 **Coming soon**
 
-- Web Administration (:github:`under construction <Kinto/kinto-admin>`)
-- Automatic service discovery
 - Push notifications using `the Push API <https://developer.mozilla.org/en-US/docs/Web/API/Push_API>`_ (:github:`under construction <Kinto/kinto-webpush>`)
+- `Storage quotas <https://github.com/Kinto/kinto/wiki/Quotas>`_
+- `Review and validation workflows <https://github.com/Kinto/kinto/wiki/SignOff>`_
 
 (See `our roadmap <https://github.com/Kinto/kinto/wiki/Roadmap>`_)
 
@@ -168,7 +194,8 @@ Bi-directional synchronisation of records is a very hard topic.
 and polling for changes, and not trying to resolve conflicts automatically.
 
 Basically, each object has a revision number which is guaranteed to be incremented after
-each modification. *Kinto* does not keep old revisions of objects.
+each modification. Unless the :ref:`history plugin <api-history>` is activated,
+*Kinto* does not keep old revisions of objects.
 
 Clients can retrieve the list of changes that occurred on a collection of records
 since a specified revision. *Kinto* can also use it to avoid accidental updates

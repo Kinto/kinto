@@ -58,5 +58,8 @@ can be subclassed and specified during registration:
 ViewSet class
 =============
 
-.. autoclass:: kinto.core.resource.ViewSet
+.. autoclass:: kinto.core.resource.viewset.ViewSet
+    :members:
+
+.. autoclass:: kinto.core.resource.viewset.ShareableViewSet
     :members:

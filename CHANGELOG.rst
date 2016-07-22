@@ -20,6 +20,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
+- Huge rework of documentation after the merge of *Cliquet* into kinto.core (#731)
 - Switch from cliquet-pusher to kinto-pusher in Dockerfile and tutorial.
 
 
@@ -40,7 +41,7 @@ This document describes changes between each past release.
   granted on every kind of object (#600).
   Requires setting ``kinto.experimental_permissions_endpoint`` to be set to ``true``.
 
-Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs.io/en/latest/api/>`_.
+Protocol is now at version **1.8**. See `API changelog`_.
 
 **Bug fixes**
 
@@ -82,7 +83,7 @@ Protocol is now at version **1.8**. See `API changelog <http://kinto.readthedocs
 
 - Allow record IDs to be any string instead of just UUIDs (fixes #655).
 
-Protocol is now at version **1.7**. See `API changelog <https://kinto.readthedocs.io/en/latest/api/>`_.
+Protocol is now at version **1.7**. See `API changelog`_.
 
 **New features**
 
@@ -125,7 +126,7 @@ Protocol is now at version **1.7**. See `API changelog <https://kinto.readthedoc
 
 - Added the ``GET /contribute.json`` endpoint for open-source information (fixes #607)
 
-Protocol is now at version **1.6**. See `API changelog <https://kinto.readthedocs.io/en/latest/api/>`_.
+Protocol is now at version **1.6**. See `API changelog`_.
 
 
 **Bug fixes**
@@ -234,7 +235,7 @@ Protocol is now at version **1.6**. See `API changelog <https://kinto.readthedoc
 - Document how to configure the postgresql backend (#533)
 - Document how to upgrade Kinto (#537, #538)
 
-Protocol is now in version **1.5**. See `API changelog <https://kinto.readthedocs.io/en/latest/api/>`_.
+Protocol is now in version **1.5**. See `API changelog`_.
 
 
 2.0.0 (2016-03-08)
@@ -257,7 +258,7 @@ Protocol is now in version **1.5**. See `API changelog <https://kinto.readthedoc
 - Add the ``flush_endpoint``, ``schema`` and ``default_bucket`` to the capabilities
   if enabled in settings (#270)
 
-Protocol is now in version **1.4**. See `API changelog <https://kinto.readthedocs.io/en/latest/api/>`_.
+Protocol is now in version **1.4**. See `API changelog`_.
 
 **Breaking changes**
 
@@ -897,3 +898,6 @@ Settings
 - Schemaless storage of records
 - Firefox Account authentication
 - Kinto as a storage backend for *cliquet* applications
+
+
+.. _API changelog: https://kinto.readthedocs.io/en/latest/api/

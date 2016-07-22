@@ -128,8 +128,8 @@ class UserResource(object):
     """Base resource class providing every endpoint."""
 
     default_viewset = ViewSet
-    """Default :class:`kinto.core.viewset.ViewSet` class to use when the resource
-    is registered."""
+    """Default :class:`kinto.core.resource.viewset.ViewSet` class to use when
+    the resource is registered."""
 
     default_model = Model
     """Default :class:`kinto.core.resource.model.Model` class to use for
@@ -1117,7 +1117,8 @@ class ShareableResource(UserResource):
                 self.request)
 
     def get_parent_id(self, request):
-        """Unlike :class:`BaseResource`, records are not isolated by user.
+        """Unlike :class:`kinto.core.resource.UserResource`, records are not
+        isolated by user.
 
         See https://github.com/mozilla-services/cliquet/issues/549
 

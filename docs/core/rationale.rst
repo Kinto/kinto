@@ -17,14 +17,14 @@ Philosophy
 * Straightforward component substitution.
 
 *Kinto-Core* doesn't try to be a framework: any project built with *Kinto-Core* will
-expose a well defined HTTP protocol for:
+expose a well defined HTTP API for:
 
 * Collection and records manipulation;
 * HTTP status and headers handling;
 * API versioning and deprecation;
 * Errors formatting.
 
-:ref:`This protocol <api-endpoints>` is an implementation of a series of good
+:ref:`This HTTP API <kinto-api-endpoints>` is an implementation of a series of good
 practices (followed at `Mozilla Services`_ and `elsewhere`_).
 
 .. _Mozilla Services: https://wiki.mozilla.org/CloudServices
@@ -125,47 +125,12 @@ Some applications in the wild built with *Kinto-Core*:
 * :rtd:`Syncto <syncto>`, a service to access *Firefox Sync* using *kinto.js*.
 * *Please contact us to add yours*.
 
-
-Context
--------
-
-(*to be done*)
-
-* Cloud Services team at Mozilla
-* :rtd:`ReadingList <readinglist>` project story
-* Firefox Sync
-* Cloud storage
-* Firefox OS User Data synchronization and backup
-
-
-Vision
-======
-
-General
--------
-
 Any application built with *Kinto-Core*:
 
 * follows the same conventions regarding the HTTP API;
 * takes advantage of its component :term:`pluggability <pluggable>`;
 * can be :term:`extended <extensible>` using custom code or Pyramid external
   packages;
-
-Let's build a :ref:`sane ecosystem <ecosystem>` for microservices in Python!
-
-
-Roadmap
--------
-
-The future features we plan to implement in *Kinto-Core* are currently driven by the
-use-cases we meet internally at Mozilla. Most notable are:
-
-* Attachments on records (e.g. *Remote Storage* compatibility);
-* Records generic indexing (e.g. streaming records to *ElasticSearch*).
-
-* ... come and discuss `enhancements in the issue tracker`_!
-
-.. _enhancements in the issue tracker: https://github.com/Kinto/kinto/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement
 
 
 Similar projects
@@ -180,7 +145,7 @@ in the long term *Kinto-Core* should become only one among several server implem
 .. note::
 
     We encourage you to implement a clone of this project — using Node.js, Asyncio,
-    Go, Twisted, Django or anything else — following :ref:`the same protocol <api-endpoints>`!
+    Go, Twisted, Django or anything else — following :ref:`the same protocol <kinto-api-endpoints>`!
 
 
 .. [#] Switch from custom protocol to `JSON-API spec`_ is `being discussed`_.
@@ -188,12 +153,3 @@ in the long term *Kinto-Core* should become only one among several server implem
 .. _JSON-API spec: http://jsonapi.org/
 .. _being discussed: https://github.com/mozilla-services/cliquet/issues/254
 
-
-.. [#] Currently, the clients code was not extracted from the client projects, such as
-    `RL Web client`_ (React.js), `Android RL sync`_ (Java) or `Firefox RL client`_ (asm.js).
-
-.. _RL Web client: https://github.com/n1k0/readinglist-client/
-.. _Android RL Sync: https://hg.mozilla.org/releases/mozilla-beta/file/default/mobile/android/base/reading/
-.. _Firefox RL client: https://hg.mozilla.org/releases/mozilla-aurora/file/default/browser/components/readinglist
-
-.. [#] See https://unhosted.org.

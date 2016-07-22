@@ -72,7 +72,7 @@ class StorageBase(object):
                auth=None):
         """Create the specified `object` in this `collection_id` for this `parent_id`.
         Assign the id to the object, using the attribute
-        :attr:`kinto.core.resource.Model.id_field`.
+        :attr:`kinto.core.resource.model.Model.id_field`.
 
         .. note::
 
@@ -179,7 +179,7 @@ class StorageBase(object):
         :param bool with_deleted: track deleted records with a tombstone
 
         :returns: the list of deleted objects, with minimal set of attributes.
-        :rtype: list of dict
+        :rtype: list
         """
         raise NotImplementedError
 
@@ -239,7 +239,7 @@ class StorageBase(object):
 
         :returns: the limited list of objects, and the total number of
             matching objects in the collection (deleted ones excluded).
-        :rtype: tuple (list, integer)
+        :rtype: tuple
         """
         raise NotImplementedError
 

@@ -14,7 +14,7 @@ A group is a mapping with the following attributes:
 
 When used in permissions definitions, the full group URI has to be used:
 
-.. code-block::
+.. code-block:: none
 
     {
         "write": ["/buckets/blog/groups/authors", "github:lili"],

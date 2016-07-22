@@ -175,18 +175,19 @@ There is, of course, a convenient API to handle conflict one by one
 https://kintojs.readthedocs.io/en/latest/api/#resolving-conflicts-manually
 
 Would you recommend Redis or PostgreSQL?
---------------------------------------
+----------------------------------------
 
 You can use both of them:
 
 * Redis will let you start easily and you will have a database running in memory which
-means your database should be smaller than your server RAM. It is a good solution for
-experimentation and you will also be able to use a Redis cluster to scale in production.
+  means your database should be smaller than your server RAM. It is a good solution for
+  experimentation and you will also be able to use a Redis cluster to scale in production.
+
 * PostgreSQL is a good solution for a Kinto server and will let you use all the power of
-PostgreSQL and its tooling.
+  PostgreSQL and its tooling.
 
 Do not hesitate to mix both if you can, for instance you can use PostgreSQL for the
-storage backend and Redis for the permission and cache backends.
+storage and permissions backends and Redis for the cache backend.
 
 What about aggregation/reporting around data, is Kinto ready for that?
 ----------------------------------------------------------------------

@@ -74,7 +74,6 @@ def merge_dicts(a, b):
     """Merge b into a recursively, without overwriting values.
 
     :param dict a: the dict that will be altered with values of `b`.
-    :rtype: None
     """
     for k, v in b.items():
         if isinstance(v, dict):
@@ -86,7 +85,7 @@ def merge_dicts(a, b):
 def random_bytes_hex(bytes_length):
     """Return a hexstring of bytes_length cryptographic-friendly random bytes.
 
-    :param integer bytes_length: number of random bytes.
+    :param int bytes_length: number of random bytes.
     :rtype: str
     """
     return hexlify(os.urandom(bytes_length)).decode('utf-8')
@@ -238,7 +237,7 @@ def current_resource_name(request):
 
 def build_request(original, dict_obj):
     """
-    Transform a dict object into a ``pyramid.request.Request`` object.
+    Transform a dict object into a :class:`pyramid.request.Request` object.
 
     It sets a ``parent`` attribute on the resulting request assigned with
     the `original` request specified.
@@ -288,7 +287,8 @@ def build_request(original, dict_obj):
 
 def build_response(response, request):
     """
-    Transform a ``pyramid.response.Response`` object into a serializable dict.
+    Transform a :class:`pyramid.response.Response` object into a serializable
+    dict.
 
     :param response: a response object, returned by Pyramid.
     :param request: the request that was used to get the response.
