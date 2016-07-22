@@ -79,7 +79,7 @@ Feature settings
 
 .. note::
 
-    ``kinto.readonly`` will disable every endpoints that is not accessed with one of
+    ``kinto.readonly`` will disable every endpoint that is not accessed with one of
     ``GET``, ``OPTIONS``, or ``HEAD`` HTTP methods. Requests will receive a
     ``405 Method not allowed`` error response.
 
