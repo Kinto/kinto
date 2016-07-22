@@ -40,8 +40,7 @@ and can be filtered or sorted. Clients can obtain the list of changes that
 occured on the collection records since a certain revision (e.g. *last synchronisation*).
 
 A **bucket** is an abstract notion used to organize collections and their
-permissions. A bucket named ``default`` is provided, whose collections and records
-are accessible to the current user only.
+permissions.
 
 .. image:: images/concepts-general.png
 
@@ -53,7 +52,6 @@ Every kind of object manipulated by *Kinto* shares some common properties:
 
 Those concepts are very similar to a hard disk, where buckets would be partitions,
 collections are folders, and records are files!
-
 
 .. _concepts-groups:
 
@@ -97,11 +95,11 @@ however, is controlled from the :ref:`server configuration <configuration>`.
     If a parent defines a permission, it is (*currently*) not possible to restrict
     it in its child objects.
 
-
 See also
 ---------
 
 * :term:`Kinto glossary <CRUD>`, for formal definitions of terms used in the documentation
+* :ref:`HTTP API reference documentation <api-permissions>`
 * :blog:`Our blog post <en/handling-permissions>` on permissions design in *Kinto*
 
 
