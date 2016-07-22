@@ -40,7 +40,7 @@ allow sharing of records.
 
 .. note::
 
-    When using only these resource, the permission backend remains unused.
+    When using only these resources, the permission backend remains unused.
     Its configuration is not necessary.
 
 
@@ -49,7 +49,7 @@ Public BasicAuth
 
 If *Basic Auth* authentication is enabled, private user resources can become semi-private or public
 if the ``user:pass`` is publicly known and shared (for example ``public:`` is a valid user:pass combination).
-That's how most simple demos of *Kinto* — a *Kinto-Core*-based application — are built by the way!
+That's how most simple demos of *Kinto* are built by the way!
 
 
 .. _permission-shareable-resource:
@@ -60,7 +60,7 @@ Shareable resource
 .. warning::
 
     When using this kind of resource, the ``permission_backend`` setting must be
-    set, :ref:`as described in the configuration section <configuration-permissions>`.
+    set, :ref:`as described in the configuration section <configuration-backends>`.
 
 To introduce more flexibility, the :class:`kinto.core.resource.ShareableResource`
 can be used instead.
@@ -339,7 +339,8 @@ For example, a simplistic example with the previous resource viewset:
                     return ('group:publishers' in principals)
             return False
 
-
+.. autoclass:: kinto.core.authorization.AuthorizationPolicy
+    :members:
 
 .. _permissions-backend:
 
@@ -373,5 +374,5 @@ API
 Implementing a custom permission backend consists in implementating the following
 interface:
 
-.. autoclass:: kinto.core.permission.PermissionBase
-  :members:
+.. automodule:: kinto.core.permission
+    :members:

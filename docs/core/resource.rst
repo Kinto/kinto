@@ -251,6 +251,8 @@ or at the resource level:
 Python API
 ==========
 
+.. autofunction:: kinto.core.resource.register
+
 .. _resource-class:
 
 Resource
@@ -258,6 +260,11 @@ Resource
 
 .. autoclass:: kinto.core.resource.UserResource
     :members:
+
+
+.. autoclass:: kinto.core.resource.ShareableResource
+    :members:
+
 
 .. _resource-schema:
 
@@ -272,8 +279,10 @@ Schema
 Model
 -----
 
-.. autoclass:: kinto.core.resource.Model
+.. automodule:: kinto.core.resource.model
     :members:
+
+.. _resource-generators:
 
 Generators
 ----------

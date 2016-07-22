@@ -1,8 +1,6 @@
 .. figure :: images/kinto-logo.svg
     :align: center
 
-    **Kinto** — Store, Sync, Share, and Self-Host.
-
 Kinto is a minimalist JSON storage service with synchronisation and sharing
 abilities.
 
@@ -21,7 +19,7 @@ Table of content
    faq
    troubleshooting
    changelog
-   core/reference/glossary
+   core/glossary
    core/index
 
 Indices and tables

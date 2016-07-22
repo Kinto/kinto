@@ -11,7 +11,7 @@ Installation
 You can use *Kinto-Core* by doing ``import kinto.core`` in your application.
 
 More details about installation and storage backend is provided in
-:ref:`a dedicated section <installation>`.
+:ref:`a dedicated section <install>`.
 
 
 Start a Pyramid project
@@ -216,5 +216,3 @@ Beyond Kinto-Core
 
 *Kinto-Core* is just a component! The application can still be built and
 extended using the full *Pyramid* ecosystem.
-
-See :ref:`the dedicated section <ecosystem>` for examples of *Kinto-Core* extensions.

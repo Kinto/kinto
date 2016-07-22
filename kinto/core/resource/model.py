@@ -40,7 +40,7 @@ class Model(object):
         """Fetch the collection current timestamp.
 
         :param str parent_id: optional filter for parent id
-        :rtype: integer
+        :rtype: int
         """
         parent_id = parent_id or self.parent_id
         return self.storage.collection_timestamp(

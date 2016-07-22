@@ -124,7 +124,7 @@ class PermissionBase(object):
             A set of user principals to test the permission against.
         :param list bound_permissions: An list of tuples
             (object_id, permission) to be checked.
-        :rtype: boolean
+        :rtype: bool
         """
         principals = set(principals)
         authorized = self.get_authorized_principals(bound_permissions)

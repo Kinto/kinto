@@ -30,7 +30,7 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath(os.path.join('..', 'kinto')))
+sys.path.insert(0, os.path.abspath(os.path.join('..')))
 
 # -- General configuration ------------------------------------------------
 
@@ -95,6 +95,29 @@ htmlhelp_basename = 'Kintodoc'
 # -- Options for autodoc --------------------------------------------------
 
 autodoc_member_order = 'bysource'
+# Enable nitpicky mode - which ensures that all references in the docs
+# resolve.
+nitpicky = True
+nitpick_ignore = [
+    ('py:obj', 'bool'),
+    ('py:obj', 'Exception'),
+    ('py:obj', 'int'),
+    ('py:obj', 'str'),
+    ('py:obj', 'dict'),
+    ('py:obj', 'list'),
+    ('py:obj', 'tuple'),
+    ('py:obj', 'float'),
+    ('py:obj', 'cornice.Service'),
+    # Member autodoc fails with those:
+    # kinto.core.resource.schema
+    ('py:class', 'Integer'),
+    ('py:class', 'String'),
+    # kinto.core.resource
+    ('py:class', 'ViewSet'),
+    ('py:class', 'ShareableViewSet'),
+    ('py:class', 'Model'),
+    ('py:class', 'ShareableModel'),
+]
 
 
 # -- Options of extlinks --------------------------------------------------

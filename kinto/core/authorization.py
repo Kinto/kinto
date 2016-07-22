@@ -40,9 +40,14 @@ def groupfinder(userid, request):
 
 @implementer(IAuthorizationPolicy)
 class AuthorizationPolicy(object):
-    # Callable that takes an object id and a permission and returns
-    # a list of tuples (<object id>, <permission>).
+    """Default authorization class, that leverages the permission backend
+    for shareable resources.
+    """
+
     get_bound_permissions = None
+    """Callable that takes an object id and a permission and returns
+    a list of tuples (<object id>, <permission>). Useful when objects
+    permission depend on others."""
 
     def permits(self, context, principals, permission):
         if permission == PRIVATE:

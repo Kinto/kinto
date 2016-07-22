@@ -24,7 +24,7 @@ expose a well defined HTTP API for:
 * API versioning and deprecation;
 * Errors formatting.
 
-:ref:`This HTTP API <api-endpoints>` is an implementation of a series of good
+:ref:`This HTTP API <kinto-api-endpoints>` is an implementation of a series of good
 practices (followed at `Mozilla Services`_ and `elsewhere`_).
 
 .. _Mozilla Services: https://wiki.mozilla.org/CloudServices
@@ -145,7 +145,7 @@ in the long term *Kinto-Core* should become only one among several server implem
 .. note::
 
     We encourage you to implement a clone of this project — using Node.js, Asyncio,
-    Go, Twisted, Django or anything else — following :ref:`the same protocol <api-endpoints>`!
+    Go, Twisted, Django or anything else — following :ref:`the same protocol <kinto-api-endpoints>`!
 
 
 .. [#] Switch from custom protocol to `JSON-API spec`_ is `being discussed`_.

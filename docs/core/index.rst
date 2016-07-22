@@ -10,8 +10,15 @@ This documentation can also be useful if you want to learn about Kinto internals
 like notifications when you write a plugin.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    rationale
    quickstart
-   reference/index
+   resource
+   viewsets
+   storage
+   cache
+   notifications
+   permission
+   errors
+   utils

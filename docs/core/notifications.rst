@@ -48,6 +48,12 @@ Event subscribers can then pick up those events and act upon them.
 
     config.add_subscriber(on_resource_changed, AfterResourceChanged)
 
+.. autoclass:: kinto.core.events.ResourceRead
+
+.. autoclass:: kinto.core.events.ResourceChanged
+
+.. autoclass:: kinto.core.events.AfterResourceChanged
+
 
 Transactions
 ------------
