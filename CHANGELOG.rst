@@ -18,6 +18,10 @@ This document describes changes between each past release.
 - Fix bug where the resource events of a request targetting two groups/collection
   from different buckets would be grouped together.
 
+**Internal changes**
+
+- Switch from cliquet-pusher to kinto-pusher in Dockerfile and tutorial.
+
 
 3.3.1 (2016-07-19)
 ==================

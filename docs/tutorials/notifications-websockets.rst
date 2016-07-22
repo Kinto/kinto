@@ -29,7 +29,7 @@ Python version, first install it:
 
 .. code-block:: bash
 
-    $ pip install cliquet-pusher
+    $ pip install kinto-pusher
 
 
 :ref:`As explained in the settings section <configuring-notifications>`,
@@ -37,10 +37,10 @@ add these lines to setup a listener, and be notified of record updates per colle
 
 .. code-block:: ini
 
-    kinto.includes = cliquet_pusher
+    kinto.includes = kinto_pusher
 
     kinto.event_listeners = pusher
-    kinto.event_listeners.pusher.use = cliquet_pusher.listener
+    kinto.event_listeners.pusher.use = kinto_pusher.listener
     kinto.event_listeners.pusher.resources = record
     kinto.event_listeners.pusher.channel = {bucket_id}-{collection_id}-{resource_name}
 
