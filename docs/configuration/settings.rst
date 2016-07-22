@@ -12,19 +12,23 @@ Kinto is built to be highly configurable. As a result, the related
 configuration can be verbose, but don't worry, all configuration flags are
 listed below.
 
-.. note::
 
-    In order to ease deployment or testing strategies, *Kinto* reads settings
-    from environment variables, in addition to ``.ini`` files.
+.. _configuration-environment:
 
-    The environment variables are exactly the same as the settings, but they
-    are capitalised and ``.`` are replaced by ``_``.
+Environment variables
+=====================
 
-    For example, ``kinto.storage_backend`` is read from environment variable
-    ``KINTO_STORAGE_BACKEND`` if defined.
+In order to ease deployment or testing strategies, *Kinto* reads settings
+from environment variables, in addition to ``.ini`` files.
 
-    All settings are read first from the environment variables, then from
-    application ``.ini``, and finally from internal defaults.
+The environment variables are exactly the same as the settings, but they
+are capitalised and ``.`` are replaced by ``_``.
+
+For example, ``kinto.storage_backend`` is read from environment variable
+``KINTO_STORAGE_BACKEND`` (if defined of course).
+
+All settings are read first from the environment variables, then from
+application ``.ini``, and finally from internal defaults.
 
 
 .. _configuration-features:
@@ -72,6 +76,15 @@ Feature settings
 +-------------------------------------------------+--------------+---------------------------------------------------------------------------+
 | kinto.heartbeat_timeout_seconds                 | ``10``       | The maximum duration of each heartbeat entry, in seconds.                 |
 +-------------------------------------------------+--------------+---------------------------------------------------------------------------+
+
+.. note::
+
+    ``kinto.readonly`` will disable every endpoints that are not accessed with one of
+    ``GET``, ``OPTIONS``, or ``HEAD`` HTTP methods. Requests will receive a
+    ``405 Method not allowed`` error response.
+
+    The cache backend will still needs read-write privileges, in order to
+    cache OAuth authentication states and tokens for example.
 
 
 .. _configuration-backends:
@@ -463,10 +476,32 @@ list of Python modules:
 |                                       | (:ref:`more details <history>`).                                         |
 +---------------------------------------+--------------------------------------------------------------------------+
 
+There are `many available packages`_ in Pyramid ecosystem, and it is straightforward to build one,
+since the specified module must just define an ``includeme(config)`` function.
+
+.. _many available packages: https://github.com/ITCase/awesome-pyramid
+
 See `our list of community plugins <https://github.com/Kinto/kinto/wiki/Plugins>`_.
 
 See also: :ref:`tutorial-write-plugin` for more in-depth informations on how
 to create your own plugin.
+
+
+Pluggable components
+::::::::::::::::::::
+
+:term:`Pluggable` components can be substituted from configuration files,
+as long as the replacement follows the original component API.
+
+.. code-block:: ini
+
+    kinto.logging_renderer = cliquet_fluent.FluentRenderer
+
+This is the simplest way to extend *Kinto*, but will be limited to its
+existing components (cache, storage, log renderer, ...).
+
+In order to add extra features, including external packages is the way to go!
+
 
 .. _configuring-notifications:
 
@@ -691,3 +726,36 @@ Example:
 
     kinto.project_docs = https://project.readthedocs.io/
     # kinto.project_version = 1.0
+
+
+Application profiling
+=====================
+
+It is possible to profile the stack while its running. This is especially
+useful when trying to find bottlenecks.
+
+Update the configuration file with the following values:
+
+.. code-block:: ini
+
+    kinto.profiler_enabled = true
+    kinto.profiler_dir = /tmp/profiling
+
+Run a load test (*for example*):
+
+::
+
+    cd loadtests/
+    SERVER_URL=http://localhost:8888 make bench -e
+
+
+Render execution graphs using GraphViz:
+
+::
+
+    sudo apt-get install graphviz
+
+::
+
+    pip install gprof2dot
+    gprof2dot -f pstats POST.v1.batch.000176ms.1427458675.prof | dot -Tpng -o output.png

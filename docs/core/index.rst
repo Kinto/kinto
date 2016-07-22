@@ -14,8 +14,6 @@ Table of contents
    rationale
    quickstart
    reference/index
-   ecosystem
-   contributing
 
 
 Indices and tables

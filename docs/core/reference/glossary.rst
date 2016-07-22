@@ -3,7 +3,7 @@ Glossary
 
 .. glossary::
 
-    Kinto-Core Protocol
+    Kinto-Core HTTP API
         A system of rules that explains the way to interact with the HTTP API
         :term:`endpoints` (utilities, synchronization, headers etc.), and how data
         is organized (JSON responses etc.).

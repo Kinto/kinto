@@ -17,14 +17,14 @@ Philosophy
 * Straightforward component substitution.
 
 *Kinto-Core* doesn't try to be a framework: any project built with *Kinto-Core* will
-expose a well defined HTTP protocol for:
+expose a well defined HTTP API for:
 
 * Collection and records manipulation;
 * HTTP status and headers handling;
 * API versioning and deprecation;
 * Errors formatting.
 
-:ref:`This protocol <api-endpoints>` is an implementation of a series of good
+:ref:`This HTTP API <api-endpoints>` is an implementation of a series of good
 practices (followed at `Mozilla Services`_ and `elsewhere`_).
 
 .. _Mozilla Services: https://wiki.mozilla.org/CloudServices

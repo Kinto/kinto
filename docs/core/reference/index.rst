@@ -4,8 +4,6 @@ Internals
 #########
 
 .. toctree::
-   installation
-   configuration
    resource
    viewsets
    storage
