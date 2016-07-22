@@ -413,3 +413,9 @@ plugin, it would require:
 * Delete the index when the bucket or collection are deleted
 
 If you feel like doing it, we would be very glad to help you!
+
+
+More documentation
+------------------
+
+Some more details about Kinto internals are given in the :ref:`Kinto core docs <kinto-core>`!
