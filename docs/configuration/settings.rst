@@ -507,7 +507,7 @@ Enabling push notifications to clients consists in enabling an event listener
 that will be in charge of forwarding events data to remote clients.
 
 A Kinto plugin was made using the *Pusher* (commercial) service.
-See :github:`leplatrem/cliquet-pusher`.
+See :ref:`tutorial-notifications-websockets`.
 
 
 Cross Origin requests (CORS)
