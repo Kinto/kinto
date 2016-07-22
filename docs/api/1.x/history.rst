@@ -1,3 +1,5 @@
+.. _api-history:
+
 History of changes
 ##################
 
