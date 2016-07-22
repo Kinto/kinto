@@ -287,7 +287,8 @@ def build_request(original, dict_obj):
 
 def build_response(response, request):
     """
-    Transform a :class:`pyramid.response.Response` object into a serializable dict.
+    Transform a :class:`pyramid.response.Response` object into a serializable
+    dict.
 
     :param response: a response object, returned by Pyramid.
     :param request: the request that was used to get the response.

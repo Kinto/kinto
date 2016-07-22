@@ -56,8 +56,9 @@ Use cases
 .. note::
 
     At Mozilla, *Kinto* is used in *Firefox* for global synchronization
-    of frequently changed settings and the Web Extensions storage.sync API;
-    as well as in *Firefox for Android* for ab-testing and downloading of extra assets.
+    of frequently changed settings like blocklists, and the Web Extensions storage.sync API;
+    as well as in *Firefox for Android* for A/B testing and delivering extra
+    assets like fonts or hyphenation dictionnaries.
 
 
 Key features

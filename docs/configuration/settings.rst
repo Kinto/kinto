@@ -79,7 +79,7 @@ Feature settings
 
 .. note::
 
-    ``kinto.readonly`` will disable every endpoints that are not accessed with one of
+    ``kinto.readonly`` will disable every endpoints that is not accessed with one of
     ``GET``, ``OPTIONS``, or ``HEAD`` HTTP methods. Requests will receive a
     ``405 Method not allowed`` error response.
 
@@ -495,7 +495,7 @@ as long as the replacement follows the original component API.
 
 .. code-block:: ini
 
-    kinto.logging_renderer = cliquet_fluent.FluentRenderer
+    kinto.logging_renderer = your_log_renderer.CustomRenderer
 
 This is the simplest way to extend *Kinto*, but will be limited to its
 existing components (cache, storage, log renderer, ...).
