@@ -23,6 +23,9 @@ This document describes changes between each past release.
 - Huge rework of documentation after the merge of *Cliquet* into kinto.core (#731)
 - Switch from cliquet-pusher to kinto-pusher in Dockerfile and tutorial.
 - Add load tests presets (exhaustive, read, write) in addition to the existing random. Switched integration test ``make loadtest-check-simulation`` to run the exhaustive one (fixes #258)
+- Remove former Cliquet load tests (#733)
+- Add a flag to to run simulation load tests on ``default`` bucket. Uses ``blog``
+  bucket by default (#733)
 
 
 3.3.1 (2016-07-19)
