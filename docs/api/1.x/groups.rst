@@ -85,6 +85,9 @@ Creating a group
             }
         }
 
+.. include:: _headers-post-list.rst
+
+
 .. _group-put:
 
 Replacing a group
@@ -154,6 +157,9 @@ Replacing a group
         request header can be provided. A ``412 Precondition Failed`` error
         response will be returned if the record already exists.
 
+.. include:: _headers-put-object.rst
+
+
 .. _group-get:
 
 Retrieving a group
@@ -209,6 +215,8 @@ Retrieving a group
             }
         }
 
+.. include:: _headers-get-object.rst
+
 
 .. _groups-get:
 
@@ -263,6 +271,7 @@ Retrieving all groups
             ]
         }
 
+.. include:: _headers-get-list.rst
 
 
 .. _group-delete:
@@ -311,3 +320,5 @@ Deleting a group
                 "last_modified": 1434646049488
             }
         }
+
+.. include:: _headers-delete-object.rst

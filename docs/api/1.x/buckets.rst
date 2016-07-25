@@ -72,6 +72,8 @@ Creating a bucket
 A bucket also accept arbitrary attributes.
 For example, you may want to store some application settings there.
 
+.. include:: _headers-post-list.rst
+
 
 .. _bucket-put:
 
@@ -133,6 +135,8 @@ Replacing a bucket
         request header can be provided. A ``412 Precondition Failed`` error response
         will be returned if the record already exists.
 
+.. include:: _headers-put-object.rst
+
 
 .. _bucket-get:
 
@@ -188,6 +192,9 @@ Retrieve an existing bucket
             }
         }
 
+.. include:: _headers-get-object.rst
+
+
 
 .. _bucket-patch:
 
@@ -204,6 +211,8 @@ Updating an existing bucket
 
         Until a formalism is found to alter ACL principals (e.g. using ``+`` or ``-``)
         there is no difference in the behaviour between PATCH and PUT.
+
+.. include:: _headers-patch-object.rst
 
 
 .. _bucket-delete:
@@ -252,6 +261,8 @@ Deleting a bucket
                 "last_modified": 1434641382954
             }
         }
+
+.. include:: _headers-delete-object.rst
 
 
 .. _buckets-get:
@@ -307,6 +318,9 @@ Retrieving all buckets
 This endpoint is plural and supports :doc:`filtering <filtering>`,
 :doc:`sorting <sorting>`, and :doc:`pagination <pagination>`.
 
+.. include:: _headers-get-list.rst
+
+
 .. _buckets-delete:
 
 Delete all buckets
@@ -355,6 +369,8 @@ Delete all buckets
                 }
             ]
         }
+
+.. include:: _headers-delete-list.rst
 
 
 .. _buckets-default-id:

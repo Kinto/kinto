@@ -66,6 +66,8 @@ Uploading a record
             }
         }
 
+.. include:: _headers-post-list.rst
+
 .. important::
 
     If the posted record has an ``id`` field, it will be taken into account.
@@ -134,6 +136,8 @@ Replacing a record
           }
         }
 
+.. include:: _headers-put-object.rst
+
 
 .. _record-patch:
 
@@ -196,6 +200,8 @@ Updating a record
           }
         }
 
+.. include:: _headers-patch-object.rst
+
 
 .. _records-get:
 
@@ -252,6 +258,8 @@ operations on collection retrieval.
             ]
         }
 
+.. include:: _headers-get-list.rst
+
 
 .. _record-get:
 
@@ -307,6 +315,8 @@ Retrieving a specific record
             }
         }
 
+.. include:: _headers-get-object.rst
+
 
 .. _records-delete:
 
@@ -356,6 +366,8 @@ Delete stored records
             }]
         }
 
+.. include:: _headers-delete-object.rst
+
 
 .. _record-delete:
 
@@ -401,3 +413,5 @@ Deleting a single record
                 "last_modified": 1434648749173
             }
         }
+
+.. include:: _headers-delete-object.rst
