@@ -66,7 +66,7 @@ Uploading a record
             }
         }
 
-.. include:: _headers-post-list.rst
+.. include:: _status-post-list.rst
 
 .. important::
 
@@ -136,7 +136,7 @@ Replacing a record
           }
         }
 
-.. include:: _headers-put-object.rst
+.. include:: _status-put-object.rst
 
 
 .. _record-patch:
@@ -200,7 +200,7 @@ Updating a record
           }
         }
 
-.. include:: _headers-patch-object.rst
+.. include:: _status-patch-object.rst
 
 
 .. _records-get:
@@ -258,7 +258,7 @@ operations on collection retrieval.
             ]
         }
 
-.. include:: _headers-get-list.rst
+.. include:: _status-get-list.rst
 
 
 .. _record-get:
@@ -315,7 +315,7 @@ Retrieving a specific record
             }
         }
 
-.. include:: _headers-get-object.rst
+.. include:: _status-get-object.rst
 
 
 .. _records-delete:
@@ -366,7 +366,7 @@ Delete stored records
             }]
         }
 
-.. include:: _headers-delete-object.rst
+.. include:: _status-delete-object.rst
 
 
 .. _record-delete:
@@ -414,4 +414,4 @@ Deleting a single record
             }
         }
 
-.. include:: _headers-delete-object.rst
+.. include:: _status-delete-object.rst

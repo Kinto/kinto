@@ -93,7 +93,7 @@ Filtering, sorting, partial responses and paginating can all be combined togethe
 
 * ``/collection?_sort=-last_modified&_limit=100&_fields=title``
 
-.. include:: _headers-get-list.rst
+.. include:: _status-get-list.rst
 
 
 POST /{collection}
@@ -188,7 +188,7 @@ If a conflict occurs, an error response is returned with status ``409``.
 A ``details`` attribute in the response provides the offending record and
 field name. See :ref:`dedicated section about errors <error-responses>`.
 
-.. include:: _headers-post-list.rst
+.. include:: _status-post-list.rst
 
 
 DELETE /{collection}
@@ -243,7 +243,7 @@ has changed meanwhile, a ``412 Precondition failed`` error is returned.
         ]
     }
 
-.. include:: _headers-delete-list.rst
+.. include:: _status-delete-list.rst
 
 
 GET /{collection}/<id>
@@ -292,7 +292,7 @@ if the record has not changed meanwhile, a ``304 Not Modified`` is returned.
     }
 
 
-.. include:: _headers-get-object.rst
+.. include:: _status-get-object.rst
 
 
 DELETE /{collection}/<id>
@@ -317,7 +317,7 @@ changed meanwhile, a ``412 Precondition failed`` error is returned.
     Once deleted, a record will appear in the collection when polling for changes,
     with a deleted status (``delete=true``) and will have most of its fields empty.
 
-.. include:: _headers-delete-object.rst
+.. include:: _status-delete-object.rst
 
 
 PUT /{collection}/<id>
@@ -385,7 +385,7 @@ an existing record with this ``id``, a ``412 Precondition failed`` error is retu
         }
     }
 
-.. include:: _headers-put-object.rst
+.. include:: _status-put-object.rst
 
 
 PATCH /{collection}/<id>
@@ -479,7 +479,7 @@ Conflicts
 If changing a record field violates a field unicity constraint, a
 ``409 Conflict`` error response is returned (see :ref:`error channel <error-responses>`).
 
-.. include:: _headers-patch-object.rst
+.. include:: _status-patch-object.rst
 
 
 .. _resource-permissions-attribute:

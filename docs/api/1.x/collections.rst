@@ -91,7 +91,7 @@ List bucket collections
 This endpoint is plural and supports :doc:`filtering <filtering>`,
 :doc:`sorting <sorting>`, and :doc:`pagination <pagination>`.
 
-.. include:: _headers-get-list.rst
+.. include:: _status-get-list.rst
 
 
 .. _collections-delete:
@@ -153,7 +153,7 @@ Delete bucket collections
             ]
         }
 
-.. include:: _headers-delete-list.rst
+.. include:: _status-delete-list.rst
 
 
 .. _collections-post:
@@ -212,7 +212,7 @@ Creating a collection
           }
       }
 
-.. include:: _headers-post-list.rst
+.. include:: _status-post-list.rst
 
 
 .. _collection-put:
@@ -273,7 +273,7 @@ Replacing a collection
         request header can be provided. A ``412 Precondition Failed`` error response
         will be returned if the record already exists.
 
-.. include:: _headers-put-object.rst
+.. include:: _status-put-object.rst
 
 
 .. _collection-patch:
@@ -337,7 +337,7 @@ Updating a collection
             }
         }
 
-.. include:: _headers-patch-object.rst
+.. include:: _status-patch-object.rst
 
 
 .. _collection-get:
@@ -393,7 +393,7 @@ Retrieving an existing collection
             }
         }
 
-.. include:: _headers-get-object.rst
+.. include:: _status-get-object.rst
 
 
 .. _collection-delete:
@@ -443,7 +443,7 @@ Deleting a collection
             }
         }
 
-.. include:: _headers-delete-object.rst
+.. include:: _status-delete-object.rst
 
 
 .. _collection-json-schema:
