@@ -6,6 +6,14 @@ Records
 Records belong to a collection. It is the data being stored and
 synchronised.
 
+A record is a mapping with the following attributes:
+
+* ``data``: attributes of the record object
+    * ``id``: the record object id
+    * ``last_modified``: the timestamp of the last modification
+* ``permissions``: the :term:`ACLs <ACL>` for the collection object
+
+
 .. _records-post:
 
 Uploading a record
@@ -66,15 +74,9 @@ Uploading a record
             }
         }
 
+.. include:: _details-post-list.rst
+
 .. include:: _status-post-list.rst
-
-.. important::
-
-    If the posted record has an ``id`` field, it will be taken into account.
-
-    However, if a record already exists with the same ``id``, a |status-200| response
-    is returned with the existing record in body (instead of |status-201|).
-    See https://github.com/Kinto/kinto/issues/140
 
 
 .. _record-put:
@@ -85,6 +87,12 @@ Replacing a record
 .. http:put:: /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)
 
     :synopsis: Create or update a record in the collection.
+
+    The POST body is a JSON mapping containing:
+
+    - ``data``: the fields of the record;
+    - ``permissions``: *optional* a json dict containing the permissions for
+      the record to be created.
 
     **Requires authentication**
 
@@ -135,6 +143,8 @@ Replacing a record
               ]
           }
         }
+
+.. include:: _details-put-object.rst
 
 .. include:: _status-put-object.rst
 
@@ -200,6 +210,8 @@ Updating a record
           }
         }
 
+.. include:: _details-patch-object.rst
+
 .. include:: _status-patch-object.rst
 
 
@@ -207,11 +219,6 @@ Updating a record
 
 Retrieving stored records
 =========================
-
-Records can be paginated and filtered, and conflicts can be detected.
-
-To do so, refer to :ref:`resource-endpoints` for more details on available
-operations on collection retrieval.
 
 .. http:get:: /buckets/(bucket_id)/collections/(collection_id)/records
 
@@ -257,8 +264,6 @@ operations on collection retrieval.
                 }
             ]
         }
-
-.. include:: _status-get-list.rst
 
 
 .. _record-get:
@@ -315,8 +320,6 @@ Retrieving a specific record
             }
         }
 
-.. include:: _status-get-object.rst
-
 
 .. _records-delete:
 
@@ -366,8 +369,6 @@ Delete stored records
             }]
         }
 
-.. include:: _status-delete-object.rst
-
 
 .. _record-delete:
 
@@ -413,5 +414,3 @@ Deleting a single record
                 "last_modified": 1434648749173
             }
         }
-
-.. include:: _status-delete-object.rst

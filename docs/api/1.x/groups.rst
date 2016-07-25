@@ -8,9 +8,13 @@ It is useful in order to handle permissions. Groups are defined in buckets.
 
 A group is a mapping with the following attributes:
 
-* ``members``: a list of :term:`principals <principal>`
-* ``permissions``: (*optional*) the :term:`ACLs <ACL>` for the group object
-  (e.g who is allowed to read or update the group itself.)
+* ``data``: attributes of the group object
+    * ``id``: the group object id
+    * ``last_modified``: the timestamp of the last modification
+    * ``members``: a list of :term:`principals <principal>`
+* ``permissions``: the :term:`ACLs <ACL>` for the group object
+  (e.g who is allowed to read or update the group object itself.)
+
 
 When used in permissions definitions, the full group URI has to be used:
 
@@ -151,11 +155,7 @@ Replacing a group
             }
         }
 
-    .. note::
-
-        In order to create only if does not exist yet, a ``If-None-Match: *``
-        request header can be provided. A |status-412| error
-        response will be returned if the record already exists.
+.. include:: _details-put-object.rst
 
 .. include:: _status-put-object.rst
 
@@ -215,6 +215,8 @@ Retrieving a group
             }
         }
 
+.. include:: _details-get-object.rst
+
 .. include:: _status-get-object.rst
 
 
@@ -271,6 +273,8 @@ Retrieving all groups
             ]
         }
 
+.. include:: _details-get-list.rst
+
 .. include:: _status-get-list.rst
 
 
@@ -320,5 +324,7 @@ Deleting a group
                 "last_modified": 1434646049488
             }
         }
+
+.. include:: _details-delete-object.rst
 
 .. include:: _status-delete-object.rst
