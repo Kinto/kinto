@@ -85,6 +85,9 @@ Creating a group
             }
         }
 
+.. include:: _status-post-list.rst
+
+
 .. _group-put:
 
 Replacing a group
@@ -151,8 +154,11 @@ Replacing a group
     .. note::
 
         In order to create only if does not exist yet, a ``If-None-Match: *``
-        request header can be provided. A ``412 Precondition Failed`` error
+        request header can be provided. A |status-412| error
         response will be returned if the record already exists.
+
+.. include:: _status-put-object.rst
+
 
 .. _group-get:
 
@@ -209,6 +215,8 @@ Retrieving a group
             }
         }
 
+.. include:: _status-get-object.rst
+
 
 .. _groups-get:
 
@@ -263,6 +271,7 @@ Retrieving all groups
             ]
         }
 
+.. include:: _status-get-list.rst
 
 
 .. _group-delete:
@@ -311,3 +320,5 @@ Deleting a group
                 "last_modified": 1434646049488
             }
         }
+
+.. include:: _status-delete-object.rst

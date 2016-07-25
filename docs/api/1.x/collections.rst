@@ -91,6 +91,9 @@ List bucket collections
 This endpoint is plural and supports :doc:`filtering <filtering>`,
 :doc:`sorting <sorting>`, and :doc:`pagination <pagination>`.
 
+.. include:: _status-get-list.rst
+
+
 .. _collections-delete:
 
 Delete bucket collections
@@ -150,6 +153,8 @@ Delete bucket collections
             ]
         }
 
+.. include:: _status-delete-list.rst
+
 
 .. _collections-post:
 
@@ -207,6 +212,7 @@ Creating a collection
           }
       }
 
+.. include:: _status-post-list.rst
 
 
 .. _collection-put:
@@ -264,8 +270,10 @@ Replacing a collection
     .. note::
 
         In order to create only if it does not exist yet, a ``If-None-Match: *``
-        request header can be provided. A ``412 Precondition Failed`` error response
+        request header can be provided. A |status-412| error response
         will be returned if the record already exists.
+
+.. include:: _status-put-object.rst
 
 
 .. _collection-patch:
@@ -329,6 +337,8 @@ Updating a collection
             }
         }
 
+.. include:: _status-patch-object.rst
+
 
 .. _collection-get:
 
@@ -383,6 +393,8 @@ Retrieving an existing collection
             }
         }
 
+.. include:: _status-get-object.rst
+
 
 .. _collection-delete:
 
@@ -431,6 +443,8 @@ Deleting a collection
             }
         }
 
+.. include:: _status-delete-object.rst
+
 
 .. _collection-json-schema:
 
@@ -444,7 +458,7 @@ collection.
 
 Once a schema is set, records will be validated during creation or update.
 
-If the validation fails, a ``400 Bad Request`` error response will be
+If the validation fails, a |status-400| error response will be
 returned.
 
 .. note::

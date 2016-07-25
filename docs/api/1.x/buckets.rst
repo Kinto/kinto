@@ -72,6 +72,8 @@ Creating a bucket
 A bucket also accept arbitrary attributes.
 For example, you may want to store some application settings there.
 
+.. include:: _status-post-list.rst
+
 
 .. _bucket-put:
 
@@ -85,7 +87,7 @@ Replacing a bucket
     **Requires authentication**
 
     If the bucket exists but you don't have the ``write`` permission,
-    you will get a ``403 Forbidden`` http response.
+    you will get a |status-403| http response.
 
     **Example request**
 
@@ -130,8 +132,10 @@ Replacing a bucket
     .. note::
 
         In order to create only if it does not exist yet, a ``If-None-Match: *``
-        request header can be provided. A ``412 Precondition Failed`` error response
+        request header can be provided. A |status-412| error response
         will be returned if the record already exists.
+
+.. include:: _status-put-object.rst
 
 
 .. _bucket-get:
@@ -188,6 +192,9 @@ Retrieve an existing bucket
             }
         }
 
+.. include:: _status-get-object.rst
+
+
 
 .. _bucket-patch:
 
@@ -204,6 +211,8 @@ Updating an existing bucket
 
         Until a formalism is found to alter ACL principals (e.g. using ``+`` or ``-``)
         there is no difference in the behaviour between PATCH and PUT.
+
+.. include:: _status-patch-object.rst
 
 
 .. _bucket-delete:
@@ -252,6 +261,8 @@ Deleting a bucket
                 "last_modified": 1434641382954
             }
         }
+
+.. include:: _status-delete-object.rst
 
 
 .. _buckets-get:
@@ -307,6 +318,9 @@ Retrieving all buckets
 This endpoint is plural and supports :doc:`filtering <filtering>`,
 :doc:`sorting <sorting>`, and :doc:`pagination <pagination>`.
 
+.. include:: _status-get-list.rst
+
+
 .. _buckets-delete:
 
 Delete all buckets
@@ -355,6 +369,8 @@ Delete all buckets
                 }
             ]
         }
+
+.. include:: _status-delete-list.rst
 
 
 .. _buckets-default-id:

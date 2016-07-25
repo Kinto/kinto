@@ -74,7 +74,7 @@ We will use ``sort=last_modified`` and ``_since=<timestamp>``:
 #. First sync: ``timestamp := 0``
 #. Next sync: ``timestamp := MAX(local_records['last_modified'])``
 #. Fetch ``GET /buckets/<bid>/collections/<cid>/records?_sort=last_modified&_since=<timestamp>``
-#. If response is ``200 OK``, handle the list of remote changes.
+#. If response is |status-200|, handle the list of remote changes.
 #. If response has ``Next-Page`` header, follow full URL in header.
 #. If list of changes is empty, **done** → up-to-date.
 
@@ -102,7 +102,7 @@ and ``_since`` to include changes after last sync:
 #. Fetch current collection timestamp ``HEAD /buckets/<bid>/collections/<cid>/records``
    in ``ETag`` response header and store its value in ``start``.
 #. Fetch ``GET /buckets/<bid>/collections/<cid>/records?_sort=-last_modified&_before=<start>&_since=<timestamp>``
-#. If response is ``200 OK``, stack the obtained list of remote changes.
+#. If response is |status-200|, stack the obtained list of remote changes.
 #. If response has ``Next-Page`` header, follow full URL in header.
 #. If list of changes is empty, **done** → handle the stack of remote changes
    and update the timestamp: ``timestamp := MAX(local_records['last_modified'])``
@@ -185,10 +185,10 @@ Protected update and delete
 Add a ``If-Match: "<record.last_modified>"`` request header to the ``PUT``, ``PATCH``
 or ``DELETE`` request.
 
-*Kinto* will reject the request with a ``412 Precondition Failed`` response if
+*Kinto* will reject the request with a |status-412| response if
 the record was modified in the interim.
 
-If the remote record was already deleted, a ``404 Not found`` response will be
+If the remote record was already deleted, a |status-404| response will be
 returned. The client can choose to ignore it.
 
 

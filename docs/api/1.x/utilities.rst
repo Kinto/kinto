@@ -63,18 +63,18 @@ If ``kinto-fxa`` is installed, an additional key is present:
 
 - ``oauth`` true if authentication is operational
 
-Return ``200`` if the connection with each service is working properly
-and ``503`` if something doesn't work.
+Return |status-200| if the connection with each service is working properly
+and |status-503| if something doesn't work.
 
 
 GET /__lbheartbeat__
 ====================
 
-Always return ``200`` with empty body.
+Always return |status-200| with empty body.
 
 Unlike the ``__heartbeat__`` health check endpoint, which return an error
 when backends and other upstream services are unavailable, this should
-always return 200.
+always return |status-200|.
 
 This endpoint is suitable for a load balancer membership test.
 It the load balancer cannot obtain a response from this endpoint, it will

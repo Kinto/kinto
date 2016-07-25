@@ -41,7 +41,8 @@ class Cache(CacheBase):
         kinto.cache_max_backlog = -1
         kinto.cache_pool_recycle = -1
         kinto.cache_pool_timeout = 30
-        kinto.cache_poolclass = kinto.core.storage.postgresql.pool.QueuePoolWithMaxBacklog
+        kinto.cache_poolclass =
+            kinto.core.storage.postgresql.pool.QueuePoolWithMaxBacklog
 
     The ``max_backlog``  limits the number of threads that can be in the queue
     waiting for a connection.  Once this limit has been reached, any further

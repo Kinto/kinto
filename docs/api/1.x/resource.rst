@@ -93,18 +93,7 @@ Filtering, sorting, partial responses and paginating can all be combined togethe
 
 * ``/collection?_sort=-last_modified&_limit=100&_fields=title``
 
-
-HTTP Status Codes
------------------
-
-* ``200 OK``: The request was processed
-* ``304 Not Modified``: Collection has not changed since value in ``If-None-Match`` header
-* ``400 Bad Request``: The request querystring is invalid
-* ``401 Unauthorized``: The request is missing authentication headers
-* ``403 Forbidden``: The user is not allowed to perform the operation, or the
-  resource is not accessible
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type
-* ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
+.. include:: _status-get-list.rst
 
 
 POST /{collection}
@@ -127,11 +116,11 @@ The POST response body is a JSON mapping containing:
 
 If the ``If-Match: "<timestamp>"`` request header is provided as described in
 the :ref:`section about timestamps <server-timestamps>`, and if the collection has
-changed meanwhile, a ``412 Precondition failed`` error is returned.
+changed meanwhile, a |status-412| error is returned.
 
 If the ``If-None-Match: *`` request header is provided, and if the provided ``data``
 contains an ``id`` field, and if there is already an existing record with this ``id``,
-a ``412 Precondition failed`` error is returned.
+a |status-412| error is returned.
 
 
 **Request**:
@@ -199,20 +188,7 @@ If a conflict occurs, an error response is returned with status ``409``.
 A ``details`` attribute in the response provides the offending record and
 field name. See :ref:`dedicated section about errors <error-responses>`.
 
-
-HTTP Status Codes
------------------
-
-* ``200 OK``: This record already exists, the one stored on the database is returned
-* ``201 Created``: The record was created
-* ``400 Bad Request``: The request body is invalid
-* ``401 Unauthorized``: The request is missing authentication headers
-* ``403 Forbidden``: The user is not allowed to perform the operation, or the
-  resource is not accessible
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type
-* ``409 Conflict``: Unicity constraint on fields is violated
-* ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
-* ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type
+.. include:: _status-post-list.rst
 
 
 DELETE /{collection}
@@ -229,7 +205,7 @@ The DELETE response is a JSON mapping containing:
 It supports the same filtering capabilities as GET.
 
 If the ``If-Match: "<timestamp>"`` request header is provided, and if the collection
-has changed meanwhile, a ``412 Precondition failed`` error is returned.
+has changed meanwhile, a |status-412| error is returned.
 
 
 **Request**:
@@ -267,17 +243,7 @@ has changed meanwhile, a ``412 Precondition failed`` error is returned.
         ]
     }
 
-
-HTTP Status Codes
------------------
-
-* ``200 OK``: The records were deleted
-* ``401 Unauthorized``: The request is missing authentication headers
-* ``403 Forbidden``: The user is not allowed to perform the operation, or the
-  resource is not accessible
-* ``405 Method Not Allowed``: This endpoint is not available
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type
-* ``412 Precondition Failed``: Collection changed since value in ``If-Match`` header
+.. include:: _status-delete-list.rst
 
 
 GET /{collection}/<id>
@@ -293,7 +259,7 @@ containing:
   the requested record.
 
 If the ``If-None-Match: "<timestamp>"`` request header is provided, and
-if the record has not changed meanwhile, a ``304 Not Modified`` is returned.
+if the record has not changed meanwhile, a |status-304| is returned.
 
 **Request**:
 
@@ -326,16 +292,7 @@ if the record has not changed meanwhile, a ``304 Not Modified`` is returned.
     }
 
 
-HTTP Status Code
-----------------
-
-* ``200 OK``: The request was processed
-* ``304 Not Modified``: Record did not change since value in ``If-None-Match`` header
-* ``401 Unauthorized``: The request is missing authentication headers
-* ``403 Forbidden``: The user is not allowed to perform the operation, or the
-  resource is not accessible
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type
-* ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
+.. include:: _status-get-object.rst
 
 
 DELETE /{collection}/<id>
@@ -353,23 +310,14 @@ If the record is missing (or already deleted), a ``404 Not Found`` is returned.
 The consumer might decide to ignore it.
 
 If the ``If-Match`` request header is provided, and if the record has
-changed meanwhile, a ``412 Precondition failed`` error is returned.
+changed meanwhile, a |status-412| error is returned.
 
 .. note::
 
     Once deleted, a record will appear in the collection when polling for changes,
     with a deleted status (``delete=true``) and will have most of its fields empty.
 
-
-HTTP Status Code
-----------------
-
-* ``200 OK``: The record was deleted
-* ``401 Unauthorized``: The request is missing authentication headers
-* ``403 Forbidden``: The user is not allowed to perform the operation, or the
-  resource is not accessible
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
-* ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
+.. include:: _status-delete-object.rst
 
 
 PUT /{collection}/<id>
@@ -393,10 +341,10 @@ Validation and conflicts behaviour is similar to creating records (``POST``).
 
 If the ``If-Match: "<timestamp>"`` request header is provided as described in
 the :ref:`section about timestamps <server-timestamps>`, and if the record has
-changed meanwhile, a ``412 Precondition failed`` error is returned.
+changed meanwhile, a |status-412| error is returned.
 
 If the ``If-None-Match: *`` request header is provided  and if there is already
-an existing record with this ``id``, a ``412 Precondition failed`` error is returned.
+an existing record with this ``id``, a |status-412| error is returned.
 
 
 **Request**:
@@ -437,21 +385,7 @@ an existing record with this ``id``, a ``412 Precondition failed`` error is retu
         }
     }
 
-
-HTTP Status Code
-----------------
-
-* ``201 Created``: The record was created
-* ``200 OK``: The record was replaced
-* ``400 Bad Request``: The record is invalid
-* ``401 Unauthorized``: The request is missing authentication headers
-* ``403 Forbidden``: The user is not allowed to perform the operation, or the
-  resource is not accessible
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
-* ``409 Conflict``: If replacing this record violates a field unicity constraint
-* ``412 Precondition Failed``: Record was changed or deleted since value
-  in ``If-Match`` header.
-* ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
+.. include:: _status-put-object.rst
 
 
 PATCH /{collection}/<id>
@@ -519,7 +453,7 @@ The consumer might decide to ignore it.
 
 If the ``If-Match: "<timestamp>"`` request header is provided as described in
 the :ref:`section about timestamps <server-timestamps>`, and if the record has
-changed meanwhile, a ``412 Precondition failed`` error is returned.
+changed meanwhile, a |status-412| error is returned.
 
 
 .. note::
@@ -545,20 +479,7 @@ Conflicts
 If changing a record field violates a field unicity constraint, a
 ``409 Conflict`` error response is returned (see :ref:`error channel <error-responses>`).
 
-
-HTTP Status Code
-----------------
-
-* ``200 OK``: The record was modified
-* ``400 Bad Request``: The request body is invalid, or a read-only field was
-  modified
-* ``401 Unauthorized``: The request is missing authentication headers
-* ``403 Forbidden``: The user is not allowed to perform the operation, or the
-  resource is not accessible
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
-* ``409 Conflict``: If modifying this record violates a field unicity constraint
-* ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
-* ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
+.. include:: _status-patch-object.rst
 
 
 .. _resource-permissions-attribute:

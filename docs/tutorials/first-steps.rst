@@ -228,7 +228,7 @@ while we fetched the collection earlier - you kept a note, didn't you?):
         "message": "Resource was modified meanwhile"
     }
 
-As expected here, the server rejects the modification with a ``412 Precondition Failed``
+As expected here, the server rejects the modification with a |status-412|
 error response.
 
 In order to update this record safely we can fetch the last version of this
@@ -380,7 +380,7 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
 
 
 The list will be empty if no change occurred. If you would prefer to receive a
-``304 Not Modified`` response in this case, simply send the ``If-None-Match``
+|status-304| response in this case, simply send the ``If-None-Match``
 header with the last ``ETag`` value.
 
 

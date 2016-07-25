@@ -22,6 +22,7 @@ This document describes changes between each past release.
 
 - Huge rework of documentation after the merge of *Cliquet* into kinto.core (#731)
 - Switch from cliquet-pusher to kinto-pusher in Dockerfile and tutorial.
+- List posssible response status on every endpoint documentation (#736)
 
 
 3.3.1 (2016-07-19)

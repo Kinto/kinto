@@ -129,6 +129,27 @@ extlinks = {
 }
 
 
+# -- Substitutions
+
+rst_epilog = """
+.. |status-200| replace:: ``200 OK``
+.. |status-201| replace:: ``201 Created``
+.. |status-304| replace:: ``304 Not Modified``
+.. |status-400| replace:: ``400 Bad Request``
+.. |status-401| replace:: ``401 Unauthorized``
+.. |status-403| replace:: ``401 Forbidden``
+.. |status-404| replace:: ``404 Not Found``
+.. |status-405| replace:: ``405 Method Not Allowed``
+.. |status-406| replace:: ``406 Not Acceptable``
+.. |status-409| replace:: ``409 Conflict``
+.. |status-410| replace:: ``410 Gone``
+.. |status-412| replace:: ``412 Precondition Failed``
+.. |status-415| replace:: ``415 Unsupported Media Type``
+.. |status-503| replace:: ``503 Service Unavailable``
+"""
+
+# --
+
 def setup(app):
     # path relative to _static
     app.add_stylesheet('theme_overrides.css')

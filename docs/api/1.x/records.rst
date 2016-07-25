@@ -66,12 +66,14 @@ Uploading a record
             }
         }
 
+.. include:: _status-post-list.rst
+
 .. important::
 
     If the posted record has an ``id`` field, it will be taken into account.
 
-    However, if a record already exists with the same ``id``, a ``200 OK`` response
-    is returned with the existing record in body (instead of ``201 Created``).
+    However, if a record already exists with the same ``id``, a |status-200| response
+    is returned with the existing record in body (instead of |status-201|).
     See https://github.com/Kinto/kinto/issues/140
 
 
@@ -133,6 +135,8 @@ Replacing a record
               ]
           }
         }
+
+.. include:: _status-put-object.rst
 
 
 .. _record-patch:
@@ -196,6 +200,8 @@ Updating a record
           }
         }
 
+.. include:: _status-patch-object.rst
+
 
 .. _records-get:
 
@@ -252,6 +258,8 @@ operations on collection retrieval.
             ]
         }
 
+.. include:: _status-get-list.rst
+
 
 .. _record-get:
 
@@ -307,6 +315,8 @@ Retrieving a specific record
             }
         }
 
+.. include:: _status-get-object.rst
+
 
 .. _records-delete:
 
@@ -356,6 +366,8 @@ Delete stored records
             }]
         }
 
+.. include:: _status-delete-object.rst
+
 
 .. _record-delete:
 
@@ -401,3 +413,5 @@ Deleting a single record
                 "last_modified": 1434648749173
             }
         }
+
+.. include:: _status-delete-object.rst
