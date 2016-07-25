@@ -5,11 +5,15 @@ Collections
 
 A collection belongs to a bucket and stores records.
 
-A collection is a mapping with the following attribute:
+A collection is a mapping with the following attributes:
 
-* ``schema``: (*optional*) a JSON schema to validate the collection records
-* ``cache_expires``: (*optional*, in seconds) add client cache headers on read-only requests.
-  :ref:`More details...<collection-caching>`
+* ``data``: (*optional*) attributes of the collection object
+    * ``id``: the collection object id
+    * ``last_modified``: the timestamp of the last modification
+    * ``schema``: (*optional*) a JSON schema to validate the collection records
+    * ``cache_expires``: (*optional*, in seconds) add client cache headers on   read-only requests.
+      :ref:`More details...<collection-caching>`
+* ``permissions``: the :term:`ACLs <ACL>` for the collection object
 
 
 .. note::
@@ -87,9 +91,7 @@ List bucket collections
           ]
       }
 
-
-This endpoint is plural and supports :doc:`filtering <filtering>`,
-:doc:`sorting <sorting>`, and :doc:`pagination <pagination>`.
+.. include:: _details-get-list.rst
 
 .. include:: _status-get-list.rst
 
@@ -153,6 +155,8 @@ Delete bucket collections
             ]
         }
 
+.. include:: _details-delete-list.rst
+
 .. include:: _status-delete-list.rst
 
 
@@ -212,6 +216,8 @@ Creating a collection
           }
       }
 
+.. include:: _details-post-list.rst
+
 .. include:: _status-post-list.rst
 
 
@@ -267,11 +273,7 @@ Replacing a collection
             }
         }
 
-    .. note::
-
-        In order to create only if it does not exist yet, a ``If-None-Match: *``
-        request header can be provided. A |status-412| error response
-        will be returned if the record already exists.
+.. include:: _details-put-object.rst
 
 .. include:: _status-put-object.rst
 
@@ -337,6 +339,8 @@ Updating a collection
             }
         }
 
+.. include:: _details-patch-object.rst
+
 .. include:: _status-patch-object.rst
 
 
@@ -393,6 +397,8 @@ Retrieving an existing collection
             }
         }
 
+.. include:: _details-get-object.rst
+
 .. include:: _status-get-object.rst
 
 
@@ -442,6 +448,8 @@ Deleting a collection
                 "last_modified": 1434642842010
             }
         }
+
+.. include:: _details-delete-object.rst
 
 .. include:: _status-delete-object.rst
 

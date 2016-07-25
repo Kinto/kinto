@@ -7,7 +7,10 @@ A bucket is the parent object of collections and groups.
 
 A bucket is a mapping with the following attributes:
 
-* ``permissions``: (*optional*) the :term:`ACLs <ACL>` for the bucket object
+* ``data``: (*optional*) attributes of the bucket object
+    * ``id``: the bucket object id
+    * ``last_modified``: the timestamp of the last modification
+* ``permissions``: the :term:`ACLs <ACL>` for the bucket object
 
 
 .. _buckets-post:
@@ -72,6 +75,8 @@ Creating a bucket
 A bucket also accept arbitrary attributes.
 For example, you may want to store some application settings there.
 
+.. include:: _details-post-list.rst
+
 .. include:: _status-post-list.rst
 
 
@@ -129,11 +134,7 @@ Replacing a bucket
             }
         }
 
-    .. note::
-
-        In order to create only if it does not exist yet, a ``If-None-Match: *``
-        request header can be provided. A |status-412| error response
-        will be returned if the record already exists.
+.. include:: _details-put-object.rst
 
 .. include:: _status-put-object.rst
 
@@ -192,8 +193,9 @@ Retrieve an existing bucket
             }
         }
 
-.. include:: _status-get-object.rst
+.. include:: _details-get-object.rst
 
+.. include:: _status-get-object.rst
 
 
 .. _bucket-patch:
@@ -207,10 +209,7 @@ Updating an existing bucket
 
     **Requires authentication**
 
-    .. note::
-
-        Until a formalism is found to alter ACL principals (e.g. using ``+`` or ``-``)
-        there is no difference in the behaviour between PATCH and PUT.
+.. include:: _details-patch-object.rst
 
 .. include:: _status-patch-object.rst
 
@@ -261,6 +260,8 @@ Deleting a bucket
                 "last_modified": 1434641382954
             }
         }
+
+.. include:: _details-delete-object.rst
 
 .. include:: _status-delete-object.rst
 
@@ -315,8 +316,7 @@ Retrieving all buckets
             ]
         }
 
-This endpoint is plural and supports :doc:`filtering <filtering>`,
-:doc:`sorting <sorting>`, and :doc:`pagination <pagination>`.
+.. include:: _details-get-list.rst
 
 .. include:: _status-get-list.rst
 
@@ -369,6 +369,8 @@ Delete all buckets
                 }
             ]
         }
+
+.. include:: _details-delete-list.rst
 
 .. include:: _status-delete-list.rst
 

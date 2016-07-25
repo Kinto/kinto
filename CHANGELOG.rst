@@ -24,6 +24,7 @@ This document describes changes between each past release.
 - Improve the documentation about generating docs (fixes #615)
 - Switch from cliquet-pusher to kinto-pusher in Dockerfile and tutorial.
 - List posssible response status on every endpoint documentation (#736)
+- Remove duplicated and confusing docs about generic resources
 
 
 3.3.1 (2016-07-19)
