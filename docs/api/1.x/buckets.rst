@@ -87,7 +87,7 @@ Replacing a bucket
     **Requires authentication**
 
     If the bucket exists but you don't have the ``write`` permission,
-    you will get a ``403 Forbidden`` http response.
+    you will get a |status-403| http response.
 
     **Example request**
 
@@ -132,7 +132,7 @@ Replacing a bucket
     .. note::
 
         In order to create only if it does not exist yet, a ``If-None-Match: *``
-        request header can be provided. A ``412 Precondition Failed`` error response
+        request header can be provided. A |status-412| error response
         will be returned if the record already exists.
 
 .. include:: _status-put-object.rst

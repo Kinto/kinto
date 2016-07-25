@@ -53,7 +53,7 @@ Cache control
 =============
 
 In order to check that the client version has not changed, a ``If-None-Match``
-request header can be used. If the response is ``304 Not Modified`` then
+request header can be used. If the response is |status-304| then
 the cached version is still good.
 
 +-----------------------------+--------------------------+
@@ -71,7 +71,7 @@ Concurrency control
 ===================
 
 In order to prevent race conditions, like overwriting changes occured in the interim for example,
-a ``If-Match: "timestamp"`` request header can be used. If the response is ``412 Precondition failed``
+a ``If-Match: "timestamp"`` request header can be used. If the response is |status-412|
 then the resource has changed meanwhile.
 
 Concurrency control also allows to make sure a creation won't overwrite any record using
@@ -95,7 +95,7 @@ The following table gives a summary of the expected behaviour of a resource:
 | Id unknown                  | Create      | Create       | No effect     | No effect     |
 +-----------------------------+-------------+--------------+---------------+---------------+
 
-When the client receives a ``412 Precondition failed``, it can then choose to:
+When the client receives a |status-412|, it can then choose to:
 
 * overwrite by repeating the request without concurrency control;
 * reconcile the resource by fetching, merging and repeating the request.

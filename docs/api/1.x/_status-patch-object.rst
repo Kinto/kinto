@@ -1,13 +1,12 @@
-HTTP Status Code
-----------------
+HTTP Status Codes
+-----------------
 
-* ``200 OK``: The object was modified
-* ``400 Bad Request``: The request body is invalid, or a read-only field was
-  modified
-* ``401 Unauthorized``: The request is missing authentication headers
-* ``403 Forbidden``: The user is not allowed to perform the operation, or the
-  resource is not accessible
-* ``406 Not Acceptable``: The client doesn't accept supported responses Content-Type.
-* ``409 Conflict``: If modifying this object violates a field unicity constraint
-* ``412 Precondition Failed``: Record changed since value in ``If-Match`` header
-* ``415 Unsupported Media Type``: The client request was not sent with a correct Content-Type.
+* |status-200|: The object was modified
+* |status-400|: The request body is invalid, or a read-only field was modified
+* |status-401|: The request is missing authentication headers
+* |status-403|: The user is not allowed to perform the operation, or the resource is not accessible
+* |status-403|: The object does not exist or was deleted
+* |status-406|: The client doesn't accept supported responses Content-Type.
+* |status-409|: If modifying this object violates a field unicity constraint
+* |status-412|: Record changed since value in ``If-Match`` header
+* |status-415|: The client request was not sent with a correct Content-Type.

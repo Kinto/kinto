@@ -270,7 +270,7 @@ Replacing a collection
     .. note::
 
         In order to create only if it does not exist yet, a ``If-None-Match: *``
-        request header can be provided. A ``412 Precondition Failed`` error response
+        request header can be provided. A |status-412| error response
         will be returned if the record already exists.
 
 .. include:: _status-put-object.rst
@@ -458,7 +458,7 @@ collection.
 
 Once a schema is set, records will be validated during creation or update.
 
-If the validation fails, a ``400 Bad Request`` error response will be
+If the validation fails, a |status-400| error response will be
 returned.
 
 .. note::

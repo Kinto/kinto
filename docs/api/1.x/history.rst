@@ -111,7 +111,7 @@ Conflict resolution
 
 Having the journal of operations of an object possibly allows to resolve update conflicts automatically.
 
-For example, if Alice receives a ``412 Precondition failed`` error response when she tries to update a record,
+For example, if Alice receives a |status-412| error response when she tries to update a record,
 she can use the history entries for this particular record filtering from a the timestamp of her local copy, in order
 to merge the changes that happened remotely with her local ones.
 

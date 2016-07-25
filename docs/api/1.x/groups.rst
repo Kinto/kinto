@@ -154,7 +154,7 @@ Replacing a group
     .. note::
 
         In order to create only if does not exist yet, a ``If-None-Match: *``
-        request header can be provided. A ``412 Precondition Failed`` error
+        request header can be provided. A |status-412| error
         response will be returned if the record already exists.
 
 .. include:: _status-put-object.rst

@@ -116,11 +116,11 @@ The POST response body is a JSON mapping containing:
 
 If the ``If-Match: "<timestamp>"`` request header is provided as described in
 the :ref:`section about timestamps <server-timestamps>`, and if the collection has
-changed meanwhile, a ``412 Precondition failed`` error is returned.
+changed meanwhile, a |status-412| error is returned.
 
 If the ``If-None-Match: *`` request header is provided, and if the provided ``data``
 contains an ``id`` field, and if there is already an existing record with this ``id``,
-a ``412 Precondition failed`` error is returned.
+a |status-412| error is returned.
 
 
 **Request**:
@@ -205,7 +205,7 @@ The DELETE response is a JSON mapping containing:
 It supports the same filtering capabilities as GET.
 
 If the ``If-Match: "<timestamp>"`` request header is provided, and if the collection
-has changed meanwhile, a ``412 Precondition failed`` error is returned.
+has changed meanwhile, a |status-412| error is returned.
 
 
 **Request**:
@@ -259,7 +259,7 @@ containing:
   the requested record.
 
 If the ``If-None-Match: "<timestamp>"`` request header is provided, and
-if the record has not changed meanwhile, a ``304 Not Modified`` is returned.
+if the record has not changed meanwhile, a |status-304| is returned.
 
 **Request**:
 
@@ -310,7 +310,7 @@ If the record is missing (or already deleted), a ``404 Not Found`` is returned.
 The consumer might decide to ignore it.
 
 If the ``If-Match`` request header is provided, and if the record has
-changed meanwhile, a ``412 Precondition failed`` error is returned.
+changed meanwhile, a |status-412| error is returned.
 
 .. note::
 
@@ -341,10 +341,10 @@ Validation and conflicts behaviour is similar to creating records (``POST``).
 
 If the ``If-Match: "<timestamp>"`` request header is provided as described in
 the :ref:`section about timestamps <server-timestamps>`, and if the record has
-changed meanwhile, a ``412 Precondition failed`` error is returned.
+changed meanwhile, a |status-412| error is returned.
 
 If the ``If-None-Match: *`` request header is provided  and if there is already
-an existing record with this ``id``, a ``412 Precondition failed`` error is returned.
+an existing record with this ``id``, a |status-412| error is returned.
 
 
 **Request**:
@@ -453,7 +453,7 @@ The consumer might decide to ignore it.
 
 If the ``If-Match: "<timestamp>"`` request header is provided as described in
 the :ref:`section about timestamps <server-timestamps>`, and if the record has
-changed meanwhile, a ``412 Precondition failed`` error is returned.
+changed meanwhile, a |status-412| error is returned.
 
 
 .. note::

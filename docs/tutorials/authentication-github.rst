@@ -215,7 +215,7 @@ We will simply make a call to the Github user API and try to obtain the ``login`
                 return None
 
 
-Let's try to create an object on Kinto, it should fail using a ``401 Unauthorized`` error response using a dummy token:
+Let's try to create an object on Kinto, it should fail using a |status-401| error response using a dummy token:
 
 ::
 
