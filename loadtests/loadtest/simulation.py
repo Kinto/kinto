@@ -244,11 +244,13 @@ class SimulationLoadTest(BaseLoadTest):
         filters = '?_since=%s' % last_modified
         modified_url = self.collection_url() + filters
         resp = self.session.get(modified_url)
+        self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def list_archived(self):
         archived_url = self.collection_url() + '?archived=true'
         resp = self.session.get(archived_url)
+        self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def batch_count(self):
@@ -268,16 +270,19 @@ class SimulationLoadTest(BaseLoadTest):
         self._run_batch(data)
 
     def list_deleted(self):
+        self._pickRecords()
         modif = self.random_record['last_modified']
         filters = '?_since=%s&deleted=true' % modif
         deleted_url = self.collection_url() + filters
         resp = self.session.get(deleted_url)
+        self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def list_continuated_pagination(self):
         paginated_url = self.collection_url() + '?_limit=20'
         while paginated_url:
             resp = self.session.get(paginated_url)
+            self.incr_counter('status-%s' % resp.status_code)
             self.assertEqual(resp.status_code, 200)
             next_page = resp.headers.get("Next-Page")
             self.assertNotEqual(paginated_url, next_page)
