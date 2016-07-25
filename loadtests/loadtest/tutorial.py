@@ -138,13 +138,10 @@ class TutorialLoadTest(BaseLoadTest):
         collection_url = self.collection_url(bucket_id, collection_id)
 
         # Create a new bucket and check for permissions
-        resp = self.session.put(
-            self.bucket_url(bucket_id))
+        resp = self.session.put(self.bucket_url(bucket_id))
         self.incr_counter("status-%s" % resp.status_code)
-        # We should always have a 201 here. See mozilla-services/cliquet#367
-        # if resp.status_code == 200:
-        #     import pdb; pdb.set_trace()
-        # self.assertEqual(resp.status_code, 201)
+        # In case of concurrent execution, it may have been created already.
+        self.assertIn(resp.status_code, (200, 201))
         record = resp.json()
         self.assertIn('write', record['permissions'])
 
@@ -154,10 +151,8 @@ class TutorialLoadTest(BaseLoadTest):
             re.sub('/records$', '', collection_url),
             data=json.dumps({'permissions': permissions}))
         self.incr_counter("status-%s" % resp.status_code)
-        # We should always have a 201 here. See mozilla-services/cliquet#367
-        # if resp.status_code == 200:
-        #     import pdb; pdb.set_trace()
-        # self.assertEqual(resp.status_code, 201)
+        # In case of concurrent execution, it may have been created already.
+        self.assertIn(resp.status_code, (200, 201))
         record = resp.json()
         self.assertIn('record:create', record['permissions'])
         self.assertIn('system.Authenticated',

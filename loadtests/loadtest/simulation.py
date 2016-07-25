@@ -276,18 +276,9 @@ class SimulationLoadTest(BaseLoadTest):
 
     def list_continuated_pagination(self):
         paginated_url = self.collection_url() + '?_limit=20'
-
-        urls = []
-
         while paginated_url:
             resp = self.session.get(paginated_url)
             self.assertEqual(resp.status_code, 200)
             next_page = resp.headers.get("Next-Page")
-            if next_page is not None and next_page not in urls:
-                self.assertNotEqual(paginated_url, next_page)
-                paginated_url = next_page
-                urls.append(next_page)
-            else:
-                # XXX: we shouldn't have to keep the full list.
-                # See mozilla-services/cliquet#366
-                break
+            self.assertNotEqual(paginated_url, next_page)
+            paginated_url = next_page
