@@ -876,7 +876,7 @@ class UserResource(object):
                 raise_invalid(self.request, **error_details)
 
             # Since id and last_modified are part of the synchronisation
-            # protocol, force their presence in payloads.
+            # API, force their presence in payloads.
             fields = fields + [self.model.id_field, self.model.modified_field]
 
         return fields
@@ -1172,7 +1172,7 @@ class ShareableResource(UserResource):
     def postprocess(self, result, action=ACTIONS.READ, old=None):
         """Add ``permissions`` attribute in response body.
 
-        In the protocol, it was decided that ``permissions`` would reside
+        In the HTTP API, it was decided that ``permissions`` would reside
         outside the ``data`` attribute.
         """
         body = {}

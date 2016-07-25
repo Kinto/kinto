@@ -459,7 +459,7 @@ Once done, restart the server. For example, with uwsgi:
 Using backoff
 -------------
 
-The :ref:`backoff feature <backoff-indicators>` of the HTTP protocol allows
+The :ref:`backoff feature <backoff-indicators>` of the HTTP API allows
 to reduce the hits of clients during a period of time.
 
 In order to leverage this, change the ``kinto.backoff`` setting to a number of

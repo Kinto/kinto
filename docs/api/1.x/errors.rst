@@ -4,8 +4,8 @@
 Error responses
 ###############
 
-Protocol description
-====================
+API description
+===============
 
 Every response is JSON.
 

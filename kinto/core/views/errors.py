@@ -65,7 +65,7 @@ def page_not_found(request):
 
     if not request.path.startswith('/' + request.registry.route_prefix):
         errno = ERRORS.VERSION_NOT_AVAILABLE
-        error_msg = ("The requested protocol version is not available "
+        error_msg = ("The requested API version is not available "
                      "on this server.")
     elif trailing_slash_redirection_enabled:
         redirect = None

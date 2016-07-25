@@ -90,7 +90,7 @@ In addition, the Operations team at Mozilla is comfortable with deploying and
 managing Python applications in production.
 
 However, Python is just an implementation detail *per se*. Kinto is
-defined by an HTTP protocol that could be implemented in any language.
+defined by an HTTP API that could be implemented in any language.
 
 
 Is it Web Scale?
@@ -207,5 +207,4 @@ it might or might not be the solution you're looking for. If you have access to 
 server, then  doing a dump would get you the data out, but it won't be in any documented
 format (it will be in an internal representation).
 
-Nevertheless Kinto protocol is build in order for you to sync data. Therefore you can use
-the protocol to sync two databases.
+Nevertheless you can use the Kinto HTTP API to sync two databases.
