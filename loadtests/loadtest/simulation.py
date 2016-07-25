@@ -40,9 +40,9 @@ class SimulationLoadTest(BaseLoadTest):
     def __init__(self, *args, **kwargs):
         super(SimulationLoadTest, self).__init__(*args, **kwargs)
         self.collection = 'articles'
-        self.init_article()
+        self.init_user()
 
-    def init_article(self, *args, **kwargs):
+    def init_user(self, *args, **kwargs):
         """Initialization that happens once per user.
 
         :note:
