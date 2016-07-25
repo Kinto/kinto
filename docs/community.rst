@@ -179,17 +179,24 @@ From the :file:`loadtests` folder:
 
 ::
 
+    cd loadtests/
+
     make test SERVER_URL=http://localhost:8888
 
 
-Run a particular type of action instead of random:
+Use presets to run a particular limited set of operations
+(``random``, ``exhaustive``, ``read`` or ``write``):
 
 ::
 
-    LOAD_ACTION=batch_create make test SERVER_URL=http://localhost:8888
+    LOAD_PRESET=random make test SERVER_URL=http://localhost:8888
 
-(*See loadtests source code for an exhaustive list of available actions and
-their respective randomness.*)
+
+To run the load tests on the ``default`` bucket:
+
+::
+
+    BUCKET=default make test SERVER_URL=http://localhost:8888
 
 
 Cleaning your environment
