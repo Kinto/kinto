@@ -115,7 +115,7 @@ class Storage(StorageBase):
             expected = migration[0]
             current = self._get_installed_version()
             error_msg = "Expected version %s. Found version %s."
-            if expected != current:
+            if not dry_run and expected != current:
                 raise AssertionError(error_msg % (expected, current))
 
             logger.info('Migrate PostgreSQL storage schema from'

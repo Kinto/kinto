@@ -68,12 +68,17 @@ class Permission(PermissionBase):
         self.client = client
 
     def initialize_schema(self, dry_run=False):
-        try:
-            self.get_user_principals("TRYING")
-            logger.info("PostgreSQL permission schema is up-to-date.")
-            return
-        except BackendError:
-            pass
+        # Check if user_principals table exists.
+        query = """
+        SELECT 1
+          FROM information_schema.tables
+         WHERE table_name = 'user_principals';
+        """
+        with self.client.connect(readonly=True) as conn:
+            result = conn.execute(query)
+            if result.rowcount > 0:
+                logger.info("PostgreSQL permission schema is up-to-date.")
+                return
 
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))

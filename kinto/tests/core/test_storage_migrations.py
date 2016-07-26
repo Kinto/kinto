@@ -219,20 +219,28 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         self.permission = postgresql_permission.load_from_config(config)
 
     def setUp(self):
-        patcher = mock.patch.object(self.permission, 'get_user_principals',
-                                    side_effect=exceptions.BackendError)
-        self.addCleanup(patcher.stop)
-        patcher.start()
+        q = """
+        DROP TABLE IF EXISTS access_control_entries CASCADE;
+        DROP TABLE IF EXISTS user_principals CASCADE;
+        """
+        with self.permission.client.connect() as conn:
+            conn.execute(q)
 
     def test_runs_initialize_schema_if_using_it_fails(self):
-        with mock.patch.object(self.permission.client, 'connect') as mocked:
-            self.permission.initialize_schema()
-            self.assertTrue(mocked.called)
+        self.permission.initialize_schema()
+        query = """SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'user_principals';"""
+        with self.permission.client.connect(readonly=True) as conn:
+            result = conn.execute(query)
+            self.assertEqual(result.rowcount, 1)
 
     def test_does_not_execute_if_ran_with_dry(self):
-        with mock.patch.object(self.permission.client, 'connect') as mocked:
-            self.permission.initialize_schema(dry_run=True)
-            self.assertFalse(mocked.called)
+        self.permission.initialize_schema(dry_run=True)
+        query = """SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'user_principals';"""
+        with self.permission.client.connect(readonly=True) as conn:
+            result = conn.execute(query)
+            self.assertEqual(result.rowcount, 0)
 
 
 @skip_if_no_postgresql
@@ -247,23 +255,30 @@ class PostgresqlCacheMigrationTest(unittest.TestCase):
         settings = PostgreSQLCacheTest.settings.copy()
         config = testing.setUp()
         config.add_settings(settings)
-        self.permission = postgresql_cache.load_from_config(config)
+        self.cache = postgresql_cache.load_from_config(config)
 
     def setUp(self):
-        patcher = mock.patch.object(self.permission, 'get',
-                                    side_effect=exceptions.BackendError)
-        self.addCleanup(patcher.stop)
-        patcher.start()
+        q = """
+        DROP TABLE IF EXISTS cache CASCADE;
+        """
+        with self.cache.client.connect() as conn:
+            conn.execute(q)
 
     def test_runs_initialize_schema_if_using_it_fails(self):
-        with mock.patch.object(self.permission.client, 'connect') as mocked:
-            self.permission.initialize_schema()
-            self.assertTrue(mocked.called)
+        self.cache.initialize_schema()
+        query = """SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'cache';"""
+        with self.cache.client.connect(readonly=True) as conn:
+            result = conn.execute(query)
+            self.assertEqual(result.rowcount, 1)
 
     def test_does_not_execute_if_ran_with_dry(self):
-        with mock.patch.object(self.permission.client, 'connect') as mocked:
-            self.permission.initialize_schema(dry_run=True)
-            self.assertFalse(mocked.called)
+        self.cache.initialize_schema(dry_run=True)
+        query = """SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'cache';"""
+        with self.cache.client.connect(readonly=True) as conn:
+            result = conn.execute(query)
+            self.assertEqual(result.rowcount, 0)
 
 
 class PostgresqlExceptionRaisedTest(unittest.TestCase):

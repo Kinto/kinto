@@ -102,8 +102,8 @@ def main(args=None):
         dry_run = parsed_args['dry_run']
         try:
             logging.config.fileConfig(config_file)
-        except configparser.NoSectionError:
-            pass
+        except configparser.NoSectionError as e:  # pragma: no cover
+            print(e)
         env = bootstrap(config_file)
         scripts.migrate(env, dry_run=dry_run)
 
