@@ -4,7 +4,7 @@ import os
 import sys
 import logging
 import logging.config
-from six.moves import input
+from six.moves import input, configparser
 from kinto.core import scripts
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
@@ -100,7 +100,10 @@ def main(args=None):
 
     elif parsed_args['which'] == 'migrate':
         dry_run = parsed_args['dry_run']
-        logging.config.fileConfig(config_file)
+        try:
+            logging.config.fileConfig(config_file)
+        except configparser.NoSectionError as e:  # pragma: no cover
+            print(e)
         env = bootstrap(config_file)
         scripts.migrate(env, dry_run=dry_run)
 
