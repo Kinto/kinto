@@ -208,6 +208,9 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 class PostgresqlPermissionMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kw):
         super(PostgresqlPermissionMigrationTest, self).__init__(*args, **kw)
+        from kinto.core.utils import sqlalchemy
+        if sqlalchemy is None:
+            return
 
         from .test_permission import PostgreSQLPermissionTest
         settings = PostgreSQLPermissionTest.settings.copy()
@@ -236,6 +239,9 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
 class PostgresqlCacheMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kw):
         super(PostgresqlCacheMigrationTest, self).__init__(*args, **kw)
+        from kinto.core.utils import sqlalchemy
+        if sqlalchemy is None:
+            return
 
         from .test_cache import PostgreSQLCacheTest
         settings = PostgreSQLCacheTest.settings.copy()
