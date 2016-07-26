@@ -6,7 +6,8 @@ from dateutil import parser as dateparser
 import structlog
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
-from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone
+from pyramid.httpexceptions import (HTTPTemporaryRedirect, HTTPGone,
+                                    HTTPBadRequest)
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.interfaces import IAuthenticationPolicy
@@ -330,9 +331,18 @@ def setup_logging(config):
         # Save the time the request was received by the server.
         event.request._received_at = utils.msec_time()
 
+        try:
+            # Pyramid fails if the URL contains invalid UTF-8 characters.
+            request_path = event.request.path
+        except UnicodeDecodeError:
+            raise errors.http_error(
+                HTTPBadRequest(),
+                errno=errors.ERRORS.INVALID_PARAMETERS,
+                message="Invalid URL path.")
+
         # New logger context, with infos for request summary logger.
         logger.new(agent=request.headers.get('User-Agent'),
-                   path=event.request.path,
+                   path=request_path,
                    method=request.method,
                    querystring=dict(request.GET),
                    lang=request.headers.get('Accept-Language'),

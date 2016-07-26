@@ -19,6 +19,7 @@ This document describes changes between each past release.
 - Fix Redis get_accessible_object implementation (#725)
 - Fix bug where the resource events of a request targetting two groups/collection
   from different buckets would be grouped together.
+- Fix crash when an invalid UTF-8 character is provided in URL
 
 **Internal changes**
 
