@@ -5,7 +5,6 @@ import os
 from kinto.core import logger
 from kinto.core.cache import CacheBase
 from kinto.core.storage.postgresql.client import create_from_config
-from kinto.core.storage.exceptions import BackendError
 from kinto.core.utils import json
 
 

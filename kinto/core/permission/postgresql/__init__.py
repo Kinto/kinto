@@ -6,7 +6,6 @@ from collections import OrderedDict
 
 from kinto.core import logger
 from kinto.core.permission import PermissionBase
-from kinto.core.storage.exceptions import BackendError
 from kinto.core.storage.postgresql.client import create_from_config
 
 
