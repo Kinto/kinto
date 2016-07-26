@@ -69,6 +69,7 @@ DEFAULT_SETTINGS = {
     'project_version': '',
     'readonly': False,
     'retry_after_seconds': 30,
+    'statsd_backend': 'kinto.core.statsd',
     'statsd_prefix': 'kinto.core',
     'statsd_url': None,
     'storage_backend': '',
