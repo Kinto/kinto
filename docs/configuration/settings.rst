@@ -262,8 +262,8 @@ Logging and Monitoring
 | kinto.logging_renderer | ``kinto.core.logs.ClassicLogRenderer`` | The Python *dotted* location of the renderer class that should be used   |
 |                        |                                        | to render the logs to the standard output.                               |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
-| kinto.statsd_backend   | ``kinto.core.statsd``                  | The Python **dotted** location of th statsd module that should be used   |
-|                        |                                        | for statsd values. Useful to plug custom implementations like Datadog™.  |
+| kinto.statsd_backend   | ``kinto.core.statsd``                  | The Python **dotted** location of the StatsD module that should be used  |
+|                        |                                        | for monitoring. Useful to plug custom implementations like Datadog™.     |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 | kinto.statsd_prefix    | ``kinto``                              | The prefix to use when sending data to statsd.                           |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
