@@ -5,6 +5,7 @@ import os
 from kinto.core import logger
 from kinto.core.cache import CacheBase
 from kinto.core.storage.postgresql.client import create_from_config
+from kinto.core.storage.exceptions import BackendError
 from kinto.core.utils import json
 
 
@@ -65,11 +66,24 @@ class Cache(CacheBase):
         super(Cache, self).__init__(*args, **kwargs)
         self.client = client
 
-    def initialize_schema(self):
+    def initialize_schema(self, is_dry=False):
+        try:
+            self.get("TRYING")
+            logger.info("PostgreSQL cache schema is up-to-date.")
+            return
+        except BackendError:
+            pass
+
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
-        schema = open(os.path.join(here, 'schema.sql')).read()
+        sql_file = os.path.join(here, 'schema.sql')
+
+        if is_dry:
+            logger.info("Create cache schema from %s" % sql_file)
+            return
+
         # Since called outside request, force commit.
+        schema = open(sql_file).read()
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
         logger.info('Created PostgreSQL cache tables')

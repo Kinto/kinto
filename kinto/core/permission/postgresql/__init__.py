@@ -66,10 +66,16 @@ class Permission(PermissionBase):
         super(Permission, self).__init__(*args, **kwargs)
         self.client = client
 
-    def initialize_schema(self):
+    def initialize_schema(self, is_dry=False):
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
-        schema = open(os.path.join(here, 'schema.sql')).read()
+        sql_file = os.path.join(here, 'schema.sql')
+        schema = open(sql_file).read()
+
+        if is_dry:
+            logger.info("Create permission schema from %s" % sql_file)
+            return
+
         # Since called outside request, force commit.
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)

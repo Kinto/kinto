@@ -68,7 +68,9 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         mocked = self.sql_execute_patcher.start()
         postgresql.Storage.schema_version = 2
         self.storage.initialize_schema()
-        mocked.assert_any_call('migrations/migration_001_002.sql')
+        sql_called = mocked.call_args[0][0]
+        self.assertTrue(sql_called.endswith(
+            'migrations/migration_001_002.sql'))
 
     def test_migration_file_is_executed_for_every_intermediary_version(self):
         postgresql.Storage.schema_version = 6
@@ -78,9 +80,15 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
         mocked = self.sql_execute_patcher.start()
         self.storage.initialize_schema()
-        mocked.assert_any_call('migrations/migration_003_004.sql')
-        mocked.assert_any_call('migrations/migration_004_005.sql')
-        mocked.assert_any_call('migrations/migration_005_006.sql')
+        sql_called = mocked.call_args_list[-3][0][0]
+        self.assertTrue(sql_called.endswith(
+            'migrations/migration_003_004.sql'))
+        sql_called = mocked.call_args_list[-2][0][0]
+        self.assertTrue(sql_called.endswith(
+            'migrations/migration_004_005.sql'))
+        sql_called = mocked.call_args_list[-1][0][0]
+        self.assertTrue(sql_called.endswith(
+            'migrations/migration_005_006.sql'))
 
     def test_migration_fails_if_intermediary_version_is_missing(self):
         with mock.patch.object(self.storage,

@@ -20,7 +20,7 @@ class MemoryBasedStorage(StorageBase):
     def __init__(self, *args, **kwargs):
         pass
 
-    def initialize_schema(self):
+    def initialize_schema(self, is_dry=False):
         # Nothing to do.
         pass
 

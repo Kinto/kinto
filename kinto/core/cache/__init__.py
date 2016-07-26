@@ -14,7 +14,7 @@ class CacheBase(object):
         self.prefix = kwargs['cache_prefix']
         pass
 
-    def initialize_schema(self):
+    def initialize_schema(self, is_dry=False):
         """Create every necessary objects (like tables or indices) in the
         backend.
 
