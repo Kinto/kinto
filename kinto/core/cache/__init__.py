@@ -14,11 +14,13 @@ class CacheBase(object):
         self.prefix = kwargs['cache_prefix']
         pass
 
-    def initialize_schema(self):
+    def initialize_schema(self, dry_run=False):
         """Create every necessary objects (like tables or indices) in the
         backend.
 
         This is executed when the ``kinto migrate`` command is run.
+
+        :param bool dry_run: simulate instead of executing the operations.
         """
         raise NotImplementedError
 

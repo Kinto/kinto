@@ -79,6 +79,10 @@ class BaseTestCache(object):
         for call in calls:
             self.assertRaises(exceptions.BackendError, *call)
 
+    def test_initialize_schema_is_idempotent(self):
+        self.cache.initialize_schema()
+        self.cache.initialize_schema()  # not raising.
+
     def test_ping_returns_false_if_unavailable(self):
         self.client_error_patcher.start()
         ping = heartbeat(self.cache)

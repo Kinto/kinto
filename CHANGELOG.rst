@@ -11,6 +11,8 @@ This document describes changes between each past release.
 - Added a new built-in plugin ``kinto.plugins.history`` that keeps track of every action
   that occured within a bucket and serves a stream of changes that can be synced.
   See `API documentation <https://kinto.readthedocs.io/en/latest/api/1.x/history.html>`_.
+- Added a new ``--dry-run`` option to command-line script ``migrate`` that will simulate
+  migration operation without executing on the backend (thanks @lavish205! #685)
 
 **Bug fixes**
 

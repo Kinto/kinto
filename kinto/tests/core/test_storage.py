@@ -166,6 +166,10 @@ class BaseTestStorage(object):
                           self.storage.flush,
                           auth=self.other_auth)
 
+    def test_initialize_schema_is_idempotent(self):
+        self.storage.initialize_schema()
+        self.storage.initialize_schema()  # not raising.
+
     def test_ping_returns_false_if_unavailable(self):
         request = DummyRequest()
         request.headers['Authorization'] = self.storage_kw['auth']

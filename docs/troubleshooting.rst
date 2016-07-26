@@ -55,6 +55,25 @@ kinto.core.storage.exceptions.BackendError: OperationalError [Postgres Service]
 Make sure that postgres server is running properly.
 
 
+password authentication failed for user "postgres"
+==================================================
+
+::
+
+
+	kinto.core.storage.exceptions.BackendError: OperationalError: (psycopg2.OperationalError) FATAL:  password authentication failed for user "postgres"
+	FATAL:  password authentication failed for user "postgres"
+
+By default, the PostgreSQL Debian package does not setup any password for the ``postgres`` user. You can choose one with::
+
+	sudo -u postgres psql postgres
+
+	# \password postgres
+
+	Enter new password:
+	...
+
+
 bind(): No such file or directory [uwsgi error]
 ===============================================
 
