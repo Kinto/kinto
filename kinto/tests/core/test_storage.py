@@ -647,6 +647,7 @@ class TimestampsTest(object):
         # Check that collection timestamp took the one specified (in future).
         timestamp = self.storage.collection_timestamp(**self.storage_kw)
         self.assertGreater(timestamp, timestamp_before)
+        self.assertEquals(timestamp, stored[self.modified_field])
 
     def test_update_ignores_specified_last_modified_if_in_the_past(self):
         stored = self.create_record()
