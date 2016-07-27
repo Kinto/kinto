@@ -74,7 +74,7 @@ to the deletion event.
 
 If the ``If-None-Match: "<timestamp>"`` request header is provided as described in
 the :ref:`section about timestamps <server-timestamps>` and if the
-collection was not changed, a ``304 Not Modified`` response is returned.
+collection was not changed, a |status-304| response is returned.
 
 .. note::
 

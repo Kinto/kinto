@@ -4,8 +4,8 @@
 Error responses
 ###############
 
-Protocol description
-====================
+API description
+===============
 
 Every response is JSON.
 
@@ -52,7 +52,7 @@ Precondition errors
 As detailed in the :ref:`timestamps  <server-timestamps>` section, it is
 possible to add concurrency control using ``ETag`` request headers.
 
-When a concurrency error occurs, a ``412 Precondition Failed`` error response
+When a concurrency error occurs, a |status-412| error response
 is returned.
 
 Additional information about the record currently stored on the server will be
@@ -78,7 +78,7 @@ provided in the ``details`` field:
 Conflict errors
 ===============
 
-When a record violates unicity constraints, a ``409 Conflict`` error response
+When a record violates unicity constraints, a |status-409| error response
 is returned.
 
 Additional information about conflicting record and field name will be

@@ -32,7 +32,7 @@ class Permission(PermissionBase):
     def settings(self):
         return dict(self._client.connection_pool.connection_kwargs)
 
-    def initialize_schema(self):
+    def initialize_schema(self, dry_run=False):
         # Nothing to do.
         pass
 

@@ -16,7 +16,7 @@ class Cache(CacheBase):
         super(Cache, self).__init__(*args, **kwargs)
         self.flush()
 
-    def initialize_schema(self):
+    def initialize_schema(self, dry_run=False):
         # Nothing to do.
         pass
 

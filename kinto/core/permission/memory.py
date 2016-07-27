@@ -17,7 +17,7 @@ class Permission(PermissionBase):
         super(Permission, self).__init__(*args, **kwargs)
         self.flush()
 
-    def initialize_schema(self):
+    def initialize_schema(self, dry_run=False):
         # Nothing to do.
         pass
 

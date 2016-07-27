@@ -93,6 +93,12 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             "A programmatic error occured, developers have been informed.",
             "https://github.com/Kinto/kinto/issues/")
 
+    def test_400_with_invalid_url_path(self):
+        response = self.app.get('/%82%AC', status=400)
+        self.assertFormattedError(
+            response, 400, ERRORS.INVALID_PARAMETERS, "Bad Request",
+            "Invalid URL path.")
+
     def test_info_link_in_error_responses_can_be_configured(self):
         with mock.patch(
                 'kinto.tests.core.testapp.views.Mushroom._extract_filters',
@@ -151,7 +157,7 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         resp = self.app.get('/v1/', status=404)
         self.assertFormattedError(
             resp, 404, ERRORS.VERSION_NOT_AVAILABLE, "Not Found",
-            "The requested protocol version is not available "
+            "The requested API version is not available "
             "on this server.")
 
     def test_redirect_to_version(self):

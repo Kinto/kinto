@@ -11,17 +11,24 @@ This document describes changes between each past release.
 - Added a new built-in plugin ``kinto.plugins.history`` that keeps track of every action
   that occured within a bucket and serves a stream of changes that can be synced.
   See `API documentation <https://kinto.readthedocs.io/en/latest/api/1.x/history.html>`_.
+- Added a new ``--dry-run`` option to command-line script ``migrate`` that will simulate
+  migration operation without executing on the backend (thanks @lavish205! #685)
 
 **Bug fixes**
 
 - Fix Redis get_accessible_object implementation (#725)
 - Fix bug where the resource events of a request targetting two groups/collection
   from different buckets would be grouped together.
+- Fix crash when an invalid UTF-8 character is provided in URL
 
 **Internal changes**
 
 - Huge rework of documentation after the merge of *Cliquet* into kinto.core (#731)
+- Improve the documentation about generating docs (fixes #615)
 - Switch from cliquet-pusher to kinto-pusher in Dockerfile and tutorial.
+- List posssible response status on every endpoint documentation (#736)
+- Remove duplicated and confusing docs about generic resources
+- Replace the term ``protocol`` by ``API`` in documentation (fixes #664)
 - Add load tests presets (exhaustive, read, write) in addition to the existing random. Switched integration test ``make loadtest-check-simulation`` to run the exhaustive one (fixes #258)
 - Remove former Cliquet load tests (#733)
 - Add a flag to to run simulation load tests on ``default`` bucket. Uses ``blog``

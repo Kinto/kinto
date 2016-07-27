@@ -47,7 +47,8 @@ class Storage(StorageBase):
         kinto.storage_max_backlog = -1
         kinto.storage_pool_recycle = -1
         kinto.storage_pool_timeout = 30
-        kinto.cache_poolclass = kinto.core.storage.postgresql.pool.QueuePoolWithMaxBacklog
+        kinto.cache_poolclass =
+            kinto.core.storage.postgresql.pool.QueuePoolWithMaxBacklog
 
     The ``max_backlog``  limits the number of threads that can be in the queue
     waiting for a connection.  Once this limit has been reached, any further
@@ -74,48 +75,59 @@ class Storage(StorageBase):
         self._max_fetch_size = max_fetch_size
 
     def _execute_sql_file(self, filepath):
-        here = os.path.abspath(os.path.dirname(__file__))
-        schema = open(os.path.join(here, filepath)).read()
+        schema = open(filepath).read()
         # Since called outside request, force commit.
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
 
-    def initialize_schema(self):
+    def initialize_schema(self, dry_run=False):
         """Create PostgreSQL tables, and run necessary schema migrations.
 
         .. note::
 
             Relies on JSONB fields, available in recent versions of PostgreSQL.
         """
+        here = os.path.abspath(os.path.dirname(__file__))
+
         version = self._get_installed_version()
         if not version:
+            filepath = os.path.join(here, 'schema.sql')
+            logger.info("Create PostgreSQL storage schema at version "
+                        "%s from %s" % (self.schema_version, filepath))
             # Create full schema.
             self._check_database_encoding()
             self._check_database_timezone()
             # Create full schema.
-            self._execute_sql_file('schema.sql')
-            logger.info('Created PostgreSQL storage tables '
-                        '(version %s).' % self.schema_version)
+            if not dry_run:
+                self._execute_sql_file(filepath)
+                logger.info('Created PostgreSQL storage schema '
+                            '(version %s).' % self.schema_version)
             return
 
-        logger.debug('Detected PostgreSQL schema version %s.' % version)
+        logger.info('Detected PostgreSQL storage schema version %s.' % version)
         migrations = [(v, v + 1) for v in range(version, self.schema_version)]
         if not migrations:
-            logger.info('Schema is up-to-date.')
+            logger.info('PostgreSQL storage schema is up-to-date.')
+            return
 
         for migration in migrations:
             # Check order of migrations.
             expected = migration[0]
             current = self._get_installed_version()
             error_msg = "Expected version %s. Found version %s."
-            if expected != current:
+            if not dry_run and expected != current:
                 raise AssertionError(error_msg % (expected, current))
 
-            logger.info('Migrate schema from version %s to %s.' % migration)
-            filepath = 'migration_%03d_%03d.sql' % migration
-            self._execute_sql_file(os.path.join('migrations', filepath))
-
-        logger.info('Schema migration done.')
+            logger.info('Migrate PostgreSQL storage schema from'
+                        ' version %s to %s.' % migration)
+            filename = 'migration_%03d_%03d.sql' % migration
+            filepath = os.path.join(here, 'migrations', filename)
+            logger.info("Execute PostgreSQL storage migration"
+                        " from %s" % filepath)
+            if not dry_run:
+                self._execute_sql_file(filepath)
+        logger.info("PostgreSQL storage schema migration " +
+                    ("simulated." if dry_run else "done."))
 
     def _check_database_timezone(self):
         # Make sure database has UTC timezone.

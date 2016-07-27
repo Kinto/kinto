@@ -102,6 +102,8 @@ There are two special principals:
     A user can also be another application (in order to provide *service to
     service* authentication).
 
+.. _api-current-userid:
+
 Get the current user ID
 -----------------------
 
@@ -141,6 +143,41 @@ In this case the user ID is: ``basicauth:631c2d625ee5726172cf67c6750de10a3e1a04b
 
     If Alice wants to share objects with Bob, Bob will need to give Alice his
     user ID - this is an easy way to obtain that ID.
+
+
+.. _api-permissions-payload:
+
+Permissions request payload
+===========================
+
+In the JSON requests payloads, the ``permissions`` attribute comes along the ``data`` attribute. Permissions can be replaced or modified independently from data.
+
+``permissions`` is a JSON dict with the following structure::
+
+    "permissions": {<permission>: [<list_of_principals>]}
+
+Where ``<permission>`` is the permission name (e.g. ``read``, ``write``)
+and ``<list_of_principals>`` should be replaced by an actual list of
+:term:`principals`.
+
+Example:
+
+::
+
+    {
+        "data": {
+            "title": "No Backend"
+        },
+        "permissions": {
+            "write": ["twitter:leplatrem", "group:ldap:42"],
+            "read": ["system.Authenticated"]
+        }
+    }
+
+.. note::
+
+    When an object is created or modified, the current :term:`user id`
+    **is always added** among the ``write`` principals.
 
 
 Retrieve objects permissions

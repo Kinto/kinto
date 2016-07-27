@@ -4,7 +4,9 @@ import mock
 import six
 from pyramid import testing
 
-from kinto.core.storage import postgresql
+from kinto.core.cache import postgresql as postgresql_cache
+from kinto.core.permission import postgresql as postgresql_permission
+from kinto.core.storage import postgresql as postgresql_storage
 from kinto.core.utils import json
 
 from .support import unittest, skip_if_no_postgresql
@@ -22,9 +24,9 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.settings = PostgreSQLStorageTest.settings.copy()
         self.config = testing.setUp()
         self.config.add_settings(self.settings)
-        self.version = postgresql.Storage.schema_version
+        self.version = postgresql_storage.Storage.schema_version
         # Usual storage object to manipulate the storage.
-        self.storage = postgresql.load_from_config(self.config)
+        self.storage = postgresql_storage.load_from_config(self.config)
 
     def setUp(self):
         # Start empty.
@@ -36,7 +38,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             'kinto.core.storage.postgresql.Storage._execute_sql_file')
 
     def tearDown(self):
-        postgresql.Storage.schema_version = self.version
+        postgresql_storage.Storage.schema_version = self.version
         mock.patch.stopall()
 
     def _delete_everything(self):
@@ -66,21 +68,25 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             conn.execute(q)
 
         mocked = self.sql_execute_patcher.start()
-        postgresql.Storage.schema_version = 2
+        postgresql_storage.Storage.schema_version = 2
         self.storage.initialize_schema()
-        mocked.assert_any_call('migrations/migration_001_002.sql')
+        sql_called = mocked.call_args[0][0]
+        self.assertIn('migrations/migration_001_002.sql', sql_called)
 
     def test_migration_file_is_executed_for_every_intermediary_version(self):
-        postgresql.Storage.schema_version = 6
+        postgresql_storage.Storage.schema_version = 6
 
         versions = [6, 5, 4, 3, 3]
         self.storage._get_installed_version = lambda: versions.pop()
 
         mocked = self.sql_execute_patcher.start()
         self.storage.initialize_schema()
-        mocked.assert_any_call('migrations/migration_003_004.sql')
-        mocked.assert_any_call('migrations/migration_004_005.sql')
-        mocked.assert_any_call('migrations/migration_005_006.sql')
+        sql_called = mocked.call_args_list[-3][0][0]
+        self.assertIn('migrations/migration_003_004.sql', sql_called)
+        sql_called = mocked.call_args_list[-2][0][0]
+        self.assertIn('migrations/migration_004_005.sql', sql_called)
+        sql_called = mocked.call_args_list[-1][0][0]
+        self.assertIn('migrations/migration_005_006.sql', sql_called)
 
     def test_migration_fails_if_intermediary_version_is_missing(self):
         with mock.patch.object(self.storage,
@@ -153,7 +159,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
     def test_migration_12_clean_tombstones(self):
         self._delete_everything()
-        postgresql.Storage.schema_version = 11
+        postgresql_storage.Storage.schema_version = 11
         self.storage.initialize_schema()
         # Set the schema version back to 11 in the base as well
         with self.storage.client.connect() as conn:
@@ -187,7 +193,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         assert count == 1
 
         # Execute the 011 to 012 migration
-        postgresql.Storage.schema_version = 12
+        postgresql_storage.Storage.schema_version = 12
         self.storage.initialize_schema()
 
         # Check that the rotted tombstone have been removed.
@@ -198,14 +204,91 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         assert count == 1
 
 
+@skip_if_no_postgresql
+class PostgresqlPermissionMigrationTest(unittest.TestCase):
+    def __init__(self, *args, **kw):
+        super(PostgresqlPermissionMigrationTest, self).__init__(*args, **kw)
+        from kinto.core.utils import sqlalchemy
+        if sqlalchemy is None:
+            return
+
+        from .test_permission import PostgreSQLPermissionTest
+        settings = PostgreSQLPermissionTest.settings.copy()
+        config = testing.setUp()
+        config.add_settings(settings)
+        self.permission = postgresql_permission.load_from_config(config)
+
+    def setUp(self):
+        q = """
+        DROP TABLE IF EXISTS access_control_entries CASCADE;
+        DROP TABLE IF EXISTS user_principals CASCADE;
+        """
+        with self.permission.client.connect() as conn:
+            conn.execute(q)
+
+    def test_runs_initialize_schema_if_using_it_fails(self):
+        self.permission.initialize_schema()
+        query = """SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'user_principals';"""
+        with self.permission.client.connect(readonly=True) as conn:
+            result = conn.execute(query)
+            self.assertEqual(result.rowcount, 1)
+
+    def test_does_not_execute_if_ran_with_dry(self):
+        self.permission.initialize_schema(dry_run=True)
+        query = """SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'user_principals';"""
+        with self.permission.client.connect(readonly=True) as conn:
+            result = conn.execute(query)
+            self.assertEqual(result.rowcount, 0)
+
+
+@skip_if_no_postgresql
+class PostgresqlCacheMigrationTest(unittest.TestCase):
+    def __init__(self, *args, **kw):
+        super(PostgresqlCacheMigrationTest, self).__init__(*args, **kw)
+        from kinto.core.utils import sqlalchemy
+        if sqlalchemy is None:
+            return
+
+        from .test_cache import PostgreSQLCacheTest
+        settings = PostgreSQLCacheTest.settings.copy()
+        config = testing.setUp()
+        config.add_settings(settings)
+        self.cache = postgresql_cache.load_from_config(config)
+
+    def setUp(self):
+        q = """
+        DROP TABLE IF EXISTS cache CASCADE;
+        """
+        with self.cache.client.connect() as conn:
+            conn.execute(q)
+
+    def test_runs_initialize_schema_if_using_it_fails(self):
+        self.cache.initialize_schema()
+        query = """SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'cache';"""
+        with self.cache.client.connect(readonly=True) as conn:
+            result = conn.execute(query)
+            self.assertEqual(result.rowcount, 1)
+
+    def test_does_not_execute_if_ran_with_dry(self):
+        self.cache.initialize_schema(dry_run=True)
+        query = """SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'cache';"""
+        with self.cache.client.connect(readonly=True) as conn:
+            result = conn.execute(query)
+            self.assertEqual(result.rowcount, 0)
+
+
 class PostgresqlExceptionRaisedTest(unittest.TestCase):
     def setUp(self):
-        self.sqlalchemy = postgresql.client.sqlalchemy
+        self.sqlalchemy = postgresql_storage.client.sqlalchemy
 
     def tearDown(self):
-        postgresql.client.sqlalchemy = self.sqlalchemy
+        postgresql_storage.client.sqlalchemy = self.sqlalchemy
 
     def test_postgresql_usage_raise_an_error_if_postgresql_not_installed(self):
-        postgresql.client.sqlalchemy = None
+        postgresql_storage.client.sqlalchemy = None
         with self.assertRaises(ImportWarning):
-            postgresql.client.create_from_config(testing.setUp())
+            postgresql_storage.client.create_from_config(testing.setUp())

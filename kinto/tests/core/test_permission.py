@@ -82,6 +82,10 @@ class BaseTestPermission(object):
         for call in calls:
             self.assertRaises(exceptions.BackendError, *call)
 
+    def test_initialize_schema_is_idempotent(self):
+        self.permission.initialize_schema()
+        self.permission.initialize_schema()  # not raising.
+
     def test_ping_returns_false_if_unavailable(self):
         ping = heartbeat(self.permission)
         for patch in self.client_error_patcher:

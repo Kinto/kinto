@@ -92,7 +92,7 @@ Since any string is accepted, here we use ``token`` only by convention.
 Empty secrets are accepted and can be anything (custom, UUID, etc.)
 
 If the header has an invalid format, or if *Basic Auth* is not enabled,
-this will result in a ``401`` error response.
+this will result in a |status-401| error response.
 
 .. warning::
 
@@ -233,7 +233,7 @@ The policy will verify the provided *OAuth2 bearer token* on a remote server.
 
 :notes:
 
-    If the token is not valid, this will result in a ``401`` error response.
+    If the token is not valid, this will result in a |status-401| error response.
 
 
 Firefox Accounts

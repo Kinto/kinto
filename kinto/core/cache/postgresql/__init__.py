@@ -41,7 +41,8 @@ class Cache(CacheBase):
         kinto.cache_max_backlog = -1
         kinto.cache_pool_recycle = -1
         kinto.cache_pool_timeout = 30
-        kinto.cache_poolclass = kinto.core.storage.postgresql.pool.QueuePoolWithMaxBacklog
+        kinto.cache_poolclass =
+            kinto.core.storage.postgresql.pool.QueuePoolWithMaxBacklog
 
     The ``max_backlog``  limits the number of threads that can be in the queue
     waiting for a connection.  Once this limit has been reached, any further
@@ -64,11 +65,29 @@ class Cache(CacheBase):
         super(Cache, self).__init__(*args, **kwargs)
         self.client = client
 
-    def initialize_schema(self):
+    def initialize_schema(self, dry_run=False):
+        # Check if cache table exists.
+        query = """
+        SELECT 1
+          FROM information_schema.tables
+         WHERE table_name = 'cache';
+        """
+        with self.client.connect(readonly=True) as conn:
+            result = conn.execute(query)
+            if result.rowcount > 0:
+                logger.info("PostgreSQL cache schema is up-to-date.")
+                return
+
         # Create schema
         here = os.path.abspath(os.path.dirname(__file__))
-        schema = open(os.path.join(here, 'schema.sql')).read()
+        sql_file = os.path.join(here, 'schema.sql')
+
+        if dry_run:
+            logger.info("Create cache schema from %s" % sql_file)
+            return
+
         # Since called outside request, force commit.
+        schema = open(sql_file).read()
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
         logger.info('Created PostgreSQL cache tables')

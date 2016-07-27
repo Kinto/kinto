@@ -17,7 +17,7 @@ This document describes the strategy in order to deploy a full stack with the fo
 * **Consistency**: all nodes see the same data at the same time;
 * **Durability**: data of successful requests remains stored.
 
-Even though it is related, this document does not cover the properties of the *Kinto* protocol (client race conditions etc.).
+Even though it is related, this document does not cover the properties of the *Kinto* API (client race conditions etc.).
 
 
 Python stack

@@ -2,8 +2,9 @@ from __future__ import print_function
 import argparse
 import os
 import sys
-
-from six.moves import input
+import logging
+import logging.config
+from six.moves import input, configparser
 from kinto.core import scripts
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
@@ -44,8 +45,14 @@ def main(args=None):
     parser_init.set_defaults(which='init')
 
     parser_migrate = subparsers.add_parser('migrate')
+    parser_migrate.add_argument('--dry-run',
+                                action='store_true',
+                                help='Simulate the migration operations '
+                                     'and show information',
+                                dest='dry_run',
+                                required=False,
+                                default=False)
     parser_migrate.set_defaults(which='migrate')
-
     parser_start = subparsers.add_parser('start')
     parser_start.add_argument('--reload',
                               action='store_true',
@@ -92,8 +99,13 @@ def main(args=None):
                 pip.main(['install', "kinto[postgresql]"])
 
     elif parsed_args['which'] == 'migrate':
+        dry_run = parsed_args['dry_run']
+        try:
+            logging.config.fileConfig(config_file)
+        except configparser.NoSectionError as e:  # pragma: no cover
+            print(e)
         env = bootstrap(config_file)
-        scripts.migrate(env)
+        scripts.migrate(env, dry_run=dry_run)
 
     elif parsed_args['which'] == 'start':
         pserve_argv = ['pserve', config_file]

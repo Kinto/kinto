@@ -41,8 +41,7 @@ Feature settings
 +=================================================+==============+===========================================================================+
 | kinto.readonly                                  | ``False``    | If set to true, the whole service will reject every write operation.      |
 |                                                 |              | Note that with this option, the ``default`` bucket cannot be used and     |
-|                                                 |              | request will be rejected with a ``405 Method Not Allowed`` error          |
-|                                                 |              | response.                                                                 |
+|                                                 |              | request will be rejected with a |status-405| error response.              |
 +-------------------------------------------------+--------------+---------------------------------------------------------------------------+
 | kinto.batch_max_requests                        | ``25``       | The maximum number of requests that can be sent to the batch endpoint.    |
 +-------------------------------------------------+--------------+---------------------------------------------------------------------------+
@@ -81,7 +80,7 @@ Feature settings
 
     ``kinto.readonly`` will disable every endpoint that is not accessed with one of
     ``GET``, ``OPTIONS``, or ``HEAD`` HTTP methods. Requests will receive a
-    ``405 Method not allowed`` error response.
+    |status-405| error response.
 
     The cache backend will still needs read-write privileges, in order to
     cache OAuth authentication states and tokens for example.

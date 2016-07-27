@@ -5,4 +5,3 @@ recursive-include kinto *.sql *.html *.ini
 recursive-include docs *.rst *.png *.svg *.css *.html conf.py piwik.js
 prune docs/_build/*
 prune loadtests
-prune talks

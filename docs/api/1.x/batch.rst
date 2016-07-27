@@ -137,8 +137,8 @@ The response body is a list of all responses:
 HTTP Status Codes
 -----------------
 
-* ``200 OK``: The request has been processed
-* ``400 Bad Request``: The request body is invalid
+* |status-200|: The request has been processed
+* |status-400|: The request body is invalid
 * ``50X``: One of the sub-request has failed with a ``50X`` status
 
 .. warning::
@@ -162,5 +162,5 @@ every previous operation is rolled back.
 .. important::
 
     With the current implementation, if a sub-request fails with a 4XX status
-    (eg. ``412 Precondition failed`` or ``403 Unauthorized`` for example) the
+    (eg. |status-412| or |status-403| for example) the
     transaction is **not** rolled back.

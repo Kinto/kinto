@@ -28,7 +28,7 @@ class ERRORS(Enum):
     SERVICE_DEPRECATED = 202
 
 
-"""Predefined errors as specified by the protocol.
+"""Predefined errors as specified by the API.
 
 +-------------+-------+------------------------------------------------+
 | status code | errno | description                                    |
@@ -76,7 +76,7 @@ class ERRORS(Enum):
 
 def http_error(httpexception, errno=None,
                code=None, error=None, message=None, info=None, details=None):
-    """Return a JSON formated response matching the error protocol.
+    """Return a JSON formated response matching the error HTTP API.
 
     :param httpexception: Instance of :mod:`~pyramid:pyramid.httpexceptions`
     :param errno: stable application-level error number (e.g. 109)
@@ -131,7 +131,7 @@ def json_error_handler(errors):
     .. warning::
 
         Only the first error of the list is formatted in the response.
-        (c.f. protocol).
+        (c.f. HTTP API).
     """
     assert len(errors) != 0
 

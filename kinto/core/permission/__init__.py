@@ -11,11 +11,13 @@ class PermissionBase(object):
     def __init__(self, *args, **kwargs):
         pass
 
-    def initialize_schema(self):
+    def initialize_schema(self, dry_run=False):
         """Create every necessary objects (like tables or indices) in the
         backend.
 
         This is executed with the ``kinto migrate`` command.
+
+        :param bool dry_run: simulate instead of executing the operations.
         """
         raise NotImplementedError
 

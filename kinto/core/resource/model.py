@@ -1,7 +1,7 @@
 class Model(object):
     """A collection stores and manipulate records in its attached storage.
 
-    It is not aware of HTTP environment nor protocol.
+    It is not aware of HTTP environment nor HTTP API.
 
     Records are isolated according to the provided `name` and `parent_id`.
 
