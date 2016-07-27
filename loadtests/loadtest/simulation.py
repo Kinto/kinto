@@ -40,9 +40,9 @@ class SimulationLoadTest(BaseLoadTest):
     def __init__(self, *args, **kwargs):
         super(SimulationLoadTest, self).__init__(*args, **kwargs)
         self.collection = 'articles'
-        self.init_article()
+        self.init_user()
 
-    def init_article(self, *args, **kwargs):
+    def init_user(self, *args, **kwargs):
         """Initialization that happens once per user.
 
         :note:
@@ -54,13 +54,12 @@ class SimulationLoadTest(BaseLoadTest):
         self.nb_initial_records = random.randint(3, max_initial_records)
         self.batch_requests_size = self.conf.get('batch_requests_size', 25)
 
-    def setUp(self):
-        """Choose some random records in the whole collection.
+        self.bucket = os.getenv('BUCKET', self.conf.get('bucket', 'default'))
+        if self.bucket != 'default':
+            # Create bucket + collection:
+            self.collection_url()
 
-        :note:
-
-            This method is called as many times as number of hits.
-        """
+    def _pickRecords(self):
         resp = self.session.get(self.collection_url())
         self.records = resp.json()['data']
 
@@ -82,25 +81,65 @@ class SimulationLoadTest(BaseLoadTest):
         self.random_id_2 = self.random_record_2['id']
         self.random_url_2 = self.record_url(self.random_id_2)
 
-    def test_simulation(self):
-        """Choose a random action among available, if not frequent enough,
-        try again recursively.
+    def setUp(self):
+        """Choose some random records in the whole collection.
 
         :note:
 
             This method is called as many times as number of hits.
         """
-        action, percentage = random.choice(ACTIONS_FREQUENCIES)
+        pass
 
-        forced_action = os.getenv('LOAD_ACTION')
-        if forced_action:
-            action, percentage = forced_action, 101
+    def test_simulation(self):
+        """
+        :note:
 
-        if random.randint(0, 100) < percentage:
+            This method is called as many times as number of hits.
+        """
+        preset = os.getenv('LOAD_PRESET', self.conf.get('preset', 'random'))
+
+        rand = random.randint(0, 100)
+        if preset == 'random':
+            # Choose a random action among available, if not frequent enough,
+            # try again recursively.
+            action, percentage = random.choice(ACTIONS_FREQUENCIES)
+            if rand < percentage:
+                self.incr_counter(action)
+                return getattr(self, action)()
+            else:
+                self.test_simulation()
+
+        elif preset == "exhaustive":
+            # Make sure we exhaustive every action.
+            actions = [a for (a, _) in ACTIONS_FREQUENCIES]
+            for action in actions:
+                getattr(self, action)()
+
+        elif preset == "read":
+            if rand < 2:
+                action = 'batch_create_put'
+            elif rand < 80:
+                action = 'poll_changes'
+            elif rand < 90:
+                action = 'list_deleted'
+            else:
+                action = 'filter_sort'
             self.incr_counter(action)
-            return getattr(self, action)()
-        else:
-            self.test_simulation()
+            getattr(self, action)()
+
+        elif preset == "write":
+            if rand < 20:
+                action = 'batch_create'
+            elif rand < 40:
+                action = 'batch_create_put'
+            elif rand < 60:
+                action = 'batch_replace'
+            elif rand < 90:
+                action = 'batch_delete'
+            else:
+                action = 'poll_changes'
+            self.incr_counter(action)
+            getattr(self, action)()
 
     def create(self):
         article = build_article()
@@ -176,6 +215,7 @@ class SimulationLoadTest(BaseLoadTest):
             self.incr_counter('status-%s' % subresponse['status'])
 
     def update(self):
+        self._pickRecords()
         data = {
             "title": "Some title {}".format(random.randint(0, 1)),
             "archived": bool(random.randint(0, 1)),
@@ -185,6 +225,7 @@ class SimulationLoadTest(BaseLoadTest):
         self._patch(self.random_url, {"data": data})
 
     def batch_replace(self):
+        self._pickRecords()
         data = {
             "defaults": {
                 "method": "PUT"
@@ -200,6 +241,7 @@ class SimulationLoadTest(BaseLoadTest):
         self._run_batch(data)
 
     def batch_update(self):
+        self._pickRecords()
         data = {
             "defaults": {
                 "method": "PATCH"
@@ -216,39 +258,40 @@ class SimulationLoadTest(BaseLoadTest):
         self._run_batch(data)
 
     def delete(self):
+        self._pickRecords()
         resp = self.session.delete(self.random_url)
         self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def batch_delete(self):
+        self._pickRecords()
         # Get some random articles on which the batch will be applied
-        url = self.collection_url() + '?_limit=5&_sort=title'
-        resp = self.session.get(url)
-        articles = resp.json()['data']
-        urls = [self.record_url(a['id'], prefix=False)
-                for a in articles]
-
+        nb_deleted = min(self.nb_initial_records, len(self.records))
+        records = random.sample(self.records, nb_deleted)
         data = {
             "defaults": {
                 "method": "DELETE"
             }
         }
-        for i in range(self.batch_requests_size):
-            request = {"path": urls[i % len(urls)]}
+        for record in records[:self.batch_requests_size]:
+            request = {"path": self.record_url(record['id'], prefix=False)}
             data.setdefault("requests", []).append(request)
 
         self._run_batch(data)
 
     def poll_changes(self):
+        self._pickRecords()
         last_modified = self.random_record['last_modified']
         filters = '?_since=%s' % last_modified
         modified_url = self.collection_url() + filters
         resp = self.session.get(modified_url)
+        self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def list_archived(self):
         archived_url = self.collection_url() + '?archived=true'
         resp = self.session.get(archived_url)
+        self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def batch_count(self):
@@ -268,26 +311,20 @@ class SimulationLoadTest(BaseLoadTest):
         self._run_batch(data)
 
     def list_deleted(self):
+        self._pickRecords()
         modif = self.random_record['last_modified']
         filters = '?_since=%s&deleted=true' % modif
         deleted_url = self.collection_url() + filters
         resp = self.session.get(deleted_url)
+        self.incr_counter('status-%s' % resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
     def list_continuated_pagination(self):
         paginated_url = self.collection_url() + '?_limit=20'
-
-        urls = []
-
         while paginated_url:
             resp = self.session.get(paginated_url)
+            self.incr_counter('status-%s' % resp.status_code)
             self.assertEqual(resp.status_code, 200)
             next_page = resp.headers.get("Next-Page")
-            if next_page is not None and next_page not in urls:
-                self.assertNotEqual(paginated_url, next_page)
-                paginated_url = next_page
-                urls.append(next_page)
-            else:
-                # XXX: we shouldn't have to keep the full list.
-                # See mozilla-services/cliquet#366
-                break
+            self.assertNotEqual(paginated_url, next_page)
+            paginated_url = next_page

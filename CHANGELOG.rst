@@ -29,6 +29,10 @@ This document describes changes between each past release.
 - List posssible response status on every endpoint documentation (#736)
 - Remove duplicated and confusing docs about generic resources
 - Replace the term ``protocol`` by ``API`` in documentation (fixes #664)
+- Add load tests presets (exhaustive, read, write) in addition to the existing random. Switched integration test ``make loadtest-check-simulation`` to run the exhaustive one (fixes #258)
+- Remove former Cliquet load tests (#733)
+- Add a flag to to run simulation load tests on ``default`` bucket. Uses ``blog``
+  bucket by default (#733)
 
 
 3.3.1 (2016-07-19)
