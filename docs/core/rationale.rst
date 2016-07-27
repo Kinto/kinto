@@ -139,16 +139,16 @@ Similar projects
 * `Python Eve <http://python-eve.org/>`_, built on Flask and MongoDB;
 * *Please contact us to add more if any*.
 
-Since the protocol is language independant and follows good HTTP/REST principles,
+Since the HTTP API is language independant and follows good HTTP/REST principles,
 in the long term *Kinto-Core* should become only one among several server implementations.
 
 .. note::
 
     We encourage you to implement a clone of this project — using Node.js, Asyncio,
-    Go, Twisted, Django or anything else — following :ref:`the same protocol <kinto-api-endpoints>`!
+    Go, Twisted, Django or anything else — following :ref:`the same HTTP API <kinto-api-endpoints>`!
 
 
-.. [#] Switch from custom protocol to `JSON-API spec`_ is `being discussed`_.
+.. [#] Switch from custom API to `JSON-API spec`_ is `being discussed`_.
 
 .. _JSON-API spec: http://jsonapi.org/
 .. _being discussed: https://github.com/mozilla-services/cliquet/issues/254

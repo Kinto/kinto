@@ -157,7 +157,7 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         resp = self.app.get('/v1/', status=404)
         self.assertFormattedError(
             resp, 404, ERRORS.VERSION_NOT_AVAILABLE, "Not Found",
-            "The requested protocol version is not available "
+            "The requested API version is not available "
             "on this server.")
 
     def test_redirect_to_version(self):
