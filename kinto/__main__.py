@@ -14,6 +14,8 @@ from kinto.config import init
 
 DEFAULT_CONFIG_FILE = 'config/kinto.ini'
 DEFAULT_PORT = 8888
+DEFAULT_LOG_LEVEL = logging.INFO
+DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s"  # NOQA
 
 
 def main(args=None):
@@ -86,10 +88,11 @@ def main(args=None):
     which_command = parsed_args['which']
 
     # Initialize logging from config.
+    logging.basicConfig(level=DEFAULT_LOG_LEVEL, format=DEFAULT_LOG_FORMAT)
     try:
         logging.config.fileConfig(config_file)
-    except configparser.NoSectionError as e:  # pragma: no cover
-        print(e)
+    except Exception:  # pragma: no cover
+        pass
 
     if which_command == 'init':
         if os.path.exists(config_file):
