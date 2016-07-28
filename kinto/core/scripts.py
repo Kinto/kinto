@@ -4,7 +4,7 @@ kinto.core.scripts: utilities to build admin scripts for kinto-based services
 
 from __future__ import absolute_import, print_function
 import warnings
-
+import transaction as current_transaction
 from pyramid.settings import asbool
 
 from kinto.core.storage import exceptions as storage_exceptions
@@ -82,5 +82,7 @@ def delete_collection(env, bucket_id, collection_id):
                         collection_id=collection_id,
                         record_id=r['id']) for r in deleted])
     print('Related permissions were deleted.')
+
+    current_transaction.commit()
 
     return 0
