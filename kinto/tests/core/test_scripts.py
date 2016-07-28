@@ -56,10 +56,13 @@ class DeleteCollectionTest(unittest.TestCase):
                                   'test_collection')
 
         self.registry.storage.delete_all.assert_called_with(
-            'record', '/buckets/test_bucket/collections/test_collection',
+            collection_id='record',
+            parent_id='/buckets/test_bucket/collections/test_collection',
             with_deleted=False)
         self.registry.storage.delete.assert_called_with(
-            'collection', '/buckets/test_bucket', 'test_collection',
+            collection_id='collection',
+            parent_id='/buckets/test_bucket',
+            object_id='test_collection',
             with_deleted=False)
         self.registry.permission.delete_object_permissions.assert_called_with(
             '/buckets/test_bucket/collections/test_collection',

@@ -4,7 +4,6 @@ import os
 import sys
 import logging
 import logging.config
-from six.moves import input, configparser
 
 from kinto.core import scripts
 from pyramid.scripts import pserve
