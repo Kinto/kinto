@@ -63,7 +63,7 @@ def main(args=None):
                                    default=False)
         elif command == 'delete-collection':
             subparser.add_argument('--bucket',
-                                   help='The bucket the collection is in.',
+                                   help='The bucket where the collection is.',
                                    required=True)
             subparser.add_argument('--collection',
                                    help='The collection to remove.',
