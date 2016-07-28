@@ -25,7 +25,6 @@ except ImportError:  # pragma: no cover
 
 from kinto.core import errors
 from kinto.core import utils
-from kinto.core import statsd
 from kinto.core import cache
 from kinto.core import storage
 from kinto.core import permission
@@ -239,7 +238,9 @@ def setup_statsd(config):
     config.registry.statsd = None
 
     if settings['statsd_url']:
-        client = statsd.load_from_config(config)
+        statsd_mod = settings['statsd_backend']
+        statsd_mod = config.maybe_dotted(statsd_mod)
+        client = statsd_mod.load_from_config(config)
 
         config.registry.statsd = client
 

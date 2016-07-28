@@ -13,6 +13,8 @@ This document describes changes between each past release.
   See `API documentation <https://kinto.readthedocs.io/en/latest/api/1.x/history.html>`_.
 - Added a new ``--dry-run`` option to command-line script ``migrate`` that will simulate
   migration operation without executing on the backend (thanks @lavish205! #685)
+- Added ability to plug custom StatsD backend implementations via a new ``kinto.statsd_backend``
+  setting. Useful for Datadog™ integration for example (fixes #626).
 
 **Bug fixes**
 

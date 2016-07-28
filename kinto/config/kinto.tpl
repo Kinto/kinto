@@ -85,6 +85,7 @@ kinto.includes = kinto.plugins.default_bucket
 #
 # https://kinto.readthedocs.io/en/latest/configuration/production.html
 #
+# kinto.statsd_backend = kinto.core.statsd
 # kinto.statsd_url = udp://localhost:8125
 # kinto.statsd_prefix = kinto-prod
 
