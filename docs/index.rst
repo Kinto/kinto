@@ -16,6 +16,7 @@ Table of content
    tutorials/index
    configuration/index
    api/index
+   commandline
    faq
    troubleshooting
    changelog
