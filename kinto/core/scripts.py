@@ -7,6 +7,8 @@ import warnings
 
 from pyramid.settings import asbool
 
+from kinto.core.storage import exceptions as storage_exceptions
+
 
 def migrate(env, dry_run=False):
     """
@@ -37,15 +39,38 @@ def delete_collection(env, bucket_id, collection_id):
         warnings.warn(message)
         return 31
 
-    collection = '/buckets/%s/collections/%s' % (bucket_id, collection_id)
-    deleted = registry.storage.delete_all('record', collection,
-                                          with_deleted=False)
-    print('%d records have been deleted.' % len(deleted))
-
     bucket = '/buckets/%s' % bucket_id
-    registry.storage.delete('collection', bucket, collection_id,
+    collection = '/buckets/%s/collections/%s' % (bucket_id, collection_id)
+
+    try:
+        registry.storage.get(collection_id='bucket',
+                             parent_id='',
+                             object_id=bucket_id)
+    except storage_exceptions.RecordNotFoundError:
+        print("Bucket %r does not exist." % bucket)
+        return 33
+
+    try:
+        registry.storage.get(collection_id='collection',
+                             parent_id=bucket,
+                             object_id=collection_id)
+    except storage_exceptions.RecordNotFoundError:
+        print("Collection %r does not exist." % collection)
+        return 33
+
+    deleted = registry.storage.delete_all(collection_id='record',
+                                          parent_id=collection,
+                                          with_deleted=False)
+    if deleted == 0:
+        print('No records found for %r.' % collection)
+    else:
+        print('%d record(s) were deleted.' % len(deleted))
+
+    registry.storage.delete(collection_id='collection',
+                            parent_id=bucket,
+                            object_id=collection_id,
                             with_deleted=False)
-    print('%r collection has been deleted.' % collection)
+    print("%r collection object was deleted." % collection)
 
     record = ('/buckets/{bucket_id}'
               '/collections/{collection_id}'
@@ -56,6 +81,6 @@ def delete_collection(env, bucket_id, collection_id):
         *[record.format(bucket_id=bucket_id,
                         collection_id=collection_id,
                         record_id=r['id']) for r in deleted])
-    print('Related permissions cleaned up.')
+    print('Related permissions were deleted.')
 
     return 0
