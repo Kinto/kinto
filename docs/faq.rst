@@ -55,6 +55,21 @@ You can also read `a longer explanation of our choices and motivations behind th
 creation of Kinto <http://www.servicedenuages.fr/en/generic-storage-ecosystem>`_
 on our blog.
 
+Why the name «Kinto»?
+---------------------
+
+«*Kinto-Un*» is the name of the `flying nimbus of San Goku <http://dragonball.wikia.com/wiki/Flying_Nimbus>`_.
+It is a small personal cloud, that flies at high speed and that you can share with
+pure heart riders :)
+
+
+I am seeing an Exception error, what's wrong?
+---------------------------------------------
+
+Have a look at the :ref:`Troubleshooting section <troubleshooting>` to
+see what to do.
+
+
 Can I encrypt my data?
 ----------------------
 
@@ -108,15 +123,20 @@ Yes, using the :github:`Kinto/kinto-attachment` plugin.
 I want to add business logic to Kinto!
 --------------------------------------
 
-We recommend that when you're starting to build a Kinto-based
-application, you use Kinto as the back-end. You can use existing Kinto
-libraries to get up and running quickly.
+By default, Kinto has no domain-specific logic. When we need some, we usually
+start by :ref:`writing a plugin <tutorial-write-plugin>`.
 
-If you eventually hit a point where you need more logic on the server
-side, you can build your own Kinto-esque service using the library in
-``kinto.core``. In this way, your service will inherit all the best
-practices and conventions that Kinto itself has, and you can
-seamlessly migrate.
+Plugins can hook in many parts of the API. Events subscribers are the most frequently
+used hooks, and allow you to perform extra checks or operations, or even raise HTTP
+exceptions if necessary. Plugins can also add new URLs to the API etc.
+
+If you eventually hit a point where you need even more logic on the server
+side, you can build your own Kinto-esque service using the REST resources abstractions
+from :ref:`kinto.core <kinto-core>`. In this way, your service will inherit all the best
+practices and conventions that Kinto itself has, and you can seamlessly migrate.
+
+Maybe Kinto is not what you need after all, :ref:`don't hesitate to start a conversation <community>`!
+
 
 How does Kinto authenticate users?
 -----------------------------------
@@ -148,7 +168,7 @@ During development, it can be convenient to give the permission to write to
 any user.
 
 Just create the bucket (or the collection) with ``system.Everyone`` in the
-``write`` principals:
+``write`` principals. For example, using ``httpie``:
 
 .. code-block:: bash
 
@@ -156,47 +176,77 @@ Just create the bucket (or the collection) with ``system.Everyone`` in the
         http PUT http://localhost:8888/v1/buckets/a-bucket --auth user:pass
 
 
-I am seeing an Exception error, what's wrong?
----------------------------------------------
-
-Have a look at the :ref:`Troubleshooting section <troubleshooting>` to
-see what to do.
-
 If two users modify the same collection offline, how does that conflict get resolved?
 -------------------------------------------------------------------------------------
 
-There are three conflict resolution strategies:
+When using :ref:`concurrency control <concurrency control>` request headers,
+the conflicting operation will be rejected by the server.
+
+The application developer can implement custom conflict resolution strategies,
+using the :ref:`two versions of the object <error-responses-precondition>`,
+or the :ref:`history of actions <api-history>` of that object.
+
+Some helpers are provided in the :github:`Kinto/kinto.js` client. The three
+provided conflict resolution strategies are:
 
 * SERVER_WINS: local changes are overridden by remote ones ;
-* CLIENT_WINS: remote changes are overriden by local one ;
+* CLIENT_WINS: remote changes are overriden by local ones ;
 * MANUAL (default): handle them on your own.
 
-There is, of course, a convenient API to handle conflict one by one
-https://kintojs.readthedocs.io/en/latest/api/#resolving-conflicts-manually
+Then there is, of course, a `convenient helper to handle conflict one by one
+<https://kintojs.readthedocs.io/en/latest/api/#resolving-conflicts-manually>`_.
+
 
 Would you recommend Redis or PostgreSQL?
 ----------------------------------------
 
 You can use both of them:
 
-* Redis will let you start easily and you will have a database running in memory which
-  means your database should be smaller than your server RAM. It is a good solution for
-  experimentation and you will also be able to use a Redis cluster to scale in production.
+* *Redis* is usually easier to install and run than PostgreSQL. But you will have a
+  database running in memory which means your data should be smaller than your server RAM.
+  *Redis* is great for the ``cache`` backend.
 
-* PostgreSQL is a good solution for a Kinto server and will let you use all the power of
-  PostgreSQL and its tooling.
+* *PostgreSQL* is the recommended backend for ``storage`` and ``permission`` in production.
+  Mainly because data integrity is guaranteed, thanks to «per-request» transactions.
+  It's also usually easier to backup and export data out of a PostgreSQL database.
 
-Do not hesitate to mix both if you can, for instance you can use PostgreSQL for the
-storage and permissions backends and Redis for the cache backend.
+
+Why PostgreSQL to store arbitrary JSON?
+---------------------------------------
+
+*Kinto* backends are pluggable.
+
+We provide an implementation for PostgreSQL that relies on ``JSONB`` (version >=9.4).
+It is very performant, allows sorting/filtering on arbitrary JSON fields, the
+eco-system is rich and strong, and above all it is a rock-solid standard.
+
+If you prefer MongoDB, RethinkDB or X, don't hesitate to start an addon, we'll be
+delighted to give you a hand!
+
+
+Why did you chose to use Pyramid rather than X?
+-----------------------------------------------
+
+Flask or Django Rest Framework could have been very good candidates!
+
+We chose the Pyramid framework because we like `its flexibility and extensibility
+<http://kinto.github.io/kinto-slides/2016.07.pybcn/index.html#slide25>`_.
+Plus, we could :ref:`leverage Cornice helpers <technical-architecture>`, which
+bring HTTP best practices out-of-the-box.
+
 
 What about aggregation/reporting around data, is Kinto ready for that?
 ----------------------------------------------------------------------
 
-No, and it will not. This is something that should be done on top of Kinto, with
-ElasticSearch for instance. In order to do this, you could listen to the events that
-Kinto triggers and send the data to your ElasticSearch cluster.
-`There is a tutorial <https://kinto.readthedocs.io/en/latest/tutorials/write-plugin.html>`_
-for that in the documentation.
+This is not available from the main API — and probably never will.
+
+However, this is something that can be done aside or on top of Kinto.
+
+For example, you could use ElasticSearch. There is :ref:`tutorial for that <tutorial-write-plugin>`!
+
+Also, if you use PostgreSQL for storage, you can create custom views in the database
+that can be consumed for custom reporting.
+
 
 Say I wanted to move all my Kinto data out of the database, would the best way to be via the backend?
 -----------------------------------------------------------------------------------------------------

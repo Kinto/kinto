@@ -45,6 +45,7 @@ again.
 
     Retry-After: 30
 
+.. _error-responses-precondition:
 
 Precondition errors
 ===================

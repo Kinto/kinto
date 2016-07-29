@@ -35,6 +35,7 @@ This document describes changes between each past release.
 - Remove former Cliquet load tests (#733)
 - Add a flag to to run simulation load tests on ``default`` bucket. Uses ``blog``
   bucket by default (#733)
+- Improved parts of the FAQ
 
 
 3.3.1 (2016-07-19)

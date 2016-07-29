@@ -67,6 +67,8 @@ the cached version is still good.
 +-----------------------------+--------------------------+
 
 
+.. _concurrency control:
+
 Concurrency control
 ===================
 
