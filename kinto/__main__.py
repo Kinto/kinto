@@ -31,9 +31,22 @@ def main(args=None):
                         required=False,
                         default=DEFAULT_CONFIG_FILE)
 
-    parser.add_argument('-v', '--version',
+    parser.add_argument('--version',
                         action='version', version=__version__,
                         help='Print the Kinto version and exit.')
+
+    # Defaults
+    parser.add_argument('-v', '--verbose', action='store_const',
+                        const=logging.INFO, dest='verbosity',
+                        help='Show all messages.')
+
+    parser.add_argument('-q', '--quiet', action='store_const',
+                        const=logging.CRITICAL, dest='verbosity',
+                        help='Show only critical errors.')
+
+    parser.add_argument('-D', '--debug', action='store_const',
+                        const=logging.DEBUG, dest='verbosity',
+                        help='Show all messages, including debug messages.')
 
     commands = ('init', 'start', 'migrate', 'delete-collection')
     subparsers = parser.add_subparsers(title='subcommands',
@@ -82,13 +95,22 @@ def main(args=None):
                                    default=DEFAULT_PORT)
 
     # Parse command-line arguments
-    parsed_args = vars(parser.parse_args(args))
+    try:
+        parsed_args = vars(parser.parse_args(args))
+    except SystemExit as exc:
+        if exc.code == 0:
+            return exc.code
+        raise exc
 
     config_file = parsed_args['ini_file']
     which_command = parsed_args['which']
 
     # Initialize logging from config.
-    logging.basicConfig(level=DEFAULT_LOG_LEVEL, format=DEFAULT_LOG_FORMAT)
+    kwargs = dict(format=DEFAULT_LOG_FORMAT)
+    if 'verbosity' in parsed_args and parsed_args['verbosity']:
+        kwargs['level'] = parsed_args['verbosity']
+
+    logging.basicConfig(**kwargs)
 
     if which_command == 'init':
         if os.path.exists(config_file):
