@@ -28,9 +28,9 @@ def cors(view):
     return wrap_view
 
 
-@forbidden_view_config()
-@cors
-def authorization_required(request):
+@view_config(context=httpexceptions.HTTPForbidden,
+             permission=NO_PERMISSION_REQUIRED)
+def authorization_required(response, request):
     """Distinguish authentication required (``401 Unauthorized``) from
     not allowed (``403 Forbidden``).
     """
@@ -42,16 +42,17 @@ def authorization_required(request):
         response.headers.extend(forget(request))
         return response
 
-    error_msg = "This user cannot access this resource."
-    response = http_error(httpexceptions.HTTPForbidden(),
-                          errno=ERRORS.FORBIDDEN,
-                          message=error_msg)
-    return response
+    if response.content_type != "application/json":
+        error_msg = "This user cannot access this resource."
+        response = http_error(httpexceptions.HTTPForbidden(),
+                              errno=ERRORS.FORBIDDEN,
+                              message=error_msg)
+    return reapply_cors(request, response)
 
 
-@notfound_view_config()
-@cors
-def page_not_found(request):
+@view_config(context=httpexceptions.HTTPNotFound,
+             permission=NO_PERMISSION_REQUIRED)
+def page_not_found(response, request):
     """Return a JSON 404 error response."""
     config_key = 'trailing_slash_redirect_enabled'
     redirect_enabled = request.registry.settings[config_key]
@@ -78,12 +79,13 @@ def page_not_found(request):
             redirect = '/%s/%s' % (request.registry.route_prefix, querystring)
 
         if redirect:
-            return HTTPTemporaryRedirect(redirect)
+            return reapply_cors(request, HTTPTemporaryRedirect(redirect))
 
-    response = http_error(httpexceptions.HTTPNotFound(),
-                          errno=errno,
-                          message=error_msg)
-    return response
+    if response.content_type != "application/json":
+        response = http_error(httpexceptions.HTTPNotFound(),
+                              errno=errno,
+                              message=error_msg)
+    return reapply_cors(request, response)
 
 
 @view_config(context=httpexceptions.HTTPServiceUnavailable,
