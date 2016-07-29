@@ -21,6 +21,7 @@ This document describes changes between each past release.
   setting. Useful for Datadog™ integration for example (fixes #626).
 - Added a ``delete-collection`` action to the ``kinto`` command. (#727)
 - Added verbosity options to the ``kinto`` command (#745)
+- Added a ``/__version__`` endpoint with the version that have been deployed. (#747)
 
 **Bug fixes**
 

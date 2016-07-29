@@ -11,6 +11,12 @@ API
 Changelog
 ---------
 
+1.9 (2016-07-29)
+''''''''''''''''
+
+- Add new endpoint ``GET /__version__`` to retrieve the information
+  about the deployed version.
+
 1.8 (2016-07-19)
 ''''''''''''''''
 
