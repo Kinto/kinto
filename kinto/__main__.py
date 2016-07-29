@@ -31,20 +31,15 @@ def main(args=None):
                         required=False,
                         default=DEFAULT_CONFIG_FILE)
 
-    parser.add_argument('--version',
+    parser.add_argument('-v', '--version',
                         action='version', version=__version__,
                         help='Print the Kinto version and exit.')
-
-    # Defaults
-    parser.add_argument('-v', '--verbose', action='store_const',
-                        const=logging.INFO, dest='verbosity',
-                        help='Show all messages.')
 
     parser.add_argument('-q', '--quiet', action='store_const',
                         const=logging.CRITICAL, dest='verbosity',
                         help='Show only critical errors.')
 
-    parser.add_argument('-D', '--debug', action='store_const',
+    parser.add_argument('--debug', action='store_const',
                         const=logging.DEBUG, dest='verbosity',
                         help='Show all messages, including debug messages.')
 
@@ -98,19 +93,18 @@ def main(args=None):
     try:
         parsed_args = vars(parser.parse_args(args))
     except SystemExit as exc:
+        # Handle --version special case.
         if exc.code == 0:
             return exc.code
+        # It can exit for other reasons and then we want to let it exits.
         raise exc
 
     config_file = parsed_args['ini_file']
     which_command = parsed_args['which']
 
-    # Initialize logging from config.
-    kwargs = dict(format=DEFAULT_LOG_FORMAT)
-    if 'verbosity' in parsed_args and parsed_args['verbosity']:
-        kwargs['level'] = parsed_args['verbosity']
-
-    logging.basicConfig(**kwargs)
+    # Initialize logging from
+    level = parsed_args.get('verbosity') or DEFAULT_LOG_LEVEL
+    logging.basicConfig(level=level, format=DEFAULT_LOG_FORMAT)
 
     if which_command == 'init':
         if os.path.exists(config_file):
