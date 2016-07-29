@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - ``kinto --version`` was renamed ``kinto version``
 
+**Protocol**
+
+- Added a ``/__version__`` endpoint with the version that has been deployed. (#747)
+
 **New features**
 
 - Added a new built-in plugin ``kinto.plugins.history`` that keeps track of every action
@@ -20,8 +24,6 @@ This document describes changes between each past release.
 - Added ability to plug custom StatsD backend implementations via a new ``kinto.statsd_backend``
   setting. Useful for Datadog™ integration for example (fixes #626).
 - Added a ``delete-collection`` action to the ``kinto`` command. (#727)
-- Added verbosity options to the ``kinto`` command (#745)
-- Added a ``/__version__`` endpoint with the version that have been deployed. (#747)
 
 **Bug fixes**
 

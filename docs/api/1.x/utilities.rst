@@ -94,15 +94,15 @@ GET /__version__
 ==================
 
 Return a JSON mapping containing information about what distribution
-have been deployed by OPS.
+has been deployed by OPS.
 
 ::
 
     {
-     "name":"kinto",
-     "version":"3.3.2",
-     "commit":"ab8db089ee63dc8e14f4bcfc427a86f311dd7e52",
-     "source":"https://github.com/Kinto/kinto"
+      "name":"kinto",
+      "version":"3.3.2",
+      "commit":"ab8db089ee63dc8e14f4bcfc427a86f311dd7e52",
+      "source":"https://github.com/Kinto/kinto"
     }
 
 The content of the distribution can be configured by putting a
