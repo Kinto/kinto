@@ -6,12 +6,15 @@ from .support import BaseWebTest, unittest
 class VersionViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
-        self.before = version.VERSION_JSON
+        self.VERSION_JSON_before = version.VERSION_JSON
+        self.ORIGIN_before = version.ORIGIN
 
     def tearDown(self):
-        version.VERSION_JSON = self.before
+        version.VERSION_JSON = self.VERSION_JSON_before
+        version.ORIGIN = self.ORIGIN_before
 
     def test_returns_info_about_name_version_commit_and_repository(self):
+        version.VERSION_JSON = None
         response = self.app.get('/__version__')
         assert response.json['name'] == "kinto"
         assert response.json['version'] == __version__
@@ -29,3 +32,7 @@ class VersionViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get('/__version__')
 
         assert response.json == version.VERSION_JSON
+
+    def test_read_commit_return_not_available_if_not_a_git_repository(self):
+        version.ORIGIN = '/tmp'
+        assert version.read_git_commit() == "NOT_AVAILABLE"

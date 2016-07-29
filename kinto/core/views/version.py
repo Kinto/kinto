@@ -11,10 +11,10 @@ ORIGIN = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 VERSION_PATH = 'version.json'  # Relative to where we start it.
 VERSION_JSON = None
 
-try:
+try:  # Pragma: no cover
     with open(VERSION_PATH, 'r') as f:
         VERSION_JSON = json.load(f)
-except IOError:
+except IOError:  # Pragma: no cover
     pass
 
 version = Service(name="version", path='/__version__', description="Version")
