@@ -173,5 +173,5 @@ def includeme(config):
     config.scan("kinto.core.views")
 
     # Give sign of life.
-    msg = "Working with %(project_name)s %(project_version)s."
+    msg = "Running %(project_name)s %(project_version)s."
     logger.info(msg % settings)
