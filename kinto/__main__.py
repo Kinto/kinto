@@ -4,14 +4,17 @@ import os
 import sys
 import logging
 import logging.config
-from six.moves import input, configparser
+
 from kinto.core import scripts
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
 from kinto import __version__
 from kinto.config import init
 
-CONFIG_FILE = 'config/kinto.ini'
+DEFAULT_CONFIG_FILE = 'config/kinto.ini'
+DEFAULT_PORT = 8888
+DEFAULT_LOG_LEVEL = logging.INFO
+DEFAULT_LOG_FORMAT = "%(levelname)-5.5s  %(message)s"
 
 
 def main(args=None):
@@ -19,58 +22,75 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
 
-    parser = argparse.ArgumentParser(description="Kinto commands")
+    parser = argparse.ArgumentParser(description="Kinto Command-Line "
+                                                 "Interface")
+    # XXX: deprecate this option, unnatural as first argument.
     parser.add_argument('--ini',
                         help='Application configuration file',
                         dest='ini_file',
                         required=False,
-                        default=CONFIG_FILE)
-    parser.add_argument('--backend',
-                        help='Specify backend',
-                        dest='backend',
-                        required=False,
-                        default=None)
+                        default=DEFAULT_CONFIG_FILE)
 
     parser.add_argument('-v', '--version',
                         action='version', version=__version__,
                         help='Print the Kinto version and exit.')
 
+    commands = ('init', 'start', 'migrate', 'delete-collection')
     subparsers = parser.add_subparsers(title='subcommands',
-                                       description='valid subcommands',
+                                       description='Main Kinto CLI commands',
                                        dest='subcommand',
-                                       help='init/start/migrate')
+                                       help="Choose and run with --help")
     subparsers.required = True
 
-    parser_init = subparsers.add_parser('init')
-    parser_init.set_defaults(which='init')
+    for command in commands:
+        subparser = subparsers.add_parser(command)
+        subparser.set_defaults(which=command)
 
-    parser_migrate = subparsers.add_parser('migrate')
-    parser_migrate.add_argument('--dry-run',
-                                action='store_true',
-                                help='Simulate the migration operations '
-                                     'and show information',
-                                dest='dry_run',
-                                required=False,
-                                default=False)
-    parser_migrate.set_defaults(which='migrate')
-    parser_start = subparsers.add_parser('start')
-    parser_start.add_argument('--reload',
-                              action='store_true',
-                              help='Restart when code or config changes',
-                              required=False,
-                              default=False)
-    parser_start.add_argument('--port',
-                              type=int,
-                              help='Listening port number',
-                              required=False,
-                              default=8888)
-    parser_start.set_defaults(which='start')
+        if command == 'init':
+            subparser.add_argument('--backend',
+                                   help='{memory,redis,postgresql}',
+                                   dest='backend',
+                                   required=False,
+                                   default=None)
+        elif command == 'migrate':
+            subparser.add_argument('--dry-run',
+                                   action='store_true',
+                                   help='Simulate the migration operations '
+                                        'and show information',
+                                   dest='dry_run',
+                                   required=False,
+                                   default=False)
+        elif command == 'delete-collection':
+            subparser.add_argument('--bucket',
+                                   help='The bucket where the collection '
+                                        'belongs to.',
+                                   required=True)
+            subparser.add_argument('--collection',
+                                   help='The collection to remove.',
+                                   required=True)
 
+        elif command == 'start':
+            subparser.add_argument('--reload',
+                                   action='store_true',
+                                   help='Restart when code or config changes',
+                                   required=False,
+                                   default=False)
+            subparser.add_argument('--port',
+                                   type=int,
+                                   help='Listening port number',
+                                   required=False,
+                                   default=DEFAULT_PORT)
+
+    # Parse command-line arguments
     parsed_args = vars(parser.parse_args(args))
 
     config_file = parsed_args['ini_file']
+    which_command = parsed_args['which']
 
-    if parsed_args['which'] == 'init':
+    # Initialize logging from config.
+    logging.basicConfig(level=DEFAULT_LOG_LEVEL, format=DEFAULT_LOG_FORMAT)
+
+    if which_command == 'init':
         if os.path.exists(config_file):
             print("%s already exists." % config_file, file=sys.stderr)
             return 1
@@ -98,16 +118,18 @@ def main(args=None):
                 import pip
                 pip.main(['install', "kinto[postgresql]"])
 
-    elif parsed_args['which'] == 'migrate':
+    elif which_command == 'migrate':
         dry_run = parsed_args['dry_run']
-        try:
-            logging.config.fileConfig(config_file)
-        except configparser.NoSectionError as e:  # pragma: no cover
-            print(e)
         env = bootstrap(config_file)
         scripts.migrate(env, dry_run=dry_run)
 
-    elif parsed_args['which'] == 'start':
+    elif which_command == 'delete-collection':
+        env = bootstrap(config_file)
+        return scripts.delete_collection(env,
+                                         parsed_args['bucket'],
+                                         parsed_args['collection'])
+
+    elif which_command == 'start':
         pserve_argv = ['pserve', config_file]
         if parsed_args['reload']:
             pserve_argv.append('--reload')

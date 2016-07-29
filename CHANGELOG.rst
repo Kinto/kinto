@@ -15,6 +15,7 @@ This document describes changes between each past release.
   migration operation without executing on the backend (thanks @lavish205! #685)
 - Added ability to plug custom StatsD backend implementations via a new ``kinto.statsd_backend``
   setting. Useful for Datadog™ integration for example (fixes #626).
+- Added a ``delete-collection`` action to the ``kinto`` command. (#727)
 
 **Bug fixes**
 
@@ -35,6 +36,9 @@ This document describes changes between each past release.
 - Remove former Cliquet load tests (#733)
 - Add a flag to to run simulation load tests on ``default`` bucket. Uses ``blog``
   bucket by default (#733)
+- Add command-line documentation (#727)
+- The ``--backend`` command-line option for ``kinto init`` is not accepted as first
+  parameter anymore
 
 
 3.3.1 (2016-07-19)
