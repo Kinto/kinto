@@ -42,4 +42,4 @@ matrix:
   exclude:
     # PyPy test suite takes around 20min.
     - TOX_ENV: pypy
-      TRAVIS_PULL_REQUEST: true
+      TRAVIS_EVENT_TYPE: pull_request
