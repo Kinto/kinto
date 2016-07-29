@@ -89,6 +89,7 @@ class DeleteCollectionTest(unittest.TestCase):
         mocked.info.assert_any_call(
             "'/buckets/test_bucket/collections/test_collection' "
             "collection object was deleted.")
+        mocked.info.assert_any_call("Related permissions were deleted.")
 
     def test_delete_collection_raise_if_the_bucket_does_not_exist(self):
         self.registry.storage.get.side_effect = RecordNotFoundError
