@@ -39,6 +39,7 @@ This document describes changes between each past release.
 - Add command-line documentation (#727)
 - The ``--backend`` command-line option for ``kinto init`` is not accepted as first
   parameter anymore
+- Improved parts of the FAQ (#744)
 
 
 3.3.1 (2016-07-19)
