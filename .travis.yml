@@ -5,23 +5,23 @@ services: redis-server
 addons:
   postgresql: "9.4"
 env:
-    - TOX_ENV=py27
-    - TOX_ENV=py34
-    - TOX_ENV=py27-raw
-    - TOX_ENV=docs
+  - TOX_ENV=py27
+  - TOX_ENV=py34
+  - TOX_ENV=py27-raw
+  - TOX_ENV=docs
 
 install:
-    - pip install tox
+  - pip install tox
 before_script:
-    - sudo sed -i "s/fsync/#fsync/" /etc/postgresql/9.4/main/postgresql.conf
-    - sudo /etc/init.d/postgresql restart
-    - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
+  - sudo sed -i "s/fsync/#fsync/" /etc/postgresql/9.4/main/postgresql.conf
+  - sudo /etc/init.d/postgresql restart
+  - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
 script:
-    - tox -e $TOX_ENV
+  - tox -e $TOX_ENV
 after_success:
-    # Report coverage results to coveralls.io
-    - pip install coveralls
-    - coveralls
+  # Report coverage results to coveralls.io
+  - pip install coveralls
+  - coveralls
 
 matrix:
   include:
