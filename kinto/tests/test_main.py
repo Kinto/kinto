@@ -136,9 +136,9 @@ class TestMain(unittest.TestCase):
             assert '--reload' in mocked_pserve.call_args[0][0]
 
     def test_cli_can_display_kinto_version(self):
-        with mock.patch('sys.stderr', new_callable=StringIO) as mock_stderr:
-            res = main(['--version'])
-            assert mock_stderr.getvalue() == '%s\n' % kinto_version
+        with mock.patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            res = main(['version'])
+            assert mock_stdout.getvalue() == '%s\n' % kinto_version
             assert res == 0
 
     def test_cli_can_configure_logger_in_quiet(self):

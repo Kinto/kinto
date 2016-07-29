@@ -31,10 +31,6 @@ def main(args=None):
                         required=False,
                         default=DEFAULT_CONFIG_FILE)
 
-    parser.add_argument('-v', '--version',
-                        action='version', version=__version__,
-                        help='Print the Kinto version and exit.')
-
     parser.add_argument('-q', '--quiet', action='store_const',
                         const=logging.CRITICAL, dest='verbosity',
                         help='Show only critical errors.')
@@ -43,7 +39,7 @@ def main(args=None):
                         const=logging.DEBUG, dest='verbosity',
                         help='Show all messages, including debug messages.')
 
-    commands = ('init', 'start', 'migrate', 'delete-collection')
+    commands = ('init', 'start', 'migrate', 'delete-collection', 'version')
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='Main Kinto CLI commands',
                                        dest='subcommand',
@@ -90,14 +86,7 @@ def main(args=None):
                                    default=DEFAULT_PORT)
 
     # Parse command-line arguments
-    try:
-        parsed_args = vars(parser.parse_args(args))
-    except SystemExit as exc:
-        # Handle --version special case.
-        if exc.code == 0:
-            return exc.code
-        # It can exit for other reasons and then we want to let it exits.
-        raise exc
+    parsed_args = vars(parser.parse_args(args))
 
     config_file = parsed_args['ini_file']
     which_command = parsed_args['which']
@@ -151,5 +140,8 @@ def main(args=None):
             pserve_argv.append('--reload')
         pserve_argv.append('http_port=%s' % parsed_args['port'])
         pserve.main(pserve_argv)
+
+    elif which_command == 'version':
+        print(__version__)
 
     return 0

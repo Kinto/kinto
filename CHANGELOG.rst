@@ -6,6 +6,10 @@ This document describes changes between each past release.
 3.4.0 (unreleased)
 ==================
 
+**Breaking changes**
+
+- ``kinto --version`` was renamed ``kinto version``
+
 **New features**
 
 - Added a new built-in plugin ``kinto.plugins.history`` that keeps track of every action
