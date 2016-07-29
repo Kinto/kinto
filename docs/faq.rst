@@ -220,8 +220,8 @@ We provide an implementation for PostgreSQL that relies on ``JSONB`` (version >=
 It is very performant, allows sorting/filtering on arbitrary JSON fields, the
 eco-system is rich and strong, and above all it is a rock-solid standard.
 
-If you prefer MongoDB, RethinkDB or X, don't hesitate to start an addon, we'll be
-delighted to give you a hand!
+If you prefer MongoDB, RethinkDB or X, don't hesitate to start a storage, permission or
+cache backend, we'll be delighted to give you a hand!
 
 
 Why did you chose to use Pyramid rather than X?
