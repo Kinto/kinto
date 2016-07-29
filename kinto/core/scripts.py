@@ -2,11 +2,10 @@
 kinto.core.scripts: utilities to build admin scripts for kinto-based services
 """
 
-from __future__ import absolute_import, print_function
-import warnings
 import transaction as current_transaction
 from pyramid.settings import asbool
 
+from kinto import logger
 from kinto.core.storage import exceptions as storage_exceptions
 
 
@@ -24,7 +23,7 @@ def migrate(env, dry_run=False):
             if readonly_mode and backend in readonly_backends:
                 message = ('Cannot migrate the %s backend while '
                            'in readonly mode.' % backend)
-                warnings.warn(message)
+                logger.error(message)
             else:
                 getattr(registry, backend).initialize_schema(dry_run=dry_run)
 
@@ -36,7 +35,7 @@ def delete_collection(env, bucket_id, collection_id):
 
     if readonly_mode:
         message = ('Cannot delete the collection while in readonly mode.')
-        warnings.warn(message)
+        logger.error(message)
         return 31
 
     bucket = '/buckets/%s' % bucket_id
@@ -47,30 +46,30 @@ def delete_collection(env, bucket_id, collection_id):
                              parent_id='',
                              object_id=bucket_id)
     except storage_exceptions.RecordNotFoundError:
-        print("Bucket %r does not exist." % bucket)
-        return 33
+        logger.error("Bucket %r does not exist." % bucket)
+        return 32
 
     try:
         registry.storage.get(collection_id='collection',
                              parent_id=bucket,
                              object_id=collection_id)
     except storage_exceptions.RecordNotFoundError:
-        print("Collection %r does not exist." % collection)
+        logger.error("Collection %r does not exist." % collection)
         return 33
 
     deleted = registry.storage.delete_all(collection_id='record',
                                           parent_id=collection,
                                           with_deleted=False)
-    if deleted == 0:
-        print('No records found for %r.' % collection)
+    if len(deleted) == 0:
+        logger.info('No records found for %r.' % collection)
     else:
-        print('%d record(s) were deleted.' % len(deleted))
+        logger.info('%d record(s) were deleted.' % len(deleted))
 
     registry.storage.delete(collection_id='collection',
                             parent_id=bucket,
                             object_id=collection_id,
                             with_deleted=False)
-    print("%r collection object was deleted." % collection)
+    logger.info("%r collection object was deleted." % collection)
 
     record = ('/buckets/{bucket_id}'
               '/collections/{collection_id}'
@@ -81,7 +80,7 @@ def delete_collection(env, bucket_id, collection_id):
         *[record.format(bucket_id=bucket_id,
                         collection_id=collection_id,
                         record_id=r['id']) for r in deleted])
-    print('Related permissions were deleted.')
+    logger.error('Related permissions were deleted.')
 
     current_transaction.commit()
 
