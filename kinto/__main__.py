@@ -126,7 +126,7 @@ def main(args=None):
         env = bootstrap(config_file)
         scripts.migrate(env, dry_run=dry_run)
 
-    elif parsed_args['which'] == 'delete-collection':
+    elif which_command == 'delete-collection':
         env = bootstrap(config_file)
         return scripts.delete_collection(env,
                                          parsed_args['bucket'],
