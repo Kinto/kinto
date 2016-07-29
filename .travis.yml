@@ -40,4 +40,4 @@ matrix:
       before_script: echo 'flake8'
       script: flake8 kinto
     - env: TOX_ENV=pypy
-      script: if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then tox -e $TOX_ENV; else true; fi;
+      script: if [ "${TRAVIS_BRANCH}" = "master" ]; then tox -e $TOX_ENV; else true; fi;
