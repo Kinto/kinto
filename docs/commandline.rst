@@ -99,7 +99,7 @@ Deletes a collection and its underlying objects from the ``storage`` and ``permi
 
     optional arguments:
       -h, --help            show this help message and exit
-      --bucket BUCKET       The bucket where the collection is.
+      --bucket BUCKET       The bucket where the collection belongs to.
       --collection COLLECTION
                             The collection to remove.
 
