@@ -48,6 +48,19 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             response, 404, ERRORS.MISSING_RESOURCE, "Not Found",
             "The resource you are looking for could not be found.")
 
+    def test_404_can_be_overridded(self):
+        custom_404 = http_error(httpexceptions.HTTPNotFound(),
+                                errno=ERRORS.MISSING_RESOURCE,
+                                message="Customized.")
+        with mock.patch(
+                'kinto.tests.core.testapp.views.Mushroom._extract_filters',
+                side_effect=custom_404):
+            response = self.app.get(self.sample_url, headers=self.headers,
+                                    status=404)
+        self.assertFormattedError(
+            response, 404, ERRORS.MISSING_RESOURCE, "Not Found",
+            "Customized.")
+
     def test_401_is_valid_formatted_error(self):
         response = self.app.get(self.sample_url, status=401)
         self.assertFormattedError(
@@ -61,6 +74,19 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertFormattedError(
             response, 403, ERRORS.FORBIDDEN, "Forbidden",
             "This user cannot access this resource.")
+
+    def test_403_can_be_overridded(self):
+        custom_403 = http_error(httpexceptions.HTTPForbidden(),
+                                errno=ERRORS.FORBIDDEN,
+                                message="Customized.")
+        with mock.patch(
+                'kinto.tests.core.testapp.views.Mushroom._extract_filters',
+                side_effect=custom_403):
+            response = self.app.get(self.sample_url,
+                                    headers=self.headers, status=403)
+        self.assertFormattedError(
+            response, 403, ERRORS.FORBIDDEN, "Forbidden",
+            "Customized.")
 
     def test_405_is_valid_formatted_error(self):
         response = self.app.patch(self.sample_url,
