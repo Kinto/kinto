@@ -1,12 +1,8 @@
-from functools import wraps
-
 from pyramid import httpexceptions
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.settings import asbool
 from pyramid.security import forget, NO_PERMISSION_REQUIRED, Authenticated
-from pyramid.view import (
-    forbidden_view_config, notfound_view_config, view_config
-)
+from pyramid.view import view_config
 
 from kinto.core.errors import http_error, ERRORS
 from kinto.core.logs import logger
