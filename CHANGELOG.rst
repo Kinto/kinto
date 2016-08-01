@@ -6,6 +6,11 @@ This document describes changes between each past release.
 3.4.0 (unreleased)
 ==================
 
+**Protocol**
+
+- Add the ``/buckets/bid/stats`` endpoint to provide stats information
+  about the bucket. (#749)
+
 **Breaking changes**
 
 - ``kinto --version`` was renamed ``kinto version``
