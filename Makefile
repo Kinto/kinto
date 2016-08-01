@@ -64,19 +64,26 @@ build-requirements:
 $(SERVER_CONFIG):
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
 
-serve: install-dev $(SERVER_CONFIG) migrate
+NAME := kinto
+SOURCE := $(shell git config remote.origin.url | sed -e 's|git@|https://|g' | sed -e 's|github.com:|github.com/|g')
+VERSION := $(shell git describe --always --tag)
+COMMIT := $(shell git log --pretty=format:'%H' -n 1)
+version-file:
+	echo '{"name":"$(NAME)","version":"$(VERSION)","source":"$(SOURCE)","commit":"$(COMMIT)"}' > version.json
+
+serve: install-dev $(SERVER_CONFIG) migrate version-file
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start --reload
 
 migrate: install $(SERVER_CONFIG)
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) migrate
 
-tests-once: install-dev
+tests-once: install-dev version-file
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
 
 flake8: install-dev
 	$(VENV)/bin/flake8 kinto
 
-tests:
+tests: version-file
 	$(VENV)/bin/tox
 
 clean:
