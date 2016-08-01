@@ -5,6 +5,7 @@ except ImportError:
     import __builtin__ as builtins
     builtins_name = '__builtin__'
 
+import logging
 import mock
 import os
 import pytest
@@ -14,7 +15,8 @@ import unittest
 
 from six import StringIO
 
-from kinto.__main__ import main
+from kinto import __version__ as kinto_version
+from kinto.__main__ import main, DEFAULT_LOG_FORMAT
 
 _, TEMP_KINTO_INI = tempfile.mkstemp(prefix='kinto_config')
 
@@ -132,3 +134,33 @@ class TestMain(unittest.TestCase):
             assert res == 0
             assert mocked_pserve.call_count == 1
             assert '--reload' in mocked_pserve.call_args[0][0]
+
+    def test_cli_can_display_kinto_version(self):
+        with mock.patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            res = main(['version'])
+            assert mock_stdout.getvalue() == '%s\n' % kinto_version
+            assert res == 0
+
+    def test_cli_can_configure_logger_in_quiet(self):
+        with mock.patch('kinto.__main__.logging') as mocked_logging:
+            main(['-q', '--ini', TEMP_KINTO_INI, 'init',
+                        '--backend', 'memory'])
+            mocked_logging.basicConfig.assert_called_with(
+                level=mocked_logging.CRITICAL,
+                format=DEFAULT_LOG_FORMAT)
+
+    def test_cli_can_configure_logger_in_debug(self):
+        with mock.patch('kinto.__main__.logging') as mocked_logging:
+            main(['--debug', '--ini', TEMP_KINTO_INI, 'init',
+                  '--backend', 'memory'])
+            mocked_logging.basicConfig.assert_called_with(
+                level=mocked_logging.DEBUG,
+                format=DEFAULT_LOG_FORMAT)
+
+    def test_cli_use_default_logging_logger(self):
+        with mock.patch('kinto.__main__.logging') as mocked_logging:
+            main(['--ini', TEMP_KINTO_INI, 'init',
+                  '--backend', 'memory'])
+            mocked_logging.basicConfig.assert_called_with(
+                level=logging.INFO,
+                format=DEFAULT_LOG_FORMAT)

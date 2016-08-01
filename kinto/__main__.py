@@ -31,11 +31,15 @@ def main(args=None):
                         required=False,
                         default=DEFAULT_CONFIG_FILE)
 
-    parser.add_argument('-v', '--version',
-                        action='version', version=__version__,
-                        help='Print the Kinto version and exit.')
+    parser.add_argument('-q', '--quiet', action='store_const',
+                        const=logging.CRITICAL, dest='verbosity',
+                        help='Show only critical errors.')
 
-    commands = ('init', 'start', 'migrate', 'delete-collection')
+    parser.add_argument('--debug', action='store_const',
+                        const=logging.DEBUG, dest='verbosity',
+                        help='Show all messages, including debug messages.')
+
+    commands = ('init', 'start', 'migrate', 'delete-collection', 'version')
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='Main Kinto CLI commands',
                                        dest='subcommand',
@@ -87,8 +91,9 @@ def main(args=None):
     config_file = parsed_args['ini_file']
     which_command = parsed_args['which']
 
-    # Initialize logging from config.
-    logging.basicConfig(level=DEFAULT_LOG_LEVEL, format=DEFAULT_LOG_FORMAT)
+    # Initialize logging from
+    level = parsed_args.get('verbosity') or DEFAULT_LOG_LEVEL
+    logging.basicConfig(level=level, format=DEFAULT_LOG_FORMAT)
 
     if which_command == 'init':
         if os.path.exists(config_file):
@@ -135,5 +140,8 @@ def main(args=None):
             pserve_argv.append('--reload')
         pserve_argv.append('http_port=%s' % parsed_args['port'])
         pserve.main(pserve_argv)
+
+    elif which_command == 'version':
+        print(__version__)
 
     return 0
