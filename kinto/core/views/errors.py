@@ -14,20 +14,6 @@ from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.utils import reapply_cors, encode_header
 
 
-def cors(view):
-    """Decorator to make sure CORS headers are correctly processed."""
-
-    @wraps(view)
-    def wrap_view(request, *args, **kwargs):
-        response = view(request, *args, **kwargs)
-
-        # We need to re-apply the CORS checks done by Cornice, since we're
-        # recreating the response from scratch.
-        return reapply_cors(request, response)
-
-    return wrap_view
-
-
 @view_config(context=httpexceptions.HTTPForbidden,
              permission=NO_PERMISSION_REQUIRED)
 def authorization_required(response, request):
