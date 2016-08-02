@@ -9,6 +9,8 @@ This document describes changes between each past release.
 **Breaking changes**
 
 - ``kinto --version`` was renamed ``kinto version``
+- ``ResourceChanged`` and ``AfterResourceChanged`` events now return
+  ``old`` and ``new`` records for the ``delete`` action. (#751)
 
 **New features**
 
