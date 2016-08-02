@@ -62,6 +62,7 @@ def on_resource_changed(event):
         targets.append((uri, obj_id, old, new))
 
     if action == 'delete' and resource_name == 'bucket':
+        # In that case, metadata are already deleted with the bucket.
         return
 
     bucket_info = copy.deepcopy(
