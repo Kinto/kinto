@@ -342,10 +342,11 @@ class UserResource(object):
         self._raise_412_if_modified()
 
         filters = self._extract_filters()
+        records, _ = self.model.get_records(filters=filters)
         deleted = self.model.delete_records(filters=filters)
 
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
-        return self.postprocess(deleted, action=action)
+        return self.postprocess(deleted, action=action, old=records)
 
     def get(self):
         """Record ``GET`` endpoint: retrieve a record.
@@ -554,7 +555,7 @@ class UserResource(object):
                 last_modified = None
 
         deleted = self.model.delete_record(record, last_modified=last_modified)
-        return self.postprocess(deleted, action=ACTIONS.DELETE)
+        return self.postprocess(deleted, action=ACTIONS.DELETE, old=record)
 
     #
     # Data processing

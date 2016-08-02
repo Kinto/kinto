@@ -256,7 +256,7 @@ class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
         self.assertNotIn('old', impacted_records[0])
         self.assertEqual(impacted_records[0]['new'], record)
 
-    def test_collection_delete_has_old_record_and_no_new_in_payload(self):
+    def test_collection_delete_has_old_and_new_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers)
         record1 = resp.json['data']
@@ -268,12 +268,18 @@ class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
 
         impacted_records = self.events[-1].impacted_records
         self.assertEqual(len(impacted_records), 2)
-        self.assertNotIn('new', impacted_records[0])
-        self.assertNotIn('new', impacted_records[1])
-        self.assertEqual(impacted_records[0]['old']['deleted'], True)
-        self.assertEqual(impacted_records[1]['old']['deleted'], True)
-        deleted_ids = {impacted_records[0]['old']['id'],
-                       impacted_records[1]['old']['id']}
+        impacted_records = sorted(impacted_records,
+                                  key=lambda x: x['old']['last_modified'])
+        self.assertEqual(impacted_records[0]['old'], record1)
+        self.assertEqual(impacted_records[1]['old'], record2)
+        self.assertEqual(impacted_records[0]['new']['deleted'], True)
+        self.assertEqual(impacted_records[1]['new']['deleted'], True)
+        self.assertEqual(impacted_records[0]['old']['id'],
+                         impacted_records[0]['new']['id'])
+        self.assertEqual(impacted_records[1]['old']['id'],
+                         impacted_records[1]['new']['id'])
+        deleted_ids = {impacted_records[0]['new']['id'],
+                       impacted_records[1]['new']['id']}
         self.assertEqual(deleted_ids, {record1['id'], record2['id']})
 
     def test_update_has_old_and_new_record(self):
@@ -291,7 +297,7 @@ class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(impacted_records[0]['old']['name'], 'de Paris')
         self.assertEqual(impacted_records[0]['new']['name'], 'en boite')
 
-    def test_delete_has_old_record_and_no_new_in_payload(self):
+    def test_delete_has_old_and_new_record_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body,
                                   headers=self.headers, status=201)
         record = resp.json['data']
@@ -300,9 +306,9 @@ class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
 
         impacted_records = self.events[-1].impacted_records
         self.assertEqual(len(impacted_records), 1)
-        self.assertNotIn('new', impacted_records[0])
-        self.assertEqual(impacted_records[0]['old']['id'], record['id'])
-        self.assertEqual(impacted_records[0]['old']['deleted'], True)
+        self.assertEqual(impacted_records[0]['old'], record)
+        self.assertEqual(impacted_records[0]['new']['id'], record['id'])
+        self.assertEqual(impacted_records[0]['new']['deleted'], True)
 
 
 class BatchEventsTest(BaseEventTest, unittest.TestCase):
@@ -342,7 +348,8 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
         delete_event = self.events[2]
         self.assertEqual(delete_event.payload['action'], 'delete')
         self.assertEqual(len(delete_event.impacted_records), 1)
-        self.assertNotIn('new', delete_event.impacted_records[0])
+        self.assertIn('old', delete_event.impacted_records[0])
+        self.assertIn('new', delete_event.impacted_records[0])
 
     def test_one_event_is_sent_per_resource(self):
         body = {

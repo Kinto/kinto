@@ -10,7 +10,6 @@ def on_resource_changed(event):
     :mod:`kinto.plugins.history.views` module.
     """
     payload = copy.deepcopy(event.payload)
-    action = payload['action']
     resource_name = payload['resource_name']
     event_uri = payload['uri']
 
@@ -30,7 +29,7 @@ def on_resource_changed(event):
 
     targets = []
     for impacted in event.impacted_records:
-        target = impacted['new' if action != 'delete' else 'old']
+        target = impacted['new']
         obj_id = target['id']
         # On POST .../records, the URI does not contain the newly created
         # record id. Make sure it does:

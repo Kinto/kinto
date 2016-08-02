@@ -140,8 +140,11 @@ def notify_resource_event(request, parent_id, timestamp, data, action,
         impacted = [{'new': data}]
     elif action == ACTIONS.DELETE:
         if not isinstance(data, list):
-            data = [data]
-        impacted = [{'old': r} for r in data]
+            impacted = [{'new': data, 'old': old}]
+        else:
+            impacted = []
+            for i, new in enumerate(data):
+                impacted.append({'new': new, 'old': old[i]})
     elif action == ACTIONS.UPDATE:
         impacted = [{'new': data, 'old': old}]
 
