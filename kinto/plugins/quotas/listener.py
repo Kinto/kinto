@@ -2,10 +2,16 @@ import copy
 
 from pyramid.httpexceptions import HTTPInsufficientStorage
 from kinto.core.errors import http_error, ERRORS
-from kinto.core.storage.exceptions import RecordNotFoundError
 from kinto.core.utils import instance_uri
 
-from .utils import record_size
+from .utils import record_size, strip_stats_keys
+
+
+def is_bucket(uri):
+    parts_count = len(uri.strip('/').split('/'))
+    if uri.startswith('/buckets/') and parts_count == 2:
+        return True
+    return False
 
 
 def on_resource_changed(event):
@@ -24,7 +30,6 @@ def on_resource_changed(event):
     settings = event.request.registry.settings
 
     bucket_id = payload.pop('bucket_id')
-    bucket_uri = instance_uri(event.request, 'bucket', id=bucket_id)
     collection_id = None
     collection_uri = None
     if 'collection_id' in payload:
@@ -41,15 +46,6 @@ def on_resource_changed(event):
 
     storage = event.request.registry.storage
 
-    if action == 'delete' and resource_name == 'bucket':
-        try:
-            storage.delete(parent_id=bucket_uri,
-                           collection_id='quota',
-                           object_id='bucket_info')
-        except RecordNotFoundError:  # Pragma: no cover
-            pass
-        return
-
     targets = []
     for impacted in event.impacted_records:
         target = impacted['new' if action != 'delete' else 'old']
@@ -65,18 +61,22 @@ def on_resource_changed(event):
         new = impacted.get('new', {})
         targets.append((uri, obj_id, old, new))
 
-    try:
-        bucket_info = copy.deepcopy(
-            storage.get("quota", bucket_uri, 'bucket_info'))
-    except RecordNotFoundError:
-        bucket_info = {
-            "collection_count": 0,
-            "record_count": 0,
-            "storage_size": 0,
-        }
+    if action == 'delete' and resource_name == 'bucket':
+        return
+
+    bucket_info = copy.deepcopy(
+        storage.get("bucket", "", bucket_id))
+
+    bucket_info.setdefault('collection_count', 0)
+    bucket_info.setdefault('record_count', 0)
+    bucket_info.setdefault('storage_size', 0)
 
     # Update the bucket quotas values for each impacted record.
     for (uri, obj_id, old, new) in targets:
+        if is_bucket(uri):
+            old = strip_stats_keys(old)
+            new = strip_stats_keys(new)
+
         if action == 'create':
             bucket_info['storage_size'] += record_size(new)
             if resource_name == 'collection':
@@ -106,7 +106,7 @@ def on_resource_changed(event):
                              errno=ERRORS.FORBIDDEN.value,
                              message=HTTPInsufficientStorage.explanation)
 
-    storage.update(parent_id=bucket_uri,
-                   collection_id='quota',
-                   object_id='bucket_info',
+    storage.update(parent_id="",
+                   collection_id='bucket',
+                   object_id=bucket_id,
                    record=bucket_info)
