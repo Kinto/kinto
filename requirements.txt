@@ -7,7 +7,7 @@ functools32==3.2.3.post2
 futures==3.0.5
 iso8601==0.1.11
 jsonschema==2.5.1
-newrelic==2.66.0.49
+newrelic==2.68.0.50
 PasteDeploy==1.5.2
 psycopg2==2.6.2
 pyramid==1.7
