@@ -26,7 +26,8 @@ This document describes changes between each past release.
 - Added ability to plug custom StatsD backend implementations via a new ``kinto.statsd_backend``
   setting. Useful for Datadog™ integration for example (fixes #626).
 - Added a ``delete-collection`` action to the ``kinto`` command. (#727)
-- Added verbosity options to the ``kinto`` command (#745)
+- Added verbosity options to the ``kinto`` command. (#745)
+- Added a quotas plugin. (#752)
 
 **Bug fixes**
 
