@@ -133,6 +133,26 @@ class QuotaListenerTest(QuotaWebTest):
             "storage_size": record_size(self.bucket)
         }
 
+    def test_tracks_collection_delete_with_multiple_records(self):
+        self.create_bucket()
+        self.create_collection()
+        body = {'data': {'foo': 42}}
+        self.app.post_json('%s/records' % self.collection_uri,
+                           body, headers=self.headers)
+        self.app.post_json('%s/records' % self.collection_uri,
+                           body, headers=self.headers)
+        self.app.post_json('%s/records' % self.collection_uri,
+                           body, headers=self.headers)
+        self.app.post_json('%s/records' % self.collection_uri,
+                           body, headers=self.headers)
+        self.app.delete(self.collection_uri, headers=self.headers)
+        resp = self.app.get(self.quota_uri, headers=self.headers)
+        assert resp.json['data'] == {
+            "collection_count": 0,
+            "record_count": 0,
+            "storage_size": record_size(self.bucket)
+        }
+
     #
     # Group
     #
@@ -221,3 +241,29 @@ class QuotaListenerTest(QuotaWebTest):
             "record_count": 0,
             "storage_size": storage_size
         }
+
+    def test_tracks_records_delete_with_multiple_records(self):
+        self.create_bucket()
+        self.create_collection()
+        body = {'data': {'foo': 42}}
+        self.app.post_json('%s/records' % self.collection_uri,
+                           body, headers=self.headers)
+        self.app.post_json('%s/records' % self.collection_uri,
+                           body, headers=self.headers)
+        self.app.post_json('%s/records' % self.collection_uri,
+                           body, headers=self.headers)
+        self.app.post_json('%s/records' % self.collection_uri,
+                           body, headers=self.headers)
+        self.app.delete('%s/records' % self.collection_uri,
+                        headers=self.headers)
+        resp = self.app.get(self.quota_uri, headers=self.headers)
+        storage_size = record_size(self.bucket) + record_size(self.collection)
+        assert resp.json['data'] == {
+            "collection_count": 1,
+            "record_count": 0,
+            "storage_size": storage_size
+        }
+
+
+class QuotaExceededListenerTest(QuotaWebTest):
+    pass

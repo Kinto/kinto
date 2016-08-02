@@ -21,6 +21,14 @@ def on_resource_changed(event):
 
     bucket_id = payload.pop('bucket_id')
     bucket_uri = instance_uri(event.request, 'bucket', id=bucket_id)
+    collection_id = None
+    collection_uri = None
+    if 'collection_id' in payload:
+        collection_id = payload['collection_id']
+        collection_uri = instance_uri(event.request,
+                                      'collection',
+                                      bucket_id=bucket_id,
+                                      id=collection_id)
 
     storage = event.request.registry.storage
 
@@ -72,6 +80,13 @@ def on_resource_changed(event):
             bucket_info['storage_size'] -= record_size(old)
             if resource_name == 'collection':
                 bucket_info['collection_count'] -= 1
+                # When we delete the collection all the records in it
+                # are deleted without notification.
+                collection_records, _ = storage.get_all('record',
+                                                        collection_uri)
+                for r in collection_records:
+                    bucket_info['record_count'] -= 1
+                    bucket_info['storage_size'] -= record_size(r)
             if resource_name == 'record':
                 bucket_info['record_count'] -= 1
 
