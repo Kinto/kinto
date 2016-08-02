@@ -1,27 +1,10 @@
-import mock
-import re
-
-from kinto.tests.support import (BaseWebTest, unittest, get_user_headers)
+from kinto.core.errors import ERRORS
+from kinto.tests.core.support import FormattedErrorMixin
+from kinto.tests.support import BaseWebTest, unittest
 from .utils import record_size
 
 
 class QuotaWebTest(BaseWebTest, unittest.TestCase):
-
-    def get_app_settings(self, extra=None):
-        settings = super(QuotaWebTest, self).get_app_settings(extra)
-        settings['includes'] = 'kinto.plugins.quotas'
-        return settings
-
-
-class HelloViewTest(QuotaWebTest):
-
-    def test_quota_capability_if_enabled(self):
-        resp = self.app.get('/')
-        capabilities = resp.json['capabilities']
-        self.assertIn('quotas', capabilities)
-
-
-class QuotaListenerTest(QuotaWebTest):
 
     bucket_uri = '/buckets/test'
     collection_uri = '/buckets/test/collections/col'
@@ -46,6 +29,22 @@ class QuotaListenerTest(QuotaWebTest):
         body = {'data': {'foo': 42}}
         resp = self.app.put_json(self.record_uri, body, headers=self.headers)
         self.record = resp.json['data']
+
+    def get_app_settings(self, extra=None):
+        settings = super(QuotaWebTest, self).get_app_settings(extra)
+        settings['includes'] = 'kinto.plugins.quotas'
+        return settings
+
+
+class HelloViewTest(QuotaWebTest):
+
+    def test_quota_capability_if_enabled(self):
+        resp = self.app.get('/')
+        capabilities = resp.json['capabilities']
+        self.assertIn('quotas', capabilities)
+
+
+class QuotaListenerTest(QuotaWebTest):
 
     def test_only_get_on_collection_is_allowed(self):
         self.app.post(self.quota_uri, headers=self.headers, status=405)
@@ -265,5 +264,76 @@ class QuotaListenerTest(QuotaWebTest):
         }
 
 
-class QuotaExceededListenerTest(QuotaWebTest):
-    pass
+class QuotaMaxBytesExceededListenerTest(FormattedErrorMixin, QuotaWebTest):
+    def get_app_settings(self, extra=None):
+        settings = super(QuotaMaxBytesExceededListenerTest,
+                         self).get_app_settings(extra)
+        settings['quotas.bucket_max_bytes'] = '150'
+        return settings
+
+    def test_507_is_raised_if_quota_exceeded_on_record_creation(self):
+        self.create_bucket()
+        self.create_collection()
+        self.create_record()
+        body = {'data': {'foo': 42}}
+        resp = self.app.post_json('%s/records' % self.collection_uri,
+                                  body, headers=self.headers, status=507)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            "There was not enough space to save the resource")
+
+        # Check that the storage was not updated.
+        storage_size = record_size(self.bucket)
+        storage_size += record_size(self.collection)
+        storage_size += record_size(self.record)
+        resp = self.app.get(self.quota_uri, headers=self.headers)
+        assert resp.json['data'] == {
+            "collection_count": 1,
+            "record_count": 1,
+            "storage_size": storage_size
+        }
+
+    def test_507_is_raised_if_quota_exceeded_on_collection_creation(self):
+        self.create_bucket()
+        self.create_collection()
+        self.create_record()
+        body = {'data': {'foo': 42}}
+        resp = self.app.post_json('%s/collections' % self.bucket_uri,
+                                  body, headers=self.headers, status=507)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            "There was not enough space to save the resource")
+
+        storage_size = record_size(self.bucket)
+        storage_size += record_size(self.collection)
+        storage_size += record_size(self.record)
+        resp = self.app.get(self.quota_uri, headers=self.headers)
+        assert resp.json['data'] == {
+            "collection_count": 1,
+            "record_count": 1,
+            "storage_size": storage_size
+        }
+
+    def test_507_is_raised_if_quota_exceeded_on_group_creation(self):
+        self.create_bucket()
+        self.create_collection()
+        self.create_record()
+        body = {'data': {'members': ['elle']}}
+        resp = self.app.put_json(self.group_uri, body,
+                                 headers=self.headers, status=507)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            "There was not enough space to save the resource")
+
+        storage_size = record_size(self.bucket)
+        storage_size += record_size(self.collection)
+        storage_size += record_size(self.record)
+        resp = self.app.get(self.quota_uri, headers=self.headers)
+        assert resp.json['data'] == {
+            "collection_count": 1,
+            "record_count": 1,
+            "storage_size": storage_size
+        }

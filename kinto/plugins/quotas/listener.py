@@ -1,5 +1,7 @@
 import copy
 
+from pyramid.httpexceptions import HTTPInsufficientStorage
+from kinto.core.errors import http_error, ERRORS
 from kinto.core.storage.exceptions import RecordNotFoundError
 from kinto.core.utils import instance_uri
 
@@ -19,6 +21,8 @@ def on_resource_changed(event):
     resource_name = payload['resource_name']
     event_uri = payload['uri']
 
+    settings = event.request.registry.settings
+
     bucket_id = payload.pop('bucket_id')
     bucket_uri = instance_uri(event.request, 'bucket', id=bucket_id)
     collection_id = None
@@ -30,6 +34,11 @@ def on_resource_changed(event):
                                       bucket_id=bucket_id,
                                       id=collection_id)
 
+    bucket_max_bytes = settings.get(
+        'quotas.bucket_{}_max_bytes'.format(bucket_id),  # bucket specific
+        settings.get('quotas.bucket_max_bytes', None)  # Global to all buckets
+    )
+
     storage = event.request.registry.storage
 
     if action == 'delete' and resource_name == 'bucket':
@@ -37,7 +46,7 @@ def on_resource_changed(event):
             storage.delete(parent_id=bucket_uri,
                            collection_id='quota',
                            object_id='bucket_info')
-        except RecordNotFoundError:
+        except RecordNotFoundError:  # Pragma: no cover
             pass
         return
 
@@ -57,7 +66,8 @@ def on_resource_changed(event):
         targets.append((uri, obj_id, old, new))
 
     try:
-        bucket_info = storage.get("quota", bucket_uri, 'bucket_info')
+        bucket_info = copy.deepcopy(
+            storage.get("quota", bucket_uri, 'bucket_info'))
     except RecordNotFoundError:
         bucket_info = {
             "collection_count": 0,
@@ -89,6 +99,12 @@ def on_resource_changed(event):
                     bucket_info['storage_size'] -= record_size(r)
             if resource_name == 'record':
                 bucket_info['record_count'] -= 1
+
+    if bucket_max_bytes is not None:
+        if bucket_info['storage_size'] > bucket_max_bytes:
+            raise http_error(HTTPInsufficientStorage(),
+                             errno=ERRORS.FORBIDDEN.value,
+                             message=HTTPInsufficientStorage.explanation)
 
     storage.update(parent_id=bucket_uri,
                    collection_id='quota',
