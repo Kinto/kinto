@@ -7,6 +7,24 @@ from kinto.core.utils import instance_uri
 from .utils import record_size, strip_stats_keys
 
 
+def get_bucket_settings(settings, bucket_id, name):
+    return settings.get(
+        # Bucket specific
+        'quotas.bucket_{}_{}'.format(bucket_id, name),
+        # Global to all buckets
+        settings.get('quotas.bucket_{}'.format(name), None))
+
+
+def get_collection_settings(settings, bucket_id, collection_id, name):
+    return settings.get(
+        # Specific for a given bucket collection
+        'quotas.collection_{}_{}_{}'.format(bucket_id, collection_id, name),
+        # Specific to given bucket collections
+        settings.get('quotas.collection_{}_{}'.format(bucket_id, name),
+                     # Global to all buckets collections
+                     settings.get('quotas.collection_{}'.format(name), None)))
+
+
 def has_stats(uri):
     parts = uri.strip('/').split('/')
     parts_count = len(parts)
@@ -48,18 +66,21 @@ def on_resource_changed(event):
                                       bucket_id=bucket_id,
                                       id=collection_id)
 
-    bucket_max_bytes = settings.get(
-        'quotas.bucket_{}_max_bytes'.format(bucket_id),  # bucket specific
-        settings.get('quotas.bucket_max_bytes', None)  # Global to all buckets
-    )
+    bucket_max_bytes = get_bucket_settings(settings, bucket_id, 'max_bytes')
+    bucket_max_items = get_bucket_settings(settings, bucket_id, 'max_items')
+    bucket_max_bytes_per_item = get_bucket_settings(settings, bucket_id,
+                                                    'max_bytes_per_item')
+    collection_max_bytes = get_collection_settings(settings, bucket_id,
+                                                   collection_id, 'max_bytes')
+    collection_max_items = get_collection_settings(settings, bucket_id,
+                                                   collection_id, 'max_items')
+    collection_max_bytes_per_item = get_collection_settings(
+        settings, bucket_id, collection_id, 'max_bytes_per_item')
 
-    collection_max_bytes = settings.get(
-        # Specific for a collection in a bucket
-        'quotas.collection_{}_{}_max_bytes'.format(bucket_id, collection_id),
-        # Specific to bucket collections
-        settings.get('quotas.collection_{}_max_bytes'.format(bucket_id),
-                     # Global to all buckets
-                     settings.get('quotas.collection_max_bytes', None)))
+    # XXX: Maybe we want to differenciate between
+    #      bucket/collection/records/group payload.
+    max_bytes_per_item = (collection_max_bytes_per_item or
+                          bucket_max_bytes_per_item)
 
     storage = event.request.registry.storage
 
@@ -111,6 +132,12 @@ def on_resource_changed(event):
         old_size = record_size(old)
         new_size = record_size(new)
 
+        if max_bytes_per_item is not None:
+            if new_size > max_bytes_per_item:
+                raise http_error(HTTPInsufficientStorage(),
+                                 errno=ERRORS.FORBIDDEN.value,
+                                 message=HTTPInsufficientStorage.explanation)
+
         if action == 'create':
             bucket_info['storage_size'] += new_size
             if resource_name == 'collection':
@@ -153,8 +180,20 @@ def on_resource_changed(event):
                              errno=ERRORS.FORBIDDEN.value,
                              message=HTTPInsufficientStorage.explanation)
 
+    if bucket_max_items is not None:
+        if bucket_info['record_count'] > bucket_max_items:
+            raise http_error(HTTPInsufficientStorage(),
+                             errno=ERRORS.FORBIDDEN.value,
+                             message=HTTPInsufficientStorage.explanation)
+
     if collection_max_bytes is not None:
         if collection_info['storage_size'] > collection_max_bytes:
+            raise http_error(HTTPInsufficientStorage(),
+                             errno=ERRORS.FORBIDDEN.value,
+                             message=HTTPInsufficientStorage.explanation)
+
+    if collection_max_items is not None:
+        if collection_info['record_count'] > collection_max_items:
             raise http_error(HTTPInsufficientStorage(),
                              errno=ERRORS.FORBIDDEN.value,
                              message=HTTPInsufficientStorage.explanation)
@@ -164,7 +203,8 @@ def on_resource_changed(event):
                    object_id=bucket_id,
                    record=bucket_info)
 
-    if not (resource_name == 'collection' and action == 'delete'):
+    if collection_id and not (resource_name == 'collection' and
+                              action == 'delete'):
         storage.update(parent_id=bucket_uri,
                        collection_id='collection',
                        object_id=collection_id,

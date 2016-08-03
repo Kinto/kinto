@@ -286,7 +286,7 @@ class QuotaListenerTest(QuotaWebTest):
         })
 
 
-class QuotaBucketMixin(object):
+class QuotaBucketRecordMixin(object):
     def test_507_is_raised_if_quota_exceeded_on_record_creation(self):
         self.create_bucket()
         self.create_collection()
@@ -310,6 +310,8 @@ class QuotaBucketMixin(object):
             "storage_size": storage_size
         })
 
+
+class QuotaBucketMixin(object):
     def test_507_is_raised_if_quota_exceeded_on_collection_creation(self):
         self.create_bucket()
         self.create_collection()
@@ -355,22 +357,64 @@ class QuotaBucketMixin(object):
         })
 
 
-class QuotaMaxBytesExceededGlobalSettingsListenerTest(
-        FormattedErrorMixin, QuotaBucketMixin, QuotaWebTest):
+class QuotaMaxBytesExceededSettingsListenerTest(
+        FormattedErrorMixin, QuotaBucketRecordMixin,
+        QuotaBucketMixin, QuotaWebTest):
     def get_app_settings(self, extra=None):
-        settings = super(QuotaMaxBytesExceededGlobalSettingsListenerTest,
+        settings = super(QuotaMaxBytesExceededSettingsListenerTest,
                          self).get_app_settings(extra)
         settings['quotas.bucket_max_bytes'] = '150'
         return settings
 
 
-class QuotaMaxBytesExceededSpecificSettingsListenerTest(
-        FormattedErrorMixin, QuotaBucketMixin, QuotaWebTest):
+class QuotaMaxBytesExceededBucketSettingsListenerTest(
+        FormattedErrorMixin, QuotaBucketRecordMixin,
+        QuotaBucketMixin, QuotaWebTest):
 
     def get_app_settings(self, extra=None):
-        settings = super(QuotaMaxBytesExceededSpecificSettingsListenerTest,
+        settings = super(QuotaMaxBytesExceededBucketSettingsListenerTest,
                          self).get_app_settings(extra)
         settings['quotas.bucket_test_max_bytes'] = '150'
+        return settings
+
+
+class QuotaMaxItemsExceededSettingsListenerTest(
+        FormattedErrorMixin, QuotaBucketRecordMixin, QuotaWebTest):
+    def get_app_settings(self, extra=None):
+        settings = super(QuotaMaxItemsExceededSettingsListenerTest,
+                         self).get_app_settings(extra)
+        settings['quotas.bucket_max_items'] = '1'
+        return settings
+
+
+class QuotaMaxItemsExceededBucketSettingsListenerTest(
+        FormattedErrorMixin, QuotaBucketRecordMixin, QuotaWebTest):
+
+    def get_app_settings(self, extra=None):
+        settings = super(QuotaMaxItemsExceededBucketSettingsListenerTest,
+                         self).get_app_settings(extra)
+        settings['quotas.bucket_test_max_items'] = '1'
+        return settings
+
+
+class QuotaMaxBytesPerItemExceededListenerTest(
+        FormattedErrorMixin, QuotaBucketRecordMixin,
+        QuotaBucketMixin, QuotaWebTest):
+    def get_app_settings(self, extra=None):
+        settings = super(QuotaMaxBytesPerItemExceededListenerTest,
+                         self).get_app_settings(extra)
+        settings['quotas.bucket_max_bytes_per_item'] = '52'
+        return settings
+
+
+class QuotaMaxBytesPerItemExceededBucketListenerTest(
+        FormattedErrorMixin, QuotaBucketRecordMixin,
+        QuotaBucketMixin, QuotaWebTest):
+
+    def get_app_settings(self, extra=None):
+        settings = super(QuotaMaxBytesPerItemExceededBucketListenerTest,
+                         self).get_app_settings(extra)
+        settings['quotas.bucket_test_max_bytes_per_item'] = '52'
         return settings
 
 
@@ -399,33 +443,97 @@ class QuotaCollectionMixin(object):
         })
 
 
-class QuotaMaxBytesExceededCollectionGlobalSettingsListenerTest(
+class QuotaMaxBytesExceededCollectionSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
     def get_app_settings(self, extra=None):
         settings = super(
-            QuotaMaxBytesExceededCollectionGlobalSettingsListenerTest,
+            QuotaMaxBytesExceededCollectionSettingsListenerTest,
             self).get_app_settings(extra)
         settings['quotas.collection_max_bytes'] = '100'
         return settings
 
 
-class QuotaMaxBytesExceededCollectionBucketSpecificSettingsListenerTest(
+class QuotaMaxBytesExceededCollectionBucketSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
 
     def get_app_settings(self, extra=None):
         settings = super(
-            QuotaMaxBytesExceededCollectionBucketSpecificSettingsListenerTest,
+            QuotaMaxBytesExceededCollectionBucketSettingsListenerTest,
             self).get_app_settings(extra)
         settings['quotas.collection_test_max_bytes'] = '100'
         return settings
 
 
-class QuotaMaxBytesExceededBucketCollectionSpecificSettingsListenerTest(
+class QuotaMaxBytesExceededBucketCollectionSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
 
     def get_app_settings(self, extra=None):
         settings = super(
-            QuotaMaxBytesExceededBucketCollectionSpecificSettingsListenerTest,
+            QuotaMaxBytesExceededBucketCollectionSettingsListenerTest,
             self).get_app_settings(extra)
         settings['quotas.collection_test_col_max_bytes'] = '100'
+        return settings
+
+
+class QuotaMaxItemsExceededCollectionSettingsListenerTest(
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+    def get_app_settings(self, extra=None):
+        settings = super(
+            QuotaMaxItemsExceededCollectionSettingsListenerTest,
+            self).get_app_settings(extra)
+        settings['quotas.collection_max_items'] = '1'
+        return settings
+
+
+class QuotaMaxItemsExceededCollectionBucketSettingsListenerTest(
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+
+    def get_app_settings(self, extra=None):
+        settings = super(
+            QuotaMaxItemsExceededCollectionBucketSettingsListenerTest,
+            self).get_app_settings(extra)
+        settings['quotas.collection_test_max_items'] = '1'
+        return settings
+
+
+class QuotaMaxItemsExceededBucketCollectionSettingsListenerTest(
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+
+    def get_app_settings(self, extra=None):
+        settings = super(
+            QuotaMaxItemsExceededBucketCollectionSettingsListenerTest,
+            self).get_app_settings(extra)
+        settings['quotas.collection_test_col_max_items'] = '1'
+        return settings
+
+
+class QuotaMaxBytesPerItemExceededCollectionSettingsListenerTest(
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+    def get_app_settings(self, extra=None):
+        settings = super(
+            QuotaMaxBytesPerItemExceededCollectionSettingsListenerTest,
+            self).get_app_settings(extra)
+        settings['quotas.collection_max_bytes_per_item'] = '80'
+        return settings
+
+
+class QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest(
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+
+    def get_app_settings(self, extra=None):
+        settings = super(
+            QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest,
+            self).get_app_settings(extra)
+        settings['quotas.collection_test_max_bytes_per_item'] = '80'
+        return settings
+
+
+class QuotaMaxBytesPerItemExceededBucketCollectionSettingsListenerTest(
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+
+    def get_app_settings(self, extra=None):
+        settings = super(
+            QuotaMaxBytesPerItemExceededBucketCollectionSettingsListenerTest,
+            self).get_app_settings(extra)
+        settings['quotas.collection_test_col_max_bytes_per_item'] = '80'
         return settings
