@@ -38,7 +38,7 @@ class QuotaWebTest(BaseWebTest, unittest.TestCase):
     def assertStatsEqual(self, response, stats):
         data = response.json['data']
         for key in stats:
-            assert data[key] == stats[key]
+            assert data[key] == stats[key], data
 
 
 class HelloViewTest(QuotaWebTest):
@@ -90,14 +90,27 @@ class QuotaListenerTest(QuotaWebTest):
     #
     # Collection
     #
+    def test_stats_are_not_accessible_if_collection_does_not_exists(self):
+        self.create_bucket()
+        self.app.get(self.collection_uri, headers=self.headers, status=404)
 
     def test_quota_tracks_collection_creation(self):
         self.create_bucket()
         self.create_collection()
+
+        # Bucket stats
         resp = self.app.get(self.quota_uri, headers=self.headers)
         storage_size = record_size(self.bucket) + record_size(self.collection)
         self.assertStatsEqual(resp, {
             "collection_count": 1,
+            "record_count": 0,
+            "storage_size": storage_size
+        })
+
+        # Collection stats
+        resp = self.app.get(self.collection_uri, headers=self.headers)
+        storage_size = record_size(self.collection)
+        self.assertStatsEqual(resp, {
             "record_count": 0,
             "storage_size": storage_size
         })
@@ -108,11 +121,21 @@ class QuotaListenerTest(QuotaWebTest):
         body = {'data': {'foo': 'baz'}}
         resp = self.app.patch_json(self.collection_uri, body,
                                    headers=self.headers)
+        # Bucket stats
         storage_size = record_size(self.bucket)
-        storage_size += record_size(resp.json['data'])
+        storage_size += record_size(strip_stats_keys(resp.json['data']))
+
         resp = self.app.get(self.quota_uri, headers=self.headers)
         self.assertStatsEqual(resp, {
             "collection_count": 1,
+            "record_count": 0,
+            "storage_size": storage_size
+        })
+
+        # Collection stats
+        resp = self.app.get(self.collection_uri, headers=self.headers)
+        storage_size -= record_size(self.bucket)
+        self.assertStatsEqual(resp, {
             "record_count": 0,
             "storage_size": storage_size
         })
@@ -148,7 +171,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.assertStatsEqual(resp, {
             "collection_count": 0,
             "record_count": 0,
-            "storage_size": record_size(self.bucket)
+            "storage_size": record_size(strip_stats_keys(self.bucket))
         })
 
     #
@@ -263,13 +286,7 @@ class QuotaListenerTest(QuotaWebTest):
         })
 
 
-class QuotaMaxBytesExceededListenerTest(FormattedErrorMixin, QuotaWebTest):
-    def get_app_settings(self, extra=None):
-        settings = super(QuotaMaxBytesExceededListenerTest,
-                         self).get_app_settings(extra)
-        settings['quotas.bucket_max_bytes'] = '150'
-        return settings
-
+class QuotaBucketMixin(object):
     def test_507_is_raised_if_quota_exceeded_on_record_creation(self):
         self.create_bucket()
         self.create_collection()
@@ -336,3 +353,79 @@ class QuotaMaxBytesExceededListenerTest(FormattedErrorMixin, QuotaWebTest):
             "record_count": 1,
             "storage_size": storage_size
         })
+
+
+class QuotaMaxBytesExceededGlobalSettingsListenerTest(
+        FormattedErrorMixin, QuotaBucketMixin, QuotaWebTest):
+    def get_app_settings(self, extra=None):
+        settings = super(QuotaMaxBytesExceededGlobalSettingsListenerTest,
+                         self).get_app_settings(extra)
+        settings['quotas.bucket_max_bytes'] = '150'
+        return settings
+
+
+class QuotaMaxBytesExceededSpecificSettingsListenerTest(
+        FormattedErrorMixin, QuotaBucketMixin, QuotaWebTest):
+
+    def get_app_settings(self, extra=None):
+        settings = super(QuotaMaxBytesExceededSpecificSettingsListenerTest,
+                         self).get_app_settings(extra)
+        settings['quotas.bucket_test_max_bytes'] = '150'
+        return settings
+
+
+class QuotaCollectionMixin(object):
+    quota_uri = '/buckets/test/collections/col'
+
+    def test_507_is_raised_if_quota_exceeded_on_record_creation(self):
+        self.create_bucket()
+        self.create_collection()
+        self.create_record()
+        body = {'data': {'foo': 42}}
+        resp = self.app.post_json('%s/records' % self.collection_uri,
+                                  body, headers=self.headers, status=507)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            "There was not enough space to save the resource")
+
+        # Check that the storage was not updated.
+        storage_size = record_size(self.collection)
+        storage_size += record_size(self.record)
+        resp = self.app.get(self.quota_uri, headers=self.headers)
+        self.assertStatsEqual(resp, {
+            "record_count": 1,
+            "storage_size": storage_size
+        })
+
+
+class QuotaMaxBytesExceededCollectionGlobalSettingsListenerTest(
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+    def get_app_settings(self, extra=None):
+        settings = super(
+            QuotaMaxBytesExceededCollectionGlobalSettingsListenerTest,
+            self).get_app_settings(extra)
+        settings['quotas.collection_max_bytes'] = '100'
+        return settings
+
+
+class QuotaMaxBytesExceededCollectionBucketSpecificSettingsListenerTest(
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+
+    def get_app_settings(self, extra=None):
+        settings = super(
+            QuotaMaxBytesExceededCollectionBucketSpecificSettingsListenerTest,
+            self).get_app_settings(extra)
+        settings['quotas.collection_test_max_bytes'] = '100'
+        return settings
+
+
+class QuotaMaxBytesExceededBucketCollectionSpecificSettingsListenerTest(
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+
+    def get_app_settings(self, extra=None):
+        settings = super(
+            QuotaMaxBytesExceededBucketCollectionSpecificSettingsListenerTest,
+            self).get_app_settings(extra)
+        settings['quotas.collection_test_col_max_bytes'] = '100'
+        return settings
