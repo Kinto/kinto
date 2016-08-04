@@ -102,7 +102,7 @@ has been deployed by OPS.
       "name":"kinto",
       "version":"3.3.2",
       "commit":"ab8db089ee63dc8e14f4bcfc427a86f311dd7e52",
-      "source":"https://github.com/Kinto/kinto"
+      "source":"https://github.com/Kinto/kinto.git"
     }
 
 The content of the distribution can be configured by putting a
