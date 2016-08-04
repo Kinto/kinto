@@ -1,10 +1,10 @@
 Changelog
-#########
+=========
 
 This document describes changes between each past release.
 
 3.4.0 (unreleased)
-==================
+------------------
 
 **Breaking changes**
 
@@ -49,7 +49,7 @@ This document describes changes between each past release.
 
 
 3.3.1 (2016-07-19)
-==================
+------------------
 
 **Protocol**
 
@@ -57,7 +57,7 @@ This document describes changes between each past release.
 
 
 3.3.0 (2016-07-18)
-==================
+------------------
 
 **Protocol**
 
@@ -101,7 +101,7 @@ Protocol is now at version **1.8**. See `API changelog`_.
 
 
 3.2.0 (2016-06-14)
-==================
+------------------
 
 **Protocol**
 
@@ -144,7 +144,7 @@ Protocol is now at version **1.7**. See `API changelog`_.
 
 
 3.1.0 (2016-05-24)
-==================
+------------------
 
 **Protocol**
 
@@ -172,7 +172,7 @@ Protocol is now at version **1.6**. See `API changelog`_.
 
 
 3.0.1 (2016-05-20)
-==================
+------------------
 
 **Bug fixes**
 
@@ -181,7 +181,7 @@ Protocol is now at version **1.6**. See `API changelog`_.
 
 
 3.0.0 (2016-05-18)
-==================
+------------------
 
 - Major version update. Merged cliquet into kinto.core. This is
   intended to simplify the experience of people who are new to Kinto.
@@ -214,7 +214,7 @@ Protocol is now at version **1.6**. See `API changelog`_.
 
 
 2.1.1 (2016-04-29)
-==================
+------------------
 
 **Bug fixes**
 
@@ -233,7 +233,7 @@ Protocol is now at version **1.6**. See `API changelog`_.
 
 
 2.1.0 (2016-04-19)
-==================
+------------------
 
 **Bug fixes**
 
@@ -263,7 +263,7 @@ Protocol is now in version **1.5**. See `API changelog`_.
 
 
 2.0.0 (2016-03-08)
-==================
+------------------
 
 **Protocol**
 
@@ -361,7 +361,7 @@ Protocol is now in version **1.4**. See `API changelog`_.
 
 
 1.11.2 (2016-02-03)
-===================
+------------------=
 
 **Bug fixes**
 
@@ -375,7 +375,7 @@ Protocol is now in version **1.4**. See `API changelog`_.
 
 
 1.11.1 (2016-02-01)
-===================
+------------------=
 
 **Bug fixes**
 
@@ -389,7 +389,7 @@ Protocol is now in version **1.4**. See `API changelog`_.
 
 
 1.11.0 (2016-01-28)
-===================
+------------------=
 
 **Protocol**
 
@@ -400,7 +400,7 @@ Protocol is now in version **1.4**. See `API changelog`_.
   root URL (#628). Clients can rely on this to detect optional features on the
   server (e.g. enabled plugins)
 
-Protocol is now version 1.3. See `API changelog <https://kinto.readthedocs.io/en/latest/api/>`_.
+Protocol is now version 1.3. See `API changelog`_.
 
 **New features**
 
@@ -467,7 +467,7 @@ Minor:
 
 
 1.10.1 (2015-12-11)
-===================
+------------------=
 
 **Bug fixes**
 
@@ -480,7 +480,7 @@ Minor:
 
 
 1.10.0 (2015-12-01)
-===================
+------------------=
 
 **Breaking changes**
 
@@ -520,7 +520,7 @@ Changed the naming in the root URL (hello view) (mozilla-services/cliquet#600)
 - Clarified how Kinto is versionned in the documentation (#305)
 
 1.9.0 (2015-11-18)
-==================
+------------------
 
 - Upgraded to *Cliquet* 2.11.0
 
@@ -576,7 +576,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.8.0 (2015-10-30)
-==================
+------------------
 
 - Upgraded to *Cliquet* 2.10.0
 
@@ -610,7 +610,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.7.0 (2015-10-28)
-==================
+------------------
 
 - Upgraded to *Cliquet* 2.9.0
 - Update cliquet-fxa configuration example for cliquet-fxa 1.4.0
@@ -630,7 +630,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 `Please read the full Cliquet 2.9.0 changelog for more information <https://github.com/mozilla-services/cliquet/releases/tag/2.9.0>`_
 
 1.6.2 (2015-10-22)
-==================
+------------------
 
 **Bug fixes**
 
@@ -638,7 +638,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.6.1 (2015-10-22)
-==================
+------------------
 
 - Upgraded to *Cliquet* 2.8.2
 
@@ -655,7 +655,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.6.0 (2015-10-14)
-==================
+------------------
 
 - Upgraded to *Cliquet* 2.8.1
 
@@ -668,13 +668,13 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.5.1 (2015-10-07)
-==================
+------------------
 
 - Upgraded to *Cliquet* 2.7.0
 
 
 1.5.0 (2015-09-23)
-==================
+------------------
 
 - Add Disqus comments to documentation (fixes #159)
 
@@ -695,7 +695,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.4.0 (2015-09-04)
-==================
+------------------
 
 **New features**
 
@@ -732,7 +732,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.3.1 (2015-07-15)
-==================
+------------------
 
 - Upgraded to *Cliquet* 2.3.1
 
@@ -743,7 +743,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.3.0 (2015-07-13)
-==================
+------------------
 
 - Upgraded to *Cliquet* 2.3.0
 
@@ -759,7 +759,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.2.1 (2015-07-08)
-==================
+------------------
 
 - Upgraded to *Cliquet* 2.2.1
 
@@ -777,7 +777,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.2.0 (2015-07-03)
-==================
+------------------
 
 - Upgraded to *Cliquet* 2.2.+
 
@@ -807,7 +807,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.1.0 (2015-06-29)
-==================
+------------------
 
 **New features**
 
@@ -827,7 +827,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 
 
 1.0.0 (2015-06-17)
-==================
+------------------
 
 **New features**
 
@@ -866,7 +866,7 @@ Settings
 
 
 0.2.2 (2015-06-04)
-==================
+------------------
 
 - Upgraded to *cliquet* 1.8.+
 
@@ -887,7 +887,7 @@ Settings
 
 
 0.2.1 (2015-03-25)
-==================
+------------------
 
 - Upgraded to *cliquet* 1.4.1
 
@@ -897,7 +897,7 @@ Settings
 
 
 0.2 (2015-03-24)
-================
+----------------
 
 - Upgraded to *cliquet* 1.4
 
@@ -915,7 +915,7 @@ Settings
 
 
 0.1 (2015-03-20)
-================
+----------------
 
 **Initial version**
 
