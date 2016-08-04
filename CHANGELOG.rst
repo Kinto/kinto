@@ -45,6 +45,7 @@ This document describes changes between each past release.
 - The ``--backend`` command-line option for ``kinto init`` is not accepted as first
   parameter anymore
 - Improved parts of the FAQ (#744)
+- Improve 404 and 403 error handling to make them customizable. (#748)
 
 
 3.3.1 (2016-07-19)

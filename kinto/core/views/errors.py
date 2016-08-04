@@ -1,12 +1,8 @@
-from functools import wraps
-
 from pyramid import httpexceptions
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.settings import asbool
 from pyramid.security import forget, NO_PERMISSION_REQUIRED, Authenticated
-from pyramid.view import (
-    forbidden_view_config, notfound_view_config, view_config
-)
+from pyramid.view import view_config
 
 from kinto.core.errors import http_error, ERRORS
 from kinto.core.logs import logger
@@ -14,23 +10,9 @@ from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.utils import reapply_cors, encode_header
 
 
-def cors(view):
-    """Decorator to make sure CORS headers are correctly processed."""
-
-    @wraps(view)
-    def wrap_view(request, *args, **kwargs):
-        response = view(request, *args, **kwargs)
-
-        # We need to re-apply the CORS checks done by Cornice, since we're
-        # recreating the response from scratch.
-        return reapply_cors(request, response)
-
-    return wrap_view
-
-
-@forbidden_view_config()
-@cors
-def authorization_required(request):
+@view_config(context=httpexceptions.HTTPForbidden,
+             permission=NO_PERMISSION_REQUIRED)
+def authorization_required(response, request):
     """Distinguish authentication required (``401 Unauthorized``) from
     not allowed (``403 Forbidden``).
     """
@@ -42,16 +24,17 @@ def authorization_required(request):
         response.headers.extend(forget(request))
         return response
 
-    error_msg = "This user cannot access this resource."
-    response = http_error(httpexceptions.HTTPForbidden(),
-                          errno=ERRORS.FORBIDDEN,
-                          message=error_msg)
-    return response
+    if response.content_type != "application/json":
+        error_msg = "This user cannot access this resource."
+        response = http_error(httpexceptions.HTTPForbidden(),
+                              errno=ERRORS.FORBIDDEN,
+                              message=error_msg)
+    return reapply_cors(request, response)
 
 
-@notfound_view_config()
-@cors
-def page_not_found(request):
+@view_config(context=httpexceptions.HTTPNotFound,
+             permission=NO_PERMISSION_REQUIRED)
+def page_not_found(response, request):
     """Return a JSON 404 error response."""
     config_key = 'trailing_slash_redirect_enabled'
     redirect_enabled = request.registry.settings[config_key]
@@ -78,12 +61,13 @@ def page_not_found(request):
             redirect = '/%s/%s' % (request.registry.route_prefix, querystring)
 
         if redirect:
-            return HTTPTemporaryRedirect(redirect)
+            return reapply_cors(request, HTTPTemporaryRedirect(redirect))
 
-    response = http_error(httpexceptions.HTTPNotFound(),
-                          errno=errno,
-                          message=error_msg)
-    return response
+    if response.content_type != "application/json":
+        response = http_error(httpexceptions.HTTPNotFound(),
+                              errno=errno,
+                              message=error_msg)
+    return reapply_cors(request, response)
 
 
 @view_config(context=httpexceptions.HTTPServiceUnavailable,
