@@ -34,14 +34,14 @@ def on_resource_changed(event):
 
     If a new object override the quotas, we reject the request.
     """
-    payload = copy.deepcopy(event.payload)
+    payload = event.payload
     action = payload['action']
     resource_name = payload['resource_name']
     event_uri = payload['uri']
 
     settings = event.request.registry.settings
 
-    bucket_id = payload.pop('bucket_id')
+    bucket_id = payload['bucket_id']
     bucket_uri = instance_uri(event.request, 'bucket', id=bucket_id)
     collection_id = None
     collection_uri = None
