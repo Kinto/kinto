@@ -1,7 +1,7 @@
 from kinto.core.errors import ERRORS
 from kinto.tests.core.support import FormattedErrorMixin
 from kinto.tests.support import BaseWebTest, unittest
-from .utils import record_size, strip_stats_keys
+from .utils import record_size
 
 
 class QuotaWebTest(BaseWebTest, unittest.TestCase):
@@ -10,15 +10,14 @@ class QuotaWebTest(BaseWebTest, unittest.TestCase):
     collection_uri = '/buckets/test/collections/col'
     record_uri = '/buckets/test/collections/col/records/rec'
     group_uri = '/buckets/test/groups/grp'
-    quota_uri = '/buckets/test'
 
     def create_bucket(self):
         resp = self.app.put(self.bucket_uri, headers=self.headers)
-        self.bucket = strip_stats_keys(resp.json['data'])
+        self.bucket = resp.json['data']
 
     def create_collection(self):
         resp = self.app.put(self.collection_uri, headers=self.headers)
-        self.collection = strip_stats_keys(resp.json['data'])
+        self.collection = resp.json['data']
 
     def create_group(self):
         body = {'data': {'members': ['elle']}}
@@ -35,10 +34,9 @@ class QuotaWebTest(BaseWebTest, unittest.TestCase):
         settings['includes'] = 'kinto.plugins.quotas'
         return settings
 
-    def assertStatsEqual(self, response, stats):
-        data = response.json['data']
+    def assertStatsEqual(self, data, stats):
         for key in stats:
-            assert data[key] == stats[key], data
+            assert data[key] == stats[key]
 
 
 class HelloViewTest(QuotaWebTest):
@@ -54,18 +52,15 @@ class QuotaListenerTest(QuotaWebTest):
     #
     # Bucket
     #
-    def test_stats_are_not_accessible_if_bucket_does_not_exists(self):
-        self.app.get(self.quota_uri, headers=self.headers, status=403)
-
     def test_quota_tracks_bucket_creation(self):
         self.create_bucket()
         self.create_collection()
         self.create_record()
-        resp = self.app.get(self.quota_uri, headers=self.headers)
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 1,
             "record_count": 1,
             "storage_size": storage_size
@@ -78,11 +73,11 @@ class QuotaListenerTest(QuotaWebTest):
         body = {'data': {'foo': 'baz'}}
         resp = self.app.patch_json(self.bucket_uri, body,
                                    headers=self.headers)
-        storage_size = record_size(strip_stats_keys(resp.json['data']))
+        storage_size = record_size(resp.json['data'])
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
-        resp = self.app.get(self.quota_uri, headers=self.headers)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 1,
             "record_count": 1,
             "storage_size": storage_size
@@ -91,9 +86,8 @@ class QuotaListenerTest(QuotaWebTest):
     def test_bucket_delete_destroys_its_quota_entries(self):
         self.create_bucket()
         self.app.delete(self.bucket_uri, headers=self.headers)
-        storage = self.app.app.registry.storage
-        stored_in_backend, _ = storage.get_all(parent_id='/buckets/test',
-                                               collection_id='quota')
+        stored_in_backend, _ = self.storage.get_all(parent_id='/buckets/test',
+                                                    collection_id='quota')
         assert len(stored_in_backend) == 0
 
     #
@@ -108,18 +102,19 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_collection()
 
         # Bucket stats
-        resp = self.app.get(self.quota_uri, headers=self.headers)
         storage_size = record_size(self.bucket) + record_size(self.collection)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 1,
             "record_count": 0,
             "storage_size": storage_size
         })
 
         # Collection stats
-        resp = self.app.get(self.collection_uri, headers=self.headers)
         storage_size = record_size(self.collection)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.collection_uri,
+                                "collection_info")
+        self.assertStatsEqual(data, {
             "record_count": 0,
             "storage_size": storage_size
         })
@@ -132,19 +127,20 @@ class QuotaListenerTest(QuotaWebTest):
                                    headers=self.headers)
         # Bucket stats
         storage_size = record_size(self.bucket)
-        storage_size += record_size(strip_stats_keys(resp.json['data']))
+        storage_size += record_size(resp.json['data'])
 
-        resp = self.app.get(self.quota_uri, headers=self.headers)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 1,
             "record_count": 0,
             "storage_size": storage_size
         })
 
         # Collection stats
-        resp = self.app.get(self.collection_uri, headers=self.headers)
         storage_size -= record_size(self.bucket)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.collection_uri,
+                                "collection_info")
+        self.assertStatsEqual(data, {
             "record_count": 0,
             "storage_size": storage_size
         })
@@ -156,8 +152,8 @@ class QuotaListenerTest(QuotaWebTest):
         self.app.patch_json(self.collection_uri, body,
                             headers=self.headers)
         self.app.delete(self.collection_uri, headers=self.headers)
-        resp = self.app.get(self.quota_uri, headers=self.headers)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 0,
             "record_count": 0,
             "storage_size": record_size(self.bucket)
@@ -176,8 +172,8 @@ class QuotaListenerTest(QuotaWebTest):
         self.app.post_json('%s/records' % self.collection_uri,
                            body, headers=self.headers)
         self.app.delete(self.collection_uri, headers=self.headers)
-        resp = self.app.get(self.quota_uri, headers=self.headers)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 0,
             "record_count": 0,
             "storage_size": record_size(self.bucket)
@@ -190,9 +186,9 @@ class QuotaListenerTest(QuotaWebTest):
     def test_quota_tracks_group_creation(self):
         self.create_bucket()
         self.create_group()
-        resp = self.app.get(self.quota_uri, headers=self.headers)
         storage_size = record_size(self.bucket) + record_size(self.group)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 0,
             "record_count": 0,
             "storage_size": storage_size
@@ -206,8 +202,8 @@ class QuotaListenerTest(QuotaWebTest):
                                    headers=self.headers)
         storage_size = record_size(self.bucket)
         storage_size += record_size(resp.json['data'])
-        resp = self.app.get(self.quota_uri, headers=self.headers)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 0,
             "record_count": 0,
             "storage_size": storage_size
@@ -217,8 +213,8 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_bucket()
         self.create_group()
         self.app.delete(self.group_uri, headers=self.headers)
-        resp = self.app.get(self.quota_uri, headers=self.headers)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 0,
             "record_count": 0,
             "storage_size": record_size(self.bucket)
@@ -232,11 +228,11 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_bucket()
         self.create_collection()
         self.create_record()
-        resp = self.app.get(self.quota_uri, headers=self.headers)
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 1,
             "record_count": 1,
             "storage_size": storage_size
@@ -251,8 +247,8 @@ class QuotaListenerTest(QuotaWebTest):
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(resp.json['data'])
-        resp = self.app.get(self.quota_uri, headers=self.headers)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 1,
             "record_count": 1,
             "storage_size": storage_size
@@ -263,10 +259,10 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_collection()
         self.create_record()
         self.app.delete(self.record_uri, headers=self.headers)
-        resp = self.app.get(self.quota_uri, headers=self.headers)
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 1,
             "record_count": 0,
             "storage_size": storage_size
@@ -286,9 +282,9 @@ class QuotaListenerTest(QuotaWebTest):
                            body, headers=self.headers)
         self.app.delete('%s/records' % self.collection_uri,
                         headers=self.headers)
-        resp = self.app.get(self.quota_uri, headers=self.headers)
         storage_size = record_size(self.bucket) + record_size(self.collection)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 1,
             "record_count": 0,
             "storage_size": storage_size
@@ -312,8 +308,8 @@ class QuotaBucketRecordMixin(object):
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
-        resp = self.app.get(self.quota_uri, headers=self.headers)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 1,
             "record_count": 1,
             "storage_size": storage_size
@@ -336,8 +332,8 @@ class QuotaBucketMixin(object):
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
-        resp = self.app.get(self.quota_uri, headers=self.headers)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 1,
             "record_count": 1,
             "storage_size": storage_size
@@ -358,8 +354,8 @@ class QuotaBucketMixin(object):
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
-        resp = self.app.get(self.quota_uri, headers=self.headers)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
             "collection_count": 1,
             "record_count": 1,
             "storage_size": storage_size
@@ -428,8 +424,6 @@ class QuotaMaxBytesPerItemExceededBucketListenerTest(
 
 
 class QuotaCollectionMixin(object):
-    quota_uri = '/buckets/test/collections/col'
-
     def test_507_is_raised_if_quota_exceeded_on_record_creation(self):
         self.create_bucket()
         self.create_collection()
@@ -445,8 +439,9 @@ class QuotaCollectionMixin(object):
         # Check that the storage was not updated.
         storage_size = record_size(self.collection)
         storage_size += record_size(self.record)
-        resp = self.app.get(self.quota_uri, headers=self.headers)
-        self.assertStatsEqual(resp, {
+        data = self.storage.get("quota", self.collection_uri,
+                                "collection_info")
+        self.assertStatsEqual(data, {
             "record_count": 1,
             "storage_size": storage_size
         })

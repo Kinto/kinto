@@ -2,9 +2,10 @@ import copy
 
 from pyramid.httpexceptions import HTTPInsufficientStorage
 from kinto.core.errors import http_error, ERRORS
+from kinto.core.storage.exceptions import RecordNotFoundError
 from kinto.core.utils import instance_uri
 
-from .utils import record_size, strip_stats_keys
+from .utils import record_size
 
 
 def get_bucket_settings(settings, bucket_id, name):
@@ -25,19 +26,6 @@ def get_collection_settings(settings, bucket_id, collection_id, name):
                      settings.get('quotas.collection_{}'.format(name), None)))
 
 
-def has_stats(uri):
-    parts = uri.strip('/').split('/')
-    parts_count = len(parts)
-    # Is a bucket
-    if parts_count == 2 and parts[0] == 'buckets':
-        return True
-    # Is a collection
-    if (parts_count == 4 and parts[0] == 'buckets' and
-            parts[2] == 'collections'):
-        return True
-    return False
-
-
 def on_resource_changed(event):
     """
     Everytime an object is created/changed/deleted, we update the
@@ -54,9 +42,7 @@ def on_resource_changed(event):
     settings = event.request.registry.settings
 
     bucket_id = payload.pop('bucket_id')
-    bucket_uri = instance_uri(event.request,
-                              'bucket',
-                              id=bucket_id)
+    bucket_uri = instance_uri(event.request, 'bucket', id=bucket_id)
     collection_id = None
     collection_uri = None
     if 'collection_id' in payload:
@@ -84,6 +70,20 @@ def on_resource_changed(event):
 
     storage = event.request.registry.storage
 
+    if action == 'delete' and resource_name == 'bucket':
+        try:
+            storage.delete(parent_id=bucket_uri,
+                           collection_id='quota',
+                           object_id='bucket_info')
+        except RecordNotFoundError:  # Pragma: no cover
+            pass
+
+        collection_pattern = instance_uri(event.request, 'collection',
+                                          bucket_id=bucket_id, id='*')
+        storage.delete_all(parent_id=collection_pattern,
+                           collection_id='quota')
+        return
+
     targets = []
     for impacted in event.impacted_records:
         target = impacted['new' if action != 'delete' else 'old']
@@ -99,36 +99,29 @@ def on_resource_changed(event):
         new = impacted.get('new', {})
         targets.append((uri, obj_id, old, new))
 
-    if action == 'delete' and resource_name == 'bucket':
-        # In that case, metadata are already deleted with the bucket.
-        return
+    try:
+        bucket_info = copy.deepcopy(
+            storage.get("quota", bucket_uri, 'bucket_info'))
+    except RecordNotFoundError:
+        bucket_info = {
+            "collection_count": 0,
+            "record_count": 0,
+            "storage_size": 0,
+        }
 
-    bucket_info = copy.deepcopy(
-        storage.get("bucket", "", bucket_id))
-
-    bucket_info.setdefault('collection_count', 0)
-    bucket_info.setdefault('record_count', 0)
-    bucket_info.setdefault('storage_size', 0)
-
-    if collection_id and not (
-            resource_name == 'collection' and action == 'delete'):
-        collection_info = copy.deepcopy(
-            storage.get("collection", bucket_uri, collection_id))
-        if collection_id and resource_name == 'collection':
-            collection_info.update(event.request.response.json['data'])
-
-    else:
-        collection_info = {}
-
-    collection_info.setdefault('record_count', 0)
-    collection_info.setdefault('storage_size', 0)
+    collection_info = {
+        "record_count": 0,
+        "storage_size": 0,
+    }
+    if collection_id:
+        try:
+            collection_info = copy.deepcopy(
+                storage.get("quota", collection_uri, 'collection_info'))
+        except RecordNotFoundError:
+            pass
 
     # Update the bucket quotas values for each impacted record.
     for (uri, obj_id, old, new) in targets:
-        if has_stats(uri):
-            old = strip_stats_keys(old)
-            new = strip_stats_keys(new)
-
         old_size = record_size(old)
         new_size = record_size(new)
 
@@ -198,14 +191,22 @@ def on_resource_changed(event):
                              errno=ERRORS.FORBIDDEN.value,
                              message=HTTPInsufficientStorage.explanation)
 
-    storage.update(parent_id="",
-                   collection_id='bucket',
-                   object_id=bucket_id,
+    storage.update(parent_id=bucket_uri,
+                   collection_id='quota',
+                   object_id='bucket_info',
                    record=bucket_info)
 
-    if collection_id and not (resource_name == 'collection' and
-                              action == 'delete'):
-        storage.update(parent_id=bucket_uri,
-                       collection_id='collection',
-                       object_id=collection_id,
-                       record=collection_info)
+    if collection_id:
+        if action == 'delete' and resource_name == 'collection':
+            try:
+                storage.delete(parent_id=collection_uri,
+                               collection_id='quota',
+                               object_id='collection_info')
+            except RecordNotFoundError:  # Pragma: no cover
+                pass
+            return
+        else:
+            storage.update(parent_id=collection_uri,
+                           collection_id='quota',
+                           object_id='collection_info',
+                           record=collection_info)
