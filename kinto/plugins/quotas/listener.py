@@ -75,7 +75,7 @@ def on_resource_changed(event):
             storage.delete(parent_id=bucket_uri,
                            collection_id='quota',
                            object_id='bucket_info')
-        except RecordNotFoundError:  # Pragma: no cover
+        except RecordNotFoundError:
             pass
 
         collection_pattern = instance_uri(event.request, 'collection',
@@ -202,7 +202,7 @@ def on_resource_changed(event):
                 storage.delete(parent_id=collection_uri,
                                collection_id='quota',
                                object_id='collection_info')
-            except RecordNotFoundError:  # Pragma: no cover
+            except RecordNotFoundError:
                 pass
             return
         else:

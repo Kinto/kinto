@@ -90,6 +90,13 @@ class QuotaListenerTest(QuotaWebTest):
                                                     collection_id='quota')
         assert len(stored_in_backend) == 0
 
+    def test_bucket_delete_doesnt_raise_if_quota_entries_do_not_exist(self):
+        self.create_bucket()
+        self.storage.delete(parent_id='/buckets/test',
+                            collection_id='quota',
+                            object_id='bucket_info')
+        self.app.delete(self.bucket_uri, headers=self.headers)
+
     #
     # Collection
     #
@@ -158,6 +165,23 @@ class QuotaListenerTest(QuotaWebTest):
             "record_count": 0,
             "storage_size": record_size(self.bucket)
         })
+
+    def test_collection_delete_destroys_its_quota_entries(self):
+        self.create_bucket()
+        self.create_collection()
+        self.app.delete(self.collection_uri, headers=self.headers)
+        stored_in_backend, _ = self.storage.get_all(
+            parent_id=self.collection_uri,
+            collection_id='quota')
+        assert len(stored_in_backend) == 0
+
+    def test_collection_delete_doesnt_raise_if_quota_entries_dont_exist(self):
+        self.create_bucket()
+        self.create_collection()
+        self.storage.delete(parent_id=self.collection_uri,
+                            collection_id='quota',
+                            object_id='collection_info')
+        self.app.delete(self.collection_uri, headers=self.headers)
 
     def test_tracks_collection_delete_with_multiple_records(self):
         self.create_bucket()
