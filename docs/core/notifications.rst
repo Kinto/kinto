@@ -142,7 +142,7 @@ without using `config.add_event_subscriber()` explicitely.
 Currently, a simple built-in listener is available, that just delivers the
 events into a Redis queue, allowing asynchronous event handling:
 
-.. autoclass:: kinto.core.listeners.redis.Listener
+.. autoclass:: kinto_redis.listeners.Listener
 
 To activate it, look at :ref:`the dedicated configuration <configuring-notifications>`.
 

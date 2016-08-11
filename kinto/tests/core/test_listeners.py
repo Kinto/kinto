@@ -1,173 +1,15 @@
-# -*- coding: utf-8 -*-
-import json
+import mock
 import os
 import uuid
-from datetime import datetime
-from contextlib import contextmanager
-
-import mock
 from pyramid import testing
 
 from kinto.core import initialization
 from kinto.core.events import ResourceChanged, ResourceRead, ACTIONS
 from kinto.core.listeners import ListenerBase
-from kinto.tests.core.support import unittest
 
-from kinto_redis.storage import create_from_config
-
-
-class ListenerSetupTest(unittest.TestCase):
-    def setUp(self):
-        redis_patch = mock.patch('kinto.core.listeners.redis.load_from_config')
-        self.addCleanup(redis_patch.stop)
-        self.redis_mocked = redis_patch.start()
-
-    def make_app(self, extra_settings={}):
-        settings = {
-            'event_listeners': 'kinto.core.listeners.redis',
-        }
-        settings.update(**extra_settings)
-        config = testing.setUp(settings=settings)
-        config.commit()
-        initialization.setup_listeners(config)
-        return config
-
-    def test_listener_module_is_specified_via_settings(self):
-        self.make_app({
-            'event_listeners': 'redis',
-            'event_listeners.redis.use': 'kinto.core.listeners.redis',
-        })
-        self.assertTrue(self.redis_mocked.called)
-
-    def test_listener_module_can_be_specified_via_listeners_list(self):
-        self.make_app()
-        self.assertTrue(self.redis_mocked.called)
-
-    def test_callback_called_when_action_is_not_filtered(self):
-        config = self.make_app()
-        ev = ResourceChanged({'action': ACTIONS.CREATE.value}, [], Request())
-        config.registry.notify(ev)
-
-        self.assertTrue(self.redis_mocked.return_value.called)
-
-    def test_callback_is_not_called_when_action_is_filtered(self):
-        config = self.make_app({
-            'event_listeners.redis.actions': 'delete',
-        })
-        ev = ResourceChanged({'action': ACTIONS.CREATE.value}, [], Request())
-        config.registry.notify(ev)
-
-        self.assertFalse(self.redis_mocked.return_value.called)
-
-    def test_callback_called_when_resource_is_not_filtered(self):
-        config = self.make_app()
-        event = ResourceChanged({'action': ACTIONS.CREATE.value,
-                                 'resource_name': 'mushroom'}, [], Request())
-        config.registry.notify(event)
-
-        self.assertTrue(self.redis_mocked.return_value.called)
-
-    def test_callback_is_not_called_when_resource_is_filtered(self):
-        config = self.make_app({
-            'event_listeners.redis.resources': 'toad',
-        })
-        event = ResourceChanged({'action': ACTIONS.CREATE.value,
-                                 'resource_name': 'mushroom'}, [], Request())
-        config.registry.notify(event)
-
-        self.assertFalse(self.redis_mocked.return_value.called)
-
-    def test_callback_is_not_called_on_read_by_default(self):
-        config = self.make_app()
-        event = ResourceRead({'action': ACTIONS.READ.value}, [], Request())
-        config.registry.notify(event)
-
-        self.assertFalse(self.redis_mocked.return_value.called)
-
-    def test_callback_is_called_on_read_if_specified(self):
-        config = self.make_app({
-            'event_listeners.redis.actions': 'read',
-        })
-        event = ResourceRead({'action': ACTIONS.READ.value}, [], Request())
-        config.registry.notify(event)
-
-        self.assertTrue(self.redis_mocked.return_value.called)
-
-    def test_same_callback_is_called_for_read_and_write_specified(self):
-        config = self.make_app({
-            'event_listeners.redis.actions': 'read create delete',
-        })
-        ev = ResourceRead({'action': ACTIONS.READ.value}, [], Request())
-        config.registry.notify(ev)
-        ev = ResourceChanged({'action': ACTIONS.CREATE.value}, [], Request())
-        config.registry.notify(ev)
-
-        self.assertEqual(self.redis_mocked.return_value.call_count, 2)
-
-    def test_loading_can_read_configuration_from_environment(self):
-        environ = {
-            "KINTO_EVENT_LISTENERS": "kvstore",
-            "KINTO_EVENT_LISTENERS_KVSTORE_USE": "kinto.core.listeners.redis",
-            "KINTO_EVENT_LISTENERS_KVSTORE_URL": "redis://redis:6379/0",
-            "KINTO_EVENT_LISTENERS_KVSTORE_POOL_SIZE": "5",
-            "KINTO_EVENT_LISTENERS_KVSTORE_LISTNAME": "queue",
-            "KINTO_EVENT_LISTENERS_KVSTORE_ACTIONS": "delete",
-            "KINTO_EVENT_LISTENERS_KVSTORE_RESOURCES": "toad",
-        }
-        os.environ.update(**environ)
-
-        config = self.make_app({
-            # With real/full initialization, these should not be necessary:
-            'project_name': 'kinto',
-            'event_listeners': 'kvstore'
-        })
-
-        # Listener is instantiated.
-        self.assertTrue(self.redis_mocked.called)
-
-        # Action filtering is read from ENV.
-        event = ResourceChanged({'action': ACTIONS.DELETE.value,
-                                 'resource_name': 'toad'}, [], Request())
-        config.registry.notify(event)
-        self.assertTrue(self.redis_mocked.return_value.called)
-
-        self.redis_mocked.reset_mock()
-
-        # Action filtering is read from ENV.
-        event = ResourceChanged({'action': ACTIONS.CREATE.value},
-                                [], Request())
-        config.registry.notify(event)
-        self.assertFalse(self.redis_mocked.return_value.called)
-
-        # Resource filtering is read from ENV.
-        event = ResourceChanged({'action': ACTIONS.CREATE.value,
-                                 'resource_name': 'mushroom'}, [], Request())
-        config.registry.notify(event)
-        self.assertFalse(self.redis_mocked.return_value.called)
-
-        # Clean-up.
-        for k in environ.keys():
-            os.environ.pop(k)
-
-
-@contextmanager
-def broken_redis():
-    from redis import StrictRedis
-    old = StrictRedis.lpush
-
-    def push(*args, **kwargs):
-        raise Exception('boom')
-
-    StrictRedis.lpush = push
-    yield
-    StrictRedis.lpush = old
+from .support import unittest
 
 UID = str(uuid.uuid4())
-
-
-class Resource(object):
-    record_id = UID
-    timestamp = 123456789
 
 
 class ViewSet(object):
@@ -192,73 +34,158 @@ class Request(object):
     current_resource_name = 'bucket'
 
 
-class ListenerCalledTest(unittest.TestCase):
-
+class ListenerSetupTest(unittest.TestCase):
     def setUp(self):
-        self.config = testing.setUp()
-        self.config.add_settings({'events_pool_size': 1,
-                                  'events_url': 'redis://localhost:6379/0'})
-        self._redis = create_from_config(self.config, prefix='events_')
-        self._size = 0
+        demo_patch = mock.patch('kinto.tests.core.listeners.load_from_config')
+        self.addCleanup(demo_patch.stop)
+        self.demo_mocked = demo_patch.start()
 
-        self.sample_event = ResourceChanged({'action': ACTIONS.CREATE.value},
-                                            [],
-                                            Request())
+    def make_app(self, extra_settings={}):
+        settings = {
+            'event_listeners': 'kinto.tests.core.listeners',
+        }
+        settings.update(**extra_settings)
+        config = testing.setUp(settings=settings)
+        config.commit()
+        initialization.setup_listeners(config)
+        return config
 
-    def _save_redis(self):
-        self._size = self._redis.llen('kinto.core.events')
+    def test_listener_module_is_specified_via_settings(self):
+        self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'kinto.tests.core.listeners',
+        })
+        self.assertTrue(self.demo_mocked.called)
 
-    def has_redis_changed(self):
-        return self._redis.llen('kinto.core.events') > self._size
+    def test_listener_module_can_be_specified_via_listeners_list(self):
+        self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'kinto.tests.core.listeners',
+        })
+        self.assertTrue(self.demo_mocked.called)
 
-    def notify(self, event):
-        self._save_redis()
-        self.config.registry.notify(event)
+    def test_callback_called_when_action_is_not_filtered(self):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'kinto.tests.core.listeners',
+        })
+        ev = ResourceChanged({'action': ACTIONS.CREATE.value}, [], Request())
+        config.registry.notify(ev)
 
-    @contextmanager
-    def redis_listening(self):
-        config = self.config
-        listener = 'kinto.core.listeners.redis'
+        self.assertTrue(self.demo_mocked.return_value.called)
 
-        # setting up the redis listener
-        with mock.patch.dict(config.registry.settings,
-                             [('event_listeners', listener),
-                              ('event_listeners.redis.pool_size', '1')]):
-            initialization.setup_listeners(config)
-            config.commit()
-            yield
+    def test_callback_is_not_called_when_action_is_filtered(self):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'kinto.tests.core.listeners',
+            'event_listeners.demo.actions': 'delete',
+        })
+        ev = ResourceChanged({'action': ACTIONS.CREATE.value}, [], Request())
+        config.registry.notify(ev)
 
-    def test_redis_is_notified(self):
-        with self.redis_listening():
-            # let's trigger an event
-            self.notify(self.sample_event)
-            self.assertTrue(self.has_redis_changed())
+        self.assertFalse(self.demo_mocked.return_value.called)
 
-        # okay, we should have the first event in Redis
-        last = self._redis.lpop('kinto.core.events')
-        last = json.loads(last.decode('utf8'))
-        self.assertEqual(last['action'], ACTIONS.CREATE.value)
+    def test_callback_called_when_resource_is_not_filtered(self):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'kinto.tests.core.listeners',
+        })
+        event = ResourceChanged({'action': ACTIONS.CREATE.value,
+                                 'resource_name': 'mushroom'}, [], Request())
+        config.registry.notify(event)
 
-    def test_notification_is_broken(self):
-        with self.redis_listening():
-            # an event with a bad JSON should silently break and send nothing
-            # date time objects cannot be dumped
-            event2 = ResourceChanged({'action': ACTIONS.CREATE.value,
-                                      'somedate': datetime.now()},
-                                     [],
-                                     Request())
-            self.notify(event2)
-            self.assertFalse(self.has_redis_changed())
+        self.assertTrue(self.demo_mocked.return_value.called)
 
-    def test_redis_is_broken(self):
-        with self.redis_listening():
-            # if the redis call fails, same deal: we should ignore it
-            self._save_redis()
+    def test_callback_is_not_called_when_resource_is_filtered(self):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'kinto.tests.core.listeners',
+            'event_listeners.demo.resources': 'toad',
+        })
+        event = ResourceChanged({'action': ACTIONS.CREATE.value,
+                                 'resource_name': 'mushroom'}, [], Request())
+        config.registry.notify(event)
 
-            with broken_redis():
-                self.config.registry.notify(self.sample_event)
+        self.assertFalse(self.demo_mocked.return_value.called)
 
-            self.assertFalse(self.has_redis_changed())
+    def test_callback_is_not_called_on_read_by_default(self):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'kinto.tests.core.listeners',
+        })
+        event = ResourceRead({'action': ACTIONS.READ.value}, [], Request())
+        config.registry.notify(event)
+
+        self.assertFalse(self.demo_mocked.return_value.called)
+
+    def test_callback_is_called_on_read_if_specified(self):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'kinto.tests.core.listeners',
+            'event_listeners.demo.actions': 'read',
+        })
+        event = ResourceRead({'action': ACTIONS.READ.value}, [], Request())
+        config.registry.notify(event)
+
+        self.assertTrue(self.demo_mocked.return_value.called)
+
+    def test_same_callback_is_called_for_read_and_write_specified(self):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'kinto.tests.core.listeners',
+            'event_listeners.demo.actions': 'read create delete',
+        })
+        ev = ResourceRead({'action': ACTIONS.READ.value}, [], Request())
+        config.registry.notify(ev)
+        ev = ResourceChanged({'action': ACTIONS.CREATE.value}, [], Request())
+        config.registry.notify(ev)
+
+        self.assertEqual(self.demo_mocked.return_value.call_count, 2)
+
+    def test_loading_can_read_configuration_from_environment(self):
+        environ = {
+            "KINTO_EVENT_LISTENERS": "kvstore",
+            "KINTO_EVENT_LISTENERS_KVSTORE_USE": "kinto.tests.core.listeners",
+            "KINTO_EVENT_LISTENERS_KVSTORE_URL": "demo://demo:6379/0",
+            "KINTO_EVENT_LISTENERS_KVSTORE_POOL_SIZE": "5",
+            "KINTO_EVENT_LISTENERS_KVSTORE_LISTNAME": "queue",
+            "KINTO_EVENT_LISTENERS_KVSTORE_ACTIONS": "delete",
+            "KINTO_EVENT_LISTENERS_KVSTORE_RESOURCES": "toad",
+        }
+        os.environ.update(**environ)
+
+        config = self.make_app({
+            # With real/full initialization, these should not be necessary:
+            'project_name': 'kinto',
+            'event_listeners': 'kvstore'
+        })
+
+        # Listener is instantiated.
+        self.assertTrue(self.demo_mocked.called)
+
+        # Action filtering is read from ENV.
+        event = ResourceChanged({'action': ACTIONS.DELETE.value,
+                                 'resource_name': 'toad'}, [], Request())
+        config.registry.notify(event)
+        self.assertTrue(self.demo_mocked.return_value.called)
+
+        self.demo_mocked.reset_mock()
+
+        # Action filtering is read from ENV.
+        event = ResourceChanged({'action': ACTIONS.CREATE.value},
+                                [], Request())
+        config.registry.notify(event)
+        self.assertFalse(self.demo_mocked.return_value.called)
+
+        # Resource filtering is read from ENV.
+        event = ResourceChanged({'action': ACTIONS.CREATE.value,
+                                 'resource_name': 'mushroom'}, [], Request())
+        config.registry.notify(event)
+        self.assertFalse(self.demo_mocked.return_value.called)
+
+        # Clean-up.
+        for k in environ.keys():
+            os.environ.pop(k)
 
 
 class ListenerBaseTest(unittest.TestCase):

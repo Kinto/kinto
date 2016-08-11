@@ -254,7 +254,7 @@ In configuration, we setup the listener to post the message to a queue named
 
     kinto.event_listeners = redis
 
-    kinto.event_listeners.redis.use = kinto.core.listeners.redis
+    kinto.event_listeners.redis.use = kinto_redis.listeners
     kinto.event_listeners.redis.url = redis://localhost:6379/0
     kinto.event_listeners.redis.pool_size = 5
     kinto.event_listeners.redis.listname = eventqueue
