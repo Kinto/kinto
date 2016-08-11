@@ -389,7 +389,10 @@ class QuotaBucketUpdateMixin(object):
     def test_507_is_raised_if_quota_exceeded_on_group_update(self):
         self.create_bucket()
         self.create_collection()
-        self.create_record()
+        body = {'data': {'members': []}}
+        resp = self.app.put_json(self.group_uri, body,
+                                 headers=self.headers)
+        group = resp.json['data']
         body = {'data': {'members': ['elle', 'lui', 'je', 'tu', 'il', 'nous',
                                      'vous', 'ils', 'elles']}}
         resp = self.app.put_json(self.group_uri, body,
@@ -401,11 +404,67 @@ class QuotaBucketUpdateMixin(object):
 
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
-        storage_size += record_size(self.record)
+        storage_size += record_size(group)
         data = self.storage.get("quota", self.bucket_uri, "bucket_info")
         self.assertStatsEqual(data, {
             "collection_count": 1,
-            "record_count": 1,
+            "record_count": 0,
+            "storage_size": storage_size
+        })
+
+    def test_507_is_not_raised_if_quota_exceeded_on_record_delete(self):
+        self.create_bucket()
+        self.create_collection()
+        self.create_record()
+        self.app.delete(self.record_uri, headers=self.headers)
+
+        # Check that the storage was not updated.
+        storage_size = record_size(self.bucket)
+        storage_size += record_size(self.collection)
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
+            "collection_count": 1,
+            "record_count": 0,
+            "storage_size": storage_size
+        })
+
+    def test_507_is_not_raised_if_quota_exceeded_on_collection_delete(self):
+        self.create_bucket()
+        self.create_collection()
+        # fake the quota to the Max
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        data['storage_size'] = 140
+        self.storage.update("quota", self.bucket_uri, "bucket_info", data)
+        self.app.delete(self.collection_uri,
+                        headers=self.headers)
+
+        storage_size = 140
+        storage_size -= record_size(self.collection)
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
+            "collection_count": 0,
+            "record_count": 0,
+            "storage_size": storage_size
+        })
+
+    def test_507_is_raised_if_quota_exceeded_on_group_delete(self):
+        self.create_bucket()
+        body = {"data": {"members": []}}
+        resp = self.app.put_json(self.group_uri, body, headers=self.headers)
+        group = resp.json['data']
+        # fake the quota to the Max
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        data['storage_size'] = 140
+        self.storage.update("quota", self.bucket_uri, "bucket_info", data)
+
+        self.app.delete(self.group_uri, headers=self.headers)
+
+        storage_size = 140
+        storage_size -= record_size(group)
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
+            "collection_count": 0,
+            "record_count": 0,
             "storage_size": storage_size
         })
 
@@ -502,7 +561,7 @@ class QuotaMaxBytesPerItemExceededListenerTest(
     def get_app_settings(self, extra=None):
         settings = super(QuotaMaxBytesPerItemExceededListenerTest,
                          self).get_app_settings(extra)
-        settings['quotas.bucket_max_bytes_per_item'] = '52'
+        settings['quotas.bucket_max_bytes_per_item'] = '55'
         return settings
 
 
@@ -513,7 +572,7 @@ class QuotaMaxBytesPerItemExceededBucketListenerTest(
     def get_app_settings(self, extra=None):
         settings = super(QuotaMaxBytesPerItemExceededBucketListenerTest,
                          self).get_app_settings(extra)
-        settings['quotas.bucket_test_max_bytes_per_item'] = '52'
+        settings['quotas.bucket_test_max_bytes_per_item'] = '55'
         return settings
 
 
@@ -541,8 +600,48 @@ class QuotaCollectionMixin(object):
         })
 
 
+class QuotaCollectionUpdateMixin(object):
+    def test_507_is_raised_if_quota_exceeded_on_record_update(self):
+        self.create_bucket()
+        self.create_collection()
+        self.create_record()
+        body = {'data': {'foo': 42, 'bar': 'This is a very long string.'}}
+        resp = self.app.patch_json(self.record_uri,
+                                   body, headers=self.headers, status=507)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            "There was not enough space to save the resource")
+
+        # Check that the storage was not updated.
+        storage_size = record_size(self.collection)
+        storage_size += record_size(self.record)
+        data = self.storage.get("quota", self.collection_uri,
+                                "collection_info")
+        self.assertStatsEqual(data, {
+            "record_count": 1,
+            "storage_size": storage_size
+        })
+
+    def test_507_is_not_raised_if_quota_exceeded_on_record_delete(self):
+        self.create_bucket()
+        self.create_collection()
+        self.create_record()
+        self.app.delete(self.record_uri, headers=self.headers)
+
+        # Check that the storage was not updated.
+        storage_size = record_size(self.collection)
+        data = self.storage.get("quota", self.collection_uri,
+                                "collection_info")
+        self.assertStatsEqual(data, {
+            "record_count": 0,
+            "storage_size": storage_size
+        })
+
+
 class QuotaMaxBytesExceededCollectionSettingsListenerTest(
-        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin,
+        QuotaWebTest):
     def get_app_settings(self, extra=None):
         settings = super(
             QuotaMaxBytesExceededCollectionSettingsListenerTest,
@@ -552,7 +651,8 @@ class QuotaMaxBytesExceededCollectionSettingsListenerTest(
 
 
 class QuotaMaxBytesExceededCollectionBucketSettingsListenerTest(
-        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin,
+        QuotaWebTest):
 
     def get_app_settings(self, extra=None):
         settings = super(
@@ -563,7 +663,8 @@ class QuotaMaxBytesExceededCollectionBucketSettingsListenerTest(
 
 
 class QuotaMaxBytesExceededBucketCollectionSettingsListenerTest(
-        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin,
+        QuotaWebTest):
 
     def get_app_settings(self, extra=None):
         settings = super(
@@ -616,7 +717,8 @@ class QuotaMaxBytesPerItemExceededCollectionSettingsListenerTest(
 
 
 class QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest(
-        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin,
+        QuotaWebTest):
 
     def get_app_settings(self, extra=None):
         settings = super(
@@ -627,7 +729,8 @@ class QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest(
 
 
 class QuotaMaxBytesPerItemExceededBucketCollectionSettingsListenerTest(
-        FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+        FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin,
+        QuotaWebTest):
 
     def get_app_settings(self, extra=None):
         settings = super(

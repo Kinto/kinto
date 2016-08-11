@@ -125,7 +125,8 @@ def on_resource_changed(event):
         old_size = record_size(old)
         new_size = record_size(new)
 
-        if max_bytes_per_item is not None:
+        if max_bytes_per_item is not None and action != "delete":
+            print(old_size, new_size, action, resource_name)
             if new_size > max_bytes_per_item:
                 raise http_error(HTTPInsufficientStorage(),
                                  errno=ERRORS.FORBIDDEN.value,
@@ -167,6 +168,7 @@ def on_resource_changed(event):
                 collection_info['record_count'] -= 1
                 collection_info['storage_size'] -= old_size
 
+    print(bucket_info, collection_info, action, resource_name)
     if bucket_max_bytes is not None:
         if bucket_info['storage_size'] > bucket_max_bytes:
             raise http_error(HTTPInsufficientStorage(),
