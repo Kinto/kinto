@@ -1,6 +1,5 @@
 flake8
 kinto
-kinto-redis
 mock
 pytest
 pytest-cache
