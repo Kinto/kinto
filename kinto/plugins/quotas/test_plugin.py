@@ -339,6 +339,11 @@ class QuotaBucketRecordMixin(object):
             "storage_size": storage_size
         })
 
+        # Check that the record wasn't created
+        resp = self.app.get('%s/records' % self.collection_uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 1
+
 
 class QuotaBucketUpdateMixin(object):
     def test_507_is_raised_if_quota_exceeded_on_record_update(self):
@@ -492,6 +497,11 @@ class QuotaBucketMixin(object):
             "storage_size": storage_size
         })
 
+        # Check that the collection wasn't created
+        resp = self.app.get('%s/collections' % self.bucket_uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 1
+
     def test_507_is_raised_if_quota_exceeded_on_group_creation(self):
         self.create_bucket()
         self.create_collection()
@@ -513,6 +523,11 @@ class QuotaBucketMixin(object):
             "record_count": 1,
             "storage_size": storage_size
         })
+
+        # Check that the group wasn't created
+        resp = self.app.get('%s/groups' % self.bucket_uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 0
 
 
 class QuotaMaxBytesExceededSettingsListenerTest(
