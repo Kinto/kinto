@@ -1,4 +1,5 @@
 import copy
+import transaction
 
 from pyramid.httpexceptions import HTTPInsufficientStorage
 from kinto.core.errors import http_error, ERRORS
@@ -128,6 +129,7 @@ def on_resource_changed(event):
         if max_bytes_per_item is not None and action != "delete":
             print(old_size, new_size, action, resource_name)
             if new_size > max_bytes_per_item:
+                transaction.doom()
                 raise http_error(HTTPInsufficientStorage(),
                                  errno=ERRORS.FORBIDDEN.value,
                                  message=HTTPInsufficientStorage.explanation)
@@ -171,24 +173,28 @@ def on_resource_changed(event):
     print(bucket_info, collection_info, action, resource_name)
     if bucket_max_bytes is not None:
         if bucket_info['storage_size'] > bucket_max_bytes:
+            transaction.doom()
             raise http_error(HTTPInsufficientStorage(),
                              errno=ERRORS.FORBIDDEN.value,
                              message=HTTPInsufficientStorage.explanation)
 
     if bucket_max_items is not None:
         if bucket_info['record_count'] > bucket_max_items:
+            transaction.doom()
             raise http_error(HTTPInsufficientStorage(),
                              errno=ERRORS.FORBIDDEN.value,
                              message=HTTPInsufficientStorage.explanation)
 
     if collection_max_bytes is not None:
         if collection_info['storage_size'] > collection_max_bytes:
+            transaction.doom()
             raise http_error(HTTPInsufficientStorage(),
                              errno=ERRORS.FORBIDDEN.value,
                              message=HTTPInsufficientStorage.explanation)
 
     if collection_max_items is not None:
         if collection_info['record_count'] > collection_max_items:
+            transaction.doom()
             raise http_error(HTTPInsufficientStorage(),
                              errno=ERRORS.FORBIDDEN.value,
                              message=HTTPInsufficientStorage.explanation)
