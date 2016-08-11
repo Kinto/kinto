@@ -89,9 +89,9 @@ class ConfigTest(unittest.TestCase):
         redis_url = "redis://localhost:6379"
         self.assertDictEqual(kwargs, {
             'secret': kwargs['secret'],
-            'storage_backend': 'kinto.core.storage.redis',
-            'cache_backend': 'kinto.core.cache.redis',
-            'permission_backend': 'kinto.core.permission.redis',
+            'storage_backend': 'kinto_redis.storage',
+            'cache_backend': 'kinto_redis.cache',
+            'permission_backend': 'kinto_redis.permission',
             'storage_url': redis_url + '/1',
             'cache_url':  redis_url + '/2',
             'permission_url': redis_url + '/3',

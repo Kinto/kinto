@@ -11,6 +11,7 @@ This document describes changes between each past release.
 - ``kinto --version`` was renamed ``kinto version``
 - ``ResourceChanged`` and ``AfterResourceChanged`` events now return
   ``old`` and ``new`` records for the ``delete`` action. (#751)
+- Redis backends are not parts of the core anymore. (#712)
 
 **Protocol**
 

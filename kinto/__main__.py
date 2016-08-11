@@ -122,6 +122,12 @@ def main(args=None):
             except ImportError:
                 import pip
                 pip.main(['install', "kinto[postgresql]"])
+        elif backend == "redis":
+            try:
+                import kinto_redis  # NOQA
+            except ImportError:
+                import pip
+                pip.main(['install', "kinto[redis]"])
 
     elif which_command == 'migrate':
         dry_run = parsed_args['dry_run']

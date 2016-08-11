@@ -1,9 +1,10 @@
 from __future__ import absolute_import
 import json
 
-from kinto.core.listeners import ListenerBase
-from kinto.core.storage.redis import create_from_config
 from kinto.core import logger
+from kinto.core.listeners import ListenerBase
+
+from kinto_redis.storage import create_from_config
 
 
 class Listener(ListenerBase):

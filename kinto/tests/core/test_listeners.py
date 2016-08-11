@@ -11,8 +11,9 @@ from pyramid import testing
 from kinto.core import initialization
 from kinto.core.events import ResourceChanged, ResourceRead, ACTIONS
 from kinto.core.listeners import ListenerBase
-from kinto.core.storage.redis import create_from_config
 from kinto.tests.core.support import unittest
+
+from kinto_redis.storage import create_from_config
 
 
 class ListenerSetupTest(unittest.TestCase):

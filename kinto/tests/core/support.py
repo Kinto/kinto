@@ -99,9 +99,9 @@ class BaseWebTest(object):
     def get_app_settings(self, additional_settings=None):
         settings = DEFAULT_SETTINGS.copy()
 
-        settings['storage_backend'] = 'kinto.core.storage.redis'
-        settings['cache_backend'] = 'kinto.core.cache.redis'
-        settings['permission_backend'] = 'kinto.core.permission.redis'
+        settings['storage_backend'] = 'kinto_redis.storage'
+        settings['cache_backend'] = 'kinto_redis.cache'
+        settings['permission_backend'] = 'kinto_redis.permission'
 
         settings['project_name'] = 'myapp'
         settings['project_version'] = '0.0.1'

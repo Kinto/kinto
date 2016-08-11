@@ -15,7 +15,7 @@ PostgreSQL
 Redis
 -----
 
-.. autoclass:: kinto.core.storage.redis.Storage
+.. autoclass:: kinto_redis.storage.Storage
 
 
 Memory

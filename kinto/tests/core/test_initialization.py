@@ -161,13 +161,13 @@ class ProjectSettingsTest(unittest.TestCase):
         import os
 
         envkey = 'KINTO_STORAGE_BACKEND'
-        os.environ[envkey] = 'kinto.core.storage.redis'
+        os.environ[envkey] = 'kinto_redis.storage'
         settings = {
             'kinto.storage_backend': 'kinto.core.storage.memory',
         }
         value = self.settings(settings)['storage_backend']
         os.environ.pop(envkey)
-        self.assertEqual(value, 'kinto.core.storage.redis')
+        self.assertEqual(value, 'kinto_redis.storage')
 
     def test_can_continue_to_use_cliquet_names(self):
         settings = {
@@ -349,7 +349,7 @@ class RequestsConfigurationTest(unittest.TestCase):
     def _get_app(self, settings={}):
         app_settings = {
             'storage_backend': 'kinto.core.storage.memory',
-            'cache_backend': 'kinto.core.cache.redis',
+            'cache_backend': 'kinto_redis.cache',
         }
         app_settings.update(**settings)
         config = Configurator(settings=app_settings)

@@ -128,7 +128,7 @@ Storage
 
 .. code-block:: ini
 
-    kinto.storage_backend = kinto.core.storage.redis
+    kinto.storage_backend = kinto_redis.storage
     kinto.storage_url = redis://localhost:6379/1
 
     # Safety limit while fetching from storage
@@ -167,7 +167,7 @@ Cache
 
 .. code-block:: ini
 
-    kinto.cache_backend = kinto.core.cache.redis
+    kinto.cache_backend = kinto_redis.cache
     kinto.cache_url = redis://localhost:6379/0
 
     # Control number of pooled connections
@@ -199,7 +199,7 @@ Permissions
 
 .. code-block:: ini
 
-    kinto.permission_backend = kinto.core.permission.redis
+    kinto.permission_backend = kinto_redis.permission
     kinto.permission_url = redis://localhost:6379/1
 
     # Control number of pooled connections
@@ -520,7 +520,7 @@ data in the ``queue`` Redis list.
 
     kinto.event_listeners = redis
 
-    kinto.event_listeners.redis.use = kinto.core.listeners.redis
+    kinto.event_listeners.redis.use = kinto_redis.listeners
     kinto.event_listeners.redis.url = redis://localhost:6379/0
     kinto.event_listeners.redis.pool_size = 5
     kinto.event_listeners.redis.listname = queue

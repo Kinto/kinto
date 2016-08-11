@@ -37,4 +37,4 @@ Requirements
 ------------
 
 * **Python**: 2.7, 3.4+
-* **Backends**: In-memory (development), Redis or Postgresql 9.4+ (production)
+* **Backends**: In-memory (development), Postgresql 9.4+ (production)

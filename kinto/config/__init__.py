@@ -46,6 +46,10 @@ def init(config_file, backend):
 
     elif backend == 'redis':
         redis_url = "redis://localhost:6379"
+        values['storage_backend'] = "kinto_redis.storage"
+        values['cache_backend'] = "kinto_redis.cache"
+        values['permission_backend'] = "kinto_redis.permission"
+
         values['storage_url'] = redis_url + "/1"
         values['cache_url'] = redis_url + "/2"
         values['permission_url'] = redis_url + "/3"
