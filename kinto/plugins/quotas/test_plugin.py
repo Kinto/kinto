@@ -1,3 +1,4 @@
+import transaction
 from kinto.core.errors import ERRORS
 from kinto.tests.core.support import FormattedErrorMixin
 from kinto.tests.support import BaseWebTest, unittest
@@ -31,6 +32,15 @@ class QuotaWebTest(BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extra=None):
         settings = super(QuotaWebTest, self).get_app_settings(extra)
+
+        # Setup the postgresql backend for transaction support.
+        settings['storage_backend'] = 'kinto.core.storage.postgresql'
+        db = "postgres://postgres:postgres@localhost/testdb"
+        settings['storage_url'] = db
+        settings['permission_backend'] = 'kinto.core.permission.postgresql'
+        settings['permission_url'] = db
+        settings['cache_backend'] = 'kinto.core.cache.memory'
+
         settings['includes'] = 'kinto.plugins.quotas'
         return settings
 
@@ -440,6 +450,7 @@ class QuotaBucketUpdateMixin(object):
         data = self.storage.get("quota", self.bucket_uri, "bucket_info")
         data['storage_size'] = 140
         self.storage.update("quota", self.bucket_uri, "bucket_info", data)
+        transaction.commit()
         self.app.delete(self.collection_uri,
                         headers=self.headers)
 
@@ -461,6 +472,7 @@ class QuotaBucketUpdateMixin(object):
         data = self.storage.get("quota", self.bucket_uri, "bucket_info")
         data['storage_size'] = 140
         self.storage.update("quota", self.bucket_uri, "bucket_info", data)
+        transaction.commit()
 
         self.app.delete(self.group_uri, headers=self.headers)
 
