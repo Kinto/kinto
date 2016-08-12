@@ -1,6 +1,6 @@
 import transaction
 from kinto.core.errors import ERRORS
-from kinto.tests.core.support import FormattedErrorMixin
+from kinto.tests.core.support import FormattedErrorMixin, sqlalchemy
 from kinto.tests.support import BaseWebTest, unittest
 from .utils import record_size
 
@@ -11,6 +11,11 @@ class QuotaWebTest(BaseWebTest, unittest.TestCase):
     collection_uri = '/buckets/test/collections/col'
     record_uri = '/buckets/test/collections/col/records/rec'
     group_uri = '/buckets/test/groups/grp'
+
+    @classmethod
+    def setUpClass(cls):
+        if not sqlalchemy:
+            raise unittest.SkipTest("postgresql is not installed.")
 
     def create_bucket(self):
         resp = self.app.put(self.bucket_uri, headers=self.headers)
