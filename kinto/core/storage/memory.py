@@ -228,7 +228,7 @@ class Storage(MemoryBasedStorage):
         collection = self._store[parent_id][collection_id]
         if object_id not in collection:
             raise exceptions.RecordNotFoundError(object_id)
-        return collection[object_id]
+        return collection[object_id].copy()
 
     def update(self, collection_id, parent_id, object_id, record,
                unique_fields=None, id_field=DEFAULT_ID_FIELD,
