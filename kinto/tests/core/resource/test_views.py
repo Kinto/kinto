@@ -729,7 +729,7 @@ class StorageErrorTest(BaseWebTest, unittest.TestCase):
         super(StorageErrorTest, self).__init__(*args, **kwargs)
         self.error = storage_exceptions.BackendError(ValueError())
         self.storage_error_patcher = mock.patch(
-            'kinto_redis.storage.Storage.create',
+            'kinto.core.storage.memory.Storage.create',
             side_effect=self.error)
 
     def test_backend_errors_are_served_as_503(self):
