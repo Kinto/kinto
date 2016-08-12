@@ -77,7 +77,7 @@ serve: install-dev $(SERVER_CONFIG) migrate version-file
 migrate: install $(SERVER_CONFIG)
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) migrate
 
-tests-once: install-dev version-file
+tests-once: install-dev version-file install-postgres install-monitoring
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
 
 flake8: install-dev
