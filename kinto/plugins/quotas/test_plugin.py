@@ -331,6 +331,77 @@ class QuotaListenerTest(QuotaWebTest):
             "storage_size": storage_size
         })
 
+    def test_bulk_create(self):
+        body = {
+            'defaults': {
+                'method': 'POST',
+                'path': '%s/records' % self.collection_uri,
+            },
+            'requests': [{
+                'path': self.bucket_uri,
+                'method': 'PUT'
+            }, {
+                'path': self.collection_uri,
+                'method': 'PUT'
+            }, {
+                'body': {'data': {'id': 'a', 'attr': 1}},
+            }, {
+                'body': {'data': {'id': 'b', 'attr': 2}},
+            }, {
+                'body': {'data': {'id': 'c', 'attr': 3}}
+            }]
+        }
+        self.app.post_json('/batch', body, headers=self.headers)
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
+            "collection_count": 1,
+            "record_count": 3,
+            "storage_size": 232
+        })
+
+    def test_bulk_delete(self):
+        self.create_bucket()
+        self.create_collection()
+        self.create_record()
+
+        body = {
+            'defaults': {
+                'method': 'POST',
+                'path': '%s/collections' % self.bucket_uri,
+            },
+            'requests': [{
+                'body': {'data': {'id': 'a', 'attr': 1}},
+            }, {
+                'body': {'data': {'id': 'b', 'attr': 2}},
+            }, {
+                'body': {'data': {'id': 'c', 'attr': 3}}
+            }]
+        }
+        self.app.post_json('/batch', body, headers=self.headers)
+
+        body = {
+            'defaults': {
+                'method': 'DELETE',
+            },
+            'requests': [{
+                'path': '%s/collections/a' % self.bucket_uri
+            }, {
+                'path': '%s/collections/b' % self.bucket_uri
+            }, {
+                'path': '%s/collections/c' % self.bucket_uri
+            }, {
+                'path': self.collection_uri
+            }]
+        }
+        self.app.post_json('/batch', body, headers=self.headers)
+
+        data = self.storage.get("quota", self.bucket_uri, "bucket_info")
+        self.assertStatsEqual(data, {
+            "collection_count": 0,
+            "record_count": 0,
+            "storage_size": record_size(self.bucket)
+        })
+
 
 class QuotaBucketRecordMixin(object):
     def test_507_is_raised_if_quota_exceeded_on_record_creation(self):

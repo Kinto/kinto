@@ -157,6 +157,7 @@ def on_resource_changed(event):
                 # are deleted without notification.
                 collection_records, _ = storage.get_all('record',
                                                         collection_uri)
+                import pdb; pdb.set_trace()
                 for r in collection_records:
                     old_record_size = record_size(r)
                     bucket_info['record_count'] -= 1
