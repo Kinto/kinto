@@ -324,6 +324,26 @@ class BulkTest(HistoryWebTest):
         assert entries[0]['uri'] == '/buckets/bid/collections/cid/records/c'
         assert entries[-2]['uri'] == '/buckets/bid/collections/cid'
 
+    def test_delete_on_collection(self):
+        body = {
+            'defaults': {
+                'method': 'DELETE',
+            },
+            'requests': [{
+                'path': '/buckets/bid/collections/cid/records/a',
+            }, {
+                'path': '/buckets/bid/collections/cid/records/b',
+            }, {
+                'path': '/buckets/bid/collections/cid/records/c',
+            }]
+        }
+        self.app.post_json('/batch', body, headers=self.headers)
+        resp = self.app.get('/buckets/bid/history', headers=self.headers)
+        entries = resp.json['data']
+        assert entries[0]['uri'] == '/buckets/bid/collections/cid/records/c'
+        assert entries[1]['uri'] == '/buckets/bid/collections/cid/records/b'
+        assert entries[2]['uri'] == '/buckets/bid/collections/cid/records/a'
+
 
 class DefaultBucketTest(HistoryWebTest):
 
