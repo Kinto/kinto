@@ -341,14 +341,15 @@ class QuotaBucketRecordMixin(object):
         resp = self.app.post_json('%s/records' % self.collection_uri,
                                   body, headers=self.headers, status=507)
 
-        self.assertFormattedError(
-            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
-            "There was not enough space to save the resource")
-
         # Check that the storage was not updated.
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            self.error_message)
+
         data = self.storage.get("quota", self.bucket_uri, "bucket_info")
         self.assertStatsEqual(data, {
             "collection_count": 1,
@@ -371,14 +372,15 @@ class QuotaBucketUpdateMixin(object):
         resp = self.app.patch_json(self.record_uri,
                                    body, headers=self.headers, status=507)
 
-        self.assertFormattedError(
-            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
-            "There was not enough space to save the resource")
-
         # Check that the storage was not updated.
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            self.error_message)
+
         data = self.storage.get("quota", self.bucket_uri, "bucket_info")
         self.assertStatsEqual(data, {
             "collection_count": 1,
@@ -394,13 +396,14 @@ class QuotaBucketUpdateMixin(object):
         resp = self.app.patch_json(self.collection_uri,
                                    body, headers=self.headers, status=507)
 
-        self.assertFormattedError(
-            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
-            "There was not enough space to save the resource")
-
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            self.error_message)
+
         data = self.storage.get("quota", self.bucket_uri, "bucket_info")
         self.assertStatsEqual(data, {
             "collection_count": 1,
@@ -420,13 +423,14 @@ class QuotaBucketUpdateMixin(object):
         resp = self.app.put_json(self.group_uri, body,
                                  headers=self.headers, status=507)
 
-        self.assertFormattedError(
-            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
-            "There was not enough space to save the resource")
-
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(group)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            self.error_message)
+
         data = self.storage.get("quota", self.bucket_uri, "bucket_info")
         self.assertStatsEqual(data, {
             "collection_count": 1,
@@ -502,13 +506,14 @@ class QuotaBucketMixin(object):
         resp = self.app.post_json('%s/collections' % self.bucket_uri,
                                   body, headers=self.headers, status=507)
 
-        self.assertFormattedError(
-            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
-            "There was not enough space to save the resource")
-
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            self.error_message)
+
         data = self.storage.get("quota", self.bucket_uri, "bucket_info")
         self.assertStatsEqual(data, {
             "collection_count": 1,
@@ -529,13 +534,14 @@ class QuotaBucketMixin(object):
         resp = self.app.put_json(self.group_uri, body,
                                  headers=self.headers, status=507)
 
-        self.assertFormattedError(
-            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
-            "There was not enough space to save the resource")
-
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            self.error_message)
+
         data = self.storage.get("quota", self.bucket_uri, "bucket_info")
         self.assertStatsEqual(data, {
             "collection_count": 1,
@@ -552,6 +558,9 @@ class QuotaBucketMixin(object):
 class QuotaMaxBytesExceededSettingsListenerTest(
         FormattedErrorMixin, QuotaBucketRecordMixin, QuotaBucketUpdateMixin,
         QuotaBucketMixin, QuotaWebTest):
+
+    error_message = "Bucket size exceeded: "
+
     def get_app_settings(self, extra=None):
         settings = super(QuotaMaxBytesExceededSettingsListenerTest,
                          self).get_app_settings(extra)
@@ -563,6 +572,8 @@ class QuotaMaxBytesExceededBucketSettingsListenerTest(
         FormattedErrorMixin, QuotaBucketRecordMixin, QuotaBucketUpdateMixin,
         QuotaBucketMixin, QuotaWebTest):
 
+    error_message = "Bucket size exceeded: "
+
     def get_app_settings(self, extra=None):
         settings = super(QuotaMaxBytesExceededBucketSettingsListenerTest,
                          self).get_app_settings(extra)
@@ -572,6 +583,9 @@ class QuotaMaxBytesExceededBucketSettingsListenerTest(
 
 class QuotaMaxItemsExceededSettingsListenerTest(
         FormattedErrorMixin, QuotaBucketRecordMixin, QuotaWebTest):
+
+    error_message = "Bucket max items exceeded: "
+
     def get_app_settings(self, extra=None):
         settings = super(QuotaMaxItemsExceededSettingsListenerTest,
                          self).get_app_settings(extra)
@@ -581,6 +595,8 @@ class QuotaMaxItemsExceededSettingsListenerTest(
 
 class QuotaMaxItemsExceededBucketSettingsListenerTest(
         FormattedErrorMixin, QuotaBucketRecordMixin, QuotaWebTest):
+
+    error_message = "Bucket max items exceeded: "
 
     def get_app_settings(self, extra=None):
         settings = super(QuotaMaxItemsExceededBucketSettingsListenerTest,
@@ -592,6 +608,9 @@ class QuotaMaxItemsExceededBucketSettingsListenerTest(
 class QuotaMaxBytesPerItemExceededListenerTest(
         FormattedErrorMixin, QuotaBucketRecordMixin, QuotaBucketUpdateMixin,
         QuotaBucketMixin, QuotaWebTest):
+
+    error_message = "MAX_BYTES_PER_ITEM size exceeded: "
+
     def get_app_settings(self, extra=None):
         settings = super(QuotaMaxBytesPerItemExceededListenerTest,
                          self).get_app_settings(extra)
@@ -602,6 +621,8 @@ class QuotaMaxBytesPerItemExceededListenerTest(
 class QuotaMaxBytesPerItemExceededBucketListenerTest(
         FormattedErrorMixin, QuotaBucketRecordMixin, QuotaBucketUpdateMixin,
         QuotaBucketMixin, QuotaWebTest):
+
+    error_message = "MAX_BYTES_PER_ITEM size exceeded: "
 
     def get_app_settings(self, extra=None):
         settings = super(QuotaMaxBytesPerItemExceededBucketListenerTest,
@@ -619,13 +640,14 @@ class QuotaCollectionMixin(object):
         resp = self.app.post_json('%s/records' % self.collection_uri,
                                   body, headers=self.headers, status=507)
 
-        self.assertFormattedError(
-            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
-            "There was not enough space to save the resource")
-
         # Check that the storage was not updated.
         storage_size = record_size(self.collection)
         storage_size += record_size(self.record)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            self.error_message)
+
         data = self.storage.get("quota", self.collection_uri,
                                 "collection_info")
         self.assertStatsEqual(data, {
@@ -643,13 +665,14 @@ class QuotaCollectionUpdateMixin(object):
         resp = self.app.patch_json(self.record_uri,
                                    body, headers=self.headers, status=507)
 
-        self.assertFormattedError(
-            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
-            "There was not enough space to save the resource")
-
         # Check that the storage was not updated.
         storage_size = record_size(self.collection)
         storage_size += record_size(self.record)
+
+        self.assertFormattedError(
+            resp, 507, ERRORS.FORBIDDEN, "Insufficient Storage",
+            self.error_message)
+
         data = self.storage.get("quota", self.collection_uri,
                                 "collection_info")
         self.assertStatsEqual(data, {
@@ -676,6 +699,9 @@ class QuotaCollectionUpdateMixin(object):
 class QuotaMaxBytesExceededCollectionSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin,
         QuotaWebTest):
+
+    error_message = "Collection size exceeded: "
+
     def get_app_settings(self, extra=None):
         settings = super(
             QuotaMaxBytesExceededCollectionSettingsListenerTest,
@@ -687,6 +713,8 @@ class QuotaMaxBytesExceededCollectionSettingsListenerTest(
 class QuotaMaxBytesExceededCollectionBucketSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin,
         QuotaWebTest):
+
+    error_message = "Collection size exceeded: "
 
     def get_app_settings(self, extra=None):
         settings = super(
@@ -700,6 +728,8 @@ class QuotaMaxBytesExceededBucketCollectionSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin,
         QuotaWebTest):
 
+    error_message = "Collection size exceeded: "
+
     def get_app_settings(self, extra=None):
         settings = super(
             QuotaMaxBytesExceededBucketCollectionSettingsListenerTest,
@@ -710,6 +740,9 @@ class QuotaMaxBytesExceededBucketCollectionSettingsListenerTest(
 
 class QuotaMaxItemsExceededCollectionSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+
+    error_message = "Collection max items exceeded: "
+
     def get_app_settings(self, extra=None):
         settings = super(
             QuotaMaxItemsExceededCollectionSettingsListenerTest,
@@ -720,6 +753,8 @@ class QuotaMaxItemsExceededCollectionSettingsListenerTest(
 
 class QuotaMaxItemsExceededCollectionBucketSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+
+    error_message = "Collection max items exceeded: "
 
     def get_app_settings(self, extra=None):
         settings = super(
@@ -732,6 +767,8 @@ class QuotaMaxItemsExceededCollectionBucketSettingsListenerTest(
 class QuotaMaxItemsExceededBucketCollectionSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
 
+    error_message = "Collection max items exceeded: "
+
     def get_app_settings(self, extra=None):
         settings = super(
             QuotaMaxItemsExceededBucketCollectionSettingsListenerTest,
@@ -742,6 +779,9 @@ class QuotaMaxItemsExceededBucketCollectionSettingsListenerTest(
 
 class QuotaMaxBytesPerItemExceededCollectionSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest):
+
+    error_message = "MAX_BYTES_PER_ITEM size exceeded: "
+
     def get_app_settings(self, extra=None):
         settings = super(
             QuotaMaxBytesPerItemExceededCollectionSettingsListenerTest,
@@ -754,6 +794,8 @@ class QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin,
         QuotaWebTest):
 
+    error_message = "MAX_BYTES_PER_ITEM size exceeded: "
+
     def get_app_settings(self, extra=None):
         settings = super(
             QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest,
@@ -765,6 +807,8 @@ class QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest(
 class QuotaMaxBytesPerItemExceededBucketCollectionSettingsListenerTest(
         FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin,
         QuotaWebTest):
+
+    error_message = "MAX_BYTES_PER_ITEM size exceeded: "
 
     def get_app_settings(self, extra=None):
         settings = super(

@@ -78,7 +78,7 @@ Storage`` HTTP error.
 
     HTTP/1.1 507 Insufficient Storage
     Access-Control-Expose-Headers: Backoff,Retry-After,Alert,Content-Length
-    Content-Length: 115
+    Content-Length: 132
     Content-Type: application/json; charset=UTF-8
     Date: Fri, 12 Aug 2016 10:14:29 GMT
     Server: waitress
@@ -87,5 +87,5 @@ Storage`` HTTP error.
         "code": 507, 
         "errno": 121, 
         "error": "Insufficient Storage", 
-        "message": "There was not enough space to save the resource"
+        "message": "Collection max items exceeded: 2 records. MAX_ITEMS is 1 records"
     }
