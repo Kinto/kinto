@@ -105,6 +105,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.storage.delete(parent_id='/buckets/test',
                             collection_id='quota',
                             object_id='bucket_info')
+        transaction.commit()
         self.app.delete(self.bucket_uri, headers=self.headers)
 
     #
@@ -191,6 +192,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.storage.delete(parent_id=self.collection_uri,
                             collection_id='quota',
                             object_id='collection_info')
+        transaction.commit()
         self.app.delete(self.collection_uri, headers=self.headers)
 
     def test_tracks_collection_delete_with_multiple_records(self):
