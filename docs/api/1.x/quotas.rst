@@ -74,7 +74,9 @@ How does it works?
 If the quota is exceeded the server will return a ``507 Insufficient
 Storage`` HTTP error.
 
-.. code-block:: json
+**Example Response**
+
+.. sourcecode:: http
 
     HTTP/1.1 507 Insufficient Storage
     Access-Control-Expose-Headers: Backoff,Retry-After,Alert,Content-Length
