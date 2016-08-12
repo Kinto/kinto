@@ -164,7 +164,7 @@ class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
 
         app = self.make_app_with_subscribers([(events.ResourceChanged,
                                                store_record)])
-        with mock.patch('transaction.manager.commit') as mocked:
+        with mock.patch('pyramid_tm.transaction.manager.commit') as mocked:
             mocked.side_effect = ValueError
             self.send_batch_create(app, status=500)
         resp = app.get('/mushrooms', headers=self.headers)
