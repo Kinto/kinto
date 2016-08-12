@@ -8,11 +8,12 @@ from pyramid.security import Authenticated
 
 from kinto.authorization import RouteFactory
 
+
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution(__package__).version
 
 # Implemented HTTP API Version
-HTTP_API_VERSION = '1.8'
+HTTP_API_VERSION = '1.9'
 
 # Main kinto logger
 logger = logging.getLogger(__name__)

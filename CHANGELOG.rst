@@ -12,6 +12,10 @@ This document describes changes between each past release.
 - ``ResourceChanged`` and ``AfterResourceChanged`` events now return
   ``old`` and ``new`` records for the ``delete`` action. (#751)
 
+**Protocol**
+
+- Added a ``/__version__`` endpoint with the version that has been deployed. (#747)
+
 **New features**
 
 - Added a new built-in plugin ``kinto.plugins.history`` that keeps track of every action
