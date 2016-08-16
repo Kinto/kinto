@@ -39,7 +39,7 @@ A collection is a mapping with the following attributes:
 List bucket collections
 =======================
 
-.. http:post:: /buckets/(bucket_id)/collections
+.. http:get:: /buckets/(bucket_id)/collections
 
    :synopsis: List bucket's readable collections
 
