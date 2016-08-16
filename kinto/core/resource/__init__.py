@@ -956,7 +956,7 @@ class UserResource(object):
                 )
                 continue
 
-            m = re.match(r'^(min|max|not|lt|gt|in|exclude)_(\w+)$', param)
+            m = re.match(r'^(min|max|not|lt|gt|in|exclude)_([\w\.]+)$', param)
             if m:
                 keyword, field = m.groups()
                 operator = getattr(COMPARISON, keyword.upper())

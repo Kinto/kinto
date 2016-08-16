@@ -86,11 +86,16 @@ class MemoryBasedStorage(StorageBase):
         for record in records:
             matches = True
             for f in filters:
-                left = record.get(f.field)
                 right = f.value
+                left = record
+                subfields = f.field.split('.')
+                for subfield in subfields:
+                    if not isinstance(left, dict):
+                        break
+                    left = left.get(subfield)
+
                 if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
-                    right = left
-                    left = f.value
+                    right, left = left, right
                 else:
                     # Python3 cannot compare None to other value.
                     if left is None:
