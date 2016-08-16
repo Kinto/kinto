@@ -15,12 +15,12 @@ Clients can check for the ``quotas`` capability in the
     In terms of performance, enabling this plugin generates two or
     three additional queries on backends per request.
 
-* The bucket quota consider the bucket attributes, groups attributes,
-  collections attributes, records attributes.
-* Deleted items size is considered to be null so if you add something
-  and remove it, it will looks like it was never created for the
+* A bucket's quota is a limit on the size of bucket attributes, group
+  attributes, collection attributes, and record attributes.
+* Deleted items are considered to have a size zero so if you add something
+  and remove it, it will look like it was never created for the
   quota even if its tombstone is still there.
-* The quota plugins only works with the transactional storage backends
+* The quota plugin only works with the transactional storage backends
   (i.e PostgreSQL)
 
 
@@ -36,7 +36,7 @@ You can configure three types of quotas:
   individual item in sync storage, as measured by the Canonical JSON
   stringification of its value plus its key length.
 * **MAX_ITEMS**: The maximum number of items that can be stored in
-  sync storage.
+  a collection or bucket.
 
 You can configure it at multiple levels.
 
@@ -68,8 +68,8 @@ For collections:
   ``kinto.quotas.collection_blocklists_certificates_max_items``
 
 
-How does it works?
-==================
+How does it work?
+=================
 
 If the quota is exceeded the server will return a ``507 Insufficient
 Storage`` HTTP error.
