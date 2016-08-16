@@ -21,7 +21,7 @@ Clients can check for the ``quotas`` capability in the
   and remove it, it will look like it was never created for the
   quota even if its tombstone is still there.
 * The quota plugin only works with the transactional storage backends
-  (i.e PostgreSQL)
+  (e.g. PostgreSQL)
 
 
 Configuration
@@ -30,41 +30,41 @@ Configuration
 You can configure three types of quotas:
 
 * **QUOTA_BYTES**: The maximum total amount (in bytes) of data that
-  can be stored in sync storage, as measured by the Canonical JSON
+  can be stored in a bucket or collection, as measured by the JSON
   stringification of every value plus every key's length.
 * **QUOTA_BYTES_PER_ITEM**: The maximum size (in bytes) of each
-  individual item in sync storage, as measured by the Canonical JSON
+  individual item in the bucket or collection, as measured by the JSON
   stringification of its value plus its key length.
 * **MAX_ITEMS**: The maximum number of items that can be stored in
   a collection or bucket.
 
-You can configure it at multiple levels.
+You can configure it in the INI settings file.
 
 For buckets:
 
-* Globally for each buckets using ``kinto.quotas.bucket_max_bytes``,
+* Globally for every buckets using ``kinto.quotas.bucket_max_bytes``,
   ``kinto.quotas.bucket_max_bytes_per_item`` and
   ``kinto.quotas.bucket_max_items``
 * Specifically for some buckets using
-  ``kinto.quotas.bucket_{bucket_name}_max_bytes``,
-  ``kinto.quotas.bucket_{bucket_name}_max_bytes_per_item`` and
-  ``kinto.quotas.bucket_{bucket_name}_max_items`` i.e
+  ``kinto.quotas.bucket_{bucket_id}_max_bytes``,
+  ``kinto.quotas.bucket_{bucket_id}_max_bytes_per_item`` and
+  ``kinto.quotas.bucket_{bucket_id}_max_items`` e.g.
   ``kinto.quotas.bucket_blocklists_max_items``
 
 For collections:
 
-* Globally for each bucket collections using ``kinto.quotas.collection_max_bytes``,
+* Globally for every bucket collections using ``kinto.quotas.collection_max_bytes``,
   ``kinto.quotas.collection_max_bytes_per_item`` and
   ``kinto.quotas.collection_max_items``
 * Specifically for every collection in a given bucket using
-  ``kinto.quotas.collection_{bucket_name}_max_bytes``,
-  ``kinto.quotas.collection_{bucket_name}_max_bytes_per_item`` and
-  ``kinto.quotas.collection_{bucket_name}_max_items`` i.e
+  ``kinto.quotas.collection_{bucket_id}_max_bytes``,
+  ``kinto.quotas.collection_{bucket_id}_max_bytes_per_item`` and
+  ``kinto.quotas.collection_{bucket_id}_max_items`` e.g.
   ``kinto.quotas.collection_blocklists_max_items``
 * Specifically for a given bucket collection using
-  ``kinto.quotas.collection_{bucket_name}_{collection_name}_max_bytes``,
-  ``kinto.quotas.collection_{bucket_name}_{collection_name}_max_bytes_per_item`` and
-  ``kinto.quotas.collection_{bucket_name}_{collection_name}_max_items`` i.e
+  ``kinto.quotas.collection_{bucket_id}_{collection_id}_max_bytes``,
+  ``kinto.quotas.collection_{bucket_id}_{collection_id}_max_bytes_per_item`` and
+  ``kinto.quotas.collection_{bucket_id}_{collection_id}_max_items`` e.g.
   ``kinto.quotas.collection_blocklists_certificates_max_items``
 
 

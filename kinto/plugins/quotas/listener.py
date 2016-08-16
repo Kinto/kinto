@@ -29,10 +29,9 @@ def get_collection_settings(settings, bucket_id, collection_id, name):
 def on_resource_changed(event):
     """
     Everytime an object is created/changed/deleted, we update the
-    bucket counters. The entries are served as read-only in the
-    :mod:`kinto.plugins.quotas.views` module.
+    bucket counters.
 
-    If a new object override the quotas, we reject the request.
+    If a new object exceeds the quotas, we reject the request.
     """
     payload = event.payload
     action = payload['action']
