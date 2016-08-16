@@ -104,7 +104,9 @@ def on_resource_changed(event):
 
     try:
         bucket_info = copy.deepcopy(
-            storage.get("quota", bucket_uri, 'bucket_info'))
+            storage.get(parent_id=bucket_uri,
+                        collection_id='quota',
+                        object_id='bucket_info'))
     except RecordNotFoundError:
         bucket_info = {
             "collection_count": 0,
@@ -119,7 +121,9 @@ def on_resource_changed(event):
     if collection_id:
         try:
             collection_info = copy.deepcopy(
-                storage.get("quota", collection_uri, 'collection_info'))
+                storage.get(parent_id=collection_uri,
+                            collection_id='quota',
+                            object_id='collection_info'))
         except RecordNotFoundError:
             pass
 
@@ -160,8 +164,9 @@ def on_resource_changed(event):
                 bucket_info['collection_count'] -= 1
                 # When we delete the collection all the records in it
                 # are deleted without notification.
-                collection_records, _ = storage.get_all('record',
-                                                        collection_uri)
+                collection_records, _ = storage.get_all(
+                    collection_id='record',
+                    parent_id=collection_uri)
                 for r in collection_records:
                     old_record_size = record_size(r)
                     bucket_info['record_count'] -= 1
