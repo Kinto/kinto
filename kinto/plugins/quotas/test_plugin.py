@@ -116,7 +116,7 @@ class QuotaListenerTest(QuotaWebTest):
     #
     # Collection
     #
-    def test_stats_are_not_accessible_if_collection_does_not_exists(self):
+    def test_stats_are_not_accessible_if_collection_does_not_exist(self):
         self.create_bucket()
         self.app.get(self.collection_uri, headers=self.headers, status=404)
 

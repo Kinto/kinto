@@ -7,6 +7,10 @@ from kinto.core.utils import instance_uri
 
 from .utils import record_size
 
+QUOTA_RESOURCE_NAME = 'quota'
+QUOTA_BUCKET_ID = 'bucket_info'
+QUOTA_COLLECTION_ID = 'collection_info'
+
 
 def get_bucket_settings(settings, bucket_id, name):
     return settings.get(
@@ -72,15 +76,15 @@ def on_resource_changed(event):
     if action == 'delete' and resource_name == 'bucket':
         try:
             storage.delete(parent_id=bucket_uri,
-                           collection_id='quota',
-                           object_id='bucket_info')
+                           collection_id=QUOTA_RESOURCE_NAME,
+                           object_id=QUOTA_BUCKET_ID)
         except RecordNotFoundError:
             pass
 
         collection_pattern = instance_uri(event.request, 'collection',
                                           bucket_id=bucket_id, id='*')
         storage.delete_all(parent_id=collection_pattern,
-                           collection_id='quota')
+                           collection_id=QUOTA_RESOURCE_NAME)
         return
 
     targets = []
@@ -105,8 +109,8 @@ def on_resource_changed(event):
     try:
         bucket_info = copy.deepcopy(
             storage.get(parent_id=bucket_uri,
-                        collection_id='quota',
-                        object_id='bucket_info'))
+                        collection_id=QUOTA_RESOURCE_NAME,
+                        object_id=QUOTA_BUCKET_ID))
     except RecordNotFoundError:
         bucket_info = {
             "collection_count": 0,
@@ -122,8 +126,8 @@ def on_resource_changed(event):
         try:
             collection_info = copy.deepcopy(
                 storage.get(parent_id=collection_uri,
-                            collection_id='quota',
-                            object_id='collection_info'))
+                            collection_id=QUOTA_RESOURCE_NAME,
+                            object_id=QUOTA_COLLECTION_ID))
         except RecordNotFoundError:
             pass
 
@@ -219,21 +223,21 @@ def on_resource_changed(event):
                              message=message)
 
     storage.update(parent_id=bucket_uri,
-                   collection_id='quota',
-                   object_id='bucket_info',
+                   collection_id=QUOTA_RESOURCE_NAME,
+                   object_id=QUOTA_BUCKET_ID,
                    record=bucket_info)
 
     if collection_id:
         if action == 'delete' and resource_name == 'collection':
             try:
                 storage.delete(parent_id=collection_uri,
-                               collection_id='quota',
-                               object_id='collection_info')
+                               collection_id=QUOTA_RESOURCE_NAME,
+                               object_id=QUOTA_COLLECTION_ID)
             except RecordNotFoundError:
                 pass
             return
         else:
             storage.update(parent_id=collection_uri,
-                           collection_id='quota',
-                           object_id='collection_info',
+                           collection_id=QUOTA_RESOURCE_NAME,
+                           object_id=QUOTA_COLLECTION_ID,
                            record=collection_info)
