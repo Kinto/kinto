@@ -87,16 +87,20 @@ def on_resource_changed(event):
     targets = []
     for impacted in event.impacted_records:
         target = impacted['new' if action != 'delete' else 'old']
-        obj_id = target['id']
         # On POST .../records, the URI does not contain the newly created
-        # record id. Make sure it does:
-        if event_uri.endswith(obj_id):
-            uri = event_uri
+        # record id.
+        obj_id = target['id']
+        parts = event_uri.split('/')
+        if resource_name in parts[-1]:
+            parts.append(obj_id)
         else:
-            uri = event_uri + '/' + obj_id
+            # Make sure the id is correct on grouped events.
+            parts[-1] = obj_id
+        uri = '/'.join(parts)
 
         old = impacted.get('old', {})
         new = impacted.get('new', {})
+
         targets.append((uri, obj_id, old, new))
 
     try:
@@ -122,6 +126,8 @@ def on_resource_changed(event):
 
     # Update the bucket quotas values for each impacted record.
     for (uri, obj_id, old, new) in targets:
+        if resource_name == "collection":
+            collection_uri = uri
         old_size = record_size(old)
         new_size = record_size(new)
 
