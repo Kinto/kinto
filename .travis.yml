@@ -9,7 +9,6 @@ env:
   - TOX_ENV=py34
   - TOX_ENV=py27-raw
   - TOX_ENV=docs
-
 install:
   - pip install tox
 before_script:
@@ -42,3 +41,5 @@ matrix:
       script: flake8 kinto
     - env: TOX_ENV=pypy
       script: if [ "${TRAVIS_BRANCH}" = "master" ]; then tox -e $TOX_ENV; else true; fi;
+  allow_failures:
+    - env: TOX_ENV=pypy
