@@ -144,10 +144,6 @@ A Mushroom resource API is now available at the ``/mushrooms/`` URL.
 
 It will accept a bunch of REST operations (``GET``, ``POST``, ...).
 
-.. warning ::
-
-    Without schema, a resource will not store any field at all!
-
 The next step consists in attaching a schema to the resource, to control
 what fields are accepted and stored.
 
@@ -170,6 +166,9 @@ Currently, only :rtd:`Colander <colander>` is supported, and it looks like this:
 
     class MushroomSchema(resource.ResourceSchema):
         name = colander.SchemaNode(colander.String())
+
+        class Options:
+            preserve_unknown = False  # Fails if field is unknown!
 
 
     @resource.register()

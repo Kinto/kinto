@@ -47,10 +47,10 @@ class ResourceSchemaTest(unittest.TestCase):
         deserialized = schema_instance.deserialize({'foo': 'bar'})
         self.assertNotIn('foo', deserialized)
 
-    def test_ignore_unknwon_fields_by_default(self):
+    def test_accepts_unknown_fields_by_default(self):
         schema_instance = schema.ResourceSchema()
         deserialized = schema_instance.deserialize({'foo': 'bar'})
-        self.assertNotIn('foo', deserialized)
+        self.assertIn('foo', deserialized)
 
     def test_options_parameters_use_default_value_when_subclassed(self):
         class PreserveSchema(schema.ResourceSchema):
@@ -59,7 +59,7 @@ class ResourceSchemaTest(unittest.TestCase):
 
         schema_instance = PreserveSchema()
         deserialized = schema_instance.deserialize({'foo': 'bar'})
-        self.assertNotIn('foo', deserialized)
+        self.assertIn('foo', deserialized)
 
 
 class PermissionsSchemaTest(unittest.TestCase):
