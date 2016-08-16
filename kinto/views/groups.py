@@ -9,25 +9,17 @@ class GroupSchema(resource.ResourceSchema):
     members = colander.SchemaNode(colander.Sequence(),
                                   colander.SchemaNode(colander.String()))
 
-    class Options:
-        preserve_unknown = True
-
 
 @resource.register(name='group',
                    collection_path='/buckets/{{bucket_id}}/groups',
                    record_path='/buckets/{{bucket_id}}/groups/{{id}}')
 class Group(resource.ShareableResource):
-
     mapping = GroupSchema()
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict['bucket_id']
         parent_id = utils.instance_uri(request, 'bucket', id=bucket_id)
         return parent_id
-
-    def is_known_field(self, field_name):
-        """Without schema, any field is considered as known."""
-        return True
 
 
 @subscriber(ResourceChanged,

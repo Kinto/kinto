@@ -10,11 +10,6 @@ from pyramid.settings import asbool
 from kinto.views import object_exists_or_404
 
 
-class RecordSchema(resource.ResourceSchema):
-    class Options:
-        preserve_unknown = True
-
-
 _parent_path = '/buckets/{{bucket_id}}/collections/{{collection_id}}'
 
 
@@ -23,7 +18,6 @@ _parent_path = '/buckets/{{bucket_id}}/collections/{{collection_id}}'
                    record_path=_parent_path + '/records/{{id}}')
 class Record(resource.ShareableResource):
 
-    mapping = RecordSchema()
     schema_field = 'schema'
 
     def __init__(self, request, **kwargs):
@@ -50,10 +44,6 @@ class Record(resource.ShareableResource):
         return utils.instance_uri(request, 'collection',
                                   bucket_id=self.bucket_id,
                                   id=self.collection_id)
-
-    def is_known_field(self, field_name):
-        """Without schema, any field is considered as known."""
-        return True
 
     def process_record(self, new, old=None):
         """Validate records against collection schema, if any."""
