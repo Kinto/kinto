@@ -29,14 +29,17 @@ def on_resource_changed(event):
 
     targets = []
     for impacted in event.impacted_records:
+        # On POST .../records, the URI does not contain the newly created
+        # record id.
         target = impacted['new']
         obj_id = target['id']
-        # On POST .../records, the URI does not contain the newly created
-        # record id. Make sure it does:
-        if event_uri.endswith(obj_id):
-            uri = event_uri
+        parts = event_uri.split('/')
+        if resource_name in parts[-1]:
+            parts.append(obj_id)
         else:
-            uri = event_uri + '/' + obj_id
+            # Make sure the id is correct on grouped events.
+            parts[-1] = obj_id
+        uri = '/'.join(parts)
         targets.append((uri, target))
 
     # Prepare a list of object ids to be fetched from permission backend,
