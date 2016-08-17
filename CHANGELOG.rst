@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-4.0.0 (unreleased)
+4.0.0 (2016-08-17)
 ------------------
 
 **Breaking changes**
@@ -34,7 +34,7 @@ This document describes changes between each past release.
 - Added a new ``--dry-run`` option to command-line script ``migrate`` that will simulate
   migration operation without executing on the backend (thanks @lavish205! #685)
 - Added ability to plug custom StatsD backend implementations via a new ``kinto.statsd_backend``
-  setting. Useful for Datadog™ integration for example (fixes #626).
+  setting. Useful for Datadogâ˘ integration for example (fixes #626).
 - Added a ``delete-collection`` action to the ``kinto`` command. (#727)
 - Added verbosity options to the ``kinto`` command. (#745)
 - Added a built-in plugin that allows to define quotas per bucket or collection. (#752)
