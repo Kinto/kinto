@@ -18,10 +18,12 @@ This document describes changes between each past release.
 - Redis listener is not part of the core anymore. (#712)
   Use ``kinto.event_listeners.redis.use = kinto_redis.listeners`` instead of
   ``kinto.event_listeners.redis.use = kinto.core.listeners.redis``
-  
+
 **Protocol**
 
 - Added a ``/__version__`` endpoint with the version that has been deployed. (#747)
+- Allow sub-object filtering on plural endpoints (e.g ``?person.name=Eliot``) (#345)
+- Allow sub-object sorting on plural endpoints (e.g ``?_sort=person.name``) (#345)
 
 **New features**
 

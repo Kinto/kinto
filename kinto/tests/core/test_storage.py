@@ -373,6 +373,17 @@ class BaseTestStorage(object):
                                           **self.storage_kw)
         self.assertTrue(records[0]['id'] < records[-1]['id'])
 
+    def test_get_all_handle_sorting_on_subobject(self):
+        for x in range(10):
+            record = dict(**self.record)
+            record["person"] = dict(age=x)
+            self.create_record(record)
+        sorting = [Sort('person.age', 1)]
+        records, _ = self.storage.get_all(sorting=sorting,
+                                          **self.storage_kw)
+        self.assertLess(records[0]['person']['age'],
+                        records[-1]['person']['age'])
+
     def test_get_all_can_filter_with_list_of_values(self):
         for l in ['a', 'b', 'c']:
             self.create_record({'code': l})
@@ -453,6 +464,14 @@ class BaseTestStorage(object):
         for l in ['a', 'b', 'c']:
             self.create_record({'code': l})
         filters = [Filter('code', ('a', 'b'), utils.COMPARISON.EXCLUDE)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 1)
+
+    def test_get_all_can_filter_by_subobjects_values(self):
+        for l in ['a', 'b', 'c']:
+            self.create_record({'code': {'sub': l}})
+        filters = [Filter('code.sub', 'a', utils.COMPARISON.EQ)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 1)

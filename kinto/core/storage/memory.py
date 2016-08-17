@@ -86,11 +86,16 @@ class MemoryBasedStorage(StorageBase):
         for record in records:
             matches = True
             for f in filters:
-                left = record.get(f.field)
                 right = f.value
+                left = record
+                subfields = f.field.split('.')
+                for subfield in subfields:
+                    if not isinstance(left, dict):
+                        break
+                    left = left.get(subfield)
+
                 if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
-                    right = left
-                    left = f.value
+                    right, left = left, right
                 else:
                     # Python3 cannot compare None to other value.
                     if left is None:
@@ -384,7 +389,13 @@ def apply_sorting(records, sorting):
 
     def column(first, record, name):
         empty = first.get(name, float('inf'))
-        return record.get(name, empty)
+        subfields = name.split('.')
+        value = record
+        for subfield in subfields:
+            value = value.get(subfield, empty)
+            if not isinstance(value, dict):
+                break
+        return value
 
     for sort in reversed(sorting):
         result = sorted(result,

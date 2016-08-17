@@ -956,7 +956,7 @@ class UserResource(object):
                 )
                 continue
 
-            m = re.match(r'^(min|max|not|lt|gt|in|exclude)_(\w+)$', param)
+            m = re.match(r'^(min|max|not|lt|gt|in|exclude)_([\w\.]+)$', param)
             if m:
                 keyword, field = m.groups()
                 operator = getattr(COMPARISON, keyword.upper())
@@ -994,7 +994,7 @@ class UserResource(object):
         modified_field_used = self.model.modified_field in specified
         for field in specified:
             field = field.strip()
-            m = re.match(r'^([\-+]?)(\w+)$', field)
+            m = re.match(r'^([\-+]?)([\w\.]+)$', field)
             if m:
                 order, field = m.groups()
 

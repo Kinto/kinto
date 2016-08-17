@@ -168,3 +168,32 @@ class FilteringTest(BaseTest):
         self.resource.request.GET = {'exclude_last_modified': 'a,b'}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
+
+
+class SubobjectFilteringTest(BaseTest):
+    def setUp(self):
+        super(SubobjectFilteringTest, self).setUp()
+        self.patch_known_field.start()
+        for i in range(6):
+            record = {
+                'party': {'candidate': 'Marie', 'voters': i},
+                'location': 'Creuse'
+            }
+            self.model.create_record(record)
+
+    def test_records_can_be_filtered_by_subobjects(self):
+        self.resource.request.GET = {'party.voters': '1'}
+        result = self.resource.collection_get()
+        values = [item['party']['voters'] for item in result['data']]
+        self.assertEqual(sorted(values), [1])
+
+    def test_subobjects_filters_are_ignored_if_not_object(self):
+        self.resource.request.GET = {'location.city': 'barcelona'}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 0)
+
+    def test_subobjects_filters_works_with_directives(self):
+        self.resource.request.GET = {'in_party.voters': '1,2,3'}
+        result = self.resource.collection_get()
+        values = [item['party']['voters'] for item in result['data']]
+        self.assertEqual(sorted(values), [1, 2, 3])

@@ -114,3 +114,31 @@ class SortingTest(BaseTest):
         self.assertEqual(result['data'][1]['status'], 0)
         self.assertGreater(result['data'][0]['last_modified'],
                            result['data'][1]['last_modified'])
+
+
+class SubobjectSortingTest(BaseTest):
+    def setUp(self):
+        super(SubobjectSortingTest, self).setUp()
+        self.patch_known_field.start()
+
+        indices = list(range(20))
+        random.shuffle(indices)
+
+        for i in indices:
+            record = {
+                'party': {'candidate': 'Marie', 'voters': i},
+                'location': 'Creuse'
+            }
+            self.model.create_record(record)
+
+    def test_records_can_be_sorted_by_subobjects(self):
+        self.resource.request.GET = {'_sort': 'party.voters'}
+        result = self.resource.collection_get()
+        values = [item['party']['voters'] for item in result['data']]
+        self.assertEqual(sorted(values), values)
+
+    def test_subobjects_sorting_is_ignored_if_not_object(self):
+        self.resource.request.GET = {'_sort': 'location.city'}
+        result = self.resource.collection_get()
+        values = [item['party']['voters'] for item in result['data']]
+        self.assertNotEqual(sorted(values), values)
