@@ -26,6 +26,8 @@ This document describes changes between each past release.
 - Allow sub-object filtering on plural endpoints (e.g ``?person.name=Eliot``) (#345)
 - Allow sub-object sorting on plural endpoints (e.g ``?_sort=person.name``) (#345)
 
+Protocol is now at version **1.9**. See `API changelog`_.
+
 **New features**
 
 - Added a new built-in plugin ``kinto.plugins.history`` that keeps track of every action
