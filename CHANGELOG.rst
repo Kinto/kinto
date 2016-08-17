@@ -43,7 +43,6 @@ Protocol is now at version **1.9**. See `API changelog`_.
 
 **Bug fixes**
 
-- Fix Redis get_accessible_object implementation (#725)
 - Fix bug where the resource events of a request targetting two groups/collection
   from different buckets would be grouped together.
 - Fix crash when an invalid UTF-8 character is provided in URL
@@ -66,7 +65,7 @@ Protocol is now at version **1.9**. See `API changelog`_.
   parameter anymore
 - Improved parts of the FAQ (#744)
 - Improve 404 and 403 error handling to make them customizable. (#748)
-- ``kinto.core`` resources are not schemaless by default (fixes #719)
+- ``kinto.core`` resources are now schemaless by default (fixes #719)
 
 
 3.3.1 (2016-07-19)
