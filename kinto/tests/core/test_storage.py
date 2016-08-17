@@ -457,6 +457,14 @@ class BaseTestStorage(object):
                                           **self.storage_kw)
         self.assertEqual(len(records), 1)
 
+    def test_get_all_can_filter_by_subobjects_values(self):
+        for l in ['a', 'b', 'c']:
+            self.create_record({'code': {'sub': l}})
+        filters = [Filter('code.sub', 'a', utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 1)
+
     def test_get_all_handle_a_pagination_rules(self):
         for x in range(10):
             record = dict(self.record)
