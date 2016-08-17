@@ -121,14 +121,12 @@ class BaseTestStorage(object):
         super(BaseTestStorage, self).tearDown()
         self.storage.flush()
 
-    def create_record(self, record=None, id_generator=None,
-                      unique_fields=None, **kwargs):
+    def create_record(self, record=None, id_generator=None, **kwargs):
         record = record or self.record
         kw = self.storage_kw.copy()
         kw.update(**kwargs)
         return self.storage.create(record=record,
                                    id_generator=id_generator,
-                                   unique_fields=unique_fields,
                                    **kw)
 
     def test_raises_backend_error_if_error_occurs_on_client(self):
@@ -706,89 +704,6 @@ class TimestampsTest(object):
         self.assertGreater(timestamp, timestamp_before)
 
 
-class FieldsUnicityTest(object):
-    def test_does_not_fail_if_no_unique_fields_at_all(self):
-        self.create_record({'phone': '0033677'})
-        self.create_record({'phone': '0033677'}, unique_fields=tuple())
-
-    def test_cannot_insert_duplicate_field(self):
-        self.create_record({'phone': '0033677'})
-        self.assertRaises(exceptions.UnicityError,
-                          self.create_record,
-                          {'phone': '0033677'},
-                          unique_fields=('phone',))
-
-    def test_unicity_exception_gives_record_and_field(self):
-        record = self.create_record({'phone': '0033677'})
-        try:
-            self.create_record({'phone': '0033677'},
-                               unique_fields=('phone',))
-        except exceptions.UnicityError as e:
-            error = e
-        self.assertEqual(error.field, 'phone')
-        self.assertDictEqual(error.record, record)
-
-    def test_unicity_is_by_parent_id(self):
-        self.create_record({'phone': '0033677'})
-        self.create_record({'phone': '0033677'},
-                           unique_fields=('phone',),
-                           parent_id=self.other_parent_id,
-                           auth=self.other_auth)  # not raising
-
-    def test_unicity_is_for_non_null_values(self):
-        r = self.create_record({'phone': None}, unique_fields=('phone',))
-        # not raising with None value
-        self.create_record({'phone': None}, unique_fields=('phone',))
-        self.storage.update(object_id=r['id'], record={'phone': None},
-                            unique_fields=('phone',), **self.storage_kw)
-
-    def test_unicity_does_not_apply_to_deleted_records(self):
-        record = self.create_record({'phone': '0033677'})
-        self.storage.delete(object_id=record['id'], **self.storage_kw)
-        self.create_record({'phone': None}, unique_fields=('phone',))
-
-    def test_unicity_applies_to_one_of_all_fields_specified(self):
-        self.create_record({'phone': 'abc', 'line': '1'})
-        self.assertRaises(exceptions.UnicityError,
-                          self.create_record,
-                          {'phone': 'efg', 'line': '1'},
-                          unique_fields=('phone', 'line'))
-
-    def test_updating_with_same_id_does_not_raise_unicity_error(self):
-        record = self.create_record({'phone': '0033677'})
-        self.storage.update(object_id=record['id'],
-                            record=record,
-                            unique_fields=('phone',),
-                            **self.storage_kw)
-
-    def test_updating_raises_unicity_error(self):
-        self.create_record({'phone': 'number'})
-        record = self.create_record({'phone': '0033677'})
-        self.assertRaises(exceptions.UnicityError,
-                          self.storage.update,
-                          object_id=record['id'],
-                          record={'phone': 'number'},
-                          unique_fields=('phone',),
-                          **self.storage_kw)
-
-    def test_unicity_detection_supports_special_characters(self):
-        record = self.create_record()
-        values = ['b', 'http://moz.org', u"#131 \u2014 ujson",
-                  "C:\\\\win32\\hosts"]
-        for value in values:
-            self.create_record({'phone': value})
-            try:
-                error = None
-                self.storage.update(object_id=record['id'],
-                                    record={'phone': value},
-                                    unique_fields=('phone',),
-                                    **self.storage_kw)
-            except exceptions.UnicityError as e:
-                error = e
-            msg = 'UnicityError not raised with %s' % value
-            self.assertIsNotNone(error, msg)
-
-
 class DeletedRecordsTest(object):
     def _get_last_modified_filters(self):
         start = self.storage.collection_timestamp(**self.storage_kw)
@@ -1227,7 +1142,6 @@ class ParentRecordAccessTest(object):
 
 
 class StorageTest(ThreadMixin,
-                  FieldsUnicityTest,
                   TimestampsTest,
                   DeletedRecordsTest,
                   ParentRecordAccessTest,

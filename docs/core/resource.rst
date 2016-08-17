@@ -27,7 +27,6 @@ Full example
 
         class Options:
             readonly_fields = ('device',)
-            unique_fields = ('url',)
 
 
     @resource.register()
@@ -85,8 +84,8 @@ Override the base schema to add extra fields using the `Colander API <http://doc
         genre = colander.SchemaNode(colander.String(),
                                     validator=colander.OneOf(['Sci-Fi', 'Comedy']))
 
-See the :ref:`resource schema options <resource-schema>` to define *schema-less* resources or specify rules
-for unicity or readonly.
+See the :ref:`resource schema options <resource-schema>` to define *schema-less*
+resources or specify rules like readonly fields.
 
 
 .. _resource-permissions:
@@ -136,10 +135,8 @@ a custom model can be plugged-in:
 
 
     class TrackedModel(resource.Model):
-        def create_record(self, record, parent_id=None, unique_fields=None):
-            record = super(TrackedModel, self).create_record(record,
-                                                             parent_id,
-                                                             unique_fields)
+        def create_record(self, record, parent_id=None):
+            record = super(TrackedModel, self).create_record(record, parent_id)
             trackid = index.track(record)
             record['trackid'] = trackid
             return record

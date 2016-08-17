@@ -18,6 +18,7 @@ This document describes changes between each past release.
 - Redis listener is not part of the core anymore. (#712)
   Use ``kinto.event_listeners.redis.use = kinto_redis.listeners`` instead of
   ``kinto.event_listeners.redis.use = kinto.core.listeners.redis``
+- Notion of unique fields was dropped from ``kinto.core`` resources.
 
 **Protocol**
 

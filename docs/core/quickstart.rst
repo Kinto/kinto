@@ -200,7 +200,7 @@ Resource customization
 ----------------------
 
 See :ref:`the resource documentation <resource>` to specify custom URLs,
-schemaless resources, read-only fields, unicity constraints, record pre-processing...
+schemaless resources, read-only fields, record pre-processing...
 
 
 Advanced initialization

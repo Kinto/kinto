@@ -141,7 +141,7 @@ class Model(object):
                                 modified_field=self.modified_field,
                                 auth=self.auth)
 
-    def create_record(self, record, parent_id=None, unique_fields=None):
+    def create_record(self, record, parent_id=None):
         """Create a record in the collection.
 
         Override to perform actions or post-process records after their
@@ -157,7 +157,6 @@ class Model(object):
 
         :param dict record: record to store
         :param str parent_id: optional filter for parent id
-        :param tuple unique_fields: list of fields that should remain unique
 
         :returns: the newly created record.
         :rtype: dict
@@ -167,12 +166,11 @@ class Model(object):
                                    parent_id=parent_id,
                                    record=record,
                                    id_generator=self.id_generator,
-                                   unique_fields=unique_fields,
                                    id_field=self.id_field,
                                    modified_field=self.modified_field,
                                    auth=self.auth)
 
-    def update_record(self, record, parent_id=None, unique_fields=None):
+    def update_record(self, record, parent_id=None):
         """Update a record in the collection.
 
         Override to perform actions or post-process records after their
@@ -180,17 +178,14 @@ class Model(object):
 
         .. code-block:: python
 
-            def update_record(self, record, parent_id=None,unique_fields=None):
-                record = super(MyModel, self).update_record(record,
-                                                            parent_id,
-                                                            unique_fields)
+            def update_record(self, record, parent_id=None):
+                record = super(MyModel, self).update_record(record, parent_id)
                 subject = 'Record {} was changed'.format(record[self.id_field])
                 send_email(subject)
                 return record
 
         :param dict record: record to store
         :param str parent_id: optional filter for parent id
-        :param tuple unique_fields: list of fields that should remain unique
         :returns: the updated record.
         :rtype: dict
         """
@@ -200,7 +195,6 @@ class Model(object):
                                    parent_id=parent_id,
                                    object_id=record_id,
                                    record=record,
-                                   unique_fields=unique_fields,
                                    id_field=self.id_field,
                                    modified_field=self.modified_field,
                                    auth=self.auth)
@@ -279,15 +273,13 @@ class ShareableModel(Model):
         annotated[self.permissions_field] = permissions
         return annotated
 
-    def create_record(self, record, parent_id=None, unique_fields=None):
+    def create_record(self, record, parent_id=None):
         """Create record and set specified permissions.
 
         The current principal is added to the owner (``write`` permission).
         """
         permissions = record.pop(self.permissions_field, {})
-        record = super(ShareableModel, self).create_record(record,
-                                                           parent_id,
-                                                           unique_fields)
+        record = super(ShareableModel, self).create_record(record, parent_id)
         record_id = record[self.id_field]
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)
@@ -298,7 +290,7 @@ class ShareableModel(Model):
         annotated[self.permissions_field] = permissions
         return annotated
 
-    def update_record(self, record, parent_id=None, unique_fields=None):
+    def update_record(self, record, parent_id=None):
         """Update record and the specified permissions.
 
         If no permissions is specified, the current permissions are not
@@ -307,9 +299,7 @@ class ShareableModel(Model):
         The current principal is added to the owner (``write`` permission).
         """
         permissions = record.pop(self.permissions_field, {})
-        record = super(ShareableModel, self).update_record(record,
-                                                           parent_id,
-                                                           unique_fields)
+        record = super(ShareableModel, self).update_record(record, parent_id)
         record_id = record[self.id_field]
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)
