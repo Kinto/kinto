@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from kinto.core import utils
 from kinto.core.storage import (
-    StorageBase, exceptions, Filter,
+    StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from kinto.core.utils import COMPARISON
 
@@ -45,30 +45,6 @@ class MemoryBasedStorage(StorageBase):
                                          last_modified=last_modified)
         record[modified_field] = timestamp
         return record
-
-    def check_unicity(self, collection_id, parent_id, record,
-                      unique_fields, id_field, for_creation=False):
-        """Check that the specified record does not violates unicity
-        constraints defined in the resource's mapping options.
-        """
-        if for_creation and id_field in record:
-            # If id is provided by client, check that no record conflicts.
-            unique_fields = (unique_fields or tuple()) + (id_field,)
-
-        if not unique_fields:
-            return
-
-        unicity_rules = get_unicity_rules(collection_id, parent_id, record,
-                                          unique_fields=unique_fields,
-                                          id_field=id_field,
-                                          for_creation=for_creation)
-        for filters in unicity_rules:
-            existing, count = self.get_all(collection_id, parent_id,
-                                           filters=filters,
-                                           id_field=id_field)
-            if count > 0:
-                field = filters[0].field
-                raise exceptions.UnicityError(field, existing[0])
 
     def apply_filters(self, records, filters):
         """Filter the specified records, using basic iteration.
@@ -205,18 +181,23 @@ class Storage(MemoryBasedStorage):
         return current
 
     def create(self, collection_id, parent_id, record, id_generator=None,
-               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD, auth=None):
-        self.check_unicity(collection_id, parent_id, record,
-                           unique_fields=unique_fields,
-                           id_field=id_field,
-                           for_creation=True)
-
         id_generator = id_generator or self.id_generator
         record = record.copy()
-        _id = record.setdefault(id_field, id_generator())
+        if id_field in record:
+            # Raise unicity error if record with same id already exists.
+            try:
+                existing = self.get(collection_id, parent_id, record[id_field])
+                raise exceptions.UnicityError(id_field, existing)
+            except exceptions.RecordNotFoundError:
+                pass
+        else:
+            record[id_field] = id_generator()
+
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
+        _id = record[id_field]
         self._store[parent_id][collection_id][_id] = record
         self._cemetery[parent_id][collection_id].pop(_id, None)
         return record
@@ -231,15 +212,11 @@ class Storage(MemoryBasedStorage):
         return collection[object_id].copy()
 
     def update(self, collection_id, parent_id, object_id, record,
-               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
         record = record.copy()
         record[id_field] = object_id
-
-        self.check_unicity(collection_id, parent_id, record,
-                           unique_fields=unique_fields,
-                           id_field=id_field)
 
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
@@ -343,33 +320,6 @@ class Storage(MemoryBasedStorage):
                                deleted_field=deleted_field)
                    for r in records]
         return deleted
-
-
-def get_unicity_rules(collection_id, parent_id, record, unique_fields,
-                      id_field, for_creation):
-    """Build filter to target existing records that violate the resource
-    unicity rules on fields.
-
-    :returns: a list of list of filters
-    """
-    rules = []
-    for field in set(unique_fields):
-        value = record.get(field)
-
-        # None values cannot be considered unique.
-        if value is None:
-            continue
-
-        filters = [Filter(field, value, COMPARISON.EQ)]
-
-        if not for_creation:
-            object_id = record[id_field]
-            exclude = Filter(id_field, object_id, COMPARISON.NOT)
-            filters.append(exclude)
-
-        rules.append(filters)
-
-    return rules
 
 
 def apply_sorting(records, sorting):

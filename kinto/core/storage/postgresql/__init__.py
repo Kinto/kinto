@@ -6,7 +6,7 @@ import six
 
 from kinto.core import logger
 from kinto.core.storage import (
-    StorageBase, exceptions, Filter,
+    StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import COMPARISON, json
@@ -215,12 +215,20 @@ class Storage(StorageBase):
         return record['last_modified']
 
     def create(self, collection_id, parent_id, record, id_generator=None,
-               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
         id_generator = id_generator or self.id_generator
         record = record.copy()
-        record_id = record.setdefault(id_field, id_generator())
+        if id_field in record:
+            # Raise unicity error if record with same id already exists.
+            try:
+                existing = self.get(collection_id, parent_id, record[id_field])
+                raise exceptions.UnicityError(id_field, existing)
+            except exceptions.RecordNotFoundError:
+                pass
+        else:
+            record[id_field] = id_generator()
 
         query = """
         WITH delete_potential_tombstone AS (
@@ -235,16 +243,12 @@ class Storage(StorageBase):
                 from_epoch(:last_modified))
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
-        placeholders = dict(object_id=record_id,
+        placeholders = dict(object_id=record[id_field],
                             parent_id=parent_id,
                             collection_id=collection_id,
                             last_modified=record.get(modified_field),
                             data=json.dumps(record))
         with self.client.connect() as conn:
-            # Check that it does violate the resource unicity rules.
-            self._check_unicity(conn, collection_id, parent_id, record,
-                                unique_fields, id_field, modified_field,
-                                for_creation=True)
             result = conn.execute(query, placeholders)
             inserted = result.fetchone()
 
@@ -278,7 +282,7 @@ class Storage(StorageBase):
         return record
 
     def update(self, collection_id, parent_id, object_id, record,
-               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
         query_create = """
@@ -313,9 +317,6 @@ class Storage(StorageBase):
         record[id_field] = object_id
 
         with self.client.connect() as conn:
-            # Check that it does violate the resource unicity rules.
-            self._check_unicity(conn, collection_id, parent_id, record,
-                                unique_fields, id_field, modified_field)
             # Create or update ?
             query = """
             SELECT id FROM records
@@ -719,70 +720,6 @@ class Storage(StorageBase):
 
         safe_sql = 'ORDER BY %s' % (', '.join(sorts))
         return safe_sql, holders
-
-    def _check_unicity(self, conn, collection_id, parent_id, record,
-                       unique_fields, id_field, modified_field,
-                       for_creation=False):
-        """Check that no existing record (in the current transaction snapshot)
-        violates the resource unicity rules.
-        """
-        # If id is provided by client, check that no record conflicts.
-        if for_creation and id_field in record:
-            unique_fields = (unique_fields or tuple()) + (id_field,)
-
-        if not unique_fields:
-            return
-
-        query = """
-        SELECT id
-          FROM records
-         WHERE parent_id = :parent_id
-           AND collection_id = :collection_id
-           AND (%(conditions_filter)s)
-           AND %(condition_record)s
-         LIMIT 1;
-        """
-        safeholders = dict()
-        placeholders = dict(parent_id=parent_id,
-                            collection_id=collection_id)
-
-        # Transform each field unicity into a query condition.
-        filters = []
-        for field in set(unique_fields):
-            value = record.get(field)
-            if value is None:
-                continue
-            sql, holders = self._format_conditions(
-                [Filter(field, value, COMPARISON.EQ)],
-                id_field,
-                modified_field,
-                prefix=field)
-            filters.append(sql)
-            placeholders.update(**holders)
-
-        # All unique fields are empty in record
-        if not filters:
-            return
-
-        safeholders['conditions_filter'] = ' OR '.join(filters)
-
-        # If record is in database, then exclude it of unicity check.
-        if not for_creation:
-            object_id = record[id_field]
-            sql, holders = self._format_conditions(
-                [Filter(id_field, object_id, COMPARISON.NOT)],
-                id_field,
-                modified_field)
-            safeholders['condition_record'] = sql
-            placeholders.update(**holders)
-        else:
-            safeholders['condition_record'] = 'TRUE'
-
-        result = conn.execute(query % safeholders, placeholders)
-        if result.rowcount > 0:
-            existing = result.fetchone()
-            record = self.get(collection_id, parent_id, existing['id'])
-            raise exceptions.UnicityError(unique_fields[0], record)
 
 
 def load_from_config(config):

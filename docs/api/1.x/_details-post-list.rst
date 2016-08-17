@@ -33,23 +33,3 @@ In the JSON request payloads, an optional ``permissions`` attribute can be provi
 The :ref:`current user id <api-current-userid>` **is always added** among the ``write`` principals.
 
 See :ref:`api-permissions-payload`.
-
-.. Feature of Kinto.core not used in Kinto
-
-.. Conflicts
-.. ---------
-
-.. Since some fields can be defined as unique per collection, some conflicts
-.. may appear when creating records.
-
-.. .. note::
-
-..     Empty values are not taken into account for field unicity.
-
-.. .. note::
-
-..     Deleted records are not taken into account for field unicity.
-
-.. If a conflict occurs, an error response is returned with status |status-409|.
-.. A ``details`` attribute in the response provides the offending record and
-.. field name. See :ref:`dedicated section about errors <error-responses>`.

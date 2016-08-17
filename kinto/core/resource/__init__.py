@@ -8,8 +8,7 @@ from pyramid import exceptions as pyramid_exceptions
 from pyramid.decorator import reify
 from pyramid.security import Everyone
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
-                                    HTTPNotFound, HTTPConflict,
-                                    HTTPServiceUnavailable)
+                                    HTTPNotFound, HTTPServiceUnavailable)
 
 from kinto.core import logger
 from kinto.core import Service
@@ -292,7 +291,7 @@ class UserResource(object):
     def collection_post(self):
         """Model ``POST`` endpoint: create a record.
 
-        If the new record conflicts against a unique field constraint, the
+        If the new record id conflicts against an existing one, the
         posted record is ignored, and the existing record is returned, with
         a ``200`` status.
 
@@ -306,31 +305,27 @@ class UserResource(object):
             Add custom behaviour by overriding
             :meth:`kinto.core.resource.UserResource.process_record`
         """
-        existing = None
         new_record = self.request.validated.get('data', {})
         try:
+            # Since ``id`` does not belong to schema, it is not in validated
+            # data. Must look up in body.
             id_field = self.model.id_field
-            # Since ``id`` does not belong to schema, look up in body.
             new_record[id_field] = _id = self.request.json['data'][id_field]
             self._raise_400_if_invalid_id(_id)
             existing = self._get_record_or_404(_id)
         except (HTTPNotFound, KeyError, ValueError):
-            pass
+            existing = None
 
         self._raise_412_if_modified(record=existing)
 
-        new_record = self.process_record(new_record)
-        try:
-            unique_fields = self.mapping.get_option('unique_fields')
-            record = self.model.create_record(new_record,
-                                              unique_fields=unique_fields)
+        if existing:
+            record = existing
+            action = ACTIONS.READ
+        else:
+            new_record = self.process_record(new_record)
+            record = self.model.create_record(new_record)
             self.request.response.status_code = 201
             action = ACTIONS.CREATE
-        except storage_exceptions.UnicityError as e:
-            record = e.record
-            # failed to write
-            action = ACTIONS.READ
-
         return self.postprocess(record, action=action)
 
     def collection_delete(self):
@@ -426,17 +421,11 @@ class UserResource(object):
 
         new_record = self.process_record(post_record, old=existing)
 
-        try:
-            unique = self.mapping.get_option('unique_fields')
-            if existing and not tombstones:
-                record = self.model.update_record(new_record,
-                                                  unique_fields=unique)
-            else:
-                record = self.model.create_record(new_record,
-                                                  unique_fields=unique)
-                self.request.response.status_code = 201
-        except storage_exceptions.UnicityError as e:
-            self._raise_conflict(e)
+        if existing and not tombstones:
+            record = self.model.update_record(new_record)
+        else:
+            record = self.model.create_record(new_record)
+            self.request.response.status_code = 201
 
         timestamp = record[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
@@ -495,13 +484,8 @@ class UserResource(object):
 
         # Save in storage if necessary.
         if changed_fields or self.force_patch_update:
-            try:
-                unique_fields = self.mapping.get_option('unique_fields')
-                new_record = self.model.update_record(
-                    new_record,
-                    unique_fields=unique_fields)
-            except storage_exceptions.UnicityError as e:
-                self._raise_conflict(e)
+            new_record = self.model.update_record(new_record)
+
         else:
             # Behave as if storage would have added `id` and `last_modified`.
             for extra_field in [self.model.modified_field,
@@ -832,26 +816,6 @@ class UserResource(object):
                                   details=details)
             self._add_timestamp_header(response, timestamp=current_timestamp)
             raise response
-
-    def _raise_conflict(self, exception):
-        """Helper to raise conflict responses.
-
-        :param exception: the original unicity error
-        :type exception: :class:`kinto.core.storage.exceptions.UnicityError`
-        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPConflict`
-        """
-        field = exception.field
-        record_id = exception.record[self.model.id_field]
-        message = 'Conflict of field %s on record %s' % (field, record_id)
-        details = {
-            "field": field,
-            "existing": exception.record,
-        }
-        response = http_error(HTTPConflict(),
-                              errno=ERRORS.CONSTRAINT_VIOLATED,
-                              message=message,
-                              details=details)
-        raise response
 
     def _raise_400_if_id_mismatch(self, new_id, record_id):
         """Raise 400 if the `new_id`, within the request body, does not match

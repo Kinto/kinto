@@ -76,34 +76,6 @@ provided in the ``details`` field:
     }
 
 
-Conflict errors
-===============
-
-When a record violates unicity constraints, a |status-409| error response
-is returned.
-
-Additional information about conflicting record and field name will be
-provided in the ``details`` field.
-
-::
-
-    {
-        "code": 409,
-        "errno": 122,
-        "error": "Conflict",
-        "message": "Conflict of field url on record eyjafjallajokull"
-        "info": "https://server/docs/api.html#errors",
-        "details": {
-            "field": "url",
-            "record": {
-                "id": "eyjafjallajokull",
-                "last_modified": 1430140411480,
-                "url": "http://mozilla.org"
-            }
-        }
-    }
-
-
 Validation errors
 =================
 

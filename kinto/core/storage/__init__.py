@@ -69,7 +69,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def create(self, collection_id, parent_id, record, id_generator=None,
-               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
         """Create the specified `object` in this `collection_id` for this `parent_id`.
@@ -84,8 +84,7 @@ class StorageBase(object):
 
         :param str collection_id: the collection id.
         :param str parent_id: the collection parent.
-
-        :param dict object: the object to create.
+        :param dict record: the object to create.
 
         :returns: the newly created object.
         :rtype: dict
@@ -112,7 +111,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def update(self, collection_id, parent_id, object_id, record,
-               unique_fields=None, id_field=DEFAULT_ID_FIELD,
+               id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
         """Overwrite the `object` with the specified `object_id`.
@@ -124,13 +123,10 @@ class StorageBase(object):
 
             This will update the collection timestamp.
 
-        :raises: :exc:`kinto.core.storage.exceptions.UnicityError`
-
         :param str collection_id: the collection id.
         :param str parent_id: the collection parent.
-
         :param str object_id: unique identifier of the object
-        :param dict object: the object to update or create.
+        :param dict record: the object to update or create.
 
         :returns: the updated object.
         :rtype: dict

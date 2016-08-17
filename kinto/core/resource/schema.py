@@ -19,14 +19,8 @@ class ResourceSchema(colander.MappingSchema):
                 reference = colander.SchemaNode(colander.String())
 
                 class Options:
-                    unique_fields = ('reference',)
+                    readonly_fields = ('reference',)
         """
-        unique_fields = tuple()
-        """Fields that must have unique values for the user collection.
-        During records creation and modification, a conflict error will be
-        raised if unicity is about to be violated.
-        """
-
         readonly_fields = tuple()
         """Fields that cannot be updated. Values for fields will have to be
         provided either during record creation, through default values using

@@ -653,57 +653,6 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
                  'name': 'permissions.read'}]})
 
 
-class ConflictErrorsTest(BaseWebTest, unittest.TestCase):
-    def setUp(self):
-        super(ConflictErrorsTest, self).setUp()
-
-        body = {'data': MINIMALIST_RECORD}
-        resp = self.app.post_json(self.collection_url,
-                                  body,
-                                  headers=self.headers)
-        self.record = resp.json['data']
-
-        def unicity_failure(*args, **kwargs):
-            raise storage_exceptions.UnicityError('city', {'id': 42})
-
-        for operation in ('create', 'update'):
-            patch = mock.patch.object(self.storage, operation,
-                                      side_effect=unicity_failure)
-            patch.start()
-
-    def test_post_returns_200_with_existing_record(self):
-        body = {'data': MINIMALIST_RECORD}
-        resp = self.app.post_json(self.collection_url,
-                                  body,
-                                  headers=self.headers)
-        self.assertEqual(resp.json['data'], {'id': 42})
-
-    def test_put_returns_409(self):
-        body = {'data': MINIMALIST_RECORD}
-        self.app.put_json(self.get_item_url(),
-                          body,
-                          headers=self.headers,
-                          status=409)
-
-    def test_patch_returns_409(self):
-        body = {'data': {'name': 'Psylo'}}
-        self.app.patch_json(self.get_item_url(),
-                            body,
-                            headers=self.headers,
-                            status=409)
-
-    def test_409_error_gives_detail_about_field_and_record(self):
-        body = {'data': MINIMALIST_RECORD}
-        resp = self.app.put_json(self.get_item_url(),
-                                 body,
-                                 headers=self.headers,
-                                 status=409)
-        self.assertEqual(resp.json['message'],
-                         'Conflict of field city on record 42')
-        self.assertEqual(resp.json['details']['field'], 'city')
-        self.assertEqual(resp.json['details']['existing'], {'id': 42})
-
-
 class CacheControlTest(BaseWebTest, unittest.TestCase):
     collection_url = '/toadstools'
 

@@ -39,10 +39,3 @@ See :ref:`api-permissions-payload`.
 .. ----------------
 
 .. If a read-only field is modified, a |status-400| error is returned.
-
-
-.. Conflicts
-.. ---------
-
-.. If changing a object field violates a field unicity constraint, a |status-409|
-.. error response is returned (see :ref:`error channel <error-responses>`).
