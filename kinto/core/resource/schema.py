@@ -34,19 +34,14 @@ class ResourceSchema(colander.MappingSchema):
         :meth:`kinto.core.resource.UserResource.process_record`.
         """
 
-        preserve_unknown = False
+        preserve_unknown = True
         """Define if unknown fields should be preserved or not.
 
-        For example, in order to define a schema-less resource, in other words
-        a resource that will accept any form of record, the following schema
-        definition is enough:
-
-        .. code-block:: python
-
-            class SchemaLess(ResourceSchema):
-                class Options:
-                    preserve_unknown = True
+        The resource is schema-less by default. In other words, any field name
+        will be accepted on records. Set this to ``False`` in order to limit
+        the accepted fields to the ones defined in the schema.
         """
+
     def get_option(self, attr):
         default_value = getattr(ResourceSchema.Options, attr)
         return getattr(self.Options, attr,  default_value)

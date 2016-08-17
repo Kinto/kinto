@@ -29,9 +29,6 @@ class CollectionSchema(resource.ResourceSchema):
     schema = JSONSchemaMapping(missing=colander.drop)
     cache_expires = colander.SchemaNode(colander.Int(), missing=colander.drop)
 
-    class Options:
-        preserve_unknown = True
-
 
 @resource.register(name='collection',
                    collection_path='/buckets/{{bucket_id}}/collections',
@@ -44,10 +41,6 @@ class Collection(resource.ShareableResource):
         bucket_id = request.matchdict['bucket_id']
         parent_id = utils.instance_uri(request, 'bucket', id=bucket_id)
         return parent_id
-
-    def is_known_field(self, field_name):
-        """Without schema, any field is considered as known."""
-        return True
 
 
 @subscriber(ResourceChanged,

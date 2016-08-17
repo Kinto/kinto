@@ -299,7 +299,7 @@ class RecordAuthzGrantedOnCollectionTest(AuthzAuthnTest):
         self.assertEqual(len(resp.json['data']), 1)
 
 
-class EmptySchemaTest(BaseWebTest, unittest.TestCase):
+class StrictSchemaTest(BaseWebTest, unittest.TestCase):
     collection_url = '/moistures'
 
     def test_accept_empty_body(self):
@@ -323,8 +323,22 @@ class EmptySchemaTest(BaseWebTest, unittest.TestCase):
         self.assertNotIn('icq', resp.json['data'])
 
 
-class OptionalSchemaTest(EmptySchemaTest):
+class OptionalSchemaTest(BaseWebTest, unittest.TestCase):
     collection_url = '/psilos'
+
+    def test_accept_empty_body(self):
+        resp = self.app.post(self.collection_url,
+                             headers=self.headers)
+        self.assertIn('id', resp.json['data'])
+        resp = self.app.put(self.get_item_url(uuid.uuid4()),
+                            headers=self.headers)
+        self.assertIn('id', resp.json['data'])
+
+    def test_data_can_be_specified(self):
+        resp = self.app.post_json(self.collection_url,
+                                  {'data': {}},
+                                  headers=self.headers)
+        self.assertIn('id', resp.json['data'])
 
     def test_known_fields_are_saved(self):
         resp = self.app.post_json(self.collection_url,

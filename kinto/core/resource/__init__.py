@@ -212,12 +212,17 @@ class UserResource(object):
         return known_fields
 
     def is_known_field(self, field):
-        """Return ``True`` if `field` is defined in the resource mapping.
+        """Return ``True`` if `field` is defined in the resource schema.
+        If the resource schema allows unknown fields, this will always return
+        ``True``.
 
         :param str field: Field name
         :rtype: bool
 
         """
+        if self.mapping.get_option('preserve_unknown'):
+            return True
+
         known_fields = self._get_known_fields()
         return field in known_fields
 
@@ -592,16 +597,20 @@ class UserResource(object):
         :returns: the processed record.
         :rtype: dict
         """
-        new_last_modified = new.get(self.model.modified_field)
-        not_specified = old is None or self.model.modified_field not in old
+        modified_field = self.model.modified_field
+        new_last_modified = new.get(modified_field)
 
-        if new_last_modified is None or not_specified:
+        # Drop the new last_modified if it is not an integer.
+        is_integer = isinstance(new_last_modified, int)
+        if not is_integer:
+            new.pop(modified_field, None)
             return new
 
         # Drop the new last_modified if lesser or equal to the old one.
-        is_less_or_equal = new_last_modified <= old[self.model.modified_field]
-        if new_last_modified and is_less_or_equal:
-            del new[self.model.modified_field]
+        is_less_or_equal = (old is not None
+                            and new_last_modified <= old[modified_field])
+        if is_less_or_equal:
+            new.pop(modified_field, None)
 
         return new
 

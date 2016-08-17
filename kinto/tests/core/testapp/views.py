@@ -21,10 +21,14 @@ class Toadstool(resource.ShareableResource):
     mapping = MushroomSchema()
 
 
+class StrictSchema(resource.ResourceSchema):
+    class Options:
+        preserve_unknown = False
+
+
 @resource.register()
 class Moisture(resource.ShareableResource):
-    # Empty schema.
-    pass
+    mapping = StrictSchema()
 
 
 class PsilocybinSchema(resource.ResourceSchema):
@@ -39,14 +43,10 @@ class Psilo(resource.ShareableResource):
     mapping = PsilocybinSchema()
 
 
-class SchemaLess(resource.ResourceSchema):
-    class Options:
-        preserve_unknown = True
-
-
 @resource.register()
 class Spore(resource.ShareableResource):
-    mapping = SchemaLess()
+    # Default schema.
+    pass
 
 
 @view_config(context=HTTPError, permission=NO_PERMISSION_REQUIRED)

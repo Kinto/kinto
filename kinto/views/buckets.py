@@ -5,26 +5,16 @@ from pyramid.events import subscriber
 from kinto.authorization import BucketRouteFactory
 
 
-class BucketSchema(resource.ResourceSchema):
-    class Options:
-        preserve_unknown = True
-
-
 @resource.register(name='bucket',
                    collection_path='/buckets',
                    record_path='/buckets/{{id}}',
                    factory=BucketRouteFactory)
 class Bucket(resource.ShareableResource):
-    mapping = BucketSchema()
     permissions = ('read', 'write', 'collection:create', 'group:create')
 
     def get_parent_id(self, request):
         # Buckets are not isolated by user, unlike Kinto-Core resources.
         return ''
-
-    def is_known_field(self, field_name):
-        """Without schema, any field is considered as known."""
-        return True
 
 
 @subscriber(ResourceChanged,
