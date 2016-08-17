@@ -23,6 +23,7 @@ This document describes changes between each past release.
 
 - Added a ``/__version__`` endpoint with the version that has been deployed. (#747)
 - Allow sub-object filtering on plural endpoints (e.g ``?person.name=Eliot``) (#345)
+- Allow sub-object sorting on plural endpoints (e.g ``?_sort=person.name``) (#345)
 
 **New features**
 

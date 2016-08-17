@@ -716,9 +716,15 @@ class Storage(StorageBase):
             elif sort.field == modified_field:
                 sql_field = 'last_modified'
             else:
-                field_holder = 'sort_field_%s' % i
-                holders[field_holder] = sort.field
-                sql_field = 'data->(:%s)' % field_holder
+                # Subfields: ``person.name`` becomes ``data->person->>name``
+                subfields = sort.field.split('.')
+                sql_field = 'data'
+                for j, subfield in enumerate(subfields):
+                    # Safely escape field name
+                    field_holder = 'sort_field_%s_%s' % (i, j)
+                    holders[field_holder] = subfield
+                    # Use ->> to convert the last level to text.
+                    sql_field += '->(:%s)' % field_holder
 
             sql_direction = 'ASC' if sort.direction > 0 else 'DESC'
             sql_sort = "%s %s" % (sql_field, sql_direction)

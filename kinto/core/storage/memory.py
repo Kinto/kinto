@@ -389,7 +389,13 @@ def apply_sorting(records, sorting):
 
     def column(first, record, name):
         empty = first.get(name, float('inf'))
-        return record.get(name, empty)
+        subfields = name.split('.')
+        value = record
+        for subfield in subfields:
+            value = value.get(subfield, empty)
+            if not isinstance(value, dict):
+                break
+        return value
 
     for sort in reversed(sorting):
         result = sorted(result,
