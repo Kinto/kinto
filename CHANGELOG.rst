@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-3.4.0 (unreleased)
+4.0.0 (unreleased)
 ------------------
 
 **Breaking changes**
@@ -11,7 +11,14 @@ This document describes changes between each past release.
 - ``kinto --version`` was renamed ``kinto version``
 - ``ResourceChanged`` and ``AfterResourceChanged`` events now return
   ``old`` and ``new`` records for the ``delete`` action. (#751)
-
+- Redis backends are not part of the core anymore. (#712).
+  Use ``kinto_redis.cache`` instead of ``kinto.core.cache.redis``
+  Use ``kinto_redis.storage`` instead of ``kinto.core.storage.redis``
+  Use ``kinto_redis.permission`` instead of ``kinto.core.permission.redis``
+- Redis listener is not part of the core anymore. (#712)
+  Use ``kinto.event_listeners.redis.use = kinto_redis.listeners`` instead of
+  ``kinto.event_listeners.redis.use = kinto.core.listeners.redis``
+  
 **Protocol**
 
 - Added a ``/__version__`` endpoint with the version that has been deployed. (#747)

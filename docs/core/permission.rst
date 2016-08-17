@@ -359,7 +359,7 @@ PostgreSQL
 Redis
 -----
 
-.. autoclass:: kinto.core.permission.redis.Permission
+.. autoclass:: kinto_redis.permission.Permission
 
 
 Memory

@@ -13,7 +13,7 @@ PostgreSQL
 Redis
 =====
 
-.. autoclass:: kinto.core.cache.redis.Cache
+.. autoclass:: kinto_redis.cache.Cache
 
 
 Memory

@@ -128,8 +128,8 @@ Storage
 
 .. code-block:: ini
 
-    kinto.storage_backend = kinto.core.storage.redis
-    kinto.storage_url = redis://localhost:6379/1
+    kinto.storage_backend = kinto.core.storage.postgresql
+    kinto.storage_url = postgres://postgres:postgres@localhost/postgres
 
     # Safety limit while fetching from storage
     # kinto.storage_max_fetch_size = 10000
@@ -167,8 +167,8 @@ Cache
 
 .. code-block:: ini
 
-    kinto.cache_backend = kinto.core.cache.redis
-    kinto.cache_url = redis://localhost:6379/0
+    kinto.cache_backend = kinto.core.cache.postgresql
+    kinto.cache_url = postgres://postgres:postgres@localhost/postgres
 
     # Control number of pooled connections
     # kinto.cache_pool_size = 50
@@ -199,8 +199,8 @@ Permissions
 
 .. code-block:: ini
 
-    kinto.permission_backend = kinto.core.permission.redis
-    kinto.permission_url = redis://localhost:6379/1
+    kinto.permission_backend = kinto.core.permission.postgresql
+    kinto.permission_url = postgres://postgres:postgres@localhost/postgres
 
     # Control number of pooled connections
     # kinto.permission_pool_size = 50
@@ -520,7 +520,7 @@ data in the ``queue`` Redis list.
 
     kinto.event_listeners = redis
 
-    kinto.event_listeners.redis.use = kinto.core.listeners.redis
+    kinto.event_listeners.redis.use = kinto_redis.listeners
     kinto.event_listeners.redis.url = redis://localhost:6379/0
     kinto.event_listeners.redis.pool_size = 5
     kinto.event_listeners.redis.listname = queue

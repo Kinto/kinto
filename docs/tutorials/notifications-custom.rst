@@ -228,6 +228,10 @@ It worked!
 Run asynchronous code
 ---------------------
 
+.. note::
+
+   You will need to install ``kinto-redis`` to use this listener.
+
 In this part, we will take advantage of the built-in listener that delivers the events
 into a Redis queue. Separate scripts, also as known as “workers”, then consume
 the queue to execute custom asynchronous code.
@@ -254,7 +258,7 @@ In configuration, we setup the listener to post the message to a queue named
 
     kinto.event_listeners = redis
 
-    kinto.event_listeners.redis.use = kinto.core.listeners.redis
+    kinto.event_listeners.redis.use = kinto_redis.listeners
     kinto.event_listeners.redis.url = redis://localhost:6379/0
     kinto.event_listeners.redis.pool_size = 5
     kinto.event_listeners.redis.listname = eventqueue

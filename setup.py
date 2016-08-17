@@ -5,6 +5,7 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+
 def read_file(filename):
     """Open a related file and return its content."""
     with codecs.open(os.path.join(here, filename), encoding='utf-8') as f:
@@ -25,7 +26,6 @@ REQUIREMENTS = [
     'python-dateutil',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
     'pyramid_tm',
-    'redis',  # Default backend
     'requests',
     'six',
     'structlog >= 16.1.0',
@@ -49,6 +49,10 @@ else:
         'psycopg2>2.5',
         'zope.sqlalchemy',
     ]
+
+REDIS_REQUIRES = [
+    'kinto_redis'
+]
 
 DEPENDENCY_LINKS = [
 ]
@@ -98,6 +102,7 @@ setup(name='kinto',
       zip_safe=False,
       install_requires=REQUIREMENTS,
       extras_require={
+          'redis': REDIS_REQUIRES,
           'postgresql': POSTGRESQL_REQUIRES,
           'monitoring': MONITORING_REQUIRES,
           ":python_version=='2.7'": ["functools32", "futures"],
