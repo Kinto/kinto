@@ -16,6 +16,8 @@ Changelog
 
 - Add new endpoint ``GET /__version__`` to retrieve the information
   about the deployed version.
+- Allow sub-object filtering on plural endpoints (e.g ``?person.name=Eliot``)
+
 
 1.8 (2016-07-19)
 ''''''''''''''''

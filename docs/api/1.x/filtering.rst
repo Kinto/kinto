@@ -17,6 +17,10 @@ the response.
 ..
 .. * ``/collection?field=1,2``
 
+**Sub-objects**
+
+* ``/collection?field.subfield=value``
+
 **Minimum and maximum**
 
 Prefix field name with ``min_`` or ``max_``:
