@@ -5,6 +5,7 @@ import os
 import re
 import six
 import time
+from threading import RLock
 from base64 import b64decode, b64encode
 from binascii import hexlify
 from six.moves.urllib import parse as urlparse
@@ -80,6 +81,26 @@ def merge_dicts(a, b):
             merge_dicts(a.setdefault(k, {}), v)
         else:
             a.setdefault(k, v)
+
+
+def synchronized(method):
+    """Class method decorator to make sure two threads do not execute some code
+    at the same time (c.f Java ``synchronized`` keyword).
+
+    The decorator installs a mutex on the class instance.
+    """
+    def decorated(self, *args, **kwargs):
+        try:
+            lock = getattr(self, '__lock__')
+        except AttributeError:
+            lock = RLock()
+            setattr(self, '__lock__', lock)
+
+        lock.acquire()
+        result = method(self, *args, **kwargs)
+        lock.release()
+        return result
+    return decorated
 
 
 def random_bytes_hex(bytes_length):

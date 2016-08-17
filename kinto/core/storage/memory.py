@@ -6,7 +6,7 @@ from kinto.core import utils
 from kinto.core.storage import (
     StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
-from kinto.core.utils import COMPARISON
+from kinto.core.utils import COMPARISON, synchronized
 
 
 def tree():
@@ -81,6 +81,7 @@ class Storage(MemoryBasedStorage):
         self._cemetery = tree()
         self._timestamps = defaultdict(dict)
 
+    @synchronized
     def collection_timestamp(self, collection_id, parent_id, auth=None):
         ts = self._timestamps[parent_id].get(collection_id)
         if ts is not None:
@@ -127,6 +128,7 @@ class Storage(MemoryBasedStorage):
         self._timestamps[parent_id][collection_id] = collection_timestamp
         return current
 
+    @synchronized
     def create(self, collection_id, parent_id, record, id_generator=None,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD, auth=None):
@@ -149,6 +151,7 @@ class Storage(MemoryBasedStorage):
         self._cemetery[parent_id][collection_id].pop(_id, None)
         return record
 
+    @synchronized
     def get(self, collection_id, parent_id, object_id,
             id_field=DEFAULT_ID_FIELD,
             modified_field=DEFAULT_MODIFIED_FIELD,
@@ -158,6 +161,7 @@ class Storage(MemoryBasedStorage):
             raise exceptions.RecordNotFoundError(object_id)
         return collection[object_id].copy()
 
+    @synchronized
     def update(self, collection_id, parent_id, object_id, record,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
@@ -171,6 +175,7 @@ class Storage(MemoryBasedStorage):
         self._cemetery[parent_id][collection_id].pop(object_id, None)
         return record
 
+    @synchronized
     def delete(self, collection_id, parent_id, object_id,
                id_field=DEFAULT_ID_FIELD, with_deleted=True,
                modified_field=DEFAULT_MODIFIED_FIELD,
@@ -194,6 +199,7 @@ class Storage(MemoryBasedStorage):
         self._store[parent_id][collection_id].pop(object_id)
         return existing
 
+    @synchronized
     def purge_deleted(self, collection_id, parent_id, before=None,
                       id_field=DEFAULT_ID_FIELD,
                       modified_field=DEFAULT_MODIFIED_FIELD,
@@ -217,6 +223,7 @@ class Storage(MemoryBasedStorage):
                 num_deleted += (len(colrecords) - len(kept))
         return num_deleted
 
+    @synchronized
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,
                 id_field=DEFAULT_ID_FIELD,
@@ -235,6 +242,7 @@ class Storage(MemoryBasedStorage):
                                                  pagination_rules, limit)
         return records, count
 
+    @synchronized
     def delete_all(self, collection_id, parent_id, filters=None,
                    id_field=DEFAULT_ID_FIELD, with_deleted=True,
                    modified_field=DEFAULT_MODIFIED_FIELD,
