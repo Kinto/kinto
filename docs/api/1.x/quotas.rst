@@ -17,11 +17,15 @@ Clients can check for the ``quotas`` capability in the
 
 * A bucket's quota is a limit on the size of bucket attributes, group
   attributes, collection attributes, and record attributes.
-* Deleted items are considered to have a size zero so if you add something
+* Deleted objects are considered to have a size zero so if you add something
   and remove it, it will look like it was never created for the
   quota even if its tombstone is still there.
 * The quota plugin only works with the transactional storage backends
   (e.g. PostgreSQL)
+* The quota plugin should be activated before adding some data in a
+  bucket or collection. If activated after, the size of the data
+  already present will be added to the quota limit even if this data
+  is deleted later.
 
 
 Configuration
@@ -35,7 +39,7 @@ You can configure three types of quotas:
 * **QUOTA_BYTES_PER_ITEM**: The maximum size (in bytes) of each
   individual item in the bucket or collection, as measured by the JSON
   stringification of its value plus its key length.
-* **MAX_ITEMS**: The maximum number of items that can be stored in
+* **MAX_ITEMS**: The maximum number of objects that can be stored in
   a collection or bucket.
 
 You can configure it in the INI settings file.
@@ -89,5 +93,5 @@ Storage`` HTTP error.
         "code": 507, 
         "errno": 121, 
         "error": "Insufficient Storage", 
-        "message": "Collection max items exceeded: 2 records. MAX_ITEMS is 1 records"
+        "message": "Collection maximum number of objects exceeded (2 > 1 objects)"
     }
