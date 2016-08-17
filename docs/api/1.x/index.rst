@@ -22,6 +22,7 @@ Full detailed API documentation:
    pagination
    selecting_fields
    history
+   quotas
    utilities
    batch
    timestamps
