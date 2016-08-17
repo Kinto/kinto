@@ -591,8 +591,8 @@ class UserResource(object):
             return new
 
         # Drop the new last_modified if lesser or equal to the old one.
-        is_less_or_equal = (old is not None
-                            and new_last_modified <= old[modified_field])
+        is_less_or_equal = (old is not None and
+                            new_last_modified <= old[modified_field])
         if is_less_or_equal:
             new.pop(modified_field, None)
 
