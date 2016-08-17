@@ -6,7 +6,9 @@ This document describes changes between each past release.
 4.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Fix documentation of errors codes (fixes #766)
 
 
 4.0.0 (2016-08-17)
