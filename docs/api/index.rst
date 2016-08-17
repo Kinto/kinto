@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.9 (unreleased)
+1.9 (2016-08-17)
 ''''''''''''''''
 
 - Add new endpoint ``GET /__version__`` to retrieve the information

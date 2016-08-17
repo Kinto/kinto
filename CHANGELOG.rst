@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-4.0.0 (unreleased)
+4.0.0 (2016-08-17)
 ------------------
 
 **Breaking changes**
@@ -26,6 +26,8 @@ This document describes changes between each past release.
 - Allow sub-object filtering on plural endpoints (e.g ``?person.name=Eliot``) (#345)
 - Allow sub-object sorting on plural endpoints (e.g ``?_sort=person.name``) (#345)
 
+Protocol is now at version **1.9**. See `API changelog`_.
+
 **New features**
 
 - Added a new built-in plugin ``kinto.plugins.history`` that keeps track of every action
@@ -41,7 +43,6 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
-- Fix Redis get_accessible_object implementation (#725)
 - Fix bug where the resource events of a request targetting two groups/collection
   from different buckets would be grouped together.
 - Fix crash when an invalid UTF-8 character is provided in URL
@@ -64,7 +65,7 @@ This document describes changes between each past release.
   parameter anymore
 - Improved parts of the FAQ (#744)
 - Improve 404 and 403 error handling to make them customizable. (#748)
-- ``kinto.core`` resources are not schemaless by default (fixes #719)
+- ``kinto.core`` resources are now schemaless by default (fixes #719)
 
 
 3.3.1 (2016-07-19)

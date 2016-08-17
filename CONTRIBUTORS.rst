@@ -30,7 +30,7 @@ Contributors
 * Masataka Takeuchi <masataka.takeuchi@l-is-b.com>
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
-* Maxime Varnier <marmax@gmail.com>
+* Maxime Warnier <marmax@gmail.com>
 * Michiel de Jong <michiel@unhosted.org>
 * Nicolas Hoizey <nicolas@hoizey.com>
 * Nicolas Perriault <nperriault@mozilla.com>
