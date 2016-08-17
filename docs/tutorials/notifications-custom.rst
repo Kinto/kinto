@@ -228,6 +228,10 @@ It worked!
 Run asynchronous code
 ---------------------
 
+.. note::
+
+   You will need to install ``kinto-redis`` to use this listener.
+
 In this part, we will take advantage of the built-in listener that delivers the events
 into a Redis queue. Separate scripts, also as known as “workers”, then consume
 the queue to execute custom asynchronous code.
@@ -267,10 +271,6 @@ Kinto should load the listeners without errors:
     $ kinto start
     Starting subprocess with file monitor
     2016-01-21 16:21:59,941 INFO  [kinto.core.initialization][MainThread] Setting up 'redis' listener
-
-.. note::
-
-   You will need to install `kinto-redis` to use this listener.
 
 
 Run worker(s)
