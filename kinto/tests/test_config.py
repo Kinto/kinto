@@ -87,6 +87,8 @@ class ConfigTest(unittest.TestCase):
         self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
 
         redis_url = "redis://localhost:6379"
+
+        self.maxDiff = None  # See the full diff in case of error
         self.assertDictEqual(kwargs, {
             'secret': kwargs['secret'],
             'storage_backend': 'kinto_redis.storage',
