@@ -5,6 +5,7 @@ SPHINX_BUILDDIR = docs/_build
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON = $(VENV)/bin/python
 DEV_STAMP = $(VENV)/.dev_env_installed.stamp
+DOC_STAMP = $(VENV)/.doc_env_installed.stamp
 INSTALL_STAMP = $(VENV)/.install.stamp
 TEMPDIR := $(shell mktemp -d)
 
@@ -50,6 +51,11 @@ install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON) dev-requirements.txt
 	$(VENV)/bin/pip install -Ur dev-requirements.txt
 	touch $(DEV_STAMP)
+
+install-docs: $(DOC_STAMP)
+$(DOC_STAMP): $(PYTHON) docs/requirements.txt
+	$(VENV)/bin/pip install -Ur docs/requirements.txt
+	touch $(DOC_STAMP)
 
 virtualenv: $(PYTHON)
 $(PYTHON):
@@ -113,7 +119,7 @@ loadtest-check-simulation: install-postgres
 	  make simulation SERVER_URL=http://127.0.0.1:8888; \
 	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
 
-docs: install-dev
+docs: install-docs
 	$(VENV)/bin/sphinx-build -a -W -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"

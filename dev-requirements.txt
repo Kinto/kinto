@@ -7,9 +7,6 @@ pytest-capturelog
 pytest-cover
 pytest-sugar
 requests
-sphinx_rtd_theme
-sphinxcontrib-httpdomain
-Sphinx
 SQLAlchemy
 tox
 unittest2
