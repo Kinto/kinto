@@ -2,16 +2,14 @@ import mock
 import uuid
 from contextlib import contextmanager
 
-import webtest
 from pyramid.config import Configurator
 
 from kinto.core import statsd
 from kinto.core.events import (ResourceChanged, AfterResourceChanged,
                                ResourceRead, AfterResourceRead, ACTIONS)
 from kinto.core.storage.exceptions import BackendError
-from kinto.core.testing import unittest, get_request_class
+from kinto.core.testing import unittest
 
-from ..testapp import main as make_testapp
 from ..support import BaseWebTest
 
 
@@ -45,16 +43,14 @@ class BaseEventTest(BaseWebTest):
     def listener(self, event):
         self.events.append(event)
 
-    def make_app(self, settings=None):
+    def make_app(self, settings=None, config=None):
         settings = self.get_app_settings(settings)
-        self.config = Configurator(settings=settings)
+        config = Configurator(settings=settings)
         for event_cls in self.subscribed:
-            self.config.add_subscriber(self.listener, event_cls)
-        self.config.commit()
-        app = make_testapp(config=self.config)
-        app = webtest.TestApp(app)
-        app.RequestClass = get_request_class(self.api_prefix)
-        return app
+            config.add_subscriber(self.listener, event_cls)
+        config.commit()
+        return super(BaseEventTest, self).make_app(settings=settings,
+                                                   config=config)
 
 
 class ResourceReadTest(BaseEventTest, unittest.TestCase):

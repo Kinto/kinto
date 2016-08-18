@@ -28,9 +28,8 @@ class PermissionsViewTest(BaseWebTest, unittest.TestCase):
         self.app.put_json('/buckets/water', MINIMALIST_BUCKET,
                           headers=get_user_headers('alice'))
 
-    def get_app_settings(self, additional_settings=None):
-        settings = super(PermissionsViewTest, self).get_app_settings(
-            additional_settings)
+    def get_app_settings(self, extras=None):
+        settings = super(PermissionsViewTest, self).get_app_settings(extras)
         settings['experimental_permissions_endpoint'] = 'True'
         return settings
 

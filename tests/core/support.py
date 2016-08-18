@@ -2,77 +2,52 @@ import mock
 import threading
 import functools
 
-import webtest
 from pyramid.security import IAuthorizationPolicy, Authenticated, Everyone
 from zope.interface import implementer
 
-from kinto.core import DEFAULT_SETTINGS
 from kinto.core.authorization import PRIVATE
-from kinto.core.testing import get_request_class
+from kinto.core import testing
 
 from .testapp import main as testapp
 
 
 # This is the principal a connected user should have (in the tests).
-USER_PRINCIPAL = ('basicauth:9f2d363f98418b13253d6d7193fc88690302'
-                  'ab0ae21295521f6029dffe9dc3b0')
+USER_PRINCIPAL = 'basicauth:8a931a10fc88ab2f6d1cc02a07d3a81b5d4768f6f13e85c5' \
+                 'd8d4180419acb1b4'
 
 
-class BaseWebTest(object):
+class BaseWebTest(testing.BaseWebTest):
     """Base Web Test to test your cornice service.
 
     It setups the database before each test and delete it after.
     """
 
     api_prefix = "v0"
+    entry_point = testapp
+    principal = USER_PRINCIPAL
+
     authorization_policy = 'tests.core.support.AllowAuthorizationPolicy'
     collection_url = '/mushrooms'
-    principal = USER_PRINCIPAL
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.app = self.make_app()
-        self.storage = self.app.app.registry.storage
-        self.cache = self.app.app.registry.cache
-        self.permission = self.app.app.registry.permission
-        self.headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic bWF0OjE='
-        }
+        self.headers.update(testing.get_user_headers('mat'))
 
-    def make_app(self, settings=None, config=None):
-        wsgi_app = testapp(self.get_app_settings(settings), config=config)
-        app = webtest.TestApp(wsgi_app)
-        app.RequestClass = get_request_class(self.api_prefix)
-        return app
-
-    def get_app_settings(self, additional_settings=None):
-        settings = DEFAULT_SETTINGS.copy()
-
-        settings['storage_backend'] = 'kinto.core.storage.memory'
-        settings['cache_backend'] = 'kinto.core.cache.memory'
-        settings['permission_backend'] = 'kinto.core.permission.memory'
-
-        settings['project_name'] = 'myapp'
-        settings['project_version'] = '0.0.1'
-        settings['project_docs'] = 'https://kinto.readthedocs.io/'
-        settings['multiauth.authorization_policy'] = self.authorization_policy
-
-        if additional_settings is not None:
-            settings.update(additional_settings)
-        return settings
+    def get_app_settings(self, extras=None):
+        if extras is None:
+            extras = {}
+        extras.setdefault('project_name', 'myapp')
+        extras.setdefault('project_version', '0.0.1')
+        extras.setdefault('project_docs', 'https://kinto.readthedocs.io/')
+        extras.setdefault('multiauth.authorization_policy',
+                          self.authorization_policy)
+        return super(BaseWebTest, self).get_app_settings(extras)
 
     def get_item_url(self, id=None):
         """Return the URL of the item using self.item_url."""
         if id is None:
             id = self.record['id']
         return self.collection_url + '/' + str(id)
-
-    def tearDown(self):
-        super(BaseWebTest, self).tearDown()
-        self.storage.flush()
-        self.cache.flush()
-        self.permission.flush()
 
 
 class ThreadMixin(object):

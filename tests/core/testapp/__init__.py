@@ -19,12 +19,11 @@ def includeme(config):
     config.add_view(static, route_name="catchall_static")
 
 
-def main(settings=None, config=None, *args, **additional_settings):
-    if settings is None:
-        settings = {}
-    settings.update(additional_settings)
+def main(global_config, config=None, **settings):
+    global_config.update(settings)
     if config is None:
         config = Configurator(settings=settings)
+
     kinto.core.initialize(config, version='0.0.1')
     config.include(includeme)
     app = config.make_wsgi_app()

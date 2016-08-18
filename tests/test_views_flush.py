@@ -1,9 +1,7 @@
 import os
-import webtest
 from pyramid.config import Configurator
 
-from kinto import main
-from kinto.core.testing import unittest, get_user_headers, get_request_class
+from kinto.core.testing import unittest, get_user_headers
 from kinto.events import ServerFlushed
 
 from .support import (BaseWebTest,
@@ -24,8 +22,9 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
 
         self.alice_headers = self.headers.copy()
         self.alice_headers.update(**get_user_headers('alice'))
-        alice_principal = ('basicauth:8df4b22019cc89d0bb679bc51373a9da56a'
-                           '7ae9978c52fbe684510c3d257c855')
+
+        resp = self.app.get('/', headers=self.alice_headers)
+        alice_principal = resp.json['user']['id']
         bucket['permissions'] = {'write': [alice_principal]}
 
         # Create shared bucket.
@@ -49,21 +48,19 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         self.events = []
         super(FlushViewTest, self).tearDown()
 
-    def _get_test_app(self, settings=None):
-        app_settings = self.get_app_settings(settings)
-        self.config = Configurator(settings=app_settings)
-        self.config.add_subscriber(self.listener, ServerFlushed)
-        self.config.commit()
-        app = webtest.TestApp(main({}, config=self.config, **app_settings))
-        app.RequestClass = get_request_class(prefix="v1")
+    def make_app(self, settings=None, config=None):
+        settings = self.get_app_settings(settings)
+        config = Configurator(settings=settings)
+        config.add_subscriber(self.listener, ServerFlushed)
+        config.commit()
+        return super(FlushViewTest, self).make_app(settings=settings,
+                                                   config=config)
 
-        return app
-
-    def get_app_settings(self, extra=None):
-        if extra is None:
-            extra = {}
-        extra.setdefault('flush_endpoint_enabled', True)
-        settings = super(FlushViewTest, self).get_app_settings(extra)
+    def get_app_settings(self, extras=None):
+        if extras is None:
+            extras = {}
+        extras.setdefault('flush_endpoint_enabled', True)
+        settings = super(FlushViewTest, self).get_app_settings(extras)
         return settings
 
     def listener(self, event):
@@ -71,7 +68,7 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
 
     def test_returns_404_if_not_enabled_in_configuration(self):
         extra = {'flush_endpoint_enabled': False}
-        app = self._get_test_app(settings=extra)
+        app = self.make_app(settings=extra)
         app.post('/__flush__', headers=self.headers, status=404)
 
     def test_removes_every_records_of_everykind(self):
@@ -95,6 +92,6 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
     def test_can_be_enabled_via_environment(self):
         os.environ['KINTO_FLUSH_ENDPOINT_ENABLED'] = 'true'
         extra = {'flush_endpoint_enabled': False}
-        app = self._get_test_app(settings=extra)
+        app = self.make_app(settings=extra)
         app.post('/__flush__', headers=self.headers)
         os.environ.pop('KINTO_FLUSH_ENDPOINT_ENABLED')

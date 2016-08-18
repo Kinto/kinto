@@ -12,8 +12,15 @@ from kinto.core.utils import hmac_digest
 from ..support import BaseWebTest, MINIMALIST_RECORD
 
 
-class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
-                            unittest.TestCase):
+class DefaultBucketWebTest(BaseWebTest, unittest.TestCase):
+
+    def get_app_settings(self, extras=None):
+        settings = super(DefaultBucketWebTest, self).get_app_settings(extras)
+        settings['includes'] = 'kinto.plugins.default_bucket'
+        return settings
+
+
+class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
 
     bucket_url = '/buckets/default'
     collection_url = '/buckets/default/collections/tasks'
@@ -214,12 +221,12 @@ class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
             self.assertEqual(resp.body, response.body)
 
 
-class HelloViewTest(BaseWebTest, unittest.TestCase):
+class HelloViewTest(DefaultBucketWebTest):
 
     def test_returns_bucket_id_and_url_if_authenticated(self):
         response = self.app.get('/', headers=self.headers)
         self.assertEqual(response.json['user']['bucket'],
-                         '23bb0efc-e80d-829e-6757-79d41e16640f')
+                         'ddaf8694-fa9e-2949-ed0e-77198a7907fb')
 
     def test_flush_capability_if_enabled(self):
         resp = self.app.get('/')
@@ -237,13 +244,13 @@ def load_from_config(config, prefix):
     return listener
 
 
-class EventsTest(BaseWebTest, unittest.TestCase):
+class EventsTest(DefaultBucketWebTest):
     def tearDown(self):
         super(EventsTest, self).tearDown()
         del _events[:]
 
-    def get_app_settings(self, extra=None):
-        settings = super(EventsTest, self).get_app_settings(extra)
+    def get_app_settings(self, extras=None):
+        settings = super(EventsTest, self).get_app_settings(extras)
         settings = settings.copy()
         settings['event_listeners'] = 'testevent',
         settings['event_listeners.testevent.use'] = (
@@ -299,7 +306,7 @@ class EventsTest(BaseWebTest, unittest.TestCase):
                                                                 bucket_id)
 
 
-class ReadonlyDefaultBucket(BaseWebTest, unittest.TestCase):
+class ReadonlyDefaultBucket(DefaultBucketWebTest):
 
     def get_app_settings(self, extras=None):
         settings = super(ReadonlyDefaultBucket, self).get_app_settings(extras)
@@ -310,7 +317,7 @@ class ReadonlyDefaultBucket(BaseWebTest, unittest.TestCase):
         self.app.get('/buckets/default', headers=self.headers, status=405)
 
 
-class BackendErrorTest(BaseWebTest, unittest.TestCase):
+class BackendErrorTest(DefaultBucketWebTest):
     def setUp(self):
         super(BackendErrorTest, self).setUp()
         self.patcher = mock.patch.object(

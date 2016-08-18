@@ -41,8 +41,8 @@ class QuotaWebTest(support.BaseWebTest, unittest.TestCase):
         resp = self.app.put_json(self.record_uri, body, headers=self.headers)
         self.record = resp.json['data']
 
-    def get_app_settings(self, extra=None):
-        settings = super(QuotaWebTest, self).get_app_settings(extra)
+    def get_app_settings(self, extras=None):
+        settings = super(QuotaWebTest, self).get_app_settings(extras)
 
         # Setup the postgresql backend for transaction support.
         settings['storage_backend'] = 'kinto.core.storage.postgresql'
@@ -769,9 +769,9 @@ class QuotaMaxBytesExceededSettingsListenerTest(
 
     error_message = "Bucket maximum total size exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(QuotaMaxBytesExceededSettingsListenerTest,
-                         self).get_app_settings(extra)
+                         self).get_app_settings(extras)
         settings['quotas.bucket_max_bytes'] = '150'
         return settings
 
@@ -782,9 +782,9 @@ class QuotaMaxBytesExceededBucketSettingsListenerTest(
 
     error_message = "Bucket maximum total size exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(QuotaMaxBytesExceededBucketSettingsListenerTest,
-                         self).get_app_settings(extra)
+                         self).get_app_settings(extras)
         settings['quotas.bucket_test_max_bytes'] = '150'
         return settings
 
@@ -794,9 +794,9 @@ class QuotaMaxItemsExceededSettingsListenerTest(
 
     error_message = "Bucket maximum number of objects exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(QuotaMaxItemsExceededSettingsListenerTest,
-                         self).get_app_settings(extra)
+                         self).get_app_settings(extras)
         settings['quotas.bucket_max_items'] = '1'
         return settings
 
@@ -806,9 +806,9 @@ class QuotaMaxItemsExceededBucketSettingsListenerTest(
 
     error_message = "Bucket maximum number of objects exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(QuotaMaxItemsExceededBucketSettingsListenerTest,
-                         self).get_app_settings(extra)
+                         self).get_app_settings(extras)
         settings['quotas.bucket_test_max_items'] = '1'
         return settings
 
@@ -819,9 +819,9 @@ class QuotaMaxBytesPerItemExceededListenerTest(
 
     error_message = "Maximum bytes per object exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(QuotaMaxBytesPerItemExceededListenerTest,
-                         self).get_app_settings(extra)
+                         self).get_app_settings(extras)
         settings['quotas.bucket_max_bytes_per_item'] = '55'
         return settings
 
@@ -832,9 +832,9 @@ class QuotaMaxBytesPerItemExceededBucketListenerTest(
 
     error_message = "Maximum bytes per object exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(QuotaMaxBytesPerItemExceededBucketListenerTest,
-                         self).get_app_settings(extra)
+                         self).get_app_settings(extras)
         settings['quotas.bucket_test_max_bytes_per_item'] = '55'
         return settings
 
@@ -910,10 +910,10 @@ class QuotaMaxBytesExceededCollectionSettingsListenerTest(
 
     error_message = "Collection maximum size exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(
             QuotaMaxBytesExceededCollectionSettingsListenerTest,
-            self).get_app_settings(extra)
+            self).get_app_settings(extras)
         settings['quotas.collection_max_bytes'] = '100'
         return settings
 
@@ -924,10 +924,10 @@ class QuotaMaxBytesExceededCollectionBucketSettingsListenerTest(
 
     error_message = "Collection maximum size exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(
             QuotaMaxBytesExceededCollectionBucketSettingsListenerTest,
-            self).get_app_settings(extra)
+            self).get_app_settings(extras)
         settings['quotas.collection_test_max_bytes'] = '100'
         return settings
 
@@ -938,10 +938,10 @@ class QuotaMaxBytesExceededBucketCollectionSettingsListenerTest(
 
     error_message = "Collection maximum size exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(
             QuotaMaxBytesExceededBucketCollectionSettingsListenerTest,
-            self).get_app_settings(extra)
+            self).get_app_settings(extras)
         settings['quotas.collection_test_col_max_bytes'] = '100'
         return settings
 
@@ -951,10 +951,10 @@ class QuotaMaxItemsExceededCollectionSettingsListenerTest(
 
     error_message = "Collection maximum number of objects exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(
             QuotaMaxItemsExceededCollectionSettingsListenerTest,
-            self).get_app_settings(extra)
+            self).get_app_settings(extras)
         settings['quotas.collection_max_items'] = '1'
         return settings
 
@@ -964,10 +964,10 @@ class QuotaMaxItemsExceededCollectionBucketSettingsListenerTest(
 
     error_message = "Collection maximum number of objects exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(
             QuotaMaxItemsExceededCollectionBucketSettingsListenerTest,
-            self).get_app_settings(extra)
+            self).get_app_settings(extras)
         settings['quotas.collection_test_max_items'] = '1'
         return settings
 
@@ -977,10 +977,10 @@ class QuotaMaxItemsExceededBucketCollectionSettingsListenerTest(
 
     error_message = "Collection maximum number of objects exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(
             QuotaMaxItemsExceededBucketCollectionSettingsListenerTest,
-            self).get_app_settings(extra)
+            self).get_app_settings(extras)
         settings['quotas.collection_test_col_max_items'] = '1'
         return settings
 
@@ -990,10 +990,10 @@ class QuotaMaxBytesPerItemExceededCollectionSettingsListenerTest(
 
     error_message = "Maximum bytes per object exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(
             QuotaMaxBytesPerItemExceededCollectionSettingsListenerTest,
-            self).get_app_settings(extra)
+            self).get_app_settings(extras)
         settings['quotas.collection_max_bytes_per_item'] = '80'
         return settings
 
@@ -1004,10 +1004,10 @@ class QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest(
 
     error_message = "Maximum bytes per object exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(
             QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest,
-            self).get_app_settings(extra)
+            self).get_app_settings(extras)
         settings['quotas.collection_test_max_bytes_per_item'] = '80'
         return settings
 
@@ -1018,9 +1018,9 @@ class QuotaMaxBytesPerItemExceededBucketCollectionSettingsListenerTest(
 
     error_message = "Maximum bytes per object exceeded "
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(
             QuotaMaxBytesPerItemExceededBucketCollectionSettingsListenerTest,
-            self).get_app_settings(extra)
+            self).get_app_settings(extras)
         settings['quotas.collection_test_col_max_bytes_per_item'] = '80'
         return settings

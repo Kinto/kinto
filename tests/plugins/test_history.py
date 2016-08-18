@@ -8,8 +8,8 @@ from .. import support
 
 class HistoryWebTest(support.BaseWebTest, unittest.TestCase):
 
-    def get_app_settings(self, extra=None):
-        settings = super(HistoryWebTest, self).get_app_settings(extra)
+    def get_app_settings(self, extras=None):
+        settings = super(HistoryWebTest, self).get_app_settings(extras)
         settings['includes'] = 'kinto.plugins.history'
         return settings
 
@@ -61,7 +61,7 @@ class HistoryViewTest(HistoryWebTest):
     def test_tracks_user_and_date(self):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][-1]
-        assert entry['user_id'].startswith('basicauth:3a0c56')
+        assert entry['user_id'] == self.principal
         assert re.match('^\d{4}\-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}',
                         entry['date'])
 
@@ -349,8 +349,8 @@ class BulkTest(HistoryWebTest):
 
 class DefaultBucketTest(HistoryWebTest):
 
-    def get_app_settings(self, extra=None):
-        settings = super(HistoryWebTest, self).get_app_settings(extra)
+    def get_app_settings(self, extras=None):
+        settings = super(HistoryWebTest, self).get_app_settings(extras)
         settings['includes'] = ('kinto.plugins.default_bucket '
                                 'kinto.plugins.history')
         return settings
@@ -381,14 +381,14 @@ class DefaultBucketTest(HistoryWebTest):
         assert entries[2]['resource_name'] == 'bucket'
         assert entries[2]['bucket_id'] == self.bucket_id
         assert entries[2]['uri'] == bucket_uri
-        assert 'basicauth:3' in entries[2]['target']['permissions']['write'][0]
+        assert entries[2]['target']['permissions']['write'][0] == self.principal  # NOQA
 
         collection_uri = bucket_uri + '/collections/blah'
         assert entries[1]['resource_name'] == 'collection'
         assert 'bucket_id' not in entries[1]
         assert entries[1]['collection_id'] == 'blah'
         assert entries[1]['uri'] == collection_uri
-        assert 'basicauth:3' in entries[1]['target']['permissions']['write'][0]
+        assert entries[1]['target']['permissions']['write'][0] == self.principal  # NOQA
 
         record_uri = collection_uri + '/records/%s' % record['id']
         assert entries[0]['resource_name'] == 'record'
@@ -397,18 +397,23 @@ class DefaultBucketTest(HistoryWebTest):
         assert entries[0]['record_id'] == record['id']
         assert entries[0]['uri'] == record_uri
         assert entries[0]['target']['data']['foo'] == 42
-        assert 'basicauth:3' in entries[0]['target']['permissions']['write'][0]
+        assert entries[0]['target']['permissions']['write'][0] == self.principal  # NOQA
 
 
 class PermissionsTest(HistoryWebTest):
 
     def setUp(self):
-        self.alice_headers = get_user_headers('alice:')
-        self.julia_headers = get_user_headers('julia:')
-        self.mike_headers = get_user_headers('mike:')
-        self.alice_principal = 'basicauth:845a151f1fbb0063738943a4531f8b7ef521fa488ed5ac7d077aa7ee1f349ef7'  # NOQA
-        self.julia_principal = 'basicauth:2f5fcddb299319097b9ae72f609d071d99aaf46ef9c3bc82bcc0212d14e35c4f'  # NOQA
-        self.mike_principal = 'basicauth:b3c35f5b528685cbd68b084a3aa3404f81c06e3d068000c2a109150356e45241'  # NOQA
+        self.alice_headers = get_user_headers('alice')
+        self.bob_headers = get_user_headers('bob')
+        self.julia_headers = get_user_headers('julia')
+
+        self.alice_principal = ('basicauth:d5b0026601f1b251974e09548d44155e16'
+                                '812e3c64ff7ae053fe3542e2ca1570')
+        self.bob_principal = ('basicauth:c031ced27503f788b102ca54269a062ec737'
+                              '94bb075154c74a0d4311e74ca8b6')
+        self.julia_principal = ('basicauth:d8bab8d9fe0510fcaf9b5ad5942c027fc'
+                                '2fdf80b6dc59cc3c48d12a2fcb18f1c')
+
         bucket = {
             'permissions': {
                 'read': [self.alice_principal]
@@ -421,7 +426,7 @@ class PermissionsTest(HistoryWebTest):
         }
         record = {
             'permissions': {
-                'write': [self.mike_principal, self.alice_principal],
+                'write': [self.bob_principal, self.alice_principal],
             }
         }
         self.app.put('/buckets/author-only',
@@ -479,13 +484,13 @@ class PermissionsTest(HistoryWebTest):
 
     def test_write_on_record_restricts_to_record(self):
         resp = self.app.get('/buckets/test/history',
-                            headers=self.mike_headers)
+                            headers=self.bob_headers)
         entries = resp.json['data']
         assert len(entries) == 2
         assert ('system.Authenticated' in
                 entries[0]['target']['permissions']['read'])
         assert entries[0]['resource_name'] == 'record'
-        assert (self.mike_principal in
+        assert (self.bob_principal in
                 entries[1]['target']['permissions']['write'])
         assert entries[1]['resource_name'] == 'record'
 

@@ -140,9 +140,9 @@ class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
                           bucket,
                           headers=self.headers)
 
-    def get_app_settings(self, extra=None):
+    def get_app_settings(self, extras=None):
         settings = super(BucketReadPermissionTest,
-                         self).get_app_settings(extra)
+                         self).get_app_settings(extras)
         # Give the right to list buckets (for self.principal and alice).
         settings['kinto.bucket_read_principals'] = Authenticated
         return settings
@@ -182,8 +182,8 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         # Delete the bucket.
         self.app.delete(self.bucket_url, headers=self.headers)
 
-    def get_app_settings(self, extra=None):
-        settings = super(BucketDeletionTest, self).get_app_settings(extra)
+    def get_app_settings(self, extras=None):
+        settings = super(BucketDeletionTest, self).get_app_settings(extras)
         # Give the permission to read, to get an explicit 404 once deleted.
         settings['kinto.bucket_read_principals'] = self.principal
         return settings

@@ -22,6 +22,8 @@ skip_if_no_postgresql = unittest.skipIf(sqlalchemy is None,
 
 
 class DummyRequest(mock.MagicMock):
+    """Fully mocked request.
+    """
     def __init__(self, *args, **kwargs):
         super(DummyRequest, self).__init__(*args, **kwargs)
         self.upath_info = '/v0/'
@@ -62,6 +64,8 @@ def get_request_class(prefix):
 
 
 class FormattedErrorMixin(object):
+    """Test mixin in order to perform advanced error responses assertions.
+    """
 
     def assertFormattedError(self, response, code, errno, error,
                              message=None, info=None):
@@ -86,8 +90,85 @@ class FormattedErrorMixin(object):
 
 
 def get_user_headers(user):
+    """Helper to obtain a Basic Auth authorization headers from the specified
+    `user` (e.g. ``"user:pass"``)
+
+    :rtype: dict
+    """
     credentials = "%s:secret" % user
     authorization = 'Basic {0}'.format(encode64(credentials))
     return {
         'Authorization': authorization
     }
+
+
+class BaseWebTest(object):
+    """Base Web Test to test your kinto.core service.
+
+    It setups the database before each test and delete it after.
+    """
+
+    api_prefix = "v0"
+    """URL version prefix"""
+
+    entry_point = None
+    """Main application entry"""
+
+    def __init__(self, *args, **kwargs):
+        super(BaseWebTest, self).__init__(*args, **kwargs)
+        self.app = self.make_app()
+        self.storage = self.app.app.registry.storage
+        self.cache = self.app.app.registry.cache
+        self.permission = self.app.app.registry.permission
+
+        self.storage.initialize_schema()
+        self.permission.initialize_schema()
+        self.cache.initialize_schema()
+
+        self.headers = {
+            'Content-Type': 'application/json'
+        }
+
+    def make_app(self, settings=None, config=None):
+        """Instantiate the application and setup requests to use the api
+        prefix.
+
+        :param dict settings: extra settings values
+        :param pyramid.config.Configurator config: already initialized config
+        :returns: webtest application instance
+        """
+        settings = self.get_app_settings(extras=settings)
+
+        try:
+            main = self.entry_point.__func__
+        except AttributeError:  # pragma: no cover
+            main = self.entry_point.im_func
+
+        wsgi_app = main({}, config=config, **settings)
+        app = webtest.TestApp(wsgi_app)
+        app.RequestClass = get_request_class(self.api_prefix)
+        return app
+
+    def get_app_settings(self, extras=None):
+        """Application settings to be used. Override to tweak default settings
+        for the tests.
+
+        :param dict extras: extra settings values
+        :rtype: dict
+        """
+        settings = DEFAULT_SETTINGS.copy()
+
+        settings['storage_backend'] = 'kinto.core.storage.memory'
+        settings['cache_backend'] = 'kinto.core.cache.memory'
+        settings['permission_backend'] = 'kinto.core.permission.memory'
+
+        if extras is not None:
+            settings.update(extras)
+
+        return settings
+
+    def tearDown(self):
+        super(BaseWebTest, self).tearDown()
+        self.storage.flush()
+        self.cache.flush()
+        self.permission.flush()

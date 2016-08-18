@@ -5,8 +5,8 @@ from .support import (BaseWebTest, MINIMALIST_BUCKET,
 
 
 class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
-    def get_app_settings(self, extra=None):
-        settings = super(GlobalSettingsTest, self).get_app_settings(extra)
+    def get_app_settings(self, extras=None):
+        settings = super(GlobalSettingsTest, self).get_app_settings(extras)
         settings['kinto.record_cache_expires_seconds'] = 3600
         settings['kinto.record_read_principals'] = 'system.Everyone'
         return settings
@@ -34,8 +34,8 @@ class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
 
 
 class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
-    def get_app_settings(self, extra=None):
-        settings = super(SpecificSettingsTest, self).get_app_settings(extra)
+    def get_app_settings(self, extras=None):
+        settings = super(SpecificSettingsTest, self).get_app_settings(extras)
         settings['kinto.blog_record_cache_expires_seconds'] = '30'
         settings['kinto.browser_top500_record_cache_expires_seconds'] = '60'
         return settings
@@ -134,7 +134,7 @@ class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(r.headers['Pragma'], 'no-cache')
 
     def test_cache_control_on_collection_overrides_setting(self):
-        app = self._get_test_app({
+        app = self.make_app(settings={
             'kinto.record_cache_expires_seconds': 10,
             'kinto.record_read_principals': 'system.Everyone'
         })

@@ -11,12 +11,13 @@ class PermissionsTest(BaseWebTest, unittest.TestCase):
         super(PermissionsTest, self).__init__(*args, **kwargs)
         self.alice_headers = self.headers.copy()
         self.alice_headers.update(**get_user_headers('alice'))
-        self.alice_principal = ('basicauth:8df4b22019cc89d0bb679bc51373a9da56a'
-                                '7ae9978c52fbe684510c3d257c855')
         self.bob_headers = self.headers.copy()
         self.bob_headers.update(**get_user_headers('bob'))
-        self.bob_principal = ('basicauth:21364d1282b58b3af15a0d619d03122a318be'
-                              'e30c1a5a2d09c3b958e5f7fb71a')
+
+        self.alice_principal = ('basicauth:d5b0026601f1b251974e09548d44155e16'
+                                '812e3c64ff7ae053fe3542e2ca1570')
+        self.bob_principal = ('basicauth:c031ced27503f788b102ca54269a062ec737'
+                              '94bb075154c74a0d4311e74ca8b6')
 
 
 class BucketPermissionsTest(PermissionsTest):

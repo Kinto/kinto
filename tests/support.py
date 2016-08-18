@@ -3,11 +3,8 @@ try:
 except ImportError:
     import unittest  # NOQA
 
-import webtest
-
 from kinto.core import testing
-from kinto.core import DEFAULT_SETTINGS as CORE_DEFAULT_SETTINGS
-from kinto import main as testapp
+from kinto import main as kinto_main
 from kinto import DEFAULT_SETTINGS
 
 
@@ -16,50 +13,26 @@ MINIMALIST_COLLECTION = {}
 MINIMALIST_GROUP = {'data': dict(members=['fxa:user'])}
 MINIMALIST_RECORD = {'data': dict(name="Hulled Barley",
                                   type="Whole Grain")}
-USER_PRINCIPAL = 'basicauth:3a0c56d278def4113f38d0cfff6db1b06b84fcc4384ee890' \
-                 'cf7bbaa772317e10'
+USER_PRINCIPAL = 'basicauth:8a931a10fc88ab2f6d1cc02a07d3a81b5d4768f6f13e85c5' \
+                 'd8d4180419acb1b4'
 
 
-class BaseWebTest(object):
+class BaseWebTest(testing.BaseWebTest):
+
+    api_prefix = "v1"
+    entry_point = kinto_main
+    principal = USER_PRINCIPAL
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.principal = USER_PRINCIPAL
-        self.app = self._get_test_app()
-        self.storage = self.app.app.registry.storage
-        self.permission = self.app.app.registry.permission
-        self.cache = self.app.app.registry.cache
-        self.storage.initialize_schema()
-        self.permission.initialize_schema()
-        self.cache.initialize_schema()
-        self.headers = {
-            'Content-Type': 'application/json',
-        }
         self.headers.update(testing.get_user_headers('mat'))
 
-    def _get_test_app(self, settings=None):
-        app = webtest.TestApp(testapp({}, **self.get_app_settings(settings)))
-        app.RequestClass = testing.get_request_class(prefix="v1")
-        return app
-
-    def get_app_settings(self, additional_settings=None):
-        settings = CORE_DEFAULT_SETTINGS.copy()
-        settings.update(**DEFAULT_SETTINGS)
-        settings['cache_backend'] = 'kinto.core.cache.memory'
-        settings['storage_backend'] = 'kinto.core.storage.memory'
-        settings['permission_backend'] = 'kinto.core.permission.memory'
-        settings['userid_hmac_secret'] = "this is not a secret"
-        settings['includes'] = "kinto.plugins.default_bucket"
-
-        if additional_settings is not None:
-            settings.update(additional_settings)
+    def get_app_settings(self, extras=None):
+        settings = DEFAULT_SETTINGS.copy()
+        if extras is not None:
+            settings.update(extras)
+        settings = super(BaseWebTest, self).get_app_settings(extras=settings)
         return settings
-
-    def tearDown(self):
-        super(BaseWebTest, self).tearDown()
-        self.storage.flush()
-        self.cache.flush()
-        self.permission.flush()
 
     def create_group(self, bucket_id, group_id, members=None):
         if members is None:
