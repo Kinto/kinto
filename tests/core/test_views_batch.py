@@ -2,11 +2,12 @@
 import colander
 import mock
 import uuid
+import unittest
 
 from pyramid.response import Response
 
 from kinto.core.views.batch import BatchPayloadSchema, batch as batch_service
-from kinto.core.testing import unittest, DummyRequest
+from kinto.core.testing import DummyRequest
 from kinto.core.utils import json
 
 from .support import BaseWebTest

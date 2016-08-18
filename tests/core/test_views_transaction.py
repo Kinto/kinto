@@ -1,4 +1,5 @@
 import mock
+import unittest
 
 from pyramid import testing
 from pyramid import httpexceptions
@@ -6,7 +7,7 @@ from pyramid import httpexceptions
 from kinto.core.storage.exceptions import BackendError
 from kinto.core.utils import sqlalchemy
 from kinto.core import events
-from kinto.core.testing import unittest, skip_if_no_postgresql
+from kinto.core.testing import skip_if_no_postgresql
 
 from .support import BaseWebTest, USER_PRINCIPAL
 

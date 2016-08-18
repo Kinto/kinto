@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import unittest
 import os
 
 import colander
@@ -16,7 +17,7 @@ from kinto.core.utils import (
     current_service, encode_header, decode_header, follow_subrequest,
     build_request, dict_subset
 )
-from kinto.core.testing import unittest, DummyRequest
+from kinto.core.testing import DummyRequest
 
 
 def build_real_request(wsgi_environ):

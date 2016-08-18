@@ -1,7 +1,9 @@
 import os
+import unittest
+
 from pyramid.config import Configurator
 
-from kinto.core.testing import unittest, get_user_headers
+from kinto.core.testing import get_user_headers
 from kinto.events import ServerFlushed
 
 from .support import (BaseWebTest,

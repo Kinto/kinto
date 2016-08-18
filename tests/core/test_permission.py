@@ -1,4 +1,5 @@
 import mock
+import unittest
 
 from pyramid import testing
 
@@ -8,7 +9,7 @@ from kinto.core.permission import (PermissionBase,
                                    memory as memory_backend,
                                    postgresql as postgresql_backend, heartbeat)
 
-from kinto.core.testing import unittest, skip_if_no_postgresql, DummyRequest
+from kinto.core.testing import skip_if_no_postgresql, DummyRequest
 
 
 class PermissionBaseTest(unittest.TestCase):

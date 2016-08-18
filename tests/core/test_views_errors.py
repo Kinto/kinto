@@ -1,8 +1,10 @@
+import unittest
 import mock
+
 from pyramid import httpexceptions
 
 from kinto.core.errors import ERRORS, http_error
-from kinto.core.testing import unittest, FormattedErrorMixin
+from kinto.core.testing import FormattedErrorMixin
 
 from .support import BaseWebTest, authorize
 

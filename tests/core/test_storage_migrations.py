@@ -1,4 +1,5 @@
 import os
+import unittest
 
 import mock
 import six
@@ -8,7 +9,7 @@ from kinto.core.cache import postgresql as postgresql_cache
 from kinto.core.permission import postgresql as postgresql_permission
 from kinto.core.storage import postgresql as postgresql_storage
 from kinto.core.utils import json
-from kinto.core.testing import unittest, skip_if_no_postgresql
+from kinto.core.testing import skip_if_no_postgresql
 
 
 @skip_if_no_postgresql

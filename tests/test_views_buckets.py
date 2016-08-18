@@ -1,6 +1,8 @@
+import unittest
+
 from pyramid.security import Authenticated
 
-from kinto.core.testing import unittest, get_user_headers
+from kinto.core.testing import get_user_headers
 
 from .support import (BaseWebTest,
                       MINIMALIST_BUCKET, MINIMALIST_GROUP,

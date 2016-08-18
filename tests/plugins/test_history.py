@@ -1,7 +1,9 @@
+import unittest
+
 import mock
 import re
 
-from kinto.core.testing import unittest, get_user_headers
+from kinto.core.testing import get_user_headers
 
 from .. import support
 

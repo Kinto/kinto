@@ -1,9 +1,10 @@
 import json
 import mock
 import re
+import unittest
 
 from kinto.core.utils import decode_header
-from kinto.core.testing import unittest, get_user_headers
+from kinto.core.testing import get_user_headers
 
 from .support import (BaseWebTest, MINIMALIST_RECORD,
                       MINIMALIST_GROUP, MINIMALIST_BUCKET,

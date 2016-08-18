@@ -8,7 +8,6 @@ pytest-cover
 pytest-sugar
 SQLAlchemy
 tox
-unittest2
 WebTest
 werkzeug
 wheel

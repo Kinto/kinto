@@ -1,8 +1,3 @@
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest  # NOQA
-
 from kinto.core import testing
 from kinto import main as kinto_main
 from kinto import DEFAULT_SETTINGS
