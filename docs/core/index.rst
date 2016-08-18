@@ -21,4 +21,5 @@ like notifications when you write a plugin.
    notifications
    permission
    errors
+   testing
    utils

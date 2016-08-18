@@ -9,6 +9,9 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Fix documentation of errors codes (fixes #766)
+- A lot of tests clean-up. The ``tests`` are now outside the ``kinto`` package
+  folder and a ``kinto.core.testing`` module was introduced for tests helpers
+  (fixes #605)
 
 
 4.0.0 (2016-08-17)

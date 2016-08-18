@@ -87,7 +87,7 @@ tests-once: install-dev version-file install-postgres install-monitoring
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
 
 flake8: install-dev
-	$(VENV)/bin/flake8 kinto
+	$(VENV)/bin/flake8 kinto tests
 
 tests: version-file
 	$(VENV)/bin/tox

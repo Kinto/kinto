@@ -6,10 +6,8 @@ pytest-cache
 pytest-capturelog
 pytest-cover
 pytest-sugar
-requests
 SQLAlchemy
 tox
-unittest2
 WebTest
 werkzeug
 wheel
