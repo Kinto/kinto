@@ -37,8 +37,8 @@ class GeneratorTest(unittest.TestCase):
         generator = Dumb()
         self.assertTrue(generator.match('1_2_3-abc'))
         self.assertTrue(generator.match('abc_123'))
-        self.assertFalse(generator.match('-1_2_3-abc'))
-        self.assertFalse(generator.match('_1_2_3-abc'))
+        self.assertTrue(generator.match('-1_2_3-abc'))
+        self.assertTrue(generator.match('_1_2_3-abc'))
 
     def test_uuid_generator_pattern_allows_uuid_only(self):
         invalid_uuid = 'XXX-00000000-0000-5000-a000-000000000000'

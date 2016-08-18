@@ -11,6 +11,12 @@ API
 Changelog
 ---------
 
+1.10 (unreleased)
+'''''''''''''''''
+
+- Allow objects ids to start with ``_`` or ``-``
+
+
 1.9 (2016-08-17)
 ''''''''''''''''
 
