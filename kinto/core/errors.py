@@ -72,7 +72,6 @@ class ERRORS(Enum):
     SERVICE_DEPRECATED = 202
 
 
-
 def http_error(httpexception, errno=None,
                code=None, error=None, message=None, info=None, details=None):
     """Return a JSON formated response matching the error HTTP API.
