@@ -23,7 +23,7 @@ The provided values are merged with the existing object. For example:
 
 .. note::
 
-    `JSON-Patch <http://jsonpatch.com>`_ or `JSON merge <https://tools.ietf.org/html/rfc7396>`
+    `JSON-Patch <http://jsonpatch.com>`_ or `JSON merge <https://tools.ietf.org/html/rfc7396>`_
     are currently not supported. Any help is welcomed though!
     See https://github.com/Kinto/kinto/issues/623
 
