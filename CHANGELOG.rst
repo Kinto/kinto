@@ -12,6 +12,8 @@ This document describes changes between each past release.
 - A lot of tests clean-up. The ``tests`` are now outside the ``kinto`` package
   folder and a ``kinto.core.testing`` module was introduced for tests helpers
   (fixes #605)
+- In documentation, link the notion of principals to the permissions page instead
+  of glossary
 
 
 4.0.0 (2016-08-17)

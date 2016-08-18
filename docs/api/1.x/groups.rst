@@ -3,7 +3,7 @@
 Groups
 ######
 
-A group associates a name to a list of :term:`principals <principal>`.
+A group associates a name to a list of :ref:`principals <api-principals>`.
 It is useful in order to handle permissions. Groups are defined in buckets.
 
 A group is a mapping with the following attributes:
@@ -11,7 +11,7 @@ A group is a mapping with the following attributes:
 * ``data``: attributes of the group object
     * ``id``: the group object id
     * ``last_modified``: the timestamp of the last modification
-    * ``members``: a list of :term:`principals <principal>`
+    * ``members``: a list of :ref:`principals <api-principals>`
 * ``permissions``: the :term:`ACLs <ACL>` for the group object
   (e.g who is allowed to read or update the group object itself.)
 

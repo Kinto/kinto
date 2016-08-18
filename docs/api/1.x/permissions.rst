@@ -81,6 +81,7 @@ grant the `write` permission to their creator.
   There is no ``delete`` permission. Anyone with the ``write`` permission on an
   object can delete it.
 
+.. _api-principals:
 
 Principals
 ==========
@@ -90,6 +91,7 @@ authenticated *user* will be bound to to the request.
 
 The main principal is considered the **user ID** and follows this formalism:
 ``{type}:{identifier}`` (e.g. for Firefox Account: ``fxa:32aa95a474c984d41d395e2d0b614aa2``).
+When a users are added to :ref:`a group <groups>`, they receive a principal.
 
 There are two special principals:
 
@@ -97,9 +99,13 @@ There are two special principals:
 - ``system.Everyone``: Anyone (authenticated or anonymous). Using this
   principal is useful when a rule should apply to all users.
 
+Those principals are used in the permissions definitions. For example, to give
+the permission to read for everyone and to write for the *friends* group, the
+definition is ``read: ["system.Everyone"], write: ["/buckets/pictures/groups/friends"]``.
+
 .. note::
 
-    A user can also be another application (in order to provide *service to
+    A principal can also be another application (in order to provide *service to
     service* authentication).
 
 .. _api-current-userid:

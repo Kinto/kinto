@@ -116,7 +116,7 @@ that will take care of checking the appropriate permission for each action.
 
 The record permissions can be manipulated via the ``permissions`` attribute in the
 JSON payload, aside the ``data`` attribute.
-It allows to specify the list of :term:`principals` allowed for each ``permission``,
+It allows to specify the list of :ref:`principals <api-principals>` allowed for each ``permission``,
 as detailed in the `API section <resource-permissions-attribute>`_.
 
 .. important::
