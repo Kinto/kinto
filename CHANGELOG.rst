@@ -6,6 +6,12 @@ This document describes changes between each past release.
 4.1.0 (unreleased)
 ------------------
 
+**Protocol**
+
+- Allow objects ids to start with ``_`` or ``-`` (fixes #668)
+
+Protocol is now at version **1.10**. See `API changelog`_.
+
 **Internal changes**
 
 - Fix documentation of errors codes (fixes #766)
