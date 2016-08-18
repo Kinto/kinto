@@ -54,6 +54,15 @@ REDIS_REQUIRES = [
     'kinto_redis'
 ]
 
+SETUP_REQUIRES = [
+    'pytest-runner'
+]
+
+TEST_REQUIREMENTS = [
+    'pytest',
+    'WebTest'
+]
+
 DEPENDENCY_LINKS = [
 ]
 
@@ -100,6 +109,8 @@ setup(name='kinto',
       package_data={'': ['*.rst', '*.py']},
       include_package_data=True,
       zip_safe=False,
+      setup_requires=SETUP_REQUIRES,
+      tests_require=TEST_REQUIREMENTS,
       install_requires=REQUIREMENTS,
       extras_require={
           'redis': REDIS_REQUIRES,
@@ -107,6 +118,6 @@ setup(name='kinto',
           'monitoring': MONITORING_REQUIRES,
           ":python_version=='2.7'": ["functools32", "futures"],
       },
-      test_suite="kinto.tests",
+      test_suite="tests",
       dependency_links=DEPENDENCY_LINKS,
       entry_points=ENTRY_POINTS)

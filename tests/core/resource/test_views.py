@@ -3,7 +3,9 @@ import uuid
 
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.errors import ERRORS
-from kinto.tests.core.support import unittest, BaseWebTest
+from kinto.core.testing import unittest
+
+from ..support import BaseWebTest
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
@@ -716,7 +718,7 @@ class StorageErrorTest(BaseWebTest, unittest.TestCase):
 
 
 class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
-    """Extra tests for `kinto.tests.core.resource.test_pagination`
+    """Extra tests for `tests.core.resource.test_pagination`
     """
 
     def setUp(self):
@@ -756,7 +758,7 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
 
 
 class SchemaLessPartialResponseTest(BaseWebTest, unittest.TestCase):
-    """Extra tests for :mod:`kinto.tests.core.resource.test_partial_response`
+    """Extra tests for :mod:`tests.core.resource.test_partial_response`
     """
     collection_url = '/spores'
 

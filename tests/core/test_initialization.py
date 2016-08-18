@@ -8,7 +8,7 @@ from pyramid.exceptions import ConfigurationError
 
 import kinto.core
 from kinto.core import initialization
-from .support import unittest
+from kinto.core.testing import unittest
 
 
 class InitializationTest(unittest.TestCase):
@@ -441,7 +441,7 @@ class PluginsTest(unittest.TestCase):
         config = Configurator(settings=kinto.core.DEFAULT_SETTINGS)
         config.add_settings({
             'permission_backend': 'kinto.core.permission.memory',
-            'includes': 'kinto.tests.core.testplugin'
+            'includes': 'tests.core.testplugin'
         })
         kinto.core.initialize(config, '0.0.1', 'name')
         return webtest.TestApp(config.make_wsgi_app())

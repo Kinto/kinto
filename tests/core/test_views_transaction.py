@@ -6,8 +6,9 @@ from pyramid import httpexceptions
 from kinto.core.storage.exceptions import BackendError
 from kinto.core.utils import sqlalchemy
 from kinto.core import events
-from .support import (BaseWebTest, unittest, skip_if_no_postgresql,
-                      USER_PRINCIPAL)
+from kinto.core.testing import unittest, skip_if_no_postgresql
+
+from .support import BaseWebTest, USER_PRINCIPAL
 
 
 class PostgreSQLTest(BaseWebTest):

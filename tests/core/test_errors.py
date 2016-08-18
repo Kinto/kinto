@@ -2,8 +2,7 @@ import json
 
 from kinto.core.errors import send_alert
 from kinto.core.utils import decode_header
-
-from .support import unittest, DummyRequest
+from kinto.core.testing import unittest, DummyRequest
 
 
 class SendAlertTest(unittest.TestCase):

@@ -1,7 +1,7 @@
+from kinto.core.testing import unittest
+
 from kinto.authorization import (get_object_type, build_permission_tuple,
                                  build_permissions_set)
-
-from .support import unittest
 
 
 class PermissionInheritanceTest(unittest.TestCase):

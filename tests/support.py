@@ -4,8 +4,9 @@ except ImportError:
     import unittest  # NOQA
 
 import webtest
-from kinto.core import utils
-from kinto.tests.core import support as core_support
+
+from kinto.core import testing
+from kinto.core import DEFAULT_SETTINGS as CORE_DEFAULT_SETTINGS
 from kinto import main as testapp
 from kinto import DEFAULT_SETTINGS
 
@@ -34,15 +35,15 @@ class BaseWebTest(object):
         self.headers = {
             'Content-Type': 'application/json',
         }
-        self.headers.update(get_user_headers('mat'))
+        self.headers.update(testing.get_user_headers('mat'))
 
     def _get_test_app(self, settings=None):
         app = webtest.TestApp(testapp({}, **self.get_app_settings(settings)))
-        app.RequestClass = core_support.get_request_class(prefix="v1")
+        app.RequestClass = testing.get_request_class(prefix="v1")
         return app
 
     def get_app_settings(self, additional_settings=None):
-        settings = core_support.DEFAULT_SETTINGS.copy()
+        settings = CORE_DEFAULT_SETTINGS.copy()
         settings.update(**DEFAULT_SETTINGS)
         settings['cache_backend'] = 'kinto.core.cache.memory'
         settings['storage_backend'] = 'kinto.core.storage.memory'
@@ -72,11 +73,3 @@ class BaseWebTest(object):
     def create_bucket(self, bucket_id):
         self.app.put_json('/buckets/%s' % bucket_id, MINIMALIST_BUCKET,
                           headers=self.headers, status=201)
-
-
-def get_user_headers(user):
-    credentials = "%s:secret" % user
-    authorization = 'Basic {0}'.format(utils.encode64(credentials))
-    return {
-        'Authorization': authorization
-    }

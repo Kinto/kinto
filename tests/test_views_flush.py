@@ -2,11 +2,11 @@ import os
 import webtest
 from pyramid.config import Configurator
 
-from kinto.tests.core import support as core_support
 from kinto import main
+from kinto.core.testing import unittest, get_user_headers, get_request_class
 from kinto.events import ServerFlushed
 
-from .support import (BaseWebTest, unittest, get_user_headers,
+from .support import (BaseWebTest,
                       MINIMALIST_BUCKET, MINIMALIST_COLLECTION,
                       MINIMALIST_RECORD)
 
@@ -55,7 +55,7 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         self.config.add_subscriber(self.listener, ServerFlushed)
         self.config.commit()
         app = webtest.TestApp(main({}, config=self.config, **app_settings))
-        app.RequestClass = core_support.get_request_class(prefix="v1")
+        app.RequestClass = get_request_class(prefix="v1")
 
         return app
 

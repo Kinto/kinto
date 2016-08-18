@@ -1,6 +1,7 @@
-from .support import (BaseWebTest, unittest, MINIMALIST_BUCKET,
-                      MINIMALIST_COLLECTION, MINIMALIST_RECORD,
-                      get_user_headers)
+from kinto.core.testing import unittest, get_user_headers
+
+from .support import (BaseWebTest, MINIMALIST_BUCKET,
+                      MINIMALIST_COLLECTION, MINIMALIST_RECORD)
 
 
 class CollectionViewTest(BaseWebTest, unittest.TestCase):

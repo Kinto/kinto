@@ -3,7 +3,7 @@ import threading
 
 from pyramid import testing
 
-from .support import unittest, skip_if_no_postgresql
+from kinto.core.testing import unittest, skip_if_no_postgresql
 
 
 @skip_if_no_postgresql

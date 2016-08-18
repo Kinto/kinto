@@ -1,9 +1,9 @@
 import mock
 
+from kinto.core import resource
 from kinto.core.authorization import RouteFactory
 from kinto.core.storage import memory
-from kinto.tests.core.support import unittest, DummyRequest
-from kinto.core import resource
+from kinto.core.testing import unittest, DummyRequest
 
 
 class StrictSchema(resource.ResourceSchema):

@@ -1,6 +1,8 @@
 from kinto import __version__ as VERSION
 
-from .support import BaseWebTest, unittest
+from kinto.core.testing import unittest
+
+from .support import BaseWebTest
 
 
 class HelloViewTest(BaseWebTest, unittest.TestCase):

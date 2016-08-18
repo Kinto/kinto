@@ -16,8 +16,7 @@ from kinto.core.utils import (
     current_service, encode_header, decode_header, follow_subrequest,
     build_request, dict_subset
 )
-
-from .support import unittest, DummyRequest
+from kinto.core.testing import unittest, DummyRequest
 
 
 def build_real_request(wsgi_environ):

@@ -5,12 +5,13 @@ import time
 import six
 from pyramid import httpexceptions
 
-from kinto.tests.core.resource import BaseTest
-from kinto.tests.core.support import ThreadMixin
 from kinto.core.utils import decode_header
 
+from . import BaseTest
+from .. import support
 
-class SinceModifiedTest(ThreadMixin, BaseTest):
+
+class SinceModifiedTest(support.ThreadMixin, BaseTest):
 
     def setUp(self):
         super(SinceModifiedTest, self).setUp()

@@ -5,7 +5,7 @@ from pyramid import testing
 
 from kinto.core import authorization, DEFAULT_SETTINGS
 from kinto.core.resource import ViewSet, ShareableViewSet, register_resource
-from kinto.tests.core.support import unittest
+from kinto.core.testing import unittest
 
 
 class FakeViewSet(ViewSet):

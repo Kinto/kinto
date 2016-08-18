@@ -1,10 +1,12 @@
 import mock
 import re
 
-from kinto.tests.support import (BaseWebTest, unittest, get_user_headers)
+from kinto.core.testing import unittest, get_user_headers
+
+from .. import support
 
 
-class HistoryWebTest(BaseWebTest, unittest.TestCase):
+class HistoryWebTest(support.BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extra=None):
         settings = super(HistoryWebTest, self).get_app_settings(extra)

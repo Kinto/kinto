@@ -1,14 +1,17 @@
 import transaction
 import pytest
+
 from kinto.core.errors import ERRORS
 from kinto.core.storage.exceptions import RecordNotFoundError
-from kinto.tests.core.support import FormattedErrorMixin, sqlalchemy
-from kinto.tests.support import BaseWebTest, unittest
-from .listener import QUOTA_RESOURCE_NAME, QUOTA_BUCKET_ID, QUOTA_COLLECTION_ID
-from .utils import record_size
+from kinto.core.testing import FormattedErrorMixin, sqlalchemy, unittest
+from kinto.plugins.quotas.listener import (
+    QUOTA_RESOURCE_NAME, QUOTA_BUCKET_ID, QUOTA_COLLECTION_ID)
+from kinto.plugins.quotas.utils import record_size
+
+from .. import support
 
 
-class QuotaWebTest(BaseWebTest, unittest.TestCase):
+class QuotaWebTest(support.BaseWebTest, unittest.TestCase):
 
     bucket_uri = '/buckets/test'
     collection_uri = '/buckets/test/collections/col'

@@ -1,6 +1,6 @@
 from pyramid import httpexceptions
 
-from kinto.tests.core.resource import BaseTest
+from . import BaseTest
 
 
 class ModelTest(BaseTest):

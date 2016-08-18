@@ -1,4 +1,6 @@
-from .support import BaseWebTest, unittest
+from kinto.core.testing import unittest
+
+from .support import BaseWebTest
 
 
 BUCKET_URL = '/buckets/blog'

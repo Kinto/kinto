@@ -3,7 +3,8 @@ from pyramid import httpexceptions
 
 from kinto.core.resource import UserResource, ShareableResource
 from kinto.core.storage import exceptions as storage_exceptions
-from kinto.tests.core.resource import BaseTest
+
+from . import BaseTest
 
 
 class ResourceTest(BaseTest):

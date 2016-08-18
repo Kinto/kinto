@@ -1,7 +1,9 @@
 import mock
 from pyramid import httpexceptions
 
-from kinto.tests.core.support import (unittest, BaseWebTest)
+from kinto.core.testing import unittest
+
+from ..support import BaseWebTest
 
 
 MINIMALIST_RECORD = {'name': 'Champignon'}
@@ -94,8 +96,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_readonly_update(self):
-        with mock.patch('kinto.tests.core.testapp.views.'
-                        'MushroomSchema.is_readonly',
+        with mock.patch('tests.core.testapp.views.MushroomSchema.is_readonly',
                         return_value=True):
             body = {'data': {'name': 'Amanite'}}
             response = self.app.patch_json(self.get_item_url(),

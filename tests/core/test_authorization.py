@@ -2,10 +2,10 @@ import mock
 
 from pyramid.request import Request
 
-from .support import DummyRequest, unittest
 from kinto.core import authentication
 from kinto.core.authorization import RouteFactory, AuthorizationPolicy
 from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.testing import DummyRequest, unittest
 
 
 class RouteFactoryTest(unittest.TestCase):

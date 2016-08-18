@@ -3,9 +3,11 @@ import mock
 import re
 
 from kinto.core.utils import decode_header
-from .support import (BaseWebTest, unittest, MINIMALIST_RECORD,
+from kinto.core.testing import unittest, get_user_headers
+
+from .support import (BaseWebTest, MINIMALIST_RECORD,
                       MINIMALIST_GROUP, MINIMALIST_BUCKET,
-                      MINIMALIST_COLLECTION, get_user_headers)
+                      MINIMALIST_COLLECTION)
 
 
 class RecordsViewTest(BaseWebTest, unittest.TestCase):

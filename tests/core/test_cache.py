@@ -10,7 +10,7 @@ from kinto.core.cache import (CacheBase,
                               postgresql as postgresql_backend,
                               heartbeat)
 
-from .support import unittest, skip_if_no_postgresql
+from kinto.core.testing import unittest, skip_if_no_postgresql
 
 
 class CacheBaseTest(unittest.TestCase):

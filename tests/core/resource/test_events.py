@@ -5,12 +5,14 @@ from contextlib import contextmanager
 import webtest
 from pyramid.config import Configurator
 
+from kinto.core import statsd
 from kinto.core.events import (ResourceChanged, AfterResourceChanged,
                                ResourceRead, AfterResourceRead, ACTIONS)
 from kinto.core.storage.exceptions import BackendError
-from kinto.tests.core.testapp import main as make_testapp
-from kinto.tests.core.support import unittest, BaseWebTest, get_request_class
-from kinto.core import statsd
+from kinto.core.testing import unittest, get_request_class
+
+from ..testapp import main as make_testapp
+from ..support import BaseWebTest
 
 
 @contextmanager
@@ -439,7 +441,7 @@ class StatsDTest(BaseWebTest, unittest.TestCase):
             return settings
 
         settings['statsd_url'] = 'udp://localhost:8125'
-        this_module = 'kinto.tests.core.resource.test_events'
+        this_module = 'tests.core.resource.test_events'
         settings['event_listeners'] = 'test'
         settings['event_listeners.test.use'] = this_module
         return settings

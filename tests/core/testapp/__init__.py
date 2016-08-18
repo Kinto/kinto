@@ -1,14 +1,20 @@
+import os
+
 from pyramid.config import Configurator
 from pyramid.static import static_view
+
 import kinto.core
+
+here = os.path.dirname(__file__)
 
 
 def includeme(config):
-    config.scan("kinto.tests.core.testapp.views")
+    config.scan("tests.core.testapp.views")
 
     # Add an example route with trailing slash (here to serve static files).
     # This is only used to test 404 redirection in ``test_views_errors.py``
-    static = static_view('kinto:tests/core/testapp/static', use_subpath=True)
+    abs_path = os.path.join(here, 'static')
+    static = static_view(abs_path, use_subpath=True)
     config.add_route('catchall_static', '/static/*subpath')
     config.add_view(static, route_name="catchall_static")
 

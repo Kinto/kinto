@@ -2,7 +2,7 @@ import mock
 
 from kinto.core import scripts
 from kinto.core.storage.exceptions import RecordNotFoundError
-from .support import unittest
+from kinto.core.testing import unittest
 
 
 class InitSchemaTest(unittest.TestCase):

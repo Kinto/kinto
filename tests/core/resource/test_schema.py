@@ -1,7 +1,7 @@
 import colander
 import mock
 
-from kinto.tests.core.support import unittest
+from kinto.core.testing import unittest
 from kinto.core.resource import schema
 
 

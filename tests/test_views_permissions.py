@@ -1,6 +1,8 @@
-from .support import (BaseWebTest, unittest, MINIMALIST_RECORD,
+from kinto.core.testing import unittest, get_user_headers
+
+from .support import (BaseWebTest, MINIMALIST_RECORD,
                       MINIMALIST_GROUP, MINIMALIST_BUCKET,
-                      MINIMALIST_COLLECTION, get_user_headers)
+                      MINIMALIST_COLLECTION)
 
 
 RECORD_ID = 'd5db6e57-2c10-43e2-96c8-56602ef01435'

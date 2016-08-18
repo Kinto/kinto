@@ -1,71 +1,21 @@
-from collections import defaultdict
 import mock
-import os
 import threading
 import functools
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest  # NOQA
-
 import webtest
-
-from cornice import errors as cornice_errors
-from pyramid.url import parse_url_overrides
 from pyramid.security import IAuthorizationPolicy, Authenticated, Everyone
 from zope.interface import implementer
-from enum import Enum
 
 from kinto.core import DEFAULT_SETTINGS
 from kinto.core.authorization import PRIVATE
-from kinto.core.storage import generators
-from kinto.tests.core.testapp import main as testapp
-from kinto.core.utils import sqlalchemy, follow_subrequest
+from kinto.core.testing import get_request_class
+
+from .testapp import main as testapp
+
 
 # This is the principal a connected user should have (in the tests).
 USER_PRINCIPAL = ('basicauth:9f2d363f98418b13253d6d7193fc88690302'
                   'ab0ae21295521f6029dffe9dc3b0')
-
-
-class DummyRequest(mock.MagicMock):
-    def __init__(self, *args, **kwargs):
-        super(DummyRequest, self).__init__(*args, **kwargs)
-        self.upath_info = '/v0/'
-        self.registry = mock.MagicMock(settings=DEFAULT_SETTINGS.copy())
-        self.registry.id_generators = defaultdict(generators.UUID4)
-        self.GET = {}
-        self.headers = {}
-        self.errors = cornice_errors.Errors(request=self)
-        self.authenticated_userid = 'bob'
-        self.authn_type = 'basicauth'
-        self.prefixed_userid = 'basicauth:bob'
-        self.json = {}
-        self.validated = {}
-        self.matchdict = {}
-        self.response = mock.MagicMock(headers={})
-
-        def route_url(*a, **kw):
-            # XXX: refactor DummyRequest to take advantage of `pyramid.testing`
-            parts = parse_url_overrides(kw)
-            return ''.join([p for p in parts if p])
-
-        self.route_url = route_url
-
-    follow_subrequest = follow_subrequest
-
-
-def get_request_class(prefix):
-
-    class PrefixedRequestClass(webtest.app.TestRequest):
-
-        @classmethod
-        def blank(cls, path, *args, **kwargs):
-            if prefix:
-                path = '/%s%s' % (prefix, path)
-            return webtest.app.TestRequest.blank(path, *args, **kwargs)
-
-    return PrefixedRequestClass
 
 
 class BaseWebTest(object):
@@ -75,7 +25,7 @@ class BaseWebTest(object):
     """
 
     api_prefix = "v0"
-    authorization_policy = 'kinto.tests.core.support.AllowAuthorizationPolicy'
+    authorization_policy = 'tests.core.support.AllowAuthorizationPolicy'
     collection_url = '/mushrooms'
     principal = USER_PRINCIPAL
 
@@ -143,34 +93,6 @@ class ThreadMixin(object):
         return thread
 
 
-class FormattedErrorMixin(object):
-
-    def assertFormattedError(self, response, code, errno, error,
-                             message=None, info=None):
-        # make sure we translate Enum instances to their values
-        if isinstance(error, Enum):
-            error = error.value
-
-        if isinstance(errno, Enum):
-            errno = errno.value
-
-        self.assertEqual(response.headers['Content-Type'],
-                         'application/json; charset=UTF-8')
-        self.assertEqual(response.json['code'], code)
-        self.assertEqual(response.json['errno'], errno)
-        self.assertEqual(response.json['error'], error)
-
-        if message is not None:
-            self.assertIn(message, response.json['message'])
-        else:
-            self.assertNotIn('message', response.json)
-
-        if info is not None:
-            self.assertIn(info, response.json['info'])
-        else:
-            self.assertNotIn('info', response.json)
-
-
 @implementer(IAuthorizationPolicy)
 class AllowAuthorizationPolicy(object):
     def permits(self, context, principals, permission):
@@ -191,7 +113,7 @@ def authorize(permits=True, authz_class=None):
     in :param:permits.
     """
     if authz_class is None:
-        authz_class = 'kinto.tests.core.support.AllowAuthorizationPolicy'
+        authz_class = 'tests.core.support.AllowAuthorizationPolicy'
 
     def wrapper(f):
         @functools.wraps(f)
@@ -202,7 +124,3 @@ def authorize(permits=True, authz_class=None):
                 return f(*args, **kwargs)
         return wrapped
     return wrapper
-
-skip_if_travis = unittest.skipIf('TRAVIS' in os.environ, "travis")
-skip_if_no_postgresql = unittest.skipIf(sqlalchemy is None,
-                                        "postgresql is not installed.")

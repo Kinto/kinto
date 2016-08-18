@@ -11,8 +11,9 @@ from kinto.core import DEFAULT_SETTINGS
 from kinto.core import initialization
 from kinto.core import logs as core_logs
 from kinto.core.utils import json
+from kinto.core.testing import unittest
 
-from .support import BaseWebTest, unittest
+from .support import BaseWebTest
 
 
 def logger_context():

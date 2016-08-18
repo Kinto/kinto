@@ -6,11 +6,10 @@ from pyramid.httpexceptions import HTTPBadRequest
 
 from kinto.core.errors import ERRORS, http_error
 from kinto.core.storage import exceptions as storage_exceptions
-from kinto.tests.core.support import FormattedErrorMixin
+from kinto.core.testing import unittest, get_user_headers, FormattedErrorMixin
 from kinto.core.utils import hmac_digest
 
-from kinto.tests.support import (BaseWebTest, unittest, get_user_headers,
-                                 MINIMALIST_RECORD)
+from ..support import BaseWebTest, MINIMALIST_RECORD
 
 
 class DefaultBucketViewTest(FormattedErrorMixin, BaseWebTest,
@@ -245,9 +244,10 @@ class EventsTest(BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extra=None):
         settings = super(EventsTest, self).get_app_settings(extra)
+        settings = settings.copy()
         settings['event_listeners'] = 'testevent',
         settings['event_listeners.testevent.use'] = (
-            'kinto.plugins.default_bucket.test_plugin')
+            'tests.plugins.test_default_bucket')
         return settings
 
     def test_an_event_is_sent_on_implicit_bucket_creation(self):

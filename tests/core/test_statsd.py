@@ -2,8 +2,10 @@ import mock
 
 from pyramid import testing
 
-from kinto.tests.core.support import unittest, BaseWebTest
+from kinto.core.testing import unittest
 from kinto.core import statsd
+
+from .support import BaseWebTest
 
 
 class TestedClass(object):
