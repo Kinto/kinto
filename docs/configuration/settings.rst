@@ -52,9 +52,6 @@ Feature settings
 |                                                 |              | more elements than defined by the                                         |
 |                                                 |              | ``kinto.storage_max_fetch_size`` setting.                                 |
 +-------------------------------------------------+--------------+---------------------------------------------------------------------------+
-| kinto.id_generator                              | ``UUID4``    | The Python *dotted* location of the generator class that should be used   |
-|                                                 |              | to generate identifiers on a POST on a records endpoint.                  |
-+-------------------------------------------------+--------------+---------------------------------------------------------------------------+
 | kinto.<object-type>_id_generator                | ``UUID4``    | The Python *dotted* location of the generator class that should be used   |
 |                                                 |              | to generate identifiers on a POST endpoint.                               |
 |                                                 |              | Object type is one of ``bucket``, ``collection``, ``group``, ``record``.  |

@@ -95,5 +95,5 @@ def main(global_config, config=None, **settings):
 
     app = config.make_wsgi_app()
 
-    # Install middleware (idempotent if disabled)
+    # Install middleware (no-op if disabled)
     return kinto.core.install_middlewares(app, settings)

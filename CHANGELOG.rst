@@ -9,6 +9,8 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Fix documentation of errors codes (fixes #766)
+- ``kinto.id_generator`` was removed from documentation since it does not
+  behave as expected (fixes #757, thanks @doplumi)
 
 
 4.0.0 (2016-08-17)
