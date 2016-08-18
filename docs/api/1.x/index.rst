@@ -55,6 +55,8 @@ Cheatsheet
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `PUT`    | :ref:`/buckets/(bucket_id) <bucket-put>`                                                     | :ref:`Create or replace a bucket <bucket-put>`          |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
+| `PATCH`  | :ref:`/buckets/(bucket_id) <bucket-patch>`                                                   | :ref:`Modify an existing bucket <bucket-patch>`         |
++----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `GET`    | :ref:`/buckets/(bucket_id) <bucket-get>`                                                     | :ref:`Retrieve an existing bucket <bucket-get>`         |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `DELETE` | :ref:`/buckets/(bucket_id) <bucket-delete>`                                                  | :ref:`Delete a bucket <bucket-delete>`                  |
@@ -66,6 +68,8 @@ Cheatsheet
 | `GET`    | :ref:`/buckets/(bucket_id)/groups <groups-get>`                                              | :ref:`Retrieve the list of bucket's group <groups-get>` |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `PUT`    | :ref:`/buckets/(bucket_id)/groups/(group_id) <group-put>`                                    | :ref:`Update a group <group-put>`                       |
++----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
+| `PATCH`  | :ref:`/buckets/(bucket_id)/groups/(group_id) <group-patch>`                                  | :ref:`Modify an existing group <group-patch>`           |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `GET`    | :ref:`/buckets/(bucket_id)/groups/(group_id) <group-get>`                                    | :ref:`Retrieve a group <group-get>`                     |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
@@ -81,7 +85,7 @@ Cheatsheet
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `PUT`    | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-put>`                     | :ref:`Create or replace a collection <collection-put>`  |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
-| `PATCH`  | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-patch>`                   | :ref:`Update a collection <collection-patch>`           |
+| `PATCH`  | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-patch>`                   | :ref:`Modify an existing collection <collection-patch>` |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `GET`    | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-get>`                     | :ref:`Retreive an existing collection <collection-get>` |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
@@ -95,9 +99,9 @@ Cheatsheet
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `DELETE` | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records <records-delete>`             | :ref:`Delete stored records <records-delete>`           |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
-| `PUT`    | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records/(record_id) <record-put>`     | :ref:`Replace a record <record-put>`                    |
+| `PUT`    | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records/(record_id) <record-put>`     | :ref:`Create or replace a record <record-put>`          |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
-| `PATCH`  | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records/(record_id) <record-patch>`   | :ref:`Update a record <record-patch>`                   |
+| `PATCH`  | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records/(record_id) <record-patch>`   | :ref:`Modify an existing record <record-patch>`         |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `GET`    | :ref:`/buckets/(bucket_id)/collections/(collection_id)/records/(record_id) <records-get>`    | :ref:`Retrieve a single record <records-get>`           |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+

@@ -12,6 +12,7 @@ This document describes changes between each past release.
 - A lot of tests clean-up. The ``tests`` are now outside the ``kinto`` package
   folder and a ``kinto.core.testing`` module was introduced for tests helpers
   (fixes #605)
+- Add details about ``PATCH`` behaviour (fixes #566)
 
 
 4.0.0 (2016-08-17)
