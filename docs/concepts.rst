@@ -22,7 +22,7 @@ introduces some basic concepts.
 +-----------------+---------------------------------------------------------+
 | **record**      | The actual stored data                                  |
 +-----------------+---------------------------------------------------------+
-| **group**       | A named list of :term:`principals <principal>` to       |
+| **group**       | A named list of :ref:`principals <api-principals>` to   |
 |                 | define permissions.                                     |
 +-----------------+---------------------------------------------------------+
 
