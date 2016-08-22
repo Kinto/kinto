@@ -15,7 +15,8 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Fix documentation of errors codes (fixes #766)
-- A lot of tests clean-up. The ``tests`` are now outside the ``kinto`` package
+- ``kinto.id_generator`` was removed from documentation since it does not
+  behave as expected (fixes #757, thanks @doplumi)
   folder and a ``kinto.core.testing`` module was introduced for tests helpers
   (fixes #605)
 - In documentation, link the notion of principals to the permissions page instead
