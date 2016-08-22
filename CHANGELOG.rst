@@ -6,6 +6,10 @@ This document describes changes between each past release.
 4.1.0 (unreleased)
 ------------------
 
+**Bug fixes**
+
+- Fix crash on permissions endpoint when history is enabled (#774)
+
 **Internal changes**
 
 - Fix documentation of errors codes (fixes #766)

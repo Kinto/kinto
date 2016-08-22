@@ -387,6 +387,9 @@ def view_lookup(request, uri):
     fakerequest = Request.blank(path=path)
     info = routes_mapper(fakerequest)
     matchdict, route = info['match'], info['route']
+    if route is None:
+        raise ValueError("URI has no route")
+
     resource_name = route.name.replace('-record', '')\
                               .replace('-collection', '')
     return resource_name, matchdict

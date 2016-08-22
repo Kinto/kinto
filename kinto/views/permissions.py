@@ -37,8 +37,14 @@ def permissions_get(request):
 
     entries = []
     for object_uri, perms in perms_by_object_uri.items():
-        # Obtain associated resource from object URI
-        resource_name, matchdict = core_utils.view_lookup(request, object_uri)
+        try:
+            # Obtain associated resource from object URI
+            resource_name, matchdict = core_utils.view_lookup(request,
+                                                              object_uri)
+        except ValueError:
+            # Skip permissions entries that are not linked to an object URI.
+            continue
+
         # For consistency with events payloads, prefix id with resource name
         matchdict[resource_name + '_id'] = matchdict.get('id')
 
