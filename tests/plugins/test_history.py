@@ -79,6 +79,16 @@ class HistoryViewTest(HistoryWebTest):
         assert entry['action'] == 'create'
         assert entry['uri'] == '/buckets/test'
 
+    def test_history_supports_creation_via_plural_endpoint(self):
+        resp = self.app.post_json('/buckets', {'data': {'id': 'posted'}},
+                                  headers=self.headers)
+        resp = self.app.get('/buckets/posted/history', headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['resource_name'] == 'bucket'
+        assert entry['bucket_id'] == 'posted'
+        assert entry['action'] == 'create'
+        assert entry['uri'] == '/buckets/posted'
+
     def test_tracks_bucket_attributes_update(self):
         body = {'data': {'foo': 'baz'}}
         self.app.patch_json(self.bucket_uri, body,
@@ -103,6 +113,24 @@ class HistoryViewTest(HistoryWebTest):
         stored_in_backend, _ = storage.get_all(parent_id='/buckets/test',
                                                collection_id='history')
         assert len(stored_in_backend) == 0
+
+    def test_delete_all_buckets_destroys_history_entries(self):
+        self.app.put_json('/buckets/1', {"data": {"a": 1}},
+                          headers=self.headers)
+
+        self.app.delete('/buckets?a=1', headers=self.headers)
+
+        # Entries about deleted bucket are gone.
+        storage = self.app.app.registry.storage
+        stored_in_backend, _ = storage.get_all(parent_id='/buckets/1',
+                                               collection_id='history')
+        assert len(stored_in_backend) == 0
+
+        # Entries of other buckets are still here.
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][-1]
+        assert entry['bucket_id'] == 'test'
+        assert entry['action'] == 'create'
 
     #
     # Collection
