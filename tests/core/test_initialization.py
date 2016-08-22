@@ -46,14 +46,14 @@ class InitializationTest(unittest.TestCase):
         with mock.patch('kinto.core.initialization.warnings.warn') as mocked:
             kinto.core.initialize(config, '0.0.1')
             error_msg = 'No value specified for `project_name`'
-            mocked.assert_called_with(error_msg)
+            mocked.assert_any_call(error_msg)
 
     def test_warns_if_project_name_is_missing(self):
         config = Configurator()
         with mock.patch('kinto.core.initialization.warnings.warn') as mocked:
             kinto.core.initialize(config, '0.0.1')
             error_msg = 'No value specified for `project_name`'
-            mocked.assert_called_with(error_msg)
+            mocked.assert_any_call(error_msg)
 
     def test_set_the_project_name_if_specified(self):
         config = Configurator()
@@ -66,6 +66,13 @@ class InitializationTest(unittest.TestCase):
         kinto.core.initialize(config, '0.0.1', 'readinglist')
         self.assertEqual(config.registry.settings['project_name'],
                          'kinto')
+
+    def test_warns_if_not_https(self):
+        config = Configurator(settings={'kinto.http_scheme': 'http'})
+        with mock.patch('kinto.core.initialization.warnings.warn') as mocked:
+            kinto.core.initialize(config, '0.0.1')
+            error_msg = 'HTTPS is not enabled'
+            mocked.assert_any_call(error_msg)
 
     def test_default_settings_are_overriden_if_specified_in_initialize(self):
         config = Configurator()

@@ -556,6 +556,10 @@ def initialize(config, version=None, project_name='', default_settings=None):
 
     load_default_settings(config, kinto_core_defaults)
 
+    http_scheme = settings['http_scheme']
+    if http_scheme != 'https':
+        warnings.warn('HTTPS is not enabled')
+
     # Override project version from settings.
     project_version = settings.get('project_version') or version
     if not project_version:
