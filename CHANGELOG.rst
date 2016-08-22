@@ -13,6 +13,8 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix sorting/filtering history entries by ``date`` field
+- On subobject filtering, return a 400 error response only if first level field
+  is unknown (on resources with strict schema)
 
 
 4.0.1 (2016-08-22)
