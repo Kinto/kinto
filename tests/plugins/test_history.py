@@ -242,6 +242,11 @@ class FilteringTest(HistoryWebTest):
         self.app.delete('/buckets/bid/collections/cid/records/rid',
                         headers=self.headers)
 
+    def test_filter_by_unknown_field_is_not_allowed(self):
+        self.app.get('/buckets/bid/history?movie=bourne',
+                     headers=self.headers,
+                     status=400)
+
     def test_filter_by_action(self):
         resp = self.app.get('/buckets/bid/history?action=delete',
                             headers=self.headers)

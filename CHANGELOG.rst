@@ -8,6 +8,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
+- Return 400 error response when history is filtered with unknown field
 - Fix crash on permissions endpoint when history is enabled (#774)
 
 **Internal changes**

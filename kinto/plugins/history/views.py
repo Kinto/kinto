@@ -15,6 +15,9 @@ class HistorySchema(resource.ResourceSchema):
     record_id = colander.SchemaNode(colander.String())
     target = colander.SchemaNode(colander.Mapping())
 
+    class Options:
+        preserve_unknown = False
+
 
 @resource.register(name='history',
                    collection_path='/buckets/{{bucket_id}}/history',
