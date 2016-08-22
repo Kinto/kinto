@@ -10,13 +10,13 @@ jsonschema==2.5.1
 newrelic==2.68.0.50
 PasteDeploy==1.5.2
 psycopg2==2.6.2
-pyramid==1.7.2
+pyramid==1.7.3
 pyramid-multiauth==0.8.0
 pyramid-tm==0.12.1
 python-dateutil==2.5.3
 raven==5.24.3
 repoze.lru==0.6
-requests==2.11.0
+requests==2.11.1
 simplejson==3.8.2
 six==1.10.0
 SQLAlchemy==1.0.14

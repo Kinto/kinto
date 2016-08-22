@@ -16,6 +16,7 @@ Contributors
 * David Larlet <david@larlet.fr>
 * Enguerran <engcolson@gmail.com>
 * Eric Bréhault <ebrehault@gmail.com>
+* Eric Le Lay <elelay@macports.org>
 * Éric Lemoine <eric.lemoine@gmail.com>
 * Ethan Glasser-Camp <ethan@betacantrips.com>
 * Fil <fil@rezo.net>
