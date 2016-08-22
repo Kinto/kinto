@@ -35,6 +35,10 @@ This document describes changes between each past release.
 4.0.1 (2016-08-22)
 ------------------
 
+**New features**
+
+- Permissions endpoint (``GET /permissions``) can now be filtered, sorted and paginated.
+
 **Bug fixes**
 
 - Return 400 error response when history is filtered with unknown field

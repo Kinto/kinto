@@ -46,50 +46,6 @@ class MemoryBasedStorage(StorageBase):
         record[modified_field] = timestamp
         return record
 
-    def apply_filters(self, records, filters):
-        """Filter the specified records, using basic iteration.
-        """
-        operators = {
-            COMPARISON.LT: operator.lt,
-            COMPARISON.MAX: operator.le,
-            COMPARISON.EQ: operator.eq,
-            COMPARISON.NOT: operator.ne,
-            COMPARISON.MIN: operator.ge,
-            COMPARISON.GT: operator.gt,
-            COMPARISON.IN: operator.contains,
-            COMPARISON.EXCLUDE: lambda x, y: not operator.contains(x, y),
-            COMPARISON.LIKE: lambda x, y: re.search(y, x, re.IGNORECASE),
-        }
-        for record in records:
-            matches = True
-            for f in filters:
-                right = f.value
-                left = record
-                subfields = f.field.split('.')
-                for subfield in subfields:
-                    if not isinstance(left, dict):
-                        break
-                    left = left.get(subfield)
-
-                if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
-                    right, left = left, right
-                else:
-                    # Python3 cannot compare None to other value.
-                    if left is None:
-                        if f.operator in (COMPARISON.GT, COMPARISON.MIN):
-                            matches = False
-                            continue
-                        elif f.operator in (COMPARISON.LT, COMPARISON.MAX):
-                            continue  # matches = matches and True
-                matches = matches and operators[f.operator](left, right)
-            if matches:
-                yield record
-
-    def apply_sorting(self, records, sorting):
-        """Sort the specified records, using cumulative python sorting.
-        """
-        return apply_sorting(records, sorting)
-
     def extract_record_set(self, records,
                            filters, sorting, id_field, deleted_field,
                            pagination_rules=None, limit=None):
@@ -97,28 +53,13 @@ class MemoryBasedStorage(StorageBase):
         pagination.
 
         """
-        filtered = list(self.apply_filters(records, filters or []))
-        total_records = len(filtered)
-
-        paginated = {}
-        for rule in pagination_rules or []:
-            values = list(self.apply_filters(filtered, rule))
-            paginated.update(dict(((x[id_field], x) for x in values)))
-
-        if paginated:
-            paginated = paginated.values()
-        else:
-            paginated = filtered
-
-        sorted_ = self.apply_sorting(paginated, sorting or [])
-
-        filtered_deleted = len([r for r in sorted_
-                                if r.get(deleted_field) is True])
-
-        if limit:
-            sorted_ = list(sorted_)[:limit]
-
-        return sorted_, total_records - filtered_deleted
+        return extract_record_set(records,
+                                  filters=filters,
+                                  sorting=sorting,
+                                  id_field=id_field,
+                                  deleted_field=deleted_field,
+                                  pagination_rules=pagination_rules,
+                                  limit=limit)
 
 
 class Storage(MemoryBasedStorage):
@@ -326,6 +267,78 @@ class Storage(MemoryBasedStorage):
                                deleted_field=deleted_field)
                    for r in records]
         return deleted
+
+
+def extract_record_set(records, filters, sorting,
+                       pagination_rules=None, limit=None,
+                       id_field=DEFAULT_ID_FIELD,
+                       deleted_field=DEFAULT_DELETED_FIELD):
+    """Apply filters, sorting, limit, and pagination rules to the list of
+    `records`.
+
+    """
+    filtered = list(apply_filters(records, filters or []))
+    total_records = len(filtered)
+
+    paginated = {}
+    for rule in pagination_rules or []:
+        values = list(apply_filters(filtered, rule))
+        paginated.update(dict(((x[id_field], x) for x in values)))
+
+    if paginated:
+        paginated = paginated.values()
+    else:
+        paginated = filtered
+
+    sorted_ = apply_sorting(paginated, sorting or [])
+
+    filtered_deleted = len([r for r in sorted_
+                            if r.get(deleted_field) is True])
+
+    if limit:
+        sorted_ = list(sorted_)[:limit]
+
+    return sorted_, total_records - filtered_deleted
+
+
+def apply_filters(records, filters):
+    """Filter the specified records, using basic iteration.
+    """
+    operators = {
+        COMPARISON.LT: operator.lt,
+        COMPARISON.MAX: operator.le,
+        COMPARISON.EQ: operator.eq,
+        COMPARISON.NOT: operator.ne,
+        COMPARISON.MIN: operator.ge,
+        COMPARISON.GT: operator.gt,
+        COMPARISON.IN: operator.contains,
+        COMPARISON.EXCLUDE: lambda x, y: not operator.contains(x, y),
+        COMPARISON.LIKE: lambda x, y: re.search(y, x, re.IGNORECASE),
+    }
+    for record in records:
+        matches = True
+        for f in filters:
+            right = f.value
+            left = record
+            subfields = f.field.split('.')
+            for subfield in subfields:
+                if not isinstance(left, dict):
+                    break
+                left = left.get(subfield)
+
+            if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
+                right, left = left, right
+            else:
+                # Python3 cannot compare None to other value.
+                if left is None:
+                    if f.operator in (COMPARISON.GT, COMPARISON.MIN):
+                        matches = False
+                        continue
+                    elif f.operator in (COMPARISON.LT, COMPARISON.MAX):
+                        continue  # matches = matches and True
+            matches = matches and operators[f.operator](left, right)
+        if matches:
+            yield record
 
 
 def apply_sorting(records, sorting):
