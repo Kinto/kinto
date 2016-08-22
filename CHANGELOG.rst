@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix crash on permissions endpoint when history is enabled (#774)
+- Fix crash on history when interacting via the bucket plural endpoint (``/buckets``) (fixes #773)
 
 **Internal changes**
 
