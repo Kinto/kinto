@@ -330,6 +330,12 @@ class FilteringTest(HistoryWebTest):
         assert sorted(resp.json['data'][0].keys()) == ['action', 'id',
                                                        'last_modified', 'uri']
 
+    def test_sort_by_date(self):
+        resp = self.app.get('/buckets/bid/history?_sort=date',
+                            headers=self.headers)
+        entries = resp.json['data']
+        assert entries[0]['date'] < entries[-1]['date']
+
 
 class BulkTest(HistoryWebTest):
     def setUp(self):

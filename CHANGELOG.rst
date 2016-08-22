@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Show warning when ``http_scheme`` is not set to ``https`` (#706, thanks @Prashant-Surya)
 
+**Bug fixes**
+
+- Fix sorting/filtering history entries by ``date`` field
+
 
 4.0.1 (2016-08-22)
 ------------------
