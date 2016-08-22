@@ -6,7 +6,9 @@ This document describes changes between each past release.
 4.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**New features**
+
+- Show warning when ``http_scheme`` is not set to ``https`` (#706, thanks @Prashant-Surya)
 
 
 4.0.1 (2016-08-22)
