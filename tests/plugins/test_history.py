@@ -404,6 +404,11 @@ class DefaultBucketTest(HistoryWebTest):
 
 class PermissionsTest(HistoryWebTest):
 
+    def get_app_settings(self, extras=None):
+        settings = super(PermissionsTest, self).get_app_settings(extras)
+        settings['experimental_permissions_endpoint'] = 'true'
+        return settings
+
     def setUp(self):
         self.alice_headers = get_user_headers('alice')
         self.bob_headers = get_user_headers('bob')
@@ -523,3 +528,9 @@ class PermissionsTest(HistoryWebTest):
         resp = self.app.get('/buckets/test/history',
                             headers=self.alice_headers)
         assert resp.headers['ETag'] != before
+
+    def test_history_entries_are_not_listed_in_permissions_endpoint(self):
+        resp = self.app.get('/permissions',
+                            headers=self.headers)
+        entries = [e['resource_name'] == 'history' for e in resp.json["data"]]
+        assert not any(entries)
