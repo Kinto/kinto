@@ -318,6 +318,12 @@ class FilteringTest(HistoryWebTest):
                             headers=self.headers)
         assert len(resp.json['data']) == 4
 
+    def test_filter_by_target_fields(self):
+        uri = '/buckets/bid/history?target.data.id=rid'
+        resp = self.app.get(uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 3  # create, update, delete
+
     def test_limit_results(self):
         resp = self.app.get('/buckets/bid/history?_limit=2',
                             headers=self.headers)

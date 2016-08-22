@@ -6,7 +6,10 @@ This document describes changes between each past release.
 4.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- On subobject filtering, return a 400 error response only if first level field
+  is unknown (on resources with strict schema)
 
 
 4.0.1 (2016-08-22)

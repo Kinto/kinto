@@ -223,6 +223,8 @@ class UserResource(object):
             return True
 
         known_fields = self._get_known_fields()
+        # Test first level only: ``target.data.id`` -> ``target``
+        field = field.split('.', 1)[0]
         return field in known_fields
 
     #
