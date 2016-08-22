@@ -20,6 +20,7 @@ This document describes changes between each past release.
   (fixes #605)
 - In documentation, link the notion of principals to the permissions page instead
   of glossary
+- Add details about ``PATCH`` behaviour (fixes #566)
 
 
 4.0.0 (2016-08-17)

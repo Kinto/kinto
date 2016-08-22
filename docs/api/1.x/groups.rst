@@ -160,6 +160,74 @@ Replacing a group
 .. include:: _status-put-object.rst
 
 
+.. _group-patch:
+
+Modify a group
+==============
+
+.. http:patch:: /buckets/(bucket_id)/groups/(group_id)
+
+    :synopsis: Modifies an existing group.
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ echo '{"data": {"members": ["basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http patch http://localhost:8888/v1/buckets/blog/groups/readers --auth="token:bob-token" --verbose
+
+    .. sourcecode:: http
+
+        PATCH /v1/buckets/blog/groups/readers HTTP/1.1
+        Accept: application/json
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOg==
+        Connection: keep-alive
+        Content-Length: 102
+        Content-Type: application/json
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.2
+
+        {
+            "data": {
+                "members": [
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                ]
+            }
+        }
+
+    **Example Response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert
+        Content-Length: 247
+        Content-Type: application/json; charset=UTF-8
+        Date: Thu, 18 Jun 2015 16:41:01 GMT
+        Server: waitress
+
+        {
+            "data": {
+                "id": "readers",
+                "last_modified": 1434645661227,
+                "members": [
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                ]
+            },
+            "permissions": {
+                "write": [
+                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                ]
+            }
+        }
+
+.. include:: _details-patch-object.rst
+
+.. include:: _status-patch-object.rst
+
+
 .. _group-get:
 
 Retrieving a group
