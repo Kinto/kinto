@@ -68,7 +68,7 @@ class ViewSetTest(unittest.TestCase):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
-        resource = mock.MagicMock(mapping=colander.SchemaNode(colander.Int()))
+        resource = mock.MagicMock(mapping=mock.MagicMock())
         arguments = viewset.collection_arguments(resource, 'GET')
         schema = arguments['schema']
         self.assertEquals(schema.children[0], resource.mapping)
@@ -77,7 +77,7 @@ class ViewSetTest(unittest.TestCase):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
-        resource = mock.MagicMock(mapping=colander.SchemaNode(colander.Int()))
+        resource = mock.MagicMock(mapping=mock.MagicMock())
         arguments = viewset.collection_arguments(resource, 'get')
         schema = arguments['schema']
         self.assertEquals(schema.children[0], resource.mapping)

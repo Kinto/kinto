@@ -20,7 +20,7 @@ class GroupSchema(resource.ResourceSchema):
                    collection_path='/buckets/{{bucket_id}}/groups',
                    record_path='/buckets/{{bucket_id}}/groups/{{id}}')
 class Group(resource.ShareableResource):
-    mapping = GroupSchema()
+    mapping = GroupSchema
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict['bucket_id']

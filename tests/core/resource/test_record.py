@@ -197,12 +197,13 @@ class PatchTest(BaseTest):
         self.stored = self.model.create_record({})
         self.resource.record_id = self.stored['id']
         self.resource.request.json = {'data': {'position': 10}}
-        schema = ResourceSchema()
-        schema.add(colander.SchemaNode(colander.Boolean(), name='unread',
-                                       missing=colander.drop))
-        schema.add(colander.SchemaNode(colander.Int(), name='position',
-                                       missing=colander.drop))
-        self.resource.mapping = schema
+
+        class ArticleSchema(ResourceSchema):
+            unread = colander.SchemaNode(colander.Boolean(), missing=colander.drop)
+            position = colander.SchemaNode(colander.Int(), missing=colander.drop)
+
+        self.resource.mapping = ArticleSchema
+
         self.result = self.resource.patch()['data']
 
     def test_etag_is_provided(self):
