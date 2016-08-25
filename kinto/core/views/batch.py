@@ -45,24 +45,25 @@ class BatchPayloadSchema(colander.MappingSchema):
     requests = colander.SchemaNode(colander.Sequence(),
                                    BatchRequestSchema())
 
-    def unflatten(self, data):
-        """Preprocess received data to merge defaults.
-
-        Override schema unflattening to plug into Cornice schema validation.
-        This is the only method that Cornice calls at the schema level before
-        iterating on each field to deserialize them.
-        """
+    def __init__(self, *args, **kwargs):
+        super(BatchPayloadSchema, self).__init__(*args, **kwargs)
         # On defaults, path is not mandatory.
         self.get('defaults').get('path').missing = colander.drop
 
-        # Fill requests values with defaults.
-        requests = data.get('requests', [])
-        for request in requests:
-            defaults = data.get('defaults')
-            if isinstance(defaults, dict):
-                merge_dicts(request, defaults)
+    def deserialize(self, cstruct=colander.null):
+        """Preprocess received data to carefully merge defaults.
+        """
+        defaults = cstruct.get('defaults')
+        requests = cstruct.get('requests')
+        if isinstance(defaults, dict) and isinstance(requests, list):
+            for request in requests:
+                if isinstance(request, dict):
+                    merge_dicts(request, defaults)
+        return super(BatchPayloadSchema, self).deserialize(cstruct)
 
-        return data
+
+class BatchRequest(colander.MappingSchema):
+    body = BatchPayloadSchema()
 
 
 batch = Service(name="batch", path='/batch',
