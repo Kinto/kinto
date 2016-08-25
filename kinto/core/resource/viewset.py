@@ -1,6 +1,7 @@
 import functools
 
 import colander
+from cornice.validators._colander import validator as colander_validator
 from pyramid.settings import asbool
 
 from kinto.core import authorization
@@ -8,6 +9,24 @@ from kinto.core.resource.schema import PermissionsSchema
 
 
 CONTENT_TYPES = ["application/json"]
+
+
+class StrictSchema(colander.MappingSchema):
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='raise')
+
+
+class PartialSchema(colander.MappingSchema):
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='ignore')
+
+
+class SimpleSchema(colander.MappingSchema):
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='preserve')
 
 
 class ViewSet(object):
@@ -96,31 +115,31 @@ class ViewSet(object):
         endpoint_args = getattr(self, by_method, {})
         args.update(**endpoint_args)
 
-        args['schema'] = self.get_record_schema(resource_cls, method)
+        if method.lower() in map(str.lower, self.validate_schema_for):
+            record_schema = self.get_record_schema(resource_cls, method)
+
+            class RequestSchema(PartialSchema):
+                body = record_schema()
+
+            validators = args.get('validators', [])
+            validators.append(colander_validator(RequestSchema))
+            args['validators'] = validators
 
         return args
 
     def get_record_schema(self, resource_cls, method):
         """Return the Cornice schema for the given method.
         """
-        simple_mapping = colander.MappingSchema(unknown='preserve')
-
-        if method.lower() not in map(str.lower, self.validate_schema_for):
-            # Simply validate that posted body is a mapping.
-            return simple_mapping
-
         if method.lower() == 'patch':
-            record_mapping = simple_mapping
+            record_mapping = SimpleSchema
         else:
             record_mapping = resource_cls.mapping
+            # XXX: do not instantiate at resource level
 
-        class PayloadSchema(colander.MappingSchema):
-            data = record_mapping
+        class PayloadSchema(StrictSchema):
+            data = record_mapping()
 
-            def schema_type(self, **kw):
-                return colander.Mapping(unknown='raise')
-
-        return PayloadSchema()
+        return PayloadSchema
 
     def get_view(self, endpoint_type, method):
         """Return the view method name located on the resource object, for the
@@ -185,37 +204,30 @@ class ShareableViewSet(ViewSet):
     record does not exist), and solicit the cliquet RouteFactory.
     """
     def get_record_schema(self, resource_cls, method):
-        schema = super(ShareableViewSet, self).get_record_schema(resource_cls,
-                                                                 method)
-
-        if method.lower() not in map(str.lower, self.validate_schema_for):
-            return schema
+        """Return the Cornice schema for the given method.
+        """
+        if method.lower() == 'patch':
+            record_mapping = SimpleSchema
+        else:
+            record_mapping = resource_cls.mapping
 
         try:
-            empty_allowed = False
-            schema.deserialize({"data": {}})
-            empty_allowed = True
+            # Check if empty record is allowed.
+            # (e.g every schema fields have defaults)
+            record_mapping().deserialize({})
         except colander.Invalid:
-            pass
-
-        if empty_allowed or method.lower() == 'patch':
-            # Data is optional when patching permissions.
-            schema.children[-1].missing = colander.drop
+            mapping_kw = dict(missing=colander.required)
+        else:
+            mapping_kw = dict(default={}, missing=colander.drop)
 
         allowed_permissions = resource_cls.permissions
-        permissions_node = PermissionsSchema(missing=colander.drop,
-                                             permissions=allowed_permissions,
-                                             name='permissions')
-        schema.add(permissions_node)
 
-        # XXX: If Cornice wouldn't recreate the schema on the fly.
-        # We could make sure using a validator that at least one of `data` or
-        # `permissions` is provided.
-        # There is a huge work in progress, with several pull-requests
-        # addressing this issue:
-        # https://github.com/mozilla-services/cornice/labels/schema-validation
+        class PayloadSchema(StrictSchema):
+            data = record_mapping(**mapping_kw)
+            permissions = PermissionsSchema(missing=colander.drop,
+                                            permissions=allowed_permissions)
 
-        return schema
+        return PayloadSchema
 
     def get_view_arguments(self, endpoint_type, resource_cls, method):
         args = super(ShareableViewSet, self).get_view_arguments(endpoint_type,
