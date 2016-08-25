@@ -104,7 +104,8 @@ class PermissionsSchema(colander.SchemaNode):
 
     def _get_node_principals(self, perm):
         principal = colander.SchemaNode(colander.String())
-        return colander.SchemaNode(colander.Sequence(), principal, name=perm)
+        return colander.SchemaNode(colander.Sequence(), principal, name=perm,
+                                   missing=colander.drop)
 
 
 class TimeStamp(colander.SchemaNode):
