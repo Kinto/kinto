@@ -71,7 +71,7 @@ batch = Service(name="batch", path='/batch',
 
 @batch.post(schema=BatchPayloadSchema, permission=NO_PERMISSION_REQUIRED)
 def post_batch(request):
-    requests = request.validated['requests']
+    requests = request.validated['body']['requests']
     batch_size = len(requests)
 
     limit = request.registry.settings['batch_max_requests']

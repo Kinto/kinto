@@ -301,7 +301,7 @@ class BatchServiceTest(unittest.TestCase):
         self.request = DummyRequest()
 
     def post(self, validated):
-        self.request.validated = validated
+        self.request.validated = {'body': validated}
         return self.view(self.request)
 
     def test_returns_empty_list_of_responses_if_requests_empty(self):

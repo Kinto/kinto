@@ -306,7 +306,7 @@ class UserResource(object):
             Add custom behaviour by overriding
             :meth:`kinto.core.resource.UserResource.process_record`
         """
-        new_record = self.request.validated.get('data', {})
+        new_record = self.request.validated['body'].get('data', {})
         try:
             # Since ``id`` does not belong to schema, it is not in validated
             # data. Must look up in body.
@@ -415,7 +415,7 @@ class UserResource(object):
                 self._raise_412_if_modified(existing)
 
         # If `data` is not provided, use existing record (or empty if creation)
-        post_record = self.request.validated.get('data', existing) or {}
+        post_record = self.request.validated['body'].get('data', existing) or {}
 
         record_id = post_record.setdefault(id_field, self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
@@ -1143,7 +1143,7 @@ class ShareableResource(UserResource):
         existing ACE is removed (using empty list).
         """
         new = super(ShareableResource, self).process_record(new, old)
-        permissions = self.request.validated.get('permissions', {})
+        permissions = self.request.validated['body'].get('permissions', {})
 
         annotated = new.copy()
 
