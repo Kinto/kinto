@@ -1,7 +1,7 @@
 import functools
 
 import colander
-from cornice.validators._colander import validator as colander_validator
+from cornice.validators import colander_validator
 from pyramid.settings import asbool
 
 from kinto.core import authorization
@@ -122,8 +122,11 @@ class ViewSet(object):
                 body = record_schema()
 
             validators = args.get('validators', [])
-            validators.append(colander_validator(RequestSchema))
+            validators.append(colander_validator)
+            args['schema'] = RequestSchema
             args['validators'] = validators
+        else:
+            args['schema'] = SimpleSchema
 
         return args
 

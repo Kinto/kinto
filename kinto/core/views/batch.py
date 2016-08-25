@@ -1,7 +1,7 @@
 import colander
 import six
 
-from cornice.validators._colander import validator as colander_validator
+from cornice.validators import colander_validator
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 
@@ -71,7 +71,8 @@ batch = Service(name="batch", path='/batch',
                 description="Batch operations")
 
 
-@batch.post(validators=(colander_validator(BatchRequest),),
+@batch.post(schema=BatchRequest,
+            validators=(colander_validator,),
             permission=NO_PERMISSION_REQUIRED)
 def post_batch(request):
     requests = request.validated['body']['requests']

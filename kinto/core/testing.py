@@ -29,7 +29,7 @@ class DummyRequest(mock.MagicMock):
         self.registry.id_generators = defaultdict(generators.UUID4)
         self.GET = {}
         self.headers = {}
-        self.errors = cornice_errors.Errors(request=self)
+        self.errors = cornice_errors.Errors()
         self.authenticated_userid = 'bob'
         self.authn_type = 'basicauth'
         self.prefixed_userid = 'basicauth:bob'

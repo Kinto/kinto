@@ -97,7 +97,7 @@ class PermissionsSchema(resource.ResourceSchema):
                    permission=NO_PERMISSION_REQUIRED)
 class Permissions(resource.ShareableResource):
 
-    mapping = PermissionsSchema()
+    mapping = PermissionsSchema
 
     def __init__(self, request, context=None):
         super(Permissions, self).__init__(request, context)

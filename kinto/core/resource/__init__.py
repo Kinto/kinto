@@ -761,7 +761,7 @@ class UserResource(object):
             if if_none_match == '*':
                 return
             error_details = {
-                'location': 'headers',
+                'location': 'header',
                 'description': "Invalid value for If-None-Match"
             }
             raise_invalid(self.request, **error_details)
@@ -805,7 +805,7 @@ class UserResource(object):
                 message = ("Invalid value for If-Match. The value should "
                            "be integer between double quotes.")
                 error_details = {
-                    'location': 'headers',
+                    'location': 'header',
                     'description': message
                 }
                 raise_invalid(self.request, **error_details)

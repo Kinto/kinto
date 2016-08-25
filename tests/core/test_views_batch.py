@@ -145,7 +145,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/batch', body, status=200)
         self.assertEqual(resp.json['responses'][1]['status'], 400)
         self.assertEqual(resp.json['responses'][1]['body']['message'],
-                         ('headers: Invalid value for If-Match. The value '
+                         ('header: Invalid value for If-Match. The value '
                           'should be integer between double quotes.'))
 
     def test_412_errors_are_forwarded(self):

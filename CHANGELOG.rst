@@ -16,6 +16,10 @@ This document describes changes between each past release.
 
 - Fixed showing of backend type twice in StatsD backend keys (fixes #857)
 
+**Internal changes**
+
+- Upgraded to Cornice 2.0 (#790)
+
 
 4.3.1 (2016-10-06)
 ------------------
