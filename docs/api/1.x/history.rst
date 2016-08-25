@@ -97,7 +97,7 @@ As other list endpoints, the entries can be filtered and sorted using the querys
 * ``?_since="<timestamp>"`` and ``?_before="<timestamp>"`` to filter by timestamp/last_modified
 * ``?_limit=<N>``: limits to N entries (use ``Next-Page`` response header for pagination)
 * ``?uri=<URI>``: to filter on a particular object
-* ``?collection=<id>``: to filter on a particular collection
+* ``?collection_id=<id>``: to filter on a particular collection
 * ``?resource_name=<bucket|group|collection|record>``: to filter by object type
 * See :ref:`filtering`, :ref:`sorting`, :ref:`paginating` and :ref:`selecting-fields`.
 
