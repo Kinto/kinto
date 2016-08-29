@@ -6,7 +6,9 @@ This document describes changes between each past release.
 4.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix kinto init input function (#796)
 
 
 4.1.0 (2016-08-22)
