@@ -613,6 +613,7 @@ class Storage(StorageBase):
             COMPARISON.NOT: '<>',
             COMPARISON.IN: 'IN',
             COMPARISON.EXCLUDE: 'NOT IN',
+            COMPARISON.LIKE: 'ILIKE',
         }
 
         conditions = []
@@ -653,6 +654,9 @@ class Storage(StorageBase):
                 # WHERE field IN ();  -- Fails with syntax error.
                 if len(value) == 0:
                     value = (None,)
+
+            if filtr.operator == COMPARISON.LIKE:
+                value = '%{0}%'.format(value)
 
             # Safely escape value
             value_holder = '%s_value_%s' % (prefix, i)

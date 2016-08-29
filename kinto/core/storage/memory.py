@@ -58,6 +58,7 @@ class MemoryBasedStorage(StorageBase):
             COMPARISON.GT: operator.gt,
             COMPARISON.IN: operator.contains,
             COMPARISON.EXCLUDE: lambda x, y: not operator.contains(x, y),
+            COMPARISON.LIKE: lambda x, y: re.search(y, x, re.IGNORECASE),
         }
         for record in records:
             matches = True
