@@ -182,3 +182,9 @@ class TestMain(unittest.TestCase):
             mocked_logging.basicConfig.assert_called_with(
                 level=logging.INFO,
                 format=DEFAULT_LOG_FORMAT)
+
+    def test_cli_uses_six_moves_input_function(self):
+        # In Py2 we want to use raw_input and input in Py3
+        from kinto.__main__ import input as cli_input
+        from six.moves import input as six_input
+        assert cli_input == six_input
