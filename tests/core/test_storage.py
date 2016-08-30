@@ -1209,6 +1209,15 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         results, count = limited.get_all(**self.storage_kw)
         self.assertEqual(len(results), 2)
 
+    def test_records_filtered_when_searched_by_string_field(self):
+        self.create_record({'name': 'foo'})
+        self.create_record({'name': 'bar'})
+        self.create_record({'name': 'FOOBAR'})
+
+        filters = [Filter('name', 'FoO', utils.COMPARISON.LIKE)]
+        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(results), 2)
+
     def test_connection_is_rolledback_if_error_occurs(self):
         with self.storage.client.connect() as conn:
             query = "DELETE FROM metadata WHERE name = 'roll';"
