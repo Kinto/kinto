@@ -9,14 +9,14 @@ class FilteringTest(BaseTest):
         super(FilteringTest, self).setUp()
         self.patch_known_field.start()
         records = [
-            {'title': 'MoFo', 'status': 0, 'favorite': True },
-            {'title': 'MoFo', 'status': 1, 'favorite': False },
-            {'title': 'MoFo', 'status': 2, 'favorite': False },
-            {'title': 'MoFo', 'status': 0, 'favorite': False },
-            {'title': 'MoFo', 'status': 1, 'favorite': True },
-            {'title': 'MoFo', 'status': 2, 'favorite': False },
-            {'title': 'Foo', 'status': 3, 'favorite': False },
-            {'title': 'Bar', 'status': 3, 'favorite': False },
+            {'title': 'MoFo', 'status': 0, 'favorite': True},
+            {'title': 'MoFo', 'status': 1, 'favorite': False},
+            {'title': 'MoFo', 'status': 2, 'favorite': False},
+            {'title': 'MoFo', 'status': 0, 'favorite': False},
+            {'title': 'MoFo', 'status': 1, 'favorite': True},
+            {'title': 'MoFo', 'status': 2, 'favorite': False},
+            {'title': 'Foo', 'status': 3, 'favorite': False},
+            {'title': 'Bar', 'status': 3, 'favorite': False},
         ]
         for r in records:
             self.model.create_record(r)
@@ -106,14 +106,17 @@ class FilteringTest(BaseTest):
         self.resource.request.GET = {'like_title': 'MoFoo'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 0)
+
     def test_string_filters_searching_by_value_matching_many(self):
         self.resource.request.GET = {'like_title': 'Fo'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 7)
+
     def test_string_filters_searching_by_value_matching_one(self):
         self.resource.request.GET = {'like_title': 'Bar'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 1)
+
     def test_string_filters_searching_by_value_matching_vary_case(self):
         self.resource.request.GET = {'like_title': 'FoO'}
         result = self.resource.collection_get()
