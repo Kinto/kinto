@@ -54,6 +54,12 @@ Prefix field name with ``exclude_``:
 
 * ``/collection?exclude_field=0,1``
 
+**Search string fields**
+
+Prefix field name with ``like_``:
+
+* ``/collection?like_field=foo``
+
 .. note::
 
     Will return an error if a field is unknown.

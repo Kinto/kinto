@@ -33,6 +33,7 @@ Contributors
 * Mathieu Leplatre <mathieu@mozilla.com>
 * Maxime Warnier <marmax@gmail.com>
 * Michiel de Jong <michiel@unhosted.org>
+* Mo Valipour <valipour@gmail.com>
 * Nicolas Hoizey <nicolas@hoizey.com>
 * Nicolas Perriault <nperriault@mozilla.com>
 * Niraj <https://github.com/niraj8>
