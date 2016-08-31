@@ -171,6 +171,7 @@ def raise_invalid(request, location='body', name=None, description=None,
     :raises: :class:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
     """
     request.errors.add(location, name, description, **kwargs)
+    request.errors.request = request  # Needed by json_error_handler to reapply_cors
     response = json_error_handler(request.errors)
     raise response
 

@@ -118,8 +118,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
             service = register_service('record', config.registry.settings)
             config.add_cornice_service(service)
 
-    info = venusian.attach(resource_cls, callback, category='pyramid',
-                           depth=depth)
+    info = venusian.attach(resource_cls, callback, category='pyramid', depth=depth)
     return callback
 
 

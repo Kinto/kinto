@@ -98,7 +98,7 @@ class PermissionsSchema(resource.ResourceSchema):
                    record_path=None,
                    collection_methods=('GET',),
                    permission=NO_PERMISSION_REQUIRED)
-class Permissions(resource.UserResource):
+class Permissions(resource.ShareableResource):
 
     mapping = PermissionsSchema()
 
