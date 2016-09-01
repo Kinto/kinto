@@ -11,6 +11,12 @@ API
 Changelog
 ---------
 
+1.10 (unreleased)
+'''''''''''''''''
+
+- Add full-text case insensitive filtering on plural endpoints (e.g ``?like_person=Tim``)
+
+
 1.9 (2016-08-17)
 ''''''''''''''''
 
