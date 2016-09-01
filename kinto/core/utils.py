@@ -5,7 +5,6 @@ import os
 import re
 import six
 import time
-from threading import RLock
 from base64 import b64decode, b64encode
 from binascii import hexlify
 from six.moves.urllib import parse as urlparse
@@ -92,9 +91,8 @@ def synchronized(method):
     def decorated(self, *args, **kwargs):
         try:
             lock = getattr(self, '__lock__')
-        except AttributeError:
-            lock = RLock()
-            setattr(self, '__lock__', lock)
+        except AttributeError:  # Pragma: no cover
+            raise AttributeError("The lock `__lock__` is not defined !")
 
         lock.acquire()
         result = method(self, *args, **kwargs)

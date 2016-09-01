@@ -1,4 +1,5 @@
 import re
+from threading import RLock
 
 from kinto.core.permission import PermissionBase
 from kinto.core.utils import synchronized
@@ -16,6 +17,7 @@ class Permission(PermissionBase):
 
     def __init__(self, *args, **kwargs):
         super(Permission, self).__init__(*args, **kwargs)
+        self.__lock__ = RLock()
         self.flush()
 
     def initialize_schema(self, dry_run=False):
