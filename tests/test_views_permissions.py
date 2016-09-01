@@ -67,3 +67,26 @@ class PermissionsViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(record_permission['record_id'], RECORD_ID)
         self.assertEqual(record_permission['collection_id'], 'barley')
         self.assertEqual(record_permission['bucket_id'], 'beers')
+
+    def test_permissions_list_can_be_filtered(self):
+        resp = self.app.get('/permissions?in_resource_name=bucket,collection',
+                            headers=self.headers)
+        permissions = resp.json['data']
+        self.assertEqual(len(permissions), 2)
+
+    def test_filtering_with_unknown_field_is_not_supported(self):
+        self.app.get('/permissions?movie=bourne',
+                     headers=self.headers,
+                     status=400)
+
+    def test_permissions_fields_can_be_selected(self):
+        resp = self.app.get('/permissions?_fields=uri',
+                            headers=self.headers)
+        self.assertNotIn('resource_name', resp.json['data'][0])
+
+    def test_permissions_list_can_be_paginated(self):
+        resp = self.app.get('/permissions?_limit=2',
+                            headers=self.headers)
+        self.assertEqual(resp.headers['Total-Records'], '4')
+        self.assertIn('Next-Page', resp.headers)
+        self.assertEqual(len(resp.json['data']), 2)

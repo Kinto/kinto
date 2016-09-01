@@ -445,3 +445,17 @@ List every permissions
                 }
             ]
         }
+
+List of available URL parameters
+--------------------------------
+
+- ``<prefix?><field name>``: :doc:`filter <filtering>` by value(s)
+- ``_sort``: :doc:`order list <sorting>`
+- ``_limit``: :doc:`pagination max size <pagination>`
+- ``_token``: :doc:`pagination token <pagination>`
+- ``_fields``: :doc:`filter the fields of the records <selecting_fields>`
+
+
+Filtering, sorting, partial responses and paginating can all be combined together.
+
+* ``?_sort=-last_modified&_limit=100&_fields=title``
