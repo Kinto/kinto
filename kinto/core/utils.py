@@ -173,6 +173,7 @@ class COMPARISON(Enum):
     GT = '>'
     IN = 'in'
     EXCLUDE = 'exclude'
+    LIKE = 'like'
 
 
 def reapply_cors(request, response):

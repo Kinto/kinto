@@ -6,8 +6,9 @@ This document describes changes between each past release.
 4.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**New features**
 
+- Support for filtering records based on a text search (#791)
 
 4.1.1 (2016-08-29)
 ------------------

@@ -922,7 +922,8 @@ class UserResource(object):
                 )
                 continue
 
-            m = re.match(r'^(min|max|not|lt|gt|in|exclude)_([\w\.]+)$', param)
+            allKeywords = '|'.join([i.name.lower() for i in COMPARISON])
+            m = re.match(r'^('+allKeywords+')_([\w\.]+)$', param)
             if m:
                 keyword, field = m.groups()
                 operator = getattr(COMPARISON, keyword.upper())

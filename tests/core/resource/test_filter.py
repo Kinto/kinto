@@ -8,13 +8,18 @@ class FilteringTest(BaseTest):
     def setUp(self):
         super(FilteringTest, self).setUp()
         self.patch_known_field.start()
-        for i in range(6):
-            record = {
-                'title': 'MoFo',
-                'status': i % 3,
-                'favorite': (i % 4 == 0)
-            }
-            self.model.create_record(record)
+        records = [
+            {'title': 'MoFo', 'status': 0, 'favorite': True},
+            {'title': 'MoFo', 'status': 1, 'favorite': False},
+            {'title': 'MoFo', 'status': 2, 'favorite': False},
+            {'title': 'MoFo', 'status': 0, 'favorite': False},
+            {'title': 'MoFo', 'status': 1, 'favorite': True},
+            {'title': 'MoFo', 'status': 2, 'favorite': False},
+            {'title': 'Foo', 'status': 3, 'favorite': False},
+            {'title': 'Bar', 'status': 3, 'favorite': False},
+        ]
+        for r in records:
+            self.model.create_record(r)
 
     def test_list_can_be_filtered_on_deleted_with_since(self):
         since = self.model.timestamp()
@@ -97,6 +102,26 @@ class FilteringTest(BaseTest):
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 6)
 
+    def test_string_filters_searching_by_value_not_matching(self):
+        self.resource.request.GET = {'like_title': 'MoFoo'}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 0)
+
+    def test_string_filters_searching_by_value_matching_many(self):
+        self.resource.request.GET = {'like_title': 'Fo'}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 7)
+
+    def test_string_filters_searching_by_value_matching_one(self):
+        self.resource.request.GET = {'like_title': 'Bar'}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 1)
+
+    def test_string_filters_searching_by_value_matching_vary_case(self):
+        self.resource.request.GET = {'like_title': 'FoO'}
+        result = self.resource.collection_get()
+        self.assertEqual(len(result['data']), 1)
+
     def test_filter_considers_string_if_syntaxically_invalid(self):
         self.resource.request.GET = {'status': '1.2.3'}
         result = self.resource.collection_get()
@@ -147,7 +172,7 @@ class FilteringTest(BaseTest):
         self.resource.request.GET = {'exclude_status': '0'}
         result = self.resource.collection_get()
         values = [item['status'] for item in result['data']]
-        self.assertEqual(sorted(values), [1, 1, 2, 2])
+        self.assertEqual(sorted(values), [1, 1, 2, 2, 3, 3])
 
     def test_include_returns_400_if_value_has_wrong_type(self):
         self.resource.request.GET = {'in_id': '0,1'}
