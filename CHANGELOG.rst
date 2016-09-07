@@ -6,9 +6,12 @@ This document describes changes between each past release.
 4.2.0 (unreleased)
 ------------------
 
-**New features**
+**Protocol**
 
 - Support for filtering records based on a text search (#791)
+
+Protocol is now at version **1.10**. See `API changelog`_.
+
 
 4.1.1 (2016-08-29)
 ------------------
