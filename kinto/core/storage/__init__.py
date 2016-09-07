@@ -1,5 +1,7 @@
 import random
 from collections import namedtuple
+
+import transaction
 from pyramid.settings import asbool
 
 from kinto.core.logs import logger
@@ -269,5 +271,7 @@ def heartbeat(backend):
         except:
             logger.exception("Heartbeat Error")
             return False
+        finally:
+            transaction.abort()
 
     return ping

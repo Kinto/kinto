@@ -1,5 +1,7 @@
 import random
 
+import transaction
+
 from kinto.core.logs import logger
 
 
@@ -92,5 +94,7 @@ def heartbeat(backend):
         except:
             logger.exception("Heartbeat Failure")
             return False
+        finally:
+            transaction.abort()
 
     return ping

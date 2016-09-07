@@ -1,3 +1,4 @@
+import transaction
 from pyramid.settings import asbool
 
 from kinto.core.logs import logger
@@ -181,8 +182,11 @@ def heartbeat(backend):
             else:
                 backend.add_user_principal(__HEARTBEAT_KEY__, 'alive')
                 backend.remove_user_principal(__HEARTBEAT_KEY__, 'alive')
+            return True
         except:
             logger.exception("Heartbeat Error")
             return False
-        return True
+        finally:
+            transaction.abort()
+
     return ping
