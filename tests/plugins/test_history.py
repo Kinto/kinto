@@ -231,7 +231,7 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
-        assert entry['target']['data']['id'] in (self.group['id'], 'col2')
+        assert entry['target']['data']['id'] in (self.group['id'], 'g2')
 
     #
     # Record
