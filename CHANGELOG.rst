@@ -16,6 +16,8 @@ Protocol is now at version **1.10**. See `API changelog`_.
 
 - Fix concurrent writes in the memory backend (fixes #759)
 - Fix heartbeat transaction locks with PostgreSQL backends (fixes #804)
+- Fix crash with PostgreSQL storage backend when filtering with integer on
+  a missing field (fixes #813)
 
 
 4.1.1 (2016-08-29)

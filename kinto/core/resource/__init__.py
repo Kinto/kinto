@@ -935,6 +935,7 @@ class UserResource(object):
                 raise_invalid(self.request, **error_details)
 
             value = native_value(paramvalue)
+
             if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = set([native_value(v) for v in paramvalue.split(',')])
 

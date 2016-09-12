@@ -392,10 +392,13 @@ class BaseTestStorage(object):
         self.assertEqual(len(records), 2)
 
     def test_get_all_can_filter_with_numeric_values(self):
+        self.create_record({'missing': 'code'})
         for l in [1, 10, 6, 46]:
             self.create_record({'code': l})
+
         sorting = [Sort('code', 1)]
-        filters = [Filter('code', 10, utils.COMPARISON.MAX)]
+        filters = [Filter('code', 0, utils.COMPARISON.MIN),
+                   Filter('code', 10, utils.COMPARISON.MAX)]
         records, _ = self.storage.get_all(sorting=sorting, filters=filters,
                                           **self.storage_kw)
         self.assertEqual(records[0]['code'], 1)
