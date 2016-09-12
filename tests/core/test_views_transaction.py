@@ -69,6 +69,12 @@ class PostgreSQLTest(BaseWebTest):
 @skip_if_no_postgresql
 class TransactionTest(PostgreSQLTest, unittest.TestCase):
 
+    def test_heartbeat_releases_transaction_lock(self):
+        for i in range(4):
+            # 4 calls because we have 3 backends
+            # See bug Kinto/kinto#804
+            self.app.get('/__heartbeat__')
+
     def test_storage_operations_are_committed_on_success(self):
         request_create = {
             'method': 'POST',
