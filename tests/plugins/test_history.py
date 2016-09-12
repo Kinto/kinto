@@ -171,6 +171,17 @@ class HistoryViewTest(HistoryWebTest):
         assert entry['action'] == 'delete'
         assert entry['target']['data']['deleted'] is True
 
+    def test_tracks_multiple_collections_delete(self):
+        self.app.put(self.bucket_uri + '/collections/col2',
+                     headers=self.headers)
+
+        self.app.delete(self.bucket_uri + '/collections', headers=self.headers)
+
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'delete'
+        assert entry['target']['data']['id'] in (self.collection['id'], 'col2')
+
     #
     # Group
     #
@@ -209,6 +220,18 @@ class HistoryViewTest(HistoryWebTest):
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
         assert entry['target']['data']['deleted'] is True
+
+    def test_tracks_multiple_groups_delete(self):
+        self.app.put_json(self.bucket_uri + '/groups/g2',
+                          {"data": {"members": ["her"]}},
+                          headers=self.headers)
+
+        self.app.delete(self.bucket_uri + '/groups', headers=self.headers)
+
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'delete'
+        assert entry['target']['data']['id'] in (self.group['id'], 'g2')
 
     #
     # Record
@@ -251,6 +274,19 @@ class HistoryViewTest(HistoryWebTest):
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
         assert entry['target']['data']['deleted'] is True
+
+    def test_tracks_multiple_records_delete(self):
+        records_uri = self.collection_uri + '/records'
+        body = {'data': {'foo': 43}}
+        resp = self.app.post_json(records_uri, body, headers=self.headers)
+        rid = resp.json['data']['id']
+
+        self.app.delete(records_uri, headers=self.headers)
+
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        entry = resp.json['data'][0]
+        assert entry['action'] == 'delete'
+        assert entry['target']['data']['id'] in (self.record['id'], rid)
 
 
 class FilteringTest(HistoryWebTest):
