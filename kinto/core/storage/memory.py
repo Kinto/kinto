@@ -1,7 +1,6 @@
 import re
 import operator
 from collections import defaultdict
-from threading import RLock
 
 from kinto.core import utils
 from kinto.core.storage import (
@@ -75,7 +74,6 @@ class Storage(MemoryBasedStorage):
     """
     def __init__(self, *args, **kwargs):
         super(Storage, self).__init__(*args, **kwargs)
-        self.__lock__ = RLock()
         self.flush()
 
     def flush(self, auth=None):

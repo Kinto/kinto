@@ -1,5 +1,3 @@
-from threading import RLock
-
 from kinto.core.cache import CacheBase
 from kinto.core.utils import msec_time, synchronized
 
@@ -16,7 +14,6 @@ class Cache(CacheBase):
 
     def __init__(self, *args, **kwargs):
         super(Cache, self).__init__(*args, **kwargs)
-        self.__lock__ = RLock()
         self.flush()
 
     def initialize_schema(self, dry_run=False):
