@@ -12,6 +12,10 @@ This document describes changes between each past release.
 
 Protocol is now at version **1.10**. See `API changelog`_.
 
+**Bug fixes**
+
+- Fix concurrent writes in the memory backend (fixes #759)
+
 
 4.1.1 (2016-08-29)
 ------------------

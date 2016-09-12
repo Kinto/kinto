@@ -1,9 +1,9 @@
-from kinto.core import utils
 from kinto.core.cache import CacheBase
+from kinto.core.utils import msec_time, synchronized
 
 
 class Cache(CacheBase):
-    """Cache backend implementation in local thread memory.
+    """Cache backend implementation in local process memory.
 
     Enable in configuration::
 
@@ -24,27 +24,32 @@ class Cache(CacheBase):
         self._ttl = {}
         self._store = {}
 
+    @synchronized
     def ttl(self, key):
         ttl = self._ttl.get(self.prefix + key)
         if ttl is not None:
-            return (ttl - utils.msec_time()) / 1000.0
+            return (ttl - msec_time()) / 1000.0
         return -1
 
+    @synchronized
     def expire(self, key, ttl):
-        self._ttl[self.prefix + key] = utils.msec_time() + int(ttl * 1000.0)
+        self._ttl[self.prefix + key] = msec_time() + int(ttl * 1000.0)
 
+    @synchronized
     def set(self, key, value, ttl=None):
         if ttl is not None:
             self.expire(key, ttl)
         self._store[self.prefix + key] = value
 
+    @synchronized
     def get(self, key):
-        current = utils.msec_time()
+        current = msec_time()
         expired = [k for k, v in self._ttl.items() if current >= v]
         for expired_item_key in expired:
             self.delete(expired_item_key[len(self.prefix):])
         return self._store.get(self.prefix + key)
 
+    @synchronized
     def delete(self, key):
         key = self.prefix + key
         self._ttl.pop(key, None)
