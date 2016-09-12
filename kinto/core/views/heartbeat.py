@@ -1,4 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor, wait
+
+import transaction
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto import logger
@@ -17,6 +19,8 @@ def get_heartbeat(request):
     def heartbeat_check(name, func):
         status[name] = False
         status[name] = func(request)
+        # Rollback any open transaction (will release table locks etc.)
+        transaction.abort()
 
     # Start executing heartbeats concurrently.
     heartbeats = request.registry.heartbeats
