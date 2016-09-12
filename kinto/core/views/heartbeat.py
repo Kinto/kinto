@@ -19,7 +19,10 @@ def get_heartbeat(request):
     def heartbeat_check(name, func):
         status[name] = False
         status[name] = func(request)
-        # Rollback any open transaction (will release table locks etc.)
+        # Since the heartbeat checks run concurrently, their transactions
+        # overlap and might end in shared lock errors. By aborting here
+        # we clean-up the state on each heartbeat call instead of once at the
+        # end of the request. See bug Kinto/kinto#804
         transaction.abort()
 
     # Start executing heartbeats concurrently.
