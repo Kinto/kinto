@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+3.3.3 (unreleased)
+==================
+
+- Fix heartbeat transaction locks with PostgreSQL backends (fixes #804)
+
+
 3.3.2 (2016-07-21)
 ==================
 
