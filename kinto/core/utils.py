@@ -4,8 +4,8 @@ import hmac
 import os
 import re
 import six
+import threading
 import time
-from threading import RLock
 from base64 import b64decode, b64encode
 from binascii import hexlify
 from six.moves.urllib import parse as urlparse
@@ -93,12 +93,14 @@ def synchronized(method):
         try:
             lock = getattr(self, '__lock__')
         except AttributeError:
-            lock = RLock()
+            lock = threading.RLock()
             setattr(self, '__lock__', lock)
 
         lock.acquire()
-        result = method(self, *args, **kwargs)
-        lock.release()
+        try:
+            result = method(self, *args, **kwargs)
+        finally:
+            lock.release()
         return result
     return decorated
 
