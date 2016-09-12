@@ -37,3 +37,5 @@ matrix:
       install: pip install flake8
       before_script: echo 'flake8'
       script: flake8 kinto
+  allow_failures:
+    - env: TOX_ENV=pypy
