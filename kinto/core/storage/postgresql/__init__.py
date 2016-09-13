@@ -626,7 +626,7 @@ class Storage(StorageBase):
             elif filtr.field == modified_field:
                 sql_field = 'as_epoch(last_modified)'
             else:
-                sql_field = "data"
+                column_name = "data"
                 # Subfields: ``person.name`` becomes ``data->person->>name``
                 subfields = filtr.field.split('.')
                 for j, subfield in enumerate(subfields):
@@ -634,15 +634,15 @@ class Storage(StorageBase):
                     field_holder = '%s_field_%s_%s' % (prefix, i, j)
                     holders[field_holder] = subfield
                     # Use ->> to convert the last level to text.
-                    sql_field += "->>" if j == len(subfields) - 1 else "->"
-                    sql_field += ":%s" % field_holder
+                    column_name += "->>" if j == len(subfields) - 1 else "->"
+                    column_name += ":%s" % field_holder
 
                 # If field is missing, we default to ''.
-                sql_field = "coalesce(%s, '')" % sql_field
+                sql_field = "coalesce(%s, '')" % column_name
                 # Cast when comparing to number (eg. '4' < '12')
                 if isinstance(value, (int, float)) and \
                    value not in (True, False):
-                    sql_field += "::numeric"
+                    sql_field = "(%s)::numeric" % column_name
 
             if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 # For the IN operator, let psycopg escape the values list.
