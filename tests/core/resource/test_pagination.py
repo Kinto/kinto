@@ -256,5 +256,4 @@ class BuildPaginationTokenTest(BaseTest):
         ], self.record, 31)
         tokeninfo = json.loads(b64decode(token).decode('ascii'))
         self.assertEqual(tokeninfo['last_record'],
-                         {"last_modified": 1234, "status": 2,
-                          'title': 'Title'})
+                         {"last_modified": 1234, "title": "Title"})

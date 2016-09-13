@@ -1059,7 +1059,8 @@ class UserResource(object):
         }
 
         for field, _ in sorting:
-            token['last_record'][field] = last_record[field]
+            if field in last_record:
+                token['last_record'][field] = last_record[field]
 
         return encode64(json.dumps(token))
 
