@@ -247,3 +247,14 @@ class BuildPaginationTokenTest(BaseTest):
         self.assertEqual(tokeninfo['last_record'],
                          {"last_modified": 1234, "status": 2,
                           'title': 'Title'})
+
+    def test_can_build_while_sorting_on_missing_field(self):
+        token = self.resource._build_pagination_token([
+            ('unknown', 1),
+            ('title', -1),
+            ('last_modified', -1)
+        ], self.record, 31)
+        tokeninfo = json.loads(b64decode(token).decode('ascii'))
+        self.assertEqual(tokeninfo['last_record'],
+                         {"last_modified": 1234, "status": 2,
+                          'title': 'Title'})
