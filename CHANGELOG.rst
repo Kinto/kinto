@@ -18,6 +18,7 @@ Protocol is now at version **1.10**. See `API changelog`_.
 - Fix heartbeat transaction locks with PostgreSQL backends (fixes #804)
 - Fix crash with PostgreSQL storage backend when filtering with integer on
   a missing field (fixes #813)
+- Fix pagination token generation on optional fields (#816)
 
 
 4.1.1 (2016-08-29)
