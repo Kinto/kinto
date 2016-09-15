@@ -342,6 +342,17 @@ class BaseTestStorage(object):
             **self.storage_kw
         )
 
+    def test_get_all_handles_parent_id_pattern_matching(self):
+        self.create_record(parent_id='abc', collection_id='c')
+        record = self.create_record(parent_id='abc', collection_id='c')
+        self.storage.delete(object_id=record['id'], parent_id='abc', collection_id='c')
+        self.create_record(parent_id='efg', collection_id='c')
+
+        records, total_records = self.storage.get_all(parent_id='ab*', collection_id='c',
+                                                      include_deleted=True)
+        self.assertEquals(len(records), 2)
+        self.assertEquals(total_records, 1)
+
     def test_get_all_return_all_values(self):
         for x in range(10):
             record = dict(self.record)

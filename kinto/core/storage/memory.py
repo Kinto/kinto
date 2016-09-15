@@ -230,11 +230,38 @@ class Storage(MemoryBasedStorage):
                 modified_field=DEFAULT_MODIFIED_FIELD,
                 deleted_field=DEFAULT_DELETED_FIELD,
                 auth=None):
+        parent_id_match = re.compile(parent_id.replace('*', '.*'))
+        by_parent_id = {pid: collections
+                        for pid, collections in self._store.items()
+                        if parent_id_match.match(pid)}
+
         records = list(self._store[parent_id][collection_id].values())
 
+        records = []
+        for pid, collections in by_parent_id.items():
+            if collection_id is not None:
+                collections = {collection_id: collections[collection_id]}
+            for collection, colrecords in collections.items():
+                for r in colrecords.values():
+                    records.append(dict(__collection_id__=collection,
+                                        __parent_id__=pid,
+                                        **r))
+
+        records, count = self.extract_record_set(records,
+                                                 filters, None,
+                                                 id_field, deleted_field)
         deleted = []
         if include_deleted:
-            deleted = list(self._cemetery[parent_id][collection_id].values())
+            by_parent_id = {pid: collections
+                            for pid, collections in self._cemetery.items()
+                            if parent_id_match.match(pid)}
+
+            for pid, collections in by_parent_id.items():
+                if collection_id is not None:
+                    collections = {collection_id: collections[collection_id]}
+                for collection, colrecords in collections.items():
+                    for r in colrecords.values():
+                        deleted.append(dict(**r))
 
         records, count = self.extract_record_set(records + deleted,
                                                  filters, sorting,
