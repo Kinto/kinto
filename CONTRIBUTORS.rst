@@ -38,8 +38,9 @@ Contributors
 * Nicolas Perriault <nperriault@mozilla.com>
 * Niraj <https://github.com/niraj8>
 * Rektide <rektide@voodoowarez.com>
-* Rodolphe Quiédeville <rodolphe@quiedeville.org>
 * Rémy Hubscher <rhubscher@mozilla.com>
+* Rodolphe Quiédeville <rodolphe@quiedeville.org>
+* Sahil Dua <sahildua2305@gmail.com>
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
 * Surya Prashanth <prashantsurya@ymail.com>

@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.10 (unreleased)
+1.10 (2016-09-15)
 '''''''''''''''''
 
 - Add substring query to filtering on plural endpoints (e.g ``?like_person=Tim``)
