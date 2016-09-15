@@ -1,5 +1,4 @@
 flake8
-kinto
 mock
 pytest
 pytest-cache
