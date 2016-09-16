@@ -223,6 +223,28 @@ class Storage(MemoryBasedStorage):
                 num_deleted += (len(colrecords) - len(kept))
         return num_deleted
 
+    def _get_collections_by_parent_id(self, parent_id, store):
+        if parent_id:
+            parent_id_match = re.compile(parent_id.replace('*', '.*'))
+            return {pid: collections
+                    for pid, collections in store.items()
+                    if parent_id_match.match(pid)}
+        return store[parent_id]
+
+    def _get_collections_matching_by_parent_id(self, by_parent_id, collection_id, with_meta=False):
+        records = []
+        for pid, collections in by_parent_id.items():
+            if collection_id is not None:
+                collections = {collection_id: collections[collection_id]}
+            for collection, colrecords in collections.items():
+                for r in colrecords.values():
+                    if with_meta:
+                        records.append(dict(__collection_id__=collection,
+                                            __parent_id__=pid, **r))
+                    else:
+                        records.append(r)
+        return records
+
     @synchronized
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,
@@ -231,46 +253,21 @@ class Storage(MemoryBasedStorage):
                 deleted_field=DEFAULT_DELETED_FIELD,
                 auth=None):
 
-        if parent_id:
-            parent_id_match = re.compile(parent_id.replace('*', '.*'))
-            by_parent_id = {pid: collections
-                            for pid, collections in self._store.items()
-                            if parent_id_match.match(pid)}
+        by_parent_id = self._get_collections_by_parent_id(parent_id, self._store)
+        records = self._get_collections_matching_by_parent_id(by_parent_id, collection_id)
 
-        else:
-            by_parent_id = self._store[parent_id]
-
-        records = []
-        for pid, collections in by_parent_id.items():
-            if collection_id is not None:
-                collections = {collection_id: collections[collection_id]}
-            for collection, colrecords in collections.items():
-                for r in colrecords.values():
-                    records.append(r)
-
-        records, count = self.extract_record_set(records,
-                                                 filters, None,
-                                                 id_field, deleted_field)
+        records, count = self.extract_record_set(records=records,
+                                                 filters=filters, sorting=None,
+                                                 id_field=id_field, deleted_field=deleted_field)
         deleted = []
         if include_deleted:
-            if parent_id:
-                by_parent_id = {pid: collections
-                                for pid, collections in self._cemetery.items()
-                                if parent_id_match.match(pid)}
-            else:
-                by_parent_id = self._cemetery[parent_id]
+            by_parent_id = self._get_collections_by_parent_id(parent_id, self._cemetery)
+            deleted = self._get_collections_matching_by_parent_id(by_parent_id, collection_id)
 
-            for pid, collections in by_parent_id.items():
-                if collection_id is not None:
-                    collections = {collection_id: collections[collection_id]}
-                for collection, colrecords in collections.items():
-                    for r in colrecords.values():
-                        deleted.append(r)
-
-        records, count = self.extract_record_set(records + deleted,
-                                                 filters, sorting,
-                                                 id_field, deleted_field,
-                                                 pagination_rules, limit)
+        records, count = self.extract_record_set(records=records + deleted,
+                                                 filters=filters, sorting=sorting,
+                                                 id_field=id_field, deleted_field=deleted_field,
+                                                 pagination_rules=pagination_rules, limit=limit)
         return records, count
 
     @synchronized
@@ -279,24 +276,14 @@ class Storage(MemoryBasedStorage):
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
                    auth=None):
-        parent_id_match = re.compile(parent_id.replace('*', '.*'))
-        by_parent_id = {pid: collections
-                        for pid, collections in self._store.items()
-                        if parent_id_match.match(pid)}
-
-        records = []
-        for pid, collections in by_parent_id.items():
-            if collection_id is not None:
-                collections = {collection_id: collections[collection_id]}
-            for collection, colrecords in collections.items():
-                for r in colrecords.values():
-                    records.append(dict(__collection_id__=collection,
-                                        __parent_id__=pid,
-                                        **r))
-
-        records, count = self.extract_record_set(records,
-                                                 filters, None,
-                                                 id_field, deleted_field)
+        by_parent_id = self._get_collections_by_parent_id(parent_id, self._store)
+        records = self._get_collections_matching_by_parent_id(by_parent_id, collection_id,
+                                                              with_meta=True)
+        records, count = self.extract_record_set(records=records,
+                                                 filters=filters,
+                                                 sorting=None,
+                                                 id_field=id_field,
+                                                 deleted_field=deleted_field)
 
         deleted = [self.delete(r.pop('__collection_id__'),
                                r.pop('__parent_id__'),
