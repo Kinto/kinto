@@ -230,12 +230,15 @@ class Storage(MemoryBasedStorage):
                 modified_field=DEFAULT_MODIFIED_FIELD,
                 deleted_field=DEFAULT_DELETED_FIELD,
                 auth=None):
-        parent_id_match = re.compile(parent_id.replace('*', '.*'))
-        by_parent_id = {pid: collections
-                        for pid, collections in self._store.items()
-                        if parent_id_match.match(pid)}
 
-        records = list(self._store[parent_id][collection_id].values())
+        if parent_id:
+            parent_id_match = re.compile(parent_id.replace('*', '.*'))
+            by_parent_id = {pid: collections
+                            for pid, collections in self._store.items()
+                            if parent_id_match.match(pid)}
+
+        else:
+            by_parent_id = self._store[parent_id]
 
         records = []
         for pid, collections in by_parent_id.items():
@@ -250,9 +253,12 @@ class Storage(MemoryBasedStorage):
                                                  id_field, deleted_field)
         deleted = []
         if include_deleted:
-            by_parent_id = {pid: collections
-                            for pid, collections in self._cemetery.items()
-                            if parent_id_match.match(pid)}
+            if parent_id:
+                by_parent_id = {pid: collections
+                                for pid, collections in self._cemetery.items()
+                                if parent_id_match.match(pid)}
+            else:
+                by_parent_id = self._cemetery[parent_id]
 
             for pid, collections in by_parent_id.items():
                 if collection_id is not None:
