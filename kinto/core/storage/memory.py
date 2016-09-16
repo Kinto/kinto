@@ -230,16 +230,20 @@ class Storage(MemoryBasedStorage):
                 modified_field=DEFAULT_MODIFIED_FIELD,
                 deleted_field=DEFAULT_DELETED_FIELD,
                 auth=None):
-        records = list(self._store[parent_id][collection_id].values())
 
+        records = _get_objects_by_parent_id(self._store, parent_id, collection_id)
+
+        records, count = self.extract_record_set(records=records,
+                                                 filters=filters, sorting=None,
+                                                 id_field=id_field, deleted_field=deleted_field)
         deleted = []
         if include_deleted:
-            deleted = list(self._cemetery[parent_id][collection_id].values())
+            deleted = _get_objects_by_parent_id(self._cemetery, parent_id, collection_id)
 
-        records, count = self.extract_record_set(records + deleted,
-                                                 filters, sorting,
-                                                 id_field, deleted_field,
-                                                 pagination_rules, limit)
+        records, count = self.extract_record_set(records=records + deleted,
+                                                 filters=filters, sorting=sorting,
+                                                 id_field=id_field, deleted_field=deleted_field,
+                                                 pagination_rules=pagination_rules, limit=limit)
         return records, count
 
     @synchronized
@@ -248,24 +252,12 @@ class Storage(MemoryBasedStorage):
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
                    auth=None):
-        parent_id_match = re.compile(parent_id.replace('*', '.*'))
-        by_parent_id = {pid: collections
-                        for pid, collections in self._store.items()
-                        if parent_id_match.match(pid)}
-
-        records = []
-        for pid, collections in by_parent_id.items():
-            if collection_id is not None:
-                collections = {collection_id: collections[collection_id]}
-            for collection, colrecords in collections.items():
-                for r in colrecords.values():
-                    records.append(dict(__collection_id__=collection,
-                                        __parent_id__=pid,
-                                        **r))
-
-        records, count = self.extract_record_set(records,
-                                                 filters, None,
-                                                 id_field, deleted_field)
+        records = _get_objects_by_parent_id(self._store, parent_id, collection_id, with_meta=True)
+        records, count = self.extract_record_set(records=records,
+                                                 filters=filters,
+                                                 sorting=None,
+                                                 id_field=id_field,
+                                                 deleted_field=deleted_field)
 
         deleted = [self.delete(r.pop('__collection_id__'),
                                r.pop('__parent_id__'),
@@ -375,6 +367,29 @@ def apply_sorting(records, sorting):
                         reverse=(sort.direction < 0))
 
     return result
+
+
+def _get_objects_by_parent_id(store, parent_id, collection_id, with_meta=False):
+    if parent_id is not None:
+        parent_id_match = re.compile("^%s$" % parent_id.replace('*', '.*'))
+        by_parent_id = {pid: collections
+                        for pid, collections in store.items()
+                        if parent_id_match.match(pid)}
+    else:
+        by_parent_id = store[parent_id]
+
+    objects = []
+    for pid, collections in by_parent_id.items():
+        if collection_id is not None:
+            collections = {collection_id: collections[collection_id]}
+        for collection, colobjects in collections.items():
+            for r in colobjects.values():
+                if with_meta:
+                    objects.append(dict(__collection_id__=collection,
+                                        __parent_id__=pid, **r))
+                else:
+                    objects.append(r)
+    return objects
 
 
 def load_from_config(config):

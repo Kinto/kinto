@@ -66,7 +66,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
     def test_basicauth_hash_is_computed_only_once(self):
         # hmac_digest() is used in Basic Authentication only.
-        patch = mock.patch('kinto.core.utils.hmac_digest')
+        patch = mock.patch('kinto.core.utils.hmac_digest', return_value='abcdef')
         self.addCleanup(patch.stop)
         mocked = patch.start()
         body = {"data": {"name": "haha"}}

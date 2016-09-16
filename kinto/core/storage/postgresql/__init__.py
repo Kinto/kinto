@@ -419,7 +419,7 @@ class Storage(StorageBase):
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
             safeholders['parent_id_filter'] = 'parent_id ~ :parent_id'
-            placeholders['parent_id'] = parent_id.replace('*', '.*')
+            placeholders['parent_id'] = "^%s$" % parent_id.replace('*', '.*')
         else:
             safeholders['parent_id_filter'] = 'parent_id = :parent_id'
         # If collection is None, remove it from query.
@@ -469,7 +469,7 @@ class Storage(StorageBase):
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
             safeholders['parent_id_filter'] = 'parent_id ~ :parent_id'
-            placeholders['parent_id'] = parent_id.replace('*', '.*')
+            placeholders['parent_id'] = "^%s$" % parent_id.replace('*', '.*')
         else:
             safeholders['parent_id_filter'] = 'parent_id = :parent_id'
         # If collection is None, remove it from query.
@@ -498,14 +498,14 @@ class Storage(StorageBase):
         WITH total_filtered AS (
             SELECT COUNT(id) AS count
               FROM records
-             WHERE parent_id = :parent_id
+             WHERE %(parent_id_filter)s
                AND collection_id = :collection_id
                %(conditions_filter)s
         ),
         collection_filtered AS (
             SELECT id, last_modified, data
               FROM records
-             WHERE parent_id = :parent_id
+             WHERE %(parent_id_filter)s
                AND collection_id = :collection_id
                %(conditions_filter)s
              LIMIT %(max_fetch_size)s
@@ -516,7 +516,7 @@ class Storage(StorageBase):
         filtered_deleted AS (
             SELECT id, last_modified, fake_deleted.data AS data
               FROM deleted, fake_deleted
-             WHERE parent_id = :parent_id
+             WHERE %(parent_id_filter)s
                AND collection_id = :collection_id
                %(conditions_filter)s
                %(deleted_limit)s
@@ -548,6 +548,13 @@ class Storage(StorageBase):
         # Safe strings
         safeholders = defaultdict(six.text_type)
         safeholders['max_fetch_size'] = self._max_fetch_size
+
+        # Handle parent_id as a regex only if it contains *
+        if '*' in parent_id:
+            safeholders['parent_id_filter'] = 'parent_id ~ :parent_id'
+            placeholders['parent_id'] = "^%s$" % parent_id.replace('*', '.*')
+        else:
+            safeholders['parent_id_filter'] = 'parent_id = :parent_id'
 
         if filters:
             safe_sql, holders = self._format_conditions(filters,
