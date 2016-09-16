@@ -225,7 +225,7 @@ class Storage(MemoryBasedStorage):
 
     def _get_collections_by_parent_id(self, parent_id, store):
         if parent_id:
-            parent_id_match = re.compile(parent_id.replace('*', '.*'))
+            parent_id_match = re.compile("^%s$" % parent_id.replace('*', '.*'))
             return {pid: collections
                     for pid, collections in store.items()
                     if parent_id_match.match(pid)}
