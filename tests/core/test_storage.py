@@ -880,6 +880,24 @@ class DeletedRecordsTest(object):
         self.assertEqual(count, 1)
         self.assertEqual(len(records), 1)
 
+    def test_delete_all_does_proper_parent_id_matching(self):
+        self.create_record(parent_id='abc', collection_id='c')
+        self.create_record(parent_id='xabcx', collection_id='c')
+        self.create_record(parent_id='efg', collection_id='c')
+        self.storage.delete_all(parent_id='ab*',
+                                collection_id=None,
+                                with_deleted=False)
+        records, count = self.storage.get_all(parent_id='xabcx',
+                                              collection_id='c',
+                                              include_deleted=True)
+        self.assertEqual(count, 1)
+        self.assertEqual(len(records), 1)
+        records, count = self.storage.get_all(parent_id='efg',
+                                              collection_id='c',
+                                              include_deleted=True)
+        self.assertEqual(count, 1)
+        self.assertEqual(len(records), 1)
+
     def test_delete_all_can_delete_by_parent_id_with_tombstones(self):
         self.create_record(parent_id='abc', collection_id='c')
         self.create_record(parent_id='abc', collection_id='c')
