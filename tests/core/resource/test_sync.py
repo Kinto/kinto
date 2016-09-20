@@ -6,12 +6,12 @@ import six
 from pyramid import httpexceptions
 
 from kinto.core.utils import decode_header
+from kinto.core.testing import ThreadMixin
 
 from . import BaseTest
-from .. import support
 
 
-class SinceModifiedTest(support.ThreadMixin, BaseTest):
+class SinceModifiedTest(ThreadMixin, BaseTest):
 
     def setUp(self):
         super(SinceModifiedTest, self).setUp()
