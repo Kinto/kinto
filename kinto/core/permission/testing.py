@@ -8,7 +8,7 @@ from kinto.core.permission import PermissionBase, heartbeat
 from kinto.core.testing import DummyRequest
 
 
-class PermissionTest(unittest.TestCase):
+class PermissionBaseTest(unittest.TestCase):
     def setUp(self):
         self.permission = PermissionBase()
 
@@ -33,12 +33,12 @@ class PermissionTest(unittest.TestCase):
             self.assertRaises(NotImplementedError, *call)
 
 
-class BaseTestPermission(object):
+class PermissionTest(object):
     backend = None
     settings = {}
 
     def setUp(self):
-        super(BaseTestPermission, self).setUp()
+        super(PermissionTest, self).setUp()
         self.permission = self.backend.load_from_config(self._get_config())
         self.permission.initialize_schema()
         self.request = DummyRequest()
@@ -55,7 +55,7 @@ class BaseTestPermission(object):
 
     def tearDown(self):
         mock.patch.stopall()
-        super(BaseTestPermission, self).tearDown()
+        super(PermissionTest, self).tearDown()
         self.permission.flush()
 
     def test_backend_error_is_raised_anywhere(self):
