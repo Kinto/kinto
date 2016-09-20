@@ -48,7 +48,7 @@ class CacheTest(object):
 
     def tearDown(self):
         mock.patch.stopall()
-        super(BaseTestCache, self).tearDown()
+        super(CacheTest, self).tearDown()
         self.cache.flush()
 
     def get_backend_prefix(self, prefix):
