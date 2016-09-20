@@ -1,36 +1,10 @@
 import mock
-import unittest
 
 from pyramid import testing
 
 from kinto.core.storage import exceptions
-from kinto.core.permission import PermissionBase, heartbeat
+from kinto.core.permission import heartbeat
 from kinto.core.testing import DummyRequest
-
-
-class PermissionBaseTest(unittest.TestCase):
-    def setUp(self):
-        self.permission = PermissionBase()
-
-    def test_mandatory_overrides(self):
-        calls = [
-            (self.permission.initialize_schema,),
-            (self.permission.flush,),
-            (self.permission.add_user_principal, '', ''),
-            (self.permission.remove_user_principal, '', ''),
-            (self.permission.remove_principal, ''),
-            (self.permission.get_user_principals, ''),
-            (self.permission.add_principal_to_ace, '', '', ''),
-            (self.permission.remove_principal_from_ace, '', '', ''),
-            (self.permission.get_object_permission_principals, '', ''),
-            (self.permission.get_objects_permissions, ''),
-            (self.permission.replace_object_permissions, '', {}),
-            (self.permission.delete_object_permissions, ''),
-            (self.permission.get_accessible_objects, [], ''),
-            (self.permission.get_authorized_principals, []),
-        ]
-        for call in calls:
-            self.assertRaises(NotImplementedError, *call)
 
 
 class PermissionTest(object):

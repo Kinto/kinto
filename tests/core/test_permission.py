@@ -2,10 +2,35 @@ import mock
 import unittest
 
 from kinto.core.utils import sqlalchemy
-from kinto.core.permission import (memory as memory_backend,
+from kinto.core.permission import (PermissionBase, memory as memory_backend,
                                    postgresql as postgresql_backend)
 from kinto.core.permission.testing import PermissionTest
 from kinto.core.testing import skip_if_no_postgresql
+
+
+class PermissionBaseTest(unittest.TestCase):
+    def setUp(self):
+        self.permission = PermissionBase()
+
+    def test_mandatory_overrides(self):
+        calls = [
+            (self.permission.initialize_schema,),
+            (self.permission.flush,),
+            (self.permission.add_user_principal, '', ''),
+            (self.permission.remove_user_principal, '', ''),
+            (self.permission.remove_principal, ''),
+            (self.permission.get_user_principals, ''),
+            (self.permission.add_principal_to_ace, '', '', ''),
+            (self.permission.remove_principal_from_ace, '', '', ''),
+            (self.permission.get_object_permission_principals, '', ''),
+            (self.permission.get_objects_permissions, ''),
+            (self.permission.replace_object_permissions, '', {}),
+            (self.permission.delete_object_permissions, ''),
+            (self.permission.get_accessible_objects, [], ''),
+            (self.permission.get_authorized_principals, []),
+        ]
+        for call in calls:
+            self.assertRaises(NotImplementedError, *call)
 
 
 class MemoryPermissionTest(PermissionTest, unittest.TestCase):

@@ -2,11 +2,29 @@ import mock
 import unittest
 
 from kinto.core.utils import sqlalchemy
-from kinto.core.cache import (memory as memory_backend,
+from kinto.core.cache import (CacheBase, memory as memory_backend,
                               postgresql as postgresql_backend)
 
 from kinto.core.testing import skip_if_no_postgresql
 from kinto.core.cache.testing import CacheTest
+
+
+class CacheBaseTest(unittest.TestCase):
+    def setUp(self):
+        self.cache = CacheBase(cache_prefix='')
+
+    def test_mandatory_overrides(self):
+        calls = [
+            (self.cache.initialize_schema,),
+            (self.cache.flush,),
+            (self.cache.ttl, ''),
+            (self.cache.expire, '', ''),
+            (self.cache.get, ''),
+            (self.cache.set, '', ''),
+            (self.cache.delete, ''),
+        ]
+        for call in calls:
+            self.assertRaises(NotImplementedError, *call)
 
 
 class MemoryCacheTest(CacheTest, unittest.TestCase):

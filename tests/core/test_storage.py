@@ -3,7 +3,7 @@
 import mock
 
 from kinto.core.utils import sqlalchemy
-from kinto.core.storage import generators, memory, postgresql, exceptions
+from kinto.core.storage import generators, memory, postgresql, exceptions, StorageBase
 from kinto.core.testing import (unittest, skip_if_no_postgresql)
 from kinto.core.storage.testing import StorageTest
 
@@ -43,6 +43,35 @@ class GeneratorTest(unittest.TestCase):
         self.assertTrue(generator.match(invalid_uuid4))
         invalid_uuid4 = '00000000-0000-4000-e000-000000000000'
         self.assertTrue(generator.match(invalid_uuid4))
+
+
+class StorageBaseTest(unittest.TestCase):
+    def setUp(self):
+        self.storage = StorageBase()
+
+    def test_mandatory_overrides(self):
+        calls = [
+            (self.storage.initialize_schema,),
+            (self.storage.flush,),
+            (self.storage.collection_timestamp, '', ''),
+            (self.storage.create, '', '', {}),
+            (self.storage.get, '', '', ''),
+            (self.storage.update, '', '', '', {}),
+            (self.storage.delete, '', '', ''),
+            (self.storage.delete_all, '', ''),
+            (self.storage.purge_deleted, '', ''),
+            (self.storage.get_all, '', ''),
+        ]
+        for call in calls:
+            self.assertRaises(NotImplementedError, *call)
+
+    def test_backend_error_message_provides_given_message_if_defined(self):
+        error = exceptions.BackendError(message="Connection Error")
+        self.assertEqual(str(error), "Connection Error")
+
+    def test_backenderror_message_default_to_original_exception_message(self):
+        error = exceptions.BackendError(ValueError("Pool Error"))
+        self.assertEqual(str(error), "ValueError: Pool Error")
 
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):

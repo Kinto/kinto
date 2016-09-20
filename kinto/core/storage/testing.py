@@ -4,40 +4,11 @@ import time
 import mock
 from pyramid import testing
 from kinto.core import utils
-from kinto.core.testing import unittest, skip_if_travis, DummyRequest, ThreadMixin
-from kinto.core.storage import exceptions, Filter, Sort, StorageBase, heartbeat
+from kinto.core.testing import skip_if_travis, DummyRequest, ThreadMixin
+from kinto.core.storage import exceptions, Filter, Sort, heartbeat
 
 
 RECORD_ID = '472be9ec-26fe-461b-8282-9c4e4b207ab3'
-
-
-class StorageBaseTest(unittest.TestCase):
-    def setUp(self):
-        self.storage = StorageBase()
-
-    def test_mandatory_overrides(self):
-        calls = [
-            (self.storage.initialize_schema,),
-            (self.storage.flush,),
-            (self.storage.collection_timestamp, '', ''),
-            (self.storage.create, '', '', {}),
-            (self.storage.get, '', '', ''),
-            (self.storage.update, '', '', '', {}),
-            (self.storage.delete, '', '', ''),
-            (self.storage.delete_all, '', ''),
-            (self.storage.purge_deleted, '', ''),
-            (self.storage.get_all, '', ''),
-        ]
-        for call in calls:
-            self.assertRaises(NotImplementedError, *call)
-
-    def test_backend_error_message_provides_given_message_if_defined(self):
-        error = exceptions.BackendError(message="Connection Error")
-        self.assertEqual(str(error), "Connection Error")
-
-    def test_backenderror_message_default_to_original_exception_message(self):
-        error = exceptions.BackendError(ValueError("Pool Error"))
-        self.assertEqual(str(error), "ValueError: Pool Error")
 
 
 class BaseTestStorage(object):

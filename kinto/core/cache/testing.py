@@ -1,29 +1,10 @@
 import mock
-import unittest
 import time
 
 from pyramid import testing
 
 from kinto.core.storage import exceptions
-from kinto.core.cache import CacheBase, heartbeat
-
-
-class CacheBaseTest(unittest.TestCase):
-    def setUp(self):
-        self.cache = CacheBase(cache_prefix='')
-
-    def test_mandatory_overrides(self):
-        calls = [
-            (self.cache.initialize_schema,),
-            (self.cache.flush,),
-            (self.cache.ttl, ''),
-            (self.cache.expire, '', ''),
-            (self.cache.get, ''),
-            (self.cache.set, '', ''),
-            (self.cache.delete, ''),
-        ]
-        for call in calls:
-            self.assertRaises(NotImplementedError, *call)
+from kinto.core.cache import heartbeat
 
 
 class CacheTest(object):
