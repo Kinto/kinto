@@ -27,6 +27,10 @@ Protocol is now at version **1.10**. See `API changelog`_.
 - Fix crash with PostgreSQL storage backend when filtering with integer on
   a missing field (fixes #813)
 
+**Internal changes**
+
+- Fix links to comparison table in docs
+
 
 4.1.1 (2016-08-29)
 ------------------
