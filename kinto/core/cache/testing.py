@@ -26,12 +26,12 @@ class CacheBaseTest(unittest.TestCase):
             self.assertRaises(NotImplementedError, *call)
 
 
-class BaseTestCache(object):
+class CacheTest(object):
     backend = None
     settings = {}
 
     def setUp(self):
-        super(BaseTestCache, self).setUp()
+        super(CacheTest, self).setUp()
         self.cache = self.backend.load_from_config(self._get_config())
         self.cache.initialize_schema()
         self.request = None
