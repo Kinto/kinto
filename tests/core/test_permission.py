@@ -4,11 +4,11 @@ import unittest
 from kinto.core.utils import sqlalchemy
 from kinto.core.permission import (memory as memory_backend,
                                    postgresql as postgresql_backend)
-from kinto.core.permission.testing import PermissionTest
+from kinto.core.permission.testing import BaseTestPermission
 from kinto.core.testing import skip_if_no_postgresql
 
 
-class MemoryPermissionTest(PermissionTest, unittest.TestCase):
+class MemoryPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = memory_backend
 
     def test_backend_error_is_raised_anywhere(self):
@@ -22,7 +22,7 @@ class MemoryPermissionTest(PermissionTest, unittest.TestCase):
 
 
 @skip_if_no_postgresql
-class PostgreSQLPermissionTest(PermissionTest, unittest.TestCase):
+class PostgreSQLPermissionTest(BaseTestPermission, unittest.TestCase):
     backend = postgresql_backend
     settings = {
         'permission_backend': 'kinto.core.permission.postgresql',
