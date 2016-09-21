@@ -479,7 +479,7 @@ class TimestampsTest(object):
         self.assertTrue(before < after)
 
     @skip_if_travis
-    def test_timestamps_are_unique(self):
+    def test_timestamps_are_unique(self):  # pragma: no cover
         obtained = []
 
         def create_item():
