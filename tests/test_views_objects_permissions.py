@@ -91,6 +91,29 @@ class CollectionPermissionsTest(PermissionsTest):
                           status=403)
 
 
+class ParentMetadataPermissionsTest(PermissionsTest):
+
+    def setUp(self):
+        self.app.put_json('/buckets/beer',
+                          {'permissions': {'collection:create': [self.bob_principal]}},
+                          headers=self.headers)
+        self.app.put_json('/buckets/beer/collections/barley',
+                          {'permissions': {'record:create': [self.alice_principal]}},
+                          headers=self.bob_headers)
+
+    def test_parent_metadata_can_be_read_if_allowed_to_create_child(self):
+        self.app.get('/buckets/beer', headers=self.bob_headers)
+        self.app.get('/buckets/beer/collections/barley', headers=self.alice_headers)
+
+    def test_list_can_be_obtained_if_allowed_to_create(self):
+        resp = self.app.get('/buckets/beer/collections',
+                            headers=self.bob_headers)
+        self.assertEqual(resp.json['data'], [])
+        resp = self.app.get('/buckets/beer/collections/barley/records',
+                            headers=self.alice_headers)
+        self.assertEqual(resp.json['data'], [])
+
+
 class GroupPermissionsTest(PermissionsTest):
 
     def setUp(self):
