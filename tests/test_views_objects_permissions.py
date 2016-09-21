@@ -183,3 +183,45 @@ class RecordPermissionsTest(PermissionsTest):
                                    {'permissions': {'read': ['fxa:user']}},
                                    headers=self.headers)
         self.assertIn('fxa:user', resp.json['permissions']['read'])
+
+
+class ChildrenCreationTest(PermissionsTest):
+    def setUp(self):
+        self.app.put_json('/buckets/create',
+                          {'permissions': {'group:create': ['system.Authenticated']}},
+                          headers=self.alice_headers)
+        self.app.put_json('/buckets/write',
+                          {'permissions': {'write': ['system.Authenticated']}},
+                          headers=self.alice_headers)
+        self.app.put_json('/buckets/read',
+                          {'permissions': {'read': ['system.Authenticated']}},
+                          headers=self.alice_headers)
+        for parent in ('create', 'write', 'read'):
+            self.app.put_json('/buckets/%s/groups/child' % parent,
+                              MINIMALIST_GROUP,
+                              headers=self.alice_headers)
+
+    def test_cannot_read_others_objects_if_only_allowed_to_create(self):
+        self.app.get('/buckets/create/groups', headers=self.bob_headers, status=403)
+        self.app.get('/buckets/create/groups/child', headers=self.bob_headers, status=403)
+
+    def test_safe_creation_returns_412_if_allowed_to_create(self):
+        headers = self.bob_headers.copy()
+        headers.update({'If-None-Match': '*'})
+        self.app.put_json('/buckets/create/groups/child',
+                          MINIMALIST_GROUP,
+                          headers=headers, status=412)
+
+    def test_safe_creation_returns_412_if_allowed_to_write(self):
+        headers = self.bob_headers.copy()
+        headers.update({'If-None-Match': '*'})
+        self.app.put_json('/buckets/write/groups/child',
+                          MINIMALIST_GROUP,
+                          headers=headers, status=412)
+
+    def test_safe_creation_returns_403_if_only_allowed_to_read(self):
+        headers = self.bob_headers.copy()
+        headers.update({'If-None-Match': '*'})
+        self.app.put_json('/buckets/read/groups/child',
+                          MINIMALIST_GROUP,
+                          headers=headers, status=403)
