@@ -993,14 +993,17 @@ class UserResource(object):
         next_sorting = sorting[:-1]
 
         for field, _ in next_sorting:
-            rule.append(Filter(field, last_record.get(field), COMPARISON.EQ))
+            if field in last_record:
+                rule.append(Filter(field, last_record[field], COMPARISON.EQ))
 
         field, direction = sorting[-1]
 
         if direction == -1:
-            rule.append(Filter(field, last_record.get(field), COMPARISON.LT))
+            if field in last_record:
+                rule.append(Filter(field, last_record[field], COMPARISON.LT))
         else:
-            rule.append(Filter(field, last_record.get(field), COMPARISON.GT))
+            if field in last_record:
+                rule.append(Filter(field, last_record[field], COMPARISON.GT))
 
         rules.append(rule)
 
@@ -1059,7 +1062,8 @@ class UserResource(object):
         }
 
         for field, _ in sorting:
-            token['last_record'][field] = last_record[field]
+            if field in last_record:
+                token['last_record'][field] = last_record[field]
 
         return encode64(json.dumps(token))
 
