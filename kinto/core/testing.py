@@ -1,4 +1,5 @@
 import os
+import threading
 import unittest
 from collections import defaultdict
 
@@ -168,3 +169,21 @@ class BaseWebTest(object):
         self.storage.flush()
         self.cache.flush()
         self.permission.flush()
+
+
+class ThreadMixin(object):
+
+    def setUp(self):
+        super(ThreadMixin, self).setUp()
+        self._threads = []
+
+    def tearDown(self):
+        super(ThreadMixin, self).tearDown()
+
+        for thread in self._threads:
+            thread.join()
+
+    def _create_thread(self, *args, **kwargs):
+        thread = threading.Thread(*args, **kwargs)
+        self._threads.append(thread)
+        return thread

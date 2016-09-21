@@ -1,5 +1,4 @@
 import mock
-import threading
 import functools
 
 from pyramid.security import IAuthorizationPolicy, Authenticated, Everyone
@@ -48,24 +47,6 @@ class BaseWebTest(testing.BaseWebTest):
         if id is None:
             id = self.record['id']
         return self.collection_url + '/' + str(id)
-
-
-class ThreadMixin(object):
-
-    def setUp(self):
-        super(ThreadMixin, self).setUp()
-        self._threads = []
-
-    def tearDown(self):
-        super(ThreadMixin, self).tearDown()
-
-        for thread in self._threads:
-            thread.join()
-
-    def _create_thread(self, *args, **kwargs):
-        thread = threading.Thread(*args, **kwargs)
-        self._threads.append(thread)
-        return thread
 
 
 @implementer(IAuthorizationPolicy)

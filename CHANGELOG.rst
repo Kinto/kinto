@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - The storage backend now allows ``parent_id`` pattern matching in ``kinto.core.storage.get_all``. (#821)
 
+**Internal changes**
+
+- Moved storage/cache/permissions base tests to ``kinto.core.*.testing`` (fixes #801)
+
 
 4.2.0 (2016-09-15)
 ------------------
