@@ -221,7 +221,7 @@ class RouteFactory(object):
         method = request.method.lower()
         required_permission = self.method_permissions.get(method)
 
-        # For create permission, the object id is the plural endpoint
+        # For create permission, the object id is the plural endpoint.
         collection_path = service.collection_path.format(**request.matchdict)
 
         # In the case of a "PUT", check if the targetted record already
@@ -239,8 +239,8 @@ class RouteFactory(object):
                 permission_object_id = collection_path
                 required_permission = "create"
             else:
-                # If we are doing a safe creation, we consider that user demands
-                # a create permission (See Kinto/kinto#792).
+                # For safe creations, the user needs a create permission.
+                # See Kinto/kinto#792
                 if request.headers.get('If-None-Match') == '*':
                     permission_object_id = collection_path
                     required_permission = "create"

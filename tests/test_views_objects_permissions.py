@@ -200,49 +200,39 @@ class ChildrenCreationTest(PermissionsTest):
             self.app.put_json('/buckets/%s/groups/child' % parent,
                               MINIMALIST_GROUP,
                               headers=self.alice_headers)
+        self.bob_headers_safe_creation = dict({'If-None-Match': '*'},
+                                              **self.bob_headers)
 
     def test_cannot_read_others_objects_if_only_allowed_to_create(self):
         self.app.get('/buckets/create/groups', headers=self.bob_headers, status=403)
         self.app.get('/buckets/create/groups/child', headers=self.bob_headers, status=403)
 
     def test_safe_creation_with_put_returns_412_if_allowed_to_create(self):
-        headers = self.bob_headers.copy()
-        headers.update({'If-None-Match': '*'})
         self.app.put_json('/buckets/create/groups/child',
                           MINIMALIST_GROUP,
-                          headers=headers, status=412)
+                          headers=self.bob_headers_safe_creation, status=412)
 
     def test_safe_creation_with_post_returns_412_if_allowed_to_create(self):
-        headers = self.bob_headers.copy()
-        headers.update({'If-None-Match': '*'})
         self.app.post_json('/buckets/create/groups',
                            {'data': {'id': 'child', 'members': []}},
-                           headers=headers, status=412)
+                           headers=self.bob_headers_safe_creation, status=412)
 
     def test_safe_creation_with_put_returns_412_if_allowed_to_write(self):
-        headers = self.bob_headers.copy()
-        headers.update({'If-None-Match': '*'})
         self.app.put_json('/buckets/write/groups/child',
                           MINIMALIST_GROUP,
-                          headers=headers, status=412)
+                          headers=self.bob_headers_safe_creation, status=412)
 
     def test_safe_creation_with_post_returns_412_if_allowed_to_write(self):
-        headers = self.bob_headers.copy()
-        headers.update({'If-None-Match': '*'})
         self.app.post_json('/buckets/write/groups',
                            {'data': {'id': 'child', 'members': []}},
-                           headers=headers, status=412)
+                           headers=self.bob_headers_safe_creation, status=412)
 
     def test_safe_creation_with_put_returns_403_if_only_allowed_to_read(self):
-        headers = self.bob_headers.copy()
-        headers.update({'If-None-Match': '*'})
         self.app.put_json('/buckets/read/groups/child',
                           MINIMALIST_GROUP,
-                          headers=headers, status=403)
+                          headers=self.bob_headers_safe_creation, status=403)
 
     def test_safe_creation_with_post_returns_403_if_only_allowed_to_read(self):
-        headers = self.bob_headers.copy()
-        headers.update({'If-None-Match': '*'})
         self.app.post_json('/buckets/read/groups',
                            {'data': {'id': 'child', 'members': []}},
-                           headers=headers, status=403)
+                           headers=self.bob_headers_safe_creation, status=403)
