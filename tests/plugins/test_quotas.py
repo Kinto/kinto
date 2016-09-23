@@ -1,6 +1,10 @@
+import mock
+
 import transaction
 import pytest
+from pyramid import testing
 
+from kinto import main as kinto_main
 from kinto.core.errors import ERRORS
 from kinto.core.storage.exceptions import RecordNotFoundError
 from kinto.core.testing import FormattedErrorMixin, sqlalchemy, unittest
@@ -9,6 +13,19 @@ from kinto.plugins.quotas.listener import (
 from kinto.plugins.quotas.utils import record_size
 
 from .. import support
+
+
+class PluginSetup(unittest.TestCase):
+
+    def test_a_statsd_timer_is_used_for_quotas_if_configured(self):
+        settings = {
+            "statsd_url": "udp://127.0.0.1:8125",
+            "includes": "kinto.plugins.quotas"
+        }
+        config = testing.setUp(settings=settings)
+        with mock.patch('kinto.core.statsd.Client.timer') as mocked:
+            kinto_main(None, config=config)
+            mocked.assert_called_with('listeners.quotas')
 
 
 class QuotaWebTest(support.BaseWebTest, unittest.TestCase):
