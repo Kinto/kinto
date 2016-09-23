@@ -1,6 +1,7 @@
 import mock
 
 from pyramid import testing
+from pyramid.exceptions import ConfigurationError
 
 from kinto.core.testing import unittest
 from kinto.core import statsd
@@ -16,6 +17,19 @@ class TestedClass(object):
 
     def _private_method(self):
         pass
+
+
+class StatsDMissing(unittest.TestCase):
+    def setUp(self):
+        self.previous = statsd.statsd_module
+        statsd.statsd_module = None
+
+    def tearDown(self):
+        statsd.statsd_module = self.previous
+
+    def test_client_instantiation_raises_properly(self):
+        with self.assertRaises(ConfigurationError):
+            statsd.Client('localhost', 1234, 'prefix')
 
 
 @unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")

@@ -6,6 +6,7 @@ try:
 except ImportError:  # pragma: no cover
     statsd_module = None
 
+from pyramid.exceptions import ConfigurationError
 from six.moves.urllib import parse as urlparse
 
 from kinto.core import utils
@@ -13,6 +14,10 @@ from kinto.core import utils
 
 class Client(object):
     def __init__(self, host, port, prefix):
+        if statsd_module is None:
+            error_msg = "Please install Kinto with monitoring dependencies (e.g. statsd package)"
+            raise ConfigurationError(error_msg)
+
         self._client = statsd_module.StatsClient(host, port, prefix=prefix)
 
     def watch_execution_time(self, obj, prefix='', classname=None):
