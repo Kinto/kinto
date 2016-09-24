@@ -78,20 +78,50 @@ class AccountCreationTest(AccountsWebTest):
 
 class AccountUpdateTest(AccountsWebTest):
 
+    def setUp(self):
+        self.app.put_json('/accounts/alice', {'data': {'password': '123456'}}, status=201)
+
     def test_password_can_be_changed(self):
-        pass
+        self.app.put_json('/accounts/alice', {'data': {'password': 'bouh'}},
+                          headers=get_user_headers('alice', '123456'),
+                          status=200)
 
     def test_authentication_with_old_password_is_denied_after_change(self):
-        pass
+        self.app.put_json('/accounts/alice', {'data': {'password': 'bouh'}},
+                          headers=get_user_headers('alice', '123456'),
+                          status=200)
+        self.app.get('/accounts/alice', headers=get_user_headers('alice', '123456'),
+                     status=401)
 
     def test_authentication_with_new_password_is_accepted_after_change(self):
-        pass
+        self.app.put_json('/accounts/alice', {'data': {'password': 'bouh'}},
+                          headers=get_user_headers('alice', '123456'),
+                          status=200)
+        self.app.get('/accounts/alice', headers=get_user_headers('alice', 'bouh'))
 
     def test_username_and_account_id_must_match(self):
-        pass
+        resp = self.app.patch_json('/accounts/alice', {'data': {'id': 'bob', 'password': 'bouh'}},
+                                   headers=get_user_headers('alice', '123456'),
+                                   status=400)
+        assert 'does not match' in resp.json['message']
+
+    def test_cannot_patch_unknown_account(self):
+        resp = self.app.patch_json('/accounts/bob', {'data': {'password': 'bouh'}},
+                                   headers=get_user_headers('alice', '123456'),
+                                   status=404)
+        assert 'Not Found' in resp.json['error']
+
+    def test_cannot_patch_someone_else_account(self):
+        self.app.put_json('/accounts/bob', {'data': {'password': 'bob'}}, status=201)
+        resp = self.app.patch_json('/accounts/bob', {'data': {'password': 'bouh'}},
+                                   headers=get_user_headers('alice', '123456'),
+                                   status=400)
+        assert 'do not match' in resp.json['message']
 
     def test_metadata_can_be_changed(self):
-        pass
+        resp = self.app.patch_json('/accounts/alice', {'data': {'age': 'captain'}},
+                                   headers=get_user_headers('alice', '123456'))
+        assert resp.json['data']['age'] == 'captain'
 
 
 class AccountDeleteTest(AccountsWebTest):

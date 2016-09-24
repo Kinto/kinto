@@ -5,7 +5,6 @@ from kinto.core.storage import exceptions as storage_exceptions
 
 def account_check(username, password, request):
     try:
-        print username, password
         existing = request.registry.storage.get(parent_id='',
                                                 collection_id='account',
                                                 object_id=username)
