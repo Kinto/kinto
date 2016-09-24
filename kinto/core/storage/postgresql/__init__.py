@@ -229,6 +229,12 @@ class Storage(StorageBase):
                 pass
         else:
             record[id_field] = id_generator()
+        
+        # Remove redundancy in data field
+        query_record = record.copy()
+        del query_record[id_field] 
+        if modified_field in record:
+            del query_record[modified_field]
 
         query = """
         WITH delete_potential_tombstone AS (
@@ -247,7 +253,7 @@ class Storage(StorageBase):
                             parent_id=parent_id,
                             collection_id=collection_id,
                             last_modified=record.get(modified_field),
-                            data=json.dumps(record))
+                            data=json.dumps(query_record))
         with self.client.connect() as conn:
             result = conn.execute(query, placeholders)
             inserted = result.fetchone()
