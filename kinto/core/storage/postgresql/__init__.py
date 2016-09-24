@@ -229,10 +229,10 @@ class Storage(StorageBase):
                 pass
         else:
             record[id_field] = id_generator()
-        
+
         # Remove redundancy in data field
         query_record = record.copy()
-        del query_record[id_field] 
+        del query_record[id_field]
         if modified_field in record:
             del query_record[modified_field]
 
