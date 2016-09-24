@@ -89,13 +89,13 @@ class FormattedErrorMixin(object):
             self.assertNotIn('info', response.json)
 
 
-def get_user_headers(user):
+def get_user_headers(user, password='secret'):
     """Helper to obtain a Basic Auth authorization headers from the specified
     `user` (e.g. ``"user:pass"``)
 
     :rtype: dict
     """
-    credentials = "%s:secret" % user
+    credentials = "%s:%s" % (user, password)
     authorization = 'Basic {0}'.format(encode64(credentials))
     return {
         'Authorization': authorization
