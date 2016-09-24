@@ -13,7 +13,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Moved storage/cache/permissions base tests to ``kinto.core.*.testing`` (fixes #801)
-
+- Remove redundant fields from data column in PostgreSQL records table (fixes #762)  
 
 4.2.0 (2016-09-15)
 ------------------
