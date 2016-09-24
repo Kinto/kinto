@@ -5,13 +5,14 @@ import mock
 from pyramid import testing
 
 from kinto import main as kinto_main
-from kinto.core.testing import get_user_headers
+from kinto.core.testing import get_user_headers, skip_if_no_statsd
 
 from .. import support
 
 
 class PluginSetup(unittest.TestCase):
 
+    @skip_if_no_statsd
     def test_a_statsd_timer_is_used_for_history_if_configured(self):
         settings = {
             "statsd_url": "udp://127.0.0.1:8125",

@@ -3,7 +3,7 @@ import mock
 from pyramid import testing
 from pyramid.exceptions import ConfigurationError
 
-from kinto.core.testing import unittest
+from kinto.core.testing import unittest, skip_if_no_statsd
 from kinto.core import statsd
 
 from .support import BaseWebTest
@@ -32,7 +32,7 @@ class StatsDMissing(unittest.TestCase):
             statsd.Client('localhost', 1234, 'prefix')
 
 
-@unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
+@skip_if_no_statsd
 class StatsdClientTest(unittest.TestCase):
     settings = {
         'statsd_url': 'udp://foo:1234',
@@ -98,7 +98,7 @@ class StatsdClientTest(unittest.TestCase):
         self.mocked_client.count.assert_called_with('toto')
 
 
-@unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
+@skip_if_no_statsd
 class TimingTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, *args, **kwargs):
         settings = super(TimingTest, self).get_app_settings(*args, **kwargs)
