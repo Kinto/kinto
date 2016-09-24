@@ -22,6 +22,7 @@ Contributors
 * Fil <fil@rezo.net>
 * FooBarQuaxx
 * Greeshma <greeshmabalabadra@gmail.com>
+* Gabriela Surita <gabsurita@gmail.com>
 * Hiromipaw <silvia@nopressure.co.uk>
 * Jelmer van der Ploeg <jelmer@woovar.com>
 * John Giannelos <johngiannelos@gmail.com>
