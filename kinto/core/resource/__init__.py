@@ -158,7 +158,7 @@ class UserResource(object):
 
         # ID generator by resource name in settings.
         default_id_generator = request.registry.id_generators['']
-        resource_name = context.resource_name if context else ''
+        resource_name = request.current_resource_name
         id_generator = request.registry.id_generators.get(resource_name,
                                                           default_id_generator)
 
