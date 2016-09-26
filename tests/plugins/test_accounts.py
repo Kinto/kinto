@@ -126,20 +126,39 @@ class AccountUpdateTest(AccountsWebTest):
 
 class AccountDeleteTest(AccountsWebTest):
 
+    def setUp(self):
+        self.app.put_json('/accounts/alice', {'data': {'password': '123456'}}, status=201)
+
     def test_account_can_be_deleted(self):
-        pass
+        self.app.delete('/accounts/alice', headers=get_user_headers('alice', '123456'))
 
     def test_authentication_is_denied_after_delete(self):
-        pass
+        self.app.delete('/accounts/alice', headers=get_user_headers('alice', '123456'))
+        self.app.get('/accounts/alice', headers=get_user_headers('alice', '123456'),
+                     status=401)
 
 
 class AccountViewsTest(AccountsWebTest):
 
+    def setUp(self):
+        self.app.put_json('/accounts/alice', {'data': {'password': '123456'}}, status=201)
+        self.app.put_json('/accounts/bob', {'data': {'password': 'azerty'}}, status=201)
+
     def test_account_detail_is_forbidden_if_anonymous(self):
-        pass
+        self.app.get('/accounts', status=401)
+        self.app.get('/accounts/alice', status=401)
 
     def test_accounts_list_contains_only_one_record(self):
-        pass
+        resp = self.app.get('/accounts', headers=get_user_headers('alice', '123456'))
+        assert len(resp.json['data']) == 1
 
     def test_account_record_can_be_obtained_if_authenticated(self):
-        pass
+        self.app.get('/accounts/alice', headers=get_user_headers('alice', '123456'))
+
+    def test_cannot_obtain_someone_else_account(self):
+        self.app.get('/accounts/bob', headers=get_user_headers('alice', '123456'),
+                     status=403)
+
+    def test_cannot_obtain_unknown_account(self):
+        self.app.get('/accounts/jeanine', headers=get_user_headers('alice', '123456'),
+                     status=403)
