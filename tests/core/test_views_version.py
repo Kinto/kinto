@@ -15,6 +15,8 @@ class VersionViewTest(BaseWebTest, unittest.TestCase):
         except AttributeError:
             pass
 
+    tearDown = setUp
+
     def test_return_the_version_file_in_current_folder_if_present(self):
         content = {'version': '0.8.1'}
         fake_file = mock.mock_open(read_data=json.dumps(content))
