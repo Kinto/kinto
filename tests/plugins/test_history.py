@@ -21,7 +21,7 @@ class PluginSetup(unittest.TestCase):
         config = testing.setUp(settings=settings)
         with mock.patch('kinto.core.statsd.Client.timer') as mocked:
             kinto_main(None, config=config)
-            mocked.assert_called_with('listeners.history')
+            mocked.assert_called_with('plugins.history')
 
 
 class HistoryWebTest(support.BaseWebTest, unittest.TestCase):

@@ -15,7 +15,8 @@ This document describes changes between each past release.
 **New features**
 
 - The storage backend now allows ``parent_id`` pattern matching in ``kinto.core.storage.get_all``. (#821)
-- The history and quotas plugins execution time is now monitored on StatsD
+- The history and quotas plugins execution time is now monitored on StatsD (``kinto.plugins.quotas``
+  and ``kinto.plugins.history``) (#832)
 
 **Internal changes**
 

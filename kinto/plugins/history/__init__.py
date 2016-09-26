@@ -14,7 +14,7 @@ def includeme(config):
 
     # If StatsD is enabled, monitor execution time of listener.
     if config.registry.statsd:
-        key = 'listeners.history'
+        key = 'plugins.history'
         listener = config.registry.statsd.timer(key)(on_resource_changed)
     else:
         listener = on_resource_changed

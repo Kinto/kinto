@@ -27,7 +27,7 @@ class PluginSetup(unittest.TestCase):
         config = testing.setUp(settings=settings)
         with mock.patch('kinto.core.statsd.Client.timer') as mocked:
             kinto_main(None, config=config)
-            mocked.assert_called_with('listeners.quotas')
+            mocked.assert_called_with('plugins.quotas')
 
 
 class QuotaWebTest(support.BaseWebTest, unittest.TestCase):
