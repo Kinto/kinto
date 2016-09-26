@@ -232,9 +232,8 @@ class Storage(StorageBase):
 
         # Remove redundancy in data field
         query_record = record.copy()
-        del query_record[id_field]
-        if modified_field in record:
-            del query_record[modified_field]
+        query_record.pop(id_field, None)
+        query_record.pop(modified_field, None)
 
         query = """
         WITH delete_potential_tombstone AS (
