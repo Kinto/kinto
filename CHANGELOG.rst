@@ -15,6 +15,8 @@ This document describes changes between each past release.
   that collection metadata is now readable to users with ``record:create`` permission.
   Same applies to bucket metadata and ``collection:create`` and ``group:create`` (fixes #803)
 
+Protocol is now at version **1.11**. See `API changelog`_.
+
 **New features**
 
 - The storage backend now allows ``parent_id`` pattern matching in ``kinto.core.storage.get_all``. (#821)
