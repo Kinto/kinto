@@ -28,7 +28,7 @@ PERMISSIONS_INHERITANCE_TREE = {
         'bucket': ['write']
     },
     'bucket:read': {
-        'bucket': ['write', 'read']
+        'bucket': ['write', 'read', 'collection:create', 'group:create'],
     },
     'bucket:group:create': {
         'bucket': ['write', 'group:create']
@@ -50,7 +50,7 @@ PERMISSIONS_INHERITANCE_TREE = {
     },
     'collection:read': {
         'bucket': ['write', 'read'],
-        'collection': ['write', 'read'],
+        'collection': ['write', 'read', 'record:create'],
     },
     'collection:record:create': {
         'bucket': ['write'],
@@ -147,8 +147,9 @@ class BucketRouteFactory(RouteFactory):
         """Buckets list is authorized even if no object is accessible for
         the current principals.
         """
-        shared = super(BucketRouteFactory, self).fetch_shared_records(
-            perm, principals, get_bound_permissions)
+        shared = super(BucketRouteFactory, self).fetch_shared_records(perm,
+                                                                      principals,
+                                                                      get_bound_permissions)
         if shared is None and Authenticated in principals:
             self.shared_ids = []
         return self.shared_ids

@@ -11,6 +11,9 @@ This document describes changes between each past release.
 - Fix error response consistency with safe creations if the ``create`` permission
   is granted (fixes #792). The server now returns a ``412`` instead of a ``403`` if
   the ``If-None-Match: *`` header is provided and the ``create`` permission is granted.
+- Parent metadata is now readable if children creation is allowed. That means for example
+  that collection metadata is now readable to users with ``record:created`` permission.
+  Same applies to bucket metadata and ``collection:create`` and ``group:create`` (fixes #803)
 
 **New features**
 

@@ -91,7 +91,8 @@ class PermissionInheritanceTest(unittest.TestCase):
         # read
         self.assertEquals(
             build_permissions_set(self.bucket_uri, 'read'),
-            set([(self.bucket_uri, 'write'), (self.bucket_uri, 'read')]))
+            set([(self.bucket_uri, 'write'), (self.bucket_uri, 'read'),
+                 (self.bucket_uri, 'collection:create'), (self.bucket_uri, 'group:create')]))
 
         # group:create
         groups_uri = self.bucket_uri + '/groups'
@@ -135,7 +136,8 @@ class PermissionInheritanceTest(unittest.TestCase):
             set([(self.bucket_uri, 'write'),
                  (self.bucket_uri, 'read'),
                  (self.collection_uri, 'write'),
-                 (self.collection_uri, 'read')]))
+                 (self.collection_uri, 'read'),
+                 (self.collection_uri, 'record:create')]))
         # records:create
         records_uri = self.collection_uri + '/records'
         self.assertEquals(
