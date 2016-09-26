@@ -105,5 +105,6 @@ has been deployed by OPS.
       "source":"https://github.com/Kinto/kinto.git"
     }
 
-The content of the distribution can be configured by putting a
-``version.json`` file in the current working directory.
+The content of this view comes from a file, whose location is
+specified via the ``kinto.version_json_path`` setting or ``KINTO_VERSION_JSON_PATH``
+environment variable (*default location is ``version.json`` in current working directory*).

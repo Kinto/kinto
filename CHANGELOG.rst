@@ -15,6 +15,8 @@ This document describes changes between each past release.
 **New features**
 
 - The storage backend now allows ``parent_id`` pattern matching in ``kinto.core.storage.get_all``. (#821)
+- The location of the ``version.json`` file is now configurable via the
+  ``kinto.version_json_path`` settings (fixes #830)
 
 **Internal changes**
 
