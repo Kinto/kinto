@@ -29,7 +29,7 @@ class StatsDMissing(unittest.TestCase):
 
     def test_client_instantiation_raises_properly(self):
         with self.assertRaises(ConfigurationError):
-            statsd.Client('localhost', 1234, 'prefix')
+            statsd.load_from_config(mock.MagicMock())
 
 
 @skip_if_no_statsd

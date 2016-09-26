@@ -13,11 +13,10 @@ def includeme(config):
     config.scan('kinto.plugins.history.views')
 
     # If StatsD is enabled, monitor execution time of listener.
+    listener = on_resource_changed
     if config.registry.statsd:
         key = 'plugins.history'
         listener = config.registry.statsd.timer(key)(on_resource_changed)
-    else:
-        listener = on_resource_changed
 
     # Listen to every resources (except history)
     config.add_subscriber(listener, ResourceChanged,

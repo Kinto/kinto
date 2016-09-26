@@ -14,10 +14,6 @@ from kinto.core import utils
 
 class Client(object):
     def __init__(self, host, port, prefix):
-        if statsd_module is None:
-            error_msg = "Please install Kinto with monitoring dependencies (e.g. statsd package)"
-            raise ConfigurationError(error_msg)
-
         self._client = statsd_module.StatsClient(host, port, prefix=prefix)
 
     def watch_execution_time(self, obj, prefix='', classname=None):
@@ -48,6 +44,13 @@ def statsd_count(request, count_key):
 
 
 def load_from_config(config):
+    # If this is called, it means that a ``statsd_url`` was specified in settings.
+    # (see ``kinto.core.initialization``)
+    # Raise a proper error if the ``statsd`` module is not installed.
+    if statsd_module is None:
+        error_msg = "Please install Kinto with monitoring dependencies (e.g. statsd package)"
+        raise ConfigurationError(error_msg)
+
     settings = config.get_settings()
     uri = settings['statsd_url']
     uri = urlparse.urlparse(uri)
