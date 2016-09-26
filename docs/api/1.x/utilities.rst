@@ -90,11 +90,13 @@ The returned value is a JSON mapping containing open source contribution
 information as advocated by https://www.contributejson.org
 
 
+.. _api-utilities-version:
+
 GET /__version__
 ==================
 
 Return a JSON mapping containing information about what distribution
-has been deployed by OPS.
+has been deployed by OPs.
 
 ::
 
@@ -107,4 +109,6 @@ has been deployed by OPS.
 
 The content of this view comes from a file, whose location is
 specified via the ``kinto.version_json_path`` setting or ``KINTO_VERSION_JSON_PATH``
-environment variable (*default location is ``version.json`` in current working directory*).
+environment variable (*default location is* ``version.json`` *in current working directory*).
+
+Return |status-404| if no ``version.json`` file is found.

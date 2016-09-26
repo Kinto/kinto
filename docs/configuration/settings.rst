@@ -706,7 +706,7 @@ Project information
 | Setting name                          | Default                                    | What does it do?                                                         |
 +=======================================+============================================+==========================================================================+
 | kinto.version_json_path               | ``./version.json``                         | Location of the file containing the information to be shown in the       |
-|                                       |                                            |  :ref:`version endpoint <api-utilities-version>`.                        |
+|                                       |                                            | :ref:`version endpoint <api-utilities-version>`.                         |
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
 | kinto.error_info_link                 | ``https://github.com/kinto/kinto/issues/`` | The HTTP link returned when uncaught errors are triggered on the server. |
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
