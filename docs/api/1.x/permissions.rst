@@ -39,16 +39,17 @@ of object.
 |                |                        |                                  |
 +----------------+------------------------+----------------------------------+
 | Bucket         | ``read``               | Read all objects in the bucket.  |
-|                |                        |                                  |
 |                +------------------------+----------------------------------+
 |                | ``write``              | Write + read on the              |
 |                |                        | bucket and all children objects. |
 |                +------------------------+----------------------------------+
 |                | ``collection:create``  | Create new                       |
-|                |                        | collections in the bucket.       |
+|                |                        | collections in the bucket,       |
+|                |                        | and read bucket metadata.        |
 |                +------------------------+----------------------------------+
 |                | ``group:create``       | Create new groups                |
-|                |                        | in the bucket.                   |
+|                |                        | in the bucket,                   |
+|                |                        | and read bucket metadata.        |
 +----------------+------------------------+----------------------------------+
 | Collection     | ``read``               | Read all                         |
 |                |                        | objects in the collection.       |
@@ -57,7 +58,8 @@ of object.
 |                |                        | the collection.                  |
 |                +------------------------+----------------------------------+
 |                | ``record:create``      | Create new records               |
-|                |                        | in the collection.               |
+|                |                        | in the collection,               |
+|                |                        | and read collection metadata.    |
 +----------------+------------------------+----------------------------------+
 | Record         | ``read``               | Read the record.                 |
 |                |                        | record.                          |
