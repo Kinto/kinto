@@ -162,3 +162,42 @@ class AccountViewsTest(AccountsWebTest):
     def test_cannot_obtain_unknown_account(self):
         self.app.get('/accounts/jeanine', headers=get_user_headers('alice', '123456'),
                      status=403)
+
+
+class AdminTest(AccountsWebTest):
+
+    def get_app_settings(self, extras=None):
+        settings = super(AdminTest, self).get_app_settings(extras)
+        settings['account_write_principals'] = 'account:admin'
+        return settings
+
+    def setUp(self):
+        self.app.put_json('/accounts/admin', {'data': {'password': '123456'}}, status=201)
+        self.admin_headers = get_user_headers('admin', '123456')
+
+        self.app.put_json('/accounts/bob', {'data': {'password': '987654'}}, status=201)
+
+    def test_admin_can_get_other_accounts(self):
+        self.app.put_json('/accounts/alice', {'data': {'password': 'azerty'}}, status=201)
+
+        resp = self.app.get('/accounts/alice', headers=get_user_headers('alice', 'azerty'))
+        assert resp.json['data']['id'] == 'alice'
+
+    def test_admin_can_delete_other_accounts(self):
+        self.app.delete_json('/accounts/bob', headers=self.admin_headers)
+        self.app.get('/accounts/bob', headers=get_user_headers('bob', '987654'),
+                     status=401)
+
+    def test_admin_can_set_others_password(self):
+        self.app.patch_json('/accounts/bob', {'data': {'password': 'bouh'}},
+                            headers=self.admin_headers)
+        self.app.get('/accounts/bob', headers=get_user_headers('bob', '987654'),
+                     status=401)
+        self.app.get('/accounts/bob', headers=get_user_headers('bob', 'bouh'))
+
+    def test_admin_can_retrieve_accounts_list(self):
+        self.app.put_json('/accounts/alice', {'data': {'password': 'azerty'}}, status=201)
+
+        resp = self.app.get('/accounts', headers=self.admin_headers)
+        usernames = [r['id'] for r in resp.json['data']]
+        assert sorted(usernames) == ['admin', 'alice', 'bob']
