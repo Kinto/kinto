@@ -1,6 +1,6 @@
 from kinto.core.testing import unittest
 
-from kinto.authorization import (get_object_type, build_permission_tuple,
+from kinto.authorization import (get_object_type, relative_object_uri,
                                  build_permissions_set)
 
 
@@ -27,61 +27,51 @@ class PermissionInheritanceTest(unittest.TestCase):
         self.assertEqual(object_type, 'bucket')
 
     def test_build_perm_set_uri_can_construct_parents_set_uris(self):
-        obj_parts = self.record_uri.split('/')
         # Can build record_uri from obj_parts
-        self.assertEqual(
-            build_permission_tuple('record', 'write', obj_parts),
-            (self.record_uri, 'write'))
+        self.assertEqual(relative_object_uri('record', self.record_uri),
+                         self.record_uri)
 
         # Can build collection_uri from obj_parts
-        self.assertEqual(
-            build_permission_tuple('collection', 'records:create', obj_parts),
-            (self.collection_uri, 'records:create'))
+        self.assertEqual(relative_object_uri('collection', self.record_uri),
+                         self.collection_uri)
 
         # Can build bucket_uri from obj_parts
-        self.assertEqual(build_permission_tuple(
-            'bucket', 'groups:create', obj_parts),
-            (self.bucket_uri, 'groups:create'))
+        self.assertEqual(relative_object_uri('bucket', self.record_uri),
+                         self.bucket_uri)
 
         # Can build group_uri from group obj_parts
-        obj_parts = self.group_uri.split('/')
-        self.assertEqual(build_permission_tuple(
-            'group', 'read', obj_parts),
-            (self.group_uri, 'read'))
+        self.assertEqual(relative_object_uri('group', self.group_uri),
+                         self.group_uri)
 
         # Can build bucket_uri from group obj_parts
-        obj_parts = self.group_uri.split('/')
-        self.assertEqual(build_permission_tuple(
-            'bucket', 'write', obj_parts),
-            (self.bucket_uri, 'write'))
+        self.assertEqual(relative_object_uri('bucket', self.group_uri),
+                         self.bucket_uri)
 
     def test_build_perm_set_supports_buckets_named_collections(self):
         uri = '/buckets/collections'
         self.assertEquals(build_permissions_set(uri, 'write'),
                           set([(uri, 'write')]))
 
-    def test_build_permission_tuple_fail_construct_children_set_uris(self):
-        obj_parts = self.bucket_uri.split('/')
+    def test_relative_object_uri_fail_construct_children_set_uris(self):
         # Cannot build record_uri from bucket obj_parts
         self.assertRaises(ValueError,
-                          build_permission_tuple,
-                          'record', 'write', obj_parts)
+                          relative_object_uri,
+                          'record', self.bucket_uri)
 
         # Cannot build collection_uri from obj_parts
         self.assertRaises(ValueError,
-                          build_permission_tuple,
-                          'collection', 'write', obj_parts)
+                          relative_object_uri,
+                          'collection', self.bucket_uri)
 
         # Cannot build bucket_uri from empty obj_parts
         self.assertRaises(ValueError,
-                          build_permission_tuple,
-                          'collection', 'write', [])
+                          relative_object_uri,
+                          'collection', '')
 
-    def test_build_permission_tuple_fail_on_wrong_type(self):
-        obj_parts = self.record_uri.split('/')
+    def test_relative_object_uri_fail_on_wrong_type(self):
         self.assertRaises(ValueError,
-                          build_permission_tuple,
-                          'schema', 'write', obj_parts)
+                          relative_object_uri,
+                          'schema', self.record_uri)
 
     def test_get_perm_keys_for_bucket_permission(self):
         # write

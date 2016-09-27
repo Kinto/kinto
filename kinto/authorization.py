@@ -82,8 +82,10 @@ def get_object_type(object_uri):
     return None
 
 
-def build_permission_tuple(obj_type, unbound_permission, obj_parts):
-    """Returns a tuple of (object_uri, unbound_permission)"""
+def relative_object_uri(obj_type, object_uri):
+    """Returns object_uri
+    """
+    obj_parts = object_uri.split('/')
     PARTS_LENGTH = {
         'bucket': 3,
         'collection': 5,
@@ -93,27 +95,26 @@ def build_permission_tuple(obj_type, unbound_permission, obj_parts):
     if obj_type not in PARTS_LENGTH:
         raise ValueError('Invalid object type: %s' % obj_type)
 
-    if PARTS_LENGTH[obj_type] > len(obj_parts):
-        raise ValueError('You cannot build children keys from its parent key.'
-                         'Trying to build type "%s" from object key "%s".' % (
-                             obj_type, '/'.join(obj_parts)))
     length = PARTS_LENGTH[obj_type]
-    return ('/'.join(obj_parts[:length]), unbound_permission)
+    parent_uri = '/'.join(obj_parts[:length])
+
+    if length > len(obj_parts):
+        error_msg = ('You cannot build children keys from its parent key. '
+                     'Trying to build type "%s" from object key "%s".')
+        raise ValueError(error_msg % (obj_type, parent_uri))
+
+    return parent_uri
 
 
-def build_permissions_set(object_uri, unbound_permission,
-                          inheritance_tree=None):
+def build_permissions_set(object_uri, unbound_permission):
     """Build a set of all permissions that can grant access to the given
     object URI and unbound permission.
 
-    >>> build_required_permissions('/buckets/blog', 'write')
+    >>> build_permissions_set('/buckets/blog', 'read')
+    set(('/buckets/blog', 'write'))
     set(('/buckets/blog', 'write'))
 
     """
-
-    if inheritance_tree is None:
-        inheritance_tree = PERMISSIONS_INHERITANCE_TREE
-
     obj_type = get_object_type(object_uri)
 
     # Unknown object type, does not map the INHERITANCE_TREE.
@@ -122,12 +123,13 @@ def build_permissions_set(object_uri, unbound_permission,
         return set()
 
     bound_permission = '%s:%s' % (obj_type, unbound_permission)
-    granters = set()
+    inherited_perms = PERMISSIONS_INHERITANCE_TREE[bound_permission].items()
 
-    obj_parts = object_uri.split('/')
-    for obj, permission_list in inheritance_tree[bound_permission].items():
-        for permission in permission_list:
-            granters.add(build_permission_tuple(obj, permission, obj_parts))
+    granters = set()
+    for related_obj_type, implicit_permissions in inherited_perms:
+        for permission in implicit_permissions:
+            related_uri = relative_object_uri(related_obj_type, object_uri)
+            granters.add((related_uri, permission))
 
     return granters
 
