@@ -11,6 +11,13 @@ API
 Changelog
 ---------
 
+1.11 (unreleased)
+'''''''''''''''''
+
+- The ``permissions`` are not returned in the response if the user has not the
+  permission to write.
+
+
 1.10 (2016-09-15)
 '''''''''''''''''
 
