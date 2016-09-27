@@ -273,83 +273,76 @@ class StatsDConfigurationTest(unittest.TestCase):
         self.config.registry.cache = {}
         self.config.registry.permission = {}
 
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_isnt_called_if_statsd_url_is_not_set(self, mocked):
+        patch = mock.patch('kinto.core.statsd.load_from_config')
+        self.mocked = patch.start()
+        self.addCleanup(patch.stop)
+
+    def test_statsd_isnt_called_if_statsd_url_is_not_set(self):
         self.config.add_settings({
             'statsd_url': None
         })
         initialization.setup_statsd(self.config)
-        mocked.assert_not_called()
+        self.mocked.assert_not_called()
 
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_is_set_to_none_if_statsd_url_not_set(self, mocked):
+    def test_statsd_is_set_to_none_if_statsd_url_not_set(self):
         self.config.add_settings({
             'statsd_url': None
         })
         initialization.setup_statsd(self.config)
         self.assertEqual(self.config.registry.statsd, None)
 
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_is_called_if_statsd_url_is_set(self, mocked):
+    def test_statsd_is_called_if_statsd_url_is_set(self):
         initialization.setup_statsd(self.config)
-        mocked.assert_called_with('host', 8080, 'kinto.core')
+        self.mocked.assert_called_with(self.config)
+        # See `tests/core/test_statsd.py` for instantiation tests.
 
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_is_expose_in_the_registry_if_url_is_set(self, mocked):
+    def test_statsd_is_expose_in_the_registry_if_url_is_set(self):
         initialization.setup_statsd(self.config)
-        self.assertEqual(self.config.registry.statsd, mocked.return_value)
+        self.assertEqual(self.config.registry.statsd, self.mocked.return_value)
 
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_is_set_on_cache(self, mocked):
+    def test_statsd_is_set_on_cache(self):
         c = initialization.setup_statsd(self.config)
         c.watch_execution_time.assert_any_call({}, prefix='cache')
 
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_is_set_on_storage(self, mocked):
+    def test_statsd_is_set_on_storage(self):
         c = initialization.setup_statsd(self.config)
         c.watch_execution_time.assert_any_call({}, prefix='storage')
 
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_is_set_on_permission(self, mocked):
+    def test_statsd_is_set_on_permission(self):
         c = initialization.setup_statsd(self.config)
         c.watch_execution_time.assert_any_call({}, prefix='permission')
 
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_is_set_on_authentication(self, mocked):
+    def test_statsd_is_set_on_authentication(self):
         c = initialization.setup_statsd(self.config)
         c.watch_execution_time.assert_any_call(None, prefix='authentication')
 
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_counts_nothing_on_anonymous_requests(self, mocked):
+    def test_statsd_counts_nothing_on_anonymous_requests(self):
         kinto.core.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get('/')
-        self.assertFalse(mocked.count.called)
+        self.assertFalse(self.mocked.count.called)
 
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_counts_views_and_methods(self, mocked):
+    def test_statsd_counts_views_and_methods(self):
         kinto.core.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get('/v0/__heartbeat__')
-        mocked().count.assert_any_call('view.heartbeat.GET')
+        self.mocked().count.assert_any_call('view.heartbeat.GET')
 
     @mock.patch('kinto.core.utils.hmac_digest')
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_counts_unique_users(self, mocked, digest_mocked):
+    def test_statsd_counts_unique_users(self, digest_mocked):
         digest_mocked.return_value = u'mat'
         kinto.core.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
         app.get('/v0/', headers=headers)
-        mocked().count.assert_any_call('users', unique='basicauth:mat')
+        self.mocked().count.assert_any_call('users', unique='basicauth:mat')
 
-    @mock.patch('kinto.core.statsd.Client')
-    def test_statsd_counts_authentication_types(self, mocked):
+    def test_statsd_counts_authentication_types(self):
         kinto.core.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
         app.get('/v0/', headers=headers)
-        mocked().count.assert_any_call('authn_type.basicauth')
+        self.mocked().count.assert_any_call('authn_type.basicauth')
 
 
 class RequestsConfigurationTest(unittest.TestCase):

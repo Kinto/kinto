@@ -264,7 +264,7 @@ Logging and Monitoring
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 | kinto.statsd_prefix    | ``kinto``                              | The prefix to use when sending data to statsd.                           |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
-| kinto.statsd_url       | ``None``                               | The URL to use to connect to the statsd host. e.g.                       |
+| kinto.statsd_url       | ``None``                               | The fully qualified URL to use to connect to the statsd host. e.g.       |
 |                        |                                        | ``udp://localhost:8125``                                                 |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 
