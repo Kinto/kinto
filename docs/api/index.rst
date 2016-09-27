@@ -14,8 +14,8 @@ Changelog
 1.11 (unreleased)
 '''''''''''''''''
 
-- The ``permissions`` are now empty in the response if the user has not the
-  permission to write.
+- The ``permissions`` attribute is now empty in the response if the user does not
+  have the permission to write.
 
 
 1.10 (2016-09-15)

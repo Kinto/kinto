@@ -11,7 +11,7 @@ This document describes changes between each past release.
 - Fix error response consistency with safe creations if the ``create`` permission
   is granted (fixes #792). The server now returns a ``412`` instead of a ``403`` if
   the ``If-None-Match: *`` header is provided and the ``create`` permission is granted.
-- The ``permissions`` is now empty in the response if the user has not the permission
+- The ``permissions`` attribute is now empty in the response if the user has not the permission
   to write on the object (fixes #123)
 
 **New features**

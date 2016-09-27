@@ -85,7 +85,6 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.permission.add_principal_to_ace(self.record_uri,
                                              'read',
                                              'account:readonly')
-        # self.resource.model.current_principal = 'basicauth:userid'
         self.resource.record_id = record_id
         self.resource.request.validated = {'data': {}}
         self.resource.request.path = self.record_uri
