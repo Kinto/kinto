@@ -259,7 +259,7 @@ class ShareableModel(Model):
         writers = permissions.get('write', [])
         principals = self.effective_principals + [self.current_principal]
         if len(set(writers) & set(principals)) == 0:
-            return record
+            permissions = {}
         # Insert the permissions values in the response.
         annotated = record.copy()
         annotated[self.permissions_field] = permissions

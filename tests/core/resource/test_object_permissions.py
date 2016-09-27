@@ -73,7 +73,7 @@ class ObtainRecordPermissionTest(PermissionTest):
         self.resource.model.current_principal = 'account:readonly'
         self.resource.model.effective_principals = []
         result = self.resource.get()
-        self.assertNotIn('permissions', result)
+        self.assertEqual(result['permissions'], {})
 
 
 class SpecifyRecordPermissionTest(PermissionTest):
