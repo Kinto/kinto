@@ -15,12 +15,14 @@ This document describes changes between each past release.
 **New features**
 
 - The storage backend now allows ``parent_id`` pattern matching in ``kinto.core.storage.get_all``. (#821)
-- The location of the ``version.json`` file is now configurable via the
+- The history and quotas plugins execution time is now monitored on StatsD (``kinto.plugins.quotas``
+  and ``kinto.plugins.history``) (#832)
   ``kinto.version_json_path`` settings (fixes #830)
 
 **Internal changes**
 
 - Moved storage/cache/permissions base tests to ``kinto.core.*.testing`` (fixes #801)
+- Now fails with an explicit error when StatsD is configured but not installed.
 
 
 4.2.0 (2016-09-15)
