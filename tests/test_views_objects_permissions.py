@@ -242,6 +242,10 @@ class ParentMetadataTest(PermissionsTest):
         self.app.put_json('/buckets/beer',
                           {'permissions': {'collection:create': [self.bob_principal]}},
                           headers=self.headers)
+
+        self.app.put_json('/buckets/beer/collections/wheat', headers=self.headers)
+        self.app.put_json('/buckets/beer/collections/root', headers=self.headers)
+
         self.app.put_json('/buckets/beer/collections/barley',
                           {'permissions': {'record:create': [self.alice_principal]}},
                           headers=self.bob_headers)
