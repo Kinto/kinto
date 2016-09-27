@@ -24,47 +24,55 @@ from kinto.core import authorization as core_authorization
 
 # Dictionary which list all permissions a given permission enables.
 PERMISSIONS_INHERITANCE_TREE = {
-    'bucket:write': {
-        'bucket': ['write']
+    'bucket': {
+        'write': {
+            'bucket': ['write']
+        },
+        'read': {
+            'bucket': ['write', 'read', 'collection:create', 'group:create'],
+        },
+        'group:create': {
+            'bucket': ['write', 'group:create']
+        },
+        'collection:create': {
+            'bucket': ['write', 'collection:create']
+        },
     },
-    'bucket:read': {
-        'bucket': ['write', 'read', 'collection:create', 'group:create'],
+    'group': {
+        'write': {
+            'bucket': ['write'],
+            'group': ['write']
+        },
+        'read': {
+            'bucket': ['write', 'read'],
+            'group': ['write', 'read']
+        }
     },
-    'bucket:group:create': {
-        'bucket': ['write', 'group:create']
+    'collection': {
+        'write': {
+            'bucket': ['write'],
+            'collection': ['write'],
+        },
+        'read': {
+            'bucket': ['write', 'read'],
+            'collection': ['write', 'read', 'record:create'],
+        },
+        'record:create': {
+            'bucket': ['write'],
+            'collection': ['write', 'record:create']
+        },
     },
-    'bucket:collection:create': {
-        'bucket': ['write', 'collection:create']
-    },
-    'group:write': {
-        'bucket': ['write'],
-        'group': ['write']
-    },
-    'group:read': {
-        'bucket': ['write', 'read'],
-        'group': ['write', 'read']
-    },
-    'collection:write': {
-        'bucket': ['write'],
-        'collection': ['write'],
-    },
-    'collection:read': {
-        'bucket': ['write', 'read'],
-        'collection': ['write', 'read', 'record:create'],
-    },
-    'collection:record:create': {
-        'bucket': ['write'],
-        'collection': ['write', 'record:create']
-    },
-    'record:write': {
-        'bucket': ['write'],
-        'collection': ['write'],
-        'record': ['write']
-    },
-    'record:read': {
-        'bucket': ['write', 'read'],
-        'collection': ['write', 'read'],
-        'record': ['write', 'read']
+    'record': {
+        'write': {
+            'bucket': ['write'],
+            'collection': ['write'],
+            'record': ['write']
+        },
+        'read': {
+            'bucket': ['write', 'read'],
+            'collection': ['write', 'read'],
+            'record': ['write', 'read']
+        },
     }
 }
 
@@ -106,7 +114,7 @@ def relative_object_uri(obj_type, object_uri):
     return parent_uri
 
 
-def build_permissions_set(object_uri, unbound_permission):
+def build_permissions_set(object_uri, permission):
     """Build a set of all permissions that can grant access to the given
     object URI and unbound permission.
 
@@ -122,8 +130,7 @@ def build_permissions_set(object_uri, unbound_permission):
     if obj_type is None:
         return set()
 
-    bound_permission = '%s:%s' % (obj_type, unbound_permission)
-    inherited_perms = PERMISSIONS_INHERITANCE_TREE[bound_permission].items()
+    inherited_perms = PERMISSIONS_INHERITANCE_TREE[obj_type][permission].items()
 
     granters = set()
     for related_obj_type, implicit_permissions in inherited_perms:
