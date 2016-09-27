@@ -156,8 +156,9 @@ In this case the user ID is: ``basicauth:631c2d625ee5726172cf67c6750de10a3e1a04b
 Permissions request payload
 ===========================
 
-If the current user has the ``write`` permission on the object, the ``permissions`` attribute comes
-along the ``data`` attribute in the JSON requests payloads.
+If the current user has the ``write`` permission on the object, the permissions
+are returned in the ``permissions`` attribute  along the ``data`` attribute
+in the JSON requests payloads.
 
 Permissions can be replaced or modified independently from data.
 
