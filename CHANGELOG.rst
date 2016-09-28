@@ -6,14 +6,27 @@ This document describes changes between each past release.
 4.3.0 (unreleased)
 ------------------
 
+**Protocol**
+
+- Fix error response consistency with safe creations if the ``create`` permission
+  is granted (fixes #792). The server now returns a ``412`` instead of a ``403`` if
+  the ``If-None-Match: *`` header is provided and the ``create`` permission is granted.
+- The ``permissions`` attribute is now empty in the response if the user has not the permission
+  to write on the object (fixes #123)
+
 **New features**
 
 - The storage backend now allows ``parent_id`` pattern matching in ``kinto.core.storage.get_all``. (#821)
+- The history and quotas plugins execution time is now monitored on StatsD (``kinto.plugins.quotas``
+  and ``kinto.plugins.history``) (#832)
+  ``kinto.version_json_path`` settings (fixes #830)
 
 **Internal changes**
 
 - Moved storage/cache/permissions base tests to ``kinto.core.*.testing`` (fixes #801)
-- Remove redundant fields from data column in PostgreSQL records table (fixes #762)  
+- Now fails with an explicit error when StatsD is configured but not installed.
+- Remove redundant fields from data column in PostgreSQL records table (fixes #762)
+
 
 4.2.0 (2016-09-15)
 ------------------

@@ -91,6 +91,30 @@ Make sure the directory exists::
 Also, make sure the user that runs uwsgi can access /var/run/uwsgi and can
 write in the uwsgi directory.
 
+ERROR: ImportError: No module named .... [uwsgi error]
+=========================================================
+
+You might get some error like::
+
+  ImportError: No module named cornice
+  unable to load app 0 (mountpoint='') (callable not found or import error)
+  *** no app loaded. going in full dynamic mode ***
+    File "app.wsgi", line 8, in <module>
+      from kinto import main
+    File "./kinto/__init__.py", line 4, in <module>
+      import kinto.core
+    File "./kinto/core/__init__.py", line 5, in <module>
+      from cornice import Service as CorniceService
+  ImportError: No module named cornice
+  unable to load app 0 (mountpoint='') (callable not found or import error)
+
+The reason is that the user/group (``uid`` and ``gid`` specified under [uwsgi] section in kinto.ini) not being able to access the sourcecode.
+
+To fix this, grant ``kinto`` user/group access to the source folder::
+
+  $ chgrp kinto -R .
+  $ chown kinto -R .
+
 AssertionError: Unexpected database encoding sql_ascii
 ======================================================
 

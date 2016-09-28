@@ -264,7 +264,7 @@ Logging and Monitoring
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 | kinto.statsd_prefix    | ``kinto``                              | The prefix to use when sending data to statsd.                           |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
-| kinto.statsd_url       | ``None``                               | The URL to use to connect to the statsd host. e.g.                       |
+| kinto.statsd_url       | ``None``                               | The fully qualified URL to use to connect to the statsd host. e.g.       |
 |                        |                                        | ``udp://localhost:8125``                                                 |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 
@@ -705,6 +705,9 @@ Project information
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | Default                                    | What does it do?                                                         |
 +=======================================+============================================+==========================================================================+
+| kinto.version_json_path               | ``./version.json``                         | Location of the file containing the information to be shown in the       |
+|                                       |                                            | :ref:`version endpoint <api-utilities-version>`.                         |
++---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
 | kinto.error_info_link                 | ``https://github.com/kinto/kinto/issues/`` | The HTTP link returned when uncaught errors are triggered on the server. |
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
 | kinto.project_docs                    | ``https://kinto.readthedocs.io``           | The URL where the documentation of the Kinto instance can be found. Will |

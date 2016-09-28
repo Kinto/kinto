@@ -40,8 +40,9 @@ class ObtainRecordPermissionTest(PermissionTest):
         record = self.resource.model.create_record({})
         record_id = record['id']
         record_uri = '/articles/%s' % record_id
-        self.permission.add_principal_to_ace(record_uri, 'read', 'fxa:user')
-        self.permission.add_principal_to_ace(record_uri, 'write', 'fxa:user')
+        self.permission.add_principal_to_ace(record_uri, 'read', 'basicauth:bob')
+        self.permission.add_principal_to_ace(record_uri, 'read', 'account:readonly')
+        self.permission.add_principal_to_ace(record_uri, 'write', 'basicauth:bob')
         self.resource.record_id = record_id
         self.resource.request.validated = {'data': {}}
         self.resource.request.path = record_uri
@@ -65,8 +66,14 @@ class ObtainRecordPermissionTest(PermissionTest):
     def test_permissions_gives_lists_of_principals_per_ace(self):
         result = self.resource.get()
         permissions = result['permissions']
-        self.assertEqual(sorted(permissions['read']), ['fxa:user'])
-        self.assertEqual(sorted(permissions['write']), ['fxa:user'])
+        self.assertEqual(sorted(permissions['read']), ['account:readonly', 'basicauth:bob'])
+        self.assertEqual(sorted(permissions['write']), ['basicauth:bob'])
+
+    def test_permissions_are_hidden_if_user_has_only_read_permission(self):
+        self.resource.model.current_principal = 'account:readonly'
+        self.resource.model.effective_principals = []
+        result = self.resource.get()
+        self.assertEqual(result['permissions'], {})
 
 
 class SpecifyRecordPermissionTest(PermissionTest):
@@ -77,8 +84,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.record_uri = '/articles/%s' % record_id
         self.permission.add_principal_to_ace(self.record_uri,
                                              'read',
-                                             'fxa:user')
-        self.resource.model.current_principal = 'basicauth:userid'
+                                             'account:readonly')
         self.resource.record_id = record_id
         self.resource.request.validated = {'data': {}}
         self.resource.request.path = self.record_uri
@@ -88,13 +94,13 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.method = 'POST'
         result = self.resource.collection_post()
         self.assertEqual(sorted(result['permissions']['write']),
-                         ['basicauth:userid'])
+                         ['basicauth:bob'])
 
     def test_write_permission_is_given_to_put(self):
         self.resource.request.method = 'PUT'
         result = self.resource.put()
         permissions = result['permissions']
-        self.assertEqual(sorted(permissions['write']), ['basicauth:userid'])
+        self.assertEqual(sorted(permissions['write']), ['basicauth:bob'])
 
     def test_write_permission_is_given_to_anonymous(self):
         request = self.get_request()
@@ -115,7 +121,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.validated = {'data': {}, 'permissions': perms}
         result = self.resource.collection_post()
         self.assertEqual(sorted(result['permissions']['write']),
-                         ['basicauth:userid', 'jean-louis'])
+                         ['basicauth:bob', 'jean-louis'])
 
     def test_permissions_are_replaced_with_put(self):
         perms = {'write': ['jean-louis']}
@@ -132,9 +138,9 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.method = 'PATCH'
         result = self.resource.patch()
         permissions = result['permissions']
-        self.assertEqual(sorted(permissions['read']), ['fxa:user'])
+        self.assertEqual(sorted(permissions['read']), ['account:readonly'])
         self.assertEqual(sorted(permissions['write']),
-                         ['basicauth:userid', 'jean-louis'])
+                         ['basicauth:bob', 'jean-louis'])
 
     def test_permissions_can_be_removed_with_patch_but_keep_current_user(self):
         self.permission.add_principal_to_ace(self.record_uri,
@@ -146,8 +152,8 @@ class SpecifyRecordPermissionTest(PermissionTest):
         self.resource.request.method = 'PATCH'
         result = self.resource.patch()
         permissions = result['permissions']
-        self.assertEqual(sorted(permissions['read']), ['fxa:user']),
-        self.assertEqual(sorted(permissions['write']), ['basicauth:userid'])
+        self.assertEqual(sorted(permissions['read']), ['account:readonly']),
+        self.assertEqual(sorted(permissions['write']), ['basicauth:bob'])
 
     def test_permissions_can_be_removed_with_patch(self):
         self.permission.add_principal_to_ace(self.record_uri,
@@ -160,7 +166,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
         result = self.resource.patch()
         self.assertNotIn('read', result['permissions'])
         self.assertEqual(sorted(result['permissions']['write']),
-                         ['basicauth:userid', 'jean-louis'])
+                         ['basicauth:bob', 'jean-louis'])
 
     def test_412_errors_do_not_put_permission_in_record(self):
         self.resource.request.headers['If-Match'] = '"1234567"'  # invalid

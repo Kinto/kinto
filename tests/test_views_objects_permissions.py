@@ -53,6 +53,14 @@ class BucketPermissionsTest(PermissionsTest):
                           headers=self.alice_headers,
                           status=403)
 
+    def test_permissions_are_not_returned_if_can_only_read(self):
+        resp = self.app.get('/buckets/sodas', headers=self.alice_headers)
+        self.assertEqual(resp.json['permissions'], {})
+
+    def test_permissions_are_returned_if_can_write(self):
+        resp = self.app.get('/buckets/sodas', headers=self.headers)
+        self.assertIn('write', resp.json['permissions'])
+
 
 class CollectionPermissionsTest(PermissionsTest):
 
@@ -183,3 +191,56 @@ class RecordPermissionsTest(PermissionsTest):
                                    {'permissions': {'read': ['fxa:user']}},
                                    headers=self.headers)
         self.assertIn('fxa:user', resp.json['permissions']['read'])
+
+
+class ChildrenCreationTest(PermissionsTest):
+    def setUp(self):
+        self.app.put_json('/buckets/create',
+                          {'permissions': {'group:create': ['system.Authenticated']}},
+                          headers=self.alice_headers)
+        self.app.put_json('/buckets/write',
+                          {'permissions': {'write': ['system.Authenticated']}},
+                          headers=self.alice_headers)
+        self.app.put_json('/buckets/read',
+                          {'permissions': {'read': ['system.Authenticated']}},
+                          headers=self.alice_headers)
+        for parent in ('create', 'write', 'read'):
+            self.app.put_json('/buckets/%s/groups/child' % parent,
+                              MINIMALIST_GROUP,
+                              headers=self.alice_headers)
+        self.bob_headers_safe_creation = dict({'If-None-Match': '*'},
+                                              **self.bob_headers)
+
+    def test_cannot_read_others_objects_if_only_allowed_to_create(self):
+        self.app.get('/buckets/create/groups', headers=self.bob_headers, status=403)
+        self.app.get('/buckets/create/groups/child', headers=self.bob_headers, status=403)
+
+    def test_safe_creation_with_put_returns_412_if_allowed_to_create(self):
+        self.app.put_json('/buckets/create/groups/child',
+                          MINIMALIST_GROUP,
+                          headers=self.bob_headers_safe_creation, status=412)
+
+    def test_safe_creation_with_post_returns_412_if_allowed_to_create(self):
+        self.app.post_json('/buckets/create/groups',
+                           {'data': {'id': 'child', 'members': []}},
+                           headers=self.bob_headers_safe_creation, status=412)
+
+    def test_safe_creation_with_put_returns_412_if_allowed_to_write(self):
+        self.app.put_json('/buckets/write/groups/child',
+                          MINIMALIST_GROUP,
+                          headers=self.bob_headers_safe_creation, status=412)
+
+    def test_safe_creation_with_post_returns_412_if_allowed_to_write(self):
+        self.app.post_json('/buckets/write/groups',
+                           {'data': {'id': 'child', 'members': []}},
+                           headers=self.bob_headers_safe_creation, status=412)
+
+    def test_safe_creation_with_put_returns_403_if_only_allowed_to_read(self):
+        self.app.put_json('/buckets/read/groups/child',
+                          MINIMALIST_GROUP,
+                          headers=self.bob_headers_safe_creation, status=403)
+
+    def test_safe_creation_with_post_returns_403_if_only_allowed_to_read(self):
+        self.app.post_json('/buckets/read/groups',
+                           {'data': {'id': 'child', 'members': []}},
+                           headers=self.bob_headers_safe_creation, status=403)

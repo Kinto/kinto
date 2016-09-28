@@ -1,11 +1,27 @@
-import unittest
-
-import mock
 import re
+import unittest
+import mock
 
-from kinto.core.testing import get_user_headers
+from pyramid import testing
+
+from kinto import main as kinto_main
+from kinto.core.testing import get_user_headers, skip_if_no_statsd
 
 from .. import support
+
+
+class PluginSetup(unittest.TestCase):
+
+    @skip_if_no_statsd
+    def test_a_statsd_timer_is_used_for_history_if_configured(self):
+        settings = {
+            "statsd_url": "udp://127.0.0.1:8125",
+            "includes": "kinto.plugins.history"
+        }
+        config = testing.setUp(settings=settings)
+        with mock.patch('kinto.core.statsd.Client.timer') as mocked:
+            kinto_main(None, config=config)
+            mocked.assert_called_with('plugins.history')
 
 
 class HistoryWebTest(support.BaseWebTest, unittest.TestCase):
