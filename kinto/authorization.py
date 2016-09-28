@@ -29,7 +29,10 @@ PERMISSIONS_INHERITANCE_TREE = {
             'bucket': ['write']
         },
         'read': {
-            'bucket': ['write', 'read', 'collection:create', 'group:create'],
+            'bucket': ['write', 'read'],
+        },
+        'read:attributes': {
+            'bucket': ['write', 'read', 'collection:create', 'group:create']
         },
         'group:create': {
             'bucket': ['write', 'group:create']
@@ -46,7 +49,7 @@ PERMISSIONS_INHERITANCE_TREE = {
         'read': {
             'bucket': ['write', 'read'],
             'group': ['write', 'read']
-        }
+        },
     },
     'collection': {
         'write': {
@@ -54,6 +57,10 @@ PERMISSIONS_INHERITANCE_TREE = {
             'collection': ['write'],
         },
         'read': {
+            'bucket': ['write', 'read'],
+            'collection': ['write', 'read'],
+        },
+        'read:attributes': {
             'bucket': ['write', 'read'],
             'collection': ['write', 'read', 'record:create'],
         },
@@ -77,17 +84,20 @@ PERMISSIONS_INHERITANCE_TREE = {
 }
 
 
-def get_object_type(object_uri):
+def _resource_endpoint(object_uri):
     """Return the type of an object from its id."""
-    if re.match(r'/buckets/(.+)/collections/(.+)/records/(.+)?', object_uri):
-        return 'record'
-    if re.match(r'/buckets/(.+)/collections/(.+)?', object_uri):
-        return 'collection'
-    if re.match(r'/buckets/(.+)/groups/(.+)?', object_uri):
-        return 'group'
-    if re.match(r'/buckets/(.+)?', object_uri):
-        return 'bucket'
-    return None
+    url_patterns = [
+        ('record', r'/buckets/(.+)/collections/(.+)/records/(.+)?'),
+        ('collection', r'/buckets/(.+)/collections/(.+)?'),
+        ('group', r'/buckets/(.+)/groups/(.+)?'),
+        ('bucket', r'/buckets/(.+)?')
+    ]
+    for resource_name, pattern in url_patterns:
+        m = re.match(pattern, object_uri)
+        if m:
+            plural = '/' in m.groups()[-1]
+            return resource_name, plural
+    return None, None
 
 
 def relative_object_uri(obj_type, object_uri):
@@ -123,17 +133,22 @@ def build_permissions_set(object_uri, permission):
     set(('/buckets/blog', 'write'))
 
     """
-    obj_type = get_object_type(object_uri)
+    obj_type, plural = _resource_endpoint(object_uri)
 
     # Unknown object type, does not map the INHERITANCE_TREE.
     # In that case, the set of related permissions is empty.
     if obj_type is None:
         return set()
 
-    inherited_perms = PERMISSIONS_INHERITANCE_TREE[obj_type][permission].items()
+    object_perms_tree = PERMISSIONS_INHERITANCE_TREE[obj_type]
+
+    # When requesting permissions for a single object, we check if they are any
+    # specific inherited permissions for the attributes.
+    attributes_permission = '%s:attributes' % permission if not plural else permission
+    inherited_perms = object_perms_tree.get(attributes_permission, object_perms_tree[permission])
 
     granters = set()
-    for related_obj_type, implicit_permissions in inherited_perms:
+    for related_obj_type, implicit_permissions in inherited_perms.items():
         for permission in implicit_permissions:
             related_uri = relative_object_uri(related_obj_type, object_uri)
             granters.add((related_uri, permission))

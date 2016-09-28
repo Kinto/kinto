@@ -56,6 +56,7 @@ class PermissionsViewTest(BaseWebTest, unittest.TestCase):
                          ['collection:create',
                           'group:create',
                           'read',
+                          'read:attributes',
                           'write'])
 
     def test_object_details_are_provided(self):

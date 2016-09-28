@@ -1,6 +1,6 @@
 from kinto.core.testing import unittest
 
-from kinto.authorization import (get_object_type, relative_object_uri,
+from kinto.authorization import (_resource_endpoint, relative_object_uri,
                                  build_permissions_set)
 
 
@@ -11,20 +11,20 @@ class PermissionInheritanceTest(unittest.TestCase):
     bucket_uri = '/buckets/blog'
     invalid_uri = 'invalid object id'
 
-    def test_get_object_type_return_right_type_for_key(self):
-        self.assertEqual(get_object_type(self.record_uri), 'record')
-        self.assertEqual(get_object_type(self.collection_uri), 'collection')
-        self.assertEqual(get_object_type(self.bucket_uri), 'bucket')
-        self.assertEqual(get_object_type(self.group_uri), 'group')
-        self.assertIsNone(get_object_type(self.invalid_uri))
+    def test_resource_endpoint_return_right_type_for_key(self):
+        self.assertEqual(_resource_endpoint(self.record_uri), ('record', False))
+        self.assertEqual(_resource_endpoint(self.collection_uri), ('collection', False))
+        self.assertEqual(_resource_endpoint(self.bucket_uri), ('bucket', False))
+        self.assertEqual(_resource_endpoint(self.group_uri), ('group', False))
+        self.assertEqual(_resource_endpoint(self.invalid_uri), (None, None))
 
-    def test_get_object_type_return_right_type_for_children_collection(self):
-        object_type = get_object_type(self.collection_uri + '/records')
-        self.assertEqual(object_type, 'collection')
-        object_type = get_object_type(self.bucket_uri + '/collections')
-        self.assertEqual(object_type, 'bucket')
-        object_type = get_object_type(self.bucket_uri + '/groups')
-        self.assertEqual(object_type, 'bucket')
+    def test_resource_endpoint_return_right_type_for_children_collection(self):
+        self.assertEqual(_resource_endpoint(self.collection_uri + '/records'),
+                         ('collection', True))
+        self.assertEqual(_resource_endpoint(self.bucket_uri + '/collections'),
+                         ('bucket', True))
+        self.assertEqual(_resource_endpoint(self.bucket_uri + '/groups'),
+                         ('bucket', True))
 
     def test_build_perm_set_uri_can_construct_parents_set_uris(self):
         # Can build record_uri from obj_parts
