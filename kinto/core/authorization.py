@@ -79,10 +79,7 @@ class AuthorizationPolicy(object):
         else:
             bound_perms = self.get_bound_permissions(object_id, permission)
 
-        if context.allowed_principals:
-            allowed = bool(set(context.allowed_principals) & set(principals))
-        else:
-            allowed = context.check_permission(principals, bound_perms)
+        allowed = context.check_permission(principals, bound_perms)
 
         # If not allowed on this collection, but some records are shared with
         # the current user, then authorize.
@@ -96,14 +93,12 @@ class AuthorizationPolicy(object):
             # If allowed to create this kind of object on parent, then allow to obtain the list.
             if len(bound_perms) > 0:
                 parent_uri = bound_perms[0][0]  # Bounds perms are ordered.
-                allowed_to_create = context.check_permission(principals,
-                                                             [(parent_uri, create_permission)])
+                parent_create_perm = [(parent_uri, create_permission)]
             else:
-                principals_from_settings = context.principals_from_settings(context.resource_name, 'create')
-                allowed_to_create = bool(set(principals_from_settings) & set(principals))
-                if context.shared_ids is None:
-                    context.shared_ids = []
-            allowed = shared is not None or allowed_to_create
+                parent_create_perm = [('', 'create')]
+            allowed_to_create = context.check_permission(principals, parent_create_perm)
+
+            allowed = shared or allowed_to_create
 
         return allowed
 
@@ -115,7 +110,6 @@ class RouteFactory(object):
     resource_name = None
     on_collection = False
     required_permission = None
-    allowed_principals = None
     permission_object_id = None
     current_record = None
     shared_ids = None
@@ -134,7 +128,7 @@ class RouteFactory(object):
 
         # Store some shortcuts.
         permission = request.registry.permission
-        self.check_permission = permission.check_permission
+        self._check_permission = permission.check_permission
         self._get_accessible_objects = permission.get_accessible_objects
 
         # Store current resource and required permission.
@@ -152,14 +146,21 @@ class RouteFactory(object):
             # To obtain shared records on a collection endpoint, use a match:
             self._object_id_match = self.get_permission_object_id(request, '*')
 
-        # Check if principals are allowed explicitly from settings.
         self._settings = request.registry.settings
-        self.allowed_principals = self.principals_from_settings(self.resource_name,
-                                                                self.required_permission)
 
-    def principals_from_settings(self, resource_name, permission):
-        setting = '%s_%s_principals' % (resource_name, permission)
-        return aslist(self._settings.get(setting, ''))
+    def check_permission(self, principals, bound_perms):
+        """Read allowed principals from settings, if not any, query the permission
+        backend to check if view is allowed.
+        """
+        if not bound_perms:
+            bound_perms = [(self.resource_name, self.required_permission)]
+        for (_, permission) in bound_perms:
+            setting = '%s_%s_principals' % (self.resource_name, permission)
+            allowed_principals = aslist(self._settings.get(setting, ''))
+            if allowed_principals:
+                if bool(set(allowed_principals) & set(principals)):
+                    return True
+        return self._check_permission(principals, bound_perms)
 
     def fetch_shared_records(self, perm, principals, get_bound_permissions):
         """Fetch records that are readable or writable for the current
@@ -180,12 +181,8 @@ class RouteFactory(object):
             bound_perms = [(self._object_id_match, perm)]
         by_obj_id = self._get_accessible_objects(principals, bound_perms)
         ids = by_obj_id.keys()
-        if len(ids) > 0:
-            # Store for later use in ``ShareableResource``.
-            self.shared_ids = [self._extract_object_id(id_) for id_ in ids]
-        else:
-            self.shared_ids = None
-
+        # Store for later use in ``ShareableResource``.
+        self.shared_ids = [self._extract_object_id(id_) for id_ in ids]
         return self.shared_ids
 
     def get_permission_object_id(self, request, object_id=None):
