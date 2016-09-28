@@ -14,8 +14,10 @@ Changelog
 1.11 (unreleased)
 '''''''''''''''''
 
-- Parent metadata is now readable if children creation is allowed
-- Now returns a ``412`` instead of a ``403`` if the ``If-None-Match: *`` header is
+- Parent attributes are now readable if children creation is allowed
+- Return an empty list on the plural endpoint instead of |status-403| if the ``create``
+  permission is allowed
+- Now returns a |status-412| instead of a |status-403| if the ``If-None-Match: *`` header is
   provided and the ``create`` permission is allowed
 
 1.10 (2016-09-15)

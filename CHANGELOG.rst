@@ -11,9 +11,11 @@ This document describes changes between each past release.
 - Fix error response consistency with safe creations if the ``create`` permission
   is granted (fixes #792). The server now returns a ``412`` instead of a ``403`` if
   the ``If-None-Match: *`` header is provided and the ``create`` permission is granted.
-- Parent **metadata is now readable** if children creation is allowed. That means for example
-  that collection metadata is now readable to users with ``record:create`` permission.
-  Same applies to bucket metadata and ``collection:create`` and ``group:create`` (fixes #803)
+- Parent **attributes are now readable** if children creation is allowed. That means for example
+  that collection attributes are now readable to users with ``record:create`` permission.
+  Same applies to bucket attributes and ``collection:create`` and ``group:create`` (fixes #803)
+- Return an empty list on the plural endpoint instead of ``403`` if the ``create``
+  permission is allowed
 
 Protocol is now at version **1.11**. See `API changelog`_.
 
