@@ -19,11 +19,15 @@ Changelog
   permission is allowed
 - Now returns a |status-412| instead of a |status-403| if the ``If-None-Match: *`` header is
   provided and the ``create`` permission is allowed
+- The ``permissions`` attribute is now empty in the response if the user does not
+  have the permission to write.
+
 
 1.10 (2016-09-15)
 '''''''''''''''''
 
 - Add substring query to filtering on plural endpoints (e.g ``?like_person=Tim``)
+
 
 1.9 (2016-08-17)
 ''''''''''''''''

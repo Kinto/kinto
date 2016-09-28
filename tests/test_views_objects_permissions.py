@@ -53,6 +53,14 @@ class BucketPermissionsTest(PermissionsTest):
                           headers=self.alice_headers,
                           status=403)
 
+    def test_permissions_are_not_returned_if_can_only_read(self):
+        resp = self.app.get('/buckets/sodas', headers=self.alice_headers)
+        self.assertEqual(resp.json['permissions'], {})
+
+    def test_permissions_are_returned_if_can_write(self):
+        resp = self.app.get('/buckets/sodas', headers=self.headers)
+        self.assertIn('write', resp.json['permissions'])
+
 
 class CollectionPermissionsTest(PermissionsTest):
 

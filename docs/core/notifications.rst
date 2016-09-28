@@ -137,7 +137,7 @@ some code. Triggered code on events is synchronously called when a request is ha
 
 *Kinto-Core* offers custom listeners that can be activated through configuration,
 so that every Kinto-Core-based application can benefit from **pluggable listeners**
-without using `config.add_event_subscriber()` explicitely.
+without using `config.add_subscriber()` explicitely.
 
 Currently, a simple built-in listener is available, that just delivers the
 events into a Redis queue, allowing asynchronous event handling:

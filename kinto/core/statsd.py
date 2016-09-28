@@ -6,6 +6,7 @@ try:
 except ImportError:  # pragma: no cover
     statsd_module = None
 
+from pyramid.exceptions import ConfigurationError
 from six.moves.urllib import parse as urlparse
 
 from kinto.core import utils
@@ -43,6 +44,13 @@ def statsd_count(request, count_key):
 
 
 def load_from_config(config):
+    # If this is called, it means that a ``statsd_url`` was specified in settings.
+    # (see ``kinto.core.initialization``)
+    # Raise a proper error if the ``statsd`` module is not installed.
+    if statsd_module is None:
+        error_msg = "Please install Kinto with monitoring dependencies (e.g. statsd package)"
+        raise ConfigurationError(error_msg)
+
     settings = config.get_settings()
     uri = settings['statsd_url']
     uri = urlparse.urlparse(uri)
