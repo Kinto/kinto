@@ -40,9 +40,9 @@ On Mac OS X, `install a server or use port <http://superuser.com/questions/29687
 Install PostgreSQL Python Dependencies
 --------------------------------------
 
-Kinto PostgreSQL backend rely on several Python toolkits, which can be installed with a single *pip* command ::
+Kinto PostgreSQL backends rely on several Python packages, which can be installed with a single *pip* command ::
 
-    $ sudo pip install -Ue kinto[postgresql]
+    $ pip install -U kinto[postgresql]
 
 
 Run a PostgreSQL server
@@ -53,12 +53,12 @@ The instructions to run a local PostgreSQL database are out of scope here.
 A detailed guide is :github:`available on the Kinto Wiki <Kinto/kinto/wiki/How-to-run-a-PostgreSQL-server%3F>`.
 
 
-Database Setup
+Database setup
 --------------
 
 *Kinto* default database name is set to ``postgres`` on ``localhost:5432``. To change it refer to `Creating a configuration file`_.
 
-To create a specific database for *kinto*:
+To create a specific database:
 
 .. code-block:: sql
 
@@ -111,7 +111,7 @@ change the default privileges to allow reading the future tables:
 Creating a configuration file
 -----------------------------
 
-Once a PostgreSQL is up and running somewhere, you should edit your configuration file or create one with the ``init`` command and select the PostgreSQL option. The file is created by default as ``config\kinto.ini``, to specify another name use the ``--ini`` parameter.
+Once a PostgreSQL is up and running somewhere, you should edit your configuration file or create a new one with the ``init`` command and select the PostgreSQL option. The file is created by default as ``config/kinto.ini``, to specify another filename use the ``--ini`` parameter.
 
 .. code-block:: bash
 
@@ -130,14 +130,18 @@ Select your database server address, name and user by editing the configuration 
     kinto.permission_url = postgres://dbuser:dbpassword@localhost/dbname
 
 
-Initialization
---------------
+Creating tables and indices
+---------------------------
 
 The last step consists in creating the necessary tables and indices, run the ``migrate`` command:
 
 .. code-block:: bash
 
     $ kinto --ini production.ini migrate
+
+.. important::
+    You should run ``migrate`` every time you change the configuration file or kinto is upgraded.
+
 
 .. note::
 
