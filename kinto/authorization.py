@@ -141,8 +141,8 @@ def _inherited_permissions(object_uri, permission):
 
     # Unknown object type, does not map the INHERITANCE_TREE.
     # In that case, the set of related permissions is empty.
-    if obj_type is None:
-        return set()
+    if resource_name is None:
+        return []
 
     object_perms_tree = PERMISSIONS_INHERITANCE_TREE[resource_name]
 
@@ -157,7 +157,8 @@ def _inherited_permissions(object_uri, permission):
             related_uri = _relative_object_uri(related_resource_name, object_uri)
             granters.add((related_uri, permission))
 
-    return granters
+    # Sort by ascending URLs.
+    return sorted(granters, key=lambda (uri, perm): len(uri), reverse=True)
 
 
 @implementer(IAuthorizationPolicy)

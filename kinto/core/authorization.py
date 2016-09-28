@@ -69,17 +69,19 @@ class AuthorizationPolicy(object):
         if permission == DYNAMIC:
             permission = context.required_permission
 
+        create_permission = '%s:create' % context.resource_name
         if permission == 'create':
-            permission = '%s:%s' % (context.resource_name, permission)
+            permission = create_permission
+
+        object_id = context.permission_object_id
+        if self.get_bound_permissions is None:
+            bound_perms = [(object_id, permission)]
+        else:
+            bound_perms = self.get_bound_permissions(object_id, permission)
 
         if context.allowed_principals:
             allowed = bool(set(context.allowed_principals) & set(principals))
         else:
-            object_id = context.permission_object_id
-            if self.get_bound_permissions is None:
-                bound_perms = [(object_id, permission)]
-            else:
-                bound_perms = self.get_bound_permissions(object_id, permission)
             allowed = context.check_permission(principals, bound_perms)
 
         # If not allowed on this collection, but some records are shared with
@@ -88,10 +90,16 @@ class AuthorizationPolicy(object):
         is_list_operation = (context.on_collection and
                              not permission.endswith('create'))
         if not allowed and is_list_operation:
+            # If allowed to create this kind of object on parent, then allow to obtain the list.
+            if len(bound_perms) > 0:
+                create_on_parent = [(bound_perms[0][0], create_permission)]
+                allowed_to_create = context.check_permission(principals, create_on_parent)
+            else:
+                allowed_to_create = False  # XXX: buckets list (ie. root URL)
             shared = context.fetch_shared_records(permission,
                                                   principals,
                                                   self.get_bound_permissions)
-            allowed = shared is not None
+            allowed = shared is not None or allowed_to_create
 
         return allowed
 
