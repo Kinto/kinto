@@ -85,7 +85,10 @@ PERMISSIONS_INHERITANCE_TREE = {
 
 
 def _resource_endpoint(object_uri):
-    """Return the type of an object from its id."""
+    """Determine the resource name and whether it is the plural endpoint from
+    the specified `object_uri`. Returns `(None, None)` for the root URL plural
+    endpoint.
+    """
     url_patterns = [
         ('record', r'/buckets/(.+)/collections/(.+)/records/(.+)?'),
         ('collection', r'/buckets/(.+)/collections/(.+)?'),
@@ -100,7 +103,7 @@ def _resource_endpoint(object_uri):
     return None, None
 
 
-def relative_object_uri(obj_type, object_uri):
+def _relative_object_uri(resource_name, object_uri):
     """Returns object_uri
     """
     obj_parts = object_uri.split('/')
@@ -110,37 +113,38 @@ def relative_object_uri(obj_type, object_uri):
         'group': 5,
         'record': 7
     }
-    if obj_type not in PARTS_LENGTH:
-        raise ValueError('Invalid object type: %s' % obj_type)
+    if resource_name not in PARTS_LENGTH:
+        raise ValueError('Unknown resource %r' % resource_name)
 
-    length = PARTS_LENGTH[obj_type]
+    length = PARTS_LENGTH[resource_name]
     parent_uri = '/'.join(obj_parts[:length])
 
     if length > len(obj_parts):
-        error_msg = ('You cannot build children keys from its parent key. '
-                     'Trying to build type "%s" from object key "%s".')
-        raise ValueError(error_msg % (obj_type, parent_uri))
+        error_msg = 'Cannot get URL of resource %r from parent %r.'
+        raise ValueError(error_msg % (resource_name, parent_uri))
 
     return parent_uri
 
 
-def build_permissions_set(object_uri, permission):
-    """Build a set of all permissions that can grant access to the given
-    object URI and unbound permission.
+def _inherited_permissions(object_uri, permission):
+    """Build the list of all permissions that can grant access to the given
+    object URI and permission.
 
-    >>> build_permissions_set('/buckets/blog', 'read')
-    set(('/buckets/blog', 'write'))
-    set(('/buckets/blog', 'write'))
+    >>> _inherited_permissions('/buckets/blog/collections/article', 'read')
+    [('/buckets/blog/collections/article', 'write'),
+     ('/buckets/blog/collections/article', 'read'),
+     ('/buckets/blog', 'write'),
+     ('/buckets/blog', 'read')]
 
     """
-    obj_type, plural = _resource_endpoint(object_uri)
+    resource_name, plural = _resource_endpoint(object_uri)
 
     # Unknown object type, does not map the INHERITANCE_TREE.
     # In that case, the set of related permissions is empty.
     if obj_type is None:
         return set()
 
-    object_perms_tree = PERMISSIONS_INHERITANCE_TREE[obj_type]
+    object_perms_tree = PERMISSIONS_INHERITANCE_TREE[resource_name]
 
     # When requesting permissions for a single object, we check if they are any
     # specific inherited permissions for the attributes.
@@ -148,9 +152,9 @@ def build_permissions_set(object_uri, permission):
     inherited_perms = object_perms_tree.get(attributes_permission, object_perms_tree[permission])
 
     granters = set()
-    for related_obj_type, implicit_permissions in inherited_perms.items():
+    for related_resource_name, implicit_permissions in inherited_perms.items():
         for permission in implicit_permissions:
-            related_uri = relative_object_uri(related_obj_type, object_uri)
+            related_uri = _relative_object_uri(related_resource_name, object_uri)
             granters.add((related_uri, permission))
 
     return granters
@@ -159,7 +163,7 @@ def build_permissions_set(object_uri, permission):
 @implementer(IAuthorizationPolicy)
 class AuthorizationPolicy(core_authorization.AuthorizationPolicy):
     def get_bound_permissions(self, *args, **kwargs):
-        return build_permissions_set(*args, **kwargs)
+        return _inherited_permissions(*args, **kwargs)
 
 
 class RouteFactory(core_authorization.RouteFactory):

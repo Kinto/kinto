@@ -1,7 +1,7 @@
 from kinto.core.testing import unittest
 
-from kinto.authorization import (_resource_endpoint, relative_object_uri,
-                                 build_permissions_set)
+from kinto.authorization import (_resource_endpoint, _relative_object_uri,
+                                 _inherited_permissions)
 
 
 class PermissionInheritanceTest(unittest.TestCase):
@@ -26,68 +26,70 @@ class PermissionInheritanceTest(unittest.TestCase):
         self.assertEqual(_resource_endpoint(self.bucket_uri + '/groups'),
                          ('bucket', True))
 
-    def test_build_perm_set_uri_can_construct_parents_set_uris(self):
+    def test_related_object_uri_can_construct_parents_set_uris(self):
         # Can build record_uri from obj_parts
-        self.assertEqual(relative_object_uri('record', self.record_uri),
+        self.assertEqual(_relative_object_uri('record', self.record_uri),
                          self.record_uri)
 
         # Can build collection_uri from obj_parts
-        self.assertEqual(relative_object_uri('collection', self.record_uri),
+        self.assertEqual(_relative_object_uri('collection', self.record_uri),
                          self.collection_uri)
 
         # Can build bucket_uri from obj_parts
-        self.assertEqual(relative_object_uri('bucket', self.record_uri),
+        self.assertEqual(_relative_object_uri('bucket', self.record_uri),
                          self.bucket_uri)
 
         # Can build group_uri from group obj_parts
-        self.assertEqual(relative_object_uri('group', self.group_uri),
+        self.assertEqual(_relative_object_uri('group', self.group_uri),
                          self.group_uri)
 
         # Can build bucket_uri from group obj_parts
-        self.assertEqual(relative_object_uri('bucket', self.group_uri),
+        self.assertEqual(_relative_object_uri('bucket', self.group_uri),
                          self.bucket_uri)
-
-    def test_build_perm_set_supports_buckets_named_collections(self):
-        uri = '/buckets/collections'
-        self.assertEquals(build_permissions_set(uri, 'write'),
-                          set([(uri, 'write')]))
 
     def test_relative_object_uri_fail_construct_children_set_uris(self):
         # Cannot build record_uri from bucket obj_parts
         self.assertRaises(ValueError,
-                          relative_object_uri,
+                          _relative_object_uri,
                           'record', self.bucket_uri)
 
         # Cannot build collection_uri from obj_parts
         self.assertRaises(ValueError,
-                          relative_object_uri,
+                          _relative_object_uri,
                           'collection', self.bucket_uri)
 
         # Cannot build bucket_uri from empty obj_parts
         self.assertRaises(ValueError,
-                          relative_object_uri,
+                          _relative_object_uri,
                           'collection', '')
 
     def test_relative_object_uri_fail_on_wrong_type(self):
         self.assertRaises(ValueError,
-                          relative_object_uri,
+                          _relative_object_uri,
                           'schema', self.record_uri)
 
-    def test_get_perm_keys_for_bucket_permission(self):
+    def test_inherited_permissions_supports_buckets_named_collections(self):
+        uri = '/buckets/collections'
+        self.assertEquals(set(_inherited_permissions(uri, 'write')),
+                          set([(uri, 'write')]))
+
+    def test_inherited_permissions_for_bucket_permission(self):
         # write
         self.assertEquals(
-            build_permissions_set(self.bucket_uri, 'write'),
-            set([(self.bucket_uri, 'write')]))
+            _inherited_permissions(self.bucket_uri, 'write'),
+            [(self.bucket_uri, 'write')])
         # read
         self.assertEquals(
-            build_permissions_set(self.bucket_uri, 'read'),
-            set([(self.bucket_uri, 'write'), (self.bucket_uri, 'read'),
-                 (self.bucket_uri, 'collection:create'), (self.bucket_uri, 'group:create')]))
+            set(_inherited_permissions(self.bucket_uri, 'read')),
+            set([(self.bucket_uri, 'write'),
+                 (self.bucket_uri, 'read'),
+                 (self.bucket_uri, 'collection:create'),
+                 (self.bucket_uri, 'group:create')]))
 
         # group:create
         groups_uri = self.bucket_uri + '/groups'
         self.assertEquals(
-            build_permissions_set(groups_uri, 'group:create'),
+            set(_inherited_permissions(groups_uri, 'group:create')),
             set(
                 [(self.bucket_uri, 'write'),
                  (self.bucket_uri, 'group:create')])
@@ -96,33 +98,33 @@ class PermissionInheritanceTest(unittest.TestCase):
         # collection:create
         collections_uri = self.bucket_uri + '/collections'
         self.assertEquals(
-            build_permissions_set(collections_uri, 'collection:create'),
+            set(_inherited_permissions(collections_uri, 'collection:create')),
             set([(self.bucket_uri, 'write'),
                  (self.bucket_uri, 'collection:create')]))
 
-    def test_build_permissions_set_for_group_permission(self):
+    def test_inherited_permissions_for_group_permission(self):
         # write
         self.assertEquals(
-            build_permissions_set(self.group_uri, 'write'),
-            set([(self.bucket_uri, 'write'),
-                 (self.group_uri, 'write')]))
+            _inherited_permissions(self.group_uri, 'write'),
+            [(self.group_uri, 'write'),
+             (self.bucket_uri, 'write')])
         # read
         self.assertEquals(
-            build_permissions_set(self.group_uri, 'read'),
+            set(_inherited_permissions(self.group_uri, 'read')),
             set([(self.bucket_uri, 'write'),
                  (self.bucket_uri, 'read'),
                  (self.group_uri, 'write'),
                  (self.group_uri, 'read')]))
 
-    def test_build_permissions_set_for_collection_permission(self):
+    def test_inherited_permissions_for_collection_permission(self):
         # write
         self.assertEquals(
-            build_permissions_set(self.collection_uri, 'write'),
-            set([(self.bucket_uri, 'write'),
-                 (self.collection_uri, 'write')]))
+            _inherited_permissions(self.collection_uri, 'write'),
+            [(self.collection_uri, 'write'),
+             (self.bucket_uri, 'write')])
         # read
         self.assertEquals(
-            build_permissions_set(self.collection_uri, 'read'),
+            set(_inherited_permissions(self.collection_uri, 'read')),
             set([(self.bucket_uri, 'write'),
                  (self.bucket_uri, 'read'),
                  (self.collection_uri, 'write'),
@@ -131,21 +133,21 @@ class PermissionInheritanceTest(unittest.TestCase):
         # records:create
         records_uri = self.collection_uri + '/records'
         self.assertEquals(
-            build_permissions_set(records_uri, 'record:create'),
+            set(_inherited_permissions(records_uri, 'record:create')),
             set([(self.bucket_uri, 'write'),
                  (self.collection_uri, 'write'),
                  (self.collection_uri, 'record:create')]))
 
-    def test_build_permissions_set_for_record_permission(self):
+    def test_inherited_permissions_for_record_permission(self):
         # write
         self.assertEquals(
-            build_permissions_set(self.record_uri, 'write'),
+            set(_inherited_permissions(self.record_uri, 'write')),
             set([(self.bucket_uri, 'write'),
                  (self.collection_uri, 'write'),
                  (self.record_uri, 'write')]))
         # read
         self.assertEquals(
-            build_permissions_set(self.record_uri, 'read'),
+            set(_inherited_permissions(self.record_uri, 'read')),
             set([(self.bucket_uri, 'write'),
                  (self.bucket_uri, 'read'),
                  (self.collection_uri, 'write'),
@@ -153,6 +155,6 @@ class PermissionInheritanceTest(unittest.TestCase):
                  (self.record_uri, 'write'),
                  (self.record_uri, 'read')]))
 
-    def test_build_permissions_set_returns_empty_set_if_doesnt_know(self):
-        permissions = build_permissions_set('/buckets', 'read')
-        self.assertEquals(permissions, set())
+    def test_inherited_permissions_returns_empty_list_if_root_url(self):
+        permissions = _inherited_permissions('/buckets', 'read')
+        self.assertEquals(permissions, [])
