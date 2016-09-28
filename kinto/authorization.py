@@ -160,7 +160,7 @@ def _inherited_permissions(object_uri, permission):
             granters.add((related_uri, permission))
 
     # Sort by ascending URLs.
-    return sorted(granters, key=lambda (uri, perm): len(uri), reverse=True)
+    return sorted(granters, key=lambda uri_perm: len(uri_perm[0]), reverse=True)
 
 
 @implementer(IAuthorizationPolicy)
