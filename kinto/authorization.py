@@ -1,6 +1,6 @@
 import re
 
-from pyramid.security import IAuthorizationPolicy, Authenticated
+from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 
 from kinto.core import authorization as core_authorization
@@ -24,6 +24,11 @@ from kinto.core import authorization as core_authorization
 
 # Dictionary which list all permissions a given permission enables.
 PERMISSIONS_INHERITANCE_TREE = {
+    '': {  # Granted via settings only.
+        'bucket:create': {},
+        'write': {},
+        'read': {},
+    },
     'bucket': {
         'write': {
             'bucket': ['write']
@@ -93,14 +98,15 @@ def _resource_endpoint(object_uri):
         ('record', r'/buckets/(.+)/collections/(.+)/records/(.+)?'),
         ('collection', r'/buckets/(.+)/collections/(.+)?'),
         ('group', r'/buckets/(.+)/groups/(.+)?'),
-        ('bucket', r'/buckets/(.+)?')
+        ('bucket', r'/buckets/(.+)?'),
+        ('', r'/(buckets)')  # Root buckets list.
     ]
     for resource_name, pattern in url_patterns:
         m = re.match(pattern, object_uri)
         if m:
             plural = '/' in m.groups()[-1]
             return resource_name, plural
-    return None, None
+    raise ValueError("%r is not a resource." % object_uri)
 
 
 def _relative_object_uri(resource_name, object_uri):
@@ -108,14 +114,12 @@ def _relative_object_uri(resource_name, object_uri):
     """
     obj_parts = object_uri.split('/')
     PARTS_LENGTH = {
+        '': 1,
         'bucket': 3,
         'collection': 5,
         'group': 5,
         'record': 7
     }
-    if resource_name not in PARTS_LENGTH:
-        raise ValueError('Unknown resource %r' % resource_name)
-
     length = PARTS_LENGTH[resource_name]
     parent_uri = '/'.join(obj_parts[:length])
 
@@ -137,12 +141,10 @@ def _inherited_permissions(object_uri, permission):
      ('/buckets/blog', 'read')]
 
     """
-    resource_name, plural = _resource_endpoint(object_uri)
-
-    # Unknown object type, does not map the INHERITANCE_TREE.
-    # In that case, the set of related permissions is empty.
-    if resource_name is None:
-        return []
+    try:
+        resource_name, plural = _resource_endpoint(object_uri)
+    except ValueError:
+        return []  # URL that are not resources have no inherited perms.
 
     object_perms_tree = PERMISSIONS_INHERITANCE_TREE[resource_name]
 
@@ -169,16 +171,3 @@ class AuthorizationPolicy(core_authorization.AuthorizationPolicy):
 
 class RouteFactory(core_authorization.RouteFactory):
     pass
-
-
-class BucketRouteFactory(RouteFactory):
-    def fetch_shared_records(self, perm, principals, get_bound_permissions):
-        """Buckets list is authorized even if no object is accessible for
-        the current principals.
-        """
-        shared = super(BucketRouteFactory, self).fetch_shared_records(perm,
-                                                                      principals,
-                                                                      get_bound_permissions)
-        if shared is None and Authenticated in principals:
-            self.shared_ids = []
-        return self.shared_ids

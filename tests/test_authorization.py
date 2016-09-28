@@ -16,7 +16,7 @@ class PermissionInheritanceTest(unittest.TestCase):
         self.assertEqual(_resource_endpoint(self.collection_uri), ('collection', False))
         self.assertEqual(_resource_endpoint(self.bucket_uri), ('bucket', False))
         self.assertEqual(_resource_endpoint(self.group_uri), ('group', False))
-        self.assertEqual(_resource_endpoint(self.invalid_uri), (None, None))
+        self.assertRaises(ValueError, _resource_endpoint, self.invalid_uri)
 
     def test_resource_endpoint_return_right_type_for_children_collection(self):
         self.assertEqual(_resource_endpoint(self.collection_uri + '/records'),
@@ -64,7 +64,7 @@ class PermissionInheritanceTest(unittest.TestCase):
                           'collection', '')
 
     def test_relative_object_uri_fail_on_wrong_type(self):
-        self.assertRaises(ValueError,
+        self.assertRaises(KeyError,
                           _relative_object_uri,
                           'schema', self.record_uri)
 
@@ -155,6 +155,6 @@ class PermissionInheritanceTest(unittest.TestCase):
                  (self.record_uri, 'write'),
                  (self.record_uri, 'read')]))
 
-    def test_inherited_permissions_returns_empty_list_if_root_url(self):
+    def test_inherited_permissions_for_list_of_buckets(self):
         permissions = _inherited_permissions('/buckets', 'read')
         self.assertEquals(permissions, [])

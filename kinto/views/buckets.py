@@ -2,13 +2,11 @@ from kinto.core import resource
 from kinto.core.utils import instance_uri
 from kinto.core.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
-from kinto.authorization import BucketRouteFactory
 
 
 @resource.register(name='bucket',
                    collection_path='/buckets',
-                   record_path='/buckets/{{id}}',
-                   factory=BucketRouteFactory)
+                   record_path='/buckets/{{id}}')
 class Bucket(resource.ShareableResource):
     permissions = ('read', 'write', 'collection:create', 'group:create')
 

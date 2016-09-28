@@ -90,15 +90,19 @@ class AuthorizationPolicy(object):
         is_list_operation = (context.on_collection and
                              not permission.endswith('create'))
         if not allowed and is_list_operation:
-            # If allowed to create this kind of object on parent, then allow to obtain the list.
-            if len(bound_perms) > 0:
-                create_on_parent = [(bound_perms[0][0], create_permission)]
-                allowed_to_create = context.check_permission(principals, create_on_parent)
-            else:
-                allowed_to_create = False  # XXX: buckets list (ie. root URL)
             shared = context.fetch_shared_records(permission,
                                                   principals,
                                                   self.get_bound_permissions)
+            # If allowed to create this kind of object on parent, then allow to obtain the list.
+            if len(bound_perms) > 0:
+                parent_uri = bound_perms[0][0]  # Bounds perms are ordered.
+                allowed_to_create = context.check_permission(principals,
+                                                             [(parent_uri, create_permission)])
+            else:
+                principals_from_settings = context.principals_from_settings(context.resource_name, 'create')
+                allowed_to_create = bool(set(principals_from_settings) & set(principals))
+                if context.shared_ids is None:
+                    context.shared_ids = []
             allowed = shared is not None or allowed_to_create
 
         return allowed
@@ -148,11 +152,14 @@ class RouteFactory(object):
             # To obtain shared records on a collection endpoint, use a match:
             self._object_id_match = self.get_permission_object_id(request, '*')
 
-            # Check if principals are allowed explicitly from settings.
-            settings = request.registry.settings
-            setting = '%s_%s_principals' % (self.resource_name,
-                                            self.required_permission)
-            self.allowed_principals = aslist(settings.get(setting, ''))
+        # Check if principals are allowed explicitly from settings.
+        self._settings = request.registry.settings
+        self.allowed_principals = self.principals_from_settings(self.resource_name,
+                                                                self.required_permission)
+
+    def principals_from_settings(self, resource_name, permission):
+        setting = '%s_%s_principals' % (resource_name, permission)
+        return aslist(self._settings.get(setting, ''))
 
     def fetch_shared_records(self, perm, principals, get_bound_permissions):
         """Fetch records that are readable or writable for the current
