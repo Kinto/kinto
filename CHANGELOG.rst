@@ -25,6 +25,7 @@ This document describes changes between each past release.
 
 - Moved storage/cache/permissions base tests to ``kinto.core.*.testing`` (fixes #801)
 - Now fails with an explicit error when StatsD is configured but not installed.
+- Remove redundant fields from data column in PostgreSQL records table (fixes #762)
 
 
 4.2.0 (2016-09-15)

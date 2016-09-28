@@ -230,6 +230,11 @@ class Storage(StorageBase):
         else:
             record[id_field] = id_generator()
 
+        # Remove redundancy in data field
+        query_record = record.copy()
+        query_record.pop(id_field, None)
+        query_record.pop(modified_field, None)
+
         query = """
         WITH delete_potential_tombstone AS (
             DELETE FROM deleted
@@ -247,7 +252,7 @@ class Storage(StorageBase):
                             parent_id=parent_id,
                             collection_id=collection_id,
                             last_modified=record.get(modified_field),
-                            data=json.dumps(record))
+                            data=json.dumps(query_record))
         with self.client.connect() as conn:
             result = conn.execute(query, placeholders)
             inserted = result.fetchone()
@@ -285,6 +290,12 @@ class Storage(StorageBase):
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
+
+        # Remove redundancy in data field
+        query_record = record.copy()
+        query_record.pop(id_field, None)
+        query_record.pop(modified_field, None)
+
         query_create = """
         WITH delete_potential_tombstone AS (
             DELETE FROM deleted
@@ -311,7 +322,7 @@ class Storage(StorageBase):
                             parent_id=parent_id,
                             collection_id=collection_id,
                             last_modified=record.get(modified_field),
-                            data=json.dumps(record))
+                            data=json.dumps(query_record))
 
         record = record.copy()
         record[id_field] = object_id
