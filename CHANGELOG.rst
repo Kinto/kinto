@@ -13,6 +13,11 @@ This document describes changes between each past release.
   the ``If-None-Match: *`` header is provided and the ``create`` permission is granted.
 - The ``permissions`` attribute is now empty in the response if the user has not the permission
   to write on the object (fixes #123)
+- Filtering records now works the same on the memory and postgresql backends:
+  if we're comparing to a number, the filter will now filter out records that
+  don't have this field. If we're comparing to anything else, the record
+  without such a field is treated as if it had '' as the value for this field.
+  (fixes #815)
 
 **New features**
 
