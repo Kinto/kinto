@@ -300,12 +300,13 @@ class Permission(PermissionBase):
             rows = result.fetchall()
 
         groupby_id = OrderedDict()
+        for object_id in objects_ids:
+            groupby_id[object_id] = {}
         for row in rows:
             object_id, permission, principal = (row['object_id'],
                                                 row['permission'],
                                                 row['principal'])
-            permissions = groupby_id.setdefault(object_id, {})
-            permissions.setdefault(permission, set()).add(principal)
+            groupby_id[object_id].setdefault(permission, set()).add(principal)
         return list(groupby_id.values())
 
     def replace_object_permissions(self, object_id, permissions):
