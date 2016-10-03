@@ -19,6 +19,10 @@ This document describes changes between each past release.
   without such a field is treated as if it had '' as the value for this field.
   (fixes #815)
 
+**Bug fixes**
+
+- Fix crash in history plugin when target had no explicit permission defined (fixes #805, #842)
+
 **New features**
 
 - The storage backend now allows ``parent_id`` pattern matching in ``kinto.core.storage.get_all``. (#821)
