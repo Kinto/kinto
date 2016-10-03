@@ -19,17 +19,30 @@ Install and setup PostgreSQL
 
 (*requires PostgreSQL 9.4 or higher*).
 
-*Kinto* dependencies do not include *PostgreSQL* tooling and drivers by default.
+*Kinto* dependencies do not include *PostgreSQL* tooling and drivers by default, which should be installed and configured before proceeding to the next steps. More information is available at the `PostgreSQL Documentation <http://www.postgresql.org/docs>`_.
 
 
 PostgreSQL client
 -----------------
 
+Before installing the Python libraries for Postgres we need to first install the header files for the PostgreSQL database backend.
+
 On Debian / Ubuntu based systems::
 
     $ sudo apt-get install libpq-dev
 
+On RedHat / Fedora / Mint based systems::
+
+    $ yum install postgresql-devel
+
 On Mac OS X, `install a server or use port <http://superuser.com/questions/296873/install-libpq-dev-on-mac-os>`_.
+
+Install PostgreSQL Python Dependencies
+--------------------------------------
+
+Kinto PostgreSQL backends rely on specific Python packages (like `SQLAlchemy <http://www.sqlalchemy.org/>`_ and `pscopg2 <http://initd.org/psycopg/>`_), which can be installed with a single *pip* command ::
+
+    $ pip install -U kinto[postgresql]
 
 
 Run a PostgreSQL server
@@ -40,8 +53,27 @@ The instructions to run a local PostgreSQL database are out of scope here.
 A detailed guide is :github:`available on the Kinto Wiki <Kinto/kinto/wiki/How-to-run-a-PostgreSQL-server%3F>`.
 
 
+Database setup
+--------------
+
+*Kinto* default database name is set to ``postgres`` on ``localhost:5432``. To change it refer to `Creating a configuration file`_.
+
+To create a specific database:
+
+.. code-block:: sql
+
+    CREATE DATABASE dbname WITH ENCODING UTF8;
+
+By default *Kinto* uses *UTC timezone*, so make sure that the assigned database for kinto is set to UTC with:
+
+.. code-block:: sql
+
+    ALTER DATABASE dbname SET TIMEZONE TO UTC;
+
 Privileges basics
 -----------------
+
+*Kinto* default user is set to ``postgres`` with password ``postgres``. To change that refer to `Creating a configuration file`_.
 
 In order to initialize the database tables and objects, the specified user must
 have some privileges. For example, to create a user from scratch:
@@ -76,26 +108,40 @@ change the default privileges to allow reading the future tables:
     ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO dbuser;
 
 
-Initialization
---------------
+Creating a configuration file
+-----------------------------
 
-Once a PostgreSQL is up and running somewhere, select the PostgreSQL option when
-running the ``init`` command:
+Once a PostgreSQL is up and running somewhere, you should edit your configuration file or create a new one with the ``init`` command and select the PostgreSQL option. The file is created by default as ``config/kinto.ini``, to specify another filename use the ``--ini`` parameter.
 
-.. code-block :: bash
+.. code-block:: bash
 
     $ kinto --ini production.ini init
 
-By default, the generated configuration refers to a ``postgres`` database on
-``localhost:5432``, with user/password ``postgres``/``postgres``. If you want
-to change that, make sure to update the :ref:`backends setting <configuration-backends>`
-(eg: ``postgres://myuser:mypass@localhost:5432/mydb``).
+
+Select your database server address, name and user by editing the configuration file. Also make sure that the PostgreSQL :ref:`backend settings<configuration-backends>` are selected. For our example, the backend configuration would be:
+
+.. code-block:: python
+
+    kinto.storage_backend = kinto.core.storage.postgresql
+    kinto.storage_url = postgres://dbuser:dbpassword@localhost/dbname
+    kinto.cache_backend = kinto.core.cache.postgresql
+    kinto.cache_url = postgres://dbuser:dbpassword@localhost/dbname
+    kinto.permission_backend = kinto.core.permission.postgresql
+    kinto.permission_url = postgres://dbuser:dbpassword@localhost/dbname
+
+
+Creating tables and indices
+---------------------------
 
 The last step consists in creating the necessary tables and indices, run the ``migrate`` command:
 
-.. code-block :: bash
+.. code-block:: bash
 
     $ kinto --ini production.ini migrate
+
+.. important::
+    You should run ``migrate`` every time you change the configuration file or kinto is upgraded.
+
 
 .. note::
 

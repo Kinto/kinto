@@ -304,6 +304,17 @@ class HistoryViewTest(HistoryWebTest):
         assert entry['action'] == 'delete'
         assert entry['target']['data']['id'] in (self.record['id'], rid)
 
+    def test_does_not_track_records_during_massive_deletion(self):
+        body = {'data': {'pim': 'pam'}}
+        records_uri = self.collection_uri + '/records'
+        self.app.post_json(records_uri, body, headers=self.headers)
+
+        self.app.delete(self.collection_uri, headers=self.headers)
+
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        deletion_entries = [e for e in resp.json['data'] if e['action'] == 'delete']
+        assert len(deletion_entries) == 1
+
 
 class FilteringTest(HistoryWebTest):
 

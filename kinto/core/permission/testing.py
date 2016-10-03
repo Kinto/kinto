@@ -357,6 +357,14 @@ class PermissionTest(object):
             "read": {"user3"}
         })
 
+    def test_objects_permissions_returns_empty_if_unknown(self):
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/3', 'read', 'user3')
+        objects_permissions = self.permission.get_objects_permissions([
+            '/url/a/id/1', '/abc', '/url/a/id/3'])
+        self.assertEqual(objects_permissions, [
+            {"write": {"user1"}}, {}, {"read": {"user3"}}])
+
     def test_object_permissions_return_empty_dict(self):
         self.assertDictEqual(self.permission.get_object_permissions('abc'), {})
 

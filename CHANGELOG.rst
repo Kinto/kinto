@@ -13,6 +13,11 @@ This document describes changes between each past release.
   the ``If-None-Match: *`` header is provided and the ``create`` permission is granted.
 - The ``permissions`` attribute is now empty in the response if the user has not the permission
   to write on the object (fixes #123)
+- Filtering records now works the same on the memory and postgresql backends:
+  if we're comparing to a number, the filter will now filter out records that
+  don't have this field. If we're comparing to anything else, the record
+  without such a field is treated as if it had '' as the value for this field.
+  (fixes #815)
 - Parent **attributes are now readable** if children creation is allowed. That means for example
   that collection attributes are now readable to users with ``record:create`` permission.
   Same applies to bucket attributes and ``collection:create`` and ``group:create`` (fixes #803)
@@ -20,6 +25,10 @@ This document describes changes between each past release.
   permission is allowed
 
 Protocol is now at version **1.11**. See `API changelog`_.
+
+**Bug fixes**
+
+- Fix crash in history plugin when target had no explicit permission defined (fixes #805, #842)
 
 **New features**
 
@@ -30,8 +39,11 @@ Protocol is now at version **1.11**. See `API changelog`_.
 
 **Internal changes**
 
+- Fixed a failing pypy test by changing the way it was mocking
+  `transaction.manager.commit` (fixes #755)
 - Moved storage/cache/permissions base tests to ``kinto.core.*.testing`` (fixes #801)
 - Now fails with an explicit error when StatsD is configured but not installed.
+- Remove redundant fields from data column in PostgreSQL records table (fixes #762)
 
 
 4.2.0 (2016-09-15)
