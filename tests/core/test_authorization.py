@@ -167,7 +167,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.authz = AuthorizationPolicy()
         self.context = mock.MagicMock()
         self.context.get_prefixed_userid.return_value = None
-        self.context.permission_object_id = mock.sentinel.object_id
+        self.context.permission_object_id = '/articles/43/comments/2'
         self.context.required_permission = 'read'
         self.principals = []
         self.permission = 'dynamic'

@@ -84,18 +84,18 @@ class AuthorizationPolicy(object):
         # If not allowed on this collection, but some records are shared with
         # the current user, then authorize.
         # The ShareableResource class will take care of the filtering.
-        is_list_operation = (context.on_collection and
-                             not permission.endswith('create'))
+        is_list_operation = (context.on_collection and not permission.endswith('create'))
         if not allowed and is_list_operation:
             shared = context.fetch_shared_records(permission,
                                                   principals,
                                                   self.get_bound_permissions)
             # If allowed to create this kind of object on parent, then allow to obtain the list.
             if len(bound_perms) > 0:
-                parent_uri = bound_perms[0][0]  # Bounds perms are ordered.
+                # Here we consider that parent URI is one path level above.
+                parent_uri = '/'.join(object_id.split('/')[:-1])
                 parent_create_perm = [(parent_uri, create_permission)]
             else:
-                parent_create_perm = [('', 'create')]
+                parent_create_perm = [('', 'create')]  # Root object.
             allowed_to_create = context.check_permission(principals, parent_create_perm)
 
             allowed = shared or allowed_to_create
