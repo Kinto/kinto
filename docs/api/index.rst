@@ -14,6 +14,11 @@ Changelog
 1.11 (unreleased)
 '''''''''''''''''
 
+- Parent attributes are now readable if children creation is allowed
+- Return an empty list on the plural endpoint instead of |status-403| if the ``create``
+  permission is allowed
+- Now returns a |status-412| instead of a |status-403| if the ``If-None-Match: *`` header is
+  provided and the ``create`` permission is allowed
 - The ``permissions`` attribute is now empty in the response if the user does not
   have the permission to write.
 

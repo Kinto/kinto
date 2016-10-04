@@ -18,6 +18,13 @@ This document describes changes between each past release.
   don't have this field. If we're comparing to anything else, the record
   without such a field is treated as if it had '' as the value for this field.
   (fixes #815)
+- Parent **attributes are now readable** if children creation is allowed. That means for example
+  that collection attributes are now readable to users with ``record:create`` permission.
+  Same applies to bucket attributes and ``collection:create`` and ``group:create`` (fixes #803)
+- Return an empty list on the plural endpoint instead of ``403`` if the ``create``
+  permission is allowed
+
+Protocol is now at version **1.11**. See `API changelog`_.
 
 **Bug fixes**
 
