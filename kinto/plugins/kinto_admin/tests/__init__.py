@@ -2,11 +2,6 @@ import os
 
 import webtest
 from kinto.core import utils as core_utils
-try:
-    from kinto.core import testing as core_support
-except ImportError:
-    # Kinto < 4.0
-    from kinto.tests.core import support as core_support
 
 
 def get_user_headers(user):
@@ -18,7 +13,7 @@ def get_user_headers(user):
 
 
 class BaseWebTest(object):
-    config = '../../config/kinto.ini'
+    config = '../../../../config/kinto.ini'
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
