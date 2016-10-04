@@ -242,7 +242,7 @@ Step 1
 - Merge remaining pull requests
 - Update ``CHANGELOG.rst``
 - If API was updated, update API changelog in :file:`docs/api/index.rst`
-- Make sure ``HTTP_API_VERSION`` is up-to-date in kinto/__init__.py``
+- Make sure ``HTTP_API_VERSION`` is up-to-date in :file:`kinto/__init__.py`
 - Update the link in :file:`docs/configuration/production.rst`
 - Update :file:`CONTRIBUTORS.rst`. The following hairy command will output the full list:
 
