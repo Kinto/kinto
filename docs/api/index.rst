@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.11 (unreleased)
+1.11 (2016-10-04)
 '''''''''''''''''
 
 - Parent attributes are now readable if children creation is allowed
