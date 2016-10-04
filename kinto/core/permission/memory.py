@@ -58,7 +58,8 @@ class Permission(PermissionBase):
     def get_user_principals(self, user_id):
         user_key = 'user:%s' % user_id
         members = self._store.get(user_key, set())
-        return members
+        group_authenticated = self._store.get('user:system.Authenticated', set())
+        return members | group_authenticated
 
     @synchronized
     def add_principal_to_ace(self, object_id, permission, principal):

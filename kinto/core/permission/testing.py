@@ -140,6 +140,13 @@ class PermissionTest(object):
         retrieved = self.permission.get_user_principals(user_id2)
         self.assertEquals(retrieved, {principal2})
 
+    def test_authenticated_is_returned_for_everybody(self):
+        user_id = 'foo'
+        principal = 'bar'
+        self.permission.add_user_principal('system.Authenticated', principal)
+        retrieved = self.permission.get_user_principals(user_id)
+        self.assertEquals(retrieved, {principal})
+
     #
     # get_object_permission_principals()
     #
