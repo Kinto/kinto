@@ -5,7 +5,7 @@ from kinto.core.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
 
 
-def validate_members(node, member):
+def validate_member(node, member):
     if member.startswith('/buckets/') or member == 'system.Everyone':
         raise colander.Invalid(node, "%r is not a valid user ID." % member)
 
@@ -13,7 +13,7 @@ def validate_members(node, member):
 class GroupSchema(resource.ResourceSchema):
     members = colander.SchemaNode(colander.Sequence(),
                                   colander.SchemaNode(colander.String(),
-                                                      validator=validate_members))
+                                                      validator=validate_member))
 
 
 @resource.register(name='group',
