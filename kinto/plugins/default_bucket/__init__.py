@@ -39,7 +39,7 @@ def create_bucket(request, bucket_id):
 def create_collection(request, bucket_id):
     # Do nothing if current request does not involve a collection.
     subpath = request.matchdict.get('subpath')
-    if not (subpath and subpath.startswith('collections/')):
+    if not (subpath and subpath.rstrip('/').startswith('collections/')):
         return
 
     collection_id = subpath.split('/')[1]

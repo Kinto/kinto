@@ -221,6 +221,11 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                                  status=400)
             self.assertEqual(resp.body, response.body)
 
+    def test_trailing_slash_redirection_works(self):
+        collection_url = '/buckets/default/collections/'
+        resp = self.app.get(collection_url, headers=self.headers, status=307)
+        assert resp.headers['Location'].endswith('/buckets/default/collections')
+
 
 class HelloViewTest(DefaultBucketWebTest):
 
