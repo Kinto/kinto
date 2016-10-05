@@ -56,8 +56,10 @@ class Permission(PermissionBase):
 
     @synchronized
     def get_user_principals(self, user_id):
+        # Fetch the groups the user is in.
         user_key = 'user:%s' % user_id
         members = self._store.get(user_key, set())
+        # Fetch the groups system.Authenticated is in.
         group_authenticated = self._store.get('user:system.Authenticated', set())
         return members | group_authenticated
 
