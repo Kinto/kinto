@@ -13,7 +13,7 @@ def get_user_headers(user):
 
 
 class BaseWebTest(object):
-    config = '../config/kinto.ini'
+    config = '../kinto.ini'
 
     def __init__(self, *args, **kwargs):
         super(BaseWebTest, self).__init__(*args, **kwargs)
