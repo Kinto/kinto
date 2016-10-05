@@ -2,6 +2,7 @@ import os
 
 import webtest
 from kinto.core import utils as core_utils
+from kinto.core import testing as core_support
 
 
 def get_user_headers(user):
