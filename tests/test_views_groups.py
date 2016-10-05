@@ -115,7 +115,7 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                                      status=400)
         self.assertFormattedError(
             response, 400, ERRORS.INVALID_PARAMETERS,
-            "Bad Request",
+            "Invalid parameters",
             "'system.Everyone' is not a valid user ID.")
 
     def test_group_doesnt_accept_groups_inside_groups(self):
@@ -127,7 +127,7 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                                      status=400)
         self.assertFormattedError(
             response, 400, ERRORS.INVALID_PARAMETERS,
-            "Bad Request",
+            "Invalid parameters",
             "'/buckets/beers/groups/administrators' is not a valid user ID.")
 
 

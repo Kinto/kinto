@@ -1,15 +1,19 @@
 import colander
 
 from kinto.core import resource, utils
-from kinto.core.errors import http_error, ERRORS
 from kinto.core.events import ResourceChanged, ACTIONS
 from pyramid.events import subscriber
-from pyramid.httpexceptions import HTTPBadRequest
+
+
+def validate_members(node, member):
+    if member.startswith('/buckets/') or member == 'system.Everyone':
+        raise colander.Invalid(node, "%r is not a valid user ID." % member)
 
 
 class GroupSchema(resource.ResourceSchema):
     members = colander.SchemaNode(colander.Sequence(),
-                                  colander.SchemaNode(colander.String()))
+                                  colander.SchemaNode(colander.String(),
+                                                      validator=validate_members))
 
 
 @resource.register(name='group',
@@ -22,15 +26,6 @@ class Group(resource.ShareableResource):
         bucket_id = request.matchdict['bucket_id']
         parent_id = utils.instance_uri(request, 'bucket', id=bucket_id)
         return parent_id
-
-    def process_record(self, *args, **kwargs):
-        record = super(Group, self).process_record(*args, **kwargs)
-        for member in record['members']:
-            if member.startswith('/buckets/') or member == 'system.Everyone':
-                raise http_error(HTTPBadRequest(),
-                                 errno=ERRORS.INVALID_PARAMETERS,
-                                 message="'%s' is not a valid user ID." % member)
-        return record
 
 
 @subscriber(ResourceChanged,
