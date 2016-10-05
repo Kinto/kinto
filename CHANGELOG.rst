@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-4.4.0 (unreleased)
+4.3.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Make sure we redirect endpoints with trailing slashes with the default bucket plugin. (#848)
 
 
 4.3.0 (2016-10-04)

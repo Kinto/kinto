@@ -221,6 +221,31 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                                  status=400)
             self.assertEqual(resp.body, response.body)
 
+    def test_trailing_slash_redirection_works_for_default_bucket(self):
+        collection_url = '/buckets/default/'
+        resp = self.app.get(collection_url, headers=self.headers, status=307)
+        assert resp.headers['Location'].endswith('/buckets/default')
+
+    def test_trailing_slash_redirection_works_for_collections(self):
+        collection_url = '/buckets/default/collections/'
+        resp = self.app.get(collection_url, headers=self.headers, status=307)
+        assert resp.headers['Location'].endswith('/buckets/default/collections')
+
+    def test_trailing_slash_redirection_works_for_collection(self):
+        collection_url = '/buckets/default/collections/foo/'
+        resp = self.app.get(collection_url, headers=self.headers, status=307)
+        assert resp.headers['Location'].endswith('/buckets/default/collections/foo')
+
+    def test_trailing_slash_redirection_works_for_records(self):
+        records_url = '/buckets/default/collections/foo/records/'
+        resp = self.app.get(records_url, headers=self.headers, status=307)
+        assert resp.headers['Location'].endswith('/buckets/default/collections/foo/records')
+
+    def test_trailing_slash_redirection_works_for_record(self):
+        records_url = '/buckets/default/collections/foo/records/bar/'
+        resp = self.app.get(records_url, headers=self.headers, status=307)
+        assert resp.headers['Location'].endswith('/buckets/default/collections/foo/records/bar')
+
 
 class HelloViewTest(DefaultBucketWebTest):
 
