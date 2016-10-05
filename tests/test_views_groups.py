@@ -1,10 +1,12 @@
-from kinto.core.testing import unittest
+import unittest
+from kinto.core.errors import ERRORS
+from kinto.core.testing import FormattedErrorMixin
 
 from .support import (BaseWebTest, MINIMALIST_BUCKET,
                       MINIMALIST_GROUP)
 
 
-class GroupViewTest(BaseWebTest, unittest.TestCase):
+class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/groups'
     record_url = '/buckets/beers/groups/moderators'
@@ -103,6 +105,30 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
                           group,
                           headers=self.headers,
                           status=201)
+
+    def test_group_doesnt_accept_system_Everyone(self):
+        group = MINIMALIST_GROUP.copy()
+        group['data'] = {'members': ['system.Everyone']}
+        response = self.app.put_json('/buckets/beers/groups/moderator',
+                                     group,
+                                     headers=self.headers,
+                                     status=400)
+        self.assertFormattedError(
+            response, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters",
+            "'system.Everyone' is not a valid user ID.")
+
+    def test_group_doesnt_accept_groups_inside_groups(self):
+        group = MINIMALIST_GROUP.copy()
+        group['data'] = {'members': ['/buckets/beers/groups/administrators']}
+        response = self.app.put_json('/buckets/beers/groups/moderator',
+                                     group,
+                                     headers=self.headers,
+                                     status=400)
+        self.assertFormattedError(
+            response, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters",
+            "'/buckets/beers/groups/administrators' is not a valid user ID.")
 
 
 class GroupManagementTest(BaseWebTest, unittest.TestCase):
