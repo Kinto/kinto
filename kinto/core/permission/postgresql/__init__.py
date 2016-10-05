@@ -135,7 +135,8 @@ class Permission(PermissionBase):
         query = """
         SELECT principal
           FROM user_principals
-         WHERE user_id = :user_id;"""
+         WHERE user_id = :user_id
+            OR user_id = 'system.Authenticated';"""
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, dict(user_id=user_id))
             results = result.fetchall()

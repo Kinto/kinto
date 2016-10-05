@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Make sure we redirect endpoints with trailing slashes with the default bucket plugin. (#848)
+- Fix group association when members contains ``system.Authenticated`` (fixes #776)
 
 
 4.3.0 (2016-10-04)

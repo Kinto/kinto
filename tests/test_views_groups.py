@@ -173,6 +173,13 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.assertEquals(self.permission.get_user_principals('mat'),
                           {group_url})
 
+    def test_group_with_authenticated_is_added_to_everbody(self):
+        self.create_group('beers', 'reviewers', ['system.Authenticated'])
+        self.assertEquals(self.permission.get_user_principals('natim'),
+                          {'/buckets/beers/groups/reviewers'})
+        self.assertEquals(self.permission.get_user_principals('mat'),
+                          {'/buckets/beers/groups/reviewers'})
+
     def test_group_member_removal_updates_user_principals_with_patch(self):
         self.create_group('beers', 'moderators', ['natim', 'mat'])
         group_url = '/buckets/beers/groups/moderators'
