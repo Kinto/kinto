@@ -934,12 +934,11 @@ class UserResource(object):
                 error_details['description'] = error_msg
                 raise_invalid(self.request, **error_details)
 
-
             value = native_value(paramvalue)
 
             # Avoid reading zeros as False
             if isinstance(value, int) and value == 0:
-                value = unicode("0")
+                value = str("0")
 
             if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = set([native_value(v) for v in paramvalue.split(',')])
