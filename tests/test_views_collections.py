@@ -131,6 +131,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         data = resp.json['data']
         self.assertEqual(data[0]['tag'], tag)
 
+
 class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley'
