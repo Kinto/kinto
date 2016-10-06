@@ -11,7 +11,7 @@ This document describes changes between each past release.
 - Make sure we redirect endpoints with trailing slashes with the default bucket plugin. (#848)
 - Fix group association when members contains ``system.Authenticated`` (fixes #776)
 - Raise an error when members contains ``system.Everyone`` or a group ID (#850)
-
+- Fix StatsD view counter with 404 responses (#853)
 
 4.3.0 (2016-10-04)
 ------------------

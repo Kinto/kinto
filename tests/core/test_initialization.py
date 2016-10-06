@@ -328,6 +328,12 @@ class StatsDConfigurationTest(unittest.TestCase):
         app.get('/v0/__heartbeat__')
         self.mocked().count.assert_any_call('view.heartbeat.GET')
 
+    def test_statsd_counts_unknown_urls(self):
+        kinto.core.initialize(self.config, '0.0.1', 'project_name')
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get('/v0/coucou', status=404)
+        self.assertFalse(self.mocked.count.called)
+
     @mock.patch('kinto.core.utils.hmac_digest')
     def test_statsd_counts_unique_users(self, digest_mocked):
         digest_mocked.return_value = u'mat'
