@@ -95,6 +95,41 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         data = resp.json['data']
         self.assertEqual(len(data), 1)
 
+    def test_collections_can_be_filtered_by_text_id(self):
+        collection = MINIMALIST_COLLECTION.copy()
+        tag = 'ihifhfuhww23rejfwof'
+        collection['data'] = {'tag': tag}
+        self.app.put_json('/buckets/beers/collections/text',
+                          collection,
+                          headers=self.headers)
+        resp = self.app.get('/buckets/beers/collections?id=text',
+                            headers=self.headers)
+        data = resp.json['data']
+        self.assertEqual(data[0]['tag'], tag)
+
+    def test_collections_can_be_filtered_by_numeric_id(self):
+        collection = MINIMALIST_COLLECTION.copy()
+        tag = 'fjo4qjf9hfoidjdniu3'
+        collection['data'] = {'tag': tag}
+        self.app.put_json('/buckets/beers/collections/123',
+                          collection,
+                          headers=self.headers)
+        resp = self.app.get('/buckets/beers/collections?id=123',
+                            headers=self.headers)
+        data = resp.json['data']
+        self.assertEqual(data[0]['tag'], tag)
+
+    def test_collections_can_be_filtered_by_zero_id(self):
+        collection = MINIMALIST_COLLECTION.copy()
+        tag = '1awinawi0r43qpfhpq'
+        collection['data'] = {'tag': tag}
+        self.app.put_json('/buckets/beers/collections/0',
+                          collection,
+                          headers=self.headers)
+        resp = self.app.get('/buckets/beers/collections?id=0',
+                            headers=self.headers)
+        data = resp.json['data']
+        self.assertEqual(data[0]['tag'], tag)
 
 class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
 
