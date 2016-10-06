@@ -936,10 +936,6 @@ class UserResource(object):
 
             value = native_value(paramvalue)
 
-            # Avoid reading zeros as False
-            if isinstance(value, int) and value == 0:
-                value = "0"
-
             if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = set([native_value(v) for v in paramvalue.split(',')])
 
@@ -953,6 +949,10 @@ class UserResource(object):
                 )
                 if has_invalid_value:
                     raise_invalid(self.request, **error_details)
+
+            if field in ('id', 'collection_id'):
+                if isinstance(value, int):
+                    value = str(value)
 
             filters.append(Filter(field, value, operator))
 
