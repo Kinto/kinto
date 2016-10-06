@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-4.3.1 (2016-10-05)
+4.3.1 (2016-10-06)
 ------------------
 
 **Bug fixes**
