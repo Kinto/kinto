@@ -938,7 +938,7 @@ class UserResource(object):
 
             # Avoid reading zeros as False
             if isinstance(value, int) and value == 0:
-                value = str("0")
+                value = "0"
 
             if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = set([native_value(v) for v in paramvalue.split(',')])
