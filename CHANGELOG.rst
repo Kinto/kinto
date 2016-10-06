@@ -3,7 +3,13 @@ Changelog
 
 This document describes changes between each past release.
 
-4.3.1 (unreleased)
+4.4.0 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
+4.3.1 (2016-10-06)
 ------------------
 
 **Bug fixes**
@@ -11,7 +17,9 @@ This document describes changes between each past release.
 - Make sure we redirect endpoints with trailing slashes with the default bucket plugin. (#848)
 - Fix group association when members contains ``system.Authenticated`` (fixes #776)
 - Raise an error when members contains ``system.Everyone`` or a group ID (#850)
+- Fix StatsD view counter with 404 responses (#853)
 - Fixes filtering when the parameter is zero. (fixes #851)
+
 
 4.3.0 (2016-10-04)
 ------------------

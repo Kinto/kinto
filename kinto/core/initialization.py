@@ -272,9 +272,7 @@ def setup_statsd(config):
                 client.count('authn_type.%s' % request.authn_type)
 
             # Count view calls.
-            pattern = request.matched_route.pattern
-            services = request.registry.cornice_services
-            service = services.get(pattern)
+            service = request.current_service
             if service:
                 client.count('view.%s.%s' % (service.name, request.method))
 
