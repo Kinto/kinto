@@ -641,6 +641,8 @@ class Storage(StorageBase):
 
             if filtr.field == id_field:
                 sql_field = 'id'
+                if isinstance(value, int):
+                    value = str(value)
             elif filtr.field == modified_field:
                 sql_field = 'as_epoch(last_modified)'
             else:

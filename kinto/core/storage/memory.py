@@ -319,6 +319,10 @@ def apply_filters(records, filters):
         matches = True
         for f in filters:
             right = f.value
+            if f.field == DEFAULT_ID_FIELD:
+                if isinstance(right, int):
+                    right = str(int)
+
             left = record
             subfields = f.field.split('.')
             for subfield in subfields:

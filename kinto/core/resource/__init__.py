@@ -950,10 +950,6 @@ class UserResource(object):
                 if has_invalid_value:
                     raise_invalid(self.request, **error_details)
 
-            if field in ('id', 'collection_id'):
-                if isinstance(value, int):
-                    value = str(value)
-
             filters.append(Filter(field, value, operator))
 
         return filters
