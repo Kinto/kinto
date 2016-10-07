@@ -50,5 +50,6 @@ Contributors
 * SwhGo_oN
 * Tarek Ziade <tarek@mozilla.com>
 * Taylor Zane Glaeser <tzglaeser@gmail.com>
+* Varna Suresh <varna96@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>

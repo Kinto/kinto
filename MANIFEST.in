@@ -3,5 +3,6 @@ include kinto/config/kinto.tpl
 include dev-requirements.txt
 recursive-include kinto *.sql *.html *.ini
 recursive-include docs *.rst *.png *.svg *.css *.html conf.py piwik.js
+recursive-include kinto/plugins/admin/static *
 prune docs/_build/*
 prune loadtests

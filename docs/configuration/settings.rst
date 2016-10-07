@@ -462,6 +462,7 @@ list of Python modules:
 
     kinto.includes = kinto.plugins.default_bucket
                      kinto.plugins.history
+                     kinto.plugins.admin
                      kinto-attachment
                      custom-myplugin
 
@@ -472,6 +473,9 @@ list of Python modules:
 |                                       | implicitly (:ref:`more details <buckets-default-id>`).                   |
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.history``             | It tracks every action performed on objects within a bucket              |
+|                                       | (:ref:`more details <api-history>`).                                     |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.admin``               | It is a Web admin UI to manage data from a Kinto server.                 |
 |                                       | (:ref:`more details <api-history>`).                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
 
