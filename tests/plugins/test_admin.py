@@ -25,4 +25,4 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
     def test_admin_index_cat_be_reached(self):
         self.maxDiff = None
         resp = self.app.get('/admin/')
-        assert "html" in resp.body
+        assert "html" in resp.body.decode('utf-8')
