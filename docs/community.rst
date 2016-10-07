@@ -244,6 +244,12 @@ Step 1
 - If API was updated, update API changelog in :file:`docs/api/index.rst`
 - Make sure ``HTTP_API_VERSION`` is up-to-date in :file:`kinto/__init__.py`
 - Update the link in :file:`docs/configuration/production.rst`
+- Update the kinto-admin if needed:
+
+.. code-block:: bash
+
+     $ make build-requirements
+
 - Update :file:`CONTRIBUTORS.rst`. The following hairy command will output the full list:
 
 .. code-block:: bash
