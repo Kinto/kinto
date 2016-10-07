@@ -6,7 +6,9 @@ This document describes changes between each past release.
 4.4.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**New features**
+
+- Added a new built-in plugin ``kinto.plugins.admin`` to serve the kinto admin.
 
 
 4.3.1 (2016-10-06)
