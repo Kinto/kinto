@@ -1,7 +1,8 @@
 import colander
 
 from kinto.core import resource
-from kinto.core.utils import instance_uri
+from kinto.core.utils import COMPARISON, instance_uri
+from kinto.core.storage import Filter
 
 
 class HistorySchema(resource.ResourceSchema):
@@ -31,3 +32,15 @@ class History(resource.ShareableResource):
     def get_parent_id(self, request):
         self.bucket_id = request.matchdict['bucket_id']
         return instance_uri(request, 'bucket', id=self.bucket_id)
+
+    def _extract_filters(self, queryparams=None):
+        filters = super(History, self)._extract_filters(queryparams)
+
+        for filt in filters:
+            if filt.field in ['record_id', 'collection_id', 'bucket_id']:
+                if isinstance(filt.value, int):
+                    filt_id = Filter(filt.field, str(filt.value), COMPARISON.EQ)
+                    filters.remove(filt)
+                    filters.insert(0, filt_id)
+
+        return filters
