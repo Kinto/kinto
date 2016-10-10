@@ -474,6 +474,9 @@ class UserResource(object):
 
         updated = self.apply_changes(existing, changes=changes)
 
+        # remove field if null attribute is passed (RFC 7396)
+        updated = {key: value for key, value in updated.items() if value}
+
         record_id = updated.setdefault(self.model.id_field,
                                        self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
