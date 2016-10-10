@@ -35,12 +35,11 @@ class History(resource.ShareableResource):
 
     def _extract_filters(self, queryparams=None):
         filters = super(History, self)._extract_filters(queryparams)
-
+        filters_str_id = []
         for filt in filters:
-            if filt.field in ['record_id', 'collection_id', 'bucket_id']:
+            if filt.field in ('record_id', 'collection_id', 'bucket_id'):
                 if isinstance(filt.value, int):
-                    filt_id = Filter(filt.field, str(filt.value), filt.operator)
-                    filters.remove(filt)
-                    filters.insert(0, filt_id)
+                    filt = Filter(filt.field, str(filt.value), filt.operator)
+            filters_str_id.append(filt)
 
-        return filters
+        return filters_str_id
