@@ -227,6 +227,15 @@ class PatchTest(BaseTest):
         self.assertEquals(self.stored['id'], self.result['id'])
         self.assertEquals(self.result['position'], 10)
 
+    def test_patch_removes_attribute_if_none(self):
+        self.resource.request.json = {'data': {'field': 'aaa'}}
+        self.resource.patch()['data']
+        self.resource.request.json = {'data': {'field': None}}
+        result = self.resource.patch()['data']
+        self.assertEquals('field' in result.keys(), False)
+        result = self.resource.get()['data']
+        self.assertEquals('field' in result.keys(), False)
+
     def test_record_timestamp_is_not_updated_if_none_for_missing_field(self):
         self.resource.request.json = {'data': {'polo': None}}
         result = self.resource.patch()['data']
