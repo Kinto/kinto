@@ -7,6 +7,8 @@ This document describes changes between each past release.
 ------------------
 
 - Remove Cornice 2 from supported version range
+- Fixes filtering on ids with numeric values. (fixes #851)
+
 
 4.3.1 (2016-10-06)
 ------------------
@@ -17,6 +19,7 @@ This document describes changes between each past release.
 - Fix group association when members contains ``system.Authenticated`` (fixes #776)
 - Raise an error when members contains ``system.Everyone`` or a group ID (#850)
 - Fix StatsD view counter with 404 responses (#853)
+
 
 4.3.0 (2016-10-04)
 ------------------
