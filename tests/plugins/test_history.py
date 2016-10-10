@@ -320,10 +320,17 @@ class FilteringTest(HistoryWebTest):
 
     def setUp(self):
         self.app.put('/buckets/bid', headers=self.headers)
+        self.app.put('/buckets/0', headers=self.headers)
         self.app.put('/buckets/bid/collections/cid',
+                     headers=self.headers)
+        self.app.put('/buckets/0/collections/1',
                      headers=self.headers)
         body = {'data': {'foo': 42}}
         self.app.put_json('/buckets/bid/collections/cid/records/rid',
+                          body,
+                          headers=self.headers)
+        body = {'data': {'foo': 0}}
+        self.app.put_json('/buckets/0/collections/1/records/2',
                           body,
                           headers=self.headers)
         body = {'data': {'foo': 'bar'}}
@@ -380,6 +387,24 @@ class FilteringTest(HistoryWebTest):
         resp = self.app.get(uri,
                             headers=self.headers)
         assert len(resp.json['data']) == 4
+
+    def test_filter_by_numeric_bucket(self):
+        uri = '/buckets/0/history?bucket_id=0'
+        resp = self.app.get(uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 1
+
+    def test_filter_by_numeric_collection(self):
+        uri = '/buckets/0/history?collection_id=1'
+        resp = self.app.get(uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 2
+
+    def test_filter_by_numeric_record(self):
+        uri = '/buckets/0/history?record_id=2'
+        resp = self.app.get(uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 1
 
     def test_filter_by_target_fields(self):
         uri = '/buckets/bid/history?target.data.id=rid'
