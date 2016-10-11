@@ -15,7 +15,7 @@ from pyramid import testing
 from kinto.core.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
     current_service, encode_header, decode_header, follow_subrequest,
-    build_request, dict_subset
+    build_request, dict_subset, parse_resource
 )
 from kinto.core.testing import DummyRequest
 
