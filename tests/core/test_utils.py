@@ -259,8 +259,13 @@ class ParseResourceTest(unittest.TestCase):
             'collection': 'cid'
         }
         for input in bad_inputs:
-            with pytest.raises(ValueError):
+            error_msg = ("Resources should be defined as "
+                         "'/buckets/<bid>/collections/<cid>' or "
+                         "'<bid>/<cid>'. Got %r" % input)
+
+            with pytest.raises(ValueError) as excinfo:
                 parse_resource(input)
+            assert excinfo.value.message == error_msg
 
         for input in good_inputs:
             parts = parse_resource(input)
