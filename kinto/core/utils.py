@@ -423,3 +423,18 @@ def instance_uri(request, resource_name, **params):
     """Return the URI for the given resource."""
     return strip_uri_prefix(request.route_path('%s-record' % resource_name,
                                                **params))
+
+
+def parse_resource(resource):
+    """extract the bucket and collection of a given resource"""
+    parts = resource.split('/')
+    if len(parts) == 2:
+        bucket, collection = parts
+    elif len(parts) == 5:
+        _, _, bucket, _, collection = parts
+    else:
+        raise ValueError(error_msg)
+    return {
+        'bucket': bucket,
+        'collection': collection
+    }
