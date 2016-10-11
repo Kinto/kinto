@@ -258,12 +258,7 @@ class PatchTest(BaseTest):
         result = self.resource.patch()['data']
         self.assertIn('a', result)
         self.assertNotIn('b', result['a'])
-        self.resource.request.json = {'data': {'aa': {'bb':{'cc':None}}}}
-        result = self.resource.patch()['data']
-        self.assertIn('aa', result)
-        self.assertIn('bb', result['aa'])
-        self.assertNotIn('cc', result['aa']['bb'])
-        self.resource.request.json = {'data': {'aa': {'bb':{'cc':None}}}}
+        self.resource.request.json = {'data': {'aa': {'bb': {'cc': None}}}}
         result = self.resource.patch()['data']
         self.assertIn('aa', result)
         self.assertIn('bb', result['aa'])
