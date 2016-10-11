@@ -246,3 +246,16 @@ class DictSubsetTest(unittest.TestCase):
         obtained = dict_subset(input, ["a", "b.c.d", "b.d"])
         expected = dict(a=1, b=dict(c=2, d=3))
         self.assertEqual(obtained, expected)
+
+
+class ParseResourceTest(unittest.TestCase):
+
+    def test_parse_resource(self):
+        expected = {
+		'bucket': 'bid',
+        	'collection': 'cid'
+        }
+        parts = parse_resource('/bid/cid')
+	self.assertEqual(expected,parts)
+        parts = parse_resource('/buckets/bid/collections/cid')
+        self.assertEqual(expected,parts)
