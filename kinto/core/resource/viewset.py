@@ -7,7 +7,7 @@ from kinto.core import authorization
 from kinto.core.resource.schema import PermissionsSchema
 
 
-CONTENT_TYPES = ["application/json"]
+CONTENT_TYPES = ["application/json", "application/merge-patch+json"]
 
 
 class ViewSet(object):
