@@ -53,3 +53,4 @@ Contributors
 * Varna Suresh <varna96@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
+* Oron Gola <oron.gola@gmail.com>
