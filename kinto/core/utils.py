@@ -82,6 +82,7 @@ def merge_dicts(a, b):
         else:
             a.setdefault(k, v)
 
+
 def recursive_update_dict(root, changes, ignores=()):
     """Update recursively all the entries from a dict and it's children dicts.
 
@@ -100,6 +101,7 @@ def recursive_update_dict(root, changes, ignores=()):
                     root.pop(k)
             else:
                 root[k] = v
+
 
 def synchronized(method):
     """Class method decorator to make sure two threads do not execute some code
