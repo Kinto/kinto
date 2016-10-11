@@ -40,6 +40,7 @@ Contributors
 * Nicolas Hoizey <nicolas@hoizey.com>
 * Nicolas Perriault <nperriault@mozilla.com>
 * Niraj <https://github.com/niraj8>
+* Oron Gola <oron.golar@gmail.com>
 * Rektide <rektide@voodoowarez.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
 * Rodolphe Quiédeville <rodolphe@quiedeville.org>
@@ -53,4 +54,3 @@ Contributors
 * Varna Suresh <varna96@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
-* Oron Gola <oron.gola@gmail.com>
