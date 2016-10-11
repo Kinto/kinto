@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 import unittest
 import os
-import pytest
 
 import colander
 import mock
@@ -263,9 +262,9 @@ class ParseResourceTest(unittest.TestCase):
                          "'/buckets/<bid>/collections/<cid>' or "
                          "'<bid>/<cid>'. Got %r" % input)
 
-            with pytest.raises(ValueError) as excinfo:
+            with self.assertRaises(ValueError) as e_info:
                 parse_resource(input)
-            assert excinfo.value.message == error_msg
+            self.assertEquals(e_info.exception.__str__(), error_msg)
 
         for input in good_inputs:
             parts = parse_resource(input)
