@@ -11,6 +11,15 @@ API
 Changelog
 ---------
 
+
+1.12 (2016-10-11)
+'''''''''''''''''
+
+- Add support to JSON merge ``patch`` when using 
+  ``Content-Type: application/merge-patch+json`` (as in RFC 7396).
+- When ``null`` argument is provided with merge ``patch``, the field is now
+  removed from the object.
+
 1.11 (2016-10-04)
 '''''''''''''''''
 
