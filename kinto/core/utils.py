@@ -429,8 +429,8 @@ def parse_resource(resource):
     """extract the bucket and collection of a given resource"""
 
     error_msg = ("Resources should be defined as "
-                     "'/buckets/<bid>/collections/<cid>' or "
-                     "'<bid>/<cid>'. Got %r" % resource)
+                 "'/buckets/<bid>/collections/<cid>' or "
+                 "'<bid>/<cid>'. Got %r" % resource)
     parts = resource.split('/')
     if len(parts) == 2:
         bucket, collection = parts

@@ -252,8 +252,8 @@ class DictSubsetTest(unittest.TestCase):
 class ParseResourceTest(unittest.TestCase):
 
     def test_parse_resource(self):
-        bad_inputs = ['none','/','/one','one/','/tw/o']
-        good_inputs = ['bid/cid','/buckets/bid/collections/cid']
+        bad_inputs = ['none', '/', '/one', 'one/', '/tw/o']
+        good_inputs = ['bid/cid', '/buckets/bid/collections/cid']
         expected = {
             'bucket': 'bid',
             'collection': 'cid'
@@ -264,4 +264,4 @@ class ParseResourceTest(unittest.TestCase):
 
         for input in good_inputs:
             parts = parse_resource(input)
-            self.assertEqual(expected,parts)
+            self.assertEqual(expected, parts)
