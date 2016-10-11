@@ -93,7 +93,7 @@ def recursive_update_dict(root, changes, ignores=()):
     if isinstance(changes, dict):
         for k, v in changes.items():
             if isinstance(v, dict):
-                if not k in root:
+                if k not in root:
                     root[k] = {}
                 recursive_update_dict(root[k], v, ignores)
             elif v in ignores:

@@ -443,7 +443,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                            {'data': record},
                            headers=self.headers,
                            status=200)
-    
+
     def test_200_if_header_matches_json_patch(self):
         headers = self.headers.copy()
         headers['Content-Type'] = 'application/merge-patch+json'
