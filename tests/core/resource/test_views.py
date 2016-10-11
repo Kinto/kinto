@@ -452,7 +452,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                              headers=headers,
                              status=406)
         self.assertEqual(resp.json['code'], 406)
-        message = u"Accept header should be one of ['application/json', 'application/merge-patch+json']"
+        message = "Accept header should be one of ['application/json', 'application/merge-patch+json']"
         self.assertEqual(resp.json['message'], message)
 
     def test_invalid_content_type_header_on_collections_returns_415(self):
@@ -463,7 +463,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                              headers=headers,
                              status=415)
         self.assertEqual(resp.json['code'], 415)
-        message = u"Content-Type header should be one of ['application/json', 'application/merge-patch+json']"
+        message = "Content-Type header should be one of ['application/json', 'application/merge-patch+json']"
         self.assertEqual(resp.json['message'], message)
 
     def test_invalid_accept_header_on_record_returns_406(self):
@@ -473,7 +473,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                             headers=headers,
                             status=406)
         self.assertEqual(resp.json['code'], 406)
-        message = u"Accept header should be one of ['application/json', 'application/merge-patch+json']"
+        message = "Accept header should be one of ['application/json', 'application/merge-patch+json']"
         self.assertEqual(resp.json['message'], message)
 
     def test_invalid_content_type_header_on_record_returns_415(self):
@@ -484,7 +484,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                                    headers=headers,
                                    status=415)
         self.assertEqual(resp.json['code'], 415)
-        message = u"Content-Type header should be one of ['application/json', 'application/merge-patch+json']"
+        message = "Content-Type header should be one of ['application/json', 'application/merge-patch+json']"
         self.assertEqual(resp.json['message'], message)
 
 
