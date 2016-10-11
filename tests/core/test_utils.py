@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 import os
+import pytest
 
 import colander
 import mock
@@ -251,11 +252,16 @@ class DictSubsetTest(unittest.TestCase):
 class ParseResourceTest(unittest.TestCase):
 
     def test_parse_resource(self):
+        bad_inputs = ['none','/','/one','one/','/tw/o']
+        good_inputs = ['bid/cid','/buckets/bid/collections/cid']
         expected = {
-		'bucket': 'bid',
-        	'collection': 'cid'
+            'bucket': 'bid',
+            'collection': 'cid'
         }
-        parts = parse_resource('/bid/cid')
-	self.assertEqual(expected,parts)
-        parts = parse_resource('/buckets/bid/collections/cid')
-        self.assertEqual(expected,parts)
+        for input in bad_inputs:
+            with pytest.raises(ValueError):
+                parse_resource(input)
+
+        for input in good_inputs:
+            parts = parse_resource(input)
+            self.assertEqual(expected,parts)
