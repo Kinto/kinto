@@ -463,8 +463,8 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                              headers=headers,
                              status=415)
         self.assertEqual(resp.json['code'], 415)
-        messages = "Content-Type header should be one of ['application/json']"
-        self.assertIn(resp.json['message'], messages)
+        message = "Content-Type header should be one of ['application/json']"
+        self.assertEqual(resp.json['message'], message)
 
     def test_invalid_accept_header_on_record_returns_406(self):
         headers = self.headers.copy()
