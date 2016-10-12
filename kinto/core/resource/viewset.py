@@ -7,7 +7,7 @@ from kinto.core import authorization
 from kinto.core.resource.schema import PermissionsSchema
 
 
-CONTENT_TYPES = ["application/json", "application/merge-patch+json"]
+CONTENT_TYPES = ["application/json"]
 
 
 class ViewSet(object):
@@ -49,7 +49,7 @@ class ViewSet(object):
     }
 
     default_patch_arguments = {
-        "content_type": CONTENT_TYPES,
+        "content_type": CONTENT_TYPES + ["application/merge-patch+json"],
     }
 
     default_collection_arguments = {}

@@ -444,16 +444,6 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                            headers=self.headers,
                            status=200)
 
-    def test_200_if_header_matches_json_patch(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'application/merge-patch+json'
-        record = MINIMALIST_RECORD.copy()
-        record['id'] = self.record['id']
-        self.app.post_json(self.collection_url,
-                           {'data': record},
-                           headers=self.headers,
-                           status=200)
-
     def test_invalid_accept_header_on_collections_returns_406(self):
         headers = self.headers.copy()
         headers['Accept'] = 'text/plain'
@@ -462,12 +452,8 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                              headers=headers,
                              status=406)
         self.assertEqual(resp.json['code'], 406)
-        messages = (
-            "Accept header should be one of " +
-            "['application/merge-patch+json', 'application/json']",
-            "Accept header should be one of " +
-            "['application/json', 'application/merge-patch+json']")
-        self.assertIn(resp.json['message'], messages)
+        message = "Accept header should be one of ['application/json']"
+        self.assertEqual(resp.json['message'], message)
 
     def test_invalid_content_type_header_on_collections_returns_415(self):
         headers = self.headers.copy()
@@ -477,11 +463,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                              headers=headers,
                              status=415)
         self.assertEqual(resp.json['code'], 415)
-        messages = (
-            "Content-Type header should be one of " +
-            "['application/merge-patch+json', 'application/json']",
-            "Content-Type header should be one of " +
-            "['application/json', 'application/merge-patch+json']")
+        messages = "Content-Type header should be one of ['application/json']"
         self.assertIn(resp.json['message'], messages)
 
     def test_invalid_accept_header_on_record_returns_406(self):
@@ -491,12 +473,8 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                             headers=headers,
                             status=406)
         self.assertEqual(resp.json['code'], 406)
-        messages = (
-            "Accept header should be one of " +
-            "['application/merge-patch+json', 'application/json']",
-            "Accept header should be one of " +
-            "['application/json', 'application/merge-patch+json']")
-        self.assertIn(resp.json['message'], messages)
+        message = "Accept header should be one of ['application/json']"
+        self.assertEqual(resp.json['message'], message)
 
     def test_invalid_content_type_header_on_record_returns_415(self):
         headers = self.headers.copy()
