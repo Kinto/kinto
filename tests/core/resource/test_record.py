@@ -227,7 +227,7 @@ class PatchTest(BaseTest):
         self.assertEquals(self.stored['id'], self.result['id'])
         self.assertEquals(self.result['position'], 10)
 
-    def test_patch_updates_attributes_recursively(self):
+    def test_merge_patch_updates_attributes_recursively(self):
         header = self.resource.request.headers
         header['Content-Type'] = 'application/merge-patch+json'
         self.resource.request.json = {'data': {'a': {'b': 'bbb',
@@ -238,7 +238,7 @@ class PatchTest(BaseTest):
         result = self.resource.patch()['data']
         self.assertEqual(result['a']['b'], 'aaa')
 
-    def test_patch_removes_attribute_if_none(self):
+    def test_merge_patch_removes_attribute_if_none(self):
         header = self.resource.request.headers
         header['Content-Type'] = 'application/merge-patch+json'
         self.resource.request.json = {'data': {'field': 'aaa'}}
@@ -249,7 +249,7 @@ class PatchTest(BaseTest):
         result = self.resource.get()['data']
         self.assertNotIn('field', result)
 
-    def test_patch_removes_attributes_recursively_if_none(self):
+    def test_merge_patch_removes_attributes_recursively_if_none(self):
         header = self.resource.request.headers
         header['Content-Type'] = 'application/merge-patch+json'
         self.resource.request.json = {'data': {'a': {'b': 'aaa'}}}
@@ -264,7 +264,7 @@ class PatchTest(BaseTest):
         self.assertIn('bb', result['aa'])
         self.assertNotIn('cc', result['aa']['bb'])
 
-    def test_patch_doesnt_remove_attribute_if_false(self):
+    def test_merge_patch_doesnt_remove_attribute_if_false(self):
         header = self.resource.request.headers
         header['Content-Type'] = 'application/merge-patch+json'
         self.resource.request.json = {'data': {'field': 0}}
@@ -288,7 +288,7 @@ class PatchTest(BaseTest):
         result = self.resource.get()['data']
         self.assertIn('field', result)
 
-    def test_patch_doesnt_remove_previously_inserted_nones(self):
+    def test_merge_patch_doesnt_remove_previously_inserted_nones(self):
         header = self.resource.request.headers
         header['Content-Type'] = 'application/json'
         self.resource.request.json = {'data': {'field': 'aaa'}}
