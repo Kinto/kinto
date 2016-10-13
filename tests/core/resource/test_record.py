@@ -227,6 +227,32 @@ class PatchTest(BaseTest):
         self.assertEquals(self.stored['id'], self.result['id'])
         self.assertEquals(self.result['position'], 10)
 
+    def test_json_patch_add(self):
+        self.resource.request.json = {'data': {'a': 'aaa', 'b': ['bb']}}
+        self.resource.patch()
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/json-patch+json'
+        self.resource.request.json = [
+            {'op': 'add', 'path': '/data/c', 'value': 'ccc'},
+            {'op': 'add', 'path': '/data/b/1', 'value': 'bbb'}
+        ]
+        result = self.resource.patch()['data']
+        self.assertEqual(result['c'], 'ccc')
+        self.assertEqual(result['b'][1], 'bbb')
+
+    def test_json_patch_remove(self):
+        self.resource.request.json = {'data': {'a': 'aaa', 'b': ['bb']}}
+        self.resource.patch()
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/json-patch+json'
+        self.resource.request.json = [
+            {'op': 'remove', 'path': '/data/a'},
+            {'op': 'remove', 'path': '/data/b/0'}
+        ]
+        result = self.resource.patch()['data']
+        self.assertNotIn('a', result)
+        self.assertEqual(len(result['b'], 0)
+    
     def test_merge_patch_updates_attributes_recursively(self):
         header = self.resource.request.headers
         header['Content-Type'] = 'application/merge-patch+json'
