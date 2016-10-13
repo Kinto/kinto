@@ -79,7 +79,6 @@ class FormattedErrorMixin(object):
         self.assertEqual(response.json['code'], code)
         self.assertEqual(response.json['errno'], errno)
         self.assertEqual(response.json['error'], error)
-        
         if message is not None:
             self.assertIn(message, response.json['message'])
         else:  # pragma: no cover

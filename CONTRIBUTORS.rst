@@ -31,6 +31,7 @@ Contributors
 * Julien Bouquillon <contact@revolunet.com>
 * Lavish Aggarwal <lucky.lavish@gmail.com>
 * Maksym Shalenyi <supamaxy@gmail.com>
+* Mansimar Kaur <mansimarkaur.mks@gmail.com>
 * Masataka Takeuchi <masataka.takeuchi@l-is-b.com>
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
