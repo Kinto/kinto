@@ -89,6 +89,11 @@ class FormattedErrorMixin(object):
         else:  # pragma: no cover
             self.assertNotIn('info', response.json)
 
+        if details is not None:
+            self.assertEqual(response.json['details'], details)
+        else:
+            self.assertNotEqual(404, code)
+
 
 def get_user_headers(user):
     """Helper to obtain a Basic Auth authorization headers from the specified
