@@ -39,8 +39,8 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     def test_unknown_collection_raises_404(self):
         other_collection = self.collection_url.replace('barley', 'pills')
         resp = self.app.get(other_collection, headers=self.headers, status=404)
-        self.assertIn('id', resp.json['details'])
-        self.assertIn('resource_name', resp.json['details'])
+        self.assertEqual(resp.json['details']['id'], 'pills')
+        self.assertEqual(resp.json['details']['resource_name'], 'collection')
 
     def test_unknown_collection_does_not_query_timestamp(self):
         other_collection = self.collection_url.replace('barley', 'pills')
@@ -48,9 +48,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                                   'collection_timestamp')
         self.addCleanup(patch.stop)
         mocked = patch.start()
-        resp = self.app.get(other_collection, headers=self.headers, status=404)
-        self.assertIn('id', resp.json['details'])
-        self.assertIn('resource_name', resp.json['details'])
+        self.app.get(other_collection, headers=self.headers, status=404)
         self.assertFalse(mocked.called)
 
     def test_parent_collection_is_fetched_only_once_in_batch(self):
@@ -87,9 +85,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                           MINIMALIST_BUCKET,
                           headers=self.headers)
         other_collection = self.record_url.replace('barley', 'pills')
-        resp = self.app.get(other_collection, headers=self.headers, status=404)
-        self.assertIn('id', resp.json['details'])
-        self.assertIn('resource_name', resp.json['details'])
+        self.app.get(other_collection, headers=self.headers, status=404)
 
         # By bucket.
         self.app.put_json('/buckets/sodas',
@@ -99,9 +95,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                           MINIMALIST_COLLECTION,
                           headers=self.headers)
         other_bucket = self.record_url.replace('beers', 'sodas')
-        resp = self.app.get(other_bucket, headers=self.headers, status=404)
-        self.assertIn('id', resp.json['details'])
-        self.assertIn('resource_name', resp.json['details'])
+        self.app.get(other_bucket, headers=self.headers, status=404)
 
         # By bucket and by collection.
         self.app.put_json('/buckets/be',
@@ -111,9 +105,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                           MINIMALIST_COLLECTION,
                           headers=self.headers)
         other = self.record_url.replace('barley', 'ba').replace('beers', 'be')
-        resp = self.app.get(other, headers=self.headers, status=404)
-        self.assertIn('id', resp.json['details'])
-        self.assertIn('resource_name', resp.json['details'])
+        self.app.get(other, headers=self.headers, status=404)
 
     def test_a_collection_named_group_do_not_interfere_with_groups(self):
         # Create a group.
