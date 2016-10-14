@@ -17,7 +17,7 @@ from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
-    encode_header, decode_header, dict_subset
+    encode_header, decode_header, dict_subset, recursive_update_dict
 )
 
 from .model import Model, ShareableModel
@@ -632,7 +632,13 @@ class UserResource(object):
                 raise_invalid(self.request, **error_details)
 
         updated = record.copy()
-        updated.update(**changes)
+
+        # recursive patch and remove field if null attribute is passed (RFC 7396)
+        content_type = str(self.request.headers.get('Content-Type'))
+        if content_type == 'application/merge-patch+json':
+            recursive_update_dict(updated, changes, ignores=[None])
+        else:
+            updated.update(**changes)
 
         try:
             return self.mapping.deserialize(updated)

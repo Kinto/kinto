@@ -484,8 +484,12 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                                    headers=headers,
                                    status=415)
         self.assertEqual(resp.json['code'], 415)
-        message = "Content-Type header should be one of ['application/json']"
-        self.assertEqual(resp.json['message'], message)
+        messages = (
+            "Content-Type header should be one of " +
+            "['application/merge-patch+json', 'application/json']",
+            "Content-Type header should be one of " +
+            "['application/json', 'application/merge-patch+json']")
+        self.assertIn(resp.json['message'], messages)
 
 
 class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
