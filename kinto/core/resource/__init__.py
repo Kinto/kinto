@@ -17,7 +17,8 @@ from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
-    encode_header, decode_header, dict_subset, recursive_update_dict
+    encode_header, decode_header, dict_subset, recursive_update_dict,
+    extract_json_patch_changes
 )
 
 from .model import Model, ShareableModel
@@ -460,17 +461,31 @@ class UserResource(object):
         existing = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(existing)
 
-        try:
-            # `data` attribute may not be present if only perms are patched.
-            changes = self.request.json.get('data', {})
-        except ValueError:
-            # If no `data` nor `permissions` is provided in patch, reject!
-            # XXX: This should happen in schema instead (c.f. ShareableViewSet)
-            error_details = {
-                'name': 'data',
-                'description': 'Provide at least one of data or permissions',
-            }
-            raise_invalid(self.request, **error_details)
+        content_type = str(self.request.headers.get('Content-Type'))
+        # patch is specified as a list of of operations (RFC 6902) 
+        if content_type == 'application/json-patch+json':
+            #try:
+                ops = self.request.json
+                changes = extract_json_patch_changes(existing, ops)
+                print changes
+            #except:
+            #    error_details = {
+            #        'name': 'data',
+            #        'description': 'Invalid JSON Patch format',
+            #    }
+            #    raise_invalid(self.request, **error_details)
+        else:
+            try:
+                # `data` attribute may not be present if only perms are patched.
+                changes = self.request.json.get('data', {})
+            except ValueError:
+                # If no `data` nor `permissions` is provided in patch, reject!
+                # XXX: This should happen in schema instead (c.f. ShareableViewSet)
+                error_details = {
+                    'name': 'data',
+                    'description': 'Provide at least one of data or permissions',
+                }
+                raise_invalid(self.request, **error_details)
 
         updated = self.apply_changes(existing, changes=changes)
 

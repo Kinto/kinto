@@ -443,3 +443,60 @@ def instance_uri(request, resource_name, **params):
     """Return the URI for the given resource."""
     return strip_uri_prefix(request.route_path('%s-record' % resource_name,
                                                **params))
+
+
+def get_json_path(obj, path, create=False):
+    address = path.split('/')
+    for el in address[1:-1]:
+        if isinstance(obj, list):
+            obj = obj[int(el)]
+
+        elif isinstance(obj, dict):
+            if el not in obj and create:
+                obj[el] = {} 
+            obj = obj[el]
+
+        else:
+            obj[el] = {} 
+            obj = obj[el]
+
+    return obj
+
+
+def extract_json_patch_changes(record, ops):
+    """
+    
+    """
+    
+    def remove(changes, op):
+        raise NotImplemented
+    def replace(changes, op):
+        raise NotImplemented
+    def move(op):
+        raise NotImplemented
+    def copy(op):
+        raise NotImplemented
+    def test(op):
+        raise NotImplemented
+    
+
+    changes = record.copy()
+    for op in ops:
+        print op
+        address = op['path'].split('/')
+        entry = address[-1]
+        obj = get_json_path(record, op['path'], create=True)
+
+        if isinstance(obj, list):
+            if entry == '-':
+                obj.push(op['value'])
+            elif int(entry) >= len(obj):
+                raise KeyError
+            else:
+                obj.insert(int(entry), op['value'])
+        else:
+            obj[entry] = op['value']
+ 
+    
+    return changes
+        

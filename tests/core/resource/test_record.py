@@ -251,7 +251,7 @@ class PatchTest(BaseTest):
         ]
         result = self.resource.patch()['data']
         self.assertNotIn('a', result)
-        self.assertEqual(len(result['b'], 0)
+        self.assertEqual(len(result['b']), 0)
     
     def test_merge_patch_updates_attributes_recursively(self):
         header = self.resource.request.headers
