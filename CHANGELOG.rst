@@ -8,7 +8,7 @@ This document describes changes between each past release.
 
 **New features**
 
-- Added details attribute to 404 errors.
+- Added details attribute to 404 errors. (#818)
 - Added a new built-in plugin ``kinto.plugins.admin`` to serve the kinto admin.
 
 
