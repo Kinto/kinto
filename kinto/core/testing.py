@@ -70,7 +70,7 @@ class FormattedErrorMixin(object):
     """
 
     def assertFormattedError(self, response, code, errno, error,
-                             message=None, info=None, details=None):
+                             message=None, info=None):
         if isinstance(errno, Enum):
             errno = errno.value
 
@@ -88,12 +88,7 @@ class FormattedErrorMixin(object):
             self.assertIn(info, response.json['info'])
         else:  # pragma: no cover
             self.assertNotIn('info', response.json)
-
-        if details is not None:
-            self.assertEqual(response.json['details'], details)
-        else:
-            self.assertNotEqual(404, code)
-
+            
 
 def get_user_headers(user):
     """Helper to obtain a Basic Auth authorization headers from the specified
