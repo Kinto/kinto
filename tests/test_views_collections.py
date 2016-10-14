@@ -52,7 +52,8 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         self.app.put_json('/buckets/sodas',
                           MINIMALIST_BUCKET,
                           headers=self.headers)
-        self.app.get(other_bucket, headers=self.headers, status=404)
+        resp = self.app.get(other_bucket, headers=self.headers, status=404)
+        self.assertIn('id', resp.json['details']) and self.assertIn('resource_name', resp.json['details'])
 
     def test_create_permissions_can_be_added_on_collections(self):
         collection = MINIMALIST_COLLECTION.copy()
@@ -117,8 +118,9 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.delete(self.collection_url, headers=self.headers)
 
     def test_collections_can_be_deleted(self):
-        self.app.get(self.collection_url, headers=self.headers,
+        resp = self.app.get(self.collection_url, headers=self.headers,
                      status=404)
+        self.assertIn('id', resp.json['details']) and self.assertIn('resource_name', resp.json['details'])
 
     def test_collections_can_be_deleted_in_bulk(self):
         alice_headers = get_user_headers('alice')
@@ -136,7 +138,8 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
     def test_records_of_collection_are_deleted_too(self):
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
                           headers=self.headers)
-        self.app.get(self.record_url, headers=self.headers, status=404)
+        resp = self.app.get(self.record_url, headers=self.headers, status=404)
+        self.assertIn('id', resp.json['details']) and self.assertIn('resource_name', resp.json['details'])
 
         # Verify tombstones
         resp = self.app.get('%s/records?_since=0' % self.collection_url,
