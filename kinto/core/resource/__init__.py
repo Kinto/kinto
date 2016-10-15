@@ -18,7 +18,7 @@ from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
     encode_header, decode_header, dict_subset, recursive_update_dict,
-    extract_json_patch_changes
+    JsonPatch
 )
 
 from .model import Model, ShareableModel
@@ -466,8 +466,9 @@ class UserResource(object):
         if content_type == 'application/json-patch+json':
             #try:
                 ops = self.request.json
-                changes = extract_json_patch_changes(existing, ops)
-                print changes
+                self.patch_changes = JsonPatch(ops, existing)
+                changes = self.patch_changes.changes
+
             #except:
             #    error_details = {
             #        'name': 'data',
@@ -652,6 +653,8 @@ class UserResource(object):
         content_type = str(self.request.headers.get('Content-Type'))
         if content_type == 'application/merge-patch+json':
             recursive_update_dict(updated, changes, ignores=[None])
+        elif content_type == 'application/json-patch+json':
+            updated = self.patch_changes.updated  
         else:
             updated.update(**changes)
 
