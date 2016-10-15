@@ -445,58 +445,143 @@ def instance_uri(request, resource_name, **params):
                                                **params))
 
 
-def get_json_path(obj, path, create=False):
-    address = path.split('/')
-    for el in address[1:-1]:
-        if isinstance(obj, list):
-            obj = obj[int(el)]
+def get_json_path(obj, address, create=False): 
+    """
+    Get the object at a json address.
 
-        elif isinstance(obj, dict):
-            if el not in obj and create:
-                obj[el] = {} 
-            obj = obj[el]
+    :param obj: JSON extracted object.
+    :param list address: positions to enter the obj.
+    :param bool create: creates the path if it doesn't exist.
+    """ 
 
+
+class JsonPatch(object):
+ 
+    required_fields = {
+        'test':    ['op', 'path', 'value'],
+        'remove':  ['op', 'path'],
+        'add':     ['op', 'path', 'value'],
+        'replace': ['op', 'path', 'value'],
+        'move':    ['op', 'path', 'from'],
+        'copy':    ['op', 'path', 'from'],
+    }
+
+    def __init__(self, ops, record):
+
+        self.ops = ops
+        self.updated = record.copy()
+        self.changes = {}
+
+        self.__validate()
+        self._apply_ops()
+
+    def _apply_ops(self):
+        for op in self.ops: 
+            # call op method
+            try:  
+                getattr(self, "_" + op['op'])(op) 
+            except StopIteration:
+                break
+
+        try:
+            self.permissions = self.changes.pop('permissions')
+        except KeyError:
+            self.permissions = {}
+
+    #
+    # Patch Operations
+    #
+
+    def _test(self, op):
+        address, entry = self.__get_address(op)
+        path = self.__get_path(address)
+        value = op['value']   
+        
+        if isinstance(path, list):
+            if path[int(entry)] != value:
+                raise StopIteration
         else:
-            obj[el] = {} 
-            obj = obj[el]
-
-    return obj
-
-
-def extract_json_patch_changes(record, ops):
-    """
+            if path[entry] != value:
+                raise StopIteration
     
-    """
-    
-    def remove(changes, op):
-        raise NotImplemented
-    def replace(changes, op):
-        raise NotImplemented
-    def move(op):
-        raise NotImplemented
-    def copy(op):
-        raise NotImplemented
-    def test(op):
-        raise NotImplemented
-    
+    def _add(self, op):
+        address, entry = self.__get_address(op)
+        path = self.__get_path(address, create=True)
+        value = op['value']   
 
-    changes = record.copy()
-    for op in ops:
-        print op
-        address = op['path'].split('/')
-        entry = address[-1]
-        obj = get_json_path(record, op['path'], create=True)
-
-        if isinstance(obj, list):
+        if isinstance(path, list):
             if entry == '-':
-                obj.push(op['value'])
-            elif int(entry) >= len(obj):
+                path.append(value)
+            elif int(entry) > len(path):
                 raise KeyError
             else:
-                obj.insert(int(entry), op['value'])
+                path.insert(int(entry), value)
         else:
-            obj[entry] = op['value']
- 
+            path[entry] = value
     
-    return changes
+    def _remove(self, op):
+        address, entry = self.__get_address(op)
+        path = self.__get_path(address)
         
+        if isinstance(path, list):
+            if key == '-':
+                path.pop()
+            elif int(entry) >= len(path):
+                raise KeyError
+            else:
+                path.pop(int(entry))
+        else:
+            path.pop(entry)
+    
+    #
+    # Internals
+    #
+
+    def __get_path(self, address, create=False):
+        
+        obj = self.updated 
+        track = self.changes        
+
+        for el in address:
+            if isinstance(obj, list):
+                obj = obj[int(el)]
+                
+                track.append(obj)
+                track = track[int(el)]
+
+            elif isinstance(obj, dict):
+                if el not in obj and create:
+                    obj[el] = {} 
+                obj = obj[el] 
+
+                track[el] = {}
+                track = track[el]
+
+            elif create:
+                obj[el] = {} 
+                obj = obj[el]
+            
+                track[el] = {}
+                track = track[el]
+            
+            else: 
+                raise KeyError
+   
+        return obj
+
+    def __get_address(self, op, starts='/'):
+        path = op['path'].replace(starts, '', 1)
+        address = path.split('/')
+        key = address[-1]
+                
+        return address[:-1], key
+
+    def __validate(self):
+        for op in self.ops:
+            if op['op'] in self.required_fields:
+                reqs = self.required_fields[op['op']]
+            else:
+                raise KeyError
+            for req in reqs:
+                if req not in op:
+                    raise KeyError
