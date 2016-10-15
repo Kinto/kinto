@@ -9,6 +9,11 @@ def includeme(config):
         description='Track changes on data.',
         url='http://kinto.readthedocs.io/en/latest/api/1.x/history.html')
 
+    config.add_api_capability(
+        'revert',
+        description='discard all changes after given timestamp.',
+        url='http://kinto.readthedocs.io/en/latest/api/1.x/revert.html')
+
     # Activate end-points.
     config.scan('kinto.plugins.history.views')
 

@@ -1,8 +1,10 @@
 import colander
+import requests
 
-from kinto.core import resource
+from kinto.core import resource, Service
 from kinto.core.utils import instance_uri
 from kinto.core.storage import Filter
+from kinto.core.errors import raise_invalid
 
 
 class HistorySchema(resource.ResourceSchema):
@@ -43,3 +45,26 @@ class History(resource.ShareableResource):
             filters_str_id.append(filt)
 
         return filters_str_id
+
+
+class Revert(object):
+    revert = Service(name="revert",
+                     path='/buckets/{bucket_id}/collections/{collection_id}/revert',
+                     description="Revert a collection to a timestamp, "
+                                 "all later records will be discarded")
+
+    @revert.post()
+    def revert_post(request):
+        bucket_id = request.matchdict['bucket_id']
+        collection_id = request.matchdict['collection_id']
+        if 'since' not in request.params:
+            error_details = {
+                'name': 'since',
+                'description': 'since request parameter must be provided',
+            }
+            raise_invalid(request, **error_details)
+        else:
+            since = request.params['since']
+
+        print type(request)
+        return []

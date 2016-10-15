@@ -40,7 +40,7 @@ def main(args=None):
                         const=logging.DEBUG, dest='verbosity',
                         help='Show all messages, including debug messages.')
 
-    commands = ('init', 'start', 'migrate', 'delete-collection', 'version')
+    commands = ('init', 'start', 'migrate', 'delete-collection', 'revert', 'version')
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='Main Kinto CLI commands',
                                        dest='subcommand',
@@ -72,6 +72,22 @@ def main(args=None):
                                    required=True)
             subparser.add_argument('--collection',
                                    help='The collection to remove.',
+                                   required=True)
+
+        elif command == 'revert':
+            subparser.add_argument('--auth',
+                                   help='the user:pass authentication token',
+                                   required=True)
+            subparser.add_argument('--bucket',
+                                   help='The bucket where the collection '
+                                        'belongs to.',
+                                   required=True)
+            subparser.add_argument('--collection',
+                                   help='The collection to revert.',
+                                   required=True)
+            subparser.add_argument('--since',
+                                   help='The timestamp to revert the collection'
+                                   ' to. all later changes will be discarded',
                                    required=True)
 
         elif command == 'start':
@@ -140,6 +156,14 @@ def main(args=None):
         return scripts.delete_collection(env,
                                          parsed_args['bucket'],
                                          parsed_args['collection'])
+
+    elif which_command == 'revert':
+        env = bootstrap(config_file)
+        return scripts.revert(env,
+                              auth=parsed_args['auth'],
+                              bucket=parsed_args['bucket'],
+                              collection=parsed_args['collection'],
+                              since=parsed_args['since'])
 
     elif which_command == 'start':
         pserve_argv = ['pserve', config_file]
