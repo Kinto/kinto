@@ -105,7 +105,9 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                           MINIMALIST_COLLECTION,
                           headers=self.headers)
         other = self.record_url.replace('barley', 'ba').replace('beers', 'be')
-        self.app.get(other, headers=self.headers, status=404)
+        response = self.app.get(other, headers=self.headers, status=404)
+        self.assertEqual(response.json['details']['id'], self.record['id'])
+        self.assertEqual(response.json['details']['resource_name'], 'record')
 
     def test_a_collection_named_group_do_not_interfere_with_groups(self):
         # Create a group.
