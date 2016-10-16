@@ -1,0 +1,242 @@
+import functools
+
+from pyramid.settings import aslist
+from pyramid.security import IAuthorizationPolicy, Authenticated
+from zope.interface import implementer
+
+from kinto.core import utils
+from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.authentication import prefixed_userid
+
+# A permission is called "dynamic" when it's computed at request time.
+DYNAMIC = 'dynamic'
+
+# When permission is set to "private", only the current user is allowed.
+PRIVATE = 'private'
+
+
+def groupfinder(userid, request):
+    """Fetch principals from permission backend for the specified `userid`.
+
+    This is plugged by default using the ``multiauth.groupfinder`` setting.
+    """
+    backend = getattr(request.registry, 'permission', None)
+    # Permission backend not configured. Ignore.
+    if not backend:
+        return []
+
+    # Safety check when Kinto-Core is used without pyramid_multiauth.
+    if request.prefixed_userid:
+        userid = request.prefixed_userid
+
+    # Query the permission backend only once per request (e.g. batch).
+    reify_key = userid + '_principals'
+    if reify_key not in request.bound_data:
+        principals = backend.get_user_principals(userid)
+        request.bound_data[reify_key] = principals
+
+    return request.bound_data[reify_key]
+
+
+@implementer(IAuthorizationPolicy)
+class AuthorizationPolicy(object):
+    """Default authorization class, that leverages the permission backend
+    for shareable resources.
+    """
+
+    get_bound_permissions = None
+    """Callable that takes an object id and a permission and returns
+    a list of tuples (<object id>, <permission>). Useful when objects
+    permission depend on others."""
+
+    def permits(self, context, principals, permission):
+        if permission == PRIVATE:
+            return Authenticated in principals
+
+        # Add prefixed user id to principals.
+        prefixed_userid = context.get_prefixed_userid()
+        if prefixed_userid and ':' in prefixed_userid:
+            principals = principals + [prefixed_userid]
+            prefix, user_id = prefixed_userid.split(':', 1)
+            # Remove unprefixed user id to avoid conflicts.
+            # (it is added via Pyramid Authn policy effective principals)
+            if user_id in principals:
+                principals.remove(user_id)
+            # Retro-compatibility with cliquet 2.0 '_' user id prefixes.
+            # Just in case it was used in permissions definitions.
+            principals.append('%s_%s' % (prefix, user_id))
+
+        if permission == DYNAMIC:
+            permission = context.required_permission
+
+        if permission == 'create':
+            permission = '%s:%s' % (context.resource_name, permission)
+
+        if context.allowed_principals:
+            allowed = bool(set(context.allowed_principals) & set(principals))
+        else:
+            object_id = context.permission_object_id
+            if self.get_bound_permissions is None:
+                bound_perms = [(object_id, permission)]
+            else:
+                bound_perms = self.get_bound_permissions(object_id, permission)
+            allowed = context.check_permission(principals, bound_perms)
+
+        # If not allowed on this collection, but some records are shared with
+        # the current user, then authorize.
+        # The ShareableResource class will take care of the filtering.
+        is_list_operation = (context.on_collection and
+                             not permission.endswith('create'))
+        if not allowed and is_list_operation:
+            shared = context.fetch_shared_records(permission,
+                                                  principals,
+                                                  self.get_bound_permissions)
+            allowed = shared is not None
+
+        return allowed
+
+    def principals_allowed_by_permission(self, context, permission):
+        raise NotImplementedError()  # PRAGMA NOCOVER
+
+
+class RouteFactory(object):
+    resource_name = None
+    on_collection = False
+    required_permission = None
+    allowed_principals = None
+    permission_object_id = None
+    current_record = None
+    shared_ids = None
+
+    method_permissions = {
+        "head": "read",
+        "get": "read",
+        "post": "create",
+        "delete": "write",
+        "patch": "write"
+    }
+
+    def __init__(self, request):
+        # Make it available for the authorization policy.
+        self.get_prefixed_userid = functools.partial(prefixed_userid, request)
+
+        # Store some shortcuts.
+        permission = request.registry.permission
+        self.check_permission = permission.check_permission
+        self._get_accessible_objects = permission.get_accessible_objects
+
+        # Store current resource and required permission.
+        service = utils.current_service(request)
+        is_on_resource = (service is not None and
+                          hasattr(service, 'viewset') and
+                          hasattr(service, 'resource'))
+        if is_on_resource:
+            self.resource_name = request.current_resource_name
+            self.on_collection = getattr(service, "type", None) == "collection"
+
+            self.permission_object_id, self.required_permission = (
+                self._find_required_permission(request, service))
+
+            # To obtain shared records on a collection endpoint, use a match:
+            self._object_id_match = self.get_permission_object_id(request, '*')
+
+            # Check if principals are allowed explicitly from settings.
+            settings = request.registry.settings
+            setting = '%s_%s_principals' % (self.resource_name,
+                                            self.required_permission)
+            self.allowed_principals = aslist(settings.get(setting, ''))
+
+    def fetch_shared_records(self, perm, principals, get_bound_permissions):
+        """Fetch records that are readable or writable for the current
+        principals.
+
+        See :meth:`kinto.core.authorization.AuthorizationPolicy.permits`
+
+        If no record is shared, it returns None.
+
+        .. warning::
+            This sets the ``shared_ids`` attribute to the context with the
+            return value. The attribute is then read by
+            :class:`kinto.core.resource.ShareableResource`
+        """
+        if get_bound_permissions:
+            bound_perms = get_bound_permissions(self._object_id_match, perm)
+        else:
+            bound_perms = [(self._object_id_match, perm)]
+        by_obj_id = self._get_accessible_objects(principals, bound_perms)
+        ids = by_obj_id.keys()
+        if len(ids) > 0:
+            # Store for later use in ``ShareableResource``.
+            self.shared_ids = [self._extract_object_id(id_) for id_ in ids]
+        else:
+            self.shared_ids = None
+
+        return self.shared_ids
+
+    def get_permission_object_id(self, request, object_id=None):
+        """Returns the permission object id for the current request.
+        In the nominal case, it is just the current URI without version prefix.
+        For collections, it is the related record URI using the specified
+        `object_id`.
+
+        See :meth:`kinto.core.resource.model.SharableModel` and
+        :meth:`kinto.core.authorization.RouteFactory.__init__`
+        """
+        object_uri = utils.strip_uri_prefix(request.path)
+
+        if self.on_collection and object_id is not None:
+            # With the current request on a collection, the record URI must
+            # be found out by inspecting the collection service and its sibling
+            # record service.
+            matchdict = request.matchdict.copy()
+            matchdict['id'] = object_id
+            try:
+                object_uri = utils.instance_uri(request,
+                                                self.resource_name,
+                                                **matchdict)
+                if object_id == '*':
+                    object_uri = object_uri.replace('%2A', '*')
+            except KeyError:
+                # Maybe the resource has no single record endpoint.
+                # We consider that object URIs in permissions backend will
+                # be stored naively:
+                object_uri = object_uri + '/' + object_id
+
+        return object_uri
+
+    def _extract_object_id(self, object_uri):
+        # XXX: Rewrite using kinto.core.utils.view_lookup() and matchdict['id']
+        return object_uri.split('/')[-1]
+
+    def _find_required_permission(self, request, service):
+        """Find out what is the permission object id and the required
+        permission.
+
+        .. note::
+            This method saves an attribute ``self.current_record`` used
+            in :class:`kinto.core.resource.UserResource`.
+        """
+        # By default, it's a URI a and permission associated to the method.
+        permission_object_id = self.get_permission_object_id(request)
+        method = request.method.lower()
+        required_permission = self.method_permissions.get(method)
+
+        # In the case of a "PUT", check if the targetted record already
+        # exists, return "write" if it does, "create" otherwise.
+        if request.method.lower() == "put":
+            resource = service.resource(request=request, context=self)
+            try:
+                record = resource.model.get_record(resource.record_id)
+                # Save a reference, to avoid refetching from storage in
+                # resource.
+                self.current_record = record
+            except storage_exceptions.RecordNotFoundError:
+                # The record does not exist, the permission to create on
+                # the related collection is required.
+                permission_object_id = service.collection_path.format(
+                    **request.matchdict)
+                required_permission = "create"
+            else:
+                required_permission = "write"
+
+        return (permission_object_id, required_permission)

@@ -1,0 +1,365 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Utility endpoints for OPS and Devs &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../../index.html"/>
+        <link rel="up" title="1.x" href="index.html"/>
+        <link rel="next" title="Batch operations" href="batch.html"/>
+        <link rel="prev" title="Quotas management" href="quotas.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../versioning.html">API Versioning</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">1.x</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#full-reference">Full reference</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buckets.html">Buckets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="records.html">Records</a></li>
+<li class="toctree-l4"><a class="reference internal" href="groups.html">Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="permissions.html">Permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="filtering.html">Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sorting.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pagination.html">Paginating</a></li>
+<li class="toctree-l4"><a class="reference internal" href="selecting_fields.html">Selecting fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="history.html">History of changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="quotas.html">Quotas management</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Utility endpoints for OPS and Devs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batch.html">Batch operations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="timestamps.html">Server timestamps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="backoff.html">Backoff indicators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="errors.html">Error responses</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprecation.html">Deprecation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cheatsheet">Cheatsheet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#changelog">Changelog</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">API</a> &raquo;</li>
+      
+          <li><a href="index.html">1.x</a> &raquo;</li>
+      
+    <li>Utility endpoints for OPS and Devs</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/api/1.x/utilities.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="utility-endpoints-for-ops-and-devs">
+<span id="api-utilities"></span><h1>Utility endpoints for OPS and Devs<a class="headerlink" href="#utility-endpoints-for-ops-and-devs" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="get">
+<h2>GET /<a class="headerlink" href="#get" title="Permalink to this headline">¶</a></h2>
+<p>The returned value is a JSON mapping containing:</p>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 3.0.</span></p>
+</div>
+<ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">project_name</span></code>: the name of the service (e.g. <code class="docutils literal"><span class="pre">&quot;reading</span> <span class="pre">list&quot;</span></code>)</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">project_docs</span></code>: The URL to the service documentation. (this document!)</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">project_version</span></code>: complete application/project version (<code class="docutils literal"><span class="pre">&quot;3.14.116&quot;</span></code>)</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">http_api_version</span></code>: the MAJOR.MINOR version of the exposed HTTP API (<code class="docutils literal"><span class="pre">&quot;1.1&quot;</span></code>)
+defined in the project.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">url</span></code>: absolute URI (without a trailing slash) of the API (<em>can be used by client to build URIs</em>)</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">eos</span></code>: date of end of support in ISO 8601 format (<code class="docutils literal"><span class="pre">&quot;yyyy-mm-dd&quot;</span></code>, undefined if unknown)</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">settings</span></code>: a mapping with the values of relevant public settings for clients</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">batch_max_requests</span></code>: Number of requests that can be made in a batch request.</li>
+<li><code class="docutils literal"><span class="pre">readonly</span></code>: Only requests with read operations are allowed.</li>
+</ul>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">capabilities</span></code>: a mapping used by clients to detect optional features of the API.</p>
+<ul>
+<li><p class="first">Example:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;auth-fxa&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">&quot;description&quot;</span><span class="o">:</span> <span class="s2">&quot;Firefox Account authentication&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;http://github.com/mozilla-services/kinto-fxa&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">user</span></code>: A mapping with an <code class="docutils literal"><span class="pre">id</span></code> field for the currently connected user id.
+The field is not present when no Authorization header is provided.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The <code class="docutils literal"><span class="pre">project_version</span></code> contains the source code version, whereas the <code class="docutils literal"><span class="pre">http_api_version</span></code> contains the exposed <a class="reference internal" href="../../core/glossary.html#term-http-api"><span class="xref std std-term">HTTP API</span></a> version.</p>
+<p class="last">The source code of the service can suffer changes and have its <em>project version</em>
+incremented, without impacting the publicly exposed HTTP API.</p>
+</div>
+</div>
+<div class="section" id="get-heartbeat">
+<h2>GET /__heartbeat__<a class="headerlink" href="#get-heartbeat" title="Permalink to this headline">¶</a></h2>
+<p>Return the status of each service the application depends on. The
+returned value is a JSON mapping containing:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">storage</span></code> true if storage backend is operational</li>
+<li><code class="docutils literal"><span class="pre">cache</span></code> true if cache backend operational</li>
+<li><code class="docutils literal"><span class="pre">permission</span></code> true if permission backend operational</li>
+</ul>
+<p>If <code class="docutils literal"><span class="pre">kinto-fxa</span></code> is installed, an additional key is present:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">oauth</span></code> true if authentication is operational</li>
+</ul>
+<p>Return <code class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></code> if the connection with each service is working properly
+and <code class="docutils literal"><span class="pre">503</span> <span class="pre">Service</span> <span class="pre">Unavailable</span></code> if something doesn&#8217;t work.</p>
+</div>
+<div class="section" id="get-lbheartbeat">
+<h2>GET /__lbheartbeat__<a class="headerlink" href="#get-lbheartbeat" title="Permalink to this headline">¶</a></h2>
+<p>Always return <code class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></code> with empty body.</p>
+<p>Unlike the <code class="docutils literal"><span class="pre">__heartbeat__</span></code> health check endpoint, which return an error
+when backends and other upstream services are unavailable, this should
+always return <code class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></code>.</p>
+<p>This endpoint is suitable for a load balancer membership test.
+It the load balancer cannot obtain a response from this endpoint, it will
+stop sending traffic to the instance and replace it.</p>
+</div>
+<div class="section" id="get-contribute-json">
+<span id="api-utilities-contribute"></span><h2>GET /contribute.json<a class="headerlink" href="#get-contribute-json" title="Permalink to this headline">¶</a></h2>
+<p>The returned value is a JSON mapping containing open source contribution
+information as advocated by <a class="reference external" href="https://www.contributejson.org">https://www.contributejson.org</a></p>
+</div>
+<div class="section" id="get-version">
+<span id="api-utilities-version"></span><h2>GET /__version__<a class="headerlink" href="#get-version" title="Permalink to this headline">¶</a></h2>
+<p>Return a JSON mapping containing information about what distribution
+has been deployed by OPs.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;kinto&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;3.3.2&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;commit&quot;</span><span class="p">:</span><span class="s2">&quot;ab8db089ee63dc8e14f4bcfc427a86f311dd7e52&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;source&quot;</span><span class="p">:</span><span class="s2">&quot;https://github.com/Kinto/kinto.git&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The content of this view comes from a file, whose location is
+specified via the <code class="docutils literal"><span class="pre">kinto.version_json_path</span></code> setting or <code class="docutils literal"><span class="pre">KINTO_VERSION_JSON_PATH</span></code>
+environment variable (<em>default location is</em> <code class="docutils literal"><span class="pre">version.json</span></code> <em>in current working directory</em>).</p>
+<p>Return <code class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></code> if no <code class="docutils literal"><span class="pre">version.json</span></code> file is found.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="batch.html" class="btn btn-neutral float-right" title="Batch operations" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="quotas.html" class="btn btn-neutral" title="Quotas management" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,268 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API Versioning &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="API" href="index.html"/>
+        <link rel="next" title="1.x" href="1.x/index.html"/>
+        <link rel="prev" title="API" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">API Versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1.x/index.html">1.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#changelog">Changelog</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">API</a> &raquo;</li>
+      
+    <li>API Versioning</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/versioning.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api-versioning">
+<span id="id1"></span><h1>API Versioning<a class="headerlink" href="#api-versioning" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="../core/glossary.html#term-http-api"><span class="xref std std-term">HTTP API</span></a> exposed by the service will be consumed by clients, like
+a Javascript client.</p>
+<p>The <a class="reference internal" href="../core/glossary.html#term-http-api"><span class="xref std std-term">HTTP API</span></a> is subject to changes. It follows the
+<a class="reference internal" href="../core/glossary.html#term-kinto-core-http-api"><span class="xref std std-term">Kinto-Core HTTP API</span></a>.</p>
+<p>When the <a class="reference internal" href="../core/glossary.html#term-http-api"><span class="xref std std-term">HTTP API</span></a> is changed, its version is incremented.
+The <a class="reference internal" href="../core/glossary.html#term-http-api"><span class="xref std std-term">HTTP API</span></a> version follows a <a class="reference internal" href="../core/glossary.html#term-semantic-versioning"><span class="xref std std-term">Semantic Versioning</span></a>
+pattern and uses this rule to be incremented:</p>
+<ol class="arabic simple">
+<li>any change to the <a class="reference internal" href="../core/glossary.html#term-http-api"><span class="xref std std-term">HTTP API</span></a> that is backward compatible increments
+the <strong>MINOR</strong> number, and the modification in the documentation should reflect
+this with a header like &#8220;Added in 1.x&#8221;.</li>
+<li>any change to the <a class="reference internal" href="../core/glossary.html#term-http-api"><span class="xref std std-term">HTTP API</span></a> that is backward incompatible increments
+the <strong>MAJOR</strong> number, and the differences are summarized at the begining of
+the documentation, a new document for that <strong>MAJOR</strong> version is created.</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We&#8217;re not using the <strong>PATCH</strong> level of Semantic Versioning,
+since bug fixes have no impact on the exposed HTTP API; if they do
+MINOR or MAJOR should be incremented.</p>
+</div>
+<p>We want to avoid <strong>MAJOR</strong> changes as much as possible in the future, and stick
+with 1.x as long as we can.</p>
+<p>A client that interacts with the service can query the server to know what
+is its <a class="reference internal" href="../core/glossary.html#term-http-api"><span class="xref std std-term">HTTP API</span></a> version. This is done with a query on the root view,
+as described in <a class="reference internal" href="1.x/utilities.html#api-utilities"><span class="std std-ref">the root API description</span></a>.</p>
+<p>If a client relies on a feature that was introduced at a particular version,
+it should check that the server implements the minimal required version.</p>
+<p>The JSON response body contains an <strong>http_api_version</strong> key which value is
+the <strong>MAJOR.MINOR</strong> version.</p>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="1.x/index.html" class="btn btn-neutral float-right" title="1.x" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="API" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

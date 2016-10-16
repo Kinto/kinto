@@ -1,0 +1,486 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Cache &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Kinto Core" href="index.html"/>
+        <link rel="next" title="Notifications" href="notifications.html"/>
+        <link rel="prev" title="Storage" href="storage.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kinto Core</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rationale.html">Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resource.html">Resource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewsets.html">Viewsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Cache</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#postgresql">PostgreSQL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#redis">Redis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#api">API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Kinto Core</a> &raquo;</li>
+      
+    <li>Cache</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/core/cache.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cache">
+<span id="id1"></span><h1>Cache<a class="headerlink" href="#cache" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="postgresql">
+<h2>PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kinto.core.cache.postgresql.Cache">
+<em class="property">class </em><code class="descclassname">kinto.core.cache.postgresql.</code><code class="descname">Cache</code><span class="sig-paren">(</span><em>client</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.cache.postgresql.Cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cache backend using PostgreSQL.</p>
+<p>Enable in configuration:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">cache_backend</span> <span class="o">=</span> <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">postgresql</span>
+</pre></div>
+</div>
+<p>Database location URI can be customized:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">cache_url</span> <span class="o">=</span> <span class="n">postgres</span><span class="p">:</span><span class="o">//</span><span class="n">user</span><span class="p">:</span><span class="k">pass</span><span class="nd">@db</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">lan</span><span class="p">:</span><span class="mi">5432</span><span class="o">/</span><span class="n">dbname</span>
+</pre></div>
+</div>
+<p>Alternatively, username and password could also rely on system user ident
+or even specified in <code class="file docutils literal"><span class="pre">~/.pgpass</span></code> (<em>see PostgreSQL documentation</em>).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Some tables and indices are created when <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">migrate</span></code> is run.
+This requires some privileges on the database, or some error will
+be raised.</p>
+<p class="last"><strong>Alternatively</strong>, the schema can be initialized outside the
+python application, using the SQL file located in
+<code class="file docutils literal"><span class="pre">kinto/core/cache/postgresql/schema.sql</span></code>. This allows to
+distinguish schema manipulation privileges from schema usage.</p>
+</div>
+<p>A connection pool is enabled by default:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">cache_pool_size</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">cache_maxoverflow</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">cache_max_backlog</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">cache_pool_recycle</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">cache_pool_timeout</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">cache_poolclass</span> <span class="o">=</span>
+    <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">postgresql</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">QueuePoolWithMaxBacklog</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">max_backlog</span></code>  limits the number of threads that can be in the queue
+waiting for a connection.  Once this limit has been reached, any further
+attempts to acquire a connection will be rejected immediately, instead of
+locking up all threads by keeping them waiting in the queue.</p>
+<p>See <a class="reference external" href="http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html">dedicated section in SQLAlchemy documentation</a>
+for default values and behaviour.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Using a <a class="reference external" href="http://pgpool.net">dedicated connection pool</a> is still
+recommended to allow load balancing, replication or limit the number
+of connections used in a multi-process deployment.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Noindex:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="redis">
+<h2>Redis<a class="headerlink" href="#redis" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kinto_redis.cache.Cache">
+<em class="property">class </em><code class="descclassname">kinto_redis.cache.</code><code class="descname">Cache</code><span class="sig-paren">(</span><em>client</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto_redis.cache.Cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cache backend implementation using Redis.</p>
+<p>Enable in configuration:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">cache_backend</span> <span class="o">=</span> <span class="n">kinto_redis</span><span class="o">.</span><span class="n">cache</span>
+</pre></div>
+</div>
+<p><em>(Optional)</em> Instance location URI can be customized:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">cache_url</span> <span class="o">=</span> <span class="n">redis</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6379</span><span class="o">/</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>A threaded connection pool is enabled by default:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">cache_pool_size</span> <span class="o">=</span> <span class="mi">50</span>
+</pre></div>
+</div>
+<p>If the database is used for multiple Kinto deployement cache, you
+may want to add a prefix to every key to avoid collision:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">cache_prefix</span> <span class="o">=</span> <span class="n">stack1_</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Noindex:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="memory">
+<h2>Memory<a class="headerlink" href="#memory" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kinto.core.cache.memory.Cache">
+<em class="property">class </em><code class="descclassname">kinto.core.cache.memory.</code><code class="descname">Cache</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.cache.memory.Cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cache backend implementation in local process memory.</p>
+<p>Enable in configuration:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">cache_backend</span> <span class="o">=</span> <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">memory</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Noindex:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<p>Implementing a custom cache backend consists on implementing the following
+interface:</p>
+<dl class="class">
+<dt id="kinto.core.cache.CacheBase">
+<em class="property">class </em><code class="descclassname">kinto.core.cache.</code><code class="descname">CacheBase</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.cache.CacheBase" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="kinto.core.cache.CacheBase.initialize_schema">
+<code class="descname">initialize_schema</code><span class="sig-paren">(</span><em>dry_run=False</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.cache.CacheBase.initialize_schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create every necessary objects (like tables or indices) in the
+backend.</p>
+<p>This is executed when the <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">migrate</span></code> command is run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dry_run</strong> (<em>bool</em>) &#8211; simulate instead of executing the operations.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.cache.CacheBase.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.cache.CacheBase.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete every values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.cache.CacheBase.ttl">
+<code class="descname">ttl</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.cache.CacheBase.ttl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the expiration value of the specified <cite>key</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> (<em>str</em>) &#8211; key</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">number of seconds or negative if no TTL.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.cache.CacheBase.expire">
+<code class="descname">expire</code><span class="sig-paren">(</span><em>key</em>, <em>ttl</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.cache.CacheBase.expire" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the expiration value <cite>ttl</cite> for the specified <cite>key</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> (<em>str</em>) &#8211; key</li>
+<li><strong>ttl</strong> (<em>float</em>) &#8211; number of seconds</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.cache.CacheBase.set">
+<code class="descname">set</code><span class="sig-paren">(</span><em>key</em>, <em>value</em>, <em>ttl=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.cache.CacheBase.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store a value with the specified <cite>key</cite>. If <cite>ttl</cite> is provided,
+set an expiration value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> (<em>str</em>) &#8211; key</li>
+<li><strong>value</strong> (<em>str</em>) &#8211; value to store</li>
+<li><strong>ttl</strong> (<em>float</em>) &#8211; expire after number of seconds</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.cache.CacheBase.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.cache.CacheBase.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the value of the specified <cite>key</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> (<em>str</em>) &#8211; key</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the stored value or None if missing.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.cache.CacheBase.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.cache.CacheBase.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the value of the specified <cite>key</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> (<em>str</em>) &#8211; key</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="notifications.html" class="btn btn-neutral float-right" title="Notifications" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="storage.html" class="btn btn-neutral" title="Storage" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,330 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Command Line &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="index.html"/>
+        <link rel="next" title="FAQ" href="faq.html"/>
+        <link rel="prev" title="Deprecation" href="api/1.x/deprecation.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-file">Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#database-schemas">Database schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#local-server">Local server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#delete-a-collection">Delete a collection</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Command Line</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/commandline.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="command-line">
+<span id="id1"></span><h1>Command Line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h1>
+<p>When Kinto is installed, a command <code class="docutils literal"><span class="pre">kinto</span></code> becomes available.</p>
+<p>It accepts a <code class="docutils literal"><span class="pre">--ini</span></code> parameter, whose default value is <code class="docutils literal"><span class="pre">config/kinto.ini</span></code>,
+and a set of «sub commands» are available.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">kinto</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ini</span> <span class="n">INI_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span>
+             <span class="p">{</span><span class="n">init</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">migrate</span><span class="p">,</span><span class="n">delete</span><span class="o">-</span><span class="n">collection</span><span class="p">}</span> <span class="o">...</span>
+
+<span class="n">Kinto</span> <span class="n">Command</span><span class="o">-</span><span class="n">Line</span> <span class="n">Interface</span>
+
+<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+  <span class="o">--</span><span class="n">ini</span> <span class="n">INI_FILE</span>        <span class="n">Application</span> <span class="n">configuration</span> <span class="n">file</span>
+  <span class="o">-</span><span class="n">v</span><span class="p">,</span> <span class="o">--</span><span class="n">version</span>         <span class="n">Print</span> <span class="n">the</span> <span class="n">Kinto</span> <span class="n">version</span> <span class="ow">and</span> <span class="n">exit</span><span class="o">.</span>
+
+<span class="n">subcommands</span><span class="p">:</span>
+  <span class="n">Main</span> <span class="n">Kinto</span> <span class="n">CLI</span> <span class="n">commands</span>
+
+  <span class="p">{</span><span class="n">init</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">migrate</span><span class="p">,</span><span class="n">delete</span><span class="o">-</span><span class="n">collection</span><span class="p">}</span>
+                        <span class="n">Choose</span> <span class="ow">and</span> <span class="n">run</span> <span class="k">with</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+<div class="section" id="configuration-file">
+<h2>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
+<p>Creates a configuration file that works out of the box.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">kinto</span> <span class="n">init</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">backend</span> <span class="n">BACKEND</span><span class="p">]</span>
+
+<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>         <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+  <span class="o">--</span><span class="n">backend</span> <span class="n">BACKEND</span>  <span class="p">{</span><span class="n">memory</span><span class="p">,</span><span class="n">redis</span><span class="p">,</span><span class="n">postgresql</span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When choosing <code class="docutils literal"><span class="pre">postgresql</span></code>, the PostgreSQL Python dependencies will be
+installed if not available.</p>
+</div>
+</div>
+<div class="section" id="database-schemas">
+<h2>Database schemas<a class="headerlink" href="#database-schemas" title="Permalink to this headline">¶</a></h2>
+<p>Installs the last database schemas in the configured backends.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">kinto</span> <span class="n">migrate</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span>
+
+<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>  <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+  <span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span>   <span class="n">Simulate</span> <span class="n">the</span> <span class="n">migration</span> <span class="n">operations</span> <span class="ow">and</span> <span class="n">show</span> <span class="n">information</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Running this on PostgreSQL requires the configured user to have certain
+privileges (table creation etc.).</p>
+</div>
+</div>
+<div class="section" id="local-server">
+<h2>Local server<a class="headerlink" href="#local-server" title="Permalink to this headline">¶</a></h2>
+<p>Starts Kinto locally using a simple HTTP server.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">kinto</span> <span class="n">start</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">reload</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">port</span> <span class="n">PORT</span><span class="p">]</span>
+
+<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>   <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+  <span class="o">--</span><span class="n">reload</span>     <span class="n">Restart</span> <span class="n">when</span> <span class="n">code</span> <span class="ow">or</span> <span class="n">config</span> <span class="n">changes</span>
+  <span class="o">--</span><span class="n">port</span> <span class="n">PORT</span>  <span class="n">Listening</span> <span class="n">port</span> <span class="n">number</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This <strong>not</strong> recommended for production. <a class="reference internal" href="configuration/production.html#run-production"><span class="std std-ref">See more details</span></a>.</p>
+</div>
+</div>
+<div class="section" id="delete-a-collection">
+<h2>Delete a collection<a class="headerlink" href="#delete-a-collection" title="Permalink to this headline">¶</a></h2>
+<p>Deletes a collection and its underlying objects from the <code class="docutils literal"><span class="pre">storage</span></code> and <code class="docutils literal"><span class="pre">permission</span></code> backends.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Objects are permanently deleted, and there is no way to cancel the operation.</p>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">kinto</span> <span class="n">delete</span><span class="o">-</span><span class="n">collection</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">--</span><span class="n">bucket</span> <span class="n">BUCKET</span> <span class="o">--</span><span class="n">collection</span> <span class="n">COLLECTION</span>
+
+<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+  <span class="o">--</span><span class="n">bucket</span> <span class="n">BUCKET</span>       <span class="n">The</span> <span class="n">bucket</span> <span class="n">where</span> <span class="n">the</span> <span class="n">collection</span> <span class="n">belongs</span> <span class="n">to</span><span class="o">.</span>
+  <span class="o">--</span><span class="n">collection</span> <span class="n">COLLECTION</span>
+                        <span class="n">The</span> <span class="n">collection</span> <span class="n">to</span> <span class="n">remove</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span> <span class="o">--</span><span class="n">ini</span><span class="o">=</span><span class="n">config</span><span class="o">/</span><span class="n">postgresql</span><span class="o">.</span><span class="n">ini</span> <span class="n">delete</span><span class="o">-</span><span class="n">collection</span> <span class="o">--</span><span class="n">bucket</span><span class="o">=</span><span class="n">source</span> <span class="o">--</span><span class="n">collection</span><span class="o">=</span><span class="n">source</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This command does not go through the HTTP API and won&#8217;t trigger
+<a class="reference internal" href="core/notifications.html#kinto.core.events.ResourceChanged" title="kinto.core.events.ResourceChanged"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.events.ResourceChanged</span></code></a> events.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="faq.html" class="btn btn-neutral float-right" title="FAQ" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="api/1.x/deprecation.html" class="btn btn-neutral" title="Deprecation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

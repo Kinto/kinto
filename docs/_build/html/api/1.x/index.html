@@ -1,0 +1,434 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1.x &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../../index.html"/>
+        <link rel="up" title="API" href="../index.html"/>
+        <link rel="next" title="Authentication" href="authentication.html"/>
+        <link rel="prev" title="API Versioning" href="../versioning.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../versioning.html">API Versioning</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.x</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#full-reference">Full reference</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buckets.html">Buckets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="records.html">Records</a></li>
+<li class="toctree-l4"><a class="reference internal" href="groups.html">Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="permissions.html">Permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="filtering.html">Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sorting.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pagination.html">Paginating</a></li>
+<li class="toctree-l4"><a class="reference internal" href="selecting_fields.html">Selecting fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="history.html">History of changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="quotas.html">Quotas management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utilities.html">Utility endpoints for OPS and Devs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batch.html">Batch operations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="timestamps.html">Server timestamps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="backoff.html">Backoff indicators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="errors.html">Error responses</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprecation.html">Deprecation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cheatsheet">Cheatsheet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#changelog">Changelog</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">API</a> &raquo;</li>
+      
+    <li>1.x</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/api/1.x/index.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="x">
+<span id="kinto-api-endpoints"></span><h1>1.x<a class="headerlink" href="#x" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="full-reference">
+<h2>Full reference<a class="headerlink" href="#full-reference" title="Permalink to this headline">¶</a></h2>
+<p>Full detailed API documentation:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="buckets.html">Buckets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="records.html">Records</a></li>
+<li class="toctree-l1"><a class="reference internal" href="groups.html">Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filtering.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sorting.html">Sorting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pagination.html">Paginating</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selecting_fields.html">Selecting fields</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History of changes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quotas.html">Quotas management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utility endpoints for OPS and Devs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch.html">Batch operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timestamps.html">Server timestamps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backoff.html">Backoff indicators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errors.html">Error responses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deprecation.html">Deprecation</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="cheatsheet">
+<h2>Cheatsheet<a class="headerlink" href="#cheatsheet" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="6%" />
+<col width="58%" />
+<col width="35%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Method</th>
+<th class="head">URI</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><cite>GET</cite></td>
+<td><a class="reference internal" href="utilities.html#api-utilities"><span class="std std-ref">/</span></a></td>
+<td><a class="reference internal" href="utilities.html#api-utilities"><span class="std std-ref">Information about the running instance</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>POST</cite></td>
+<td><a class="reference internal" href="batch.html#batch"><span class="std std-ref">/batch</span></a></td>
+<td><a class="reference internal" href="batch.html#batch"><span class="std std-ref">Send multiple operations in one request</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>GET</cite></td>
+<td><a class="reference internal" href="utilities.html#api-utilities"><span class="std std-ref">/__heartbeat__</span></a></td>
+<td><a class="reference internal" href="utilities.html#api-utilities"><span class="std std-ref">Return the status of dependent services</span></a></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><strong>Buckets</strong></td>
+</tr>
+<tr class="row-even"><td><cite>POST</cite></td>
+<td><a class="reference internal" href="buckets.html#buckets-post"><span class="std std-ref">/buckets</span></a></td>
+<td><a class="reference internal" href="buckets.html#buckets-post"><span class="std std-ref">Create a bucket</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>GET</cite></td>
+<td><a class="reference internal" href="buckets.html#buckets-get"><span class="std std-ref">/buckets</span></a></td>
+<td><a class="reference internal" href="buckets.html#buckets-get"><span class="std std-ref">List buckets</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>DELETE</cite></td>
+<td><a class="reference internal" href="buckets.html#buckets-delete"><span class="std std-ref">/buckets</span></a></td>
+<td><a class="reference internal" href="buckets.html#buckets-delete"><span class="std std-ref">Delete every writable buckets</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>PUT</cite></td>
+<td><a class="reference internal" href="buckets.html#bucket-put"><span class="std std-ref">/buckets/(bucket_id)</span></a></td>
+<td><a class="reference internal" href="buckets.html#bucket-put"><span class="std std-ref">Create or replace a bucket</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>PATCH</cite></td>
+<td><a class="reference internal" href="buckets.html#bucket-patch"><span class="std std-ref">/buckets/(bucket_id)</span></a></td>
+<td><a class="reference internal" href="buckets.html#bucket-patch"><span class="std std-ref">Modify an existing bucket</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>GET</cite></td>
+<td><a class="reference internal" href="buckets.html#bucket-get"><span class="std std-ref">/buckets/(bucket_id)</span></a></td>
+<td><a class="reference internal" href="buckets.html#bucket-get"><span class="std std-ref">Retrieve an existing bucket</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>DELETE</cite></td>
+<td><a class="reference internal" href="buckets.html#bucket-delete"><span class="std std-ref">/buckets/(bucket_id)</span></a></td>
+<td><a class="reference internal" href="buckets.html#bucket-delete"><span class="std std-ref">Delete a bucket</span></a></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><strong>Groups</strong></td>
+</tr>
+<tr class="row-even"><td><cite>POST</cite></td>
+<td><a class="reference internal" href="groups.html#groups-post"><span class="std std-ref">/buckets/(bucket_id)/groups</span></a></td>
+<td><a class="reference internal" href="groups.html#groups-post"><span class="std std-ref">Create a group</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>GET</cite></td>
+<td><a class="reference internal" href="groups.html#groups-get"><span class="std std-ref">/buckets/(bucket_id)/groups</span></a></td>
+<td><a class="reference internal" href="groups.html#groups-get"><span class="std std-ref">Retrieve the list of bucket&#8217;s group</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>PUT</cite></td>
+<td><a class="reference internal" href="groups.html#group-put"><span class="std std-ref">/buckets/(bucket_id)/groups/(group_id)</span></a></td>
+<td><a class="reference internal" href="groups.html#group-put"><span class="std std-ref">Update a group</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>PATCH</cite></td>
+<td><a class="reference internal" href="groups.html#group-patch"><span class="std std-ref">/buckets/(bucket_id)/groups/(group_id)</span></a></td>
+<td><a class="reference internal" href="groups.html#group-patch"><span class="std std-ref">Modify an existing group</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>GET</cite></td>
+<td><a class="reference internal" href="groups.html#group-get"><span class="std std-ref">/buckets/(bucket_id)/groups/(group_id)</span></a></td>
+<td><a class="reference internal" href="groups.html#group-get"><span class="std std-ref">Retrieve a group</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>DELETE</cite></td>
+<td><a class="reference internal" href="groups.html#groups-post"><span class="std std-ref">/buckets/(bucket_id)/groups/(group_id)</span></a></td>
+<td><a class="reference internal" href="groups.html#group-delete"><span class="std std-ref">Delete a group</span></a></td>
+</tr>
+<tr class="row-even"><td colspan="3"><strong>Collections</strong></td>
+</tr>
+<tr class="row-odd"><td><cite>GET</cite></td>
+<td><a class="reference internal" href="collections.html#collections-get"><span class="std std-ref">/buckets/(bucket_id)/collections</span></a></td>
+<td><a class="reference internal" href="collections.html#collections-get"><span class="std std-ref">List bucket&#8217;s collections</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>DELETE</cite></td>
+<td><a class="reference internal" href="collections.html#collections-delete"><span class="std std-ref">/buckets/(bucket_id)/collections</span></a></td>
+<td><a class="reference internal" href="collections.html#collections-delete"><span class="std std-ref">Delete writable collections</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>POST</cite></td>
+<td><a class="reference internal" href="collections.html#collections-post"><span class="std std-ref">/buckets/(bucket_id)/collections</span></a></td>
+<td><a class="reference internal" href="collections.html#collections-post"><span class="std std-ref">Create a collection</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>PUT</cite></td>
+<td><a class="reference internal" href="collections.html#collection-put"><span class="std std-ref">/buckets/(bucket_id)/collections/(collection_id)</span></a></td>
+<td><a class="reference internal" href="collections.html#collection-put"><span class="std std-ref">Create or replace a collection</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>PATCH</cite></td>
+<td><a class="reference internal" href="collections.html#collection-patch"><span class="std std-ref">/buckets/(bucket_id)/collections/(collection_id)</span></a></td>
+<td><a class="reference internal" href="collections.html#collection-patch"><span class="std std-ref">Modify an existing collection</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>GET</cite></td>
+<td><a class="reference internal" href="collections.html#collection-get"><span class="std std-ref">/buckets/(bucket_id)/collections/(collection_id)</span></a></td>
+<td><a class="reference internal" href="collections.html#collection-get"><span class="std std-ref">Retreive an existing collection</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>DELETE</cite></td>
+<td><a class="reference internal" href="collections.html#collection-delete"><span class="std std-ref">/buckets/(bucket_id)/collections/(collection_id)</span></a></td>
+<td><a class="reference internal" href="collections.html#collection-delete"><span class="std std-ref">Delete a collection</span></a></td>
+</tr>
+<tr class="row-even"><td colspan="3"><strong>Records</strong></td>
+</tr>
+<tr class="row-odd"><td><cite>POST</cite></td>
+<td><a class="reference internal" href="records.html#records-post"><span class="std std-ref">/buckets/(bucket_id)/collections/(collection_id)/records</span></a></td>
+<td><a class="reference internal" href="records.html#records-post"><span class="std std-ref">Upload a record</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>GET</cite></td>
+<td><a class="reference internal" href="records.html#records-get"><span class="std std-ref">/buckets/(bucket_id)/collections/(collection_id)/records</span></a></td>
+<td><a class="reference internal" href="records.html#records-get"><span class="std std-ref">Retrieve stored records</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>DELETE</cite></td>
+<td><a class="reference internal" href="records.html#records-delete"><span class="std std-ref">/buckets/(bucket_id)/collections/(collection_id)/records</span></a></td>
+<td><a class="reference internal" href="records.html#records-delete"><span class="std std-ref">Delete stored records</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>PUT</cite></td>
+<td><a class="reference internal" href="records.html#record-put"><span class="std std-ref">/buckets/(bucket_id)/collections/(collection_id)/records/(record_id)</span></a></td>
+<td><a class="reference internal" href="records.html#record-put"><span class="std std-ref">Create or replace a record</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>PATCH</cite></td>
+<td><a class="reference internal" href="records.html#record-patch"><span class="std std-ref">/buckets/(bucket_id)/collections/(collection_id)/records/(record_id)</span></a></td>
+<td><a class="reference internal" href="records.html#record-patch"><span class="std std-ref">Modify an existing record</span></a></td>
+</tr>
+<tr class="row-even"><td><cite>GET</cite></td>
+<td><a class="reference internal" href="records.html#records-get"><span class="std std-ref">/buckets/(bucket_id)/collections/(collection_id)/records/(record_id)</span></a></td>
+<td><a class="reference internal" href="records.html#records-get"><span class="std std-ref">Retrieve a single record</span></a></td>
+</tr>
+<tr class="row-odd"><td><cite>DELETE</cite></td>
+<td><a class="reference internal" href="records.html#record-delete"><span class="std std-ref">/buckets/(bucket_id)/collections/(collection_id)/records/(record_id)</span></a></td>
+<td><a class="reference internal" href="records.html#record-delete"><span class="std std-ref">Delete a single record</span></a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="authentication.html" class="btn btn-neutral float-right" title="Authentication" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../versioning.html" class="btn btn-neutral" title="API Versioning" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

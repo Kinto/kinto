@@ -1,0 +1,603 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>How to write a Kinto plugin? &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="index.html"/>
+        <link rel="next" title="Permissions examples" href="permission-setups.html"/>
+        <link rel="prev" title="Step by step permissions API tutorial" href="permissions.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">Install Kinto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="first-steps.html">First steps with Kinto HTTP API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synchronisation.html">Synchronisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-websockets.html">How to setup push notifications using WebSockets?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-custom.html">How to run custom code on notifications?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-github.html">How to setup Github authentication?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-id-generator.html">How to define and use a custom ID generator?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html">Step by step permissions API tutorial</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">How to write a Kinto plugin?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#run-elasticsearch">Run ElasticSearch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#include-me">Include me</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simple-indexer">Simple indexer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initialize-on-startup">Initialize on startup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-a-search-view">Add a search view</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#index-records-on-change">Index records on change</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#declare-api-capabilities">Declare API capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#default-configuration-and-environment-variables">Default configuration and environment variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-it-altogether">Test it altogether</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#going-further">Going further</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#more-documentation">More documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="permission-setups.html">Permissions examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app-examples.html">Application examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      
+    <li>How to write a Kinto plugin?</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/write-plugin.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-write-a-kinto-plugin">
+<span id="tutorial-write-plugin"></span><h1>How to write a Kinto plugin?<a class="headerlink" href="#how-to-write-a-kinto-plugin" title="Permalink to this headline">¶</a></h1>
+<p><em>Kinto</em> plugins allow to add extra-features to <em>Kinto</em>. Most notably:</p>
+<ul class="simple">
+<li>Respond to internal events (e.g. notify third-party)</li>
+<li>Add endpoints for custom URLs (e.g. new hook URL)</li>
+<li>Add custom endpoint renderers (e.g. XML instead of JSON)</li>
+</ul>
+<p><em>Kinto</em> plugins are <a class="reference internal" href="../configuration/settings.html#configuration-plugins"><span class="std std-ref">Python modules loaded on startup</span></a>.</p>
+<p>In this tutorial, we will build a plugin for <a class="reference external" href="https://en.wikipedia.org/wiki/Elasticsearch">ElasticSearch</a>,
+a full-text search engine. The plugin will:</p>
+<ul class="simple">
+<li>Initialize an indexer on startup;</li>
+<li>Index the records when they&#8217;re created, updated, or deleted.</li>
+<li>Add a new <code class="docutils literal"><span class="pre">/{collection}/search</span></code> endpoint;</li>
+</ul>
+<p>Plugins are built using the Pyramid ecosystem.</p>
+<div class="section" id="run-elasticsearch">
+<h2>Run ElasticSearch<a class="headerlink" href="#run-elasticsearch" title="Permalink to this headline">¶</a></h2>
+<p>We will run a local install of <em>ElasticSearch</em> on <code class="docutils literal"><span class="pre">localhost:9200</span></code>.</p>
+<p>Using Docker it is pretty straightforward:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">docker</span> <span class="n">run</span> <span class="o">-</span><span class="n">p</span> <span class="mi">9200</span><span class="p">:</span><span class="mi">9200</span> <span class="n">elasticsearch</span>
+</pre></div>
+</div>
+<p>It is also be installed manually using the <a class="reference external" href="https://www.elastic.co/downloads/elasticsearch">official instructions</a>.</p>
+</div>
+<div class="section" id="include-me">
+<h2>Include me<a class="headerlink" href="#include-me" title="Permalink to this headline">¶</a></h2>
+<p>First, create a Python package and install it locally. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pip install cookiecutter
+$ cookiecutter gh:kragniz/cookiecutter-pypackage-minimal
+
+[...]
+
+$ cd kinto_elasticsearch
+$ python setup.py develop
+</pre></div>
+</div>
+<p>In order to be included, a package must define an <code class="docutils literal"><span class="pre">includeme(config)</span></code> function.</p>
+<p>For example, in <code class="file docutils literal"><span class="pre">kinto_elasticsearch/__init__.py</span></code>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">includeme</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;I am the ElasticSearch plugin!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Add it the <code class="file docutils literal"><span class="pre">config.ini</span></code> file:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.includes</span> <span class="o">=</span> <span class="s">kinto_elasticsearch</span>
+</pre></div>
+</div>
+<p>Our message should now appear on <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">start</span></code>.</p>
+</div>
+<div class="section" id="simple-indexer">
+<h2>Simple indexer<a class="headerlink" href="#simple-indexer" title="Permalink to this headline">¶</a></h2>
+<p>Let&#8217;s define a simple indexer class in <code class="file docutils literal"><span class="pre">kinto_elasticsearch/indexer.py</span></code>.
+It can search and index records, using the official Python package:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pip install elasticsearch
+</pre></div>
+</div>
+<p>It is a wrapper basically, and the code is kept simple for the simplicity of this tutorial:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">elasticsearch</span>
+
+<span class="k">class</span> <span class="nc">Indexer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hosts</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">elasticsearch</span><span class="o">.</span><span class="n">Elasticsearch</span><span class="p">(</span><span class="n">hosts</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="n">collection_id</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">indexname</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">collection_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">indexname</span><span class="p">,</span>
+                                  <span class="n">doc_type</span><span class="o">=</span><span class="n">indexname</span><span class="p">,</span>
+                                  <span class="n">body</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+                                  <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">index_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="n">collection_id</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">id_field</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">):</span>
+        <span class="n">indexname</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">collection_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">indices</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">indexname</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">indices</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">indexname</span><span class="p">)</span>
+
+        <span class="n">record_id</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="n">id_field</span><span class="p">]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">indexname</span><span class="p">,</span>
+                                  <span class="n">doc_type</span><span class="o">=</span><span class="n">indexname</span><span class="p">,</span>
+                                  <span class="nb">id</span><span class="o">=</span><span class="n">record_id</span><span class="p">,</span>
+                                  <span class="n">body</span><span class="o">=</span><span class="n">record</span><span class="p">,</span>
+                                  <span class="n">refresh</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">index</span>
+
+    <span class="k">def</span> <span class="nf">unindex_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_id</span><span class="p">,</span> <span class="n">collection_id</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">id_field</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">):</span>
+        <span class="n">indexname</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">collection_id</span><span class="p">)</span>
+        <span class="n">record_id</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="n">id_field</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">indexname</span><span class="p">,</span>
+                                    <span class="n">doc_type</span><span class="o">=</span><span class="n">indexname</span><span class="p">,</span>
+                                    <span class="nb">id</span><span class="o">=</span><span class="n">record_id</span><span class="p">,</span>
+                                    <span class="n">refresh</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+<p>And a simple method to load from configuration:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyramid.settings</span> <span class="kn">import</span> <span class="n">aslist</span>
+
+<span class="k">def</span> <span class="nf">load_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_settings</span><span class="p">()</span>
+    <span class="n">hosts</span> <span class="o">=</span> <span class="n">aslist</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;elasticsearch.hosts&#39;</span><span class="p">,</span> <span class="s1">&#39;localhost:9200&#39;</span><span class="p">))</span>
+    <span class="n">indexer</span> <span class="o">=</span> <span class="n">Indexer</span><span class="p">(</span><span class="n">hosts</span><span class="o">=</span><span class="n">hosts</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">indexer</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="initialize-on-startup">
+<h2>Initialize on startup<a class="headerlink" href="#initialize-on-startup" title="Permalink to this headline">¶</a></h2>
+<p>We now need to initialize the indexer when Kinto starts. It happens in the
+<code class="docutils literal"><span class="pre">includeme()</span></code> function.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">indexer</span>
+
+<span class="k">def</span> <span class="nf">includeme</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="c1"># Register a global indexer object</span>
+<span class="hll">    <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">indexer</span> <span class="o">=</span> <span class="n">indexer</span><span class="o">.</span><span class="n">load_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</span></pre></div>
+</div>
+</div>
+<div class="section" id="add-a-search-view">
+<h2>Add a search view<a class="headerlink" href="#add-a-search-view" title="Permalink to this headline">¶</a></h2>
+<p>Add an endpoint definition in <code class="file docutils literal"><span class="pre">kinto_elasticsearch/views.py</span></code>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">Service</span><span class="p">,</span> <span class="n">logger</span>
+
+<span class="n">search</span> <span class="o">=</span> <span class="n">Service</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;search&quot;</span><span class="p">,</span>
+                 <span class="n">path</span><span class="o">=</span><span class="s1">&#39;/buckets/{bucket_id}/collections/{collection_id}/search&#39;</span><span class="p">,</span>
+                 <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Search&quot;</span><span class="p">)</span>
+
+<span class="nd">@search.post</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">get_search</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">bucket_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;bucket_id&#39;</span><span class="p">]</span>
+    <span class="n">collection_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">matchdict</span><span class="p">[</span><span class="s1">&#39;collection_id&#39;</span><span class="p">]</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span>
+
+    <span class="c1"># Access indexer from views using registry.</span>
+    <span class="n">indexer</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">indexer</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">indexer</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span> <span class="n">collection_id</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="n">results</span>
+</pre></div>
+</div>
+<p>Enable the view:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">indexer</span>
+
+<span class="k">def</span> <span class="nf">includeme</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="c1"># Register a global indexer object</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">indexer</span> <span class="o">=</span> <span class="n">indexer</span><span class="o">.</span><span class="n">load_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+<span class="hll">    <span class="c1"># Activate end-points.</span>
+</span><span class="hll">    <span class="n">config</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="s1">&#39;kinto_elasticsearch.views&#39;</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>This new URL should now be accessible, but return no result:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ http POST &quot;http://localhost:8888/v1/buckets/example/collections/notes/search
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Retry-After, Content-Length, Alert, Backoff</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">2</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Wed, 20 Jan 2016 12:01:50 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="index-records-on-change">
+<h2>Index records on change<a class="headerlink" href="#index-records-on-change" title="Permalink to this headline">¶</a></h2>
+<p>When records change, we index them. When they are deleted, we unindex them.</p>
+<p>Let&#8217;s define a function <code class="docutils literal"><span class="pre">on_resource_changed()</span></code> that will be called when
+an action is performed on records.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">on_resource_changed</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="hll">    <span class="n">indexer</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">indexer</span>
+</span>
+    <span class="n">resource_name</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="p">[</span><span class="s1">&#39;resource_name&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">resource_name</span> <span class="o">!=</span> <span class="s2">&quot;record&quot;</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">bucket_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="p">[</span><span class="s1">&#39;bucket_id&#39;</span><span class="p">]</span>
+    <span class="n">collection_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="p">[</span><span class="s1">&#39;collection_id&#39;</span><span class="p">]</span>
+
+    <span class="n">action</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">events</span><span class="o">.</span><span class="n">impacted_records</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">:</span>
+            <span class="n">indexer</span><span class="o">.</span><span class="n">unindex_record</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span>
+                                   <span class="n">collection_id</span><span class="p">,</span>
+                                   <span class="n">record</span><span class="o">=</span><span class="n">change</span><span class="p">[</span><span class="s1">&#39;old&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+<span class="hll">            <span class="n">indexer</span><span class="o">.</span><span class="n">index_record</span><span class="p">(</span><span class="n">bucket_id</span><span class="p">,</span>
+</span><span class="hll">                                 <span class="n">collection_id</span><span class="p">,</span>
+</span><span class="hll">                                 <span class="n">record</span><span class="o">=</span><span class="n">change</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">])</span>
+</span></pre></div>
+</div>
+<p>And then we bind this function with the <em>Kinto-Core</em> events:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span> <span class="nn">kinto.core.events</span> <span class="kn">import</span> <span class="n">ResourceChanged</span>
+</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">indexer</span>
+
+<span class="k">def</span> <span class="nf">includeme</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="c1"># Register a global indexer object</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">indexer</span> <span class="o">=</span> <span class="n">indexer</span><span class="o">.</span><span class="n">load_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Activate end-points.</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="s1">&#39;kinto_elasticsearch.views&#39;</span><span class="p">)</span>
+
+<span class="hll">    <span class="c1"># Plug the callback with resource events.</span>
+</span><span class="hll">    <span class="n">config</span><span class="o">.</span><span class="n">add_subscriber</span><span class="p">(</span><span class="n">on_resource_changed</span><span class="p">,</span> <span class="n">ResourceChanged</span><span class="p">)</span>
+</span></pre></div>
+</div>
+</div>
+<div class="section" id="declare-api-capabilities">
+<h2>Declare API capabilities<a class="headerlink" href="#declare-api-capabilities" title="Permalink to this headline">¶</a></h2>
+<p>Arbitrary capabilities can be declared and exposed in the <a class="reference internal" href="../api/1.x/utilities.html#api-utilities"><span class="std std-ref">root URL</span></a>.</p>
+<p>Clients can rely on this to detect optional features on the server, like our indexer!</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core.events</span> <span class="kn">import</span> <span class="n">ResourceChanged</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">indexer</span>
+
+<span class="k">def</span> <span class="nf">includeme</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="c1"># Register a global indexer object</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">indexer</span> <span class="o">=</span> <span class="n">indexer</span><span class="o">.</span><span class="n">load_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Activate end-points.</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="s1">&#39;kinto_elasticsearch.views&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Plug the callback with resource events.</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_subscriber</span><span class="p">(</span><span class="n">on_resource_changed</span><span class="p">,</span> <span class="n">ResourceChanged</span><span class="p">)</span>
+<span class="hll">
+</span><span class="hll">    <span class="n">config</span><span class="o">.</span><span class="n">add_api_capability</span><span class="p">(</span><span class="s2">&quot;indexed_search&quot;</span><span class="p">,</span>
+</span><span class="hll">                              <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Search records using ElasticSearch&quot;</span><span class="p">,</span>
+</span><span class="hll">                              <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://my-super-indexer-for-kinto.org&quot;</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Any argument passed to <code class="docutils literal"><span class="pre">config.add_api_capability()</span></code> will be exposed in the
+root URL.</p>
+</div>
+</div>
+<div class="section" id="default-configuration-and-environment-variables">
+<h2>Default configuration and environment variables<a class="headerlink" href="#default-configuration-and-environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>A helper allows to read configuration values from <a class="reference internal" href="../configuration/settings.html#configuration-environment"><span class="std std-ref">environment variables</span></a>
+and provide default values.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">load_default_settings</span>
+</span><span class="kn">from</span> <span class="nn">kinto.core.events</span> <span class="kn">import</span> <span class="n">ResourceChanged</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">indexer</span>
+
+<span class="hll"><span class="n">DEFAULT_SETTINGS</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class="hll">    <span class="s1">&#39;elasticsearch.refresh_enabled&#39;</span><span class="p">:</span> <span class="bp">False</span>
+</span><span class="hll"><span class="p">}</span>
+</span>
+<span class="k">def</span> <span class="nf">includeme</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="hll">    <span class="c1"># Load settings from environment and apply defaults.</span>
+</span><span class="hll">    <span class="n">load_default_settings</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">DEFAULT_SETTINGS</span><span class="p">)</span>
+</span>
+    <span class="c1"># Register a global indexer object</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">indexer</span> <span class="o">=</span> <span class="n">indexer</span><span class="o">.</span><span class="n">load_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Activate end-points.</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="s1">&#39;kinto_elasticsearch.views&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Plug the callback with resource events.</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">add_subscriber</span><span class="p">(</span><span class="n">on_resource_changed</span><span class="p">,</span> <span class="n">ResourceChanged</span><span class="p">)</span>
+
+    <span class="n">config</span><span class="o">.</span><span class="n">add_api_capability</span><span class="p">(</span><span class="s2">&quot;indexed_search&quot;</span><span class="p">,</span>
+                              <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Search records using ElasticSearch&quot;</span><span class="p">,</span>
+                              <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://my-super-indexer-for-kinto.org&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, if the environment variable <code class="docutils literal"><span class="pre">KINTO_ELASTICSEARCH_REFRESH_ENABLED</span></code>
+is set to <code class="docutils literal"><span class="pre">true</span></code>, it will override the setting <code class="docutils literal"><span class="pre">kinto.elasticsearch.refresh_enabled</span></code> from the <code class="docutils literal"><span class="pre">.ini</span></code>
+file.</p>
+</div>
+<div class="section" id="test-it-altogether">
+<h2>Test it altogether<a class="headerlink" href="#test-it-altogether" title="Permalink to this headline">¶</a></h2>
+<p>We&#8217;re almost done! Now, let&#8217;s check if it works properly.</p>
+<p>Create a bucket and collection:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ http --auth token:alice-token --verbose PUT http://localhost:8888/v1/buckets/example
+$ http --auth token:alice-token --verbose PUT http://localhost:8888/v1/buckets/example/collections/notes
+</pre></div>
+</div>
+<p>Add a new record:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ echo &#39;{&quot;data&quot;: {&quot;note&quot;: &quot;kinto&quot;}}&#39; | http --auth token:alice-token --verbose POST http://localhost:8888/v1/buckets/example/collections/notes/records
+</pre></div>
+</div>
+<p>It should now be possible to search for it:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ http --auth token:alice-token --verbose POST http://localhost:8888/v1/buckets/default/collections/assets/search
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Retry-After, Content-Length, Alert, Backoff</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">333</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Wed, 20 Jan 2016 12:02:05 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;_shards&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;failed&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="nt">&quot;successful&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="nt">&quot;total&quot;</span><span class="p">:</span> <span class="mi">5</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;hits&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;hits&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="nt">&quot;_id&quot;</span><span class="p">:</span> <span class="s2">&quot;453ff779-e967-4b08-99b9-5c16af865a67&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;_index&quot;</span><span class="p">:</span> <span class="s2">&quot;example-assets&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;_score&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+<span class="hll">                <span class="nt">&quot;_source&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class="hll">                    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;453ff779-e967-4b08-99b9-5c16af865a67&quot;</span><span class="p">,</span>
+</span><span class="hll">                    <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1453291301729</span><span class="p">,</span>
+</span><span class="hll">                    <span class="nt">&quot;note&quot;</span><span class="p">:</span> <span class="s2">&quot;kinto&quot;</span>
+</span><span class="hll">                <span class="p">},</span>
+</span>                <span class="nt">&quot;_type&quot;</span><span class="p">:</span> <span class="s2">&quot;example-assets&quot;</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;max_score&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="nt">&quot;total&quot;</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;timed_out&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nt">&quot;took&quot;</span><span class="p">:</span> <span class="mi">20</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="going-further">
+<h2>Going further<a class="headerlink" href="#going-further" title="Permalink to this headline">¶</a></h2>
+<p>This plugins implements the basic functionnality. In order to make it a first-class
+plugin, it would require:</p>
+<ul class="simple">
+<li>Check that user has <code class="docutils literal"><span class="pre">read</span></code> permission on the collection before searching</li>
+<li>Create the index when the collection is created</li>
+<li>Create a mapping if the collection has a JSON schema</li>
+<li>Delete the index when the bucket or collection are deleted</li>
+</ul>
+<p>If you feel like doing it, we would be very glad to help you!</p>
+</div>
+<div class="section" id="more-documentation">
+<h2>More documentation<a class="headerlink" href="#more-documentation" title="Permalink to this headline">¶</a></h2>
+<p>Some more details about Kinto internals are given in the <a class="reference internal" href="../core/index.html#kinto-core"><span class="std std-ref">Kinto core docs</span></a>!</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="permission-setups.html" class="btn btn-neutral float-right" title="Permissions examples" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="permissions.html" class="btn btn-neutral" title="Step by step permissions API tutorial" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

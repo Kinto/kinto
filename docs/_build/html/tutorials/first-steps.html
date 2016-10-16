@@ -1,0 +1,923 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>First steps with Kinto HTTP API &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="index.html"/>
+        <link rel="next" title="Synchronisation" href="synchronisation.html"/>
+        <link rel="prev" title="Install Kinto" href="install.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">Install Kinto</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">First steps with Kinto HTTP API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-problem">The problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-model">Data model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basic-data-storage-apis">Basic data storage APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sync-user-data-between-devices">Sync user data between devices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sync-and-share-data-between-users">Sync and share data between users</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-groups">Working with groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="synchronisation.html">Synchronisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-websockets.html">How to setup push notifications using WebSockets?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-custom.html">How to run custom code on notifications?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-github.html">How to setup Github authentication?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-id-generator.html">How to define and use a custom ID generator?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html">Step by step permissions API tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="write-plugin.html">How to write a Kinto plugin?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission-setups.html">Permissions examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app-examples.html">Application examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      
+    <li>First steps with Kinto HTTP API</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/first-steps.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="first-steps-with-kinto-http-api">
+<span id="tutorial-first-steps"></span><h1>First steps with Kinto HTTP API<a class="headerlink" href="#first-steps-with-kinto-http-api" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial will take you through your first API calls with a real
+Kinto server, with an emphasis on those APIs used for syncing data
+between devices and sharing data between users. You probably won&#8217;t be
+making calls to these APIs directly; instead, you&#8217;ll use a client
+library like <em>Kinto.js</em>.</p>
+<p>In order to get the most out of this tutorial, you may want to have a
+real Kinto server ready. You can read our <a class="reference internal" href="install.html#install"><span class="std std-ref">installation</span></a> guide to see how to set up your own Kinto instance if you
+like. We&#8217;ll be using the <a class="reference internal" href="install.html#run-kinto-mozilla-demo"><span class="std std-ref">Mozilla demo server</span></a>.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p>In this tutorial we will use a Basic Authentication, which computes a
+user id based on the token provided in the request.</p>
+<p>This method has many limitations but has the advantage of not needing
+specific setup or third-party services before you get started.</p>
+<p class="last"><a class="reference internal" href="../api/1.x/authentication.html#id1"><span class="std std-ref">Read more about authentication in Kinto</span></a>.</p>
+</div>
+<p>In this tutorial, we&#8217;ll set out to build an offline-first application,
+following the typical architecture for a Kinto application. We&#8217;ll have
+a Kinto server somewhere in the cloud (represented here by the Mozilla
+dev server). Our application will use a Kinto client library which
+provides offline-first access. That library will maintain a local copy
+of the data. The application will always have read/write access to the
+data in the client, even when it&#8217;s offline. When access to the server
+is available, the client will sync up with it.</p>
+<p>Unless you&#8217;re writing a client library yourself, you won&#8217;t be making
+any of these API requests yourself, but seeing them may give you a
+better understanding of how a Kinto application works and how to
+structure your data when working with Kinto.</p>
+<div class="section" id="the-problem">
+<h2>The problem<a class="headerlink" href="#the-problem" title="Permalink to this headline">¶</a></h2>
+<p>There are several kinds of applications where <em>Kinto</em> is
+particulary relevant as a storage backend.</p>
+<p>Let&#8217;s say that we want to make a <a class="reference external" href="http://todomvc.com/">TodoMVC</a>
+backend that will sync user tasks between the devices. The
+requirements are that users can check off tasks as they complete them
+and they can share their tasks with other users. We want tasks and
+their states to be available on all devices.</p>
+</div>
+<div class="section" id="data-model">
+<h2>Data model<a class="headerlink" href="#data-model" title="Permalink to this headline">¶</a></h2>
+<p>We&#8217;ll start with a relatively simple data model. Each record will have
+these fields:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">description</span></code>: A string describing the task</li>
+<li><code class="docutils literal"><span class="pre">status</span></code>: The status of the task, (e.g. <code class="docutils literal"><span class="pre">todo</span></code>, <code class="docutils literal"><span class="pre">doing</span></code> or <code class="docutils literal"><span class="pre">done</span></code>).</li>
+</ul>
+</div></blockquote>
+<p>In order to keep each user&#8217;s data separate, we&#8217;ll use the default
+<em>personal bucket</em>.</p>
+</div>
+<div class="section" id="basic-data-storage-apis">
+<h2>Basic data storage APIs<a class="headerlink" href="#basic-data-storage-apis" title="Permalink to this headline">¶</a></h2>
+<p>Using the <a class="reference external" href="http://httpie.org">httpie</a> tool we can post a sample record in the
+<code class="docutils literal"><span class="pre">tasks</span></code> collection:</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Please <a class="reference external" href="https://github.com/jkbrzt/httpie#proxies">consider reading httpie documentation</a>
+for more information (if you need to configure a proxy, for instance).</p>
+</div>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;description&quot;: &quot;Write a tutorial explaining Kinto&quot;, &quot;status&quot;: &quot;todo&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http POST https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records <span class="se">\</span>
+         -v --auth <span class="s1">&#39;token:my-secret&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">253</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Mon, 06 Jul 2015 08:39:56 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Write a tutorial explaining Kinto&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;a5f490b2-218e-4d71-ac5a-f046ae285c55&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1436171996916</span><span class="p">,</span>
+        <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;todo&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">With <em>Basic Auth</em> a unique identifier needs to be associated with each
+user. This identifier is built using the token value provided in the request.
+Therefore users cannot change their password easily without losing
+access to their data. <a class="reference internal" href="../api/1.x/authentication.html#id1"><span class="std std-ref">More information</span></a>.</p>
+</div>
+<p>This also creates the <code class="docutils literal"><span class="pre">tasks</span></code> collection. Unlike other buckets, the
+<a class="reference internal" href="../api/1.x/collections.html#collections"><span class="std std-ref">collections</span></a> in the <code class="docutils literal"><span class="pre">default</span></code> <a class="reference internal" href="../api/1.x/buckets.html#buckets"><span class="std std-ref">bucket</span></a> are created implicitly.</p>
+<p>Let us fetch our new collection of tasks:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records <span class="se">\</span>
+       -v --auth <span class="s1">&#39;token:my-secret&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified, ETag</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">152</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Mon, 06 Jul 2015 08:40:14 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1436171996916&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Mon, 06 Jul 2015 08:39:56 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+<span class="na">Total-Records</span><span class="o">:</span> <span class="l">1</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Write a tutorial explaining Kinto&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;a5f490b2-218e-4d71-ac5a-f046ae285c55&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1436171996916</span><span class="p">,</span>
+            <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;todo&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Keep a note of the <code class="docutils literal"><span class="pre">ETag</span></code> and of the <code class="docutils literal"><span class="pre">last_modified</span></code> values
+returned (here both <code class="docutils literal"><span class="pre">&quot;1436171996916&quot;</span></code>) &#8211; we&#8217;ll need them for a later
+example.</p>
+<p>We can also update one of our tasks using its <code class="docutils literal"><span class="pre">id</span></code>:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;status&quot;: &quot;doing&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+     http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 <span class="se">\</span>
+          -v  --auth <span class="s1">&#39;token:my-secret&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">254</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Mon, 06 Jul 2015 08:43:49 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Write a tutorial explaining Kinto&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;a5f490b2-218e-4d71-ac5a-f046ae285c55&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1436172229372</span><span class="p">,</span>
+        <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;doing&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sync-user-data-between-devices">
+<h2>Sync user data between devices<a class="headerlink" href="#sync-user-data-between-devices" title="Permalink to this headline">¶</a></h2>
+<p>Here you should ask yourself: what happens if another device updated the same
+record in the interim - will this request overwrite those changes?</p>
+<p>With the request shown above the answer is <em>yes</em>.</p>
+<p>If you want the server to reject changes if the record was modified in the
+interim, you must send the <code class="docutils literal"><span class="pre">If-Match</span></code> header.</p>
+<p>In the <code class="docutils literal"><span class="pre">If-Match</span></code> header, you must send the <code class="docutils literal"><span class="pre">ETag</span></code> header value you
+obtained while fetching the collection.</p>
+<p>Let&#8217;s try to modify the record using an obsolete value of <code class="docutils literal"><span class="pre">ETag</span></code> (obtained
+while we fetched the collection earlier - you kept a note, didn&#8217;t you?):</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;status&quot;: &quot;done&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 <span class="se">\</span>
+        If-Match:<span class="s1">&#39;&quot;1434641515332&quot;&#39;</span> <span class="se">\</span>
+        -v  --auth <span class="s1">&#39;token:my-secret&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">412</span> <span class="ne">Precondition Failed</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">98</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Mon, 06 Jul 2015 08:45:07 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1436172229372&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Mon, 06 Jul 2015 08:43:49 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">412</span><span class="p">,</span>
+    <span class="nt">&quot;errno&quot;</span><span class="p">:</span> <span class="mi">114</span><span class="p">,</span>
+    <span class="nt">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Precondition Failed&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Resource was modified meanwhile&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>As expected here, the server rejects the modification with a <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code>
+error response.</p>
+<p>In order to update this record safely we can fetch the last version of this
+single record and merge attributes locally:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 <span class="se">\</span>
+       -v  --auth <span class="s1">&#39;token:my-secret&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Last-Modified, ETag</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">254</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Mon, 06 Jul 2015 08:45:57 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1436172229372&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Mon, 06 Jul 2015 08:43:49 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Write a tutorial explaining Kinto&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;a5f490b2-218e-4d71-ac5a-f046ae285c55&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1436172229372</span><span class="p">,</span>
+        <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;doing&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The strategy to merge local changes is left to the application and
+might depend on the application&#8217;s requirements. A <em>three-way merge</em> is
+possible when changes do not affect the same fields or if both objects
+are equal. Prompting the user to decide what version should be kept,
+or to resolve the conflict manually, might also be an option.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Don&#8217;t run away! Remember, you will most likely use a library like
+<a class="reference external" href="https://github.com/Kinto/kinto.js/">Kinto/kinto.js</a>, which provides nice abstractions to
+interact with the Kinto API.</p>
+</div>
+<p>Once merged, we can send back again our modifications using the last
+record <code class="docutils literal"><span class="pre">ETag</span></code> value:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;status&quot;: &quot;done&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 <span class="se">\</span>
+        If-Match:<span class="s1">&#39;&quot;1436172229372&quot;&#39;</span> <span class="se">\</span>
+        -v  --auth <span class="s1">&#39;token:my-secret&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">253</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Mon, 06 Jul 2015 08:47:22 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Write a tutorial explaining Kinto&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;a5f490b2-218e-4d71-ac5a-f046ae285c55&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1436172442466</span><span class="p">,</span>
+        <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;done&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can also delete the record and use the same mechanism to avoid conflicts:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http DELETE https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 <span class="se">\</span>
+       If-Match:<span class="s1">&#39;&quot;1436172442466&quot;&#39;</span> <span class="se">\</span>
+       -v  --auth <span class="s1">&#39;token:my-secret&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">99</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Mon, 06 Jul 2015 08:48:21 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;deleted&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;a5f490b2-218e-4d71-ac5a-f046ae285c55&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1436172501156</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Likewise, we can query the list of changes (updates and deletions) that occured
+since we last fetched the collection.</p>
+<p>Just add the <code class="docutils literal"><span class="pre">_since</span></code> querystring filter, using the value of any <code class="docutils literal"><span class="pre">ETag</span></code> (or
+<code class="docutils literal"><span class="pre">last_modified</span></code> data field):</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since<span class="o">=</span><span class="s2">&quot;1434642603605&quot;</span> <span class="se">\</span>
+       -v  --auth <span class="s1">&#39;token:my-secret&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified, ETag</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">101</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 16:29:54 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1434641474977&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 15:31:14 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+<span class="na">Total-Records</span><span class="o">:</span> <span class="l">0</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;deleted&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;a5f490b2-218e-4d71-ac5a-f046ae285c55&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434644823180</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The list will be empty if no change occurred. If you would prefer to receive a
+<code class="docutils literal"><span class="pre">304</span> <span class="pre">Not</span> <span class="pre">Modified</span></code> response in this case, simply send the <code class="docutils literal"><span class="pre">If-None-Match</span></code>
+header with the last <code class="docutils literal"><span class="pre">ETag</span></code> value.</p>
+</div>
+<div class="section" id="sync-and-share-data-between-users">
+<h2>Sync and share data between users<a class="headerlink" href="#sync-and-share-data-between-users" title="Permalink to this headline">¶</a></h2>
+<p>In this example, instead of using the <em>personal bucket</em> we will create an
+application-specific bucket called <code class="docutils literal"><span class="pre">todo</span></code>.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http PUT https://kinto.dev.mozaws.net/v1/buckets/todo <span class="se">\</span>
+    -v --auth <span class="s1">&#39;token:my-secret&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">155</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 16:33:17 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;todo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434645197868</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>By default the creator is granted sole administrator privileges (see <code class="docutils literal"><span class="pre">write</span></code>
+permission). In order to allow collaboration additional permissions will need
+to be added.</p>
+<p>In our case, we want people to be able to create and share tasks, so we will
+create a <code class="docutils literal"><span class="pre">tasks</span></code> collection with the <code class="docutils literal"><span class="pre">record:create</span></code> permission for
+authenticated users (i.e. <code class="docutils literal"><span class="pre">system.Authenticated</span></code>):</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;permissions&quot;: {&quot;record:create&quot;: [&quot;system.Authenticated&quot;]}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks <span class="se">\</span>
+        -v --auth <span class="s1">&#39;token:my-secret&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">197</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 16:37:48 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;tasks&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434645468367</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;record:create&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;system.Authenticated&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">As you may noticed, you are automatically added to the <code class="docutils literal"><span class="pre">write</span></code>
+permission of any objects you create.</p>
+</div>
+<p>Now Alice can create a task in this collection:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;description&quot;: &quot;Alice task&quot;, &quot;status&quot;: &quot;todo&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records <span class="se">\</span>
+    -v --auth <span class="s1">&#39;token:alice-token&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">231</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 16:41:50 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice task&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;2fa91620-f4fa-412e-aee0-957a7ad2dc0e&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434645840590</span><span class="p">,</span>
+        <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;todo&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>And Bob can also create a task:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;description&quot;: &quot;Bob new task&quot;, &quot;status&quot;: &quot;todo&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records <span class="se">\</span>
+    -v --auth <span class="s1">&#39;token:bob-token&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">232</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 16:44:39 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Bob new task&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;10afe152-b5bb-4aff-b77e-10be44587057&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434645879088</span><span class="p">,</span>
+        <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;todo&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If Alice wants to share a task with Bob, she can give him the <code class="docutils literal"><span class="pre">read</span></code>
+permission on her records:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;permissions&quot;: {</span>
+<span class="s1">    &quot;read&quot;: [&quot;basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148&quot;]</span>
+<span class="s1">}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e <span class="se">\</span>
+    -v --auth <span class="s1">&#39;token:alice-token&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">273</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 16:50:57 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;2fa91620-f4fa-412e-aee0-957a7ad2dc0e&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434646257547</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice task&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;todo&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;read&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If Bob wants to get the record list, he will get his records as well as Alice&#8217;s ones:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records <span class="se">\</span>
+       -v --auth <span class="s1">&#39;token:bob-token&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">371</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Etag</span><span class="o">:</span> <span class="l">&quot;1434646257547&quot;</span>
+<span class="na">Total-Records</span><span class="o">:</span> <span class="l">3</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Bob new task&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;10afe152-b5bb-4aff-b77e-10be44587057&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434645879088</span><span class="p">,</span>
+            <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;todo&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Alice task&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;2fa91620-f4fa-412e-aee0-957a7ad2dc0e&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434646257547</span><span class="p">,</span>
+            <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;todo&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="working-with-groups">
+<h2>Working with groups<a class="headerlink" href="#working-with-groups" title="Permalink to this headline">¶</a></h2>
+<p>To go further, you may want to allow users to share data with a group
+of users.</p>
+<p>Let&#8217;s add the permission for authenticated users to create groups in the <code class="docutils literal"><span class="pre">todo</span></code>
+bucket:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;permissions&quot;: {&quot;group:create&quot;: [&quot;system.Authenticated&quot;]}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo <span class="se">\</span>
+        -v --auth <span class="s1">&#39;token:my-secret&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">195</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 16:59:29 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;todo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434646769990</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;group:create&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;system.Authenticated&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now Alice can create a group of her friends (Bob and Mary):</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {</span>
+<span class="s1">    &quot;members&quot;: [&quot;basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148&quot;,</span>
+<span class="s1">                &quot;basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6&quot;]</span>
+<span class="s1">}}&#39;</span> <span class="p">|</span> http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/groups/alice-friends <span class="se">\</span>
+    -v --auth <span class="s1">&#39;token:alice-token&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">330</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:03:24 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;alice-friends&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434647004644</span><span class="p">,</span>
+        <span class="nt">&quot;members&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now Alice can share records directly with her group of friends:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{</span>
+<span class="s1">    &quot;permissions&quot;: {</span>
+<span class="s1">        &quot;read&quot;: [&quot;/buckets/todo/groups/alice-friends&quot;]</span>
+<span class="s1">    }</span>
+<span class="s1">}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e <span class="se">\</span>
+    -v --auth <span class="s1">&#39;token:alice-token&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">237</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:06:09 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;2fa91620-f4fa-412e-aee0-957a7ad2dc0e&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434647169157</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;read&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;/buckets/todo/groups/alice-friends&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>And now Mary can access the record:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e <span class="se">\</span>
+    -v --auth <span class="s1">&#39;token:mary-token&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The records of the personal bucket can also be shared! In order to
+obtain its ID, just use <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/buckets/default</span></code> to get its ID,
+and then share its content using the full URL
+(e.g. <code class="docutils literal"><span class="pre">/buckets/b86b26b8-be36-4eaa-9ed9-2e6de63a5252</span></code>)!</p>
+</div>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline">¶</a></h2>
+<p>In this tutorial you have seen some of the concepts exposed by <em>Kinto</em>:</p>
+<ul class="simple">
+<li>Using the default personal user bucket</li>
+<li>Handling synchronisation and conflicts</li>
+<li>Creating a bucket to share data between users</li>
+<li>Creating groups, collections and records</li>
+<li>Modifying objects permissions, for users and groups</li>
+</ul>
+<p>More details about <a class="reference internal" href="../api/1.x/permissions.html#api-permissions"><span class="std std-ref">permissions</span></a>, <a class="reference internal" href="../api/1.x/index.html#kinto-api-endpoints"><span class="std std-ref">HTTP API headers and
+status codes</span></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>We plan to improve our documentation and make sure it is as easy as
+possible to get started with <em>Kinto</em>.</p>
+<p class="last">Please do not hesitate to <a class="reference internal" href="../community.html#how-to-contribute"><span class="std std-ref">give us feedback</span></a>, and if you are
+interested in making improvements, you&#8217;re welcome to join us!</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="synchronisation.html" class="btn btn-neutral float-right" title="Synchronisation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="install.html" class="btn btn-neutral" title="Install Kinto" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

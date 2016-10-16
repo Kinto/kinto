@@ -1,0 +1,415 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>HTTP Routing Table &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="index.html"/>
+ 
+
+    <script type="text/javascript">
+      DOCUMENTATION_OPTIONS.COLLAPSE_INDEX = true;
+    </script>
+
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li></li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+
+   <h1>HTTP Routing Table</h1>
+
+   <div class="modindex-jumpbox">
+   <a href="#cap-/"><strong>/</strong></a> | 
+   <a href="#cap-/(object url)"><strong>/(object url)</strong></a> | 
+   <a href="#cap-/buckets"><strong>/buckets</strong></a> | 
+   <a href="#cap-/permissions"><strong>/permissions</strong></a>
+   </div>
+
+   <table class="indextable modindextable" cellspacing="0" cellpadding="2">
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/"><td></td><td>
+       <strong>/</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/buckets.html#get--"><code class="xref">GET /</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/(object url)"><td></td><td>
+       <strong>/(object url)</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/permissions.html#get--(object url)"><code class="xref">GET /(object url)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/permissions.html#put--(object url)"><code class="xref">PUT /(object url)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/permissions.html#patch--(object url)"><code class="xref">PATCH /(object url)</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/buckets"><td></td><td>
+       <strong>/buckets</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/buckets.html#get--buckets"><code class="xref">GET /buckets</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/buckets.html#get--buckets-(bucket_id)"><code class="xref">GET /buckets/(bucket_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/collections.html#get--buckets-(bucket_id)-collections"><code class="xref">GET /buckets/(bucket_id)/collections</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/collections.html#get--buckets-(bucket_id)-collections-(collection_id)"><code class="xref">GET /buckets/(bucket_id)/collections/(collection_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/records.html#get--buckets-(bucket_id)-collections-(collection_id)-records"><code class="xref">GET /buckets/(bucket_id)/collections/(collection_id)/records</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/records.html#get--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)"><code class="xref">GET /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/groups.html#get--buckets-(bucket_id)-groups"><code class="xref">GET /buckets/(bucket_id)/groups</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/groups.html#get--buckets-(bucket_id)-groups-(group_id)"><code class="xref">GET /buckets/(bucket_id)/groups/(group_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/history.html#get--buckets-(bucket_id)-history"><code class="xref">GET /buckets/(bucket_id)/history</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/buckets.html#get--buckets-default"><code class="xref">GET /buckets/default</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/buckets.html#post--buckets"><code class="xref">POST /buckets</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/collections.html#post--buckets-(bucket_id)-collections"><code class="xref">POST /buckets/(bucket_id)/collections</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/records.html#post--buckets-(bucket_id)-collections-(collection_id)-records"><code class="xref">POST /buckets/(bucket_id)/collections/(collection_id)/records</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/groups.html#post--buckets-(bucket_id)-groups"><code class="xref">POST /buckets/(bucket_id)/groups</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/buckets.html#put--buckets-(bucket_id)"><code class="xref">PUT /buckets/(bucket_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/collections.html#put--buckets-(bucket_id)-collections-(collection_id)"><code class="xref">PUT /buckets/(bucket_id)/collections/(collection_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/records.html#put--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)"><code class="xref">PUT /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/groups.html#put--buckets-(bucket_id)-groups-(group_id)"><code class="xref">PUT /buckets/(bucket_id)/groups/(group_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/buckets.html#delete--buckets"><code class="xref">DELETE /buckets</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/buckets.html#delete--buckets-(bucket_id)"><code class="xref">DELETE /buckets/(bucket_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/collections.html#delete--buckets-(bucket_id)-collections"><code class="xref">DELETE /buckets/(bucket_id)/collections</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/collections.html#delete--buckets-(bucket_id)-collections-(collection_id)"><code class="xref">DELETE /buckets/(bucket_id)/collections/(collection_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/records.html#delete--buckets-(bucket_id)-collections-(collection_id)-records"><code class="xref">DELETE /buckets/(bucket_id)/collections/(collection_id)/records</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/records.html#delete--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)"><code class="xref">DELETE /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/groups.html#delete--buckets-(bucket_id)-groups-(group_id)"><code class="xref">DELETE /buckets/(bucket_id)/groups/(group_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/buckets.html#patch--buckets-(bucket_id)"><code class="xref">PATCH /buckets/(bucket_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/collections.html#patch--buckets-(bucket_id)-collections-(collection_id)"><code class="xref">PATCH /buckets/(bucket_id)/collections/(collection_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/records.html#patch--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)"><code class="xref">PATCH /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/groups.html#patch--buckets-(bucket_id)-groups-(group_id)"><code class="xref">PATCH /buckets/(bucket_id)/groups/(group_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/permissions"><td></td><td>
+       <strong>/permissions</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="api/1.x/permissions.html#get--permissions"><code class="xref">GET /permissions</code></a></td><td>
+       <em></em></td></tr>
+   </table>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

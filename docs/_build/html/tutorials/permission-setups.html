@@ -1,0 +1,524 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Permissions examples &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="index.html"/>
+        <link rel="next" title="Application examples" href="app-examples.html"/>
+        <link rel="prev" title="How to write a Kinto plugin?" href="write-plugin.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">Install Kinto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="first-steps.html">First steps with Kinto HTTP API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synchronisation.html">Synchronisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-websockets.html">How to setup push notifications using WebSockets?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-custom.html">How to run custom code on notifications?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-github.html">How to setup Github authentication?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-id-generator.html">How to define and use a custom ID generator?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html">Step by step permissions API tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="write-plugin.html">How to write a Kinto plugin?</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Permissions examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a-blog">A Blog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-wiki">A Wiki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-company-wiki">A Company Wiki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-microblogging">A microblogging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mozilla-payments-tracking">Mozilla Payments tracking</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="app-examples.html">Application examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      
+    <li>Permissions examples</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/permission-setups.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="permissions-examples">
+<h1>Permissions examples<a class="headerlink" href="#permissions-examples" title="Permalink to this headline">¶</a></h1>
+<p>In order to better understand how the <em>Kinto</em> permission model works, it is
+possible to refer to this set of examples:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Example</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Blog</td>
+<td>Everyone can read; Authors can write / read / create articles</td>
+</tr>
+<tr class="row-odd"><td>Wiki</td>
+<td>Authenticated users can write / read / create; Everyone can read.</td>
+</tr>
+<tr class="row-even"><td>Company Wiki</td>
+<td>Employees can write / read /create anything; Managers can add employees</td>
+</tr>
+<tr class="row-odd"><td>Microblogging</td>
+<td>A micro blogging platform like twitter</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="a-blog">
+<span id="permissions-setups-blog"></span><h2>A Blog<a class="headerlink" href="#a-blog" title="Permalink to this headline">¶</a></h2>
+<p>Consider a blog where:</p>
+<ul class="simple">
+<li>A list of administrators can CRUD everything;</li>
+<li>Some moderators can create articles and update existing ones;</li>
+<li>Anybody can read.</li>
+</ul>
+<p>The following objects are created:</p>
+<ul class="simple">
+<li>A bucket <code class="docutils literal"><span class="pre">servicedenuages_blog</span></code>;</li>
+<li>A collection <code class="docutils literal"><span class="pre">articles</span></code>;</li>
+<li>A group <code class="docutils literal"><span class="pre">moderators</span></code> with members <code class="docutils literal"><span class="pre">fxa:&lt;remy</span> <span class="pre">id&gt;</span></code> and <code class="docutils literal"><span class="pre">fxa:&lt;tarek</span> <span class="pre">id&gt;</span></code>.</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="13%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Object</th>
+<th class="head">Permissions</th>
+<th class="head">Principals</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Bucket <code class="docutils literal"><span class="pre">servicedenuages_blog</span></code></td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">fxaoauth:&lt;alexis</span> <span class="pre">id&gt;</span></code>
+<code class="docutils literal"><span class="pre">fxaoauth:&lt;mathieu</span> <span class="pre">id&gt;</span></code></td>
+</tr>
+<tr class="row-odd"><td rowspan="2">Collection <code class="docutils literal"><span class="pre">article</span></code></td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">/bucket/servicedenuages_blog/groups/moderators</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td><code class="docutils literal"><span class="pre">system.Everyone</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="a-wiki">
+<h2>A Wiki<a class="headerlink" href="#a-wiki" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Authenticated users can create, retrieve, update and delete anything;</li>
+<li>Everyone can read articles.</li>
+</ul>
+<p>The following objects are created:</p>
+<ul class="simple">
+<li>A <code class="docutils literal"><span class="pre">wiki</span></code> bucket, where new groups can be created by authenticated users;</li>
+<li>An <code class="docutils literal"><span class="pre">article</span></code> collection is created.</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="27%" />
+<col width="42%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Object</th>
+<th class="head">Permissions</th>
+<th class="head">Principals</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Bucket <code class="docutils literal"><span class="pre">wiki</span></code></td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">fxa:&lt;wiki</span> <span class="pre">administrator</span> <span class="pre">id&gt;</span></code></td>
+</tr>
+<tr class="row-odd"><td rowspan="2">Collection <code class="docutils literal"><span class="pre">articles</span></code></td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">system.Authenticated</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td><code class="docutils literal"><span class="pre">system.Everyone</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="a-company-wiki">
+<h2>A Company Wiki<a class="headerlink" href="#a-company-wiki" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Employees of the company can CRUD anything;</li>
+<li>Managers can add employees to the wiki;</li>
+<li>Other people don&#8217;t have access.</li>
+</ul>
+<p>The following objects are created:</p>
+<ul class="simple">
+<li>A <code class="docutils literal"><span class="pre">companywiki</span></code> bucket;</li>
+<li>An <code class="docutils literal"><span class="pre">articles</span></code> collection;</li>
+<li>An <code class="docutils literal"><span class="pre">employees</span></code> group.</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="17%" />
+<col width="52%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Object</th>
+<th class="head">Permissions</th>
+<th class="head">Principals</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Bucket <code class="docutils literal"><span class="pre">companywiki</span></code></td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">fxa:&lt;wiki</span> <span class="pre">administrator</span> <span class="pre">id&gt;</span></code></td>
+</tr>
+<tr class="row-odd"><td>Group <code class="docutils literal"><span class="pre">employees</span></code></td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">/buckets/companywiki/groups/managers</span></code></td>
+</tr>
+<tr class="row-even"><td>Collection <code class="docutils literal"><span class="pre">articles</span></code></td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">/buckets/companywiki/groups/employees</span></code>
+<code class="docutils literal"><span class="pre">/buckets/companywiki/groups/managers</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="a-microblogging">
+<h2>A microblogging<a class="headerlink" href="#a-microblogging" title="Permalink to this headline">¶</a></h2>
+<p>A microblog is a service to share short articles with people such as
+Twitter, Google+ or Facebook.</p>
+<ul class="simple">
+<li>The microblog administrator creates the bucket;</li>
+<li>Each collection is isolated from the others, and only one person have all
+permissions on all records;</li>
+<li>Records are private by default, and published to specific audiences.</li>
+</ul>
+<p>The following objects are created:</p>
+<ul class="simple">
+<li>A <code class="docutils literal"><span class="pre">microblog</span></code> bucket, where groups can be created by authenticated users;</li>
+<li>A single <code class="docutils literal"><span class="pre">article</span></code> collection;</li>
+<li>A group <code class="docutils literal"><span class="pre">alexis_buddies</span></code>, whose members are chosen by <em>Alexis</em> (a.k.a circle);</li>
+<li>Some records (messages) with specific visibility (public, direct message, private
+for a group)</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="19%" />
+<col width="43%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Object</th>
+<th class="head">Permissions</th>
+<th class="head">Principals</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td rowspan="2">Bucket <code class="docutils literal"><span class="pre">microblog</span></code></td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">fxa:&lt;microblog</span> <span class="pre">administrator</span> <span class="pre">id&gt;</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">group:create</span></code></td>
+<td><code class="docutils literal"><span class="pre">system.Authenticated</span></code></td>
+</tr>
+<tr class="row-even"><td>Collection <code class="docutils literal"><span class="pre">articles</span></code></td>
+<td><code class="docutils literal"><span class="pre">record:create</span></code></td>
+<td><code class="docutils literal"><span class="pre">system.Authenticated</span></code></td>
+</tr>
+<tr class="row-odd"><td>Group <code class="docutils literal"><span class="pre">alexis_buddies</span></code></td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">fxa:&lt;alexis</span> <span class="pre">id&gt;</span></code></td>
+</tr>
+<tr class="row-even"><td rowspan="2">A public message</td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">fxa:&lt;alexis</span> <span class="pre">id&gt;</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td><code class="docutils literal"><span class="pre">system.Everyone</span></code></td>
+</tr>
+<tr class="row-even"><td rowspan="2">A direct message for a user</td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">fxa:&lt;alexis</span> <span class="pre">id&gt;</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td><code class="docutils literal"><span class="pre">fxa:&lt;tarek</span> <span class="pre">id&gt;</span></code></td>
+</tr>
+<tr class="row-even"><td rowspan="2">A private message for a group</td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">fxa:&lt;alexis</span> <span class="pre">id&gt;</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td><code class="docutils literal"><span class="pre">/buckets/microblog/groups/alexis_following</span></code></td>
+</tr>
+</tbody>
+</table>
+<p>Each time a user creates a new record, it needs to setup the ACLs
+attached to it.</p>
+<p>With this model it is also possible to setup a shared microblogging
+account giving record&#8217;s <code class="docutils literal"><span class="pre">write</span></code> permission to a group of users.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Another model could be to let users create their own collections of
+records.</p>
+</div>
+</div>
+<div class="section" id="mozilla-payments-tracking">
+<h2>Mozilla Payments tracking<a class="headerlink" href="#mozilla-payments-tracking" title="Permalink to this headline">¶</a></h2>
+<p>For the payment tracking use case, three players are involved:</p>
+<ul class="simple">
+<li>The <strong>payment app</strong>, storing receipts for buyers and sellers;</li>
+<li>The <strong>selling app</strong>, reading receipts for a given seller;</li>
+<li>The <strong>buyer app</strong> reading receipts for a given buyer.</li>
+</ul>
+<p>Users shouldn&#8217;t be able to write receipts themselves, sellers and users should
+only be able to read their owns.</p>
+<p>The following objects are created:</p>
+<ul class="simple">
+<li>the <code class="docutils literal"><span class="pre">mozilla</span></code> bucket;</li>
+<li>the <code class="docutils literal"><span class="pre">payment</span></code> collection.</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="37%" />
+<col width="22%" />
+<col width="42%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Object</th>
+<th class="head">Permissions</th>
+<th class="head">Principals</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Bucket <code class="docutils literal"><span class="pre">payments</span></code></td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td><code class="docutils literal"><span class="pre">hawk:&lt;payment</span> <span class="pre">app&gt;</span></code></td>
+</tr>
+<tr class="row-odd"><td>On every record</td>
+<td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td><code class="docutils literal"><span class="pre">hawk:&lt;selling</span> <span class="pre">app&gt;</span></code>
+<code class="docutils literal"><span class="pre">fxa:&lt;buyer</span> <span class="pre">id&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+<p>This ensures every app can list the receipts of every buyer, and that each
+buyer can also list their receipts. However, only the payment
+application can create / edit new ones.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="app-examples.html" class="btn btn-neutral float-right" title="Application examples" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="write-plugin.html" class="btn btn-neutral" title="How to write a Kinto plugin?" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

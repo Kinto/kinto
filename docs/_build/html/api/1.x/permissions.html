@@ -1,0 +1,739 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Permissions &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../../index.html"/>
+        <link rel="up" title="1.x" href="index.html"/>
+        <link rel="next" title="Filtering" href="filtering.html"/>
+        <link rel="prev" title="Groups" href="groups.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../versioning.html">API Versioning</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">1.x</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#full-reference">Full reference</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buckets.html">Buckets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="records.html">Records</a></li>
+<li class="toctree-l4"><a class="reference internal" href="groups.html">Groups</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="filtering.html">Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sorting.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pagination.html">Paginating</a></li>
+<li class="toctree-l4"><a class="reference internal" href="selecting_fields.html">Selecting fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="history.html">History of changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="quotas.html">Quotas management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utilities.html">Utility endpoints for OPS and Devs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batch.html">Batch operations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="timestamps.html">Server timestamps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="backoff.html">Backoff indicators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="errors.html">Error responses</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprecation.html">Deprecation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cheatsheet">Cheatsheet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#changelog">Changelog</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">API</a> &raquo;</li>
+      
+          <li><a href="index.html">1.x</a> &raquo;</li>
+      
+    <li>Permissions</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/api/1.x/permissions.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="permissions">
+<span id="api-permissions"></span><h1>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h1>
+<p>As described in the <a class="reference internal" href="../../concepts.html#concepts-permissions"><span class="std std-ref">concepts section</span></a>, permissions
+can be set on any object.</p>
+<div class="section" id="formalism">
+<h2>Formalism<a class="headerlink" href="#formalism" title="Permalink to this headline">¶</a></h2>
+<p>On each kind of object the set of permissions can be:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Permission</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><strong>read</strong></td>
+<td>Any listed <a class="reference internal" href="../../core/glossary.html#term-principal"><span class="xref std std-term">principal</span></a> can read
+the object.</td>
+</tr>
+<tr class="row-odd"><td><strong>write</strong></td>
+<td>Any listed <a class="reference internal" href="../../core/glossary.html#term-principal"><span class="xref std std-term">principal</span></a> can write
+the object, which further implies
+<em>read</em>, <em>update</em>, and <em>delete</em>.</td>
+</tr>
+<tr class="row-even"><td><strong>create</strong></td>
+<td>Any listed <a class="reference internal" href="../../core/glossary.html#term-principal"><span class="xref std std-term">principal</span></a> can create
+a new <em>child object</em>.</td>
+</tr>
+</tbody>
+</table>
+<p>In the case of a creation, since an object can have several kinds of children, the
+permission is prefixed by the type of child (for instance <code class="docutils literal"><span class="pre">group:create</span></code>,
+<code class="docutils literal"><span class="pre">collection:create</span></code>).</p>
+<p>The following table lists all permissions that can be associated to each kind
+of object.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="32%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Object</th>
+<th class="head">Associated permissions</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Configuration</td>
+<td><code class="docutils literal"><span class="pre">bucket:create</span></code></td>
+<td>Create new buckets.</td>
+</tr>
+<tr class="row-odd"><td rowspan="4">Bucket</td>
+<td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td>Read all objects in the bucket.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td>Write + read on the
+bucket and all children objects.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">collection:create</span></code></td>
+<td>Create new
+collections in the bucket,
+and read bucket metadata.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">group:create</span></code></td>
+<td>Create new groups
+in the bucket,
+and read bucket metadata.</td>
+</tr>
+<tr class="row-odd"><td rowspan="3">Collection</td>
+<td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td>Read all
+objects in the collection.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td>Write and read all objects in
+the collection.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">record:create</span></code></td>
+<td>Create new records
+in the collection,
+and read collection metadata.</td>
+</tr>
+<tr class="row-even"><td rowspan="2">Record</td>
+<td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td>Read the record.
+record.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td>Write and read the record.</td>
+</tr>
+<tr class="row-even"><td rowspan="2">Group</td>
+<td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td>Read the group
+group.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td>Write and read the group</td>
+</tr>
+</tbody>
+</table>
+<p>Every modification of an object (including the creation of new objects)
+grant the <cite>write</cite> permission to their creator.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">There is no <code class="docutils literal"><span class="pre">delete</span></code> permission. Anyone with the <code class="docutils literal"><span class="pre">write</span></code> permission on an
+object can delete it.</p>
+</div>
+</div>
+<div class="section" id="principals">
+<span id="api-principals"></span><h2>Principals<a class="headerlink" href="#principals" title="Permalink to this headline">¶</a></h2>
+<p>During the authentication phase, a set of <a class="reference internal" href="../../core/glossary.html#term-principals"><span class="xref std std-term">principals</span></a> for the current
+authenticated <em>user</em> will be bound to to the request.</p>
+<p>The main principal is considered the <strong>user ID</strong> and follows this formalism:
+<code class="docutils literal"><span class="pre">{type}:{identifier}</span></code> (e.g. for Firefox Account: <code class="docutils literal"><span class="pre">fxa:32aa95a474c984d41d395e2d0b614aa2</span></code>).
+When a users are added to <a class="reference internal" href="groups.html#groups"><span class="std std-ref">a group</span></a>, they receive a principal.</p>
+<p>There are two special principals:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">system.Authenticated</span></code>: All <em>authenticated</em> users.</li>
+<li><code class="docutils literal"><span class="pre">system.Everyone</span></code>: Anyone (authenticated or anonymous). Using this
+principal is useful when a rule should apply to all users.</li>
+</ul>
+<p>Those principals are used in the permissions definitions. For example, to give
+the permission to read for everyone and to write for the <em>friends</em> group, the
+definition is <code class="docutils literal"><span class="pre">read:</span> <span class="pre">[&quot;system.Everyone&quot;],</span> <span class="pre">write:</span> <span class="pre">[&quot;/buckets/pictures/groups/friends&quot;]</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A principal can also be another application (in order to provide <em>service to
+service</em> authentication).</p>
+</div>
+<div class="section" id="get-the-current-user-id">
+<span id="api-current-userid"></span><h3>Get the current user ID<a class="headerlink" href="#get-the-current-user-id" title="Permalink to this headline">¶</a></h3>
+<p>The currently authenticated <em>user ID</em> can be obtained on the root URL.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ http GET http://localhost:8888/v1/ --auth token:my-secret
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">288</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 09:48:47 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;documentation&quot;</span><span class="p">:</span> <span class="s2">&quot;https://kinto.readthedocs.io/&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;hello&quot;</span><span class="p">:</span> <span class="s2">&quot;cloud storage&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;settings&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;kinto.batch_max_requests&quot;</span><span class="p">:</span> <span class="mi">25</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:8888/v1/&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="hll">        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6&quot;</span>
+</span>    <span class="p">},</span>
+    <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.4.0&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In this case the user ID is: <code class="docutils literal"><span class="pre">basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6</span></code></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If Alice wants to share objects with Bob, Bob will need to give Alice his
+user ID - this is an easy way to obtain that ID.</p>
+</div>
+</div>
+</div>
+<div class="section" id="permissions-request-payload">
+<span id="api-permissions-payload"></span><h2>Permissions request payload<a class="headerlink" href="#permissions-request-payload" title="Permalink to this headline">¶</a></h2>
+<p>If the current user has the <code class="docutils literal"><span class="pre">write</span></code> permission on the object, the permissions
+are returned in the <code class="docutils literal"><span class="pre">permissions</span></code> attribute  along the <code class="docutils literal"><span class="pre">data</span></code> attribute
+in the JSON requests payloads.</p>
+<p>Permissions can be replaced or modified independently from data.</p>
+<p><code class="docutils literal"><span class="pre">permissions</span></code> is a JSON dict with the following structure:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">&lt;</span><span class="n">permission</span><span class="o">&gt;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">list_of_principals</span><span class="o">&gt;</span><span class="p">]}</span>
+</pre></div>
+</div>
+<p>Where <code class="docutils literal"><span class="pre">&lt;permission&gt;</span></code> is the permission name (e.g. <code class="docutils literal"><span class="pre">read</span></code>, <code class="docutils literal"><span class="pre">write</span></code>)
+and <code class="docutils literal"><span class="pre">&lt;list_of_principals&gt;</span></code> should be replaced by an actual list of
+<a class="reference internal" href="../../core/glossary.html#term-principals"><span class="xref std std-term">principals</span></a>.</p>
+<p>Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;No Backend&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;twitter:leplatrem&quot;</span><span class="p">,</span> <span class="s2">&quot;group:ldap:42&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;read&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;system.Authenticated&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When an object is created or modified, the current <a class="reference internal" href="../../core/glossary.html#term-user-id"><span class="xref std std-term">user id</span></a>
+<strong>is always added</strong> among the <code class="docutils literal"><span class="pre">write</span></code> principals.</p>
+</div>
+</div>
+<div class="section" id="retrieve-objects-permissions">
+<h2>Retrieve objects permissions<a class="headerlink" href="#retrieve-objects-permissions" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--(object url)">
+<code class="descname">GET </code><code class="descname">/(object url)</code><a class="headerlink" href="#get--(object url)" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Synopsis:</th><td class="field-body">Retrieve the object data and permissions.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requires authentication</strong></p>
+<p><strong>Example request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ http GET http://localhost:8888/v1/buckets/default --auth token:bob-token --verbose
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/buckets/default</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">*/*</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic Ym9iOg==</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:8888</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.9.2</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length, Last-Modified, ETag</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">187</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 20 Aug 2015 16:18:48 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1440087528171&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 20 Aug 2015 16:18:48 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;fec930f1-4e30-5b1c-2a63-0fafbe508d48&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1440087528171</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="modify-object-permissions">
+<h2>Modify object permissions<a class="headerlink" href="#modify-object-permissions" title="Permalink to this headline">¶</a></h2>
+<p>An object&#8217;s permissions can be modified at the same time as the object
+itself, using the same <a class="reference internal" href="records.html#record-patch"><span class="std std-ref">PATCH</span></a> and <a class="reference internal" href="records.html#record-put"><span class="std std-ref">PUT</span></a> methods discussed in <a class="reference internal" href="records.html#records"><span class="std std-ref">the Records section</span></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The user ID that updates <em>any</em> permissions is always added to the <code class="docutils literal"><span class="pre">write</span></code>
+permission list. This is in order to prevent accidental loss of ownership on an
+object.</p>
+</div>
+<dl class="patch">
+<dt id="patch--(object url)">
+<code class="descname">PATCH </code><code class="descname">/(object url)</code><a class="headerlink" href="#patch--(object url)" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Synopsis:</th><td class="field-body">Modify the set of principals granted permissions on the object.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requires authentication</strong></p>
+<p><strong>Example request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;permissions&quot;: {&quot;read&quot;: [&quot;system.Authenticated&quot;]}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+  http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks <span class="se">\</span>
+  --auth token:bob-token
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">PATCH</span> <span class="nn">/v1/buckets/default/collections/tasks</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic Ym9iOg==</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">52</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=utf-8</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">kinto.dev.mozaws.net</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.8.0</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;read&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;system.Authenticated&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">188</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 20 Aug 2015 16:43:51 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1440089003843&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 20 Aug 2015 16:43:23 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;tasks&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1440089003843</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;read&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;system.Authenticated&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="put">
+<dt id="put--(object url)">
+<code class="descname">PUT </code><code class="descname">/(object url)</code><a class="headerlink" href="#put--(object url)" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Synopsis:</th><td class="field-body">Replace existing principals or permissions of the object.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requires authentication</strong></p>
+<p><strong>Example request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;permissions&quot;: {&quot;write&quot;: [&quot;groups:writers&quot;]}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+  http PUT https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks <span class="se">\</span>
+  --auth token:bob-token
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">PUT</span> <span class="nn">/v1/buckets/default/collections/tasks</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic Ym9iOg==</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">57</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=utf-8</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">kinto.dev.mozaws.net</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.8.0</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;groups:writers&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">182</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 20 Aug 2015 16:50:37 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1440089437221&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 20 Aug 2015 16:50:37 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;tasks&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1440089437221</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;groups:writers&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="list-every-permissions">
+<h2>List every permissions<a class="headerlink" href="#list-every-permissions" title="Permalink to this headline">¶</a></h2>
+<p><strong>Requires setting</strong> <code class="docutils literal"><span class="pre">kinto.experimental_permissions_endpoint</span></code> to <code class="docutils literal"><span class="pre">True</span></code>.</p>
+<dl class="get">
+<dt id="get--permissions">
+<code class="descname">GET </code><code class="descname">/permissions</code><a class="headerlink" href="#get--permissions" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Synopsis:</th><td class="field-body">Retrieve the list of permissions granted on every kind of objects.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optional authentication</strong></p>
+<p><strong>Example request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ http GET https://kinto.dev.mozaws.net/v1/permissions --auth token:bob-token
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/permissions</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">*/*</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic Ym9iOg==</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:8888</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.9.2</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">487</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Wed, 15 Jun 2016 16:00:22 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;bucket_id&quot;</span><span class="p">:</span> <span class="s2">&quot;2f9b1aaa-552d-48e8-1b78-371dd08688b3&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;collection_id&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;write&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;read&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;record:create&quot;</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;resource_name&quot;</span><span class="p">:</span> <span class="s2">&quot;collection&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;uri&quot;</span><span class="p">:</span> <span class="s2">&quot;/buckets/2f9b1aaa-552d-48e8-1b78-371dd08688b3/collections/test&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;bucket_id&quot;</span><span class="p">:</span> <span class="s2">&quot;2f9b1aaa-552d-48e8-1b78-371dd08688b3&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;2f9b1aaa-552d-48e8-1b78-371dd08688b3&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;write&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;read&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;collection:create&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;group:create&quot;</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;resource_name&quot;</span><span class="p">:</span> <span class="s2">&quot;bucket&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;uri&quot;</span><span class="p">:</span> <span class="s2">&quot;/buckets/2f9b1aaa-552d-48e8-1b78-371dd08688b3&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="section" id="list-of-available-url-parameters">
+<h3>List of available URL parameters<a class="headerlink" href="#list-of-available-url-parameters" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">&lt;prefix?&gt;&lt;field</span> <span class="pre">name&gt;</span></code>: <a class="reference internal" href="filtering.html"><span class="doc">filter</span></a> by value(s)</li>
+<li><code class="docutils literal"><span class="pre">_sort</span></code>: <a class="reference internal" href="sorting.html"><span class="doc">order list</span></a></li>
+<li><code class="docutils literal"><span class="pre">_limit</span></code>: <a class="reference internal" href="pagination.html"><span class="doc">pagination max size</span></a></li>
+<li><code class="docutils literal"><span class="pre">_token</span></code>: <a class="reference internal" href="pagination.html"><span class="doc">pagination token</span></a></li>
+<li><code class="docutils literal"><span class="pre">_fields</span></code>: <a class="reference internal" href="selecting_fields.html"><span class="doc">filter the fields of the records</span></a></li>
+</ul>
+<p>Filtering, sorting, partial responses and paginating can all be combined together.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">?_sort=-last_modified&amp;_limit=100&amp;_fields=title</span></code></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="filtering.html" class="btn btn-neutral float-right" title="Filtering" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="groups.html" class="btn btn-neutral" title="Groups" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,435 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Synchronisation &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="index.html"/>
+        <link rel="next" title="How to setup push notifications using WebSockets?" href="notifications-websockets.html"/>
+        <link rel="prev" title="First steps with Kinto HTTP API" href="first-steps.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">Install Kinto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="first-steps.html">First steps with Kinto HTTP API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Synchronisation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#polling-for-remote-changes">Polling for remote changes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pagination">Pagination</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#strategy-1-oldest-first">Strategy #1 — Oldest first</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#strategy-2-newest-first">Strategy #2 — Newest first</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#strategy-3-newest-first-partially">Strategy #3 — Newest first, partially</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#apply-changes-locally">Apply changes locally</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#concurrency-control">Concurrency control</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#protected-creation-with-put">Protected creation with PUT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#protected-update-and-delete">Protected update and delete</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#offline-first">Offline-first</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementations">Implementations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-websockets.html">How to setup push notifications using WebSockets?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-custom.html">How to run custom code on notifications?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-github.html">How to setup Github authentication?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-id-generator.html">How to define and use a custom ID generator?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html">Step by step permissions API tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="write-plugin.html">How to write a Kinto plugin?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission-setups.html">Permissions examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app-examples.html">Application examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      
+    <li>Synchronisation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/synchronisation.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="synchronisation">
+<span id="api-synchronisation"></span><h1>Synchronisation<a class="headerlink" href="#synchronisation" title="Permalink to this headline">¶</a></h1>
+<p>This section describes the basic aspects of synchronisation using <em>Kinto</em>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you are looking for a ready-to-use synchronisation solution,
+jump to <a class="reference internal" href="#sync-implementations"><span class="std std-ref">Implementations</span></a>.</p>
+</div>
+<p>The basic idea is to keep a local database up to date with the Kinto server:</p>
+<ul class="simple">
+<li>Remote changes are downloaded and applied on the local data.</li>
+<li>Local changes are uploaded using HTTP headers to control concurrency and overwrites.</li>
+</ul>
+<p>In short:</p>
+<ol class="arabic simple">
+<li>Poll for remote changes using <code class="docutils literal"><span class="pre">?_since=&lt;timestamp&gt;</span></code></li>
+<li>Apply changes locally</li>
+<li>Send local creations</li>
+<li>Use concurrency control to send local updates and deletes</li>
+</ol>
+<div class="section" id="polling-for-remote-changes">
+<h2>Polling for remote changes<a class="headerlink" href="#polling-for-remote-changes" title="Permalink to this headline">¶</a></h2>
+<p><em>Kinto</em> supports range queries for timestamps. Combining them with the sort parameter
+allows to fetch changes in a particular order.</p>
+<p>Depending on the context (latest first, readonly, etc.), there are several
+strategies to poll the server for changes.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<ul class="last simple">
+<li>Timestamps are unique.</li>
+<li>Deleted records have an attribute <code class="docutils literal"><span class="pre">delete:</span> <span class="pre">true</span></code>.</li>
+<li>Created/updated records are both returned in their new version.</li>
+<li>Since <em>Kinto</em> does not keep any history, there is no <em>diff</em> for updates.</li>
+</ul>
+</div>
+<div class="section" id="pagination">
+<h3>Pagination<a class="headerlink" href="#pagination" title="Permalink to this headline">¶</a></h3>
+<p>By default, <em>Kinto</em> does not paginate the records list. Since an explicit limit can
+be set in the server settings, clients must handle pagination when polling for
+changes.</p>
+<p>In order to reduce the size of response payloads, the client can also force the
+pagination using the <code class="docutils literal"><span class="pre">?_limit=&lt;nb&gt;</span></code> querystring parameter.</p>
+<p>Pagination basically consists in fetching the list while the <code class="docutils literal"><span class="pre">Next-Page</span></code> response header
+is present. The <code class="docutils literal"><span class="pre">Next-Page</span></code> header is the <strong>full</strong> URL of the next page.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Pagination requests carry every necessary parameter to be reproduced in case
+of connectivity error.</p>
+</div>
+</div>
+<div class="section" id="strategy-1-oldest-first">
+<h3>Strategy #1 — Oldest first<a class="headerlink" href="#strategy-1-oldest-first" title="Permalink to this headline">¶</a></h3>
+<p>The simplest way to obtain the changes is to sort the records by timestamp
+ascending.</p>
+<p>We will use <code class="docutils literal"><span class="pre">sort=last_modified</span></code> and <code class="docutils literal"><span class="pre">_since=&lt;timestamp&gt;</span></code>:</p>
+<ol class="arabic simple">
+<li>First sync: <code class="docutils literal"><span class="pre">timestamp</span> <span class="pre">:=</span> <span class="pre">0</span></code></li>
+<li>Next sync: <code class="docutils literal"><span class="pre">timestamp</span> <span class="pre">:=</span> <span class="pre">MAX(local_records['last_modified'])</span></code></li>
+<li>Fetch <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/buckets/&lt;bid&gt;/collections/&lt;cid&gt;/records?_sort=last_modified&amp;_since=&lt;timestamp&gt;</span></code></li>
+<li>If response is <code class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></code>, handle the list of remote changes.</li>
+<li>If response has <code class="docutils literal"><span class="pre">Next-Page</span></code> header, follow full URL in header.</li>
+<li>If list of changes is empty, <strong>done</strong> → up-to-date.</li>
+</ol>
+<img alt="../_images/sync-oldest.svg" src="../_images/sync-oldest.svg" /><p>If an error occurs during the retrieval of pages,
+the synchronisation can be resumed transparently, since the pages are obtained
+with ascending timestamps, and the next sync relies on the highest
+timestamp successfully stored locally.</p>
+</div>
+<div class="section" id="strategy-2-newest-first">
+<h3>Strategy #2 — Newest first<a class="headerlink" href="#strategy-2-newest-first" title="Permalink to this headline">¶</a></h3>
+<p>In order to populate a UI, it might be relevant to obtain the latest changes first.</p>
+<p>Syncing newest records first is a bit more complex since changes can occur between
+the retrieval of the first and the last pages.</p>
+<p>We will use <code class="docutils literal"><span class="pre">sort=-last_modified</span></code> (desc), <code class="docutils literal"><span class="pre">_before</span></code> to omit later changes,
+and <code class="docutils literal"><span class="pre">_since</span></code> to include changes after last sync:</p>
+<ol class="arabic simple">
+<li>First sync: <code class="docutils literal"><span class="pre">timestamp</span> <span class="pre">:=</span> <span class="pre">0</span></code></li>
+<li>Next sync: use <code class="docutils literal"><span class="pre">timestamp</span></code> stored in last successful sync.</li>
+<li>Fetch current collection timestamp <code class="docutils literal"><span class="pre">HEAD</span> <span class="pre">/buckets/&lt;bid&gt;/collections/&lt;cid&gt;/records</span></code>
+in <code class="docutils literal"><span class="pre">ETag</span></code> response header and store its value in <code class="docutils literal"><span class="pre">start</span></code>.</li>
+<li>Fetch <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/buckets/&lt;bid&gt;/collections/&lt;cid&gt;/records?_sort=-last_modified&amp;_before=&lt;start&gt;&amp;_since=&lt;timestamp&gt;</span></code></li>
+<li>If response is <code class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></code>, stack the obtained list of remote changes.</li>
+<li>If response has <code class="docutils literal"><span class="pre">Next-Page</span></code> header, follow full URL in header.</li>
+<li>If list of changes is empty, <strong>done</strong> → handle the stack of remote changes
+and update the timestamp: <code class="docutils literal"><span class="pre">timestamp</span> <span class="pre">:=</span> <span class="pre">MAX(local_records['last_modified'])</span></code></li>
+</ol>
+<img alt="../_images/sync-newest.svg" src="../_images/sync-newest.svg" /><p>With this approach, the main algorithm is rather simple but since we track the
+<em>last sync timestamp</em> when the last page is done, if an error occurs
+between the first and the last step, the client must redownload every page obtained
+from <em>step 1</em> until it succeeds to fetch every page of the sync.</p>
+<p>In order to avoid that, the algorithm should slightly be complexified in order to
+track additional info obtained from the page that failed. The upper and lower
+values of timestamps (<code class="docutils literal"><span class="pre">_before</span></code> and <code class="docutils literal"><span class="pre">_since</span></code>) can then
+be specified manually to resume the synchronisation.</p>
+</div>
+<div class="section" id="strategy-3-newest-first-partially">
+<h3>Strategy #3 — Newest first, partially<a class="headerlink" href="#strategy-3-newest-first-partially" title="Permalink to this headline">¶</a></h3>
+<p>For very large collections, it could be interesting to perform a first <em>partial</em>
+synchronisation, and then fetch old records in background.</p>
+<p>When a new client wants to sync, instead of syncing hundreds of pages on the
+first synchronization, two distinct synchronization processes can be combined.</p>
+<p>For example, start with some recent records in order to populate a UI,
+and then fetch older records in background.</p>
+<ol class="arabic simple">
+<li>Obtain a few pages of recent records using the <em>newest first</em> strategy from above</li>
+<li>In background, fetch old records using <code class="docutils literal"><span class="pre">_sort=-last_modified</span></code> and <code class="docutils literal"><span class="pre">_before=MIN(local_records[last_modified])</span></code></li>
+<li>Recent changes can be obtained using <code class="docutils literal"><span class="pre">_sort=-last_modified</span></code> and <code class="docutils literal"><span class="pre">_since=MAX(local_records[last_modified])</span></code></li>
+</ol>
+<img alt="../_images/sync-both.svg" src="../_images/sync-both.svg" /></div>
+</div>
+<div class="section" id="apply-changes-locally">
+<h2>Apply changes locally<a class="headerlink" href="#apply-changes-locally" title="Permalink to this headline">¶</a></h2>
+<p>Applying remote changes to the local database consists in adding new records,
+updating changed records and remove deleted records.</p>
+<p>From the client perspective, <em>Kinto</em> does not distinguish creations from updates.
+In the <em>polling for changes</em> response, created records are simply the records
+unknown by the client (using <code class="docutils literal"><span class="pre">id</span></code> field).</p>
+<p>If the records to be updated or deleted had also been modified locally then
+the developper must choose a relevant strategy. For example, merge fields or
+ignore deletion.</p>
+</div>
+<div class="section" id="concurrency-control">
+<span id="api-concurrency-control"></span><h2>Concurrency control<a class="headerlink" href="#concurrency-control" title="Permalink to this headline">¶</a></h2>
+<p>As described in <a class="reference internal" href="../api/1.x/timestamps.html#server-timestamps"><span class="std std-ref">Server timestamps</span></a>, <em>Kinto</em> uses <em>ETag</em> for concurrency
+control.</p>
+<p>ETags are provided in response headers, for the collection as well as individual
+records.</p>
+<p>Even though it is recommended to consider them as opaque and abstract, it can still
+be useful to notice that ETags are a string with the quoted record last modified value
+(<code class="docutils literal"><span class="pre">&quot;&lt;record.last_modified&gt;&quot;</span></code>)</p>
+<div class="section" id="protected-creation-with-put">
+<h3>Protected creation with PUT<a class="headerlink" href="#protected-creation-with-put" title="Permalink to this headline">¶</a></h3>
+<p>Add a <code class="docutils literal"><span class="pre">If-None-Match:</span> <span class="pre">*</span></code> request header to the <code class="docutils literal"><span class="pre">PUT</span></code> to make sure no
+record exists on the server with this ID.</p>
+<p>This can be useful to avoid overwrites when creating records with <code class="docutils literal"><span class="pre">PUT</span></code>
+instead of <code class="docutils literal"><span class="pre">POST</span></code>.</p>
+</div>
+<div class="section" id="protected-update-and-delete">
+<h3>Protected update and delete<a class="headerlink" href="#protected-update-and-delete" title="Permalink to this headline">¶</a></h3>
+<p>Add a <code class="docutils literal"><span class="pre">If-Match:</span> <span class="pre">&quot;&lt;record.last_modified&gt;&quot;</span></code> request header to the <code class="docutils literal"><span class="pre">PUT</span></code>, <code class="docutils literal"><span class="pre">PATCH</span></code>
+or <code class="docutils literal"><span class="pre">DELETE</span></code> request.</p>
+<p><em>Kinto</em> will reject the request with a <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code> response if
+the record was modified in the interim.</p>
+<p>If the remote record was already deleted, a <code class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></code> response will be
+returned. The client can choose to ignore it.</p>
+</div>
+</div>
+<div class="section" id="offline-first">
+<h2>Offline-first<a class="headerlink" href="#offline-first" title="Permalink to this headline">¶</a></h2>
+<p>Since the server won&#8217;t be available to assign record identifiers while offline,
+it is recommended to generate them on the client.</p>
+<p>Record identifiers are <a class="reference external" href="https://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a>,
+a very common format for unique strings with almost zero <a class="footnote-reference" href="#id2" id="id1">[1]</a> collision probability.</p>
+<p>When going back online, the set of changes can be sent to the server using a
+<a class="reference internal" href="../api/1.x/batch.html#batch"><span class="std std-ref">POST /batch</span></a> request.</p>
+</div>
+<div class="section" id="implementations">
+<span id="sync-implementations"></span><h2>Implementations<a class="headerlink" href="#implementations" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>current implementation of reference</strong> for offline-first records synchronisation is
+<a class="reference external" href="https://kintojs.readthedocs.io">Kinto.js</a>.</p>
+<p>Before that, some other clients were implemented in the context of the
+<em>ReadingList</em> project. That project was abandoned, but you can still
+see the implementation of the <a class="reference external" href="https://github.com/n1k0/readinglist-client/">RL Web client</a> (React.js), <a class="reference external" href="https://hg.mozilla.org/releases/mozilla-beta/file/FIREFOX_BETA_42_END/mobile/android/base/reading">Android RL
+sync</a> (Java) or <a class="reference external" href="https://hg.mozilla.org/releases/mozilla-aurora/file/FIREFOX_AURORA_41_END/browser/components/readinglist">Firefox RL client</a> (asm.js).</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>After generating <strong>1 billion</strong> UUIDs <strong>every second</strong> for the next <strong>100 years</strong>,
+the probability of creating just <strong>one duplicate</strong> would
+be about <strong>50%</strong>.
+<a class="reference external" href="https://en.wikipedia.org/wiki/Universally_unique_identifier#Random_UUID_probability_of_duplicates">Source</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="notifications-websockets.html" class="btn btn-neutral float-right" title="How to setup push notifications using WebSockets?" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="first-steps.html" class="btn btn-neutral" title="First steps with Kinto HTTP API" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

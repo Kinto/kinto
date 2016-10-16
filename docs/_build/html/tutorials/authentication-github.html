@@ -1,0 +1,568 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>How to setup Github authentication? &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="index.html"/>
+        <link rel="next" title="How to define and use a custom ID generator?" href="custom-id-generator.html"/>
+        <link rel="prev" title="How to run custom code on notifications?" href="notifications-custom.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">Install Kinto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="first-steps.html">First steps with Kinto HTTP API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synchronisation.html">Synchronisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-websockets.html">How to setup push notifications using WebSockets?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-custom.html">How to run custom code on notifications?</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">How to setup Github authentication?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#custom-authentication">Custom authentication</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#add-it-to-python-path">Add it to Python path</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enable-in-configuration">Enable in configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test-it">Test it</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#github-token-validation">Github token validation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#validate-token-while-obtaining-user-id-from-github">Validate token while obtaining user id from Github</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Test it!</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#obtain-a-personal-access-token">Obtain a Personal Access token</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#check-your-user-id">Check your user id</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#use-it-in-permissions">Use it in permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cache-the-token-validation">Cache the token validation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="custom-id-generator.html">How to define and use a custom ID generator?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html">Step by step permissions API tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="write-plugin.html">How to write a Kinto plugin?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission-setups.html">Permissions examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app-examples.html">Application examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      
+    <li>How to setup Github authentication?</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/authentication-github.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-setup-github-authentication">
+<span id="tutorial-github"></span><h1>How to setup Github authentication?<a class="headerlink" href="#how-to-setup-github-authentication" title="Permalink to this headline">¶</a></h1>
+<p>In this tutorial, we will authenticate users using Github.</p>
+<p>Users obtain a Bearer token from Github and use it in an <code class="docutils literal"><span class="pre">Authenticatìon</span></code> header.
+Leveraging Kinto pluggability, a custom authentication policy is specified in settings in order to validate it.</p>
+<div class="section" id="custom-authentication">
+<h2>Custom authentication<a class="headerlink" href="#custom-authentication" title="Permalink to this headline">¶</a></h2>
+<p>Create a file <code class="file docutils literal"><span class="pre">kinto_github.py</span></code> with the following scaffold:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyramid.authentication</span> <span class="kn">import</span> <span class="n">CallbackAuthenticationPolicy</span>
+<span class="kn">from</span> <span class="nn">pyramid.interfaces</span> <span class="kn">import</span> <span class="n">IAuthenticationPolicy</span>
+<span class="kn">from</span> <span class="nn">zope.interface</span> <span class="kn">import</span> <span class="n">implementer</span>
+
+<span class="nd">@implementer</span><span class="p">(</span><span class="n">IAuthenticationPolicy</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">GithubAuthenticationPolicy</span><span class="p">(</span><span class="n">CallbackAuthenticationPolicy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">realm</span><span class="o">=</span><span class="s1">&#39;Realm&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">realm</span> <span class="o">=</span> <span class="n">realm</span>
+
+    <span class="k">def</span> <span class="nf">unauthenticated_userid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_credentials</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">user_id</span>
+
+    <span class="k">def</span> <span class="nf">forget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="s1">&#39;WWW-Authenticate&#39;</span><span class="p">,</span> <span class="s1">&#39;Bearer realm=&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">realm</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_get_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">authorization</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Authorization&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Check Github&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Don&#8217;t be scared by those lines. It just implements the necessary methods to match the <a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/en/latest/api/interfaces.html#pyramid.interfaces.IAuthenticationPolicy">IAuthenticationPolicy</a> Pyramid interface.</p>
+<div class="section" id="add-it-to-python-path">
+<h3>Add it to Python path<a class="headerlink" href="#add-it-to-python-path" title="Permalink to this headline">¶</a></h3>
+<p>For the simplicity in this tutorial, we will just alter the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code> system
+environment variable. Specify the path to the folder containing the <code class="file docutils literal"><span class="pre">kinto_github.py</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ export PYTHONPATH=&quot;/path/to/folder:${PYTHONPATH}&quot;
+</pre></div>
+</div>
+<p>In order to test that it works, simply try to import it from a <code class="docutils literal"><span class="pre">python</span></code> script:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ python
+Python 2.7.9 <span class="o">(</span>default, Apr  <span class="m">2</span> 2015, 15:33:21<span class="o">)</span>
+<span class="o">[</span>GCC 4.9.2<span class="o">]</span> on linux2
+Type <span class="s2">&quot;help&quot;</span>, <span class="s2">&quot;copyright&quot;</span>, <span class="s2">&quot;credits&quot;</span> or <span class="s2">&quot;license&quot;</span> <span class="k">for</span> more information.
+<span class="hll">&gt;&gt;&gt; import kinto_github
+</span>&gt;&gt;&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="enable-in-configuration">
+<h3>Enable in configuration<a class="headerlink" href="#enable-in-configuration" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="../configuration/settings.html#configuration-authentication"><span class="std std-ref">As explained in the settings section</span></a>, just
+enable a new policy pointing to your Python class:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">multiauth.policies</span> <span class="o">=</span> <span class="s">github basicauth</span>
+
+<span class="na">multiauth.policy.github.use</span> <span class="o">=</span> <span class="s">kinto_github.GithubAuthenticationPolicy</span>
+</pre></div>
+</div>
+<p>Kinto should start without errors.</p>
+</div>
+<div class="section" id="test-it">
+<h3>Test it<a class="headerlink" href="#test-it" title="Permalink to this headline">¶</a></h3>
+<p>Since we left <code class="docutils literal"><span class="pre">basicauth</span></code> in settings, it should still be accepted:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ http GET http://localhost:8888/v1/ --auth token:alice-token
+</pre></div>
+</div>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;http_api_version&quot;</span><span class="o">:</span> <span class="s2">&quot;1.2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;project_docs&quot;</span><span class="o">:</span> <span class="s2">&quot;https://kinto.readthedocs.io/&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;project_name&quot;</span><span class="o">:</span> <span class="s2">&quot;kinto&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;project_version&quot;</span><span class="o">:</span> <span class="s2">&quot;1.11.0.dev0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;settings&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;attachment.base_url&quot;</span><span class="o">:</span> <span class="s2">&quot;http://localhost:7777&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;batch_max_requests&quot;</span><span class="o">:</span> <span class="mi">25</span><span class="p">,</span>
+        <span class="s2">&quot;readonly&quot;</span><span class="o">:</span> <span class="kc">false</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;http://localhost:8888/v1/&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;user&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;bucket&quot;</span><span class="o">:</span> <span class="s2">&quot;71aefbc6-d333-832b-8e39-18da76d11bae&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="s2">&quot;basicauth:63279e82e351f8f318eea09ae5e3bcfc3b9e3eee06e9befacbf17102e0595dad&quot;</span>
+    <span class="p">}</span>
+<span class="hll"><span class="p">}</span>
+</span></pre></div>
+</div>
+<p>And since the <code class="docutils literal"><span class="pre">github</span></code> authentication is also enabled (<em>but does nothing yet</em>), you
+should see its output in the console when a request comes in.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>Starting server in PID 8079.
+serving on http://0.0.0.0:8888
+<span class="hll">Check Github
+</span>2016-01-26 11:59:04,918 INFO  <span class="o">[</span>kinto.core.initialization<span class="o">][</span>waitress<span class="o">]</span> <span class="s2">&quot;GET   /v1/&quot;</span> <span class="m">200</span> <span class="o">(</span><span class="m">1</span> ms<span class="o">)</span> request.summary <span class="nv">lang</span><span class="o">=</span>None<span class="p">;</span> <span class="nv">uid</span><span class="o">=</span>63279e82e351f8f318eea09ae5e3bcfc3b9e3eee06e9befacbf17102e0595dad<span class="p">;</span> <span class="nv">errno</span><span class="o">=</span>None<span class="p">;</span> <span class="nv">agent</span><span class="o">=</span>HTTPie/0.9.2<span class="p">;</span> <span class="nv">authn_type</span><span class="o">=</span>BasicAuth<span class="p">;</span> <span class="nv">time</span><span class="o">=</span>2016-01-26T11:59:04
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="github-token-validation">
+<h2>Github token validation<a class="headerlink" href="#github-token-validation" title="Permalink to this headline">¶</a></h2>
+<p>We don&#8217;t want to make a call to the Github API if the request does not use a Github <code class="docutils literal"><span class="pre">Bearer</span></code> token.</p>
+<p>Let&#8217;s limit this policy to requests with <code class="docutils literal"><span class="pre">github+Bearer</span></code> in <code class="docutils literal"><span class="pre">Authorization</span></code> header.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyramid.authentication</span> <span class="kn">import</span> <span class="n">CallbackAuthenticationPolicy</span>
+<span class="kn">from</span> <span class="nn">pyramid.interfaces</span> <span class="kn">import</span> <span class="n">IAuthenticationPolicy</span>
+<span class="kn">from</span> <span class="nn">zope.interface</span> <span class="kn">import</span> <span class="n">implementer</span>
+
+<span class="n">GITHUB_METHOD</span> <span class="o">=</span> <span class="s1">&#39;github+bearer&#39;</span>
+
+<span class="nd">@implementer</span><span class="p">(</span><span class="n">IAuthenticationPolicy</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">GithubAuthenticationPolicy</span><span class="p">(</span><span class="n">CallbackAuthenticationPolicy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">realm</span><span class="o">=</span><span class="s1">&#39;Realm&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">realm</span> <span class="o">=</span> <span class="n">realm</span>
+
+    <span class="k">def</span> <span class="nf">unauthenticated_userid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_credentials</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">user_id</span>
+
+    <span class="k">def</span> <span class="nf">forget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="s1">&#39;WWW-Authenticate&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> realm=&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">GITHUB_METHOD</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">realm</span><span class="p">))]</span>
+
+    <span class="k">def</span> <span class="nf">_get_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">authorization</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Authorization&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="hll">        <span class="k">try</span><span class="p">:</span>
+</span><span class="hll">            <span class="n">authmeth</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">authorization</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class="hll">            <span class="n">authmeth</span> <span class="o">=</span> <span class="n">authmeth</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+</span><span class="hll">        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+</span><span class="hll">            <span class="k">return</span> <span class="bp">None</span>
+</span><span class="hll">        <span class="k">if</span> <span class="n">authmeth</span> <span class="o">!=</span> <span class="n">GITHUB_METHOD</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+</span><span class="hll">            <span class="k">return</span> <span class="bp">None</span>
+</span>        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Check Github&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now using Basic Authentication it should be skipped, but with this request it should print it in the server console:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ http http://localhost:8888/v1/ &quot;Authorization: github+Bearer foobartoken&quot;
+</pre></div>
+</div>
+<div class="section" id="validate-token-while-obtaining-user-id-from-github">
+<h3>Validate token while obtaining user id from Github<a class="headerlink" href="#validate-token-while-obtaining-user-id-from-github" title="Permalink to this headline">¶</a></h3>
+<p>We will simply make a call to the Github user API and try to obtain the <code class="docutils literal"><span class="pre">login</span></code> attribute (i.e. user name).</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">pyramid.authentication</span> <span class="kn">import</span> <span class="n">CallbackAuthenticationPolicy</span>
+<span class="kn">from</span> <span class="nn">pyramid.interfaces</span> <span class="kn">import</span> <span class="n">IAuthenticationPolicy</span>
+<span class="kn">from</span> <span class="nn">zope.interface</span> <span class="kn">import</span> <span class="n">implementer</span>
+
+<span class="n">GITHUB_METHOD</span> <span class="o">=</span> <span class="s1">&#39;Github+Bearer&#39;</span>
+
+<span class="nd">@implementer</span><span class="p">(</span><span class="n">IAuthenticationPolicy</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">GithubAuthenticationPolicy</span><span class="p">(</span><span class="n">CallbackAuthenticationPolicy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">realm</span><span class="o">=</span><span class="s1">&#39;Realm&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">realm</span> <span class="o">=</span> <span class="n">realm</span>
+
+    <span class="k">def</span> <span class="nf">unauthenticated_userid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_credentials</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">user_id</span>
+
+    <span class="k">def</span> <span class="nf">forget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="s1">&#39;WWW-Authenticate&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> realm=&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">GITHUB_METHOD</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">realm</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_get_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">authorization</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Authorization&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">authmeth</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">authorization</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">authmeth</span> <span class="o">=</span> <span class="n">authmeth</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">authmeth</span> <span class="o">!=</span> <span class="n">GITHUB_METHOD</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">None</span>
+<span class="hll">        <span class="k">try</span><span class="p">:</span>
+</span><span class="hll">            <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="s2">&quot;token </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">token</span><span class="p">}</span>
+</span><span class="hll">            <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.github.com/user&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+</span><span class="hll">            <span class="n">resp</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+</span><span class="hll">            <span class="n">userinfo</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</span><span class="hll">            <span class="n">user_id</span> <span class="o">=</span> <span class="n">userinfo</span><span class="p">[</span><span class="s1">&#39;login&#39;</span><span class="p">]</span>
+</span><span class="hll">        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span class="hll">            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</span><span class="hll">            <span class="k">return</span> <span class="bp">None</span>
+</span></pre></div>
+</div>
+<p>Let&#8217;s try to create an object on Kinto, it should fail using a <code class="docutils literal"><span class="pre">401</span> <span class="pre">Unauthorized</span></code> error response using a dummy token:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ http PUT http://localhost:8888/v1/buckets/test &quot;Authorization: github+Bearer foobartoken&quot;
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">401</span> <span class="ne">Unauthorized</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Retry-After, Content-Length, Alert, Backoff</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">110</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Tue, 26 Jan 2016 11:07:05 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+<span class="na">Www-Authenticate</span><span class="o">:</span> <span class="l">Github+Bearer realm=&quot;Realm&quot;</span>
+<span class="na">Www-Authenticate</span><span class="o">:</span> <span class="l">Basic realm=&quot;Realm&quot;</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">401</span><span class="p">,</span>
+    <span class="nt">&quot;errno&quot;</span><span class="p">:</span> <span class="mi">104</span><span class="p">,</span>
+    <span class="nt">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Unauthorized&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Please authenticate yourself to use this endpoint.&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>Test it!<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="obtain-a-personal-access-token">
+<h3>Obtain a Personal Access token<a class="headerlink" href="#obtain-a-personal-access-token" title="Permalink to this headline">¶</a></h3>
+<p>Create a <em>Personal access token</em> using the Github API using your user/pass:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;note&quot;: &quot;Kinto Github tutorial&quot;}&#39;</span> <span class="p">|</span> http POST https://api.github.com/authorizations --auth token:user-token
+</pre></div>
+</div>
+<p>It is returned in the <code class="docutils literal"><span class="pre">token</span></code> attribute in the JSON response:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Allow-Credentials</span><span class="o">:</span> <span class="l">true</span>
+<span class="na">Access-Control-Allow-Origin</span><span class="o">:</span> <span class="l">*</span>
+
+{
+    &quot;app&quot;: {
+        &quot;client_id&quot;: &quot;00000000000000000000&quot;,
+        &quot;name&quot;: &quot;Kinto Github tutorial&quot;,
+        &quot;url&quot;: &quot;https://developer.github.com/v3/oauth_authorizations/&quot;
+    },
+    &quot;created_at&quot;: &quot;2016-01-26T11:09:02Z&quot;,
+    &quot;fingerprint&quot;: null,
+    &quot;hashed_token&quot;: &quot;15eb9f...e8aa4502&quot;,
+    &quot;id&quot;: 27212889,
+    &quot;note&quot;: &quot;kinto&quot;,
+    &quot;note_url&quot;: null,
+    &quot;scopes&quot;: [],
+    &quot;token&quot;: &quot;7f7f911969279d8b16a12f44b8bc6e2d216dc51e&quot;,
+<span class="hll">    &quot;token_last_eight&quot;: &quot;c30211c6&quot;,
+</span>    &quot;updated_at&quot;: &quot;2016-01-26T11:09:02Z&quot;,
+    &quot;url&quot;: &quot;https://api.github.com/authorizations/27212889&quot;
+}
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you have two-factor auth enabled, please refer to the <a class="reference external" href="https://developer.github.com/v3/oauth/">Github API documentation</a>
+for obtaining a Personal access token using the appropriate headers.</p>
+</div>
+</div>
+<div class="section" id="check-your-user-id">
+<h3>Check your user id<a class="headerlink" href="#check-your-user-id" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http http://localhost:8888/v1/ <span class="s2">&quot;Authorization: github+Bearer 7f7f911969279d8b16a12f44b8bc6e2d216dc51e&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Retry-After, Content-Length, Alert, Backoff</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">406</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Tue, 26 Jan 2016 11:05:09 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;http_api_version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.2&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;project_docs&quot;</span><span class="p">:</span> <span class="s2">&quot;https://kinto.readthedocs.io/&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;project_name&quot;</span><span class="p">:</span> <span class="s2">&quot;kinto&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;project_version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.11.0.dev0&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;settings&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;attachment.base_url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:7777&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;batch_max_requests&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+        <span class="nt">&quot;readonly&quot;</span><span class="p">:</span> <span class="kc">false</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:8888/v1/&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;bucket&quot;</span><span class="p">:</span> <span class="s2">&quot;8f730aef-55cb-f1d0-4b0e-c8afbe767c63&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;github:leplatrem&quot;</span>
+    <span class="p">}</span>
+<span class="hll"><span class="p">}</span>
+</span></pre></div>
+</div>
+</div>
+<div class="section" id="use-it-in-permissions">
+<h3>Use it in permissions<a class="headerlink" href="#use-it-in-permissions" title="Permalink to this headline">¶</a></h3>
+<p>The user id <code class="docutils literal"><span class="pre">github:&lt;username&gt;</span></code> can now be used in permissions definitions.
+It is much more convenient than Basic Auth identifiers!</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ echo &#39;{&quot;permissions&quot;: {&quot;read&quot;: [&quot;github:leplatrem&quot;]}}&#39; | \
+    http PUT http://localhost:8888/v0/buckets/test  --auth=&#39;token:another-user-token&#39;
+</pre></div>
+</div>
+</div>
+<div class="section" id="cache-the-token-validation">
+<h3>Cache the token validation<a class="headerlink" href="#cache-the-token-validation" title="Permalink to this headline">¶</a></h3>
+<p>Using the following snippet you can cache the association between a token and the user id, in order to avoid requesting Github at each request.</p>
+<p>It uses Kinto internal cache backend (<em>if configured</em>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="p">,</span> <span class="s1">&#39;cache&#39;</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">fetch_github</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+
+<span class="n">cache</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">cache</span>
+<span class="n">cache_key</span> <span class="o">=</span> <span class="s2">&quot;token_github:&quot;</span> <span class="o">+</span> <span class="n">token</span>
+<span class="n">user_id</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">user_id</span><span class="p">:</span>
+    <span class="n">user_id</span> <span class="o">=</span> <span class="n">fetch_github</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    <span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cache_key</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="mi">3600</span><span class="o">*</span><span class="mi">24</span><span class="p">)</span>  <span class="c1"># cache during 24H</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
+<p>Now that this policy works as expected, you can bring it to the next level!</p>
+<p>For example:</p>
+<ul class="simple">
+<li>Contribute it as built-in policy in Kinto! (<em>We need you!</em>)</li>
+<li>Contribute another policy based on another method (e.g. Twitter, JSON Web token etc.)</li>
+<li>Build a Webpage and try obtaining a token in a Web flow (<a class="reference external" href="https://developer.github.com/v3/oauth/">see Github docs</a>)</li>
+<li>Allow passing the Github token in the querystring in addition to <code class="docutils literal"><span class="pre">Authorization</span></code> header (<em>for convience</em>)</li>
+</ul>
+<p>Don&#8217;t hesitate to contact us!</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="custom-id-generator.html" class="btn btn-neutral float-right" title="How to define and use a custom ID generator?" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="notifications-custom.html" class="btn btn-neutral" title="How to run custom code on notifications?" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

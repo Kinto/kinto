@@ -1,0 +1,6 @@
+[console_scripts]
+kinto = kinto.__main__:main
+
+[paste.app_factory]
+main = kinto:main
+

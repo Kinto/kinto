@@ -1,0 +1,430 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Errors &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Kinto Core" href="index.html"/>
+        <link rel="next" title="Testing" href="testing.html"/>
+        <link rel="prev" title="Permissions" href="permission.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kinto Core</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rationale.html">Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resource.html">Resource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewsets.html">Viewsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html">Cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Kinto Core</a> &raquo;</li>
+      
+    <li>Errors</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/core/errors.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="errors">
+<span id="id1"></span><h1>Errors<a class="headerlink" href="#errors" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-kinto.core.errors"></span><dl class="class">
+<dt id="kinto.core.errors.ERRORS">
+<em class="property">class </em><code class="descclassname">kinto.core.errors.</code><code class="descname">ERRORS</code><a class="headerlink" href="#kinto.core.errors.ERRORS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predefined errors as specified by the API.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="10%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Status code</th>
+<th class="head">Errno</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>401</td>
+<td>104</td>
+<td>Missing Authorization Token</td>
+</tr>
+<tr class="row-odd"><td>401</td>
+<td>105</td>
+<td>Invalid Authorization Token</td>
+</tr>
+<tr class="row-even"><td>400</td>
+<td>106</td>
+<td>request body was not valid JSON</td>
+</tr>
+<tr class="row-odd"><td>400</td>
+<td>107</td>
+<td>invalid request parameter</td>
+</tr>
+<tr class="row-even"><td>400</td>
+<td>108</td>
+<td>missing request parameter</td>
+</tr>
+<tr class="row-odd"><td>400</td>
+<td>109</td>
+<td>invalid posted data</td>
+</tr>
+<tr class="row-even"><td>404</td>
+<td>110</td>
+<td>Invalid Token / id</td>
+</tr>
+<tr class="row-odd"><td>404</td>
+<td>111</td>
+<td>Missing Token / id</td>
+</tr>
+<tr class="row-even"><td>411</td>
+<td>112</td>
+<td>Content-Length header was not provided</td>
+</tr>
+<tr class="row-odd"><td>413</td>
+<td>113</td>
+<td>Request body too large</td>
+</tr>
+<tr class="row-even"><td>412</td>
+<td>114</td>
+<td>Resource was modified meanwhile</td>
+</tr>
+<tr class="row-odd"><td>405</td>
+<td>115</td>
+<td>Method not allowed on this end point</td>
+</tr>
+<tr class="row-even"><td>404</td>
+<td>116</td>
+<td>Requested version not available on this server</td>
+</tr>
+<tr class="row-odd"><td>429</td>
+<td>117</td>
+<td>Client has sent too many requests</td>
+</tr>
+<tr class="row-even"><td>403</td>
+<td>121</td>
+<td>Resource&#8217;s access forbidden for this user</td>
+</tr>
+<tr class="row-odd"><td>409</td>
+<td>122</td>
+<td>Another resource violates constraint</td>
+</tr>
+<tr class="row-even"><td>500</td>
+<td>999</td>
+<td>Internal Server Error</td>
+</tr>
+<tr class="row-odd"><td>503</td>
+<td>201</td>
+<td>Service Temporary unavailable due to high load</td>
+</tr>
+<tr class="row-even"><td>410</td>
+<td>202</td>
+<td>Service deprecated</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.errors.http_error">
+<code class="descclassname">kinto.core.errors.</code><code class="descname">http_error</code><span class="sig-paren">(</span><em>httpexception</em>, <em>errno=None</em>, <em>code=None</em>, <em>error=None</em>, <em>message=None</em>, <em>info=None</em>, <em>details=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.errors.http_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a JSON formated response matching the error HTTP API.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>httpexception</strong> &#8211; Instance of <a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#module-pyramid.httpexceptions" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-mod docutils literal"><span class="pre">httpexceptions</span></code></a></li>
+<li><strong>errno</strong> &#8211; stable application-level error number (e.g. 109)</li>
+<li><strong>code</strong> &#8211; matches the HTTP status code (e.g 400)</li>
+<li><strong>error</strong> &#8211; string description of error type (e.g. &#8220;Bad request&#8221;)</li>
+<li><strong>message</strong> &#8211; context information (e.g. &#8220;Invalid request parameters&#8221;)</li>
+<li><strong>info</strong> &#8211; information about error (e.g. URL to troubleshooting)</li>
+<li><strong>details</strong> &#8211; additional structured details (conflicting record)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the formatted response object</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPException" title="(in The Pyramid Web Framework v1.7.3)">pyramid.httpexceptions.HTTPException</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.errors.json_error_handler">
+<code class="descclassname">kinto.core.errors.</code><code class="descname">json_error_handler</code><span class="sig-paren">(</span><em>errors</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.errors.json_error_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cornice JSON error handler, returning consistant JSON formatted errors
+from schema validation errors.</p>
+<p>This is meant to be used is custom services in your applications.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">upload</span> <span class="o">=</span> <span class="n">Service</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;upload&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;/upload&#39;</span><span class="p">,</span>
+                 <span class="n">error_handler</span><span class="o">=</span><span class="n">errors</span><span class="o">.</span><span class="n">json_error_handler</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Only the first error of the list is formatted in the response.
+(c.f. HTTP API).</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.errors.raise_invalid">
+<code class="descclassname">kinto.core.errors.</code><code class="descname">raise_invalid</code><span class="sig-paren">(</span><em>request</em>, <em>location='body'</em>, <em>name=None</em>, <em>description=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.errors.raise_invalid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper to raise a validation error.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>location</strong> &#8211; location in request (e.g. <code class="docutils literal"><span class="pre">'querystring'</span></code>)</li>
+<li><strong>name</strong> &#8211; field name</li>
+<li><strong>description</strong> &#8211; detailed description of validation error</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPBadRequest" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-class docutils literal"><span class="pre">HTTPBadRequest</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.errors.send_alert">
+<code class="descclassname">kinto.core.errors.</code><code class="descname">send_alert</code><span class="sig-paren">(</span><em>request</em>, <em>message=None</em>, <em>url=None</em>, <em>code='soft-eol'</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.errors.send_alert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper to add an Alert header to the response.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>code</strong> &#8211; The type of error &#8216;soft-eol&#8217;, &#8216;hard-eol&#8217;</li>
+<li><strong>message</strong> &#8211; The description message.</li>
+<li><strong>url</strong> &#8211; The URL for more information, default to the documentation url.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="testing.html" class="btn btn-neutral float-right" title="Testing" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="permission.html" class="btn btn-neutral" title="Permissions" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

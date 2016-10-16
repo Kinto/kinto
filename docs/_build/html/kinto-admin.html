@@ -1,0 +1,451 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Kinto Web Administration Console &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="index.html"/>
+        <link rel="next" title="Concepts" href="concepts.html"/>
+        <link rel="prev" title="Overview" href="overview.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kinto Web Administration Console</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#why-use-kinto-admin">Why use Kinto-admin?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-run-server">How to run Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#admin-settings">Admin settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plugins">Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-customization">Build customization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hacking-on-kinto-admin">Hacking on kinto-admin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development-server">Development server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tests">Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#browser-tests">Browser tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#faq">FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#license">License</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Kinto Web Administration Console</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/kinto-admin.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="kinto-web-administration-console">
+<h1>Kinto Web Administration Console<a class="headerlink" href="#kinto-web-administration-console" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="_images/kinto-admin-login.png"><img alt="_images/kinto-admin-login.png" class="align-center" src="_images/kinto-admin-login.png" style="width: 800px;" /></a>
+<p>A Web admin UI to manage data from a <em>Kinto</em> <a class="reference external" href="https://kinto.readthedocs.io/">https://kinto.readthedocs.io/</a> server: <em>Demo</em> <a class="reference external" href="http://kinto.github.io/kinto-admin/">http://kinto.github.io/kinto-admin/</a>.
+<em>kinto-admin</em> wants to be the <em>pgAdmin</em> <a class="reference external" href="http://pgadmin.org/">http://pgadmin.org/</a> for
+Kinto. You can also use it to build administration interfaces for
+Kinto-based systems.</p>
+<p><em>Kinto-Admin</em> is used at Mozilla and released under the Apache v2 licence.</p>
+<div class="section" id="why-use-kinto-admin">
+<span id="why-use"></span><h2>Why use Kinto-admin?<a class="headerlink" href="#why-use-kinto-admin" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Expose your data over an HTTP interface, unlike databases like PostgreSQL</li>
+<li>Use simple HTTP requests rather than SQL</li>
+<li>Use <a class="reference external" href="https://kintojs.readthedocs.io/en/latest/">Kinto.js</a> to easily
+implement offline first clients</li>
+<li>Choose the database you want from those that Kinto supports, and use a
+unified API to access its data</li>
+<li>Manage your data using the handy
+<a class="reference external" href="http://kinto.github.io/kinto-admin/">admin UI</a></li>
+<li>Easily
+<a class="reference internal" href="tutorials/notifications-websockets.html#tutorial-notifications-websockets"><span class="std std-ref">set up live push notifications</span></a>
+for live updates of your application</li>
+<li>Make it possible to
+<a class="reference internal" href="api/1.x/permissions.html#api-permissions"><span class="std std-ref">share data between users</span></a>
+(using fine-grained permissions)</li>
+<li>Take advantage of
+<a class="reference internal" href="api/1.x/collections.html#collection-json-schema"><span class="std std-ref">schema validation</span></a>
+if you need it</li>
+<li><a class="reference internal" href="api/1.x/history.html#api-history"><span class="std std-ref">Track changes</span></a> on your application data</li>
+</ul>
+</div>
+<div class="section" id="prerequisites">
+<span id="enable"></span><h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>NodeJS v4+ and npm 2.14+ should be installed and available on your machine.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>If you plan on contributing, this is the way to go!
+This will install every necessary packages to run the tests, build the documentation etc.</p>
+<p>The easiest way to get started is to install <a class="reference external" href="https://github.com/facebookincubator/create-react-app">*create-react-app*</a> first:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ npm install -g create-react-app
+$ create-react-app test-kinto-admin &amp;&amp; cd test-kinto-admin
+$ npm install kinto-admin --save-dev
+</pre></div>
+</div>
+<p>Then, import and render the main <cite>KintoAdmin</cite> component in the generated <cite>src/index.js</cite> file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">React</span> <span class="kn">from</span> <span class="s2">&quot;react&quot;</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">ReactDOM</span> <span class="kn">from</span> <span class="s2">&quot;react-dom&quot;</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">KintoAdmin</span> <span class="kn">from</span> <span class="s2">&quot;kinto-admin&quot;</span><span class="p">;</span>
+
+<span class="n">ReactDOM</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+ <span class="o">&lt;</span><span class="n">KintoAdmin</span> <span class="o">/&gt;</span><span class="p">,</span>
+ <span class="n">document</span><span class="o">.</span><span class="n">getElementById</span><span class="p">(</span><span class="s2">&quot;root&quot;</span><span class="p">)</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="how-to-run-server">
+<h2>How to run Server<a class="headerlink" href="#how-to-run-server" title="Permalink to this headline">¶</a></h2>
+<p>To run a local development server:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ npm start
+</pre></div>
+</div>
+<p>To build the admin as a collection of static assets, ready to be hosted on a static webserver:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ npm run build
+</pre></div>
+</div>
+<p>This will generate production-ready assets in the <em>build</em> folder.</p>
+</div>
+<div class="section" id="admin-settings">
+<h2>Admin settings<a class="headerlink" href="#admin-settings" title="Permalink to this headline">¶</a></h2>
+<p>The <em>KintoAdmin</em> component accepts a <em>settings</em> prop, where you can define the following options:
+- <em>maxPerPage</em>: The max number of results per page in lists (default: <em>200</em>).</p>
+<p>Example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">KintoAdmin</span> <span class="kn">from</span> <span class="s2">&quot;kinto-admin&quot;</span><span class="p">;</span>
+<span class="n">ReactDOM</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+ <span class="o">&lt;</span><span class="n">KintoAdmin</span> <span class="n">settings</span><span class="o">=</span><span class="p">{{</span><span class="n">maxPerPage</span><span class="p">:</span> <span class="mi">42</span><span class="p">}}</span><span class="o">/&gt;</span><span class="p">,</span>
+ <span class="n">document</span><span class="o">.</span><span class="n">getElementById</span><span class="p">(</span><span class="s2">&quot;root&quot;</span><span class="p">)</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="plugins">
+<h2>Plugins<a class="headerlink" href="#plugins" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is possible to extend the default Kinto behaviors by using _plugins_.
+To enable admin plugins, import and pass them as a <em>plugins</em> prop to the <em>KintoAdmin</em> component:</p>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">KintoAdmin</span> <span class="kn">from</span> <span class="s2">&quot;kinto-admin&quot;</span><span class="p">;</span>
+<span class="kn">import</span> <span class="o">*</span> <span class="k">as</span> <span class="n">signoffPlugin</span> <span class="kn">from</span> <span class="s2">&quot;kinto-admin/lib/plugins/signoff&quot;</span><span class="p">;</span>
+
+<span class="n">ReactDOM</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+ <span class="o">&lt;</span><span class="n">KintoAdmin</span> <span class="n">plugins</span><span class="o">=</span><span class="p">{[</span><span class="n">signoffPlugin</span><span class="p">]}</span><span class="o">/&gt;</span><span class="p">,</span>
+ <span class="n">document</span><span class="o">.</span><span class="n">getElementById</span><span class="p">(</span><span class="s2">&quot;root&quot;</span><span class="p">)</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="build-customization">
+<h2>Build customization<a class="headerlink" href="#build-customization" title="Permalink to this headline">¶</a></h2>
+<p><em>Building for relative paths</em>
+-By default, Create React App produces a build assuming your app is hosted at the server root.
+-To override this, specify the homepage in your <cite>package.json</cite>, for example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;homepage&quot;</span><span class="p">:</span> <span class="s2">&quot;http://mywebsite.com/relativepath&quot;</span><span class="p">,</span>
+</pre></div>
+</div>
+<p>-This will let Create React App correctly infer the root path to use in the generated HTML file.</p>
+</div>
+<div class="section" id="hacking-on-kinto-admin">
+<h2>Hacking on kinto-admin<a class="headerlink" href="#hacking-on-kinto-admin" title="Permalink to this headline">¶</a></h2>
+<p>Clone repository:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ git clone https://github.com/Kinto/kinto-admin.git
+</pre></div>
+</div>
+<p>Install packages:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ cd kinto-admin &amp;&amp; npm install
+</pre></div>
+</div>
+<p>After installation of packages, run the development server.</p>
+</div>
+<div class="section" id="development-server">
+<h2>Development server<a class="headerlink" href="#development-server" title="Permalink to this headline">¶</a></h2>
+<p>The development server should only be used when working on the
+kinto-admin codebase itself. If you&#8217;re evaluating kinto-admin, or
+building a system that relies on kinto-admin to administer, you should
+install kinto-admin using npm and use it as above.</p>
+<p>To run in development mode:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ npm start
+</pre></div>
+</div>
+<p>The application is served at <em>localhost:3000</em>   <a class="reference external" href="http://localhost:3000/">http://localhost:3000/</a>, and any
+React component update will trigger a hot reload.</p>
+</div>
+<div class="section" id="tests">
+<h2>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h2>
+<p>To run tests:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ npm run test-all
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The browser test suite is not included in this command as it takes a
+long time and may result in intermittent failures on Travis
+see :[#146] <a class="reference external" href="https://github.com/Kinto/kinto-admin/pull/146">https://github.com/Kinto/kinto-admin/pull/146</a>.</p>
+</div>
+</div>
+<div class="section" id="browser-tests">
+<h2>Browser tests<a class="headerlink" href="#browser-tests" title="Permalink to this headline">¶</a></h2>
+<p>The browser test suite uses _NightmareJS_ <cite>&lt;http://www.nightmarejs.org/&gt;</cite> and
+_Electron_ <cite>&lt;http://electron.atom.io/&gt;</cite> To run browser tests:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ npm run dist
+$ npm run test-browser
+</pre></div>
+</div>
+<p>To show the browser interactions while running them, set the <em>NIGHTMARE_SHOW</em> env var:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ NIGHTMARE_SHOW=1 npm run test-browser
+</pre></div>
+</div>
+<p>There&#8217;s also a TDD mode:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ npm run tdd-browser
+</pre></div>
+</div>
+</div>
+<div class="section" id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline">¶</a></h2>
+<p><strong>BROWSER SUPPORT</strong>
+Let&#8217;s be honest, we&#8217;re mainly testing kinto-admin on recent versions of Firefox
+and Chrome, so we can&#8217;t really guarantee proper compatibility with IE, Safari,
+Opera and others. We&#8217;re accepting
+<strong>Pull-Requests</strong> <a class="reference external" href="https://github.com/Kinto/kinto-admin/pulls">https://github.com/Kinto/kinto-admin/pulls</a> though.</p>
+<p><strong>How to display a nested field value using the collection displayFields property?</strong>
+Use the <em>dot</em> notation.</p>
+<p>For example, if you have the following record:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="s2">&quot;attachment&quot;</span><span class="p">:</span> <span class="p">{</span>
+  <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;font.ttf&quot;</span>
+              <span class="p">}</span>
+        <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can use <strong>attachment.filename</strong>.</p>
+<p>We tried our best to make it work with properties having dots in their name.</p>
+<p>For instance:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;proof.hash&quot;</span><span class="p">:</span> <span class="s2">&quot;abcd&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;merkle.tree&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s2">&quot;file.name&quot;</span><span class="p">:</span> <span class="s2">&quot;foobar&quot;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If you use <strong>target.merkle.tree.file.name</strong> it will render the string
+<strong>foobar</strong> and <strong>target.proof.hash</strong> will render <strong>abcd</strong>.</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>Apache Licence Version 2.0</p>
+<p>See <a class="reference internal" href="tutorials/index.html#tutorials"><span class="std std-ref">our tutorials</span></a> for more in-depth information on
+these topics.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="concepts.html" class="btn btn-neutral float-right" title="Concepts" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="overview.html" class="btn btn-neutral" title="Overview" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

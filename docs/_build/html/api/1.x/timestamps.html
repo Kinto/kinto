@@ -1,0 +1,410 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Server timestamps &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../../index.html"/>
+        <link rel="up" title="1.x" href="index.html"/>
+        <link rel="next" title="Backoff indicators" href="backoff.html"/>
+        <link rel="prev" title="Batch operations" href="batch.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../versioning.html">API Versioning</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">1.x</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#full-reference">Full reference</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buckets.html">Buckets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="records.html">Records</a></li>
+<li class="toctree-l4"><a class="reference internal" href="groups.html">Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="permissions.html">Permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="filtering.html">Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sorting.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pagination.html">Paginating</a></li>
+<li class="toctree-l4"><a class="reference internal" href="selecting_fields.html">Selecting fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="history.html">History of changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="quotas.html">Quotas management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utilities.html">Utility endpoints for OPS and Devs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batch.html">Batch operations</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Server timestamps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="backoff.html">Backoff indicators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="errors.html">Error responses</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprecation.html">Deprecation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cheatsheet">Cheatsheet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#changelog">Changelog</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">API</a> &raquo;</li>
+      
+          <li><a href="index.html">1.x</a> &raquo;</li>
+      
+    <li>Server timestamps</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/api/1.x/timestamps.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="server-timestamps">
+<span id="id1"></span><h1>Server timestamps<a class="headerlink" href="#server-timestamps" title="Permalink to this headline">¶</a></h1>
+<p>In order to avoid race conditions, each change is guaranteed to
+increment the timestamp of the related list.
+If two changes happen at the same millisecond, they will still have two different
+timestamps.</p>
+<p>The <code class="docutils literal"><span class="pre">ETag</span></code> header with the current timestamp of the list for
+the current user will be given on list endpoint.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ETag</span><span class="p">:</span> <span class="s2">&quot;1432208041618&quot;</span>
+</pre></div>
+</div>
+<p>On object enpoints, the <code class="docutils literal"><span class="pre">ETag</span></code> header value will contain the timestamp of the
+object.</p>
+<p>In order to bypass costly and error-prone HTTP date parsing, <code class="docutils literal"><span class="pre">ETag</span></code> headers
+are not HTTP date values.</p>
+<p>A human readable version of the timestamp (rounded to second) is provided though
+in the <code class="docutils literal"><span class="pre">Last-Modified</span></code> response headers:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Last</span><span class="o">-</span><span class="n">Modified</span><span class="p">:</span> <span class="n">Wed</span> <span class="n">May</span> <span class="mi">20</span> <span class="mi">17</span><span class="p">:</span><span class="mi">22</span><span class="p">:</span><span class="mi">38</span> <span class="mi">2015</span> <span class="o">+</span><span class="mi">0200</span>
+</pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 2.0: </span>In previous versions, cache and concurrency control was handled using
+<code class="docutils literal"><span class="pre">If-Modified-Since</span></code> and <code class="docutils literal"><span class="pre">If-Unmodified-Since</span></code>. But since the HTTP date
+does not include milliseconds, they contained the milliseconds timestamp as
+integer. The current version using <code class="docutils literal"><span class="pre">ETag</span></code> is HTTP compliant (see
+<a class="reference external" href="https://github.com/mozilla-services/cliquet/issues/251">original discussion</a>.)</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The client may send <code class="docutils literal"><span class="pre">If-Unmodified-Since</span></code> or <code class="docutils literal"><span class="pre">If-Modified-Since</span></code> requests
+headers, but in the current implementation, they will be ignored.</p>
+</div>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">When the list is empty, its timestamp remains the same until new objects
+are created.</p>
+</div>
+<div class="section" id="cache-control">
+<h2>Cache control<a class="headerlink" href="#cache-control" title="Permalink to this headline">¶</a></h2>
+<p>In order to check that the client version has not changed, a <code class="docutils literal"><span class="pre">If-None-Match</span></code>
+request header can be used. If the response is <code class="docutils literal"><span class="pre">304</span> <span class="pre">Not</span> <span class="pre">Modified</span></code> then
+the cached version is still good.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">GET</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td colspan="2"><div class="first last line-block">
+<div class="line"><strong>If-None-Match: &#8220;&lt;timestamp&gt;&#8221;</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>Changed meanwhile</td>
+<td>Return response content</td>
+</tr>
+<tr class="row-even"><td>Not changed</td>
+<td>Empty <code class="docutils literal"><span class="pre">HTTP</span> <span class="pre">304</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="concurrency-control">
+<span id="id2"></span><h2>Concurrency control<a class="headerlink" href="#concurrency-control" title="Permalink to this headline">¶</a></h2>
+<p>In order to prevent race conditions, like overwriting changes occured in the interim for example,
+a <code class="docutils literal"><span class="pre">If-Match:</span> <span class="pre">&quot;timestamp&quot;</span></code> request header can be used. If the response is <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code>
+then the resource has changed meanwhile.</p>
+<p>Concurrency control also allows to make sure a creation won&#8217;t overwrite any object using
+the <code class="docutils literal"><span class="pre">If-None-Match:</span> <span class="pre">*</span></code> request header.</p>
+<p>The following table gives a summary of the expected behaviour of a resource:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="15%" />
+<col width="16%" />
+<col width="17%" />
+<col width="17%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">POST</th>
+<th class="head">PUT</th>
+<th class="head">PATCH</th>
+<th class="head">DELETE</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td colspan="5"><div class="first last line-block">
+<div class="line"><strong>If-Match: &#8220;timestamp&#8221;</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>Changed meanwhile</td>
+<td><code class="docutils literal"><span class="pre">HTTP</span> <span class="pre">412</span></code></td>
+<td><code class="docutils literal"><span class="pre">HTTP</span> <span class="pre">412</span></code></td>
+<td><code class="docutils literal"><span class="pre">HTTP</span> <span class="pre">412</span></code></td>
+<td><code class="docutils literal"><span class="pre">HTTP</span> <span class="pre">412</span></code></td>
+</tr>
+<tr class="row-even"><td>Not changed</td>
+<td>Create</td>
+<td>Overwrite</td>
+<td>Modify</td>
+<td>Delete</td>
+</tr>
+<tr class="row-odd"><td colspan="5"><div class="first last line-block">
+<div class="line"><strong>If-None-Match: *</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>Id exists</td>
+<td><code class="docutils literal"><span class="pre">HTTP</span> <span class="pre">412</span></code></td>
+<td><code class="docutils literal"><span class="pre">HTTP</span> <span class="pre">412</span></code></td>
+<td>No effect</td>
+<td>No effect</td>
+</tr>
+<tr class="row-odd"><td>Id unknown</td>
+<td>Create</td>
+<td>Create</td>
+<td>No effect</td>
+<td>No effect</td>
+</tr>
+</tbody>
+</table>
+<p>When the client receives a <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code>, it can then choose to:</p>
+<ul class="simple">
+<li>overwrite by repeating the request without concurrency control;</li>
+<li>reconcile the resource by fetching, merging and repeating the request.</li>
+</ul>
+</div>
+<div class="section" id="replication">
+<h2>Replication<a class="headerlink" href="#replication" title="Permalink to this headline">¶</a></h2>
+<p>In order to replicate the timestamps when importing existing records,
+it is possible to force the last modified values.</p>
+<p>When an object is created (via POST or PUT), the specified timestamp becomes
+the new list timestamp if it is in the future (i.e. greater than current
+one). If it is in the past, the record is created with the timestamp in the past
+but the list timestamp is bumped into the future as usual.</p>
+<p>When an object is replaced, modified or deleted, if the specified timestamp is less
+or equal than the existing object, the value is simply ignored and the timestamp
+is bumped into the future as usual.</p>
+<p>When an object is deleted, a <code class="docutils literal"><span class="pre">last_modified</span></code> timestamp can be forced
+by passing it in the query string using <code class="docutils literal"><span class="pre">?last_modified=&lt;value&gt;</span></code>.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="backoff.html" class="btn btn-neutral float-right" title="Backoff indicators" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="batch.html" class="btn btn-neutral" title="Batch operations" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

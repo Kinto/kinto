@@ -1,0 +1,348 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Testing &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Kinto Core" href="index.html"/>
+        <link rel="next" title="Utils" href="utils.html"/>
+        <link rel="prev" title="Errors" href="errors.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kinto Core</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rationale.html">Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resource.html">Resource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewsets.html">Viewsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html">Cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Kinto Core</a> &raquo;</li>
+      
+    <li>Testing</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/core/testing.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="testing">
+<span id="id1"></span><h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-kinto.core.testing"></span><dl class="class">
+<dt id="kinto.core.testing.DummyRequest">
+<em class="property">class </em><code class="descclassname">kinto.core.testing.</code><code class="descname">DummyRequest</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.testing.DummyRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fully mocked request.</p>
+<dl class="method">
+<dt id="kinto.core.testing.DummyRequest.follow_subrequest">
+<code class="descname">follow_subrequest</code><span class="sig-paren">(</span><em>request</em>, <em>subrequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.testing.DummyRequest.follow_subrequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a subrequest (e.g. batch), and follow the redirection if any.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the reponse and the redirection request (or <cite>subrequest</cite>
+if no redirection happened.)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.testing.FormattedErrorMixin">
+<em class="property">class </em><code class="descclassname">kinto.core.testing.</code><code class="descname">FormattedErrorMixin</code><a class="headerlink" href="#kinto.core.testing.FormattedErrorMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test mixin in order to perform advanced error responses assertions.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.testing.get_user_headers">
+<code class="descclassname">kinto.core.testing.</code><code class="descname">get_user_headers</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.testing.get_user_headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper to obtain a Basic Auth authorization headers from the specified
+<cite>user</cite> (e.g. <code class="docutils literal"><span class="pre">&quot;user:pass&quot;</span></code>)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.testing.BaseWebTest">
+<em class="property">class </em><code class="descclassname">kinto.core.testing.</code><code class="descname">BaseWebTest</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.testing.BaseWebTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Web Test to test your kinto.core service.</p>
+<p>It setups the database before each test and delete it after.</p>
+<dl class="attribute">
+<dt id="kinto.core.testing.BaseWebTest.api_prefix">
+<code class="descname">api_prefix</code><em class="property"> = 'v0'</em><a class="headerlink" href="#kinto.core.testing.BaseWebTest.api_prefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL version prefix</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.testing.BaseWebTest.entry_point">
+<code class="descname">entry_point</code><em class="property"> = None</em><a class="headerlink" href="#kinto.core.testing.BaseWebTest.entry_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main application entry</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.testing.BaseWebTest.make_app">
+<code class="descname">make_app</code><span class="sig-paren">(</span><em>settings=None</em>, <em>config=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.testing.BaseWebTest.make_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiate the application and setup requests to use the api
+prefix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>settings</strong> (<em>dict</em>) &#8211; extra settings values</li>
+<li><strong>config</strong> (<a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/config.html#pyramid.config.Configurator" title="(in The Pyramid Web Framework v1.7.3)"><em>pyramid.config.Configurator</em></a>) &#8211; already initialized config</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">webtest application instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.testing.BaseWebTest.get_app_settings">
+<code class="descname">get_app_settings</code><span class="sig-paren">(</span><em>extras=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.testing.BaseWebTest.get_app_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application settings to be used. Override to tweak default settings
+for the tests.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>extras</strong> (<em>dict</em>) &#8211; extra settings values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="utils.html" class="btn btn-neutral float-right" title="Utils" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="errors.html" class="btn btn-neutral" title="Errors" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

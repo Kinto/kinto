@@ -1,0 +1,31 @@
+colander
+colorama
+cornice >= 1.1
+jsonschema
+python-dateutil
+pyramid_multiauth >= 0.8
+pyramid_tm
+requests
+six
+structlog >= 16.1.0
+enum34
+waitress
+ujson >= 1.35
+
+[:python_version=='2.7']
+functools32
+futures
+
+[monitoring]
+raven
+statsd
+newrelic
+werkzeug
+
+[postgresql]
+SQLAlchemy
+psycopg2>2.5
+zope.sqlalchemy
+
+[redis]
+kinto_redis

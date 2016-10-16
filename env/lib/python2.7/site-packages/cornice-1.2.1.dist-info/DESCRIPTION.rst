@@ -1,0 +1,293 @@
+=======
+Cornice
+=======
+
+.. image:: https://secure.travis-ci.org/mozilla-services/cornice.png?branch=master
+   :target: http://travis-ci.org/#!/mozilla-services/cornice
+   :alt: Travis-ci: continuous integration status.
+
+**Cornice** provides helpers to build & document Web Services with Pyramid.
+
+The full doc is located at: http://cornice.readthedocs.org
+
+
+#########
+CHANGELOG
+#########
+
+
+1.2.1 (2016-03-15)
+==================
+
+Bug fixes
+
+- Properly handle content_type callables returning a single internet media type
+  as scalar. Thanks @amotl (#343)
+- Do not raise a 415 error when no content-type and no body (#354)
+
+Documentation
+
+- Improve documentation regarding content type negotiation and media type
+  validation. Thanks @amotl (#91, #343, #350)
+- Fix typo in testing docs. Thanks peletiah (#348)
+- Clarify docs for deferred colander validator. Thanks @antoineleclair (#352)
+
+
+1.2.0 (2016-01-18)
+==================
+
+- Adding the ability to define services imperatively. (#335)
+- Clean cornice/statics/ files. (#345)
+
+Bug fixes
+
+- Convert ``None`` to ``colander.null``  before calling colander's ``deserialize`` function. (#342)
+- Allow i18n of colander error messages (#206)
+
+
+1.1.0 (2015-09-29)
+==================
+
+- Warn if resource collection and record paths are not distinct. Thanks
+  @circlingthesun (#292)
+
+Bug fixes
+
+- Fix duplicated CORS exposed headers (#301)
+- Fix setup.py in template. Thanks @areski (#296)
+- Make resource test less dependent on Pyramid version (#312)
+- Fix reload in sphinx extension for Python 3. Thanks @JohnBrodie (#295)
+- Fix usage of Colander ``schema_type()`` and ``schema.typ``. Thanks
+  @tisdall (#309)
+- Fix check for CORS Allow Credentials. Thanks @treerao (#320)
+- Fix Access-Control-Max-Age value if undefined on service (#338)
+
+Documentation
+
+- Fix typos in documentation. Thanks @robvdl, @tisdall (#306, #313)
+- Rewrite quickstart documentation (#305)
+- Huge set of documentation improvements. Thanks @areski (#297)
+
+
+1.0.0 (2015-04-15)
+==================
+
+Breaking changes:
+
+- ACLs are now handled per route and not per view. Thanks @circlingthesun
+  (#287)
+
+Other changes:
+
+- Display default values in the sphinx documentation extension, Thanks
+  @MikaYuoadas (#284)
+- Add an option to disable Colander schema request binding. (#288)
+
+
+0.20.0 (2015-03-17)
+===================
+
+- Service.cors_supported_headers are now filtered by method and CORS options
+  are now handled in a more consistent way (#281).
+
+0.19.0 (2015-03-02)
+===================
+
+- Keep fields when colander schema set "unknown=preserve"
+
+
+0.18.1 (2015-02-26)
+===================
+
+- Fix CORS protocol that was sometimes returning
+  Access-Control-Expose-Headers on preflight request.
+
+
+0.18 - 2015-02-24
+=================
+
+- Fix CORS OPTIONS permission when using default_permission (#273)
+- Ensure Colander schemas are a Mapping (#271)
+- Use the tox matrix with Travis. (#272)
+- Improve Sphinx documentation for schema attributes (#270)
+- Set CORS headers when an exception is raised (#261)
+- Remove Cornice warning when returning string or array instead of JSON (#256)
+- Fix add_view decorator (#215)
+- Handle per view permissions (#248)
+- Handle CORS credentials origin (#263)
+- Let the user choose the default content_type (#262)
+- Fix spore documentation (#255)
+- Handle default values in colander schemas (#253)
+
+
+0.17 - 2014-08-28
+=================
+
+- Use a string for the version number (cornice.__version__);
+- Fix handling of invalid JSON input;
+- Fix pyramid configurator route_prefix;
+- Fix CORS behavior when using "*";
+- Support strict validation of querystring and body;
+- Add support for unflatted in querystring;
+- If colander defines a default value, put it in request.validated;
+- Do not require a permission for the fallback view.
+
+
+0.16.1 - 2013-11-12
+===================
+
+- Added the license in the distribution tarball
+- Updated the license headers of the files (to MPL v2.0)
+
+
+0.16 - 2013-11-12
+=================
+
+- Added venusion depth support to cornice.resource #187
+- Add support for validation of input content other than JSON against Colander
+  schemas: built-in support of form-urlencoded and configuration hooks for
+  other content types #192
+- Add support for pyramid traversal. #196
+- bugfix: schema was only being bound to the first request #197
+- bugfix: can now pass the `decorator` add_view parameter to the Service class #198
+
+
+0.15 - 2013-10-09
+=================
+
+- Add support for dynamic validation schemas for resources.
+- Add support for context factory.
+- Manually commit configuration changes.
+- Add support for Colander's drop object
+- Update sphinxext to not display HEAD.
+- Allow for explicitely named services created for resources.
+- Raise exceptions as-is if they are not subclasses of HTTPException.
+- Add a way to opt-out of the exception handling.
+
+
+0.14 - 2013-06-06
+=================
+
+- Add validation of the ``Content-Type`` header sent in requests against a list of allowed ingress content types
+- Handle HTTPNotFound and HTTPForbidden in Cornice. Fix some wrong behaviour with CORS support.
+- implement "415 Unsupported Media Type"
+- Allow Colander schemas with sequence fields in querystring
+- Remove PasteScript from the Cornice template.
+- Support imperative colander schemas
+- Update JSON CSRF warning filter with a better regex
+
+
+0.13 - 2013-02-12
+=================
+
+- Added Cross-Origin Resource Sharing (CORS) support.
+
+
+0.12 - 2012-11-21
+=================
+
+- Fix auto-define of HEAD views from GET views.
+- Support for Colander inheritance (introduced in new versions of Colander)
+- Check for errors in the body of the view and in validators (was only checking
+  in validators previously)
+- Add a __version__ utility in cornice/__init__.py
+
+
+0.11 - 2012-10-22
+=================
+
+- the sphinx extension is now provided by the `cornice.ext.sphinxext` module [not backward-compatible]
+- Add support for SPORE
+- add an optional 'error_handler' to view declarations.
+- Services.default_{validators, filters} is now used. (Fix #75)
+
+
+0.10 - 2012-08-29
+=================
+
+- use pcreate rather than paster create.
+- make it possible to add custom values to errors.
+
+
+0.9 - 2012-07-26
+================
+
+- default schema values are assumed to be in the body
+- refactored the internal APIs so we are not using decorators anymore. The
+  service definition is now separated from the service registration in the
+  routing mechanism.
+- added class-level validators and filters
+- added documentation about cornice internals
+- deprecated the service.schema attribute. Use service.definitions instead.
+
+
+0.8 - 2012-04-06
+================
+
+- added support for the 'OPTIONS' HTTP Verb
+- allow multiple accept definitions for a service.
+- get validator's docstring for the automatic doc generation
+- fixed non-ascii documentation problems
+- add a way to ignore some modules when scanning with venusian.scan.
+
+
+0.7 - 2012-03-12
+================
+
+- update license to MPL 2.0.
+- renamed cornice.schemas to cornice.errors
+- Added `get_view_wrapper` method to Service class to support subclasses
+  wrapping the view callables w/ decorators
+- added buildout support
+- added class-based views and the resource decorator
+- make sure we use Pyramid's exceptions. Not Webob's.
+- added filters support
+- added schema support
+- added json xsrf support
+- now errors status can be different from 400.
+
+
+0.6 - 2011-12-21
+================
+
+- various fixes in MANIFEST
+
+
+0.5 - 2011-12-21
+================
+
+- added a tutorial
+- stacked @api decorator are now allowed
+- added a Paster template for a quick start
+
+
+0.4 - 2011-12-07
+================
+
+- Added a way to plug validators easily.
+- Fixed documentation
+- Added a way to automatically document Cornice web services
+- Fixed license
+- Added a way to specify the accepted Content-Type values. A 406 is raised if
+  needed
+
+
+0.3 - 2011-11-23
+================
+
+- remove singleton "_defined" state from Service class; this allows service
+  definitions to be loaded into more than one Configurator.
+
+
+0.2 - 2011-11-05
+================
+
+- Fixed the MANIFEST
+
+
+0.1 - 2011-11-03
+================
+
+- Initial release
+
+

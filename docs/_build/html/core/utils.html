@@ -1,0 +1,543 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Utils &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Kinto Core" href="index.html"/>
+        <link rel="prev" title="Testing" href="testing.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kinto Core</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rationale.html">Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resource.html">Resource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewsets.html">Viewsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html">Cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Kinto Core</a> &raquo;</li>
+      
+    <li>Utils</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/core/utils.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="utils">
+<span id="id1"></span><h1>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-kinto.core.utils"></span><dl class="function">
+<dt id="kinto.core.utils.strip_whitespace">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">strip_whitespace</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.strip_whitespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove whitespace, newlines, and tabs from the beginning/end
+of a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>v</strong> (<em>str</em>) &#8211; the string to strip.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.msec_time">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">msec_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.msec_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return current epoch time in milliseconds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.classname">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">classname</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.classname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a classname from an object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.merge_dicts">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">merge_dicts</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.merge_dicts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge b into a recursively, without overwriting values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>a</strong> (<em>dict</em>) &#8211; the dict that will be altered with values of <cite>b</cite>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.synchronized">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">synchronized</code><span class="sig-paren">(</span><em>method</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.synchronized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class method decorator to make sure two threads do not execute some code
+at the same time (c.f Java <code class="docutils literal"><span class="pre">synchronized</span></code> keyword).</p>
+<p>The decorator installs a mutex on the class instance.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.random_bytes_hex">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">random_bytes_hex</code><span class="sig-paren">(</span><em>bytes_length</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.random_bytes_hex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a hexstring of bytes_length cryptographic-friendly random bytes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bytes_length</strong> (<em>int</em>) &#8211; number of random bytes.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.native_value">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">native_value</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.native_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert string value to native python values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>str</em>) &#8211; value to interprete.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the value coerced to python type</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.read_env">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">read_env</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.read_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the setting key from environment variables.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> &#8211; the setting name</li>
+<li><strong>value</strong> &#8211; default value if undefined in environment</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the value from environment, coerced to python type</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.encode64">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">encode64</code><span class="sig-paren">(</span><em>content</em>, <em>encoding='utf-8'</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.encode64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode some content in base64.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.decode64">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">decode64</code><span class="sig-paren">(</span><em>encoded_content</em>, <em>encoding='utf-8'</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.decode64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode some base64 encoded content.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.hmac_digest">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">hmac_digest</code><span class="sig-paren">(</span><em>secret</em>, <em>message</em>, <em>encoding='utf-8'</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.hmac_digest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return hex digest of a message HMAC using secret</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.dict_subset">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">dict_subset</code><span class="sig-paren">(</span><em>d</em>, <em>keys</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.dict_subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict with the specified keys</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.reapply_cors">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">reapply_cors</code><span class="sig-paren">(</span><em>request</em>, <em>response</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.reapply_cors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reapply cors headers to the new response with regards to the request.</p>
+<p>We need to re-apply the CORS checks done by Cornice, in case we&#8217;re
+recreating the response from scratch.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.current_service">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">current_service</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.current_service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Cornice service matching the specified request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the service or None if unmatched.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">cornice.Service</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.current_resource_name">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">current_resource_name</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.current_resource_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the name used when the kinto.core resource was registered along its
+viewset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the resource identifier.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.build_request">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">build_request</code><span class="sig-paren">(</span><em>original</em>, <em>dict_obj</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.build_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a dict object into a <a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/request.html#pyramid.request.Request" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-class docutils literal"><span class="pre">pyramid.request.Request</span></code></a> object.</p>
+<p>It sets a <code class="docutils literal"><span class="pre">parent</span></code> attribute on the resulting request assigned with
+the <cite>original</cite> request specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>original</strong> &#8211; the original request.</li>
+<li><strong>dict_obj</strong> &#8211; a dict object with the sub-request specifications.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.build_response">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">build_response</code><span class="sig-paren">(</span><em>response</em>, <em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.build_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a <a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/response.html#pyramid.response.Response" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-class docutils literal"><span class="pre">pyramid.response.Response</span></code></a> object into a serializable
+dict.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>response</strong> &#8211; a response object, returned by Pyramid.</li>
+<li><strong>request</strong> &#8211; the request that was used to get the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.follow_subrequest">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">follow_subrequest</code><span class="sig-paren">(</span><em>request</em>, <em>subrequest</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.follow_subrequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a subrequest (e.g. batch), and follow the redirection if any.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the reponse and the redirection request (or <cite>subrequest</cite>
+if no redirection happened.)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.decode_header">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">decode_header</code><span class="sig-paren">(</span><em>value</em>, <em>encoding='utf-8'</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.decode_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make sure the header is an unicode string.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.strip_uri_prefix">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">strip_uri_prefix</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.strip_uri_prefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove potential version prefix in URI.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.view_lookup">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">view_lookup</code><span class="sig-paren">(</span><em>request</em>, <em>uri</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.view_lookup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look-up the specified <cite>uri</cite> and return the associated resource name
+along the match dict.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>request</strong> &#8211; the current request (used to obtain registry).</li>
+<li><strong>uri</strong> &#8211; a plural or object endpoint URI.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">tuple</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the resource name and the associated matchdict.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kinto.core.utils.instance_uri">
+<code class="descclassname">kinto.core.utils.</code><code class="descname">instance_uri</code><span class="sig-paren">(</span><em>request</em>, <em>resource_name</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.utils.instance_uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the URI for the given resource.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="testing.html" class="btn btn-neutral" title="Testing" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,450 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting started &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Kinto Core" href="index.html"/>
+        <link rel="next" title="Resource" href="resource.html"/>
+        <link rel="prev" title="Rationale" href="rationale.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kinto Core</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rationale.html">Rationale</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#start-a-pyramid-project">Start a Pyramid project</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#include-kinto-core">Include Kinto-Core</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run">Run!</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#authentication">Authentication</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#define-resources">Define resources</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#schema-validation">Schema validation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#enable-middleware">Enable middleware</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-s-next">What&#8217;s next ?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#resource-customization">Resource customization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#advanced-initialization">Advanced initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beyond-kinto-core">Beyond Kinto-Core</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="resource.html">Resource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewsets.html">Viewsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html">Cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Kinto Core</a> &raquo;</li>
+      
+    <li>Getting started</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/core/quickstart.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pip install kinto
+</pre></div>
+</div>
+<p>You can use <em>Kinto-Core</em> by doing <code class="docutils literal"><span class="pre">import</span> <span class="pre">kinto.core</span></code> in your application.</p>
+<p>More details about installation and storage backend is provided in
+<a class="reference internal" href="../tutorials/install.html#install"><span class="std std-ref">a dedicated section</span></a>.</p>
+</div>
+<div class="section" id="start-a-pyramid-project">
+<h2>Start a Pyramid project<a class="headerlink" href="#start-a-pyramid-project" title="Permalink to this headline">¶</a></h2>
+<p>As detailed in <a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/">Pyramid documentation</a>,
+create a minimal application, or use its scaffolding tool:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pcreate -s starter MyProject
+</pre></div>
+</div>
+<div class="section" id="include-kinto-core">
+<h3>Include Kinto-Core<a class="headerlink" href="#include-kinto-core" title="Permalink to this headline">¶</a></h3>
+<p>In the application main file (e.g. <code class="file docutils literal"><span class="pre">MyProject/myproject/__init__.py</span></code>),
+just add some extra initialization code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pkg_resources</span>
+
+<span class="hll"><span class="kn">import</span> <span class="nn">kinto.core</span>
+</span><span class="kn">from</span> <span class="nn">pyramid.config</span> <span class="kn">import</span> <span class="n">Configurator</span>
+
+<span class="hll"><span class="c1"># Module version, as defined in PEP-0396.</span>
+</span><span class="hll"><span class="n">__version__</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">get_distribution</span><span class="p">(</span><span class="n">__package__</span><span class="p">)</span><span class="o">.</span><span class="n">version</span>
+</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">global_config</span><span class="p">,</span> <span class="o">**</span><span class="n">settings</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">Configurator</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
+
+<span class="hll">    <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">__version__</span><span class="p">,</span> <span class="s1">&#39;myproject&#39;</span><span class="p">)</span>
+</span>    <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">make_wsgi_app</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>By doing that, basic features like authentication, monitoring, error formatting,
+deprecation indicators are now available, and rely on configuration present
+in <code class="file docutils literal"><span class="pre">development.ini</span></code>.</p>
+</div>
+<div class="section" id="run">
+<h3>Run!<a class="headerlink" href="#run" title="Permalink to this headline">¶</a></h3>
+<p>With some backends, like <em>PostgreSQL</em>, some tables and indices have to be created.
+A generic command is provided to accomplish this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ kinto --ini development.ini migrate
+</pre></div>
+</div>
+<p>Like any <em>Pyramid</em> application, it can be served locally with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pserve development.ini --reload
+</pre></div>
+</div>
+<p>A <em>hello</em> view is now available at <a class="reference external" href="http://localhost:6543/v0/">http://localhost:6543/v0/</a>
+(As well as basic endpoints like the <a class="reference internal" href="../api/1.x/utilities.html#api-utilities"><span class="std std-ref">utilities</span></a>).</p>
+<p>The next steps will consist in building a custom application using <a class="reference external" href="https://cornice.readthedocs.io">Cornice</a> or
+<strong>the Pyramid ecosystem</strong>.</p>
+<p>But most likely, it will consist in <strong>defining REST resources</strong> using <em>Kinto-Core</em>&#8216;s
+Python API !</p>
+</div>
+<div class="section" id="authentication">
+<h3>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h3>
+<p>Currently, if no <a class="reference internal" href="../configuration/settings.html#configuration-authentication"><span class="std std-ref">authentication is set in settings</span></a>,
+<em>Kinto-Core</em> relies on <em>Basic Auth</em>. It will associate a unique <a class="reference internal" href="glossary.html#term-user-id"><span class="xref std std-term">user id</span></a>
+for every user/password combination.</p>
+<p>Using <a class="reference external" href="http://httpie.org">HTTPie</a>, it is as easy as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ http -v http://localhost:6543/v0/ --auth user:pass
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In the case of <em>Basic Auth</em>, there is no need of registering a user/password.
+Pick any combination, and include them in each request.</p>
+</div>
+</div>
+</div>
+<div class="section" id="define-resources">
+<h2>Define resources<a class="headerlink" href="#define-resources" title="Permalink to this headline">¶</a></h2>
+<p>In order to define a resource, inherit from <a class="reference internal" href="resource.html#kinto.core.resource.UserResource" title="kinto.core.resource.UserResource"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.resource.UserResource</span></code></a>,
+in a subclass, in <code class="file docutils literal"><span class="pre">myproject/views.py</span></code> for example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">resource</span>
+
+<span class="nd">@resource.register</span><span class="p">()</span>
+<span class="k">class</span> <span class="nc">Mushroom</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">UserResource</span><span class="p">):</span>
+    <span class="c1"># No schema yet.</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>In application initialization, make <em>Pyramid</em> aware of it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">global_config</span><span class="p">,</span> <span class="o">**</span><span class="n">settings</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">Configurator</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
+
+    <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">__version__</span><span class="p">,</span> <span class="s1">&#39;myproject&#39;</span><span class="p">)</span>
+<span class="hll">    <span class="n">config</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="s2">&quot;myproject.views&quot;</span><span class="p">)</span>
+</span>    <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">make_wsgi_app</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In order to bypass the installation and configuration of <em>Redis</em> or <em>PostgreSQL</em>,
+specify the «in-memory» backends in <code class="file docutils literal"><span class="pre">development.ini</span></code>:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="c1"># development.ini</span>
+<span class="na">myproject.cache_backend</span> <span class="o">=</span> <span class="s">kinto.core.cache.memory</span>
+<span class="na">myproject.storage_backend</span> <span class="o">=</span> <span class="s">kinto.core.storage.memory</span>
+<span class="na">myproject.permission_backend</span> <span class="o">=</span> <span class="s">kinto.core.permission.memory</span>
+</pre></div>
+</div>
+<p>A Mushroom resource API is now available at the <code class="docutils literal"><span class="pre">/mushrooms/</span></code> URL.</p>
+<p>It will accept a bunch of REST operations (<code class="docutils literal"><span class="pre">GET</span></code>, <code class="docutils literal"><span class="pre">POST</span></code>, ...).</p>
+<p>The next step consists in attaching a schema to the resource, to control
+what fields are accepted and stored.</p>
+<div class="section" id="schema-validation">
+<h3>Schema validation<a class="headerlink" href="#schema-validation" title="Permalink to this headline">¶</a></h3>
+<p>It is possible to validate records against a predefined schema, associated
+to the resource.</p>
+<p>Currently, only <a class="reference external" href="https://colander.readthedocs.io">Colander</a> is supported, and it looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span> <span class="nn">colander</span>
+</span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">resource</span>
+
+
+<span class="hll"><span class="k">class</span> <span class="nc">MushroomSchema</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">ResourceSchema</span><span class="p">):</span>
+</span><span class="hll">    <span class="n">name</span> <span class="o">=</span> <span class="n">colander</span><span class="o">.</span><span class="n">SchemaNode</span><span class="p">(</span><span class="n">colander</span><span class="o">.</span><span class="n">String</span><span class="p">())</span>
+</span>
+    <span class="k">class</span> <span class="nc">Options</span><span class="p">:</span>
+        <span class="n">preserve_unknown</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c1"># Fails if field is unknown!</span>
+
+<span class="hll">
+</span><span class="nd">@resource.register</span><span class="p">()</span>
+<span class="k">class</span> <span class="nc">Mushroom</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">UserResource</span><span class="p">):</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">MushroomSchema</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="enable-middleware">
+<h2>Enable middleware<a class="headerlink" href="#enable-middleware" title="Permalink to this headline">¶</a></h2>
+<p>In order to enable WSGI middleware, wrap the application in the project <code class="docutils literal"><span class="pre">main</span></code> function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">global_config</span><span class="p">,</span> <span class="o">**</span><span class="n">settings</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">Configurator</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
+
+    <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">__version__</span><span class="p">,</span> <span class="s1">&#39;myproject&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="s2">&quot;myproject.views&quot;</span><span class="p">)</span>
+<span class="hll">    <span class="n">app</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">make_wsgi_app</span><span class="p">()</span>
+</span><span class="hll">    <span class="k">return</span> <span class="n">kinto</span><span class="o">.</span><span class="n">install_middlewares</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+</span></pre></div>
+</div>
+</div>
+<div class="section" id="what-s-next">
+<h2>What&#8217;s next ?<a class="headerlink" href="#what-s-next" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="resource-customization">
+<h3>Resource customization<a class="headerlink" href="#resource-customization" title="Permalink to this headline">¶</a></h3>
+<p>See <a class="reference internal" href="resource.html#resource"><span class="std std-ref">the resource documentation</span></a> to specify custom URLs,
+schemaless resources, read-only fields, record pre-processing...</p>
+</div>
+<div class="section" id="advanced-initialization">
+<h3>Advanced initialization<a class="headerlink" href="#advanced-initialization" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="kinto.core.initialize">
+<code class="descclassname">kinto.core.</code><code class="descname">initialize</code><span class="sig-paren">(</span><em>config</em>, <em>version=None</em>, <em>project_name=''</em>, <em>default_settings=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize kinto.core with the given configuration, version and project
+name.</p>
+<p>This will basically include kinto.core in Pyramid and set route prefix
+based on the specified version.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>config</strong> (<a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/config.html#pyramid.config.Configurator" title="(in The Pyramid Web Framework v1.7.3)"><em>Configurator</em></a>) &#8211; Pyramid configuration</li>
+<li><strong>version</strong> (<em>str</em>) &#8211; Current project version (e.g. &#8216;0.0.1&#8217;) if not defined
+in application settings.</li>
+<li><strong>project_name</strong> (<em>str</em>) &#8211; Project name if not defined
+in application settings.</li>
+<li><strong>default_settings</strong> (<em>dict</em>) &#8211; Override kinto.core default settings values.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="beyond-kinto-core">
+<h3>Beyond Kinto-Core<a class="headerlink" href="#beyond-kinto-core" title="Permalink to this headline">¶</a></h3>
+<p><em>Kinto-Core</em> is just a component! The application can still be built and
+extended using the full <em>Pyramid</em> ecosystem.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="resource.html" class="btn btn-neutral float-right" title="Resource" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="rationale.html" class="btn btn-neutral" title="Rationale" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

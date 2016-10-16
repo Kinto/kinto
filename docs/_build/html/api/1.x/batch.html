@@ -1,0 +1,418 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Batch operations &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../../index.html"/>
+        <link rel="up" title="1.x" href="index.html"/>
+        <link rel="next" title="Server timestamps" href="timestamps.html"/>
+        <link rel="prev" title="Utility endpoints for OPS and Devs" href="utilities.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../versioning.html">API Versioning</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">1.x</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#full-reference">Full reference</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buckets.html">Buckets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="records.html">Records</a></li>
+<li class="toctree-l4"><a class="reference internal" href="groups.html">Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="permissions.html">Permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="filtering.html">Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sorting.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pagination.html">Paginating</a></li>
+<li class="toctree-l4"><a class="reference internal" href="selecting_fields.html">Selecting fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="history.html">History of changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="quotas.html">Quotas management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utilities.html">Utility endpoints for OPS and Devs</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Batch operations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="timestamps.html">Server timestamps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="backoff.html">Backoff indicators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="errors.html">Error responses</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprecation.html">Deprecation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cheatsheet">Cheatsheet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#changelog">Changelog</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">API</a> &raquo;</li>
+      
+          <li><a href="index.html">1.x</a> &raquo;</li>
+      
+    <li>Batch operations</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/api/1.x/batch.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="batch-operations">
+<h1>Batch operations<a class="headerlink" href="#batch-operations" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="post-batch">
+<span id="batch"></span><h2>POST /batch<a class="headerlink" href="#post-batch" title="Permalink to this headline">¶</a></h2>
+<p><strong>Requires authentication</strong></p>
+<p>The POST body is a mapping, with the following attributes:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">requests</span></code>: the list of requests</li>
+<li><code class="docutils literal"><span class="pre">defaults</span></code>: (<em>optional</em>) default requests values in common for all requests</li>
+</ul>
+<blockquote>
+<div>Each request is a JSON mapping, with the following attribute:</div></blockquote>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">method</span></code>: HTTP verb</li>
+<li><code class="docutils literal"><span class="pre">path</span></code>: URI</li>
+<li><code class="docutils literal"><span class="pre">body</span></code>: a mapping</li>
+<li><code class="docutils literal"><span class="pre">headers</span></code>: (<em>optional</em>), otherwise take those of batch request</li>
+</ul>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/batch</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">728</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:8888</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.9.2</span>
+
+{
+  &quot;defaults&quot;: {
+    &quot;method&quot; : &quot;POST&quot;,
+    &quot;path&quot; : &quot;/articles&quot;,
+  },
+  &quot;requests&quot;: [
+    {
+      &quot;body&quot; : {
+        &quot;data&quot; : {
+          &quot;title&quot;: &quot;MoFo&quot;,
+          &quot;url&quot; : &quot;http://mozilla.org&quot;,
+          &quot;added_by&quot;: &quot;FxOS&quot;,
+        },
+        &quot;permissions&quot;: {
+          &quot;read&quot;: [&quot;system.Everyone&quot;]
+        }
+      }
+    },
+    {
+      &quot;body&quot; : {
+        &quot;data&quot; : {
+          &quot;title&quot;: &quot;MoCo&quot;,
+          &quot;url&quot; : &quot;http://mozilla.com&quot;
+          &quot;added_by&quot;: &quot;FxOS&quot;,
+        }
+      }
+    },
+    {
+      &quot;method&quot; : &quot;PATCH&quot;,
+      &quot;path&quot; : &quot;/articles/409&quot;,
+      &quot;body&quot; : {
+        &quot;data&quot; : {
+          &quot;read_position&quot; : 3477
+        }
+      }
+      &quot;headers&quot; : {
+        &quot;Response-Behavior&quot;: &quot;light&quot;
+      }
+    }
+  ]
+}
+</pre></div>
+</div>
+<p>The response body is a list of all responses:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Retry-After, Content-Length, Alert, Backoff</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">1674</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Wed, 17 Feb 2016 18:44:39 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+{
+  &quot;responses&quot;: [
+    {
+      &quot;status&quot;: 201,
+      &quot;path&quot; : &quot;/articles&quot;,
+      &quot;body&quot; : {
+        &quot;data&quot; : {
+          &quot;id&quot;: 411,
+          &quot;title&quot;: &quot;MoFo&quot;,
+          &quot;url&quot; : &quot;http://mozilla.org&quot;,
+          ...
+        }
+      },
+      &quot;headers&quot;: {
+        ...
+      }
+    },
+    {
+      &quot;status&quot;: 201,
+      &quot;path&quot; : &quot;/articles&quot;,
+      &quot;body&quot; : {
+        &quot;data&quot; : {
+          &quot;id&quot;: 412,
+          &quot;title&quot;: &quot;MoCo&quot;,
+          &quot;url&quot; : &quot;http://mozilla.com&quot;,
+          ...
+        }
+      },
+      &quot;headers&quot;: {
+        ...
+      }
+    },
+    {
+      &quot;status&quot;: 200,
+      &quot;path&quot; : &quot;/articles/409&quot;,
+      &quot;body&quot; : {
+        &quot;data&quot; : {
+          &quot;id&quot;: 409,
+          &quot;url&quot;: &quot;...&quot;,
+          ...
+          &quot;read_position&quot; : 3477
+        }
+      },
+      &quot;headers&quot;: {
+        ...
+      }
+    }
+  ]
+}
+</pre></div>
+</div>
+<div class="section" id="http-status-codes">
+<h3>HTTP Status Codes<a class="headerlink" href="#http-status-codes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></code>: The request has been processed</li>
+<li><code class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></code>: The request body is invalid</li>
+<li><code class="docutils literal"><span class="pre">50X</span></code>: One of the sub-request has failed with a <code class="docutils literal"><span class="pre">50X</span></code> status</li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Since the requests bodies are necessarily mappings, posting arbitrary data
+(<em>like raw text or binary</em>) is not supported.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Responses are executed and provided in the same order than requests.</p>
+</div>
+</div>
+<div class="section" id="about-transactions">
+<h3>About transactions<a class="headerlink" href="#about-transactions" title="Permalink to this headline">¶</a></h3>
+<p>The whole batch of requests is executed under one transaction only.</p>
+<p>In order words, if one of the sub-request fails with a 503 status for example, then
+every previous operation is rolled back.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">With the current implementation, if a sub-request fails with a 4XX status
+(eg. <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code> or <code class="docutils literal"><span class="pre">401</span> <span class="pre">Forbidden</span></code> for example) the
+transaction is <strong>not</strong> rolled back.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="timestamps.html" class="btn btn-neutral float-right" title="Server timestamps" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="utilities.html" class="btn btn-neutral" title="Utility endpoints for OPS and Devs" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

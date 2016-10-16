@@ -1,0 +1,343 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Error responses &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../../index.html"/>
+        <link rel="up" title="1.x" href="index.html"/>
+        <link rel="next" title="Deprecation" href="deprecation.html"/>
+        <link rel="prev" title="Backoff indicators" href="backoff.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../versioning.html">API Versioning</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">1.x</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#full-reference">Full reference</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buckets.html">Buckets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="records.html">Records</a></li>
+<li class="toctree-l4"><a class="reference internal" href="groups.html">Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="permissions.html">Permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="filtering.html">Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sorting.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pagination.html">Paginating</a></li>
+<li class="toctree-l4"><a class="reference internal" href="selecting_fields.html">Selecting fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="history.html">History of changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="quotas.html">Quotas management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utilities.html">Utility endpoints for OPS and Devs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batch.html">Batch operations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="timestamps.html">Server timestamps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="backoff.html">Backoff indicators</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Error responses</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprecation.html">Deprecation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cheatsheet">Cheatsheet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#changelog">Changelog</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">API</a> &raquo;</li>
+      
+          <li><a href="index.html">1.x</a> &raquo;</li>
+      
+    <li>Error responses</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/api/1.x/errors.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="error-responses">
+<span id="id1"></span><h1>Error responses<a class="headerlink" href="#error-responses" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="api-description">
+<h2>API description<a class="headerlink" href="#api-description" title="Permalink to this headline">¶</a></h2>
+<p>Every response is JSON.</p>
+<p>If the HTTP status is not OK (&lt;200 or &gt;=400), the response contains a JSON mapping, with the following attributes:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">code</span></code>: matches the HTTP status code (e.g <code class="docutils literal"><span class="pre">400</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">errno</span></code>: stable application-level error number (e.g. <code class="docutils literal"><span class="pre">109</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">error</span></code>: string description of error type (e.g. <code class="docutils literal"><span class="pre">&quot;Bad</span> <span class="pre">request&quot;</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">message</span></code>: context information (e.g. <code class="docutils literal"><span class="pre">&quot;Invalid</span> <span class="pre">request</span> <span class="pre">parameters&quot;</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">info</span></code>: online resource (e.g. URL to error details)</li>
+<li><code class="docutils literal"><span class="pre">details</span></code>: additional details (e.g. list of validation errors)</li>
+</ul>
+<p><strong>Example response</strong></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">412</span><span class="p">,</span>
+    <span class="s2">&quot;errno&quot;</span><span class="p">:</span> <span class="mi">114</span><span class="p">,</span>
+    <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Precondition Failed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Resource was modified meanwhile&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="s2">&quot;https://server/docs/api.html#errors&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Refer yourself to the <a class="reference internal" href="../../core/errors.html#errors"><span class="std std-ref">set of errors codes</span></a>.</p>
+</div>
+<div class="section" id="retry-after-indicators">
+<h2>Retry-After indicators<a class="headerlink" href="#retry-after-indicators" title="Permalink to this headline">¶</a></h2>
+<p>A <code class="docutils literal"><span class="pre">Retry-After</span></code> header will be added to error responses (&gt;=500),
+telling the client how many seconds it should wait before trying
+again.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Retry</span><span class="o">-</span><span class="n">After</span><span class="p">:</span> <span class="mi">30</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="precondition-errors">
+<span id="error-responses-precondition"></span><h2>Precondition errors<a class="headerlink" href="#precondition-errors" title="Permalink to this headline">¶</a></h2>
+<p>As detailed in the <a class="reference internal" href="timestamps.html#server-timestamps"><span class="std std-ref">timestamps</span></a> section, it is
+possible to add concurrency control using <code class="docutils literal"><span class="pre">ETag</span></code> request headers.</p>
+<p>When a concurrency error occurs, a <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code> error response
+is returned.</p>
+<p>Additional information about the record currently stored on the server will be
+provided in the <code class="docutils literal"><span class="pre">details</span></code> field:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">412</span><span class="p">,</span>
+    <span class="s2">&quot;errno&quot;</span><span class="p">:</span> <span class="mi">114</span><span class="p">,</span>
+    <span class="s2">&quot;error&quot;</span><span class="p">:</span><span class="s2">&quot;Precondition Failed&quot;</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Resource was modified meanwhile&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;existing&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1436434441550</span><span class="p">,</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;00dd028f-16f7-4755-ab0d-e0dc0cb5da92&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Original title&quot;</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="validation-errors">
+<h2>Validation errors<a class="headerlink" href="#validation-errors" title="Permalink to this headline">¶</a></h2>
+<p>When multiple validation errors occur on a request, the first one is presented
+in the message.</p>
+<p>The full list of validation errors is provided in the <code class="docutils literal"><span class="pre">details</span></code> field.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>
+    <span class="s2">&quot;errno&quot;</span><span class="p">:</span> <span class="mi">109</span><span class="p">,</span>
+    <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Bad Request&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid posted data&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="s2">&quot;https://server/docs/api.html#errors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;42 is not a string: {&#39;name&#39;: &#39;&#39;}&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="s2">&quot;body&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="deprecation.html" class="btn btn-neutral float-right" title="Deprecation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="backoff.html" class="btn btn-neutral" title="Backoff indicators" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

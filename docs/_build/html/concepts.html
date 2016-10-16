@@ -1,0 +1,346 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Concepts &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="index.html"/>
+        <link rel="next" title="Community" href="community.html"/>
+        <link rel="prev" title="Kinto Web Administration Console" href="kinto-admin.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#buckets-collections-and-records">Buckets, Collections, and Records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#groups">Groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#permissions">Permissions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#inherited">Inherited</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#technical-architecture">Technical Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sequence-diagrams">Sequence diagrams</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Concepts</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/concepts.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="concepts">
+<span id="kinto-concepts"></span><h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h1>
+<p>Basically, <em>Kinto</em> is a service where client applications can store and retrieve JSON data.</p>
+<p>In order to provide synchronisation and sharing features for these data, <em>Kinto</em>
+introduces some basic concepts.</p>
+<p><em>Kinto</em> objects in brief:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Object</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><strong>bucket</strong></td>
+<td>Buckets can be seen as namespaces:
+collection names won&#8217;t collide if stored in different
+buckets.</td>
+</tr>
+<tr class="row-odd"><td><strong>collection</strong></td>
+<td>A collection of records</td>
+</tr>
+<tr class="row-even"><td><strong>record</strong></td>
+<td>The actual stored data</td>
+</tr>
+<tr class="row-odd"><td><strong>group</strong></td>
+<td>A named list of <a class="reference internal" href="api/1.x/permissions.html#api-principals"><span class="std std-ref">principals</span></a> to
+define permissions.</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="buckets-collections-and-records">
+<span id="concepts-buckets-collections-records"></span><h2>Buckets, Collections, and Records<a class="headerlink" href="#buckets-collections-and-records" title="Permalink to this headline">¶</a></h2>
+<p>A <strong>record</strong> is the smallest unit of data. By default, there is no schema,
+and the JSON can contain anything.</p>
+<p>A <strong>collection</strong> is a group of records. Records are manipulated as a list
+and can be filtered or sorted. Clients can obtain the list of changes that
+occured on the collection records since a certain revision (e.g. <em>last synchronisation</em>).</p>
+<p>A <strong>bucket</strong> is an abstract notion used to organize collections and their
+permissions.</p>
+<img alt="_images/concepts-general.png" src="_images/concepts-general.png" />
+<p>Every kind of object manipulated by <em>Kinto</em> shares some common properties:</p>
+<ul class="simple">
+<li>A unique identifier.</li>
+<li>A revision number, automatically incremented on change.</li>
+<li>A set of permissions.</li>
+</ul>
+<p>Those concepts are very similar to a hard disk, where buckets would be partitions,
+collections are folders, and records are files!</p>
+</div>
+<div class="section" id="groups">
+<span id="concepts-groups"></span><h2>Groups<a class="headerlink" href="#groups" title="Permalink to this headline">¶</a></h2>
+<p>Kinto has a concept of <em>groups</em> of users. A group has a list of members and
+belongs to a bucket.</p>
+<p>Permissions can refer to the <em>group</em> URI instead of an individual user - this makes
+it easy to define &#8220;roles&#8221;, especially if the same set of permissions is applied
+to several objects.</p>
+</div>
+<div class="section" id="permissions">
+<span id="concepts-permissions"></span><h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h2>
+<p>In order to control who is allowed to read, create, modify, or delete the records,
+permissions can be defined on buckets, groups, collections, and single records.</p>
+<div class="section" id="inherited">
+<h3>Inherited<a class="headerlink" href="#inherited" title="Permalink to this headline">¶</a></h3>
+<p>Since there is a notion of hierarchy between buckets, collections, and records,
+<em>Kinto</em> considers permissions as inherited from parent objects.</p>
+<img alt="_images/concepts-permissions.png" src="_images/concepts-permissions.png" />
+<p>For example, if a bucket defines a permission that allows anonymous users to read,
+then every record of every collection in this bucket will also be readable, as
+a result of inheritance.</p>
+<p>The permission to create new objects is defined in the parent.
+For example, the permission to create records is defined in the collection, and the permission
+to create collections or groups is defined in the bucket. The permission to create new buckets,
+however, is controlled from the <a class="reference internal" href="configuration/index.html#configuration"><span class="std std-ref">server configuration</span></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If a parent defines a permission, it is (<em>currently</em>) not possible to restrict
+it in its child objects.</p>
+</div>
+</div>
+<div class="section" id="see-also">
+<h3>See also<a class="headerlink" href="#see-also" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="core/glossary.html#term-crud"><span class="xref std std-term">Kinto glossary</span></a>, for formal definitions of terms used in the documentation</li>
+<li><a class="reference internal" href="api/1.x/permissions.html#api-permissions"><span class="std std-ref">HTTP API reference documentation</span></a></li>
+<li><a class="reference external" href="http://www.servicedenuages.fr/en/handling-permissions">Our blog post</a> on permissions design in <em>Kinto</em></li>
+</ul>
+</div>
+</div>
+<div class="section" id="technical-architecture">
+<span id="id1"></span><h2>Technical Architecture<a class="headerlink" href="#technical-architecture" title="Permalink to this headline">¶</a></h2>
+<p>Every concept of bucket, group, collection or record is a REST
+<em>resource</em> and behaves according to the conventions of a resource.</p>
+<p><em>Kinto</em> relies on <a class="reference external" href="https://cornice.readthedocs.io">Cornice</a> and <a class="reference external" href="https://pyramid.readthedocs.io">Pyramid</a>
+to implement the endpoints and HTTP request/response handling.</p>
+<img alt="_images/architecture.svg" src="_images/architecture.svg" /><div class="section" id="sequence-diagrams">
+<h3>Sequence diagrams<a class="headerlink" href="#sequence-diagrams" title="Permalink to this headline">¶</a></h3>
+<p>The following sequence diagram gives a rough overview of how <em>Kinto</em> handles
+a request and stores it into the storage:</p>
+<img alt="_images/sequence-storage.png" src="_images/sequence-storage.png" />
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="community.html" class="btn btn-neutral float-right" title="Community" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="kinto-admin.html" class="btn btn-neutral" title="Kinto Web Administration Console" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
