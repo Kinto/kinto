@@ -484,6 +484,10 @@ class JsonPatch(object):
         path = self.__get_path(address)
         value = op['value']   
         
+        if isinstance(path, set):
+            if value not in path:
+                raise StopIteration
+        
         if isinstance(path, list):
             if path[int(entry)] != value:
                 raise StopIteration
@@ -495,8 +499,12 @@ class JsonPatch(object):
         address, entry = self.__get_address(op)
         path = self.__get_path(address, create=True)
         value = op['value']   
+ 
+        if isinstance(path, set):
+            print path
+            path.add(value)
 
-        if isinstance(path, list):
+        elif isinstance(path, list):
             if entry == '-':
                 path.append(value)
             elif int(entry) > len(path):
@@ -510,7 +518,10 @@ class JsonPatch(object):
         address, entry = self.__get_address(op)
         path = self.__get_path(address)
         
-        if isinstance(path, list):
+        if isinstance(path, set):
+            path.remove(entry)
+
+        elif isinstance(path, list):
             if key == '-':
                 path.pop()
             elif int(entry) >= len(path):
@@ -532,12 +543,15 @@ class JsonPatch(object):
        
         elif address[0] == 'permissions':
             obj = self.permissions
-            track = self.permissions
+            track = self.changes
         
         address.pop(0)
 
         for el in address:
-            if isinstance(obj, list):
+            if isinstance(obj, set):
+                pass
+
+            elif isinstance(obj, list):
                 obj = obj[int(el)]
                 
                 track.append(obj)
