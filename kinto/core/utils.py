@@ -462,7 +462,7 @@ class JsonPatch(object):
         self.updated = record.copy()
 
         self.changes = {}
-        self.permissions = record['__permissions__'].copy()
+        self.permissions = {}
 
         self.__validate()
         self._apply_ops()
@@ -521,9 +521,7 @@ class JsonPatch(object):
             path.remove(entry)
 
         elif isinstance(path, list):
-            if key == '-':
-                path.pop()
-            elif int(entry) >= len(path):
+            if int(entry) >= len(path):
                 raise KeyError
             else:
                 path.pop(int(entry))
@@ -534,7 +532,7 @@ class JsonPatch(object):
         self._remove(op)
         self._add(op)
 
-    def _move(self, op)
+    def _move(self, op):
         rem_op = op.copy()
         rem_op['path'] = op['from']
 
@@ -558,7 +556,7 @@ class JsonPatch(object):
         get_op = op.copy()
         get_op['path'] = op['from']
         
-        address, entry = self.__get_address(op)
+        address, entry = self.__get_address(get_op)
         path = self.__get_path(address)
         
         if isinstance(path, set):

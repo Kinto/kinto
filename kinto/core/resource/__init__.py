@@ -464,17 +464,16 @@ class UserResource(object):
         content_type = str(self.request.headers.get('Content-Type'))
         # patch is specified as a list of of operations (RFC 6902) 
         if content_type == 'application/json-patch+json':
-            #try:
+            try:
                 ops = self.request.json
                 self.patch_changes = JsonPatch(ops, existing)
                 changes = self.patch_changes.changes
-
-            #except:
-            #    error_details = {
-            #        'name': 'data',
-            #        'description': 'Invalid JSON Patch format',
-            #    }
-            #    raise_invalid(self.request, **error_details)
+            except:
+                error_details = {
+                    'name': 'data',
+                    'description': 'Invalid JSON Patch format',
+                }
+                raise_invalid(self.request, **error_details)
         else:
             try:
                 # `data` attribute may not be present if only perms are patched.
