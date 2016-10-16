@@ -445,16 +445,6 @@ def instance_uri(request, resource_name, **params):
                                                **params))
 
 
-def get_json_path(obj, address, create=False): 
-    """
-    Get the object at a json address.
-
-    :param obj: JSON extracted object.
-    :param list address: positions to enter the obj.
-    :param bool create: creates the path if it doesn't exist.
-    """ 
-
-
 class JsonPatch(object):
  
     required_fields = {
@@ -463,14 +453,16 @@ class JsonPatch(object):
         'add':     ['op', 'path', 'value'],
         'replace': ['op', 'path', 'value'],
         'move':    ['op', 'path', 'from'],
-        'copy':    ['op', 'path', 'from'],
+        'copy':    ['op', 'path', 'from']
     }
 
     def __init__(self, ops, record):
 
         self.ops = ops
         self.updated = record.copy()
+
         self.changes = {}
+        self.permissions = record['__permissions__'].copy()
 
         self.__validate()
         self._apply_ops()
@@ -482,12 +474,7 @@ class JsonPatch(object):
                 getattr(self, "_" + op['op'])(op) 
             except StopIteration:
                 break
-
-        try:
-            self.permissions = self.changes.pop('permissions')
-        except KeyError:
-            self.permissions = {}
-
+        
     #
     # Patch Operations
     #
@@ -538,9 +525,16 @@ class JsonPatch(object):
     #
 
     def __get_path(self, address, create=False):
+       
+        if address[0] == 'data':
+            obj = self.updated 
+            track = self.changes        
+       
+        elif address[0] == 'permissions':
+            obj = self.permissions
+            track = self.permissions
         
-        obj = self.updated 
-        track = self.changes        
+        address.pop(0)
 
         for el in address:
             if isinstance(obj, list):
@@ -580,8 +574,14 @@ class JsonPatch(object):
         for op in self.ops:
             if op['op'] in self.required_fields:
                 reqs = self.required_fields[op['op']]
+
             else:
                 raise KeyError
+
             for req in reqs:
                 if req not in op:
                     raise KeyError
+
+            if not (op['path'].startswith('/data/') or 
+                    op['path'].startswith('/permissions/')):
+                raise ValueError 

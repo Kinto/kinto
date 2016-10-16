@@ -1157,7 +1157,13 @@ class ShareableResource(UserResource):
         existing ACE is removed (using empty list).
         """
         new = super(ShareableResource, self).process_record(new, old)
-        permissions = self.request.validated.get('permissions', {})
+        
+        content_type = str(self.request.headers.get('Content-Type'))
+        # patch is specified as a list of of operations (RFC 6902) 
+        if content_type == 'application/json-patch+json':
+            permissions = self.patch_changes.permissions
+        else:
+            permissions = self.request.validated.get('permissions', {})
 
         annotated = new.copy()
 
