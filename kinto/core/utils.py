@@ -501,7 +501,6 @@ class JsonPatch(object):
         value = op['value']   
  
         if isinstance(path, set):
-            print path
             path.add(value)
 
         elif isinstance(path, list):
@@ -531,6 +530,48 @@ class JsonPatch(object):
         else:
             path.pop(entry)
     
+    def _replace(self, op):
+        self._remove(op)
+        self._add(op)
+
+    def _move(self, op)
+        rem_op = op.copy()
+        rem_op['path'] = op['from']
+
+        address, entry = self.__get_address(rem_op)
+        path = self.__get_path(address)
+        
+        if isinstance(path, set):
+            value = entry
+        elif isinstance(path, list):
+            value = path[int(entry)]
+        else:
+            value = path[entry]
+
+        self._remove(rem_op)
+        
+        add_op = op.copy()
+        add_op['value'] = value
+        self._add(add_op)
+    
+    def _copy(self, op):
+        get_op = op.copy()
+        get_op['path'] = op['from']
+        
+        address, entry = self.__get_address(op)
+        path = self.__get_path(address)
+        
+        if isinstance(path, set):
+            value = entry
+        elif isinstance(path, list):
+            value = path[int(entry)]
+        else:
+            value = path[entry]
+ 
+        add_op = op.copy()
+        add_op['value'] = value
+        self._add(add_op)
+
     #
     # Internals
     #
