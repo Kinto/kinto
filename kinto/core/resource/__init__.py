@@ -467,7 +467,13 @@ class UserResource(object):
             try:
                 ops = self.request.json
                 self.patch_changes = JsonPatch(ops, existing)
-                changes = self.patch_changes.changes
+                changes = self.patch_changes.apply_ops()
+            except StopIteration:
+                error_details = {
+                    'name': 'data',
+                    'description': 'Test operation failed',
+                }
+                raise_invalid(self.request, **error_details)
             except:
                 error_details = {
                     'name': 'data',
@@ -1160,6 +1166,8 @@ class ShareableResource(UserResource):
         content_type = str(self.request.headers.get('Content-Type'))
         # patch is specified as a list of of operations (RFC 6902) 
         if content_type == 'application/json-patch+json':
+            self.patch_changes.permissions = new.copy()['__permissions__']
+            self.patch_changes.apply_ops()
             permissions = self.patch_changes.permissions
         else:
             permissions = self.request.validated.get('permissions', {})

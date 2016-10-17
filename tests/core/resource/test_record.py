@@ -235,12 +235,14 @@ class PatchTest(BaseTest):
         self.resource.request.json = [
             {'op': 'add', 'path': '/data/c', 'value': 'ccc'},
             {'op': 'add', 'path': '/data/b/1', 'value': 'bbb'},
-            {'op': 'add', 'path': '/data/b/-', 'value': 'bbbb'}
+            {'op': 'add', 'path': '/data/b/-', 'value': 'bbbb'},
+            {'op': 'add', 'path': '/data/b/0/f/g', 'value': 'fff'},
         ]
         result = self.resource.patch()['data']
         self.assertEqual(result['c'], 'ccc')
         self.assertEqual(result['b'][1], 'bbb')
         self.assertEqual(result['b'][2], 'bbbb')
+        self.assertEqual(result['b'][0]['f']['g'], 'fff')
 
     def test_json_patch_remove(self):
         self.resource.request.json = {'data': {'a': 'aaa', 'b': ['bb','bbb']}}
@@ -268,12 +270,16 @@ class PatchTest(BaseTest):
         self.resource.request.json = [
             {'op': 'test', 'path': '/data/a', 'value': 'aaa'},
             {'op': 'remove', 'path': '/data/b/1'},
-            {'op': 'test', 'path': '/data/b/0', 'value': 'bbb'},
-            {'op': 'remove', 'path': '/data/b/0'},
         ]
         result = self.resource.patch()['data']
         self.assertEqual(len(result['b']), 1)
 
+        self.resource.request.json = [
+            {'op': 'test', 'path': '/data/b/0', 'value': 'bbb'},
+            {'op': 'remove', 'path': '/data/b/0'},
+        ]
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+        
         self.resource.request.json = [
             {'op': 'test', 'path': '/data/f', 'value': 'what'},
         ]
@@ -322,6 +328,14 @@ class PatchTest(BaseTest):
             {'op': 'copy', 'from': '/data/f', 'path': '/data/what'},
         ]
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+
+    def test_json_patch_format_not_accepted_without_header(self):
+        self.resource.request.json = {'data': {'a': 'aaa'}}
+        self.resource.patch()
+        self.resource.request.json = [
+            {'op': 'copy', 'from': '/data/a', 'path': '/data/c'},
+        ]
+        self.assertRaises(AttributeError, self.resource.patch)
     
     def test_json_patch_replace(self):
         self.resource.request.json = {'data': {'a': 'aaa', 'b': ['bb']}}
