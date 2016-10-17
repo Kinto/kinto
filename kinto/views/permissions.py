@@ -18,14 +18,14 @@ class PermissionsModel(object):
                     limit=None, include_deleted=False, parent_id=None):
         # Invert the permissions inheritance tree.
         perms_descending_tree = {}
-        for obtained, obtained_from in PERMISSIONS_INHERITANCE_TREE.items():
-            on_resource, obtained_perm = obtained.split(':', 1)
-            for from_resource, perms in obtained_from.items():
-                for perm in perms:
-                    perms_descending_tree.setdefault(from_resource, {})\
-                                         .setdefault(perm, {})\
-                                         .setdefault(on_resource, set())\
-                                         .add(obtained_perm)
+        for on_resource, tree in PERMISSIONS_INHERITANCE_TREE.items():
+            for obtained_perm, obtained_from in tree.items():
+                for from_resource, perms in obtained_from.items():
+                    for perm in perms:
+                        perms_descending_tree.setdefault(from_resource, {})\
+                                             .setdefault(perm, {})\
+                                             .setdefault(on_resource, set())\
+                                             .add(obtained_perm)
 
         # Obtain current principals.
         principals = self.request.effective_principals

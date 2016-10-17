@@ -83,6 +83,26 @@ def merge_dicts(a, b):
             a.setdefault(k, v)
 
 
+def recursive_update_dict(root, changes, ignores=()):
+    """Update recursively all the entries from a dict and it's children dicts.
+
+    :param dict root: root dictionary
+    :param dict changes: dictonary where changes should be made (default=root)
+    :returns dict newd: dictionary with removed entries of val.
+    """
+    if isinstance(changes, dict):
+        for k, v in changes.items():
+            if isinstance(v, dict):
+                if k not in root:
+                    root[k] = {}
+                recursive_update_dict(root[k], v, ignores)
+            elif v in ignores:
+                if k in root:
+                    root.pop(k)
+            else:
+                root[k] = v
+
+
 def synchronized(method):
     """Class method decorator to make sure two threads do not execute some code
     at the same time (c.f Java ``synchronized`` keyword).

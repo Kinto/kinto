@@ -4,12 +4,14 @@ Contributors
 * Aaron Egaas <me@aaronegaas.com>
 * Adam Chainz <adam@adamj.eu>
 * Aditya Bhasin <conlini@gmail.com>
+* Anh <anh.trinhtrung@gmail.com>
 * Alexis Metaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
 * Aymeric Faivre <miho@miho-stories.com>
 * Ayush Sharma <ayush.aceit@gmail.com>
 * Balthazar Rouberol <br@imap.cc>
 * Boris Feld <lothiraldan@gmail.com>
+* Castro
 * Chirag B. Jadwani <chirag.jadwani@gmail.com>
 * Clément Villain <choclatefr@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>
@@ -22,6 +24,7 @@ Contributors
 * Fil <fil@rezo.net>
 * FooBarQuaxx
 * Greeshma <greeshmabalabadra@gmail.com>
+* Gabriela Surita <gabsurita@gmail.com>
 * Hiromipaw <silvia@nopressure.co.uk>
 * Jelmer van der Ploeg <jelmer@woovar.com>
 * John Giannelos <johngiannelos@gmail.com>
@@ -47,5 +50,6 @@ Contributors
 * SwhGo_oN
 * Tarek Ziade <tarek@mozilla.com>
 * Taylor Zane Glaeser <tzglaeser@gmail.com>
+* Varna Suresh <varna96@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>

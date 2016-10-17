@@ -264,7 +264,7 @@ Logging and Monitoring
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 | kinto.statsd_prefix    | ``kinto``                              | The prefix to use when sending data to statsd.                           |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
-| kinto.statsd_url       | ``None``                               | The URL to use to connect to the statsd host. e.g.                       |
+| kinto.statsd_url       | ``None``                               | The fully qualified URL to use to connect to the statsd host. e.g.       |
 |                        |                                        | ``udp://localhost:8125``                                                 |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 
@@ -462,6 +462,7 @@ list of Python modules:
 
     kinto.includes = kinto.plugins.default_bucket
                      kinto.plugins.history
+                     kinto.plugins.admin
                      kinto-attachment
                      custom-myplugin
 
@@ -472,6 +473,9 @@ list of Python modules:
 |                                       | implicitly (:ref:`more details <buckets-default-id>`).                   |
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.history``             | It tracks every action performed on objects within a bucket              |
+|                                       | (:ref:`more details <api-history>`).                                     |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.admin``               | It is a Web admin UI to manage data from a Kinto server.                 |
 |                                       | (:ref:`more details <api-history>`).                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
 
@@ -705,6 +709,9 @@ Project information
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
 | Setting name                          | Default                                    | What does it do?                                                         |
 +=======================================+============================================+==========================================================================+
+| kinto.version_json_path               | ``./version.json``                         | Location of the file containing the information to be shown in the       |
+|                                       |                                            | :ref:`version endpoint <api-utilities-version>`.                         |
++---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
 | kinto.error_info_link                 | ``https://github.com/kinto/kinto/issues/`` | The HTTP link returned when uncaught errors are triggered on the server. |
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
 | kinto.project_docs                    | ``https://kinto.readthedocs.io``           | The URL where the documentation of the Kinto instance can be found. Will |

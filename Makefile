@@ -67,6 +67,16 @@ build-requirements:
 	$(TEMPDIR)/bin/pip install -Ue ".[monitoring,postgresql]"
 	$(TEMPDIR)/bin/pip freeze > requirements.txt
 
+update-kinto-admin:
+	rm -fr kinto/plugins/admin/static/*
+	rm -fr tmp
+	git clone https://github.com/Kinto/kinto-admin.git tmp
+	cd tmp; git checkout $$(git tag | tail -n 1); npm install
+	cd tmp; KINTO_ADMIN_PUBLIC_PATH=/v1/admin/ npm run dist
+	cp -fr tmp/dist/* kinto/plugins/admin/static/
+	sed -i "s/ version=\".*\"/ version=\"$$(tmp/bin/kinto-admin --version)\"/g" kinto/plugins/admin/__init__.py
+	rm -fr tmp
+
 $(SERVER_CONFIG):
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
 

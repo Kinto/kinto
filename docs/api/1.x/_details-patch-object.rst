@@ -21,11 +21,19 @@ The provided values are merged with the existing object. For example:
 * ``{"a":"b"}`` + ``{"a":null}`` → ``{"a":null}`` : *attributes can't be removed with patch*
 * ``{"a": {"b":"c"}}`` + ``{"a":{"d":"e"}}`` → ``{"a":{"d":"e"}}`` : *sub-objects are replaced, not merged*
 
+`JSON merge <https://tools.ietf.org/html/rfc7396>`_
+is currently supported using ``Content-Type: application/merge-patch+json``. This provides
+support to merging sub-objects and removing attibutes. For example:
+
+* ``{"a":"b"}`` + ``{"a":null}`` → ``{}`` 
+* ``{"a": {"b":"c"}}`` + ``{"a":{"d":"e"}}`` → ``{"a":{"b:c", "d":"e"}}``
+* ``{}`` + ``{"a":{"b":{"c":null}}}`` → ``{"a":{"b":{}}}``
+
 .. note::
 
-    `JSON-Patch <http://jsonpatch.com>`_ or `JSON merge <https://tools.ietf.org/html/rfc7396>`_
-    are currently not supported. Any help is welcomed though!
-    See https://github.com/Kinto/kinto/issues/623
+    `JSON-Patch <http://jsonpatch.com>`_ 
+    is currently not supported. Any help is welcomed though!
+    See https://github.com/Kinto/kinto/issues/458
 
 
 Light response body

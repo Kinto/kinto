@@ -38,20 +38,11 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                                  headers=self.headers)
         self.assertEqual(resp.json['data']['id'], 'alexis_beers')
 
-    def test_everybody_can_list_buckets_by_default(self):
-        resp = self.app.get(self.collection_url,
+    def test_can_list_buckets_by_default_since_allowed_to_create(self):
+        resp = self.app.get('/buckets',
                             headers=get_user_headers('alice'),
                             status=200)
         assert resp.json['data'] == []
-
-    def test_no_anonymous_can_list_buckets_by_default(self):
-        self.app.get(self.collection_url, status=401)
-
-    def test_anybody_can_list_buckets_by_default(self):
-        resp = self.app.get(self.collection_url,
-                            headers=get_user_headers('alice'))
-        # But it contains no record if no read permission.
-        self.assertEqual(len(resp.json['data']), 0)
 
     def test_buckets_name_should_be_simple(self):
         self.app.put_json('/buckets/__beers__',
@@ -108,6 +99,33 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('/buckets?min_size=2', headers=self.headers)
         data = resp.json['data']
         self.assertEqual(len(data), 1)
+
+
+class BucketListTest(BaseWebTest, unittest.TestCase):
+    def get_app_settings(self, extras=None):
+        settings = super(BucketListTest, self).get_app_settings(extras)
+        settings['bucket_create_principals'] = self.principal
+        return settings
+
+    def test_can_list_buckets_by_default_if_allowed_to_create(self):
+        resp = self.app.get('/buckets',
+                            headers=self.headers,
+                            status=200)
+        assert resp.json['data'] == []
+
+    def test_cannot_list_buckets_if_empty_and_not_allowed_to_create(self):
+        self.app.get('/buckets', status=401)
+        self.app.get('/buckets', headers=get_user_headers('alice'), status=403)
+
+    def test_can_list_buckets_if_some_are_shared(self):
+        self.app.put_json('/buckets/whiskies', headers=self.headers)
+        self.app.put_json('/buckets/beers',
+                          {'permissions': {'write': ['system.Everyone']}},
+                          headers=self.headers)
+
+        resp = self.app.get('/buckets', status=200)
+        assert len(resp.json['data']) == 1
+        assert resp.json['data'][0]['id'] == 'beers'
 
 
 class BucketCreationTest(BaseWebTest, unittest.TestCase):

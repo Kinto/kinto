@@ -246,8 +246,7 @@ def setup_statsd(config):
 
         client.watch_execution_time(config.registry.cache, prefix='cache')
         client.watch_execution_time(config.registry.storage, prefix='storage')
-        client.watch_execution_time(config.registry.permission,
-                                    prefix='permission')
+        client.watch_execution_time(config.registry.permission, prefix='permission')
 
         # Commit so that configured policy can be queried.
         config.commit()
@@ -270,12 +269,10 @@ def setup_statsd(config):
 
             # Count authentication verifications.
             if hasattr(request, 'authn_type'):
-                client.count('%s.%s' % ('authn_type', request.authn_type))
+                client.count('authn_type.%s' % request.authn_type)
 
             # Count view calls.
-            pattern = request.matched_route.pattern
-            services = request.registry.cornice_services
-            service = services.get(pattern)
+            service = request.current_service
             if service:
                 client.count('view.%s.%s' % (service.name, request.method))
 

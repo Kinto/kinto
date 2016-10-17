@@ -1,11 +1,27 @@
-import unittest
-
-import mock
 import re
+import unittest
+import mock
 
-from kinto.core.testing import get_user_headers
+from pyramid import testing
+
+from kinto import main as kinto_main
+from kinto.core.testing import get_user_headers, skip_if_no_statsd
 
 from .. import support
+
+
+class PluginSetup(unittest.TestCase):
+
+    @skip_if_no_statsd
+    def test_a_statsd_timer_is_used_for_history_if_configured(self):
+        settings = {
+            "statsd_url": "udp://127.0.0.1:8125",
+            "includes": "kinto.plugins.history"
+        }
+        config = testing.setUp(settings=settings)
+        with mock.patch('kinto.core.statsd.Client.timer') as mocked:
+            kinto_main(None, config=config)
+            mocked.assert_called_with('plugins.history')
 
 
 class HistoryWebTest(support.BaseWebTest, unittest.TestCase):
@@ -288,15 +304,33 @@ class HistoryViewTest(HistoryWebTest):
         assert entry['action'] == 'delete'
         assert entry['target']['data']['id'] in (self.record['id'], rid)
 
+    def test_does_not_track_records_during_massive_deletion(self):
+        body = {'data': {'pim': 'pam'}}
+        records_uri = self.collection_uri + '/records'
+        self.app.post_json(records_uri, body, headers=self.headers)
+
+        self.app.delete(self.collection_uri, headers=self.headers)
+
+        resp = self.app.get(self.history_uri, headers=self.headers)
+        deletion_entries = [e for e in resp.json['data'] if e['action'] == 'delete']
+        assert len(deletion_entries) == 1
+
 
 class FilteringTest(HistoryWebTest):
 
     def setUp(self):
         self.app.put('/buckets/bid', headers=self.headers)
+        self.app.put('/buckets/0', headers=self.headers)
         self.app.put('/buckets/bid/collections/cid',
+                     headers=self.headers)
+        self.app.put('/buckets/0/collections/1',
                      headers=self.headers)
         body = {'data': {'foo': 42}}
         self.app.put_json('/buckets/bid/collections/cid/records/rid',
+                          body,
+                          headers=self.headers)
+        body = {'data': {'foo': 0}}
+        self.app.put_json('/buckets/0/collections/1/records/2',
                           body,
                           headers=self.headers)
         body = {'data': {'foo': 'bar'}}
@@ -353,6 +387,24 @@ class FilteringTest(HistoryWebTest):
         resp = self.app.get(uri,
                             headers=self.headers)
         assert len(resp.json['data']) == 4
+
+    def test_filter_by_numeric_bucket(self):
+        uri = '/buckets/0/history?bucket_id=0'
+        resp = self.app.get(uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 1
+
+    def test_filter_by_numeric_collection(self):
+        uri = '/buckets/0/history?collection_id=1'
+        resp = self.app.get(uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 2
+
+    def test_filter_by_numeric_record(self):
+        uri = '/buckets/0/history?record_id=2'
+        resp = self.app.get(uri,
+                            headers=self.headers)
+        assert len(resp.json['data']) == 1
 
     def test_filter_by_target_fields(self):
         uri = '/buckets/bid/history?target.data.id=rid'

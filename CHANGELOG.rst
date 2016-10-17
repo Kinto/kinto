@@ -3,7 +3,27 @@ Changelog
 
 This document describes changes between each past release.
 
-4.3.0 (unreleased)
+4.4.0 (unreleased)
+------------------
+
+**New features**
+
+- Added a new built-in plugin ``kinto.plugins.admin`` to serve the kinto admin.
+
+
+4.3.1 (2016-10-06)
+------------------
+
+**Bug fixes**
+
+- Make sure we redirect endpoints with trailing slashes with the default bucket plugin. (#848)
+- Fix group association when members contains ``system.Authenticated`` (fixes #776)
+- Raise an error when members contains ``system.Everyone`` or a group ID (#850)
+- Fix StatsD view counter with 404 responses (#853)
+- Fixes filtering on ids with numeric values. (fixes #851)
+
+
+4.3.0 (2016-10-04)
 ------------------
 
 **Protocol**
@@ -11,14 +31,39 @@ This document describes changes between each past release.
 - Fix error response consistency with safe creations if the ``create`` permission
   is granted (fixes #792). The server now returns a ``412`` instead of a ``403`` if
   the ``If-None-Match: *`` header is provided and the ``create`` permission is granted.
+- The ``permissions`` attribute is now empty in the response if the user has not the permission
+  to write on the object (fixes #123)
+- Filtering records now works the same on the memory and postgresql backends:
+  if we're comparing to a number, the filter will now filter out records that
+  don't have this field. If we're comparing to anything else, the record
+  without such a field is treated as if it had '' as the value for this field.
+  (fixes #815)
+- Parent **attributes are now readable** if children creation is allowed. That means for example
+  that collection attributes are now readable to users with ``record:create`` permission.
+  Same applies to bucket attributes and ``collection:create`` and ``group:create`` (fixes #803)
+- Return an empty list on the plural endpoint instead of ``403`` if the ``create``
+  permission is allowed
+
+Protocol is now at version **1.11**. See `API changelog`_.
+
+**Bug fixes**
+
+- Fix crash in history plugin when target had no explicit permission defined (fixes #805, #842)
 
 **New features**
 
 - The storage backend now allows ``parent_id`` pattern matching in ``kinto.core.storage.get_all``. (#821)
+- The history and quotas plugins execution time is now monitored on StatsD (``kinto.plugins.quotas``
+  and ``kinto.plugins.history``) (#832)
+  ``kinto.version_json_path`` settings (fixes #830)
 
 **Internal changes**
 
+- Fixed a failing pypy test by changing the way it was mocking
+  `transaction.manager.commit` (fixes #755)
 - Moved storage/cache/permissions base tests to ``kinto.core.*.testing`` (fixes #801)
+- Now fails with an explicit error when StatsD is configured but not installed.
+- Remove redundant fields from data column in PostgreSQL records table (fixes #762)
 
 
 4.2.0 (2016-09-15)

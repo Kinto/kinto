@@ -1,10 +1,12 @@
-from kinto.core.testing import unittest
+import unittest
+from kinto.core.errors import ERRORS
+from kinto.core.testing import FormattedErrorMixin
 
 from .support import (BaseWebTest, MINIMALIST_BUCKET,
                       MINIMALIST_GROUP)
 
 
-class GroupViewTest(BaseWebTest, unittest.TestCase):
+class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/groups'
     record_url = '/buckets/beers/groups/moderators'
@@ -104,6 +106,30 @@ class GroupViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=201)
 
+    def test_group_doesnt_accept_system_Everyone(self):
+        group = MINIMALIST_GROUP.copy()
+        group['data'] = {'members': ['system.Everyone']}
+        response = self.app.put_json('/buckets/beers/groups/moderator',
+                                     group,
+                                     headers=self.headers,
+                                     status=400)
+        self.assertFormattedError(
+            response, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters",
+            "'system.Everyone' is not a valid user ID.")
+
+    def test_group_doesnt_accept_groups_inside_groups(self):
+        group = MINIMALIST_GROUP.copy()
+        group['data'] = {'members': ['/buckets/beers/groups/administrators']}
+        response = self.app.put_json('/buckets/beers/groups/moderator',
+                                     group,
+                                     headers=self.headers,
+                                     status=400)
+        self.assertFormattedError(
+            response, 400, ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters",
+            "'/buckets/beers/groups/administrators' is not a valid user ID.")
+
 
 class GroupManagementTest(BaseWebTest, unittest.TestCase):
 
@@ -172,6 +198,13 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.assertEquals(self.permission.get_user_principals('natim'), set())
         self.assertEquals(self.permission.get_user_principals('mat'),
                           {group_url})
+
+    def test_group_with_authenticated_is_added_to_everbody(self):
+        self.create_group('beers', 'reviewers', ['system.Authenticated'])
+        self.assertEquals(self.permission.get_user_principals('natim'),
+                          {'/buckets/beers/groups/reviewers'})
+        self.assertEquals(self.permission.get_user_principals('mat'),
+                          {'/buckets/beers/groups/reviewers'})
 
     def test_group_member_removal_updates_user_principals_with_patch(self):
         self.create_group('beers', 'moderators', ['natim', 'mat'])

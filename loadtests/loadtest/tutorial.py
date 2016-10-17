@@ -173,10 +173,11 @@ class TutorialLoadTest(BaseLoadTest):
 
         bob_auth = HTTPBasicAuth('token', 'bob-secret-%s' % uuid.uuid4())
 
-        # Bob has no task yet, he should get a 403.
+        # Bob has no task yet.
         resp = self.session.get(collection_url, auth=bob_auth)
         self.incr_counter("status-%s" % resp.status_code)
-        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.json()['data']), 0)
 
         # Create a new tasks for Bob
         bob_task = build_task()

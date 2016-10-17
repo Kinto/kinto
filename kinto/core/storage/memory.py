@@ -319,6 +319,10 @@ def apply_filters(records, filters):
         matches = True
         for f in filters:
             right = f.value
+            if f.field == DEFAULT_ID_FIELD:
+                if isinstance(right, int):
+                    right = str(right)
+
             left = record
             subfields = f.field.split('.')
             for subfield in subfields:
@@ -329,13 +333,16 @@ def apply_filters(records, filters):
             if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 right, left = left, right
             else:
-                # Python3 cannot compare None to other value.
                 if left is None:
-                    if f.operator in (COMPARISON.GT, COMPARISON.MIN):
+                    right_is_number = (
+                        isinstance(right, (int, float)) and
+                        right not in (True, False))
+                    if right_is_number:
+                        # Python3 cannot compare None to a number.
                         matches = False
                         continue
-                    elif f.operator in (COMPARISON.LT, COMPARISON.MAX):
-                        continue  # matches = matches and True
+                    else:
+                        left = ''  # To mimic what we do for postgresql.
             matches = matches and operators[f.operator](left, right)
         if matches:
             yield record

@@ -53,6 +53,14 @@ class BucketPermissionsTest(PermissionsTest):
                           headers=self.alice_headers,
                           status=403)
 
+    def test_permissions_are_not_returned_if_can_only_read(self):
+        resp = self.app.get('/buckets/sodas', headers=self.alice_headers)
+        self.assertEqual(resp.json['permissions'], {})
+
+    def test_permissions_are_returned_if_can_write(self):
+        resp = self.app.get('/buckets/sodas', headers=self.headers)
+        self.assertIn('write', resp.json['permissions'])
+
 
 class CollectionPermissionsTest(PermissionsTest):
 
@@ -204,7 +212,6 @@ class ChildrenCreationTest(PermissionsTest):
                                               **self.bob_headers)
 
     def test_cannot_read_others_objects_if_only_allowed_to_create(self):
-        self.app.get('/buckets/create/groups', headers=self.bob_headers, status=403)
         self.app.get('/buckets/create/groups/child', headers=self.bob_headers, status=403)
 
     def test_safe_creation_with_put_returns_412_if_allowed_to_create(self):
@@ -236,3 +243,45 @@ class ChildrenCreationTest(PermissionsTest):
         self.app.post_json('/buckets/read/groups',
                            {'data': {'id': 'child', 'members': []}},
                            headers=self.bob_headers_safe_creation, status=403)
+
+
+class ParentMetadataTest(PermissionsTest):
+    def setUp(self):
+        self.app.put_json('/buckets/beer',
+                          {'permissions': {'collection:create': [self.bob_principal]}},
+                          headers=self.headers)
+
+        self.app.put_json('/buckets/beer/collections/wheat', headers=self.headers)
+        self.app.put_json('/buckets/beer/collections/root', headers=self.headers)
+
+        self.app.put_json('/buckets/beer/collections/barley',
+                          {'permissions': {'record:create': [self.alice_principal]}},
+                          headers=self.bob_headers)
+
+    def test_parent_metadata_can_be_read_if_allowed_to_create_child(self):
+        self.app.get('/buckets/beer', headers=self.bob_headers)
+        self.app.get('/buckets/beer/collections/barley', headers=self.alice_headers)
+
+    def test_parent_metadata_cannot_be_read_if_not_allowed_to_create_child(self):
+        self.app.get('/buckets/beer',
+                     headers=get_user_headers('jean:paul'),
+                     status=403)
+        self.app.get('/buckets/beer/collections/barley',
+                     headers=get_user_headers('mahmud:hatim'),
+                     status=403)
+
+    def test_list_can_be_obtained_if_allowed_to_create(self):
+        resp = self.app.get('/buckets/beer/collections', headers=self.bob_headers)
+        self.assertEqual(len(resp.json['data']), 1)
+        self.assertEqual(resp.json['data'][0]['id'], 'barley')
+
+        resp = self.app.get('/buckets/beer/collections/barley/records', headers=self.alice_headers)
+        self.assertEqual(resp.json['data'], [])
+
+    def test_list_is_denied_if_not_allowed_to_create(self):
+        self.app.get('/buckets/beer/collections',
+                     headers=get_user_headers('jean:paul'),
+                     status=403)
+        self.app.get('/buckets/beer/collections/barley/records',
+                     headers=get_user_headers('mahmud:hatim'),
+                     status=403)

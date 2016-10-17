@@ -343,14 +343,34 @@ class BaseTestStorage(object):
             self.create_record({'code': l})
 
         sorting = [Sort('code', 1)]
-        filters = [Filter('code', 0, utils.COMPARISON.MIN),
-                   Filter('code', 10, utils.COMPARISON.MAX)]
+        filters = [Filter('code', 10, utils.COMPARISON.MAX)]
         records, _ = self.storage.get_all(sorting=sorting, filters=filters,
                                           **self.storage_kw)
         self.assertEqual(records[0]['code'], 1)
         self.assertEqual(records[1]['code'], 6)
         self.assertEqual(records[2]['code'], 10)
         self.assertEqual(len(records), 3)
+
+        filters = [Filter('code', 10, utils.COMPARISON.LT)]
+        records, _ = self.storage.get_all(sorting=sorting, filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(records[0]['code'], 1)
+        self.assertEqual(records[1]['code'], 6)
+        self.assertEqual(len(records), 2)
+
+    def test_get_all_can_filter_with_numeric_id(self):
+        for l in [0, 42]:
+            self.create_record({'id': str(l)})
+
+        filters = [Filter('id', 0, utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 1)
+
+        filters = [Filter('id', 42, utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 1)
 
     def test_get_all_can_filter_with_numeric_strings(self):
         for l in ["0566199093", "0781566199"]:

@@ -49,7 +49,7 @@ class ViewSet(object):
     }
 
     default_patch_arguments = {
-        "content_type": CONTENT_TYPES,
+        "content_type": CONTENT_TYPES + ["application/merge-patch+json"],
     }
 
     default_collection_arguments = {}

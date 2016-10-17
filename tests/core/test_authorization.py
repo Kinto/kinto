@@ -106,25 +106,6 @@ class RouteFactoryTest(unittest.TestCase):
         self.assertIsNone(context.required_permission)
         self.assertIsNone(context.resource_name)
 
-    def test_route_factory_adds_allowed_principals_from_settings(self):
-        with mock.patch('kinto.core.utils.current_service') as current_service:
-            # Patch current service.
-            resource = mock.MagicMock()
-            current_service().resource.return_value = resource
-            current_service().collection_path = '/buckets'
-            # Do the actual call.
-            request = DummyRequest(method='post')
-            request.current_resource_name = 'bucket'
-            request.upath_info = '/buckets'
-            request.matchdict = {}
-            request.registry = mock.Mock()
-            request.registry.settings = {
-                'bucket_create_principals': 'fxa:user'
-            }
-            context = RouteFactory(request)
-
-            self.assertEquals(context.allowed_principals, ['fxa:user'])
-
     def test_fetch_shared_records_uses_pattern_if_on_collection(self):
         request = DummyRequest()
         request.route_path.return_value = '/v1/buckets/%2A'
@@ -171,14 +152,14 @@ class RouteFactoryTest(unittest.TestCase):
         context.fetch_shared_records('read', ['userid'], None)
         self.assertEquals(sorted(context.shared_ids), ['1', '3'])
 
-    def test_fetch_shared_records_sets_shared_ids_to_none_if_empty(self):
+    def test_fetch_shared_records_sets_shared_ids_if_empty(self):
         request = DummyRequest()
         context = RouteFactory(request)
         request.registry.permission.get_accessible_objects.return_value = {}
 
         context.fetch_shared_records('read', ['userid'], None)
 
-        self.assertIsNone(context.shared_ids)
+        self.assertEqual(context.shared_ids, [])
 
 
 class AuthorizationPolicyTest(unittest.TestCase):
@@ -186,8 +167,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.authz = AuthorizationPolicy()
         self.context = mock.MagicMock()
         self.context.get_prefixed_userid.return_value = None
-        self.context.allowed_principals = []
-        self.context.permission_object_id = mock.sentinel.object_id
+        self.context.permission_object_id = '/articles/43/comments/2'
         self.context.required_permission = 'read'
         self.principals = []
         self.permission = 'dynamic'
@@ -248,9 +228,9 @@ class AuthorizationPolicyTest(unittest.TestCase):
     def test_permits_takes_route_factory_allowed_principals_into_account(self):
         self.context.resource_name = 'record'
         self.context.required_permission = 'create'
-        self.context.allowed_principals = ['fxa:user']
+        self.context._settings = {'record_create_principals': 'fxa:user'}
         allowed = self.authz.permits(self.context, ['fxa:user'], 'dynamic')
-        self.context.check_permission.assert_not_called()
+        self.context._check_permission.assert_not_called()
         self.assertTrue(allowed)
 
     def test_prefixed_userid_is_added_to_principals(self):

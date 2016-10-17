@@ -39,16 +39,17 @@ of object.
 |                |                        |                                  |
 +----------------+------------------------+----------------------------------+
 | Bucket         | ``read``               | Read all objects in the bucket.  |
-|                |                        |                                  |
 |                +------------------------+----------------------------------+
 |                | ``write``              | Write + read on the              |
 |                |                        | bucket and all children objects. |
 |                +------------------------+----------------------------------+
 |                | ``collection:create``  | Create new                       |
-|                |                        | collections in the bucket.       |
+|                |                        | collections in the bucket,       |
+|                |                        | and read bucket metadata.        |
 |                +------------------------+----------------------------------+
 |                | ``group:create``       | Create new groups                |
-|                |                        | in the bucket.                   |
+|                |                        | in the bucket,                   |
+|                |                        | and read bucket metadata.        |
 +----------------+------------------------+----------------------------------+
 | Collection     | ``read``               | Read all                         |
 |                |                        | objects in the collection.       |
@@ -57,7 +58,8 @@ of object.
 |                |                        | the collection.                  |
 |                +------------------------+----------------------------------+
 |                | ``record:create``      | Create new records               |
-|                |                        | in the collection.               |
+|                |                        | in the collection,               |
+|                |                        | and read collection metadata.    |
 +----------------+------------------------+----------------------------------+
 | Record         | ``read``               | Read the record.                 |
 |                |                        | record.                          |
@@ -156,7 +158,11 @@ In this case the user ID is: ``basicauth:631c2d625ee5726172cf67c6750de10a3e1a04b
 Permissions request payload
 ===========================
 
-In the JSON requests payloads, the ``permissions`` attribute comes along the ``data`` attribute. Permissions can be replaced or modified independently from data.
+If the current user has the ``write`` permission on the object, the permissions
+are returned in the ``permissions`` attribute  along the ``data`` attribute
+in the JSON requests payloads.
+
+Permissions can be replaced or modified independently from data.
 
 ``permissions`` is a JSON dict with the following structure::
 

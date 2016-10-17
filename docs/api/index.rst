@@ -11,6 +11,27 @@ API
 Changelog
 ---------
 
+
+1.12 (2016-10-11)
+'''''''''''''''''
+
+- Add support to JSON merge ``patch`` when using 
+  ``Content-Type: application/merge-patch+json`` (as in RFC 7396).
+- When ``null`` argument is provided with merge ``patch``, the field is now
+  removed from the object.
+
+1.11 (2016-10-04)
+'''''''''''''''''
+
+- Parent attributes are now readable if children creation is allowed
+- Return an empty list on the plural endpoint instead of |status-403| if the ``create``
+  permission is allowed
+- Now returns a |status-412| instead of a |status-403| if the ``If-None-Match: *`` header is
+  provided and the ``create`` permission is allowed
+- The ``permissions`` attribute is now empty in the response if the user does not
+  have the permission to write.
+
+
 1.10 (2016-09-15)
 '''''''''''''''''
 
