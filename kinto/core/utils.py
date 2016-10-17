@@ -600,7 +600,7 @@ class JsonPatch(object):
         for el in path:
             if isinstance(obj, set):
                 # Sets doesn't support iteration
-                pass
+                raise ValueError
 
             elif isinstance(obj, list):
                 # append to path
@@ -659,10 +659,14 @@ class JsonPatch(object):
                     raise ValueError
 
             # check for valid path fields
-            if not op['path'].startswith('/'):
+            if not (op['path'].startswith('/data') or
+                    op['path'].startswith('/permissions/read') or
+                    op['path'].startswith('/permissions/write')):
                 raise ValueError
 
             # check for valid from fields
             if 'from' in op:
-                if not op['from'].startswith('/'):
+                if not (op['path'].startswith('/data') or
+                        op['path'].startswith('/permissions/read') or
+                        op['path'].startswith('/permissions/write')):
                     raise ValueError
