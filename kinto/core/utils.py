@@ -677,6 +677,6 @@ class JsonPatch(object):
 
             # if overwriting permissions, must be a list
             if (op['path'] == '/permissions/read' or
-                op['path'] == '/permissions/write'):
+                op['path'] == '/permissions/write') and 'value' in op:
                 if not isinstance(op['value'], list):
                     raise ValueError
