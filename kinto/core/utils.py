@@ -447,10 +447,11 @@ def instance_uri(request, resource_name, **params):
 
 class JsonPatch(object):
     """
+    Process a JSON Patch over a record.
     """
 
     record = {}
-    permissions = {}
+    base_permissions = {}
 
     required_fields = {
         'test':    ['op', 'path', 'value'],
@@ -463,17 +464,19 @@ class JsonPatch(object):
 
     def __init__(self, ops, record=record):
 
-        self.updated = record.copy()
+        self.record = record
         self.ops = ops
 
     def apply_ops(self):
         """ Apply a set of JSON Patch changes to a record. """
 
         self.__validate()
-        
-        for op in self.ops: 
+        self.updated = self.record.copy()
+        self.permissions = self.base_permissions.copy()
+
+        for op in self.ops:
             # call op method
-            getattr(self, "_" + op['op'])(op) 
+            getattr(self, "_" + op['op'])(op)
 
         return self.updated
 
@@ -484,12 +487,12 @@ class JsonPatch(object):
     def _test(self, op):
         address, entry = self.__get_address(op['path'])
         path = self.__get_path(address)
-        value = op['value']   
-        
+        value = op['value']
+
         if isinstance(path, set):
             if value not in path:
                 raise StopIteration
-        
+
         if isinstance(path, list):
             if int(entry) >= len(path):
                 raise ValueError
@@ -500,12 +503,12 @@ class JsonPatch(object):
                 raise ValueError
             if path[entry] != value:
                 raise StopIteration
-    
+
     def _add(self, op):
         address, entry = self.__get_address(op['path'])
         path = self.__get_path(address, create=True)
-        value = op['value']   
- 
+        value = op['value']
+
         if isinstance(path, set):
             path.add(value)
 
@@ -518,11 +521,11 @@ class JsonPatch(object):
                 path.insert(int(entry), value)
         else:
             path[entry] = value
-    
+
     def _remove(self, op):
         address, entry = self.__get_address(op['path'])
         path = self.__get_path(address)
-        
+
         if isinstance(path, set):
             path.remove(entry)
 
@@ -533,7 +536,7 @@ class JsonPatch(object):
                 path.pop(int(entry))
         else:
             path.pop(entry)
-    
+
     def _replace(self, op):
         self._remove(op)
         self._add(op)
@@ -542,7 +545,7 @@ class JsonPatch(object):
 
         address, entry = self.__get_address(op['from'])
         path = self.__get_path(address)
-        
+
         if isinstance(path, set):
             value = entry
         elif isinstance(path, list):
@@ -553,22 +556,22 @@ class JsonPatch(object):
         rem_op = op.copy()
         rem_op['path'] = op['from']
         self._remove(rem_op)
-        
+
         add_op = op.copy()
         add_op['value'] = value
         self._add(add_op)
-    
-    def _copy(self, op): 
+
+    def _copy(self, op):
         address, entry = self.__get_address(op['from'])
         path = self.__get_path(address)
-        
+
         if isinstance(path, set):
             value = entry
         elif isinstance(path, list):
             value = path[int(entry)]
         else:
             value = path[entry]
- 
+
         add_op = op.copy()
         add_op['value'] = value
         self._add(add_op)
@@ -578,15 +581,15 @@ class JsonPatch(object):
     #
 
     def __get_path(self, path, create=False):
-        """ 
+        """
         Get an element on a JSON generated data structure given a JSON path.
         """
 
         scope = path.pop(0)
-        
+
         if scope == 'data':
-            obj = self.updated 
- 
+            obj = self.updated
+
         elif scope == 'permissions':
             obj = self.permissions
 
@@ -607,9 +610,9 @@ class JsonPatch(object):
 
                 # path is a previously inserted value
                 elif not isinstance(obj[int(el)], (list, dict, set)) and create:
-                    obj[int(el)] = {} 
-                
-                obj = obj[int(el)] 
+                    obj[int(el)] = {}
+
+                obj = obj[int(el)]
 
             elif isinstance(obj, dict):
                 # path doesn't exists
@@ -618,22 +621,22 @@ class JsonPatch(object):
 
                 # path is a previously inserted value
                 elif not isinstance(obj[el], (list, dict, set)) and create:
-                    obj[el] = {} 
-               
-                obj = obj[el] 
-            
-            else: 
+                    obj[el] = {}
+
+                obj = obj[el]
+
+            else:
                 raise ValueError
-   
+
         return obj
 
     def __get_address(self, path, starts='/'):
         """
         Get the indices to reach an element given a path on JSON Patch op.
-        
-        :param string path: path to be acessed 
+
+        :param string path: path to be acessed
         :returns list address: list of indexes to reach the an element
-                 string entry: the element name 
+                 string entry: the element name
         """
         path = path.replace(starts, '', 1)
         address = path.split('/')
@@ -663,4 +666,3 @@ class JsonPatch(object):
             if 'from' in op:
                 if not op['from'].startswith('/'):
                     raise ValueError
-

@@ -261,7 +261,7 @@ class PatchTest(BaseTest):
             {'op': 'remove', 'path': '/data/f'},
         ]
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
-    
+
     def test_json_patch_test(self):
         self.resource.request.json = {'data': {'a': 'aaa', 'b': ['bb','bbb']}}
         self.resource.patch()
@@ -279,7 +279,7 @@ class PatchTest(BaseTest):
             {'op': 'remove', 'path': '/data/b/0'},
         ]
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
-        
+
         self.resource.request.json = [
             {'op': 'test', 'path': '/data/f', 'value': 'what'},
         ]
@@ -306,7 +306,7 @@ class PatchTest(BaseTest):
             {'op': 'move', 'from': '/data/f', 'path': '/data/what'},
         ]
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
-    
+
     def test_json_patch_copy(self):
         self.resource.request.json = {'data': {'a': 'aaa', 'b': ['bb','bbb'], 'd': []}}
         self.resource.patch()
@@ -336,7 +336,7 @@ class PatchTest(BaseTest):
             {'op': 'copy', 'from': '/data/a', 'path': '/data/c'},
         ]
         self.assertRaises(AttributeError, self.resource.patch)
-    
+
     def test_json_patch_replace(self):
         self.resource.request.json = {'data': {'a': 'aaa', 'b': ['bb']}}
         self.resource.patch()

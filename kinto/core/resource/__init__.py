@@ -462,11 +462,13 @@ class UserResource(object):
         self._raise_412_if_modified(existing)
 
         content_type = str(self.request.headers.get('Content-Type'))
-        # patch is specified as a list of of operations (RFC 6902) 
+        # patch is specified as a list of operations (RFC 6902)
         if content_type == 'application/json-patch+json':
             try:
                 ops = self.request.json
                 self.patch_changes = JsonPatch(ops, existing)
+                if '__permissions__' in existing:
+                    self.patch_changes.base_permissions = existing['__permissions__']
                 changes = self.patch_changes.apply_ops()
             except StopIteration:
                 error_details = {
@@ -659,7 +661,7 @@ class UserResource(object):
         if content_type == 'application/merge-patch+json':
             recursive_update_dict(updated, changes, ignores=[None])
         elif content_type == 'application/json-patch+json':
-            updated = self.patch_changes.updated  
+            updated = self.patch_changes.updated
         else:
             updated.update(**changes)
 
@@ -1162,12 +1164,10 @@ class ShareableResource(UserResource):
         existing ACE is removed (using empty list).
         """
         new = super(ShareableResource, self).process_record(new, old)
-        
+
         content_type = str(self.request.headers.get('Content-Type'))
-        # patch is specified as a list of of operations (RFC 6902) 
+        # patch is specified as a list of operations
         if content_type == 'application/json-patch+json':
-            self.patch_changes.permissions = new.copy()['__permissions__']
-            self.patch_changes.apply_ops()
             permissions = self.patch_changes.permissions
         else:
             permissions = self.request.validated.get('permissions', {})
@@ -1176,7 +1176,7 @@ class ShareableResource(UserResource):
 
         if permissions:
             is_put = (self.request.method.lower() == 'put')
-            if is_put:
+            if is_put or content_type == 'application/json-patch+json':
                 # Remove every existing ACEs using empty lists.
                 for perm in self.permissions:
                     permissions.setdefault(perm, [])
