@@ -30,7 +30,7 @@ for you:
 - Choose the database you want from those that Kinto supports, and use a
   unified API to access its data
 - Manage your data using the handy
-  `admin UI <http://kinto.github.io/kinto-admin/>`_
+  `admin UI <https://kinto.github.io/kinto-admin>`_
 - Easily
   :ref:`set up live push notifications <tutorial-notifications-websockets>`
   for live updates of your application
