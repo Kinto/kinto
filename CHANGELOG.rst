@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **New features**
 
 - Added a new built-in plugin ``kinto.plugins.admin`` to serve the kinto admin.
+- Added a new documentation for built-in plugin for kinto-admin.
 
 
 4.3.1 (2016-10-06)

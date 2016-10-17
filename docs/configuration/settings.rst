@@ -476,7 +476,7 @@ list of Python modules:
 |                                       | (:ref:`more details <api-history>`).                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.admin``               | It is a Web admin UI to manage data from a Kinto server.                 |
-|                                       | (:ref:`more details <api-history>`).                                     |
+|                                       | (:ref:`more details <kinto-plugins-admin>`).                             |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 There are `many available packages`_ in Pyramid ecosystem, and it is straightforward to build one,
