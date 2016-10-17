@@ -583,6 +583,10 @@ class JsonPatch(object):
     def __get_path(self, path, create=False):
         """
         Get an element on a JSON generated data structure given a JSON path.
+
+        :param list path: list of keys to index the structure.
+        :param bool create: allows creating the path if not exists (default False).
+        :returns: object at the endpoint.
         """
 
         scope = path.pop(0)
@@ -669,4 +673,10 @@ class JsonPatch(object):
                 if not (op['path'].startswith('/data') or
                         op['path'].startswith('/permissions/read') or
                         op['path'].startswith('/permissions/write')):
+                    raise ValueError
+
+            # if overwriting permissions, must be a list
+            if (op['path'] == '/permissions/read' or
+                op['path'] == '/permissions/write'):
+                if not isinstance(op['value'], list):
                     raise ValueError
