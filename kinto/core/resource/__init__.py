@@ -467,8 +467,11 @@ class UserResource(object):
             try:
                 ops = self.request.json
                 self.patch_changes = JsonPatch(ops, existing)
+
                 if '__permissions__' in existing:
-                    self.patch_changes.base_permissions = existing['__permissions__']
+                    perms = existing['__permissions__']
+                    self.patch_changes.base_permissions.update(perms)
+
                 changes = self.patch_changes.apply_ops()
             except StopIteration:
                 error_details = {

@@ -451,7 +451,7 @@ class JsonPatch(object):
     """
 
     record = {}
-    base_permissions = {}
+    base_permissions = {"read": set([]), "write": set([])}
 
     required_fields = {
         'test':    ['op', 'path', 'value'],
