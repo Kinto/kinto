@@ -1,10 +1,10 @@
 import colander
-import requests
 
 from kinto.core import resource, Service
 from kinto.core.utils import instance_uri
 from kinto.core.storage import Filter
 from kinto.core.errors import raise_invalid
+from kinto.core.events import ACTIONS
 
 
 class HistorySchema(resource.ResourceSchema):
@@ -47,27 +47,34 @@ class History(resource.ShareableResource):
         return filters_str_id
 
 
-class Revert(object):
-
-    CREATE = 'create'
-    UPDATE = 'update'
-    DELETE = 'delete'
+class Revert(resource.UserResource):
 
     def __init__(self, request):
         self.request = request
+        self.bucket_id = request.matchdict['bucket_id']
+        if 'since' not in request.params:
+            raise_error(request, 'since', 'since request parameter must be provided')
+        self.since = int(request.params['since'])
+        filters = super(Revert, self)._extract_filters(request.params)
+        filters = [s for s in filters
+                                 if s.field != 'since']
+        self.storage = request.registry.storage
+        self.history, _ = self.storage.get_all(parent_id='/buckets/%s' % self.bucket_id,
+                                               collection_id='history', filters=filters)
 
-    def revert_changes(self, history, since):
-        revert_list = self.build_revert_list(history, since)
+    def revert_changes(self):
+        revert_list = self.build_revert_list()
         if len(revert_list) == 0:
             raise_error(self.request, 'no history', 'there are no history records to revert after since timestamp')
         return { 'data': revert_list }
 
     def create_revert_operation(self, last, first, passed_since):
         rec_id = last['target']['data']['id']
-        if last['action'] == self.CREATE or (not passed_since and first['action'] == self.CREATE):
-            return {'action': self.DELETE, 'data':  {'id': rec_id}}
+        last_is_create = last['action'] == ACTIONS.CREATE.value
+        if last_is_create or (not passed_since and first['action'] == ACTIONS.CREATE.value):
+            return {'action': ACTIONS.DELETE.value, 'data':  {'id': rec_id}}
         else:
-            return {'action': self.UPDATE, 'data':  first['target']['data']}
+            return {'action': ACTIONS.UPDATE.value, 'data':  first['target']['data']}
 
     def insert_rec_to_revert_lists(self, rec, revert_lists, passed_since):
         rec_id = rec['target']['data']['id']
@@ -78,21 +85,20 @@ class Revert(object):
             revert_lists['paired'].append(self.create_revert_operation(last_change, rec, passed_since))
         else:
             if rec_id in revert_lists['not_paired']:
-                if rec['action'] == self.CREATE:
+                if rec['action'] == ACTIONS.CREATE.value:
                     last_change = revert_lists['not_paired'].pop(rec_id)
                     revert_lists['paired'].append(self.create_revert_operation(last_change, rec, passed_since))
-            elif rec['action'] == self.CREATE:
+            elif rec['action'] == ACTIONS.CREATE.value:
                 revert_lists['paired'].append(self.create_revert_operation(rec, None, passed_since))
             else:
                 revert_lists['not_paired'][rec_id] = rec
 
-    def build_revert_list(self, history, since):
+    def build_revert_list(self):
         revert_lists = {'not_paired': {}, 'paired': []}
         passed_since = False
-        for rec in history['data']:
-            if not passed_since and rec['last_modified'] < since:
+        for rec in self.history:
+            if not passed_since and rec['last_modified'] < self.since:
                 passed_since = True
-            print passed_since
             if passed_since and len(revert_lists['not_paired']) == 0:
                 break
             self.insert_rec_to_revert_lists(rec, revert_lists, passed_since)
@@ -101,7 +107,7 @@ class Revert(object):
 
 
 revert_service = Service(name="revert",
-                     path='/buckets/{bucket_id}/collections/{collection_id}/revert',
+                     path='/buckets/{bucket_id}/revert',
                      description="Revert a collection to a timestamp, "
                                  "all later records will be discarded")
 
@@ -114,17 +120,5 @@ def raise_error(request, name, description):
 
 @revert_service.post()
 def revert_post(request):
-    bucket_id = request.matchdict['bucket_id']
-    collection_id = request.matchdict['collection_id']
-    if 'since' not in request.params:
-        raise_error(request, 'since', 'since request parameter must be provided')
-    else:
-        since = int(request.params['since'])
-
-    (host, port) = ('localhost', '8888') #(request.get_hostname(), request.get_port())
-    history = requests.get('http://%s:%s/v1/buckets/default/history?collection_id=%s' 
-                           % (host, port, collection_id), auth=('token', 'my-secret'))
-
     revert = Revert(request)
-    return revert.revert_changes(history.json(),since)
-    #return []
+    return revert.revert_changes()
