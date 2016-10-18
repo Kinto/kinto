@@ -479,5 +479,6 @@ def apply_json_patch(record, ops):
 
     data = result['data']
     permissions = result['permissions']
+    permissions = {k: set(v) for k, v in permissions.items()}
 
     return data, permissions
