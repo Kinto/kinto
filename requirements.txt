@@ -6,6 +6,7 @@ enum34==1.1.6
 functools32==3.2.3.post2
 futures==3.0.5
 iso8601==0.1.11
+jsonpatch==1.14
 jsonschema==2.5.1
 newrelic==2.70.0.51
 PasteDeploy==1.5.2

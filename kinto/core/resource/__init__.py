@@ -4,6 +4,8 @@ import functools
 import colander
 import venusian
 import six
+from jsonpatch import JsonPatchException
+from jsonpointer import JsonPointerException
 from pyramid import exceptions as pyramid_exceptions
 from pyramid.decorator import reify
 from pyramid.security import Everyone
@@ -18,7 +20,7 @@ from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
     encode_header, decode_header, dict_subset, recursive_update_dict,
-    JsonPatch
+    apply_json_patch
 )
 
 from .model import Model, ShareableModel
@@ -462,29 +464,9 @@ class UserResource(object):
         self._raise_412_if_modified(existing)
 
         content_type = str(self.request.headers.get('Content-Type'))
-        # patch is specified as a list of operations (RFC 6902)
+        # patch is specified as a list of of operations (RFC 6902) 
         if content_type == 'application/json-patch+json':
-            try:
-                ops = self.request.json
-                self.patch_changes = JsonPatch(ops, existing)
-
-                if '__permissions__' in existing:
-                    perms = existing['__permissions__']
-                    self.patch_changes.base_permissions.update(perms)
-
-                changes = self.patch_changes.apply_ops()
-            except StopIteration:
-                error_details = {
-                    'name': 'data',
-                    'description': 'Test operation failed',
-                }
-                raise_invalid(self.request, **error_details)
-            except:
-                error_details = {
-                    'name': 'data',
-                    'description': 'Invalid JSON Patch format',
-                }
-                raise_invalid(self.request, **error_details)
+            changes = self.request.json
         else:
             try:
                 # `data` attribute may not be present if only perms are patched.
@@ -499,6 +481,10 @@ class UserResource(object):
                 raise_invalid(self.request, **error_details)
 
         updated = self.apply_changes(existing, changes=changes)
+
+        # changes should be a json object for ``Response-Behavior`` processing.
+        if content_type == 'application/json-patch+json':
+            changes = updated.copy()
 
         record_id = updated.setdefault(self.model.id_field,
                                        self.record_id)
@@ -648,6 +634,18 @@ class UserResource(object):
         :returns: the new record with `changes` applied.
         :rtype: dict
         """
+        content_type = str(self.request.headers.get('Content-Type'))
+
+        if content_type == 'application/json-patch+json':
+            try:
+                changes, _ = apply_json_patch(record, changes)
+            except (JsonPatchException, JsonPointerException) as e:
+                error_details = {
+                    'name': '',
+                    'description': 'JSON Patch operation failed'
+                } 
+                raise_invalid(self.request, e, **error_details)
+
         for field, value in changes.items():
             has_changed = record.get(field, value) != value
             if self.mapping.is_readonly(field) and has_changed:
@@ -660,11 +658,10 @@ class UserResource(object):
         updated = record.copy()
 
         # recursive patch and remove field if null attribute is passed (RFC 7396)
-        content_type = str(self.request.headers.get('Content-Type'))
         if content_type == 'application/merge-patch+json':
             recursive_update_dict(updated, changes, ignores=[None])
         elif content_type == 'application/json-patch+json':
-            updated = self.patch_changes.updated
+            updated = changes
         else:
             updated.update(**changes)
 
@@ -1167,11 +1164,12 @@ class ShareableResource(UserResource):
         existing ACE is removed (using empty list).
         """
         new = super(ShareableResource, self).process_record(new, old)
-
+        print new 
         content_type = str(self.request.headers.get('Content-Type'))
-        # patch is specified as a list of operations
+        # patch is specified as a list of of operations (RFC 6902) 
         if content_type == 'application/json-patch+json':
-            permissions = self.patch_changes.permissions
+            changes = self.request.json
+            _, permissions = apply_json_patch(new, changes)
         else:
             permissions = self.request.validated.get('permissions', {})
 
@@ -1179,7 +1177,7 @@ class ShareableResource(UserResource):
 
         if permissions:
             is_put = (self.request.method.lower() == 'put')
-            if is_put or content_type == 'application/json-patch+json':
+            if is_put:
                 # Remove every existing ACEs using empty lists.
                 for perm in self.permissions:
                     permissions.setdefault(perm, [])
