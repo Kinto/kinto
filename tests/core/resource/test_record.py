@@ -364,13 +364,11 @@ class JsonPatchTest(BaseTest):
             {'op': 'add', 'path': '/data/c', 'value': 'ccc'},
             {'op': 'add', 'path': '/data/b/1', 'value': 'bbb'},
             {'op': 'add', 'path': '/data/b/-', 'value': 'bbbb'},
-            {'op': 'add', 'path': '/data/b/0/f/g', 'value': 'fff'},
         ]
         result = self.resource.patch()['data']
         self.assertEqual(result['c'], 'ccc')
         self.assertEqual(result['b'][2], 'bbb')
         self.assertEqual(result['b'][3], 'bbbb')
-        self.assertEqual(result['b'][0]['f']['g'], 'fff')
 
     def test_json_patch_remove(self):
         self.resource.request.json = [

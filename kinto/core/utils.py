@@ -446,18 +446,31 @@ def instance_uri(request, resource_name, **params):
                                                **params))
 
 
-def apply_json_patch(record, changes):
+def apply_json_patch(record, ops, only_data=False):
+    """
+    Apply JSON Patch operations using jsonpatch.
+
+    :param record: base record where changes should be applied (not in-place).
+    :param list changes: list of JSON patch operations.
+    :param bool only_data: param to limit the scope of the patch only to 'data'.
+    :returns dict data: patched record data.
+             dict permissions: patched record permissions
+    """
     data = record.copy()
-
-    if 'permissions' in data:
-        permissions = data.pop('permissions')
-    elif '__permissions__' in data:
-        permissions = data.pop('__permissions__')
-    else:
-        permissions = {'read': set(), 'write': set()}
+    permissions = {'read': set(), 'write': set()} 
     
-    print permissions
-    resource = {'data': data, 'permissions': permissions}
-    result = jsonpatch.apply_patch(resource, changes)
+    if only_data:
+        ops = [op for op in ops if not op['path'].startswith('/permissions')]
+    else:
+        if '__permissions__' in record:
+            permissions.update(record['__permissions__'])
 
-    return result['data'], result['permissions']
+    permissions = {k:list(v) for k,v in permissions.items()}
+
+    resource = {'data': data, 'permissions': permissions}
+    result = jsonpatch.apply_patch(resource, ops)
+
+    data = result['data']
+    permissions = result['permissions']
+
+    return data, permissions

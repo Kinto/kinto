@@ -638,7 +638,7 @@ class UserResource(object):
 
         if content_type == 'application/json-patch+json':
             try:
-                changes, _ = apply_json_patch(record, changes)
+                changes, _ = apply_json_patch(record, changes, only_data=True)
             except (JsonPatchException, JsonPointerException) as e:
                 error_details = {
                     'name': '',
