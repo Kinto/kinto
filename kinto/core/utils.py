@@ -430,7 +430,6 @@ def parse_resource(resource):
 
     :param str resource: a uri formatted /buckets/<bid>/collections/<cid> or <bid>/<cid>.
     :returns: a dictionary with the bucket_id and collection_id of the resource
-    :rtype: dict
     """
 
     error_msg = "Resources should be defined as "
