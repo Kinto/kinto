@@ -227,9 +227,7 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
     def test_every_collections_are_deleted_too(self):
         self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
                           headers=self.headers)
-        response = self.app.get(self.collection_url, headers=self.headers, status=404)
-        self.assertEqual(response.json['details']['id'], 'barley')
-        self.assertEqual(response.json['details']['resource_name'], 'collection')
+        self.app.get(self.collection_url, headers=self.headers, status=404)
 
         # Verify tombstones
         resp = self.app.get('%s/collections?_since=0' % self.bucket_url,
@@ -250,9 +248,7 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers)
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
                           headers=self.headers)
-        response = self.app.get(self.record_url, headers=self.headers, status=404)
-        self.assertEqual(response.json['details']['id'], self.record_id)
-        self.assertEqual(response.json['details']['resource_name'], 'record')
+        self.app.get(self.record_url, headers=self.headers, status=404)
 
         # Verify tombstones
         resp = self.app.get('%s/records?_since=0' % self.collection_url,

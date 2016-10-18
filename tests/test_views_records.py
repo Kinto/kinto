@@ -42,6 +42,12 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(resp.json['details']['id'], 'pills')
         self.assertEqual(resp.json['details']['resource_name'], 'collection')
 
+    def test_unknown_record_raises_404(self):
+        other_record = self.record_url.replace(self.record['id'], self.record['id']+'blah')
+        response = self.app.get(other_record, headers=self.headers, status=404)
+        self.assertEqual(response.json['details']['id'], self.record['id']+'blah')
+        self.assertEqual(response.json['details']['resource_name'], 'record')
+
     def test_unknown_collection_does_not_query_timestamp(self):
         other_collection = self.collection_url.replace('barley', 'pills')
         patch = mock.patch.object(self.app.app.registry.storage,
@@ -105,9 +111,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                           MINIMALIST_COLLECTION,
                           headers=self.headers)
         other = self.record_url.replace('barley', 'ba').replace('beers', 'be')
-        response = self.app.get(other, headers=self.headers, status=404)
-        self.assertEqual(response.json['details']['id'], self.record['id'])
-        self.assertEqual(response.json['details']['resource_name'], 'record')
+        self.app.get(other, headers=self.headers, status=404)
 
     def test_a_collection_named_group_do_not_interfere_with_groups(self):
         # Create a group.
