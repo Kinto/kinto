@@ -426,11 +426,19 @@ def instance_uri(request, resource_name, **params):
 
 
 def parse_resource(resource):
-    """extract the bucket and collection of a given resource"""
+    """Extract the bucket_id and collection_id of the given resource (URI)
 
-    error_msg = ("Resources should be defined as "
-                 "'/buckets/<bid>/collections/<cid>' or "
-                 "'<bid>/<cid>'. Got %r" % resource)
+    :param str resource: a uri formatted /buckets/<bid>/collections/<cid> or <bid>/<cid>.
+    :returns: a dictionary with the bucket_id and collection_id of the resource
+    :rtype: dict
+    """
+
+    error_msg = "Resources should be defined as "
+    "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>'. "
+    "with valid collection and bucket ids."
+
+    from kinto.views import NameGenerator
+    id_generator = NameGenerator()
     parts = resource.split('/')
     if len(parts) == 2:
         bucket, collection = parts
@@ -439,6 +447,8 @@ def parse_resource(resource):
     else:
         raise ValueError(error_msg)
     if bucket == '' or collection == '':
+        raise ValueError(error_msg)
+    if not id_generator.match(bucket) or not id_generator.match(collection):
         raise ValueError(error_msg)
     return {
         'bucket': bucket,
