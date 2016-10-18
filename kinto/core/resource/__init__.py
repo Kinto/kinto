@@ -464,7 +464,7 @@ class UserResource(object):
         self._raise_412_if_modified(existing)
 
         content_type = str(self.request.headers.get('Content-Type'))
-        # patch is specified as a list of of operations (RFC 6902) 
+        # patch is specified as a list of of operations (RFC 6902)
         if content_type == 'application/json-patch+json':
             changes = self.request.json
         else:
@@ -638,12 +638,12 @@ class UserResource(object):
 
         if content_type == 'application/json-patch+json':
             try:
-                changes, _ = apply_json_patch(record, changes, only_data=True)
+                changes, _ = apply_json_patch(record, changes)
             except (JsonPatchException, JsonPointerException) as e:
                 error_details = {
                     'name': '',
                     'description': 'JSON Patch operation failed'
-                } 
+                }
                 raise_invalid(self.request, e, **error_details)
 
         for field, value in changes.items():
@@ -1164,9 +1164,9 @@ class ShareableResource(UserResource):
         existing ACE is removed (using empty list).
         """
         new = super(ShareableResource, self).process_record(new, old)
-        print new 
+
         content_type = str(self.request.headers.get('Content-Type'))
-        # patch is specified as a list of of operations (RFC 6902) 
+        # patch is specified as a list of of operations (RFC 6902)
         if content_type == 'application/json-patch+json':
             changes = self.request.json
             _, permissions = apply_json_patch(new, changes)

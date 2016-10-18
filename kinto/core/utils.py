@@ -446,7 +446,7 @@ def instance_uri(request, resource_name, **params):
                                                **params))
 
 
-def apply_json_patch(record, ops, only_data=False):
+def apply_json_patch(record, ops):
     """
     Apply JSON Patch operations using jsonpatch.
 
@@ -457,17 +457,24 @@ def apply_json_patch(record, ops, only_data=False):
              dict permissions: patched record permissions
     """
     data = record.copy()
-    permissions = {'read': set(), 'write': set()} 
-    
-    if only_data:
-        ops = [op for op in ops if not op['path'].startswith('/permissions')]
-    else:
-        if '__permissions__' in record:
-            permissions.update(record['__permissions__'])
+    permissions = {'read': set(), 'write': set()}
 
-    permissions = {k:list(v) for k,v in permissions.items()}
+    # To be used with SharableResource object (patching permissions)
+    if '__permissions__' in record:
+        permissions.update(record['__permissions__'])
+
+    # Map permissions as dicts since jsonpatch module doesn't accept sets.
+    permissions = {k: {i: i for i in v} for k, v in permissions.items()}
 
     resource = {'data': data, 'permissions': permissions}
+
+    # Allow patch permissions without value since key and value are equal on sets
+    for op in ops:
+        if 'path' in op:
+            if op['path'].startswith(('/permissions/read/',
+                                      '/permissions/write/')):
+                op['value'] = op['path'].split('/')[-1]
+
     result = jsonpatch.apply_patch(resource, ops)
 
     data = result['data']

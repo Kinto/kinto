@@ -352,7 +352,7 @@ class JsonPatchTest(BaseTest):
         super(JsonPatchTest, self).setUp()
         self.stored = self.model.create_record({})
         self.resource.record_id = self.stored['id']
-        self.resource.request.json = {'data': {'a': 'aaa', 'b': ['bb','bbb'], 'd': []}}
+        self.resource.request.json = {'data': {'a': 'aaa', 'b': ['bb', 'bbb'], 'd': []}}
         schema = ResourceSchema()
         self.resource.mapping = schema
         self.result = self.resource.patch()['data']
@@ -383,7 +383,7 @@ class JsonPatchTest(BaseTest):
         self.resource.request.json = [
             {'op': 'test', 'path': '/data/a', 'value': 'aaa'},
         ]
-        result = self.resource.patch()['data']
+        self.resource.patch()['data']
 
     def test_json_patch_test_failure(self):
         self.resource.request.json = [
@@ -403,7 +403,7 @@ class JsonPatchTest(BaseTest):
         self.assertEqual(len(result['b']), 0)
         self.assertEqual(result['d'][0], 'bbb')
         self.assertEqual(result['e'], 'bb')
- 
+
     def test_json_patch_copy(self):
         self.resource.request.json = [
             {'op': 'copy', 'from': '/data/a', 'path': '/data/c'},
@@ -416,7 +416,7 @@ class JsonPatchTest(BaseTest):
         self.assertEqual(len(result['b']), 2)
         self.assertEqual(result['d'][0], 'bbb')
         self.assertEqual(result['e'], 'bbb')
- 
+
     def test_json_patch_replace(self):
         self.resource.request.json = [
             {'op': 'replace', 'path': '/data/a', 'value': 'bbb'},
@@ -430,7 +430,7 @@ class JsonPatchTest(BaseTest):
         self.resource.request.json = [
             {'op': 'remove', 'path': '/data/f'},
         ]
-        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch) 
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
         self.resource.request.json = [
             {'op': 'move', 'from': '/data/f', 'path': '/data/what'},
         ]
