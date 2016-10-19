@@ -302,15 +302,15 @@ class StatsDConfigurationTest(unittest.TestCase):
 
     def test_statsd_is_set_on_cache(self):
         c = initialization.setup_statsd(self.config)
-        c.watch_execution_time.assert_any_call({}, prefix='cache')
+        c.watch_execution_time.assert_any_call({}, prefix='backend')
 
     def test_statsd_is_set_on_storage(self):
         c = initialization.setup_statsd(self.config)
-        c.watch_execution_time.assert_any_call({}, prefix='storage')
+        c.watch_execution_time.assert_any_call({}, prefix='backend')
 
     def test_statsd_is_set_on_permission(self):
         c = initialization.setup_statsd(self.config)
-        c.watch_execution_time.assert_any_call({}, prefix='permission')
+        c.watch_execution_time.assert_any_call({}, prefix='backend')
 
     def test_statsd_is_set_on_authentication(self):
         c = initialization.setup_statsd(self.config)

@@ -26,6 +26,7 @@ Contributors
 * Greeshma <greeshmabalabadra@gmail.com>
 * Gabriela Surita <gabsurita@gmail.com>
 * Hiromipaw <silvia@nopressure.co.uk>
+* Indranil Dutta <duttaindranil497@gmail.com>
 * Jelmer van der Ploeg <jelmer@woovar.com>
 * John Giannelos <johngiannelos@gmail.com>
 * Julien Bouquillon <contact@revolunet.com>
@@ -40,6 +41,7 @@ Contributors
 * Nicolas Hoizey <nicolas@hoizey.com>
 * Nicolas Perriault <nperriault@mozilla.com>
 * Niraj <https://github.com/niraj8>
+* Oron Gola <oron.golar@gmail.com>
 * Rektide <rektide@voodoowarez.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
 * Rodolphe Quiédeville <rodolphe@quiedeville.org>
