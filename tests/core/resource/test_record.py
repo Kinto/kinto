@@ -363,13 +363,16 @@ class JsonPatchTest(BaseTest):
     def test_json_patch_add(self):
         self.resource.request.json = [
             {'op': 'add', 'path': '/data/c', 'value': 'ccc'},
-            {'op': 'add', 'path': '/data/b/1', 'value': 'bbb'},
-            {'op': 'add', 'path': '/data/b/-', 'value': 'bbbb'},
+            {'op': 'add', 'path': '/data/b/1', 'value': 'ddd'},
+            {'op': 'add', 'path': '/data/b/-', 'value': 'eee'},
         ]
         result = self.resource.patch()['data']
         self.assertEqual(result['c'], 'ccc')
+        self.assertEqual(result['b'][0], 'bb')
+        self.assertEqual(result['b'][1], 'ddd')
         self.assertEqual(result['b'][2], 'bbb')
-        self.assertEqual(result['b'][3], 'bbbb')
+        self.assertEqual(result['b'][3], 'eee')
+        self.assertEqual(len(result['b']), 4)
 
     def test_json_patch_remove(self):
         self.resource.request.json = [
@@ -379,6 +382,7 @@ class JsonPatchTest(BaseTest):
         result = self.resource.patch()['data']
         self.assertNotIn('a', result)
         self.assertEqual(len(result['b']), 1)
+        self.assertEqual(result['b'][0], 'bbb')
 
     def test_json_patch_test_success(self):
         self.resource.request.json = [

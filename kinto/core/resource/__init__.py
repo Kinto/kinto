@@ -466,7 +466,8 @@ class UserResource(object):
 
         # patch is specified as a list of of operations (RFC 6902)
         if self._is_json_patch:
-            changes = {'data': self.request.json}
+            operations = self.request.json
+            changes = {}
         else:
             try:
                 # `data` attribute may not be present if only perms are patched.
@@ -480,7 +481,12 @@ class UserResource(object):
                 }
                 raise_invalid(self.request, **error_details)
 
-        updated = self.apply_changes(existing, changes=changes)
+        # apply changes on operations list and update changes
+        if self._is_json_patch:
+            updated = self.apply_changes(existing, changes=changes,
+                                         operations=operations)
+        else:
+            updated = self.apply_changes(existing, changes=changes)
 
         record_id = updated.setdefault(self.model.id_field,
                                        self.record_id)
@@ -607,7 +613,7 @@ class UserResource(object):
 
         return new
 
-    def apply_changes(self, record, changes):
+    def apply_changes(self, record, changes, operations=None):
         """Merge `changes` into `record` fields.
 
         .. note::
@@ -632,7 +638,7 @@ class UserResource(object):
         """
         if self._is_json_patch:
             try:
-                updated = apply_json_patch(record, changes['data'])['data']
+                updated = apply_json_patch(record, operations)['data']
                 changes.update(**updated)
             except ValueError as e:
                 error_details = {

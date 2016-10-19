@@ -487,13 +487,15 @@ def apply_json_patch(record, ops):
              dict permissions: patched record permissions
     """
     data = record.copy()
+
+    # Permissions should always have read and write fields defined (to allow add)
     permissions = {'read': set(), 'write': set()}
 
-    # To be used with SharableResource object (patching permissions)
-    if '__permissions__' in record:
-        permissions.update(record['__permissions__'])
+    # Get permissions if available on the resource (using SharableResource)
+    permissions.update(data.pop('__permissions__', {}))
 
-    # Map permissions as dicts since jsonpatch module doesn't accept sets.
+    # Permissions should be mapped as a dict, since jsonpatch doesn't accept
+    # sets and lists are mapped as JSON arrays (not indexed by value)
     permissions = {k: {i: i for i in v} for k, v in permissions.items()}
 
     resource = {'data': data, 'permissions': permissions}

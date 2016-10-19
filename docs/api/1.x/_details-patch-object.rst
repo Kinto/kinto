@@ -60,9 +60,10 @@ JSON Patch Operations
 `JSON-Patch <https://tools.ietf.org/html/rfc6902>`_ is a way to define a sequence
 of operations to be applied on a JSON object.
 
-It's possible to use ``JSON-Patch`` notation setting ``Content-Type: application/jso-patch+json``.
+It's possible to use JSON-Patch by sending the request header ``Content-Type: application/json-patch+json``.
 
-When using this `patch` method, the request should be defined as a list of operations, for example:
+When using this request header, the body should contain a list of operations,
+for example:
 
 .. code-block:: javascript
 
@@ -75,11 +76,12 @@ When using this `patch` method, the request should be defined as a list of opera
         { "op": "copy", "from": "/data/b", "path": "/data/d" }
     ]
 
-For more information about each operation, please refer the 
+For more information about each operation, please refer to
 `JSON-Patch Specification <https://tools.ietf.org/html/rfc6902>`_.
 
-Permissions can also be altered using ``JSON-Patch``. Value is not used on permission operations
-and can be ommited.
+This is very useful when altering permissions since there is no need to get
+the current value before adding some principal to the list. Value is not used
+on permission operations and can be omitted.
 
 .. code-block:: javascript
 
