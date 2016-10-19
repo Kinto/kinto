@@ -358,6 +358,7 @@ class JsonPatchTest(BaseTest):
         self.result = self.resource.patch()['data']
         header = self.resource.request.headers
         header['Content-Type'] = 'application/json-patch+json'
+        self.resource._is_json_patch = True
 
     def test_json_patch_add(self):
         self.resource.request.json = [
@@ -447,6 +448,7 @@ class JsonPatchTest(BaseTest):
     def test_json_patch_format_not_accepted_without_header(self):
         header = self.resource.request.headers
         header['Content-Type'] = 'application/json'
+        self.resource._is_json_patch = False
         self.resource.request.json = [
             {'op': 'add', 'from': '/data/a', 'value': 'aaa'},
         ]

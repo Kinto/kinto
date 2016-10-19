@@ -4,8 +4,6 @@ import functools
 import colander
 import venusian
 import six
-from jsonpatch import JsonPatchException
-from jsonpointer import JsonPointerException
 from pyramid import exceptions as pyramid_exceptions
 from pyramid.decorator import reify
 from pyramid.security import Everyone
@@ -164,6 +162,9 @@ class UserResource(object):
         self.context = context
         self.record_id = self.request.matchdict.get('id')
         self.force_patch_update = False
+
+        content_type = str(self.request.headers.get('Content-Type')).lower()
+        self._is_json_patch = content_type == 'application/json-patch+json'
 
         # Log resource context.
         logger.bind(collection_id=self.model.collection_id,
@@ -463,10 +464,9 @@ class UserResource(object):
         existing = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(existing)
 
-        content_type = str(self.request.headers.get('Content-Type'))
         # patch is specified as a list of of operations (RFC 6902)
-        if content_type == 'application/json-patch+json':
-            changes = self.request.json
+        if self._is_json_patch:
+            changes = {'data': self.request.json}
         else:
             try:
                 # `data` attribute may not be present if only perms are patched.
@@ -481,10 +481,6 @@ class UserResource(object):
                 raise_invalid(self.request, **error_details)
 
         updated = self.apply_changes(existing, changes=changes)
-
-        # changes should be a json object for ``Response-Behavior`` processing.
-        if content_type == 'application/json-patch+json':
-            changes = updated.copy()
 
         record_id = updated.setdefault(self.model.id_field,
                                        self.record_id)
@@ -634,17 +630,26 @@ class UserResource(object):
         :returns: the new record with `changes` applied.
         :rtype: dict
         """
-        content_type = str(self.request.headers.get('Content-Type'))
-
-        if content_type == 'application/json-patch+json':
+        if self._is_json_patch:
             try:
-                changes, _ = apply_json_patch(record, changes)
-            except (JsonPatchException, JsonPointerException) as e:
+                updated = apply_json_patch(record, changes['data'])['data']
+                changes.update(**updated)
+            except ValueError as e:
                 error_details = {
                     'name': '',
                     'description': 'JSON Patch operation failed'
                 }
                 raise_invalid(self.request, e, **error_details)
+
+        else:
+            updated = record.copy()
+
+            content_type = str(self.request.headers.get('Content-Type')).lower()
+            # recursive patch and remove field if null attribute is passed (RFC 7396)
+            if content_type == 'application/merge-patch+json':
+                recursive_update_dict(updated, changes, ignores=[None])
+            else:
+                updated.update(**changes)
 
         for field, value in changes.items():
             has_changed = record.get(field, value) != value
@@ -654,16 +659,6 @@ class UserResource(object):
                     'description': 'Cannot modify {0}'.format(field)
                 }
                 raise_invalid(self.request, **error_details)
-
-        updated = record.copy()
-
-        # recursive patch and remove field if null attribute is passed (RFC 7396)
-        if content_type == 'application/merge-patch+json':
-            recursive_update_dict(updated, changes, ignores=[None])
-        elif content_type == 'application/json-patch+json':
-            updated = changes
-        else:
-            updated.update(**changes)
 
         try:
             return self.mapping.deserialize(updated)
@@ -1165,11 +1160,10 @@ class ShareableResource(UserResource):
         """
         new = super(ShareableResource, self).process_record(new, old)
 
-        content_type = str(self.request.headers.get('Content-Type'))
         # patch is specified as a list of of operations (RFC 6902)
-        if content_type == 'application/json-patch+json':
+        if self._is_json_patch:
             changes = self.request.json
-            _, permissions = apply_json_patch(new, changes)
+            permissions = apply_json_patch(old, changes)['permissions']
         else:
             permissions = self.request.validated.get('permissions', {})
 
