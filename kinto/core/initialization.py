@@ -244,9 +244,9 @@ def setup_statsd(config):
 
         config.registry.statsd = client
 
-        client.watch_execution_time(config.registry.cache, prefix='cache')
-        client.watch_execution_time(config.registry.storage, prefix='storage')
-        client.watch_execution_time(config.registry.permission, prefix='permission')
+        client.watch_execution_time(config.registry.cache, prefix='backend')
+        client.watch_execution_time(config.registry.storage, prefix='backend')
+        client.watch_execution_time(config.registry.permission, prefix='backend')
 
         # Commit so that configured policy can be queried.
         config.commit()
