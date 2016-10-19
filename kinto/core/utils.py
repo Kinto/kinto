@@ -443,3 +443,33 @@ def instance_uri(request, resource_name, **params):
     """Return the URI for the given resource."""
     return strip_uri_prefix(request.route_path('%s-record' % resource_name,
                                                **params))
+
+
+def parse_resource(resource):
+    """Extract the bucket_id and collection_id of the given resource (URI)
+
+    :param str resource: a uri formatted /buckets/<bid>/collections/<cid> or <bid>/<cid>.
+    :returns: a dictionary with the bucket_id and collection_id of the resource
+    """
+
+    error_msg = "Resources should be defined as "
+    "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>'. "
+    "with valid collection and bucket ids."
+
+    from kinto.views import NameGenerator
+    id_generator = NameGenerator()
+    parts = resource.split('/')
+    if len(parts) == 2:
+        bucket, collection = parts
+    elif len(parts) == 5:
+        _, _, bucket, _, collection = parts
+    else:
+        raise ValueError(error_msg)
+    if bucket == '' or collection == '':
+        raise ValueError(error_msg)
+    if not id_generator.match(bucket) or not id_generator.match(collection):
+        raise ValueError(error_msg)
+    return {
+        'bucket': bucket,
+        'collection': collection
+    }
