@@ -10,6 +10,9 @@ This document describes changes between each past release.
 
 - Added a new built-in plugin ``kinto.plugins.admin`` to serve the kinto admin.
 
+**Protocol**
+
+- Add support to ``JSON-Merge`` (RFC 6902).
 
 4.3.1 (2016-10-06)
 ------------------
