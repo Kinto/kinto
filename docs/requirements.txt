@@ -1,4 +1,4 @@
-Sphinx
+Sphinx<1.5
 sphinx_rtd_theme
 sphinxcontrib-httpdomain
 kinto-redis
