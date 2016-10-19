@@ -29,13 +29,6 @@ support to merging sub-objects and removing attibutes. For example:
 * ``{"a": {"b":"c"}}`` + ``{"a":{"d":"e"}}`` → ``{"a":{"b:c", "d":"e"}}``
 * ``{}`` + ``{"a":{"b":{"c":null}}}`` → ``{"a":{"b":{}}}``
 
-.. note::
-
-    `JSON-Patch <http://jsonpatch.com>`_ 
-    is currently not supported. Any help is welcomed though!
-    See https://github.com/Kinto/kinto/issues/458
-
-
 Light response body
 -------------------
 
@@ -60,3 +53,38 @@ See :ref:`api-permissions-payload`.
 .. ----------------
 
 .. If a read-only field is modified, a |status-400| error is returned.
+
+JSON Patch Operations
+---------------------
+
+`JSON-Patch <https://tools.ietf.org/html/rfc6902>`_ is a way to define a sequence
+of operations to be applied on a JSON object.
+
+It's possible to use ``JSON-Patch`` notation setting ``Content-Type: application/jso-patch+json``.
+
+When using this `patch` method, the request should be defined as a list of operations, for example:
+
+.. code-block:: javascript
+
+    [
+        { "op": "test", "path": "data/a", "value": "foo" },
+        { "op": "remove", "path": "/data/a" },
+        { "op": "add", "path": "/data/b", "value": [ "foo", "bar" ] },
+        { "op": "replace", "path": "/data/b", "value": 42 },
+        { "op": "move", "from": "/data/a", "path": "/data/c" },
+        { "op": "copy", "from": "/data/b", "path": "/data/d" }
+    ]
+
+For more information about each operation, please refer the 
+`JSON-Patch Specification <https://tools.ietf.org/html/rfc6902>`_.
+
+Permissions can also be altered using ``JSON-Patch``. Value is not used on permission operations
+and can be ommited.
+
+.. code-block:: javascript
+
+    [
+        { "op": "test", "path": "/permissions/read/fxa:alice" },
+        { "op": "add", "path": "/permissions/read/system.Everyone" },
+        { "op": "remove", "path": "/permissions/read/fxa:bob" }
+    ]

@@ -505,9 +505,10 @@ def apply_json_patch(record, ops):
                                       '/permissions/write/')):
                 op['value'] = op['path'].split('/')[-1]
 
-    result = jsonpatch.apply_patch(resource, ops)
+    try:
+        result = jsonpatch.apply_patch(resource, ops)
 
-    data = result['data']
-    permissions = result['permissions']
+    except (jsonpatch.JsonPatchException, jsonpatch.JsonPointerException) as e:
+        raise ValueError(e)
 
-    return data, permissions
+    return result
