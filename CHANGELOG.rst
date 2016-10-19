@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Added a new built-in plugin ``kinto.plugins.admin`` to serve the kinto admin.
 
+**Bug fixes**
+
+- Fixed showing of backend type twice in StatsD backend keys (fixes #857)
+
 
 4.3.1 (2016-10-06)
 ------------------
