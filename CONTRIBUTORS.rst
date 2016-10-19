@@ -26,6 +26,7 @@ Contributors
 * Greeshma <greeshmabalabadra@gmail.com>
 * Gabriela Surita <gabsurita@gmail.com>
 * Hiromipaw <silvia@nopressure.co.uk>
+* Indranil Dutta <duttaindranil497@gmail.com>
 * Jelmer van der Ploeg <jelmer@woovar.com>
 * John Giannelos <johngiannelos@gmail.com>
 * Julien Bouquillon <contact@revolunet.com>
