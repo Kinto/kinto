@@ -47,6 +47,12 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         other_bucket = self.collections_url.replace('beers', 'sodas')
         self.app.get(other_bucket, headers=self.headers, status=403)
 
+    def test_unknown_collection_raises_404(self):
+        other_collection = self.collection_url.replace('barley', 'pills')
+        resp = self.app.get(other_collection, headers=self.headers, status=404)
+        self.assertEqual(resp.json['details']['id'], 'pills')
+        self.assertEqual(resp.json['details']['resource_name'], 'collection')
+
     def test_collections_are_isolated_by_bucket(self):
         other_bucket = self.collection_url.replace('beers', 'sodas')
         self.app.put_json('/buckets/sodas',
@@ -117,8 +123,7 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.delete(self.collection_url, headers=self.headers)
 
     def test_collections_can_be_deleted(self):
-        self.app.get(self.collection_url, headers=self.headers,
-                     status=404)
+        self.app.get(self.collection_url, headers=self.headers, status=404)
 
     def test_collections_can_be_deleted_in_bulk(self):
         alice_headers = get_user_headers('alice')

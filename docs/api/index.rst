@@ -12,6 +12,11 @@ Changelog
 ---------
 
 
+1.13 (2016-10-14)
+'''''''''''''''''
+
+- ``details`` attribute present in response of 404 errors.
+
 1.12 (2016-10-11)
 '''''''''''''''''
 

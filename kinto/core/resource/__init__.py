@@ -680,8 +680,12 @@ class UserResource(object):
         try:
             return self.model.get_record(record_id)
         except storage_exceptions.RecordNotFoundError:
-            response = http_error(HTTPNotFound(),
-                                  errno=ERRORS.INVALID_RESOURCE_ID)
+            details = {
+                "id": record_id,
+                "resource_name": self.request.current_resource_name
+            }
+            response = http_error(HTTPNotFound(), errno=ERRORS.INVALID_RESOURCE_ID,
+                                  details=details)
             raise response
 
     def _add_timestamp_header(self, response, timestamp=None):
