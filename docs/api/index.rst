@@ -11,17 +11,12 @@ API
 Changelog
 ---------
 
-1.13 (2016-10-18)
+1.13 (2016-10-20)
 '''''''''''''''''
 
 - Add support to JSON ``patch`` format when using 
   ``Content-Type: application/json-patch+json`` (as in RFC 6902).
-- when using JSON ``patch``, changes should be described as a list of operations
-  (e.g ``[{"op": "add", "path": "/data/my_field", "value": "my_value"}]``).
-- On JSON ``patch`` operations, permissions are trated as a dictionary with no values.
-  On these operations, the ``value`` field can be omitted.
-  (e.g ``[{"op": "add", "path": "/permissions/read/system.Everyone"}]``).
-
+  For more details, see `JSON-Patch Format <1.x/records.html#json-patch-operations>`_.
 
 1.12 (2016-10-11)
 '''''''''''''''''
