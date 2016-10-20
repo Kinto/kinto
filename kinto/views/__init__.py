@@ -34,6 +34,5 @@ def object_exists_or_404(request, collection_id, object_id, parent_id=''):
             "id": object_id,
             "resource_name": collection_id
         }
-        response = http_error(HTTPNotFound(), errno=ERRORS.MISSING_RESOURCE,
-                              details=details)
+        response = http_error(HTTPNotFound(), errno=ERRORS.MISSING_RESOURCE, details=details)
         raise response

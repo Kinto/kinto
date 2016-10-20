@@ -197,8 +197,8 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         r = self.app.post_json(self.collection_url + '/records',
                                MINIMALIST_RECORD,
                                headers=self.headers)
-        self.record_id = r.json['data']['id']
-        self.record_url = self.collection_url + '/records/%s' % self.record_id
+        record_id = r.json['data']['id']
+        self.record_url = self.collection_url + '/records/%s' % record_id
         # Delete the bucket.
         self.app.delete(self.bucket_url, headers=self.headers)
 
@@ -219,6 +219,11 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.get('/buckets/1', headers=self.headers, status=200)
         self.app.get('/buckets/2', headers=self.headers, status=404)
         self.app.get('/buckets/3', headers=self.headers, status=404)
+
+    def test_unknown_bucket_raises_404(self):
+        resp = self.app.get('/buckets/2', headers=self.headers, status=404)
+        self.assertEqual(resp.json['details']['id'], '2')
+        self.assertEqual(resp.json['details']['resource_name'], 'bucket')
 
     def test_buckets_can_be_deleted(self):
         self.app.get(self.bucket_url, headers=self.headers,
