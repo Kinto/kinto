@@ -44,15 +44,15 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertFormattedError(response, 404, ERRORS.MISSING_RESOURCE, "Not Found",
                                   "The resource you are looking for could not be found.")
 
-    def test_404_can_be_overridded(self):
+    def test_404_can_be_overridden(self):
         custom_404 = http_error(httpexceptions.HTTPNotFound(),
                                 errno=ERRORS.MISSING_RESOURCE,
                                 message="Customized.")
         with mock.patch('tests.core.testapp.views.Mushroom._extract_filters',
                         side_effect=custom_404):
             response = self.app.get(self.sample_url, headers=self.headers, status=404)
-        self.assertFormattedError(
-            response, 404, ERRORS.MISSING_RESOURCE, "Not Found", "Customized.")
+        self.assertFormattedError(response, 404, ERRORS.MISSING_RESOURCE,
+                                  "Not Found", "Customized.")
 
     def test_401_is_valid_formatted_error(self):
         response = self.app.get(self.sample_url, status=401)
