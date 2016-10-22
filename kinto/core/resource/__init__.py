@@ -466,12 +466,11 @@ class UserResource(object):
 
         # patch is specified as a list of of operations (RFC 6902)
         if self._is_json_patch:
-            operations = self.request.json
-            changes = {}
+            requested_changes = self.request.json
         else:
             try:
                 # `data` attribute may not be present if only perms are patched.
-                changes = self.request.json.get('data', {})
+                requested_changes = self.request.json.get('data', {})
             except ValueError:
                 # If no `data` nor `permissions` is provided in patch, reject!
                 # XXX: This should happen in schema instead (c.f. ShareableViewSet)
@@ -481,12 +480,8 @@ class UserResource(object):
                 }
                 raise_invalid(self.request, **error_details)
 
-        # apply changes on operations list and update changes
-        if self._is_json_patch:
-            updated = self.apply_changes(existing, changes=changes,
-                                         operations=operations)
-        else:
-            updated = self.apply_changes(existing, changes=changes)
+        updated, applied_changes = self.apply_changes(existing,
+                                                      requested_changes=requested_changes)
 
         record_id = updated.setdefault(self.model.id_field,
                                        self.record_id)
@@ -494,7 +489,7 @@ class UserResource(object):
 
         new_record = self.process_record(updated, old=existing)
 
-        changed_fields = [k for k in changes.keys()
+        changed_fields = [k for k in applied_changes.keys()
                           if existing.get(k) != new_record.get(k)]
 
         # Save in storage if necessary.
@@ -517,7 +512,7 @@ class UserResource(object):
         elif body_behavior.lower() == 'diff':
             # Only fields that are different from those provided.
             data = {k: new_record[k] for k in changed_fields
-                    if changes.get(k) != new_record.get(k)}
+                    if applied_changes.get(k) != new_record.get(k)}
         else:
             data = new_record
 
@@ -613,7 +608,7 @@ class UserResource(object):
 
         return new
 
-    def apply_changes(self, record, changes, operations=None):
+    def apply_changes(self, record, requested_changes):
         """Merge `changes` into `record` fields.
 
         .. note::
@@ -624,11 +619,11 @@ class UserResource(object):
 
         .. code-block:: python
 
-            def apply_changes(self, record, changes):
+            def apply_changes(self, record, requested_changes):
                 # Ignore value change if inferior
                 if record['position'] > changes.get('position', -1):
                     changes.pop('position', None)
-                return super(MyResource, self).apply_changes(record, changes)
+                return super(MyResource, self).apply_changes(record, requested_changes)
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if result does not comply with resource schema.
@@ -638,8 +633,8 @@ class UserResource(object):
         """
         if self._is_json_patch:
             try:
-                updated = apply_json_patch(record, operations)['data']
-                changes.update(**updated)
+                applied_changes = apply_json_patch(record, requested_changes)['data']
+                updated = applied_changes.copy()
             except ValueError as e:
                 error_details = {
                     'name': '',
@@ -648,16 +643,17 @@ class UserResource(object):
                 raise_invalid(self.request, e, **error_details)
 
         else:
+            applied_changes = requested_changes.copy()
             updated = record.copy()
 
             content_type = str(self.request.headers.get('Content-Type')).lower()
             # recursive patch and remove field if null attribute is passed (RFC 7396)
             if content_type == 'application/merge-patch+json':
-                recursive_update_dict(updated, changes, ignores=[None])
+                recursive_update_dict(updated, applied_changes, ignores=[None])
             else:
-                updated.update(**changes)
+                updated.update(**applied_changes)
 
-        for field, value in changes.items():
+        for field, value in applied_changes.items():
             has_changed = record.get(field, value) != value
             if self.mapping.is_readonly(field) and has_changed:
                 error_details = {
@@ -667,7 +663,8 @@ class UserResource(object):
                 raise_invalid(self.request, **error_details)
 
         try:
-            return self.mapping.deserialize(updated)
+            return self.mapping.deserialize(updated), applied_changes
+
         except colander.Invalid as e:
             # Transform the errors we got from colander into Cornice errors.
             # We could not rely on Service schema because the record should be
@@ -706,8 +703,13 @@ class UserResource(object):
         try:
             return self.model.get_record(record_id)
         except storage_exceptions.RecordNotFoundError:
-            response = http_error(HTTPNotFound(),
-                                  errno=ERRORS.INVALID_RESOURCE_ID)
+            details = {
+                "id": record_id,
+                "resource_name": self.request.current_resource_name
+            }
+            response = http_error(HTTPNotFound(), errno=ERRORS.INVALID_RESOURCE_ID,
+                                  details=details)
+
             raise response
 
     def _add_timestamp_header(self, response, timestamp=None):
