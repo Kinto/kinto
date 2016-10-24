@@ -41,25 +41,25 @@ class PutTest(BaseTest):
         self.resource.record_id = self.record['id']
 
     def test_etag_is_provided(self):
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         self.resource.put()
         self.assertIn('ETag', self.last_response.headers)
 
     def test_etag_contains_record_new_timestamp(self):
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         new = self.resource.put()['data']
         expected = ('"%s"' % new['last_modified'])
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_returns_201_if_created(self):
         self.resource.record_id = self.resource.model.id_generator()
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         self.resource.put()
         self.assertEqual(self.last_response.status_code, 201)
 
     def test_relies_on_collection_create(self):
         self.resource.record_id = self.resource.model.id_generator()
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         with mock.patch.object(self.model, 'create_record') as patched:
             self.resource.put()
             self.assertEqual(patched.call_count, 1)
@@ -69,13 +69,13 @@ class PutTest(BaseTest):
         self.resource.record_id = record['id']
         self.resource.delete()['data']
 
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         with mock.patch.object(self.model, 'create_record') as patched:
             self.resource.put()
             self.assertEqual(patched.call_count, 1)
 
     def test_replace_record_returns_updated_fields(self):
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         result = self.resource.put()['data']
         self.assertEqual(self.record['id'], result['id'])
         self.assertNotEqual(self.record['last_modified'],
@@ -84,44 +84,44 @@ class PutTest(BaseTest):
 
     def test_last_modified_is_kept_if_present(self):
         new_last_modified = self.record['last_modified'] + 20
-        self.resource.request.validated = {'data': {
+        self.resource.request.validated = {'body': {'data': {
             'field': 'new',
             'last_modified': new_last_modified}
-        }
+        }}
         result = self.resource.put()['data']
         self.assertEqual(result['last_modified'], new_last_modified)
 
     def test_last_modified_is_dropped_if_same_as_previous(self):
-        self.resource.request.validated = {'data': {
+        self.resource.request.validated = {'body': {'data': {
             'field': 'new',
             'last_modified': self.record['last_modified']}
-        }
+        }}
         result = self.resource.put()['data']
         self.assertGreater(result['last_modified'],
                            self.record['last_modified'])
 
     def test_last_modified_is_dropped_if_lesser_than_existing(self):
         new_last_modified = self.record['last_modified'] - 20
-        self.resource.request.validated = {'data': {
+        self.resource.request.validated = {'body': {'data': {
             'field': 'new',
             'last_modified': new_last_modified}
-        }
+        }}
         result = self.resource.put()['data']
         self.assertNotEqual(result['last_modified'],
                             self.record['last_modified'])
 
     def test_cannot_replace_with_different_id(self):
-        self.resource.request.validated = {'data': {'id': 'abc'}}
+        self.resource.request.validated = {'body': {'data': {'id': 'abc'}}}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.put)
 
     def test_last_modified_is_overwritten_on_replace(self):
-        self.resource.request.validated = {'data': {'last_modified': 123}}
+        self.resource.request.validated = {'body': {'data': {'last_modified': 123}}}
         result = self.resource.put()['data']
         self.assertNotEqual(result['last_modified'], 123)
 
     def test_storage_is_not_used_if_context_provides_current_record(self):
         self.resource.context.current_record = {'id': 'hola'}
-        self.resource.request.validated = {'data': {}}
+        self.resource.request.validated = {'body': {'data': {}}}
         with mock.patch.object(self.resource.model, 'get_record') as get:
             self.resource.put()
             self.assertFalse(get.called)
@@ -197,12 +197,13 @@ class PatchTest(BaseTest):
         self.stored = self.model.create_record({})
         self.resource.record_id = self.stored['id']
         self.resource.request.json = {'data': {'position': 10}}
-        schema = ResourceSchema()
-        schema.add(colander.SchemaNode(colander.Boolean(), name='unread',
-                                       missing=colander.drop))
-        schema.add(colander.SchemaNode(colander.Int(), name='position',
-                                       missing=colander.drop))
-        self.resource.mapping = schema
+
+        class ArticleSchema(ResourceSchema):
+            unread = colander.SchemaNode(colander.Boolean(), missing=colander.drop)
+            position = colander.SchemaNode(colander.Int(), missing=colander.drop)
+
+        self.resource.schema = ArticleSchema
+
         self.result = self.resource.patch()['data']
 
     def test_etag_is_provided(self):
@@ -352,7 +353,7 @@ class UnknownRecordTest(BaseTest):
         super(UnknownRecordTest, self).setUp()
         self.unknown_id = '1cea99eb-5e3d-44ad-a53a-2fb68473b538'
         self.resource.record_id = self.unknown_id
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
 
     def test_get_record_unknown_raises_404(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.get)
@@ -390,7 +391,7 @@ class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
         super(ReadonlyFieldsTest, self).setUp()
         self.stored = self.model.create_record({'age': 32})
-        self.resource.mapping.Options.readonly_fields = ('age',)
+        self.resource.schema.Options.readonly_fields = ('age',)
         self.resource.record_id = self.stored['id']
 
     def assertReadonlyError(self, field):

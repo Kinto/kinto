@@ -1,4 +1,3 @@
-import colander
 import mock
 from pyramid import exceptions
 from pyramid import testing
@@ -68,19 +67,17 @@ class ViewSetTest(unittest.TestCase):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
-        resource = mock.MagicMock(mapping=colander.SchemaNode(colander.Int()))
+        resource = mock.MagicMock()
         arguments = viewset.collection_arguments(resource, 'GET')
-        schema = arguments['schema']
-        self.assertEquals(schema.children[0], resource.mapping)
+        self.assertIn('schema', arguments)
 
     def test_schema_is_added_when_uppercase_method_matches(self):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
-        resource = mock.MagicMock(mapping=colander.SchemaNode(colander.Int()))
+        resource = mock.MagicMock()
         arguments = viewset.collection_arguments(resource, 'get')
-        schema = arguments['schema']
-        self.assertEquals(schema.children[0], resource.mapping)
+        self.assertIn('schema', arguments)
 
     @mock.patch('kinto.core.resource.viewset.colander')
     def test_a_default_schema_is_added_when_method_doesnt_match(self, mocked):
@@ -88,15 +85,16 @@ class ViewSetTest(unittest.TestCase):
             validate_schema_for=('GET', )
         )
         resource = mock.MagicMock()
-        mocked.MappingSchema.return_value = mock.sentinel.default_schema
+        mocked.Mapping.return_value = mock.sentinel.default_schema
 
         arguments = viewset.collection_arguments(resource, 'POST')
-        self.assertEquals(arguments['schema'], mock.sentinel.default_schema)
-        self.assertNotEqual(arguments['schema'], resource.mapping)
+        self.assertEquals(arguments['schema'].schema_type(), mock.sentinel.default_schema)
+        self.assertNotEqual(arguments['schema'], resource.schema)
 
-        mocked.MappingSchema.assert_called_with(unknown='preserve')
+        mocked.Mapping.assert_called_with(unknown='preserve')
 
-    def test_class_parameters_are_used_for_collection_arguments(self):
+    @mock.patch('kinto.core.resource.viewset.SimpleSchema')
+    def test_class_parameters_are_used_for_collection_arguments(self, mocked):
         default_arguments = {
             'cors_headers': mock.sentinel.cors_headers,
         }
@@ -121,10 +119,11 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.collection_arguments(mock.MagicMock, 'get')
-        arguments.pop('schema')
+
         self.assertDictEqual(
             arguments,
             {
+                'schema': mocked,
                 'accept': mock.sentinel.accept,
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.cors_origins,
@@ -132,7 +131,8 @@ class ViewSetTest(unittest.TestCase):
             }
         )
 
-    def test_default_arguments_are_used_for_record_arguments(self):
+    @mock.patch('kinto.core.resource.viewset.SimpleSchema')
+    def test_default_arguments_are_used_for_record_arguments(self, mocked):
         default_arguments = {
             'cors_headers': mock.sentinel.cors_headers,
         }
@@ -157,11 +157,11 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.record_arguments(mock.MagicMock, 'get')
-        arguments.pop('schema')
 
         self.assertDictEqual(
             arguments,
             {
+                'schema': mocked,
                 'accept': mock.sentinel.accept,
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.record_cors_origins,
@@ -169,7 +169,8 @@ class ViewSetTest(unittest.TestCase):
             }
         )
 
-    def test_class_parameters_overwrite_each_others(self):
+    @mock.patch('kinto.core.resource.viewset.SimpleSchema')
+    def test_class_parameters_overwrite_each_others(self, mocked):
         # Some class parameters should overwrite each others.
         # The more specifics should prevail over the more generics.
         # Items annoted with a "<<" are the one that should prevail.
@@ -194,18 +195,19 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.record_arguments(mock.MagicMock, 'get')
-        arguments.pop('schema')
 
         self.assertDictEqual(
             arguments,
             {
+                'schema': mocked,
                 'cors_headers': mock.sentinel.default_cors_headers,
                 'error_handler': mock.sentinel.default_record_error_handler,
                 'cors_origins': mock.sentinel.record_get_cors_origin,
             }
         )
 
-    def test_service_arguments_arent_inherited_by_record_arguments(self):
+    @mock.patch('kinto.core.resource.viewset.SimpleSchema')
+    def test_service_arguments_arent_inherited_by_record_arguments(self, mocked):
         service_arguments = {
             'description': 'The little book of calm',
         }
@@ -222,10 +224,11 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.record_arguments(mock.MagicMock, 'get')
-        arguments.pop('schema')
+
         self.assertDictEqual(
             arguments,
             {
+                'schema': mocked,
                 'cors_headers': mock.sentinel.cors_headers,
             }
         )
@@ -357,6 +360,17 @@ class ShareableViewSetTest(unittest.TestCase):
         viewset = ShareableViewSet()
         args = viewset.get_service_arguments()
         self.assertEqual(args['factory'], authorization.RouteFactory)
+
+    def test_mapping_is_deprecated(self):
+        viewset = ShareableViewSet(
+            validate_schema_for=('GET', )
+        )
+        resource = mock.MagicMock()
+        resource.mapping = mock.MagicMock()
+        with mock.patch('kinto.core.resource.viewset.warnings') as mocked:
+            viewset.collection_arguments(resource, 'GET')
+            msg = "Resource `mapping` is deprecated, use `schema`"
+            mocked.warn.assert_called_with(msg, DeprecationWarning)
 
 
 class RegisterTest(unittest.TestCase):

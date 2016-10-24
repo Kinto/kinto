@@ -134,7 +134,7 @@ class UserResource(object):
     interacting the :mod:`kinto.core.storage` and :mod:`kinto.core.permission`
     backends."""
 
-    mapping = ResourceSchema()
+    schema = ResourceSchema
     """Schema to validate records."""
 
     def __init__(self, request, context=None):
@@ -202,8 +202,8 @@ class UserResource(object):
         return request.prefixed_userid
 
     def _get_known_fields(self):
-        """Return all the `field` defined in the ressource mapping."""
-        known_fields = [c.name for c in self.mapping.children] + \
+        """Return all the `field` defined in the ressource schema."""
+        known_fields = [c.name for c in self.schema().children] + \
                        [self.model.id_field,
                         self.model.modified_field,
                         self.model.deleted_field]
@@ -218,7 +218,7 @@ class UserResource(object):
         :rtype: bool
 
         """
-        if self.mapping.get_option('preserve_unknown'):
+        if self.schema.get_option('preserve_unknown'):
             return True
 
         known_fields = self._get_known_fields()
@@ -306,7 +306,7 @@ class UserResource(object):
             Add custom behaviour by overriding
             :meth:`kinto.core.resource.UserResource.process_record`
         """
-        new_record = self.request.validated.get('data', {})
+        new_record = self.request.validated['body'].get('data', {})
         try:
             # Since ``id`` does not belong to schema, it is not in validated
             # data. Must look up in body.
@@ -415,7 +415,7 @@ class UserResource(object):
                 self._raise_412_if_modified(existing)
 
         # If `data` is not provided, use existing record (or empty if creation)
-        post_record = self.request.validated.get('data', existing) or {}
+        post_record = self.request.validated['body'].get('data', existing) or {}
 
         record_id = post_record.setdefault(id_field, self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
@@ -624,7 +624,7 @@ class UserResource(object):
         """
         for field, value in changes.items():
             has_changed = record.get(field, value) != value
-            if self.mapping.is_readonly(field) and has_changed:
+            if self.schema.is_readonly(field) and has_changed:
                 error_details = {
                     'name': field,
                     'description': 'Cannot modify {0}'.format(field)
@@ -641,7 +641,7 @@ class UserResource(object):
             updated.update(**changes)
 
         try:
-            return self.mapping.deserialize(updated)
+            return self.schema().deserialize(updated)
         except colander.Invalid as e:
             # Transform the errors we got from colander into Cornice errors.
             # We could not rely on Service schema because the record should be
@@ -761,7 +761,7 @@ class UserResource(object):
             if if_none_match == '*':
                 return
             error_details = {
-                'location': 'headers',
+                'location': 'header',
                 'description': "Invalid value for If-None-Match"
             }
             raise_invalid(self.request, **error_details)
@@ -805,7 +805,7 @@ class UserResource(object):
                 message = ("Invalid value for If-Match. The value should "
                            "be integer between double quotes.")
                 error_details = {
-                    'location': 'headers',
+                    'location': 'header',
                     'description': message
                 }
                 raise_invalid(self.request, **error_details)
@@ -851,7 +851,7 @@ class UserResource(object):
             root_fields = [f.split('.')[0] for f in fields]
             known_fields = self._get_known_fields()
             invalid_fields = set(root_fields) - set(known_fields)
-            preserve_unknown = self.mapping.get_option('preserve_unknown')
+            preserve_unknown = self.schema.get_option('preserve_unknown')
             if not preserve_unknown and invalid_fields:
                 error_msg = "Fields %s do not exist" % ','.join(invalid_fields)
                 error_details = {
@@ -1143,7 +1143,7 @@ class ShareableResource(UserResource):
         existing ACE is removed (using empty list).
         """
         new = super(ShareableResource, self).process_record(new, old)
-        permissions = self.request.validated.get('permissions', {})
+        permissions = self.request.validated['body'].get('permissions', {})
 
         annotated = new.copy()
 
