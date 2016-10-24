@@ -168,7 +168,7 @@ When contributing a **new feature**:
 * Step by step, you'll write tests for each aspect and each edge case of the feature
 * Start very small: one simple test for the simplest situation
 
-Once you get that simple bit working, you can iterate like this:
+Once you get that simple bit working, you can iterate like this, `a.k.a TDD <https://en.wikipedia.org/wiki/Test-driven_development>`_:
 
 1. Add a new test that will fail because the code does not handle the new case
 2. Make the test pass with some new code
