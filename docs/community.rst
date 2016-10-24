@@ -152,9 +152,9 @@ The `tests are the specifications <http://blog.mathieu-leplatre.info/your-tests-
 * Each test class represents a situation or feature (e.g. ``class AnonymousCreationTest(unittest.TestCase):``)
 * Each test method represents an aspect of the specification (e.g. ``def test_creation_is_allowed_if_enabled_in_settings(self):``)
 * Each test method is independant
-* The assertions should only reflect the specifications of this test method
+* The assertions should only correspond to the aspect of the specification that this method targets
 * The ``setUp()`` method contains some initialization steps that are shared among the methods
-* If the methods have different initialization steps, they should probably bit split into different test classes
+* If the methods have different initialization steps, they should probably be split into different test classes
 
 When contributing a **bug fix**:
 
@@ -166,7 +166,7 @@ When contributing a **new feature**:
 
 * Do not rush on the code
 * Step by step, you'll write tests for each aspect and each edge case of the feature
-* Start very small: one simple test for the most simple situation
+* Start very small: one simple test for the simplest situation
 
 Once you get that simple bit working, you can iterate like this:
 
