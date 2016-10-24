@@ -173,7 +173,7 @@ Currently, only :rtd:`Colander <colander>` is supported, and it looks like this:
 
     @resource.register()
     class Mushroom(resource.UserResource):
-        mapping = MushroomSchema()
+        schema = MushroomSchema
 
 
 Enable middleware

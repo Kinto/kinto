@@ -1,4 +1,5 @@
 import functools
+import warnings
 
 import colander
 from cornice.validators import colander_validator
@@ -134,13 +135,16 @@ class ViewSet(object):
         """Return the Cornice schema for the given method.
         """
         if method.lower() == 'patch':
-            record_mapping = SimpleSchema
+            resource_schema = SimpleSchema
         else:
-            record_mapping = resource_cls.mapping
-            # XXX: do not instantiate at resource level
+            resource_schema = resource_cls.schema
+            if hasattr(resource_cls, 'mapping'):
+                message = "Resource `mapping` is deprecated, use `schema`"
+                warnings.warn(message, DeprecationWarning)
+                resource_schema = resource_cls.mapping.__class__
 
         class PayloadSchema(StrictSchema):
-            data = record_mapping()
+            data = resource_schema()
 
         return PayloadSchema
 
@@ -210,23 +214,27 @@ class ShareableViewSet(ViewSet):
         """Return the Cornice schema for the given method.
         """
         if method.lower() == 'patch':
-            record_mapping = SimpleSchema
+            resource_schema = SimpleSchema
         else:
-            record_mapping = resource_cls.mapping
+            resource_schema = resource_cls.schema
+            if hasattr(resource_cls, 'mapping'):
+                message = "Resource `mapping` is deprecated, use `schema`"
+                warnings.warn(message, DeprecationWarning)
+                resource_schema = resource_cls.mapping.__class__
 
         try:
             # Check if empty record is allowed.
             # (e.g every schema fields have defaults)
-            record_mapping().deserialize({})
+            resource_schema().deserialize({})
         except colander.Invalid:
-            mapping_kw = dict(missing=colander.required)
+            schema_kw = dict(missing=colander.required)
         else:
-            mapping_kw = dict(default={}, missing=colander.drop)
+            schema_kw = dict(default={}, missing=colander.drop)
 
         allowed_permissions = resource_cls.permissions
 
         class PayloadSchema(StrictSchema):
-            data = record_mapping(**mapping_kw)
+            data = resource_schema(**schema_kw)
             permissions = PermissionsSchema(missing=colander.drop,
                                             permissions=allowed_permissions)
 

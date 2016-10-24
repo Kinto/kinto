@@ -71,7 +71,7 @@ can be used instead.
 
     @resource.register()
     class Toadstool(resource.ShareableResource):
-        mapping = MushroomSchema()
+        schema = MushroomSchema
 
 
 With this alternative resource class, *Kinto-Core* will register the :term:`endpoints`
@@ -309,7 +309,7 @@ on the resource during registration.
 
     @resource.register(viewset=MyViewSet())
     class Resource(resource.UserResource):
-        mapping = BookmarkSchema()
+        schema = BookmarkSchema
 
 
 See more details about available customization in the :ref:`viewset section <viewset>`.

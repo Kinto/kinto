@@ -19,7 +19,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Upgraded to Cornice 2.0 (#790)
-
+- Resource ``mapping`` attribute is now deprecated, use ``schema`` instead (#790)
 
 4.3.1 (2016-10-06)
 ------------------

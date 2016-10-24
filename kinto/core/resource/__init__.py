@@ -134,7 +134,7 @@ class UserResource(object):
     interacting the :mod:`kinto.core.storage` and :mod:`kinto.core.permission`
     backends."""
 
-    mapping = ResourceSchema
+    schema = ResourceSchema
     """Schema to validate records."""
 
     def __init__(self, request, context=None):
@@ -202,8 +202,8 @@ class UserResource(object):
         return request.prefixed_userid
 
     def _get_known_fields(self):
-        """Return all the `field` defined in the ressource mapping."""
-        known_fields = [c.name for c in self.mapping().children] + \
+        """Return all the `field` defined in the ressource schema."""
+        known_fields = [c.name for c in self.schema().children] + \
                        [self.model.id_field,
                         self.model.modified_field,
                         self.model.deleted_field]
@@ -218,7 +218,7 @@ class UserResource(object):
         :rtype: bool
 
         """
-        if self.mapping.get_option('preserve_unknown'):
+        if self.schema.get_option('preserve_unknown'):
             return True
 
         known_fields = self._get_known_fields()
@@ -624,7 +624,7 @@ class UserResource(object):
         """
         for field, value in changes.items():
             has_changed = record.get(field, value) != value
-            if self.mapping.is_readonly(field) and has_changed:
+            if self.schema.is_readonly(field) and has_changed:
                 error_details = {
                     'name': field,
                     'description': 'Cannot modify {0}'.format(field)
@@ -641,7 +641,7 @@ class UserResource(object):
             updated.update(**changes)
 
         try:
-            return self.mapping().deserialize(updated)
+            return self.schema().deserialize(updated)
         except colander.Invalid as e:
             # Transform the errors we got from colander into Cornice errors.
             # We could not rely on Service schema because the record should be
@@ -851,7 +851,7 @@ class UserResource(object):
             root_fields = [f.split('.')[0] for f in fields]
             known_fields = self._get_known_fields()
             invalid_fields = set(root_fields) - set(known_fields)
-            preserve_unknown = self.mapping.get_option('preserve_unknown')
+            preserve_unknown = self.schema.get_option('preserve_unknown')
             if not preserve_unknown and invalid_fields:
                 error_msg = "Fields %s do not exist" % ','.join(invalid_fields)
                 error_details = {

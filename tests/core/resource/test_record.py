@@ -202,7 +202,7 @@ class PatchTest(BaseTest):
             unread = colander.SchemaNode(colander.Boolean(), missing=colander.drop)
             position = colander.SchemaNode(colander.Int(), missing=colander.drop)
 
-        self.resource.mapping = ArticleSchema
+        self.resource.schema = ArticleSchema
 
         self.result = self.resource.patch()['data']
 
@@ -391,7 +391,7 @@ class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
         super(ReadonlyFieldsTest, self).setUp()
         self.stored = self.model.create_record({'age': 32})
-        self.resource.mapping.Options.readonly_fields = ('age',)
+        self.resource.schema.Options.readonly_fields = ('age',)
         self.resource.record_id = self.stored['id']
 
     def assertReadonlyError(self, field):

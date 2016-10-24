@@ -90,7 +90,7 @@ class ViewSetTest(unittest.TestCase):
 
         arguments = viewset.collection_arguments(resource, 'POST')
         self.assertEquals(arguments['schema'].schema_type(), mock.sentinel.default_schema)
-        self.assertNotEqual(arguments['schema'], resource.mapping)
+        self.assertNotEqual(arguments['schema'], resource.schema)
 
         mocked.Mapping.assert_called_with(unknown='preserve')
 
@@ -363,6 +363,17 @@ class ShareableViewSetTest(unittest.TestCase):
         viewset = ShareableViewSet()
         args = viewset.get_service_arguments()
         self.assertEqual(args['factory'], authorization.RouteFactory)
+
+    def test_mapping_is_deprecated(self):
+        viewset = ShareableViewSet(
+            validate_schema_for=('GET', )
+        )
+        resource = mock.MagicMock()
+        resource.mapping = mock.MagicMock()
+        with mock.patch('kinto.core.resource.viewset.warnings') as mocked:
+            arguments = viewset.collection_arguments(resource, 'GET')
+            msg = "Resource `mapping` is deprecated, use `schema`"
+            mocked.warn.assert_called_with(msg, DeprecationWarning)
 
 
 class RegisterTest(unittest.TestCase):
