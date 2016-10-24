@@ -1,4 +1,3 @@
-import colander
 import mock
 from pyramid import exceptions
 from pyramid import testing
@@ -159,7 +158,6 @@ class ViewSetTest(unittest.TestCase):
 
         arguments = viewset.record_arguments(mock.MagicMock, 'get')
 
-
         self.assertDictEqual(
             arguments,
             {
@@ -197,7 +195,6 @@ class ViewSetTest(unittest.TestCase):
         )
 
         arguments = viewset.record_arguments(mock.MagicMock, 'get')
-
 
         self.assertDictEqual(
             arguments,
@@ -371,7 +368,7 @@ class ShareableViewSetTest(unittest.TestCase):
         resource = mock.MagicMock()
         resource.mapping = mock.MagicMock()
         with mock.patch('kinto.core.resource.viewset.warnings') as mocked:
-            arguments = viewset.collection_arguments(resource, 'GET')
+            viewset.collection_arguments(resource, 'GET')
             msg = "Resource `mapping` is deprecated, use `schema`"
             mocked.warn.assert_called_with(msg, DeprecationWarning)
 

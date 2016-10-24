@@ -390,8 +390,8 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                              '{"data": {"name": "ML"}, "datta": {}}',
                              headers=self.headers,
                              status=400)
-        self.assertIn('Unrecognized keys in mapping: "{u\'datta\':',
-                      resp.json['message'])
+        self.assertIn('Unrecognized keys in mapping', resp.json['message'])
+        self.assertIn('datta', resp.json['message'])
 
     def test_create_invalid_record_returns_400(self):
         self.app.post_json(self.collection_url,
@@ -634,8 +634,8 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
                 'permissions': {'read': ['book']}}
         resp = self.app.post_json('/mushrooms', body, headers=self.headers,
                                   status=400)
-        self.assertIn('Unrecognized keys in mapping: "{u\'permissions\':',
-                      resp.json['message'])
+        self.assertIn('Unrecognized keys in mapping', resp.json['message'])
+        self.assertIn('permissions', resp.json['message'])
 
     def test_create_invalid_body_returns_400(self):
         self.app.post_json(self.collection_url,
