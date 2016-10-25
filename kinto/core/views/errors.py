@@ -1,3 +1,5 @@
+import transaction
+
 from pyramid import httpexceptions
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.settings import asbool
@@ -16,13 +18,21 @@ def authorization_required(response, request):
     """Distinguish authentication required (``401 Unauthorized``) from
     not allowed (``403 Forbidden``).
     """
-    if Authenticated not in request.effective_principals:
-        error_msg = "Please authenticate yourself to use this endpoint."
-        response = http_error(httpexceptions.HTTPUnauthorized(),
-                              errno=ERRORS.MISSING_AUTH_TOKEN,
-                              message=error_msg)
-        response.headers.extend(forget(request))
-        return response
+    try:
+        # request.effective_principals creates a transaction, which we
+        # need to close manually since this is happening outside the
+        # "tween" of pyramid_tm.
+        # See mozilla-services/kinto-fxa#33 and kinto#877.
+        if Authenticated not in request.effective_principals:
+            error_msg = "Please authenticate yourself to use this endpoint."
+            response = http_error(httpexceptions.HTTPUnauthorized(),
+                                  errno=ERRORS.MISSING_AUTH_TOKEN,
+                                  message=error_msg)
+            response.headers.extend(forget(request))
+            return response
+    finally:
+        # Do it manually.
+        transaction.abort()
 
     if response.content_type != "application/json":
         error_msg = "This user cannot access this resource."
