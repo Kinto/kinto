@@ -17,7 +17,8 @@ from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
-    encode_header, decode_header, dict_subset, recursive_update_dict
+    encode_header, decode_header, dict_subset, recursive_update_dict,
+    apply_json_patch
 )
 
 from .model import Model, ShareableModel
@@ -97,6 +98,17 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
             view = viewset.get_view(endpoint_type, method.lower())
             service.add_view(method, view, klass=resource_cls, **view_args)
 
+            # We support JSON-patch on PATCH views. Since the body payload
+            # of JSON Patch is not a dict (mapping) but an array, we can't
+            # use the same schema as for other PATCH protocols. We add another
+            # dedicated view for PATCH, but targetting a different content_type
+            # predicate.
+            if method.lower() == "patch":
+                view_args['content_type'] = "application/json-patch+json"
+                view_args.pop('schema', None)
+                view_args.pop('validators', None)
+                service.add_view(method, view, klass=resource_cls, **view_args)
+
         return service
 
     def callback(context, name, ob):
@@ -161,6 +173,9 @@ class UserResource(object):
         self.context = context
         self.record_id = self.request.matchdict.get('id')
         self.force_patch_update = False
+
+        content_type = str(self.request.headers.get('Content-Type')).lower()
+        self._is_json_patch = content_type == 'application/json-patch+json'
 
         # Log resource context.
         logger.bind(collection_id=self.model.collection_id,
@@ -460,19 +475,24 @@ class UserResource(object):
         existing = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(existing)
 
-        try:
-            # `data` attribute may not be present if only perms are patched.
-            changes = self.request.json.get('data', {})
-        except ValueError:
-            # If no `data` nor `permissions` is provided in patch, reject!
-            # XXX: This should happen in schema instead (c.f. ShareableViewSet)
-            error_details = {
-                'name': 'data',
-                'description': 'Provide at least one of data or permissions',
-            }
-            raise_invalid(self.request, **error_details)
+        # patch is specified as a list of of operations (RFC 6902)
+        if self._is_json_patch:
+            requested_changes = self.request.json
+        else:
+            try:
+                # `data` attribute may not be present if only perms are patched.
+                requested_changes = self.request.json.get('data', {})
+            except ValueError:
+                # If no `data` nor `permissions` is provided in patch, reject!
+                # XXX: This should happen in schema instead (c.f. ShareableViewSet)
+                error_details = {
+                    'name': 'data',
+                    'description': 'Provide at least one of data or permissions',
+                }
+                raise_invalid(self.request, **error_details)
 
-        updated = self.apply_changes(existing, changes=changes)
+        updated, applied_changes = self.apply_changes(existing,
+                                                      requested_changes=requested_changes)
 
         record_id = updated.setdefault(self.model.id_field,
                                        self.record_id)
@@ -480,7 +500,7 @@ class UserResource(object):
 
         new_record = self.process_record(updated, old=existing)
 
-        changed_fields = [k for k in changes.keys()
+        changed_fields = [k for k in applied_changes.keys()
                           if existing.get(k) != new_record.get(k)]
 
         # Save in storage if necessary.
@@ -503,7 +523,7 @@ class UserResource(object):
         elif body_behavior.lower() == 'diff':
             # Only fields that are different from those provided.
             data = {k: new_record[k] for k in changed_fields
-                    if changes.get(k) != new_record.get(k)}
+                    if applied_changes.get(k) != new_record.get(k)}
         else:
             data = new_record
 
@@ -599,7 +619,7 @@ class UserResource(object):
 
         return new
 
-    def apply_changes(self, record, changes):
+    def apply_changes(self, record, requested_changes):
         """Merge `changes` into `record` fields.
 
         .. note::
@@ -610,19 +630,41 @@ class UserResource(object):
 
         .. code-block:: python
 
-            def apply_changes(self, record, changes):
+            def apply_changes(self, record, requested_changes):
                 # Ignore value change if inferior
                 if record['position'] > changes.get('position', -1):
                     changes.pop('position', None)
-                return super(MyResource, self).apply_changes(record, changes)
+                return super(MyResource, self).apply_changes(record, requested_changes)
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if result does not comply with resource schema.
 
         :returns: the new record with `changes` applied.
-        :rtype: dict
+        :rtype: tuple
         """
-        for field, value in changes.items():
+        if self._is_json_patch:
+            try:
+                applied_changes = apply_json_patch(record, requested_changes)['data']
+                updated = applied_changes.copy()
+            except ValueError as e:
+                error_details = {
+                    'location': 'body',
+                    'description': 'JSON Patch operation failed'
+                }
+                raise_invalid(self.request, **error_details)
+
+        else:
+            applied_changes = requested_changes.copy()
+            updated = record.copy()
+
+            content_type = str(self.request.headers.get('Content-Type')).lower()
+            # recursive patch and remove field if null attribute is passed (RFC 7396)
+            if content_type == 'application/merge-patch+json':
+                recursive_update_dict(updated, applied_changes, ignores=[None])
+            else:
+                updated.update(**applied_changes)
+
+        for field, value in applied_changes.items():
             has_changed = record.get(field, value) != value
             if self.schema.is_readonly(field) and has_changed:
                 error_details = {
@@ -631,23 +673,16 @@ class UserResource(object):
                 }
                 raise_invalid(self.request, **error_details)
 
-        updated = record.copy()
-
-        # recursive patch and remove field if null attribute is passed (RFC 7396)
-        content_type = str(self.request.headers.get('Content-Type'))
-        if content_type == 'application/merge-patch+json':
-            recursive_update_dict(updated, changes, ignores=[None])
-        else:
-            updated.update(**changes)
-
         try:
-            return self.schema().deserialize(updated)
+            validated = self.schema().deserialize(updated)
         except colander.Invalid as e:
             # Transform the errors we got from colander into Cornice errors.
             # We could not rely on Service schema because the record should be
             # validated only once the changes are applied
             for field, error in e.asdict().items():
                 raise_invalid(self.request, name=field, description=error)
+
+        return validated, applied_changes
 
     def postprocess(self, result, action=ACTIONS.READ, old=None):
         body = {
@@ -1143,7 +1178,13 @@ class ShareableResource(UserResource):
         existing ACE is removed (using empty list).
         """
         new = super(ShareableResource, self).process_record(new, old)
-        permissions = self.request.validated['body'].get('permissions', {})
+
+        # patch is specified as a list of of operations (RFC 6902)
+        if self._is_json_patch:
+            changes = self.request.json
+            permissions = apply_json_patch(old, changes)['permissions']
+        else:
+            permissions = self.request.validated['body'].get('permissions', {})
 
         annotated = new.copy()
 

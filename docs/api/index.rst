@@ -11,6 +11,12 @@ API
 Changelog
 ---------
 
+1.13 (2016-10-20)
+'''''''''''''''''
+
+- Add support to JSON ``patch`` format when using 
+  ``Content-Type: application/json-patch+json`` (as in RFC 6902).
+  For more details, see `JSON-Patch Format <1.x/records.html#json-patch-operations>`_.
 
 1.13 (2016-10-14)
 '''''''''''''''''

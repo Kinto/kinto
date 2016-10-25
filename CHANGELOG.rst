@@ -6,6 +6,10 @@ This document describes changes between each past release.
 4.4.0 (unreleased)
 ------------------
 
+**Protocol**
+
+- Add support to ``JSON-Merge`` (RFC 6902).
+
 **New features**
 
 - Added details attribute to 404 errors. (#818)
@@ -20,6 +24,7 @@ This document describes changes between each past release.
 
 - Upgraded to Cornice 2.0 (#790)
 - Resource ``mapping`` attribute is now deprecated, use ``schema`` instead (#790)
+
 
 4.3.1 (2016-10-06)
 ------------------

@@ -348,6 +348,117 @@ class PatchTest(BaseTest):
         self.assertDictEqual(result, {'unread': True, 'position': 0})
 
 
+class JsonPatchTest(BaseTest):
+    def setUp(self):
+        super(JsonPatchTest, self).setUp()
+        self.stored = self.model.create_record({})
+        self.resource.record_id = self.stored['id']
+        self.resource.request.json = {'data': {'a': 'aaa', 'b': ['bb', 'bbb'], 'd': []}}
+        self.resource.schema = ResourceSchema
+        self.result = self.resource.patch()['data']
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/json-patch+json'
+        self.resource._is_json_patch = True
+
+    def test_json_patch_add(self):
+        self.resource.request.json = [
+            {'op': 'add', 'path': '/data/c', 'value': 'ccc'},
+            {'op': 'add', 'path': '/data/b/1', 'value': 'ddd'},
+            {'op': 'add', 'path': '/data/b/-', 'value': 'eee'},
+        ]
+        result = self.resource.patch()['data']
+        self.assertEqual(result['c'], 'ccc')
+        self.assertEqual(result['b'][0], 'bb')
+        self.assertEqual(result['b'][1], 'ddd')
+        self.assertEqual(result['b'][2], 'bbb')
+        self.assertEqual(result['b'][3], 'eee')
+        self.assertEqual(len(result['b']), 4)
+
+    def test_json_patch_remove(self):
+        self.resource.request.json = [
+            {'op': 'remove', 'path': '/data/a'},
+            {'op': 'remove', 'path': '/data/b/0'},
+        ]
+        result = self.resource.patch()['data']
+        self.assertNotIn('a', result)
+        self.assertEqual(len(result['b']), 1)
+        self.assertEqual(result['b'][0], 'bbb')
+
+    def test_json_patch_test_success(self):
+        self.resource.request.json = [
+            {'op': 'test', 'path': '/data/a', 'value': 'aaa'},
+        ]
+        self.resource.patch()['data']
+
+    def test_json_patch_test_failure(self):
+        self.resource.request.json = [
+            {'op': 'test', 'path': '/data/a', 'value': 'bbb'},
+        ]
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+
+    def test_json_patch_move(self):
+        self.resource.request.json = [
+            {'op': 'move', 'from': '/data/a', 'path': '/data/c'},
+            {'op': 'move', 'from': '/data/b/1', 'path': '/data/d/0'},
+            {'op': 'move', 'from': '/data/b/0', 'path': '/data/e'},
+        ]
+        result = self.resource.patch()['data']
+        self.assertNotIn('a', result)
+        self.assertEqual(result['c'], 'aaa')
+        self.assertEqual(len(result['b']), 0)
+        self.assertEqual(result['d'][0], 'bbb')
+        self.assertEqual(result['e'], 'bb')
+
+    def test_json_patch_copy(self):
+        self.resource.request.json = [
+            {'op': 'copy', 'from': '/data/a', 'path': '/data/c'},
+            {'op': 'copy', 'from': '/data/b/1', 'path': '/data/d/0'},
+            {'op': 'copy', 'from': '/data/d/0', 'path': '/data/e'},
+        ]
+        result = self.resource.patch()['data']
+        self.assertEqual(result['a'], 'aaa')
+        self.assertEqual(result['c'], 'aaa')
+        self.assertEqual(len(result['b']), 2)
+        self.assertEqual(result['d'][0], 'bbb')
+        self.assertEqual(result['e'], 'bbb')
+
+    def test_json_patch_replace(self):
+        self.resource.request.json = [
+            {'op': 'replace', 'path': '/data/a', 'value': 'bbb'},
+            {'op': 'replace', 'path': '/data/b/0', 'value': 'aaa'},
+        ]
+        result = self.resource.patch()['data']
+        self.assertEqual(result['a'], 'bbb')
+        self.assertEqual(result['b'][0], 'aaa')
+
+    def test_json_patch_raises_400_on_invalid_path(self):
+        self.resource.request.json = [
+            {'op': 'remove', 'path': '/data/f'},
+        ]
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+        self.resource.request.json = [
+            {'op': 'move', 'from': '/data/f', 'path': '/data/what'},
+        ]
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+        self.resource.request.json = [
+            {'op': 'copy', 'from': '/data/what', 'path': '/data/f'},
+        ]
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+        self.resource.request.json = [
+            {'op': 'replace', 'path': '/data/c', 'value': 'ccc'},
+        ]
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+
+    def test_json_patch_format_not_accepted_without_header(self):
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/json'
+        self.resource._is_json_patch = False
+        self.resource.request.json = [
+            {'op': 'add', 'from': '/data/a', 'value': 'aaa'},
+        ]
+        self.assertRaises(AttributeError, self.resource.patch)
+
+
 class UnknownRecordTest(BaseTest):
     def setUp(self):
         super(UnknownRecordTest, self).setUp()

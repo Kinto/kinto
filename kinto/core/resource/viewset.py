@@ -11,6 +11,9 @@ from kinto.core.resource.schema import PermissionsSchema
 
 CONTENT_TYPES = ["application/json"]
 
+PATCH_CONTENT_TYPES = ["application/json-patch+json",
+                       "application/merge-patch+json"]
+
 
 class StrictSchema(colander.MappingSchema):
     @staticmethod
@@ -69,7 +72,7 @@ class ViewSet(object):
     }
 
     default_patch_arguments = {
-        "content_type": CONTENT_TYPES + ["application/merge-patch+json"],
+        "content_type": CONTENT_TYPES + PATCH_CONTENT_TYPES
     }
 
     default_collection_arguments = {}

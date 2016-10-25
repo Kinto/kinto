@@ -1,6 +1,7 @@
 import ast
 import hashlib
 import hmac
+import jsonpatch
 import os
 import re
 import six
@@ -473,3 +474,43 @@ def parse_resource(resource):
         'bucket': bucket,
         'collection': collection
     }
+
+
+def apply_json_patch(record, ops):
+    """
+    Apply JSON Patch operations using jsonpatch.
+
+    :param record: base record where changes should be applied (not in-place).
+    :param list changes: list of JSON patch operations.
+    :param bool only_data: param to limit the scope of the patch only to 'data'.
+    :returns dict data: patched record data.
+             dict permissions: patched record permissions
+    """
+    data = record.copy()
+
+    # Permissions should always have read and write fields defined (to allow add)
+    permissions = {'read': set(), 'write': set()}
+
+    # Get permissions if available on the resource (using SharableResource)
+    permissions.update(data.pop('__permissions__', {}))
+
+    # Permissions should be mapped as a dict, since jsonpatch doesn't accept
+    # sets and lists are mapped as JSON arrays (not indexed by value)
+    permissions = {k: {i: i for i in v} for k, v in permissions.items()}
+
+    resource = {'data': data, 'permissions': permissions}
+
+    # Allow patch permissions without value since key and value are equal on sets
+    for op in ops:
+        if 'path' in op:
+            if op['path'].startswith(('/permissions/read/',
+                                      '/permissions/write/')):
+                op['value'] = op['path'].split('/')[-1]
+
+    try:
+        result = jsonpatch.apply_patch(resource, ops)
+
+    except (jsonpatch.JsonPatchException, jsonpatch.JsonPointerException) as e:
+        raise ValueError(e)
+
+    return result

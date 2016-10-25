@@ -23,6 +23,7 @@ REQUIREMENTS = [
     'colorama',
     'cornice >= 1.1',  # Fix cache CORS
     'jsonschema',
+    'jsonpatch',
     'python-dateutil',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
     'pyramid_tm',
