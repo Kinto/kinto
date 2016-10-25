@@ -3,6 +3,11 @@ Changelog
 
 This document describes changes between each past release.
 
+4.3.2 (unreleased)
+------------------
+
+- Remove Cornice 2 from supported version range
+
 4.3.1 (2016-10-06)
 ------------------
 
