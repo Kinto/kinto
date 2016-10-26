@@ -59,6 +59,9 @@ class NativeValueTest(unittest.TestCase):
         self.assertEqual(native_value(7), 7)
         self.assertEqual(native_value(True), True)
 
+    def test_bad_string_values(self):
+        self.assertEqual(native_value("\u0000"), "\x00")
+
 
 class StripWhitespaceTest(unittest.TestCase):
     def test_removes_all_kinds_of_spaces(self):

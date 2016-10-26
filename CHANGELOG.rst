@@ -19,6 +19,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fixed showing of backend type twice in StatsD backend keys (fixes #857)
+- Fix crash when querystring parameter contains null string (fixes #882)
 
 **Internal changes**
 
