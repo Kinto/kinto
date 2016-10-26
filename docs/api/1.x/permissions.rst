@@ -82,7 +82,7 @@ of object.
 .. important::
 
     Every modification of an object (including the creation of new objects)
-    grant the `write` permission to their creator.
+    grant the ``write`` permission to their creator/editor.
 
 
 .. note::
