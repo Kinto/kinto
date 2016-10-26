@@ -24,6 +24,7 @@ This document describes changes between each past release.
 
 - Upgraded to Cornice 2.0 (#790)
 - Resource ``mapping`` attribute is now deprecated, use ``schema`` instead (#790)
+- Upgrade built-in ``admin`` plugin to Kinto Admin 1.4.0
 
 
 4.3.1 (2016-10-06)
