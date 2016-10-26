@@ -69,14 +69,11 @@ build-requirements:
 	$(TEMPDIR)/bin/pip freeze > requirements.txt
 
 update-kinto-admin:
-	rm -fr kinto/plugins/admin/static/*
-	rm -fr tmp
-	git clone https://github.com/Kinto/kinto-admin.git tmp
-	cd tmp; git checkout $$(git tag | tail -n 1); npm install
-	cd tmp; KINTO_MAX_PER_PAGE=50 KINTO_ADMIN_PLUGINS=signoff KINTO_ADMIN_PUBLIC_PATH=/v1/admin/ npm run build:gh-pages
-	cp -fr tmp/gh-pages/* kinto/plugins/admin/static/
-	sed -i "s/ version=\".*\"/ version=\"$$(tmp/bin/kinto-admin --version)\"/g" kinto/plugins/admin/__init__.py
-	rm -fr tmp
+	rm -fr kinto/plugins/admin/www
+	rm -fr kinto/plugins/admin/node_modules
+	cd kinto/plugins/admin/; npm install && npm run build
+	mv kinto/plugins/admin/build kinto/plugins/admin/www
+	cd kinto/plugins/admin/; sed -i "s/ version=\".*\"/ version=\"$$(npm list | egrep kinto-admin | cut -d @ -f 2)\"/g" __init__.py
 
 $(SERVER_CONFIG):
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
