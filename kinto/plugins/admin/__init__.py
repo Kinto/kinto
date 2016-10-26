@@ -7,11 +7,11 @@ def includeme(config):
     # Expose capability.
     config.add_api_capability(
         "admin",
-        version="1.3.0",
+        version="1.4.1",
         description="Serves the admin console.",
         url="https://github.com/Kinto/kinto-admin/",
     )
 
-    static = static_view('kinto.plugins.admin:static', use_subpath=True)
+    build_dir = static_view('kinto.plugins.admin:build', use_subpath=True)
     config.add_route('catchall_static', '/admin/*subpath')
-    config.add_view(static, route_name="catchall_static")
+    config.add_view(build_dir, route_name="catchall_static")
