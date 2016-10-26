@@ -3,9 +3,8 @@
 Update the kinto-admin version you want to use in `package.json`, then:
 
 ```
-$ npm i
+$ npm install
 $ npm run build
-$ mv build static
 ```
 
-And commit the updated `static` folder.
+And commit the updated `build` folder.
