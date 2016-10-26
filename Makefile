@@ -69,10 +69,9 @@ build-requirements:
 	$(TEMPDIR)/bin/pip freeze > requirements.txt
 
 update-kinto-admin:
-	rm -fr kinto/plugins/admin/www
+	rm -fr kinto/plugins/admin/build
 	rm -fr kinto/plugins/admin/node_modules
 	cd kinto/plugins/admin/; npm install && npm run build
-	mv kinto/plugins/admin/build kinto/plugins/admin/www
 	cd kinto/plugins/admin/; sed -i "s/ version=\".*\"/ version=\"$$(npm list | egrep kinto-admin | cut -d @ -f 2)\"/g" __init__.py
 
 $(SERVER_CONFIG):

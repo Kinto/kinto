@@ -12,6 +12,6 @@ def includeme(config):
         url="https://github.com/Kinto/kinto-admin/",
     )
 
-    www = static_view('kinto.plugins.admin:www', use_subpath=True)
+    build_dir = static_view('kinto.plugins.admin:build', use_subpath=True)
     config.add_route('catchall_static', '/admin/*subpath')
-    config.add_view(www, route_name="catchall_static")
+    config.add_view(build_dir, route_name="catchall_static")

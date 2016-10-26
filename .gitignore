@@ -12,6 +12,5 @@ docs/_build/
 config/*.ini
 dist
 kinto/plugins/admin/node_modules
-kinto/plugins/admin/build
 kinto/plugins/admin/coverage
 kinto/plugins/admin/npm-debug.log
