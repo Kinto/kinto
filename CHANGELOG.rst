@@ -8,6 +8,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
+- Fix crash when querystring parameter contains null string (fixes #882)
 - Permissions endpoint now exposes the user permissions defined in settings (fixes #909)
 
 
