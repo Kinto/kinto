@@ -37,7 +37,8 @@ The returned value is a JSON mapping containing:
 
 **Optional**
 
-- ``user``: A mapping with an ``id`` field for the currently connected user id.
+- ``user``: A mapping with an ``id`` field and a list of ``principals``
+  for the currently connected user id.
   The field is not present when no Authorization header is provided.
 
 

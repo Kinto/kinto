@@ -32,6 +32,12 @@ def get_hello(request):
     # (Note: this will call authenticated_userid() with multiauth+groupfinder)
     if Authenticated in request.effective_principals:
         data['user'] = request.get_user_info()
+        principals = request.effective_principals + [request.prefixed_userid]
+        prefix, user_id = request.prefixed_userid.split(':', 1)
+        # Remove unprefixed user id on effective_principals to avoid conflicts.
+        if user_id in principals:
+            principals.remove(user_id)
+        data['user']['principals'] = principals
 
     # Application can register and expose arbitrary capabilities.
     data['capabilities'] = request.registry.api_capabilities
