@@ -21,6 +21,7 @@ This document describes changes between each past release.
 
 - Fixed showing of backend type twice in StatsD backend keys (fixes #857)
 - Fix crash when querystring parameter contains null string (fixes #882)
+- Fix crash when redirection path contains CRLF character (fixes #887)
 
 **Internal changes**
 
