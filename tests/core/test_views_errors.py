@@ -168,6 +168,10 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         response = self.app.get('/home/articles?_since=42')
         self.assertEqual(response.location, 'http://localhost/v0/home/articles?_since=42')
 
+    def test_redirection_does_not_allow_crlf(self):
+        self.app.get('/crlftest%0DSet-Cookie:test%3Dtest%3Bdomain%3D.yelp.com',
+                     status=404)
+
 
 class TrailingSlashRedirectViewTest(FormattedErrorMixin, BaseWebTest,
                                     unittest.TestCase):

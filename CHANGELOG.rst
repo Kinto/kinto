@@ -10,6 +10,7 @@ This document describes changes between each past release.
 
 - Fix crash when querystring parameter contains null string (fixes #882)
 - Permissions endpoint now exposes the user permissions defined in settings (fixes #909)
+- Fix crash when redirection path contains CRLF character (fixes #887)
 
 
 4.3.2 (2016-10-25)
