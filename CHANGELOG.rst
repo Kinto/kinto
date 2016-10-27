@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Protocol**
 
 - Add support to ``JSON-Merge`` (RFC 6902).
+- Added a principals list to ``hello`` view when authenticated.
 
 **New features**
 

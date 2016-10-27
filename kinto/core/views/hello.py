@@ -32,6 +32,7 @@ def get_hello(request):
     # (Note: this will call authenticated_userid() with multiauth+groupfinder)
     if Authenticated in request.effective_principals:
         data['user'] = request.get_user_info()
+        data['user']['principals'] = request.effective_principals
 
     # Application can register and expose arbitrary capabilities.
     data['capabilities'] = request.registry.api_capabilities
