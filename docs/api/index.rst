@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.13 (2016-10-27)
+1.13 (Unreleased)
 '''''''''''''''''
 
 - Add support to JSON ``patch`` format when using 
