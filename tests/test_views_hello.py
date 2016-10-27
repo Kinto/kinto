@@ -32,7 +32,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(group_url, group, headers=self.headers)
         response = self.app.get('/', headers=self.headers).json['user']['principals']
         principals = ('system.Everyone', 'system.Authenticated',
-                      group_url, self.principal.split(':')[1])
+                      group_url, self.principal)
         self.assertEqual(sorted(response), sorted(principals))
 
     def test_capability_is_exposed_if_setting_is_set(self):
