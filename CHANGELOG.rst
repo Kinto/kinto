@@ -8,12 +8,13 @@ This document describes changes between each past release.
 
 **Protocol**
 
-- Add support to ``JSON-Merge`` (RFC 6902).
+- Add support to ``JSON-Patch`` (RFC 6902).
+- Add support to ``JSON-Merge`` (RFC 7396).
 - Added a principals list to ``hello`` view when authenticated.
+- Added details attribute to 404 errors. (#818)
 
 **New features**
 
-- Added details attribute to 404 errors. (#818)
 - Added a new built-in plugin ``kinto.plugins.admin`` to serve the kinto admin.
 - Added a new ``parse_resource`` utility to ``kinto.core.utils``
 
@@ -29,6 +30,8 @@ This document describes changes between each past release.
 - Resource ``mapping`` attribute is now deprecated, use ``schema`` instead (#790)
 - Clarify implicit permissions when allowed to create child objects (#884)
 - Upgrade built-in ``admin`` plugin to Kinto Admin 1.4.1 (#866)
+
+Protocol is now at version **1.12**. See `API changelog`_.
 
 
 4.3.1 (2016-10-06)

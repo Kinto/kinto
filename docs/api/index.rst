@@ -11,26 +11,17 @@ API
 Changelog
 ---------
 
-1.13 (Unreleased)
+1.12 (unreleased)
 '''''''''''''''''
 
-- Add support to JSON ``patch`` format when using 
+- Add a list of ``principals`` to ``hello`` view.
+- ``details`` attribute present in response of 404 errors.
+- Add support of *JSON patch* format to ``PATCH`` endpoints when using
   ``Content-Type: application/json-patch+json`` (as in RFC 6902).
   For more details, see `JSON-Patch Format <1.x/records.html#json-patch-operations>`_.
-- Add a list of ``principals`` to ``hello`` view.
-
-1.13 (2016-10-14)
-'''''''''''''''''
-
-- ``details`` attribute present in response of 404 errors.
-
-1.12 (2016-10-11)
-'''''''''''''''''
-
-- Add support to JSON merge ``patch`` when using 
+- Add support of *JSON merge* format to ``PATCH`` endpoints when using
   ``Content-Type: application/merge-patch+json`` (as in RFC 7396).
-- When ``null`` argument is provided with merge ``patch``, the field is now
-  removed from the object.
+  which allows to remove attributes by passing ``null`` values.
 
 1.11 (2016-10-04)
 '''''''''''''''''
