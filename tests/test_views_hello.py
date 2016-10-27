@@ -33,7 +33,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get('/', headers=self.headers).json['user']['principals']
         principals = ('system.Everyone', 'system.Authenticated',
                       group_url, self.principal.split(':')[1])
-        self.assertItemsEqual(response, principals)
+        self.assertEqual(sorted(response), sorted(principals))
 
     def test_capability_is_exposed_if_setting_is_set(self):
         settings = {'experimental_collection_schema_validation': True}
