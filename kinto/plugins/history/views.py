@@ -1,11 +1,11 @@
 import colander
 
 from kinto.core import resource, Service
-from kinto.core.utils import instance_uri
-from kinto.core.storage import Filter
+from kinto.core.utils import instance_uri, build_request, build_response
+from kinto.core.storage import Filter, Sort
 from kinto.core.errors import raise_invalid
 from kinto.core.events import ACTIONS
-
+from pyramid import httpexceptions
 
 class HistorySchema(resource.ResourceSchema):
     user_id = colander.SchemaNode(colander.String())
@@ -53,28 +53,43 @@ class Revert(resource.UserResource):
         self.request = request
         self.bucket_id = request.matchdict['bucket_id']
         if 'since' not in request.params:
-            raise_error(request, 'since', 'since request parameter must be provided')
+            raise_invalid(self.request, 'params', 'since', 'since request parameter must be provided')
         self.since = int(request.params['since'])
         filters = super(Revert, self)._extract_filters(request.params)
         filters = [s for s in filters
                                  if s.field != 'since']
         self.storage = request.registry.storage
         self.history, _ = self.storage.get_all(parent_id='/buckets/%s' % self.bucket_id,
-                                               collection_id='history', filters=filters)
+                                               collection_id='history', filters=filters,
+                                               sorting=[Sort('last_modified', -1)])
+
+    def batch_revert(self, revert_list):
+        batch = {'path': '/batch', 'method': 'POST', 'body': {'requests': revert_list}}
+        subrequest = build_request(self.request, batch)
+        try:
+            resp, subrequest = self.request.follow_subrequest(subrequest,
+                                                         use_tweens=False)
+        except httpexceptions.HTTPException as e:
+            if e.content_type == 'application/json':
+                resp = e
+            else:
+                resp = errors.http_error(e)
+        return build_response(resp, subrequest)
 
     def revert_changes(self):
         revert_list = self.build_revert_list()
         if len(revert_list) == 0:
-            raise_error(self.request, 'no history', 'there are no history records to revert after since timestamp')
-        return { 'data': revert_list }
+            raise_invalid(self.request, 'params', 'no history', 'there are no history records to revert after since timestamp')
+        return self.batch_revert(revert_list)
 
     def create_revert_operation(self, last, first, passed_since):
-        rec_id = last['target']['data']['id']
+        path = last['uri']
         last_is_create = last['action'] == ACTIONS.CREATE.value
         if last_is_create or (not passed_since and first['action'] == ACTIONS.CREATE.value):
-            return {'action': ACTIONS.DELETE.value, 'data':  {'id': rec_id}}
+            return {'method': 'DELETE', 'path': path }
         else:
-            return {'action': ACTIONS.UPDATE.value, 'data':  first['target']['data']}
+            body = first['target']
+            return {'method': 'PUT', 'path': path, 'body':  body }
 
     def insert_rec_to_revert_lists(self, rec, revert_lists, passed_since):
         rec_id = rec['target']['data']['id']
@@ -110,13 +125,6 @@ revert_service = Service(name="revert",
                      path='/buckets/{bucket_id}/revert',
                      description="Revert a collection to a timestamp, "
                                  "all later records will be discarded")
-
-def raise_error(request, name, description):
-    error_details = {
-        'name': name,
-        'description': description,
-    }
-    raise_invalid(request, **error_details)
 
 @revert_service.post()
 def revert_post(request):

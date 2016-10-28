@@ -667,3 +667,52 @@ class PermissionsTest(HistoryWebTest):
                             headers=self.headers)
         entries = [e['resource_name'] == 'history' for e in resp.json["data"]]
         assert not any(entries)
+
+class RevertTest(HistoryWebTest):
+
+    def timestamp(self, collection_id=None, parent_id=None):
+        """Fetch the collection current timestamp.
+
+        :param str parent_id: optional filter for parent id
+        :rtype: int
+        """
+        parent_id = parent_id or self.bucket_id
+        collection_id = collection_id or self.collection_id
+        return self.storage.collection_timestamp(
+            collection_id=collection_id,
+            parent_id=parent_id)
+
+    def setUp(self):
+        self.bucket_id = 'test'
+        self.collection_id = 'col'
+        self.record_id = 'rec'
+        self.bucket_uri = '/buckets/%s' % self.bucket_id
+        self.app.put(self.bucket_uri, headers=self.headers)
+
+        self.collection_uri = self.bucket_uri + '/collections/%s' % self.collection_id
+        resp = self.app.put(self.collection_uri, headers=self.headers)
+        self.collection = resp.json['data']
+
+        self.group_uri = self.bucket_uri + '/groups/grp'
+        body = {'data': {'members': ['elle']}}
+        resp = self.app.put_json(self.group_uri, body, headers=self.headers)
+        self.group = resp.json['data']
+
+        self.record_uri = '%s/records/%s' % (self.collection_uri, self.record_id)
+        body = {'data': {'foo': 42}}
+        resp = self.app.put_json(self.record_uri, body, headers=self.headers)
+        self.record = resp.json
+
+        self.revert_uri = '%s/revert' % self.bucket_uri
+
+    def test_deleted_record_can_be_reverted(self):
+        ts = self.timestamp()
+        resp = self.app.delete(self.record_uri, headers=self.headers)
+        revert_uri = self.revert_uri + '?since=%s' % ts
+        resp = self.app.post(revert_uri, headers=self.headers)
+        revert_ops = resp.json['body']['responses']
+        assert len(revert_ops) == 1
+        assert revert_ops[0]['body'] == self.record
+        all_records = self.app.get(self.collection_uri + '/records', headers=self.headers)
+        assert len(all_records['data']) == 1
+        assert all_records['data'][0] == self.record['data']
