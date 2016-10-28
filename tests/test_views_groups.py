@@ -145,6 +145,12 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.group_url, headers=self.headers,
                      status=404)
 
+    def test_unknown_group_raises_404(self):
+        other_group = self.group_url.replace('moderators', 'blah')
+        resp = self.app.get(other_group, headers=self.headers, status=404)
+        self.assertEqual(resp.json['details']['id'], 'blah')
+        self.assertEqual(resp.json['details']['resource_name'], 'group')
+
     def test_group_is_removed_from_users_principals_on_group_deletion(self):
         self.app.put_json(self.group_url, MINIMALIST_GROUP,
                           headers=self.headers, status=201)
@@ -247,7 +253,7 @@ class InvalidGroupTest(BaseWebTest, unittest.TestCase):
                                  invalid,
                                  headers=self.headers,
                                  status=400)
-        self.assertEqual(resp.json['message'], "data is missing")
+        self.assertEqual(resp.json['message'], "data in body: Required")
 
     def test_groups_must_have_members_attribute(self):
         invalid = {'data': {'alias': 'admins'}}

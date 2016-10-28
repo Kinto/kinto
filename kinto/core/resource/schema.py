@@ -36,11 +36,13 @@ class ResourceSchema(colander.MappingSchema):
         the accepted fields to the ones defined in the schema.
         """
 
-    def get_option(self, attr):
+    @classmethod
+    def get_option(cls, attr):
         default_value = getattr(ResourceSchema.Options, attr)
-        return getattr(self.Options, attr,  default_value)
+        return getattr(cls.Options, attr,  default_value)
 
-    def is_readonly(self, field):
+    @classmethod
+    def is_readonly(cls, field):
         """Return True if specified field name is read-only.
 
         :param str field: the field name in the schema
@@ -48,9 +50,9 @@ class ResourceSchema(colander.MappingSchema):
             ``False`` otherwise.
         :rtype: bool
         """
-        return field in self.get_option("readonly_fields")
+        return field in cls.get_option("readonly_fields")
 
-    def schema_type(self, **kw):
+    def schema_type(self):
         if self.get_option("preserve_unknown") is True:
             unknown = 'preserve'
         else:
@@ -75,7 +77,8 @@ class PermissionsSchema(colander.SchemaNode):
         self.known_perms = kwargs.pop('permissions', tuple())
         super(PermissionsSchema, self).__init__(*args, **kwargs)
 
-    def schema_type(self, **kw):
+    @staticmethod
+    def schema_type():
         return colander.Mapping(unknown='preserve')
 
     def deserialize(self, cstruct=colander.null):
@@ -101,7 +104,8 @@ class PermissionsSchema(colander.SchemaNode):
 
     def _get_node_principals(self, perm):
         principal = colander.SchemaNode(colander.String())
-        return colander.SchemaNode(colander.Sequence(), principal, name=perm)
+        return colander.SchemaNode(colander.Sequence(), principal, name=perm,
+                                   missing=colander.drop)
 
 
 class TimeStamp(colander.SchemaNode):

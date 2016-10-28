@@ -19,7 +19,7 @@ class BaseTest(unittest.TestCase):
         self.storage = memory.Storage()
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
-        self.resource.mapping = StrictSchema()
+        self.resource.schema = StrictSchema
         self.model = self.resource.model
         self.patch_known_field = mock.patch.object(self.resource,
                                                    'is_known_field')

@@ -1,6 +1,7 @@
 import ast
 import hashlib
 import hmac
+import jsonpatch
 import os
 import re
 import six
@@ -83,6 +84,26 @@ def merge_dicts(a, b):
             a.setdefault(k, v)
 
 
+def recursive_update_dict(root, changes, ignores=()):
+    """Update recursively all the entries from a dict and it's children dicts.
+
+    :param dict root: root dictionary
+    :param dict changes: dictonary where changes should be made (default=root)
+    :returns dict newd: dictionary with removed entries of val.
+    """
+    if isinstance(changes, dict):
+        for k, v in changes.items():
+            if isinstance(v, dict):
+                if k not in root:
+                    root[k] = {}
+                recursive_update_dict(root[k], v, ignores)
+            elif v in ignores:
+                if k in root:
+                    root.pop(k)
+            else:
+                root[k] = v
+
+
 def synchronized(method):
     """Class method decorator to make sure two threads do not execute some code
     at the same time (c.f Java ``synchronized`` keyword).
@@ -127,7 +148,7 @@ def native_value(value):
             value = False
         try:
             return ast.literal_eval(value)
-        except (ValueError, SyntaxError):
+        except (TypeError, ValueError, SyntaxError):
             pass
     return value
 
@@ -423,3 +444,73 @@ def instance_uri(request, resource_name, **params):
     """Return the URI for the given resource."""
     return strip_uri_prefix(request.route_path('%s-record' % resource_name,
                                                **params))
+
+
+def parse_resource(resource):
+    """Extract the bucket_id and collection_id of the given resource (URI)
+
+    :param str resource: a uri formatted /buckets/<bid>/collections/<cid> or <bid>/<cid>.
+    :returns: a dictionary with the bucket_id and collection_id of the resource
+    """
+
+    error_msg = "Resources should be defined as "
+    "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>'. "
+    "with valid collection and bucket ids."
+
+    from kinto.views import NameGenerator
+    id_generator = NameGenerator()
+    parts = resource.split('/')
+    if len(parts) == 2:
+        bucket, collection = parts
+    elif len(parts) == 5:
+        _, _, bucket, _, collection = parts
+    else:
+        raise ValueError(error_msg)
+    if bucket == '' or collection == '':
+        raise ValueError(error_msg)
+    if not id_generator.match(bucket) or not id_generator.match(collection):
+        raise ValueError(error_msg)
+    return {
+        'bucket': bucket,
+        'collection': collection
+    }
+
+
+def apply_json_patch(record, ops):
+    """
+    Apply JSON Patch operations using jsonpatch.
+
+    :param record: base record where changes should be applied (not in-place).
+    :param list changes: list of JSON patch operations.
+    :param bool only_data: param to limit the scope of the patch only to 'data'.
+    :returns dict data: patched record data.
+             dict permissions: patched record permissions
+    """
+    data = record.copy()
+
+    # Permissions should always have read and write fields defined (to allow add)
+    permissions = {'read': set(), 'write': set()}
+
+    # Get permissions if available on the resource (using SharableResource)
+    permissions.update(data.pop('__permissions__', {}))
+
+    # Permissions should be mapped as a dict, since jsonpatch doesn't accept
+    # sets and lists are mapped as JSON arrays (not indexed by value)
+    permissions = {k: {i: i for i in v} for k, v in permissions.items()}
+
+    resource = {'data': data, 'permissions': permissions}
+
+    # Allow patch permissions without value since key and value are equal on sets
+    for op in ops:
+        if 'path' in op:
+            if op['path'].startswith(('/permissions/read/',
+                                      '/permissions/write/')):
+                op['value'] = op['path'].split('/')[-1]
+
+    try:
+        result = jsonpatch.apply_patch(resource, ops)
+
+    except (jsonpatch.JsonPatchException, jsonpatch.JsonPointerException) as e:
+        raise ValueError(e)
+
+    return result

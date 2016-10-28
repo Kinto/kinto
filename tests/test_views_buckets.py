@@ -220,6 +220,11 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.get('/buckets/2', headers=self.headers, status=404)
         self.app.get('/buckets/3', headers=self.headers, status=404)
 
+    def test_unknown_bucket_raises_404(self):
+        resp = self.app.get('/buckets/2', headers=self.headers, status=404)
+        self.assertEqual(resp.json['details']['id'], '2')
+        self.assertEqual(resp.json['details']['resource_name'], 'bucket')
+
     def test_buckets_can_be_deleted(self):
         self.app.get(self.bucket_url, headers=self.headers,
                      status=404)
@@ -228,6 +233,7 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.get(self.collection_url, headers=self.headers, status=404)
+
         # Verify tombstones
         resp = self.app.get('%s/collections?_since=0' % self.bucket_url,
                             headers=self.headers)

@@ -27,7 +27,9 @@ On each kind of object the set of permissions can be:
 
 In the case of a creation, since an object can have several kinds of children, the
 permission is prefixed by the type of child (for instance ``group:create``,
-``collection:create``).
+``collection:create``). When a user is allowed to create a child, she is allowed
+to read the parent attributes as well as listing accessible objects via the
+plural endpoint.
 
 The following table lists all permissions that can be associated to each kind
 of object.
@@ -35,8 +37,8 @@ of object.
 +----------------+------------------------+----------------------------------+
 | Object         | Associated permissions | Description                      |
 +================+========================+==================================+
-| Configuration  | ``bucket:create``      | Create new buckets.              |
-|                |                        |                                  |
+| Configuration  | ``bucket:create``      | Create new buckets and list      |
+|                |                        | existing buckets.                |
 +----------------+------------------------+----------------------------------+
 | Bucket         | ``read``               | Read all objects in the bucket.  |
 |                +------------------------+----------------------------------+
@@ -45,10 +47,12 @@ of object.
 |                +------------------------+----------------------------------+
 |                | ``collection:create``  | Create new                       |
 |                |                        | collections in the bucket,       |
+|                |                        | list accessible collections      |
 |                |                        | and read bucket metadata.        |
 |                +------------------------+----------------------------------+
 |                | ``group:create``       | Create new groups                |
 |                |                        | in the bucket,                   |
+|                |                        | list accessible groups           |
 |                |                        | and read bucket metadata.        |
 +----------------+------------------------+----------------------------------+
 | Collection     | ``read``               | Read all                         |
@@ -59,6 +63,7 @@ of object.
 |                +------------------------+----------------------------------+
 |                | ``record:create``      | Create new records               |
 |                |                        | in the collection,               |
+|                |                        | list accessible records          |
 |                |                        | and read collection metadata.    |
 +----------------+------------------------+----------------------------------+
 | Record         | ``read``               | Read the record.                 |
@@ -74,8 +79,10 @@ of object.
 |                |                        |                                  |
 +----------------+------------------------+----------------------------------+
 
-Every modification of an object (including the creation of new objects)
-grant the `write` permission to their creator.
+.. important::
+
+    Every modification of an object (including the creation of new objects)
+    grant the ``write`` permission to their creator/editor.
 
 
 .. note::

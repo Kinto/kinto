@@ -21,6 +21,7 @@ help:
 	@echo "  install-postgres            install postgresql support"
 	@echo "  install-dev                 install dependencies and everything needed to run tests"
 	@echo "  build-requirements          install all requirements and freeze them in requirements.txt"
+	@echo "  update-kinto-admin          update the built-in admin plugin to the last Kinto Admin UI version"
 	@echo "  serve                       start the kinto server on default port"
 	@echo "  migrate                     run the kinto migrations"
 	@echo "  tests-once                  only run the tests once with the default python interpreter"
@@ -68,14 +69,10 @@ build-requirements:
 	$(TEMPDIR)/bin/pip freeze > requirements.txt
 
 update-kinto-admin:
-	rm -fr kinto/plugins/admin/static/*
-	rm -fr tmp
-	git clone https://github.com/Kinto/kinto-admin.git tmp
-	cd tmp; git checkout $$(git tag | tail -n 1); npm install
-	cd tmp; KINTO_ADMIN_PUBLIC_PATH=/v1/admin/ npm run dist
-	cp -fr tmp/dist/* kinto/plugins/admin/static/
-	sed -i "s/ version=\".*\"/ version=\"$$(tmp/bin/kinto-admin --version)\"/g" kinto/plugins/admin/__init__.py
-	rm -fr tmp
+	rm -fr kinto/plugins/admin/build
+	rm -fr kinto/plugins/admin/node_modules
+	cd kinto/plugins/admin/; npm install && npm run build
+	cd kinto/plugins/admin/; sed -i "s/ version=\".*\"/ version=\"$$(npm list | egrep kinto-admin | cut -d @ -f 2)\"/g" __init__.py
 
 $(SERVER_CONFIG):
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init

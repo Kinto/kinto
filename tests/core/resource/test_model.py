@@ -24,7 +24,7 @@ class ModelTest(BaseTest):
 class CreateTest(BaseTest):
     def setUp(self):
         super(CreateTest, self).setUp()
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
 
     def test_new_records_are_linked_to_owner(self):
         resp = self.resource.collection_post()['data']
@@ -87,7 +87,7 @@ class IsolatedModelsTest(BaseTest):
         self.assertEquals(len(records), 0)
 
     def test_update_record_of_another_user_will_create_it(self):
-        self.resource.request.validated = {'data': {'some': 'record'}}
+        self.resource.request.validated = {'body': {'data': {'some': 'record'}}}
         self.resource.put()
         self.model.get_record(record_id=self.stored['id'],
                               parent_id='basicauth:alice')  # not raising

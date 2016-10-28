@@ -29,7 +29,7 @@ class HistorySchema(resource.ResourceSchema):
                    collection_methods=('GET',))
 class History(resource.ShareableResource):
 
-    mapping = HistorySchema()
+    schema = HistorySchema
 
     def get_parent_id(self, request):
         self.bucket_id = request.matchdict['bucket_id']

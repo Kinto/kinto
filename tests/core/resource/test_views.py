@@ -84,7 +84,7 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
         resp = self.app.put_json(object_uri, body, headers=self.headers)
         self.assertEqual(resp.json['permissions']['read'], ['group:readers'])
 
-    def test_data_are_not_modified_if_not_specified(self):
+    def test_data_is_always_required_when_schema_has_required_fields(self):
         body = {'data': MINIMALIST_RECORD,
                 'permissions': {'read': ['group:readers']}}
         resp = self.app.post_json(self.collection_url, body,
@@ -92,17 +92,20 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
         object_uri = self.get_item_url(resp.json['data']['id'])
 
         body.pop('data')
-        # With the current Cornice limitations, it is not possible to define
-        # a validator that makes sure that at least of `data` or `permissions`
-        # is specified in body.
-        # https://github.com/mozilla-services/cornice/pull/330
-        # Currently, only "schemaless" resources can have their permissions
-        # replaced via PUT with specifying the `data`.
-        # resp = self.app.put_json(object_uri, body, headers=self.headers)
-        # self.assertEqual(resp.json['data']['name'],
-        #                  MINIMALIST_RECORD['name'])
         resp = self.app.put_json(object_uri, body, headers=self.headers,
                                  status=400)
+
+    def test_data_is_not_required_when_schema_has_no_required_fields(self):
+        self.add_permission('/psilos', 'psilo:create')
+        body = {'data': MINIMALIST_RECORD,
+                'permissions': {'read': ['group:readers']}}
+        resp = self.app.post_json('/psilos', body,
+                                  headers=self.headers)
+        object_uri = '/psilos/' + resp.json['data']['id']
+
+        body.pop('data')
+        resp = self.app.put_json(object_uri, body, headers=self.headers)
+        self.assertEqual(resp.json['data']['name'], MINIMALIST_RECORD['name'])
 
     def test_data_are_not_modified_if_not_specified_on_schemaless(self):
         self.add_permission('/spores', 'spore:create')
@@ -380,14 +383,15 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                              '',
                              headers=self.headers,
                              status=400)
-        self.assertEqual(resp.json['message'], 'data is missing')
+        self.assertEqual(resp.json['message'], 'data in body: Required')
 
     def test_unknown_attribute_returns_400(self):
         resp = self.app.post(self.collection_url,
                              '{"data": {"name": "ML"}, "datta": {}}',
                              headers=self.headers,
                              status=400)
-        self.assertEqual(resp.json['message'], 'datta is not allowed')
+        self.assertIn('Unrecognized keys in mapping', resp.json['message'])
+        self.assertIn('datta', resp.json['message'])
 
     def test_create_invalid_record_returns_400(self):
         self.app.post_json(self.collection_url,
@@ -484,8 +488,17 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                                    headers=headers,
                                    status=415)
         self.assertEqual(resp.json['code'], 415)
-        message = "Content-Type header should be one of ['application/json']"
-        self.assertEqual(resp.json['message'], message)
+        messages = (
+            "Content-Type header should be one of [",
+            "'application/json-patch+json'",
+            ", ",
+            "'application/json'",
+            ", ",
+            "'application/merge-patch+json'",
+            "]")
+        for message in messages:
+            self.assertIn(message, resp.json['message'])
+        self.assertEquals(len("".join(messages)), len(resp.json['message']))
 
 
 class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
@@ -537,24 +550,25 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
         self.record = resp.json['data']
 
     def test_invalid_body_returns_json_formatted_error(self):
+        self.maxDiff = None
         resp = self.app.post(self.collection_url,
                              self.invalid_body,
                              headers=self.headers,
                              status=400)
-        error_msg = ("Invalid JSON request body: Expecting property name"
-                     " enclosed in double quotes: line 1 column 2 (char 1)")
+        error_msg = ("Invalid JSON: Expecting property name enclosed in "
+                     "double quotes: line 1 column 2 (char 1)")
         self.assertDictEqual(resp.json, {
             'errno': ERRORS.INVALID_PARAMETERS.value,
-            'message': "body: %s" % error_msg,
+            'message': error_msg,
             'code': 400,
             'error': 'Invalid parameters',
             'details': [
                 {'description': error_msg,
                  'location': 'body',
-                 'name': None},
-                {'description': 'data is missing',
+                 'name': ''},
+                {'description': 'Required',
                  'location': 'body',
-                 'name': 'data'}]})
+                 'name': ''}]})
 
     def test_create_invalid_body_returns_400(self):
         self.app.post(self.collection_url,
@@ -580,7 +594,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
                              body,
                              headers=self.headers,
                              status=400)
-        self.assertIn('escape sequence', resp.json['message'])
+        self.assertIn('Invalid \\uXXXX escape: line 1', resp.json['message'])
 
     def test_modify_with_invalid_uft8_returns_400(self):
         body = '{"foo": "\\u0d1"}'
@@ -588,7 +602,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
                               body,
                               headers=self.headers,
                               status=400)
-        self.assertIn('escape sequence', resp.json['message'])
+        self.assertIn('Invalid \\uXXXX escape', resp.json['message'])
 
     def test_modify_with_empty_body_returns_400(self):
         self.app.patch(self.get_item_url(),
@@ -625,7 +639,8 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
                 'permissions': {'read': ['book']}}
         resp = self.app.post_json('/mushrooms', body, headers=self.headers,
                                   status=400)
-        self.assertEqual(resp.json['message'], 'permissions is not allowed')
+        self.assertIn('Unrecognized keys in mapping', resp.json['message'])
+        self.assertIn('permissions', resp.json['message'])
 
     def test_create_invalid_body_returns_400(self):
         self.app.post_json(self.collection_url,

@@ -145,7 +145,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/batch', body, status=200)
         self.assertEqual(resp.json['responses'][1]['status'], 400)
         self.assertEqual(resp.json['responses'][1]['body']['message'],
-                         ('headers: Invalid value for If-Match. The value '
+                         ('header: Invalid value for If-Match. The value '
                           'should be integer between double quotes.'))
 
     def test_412_errors_are_forwarded(self):
@@ -249,34 +249,34 @@ class BatchSchemaTest(unittest.TestCase):
         request = {'path': '/'}
         defaults = {'foo': 'bar'}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(self.schema.unflatten(batch_payload))
+        result = self.schema.deserialize(batch_payload)
         self.assertNotIn('foo', result['requests'][0])
 
     def test_defaults_can_be_specified_empty(self):
         request = {'path': '/'}
         defaults = {}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        self.schema.deserialize(self.schema.unflatten(batch_payload))
+        self.schema.deserialize(batch_payload)
 
     def test_defaults_path_is_applied_to_requests(self):
         request = {'method': 'GET'}
         defaults = {'path': '/'}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(self.schema.unflatten(batch_payload))
+        result = self.schema.deserialize(batch_payload)
         self.assertEqual(result['requests'][0]['path'], '/')
 
     def test_defaults_body_is_applied_to_requests(self):
         request = {'path': '/'}
         defaults = {'body': {'json': 'payload'}}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(self.schema.unflatten(batch_payload))
+        result = self.schema.deserialize(batch_payload)
         self.assertEqual(result['requests'][0]['body'], {'json': 'payload'})
 
     def test_defaults_headers_are_applied_to_requests(self):
         request = {'path': '/'}
         defaults = {'headers': {'Content-Type': 'text/html'}}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(self.schema.unflatten(batch_payload))
+        result = self.schema.deserialize(batch_payload)
         self.assertEqual(result['requests'][0]['headers']['Content-Type'],
                          'text/html')
 
@@ -284,7 +284,7 @@ class BatchSchemaTest(unittest.TestCase):
         request = {'path': '/', 'headers': {'Authorization': 'me'}}
         defaults = {'headers': {'Authorization': 'you', 'Accept': '*/*'}}
         batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(self.schema.unflatten(batch_payload))
+        result = self.schema.deserialize(batch_payload)
         self.assertEqual(result['requests'][0]['headers'],
                          {'Authorization': 'me', 'Accept': '*/*'})
 
@@ -301,7 +301,7 @@ class BatchServiceTest(unittest.TestCase):
         self.request = DummyRequest()
 
     def post(self, validated):
-        self.request.validated = validated
+        self.request.validated = {'body': validated}
         return self.view(self.request)
 
     def test_returns_empty_list_of_responses_if_requests_empty(self):

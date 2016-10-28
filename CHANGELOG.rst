@@ -6,9 +6,32 @@ This document describes changes between each past release.
 4.4.0 (unreleased)
 ------------------
 
+**Protocol**
+
+- Add support to ``JSON-Patch`` (RFC 6902).
+- Add support to ``JSON-Merge`` (RFC 7396).
+- Added a principals list to ``hello`` view when authenticated.
+- Added details attribute to 404 errors. (#818)
+
 **New features**
 
 - Added a new built-in plugin ``kinto.plugins.admin`` to serve the kinto admin.
+- Added a new ``parse_resource`` utility to ``kinto.core.utils``
+
+**Bug fixes**
+
+- Fixed showing of backend type twice in StatsD backend keys (fixes #857)
+- Fix crash when querystring parameter contains null string (fixes #882)
+- Fix crash when redirection path contains CRLF character (fixes #887)
+
+**Internal changes**
+
+- Upgraded to Cornice 2.0 (#790)
+- Resource ``mapping`` attribute is now deprecated, use ``schema`` instead (#790)
+- Clarify implicit permissions when allowed to create child objects (#884)
+- Upgrade built-in ``admin`` plugin to Kinto Admin 1.4.1 (#866)
+
+Protocol is now at version **1.12**. See `API changelog`_.
 
 
 4.3.1 (2016-10-06)

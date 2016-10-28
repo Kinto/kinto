@@ -41,25 +41,25 @@ class PutTest(BaseTest):
         self.resource.record_id = self.record['id']
 
     def test_etag_is_provided(self):
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         self.resource.put()
         self.assertIn('ETag', self.last_response.headers)
 
     def test_etag_contains_record_new_timestamp(self):
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         new = self.resource.put()['data']
         expected = ('"%s"' % new['last_modified'])
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_returns_201_if_created(self):
         self.resource.record_id = self.resource.model.id_generator()
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         self.resource.put()
         self.assertEqual(self.last_response.status_code, 201)
 
     def test_relies_on_collection_create(self):
         self.resource.record_id = self.resource.model.id_generator()
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         with mock.patch.object(self.model, 'create_record') as patched:
             self.resource.put()
             self.assertEqual(patched.call_count, 1)
@@ -69,13 +69,13 @@ class PutTest(BaseTest):
         self.resource.record_id = record['id']
         self.resource.delete()['data']
 
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         with mock.patch.object(self.model, 'create_record') as patched:
             self.resource.put()
             self.assertEqual(patched.call_count, 1)
 
     def test_replace_record_returns_updated_fields(self):
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         result = self.resource.put()['data']
         self.assertEqual(self.record['id'], result['id'])
         self.assertNotEqual(self.record['last_modified'],
@@ -84,44 +84,44 @@ class PutTest(BaseTest):
 
     def test_last_modified_is_kept_if_present(self):
         new_last_modified = self.record['last_modified'] + 20
-        self.resource.request.validated = {'data': {
+        self.resource.request.validated = {'body': {'data': {
             'field': 'new',
             'last_modified': new_last_modified}
-        }
+        }}
         result = self.resource.put()['data']
         self.assertEqual(result['last_modified'], new_last_modified)
 
     def test_last_modified_is_dropped_if_same_as_previous(self):
-        self.resource.request.validated = {'data': {
+        self.resource.request.validated = {'body': {'data': {
             'field': 'new',
             'last_modified': self.record['last_modified']}
-        }
+        }}
         result = self.resource.put()['data']
         self.assertGreater(result['last_modified'],
                            self.record['last_modified'])
 
     def test_last_modified_is_dropped_if_lesser_than_existing(self):
         new_last_modified = self.record['last_modified'] - 20
-        self.resource.request.validated = {'data': {
+        self.resource.request.validated = {'body': {'data': {
             'field': 'new',
             'last_modified': new_last_modified}
-        }
+        }}
         result = self.resource.put()['data']
         self.assertNotEqual(result['last_modified'],
                             self.record['last_modified'])
 
     def test_cannot_replace_with_different_id(self):
-        self.resource.request.validated = {'data': {'id': 'abc'}}
+        self.resource.request.validated = {'body': {'data': {'id': 'abc'}}}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.put)
 
     def test_last_modified_is_overwritten_on_replace(self):
-        self.resource.request.validated = {'data': {'last_modified': 123}}
+        self.resource.request.validated = {'body': {'data': {'last_modified': 123}}}
         result = self.resource.put()['data']
         self.assertNotEqual(result['last_modified'], 123)
 
     def test_storage_is_not_used_if_context_provides_current_record(self):
         self.resource.context.current_record = {'id': 'hola'}
-        self.resource.request.validated = {'data': {}}
+        self.resource.request.validated = {'body': {'data': {}}}
         with mock.patch.object(self.resource.model, 'get_record') as get:
             self.resource.put()
             self.assertFalse(get.called)
@@ -197,12 +197,13 @@ class PatchTest(BaseTest):
         self.stored = self.model.create_record({})
         self.resource.record_id = self.stored['id']
         self.resource.request.json = {'data': {'position': 10}}
-        schema = ResourceSchema()
-        schema.add(colander.SchemaNode(colander.Boolean(), name='unread',
-                                       missing=colander.drop))
-        schema.add(colander.SchemaNode(colander.Int(), name='position',
-                                       missing=colander.drop))
-        self.resource.mapping = schema
+
+        class ArticleSchema(ResourceSchema):
+            unread = colander.SchemaNode(colander.Boolean(), missing=colander.drop)
+            position = colander.SchemaNode(colander.Int(), missing=colander.drop)
+
+        self.resource.schema = ArticleSchema
+
         self.result = self.resource.patch()['data']
 
     def test_etag_is_provided(self):
@@ -226,6 +227,80 @@ class PatchTest(BaseTest):
     def test_patch_record_returns_updated_fields(self):
         self.assertEquals(self.stored['id'], self.result['id'])
         self.assertEquals(self.result['position'], 10)
+
+    def test_merge_patch_updates_attributes_recursively(self):
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/merge-patch+json'
+        self.resource.request.json = {'data': {'a': {'b': 'bbb',
+                                                     'c': 'ccc'}}}
+        self.resource.patch()
+        self.resource.request.json = {'data': {'a': {'b': 'aaa',
+                                                     'c': None}}}
+        result = self.resource.patch()['data']
+        self.assertEqual(result['a']['b'], 'aaa')
+
+    def test_merge_patch_removes_attribute_if_none(self):
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/merge-patch+json'
+        self.resource.request.json = {'data': {'field': 'aaa'}}
+        self.resource.patch()
+        self.resource.request.json = {'data': {'field': None}}
+        result = self.resource.patch()['data']
+        self.assertNotIn('field', result)
+        result = self.resource.get()['data']
+        self.assertNotIn('field', result)
+
+    def test_merge_patch_removes_attributes_recursively_if_none(self):
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/merge-patch+json'
+        self.resource.request.json = {'data': {'a': {'b': 'aaa'}}}
+        self.resource.patch()
+        self.resource.request.json = {'data': {'a': {'b': None}}}
+        result = self.resource.patch()['data']
+        self.assertIn('a', result)
+        self.assertNotIn('b', result['a'])
+        self.resource.request.json = {'data': {'aa': {'bb': {'cc': None}}}}
+        result = self.resource.patch()['data']
+        self.assertIn('aa', result)
+        self.assertIn('bb', result['aa'])
+        self.assertNotIn('cc', result['aa']['bb'])
+
+    def test_merge_patch_doesnt_remove_attribute_if_false(self):
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/merge-patch+json'
+        self.resource.request.json = {'data': {'field': 0}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
+        self.resource.request.json = {'data': {'field': False}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
+        self.resource.request.json = {'data': {'field': {}}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
+
+    def test_patch_doesnt_remove_attribute_if_not_merge_header(self):
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/json'
+        self.resource.request.json = {'data': {'field': 'aaa'}}
+        self.resource.patch()
+        self.resource.request.json = {'data': {'field': None}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
+        result = self.resource.get()['data']
+        self.assertIn('field', result)
+
+    def test_merge_patch_doesnt_remove_previously_inserted_nones(self):
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/json'
+        self.resource.request.json = {'data': {'field': 'aaa'}}
+        result = self.resource.patch()['data']
+        self.resource.request.json = {'data': {'field': None}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
+        header['Content-Type'] = 'application/merge-patch+json'
+        self.resource.request.json = {'data': {'position': 10}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
 
     def test_record_timestamp_is_not_updated_if_none_for_missing_field(self):
         self.resource.request.json = {'data': {'polo': None}}
@@ -273,12 +348,123 @@ class PatchTest(BaseTest):
         self.assertDictEqual(result, {'unread': True, 'position': 0})
 
 
+class JsonPatchTest(BaseTest):
+    def setUp(self):
+        super(JsonPatchTest, self).setUp()
+        self.stored = self.model.create_record({})
+        self.resource.record_id = self.stored['id']
+        self.resource.request.json = {'data': {'a': 'aaa', 'b': ['bb', 'bbb'], 'd': []}}
+        self.resource.schema = ResourceSchema
+        self.result = self.resource.patch()['data']
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/json-patch+json'
+        self.resource._is_json_patch = True
+
+    def test_json_patch_add(self):
+        self.resource.request.json = [
+            {'op': 'add', 'path': '/data/c', 'value': 'ccc'},
+            {'op': 'add', 'path': '/data/b/1', 'value': 'ddd'},
+            {'op': 'add', 'path': '/data/b/-', 'value': 'eee'},
+        ]
+        result = self.resource.patch()['data']
+        self.assertEqual(result['c'], 'ccc')
+        self.assertEqual(result['b'][0], 'bb')
+        self.assertEqual(result['b'][1], 'ddd')
+        self.assertEqual(result['b'][2], 'bbb')
+        self.assertEqual(result['b'][3], 'eee')
+        self.assertEqual(len(result['b']), 4)
+
+    def test_json_patch_remove(self):
+        self.resource.request.json = [
+            {'op': 'remove', 'path': '/data/a'},
+            {'op': 'remove', 'path': '/data/b/0'},
+        ]
+        result = self.resource.patch()['data']
+        self.assertNotIn('a', result)
+        self.assertEqual(len(result['b']), 1)
+        self.assertEqual(result['b'][0], 'bbb')
+
+    def test_json_patch_test_success(self):
+        self.resource.request.json = [
+            {'op': 'test', 'path': '/data/a', 'value': 'aaa'},
+        ]
+        self.resource.patch()['data']
+
+    def test_json_patch_test_failure(self):
+        self.resource.request.json = [
+            {'op': 'test', 'path': '/data/a', 'value': 'bbb'},
+        ]
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+
+    def test_json_patch_move(self):
+        self.resource.request.json = [
+            {'op': 'move', 'from': '/data/a', 'path': '/data/c'},
+            {'op': 'move', 'from': '/data/b/1', 'path': '/data/d/0'},
+            {'op': 'move', 'from': '/data/b/0', 'path': '/data/e'},
+        ]
+        result = self.resource.patch()['data']
+        self.assertNotIn('a', result)
+        self.assertEqual(result['c'], 'aaa')
+        self.assertEqual(len(result['b']), 0)
+        self.assertEqual(result['d'][0], 'bbb')
+        self.assertEqual(result['e'], 'bb')
+
+    def test_json_patch_copy(self):
+        self.resource.request.json = [
+            {'op': 'copy', 'from': '/data/a', 'path': '/data/c'},
+            {'op': 'copy', 'from': '/data/b/1', 'path': '/data/d/0'},
+            {'op': 'copy', 'from': '/data/d/0', 'path': '/data/e'},
+        ]
+        result = self.resource.patch()['data']
+        self.assertEqual(result['a'], 'aaa')
+        self.assertEqual(result['c'], 'aaa')
+        self.assertEqual(len(result['b']), 2)
+        self.assertEqual(result['d'][0], 'bbb')
+        self.assertEqual(result['e'], 'bbb')
+
+    def test_json_patch_replace(self):
+        self.resource.request.json = [
+            {'op': 'replace', 'path': '/data/a', 'value': 'bbb'},
+            {'op': 'replace', 'path': '/data/b/0', 'value': 'aaa'},
+        ]
+        result = self.resource.patch()['data']
+        self.assertEqual(result['a'], 'bbb')
+        self.assertEqual(result['b'][0], 'aaa')
+
+    def test_json_patch_raises_400_on_invalid_path(self):
+        self.resource.request.json = [
+            {'op': 'remove', 'path': '/data/f'},
+        ]
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+        self.resource.request.json = [
+            {'op': 'move', 'from': '/data/f', 'path': '/data/what'},
+        ]
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+        self.resource.request.json = [
+            {'op': 'copy', 'from': '/data/what', 'path': '/data/f'},
+        ]
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+        self.resource.request.json = [
+            {'op': 'replace', 'path': '/data/c', 'value': 'ccc'},
+        ]
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
+
+    def test_json_patch_format_not_accepted_without_header(self):
+        header = self.resource.request.headers
+        header['Content-Type'] = 'application/json'
+        self.resource._is_json_patch = False
+        self.resource.request.json = [
+            {'op': 'add', 'from': '/data/a', 'value': 'aaa'},
+        ]
+        self.assertRaises(AttributeError, self.resource.patch)
+
+
 class UnknownRecordTest(BaseTest):
     def setUp(self):
         super(UnknownRecordTest, self).setUp()
         self.unknown_id = '1cea99eb-5e3d-44ad-a53a-2fb68473b538'
         self.resource.record_id = self.unknown_id
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
 
     def test_get_record_unknown_raises_404(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.get)
@@ -316,7 +502,7 @@ class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
         super(ReadonlyFieldsTest, self).setUp()
         self.stored = self.model.create_record({'age': 32})
-        self.resource.mapping.Options.readonly_fields = ('age',)
+        self.resource.schema.Options.readonly_fields = ('age',)
         self.resource.record_id = self.stored['id']
 
     def assertReadonlyError(self, field):

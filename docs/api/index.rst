@@ -11,6 +11,18 @@ API
 Changelog
 ---------
 
+1.12 (unreleased)
+'''''''''''''''''
+
+- Add a list of ``principals`` to ``hello`` view.
+- ``details`` attribute present in response of 404 errors.
+- Add support of *JSON patch* format to ``PATCH`` endpoints when using
+  ``Content-Type: application/json-patch+json`` (as in RFC 6902).
+  For more details, see `JSON-Patch Format <1.x/records.html#json-patch-operations>`_.
+- Add support of *JSON merge* format to ``PATCH`` endpoints when using
+  ``Content-Type: application/merge-patch+json`` (as in RFC 7396).
+  which allows to remove attributes by passing ``null`` values.
+
 1.11 (2016-10-04)
 '''''''''''''''''
 

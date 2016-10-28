@@ -16,7 +16,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
     def setUp(self):
         super(SinceModifiedTest, self).setUp()
 
-        self.resource.request.validated = {'data': {}}
+        self.resource.request.validated = {'body': {'data': {}}}
 
         with mock.patch.object(self.model.storage,
                                '_bump_timestamp') as msec_mocked:

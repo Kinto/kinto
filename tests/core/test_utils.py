@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 import os
+import pytest
 
 import colander
 import mock
@@ -15,7 +16,7 @@ from pyramid import testing
 from kinto.core.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
     current_service, encode_header, decode_header, follow_subrequest,
-    build_request, dict_subset
+    build_request, dict_subset, parse_resource
 )
 from kinto.core.testing import DummyRequest
 
@@ -57,6 +58,9 @@ class NativeValueTest(unittest.TestCase):
     def test_non_string_values(self):
         self.assertEqual(native_value(7), 7)
         self.assertEqual(native_value(True), True)
+
+    def test_bad_string_values(self):
+        self.assertEqual(native_value("\u0000"), "\x00")
 
 
 class StripWhitespaceTest(unittest.TestCase):
@@ -246,3 +250,40 @@ class DictSubsetTest(unittest.TestCase):
         obtained = dict_subset(input, ["a", "b.c.d", "b.d"])
         expected = dict(a=1, b=dict(c=2, d=3))
         self.assertEqual(obtained, expected)
+
+
+class ParseResourceTest(unittest.TestCase):
+
+    expected = {
+        'bucket': 'bid',
+        'collection': 'cid'
+    }
+    error_msg = "Resources should be defined as "
+    "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>'. "
+    "with valid collection and bucket ids."
+
+    def _assert_success(self, input):
+        parts = parse_resource(input)
+        self.assertEqual(self.expected, parts)
+
+    def _assert_error(self, input_arr):
+        for input in input_arr:
+            with pytest.raises(ValueError) as excinfo:
+                parse_resource(input)
+            self.assertEquals(str(excinfo.value), self.error_msg)
+
+    def test_malformed_url_raises_an_exception(self):
+        input_arr = ['foo', '/', '/bar', 'baz/', '/fo/o', '/buckets/sbid/scid']
+        self._assert_error(input_arr)
+
+    def test_returned_resources_match_the_expected_format(self):
+        input = "/buckets/bid/collections/cid"
+        self._assert_success(input)
+
+    def test_returned_resources_match_the_legacy_format(self):
+        input = "bid/cid"
+        self._assert_success(input)
+
+    def test_resources_must_be_valid_names(self):
+        input_arr = ['/buckets/bi+d1/collections/cid', '/buckets/bid1/collections/dci,d']
+        self._assert_error(input_arr)

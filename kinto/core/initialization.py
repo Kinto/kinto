@@ -82,7 +82,7 @@ def setup_version_redirection(config):
     config.route_prefix = None
 
     config.add_route(name='redirect_to_version',
-                     pattern='/{path:(?!v[0-9]+).*}')
+                     pattern=r'/{path:(?!v[0-9]+)[^\r]*}')
 
     config.add_view(view=_redirect_to_version_view,
                     route_name='redirect_to_version',
@@ -244,9 +244,9 @@ def setup_statsd(config):
 
         config.registry.statsd = client
 
-        client.watch_execution_time(config.registry.cache, prefix='cache')
-        client.watch_execution_time(config.registry.storage, prefix='storage')
-        client.watch_execution_time(config.registry.permission, prefix='permission')
+        client.watch_execution_time(config.registry.cache, prefix='backend')
+        client.watch_execution_time(config.registry.storage, prefix='backend')
+        client.watch_execution_time(config.registry.permission, prefix='backend')
 
         # Commit so that configured policy can be queried.
         config.commit()

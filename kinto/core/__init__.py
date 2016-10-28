@@ -100,8 +100,8 @@ class Service(CorniceService):
     default_cors_headers = ('Backoff', 'Retry-After', 'Alert',
                             'Content-Length')
 
-    def error_handler(self, error):
-        return errors.json_error_handler(error)
+    def error_handler(self, request):
+        return errors.json_error_handler(request)
 
     @classmethod
     def init_from_settings(cls, settings):

@@ -29,7 +29,7 @@ class DummyRequest(mock.MagicMock):
         self.registry.id_generators = defaultdict(generators.UUID4)
         self.GET = {}
         self.headers = {}
-        self.errors = cornice_errors.Errors(request=self)
+        self.errors = cornice_errors.Errors()
         self.authenticated_userid = 'bob'
         self.authn_type = 'basicauth'
         self.prefixed_userid = 'basicauth:bob'
@@ -79,7 +79,6 @@ class FormattedErrorMixin(object):
         self.assertEqual(response.json['code'], code)
         self.assertEqual(response.json['errno'], errno)
         self.assertEqual(response.json['error'], error)
-
         if message is not None:
             self.assertIn(message, response.json['message'])
         else:  # pragma: no cover

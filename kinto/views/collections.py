@@ -34,7 +34,7 @@ class CollectionSchema(resource.ResourceSchema):
                    collection_path='/buckets/{{bucket_id}}/collections',
                    record_path='/buckets/{{bucket_id}}/collections/{{id}}')
 class Collection(resource.ShareableResource):
-    mapping = CollectionSchema()
+    schema = CollectionSchema
     permissions = ('read', 'write', 'record:create')
 
     def get_parent_id(self, request):

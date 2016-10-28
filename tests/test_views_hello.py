@@ -2,7 +2,8 @@ from kinto import __version__ as VERSION
 
 from kinto.core.testing import unittest
 
-from .support import BaseWebTest
+from .support import (BaseWebTest, MINIMALIST_BUCKET,
+                      MINIMALIST_GROUP)
 
 
 class HelloViewTest(BaseWebTest, unittest.TestCase):
@@ -22,6 +23,17 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
     def test_returns_user_id_if_authenticated(self):
         response = self.app.get('/', headers=self.headers)
         self.assertEqual(response.json['user']['id'], self.principal)
+
+    def test_returns_user_principals_if_authenticated(self):
+        group_url = '/buckets/beers/groups/users'
+        group = MINIMALIST_GROUP.copy()
+        group['data']['members'].append(self.principal)
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET, headers=self.headers)
+        self.app.put_json(group_url, group, headers=self.headers)
+        response = self.app.get('/', headers=self.headers).json['user']['principals']
+        principals = ('system.Everyone', 'system.Authenticated',
+                      group_url, self.principal)
+        self.assertEqual(sorted(response), sorted(principals))
 
     def test_capability_is_exposed_if_setting_is_set(self):
         settings = {'experimental_collection_schema_validation': True}
