@@ -661,7 +661,7 @@ allowed to do and which data can be managed.
 
 .. code-block :: ini
 
-    kinto.permissions_endpoint_enabled = true
+    kinto.experimental_permissions_endpoint = true
 
 Then, issue a ``GET`` request to the ``/permissions`` endpoint to get the
 list of the user permissions on the server ressources.
