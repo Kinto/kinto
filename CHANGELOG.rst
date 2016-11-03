@@ -30,6 +30,8 @@ This document describes changes between each past release.
 - Resource ``mapping`` attribute is now deprecated, use ``schema`` instead (#790)
 - Clarify implicit permissions when allowed to create child objects (#884)
 - Upgrade built-in ``admin`` plugin to Kinto Admin 1.4.1 (#866)
+- Do not bump timestamps in PostgreSQL storage backend when non-data columns
+  are modified.
 
 Protocol is now at version **1.12**. See `API changelog`_.
 
