@@ -223,11 +223,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tgr_records_last_modified
-BEFORE INSERT OR UPDATE ON records
+BEFORE INSERT OR UPDATE OF data ON records
 FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
 
 CREATE TRIGGER tgr_deleted_last_modified
-BEFORE INSERT OR UPDATE ON deleted
+BEFORE INSERT ON deleted
 FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
 
 --
@@ -242,4 +242,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '13');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '14');
