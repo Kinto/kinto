@@ -15,32 +15,23 @@ abilities. It is meant to be **easy to use** and **easy to self-host**.
 Why use Kinto?
 ==============
 
-We believe data belongs to the users, and not to the application authors. When
-writing applications, data should be made available to any device, connected or
-offline, and everything should be in sync.
+    Don't build silos. Redecentralize the Web!
 
-Rather than spending a non-trivial amount of time and expertise on implementing
-all that (and then maintaining it!), you could use Kinto, that does all that
-for you:
+It's hard for frontend developers to respect users privacy when building applications
+that work offline, store data remotely, and synchronise accross devices.
+Existing solutions either rely on big corporations that crave for user data, or require
+a non-trivial amount of time and expertise to setup a new server for every new project.
 
-- Expose your data over an HTTP interface, unlike databases like PostgreSQL
-- Use simple HTTP requests rather than SQL
-- Use `Kinto.js <https://kintojs.readthedocs.io/en/latest/>`_ to easily
-  implement offline first clients
-- Choose the database you want from those that Kinto supports, and use a
-  unified API to access its data
-- Manage your data using the handy
-  `admin UI <http://kinto.github.io/kinto-admin/>`_
-- Easily
-  :ref:`set up live push notifications <tutorial-notifications-websockets>`
-  for live updates of your application
-- Make it possible to
-  :ref:`share data between users <api-permissions>`
-  (using fine-grained permissions)
-- Take advantage of
-  :ref:`schema validation <collection-json-schema>`
-  if you need it
-- :ref:`Track changes <api-history>` on your application data
+We want to help developers focus on the frontend, and we don't want the challenge
+of storing user data to get in their way! The path between a new idea and starting into
+production should be short!
+
+Also, we believe data belongs to the users, and not to the application authors.
+Applications should be decoupled from the storage location, and users should be
+able to choose where their personal data are stored.
+
+We envision mutualisation and self-hosting: the backend is deployed, secured and scaled
+only once and efforts are capitalized.
 
 
 .. _use-cases:
@@ -48,17 +39,40 @@ for you:
 Use cases
 =========
 
-- A generic Web database for frontend applications.
-- Build collaborative applications with fine-grained permissions.
-- Store encrypted data at a location you control.
-- Synchronise application data between different devices.
+- **A generic Web database**: for mobile and Web apps, games, or IoT...
+- **Quickly prototype frontend applications**: don't loose time with server stuff.
+- **Applications as static files**: just host your apps on Github pages, your storage backend
+  is elsewhere!
+- **Offline-first applications**: data can also be stored locally and published later.
+- **Build collaborative applications** with real time updates and fine-grained permissions.
+- **Synchronise application data** between different devices.
+- **Store encrypted data** at a location users can control.
 
 .. note::
 
     At Mozilla, *Kinto* is used in *Firefox* for global synchronization
-    of frequently changed settings like blocklists, and the Web Extensions storage.sync API;
-    as well as in *Firefox for Android* for A/B testing and delivering extra
+    of frequently changed settings like blocklists, and the Web Extensions storage.sync API.
+    It is also used in *Firefox for Android* for A/B testing and delivering extra
     assets like fonts or hyphenation dictionnaries.
+
+
+How ?
+=====
+
+Kinto is an HTTP API in front of a database. Interactions with the server are simple HTTP requests
+rather than complex SQL or map-reduce queries. It is meant to be minimalist and simple.
+
+Permissions can be set on the stored objects, making it possible to share data between users.
+
+We provide a demo server to start immediately, a one-click installer on Heroku for long
+term hosting or a Docker image to even run it yourself.
+
+The JavaScript and Python development kits (SDK) provide basic abstractions to store
+and retrieve data from your applications. Our offline client for browsers will leverage
+IndexedDB to synchronize data locally when back online. Client-side encryption is optional.
+
+The ecosystem is growing and some plugins provide advanced features like history tracking,
+push notifications, file attachments, or schema validation...
 
 
 Key features
@@ -107,6 +121,7 @@ Key features
 - :ref:`Pluggable storage, cache, and permission backends
   <configuration-backends>`
 - Configuration via a INI file or environment variables
+- Optional :ref:`JSON schema validation <collection-json-schema>`
 - Built-in monitoring
 - Cache control
 
@@ -177,6 +192,12 @@ Key features
 | :ref:`Storage quotas                        | :github:`Kinto+React boilerplate            |
 | <api-quotas>`                               | <Kinto/kinto-react-boilerplate>`            |
 +---------------------------------------------+---------------------------------------------+
+
+**Learn from examples**
+
+|logo-demos| Check out :ref:`the list of example applications <app-examples>`,
+or our :ref:`tutorials <tutorials>`!
+
 
 **Coming soon**
 
