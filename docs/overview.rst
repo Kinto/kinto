@@ -148,6 +148,10 @@ Key features
    :alt: https://commons.wikimedia.org/wiki/File:React.js_logo.svg
    :width: 50px
 
+.. |logo-quotas| image:: images/logo-quotas.svg
+   :alt: Mobile Cloud by Thays Malcher from the Noun Project
+   :width: 50px
+
 .. |logo-demos| image:: images/logo-demos.svg
    :alt: https://thenounproject.com/search/?q=tutorial&i=24313
    :width: 50px
@@ -166,19 +170,17 @@ Key features
 | <api-history>`                              | <tutorials>`                                |
 +---------------------------------------------+---------------------------------------------+
 | |logo-attachment|                           | |logo-signature|                            |
-| :github:`File attachments on records        | :github:`Digital signature and workflows    |
-| <Kinto/kinto-attachment>`                   | <Kinto/kinto-signer>`                       |
+| :github:`File attachments on records        | :github:`Digital signature and review       |
+| <Kinto/kinto-attachment>`                   | workflows <Kinto/kinto-signer>`             |
 +---------------------------------------------+---------------------------------------------+
-| |logo-boilerplate|                          | |logo-demos|                                |
-| :github:`Kinto+React boilerplate            | :ref:`Example applications <app-examples>`  |
-| <Kinto/kinto-react-boilerplate>`            |                                             |
+| |logo-quotas|                               | |logo-boilerplate|                          |
+| :ref:`Storage quotas                        | :github:`Kinto+React boilerplate            |
+| <api-quotas>`                               | <Kinto/kinto-react-boilerplate>`            |
 +---------------------------------------------+---------------------------------------------+
 
 **Coming soon**
 
 - Push notifications using `the Push API <https://developer.mozilla.org/en-US/docs/Web/API/Push_API>`_ (:github:`under construction <Kinto/kinto-webpush>`)
-- `Storage quotas <https://github.com/Kinto/kinto/wiki/Quotas>`_
-- `Review and validation workflows <https://github.com/Kinto/kinto/wiki/SignOff>`_
 
 (See `our roadmap <https://github.com/Kinto/kinto/wiki/Roadmap>`_)
 
