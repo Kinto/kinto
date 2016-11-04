@@ -69,7 +69,9 @@ term hosting or a Docker image to even run it yourself.
 
 The JavaScript and Python development kits (SDK) provide basic abstractions to store
 and retrieve data from your applications. Our offline client for browsers will leverage
-IndexedDB to synchronize data locally when back online. Client-side encryption is optional.
+IndexedDB to synchronize data locally when back online.
+
+Storing encrypted records on the server with client-side encryption is optional.
 
 The ecosystem is growing and some plugins provide advanced features like history tracking,
 push notifications, file attachments, or schema validation...

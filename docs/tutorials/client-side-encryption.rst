@@ -10,10 +10,10 @@ With Kinto, your records can have a text field that stores the encrypted attribu
     {
         "id": "498e1015-92a5-46d5-9008-2b157338bbd1",
         "last_modified": 1478257378677,
-        "ciphertext": "b0WucBajkcjNRKOipTWDetHjn7VTQnxqjVz/DW5cyVtinBpq0+oC2H/W6Di3K0pEAzKmmxJBFKDb4LmWIN2OSj9z4HJMmHLQ8qDXWoZ//aOeJWlDlsTDBcBgJzNqX1Mz/frYMo1iLD5ULsW4iXexZbyI7WWAqZPy4l0twyViSMXAH7Memy4HPDf0R4s6vn3g"
+        "payload": "b0WucBajkcjNRKOipTWDetHjn7VTQnxqjVz/DW5cyVtinBpq0+oC2H/W6Di3K0pEAzKmmxJBFKDb4LmWIN2OSj9z4HJMmHLQ8qDXWoZ//aOeJWlDlsTDBcBgJzNqX1Mz/frYMo1iLD5ULsW4iXexZbyI7WWAqZPy4l0twyViSMXAH7Memy4HPDf0R4s6vn3g"
     }
 
-The client will encrypt before sending to the server, and decrypt when receiving.
+The client will encrypt the payload before sending to the server, and decrypt it upon reception.
 
 See the `online demo <https://michielbdejong.github.io/kinto-encryption-example/>`_ that leverages
 kinto.js and WebCrypto, and read `the complete tutorial <http://www.servicedenuages.fr/en/kinto-encryption-example>`_!
