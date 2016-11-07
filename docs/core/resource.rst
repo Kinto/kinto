@@ -77,7 +77,7 @@ Override the base schema to add extra fields using the `Colander API <http://doc
 
 .. code-block:: python
 
-    class Movie(ResourceSchema):
+    class Movie(resource.ResourceSchema):
         director = colander.SchemaNode(colander.String())
         year = colander.SchemaNode(colander.Int(),
                                    validator=colander.Range(min=1850))
