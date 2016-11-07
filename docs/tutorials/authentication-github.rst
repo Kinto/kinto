@@ -210,6 +210,7 @@ We will simply make a call to the Github user API and try to obtain the ``login`
                 resp.raise_for_status()
                 userinfo = resp.json()
                 user_id = userinfo['login']
+                return user_id
             except Exception as e:
                 logger.warn(e)
                 return None
