@@ -19,19 +19,20 @@ Why use Kinto?
 
 It's hard for frontend developers to respect users privacy when building applications
 that work offline, store data remotely, and synchronise accross devices.
-Existing solutions either rely on big corporations that crave for user data, or require
+Existing solutions either rely on big corporations that crave user data, or require
 a non-trivial amount of time and expertise to setup a new server for every new project.
 
 We want to help developers focus on the frontend, and we don't want the challenge
-of storing user data to get in their way! The path between a new idea and starting into
+of storing user data to get in their way. The path between a new idea and deploying to
 production should be short!
 
-Also, we believe data belongs to the users, and not to the application authors.
+Also, we believe data belong to the users, and not necessarily to the application authors.
 Applications should be decoupled from the storage location, and users should be
 able to choose where their personal data are stored.
 
-We envision mutualisation and self-hosting: the backend is deployed, secured and scaled
-only once and efforts are capitalized.
+The backend can often be universal, generic and resuable. We envision mutualisation
+of services and self-hosting: the backend is deployed, secured and scaled
+only once for several applications.
 
 
 .. _use-cases:
@@ -39,14 +40,17 @@ only once and efforts are capitalized.
 Use cases
 =========
 
-- **A generic Web database**: for mobile and Web apps, games, or IoT...
-- **Quickly prototype frontend applications**: don't loose time with server stuff.
+- **A generic Web database**: JSON store for mobile and Web apps, games, or IoT...
+- **Quickly prototype frontend applications**: don't lose time with server stuff,
+  the backend for your next single page app is already there.
 - **Applications as static files**: just host your apps on Github pages, your storage backend
   is elsewhere!
 - **Offline-first applications**: data can also be stored locally and published later.
 - **Build collaborative applications** with real time updates and fine-grained permissions.
 - **Synchronise application data** between different devices.
-- **Store encrypted data** at a location users can control.
+- **Content delivery**: manage remote content or configuracion for your apps via an administration UI
+- **Data collection**: easily collect structured data from surveys, forms, analytics.
+- **Store encrypted data** at a location users can control, ensuring better privacy and security.
 
 .. note::
 
@@ -56,8 +60,8 @@ Use cases
     assets like fonts or hyphenation dictionnaries.
 
 
-How ?
-=====
+How?
+====
 
 Kinto is an HTTP API in front of a database. Interactions with the server are simple HTTP requests
 rather than complex SQL or map-reduce queries. It is meant to be minimalist and simple.
@@ -65,16 +69,16 @@ rather than complex SQL or map-reduce queries. It is meant to be minimalist and 
 Permissions can be set on the stored objects, making it possible to share data between users.
 
 We provide a demo server to start immediately, a one-click installer on Heroku for long
-term hosting or a Docker image to even run it yourself.
+term hosting and a Docker image to even run it yourself. (`Let me start now! <install>`_)
 
 The JavaScript and Python development kits (SDK) provide basic abstractions to store
-and retrieve data from your applications. Our offline client for browsers will leverage
-IndexedDB to synchronize data locally when back online.
+and retrieve data from your applications. Our JavaScript client for browsers leverages IndexedDB
+to work completely offline and synchronise data when online.
 
-Storing encrypted records on the server with client-side encryption is optional.
+It's even possible for data to be encrypted on the client to keep user data safe on the server.
 
-The ecosystem is growing and some plugins provide advanced features like history tracking,
-push notifications, file attachments, or schema validation...
+The ecosystem is growing and plugins already provide advanced features like history tracking,
+push notifications, file attachments, schema validation...
 
 
 Key features
