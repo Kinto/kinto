@@ -52,6 +52,8 @@ class AuthorizationPolicy(object):
 
     def permits(self, context, principals, permission):
         if permission == PRIVATE:
+            if bool(context.allowed_principals() & set(principals)):
+                return True
             return Authenticated in principals
 
         principals = context.get_prefixed_principals()
@@ -137,6 +139,12 @@ class RouteFactory(object):
 
         self._settings = request.registry.settings
 
+    def allowed_principals(self, permission=None):
+        permission = permission or self.required_permission
+        setting = '%s_%s_principals' % (self.resource_name, permission)
+        allowed_principals = aslist(self._settings.get(setting, ''))
+        return set(allowed_principals)
+
     def check_permission(self, principals, bound_perms):
         """Read allowed principals from settings, if not any, query the permission
         backend to check if view is allowed.
@@ -144,11 +152,9 @@ class RouteFactory(object):
         if not bound_perms:
             bound_perms = [(self.resource_name, self.required_permission)]
         for (_, permission) in bound_perms:
-            setting = '%s_%s_principals' % (self.resource_name, permission)
-            allowed_principals = aslist(self._settings.get(setting, ''))
-            if allowed_principals:
-                if bool(set(allowed_principals) & set(principals)):
-                    return True
+            allowed_principals = self.allowed_principals(permission)
+            if bool(allowed_principals & set(principals)):
+                return True
         return self._check_permission(principals, bound_perms)
 
     def fetch_shared_records(self, perm, principals, get_bound_permissions):

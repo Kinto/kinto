@@ -13,11 +13,20 @@ class AccountSchema(resource.ResourceSchema):
 @resource.register()
 class Account(resource.UserResource):
 
-    mapping = AccountSchema()
+    schema = AccountSchema
 
     def get_parent_id(self, request):
-        # Only one parent for all records.
-        return ''
+        if Authenticated in request.effective_principals:
+            return request.unauthenticated_userid
+        if 'id' in request.matchdict:
+            return request.matchdict['id']
+        return request.json['data']['id']
+
+    # def get_parent_id(self, request):
+    #     parent_id = request.prefixed_userid
+    #     if parent_id is None:
+    #         parent_id = request.json['data']['id']
+    #     return parent_id
 
     def collection_post(self):
         result = super(Account, self).collection_post()

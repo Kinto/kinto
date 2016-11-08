@@ -4,8 +4,18 @@ from kinto.core.storage import exceptions as storage_exceptions
 
 
 def account_check(username, password, request):
+    # parent_id = request.prefixed_userid
+    # if parent_id is None:
+    #     parent_id = request.json['data']['id']
+    parent_id = username
+    print username
+
+    # if 'system.Authenticated' not in request.effective_principals:
+    #     parent_id = request.unauthenticated_userid
+    # parent_id = request.json['data']['id']
+
     try:
-        existing = request.registry.storage.get(parent_id='',
+        existing = request.registry.storage.get(parent_id=parent_id,
                                                 collection_id='account',
                                                 object_id=username)
     except storage_exceptions.RecordNotFoundError:
