@@ -122,7 +122,7 @@ class ViewSet(object):
         if method.lower() in map(str.lower, self.validate_schema_for):
             schema = PartialSchema()
             record_schema = self.get_record_schema(resource_cls, method)
-            record_schema.name='body'
+            record_schema.name = 'body'
             schema.add(record_schema)
             args['schema'] = schema
         else:

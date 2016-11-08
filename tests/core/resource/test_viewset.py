@@ -1,4 +1,5 @@
 import mock
+from cornice.validators import colander_validator
 from pyramid import exceptions
 from pyramid import testing
 
@@ -123,11 +124,12 @@ class ViewSetTest(unittest.TestCase):
         self.assertDictEqual(
             arguments,
             {
-                'schema': mocked,
+                'schema': mocked(),
                 'accept': mock.sentinel.accept,
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.cors_origins,
                 'error_handler': mock.sentinel.error_handler,
+                'validators': [colander_validator]
             }
         )
 
@@ -161,11 +163,12 @@ class ViewSetTest(unittest.TestCase):
         self.assertDictEqual(
             arguments,
             {
-                'schema': mocked,
+                'schema': mocked(),
                 'accept': mock.sentinel.accept,
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.record_cors_origins,
                 'error_handler': mock.sentinel.error_handler,
+                'validators': [colander_validator]
             }
         )
 
@@ -199,10 +202,11 @@ class ViewSetTest(unittest.TestCase):
         self.assertDictEqual(
             arguments,
             {
-                'schema': mocked,
+                'schema': mocked(),
                 'cors_headers': mock.sentinel.default_cors_headers,
                 'error_handler': mock.sentinel.default_record_error_handler,
                 'cors_origins': mock.sentinel.record_get_cors_origin,
+                'validators': [colander_validator]
             }
         )
 
@@ -228,8 +232,9 @@ class ViewSetTest(unittest.TestCase):
         self.assertDictEqual(
             arguments,
             {
-                'schema': mocked,
+                'schema': mocked(),
                 'cors_headers': mock.sentinel.cors_headers,
+                'validators': [colander_validator]
             }
         )
 
