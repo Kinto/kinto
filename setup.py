@@ -21,7 +21,7 @@ installed_with_pypy = platform.python_implementation() == 'PyPy'
 REQUIREMENTS = [
     'colander',
     'colorama',
-    'cornice >= 1.1',  # Fix cache CORS
+    'cornice >= 2.1',
     'jsonschema',
     'jsonpatch',
     'python-dateutil',

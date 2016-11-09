@@ -120,17 +120,17 @@ class ViewSet(object):
         args.update(**endpoint_args)
 
         if method.lower() in map(str.lower, self.validate_schema_for):
+            schema = PartialSchema()
             record_schema = self.get_record_schema(resource_cls, method)
-
-            class RequestSchema(PartialSchema):
-                body = record_schema()
-
-            validators = args.get('validators', [])
-            validators.append(colander_validator)
-            args['schema'] = RequestSchema
-            args['validators'] = validators
+            record_schema.name = 'body'
+            schema.add(record_schema)
+            args['schema'] = schema
         else:
-            args['schema'] = SimpleSchema
+            args['schema'] = SimpleSchema()
+
+        validators = args.get('validators', [])
+        validators.append(colander_validator)
+        args['validators'] = validators
 
         return args
 
@@ -146,10 +146,9 @@ class ViewSet(object):
                 warnings.warn(message, DeprecationWarning)
                 resource_schema = resource_cls.mapping.__class__
 
-        class PayloadSchema(StrictSchema):
-            data = resource_schema()
-
-        return PayloadSchema
+        payload_schema = StrictSchema()
+        payload_schema.add(resource_schema(name='data'))
+        return payload_schema
 
     def get_view(self, endpoint_type, method):
         """Return the view method name located on the resource object, for the
@@ -236,12 +235,12 @@ class ShareableViewSet(ViewSet):
 
         allowed_permissions = resource_cls.permissions
 
-        class PayloadSchema(StrictSchema):
-            data = resource_schema(**schema_kw)
-            permissions = PermissionsSchema(missing=colander.drop,
-                                            permissions=allowed_permissions)
-
-        return PayloadSchema
+        payload_schema = StrictSchema()
+        payload_schema.add(resource_schema(name='data', **schema_kw))
+        payload_schema.add(PermissionsSchema(name='permissions',
+                                             missing=colander.drop,
+                                             permissions=allowed_permissions))
+        return payload_schema
 
     def get_view_arguments(self, endpoint_type, resource_cls, method):
         args = super(ShareableViewSet, self).get_view_arguments(endpoint_type,
