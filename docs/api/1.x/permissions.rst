@@ -459,6 +459,13 @@ List every permissions
             ]
         }
 
+.. important::
+
+    The inherited objects are not expanded. This means that if the current user
+    has some permissions on a bucket, the sub-objects like collections, groups
+    and records won't be explicitly listed.
+
+
 List of available URL parameters
 --------------------------------
 

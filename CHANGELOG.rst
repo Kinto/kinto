@@ -32,6 +32,8 @@ This document describes changes between each past release.
 - Upgrade built-in ``admin`` plugin to Kinto Admin 1.4.1 (#866)
 - Do not bump timestamps in PostgreSQL storage backend when non-data columns
   are modified.
+- Add some specifications for the permissions endpoint with regards to inherited
+  permissions
 
 Protocol is now at version **1.12**. See `API changelog`_.
 

@@ -12,8 +12,16 @@ RECORD_ID = 'd5db6e57-2c10-43e2-96c8-56602ef01435'
 
 class PermissionsViewTest(BaseWebTest, unittest.TestCase):
 
+    def get_app_settings(self, extras=None):
+        settings = super(PermissionsViewTest, self).get_app_settings(extras)
+        settings['experimental_permissions_endpoint'] = 'True'
+        return settings
+
+
+class EntriesTest(PermissionsViewTest):
+
     def setUp(self):
-        super(PermissionsViewTest, self).setUp()
+        super(EntriesTest, self).setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.put_json('/buckets/beers/collections/barley',
@@ -29,11 +37,6 @@ class PermissionsViewTest(BaseWebTest, unittest.TestCase):
         # Other user.
         self.app.put_json('/buckets/water', MINIMALIST_BUCKET,
                           headers=get_user_headers('alice'))
-
-    def get_app_settings(self, extras=None):
-        settings = super(PermissionsViewTest, self).get_app_settings(extras)
-        settings['experimental_permissions_endpoint'] = 'True'
-        return settings
 
     def test_permissions_list_entries_for_current_principal(self):
         resp = self.app.get('/permissions', headers=self.headers)
@@ -91,3 +94,33 @@ class PermissionsViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(resp.headers['Total-Records'], '4')
         self.assertIn('Next-Page', resp.headers)
         self.assertEqual(len(resp.json['data']), 2)
+
+
+class GroupsPermissionTest(PermissionsViewTest):
+
+    def setUp(self):
+        super(GroupsPermissionTest, self).setUp()
+
+        self.admin_headers = get_user_headers('admin')
+        self.admin_principal = self.app.get('/', headers=self.admin_headers).json['user']['id']
+
+        self.app.put_json('/buckets/beers',
+                          {'permissions': {'write': ['/buckets/beers/groups/admins']}},
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/groups/admins',
+                          {'data': {'members': [self.admin_principal]}},
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley',
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
+
+    def test_permissions_granted_via_groups_are_listed(self):
+        resp = self.app.get('/permissions', headers=self.admin_headers)
+        buckets = [e for e in resp.json['data'] if e['resource_name'] == 'bucket']
+        self.assertEqual(buckets[0]['id'], 'beers')
+        self.assertIn('write', buckets[0]['permissions'])
+
+    def test_permissions_inherited_are_not_listed(self):
+        resp = self.app.get('/permissions', headers=self.admin_headers)
+        collections = [e for e in resp.json['data'] if e['resource_name'] == 'collection']
+        self.assertEqual(len(collections), 0)
