@@ -212,6 +212,8 @@ class Permission(PermissionBase):
               JOIN user_principals
                 ON (principal = user_principals.column1);
             """ % dict(principals=principals_values)
+        elif not bound_permissions:
+            return {}
         else:
             perms = [(o.replace('*', '.*'), p) for (o, p) in bound_permissions]
             perms_values = ','.join(["('%s', '%s')" % p for p in perms])
