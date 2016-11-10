@@ -207,7 +207,7 @@ or our :ref:`tutorials <tutorials>`!
 **Elsewhere**
 
 - `kinto-http-java <https://github.com/intesens/kinto-http-java>`_: A Java HTTP Client
-- `ember-kinto <https://github.com/ptgamr/ember-kinto>`_: offline first Ember Data adapter
+- `ember-kinto <https://github.com/ptgamr/ember-kinto>`_: Offline first Ember Data adapter
 
 **Coming soon**
 
