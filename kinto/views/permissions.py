@@ -48,39 +48,44 @@ class PermissionsModel(object):
         from_settings = {}
         for key, allowed_principals in perms_settings.items():
             resource_name, permission, _ = key.split('_')
-
+            # Keep the known permissions of the current user only.
             if resource_name not in perms_descending_tree.keys():
                 continue
-
+            if not bool(set(principals) & set(allowed_principals)):
+                continue
+            # ``collection_create_principals`` means ``collection:create`` in bucket.
             if permission == 'create':
                 permission = '%s:%s' % (resource_name, permission)
-                resource_name = {  # parents
+                resource_name = {  # resource parents.
                     'bucket': '',
                     'collection': 'bucket',
                     'group': 'bucket',
                     'record': 'collection'}[resource_name]
-
-            if not bool(set(principals) & set(allowed_principals)):
-                continue
-
+            # Store them in a convenient way.
             from_settings.setdefault(resource_name, set()).add(permission)
 
-        if 'bucket' in from_settings:
-            bucket_perms = from_settings['bucket']
+        if 'bucket' in from_settings or 'collection' in from_settings:
             storage = self.request.registry.storage
             every_bucket, _ = storage.get_all(parent_id='',
                                               collection_id='bucket')
             for bucket in every_bucket:
                 bucket_uri = '/buckets/{id}'.format(**bucket)
-                perms_by_object_uri.setdefault(bucket_uri, []).extend(bucket_perms)
 
-                if 'collection' in from_settings:
-                    collection_perms = from_settings['collection']
-                    every_collection, _ = storage.get_all(parent_id=bucket_uri,
-                                                          collection_id='collection')
-                    for collection in every_collection:
-                        collection_uri = bucket_uri + '/collections/{id}'.format(**collection)
-                        perms_by_object_uri.setdefault(collection_uri, []).extend(collection_perms)
+                if 'bucket' in from_settings:
+                    bucket_perms = from_settings['bucket']
+                    perms_by_object_uri.setdefault(bucket_uri, []).extend(bucket_perms)
+
+                for subresource in ('collection', 'group'):
+                    if subresource not in from_settings:
+                        continue
+                    subresource_perms = from_settings[subresource]
+                    # XXX: wrong approach: query in a loop!
+                    every_subobjects, _ = storage.get_all(parent_id=bucket_uri,
+                                                          collection_id=subresource)
+                    for subobject in every_subobjects:
+                        subobject_uri = bucket_uri + '/{0}s/{1}'.format(subresource, subobject['id'])
+                        perms_by_object_uri.setdefault(subobject_uri, []).extend(subresource_perms)
+
 
         entries = []
         for object_uri, perms in perms_by_object_uri.items():

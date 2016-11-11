@@ -137,7 +137,7 @@ class SettingsPermissionsTest(PermissionsViewTest):
     def get_app_settings(self, extras=None):
         settings = super(SettingsPermissionsTest, self).get_app_settings(extras)
         settings['bucket_write_principals'] = 'system.Authenticated'
-        settings['collection_create_principals'] = self.admin_principal
+        settings['group_create_principals'] = self.admin_principal
         settings['collection_write_principals'] = 'system.Authenticated'
         settings['record_create_principals'] = '/buckets/beers/groups/admins'
         return settings
@@ -162,7 +162,7 @@ class SettingsPermissionsTest(PermissionsViewTest):
         resp = self.app.get('/permissions', headers=self.admin_headers)
         buckets = [e for e in resp.json['data'] if e['resource_name'] == 'bucket']
         self.assertEqual(buckets[0]['id'], 'beers')
-        self.assertIn('collection:create', buckets[0]['permissions'])
+        self.assertIn('group:create', buckets[0]['permissions'])
 
     def test_collection_write_taken_into_account(self):
         resp = self.app.get('/permissions', headers=get_user_headers("any"))
