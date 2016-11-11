@@ -137,7 +137,7 @@ rst_epilog = """
 .. |status-304| replace:: ``304 Not Modified``
 .. |status-400| replace:: ``400 Bad Request``
 .. |status-401| replace:: ``401 Unauthorized``
-.. |status-403| replace:: ``401 Forbidden``
+.. |status-403| replace:: ``403 Forbidden``
 .. |status-404| replace:: ``404 Not Found``
 .. |status-405| replace:: ``405 Method Not Allowed``
 .. |status-406| replace:: ``406 Not Acceptable``
