@@ -53,9 +53,12 @@ class PermissionsModel(object):
                 continue
 
             if permission == 'create':
-                parents = {'bucket': '', 'collection': 'bucket', 'group': 'bucket', 'record': 'collection'}
                 permission = '%s:%s' % (resource_name, permission)
-                resource_name = parents[resource_name]
+                resource_name = {  # parents
+                    'bucket': '',
+                    'collection': 'bucket',
+                    'group': 'bucket',
+                    'record': 'collection'}[resource_name]
 
             if not bool(set(principals) & set(allowed_principals)):
                 continue
@@ -64,13 +67,20 @@ class PermissionsModel(object):
 
         if 'bucket' in from_settings:
             bucket_perms = from_settings['bucket']
-            if bool({'read', 'write'} & bucket_perms):
-                storage = self.request.registry.storage
-                every_bucket, _ = storage.get_all(parent_id='',
-                                                  collection_id='bucket')
-                for bucket in every_bucket:
-                    perms_by_object_uri.setdefault('/buckets/{id}'.format(**bucket),
-                                                   []).extend(bucket_perms)
+            storage = self.request.registry.storage
+            every_bucket, _ = storage.get_all(parent_id='',
+                                              collection_id='bucket')
+            for bucket in every_bucket:
+                bucket_uri = '/buckets/{id}'.format(**bucket)
+                perms_by_object_uri.setdefault(bucket_uri, []).extend(bucket_perms)
+
+                if 'collection' in from_settings:
+                    collection_perms = from_settings['collection']
+                    every_collection, _ = storage.get_all(parent_id=bucket_uri,
+                                                          collection_id='collection')
+                    for collection in every_collection:
+                        collection_uri = bucket_uri + '/collections/{id}'.format(**collection)
+                        perms_by_object_uri.setdefault(collection_uri, []).extend(collection_perms)
 
         entries = []
         for object_uri, perms in perms_by_object_uri.items():
