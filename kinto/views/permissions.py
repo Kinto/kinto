@@ -1,5 +1,6 @@
 import colander
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
+from pyramid.settings import aslist
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from kinto.core import utils as core_utils, resource
@@ -40,6 +41,36 @@ class PermissionsModel(object):
         # Query every possible permission of the current user from backend.
         backend = self.request.registry.permission
         perms_by_object_uri = backend.get_accessible_objects(principals)
+
+        # Check settings for every allowed resources.
+        perms_settings = {k: aslist(v) for k, v in self.request.registry.settings.items()
+                          if k.endswith('_principals')}
+        from_settings = {}
+        for key, allowed_principals in perms_settings.items():
+            resource_name, permission, _ = key.split('_')
+
+            if resource_name not in perms_descending_tree.keys():
+                continue
+
+            if permission == 'create':
+                parents = {'bucket': '', 'collection': 'bucket', 'group': 'bucket', 'record': 'collection'}
+                permission = '%s:%s' % (resource_name, permission)
+                resource_name = parents[resource_name]
+
+            if not bool(set(principals) & set(allowed_principals)):
+                continue
+
+            from_settings.setdefault(resource_name, set()).add(permission)
+
+        if 'bucket' in from_settings:
+            bucket_perms = from_settings['bucket']
+            if bool({'read', 'write'} & bucket_perms):
+                storage = self.request.registry.storage
+                every_bucket, _ = storage.get_all(parent_id='',
+                                                  collection_id='bucket')
+                for bucket in every_bucket:
+                    perms_by_object_uri.setdefault('/buckets/{id}'.format(**bucket),
+                                                   []).extend(bucket_perms)
 
         entries = []
         for object_uri, perms in perms_by_object_uri.items():
