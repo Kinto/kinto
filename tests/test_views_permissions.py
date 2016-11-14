@@ -124,3 +124,54 @@ class GroupsPermissionTest(PermissionsViewTest):
         resp = self.app.get('/permissions', headers=self.admin_headers)
         collections = [e for e in resp.json['data'] if e['resource_name'] == 'collection']
         self.assertEqual(len(collections), 0)
+
+
+class SettingsPermissionsTest(PermissionsViewTest):
+
+    admin_headers = get_user_headers('admin')
+    admin_principal = 'basicauth:bb7fe7b98e759578ef0de85b546dd57d21fe1e399390ad8dafc9886043a00e5c'  # NOQA
+
+    def __init__(self, *args, **kwargs):
+        super(SettingsPermissionsTest, self).__init__(*args, **kwargs)
+
+    def get_app_settings(self, extras=None):
+        settings = super(SettingsPermissionsTest, self).get_app_settings(extras)
+        settings['bucket_write_principals'] = 'system.Authenticated'
+        settings['group_create_principals'] = self.admin_principal
+        settings['collection_write_principals'] = 'system.Authenticated'
+        settings['record_create_principals'] = '/buckets/beers/groups/admins'
+        return settings
+
+    def setUp(self):
+        super(SettingsPermissionsTest, self).setUp()
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET, headers=self.headers)
+        self.app.put_json('/buckets/beers/groups/admins',
+                          {'data': {'members': [self.admin_principal]}},
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley',
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
+
+    def test_bucket_write_taken_into_account(self):
+        resp = self.app.get('/permissions', headers=get_user_headers("any"))
+        buckets = [e for e in resp.json['data'] if e['resource_name'] == 'bucket']
+        self.assertEqual(buckets[0]['id'], 'beers')
+        self.assertIn('write', buckets[0]['permissions'])
+
+    def test_collection_create_taken_into_account(self):
+        resp = self.app.get('/permissions', headers=self.admin_headers)
+        buckets = [e for e in resp.json['data'] if e['resource_name'] == 'bucket']
+        self.assertEqual(buckets[0]['id'], 'beers')
+        self.assertIn('group:create', buckets[0]['permissions'])
+
+    def test_collection_write_taken_into_account(self):
+        resp = self.app.get('/permissions', headers=get_user_headers("any"))
+        collections = [e for e in resp.json['data'] if e['resource_name'] == 'collection']
+        self.assertEqual(collections[0]['id'], 'barley')
+        self.assertIn('write', collections[0]['permissions'])
+
+    def test_record_create_taken_into_account(self):
+        resp = self.app.get('/permissions', headers=self.admin_headers)
+        collections = [e for e in resp.json['data'] if e['resource_name'] == 'collection']
+        self.assertEqual(collections[0]['id'], 'barley')
+        self.assertIn('record:create', collections[0]['permissions'])
