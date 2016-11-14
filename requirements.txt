@@ -7,6 +7,7 @@ functools32==3.2.3.post2
 futures==3.0.5
 iso8601==0.1.11
 jsonschema==2.5.1
+-e git+git@github.com:Kinto/kinto.git@b401aedb58521868a4403b8c51b31e4d1f8b9c84#egg=kinto
 newrelic==2.72.1.53
 PasteDeploy==1.5.2
 psycopg2==2.6.2
