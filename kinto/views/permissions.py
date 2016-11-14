@@ -83,9 +83,8 @@ class PermissionsModel(object):
                     every_subobjects, _ = storage.get_all(parent_id=bucket_uri,
                                                           collection_id=subresource)
                     for subobject in every_subobjects:
-                        subobject_uri = bucket_uri + '/{0}s/{1}'.format(subresource, subobject['id'])
-                        perms_by_object_uri.setdefault(subobject_uri, []).extend(subresource_perms)
-
+                        subobj_uri = bucket_uri + '/{0}s/{1}'.format(subresource, subobject['id'])
+                        perms_by_object_uri.setdefault(subobj_uri, []).extend(subresource_perms)
 
         entries = []
         for object_uri, perms in perms_by_object_uri.items():
