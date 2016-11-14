@@ -7,6 +7,45 @@ from kinto.core import utils as core_utils, resource
 from kinto.core.storage.memory import extract_record_set
 
 
+def allowed_from_settings(settings, principals):
+    """Returns every permissions allowed from settings for the current user.
+    :param settings dict: app settings
+    :param principals list: list of principals of current user
+    :rtype: dict
+
+    Result example::
+
+        {
+            "bucket": {"write", "collection:create"},
+            "collection": {"read"}
+        }
+
+    XXX: This helper will be useful for Kinto/kinto#894
+    """
+    perms_settings = {k: aslist(v) for k, v in settings.items()
+                      if k.endswith('_principals')}
+    from_settings = {}
+    for key, allowed_principals in perms_settings.items():
+        resource_name, permission, _ = key.split('_')
+        # Keep the known permissions only.
+        if resource_name not in PERMISSIONS_INHERITANCE_TREE.keys():
+            continue
+        # Keep the permissions of the current user only.
+        if not bool(set(principals) & set(allowed_principals)):
+            continue
+        # ``collection_create_principals`` means ``collection:create`` in bucket.
+        if permission == 'create':
+            permission = '%s:%s' % (resource_name, permission)
+            resource_name = {  # resource parents.
+                'bucket': '',
+                'collection': 'bucket',
+                'group': 'bucket',
+                'record': 'collection'}[resource_name]
+        # Store them in a convenient way.
+        from_settings.setdefault(resource_name, set()).add(permission)
+    return from_settings
+
+
 class PermissionsModel(object):
     id_field = 'id'
     modified_field = 'last_modified'
@@ -43,53 +82,34 @@ class PermissionsModel(object):
         perms_by_object_uri = backend.get_accessible_objects(principals)
 
         # Check settings for every allowed resources.
-        perms_settings = {k: aslist(v) for k, v in self.request.registry.settings.items()
-                          if k.endswith('_principals')}
-        from_settings = {}
-        for key, allowed_principals in perms_settings.items():
-            resource_name, permission, _ = key.split('_')
-            # Keep the known permissions of the current user only.
-            if resource_name not in perms_descending_tree.keys():
-                continue
-            if not bool(set(principals) & set(allowed_principals)):
-                continue
-            # ``collection_create_principals`` means ``collection:create`` in bucket.
-            if permission == 'create':
-                permission = '%s:%s' % (resource_name, permission)
-                resource_name = {  # resource parents.
-                    'bucket': '',
-                    'collection': 'bucket',
-                    'group': 'bucket',
-                    'record': 'collection'}[resource_name]
-            # Store them in a convenient way.
-            from_settings.setdefault(resource_name, set()).add(permission)
+        from_settings = allowed_from_settings(self.request.registry.settings, principals)
 
-        if 'bucket' in from_settings or 'collection' in from_settings:
+        # Expand permissions obtained from backend with the object URIs that
+        # correspond to permissions allowed from settings.
+        allowed_resources = {'bucket', 'collection', 'group'} & set(from_settings.keys())
+        if allowed_resources:
             storage = self.request.registry.storage
-            every_bucket, _ = storage.get_all(parent_id='',
-                                              collection_id='bucket')
+            every_bucket, _ = storage.get_all(parent_id='', collection_id='bucket')
             for bucket in every_bucket:
                 bucket_uri = '/buckets/{id}'.format(**bucket)
-
-                if 'bucket' in from_settings:
-                    bucket_perms = from_settings['bucket']
-                    perms_by_object_uri.setdefault(bucket_uri, []).extend(bucket_perms)
-
-                for subresource in ('collection', 'group'):
-                    if subresource not in from_settings:
+                for res in allowed_resources:
+                    resource_perms = from_settings[res]
+                    # Bucket is always fetched.
+                    if res == 'bucket':
+                        perms_by_object_uri.setdefault(bucket_uri, []).extend(resource_perms)
                         continue
-                    subresource_perms = from_settings[subresource]
+                    # Fetch bucket collections and groups.
                     # XXX: wrong approach: query in a loop!
                     every_subobjects, _ = storage.get_all(parent_id=bucket_uri,
-                                                          collection_id=subresource)
+                                                          collection_id=res)
                     for subobject in every_subobjects:
-                        subobj_uri = bucket_uri + '/{0}s/{1}'.format(subresource, subobject['id'])
-                        perms_by_object_uri.setdefault(subobj_uri, []).extend(subresource_perms)
+                        subobj_uri = bucket_uri + '/{0}s/{1}'.format(res, subobject['id'])
+                        perms_by_object_uri.setdefault(subobj_uri, []).extend(resource_perms)
 
         entries = []
         for object_uri, perms in perms_by_object_uri.items():
             try:
-                # Obtain associated resource from object URI
+                # Obtain associated res from object URI
                 resource_name, matchdict = core_utils.view_lookup(self.request,
                                                                   object_uri)
             except ValueError:
