@@ -3,10 +3,14 @@ Changelog
 
 This document describes changes between each past release.
 
-4.3.3 (unreleased)
+4.3.3 (2016-11-14)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix crash when querystring parameter contains null string (fixes #882)
+- Permissions endpoint now exposes the user permissions defined in settings (fixes #909)
+- Fix crash when redirection path contains CRLF character (fixes #887)
 
 
 4.3.2 (2016-10-25)

@@ -57,6 +57,7 @@ class PostgreSQLClient(object):
                 # Give back to pool if commit done manually.
                 session.close()
 
+
 # Reuse existing client if same URL.
 _CLIENTS = defaultdict(dict)
 
