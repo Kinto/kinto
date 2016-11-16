@@ -1,4 +1,6 @@
-If the object is missing (or already deleted), a |status-404| error is returned.
+If the object is missing (or already deleted), a |status-404| is returned only
+if the user has `write` access to the object parent, otherwise a |status-403|
+is returned to avoid leaking information about non-accessible objects.
 The consumer might decide to ignore it.
 
 If the ``If-Match: "<timestamp>"`` request header is provided as described in
@@ -25,7 +27,7 @@ The provided values are merged with the existing object. For example:
 is currently supported using ``Content-Type: application/merge-patch+json``. This provides
 support to merging sub-objects and removing attibutes. For example:
 
-* ``{"a":"b"}`` + ``{"a":null}`` → ``{}`` 
+* ``{"a":"b"}`` + ``{"a":null}`` → ``{}``
 * ``{"a": {"b":"c"}}`` + ``{"a":{"d":"e"}}`` → ``{"a":{"b:c", "d":"e"}}``
 * ``{}`` + ``{"a":{"b":{"c":null}}}`` → ``{"a":{"b":{}}}``
 
