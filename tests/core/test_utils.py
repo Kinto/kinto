@@ -240,9 +240,9 @@ class DictSubsetTest(unittest.TestCase):
         self.assertEqual(obtained, expected)
 
     def test_can_filter_subobjects_recursively(self):
-        input = dict(a=1, b=dict(c=2, d=dict(e=4, f=5)))
-        obtained = dict_subset(input, ["a", "b.d.e"])
-        expected = dict(a=1, b=dict(d=dict(e=4)))
+        input = dict(b=dict(c=2, d=dict(e=4, f=5, g=6)))
+        obtained = dict_subset(input, ["b.d.e", "b.d.f"])
+        expected = dict(b=dict(d=dict(e=4, f=5)))
         self.assertEqual(obtained, expected)
 
     def test_ignores_if_subobject_is_not_dict(self):
