@@ -257,4 +257,3 @@ class DictMergeTest(unittest.TestCase):
         obtained = dict_merge(dict(a=1, b=dict(c=2)), dict(b=dict(d=4)))
         expected = dict(a=1, b=dict(c=2, d=4))
         self.assertEqual(obtained, expected)
-
