@@ -6,7 +6,7 @@ This document describes changes between each past release.
 4.3.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix bug when two subfields are selected in partial responses (fixes #920)
 
 
 4.3.3 (2016-11-14)
