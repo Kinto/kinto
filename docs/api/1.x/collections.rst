@@ -13,6 +13,7 @@ A collection is a mapping with the following attributes:
     * ``schema``: (*optional*) a JSON schema to validate the collection records
     * ``cache_expires``: (*optional*, in seconds) add client cache headers on   read-only requests.
       :ref:`More details...<collection-caching>`
+    * and any field you might need
 * ``permissions``: the :term:`ACLs <ACL>` for the collection object
 
 
