@@ -16,7 +16,7 @@ from pyramid import testing
 from kinto.core.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
     current_service, encode_header, decode_header, follow_subrequest,
-    build_request, dict_subset, parse_resource
+    build_request, dict_subset, dict_merge, parse_resource
 )
 from kinto.core.testing import DummyRequest
 
@@ -240,15 +240,23 @@ class DictSubsetTest(unittest.TestCase):
         self.assertEqual(obtained, expected)
 
     def test_can_filter_subobjects_recursively(self):
-        input = dict(a=1, b=dict(c=2, d=dict(e=4, f=5)))
-        obtained = dict_subset(input, ["a", "b.d.e"])
-        expected = dict(a=1, b=dict(d=dict(e=4)))
+        input = dict(b=dict(c=2, d=dict(e=4, f=5, g=6)))
+        obtained = dict_subset(input, ["b.d.e", "b.d.f"])
+        expected = dict(b=dict(d=dict(e=4, f=5)))
         self.assertEqual(obtained, expected)
 
     def test_ignores_if_subobject_is_not_dict(self):
         input = dict(a=1, b=dict(c=2, d=3))
         obtained = dict_subset(input, ["a", "b.c.d", "b.d"])
         expected = dict(a=1, b=dict(c=2, d=3))
+        self.assertEqual(obtained, expected)
+
+
+class DictMergeTest(unittest.TestCase):
+
+    def test_merge(self):
+        obtained = dict_merge(dict(a=1, b=dict(c=2)), dict(b=dict(d=4)))
+        expected = dict(a=1, b=dict(c=2, d=4))
         self.assertEqual(obtained, expected)
 
 

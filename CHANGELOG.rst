@@ -24,6 +24,7 @@ This document describes changes between each past release.
 - Fix crash when querystring parameter contains null string (fixes #882)
 - Fix crash when redirection path contains CRLF character (fixes #887)
 - Permissions endpoint now exposes the user permissions defined in settings (fixes #909)
+- Fix bug when two subfields are selected in partial responses (fixes #920)
 
 **Internal changes**
 

@@ -1,4 +1,5 @@
 import ast
+import collections
 import hashlib
 import hmac
 import jsonpatch
@@ -196,15 +197,25 @@ def dict_subset(d, keys):
     for key in keys:
         if '.' in key:
             field, subfield = key.split('.', 1)
-            if isinstance(d.get(field), dict):
+            if isinstance(d.get(field), collections.Mapping):
                 subvalue = dict_subset(d[field], [subfield])
-                result.setdefault(field, {}).update(subvalue)
+                result[field] = dict_merge(subvalue, result.get(field, {}))
             elif field in d:
                 result[field] = d[field]
         else:
             if key in d:
                 result[key] = d[key]
 
+    return result
+
+
+def dict_merge(a, b):
+    """Merge the two specified dicts"""
+    result = dict(**b)
+    for key, value in a.items():
+        if isinstance(value, collections.Mapping):
+            value = dict_merge(value, result.setdefault(key, {}))
+        result[key] = value
     return result
 
 
