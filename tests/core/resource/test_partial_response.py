@@ -19,6 +19,7 @@ class PartialResponseBase(BaseTest):
                     'nested': {
                         'size': 12546,
                         'hash': '0x1254',
+                        'mime': 'image/png',
                     }
                 }
             })
@@ -26,7 +27,7 @@ class PartialResponseBase(BaseTest):
         self.resource.request = self.get_request()
 
 
-class BasicTest(PartialResponseBase):
+class PartialFieldsTest(PartialResponseBase):
 
     def test_fields_parameter_do_projection_on_get(self):
         self.resource.request.GET['_fields'] = 'field'
@@ -73,6 +74,14 @@ class BasicTest(PartialResponseBase):
         self.assertIn('nested', record['data']['orig'])
         self.assertIn('size', record['data']['orig']['nested'])
         self.assertNotIn('hash', record['data']['orig']['nested'])
+        self.assertNotIn('mime', record['data']['orig']['nested'])
+
+    def test_can_filter_on_several_nested_fields(self):
+        self.resource.request.GET['_fields'] = 'orig.nested.size,orig.nested.hash'
+        record = self.resource.get()
+        self.assertIn('size', record['data']['orig']['nested'])
+        self.assertIn('hash', record['data']['orig']['nested'])
+        self.assertNotIn('mime', record['data']['orig']['nested'])
 
 
 class PermissionTest(PartialResponseBase):

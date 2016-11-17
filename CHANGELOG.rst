@@ -3,10 +3,10 @@ Changelog
 
 This document describes changes between each past release.
 
-4.3.4 (unreleased)
+4.3.4 (2016-11-17)
 ------------------
 
-- Nothing changed yet.
+- Fix bug when two subfields are selected in partial responses (fixes #920)
 
 
 4.3.3 (2016-11-14)
