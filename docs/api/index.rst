@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.12 (unreleased)
+1.12 (2016-11-18)
 '''''''''''''''''
 
 - Add a list of ``principals`` to ``hello`` view.
