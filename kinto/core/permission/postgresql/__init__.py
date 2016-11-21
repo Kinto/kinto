@@ -203,6 +203,9 @@ class Permission(PermissionBase):
     def get_accessible_objects(self, principals, bound_permissions=None):
         principals_values = ','.join(["('%s')" % p for p in principals])
         if bound_permissions is None:
+            # Return all objects on which the specified principals have some
+            # permissions.
+            # (e.g. permissions endpoint which lists everything)
             query = """
             WITH user_principals AS (
               VALUES %(principals)s
@@ -212,7 +215,10 @@ class Permission(PermissionBase):
               JOIN user_principals
                 ON (principal = user_principals.column1);
             """ % dict(principals=principals_values)
-        elif not bound_permissions:
+        elif len(bound_permissions) == 0:
+            # If the list of object permissions to filter on is empty, then
+            # do not bother querying the backend. The result will be empty.
+            # (e.g. root object /buckets)
             return {}
         else:
             perms = [(o.replace('*', '.*'), p) for (o, p) in bound_permissions]
