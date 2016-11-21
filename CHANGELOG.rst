@@ -29,6 +29,7 @@ This document describes changes between each past release.
 - Fix bug when two subfields are selected in partial responses (fixes #920)
 - Fix crash in permission endpoint when merging permissions from settings and from
   permissions backend (fixes #926)
+- Fix crash in authorization policy when object ids contain unicode (fixes #931)
 
 **Internal changes**
 
