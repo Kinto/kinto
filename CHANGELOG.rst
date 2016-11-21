@@ -23,6 +23,7 @@ This document describes changes between each past release.
 - Fixed showing of backend type twice in StatsD backend keys (fixes #857)
 - Fix crash when querystring parameter contains null string (fixes #882)
 - Fix crash when redirection path contains CRLF character (fixes #887)
+- Fix crash in PostgreSQL backend when specified bound permissions is empty (fixes #906)
 - Permissions endpoint now exposes the user permissions defined in settings (fixes #909)
 - Fix bug when two subfields are selected in partial responses (fixes #920)
 - Fix crash in permission endpoint when merging permissions from settings and from
