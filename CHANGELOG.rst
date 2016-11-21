@@ -15,6 +15,8 @@ This document describes changes between each past release.
 ------------------
 
 - Fix bug when two subfields are selected in partial responses (fixes #920)
+- Fix crash in permission endpoint when merging permissions from settings and from
+  permissions backend (fixes #926)
 
 
 4.3.3 (2016-11-14)

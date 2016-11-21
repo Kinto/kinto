@@ -96,7 +96,7 @@ class PermissionsModel(object):
                     resource_perms = from_settings[res]
                     # Bucket is always fetched.
                     if res == 'bucket':
-                        perms_by_object_uri.setdefault(bucket_uri, []).extend(resource_perms)
+                        perms_by_object_uri.setdefault(bucket_uri, set()).update(resource_perms)
                         continue
                     # Fetch bucket collections and groups.
                     # XXX: wrong approach: query in a loop!
@@ -104,7 +104,7 @@ class PermissionsModel(object):
                                                           collection_id=res)
                     for subobject in every_subobjects:
                         subobj_uri = bucket_uri + '/{0}s/{1}'.format(res, subobject['id'])
-                        perms_by_object_uri.setdefault(subobj_uri, []).extend(resource_perms)
+                        perms_by_object_uri.setdefault(subobj_uri, set()).update(resource_perms)
 
         entries = []
         for object_uri, perms in perms_by_object_uri.items():
