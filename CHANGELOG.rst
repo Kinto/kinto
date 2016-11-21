@@ -25,6 +25,8 @@ This document describes changes between each past release.
 - Fix crash when redirection path contains CRLF character (fixes #887)
 - Permissions endpoint now exposes the user permissions defined in settings (fixes #909)
 - Fix bug when two subfields are selected in partial responses (fixes #920)
+- Fix crash in permission endpoint when merging permissions from settings and from
+  permissions backend (fixes #926)
 
 **Internal changes**
 
