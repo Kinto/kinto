@@ -12,6 +12,7 @@ This document describes changes between each past release.
 - Fix crash in permission endpoint when merging permissions from settings and from
   permissions backend (fixes #926)
 - Fix crash in PostgreSQL backend when specified bound permissions is empty (fixes #906)
+- Fix response status for OPTION request on version redirection (fixes #852)
 
 
 4.3.4 (2016-11-17)
