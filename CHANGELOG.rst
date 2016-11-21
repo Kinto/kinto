@@ -9,14 +9,15 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Add deletion of multiple groups in API docs (#928)
+- Fix crash in permission endpoint when merging permissions from settings and from
+  permissions backend (fixes #926)
+- Fix crash in PostgreSQL backend when specified bound permissions is empty (fixes #906)
 
 
 4.3.4 (2016-11-17)
 ------------------
 
 - Fix bug when two subfields are selected in partial responses (fixes #920)
-- Fix crash in permission endpoint when merging permissions from settings and from
-  permissions backend (fixes #926)
 
 
 4.3.3 (2016-11-14)
