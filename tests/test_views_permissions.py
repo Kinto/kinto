@@ -175,3 +175,23 @@ class SettingsPermissionsTest(PermissionsViewTest):
         collections = [e for e in resp.json['data'] if e['resource_name'] == 'collection']
         self.assertEqual(collections[0]['id'], 'barley')
         self.assertIn('record:create', collections[0]['permissions'])
+
+    def test_settings_permissions_are_merged_with_perms_backend(self):
+        self.app.patch_json('/buckets/beers',
+                            {'permissions': {'collection:create': [self.admin_principal]}},
+                            headers=self.headers)
+        self.app.patch_json('/buckets/beers/collections/barley',
+                            {'permissions': {'read': [self.admin_principal]}},
+                            headers=self.headers)
+
+        resp = self.app.get('/permissions', headers=self.admin_headers)
+
+        buckets = [e for e in resp.json['data'] if e['resource_name'] == 'bucket']
+        self.assertEqual(buckets[0]['id'], 'beers')
+        self.assertIn('group:create', buckets[0]['permissions'])
+        self.assertIn('collection:create', buckets[0]['permissions'])
+
+        collections = [e for e in resp.json['data'] if e['resource_name'] == 'collection']
+        self.assertEqual(collections[0]['id'], 'barley')
+        self.assertIn('record:create', collections[0]['permissions'])
+        self.assertIn('read', collections[0]['permissions'])
