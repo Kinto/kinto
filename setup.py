@@ -27,7 +27,7 @@ REQUIREMENTS = [
     'python-dateutil',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
     'transaction < 2',  # 2.X is incompatible with pyramid_tm
-    'pyramid_tm',
+    'pyramid_tm < 1.1.0',
     'requests',
     'six',
     'structlog >= 16.1.0',
