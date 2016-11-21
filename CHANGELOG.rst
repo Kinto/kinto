@@ -36,6 +36,7 @@ This document describes changes between each past release.
   are modified.
 - Add some specifications for the permissions endpoint with regards to inherited
   permissions
+- Add deletion of multiple groups in API docs (#928)
 
 Protocol is now at version **1.12**. See `API changelog`_.
 
