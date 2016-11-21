@@ -159,6 +159,14 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertEqual(response.status_int, 307)
         self.assertEqual(response.location, 'http://localhost/v0/mushrooms')
 
+    def test_redirects_benefits_from_cors_setup(self):
+        headers = {
+            'Origin': 'lolnet.org',
+            'Access-Control-Request-Method': 'GET'
+        }
+        resp = self.app.options('/', headers=headers, status=200)
+        self.assertIn('Access-Control-Allow-Origin', resp.headers)
+
     def test_do_not_redirect_to_version_if_disabled_in_settings(self):
         # GET on the hello view.
         app = self.make_app({'version_prefix_redirect_enabled': False})

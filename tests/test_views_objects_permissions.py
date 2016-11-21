@@ -77,6 +77,11 @@ class CollectionPermissionsTest(PermissionsTest):
                           MINIMALIST_COLLECTION,
                           headers=self.headers)
 
+    def test_passing_unicode_on_parent_id_is_supported(self):
+        self.app.get('/buckets/block%C2%93%C2%96sts/collections/barley',
+                     headers=self.alice_headers,
+                     status=403)
+
     def test_read_is_allowed_if_read_on_bucket(self):
         self.app.get('/buckets/beer/collections/barley',
                      headers=self.alice_headers)

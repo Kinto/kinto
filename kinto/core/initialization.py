@@ -9,6 +9,7 @@ from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import (HTTPTemporaryRedirect, HTTPGone,
                                     HTTPBadRequest)
 from pyramid.renderers import JSON as JSONRenderer
+from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.settings import asbool, aslist
@@ -72,6 +73,10 @@ def setup_version_redirection(config):
         return
 
     def _redirect_to_version_view(request):
+        if request.method.lower() == 'options':
+            # CORS responses should always have status 200.
+            return utils.reapply_cors(request, Response())
+
         path = request.matchdict['path']
         querystring = request.url[(request.url.rindex(request.path) +
                                    len(request.path)):]

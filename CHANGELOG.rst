@@ -29,8 +29,13 @@ Protocol is now at version **1.12**. See `API changelog`_.
 - Fixed showing of backend type twice in StatsD backend keys (fixes #857)
 - Fix crash when querystring parameter contains null string (fixes #882)
 - Fix crash when redirection path contains CRLF character (fixes #887)
+- Fix response status for OPTION request on version redirection (fixes #852)
+- Fix crash in PostgreSQL backend when specified bound permissions is empty (fixes #906)
 - Permissions endpoint now exposes the user permissions defined in settings (fixes #909)
 - Fix bug when two subfields are selected in partial responses (fixes #920)
+- Fix crash in permission endpoint when merging permissions from settings and from
+  permissions backend (fixes #926)
+- Fix crash in authorization policy when object ids contain unicode (fixes #931)
 
 **Internal changes**
 
@@ -41,6 +46,7 @@ Protocol is now at version **1.12**. See `API changelog`_.
   are modified.
 - Add some specifications for the permissions endpoint with regards to inherited
   permissions
+- Add deletion of multiple groups in API docs (#928)
 
 
 Thanks to all contributors, with a special big-up for @gabisurita!
