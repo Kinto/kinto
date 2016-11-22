@@ -3,15 +3,21 @@ Changelog
 
 This document describes changes between each past release.
 
-4.4.0 (unreleased)
+5.0.0 (2016-11-18)
 ------------------
+
+**Breaking changes**
+
+- Upgraded to Cornice 2.0 (#790)
 
 **Protocol**
 
-- Add support to ``JSON-Patch`` (RFC 6902).
-- Add support to ``JSON-Merge`` (RFC 7396).
+- Add support for `JSON-Patch (RFC 6902) <https://tools.ietf.org/html/rfc6902>`_.
+- Add support for `JSON-Merge (RFC 7396) <https://tools.ietf.org/html/rfc7396>`_.
 - Added a principals list to ``hello`` view when authenticated.
 - Added details attribute to 404 errors. (#818)
+
+Protocol is now at version **1.12**. See `API changelog`_.
 
 **New features**
 
@@ -33,17 +39,17 @@ This document describes changes between each past release.
 
 **Internal changes**
 
-- Upgraded to Cornice 2.0 (#790)
 - Resource ``mapping`` attribute is now deprecated, use ``schema`` instead (#790)
 - Clarify implicit permissions when allowed to create child objects (#884)
-- Upgrade built-in ``admin`` plugin to Kinto Admin 1.4.1 (#866)
+- Upgrade built-in ``admin`` plugin to Kinto Admin 1.5.0
 - Do not bump timestamps in PostgreSQL storage backend when non-data columns
   are modified.
 - Add some specifications for the permissions endpoint with regards to inherited
   permissions
 - Add deletion of multiple groups in API docs (#928)
 
-Protocol is now at version **1.12**. See `API changelog`_.
+
+Thanks to all contributors, with a special big-up for @gabisurita!
 
 
 4.3.1 (2016-10-06)

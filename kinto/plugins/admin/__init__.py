@@ -7,7 +7,7 @@ def includeme(config):
     # Expose capability.
     config.add_api_capability(
         "admin",
-        version="1.4.3",
+        version="1.5.0",
         description="Serves the admin console.",
         url="https://github.com/Kinto/kinto-admin/",
     )
