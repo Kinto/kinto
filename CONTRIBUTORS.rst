@@ -16,7 +16,7 @@ Contributors
 * Clément Villain <choclatefr@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>
 * David Larlet <david@larlet.fr>
-* Enguerran <engcolson@gmail.com>
+* Enguerran Colson <enguerran@ticabri.com>
 * Eric Bréhault <ebrehault@gmail.com>
 * Eric Le Lay <elelay@macports.org>
 * Éric Lemoine <eric.lemoine@gmail.com>
