@@ -114,6 +114,44 @@ with a *PostgreSQL* container.
     wget https://raw.githubusercontent.com/Kinto/kinto/master/docker-compose.yml
     sudo docker-compose up
 
+If you want to change the settings, you need to mount a custom settings file
+into the *Kinto* container. Hopefully Docker Compose let you do that the exact
+same way Docker does (assuming you have created the config file ``./config/kinto.ini``):
+
+::
+
+    db:
+      image: postgres
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+    web:
+      image: kinto/kinto-server
+      links:
+       - db
+      ports:
+       - "8888:8888"
+      volumes:
+        - ./config:/etc/kinto
+
+Note that ``config/kinto.ini`` must define the following options
+(where ``postgres:postgres`` is the user/password you defined in ``docker-compose.yml``):
+
+::
+
+    kinto.cache_backend = kinto.core.cache.postgresql
+    kinto.cache_url = postgres://postgres:postgres@db/postgres
+    kinto.storage_backend = kinto.core.storage.postgresql
+    kinto.storage_url = postgres://postgres:postgres@db/postgres
+    kinto.permission_backend = kinto.core.permission.postgresql
+    kinto.permission_url = postgres://postgres:postgres@db/postgres
+
+Now you can:
+
+- Stop the containers with ``docker-compose stop``.
+- Start the containers with ``docker-compose up -d`` (``-d`` is for background/daemon).
+- Connect to postgres with ``docker-compose exec --user postgres db psql``.
+- Inspect the kinto config file with ``docker-compose exec web cat /etc/kinto/kinto.ini``.
 
 .. _run-kinto-python:
 
