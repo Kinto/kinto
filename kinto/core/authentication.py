@@ -50,3 +50,11 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
             credentials = '%s:%s' % credentials
             userid = utils.hmac_digest(hmac_secret, credentials)
             return userid
+
+
+def includeme(config):
+    config.add_api_capability(
+        "basicauth",
+        description="Very basic authentication sessions. Not for production use.",
+        url="http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html",
+    )

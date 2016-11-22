@@ -74,7 +74,9 @@ class APICapabilitiesTest(BaseWebTest, unittest.TestCase):
         }})
 
     def test_capabilities_can_be_specified_via_config(self):
-        config = testing.setUp(settings=self.get_app_settings())
+        settings = self.get_app_settings()
+        settings['multiauth.policies'] = ""
+        config = testing.setUp(settings=settings)
         app = self.make_app(config=config)
 
         config.add_api_capability("cook-coffee")
@@ -82,10 +84,8 @@ class APICapabilitiesTest(BaseWebTest, unittest.TestCase):
         response = app.get('/')
         capabilities = response.json['capabilities']
         expected = {
-            "cook-coffee": {"description": "", "url": ""},
-            "basicauth": {
-                'description': 'Very basic authentication sessions. Not for production use.',
-                'url': 'http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html'}}
+            "cook-coffee": {"description": "", "url": ""}
+        }
         self.assertEqual(capabilities, expected)
 
     def test_capabilities_can_have_arbitrary_attributes(self):
