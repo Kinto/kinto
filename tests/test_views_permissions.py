@@ -195,3 +195,23 @@ class SettingsPermissionsTest(PermissionsViewTest):
         self.assertEqual(collections[0]['id'], 'barley')
         self.assertIn('record:create', collections[0]['permissions'])
         self.assertIn('read', collections[0]['permissions'])
+
+
+class DeletedObjectsTest(PermissionsViewTest):
+
+    def setUp(self):
+        super(DeletedObjectsTest, self).setUp()
+        self.app.put_json('/buckets/beers',
+                          MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/groups/admins',
+                          MINIMALIST_GROUP,
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley',
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        self.app.delete('/buckets/beers', headers=self.headers)
+
+    def test_deleted_objects_are_not_listed(self):
+        resp = self.app.get('/permissions', headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 0)

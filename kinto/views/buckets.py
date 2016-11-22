@@ -22,6 +22,7 @@ def on_buckets_deleted(event):
     """Some buckets were deleted, delete sub-resources.
     """
     storage = event.request.registry.storage
+    permission = event.request.registry.permission
 
     for change in event.impacted_records:
         bucket = change['old']
@@ -34,3 +35,5 @@ def on_buckets_deleted(event):
         # Remove remaining tombstones too.
         storage.purge_deleted(parent_id=parent_pattern,
                               collection_id=None)
+        # Remove related permissions
+        permission.delete_object_permissions(parent_pattern)

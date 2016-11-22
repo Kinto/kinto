@@ -153,8 +153,10 @@ class Permission(PermissionBase):
         to_delete = []
         for key in self._store.keys():
             object_id = key.split(':')[1]
-            if object_id in object_id_list:
-                to_delete.append(key)
+            for pattern in object_id_list:
+                regexp = re.compile('^%s$' % pattern.replace('*', '.*'))
+                if regexp.match(object_id):
+                    to_delete.append(key)
         for k in to_delete:
             del self._store[k]
 
