@@ -75,6 +75,9 @@ When using arbitrary tokens make sure that:
  - each user has a different one;
  - a user always uses the same token.
 
+You can check if Basic Auth is enabled on the server side by checking
+the ``basicauth`` capability.
+
 
 How to Authenticate with Basic Auth?
 ------------------------------------
