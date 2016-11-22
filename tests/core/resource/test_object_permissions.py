@@ -275,6 +275,7 @@ class GuestCollectionDeleteTest(PermissionTest):
         return request
 
     def test_collection_is_filtered_for_current_guest(self):
+        self.resource.request.path = '/articles'
         result = self.resource.collection_delete()
         self.assertEqual(len(result['data']), 2)
 
