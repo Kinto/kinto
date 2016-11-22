@@ -101,6 +101,15 @@ def setup_authentication(config):
     from configuration.
     """
     config.include('pyramid_multiauth')
+    settings = config.get_settings()
+
+    policies = aslist(settings['multiauth.policies'])
+    if 'basicauth' in policies:
+        config.add_api_capability(
+            "basicauth",
+            description="Very basic authentication sessions. Not for production use.",
+            url="http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html",
+        )
 
     # Track policy used, for prefixing user_id and for logging.
     def on_policy_selected(event):

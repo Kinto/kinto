@@ -64,11 +64,14 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
 
 
 class APICapabilitiesTest(BaseWebTest, unittest.TestCase):
-    def test_list_of_capabilities_is_empty_by_default(self):
+    def test_list_of_capabilities_contains_basicauth_by_default(self):
         app = self.make_app()
         response = app.get('/')
         capabilities = response.json['capabilities']
-        self.assertEqual(capabilities, {})
+        self.assertEqual(capabilities, {"basicauth": {
+            'description': 'Very basic authentication sessions. Not for production use.',
+            'url': 'http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html'
+        }})
 
     def test_capabilities_can_be_specified_via_config(self):
         config = testing.setUp(settings=self.get_app_settings())
@@ -78,7 +81,11 @@ class APICapabilitiesTest(BaseWebTest, unittest.TestCase):
 
         response = app.get('/')
         capabilities = response.json['capabilities']
-        expected = {"cook-coffee": {"description": "", "url": ""}}
+        expected = {
+            "cook-coffee": {"description": "", "url": ""},
+            "basicauth": {
+                'description': 'Very basic authentication sessions. Not for production use.',
+                'url': 'http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html'}}
         self.assertEqual(capabilities, expected)
 
     def test_capabilities_can_have_arbitrary_attributes(self):
