@@ -210,6 +210,9 @@ class DeletedObjectsTest(PermissionsViewTest):
         self.app.put_json('/buckets/beers/collections/barley',
                           MINIMALIST_COLLECTION,
                           headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley/records/vieuxsinge',
+                          MINIMALIST_RECORD,
+                          headers=self.headers)
         self.app.delete('/buckets/beers', headers=self.headers)
 
     def test_deleted_objects_are_not_listed(self):
