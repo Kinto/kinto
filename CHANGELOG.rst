@@ -3,10 +3,19 @@ Changelog
 
 This document describes changes between each past release.
 
-4.3.5 (unreleased)
+4.3.5 (2016-11-23)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Add deletion of multiple groups in API docs (#928)
+- Fix crash in permission endpoint when merging permissions from settings and from
+  permissions backend (fixes #926)
+- Fix crash in PostgreSQL backend when specified bound permissions is empty (fixes #906)
+- Fix response status for OPTION request on version redirection (fixes #852)
+- Fix crash in authorization policy when object ids contain unicode (fixes #931)
+- Permissions are now correctly removed from permission backend when a parent
+  object is deleted (fixes #898)
 
 
 4.3.4 (2016-11-17)

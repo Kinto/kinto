@@ -74,8 +74,7 @@ class FormattedErrorMixin(object):
         if isinstance(errno, Enum):
             errno = errno.value
 
-        self.assertEqual(response.headers['Content-Type'],
-                         'application/json; charset=UTF-8')
+        self.assertIn('application/json', response.headers['Content-Type'])
         self.assertEqual(response.json['code'], code)
         self.assertEqual(response.json['errno'], errno)
         self.assertEqual(response.json['error'], error)

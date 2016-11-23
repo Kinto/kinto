@@ -346,6 +346,62 @@ Retrieving all groups
 .. include:: _status-get-list.rst
 
 
+.. _groups-delete:
+
+Deleting all groups
+===================
+
+.. http:delete:: /buckets/(bucket_id)/groups
+
+    :synopsis: Delete every writable group in the bucket.
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http delete http://localhost:8888/v1/buckets/blog/groups --auth="token:bob-token" --verbose
+
+    .. sourcecode:: http
+
+        DELETE /v1/buckets/blog/groups HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic dG9rZW46Ym9iLXRva2Vu
+        Connection: keep-alive
+        Content-Length: 0
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.3
+
+    **Example Response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Retry-After, Content-Length, Alert, Backoff
+        Content-Length: 72
+        Content-Type: application/json; charset=UTF-8
+        Date: Sun, 20 Nov 2016 03:04:57 GMT
+        Server: waitress
+
+        {
+            "data": [
+                {
+                    "deleted": true,
+                    "id": "readers",
+                    "last_modified": 1479611097155
+                }
+            ]
+        }
+
+
+
+.. include:: _details-delete-list.rst
+
+.. include:: _status-delete-list.rst
+
+
 .. _group-delete:
 
 Deleting a group
