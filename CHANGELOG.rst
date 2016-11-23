@@ -6,7 +6,15 @@ This document describes changes between each past release.
 5.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Permissions are now correctly removed from permission backend when a parent
+  object is deleted (fixes #898)
+
+**Internal changes**
+
+- The ``delete_object_permissions()`` of the permission backend now supports
+  URI patterns (eg. ``/bucket/id*``)
 
 
 5.0.0 (2016-11-18)

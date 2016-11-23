@@ -467,3 +467,16 @@ class PermissionTest(object):
 
     def test_delete_object_permissions_supports_empty_list(self):
         self.permission.delete_object_permissions()  # Not failing
+
+    def test_delete_object_permissions_supports_pattern_matching(self):
+        self.permission.add_principal_to_ace('/url/b/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'read', 'user3')
+        self.permission.add_principal_to_ace('/url/a/id/3', 'create', 'user4')
+
+        self.permission.delete_object_permissions('/url/a*')
+
+        self.assertDictEqual(self.permission.get_object_permissions('/url/a/id/1'), {})
+        self.assertDictEqual(
+            self.permission.get_object_permissions('/url/b/id/1'),
+            {'write': {'user1'}})
