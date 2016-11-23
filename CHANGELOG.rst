@@ -14,6 +14,8 @@ This document describes changes between each past release.
 - Fix crash in PostgreSQL backend when specified bound permissions is empty (fixes #906)
 - Fix response status for OPTION request on version redirection (fixes #852)
 - Fix crash in authorization policy when object ids contain unicode (fixes #931)
+- Permissions are now correctly removed from permission backend when a parent
+  object is deleted (fixes #898)
 
 
 4.3.4 (2016-11-17)
