@@ -12,10 +12,16 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
     def test_basic_auth_is_accepted_by_default(self):
         self.app.get(self.collection_url, headers=self.headers, status=200)
+        # Check that the capability is exposed on the homepage.
+        resp = self.app.get('/')
+        assert 'basicauth' in resp.json['capabilities']
 
     def test_basic_auth_is_accepted_if_enabled_in_settings(self):
         app = self.make_app({'multiauth.policies': 'basicauth'})
         app.get(self.collection_url, headers=self.headers, status=200)
+        # Check that the capability is exposed on the homepage.
+        resp = app.get('/')
+        assert 'basicauth' in resp.json['capabilities']
 
     def test_basic_auth_is_declined_if_disabled_in_settings(self):
         app = self.make_app({
@@ -23,6 +29,9 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
             'multiauth.policy.dummy.use': ('pyramid.authentication.'
                                            'RepozeWho1AuthenticationPolicy')})
         app.get(self.collection_url, headers=self.headers, status=401)
+        # Check that the capability is exposed on the homepage.
+        resp = app.get('/')
+        assert 'basicauth' not in resp.json['capabilities']
 
     def test_views_are_forbidden_if_unknown_auth_method(self):
         app = self.make_app({'multiauth.policies': 'basicauth'})

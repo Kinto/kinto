@@ -6,6 +6,10 @@ This document describes changes between each past release.
 5.0.1 (unreleased)
 ------------------
 
+**Protocol**
+
+- Add a ``basicauth`` capability when activated on the server. (#937)
+
 **Bug fixes**
 
 - Permissions are now correctly removed from permission backend when a parent

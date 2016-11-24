@@ -101,6 +101,11 @@ def setup_authentication(config):
     from configuration.
     """
     config.include('pyramid_multiauth')
+    settings = config.get_settings()
+
+    policies = aslist(settings['multiauth.policies'])
+    if 'basicauth' in policies:
+        config.include('kinto.core.authentication')
 
     # Track policy used, for prefixing user_id and for logging.
     def on_policy_selected(event):
