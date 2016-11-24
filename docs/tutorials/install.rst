@@ -42,8 +42,8 @@ got a few different options:
 +================+================================================+========================+
 | Heroku         | Free plan for up to 10.000 rows on PostgreSQL. |  |heroku-button|       |
 +----------------+------------------------------------------------+------------------------+
-| Scalingo       | 3 months free trial with 512MB RAM, 512MB      |  |scalingo-button|     |
-|                | storage and a PostgreSQL database.             |                        |
+| Scalingo       | Free trial with 256MB RAM, 512MB storage and   |  |scalingo-button|     |
+|                | a PostgreSQL database. Then 7,20€ per months   |                        |
 +----------------+------------------------------------------------+------------------------+
 
 
