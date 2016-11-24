@@ -34,7 +34,7 @@ got a few different options:
    :alt: Deploy on Heroku
 
 .. |scalingo-button| image:: ../images/scalingo-button.svg
-   :target: https://my.scalingo.com/deploy?source=https://github.com/Scalingo/kinto-scalingo
+   :target: https://my.scalingo.com/deploy?source=https://github.com/Kinto/kinto-scalingo
    :alt: Deploy on Scalingo
 
 +----------------+------------------------------------------------+------------------------+
@@ -42,7 +42,7 @@ got a few different options:
 +================+================================================+========================+
 | Heroku         | Free plan for up to 10.000 rows on PostgreSQL. |  |heroku-button|       |
 +----------------+------------------------------------------------+------------------------+
-| Scalingo       | 3 months free trial with 512MB RAM, 512MB      |  |scalingo-button|     |
+| Scalingo       | 1 month free trial with 512MB RAM, 512MB       |  |scalingo-button|     |
 |                | storage and a PostgreSQL database.             |                        |
 +----------------+------------------------------------------------+------------------------+
 
