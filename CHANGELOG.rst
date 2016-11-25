@@ -3,10 +3,11 @@ Changelog
 
 This document describes changes between each past release.
 
-4.3.6 (unreleased)
+4.3.6 (2016-11-25)
 ------------------
 
-- Nothing changed yet.
+- Fix ``record_id`` attribute in history entries when several records are
+  modified via a batch request (fixes #942)
 
 
 4.3.5 (2016-11-23)

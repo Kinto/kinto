@@ -77,8 +77,9 @@ def on_resource_changed(event):
         # Prepare the history entry attributes.
         perms = {k: list(v) for k, v in perms_by_object_id[uri].items()}
         eventattrs = dict(**payload)
+        eventattrs.pop('timestamp', None)  # Already in target `last_modified`.
         eventattrs.pop('bucket_id', None)
-        eventattrs.setdefault('%s_id' % resource_name, obj_id)
+        eventattrs['%s_id' % resource_name] = obj_id
         eventattrs['uri'] = uri
         attrs = dict(date=datetime.now().isoformat(),
                      target={'data': target, 'permissions': perms},
