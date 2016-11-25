@@ -5,7 +5,6 @@ import pkg_resources
 from cornice import Service as CorniceService
 from pyramid.settings import aslist
 
-from kinto.core import authentication
 from kinto.core import errors
 from kinto.core import events
 from kinto.core.initialization import (  # NOQA
@@ -157,8 +156,10 @@ def includeme(config):
     config.add_request_method(follow_subrequest)
     config.add_request_method(prefixed_userid, property=True)
     config.add_request_method(prefixed_principals, reify=True)
-    config.add_request_method(lambda r: {'id': r.prefixed_userid, 'principals': r.prefixed_principals},
-                              name='get_user_info')
+    config.add_request_method(lambda r: {
+        'id': r.prefixed_userid,
+        'principals': r.prefixed_principals},
+        name='get_user_info')
     config.add_request_method(current_resource_name, reify=True)
     config.add_request_method(current_service, reify=True)
     config.commit()

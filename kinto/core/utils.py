@@ -292,7 +292,6 @@ def current_resource_name(request):
     return resource_name
 
 
-
 def prefixed_userid(request):
     """In Kinto users ids are prefixed with the policy name that is
     contained in Pyramid Multiauth.
