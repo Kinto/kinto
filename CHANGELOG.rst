@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-4.3.6 (unreleased)
+4.3.6 (2016-11-25)
 ------------------
 
 - Fix ``record_id`` attribute in history entries when several records are
