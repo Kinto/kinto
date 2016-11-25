@@ -481,6 +481,20 @@ class BulkTest(HistoryWebTest):
         assert entries[1]['uri'] == '/buckets/bid/collections/cid/records/b'
         assert entries[2]['uri'] == '/buckets/bid/collections/cid/records/a'
 
+    def test_multiple_patch(self):
+        # Kinto/kinto#942
+        requests = [{
+            'method': 'PATCH',
+            'path': '/buckets/bid/collections/cid/records/%s' % l,
+            'body': {'data': {'label': l}}} for l in ('a', 'b', 'c')]
+        self.app.post_json('/batch', {'requests': requests}, headers=self.headers)
+        resp = self.app.get('/buckets/bid/history', headers=self.headers)
+        entries = resp.json['data']
+        for entry in entries:
+            if entry['resource_name'] != 'record':
+                continue
+            assert entry['record_id'] == entry['target']['data']['id']
+
 
 class DefaultBucketTest(HistoryWebTest):
 
