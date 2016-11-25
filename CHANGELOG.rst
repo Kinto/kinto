@@ -14,6 +14,8 @@ This document describes changes between each past release.
 
 - Permissions are now correctly removed from permission backend when a parent
   object is deleted (fixes #898)
+- Fix ``record_id`` attribute in history entries when several records are
+  modified via a batch request (fixes #942)
 
 **Internal changes**
 
