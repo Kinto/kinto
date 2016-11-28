@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Protocol**
 
 - Add a ``basicauth`` capability when activated on the server. (#937)
+- Activate ``basicauth`` in admin by default. (#943)
 
 **Bug fixes**
 
