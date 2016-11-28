@@ -41,6 +41,7 @@ except ImportError:  # pragma: no cover
 from pyramid import httpexceptions
 from pyramid.interfaces import IRoutesMapper
 from pyramid.request import Request, apply_request_extensions
+from pyramid.security import Authenticated
 from pyramid.settings import aslist
 from pyramid.view import render_view_to_response
 from cornice import cors
@@ -289,6 +290,41 @@ def current_resource_name(request):
     service = current_service(request)
     resource_name = service.viewset.get_name(service.resource)
     return resource_name
+
+
+def prefixed_userid(request):
+    """In Kinto users ids are prefixed with the policy name that is
+    contained in Pyramid Multiauth.
+    If a custom authn policy is used, without authn_type, this method returns
+    the user id without prefix.
+    """
+    # If pyramid_multiauth is used, a ``authn_type`` is set on request
+    # when a policy succesfully authenticates a user.
+    # (see :func:`kinto.core.initialization.setup_authentication`)
+    authn_type = getattr(request, 'authn_type', None)
+    if authn_type is not None:
+        return authn_type + ':' + request.selected_userid
+
+
+def prefixed_principals(request):
+    """
+    :returns: the list principals with prefixed user id.
+    """
+    principals = request.effective_principals
+    if Authenticated not in principals:
+        return principals
+
+    # Remove unprefixed user id on effective_principals to avoid conflicts.
+    # (it is added via Pyramid Authn policy effective principals)
+    userid = request.prefixed_userid
+    if ':' in userid:
+        prefix, userid = userid.split(':', 1)
+    principals = [p for p in principals if p != userid]
+
+    if request.prefixed_userid not in principals:
+        principals.append(request.prefixed_userid)
+
+    return principals
 
 
 def build_request(original, dict_obj):

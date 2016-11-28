@@ -7,7 +7,7 @@ from zope.interface import implementer
 
 from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
-from kinto.core.authentication import prefixed_userid
+
 
 # A permission is called "dynamic" when it's computed at request time.
 DYNAMIC = 'dynamic'
@@ -54,18 +54,7 @@ class AuthorizationPolicy(object):
         if permission == PRIVATE:
             return Authenticated in principals
 
-        # Add prefixed user id to principals.
-        prefixed_userid = context.get_prefixed_userid()
-        if prefixed_userid and ':' in prefixed_userid:
-            principals = principals + [prefixed_userid]
-            prefix, user_id = prefixed_userid.split(':', 1)
-            # Remove unprefixed user id to avoid conflicts.
-            # (it is added via Pyramid Authn policy effective principals)
-            if user_id in principals:
-                principals.remove(user_id)
-            # Retro-compatibility with cliquet 2.0 '_' user id prefixes.
-            # Just in case it was used in permissions definitions.
-            principals.append('%s_%s' % (prefix, user_id))
+        principals = context.get_prefixed_principals()
 
         if permission == DYNAMIC:
             permission = context.required_permission
@@ -124,13 +113,12 @@ class RouteFactory(object):
     }
 
     def __init__(self, request):
-        # Make it available for the authorization policy.
-        self.get_prefixed_userid = functools.partial(prefixed_userid, request)
-
         # Store some shortcuts.
         permission = request.registry.permission
         self._check_permission = permission.check_permission
         self._get_accessible_objects = permission.get_accessible_objects
+
+        self.get_prefixed_principals = functools.partial(utils.prefixed_principals, request)
 
         # Store current resource and required permission.
         service = utils.current_service(request)

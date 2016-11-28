@@ -1,5 +1,5 @@
 import colander
-from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
+from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import aslist
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
@@ -68,14 +68,7 @@ class PermissionsModel(object):
                                              .add(obtained_perm)
 
         # Obtain current principals.
-        principals = self.request.effective_principals
-        if Authenticated in principals:
-            # Since this view does not require any permission (can be used to
-            # obtain public users permissions), we have to add the prefixed
-            # userid among the principals
-            # (see :mod:`kinto.core.authentication`)
-            userid = self.request.prefixed_userid
-            principals.append(userid)
+        principals = self.request.prefixed_principals
 
         # Query every possible permission of the current user from backend.
         backend = self.request.registry.permission
