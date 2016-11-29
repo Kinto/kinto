@@ -20,6 +20,7 @@ kinto.storage_backend = {storage_backend}
 kinto.storage_url = {storage_url}
 kinto.cache_backend = {cache_backend}
 kinto.cache_url = {cache_url}
+# kinto.cache_max_size_bytes = 524288
 kinto.permission_backend = {permission_backend}
 kinto.permission_url = {permission_url}
 
