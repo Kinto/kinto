@@ -65,9 +65,6 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
         assert 'foobar' not in self.cache._created_at
         self.assertIsNone(retrieved)
 
-    def test_clean_oversized_expires_items(self):
-        pass
-
     def test_add_over_quota_clean_oversized_items(self):
         for x in range(100):
             # Each entry is 70 bytes
