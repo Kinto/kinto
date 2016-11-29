@@ -32,7 +32,7 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
     backend = memory_backend
     settings = {
         'cache_prefix': '',
-        'max_size_bytes': 7000
+        'cache_max_size_bytes': 7000
     }
 
     def get_backend_prefix(self, prefix):

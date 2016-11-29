@@ -80,7 +80,7 @@ class Cache(CacheBase):
 def load_from_config(config):
     settings = config.get_settings()
     return Cache(cache_prefix=settings['cache_prefix'],
-                 max_size_bytes=settings['max_size_bytes'])
+                 cache_max_size_bytes=settings['cache_max_size_bytes'])
 
 
 def size_of(key, value):
