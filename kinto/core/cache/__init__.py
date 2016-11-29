@@ -12,7 +12,7 @@ class CacheBase(object):
 
     def __init__(self, *args, **kwargs):
         self.prefix = kwargs['cache_prefix']
-        pass
+        self.max_size_bytes = kwargs.get('max_size_bytes')
 
     def initialize_schema(self, dry_run=False):
         """Create every necessary objects (like tables or indices) in the
