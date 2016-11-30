@@ -1,6 +1,7 @@
 """Main entry point
 """
 import pkg_resources
+import tempfile
 
 from cornice import Service as CorniceService
 from pyramid.settings import aslist
@@ -62,7 +63,7 @@ DEFAULT_SETTINGS = {
     'permission_backend': '',
     'permission_url': '',
     'permission_pool_size': 25,
-    'profiler_dir': '/tmp',
+    'profiler_dir': tempfile.gettempdir(),
     'profiler_enabled': False,
     'project_docs': '',
     'project_name': '',
