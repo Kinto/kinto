@@ -69,7 +69,7 @@ rather than complex SQL or map-reduce queries. It is meant to be minimalist and 
 Permissions can be set on the stored objects, making it possible to share data between users.
 
 We provide a demo server to start immediately, a one-click installer on Heroku for long
-term hosting and a Docker image to even run it yourself. (`Let me start now! <install>`_)
+term hosting and a Docker image to even run it yourself. (`Let me start now! <tutorials/install>`)
 
 The JavaScript and Python development kits (SDK) provide basic abstractions to store
 and retrieve data from your applications. Our JavaScript client for browsers leverages IndexedDB
