@@ -122,6 +122,8 @@ class Cache(CacheBase):
             conn.execute(query, dict(ttl=ttl, key=self.prefix + key))
 
     def set(self, key, value, ttl=None):
+        if ttl is None:
+            logger.warning("No TTL for cache key %r" % key)
         query = """
         WITH upsert AS (
             UPDATE cache SET value = :value, ttl = sec2ttl(:ttl)
