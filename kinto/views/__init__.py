@@ -8,11 +8,11 @@ from kinto.core.errors import http_error, ERRORS
 
 class NameGenerator(generators.Generator):
     def __call__(self):
-        ascii_letters = ('abcdefghijklmopqrstuvwxyz'
-                         'ABCDEFGHIJKLMOPQRSTUVWXYZ')
-        alphabet = ascii_letters + string.digits + '-_'
-        letters = [random.choice(ascii_letters + string.digits)]
-        letters += [random.choice(alphabet) for x in range(7)]
+        alpha_num = string.ascii_letters + string.digits
+        alphabet = alpha_num + '-_'
+        letters = [random.SystemRandom().choice(alpha_num)]
+        letters += [random.SystemRandom().choice(alphabet) for x in range(7)]
+
         return ''.join(letters)
 
 
