@@ -100,7 +100,7 @@ class Permission(PermissionBase):
                 candidates.append((object_id, permission, value))
         else:
             for pattern, perm in bound_permissions:
-                regexp = re.compile(pattern.replace('*', '.*'))
+                regexp = re.compile('^%s$' % pattern.replace('*', '.*'))
                 for key, value in self._store.items():
                     if key.endswith(perm):
                         object_id = key.split(':')[1]
