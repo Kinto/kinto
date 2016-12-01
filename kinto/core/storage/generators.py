@@ -18,8 +18,9 @@ class Generator(object):
         self.config = config
         self._regexp = None
 
-        error_msg = "Generated record id does comply with regexp."
-        assert self.match(self()), error_msg
+        if not self.match(self()):
+            error_msg = "Generated record id does comply with regexp."
+            raise ValueError(error_msg)
 
     def match(self, record_id):
         """Validate that record ids match the generator. This is used mainly

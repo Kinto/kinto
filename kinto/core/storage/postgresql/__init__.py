@@ -590,7 +590,7 @@ class Storage(StorageBase):
             placeholders.update(**holders)
 
         if limit:
-            assert isinstance(limit, six.integer_types)  # asserted in resource
+            # We validate the limit value in the resource class as integer.
             safeholders['pagination_limit'] = 'LIMIT %s' % limit
 
         with self.client.connect(readonly=True) as conn:
