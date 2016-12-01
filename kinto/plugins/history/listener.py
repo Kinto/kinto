@@ -1,3 +1,5 @@
+from pyramid.settings import aslist
+
 from kinto.core.utils import instance_uri
 from datetime import datetime
 
@@ -18,6 +20,9 @@ def on_resource_changed(event):
 
     storage = event.request.registry.storage
     permission = event.request.registry.permission
+    settings = event.request.registry.settings
+
+    excluded_resources = aslist(settings.get('history.exclude_resources', ''))
 
     targets = []
     for impacted in event.impacted_records:
@@ -31,12 +36,17 @@ def on_resource_changed(event):
             bucket_id = obj_id
         bucket_uri = instance_uri(event.request, 'bucket', id=bucket_id)
 
+        if bucket_uri in excluded_resources:
+            continue
+
         if 'collection_id' in payload:
             collection_id = payload['collection_id']
             collection_uri = instance_uri(event.request,
                                           'collection',
                                           bucket_id=bucket_id,
                                           id=collection_id)
+            if collection_uri in excluded_resources:
+                continue
 
         # On POST .../records, the URI does not contain the newly created
         # record id.
@@ -47,7 +57,14 @@ def on_resource_changed(event):
             # Make sure the id is correct on grouped events.
             parts[-1] = obj_id
         uri = '/'.join(parts)
+
+        if uri in excluded_resources:
+            continue
+
         targets.append((uri, target))
+
+    if not targets:
+        return  # Nothing to do.
 
     # Prepare a list of object ids to be fetched from permission backend,
     # and fetch them all at once. Use a mapping for later convenience.

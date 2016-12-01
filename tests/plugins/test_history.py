@@ -681,3 +681,47 @@ class PermissionsTest(HistoryWebTest):
                             headers=self.headers)
         entries = [e['resource_name'] == 'history' for e in resp.json["data"]]
         assert not any(entries)
+
+
+class ExcludeResourcesTest(HistoryWebTest):
+
+    def get_app_settings(self, extras=None):
+        settings = super(ExcludeResourcesTest, self).get_app_settings(extras)
+        settings['history.exclude_resources'] = ('/buckets/a '
+                                                 '/buckets/b/collections/a '
+                                                 '/buckets/b/groups/a')
+        return settings
+
+    def setUp(self):
+        group = {'data': {'members': []}}
+        self.app.put_json('/buckets/a', headers=self.headers)
+        self.app.put_json('/buckets/a/groups/admins', group, headers=self.headers)
+        self.app.put_json('/buckets/b', headers=self.headers)
+        self.app.put_json('/buckets/b/groups/a', group, headers=self.headers)
+        self.app.put_json('/buckets/b/collections/a', headers=self.headers)
+        self.app.put_json('/buckets/b/collections/a/records/1', headers=self.headers)
+        self.app.put_json('/buckets/b/collections/b', headers=self.headers)
+        self.app.put_json('/buckets/b/collections/b/records/1', headers=self.headers)
+
+    def test_whole_buckets_can_be_excluded(self):
+        resp = self.app.get('/buckets/a/history',
+                            headers=self.headers)
+        entries = resp.json['data']
+        assert len(entries) == 0  # nothing.
+
+    def test_some_specific_collection_can_be_excluded(self):
+        resp = self.app.get('/buckets/b/history?collection_id=b',
+                            headers=self.headers)
+        entries = resp.json['data']
+        assert len(entries) > 0
+
+        resp = self.app.get('/buckets/b/history?collection_id=a',
+                            headers=self.headers)
+        entries = resp.json['data']
+        assert len(entries) == 0  # nothing.
+
+    def test_some_specific_object_can_be_excluded(self):
+        resp = self.app.get('/buckets/b/history?group_id=a',
+                            headers=self.headers)
+        entries = resp.json['data']
+        assert len(entries) == 0  # nothing.

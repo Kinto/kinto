@@ -115,7 +115,7 @@ For example, if Alice receives a |status-412| error response when she tries to u
 she can use the history entries for this particular record filtering from a the timestamp of her local copy, in order
 to merge the changes that happened remotely with her local ones.
 
-.. sourcecode:: bash
+.. code-block:: bash
 
     $ RECORD_URI="buckets/blog/collections/articles/records/xyz"
     $ LOCAL_TIMESTAMP="1469006098757"
@@ -123,3 +123,14 @@ to merge the changes that happened remotely with her local ones.
 
 Each entries gives the state in which the record was modified. Computing the difference between
 two steps and applying it to the local record is a possible way of solving conflicts automatically.
+
+
+Configuration
+=============
+
+It is possible to exclude certain resources from being tracked by history using the following setting:
+
+.. code-block:: ini
+
+    kinto.history.exclude_resources = /buckets/preview
+                                      /buckets/signed/collections/certificates
