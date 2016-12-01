@@ -1,5 +1,3 @@
-import re
-
 from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 

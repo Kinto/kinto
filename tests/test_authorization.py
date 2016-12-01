@@ -10,24 +10,18 @@ class ResourceEndpointTest(unittest.TestCase):
                          ('record', False))
         self.assertEqual(_resource_endpoint('/buckets/bid/collections/cid'),
                          ('collection', False))
-        self.assertEqual(_resource_endpoint( '/buckets'),
-                        ('', False))
-        self.assertEqual(_resource_endpoint('/buckets/bid'),
-                         ('bucket', False))
-        self.assertEqual(_resource_endpoint('/buckets/bid/history/xx'),
-                         ('history', False))
+        self.assertEqual(_resource_endpoint('/buckets'), ('', False))
+        self.assertEqual(_resource_endpoint('/buckets/bid'), ('bucket', False))
+        self.assertEqual(_resource_endpoint('/buckets/bid/history/xx'), ('history', False))
         self.assertEqual(_resource_endpoint('/buckets/bid/groups/moderators'),
                          ('group', False))
 
     def test_resource_endpoint_return_right_type_for_children_collection(self):
         self.assertEqual(_resource_endpoint('/buckets/bid/collections/cid/records'),
                          ('collection', True))
-        self.assertEqual(_resource_endpoint('/buckets/bid/collections'),
-                         ('bucket', True))
-        self.assertEqual(_resource_endpoint( '/buckets/bid/history'),
-                         ('bucket', True))
-        self.assertEqual(_resource_endpoint( '/buckets/bid/groups'),
-                         ('bucket', True))
+        self.assertEqual(_resource_endpoint('/buckets/bid/collections'), ('bucket', True))
+        self.assertEqual(_resource_endpoint('/buckets/bid/history'), ('bucket', True))
+        self.assertEqual(_resource_endpoint('/buckets/bid/groups'), ('bucket', True))
 
 
 class RelativeObjectUri(unittest.TestCase):
@@ -181,3 +175,13 @@ class PermissionInheritanceTest(unittest.TestCase):
     def test_inherited_permissions_for_list_of_buckets(self):
         permissions = _inherited_permissions('/buckets', 'read')
         self.assertEquals(permissions, [])
+
+    def test_inherited_permissions_for_non_resource_url(self):
+        unknown = '/resource'
+        permissions = _inherited_permissions(unknown, 'read')
+        self.assertEquals(permissions, [])
+
+    def test_inherited_permissions_for_attachment_url(self):
+        attachment = '/buckets/bid/collections/cid/records/rid/attachment'
+        permissions = _inherited_permissions(attachment, 'read')
+        self.assertIn(('/buckets/bid/collections/cid/records/rid', 'read'), permissions)
