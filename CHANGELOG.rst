@@ -22,6 +22,7 @@ This document describes changes between each past release.
 **New features**
 
 - Add a setting to limit the maximum number of bytes cached in the memory backend. (#610)
+- Add a setting to exclude certain resources from being tracked by history (fixes #964)
 
 **Internal changes**
 
