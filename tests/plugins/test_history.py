@@ -681,3 +681,100 @@ class PermissionsTest(HistoryWebTest):
                             headers=self.headers)
         entries = [e['resource_name'] == 'history' for e in resp.json["data"]]
         assert not any(entries)
+
+class RevertTest(HistoryWebTest):
+
+    def timestamp(self, collection_id=None, parent_id=None):
+        """Fetch the collection current timestamp.
+
+        :param str parent_id: optional filter for parent id
+        :rtype: int
+        """
+        parent_id = parent_id or self.bucket_id
+        collection_id = collection_id or self.collection_id
+        return self.storage.collection_timestamp(
+            collection_id=collection_id,
+            parent_id=parent_id)
+
+    def setUp(self):
+        self.bucket_id = 'test'
+        self.collection_id = 'col'
+        self.record_id = 'rec'
+        self.bucket_uri = '/buckets/%s' % self.bucket_id
+        self.app.put(self.bucket_uri, headers=self.headers)
+
+        self.collection_uri = self.bucket_uri + '/collections/%s' % self.collection_id
+        resp = self.app.put(self.collection_uri, headers=self.headers)
+        self.collection = resp.json['data']
+
+        self.group_uri = self.bucket_uri + '/groups/grp'
+        body = {'data': {'members': ['elle']}}
+        resp = self.app.put_json(self.group_uri, body, headers=self.headers)
+        self.group = resp.json['data']
+
+        self.record_uri = '%s/records/%s' % (self.collection_uri, self.record_id)
+        self.rec_body = {'data': {'foo': 42}}
+        self.record = self.app.put_json(self.record_uri, self.rec_body, headers=self.headers).json
+
+        self.revert_uri = '%s/revert' % self.bucket_uri
+
+    def compare_without_last_modified(self, rec1, rec2):
+        last_mod1 = rec1['data'].pop('last_modified')
+        last_mod2 = rec2['data'].pop('last_modified')
+        if 'read' not in rec1['permissions']:
+            rec1['permissions']['read'] = []
+        if 'read' not in rec2['permissions']:
+            rec2['permissions']['read'] = []
+        assert rec1 == rec2
+        rec1['data']['last_modified'] = last_mod1
+        rec2['data']['last_modified'] = last_mod2
+
+    def test_deleted_record_can_be_reverted(self):
+        ts = self.timestamp()
+        self.app.delete(self.record_uri, headers=self.headers)
+        self.app.get(self.record_uri, headers=self.headers, status=404)
+        revert_uri = self.revert_uri + '?since=%s' % ts
+        resp = self.app.post(revert_uri, headers=self.headers)
+        revert_ops = resp.json['body']['responses']
+        assert len(revert_ops) == 1
+        self.compare_without_last_modified(revert_ops[0]['body'], self.record)
+        all_records = self.app.get(self.collection_uri + '/records', headers=self.headers).json
+        assert len(all_records['data']) == 1
+        self.app.get(self.record_uri, headers=self.headers, status=200)
+
+    def check_if_deleted(self, deleted_rec, revert_response_rec):
+        assert revert_response_rec['body']['data']['deleted'] == True
+        assert revert_response_rec['body']['data']['id'] == deleted_rec['data']['id']
+
+    def test_created_record_gets_deleted_on_revert(self):
+        body = {'data': {'bar': 40}}
+        test_record_uri = self.record_uri+'2'
+        ts = self.timestamp()
+        test_record = self.app.put_json(test_record_uri, body, headers=self.headers).json
+        self.app.get(test_record_uri, headers=self.headers, status=200)
+        revert_uri = self.revert_uri + '?since=%s' % ts
+        resp = self.app.post(revert_uri, headers=self.headers)
+        revert_ops = resp.json['body']['responses']
+        assert len(revert_ops) == 1
+        self.check_if_deleted(test_record, revert_ops[0])
+        all_records = self.app.get(self.collection_uri + '/records', headers=self.headers).json
+        assert len(all_records['data']) == 1
+        self.app.get(test_record_uri, headers=self.headers, status=404)
+
+    def compare_body_only(self, rec1, rec2):
+        for key in rec1:
+            assert rec1[key] == rec2[key]
+
+    def test_updated_record_can_be_reverted(self):
+        body = {'data': {'bar': 40}}
+        ts = self.timestamp()
+        updated_rec = self.app.put_json(self.record_uri, body, headers=self.headers, status=200).json
+        self.compare_body_only(body['data'], updated_rec['data'])
+        revert_uri = self.revert_uri + '?since=%s' % ts
+        resp = self.app.post(revert_uri, headers=self.headers)
+        revert_ops = resp.json['body']['responses']
+        assert len(revert_ops) == 1
+        self.compare_without_last_modified(revert_ops[0]['body'], self.record)
+        all_records = self.app.get(self.collection_uri + '/records', headers=self.headers).json
+        assert len(all_records['data']) == 1
+        self.compare_body_only(self.rec_body['data'], all_records['data'][0])
