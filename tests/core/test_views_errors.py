@@ -180,6 +180,9 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.app.get('/crlftest%0DSet-Cookie:test%3Dtest%3Bdomain%3D.yelp.com',
                      status=404)
 
+    def test_redirection_does_not_allow_control_characters(self):
+        self.app.get('/9l2j7%0A21m2n', status=404)
+
 
 class TrailingSlashRedirectViewTest(FormattedErrorMixin, BaseWebTest,
                                     unittest.TestCase):
