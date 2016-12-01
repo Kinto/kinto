@@ -177,7 +177,7 @@ class PermissionInheritanceTest(unittest.TestCase):
         self.assertEquals(permissions, [])
 
     def test_inherited_permissions_for_non_resource_url(self):
-        unknown = '/resource'
+        unknown = '/resource/unknown'
         permissions = _inherited_permissions(unknown, 'read')
         self.assertEquals(permissions, [])
 

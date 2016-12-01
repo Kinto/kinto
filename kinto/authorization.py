@@ -134,12 +134,11 @@ def _inherited_permissions(object_uri, permission):
      ('/buckets/blog', 'read')]
 
     """
+    resource_name, plural = _resource_endpoint(object_uri)
     try:
-        resource_name, plural = _resource_endpoint(object_uri)
-    except ValueError:
+        object_perms_tree = PERMISSIONS_INHERITANCE_TREE[resource_name]
+    except KeyError:
         return []  # URL that are not resources have no inherited perms.
-
-    object_perms_tree = PERMISSIONS_INHERITANCE_TREE[resource_name]
 
     # When requesting permissions for a single object, we check if they are any
     # specific inherited permissions for the attributes.
