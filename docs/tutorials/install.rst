@@ -36,6 +36,10 @@ got a few different options:
 .. |scalingo-button| image:: ../images/scalingo-button.svg
    :target: https://my.scalingo.com/deploy?source=https://github.com/Kinto/kinto-scalingo
    :alt: Deploy on Scalingo
+   
+.. |alwaysdata-button| image:: ../images/alwaysdata-button.svg
+   :target: https://kinto.github.io/kinto-alwaysdata/
+   :alt: Deploy on Alwaysdata
 
 +----------------+------------------------------------------------+------------------------+
 | Provider       | What you get / Plan                            | Link / Install button  |
@@ -44,6 +48,9 @@ got a few different options:
 +----------------+------------------------------------------------+------------------------+
 | Scalingo       | 1 month free trial with 512MB RAM, 512MB       |  |scalingo-button|     |
 |                | storage and a PostgreSQL database.             |                        |
++----------------+------------------------------------------------+------------------------+
+| Alwaysdata     | Open an account and deploy Kinto on it.        |  |alwaysdata-button|   |
+|                | 10 MB of free storage.                         |                        |
 +----------------+------------------------------------------------+------------------------+
 
 
