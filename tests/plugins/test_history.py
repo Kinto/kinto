@@ -316,6 +316,35 @@ class HistoryViewTest(HistoryWebTest):
         assert len(deletion_entries) == 1
 
 
+class HistoryDeletionTest(HistoryWebTest):
+
+    def setUp(self):
+        self.app.put('/buckets/bid', headers=self.headers)
+        self.app.put('/buckets/bid/collections/cid',
+                     headers=self.headers)
+        body = {'data': {'foo': 42}}
+        self.app.put_json('/buckets/bid/collections/cid/records/rid',
+                          body,
+                          headers=self.headers)
+
+    def test_full_deletion(self):
+        self.app.delete('/buckets/bid/history', headers=self.headers)
+        resp = self.app.get('/buckets/bid/history', headers=self.headers)
+        assert len(resp.json['data']) == 0
+
+    def test_partial_deletion(self):
+        resp = self.app.get('/buckets/bid/history', headers=self.headers)
+        before = resp.headers['ETag']
+        self.app.put('/buckets/bid/collections/cid2', headers=self.headers)
+
+        # Delete everything before the last entry (exclusive)
+        self.app.delete('/buckets/bid/history?_before=%s' % before,
+                        headers=self.headers)
+
+        resp = self.app.get('/buckets/bid/history', headers=self.headers)
+        assert len(resp.json['data']) == 2  # record + new collection
+
+
 class FilteringTest(HistoryWebTest):
 
     def setUp(self):
