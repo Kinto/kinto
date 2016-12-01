@@ -20,6 +20,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
+- Remove usage of assert (fixes #954)
 - The ``delete_object_permissions()`` of the permission backend now supports
   URI patterns (eg. ``/bucket/id*``)
 - Refactor handling of prefixed user id among request principals

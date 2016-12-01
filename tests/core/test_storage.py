@@ -17,7 +17,7 @@ class GeneratorTest(unittest.TestCase):
             def __call__(self):
                 return '*' * 80
 
-        self.assertRaises(AssertionError, Dumb)
+        self.assertRaises(ValueError, Dumb)
 
     def test_default_generator_allow_underscores_dash_alphabet(self):
         class Dumb(generators.Generator):
