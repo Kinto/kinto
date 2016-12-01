@@ -23,6 +23,7 @@ This document describes changes between each past release.
 - The ``delete_object_permissions()`` of the permission backend now supports
   URI patterns (eg. ``/bucket/id*``)
 - Refactor handling of prefixed user id among request principals
+- Add a warning when a cache entry is set without TTL (ref #960)
 
 
 5.0.0 (2016-11-18)

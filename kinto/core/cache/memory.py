@@ -1,3 +1,4 @@
+from kinto.core import logger
 from kinto.core.cache import CacheBase
 from kinto.core.utils import msec_time, synchronized
 
@@ -39,6 +40,8 @@ class Cache(CacheBase):
     def set(self, key, value, ttl=None):
         if ttl is not None:
             self.expire(key, ttl)
+        else:
+            logger.warning("No TTL for cache key %r" % key)
         self._store[self.prefix + key] = value
 
     @synchronized
