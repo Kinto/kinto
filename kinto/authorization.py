@@ -56,6 +56,12 @@ PERMISSIONS_INHERITANCE_TREE = {
             'group': ['write', 'read']
         },
     },
+    'history': {
+        'read': {
+            'bucket': ['write', 'read'],
+            'history': ['write', 'read']
+        },
+    },
     'collection': {
         'write': {
             'bucket': ['write'],
@@ -97,6 +103,7 @@ def _resource_endpoint(object_uri):
     url_patterns = [
         ('record', r'/buckets/(.+)/collections/(.+)/records/(.+)?'),
         ('collection', r'/buckets/(.+)/collections/(.+)?'),
+        ('history', r'/buckets/(.+)/history/(.+)?'),
         ('group', r'/buckets/(.+)/groups/(.+)?'),
         ('bucket', r'/buckets/(.+)?'),
         ('', r'/(buckets)')  # Root buckets list.
@@ -116,6 +123,7 @@ def _relative_object_uri(resource_name, object_uri):
     PARTS_LENGTH = {
         '': 1,
         'bucket': 3,
+        'history': 5,
         'collection': 5,
         'group': 5,
         'record': 7
