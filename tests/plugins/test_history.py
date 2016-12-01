@@ -62,10 +62,9 @@ class HistoryViewTest(HistoryWebTest):
 
         self.history_uri = '/buckets/test/history'
 
-    def test_only_get_on_collection_is_allowed(self):
+    def test_only_get_and_delete_on_collection_are_allowed(self):
         self.app.put(self.history_uri, headers=self.headers, status=405)
         self.app.patch(self.history_uri, headers=self.headers, status=405)
-        self.app.delete(self.history_uri, headers=self.headers, status=405)
 
     def test_only_collection_endpoint_is_available(self):
         resp = self.app.get(self.history_uri, headers=self.headers)
