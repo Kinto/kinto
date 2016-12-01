@@ -4,35 +4,49 @@ from kinto.authorization import (_resource_endpoint, _relative_object_uri,
                                  _inherited_permissions)
 
 
-class PermissionInheritanceTest(unittest.TestCase):
-    record_uri = '/buckets/blog/collections/articles/records/article1'
-    collection_uri = '/buckets/blog/collections/articles'
-    group_uri = '/buckets/blog/groups/moderators'
-    bucket_uri = '/buckets/blog'
-    invalid_uri = 'invalid object id'
-
+class ResourceEndpointTest(unittest.TestCase):
     def test_resource_endpoint_return_right_type_for_key(self):
-        self.assertEqual(_resource_endpoint(self.record_uri), ('record', False))
-        self.assertEqual(_resource_endpoint(self.collection_uri), ('collection', False))
-        self.assertEqual(_resource_endpoint(self.bucket_uri), ('bucket', False))
-        self.assertEqual(_resource_endpoint(self.group_uri), ('group', False))
-        self.assertRaises(ValueError, _resource_endpoint, self.invalid_uri)
+        self.assertEqual(_resource_endpoint('/buckets/bid/collections/cid/records/rid'),
+                         ('record', False))
+        self.assertEqual(_resource_endpoint('/buckets/bid/collections/cid'),
+                         ('collection', False))
+        self.assertEqual(_resource_endpoint( '/buckets'),
+                        ('', False))
+        self.assertEqual(_resource_endpoint('/buckets/bid'),
+                         ('bucket', False))
+        self.assertEqual(_resource_endpoint('/buckets/bid/history/xx'),
+                         ('history', False))
+        self.assertEqual(_resource_endpoint('/buckets/bid/groups/moderators'),
+                         ('group', False))
 
     def test_resource_endpoint_return_right_type_for_children_collection(self):
-        self.assertEqual(_resource_endpoint(self.collection_uri + '/records'),
+        self.assertEqual(_resource_endpoint('/buckets/bid/collections/cid/records'),
                          ('collection', True))
-        self.assertEqual(_resource_endpoint(self.bucket_uri + '/collections'),
+        self.assertEqual(_resource_endpoint('/buckets/bid/collections'),
                          ('bucket', True))
-        self.assertEqual(_resource_endpoint(self.bucket_uri + '/groups'),
+        self.assertEqual(_resource_endpoint( '/buckets/bid/history'),
                          ('bucket', True))
+        self.assertEqual(_resource_endpoint( '/buckets/bid/groups'),
+                         ('bucket', True))
+
+
+class RelativeObjectUri(unittest.TestCase):
+    record_uri = '/buckets/blog/collections/articles/records/article1'
+    records_uri = '/buckets/blog/collections/articles/records'
+    collection_uri = '/buckets/blog/collections/articles'
+    collections_uri = '/buckets/blog/collections'
+    group_uri = '/buckets/blog/groups/moderators'
+    groups_uri = '/buckets/blog/groups'
+    bucket_uri = '/buckets/blog'
+    buckets_uri = '/buckets'
 
     def test_related_object_uri_can_construct_parents_set_uris(self):
-        # Can build record_uri from obj_parts
-        self.assertEqual(_relative_object_uri('record', self.record_uri),
-                         self.record_uri)
+        record_uri = '/buckets/bid/collections/cid/records/rid'
+        self.assertEqual(_relative_object_uri('record', record_uri), record_uri)
 
-        # Can build collection_uri from obj_parts
         self.assertEqual(_relative_object_uri('collection', self.record_uri),
+                         self.collection_uri)
+        self.assertEqual(_relative_object_uri('collection', self.records_uri),
                          self.collection_uri)
 
         # Can build bucket_uri from obj_parts
@@ -45,6 +59,8 @@ class PermissionInheritanceTest(unittest.TestCase):
 
         # Can build bucket_uri from group obj_parts
         self.assertEqual(_relative_object_uri('bucket', self.group_uri),
+                         self.bucket_uri)
+        self.assertEqual(_relative_object_uri('bucket', self.groups_uri),
                          self.bucket_uri)
 
     def test_relative_object_uri_fail_construct_children_set_uris(self):
@@ -63,8 +79,15 @@ class PermissionInheritanceTest(unittest.TestCase):
                           _relative_object_uri,
                           'collection', '')
 
+
+class PermissionInheritanceTest(unittest.TestCase):
+    record_uri = '/buckets/blog/collections/articles/records/article1'
+    collection_uri = '/buckets/blog/collections/articles'
+    group_uri = '/buckets/blog/groups/moderators'
+    bucket_uri = '/buckets/blog'
+
     def test_relative_object_uri_fail_on_wrong_type(self):
-        self.assertRaises(KeyError,
+        self.assertRaises(ValueError,
                           _relative_object_uri,
                           'schema', self.record_uri)
 
