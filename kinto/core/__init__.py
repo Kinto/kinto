@@ -28,6 +28,7 @@ DEFAULT_SETTINGS = {
     'cache_url': '',
     'cache_pool_size': 25,
     'cache_prefix': '',
+    'cache_max_size_bytes': 524288,
     'cors_origins': '*',
     'cors_max_age_seconds': 3600,
     'eos': None,

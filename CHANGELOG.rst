@@ -18,6 +18,10 @@ This document describes changes between each past release.
 - Fix ``record_id`` attribute in history entries when several records are
   modified via a batch request (fixes #942)
 
+**New features**
+
+- Add a setting to limit the maximum number of bytes cached in the memory backend. (#610)
+
 **Internal changes**
 
 - The ``delete_object_permissions()`` of the permission backend now supports
