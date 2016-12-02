@@ -1,3 +1,4 @@
+from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from kinto.core.events import ResourceChanged
 
 from .listener import on_resource_changed
@@ -22,3 +23,15 @@ def includeme(config):
     config.add_subscriber(listener, ResourceChanged,
                           for_resources=('bucket', 'group',
                                          'collection', 'record'))
+
+    # Register the permission inheritance for history entries.
+    PERMISSIONS_INHERITANCE_TREE['history'] = {
+        'read': {
+            'bucket': ['write', 'read'],
+            'history': ['write', 'read']
+        },
+        'write': {
+            'bucket': ['write'],
+            'history': ['write']
+        },
+    }

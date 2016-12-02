@@ -120,7 +120,7 @@ class RouteFactoryTest(unittest.TestCase):
 
         request.registry.permission.get_accessible_objects.assert_called_with(
             ['userid'],
-            [('/buckets/*', 'read')])
+            [('/buckets/[a-zA-Z0-9_-]+', 'read')])
 
     def test_fetch_shared_records_uses_get_bound_permission_callback(self):
         request = DummyRequest()
@@ -140,7 +140,7 @@ class RouteFactoryTest(unittest.TestCase):
 
         request.registry.permission.get_accessible_objects.assert_called_with(
             ['userid'],
-            [('/buckets/*', 'write'), ('/buckets/*', 'read')])
+            [('/buckets/[a-zA-Z0-9_-]+', 'write'), ('/buckets/[a-zA-Z0-9_-]+', 'read')])
 
     def test_fetch_shared_records_sets_shared_ids_from_results(self):
         request = DummyRequest()

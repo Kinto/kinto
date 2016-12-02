@@ -222,7 +222,7 @@ class Permission(PermissionBase):
             return {}
         else:
             perms = [(o.replace('*', '.*'), p) for (o, p) in bound_permissions]
-            perms_values = ','.join(["('%s', '%s')" % p for p in perms])
+            perms_values = ','.join(["('^%s$', '%s')" % p for p in perms])
             query = """
             WITH required_perms AS (
               VALUES %(perms)s
