@@ -1,17 +1,10 @@
-import functools
-
 import bcrypt
 import colander
 from pyramid.compat import native_
-from pyramid.settings import aslist
 from pyramid.exceptions import HTTPForbidden
 from pyramid.security import Authenticated, Everyone
 
 from kinto.core import resource
-from kinto.core.resource.viewset import ShareableViewSet
-from kinto.core import utils
-from kinto.core import authorization
-from kinto.views import NameGenerator
 from kinto.core.errors import raise_invalid, http_error
 
 
@@ -60,7 +53,7 @@ class Account(resource.ShareableResource):
         try:
             # Anonymous creation with POST.
             return request.json['data']['id']
-        except (ValueError, KeyError) as e:
+        except (ValueError, KeyError):
             # Anonymous GET, or bad POST.
             return '__no_match__'
 

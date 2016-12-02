@@ -136,7 +136,6 @@ class RouteFactory(object):
             # To obtain shared records on a collection endpoint, use a match:
             self._object_id_match = self.get_permission_object_id(request, '*')
 
-
     def allowed_principals(self, permission=None):
         permission = permission or self.required_permission
         setting = '%s_%s_principals' % (self.resource_name, permission)
