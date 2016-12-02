@@ -114,6 +114,7 @@ class RouteFactory(object):
 
     def __init__(self, request):
         # Store some shortcuts.
+        self._settings = request.registry.settings
         permission = request.registry.permission
         self._check_permission = permission.check_permission
         self._get_accessible_objects = permission.get_accessible_objects
@@ -135,7 +136,6 @@ class RouteFactory(object):
             # To obtain shared records on a collection endpoint, use a match:
             self._object_id_match = self.get_permission_object_id(request, '*')
 
-        self._settings = request.registry.settings
 
     def allowed_principals(self, permission=None):
         permission = permission or self.required_permission

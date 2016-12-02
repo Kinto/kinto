@@ -150,6 +150,14 @@ class UserResource(object):
     """Schema to validate records."""
 
     def __init__(self, request, context=None):
+        self.request = request
+        self.context = context
+        self.record_id = self.request.matchdict.get('id')
+        self.force_patch_update = False
+
+        content_type = str(self.request.headers.get('Content-Type')).lower()
+        self._is_json_patch = content_type == 'application/json-patch+json'
+
         # Models are isolated by user.
         parent_id = self.get_parent_id(request)
 
@@ -168,14 +176,6 @@ class UserResource(object):
             collection_id=classname(self),
             parent_id=parent_id,
             auth=auth)
-
-        self.request = request
-        self.context = context
-        self.record_id = self.request.matchdict.get('id')
-        self.force_patch_update = False
-
-        content_type = str(self.request.headers.get('Content-Type')).lower()
-        self._is_json_patch = content_type == 'application/json-patch+json'
 
         # Log resource context.
         logger.bind(collection_id=self.model.collection_id,

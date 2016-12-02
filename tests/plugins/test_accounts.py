@@ -10,6 +10,7 @@ class AccountsWebTest(support.BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extras=None):
         settings = super(AccountsWebTest, self).get_app_settings(extras)
         settings['includes'] = 'kinto.plugins.accounts'
+        settings['account_create_principals'] = 'system.Everyone'
         settings['multiauth.policies'] = 'account'
         # XXX: this should be a default setting.
         settings['multiauth.policy.account.use'] = ('kinto.plugins.accounts.authentication.'
@@ -33,7 +34,11 @@ class AccountCreationTest(AccountsWebTest):
 
     # def test_username_is_generated_if_not_provided(self):
     #     resp = self.app.post_json('/accounts', {'data': {'password': 's3cr3t'}})
-    #     assert len(resp.json['data']['id']) == 8
+    #     user_id = resp.json['data']['id']
+    #     assert len(user_id) == 8
+    #     assert user_id.lower() == user_id
+    #     self.app.get('/accounts/%s' % user_id,
+    #                  headers=get_user_headers(user_id, 's3cr3t'))
 
     def test_account_can_be_created_with_put(self):
         self.app.put_json('/accounts/alice', {'data': {'password': '123456'}}, status=201)
@@ -106,17 +111,15 @@ class AccountUpdateTest(AccountsWebTest):
         assert 'does not match' in resp.json['message']
 
     def test_cannot_patch_unknown_account(self):
-        resp = self.app.patch_json('/accounts/bob', {'data': {'password': 'bouh'}},
-                                   headers=get_user_headers('alice', '123456'),
-                                   status=404)
-        assert 'Not Found' in resp.json['error']
+        self.app.patch_json('/accounts/bob', {'data': {'password': 'bouh'}},
+                            headers=get_user_headers('alice', '123456'),
+                            status=403)
 
     def test_cannot_patch_someone_else_account(self):
         self.app.put_json('/accounts/bob', {'data': {'password': 'bob'}}, status=201)
-        resp = self.app.patch_json('/accounts/bob', {'data': {'password': 'bouh'}},
-                                   headers=get_user_headers('alice', '123456'),
-                                   status=404)
-        assert 'do not match' in resp.json['message']
+        self.app.patch_json('/accounts/bob', {'data': {'password': 'bouh'}},
+                            headers=get_user_headers('alice', '123456'),
+                            status=403)
 
     def test_metadata_can_be_changed(self):
         resp = self.app.patch_json('/accounts/alice', {'data': {'age': 'captain'}},
@@ -144,8 +147,11 @@ class AccountViewsTest(AccountsWebTest):
         self.app.put_json('/accounts/alice', {'data': {'password': '123456'}}, status=201)
         self.app.put_json('/accounts/bob', {'data': {'password': 'azerty'}}, status=201)
 
+    def test_account_list_is_empty_if_anonymous(self):
+        resp = self.app.get('/accounts')
+        assert len(resp.json['data']) == 0
+
     def test_account_detail_is_forbidden_if_anonymous(self):
-        self.app.get('/accounts', status=401)
         self.app.get('/accounts/alice', status=401)
 
     def test_accounts_list_contains_only_one_record(self):
@@ -157,11 +163,11 @@ class AccountViewsTest(AccountsWebTest):
 
     def test_cannot_obtain_someone_else_account(self):
         self.app.get('/accounts/bob', headers=get_user_headers('alice', '123456'),
-                     status=404)
+                     status=403)
 
     def test_cannot_obtain_unknown_account(self):
         self.app.get('/accounts/jeanine', headers=get_user_headers('alice', '123456'),
-                     status=404)
+                     status=403)
 
 
 class AdminTest(AccountsWebTest):
@@ -169,6 +175,7 @@ class AdminTest(AccountsWebTest):
     def get_app_settings(self, extras=None):
         settings = super(AdminTest, self).get_app_settings(extras)
         settings['account_write_principals'] = 'account:admin'
+        settings['account_read_principals'] = 'account:admin'
         return settings
 
     def setUp(self):

@@ -1,4 +1,5 @@
 from kinto.views import NameGenerator
+from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from kinto.core.initialization import load_default_settings
 
 
@@ -21,3 +22,11 @@ def includeme(config):
         url='http://kinto.readthedocs.io/en/latest/api/1.x/accounts.html')
 
     config.scan('kinto.plugins.accounts.views')
+
+    PERMISSIONS_INHERITANCE_TREE[''].update({
+        'account:create': {}
+    })
+    PERMISSIONS_INHERITANCE_TREE['account'] = {
+        'write': {'account': ['write']},
+        'read': {'account': ['write', 'read']}
+    }
