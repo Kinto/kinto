@@ -98,22 +98,22 @@ class BaseTestStorage(object):
         request.registry.settings = {'readonly': 'false'}
         ping = heartbeat(self.storage)
 
-        with mock.patch('kinto.core.storage.random.random', return_value=0.7):
+        with mock.patch('kinto.core.storage.random.SystemRandom.random', return_value=0.7):
             ping(request)
 
         self.client_error_patcher.start()
-        with mock.patch('kinto.core.storage.random.random', return_value=0.7):
+        with mock.patch('kinto.core.storage.random.SystemRandom.random', return_value=0.7):
             self.assertFalse(ping(request))
-        with mock.patch('kinto.core.storage.random.random', return_value=0.5):
+        with mock.patch('kinto.core.storage.random.SystemRandom.random', return_value=0.5):
             self.assertFalse(ping(request))
 
     def test_ping_returns_true_when_working(self):
         request = DummyRequest()
         request.headers['Authorization'] = 'Basic bWF0OjI='
         ping = heartbeat(self.storage)
-        with mock.patch('kinto.core.storage.random.random', return_value=0.7):
+        with mock.patch('kinto.core.storage.random.SystemRandom.random', return_value=0.7):
             self.assertTrue(ping(request))
-        with mock.patch('kinto.core.storage.random.random', return_value=0.5):
+        with mock.patch('kinto.core.storage.random.SystemRandom.random', return_value=0.5):
             self.assertTrue(ping(request))
 
     def test_ping_returns_true_when_working_in_readonly_mode(self):
