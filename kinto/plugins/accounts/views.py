@@ -22,12 +22,6 @@ class Account(resource.UserResource):
             return request.matchdict['id']
         return request.json['data']['id']
 
-    # def get_parent_id(self, request):
-    #     parent_id = request.prefixed_userid
-    #     if parent_id is None:
-    #         parent_id = request.json['data']['id']
-    #     return parent_id
-
     def collection_post(self):
         result = super(Account, self).collection_post()
         is_anonymous = Authenticated not in self.request.effective_principals

@@ -52,8 +52,6 @@ class AuthorizationPolicy(object):
 
     def permits(self, context, principals, permission):
         if permission == PRIVATE:
-            if bool(context.allowed_principals() & set(principals)):
-                return True
             return Authenticated in principals
 
         principals = context.get_prefixed_principals()
