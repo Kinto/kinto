@@ -38,6 +38,7 @@ Contributors
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
 * Maxime Warnier <marmax@gmail.com>
+* Michael Charlton <m.charlton@mac.com>
 * Michiel de Jong <michiel@unhosted.org>
 * Mo Valipour <valipour@gmail.com>
 * Nicolas Hoizey <nicolas@hoizey.com>

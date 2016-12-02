@@ -23,6 +23,9 @@ This document describes changes between each past release.
 - The ``delete_object_permissions()`` of the permission backend now supports
   URI patterns (eg. ``/bucket/id*``)
 - Refactor handling of prefixed user id among request principals
+- Replaced insecure use of ``random.random()`` and ``random.choice(...)`` with
+  more secure ``random.SystemRandom().random()`` and
+  ``random.SystemRandom().choice(...)``. (#955)
 
 
 5.0.0 (2016-11-18)
