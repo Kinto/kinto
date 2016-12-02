@@ -221,8 +221,11 @@ class Permission(PermissionBase):
             # (e.g. root object /buckets)
             return {}
         else:
-            perms = [(o.replace('*', '.*'), p) for (o, p) in bound_permissions]
-            perms_values = ','.join(["('^%s$', '%s')" % p for p in perms])
+            has_pattern = any(['+' in o or '*' in o for (o, p) in bound_permissions])
+            if has_pattern:
+                bound_permissions = [(o.replace('*', '%'), p)
+                                     for (o, p) in bound_permissions]
+            perms_values = ','.join(["('%s', '%s')" % p for p in bound_permissions])
             query = """
             WITH required_perms AS (
               VALUES %(perms)s
@@ -240,9 +243,10 @@ class Permission(PermissionBase):
             )
             SELECT object_id, permission
               FROM potential_objects
-             WHERE object_id ~ pattern;
+             WHERE object_id %(operator)s pattern;
             """ % dict(perms=perms_values,
-                       principals=principals_values)
+                       principals=principals_values,
+                       operator='SIMILAR TO' if has_pattern else '=')
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query)
@@ -363,7 +367,8 @@ class Permission(PermissionBase):
         if len(object_id_list) == 0:
             return
 
-        object_ids_values = ','.join(["('^%s$')" % o.replace('*', '.*')
+        has_pattern = any(['*' in i for i in object_id_list])
+        object_ids_values = ','.join(["('%s')" % o.replace('*', '%')
                                       for o in object_id_list])
         query = """
         WITH object_ids AS (
@@ -371,8 +376,9 @@ class Permission(PermissionBase):
         )
         DELETE FROM access_control_entries
          USING object_ids
-         WHERE object_id ~ column1;"""
+         WHERE object_id LIKE column1;"""
         safeholders = {
+            'operator': 'LIKE' if has_pattern else '=',
             'object_ids_values': object_ids_values
         }
         with self.client.connect() as conn:

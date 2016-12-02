@@ -35,6 +35,7 @@ Protocol is now at version **1.13**. See `API changelog`_.
   URI patterns (eg. ``/bucket/id*``)
 - Refactor handling of prefixed user id among request principals
 - Add a warning when a cache entry is set without TTL (ref #960)
+- Removed usage of pattern matching in PostgreSQL when not necessary (ref #907, fixes #974)
 
 
 5.0.0 (2016-11-18)

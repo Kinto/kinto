@@ -429,8 +429,8 @@ class Storage(StorageBase):
         safeholders = defaultdict(six.text_type)
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
-            safeholders['parent_id_filter'] = 'parent_id ~ :parent_id'
-            placeholders['parent_id'] = "^%s$" % parent_id.replace('*', '.*')
+            safeholders['parent_id_filter'] = 'parent_id LIKE :parent_id'
+            placeholders['parent_id'] = parent_id.replace('*', '%')
         else:
             safeholders['parent_id_filter'] = 'parent_id = :parent_id'
         # If collection is None, remove it from query.
@@ -479,8 +479,8 @@ class Storage(StorageBase):
         safeholders = defaultdict(six.text_type)
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
-            safeholders['parent_id_filter'] = 'parent_id ~ :parent_id'
-            placeholders['parent_id'] = "^%s$" % parent_id.replace('*', '.*')
+            safeholders['parent_id_filter'] = 'parent_id LIKE :parent_id'
+            placeholders['parent_id'] = parent_id.replace('*', '%')
         else:
             safeholders['parent_id_filter'] = 'parent_id = :parent_id'
         # If collection is None, remove it from query.
@@ -562,8 +562,8 @@ class Storage(StorageBase):
 
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
-            safeholders['parent_id_filter'] = 'parent_id ~ :parent_id'
-            placeholders['parent_id'] = "^%s$" % parent_id.replace('*', '.*')
+            safeholders['parent_id_filter'] = 'parent_id LIKE :parent_id'
+            placeholders['parent_id'] = parent_id.replace('*', '%')
         else:
             safeholders['parent_id_filter'] = 'parent_id = :parent_id'
 
