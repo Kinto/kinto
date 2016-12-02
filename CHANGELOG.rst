@@ -10,6 +10,9 @@ This document describes changes between each past release.
 
 - Add a ``basicauth`` capability when activated on the server. (#937)
 - Activate ``basicauth`` in admin by default. (#943)
+- Add ability to delete history entries using ``DELETE`` (#958)
+
+Protocol is now at version **1.13**. See `API changelog`_.
 
 **Bug fixes**
 

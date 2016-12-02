@@ -11,6 +11,11 @@ API
 Changelog
 ---------
 
+1.13 (unreleased)
+'''''''''''''''''
+
+- Add ``DELETE`` to the history endpoint.
+
 1.12 (2016-11-18)
 '''''''''''''''''
 
