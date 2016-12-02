@@ -62,10 +62,9 @@ class HistoryViewTest(HistoryWebTest):
 
         self.history_uri = '/buckets/test/history'
 
-    def test_only_get_on_collection_is_allowed(self):
+    def test_only_get_and_delete_on_collection_are_allowed(self):
         self.app.put(self.history_uri, headers=self.headers, status=405)
         self.app.patch(self.history_uri, headers=self.headers, status=405)
-        self.app.delete(self.history_uri, headers=self.headers, status=405)
 
     def test_only_collection_endpoint_is_available(self):
         resp = self.app.get(self.history_uri, headers=self.headers)
@@ -314,6 +313,35 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         deletion_entries = [e for e in resp.json['data'] if e['action'] == 'delete']
         assert len(deletion_entries) == 1
+
+
+class HistoryDeletionTest(HistoryWebTest):
+
+    def setUp(self):
+        self.app.put('/buckets/bid', headers=self.headers)
+        self.app.put('/buckets/bid/collections/cid',
+                     headers=self.headers)
+        body = {'data': {'foo': 42}}
+        self.app.put_json('/buckets/bid/collections/cid/records/rid',
+                          body,
+                          headers=self.headers)
+
+    def test_full_deletion(self):
+        self.app.delete('/buckets/bid/history', headers=self.headers)
+        resp = self.app.get('/buckets/bid/history', headers=self.headers)
+        assert len(resp.json['data']) == 0
+
+    def test_partial_deletion(self):
+        resp = self.app.get('/buckets/bid/history', headers=self.headers)
+        before = resp.headers['ETag']
+        self.app.put('/buckets/bid/collections/cid2', headers=self.headers)
+
+        # Delete everything before the last entry (exclusive)
+        self.app.delete('/buckets/bid/history?_before=%s' % before,
+                        headers=self.headers)
+
+        resp = self.app.get('/buckets/bid/history', headers=self.headers)
+        assert len(resp.json['data']) == 2  # record + new collection
 
 
 class FilteringTest(HistoryWebTest):
@@ -681,3 +709,47 @@ class PermissionsTest(HistoryWebTest):
                             headers=self.headers)
         entries = [e['resource_name'] == 'history' for e in resp.json["data"]]
         assert not any(entries)
+
+
+class ExcludeResourcesTest(HistoryWebTest):
+
+    def get_app_settings(self, extras=None):
+        settings = super(ExcludeResourcesTest, self).get_app_settings(extras)
+        settings['history.exclude_resources'] = ('/buckets/a '
+                                                 '/buckets/b/collections/a '
+                                                 '/buckets/b/groups/a')
+        return settings
+
+    def setUp(self):
+        group = {'data': {'members': []}}
+        self.app.put_json('/buckets/a', headers=self.headers)
+        self.app.put_json('/buckets/a/groups/admins', group, headers=self.headers)
+        self.app.put_json('/buckets/b', headers=self.headers)
+        self.app.put_json('/buckets/b/groups/a', group, headers=self.headers)
+        self.app.put_json('/buckets/b/collections/a', headers=self.headers)
+        self.app.put_json('/buckets/b/collections/a/records/1', headers=self.headers)
+        self.app.put_json('/buckets/b/collections/b', headers=self.headers)
+        self.app.put_json('/buckets/b/collections/b/records/1', headers=self.headers)
+
+    def test_whole_buckets_can_be_excluded(self):
+        resp = self.app.get('/buckets/a/history',
+                            headers=self.headers)
+        entries = resp.json['data']
+        assert len(entries) == 0  # nothing.
+
+    def test_some_specific_collection_can_be_excluded(self):
+        resp = self.app.get('/buckets/b/history?collection_id=b',
+                            headers=self.headers)
+        entries = resp.json['data']
+        assert len(entries) > 0
+
+        resp = self.app.get('/buckets/b/history?collection_id=a',
+                            headers=self.headers)
+        entries = resp.json['data']
+        assert len(entries) == 0  # nothing.
+
+    def test_some_specific_object_can_be_excluded(self):
+        resp = self.app.get('/buckets/b/history?group_id=a',
+                            headers=self.headers)
+        entries = resp.json['data']
+        assert len(entries) == 0  # nothing.

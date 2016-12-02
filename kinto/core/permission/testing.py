@@ -313,6 +313,15 @@ class PermissionTest(object):
             [('*url1*', 'write')])
         self.assertEquals(sorted(per_object_ids.keys()), ['/url1/id'])
 
+    def test_accessible_objects_with_pattern_matches_whole_id(self):
+        self.permission.add_principal_to_ace('/url1/id', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url1/id/sub', 'write', 'user1')
+        self.permission.add_principal_to_ace('/a/url1/id', 'write', 'user1')
+        per_object_ids = self.permission.get_accessible_objects(
+            ['user1'],
+            [('/url1/[a-z]+', 'write')])
+        self.assertEquals(sorted(per_object_ids.keys()), ['/url1/id'])
+
     def test_accessible_objects_several_bound_permissions(self):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
         self.permission.add_principal_to_ace('/url/a/id/2', 'read', 'user1')

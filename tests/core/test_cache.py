@@ -1,5 +1,6 @@
 import mock
 import unittest
+import time
 
 from kinto.core.utils import sqlalchemy
 from kinto.core.cache import (CacheBase, memory as memory_backend,
@@ -30,7 +31,8 @@ class CacheBaseTest(unittest.TestCase):
 class MemoryCacheTest(CacheTest, unittest.TestCase):
     backend = memory_backend
     settings = {
-        'cache_prefix': ''
+        'cache_prefix': '',
+        'cache_max_size_bytes': 7000
     }
 
     def get_backend_prefix(self, prefix):
@@ -50,6 +52,30 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
 
     def test_ping_logs_error_if_unavailable(self):
         pass
+
+    def test_clean_expired_expires_items(self):
+        self.cache.set('foobar', 'toto', 0.01)
+        assert 'foobar' in self.cache._store
+        assert 'foobar' in self.cache._ttl
+        assert 'foobar' in self.cache._created_at
+        time.sleep(0.02)
+        retrieved = self.cache._clean_expired()
+        assert 'foobar' not in self.cache._store
+        assert 'foobar' not in self.cache._ttl
+        assert 'foobar' not in self.cache._created_at
+        self.assertIsNone(retrieved)
+
+    def test_add_over_quota_clean_oversized_items(self):
+        for x in range(100):
+            # Each entry is 70 bytes
+            self.cache.set('foo' + str(x).zfill(3), 'toto')
+            time.sleep(0.001)
+        assert self.cache.get('foo000') == 'toto'
+        # This should delete the 2 first entries
+        self.cache.set('foobar', 'tata')
+        assert self.cache._quota == 7000 - 70 * 20
+        assert self.cache.get('foo000') is None
+        assert self.cache.get('foobar') == 'tata'
 
 
 @skip_if_no_postgresql

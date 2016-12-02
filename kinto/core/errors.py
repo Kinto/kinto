@@ -132,9 +132,8 @@ def json_error_handler(request):
         (c.f. HTTP API).
     """
     errors = request.errors
-    assert len(errors) != 0
-
     sorted_errors = sorted(errors, key=lambda x: six.text_type(x['name']))
+    # In Cornice, we call error handler if at least one error was set.
     error = sorted_errors[0]
     name = error['name']
     description = error['description']

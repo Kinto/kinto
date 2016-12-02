@@ -270,8 +270,12 @@ class ShareableModel(Model):
         """
         deleted = super(ShareableModel, self).delete_records(filters,
                                                              parent_id)
-        perm_ids = [self.get_permission_object_id(object_id=r[self.id_field])
-                    for r in deleted]
+        # Take a huge shortcut in case we want to delete everything.
+        if not filters:
+            perm_ids = [self.get_permission_object_id(object_id='*')]
+        else:
+            perm_ids = [self.get_permission_object_id(object_id=r[self.id_field])
+                        for r in deleted]
         self.permission.delete_object_permissions(*perm_ids)
         return deleted
 

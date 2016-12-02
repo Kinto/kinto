@@ -87,7 +87,7 @@ def setup_version_redirection(config):
     config.route_prefix = None
 
     config.add_route(name='redirect_to_version',
-                     pattern=r'/{path:(?!v[0-9]+)[^\r]*}')
+                     pattern=r'/{path:(?!v[0-9]+)[^\r\n]*}')
 
     config.add_view(view=_redirect_to_version_view,
                     route_name='redirect_to_version',

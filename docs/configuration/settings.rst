@@ -138,29 +138,31 @@ Storage
 Cache
 :::::
 
-+--------------------------+-----------------------------+------------------------------------------------------------------------------+
-| Setting name             | Default                     | What does it do?                                                             |
-+==========================+=============================+==============================================================================+
-| kinto.cache_backend      | ``kinto.core.cache.memory`` | The Python *dotted* location of the cache backend to use.                    |
-|                          |                             |                                                                              |
-+--------------------------+-----------------------------+------------------------------------------------------------------------------+
-| kinto.cache_url          | ``''``                      | The URL to use to authenticate to the cache backend. e.g.                    |
-|                          |                             | ``redis://localhost:6378/1`` or ``postgres://user:pass@database/db``         |
-+--------------------------+-----------------------------+------------------------------------------------------------------------------+
-| kinto.cache_prefix       | ``''``                      | A prefix added to each key. Useful when having multiple Kinto using the same |
-|                          |                             | cache database.                                                              |
-+--------------------------+-----------------------------+------------------------------------------------------------------------------+
-| kinto.cache_pool_size    | ``25``                      | The size of the pool of connections to use for the cache backend.            |
-+--------------------------+-----------------------------+------------------------------------------------------------------------------+
-| kinto.cache_max_overflow | ``5``                       | Number of connections that can be opened beyond pool size.                   |
-+--------------------------+-----------------------------+------------------------------------------------------------------------------+
-| kinto.cache_pool_recycle | ``-1``                      | Recycle connections after the given number of seconds has passed.            |
-+--------------------------+-----------------------------+------------------------------------------------------------------------------+
-| kinto.cache_pool_timeout | ``30``                      | Number of seconds to wait before giving up on getting a connection from      |
-|                          |                             | the pool.                                                                    |
-+--------------------------+-----------------------------+------------------------------------------------------------------------------+
-| kinto.cache_max_backlog  | ``-1``                      | Number of threads that can be in the queue waiting for a connection.         |
-+--------------------------+-----------------------------+------------------------------------------------------------------------------+
++----------------------------+-----------------------------+------------------------------------------------------------------------------+
+| Setting name               | Default                     | What does it do?                                                             |
++============================+=============================+==============================================================================+
+| kinto.cache_backend        | ``kinto.core.cache.memory`` | The Python *dotted* location of the cache backend to use.                    |
+|                            |                             |                                                                              |
++----------------------------+-----------------------------+------------------------------------------------------------------------------+
+| kinto.cache_url            | ``''``                      | The URL to use to authenticate to the cache backend. e.g.                    |
+|                            |                             | ``redis://localhost:6378/1`` or ``postgres://user:pass@database/db``         |
++----------------------------+-----------------------------+------------------------------------------------------------------------------+
+| kinto.cache_prefix         | ``''``                      | A prefix added to each key. Useful when having multiple Kinto using the same |
+|                            |                             | cache database.                                                              |
++----------------------------+-----------------------------+------------------------------------------------------------------------------+
+| kinto.cache_max_size_bytes | ``524288``                  | The maximum size the memory cache backend will allow per process. (in bytes) |
++----------------------------+-----------------------------+------------------------------------------------------------------------------+
+| kinto.cache_pool_size      | ``25``                      | The size of the pool of connections to use for the cache backend.            |
++----------------------------+-----------------------------+------------------------------------------------------------------------------+
+| kinto.cache_max_overflow   | ``5``                       | Number of connections that can be opened beyond pool size.                   |
++----------------------------+-----------------------------+------------------------------------------------------------------------------+
+| kinto.cache_pool_recycle   | ``-1``                      | Recycle connections after the given number of seconds has passed.            |
++----------------------------+-----------------------------+------------------------------------------------------------------------------+
+| kinto.cache_pool_timeout   | ``30``                      | Number of seconds to wait before giving up on getting a connection from      |
+|                            |                             | the pool.                                                                    |
++----------------------------+-----------------------------+------------------------------------------------------------------------------+
+| kinto.cache_max_backlog    | ``-1``                      | Number of threads that can be in the queue waiting for a connection.         |
++----------------------------+-----------------------------+------------------------------------------------------------------------------+
 
 .. code-block:: ini
 

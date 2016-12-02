@@ -10,6 +10,9 @@ This document describes changes between each past release.
 
 - Add a ``basicauth`` capability when activated on the server. (#937)
 - Activate ``basicauth`` in admin by default. (#943)
+- Add ability to delete history entries using ``DELETE`` (#958)
+
+Protocol is now at version **1.13**. See `API changelog`_.
 
 **Bug fixes**
 
@@ -17,12 +20,21 @@ This document describes changes between each past release.
   object is deleted (fixes #898)
 - Fix ``record_id`` attribute in history entries when several records are
   modified via a batch request (fixes #942)
+- Fix crash on redirection when path contains control characters (fixes #962)
+- Fix performance issue when fetching shared objects from plural endpoints (fixes #965)
+
+**New features**
+
+- Add a setting to limit the maximum number of bytes cached in the memory backend. (#610)
+- Add a setting to exclude certain resources from being tracked by history (fixes #964)
 
 **Internal changes**
 
+- Remove usage of assert (fixes #954)
 - The ``delete_object_permissions()`` of the permission backend now supports
   URI patterns (eg. ``/bucket/id*``)
 - Refactor handling of prefixed user id among request principals
+- Add a warning when a cache entry is set without TTL (ref #960)
 - Replaced insecure use of ``random.random()`` and ``random.choice(...)`` with
   more secure ``random.SystemRandom().random()`` and
   ``random.SystemRandom().choice(...)``. (#955)

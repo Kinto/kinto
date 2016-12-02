@@ -106,6 +106,68 @@ As other list endpoints, the entries can be filtered and sorted using the querys
     If the server defines a ``kinto.paginate_by`` setting, the list will be limited by default.
 
 
+.. _history-delete:
+
+Purge  history
+==============
+
+.. http:delete:: /buckets/(bucket_id)/history
+
+    :synopsis: Delete the writable history entries
+
+    **Optional authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http DELETE  "http://localhost:8888/v1/buckets/blog/history" --auth user:pass --verbose
+
+    .. sourcecode:: http
+
+        DELETE /v1/buckets/blog/history HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic dXNlcjpwYXNz
+        Connection: keep-alive
+        Content-Length: 0
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.2
+
+  **Example Response**
+
+  .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Retry-After, Content-Length, Alert, Backoff
+        Content-Length: 283
+        Content-Type: application/json; charset=UTF-8
+        Date: Thu, 01 Dec 2016 17:05:11 GMT
+        Server: waitress
+
+        {
+            "data": [
+                {
+                    "deleted": true,
+                    "id": "518c3e21-357d-4166-b6d9-d0b6ace22dfd",
+                    "last_modified": 1480611911546
+                },
+                {
+                    "deleted": true,
+                    "id": "f107f592-b9f4-466e-a7ea-52885bef1879",
+                    "last_modified": 1480611911546
+                },
+                {
+                    "deleted": true,
+                    "id": "8c549209-37ce-4509-b4ec-c6a4d831a8b6",
+                    "last_modified": 1480611911546
+                }
+            ]
+        }
+
+Using the same querystring parameters as the GET endpoint, the deletion can be partial.
+
+
 Conflict resolution
 ===================
 
@@ -115,7 +177,7 @@ For example, if Alice receives a |status-412| error response when she tries to u
 she can use the history entries for this particular record filtering from a the timestamp of her local copy, in order
 to merge the changes that happened remotely with her local ones.
 
-.. sourcecode:: bash
+.. code-block:: bash
 
     $ RECORD_URI="buckets/blog/collections/articles/records/xyz"
     $ LOCAL_TIMESTAMP="1469006098757"
@@ -123,3 +185,14 @@ to merge the changes that happened remotely with her local ones.
 
 Each entries gives the state in which the record was modified. Computing the difference between
 two steps and applying it to the local record is a possible way of solving conflicts automatically.
+
+
+Configuration
+=============
+
+It is possible to exclude certain resources from being tracked by history using the following setting:
+
+.. code-block:: ini
+
+    kinto.history.exclude_resources = /buckets/preview
+                                      /buckets/signed/collections/certificates

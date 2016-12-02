@@ -1,5 +1,3 @@
-import re
-
 from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 
@@ -94,40 +92,35 @@ def _resource_endpoint(object_uri):
     the specified `object_uri`. Returns `(None, None)` for the root URL plural
     endpoint.
     """
-    url_patterns = [
-        ('record', r'/buckets/(.+)/collections/(.+)/records/(.+)?'),
-        ('collection', r'/buckets/(.+)/collections/(.+)?'),
-        ('group', r'/buckets/(.+)/groups/(.+)?'),
-        ('bucket', r'/buckets/(.+)?'),
-        ('', r'/(buckets)')  # Root buckets list.
-    ]
-    for resource_name, pattern in url_patterns:
-        m = re.match(pattern, object_uri)
-        if m:
-            plural = '/' in m.groups()[-1]
-            return resource_name, plural
-    raise ValueError("%r is not a resource." % object_uri)
+    obj_parts = object_uri.split('/')
+    plural_endpoint = len(obj_parts) % 2 == 0
+    if plural_endpoint:
+        # /buckets/bid/collections -> /buckets/bid
+        obj_parts = obj_parts[:-1]
+
+    if len(obj_parts) <= 2:
+        # Root URL /buckets -> ('', False)
+        return '', False
+
+    # /buckets/bid -> buckets
+    resource_name = obj_parts[-2]
+    # buckets -> bucket
+    resource_name = resource_name.rstrip('s')
+    return resource_name, plural_endpoint
 
 
 def _relative_object_uri(resource_name, object_uri):
     """Returns object_uri
     """
     obj_parts = object_uri.split('/')
-    PARTS_LENGTH = {
-        '': 1,
-        'bucket': 3,
-        'collection': 5,
-        'group': 5,
-        'record': 7
-    }
-    length = PARTS_LENGTH[resource_name]
-    parent_uri = '/'.join(obj_parts[:length])
+    for length in range(len(obj_parts) + 1):
+        parent_uri = '/'.join(obj_parts[:length])
+        parent_resource_name, _ = _resource_endpoint(parent_uri)
+        if resource_name == parent_resource_name:
+            return parent_uri
 
-    if length > len(obj_parts):
-        error_msg = 'Cannot get URL of resource %r from parent %r.'
-        raise ValueError(error_msg % (resource_name, parent_uri))
-
-    return parent_uri
+    error_msg = 'Cannot get URL of resource %r from parent %r.'
+    raise ValueError(error_msg % (resource_name, object_uri))
 
 
 def _inherited_permissions(object_uri, permission):
@@ -141,12 +134,11 @@ def _inherited_permissions(object_uri, permission):
      ('/buckets/blog', 'read')]
 
     """
+    resource_name, plural = _resource_endpoint(object_uri)
     try:
-        resource_name, plural = _resource_endpoint(object_uri)
-    except ValueError:
+        object_perms_tree = PERMISSIONS_INHERITANCE_TREE[resource_name]
+    except KeyError:
         return []  # URL that are not resources have no inherited perms.
-
-    object_perms_tree = PERMISSIONS_INHERITANCE_TREE[resource_name]
 
     # When requesting permissions for a single object, we check if they are any
     # specific inherited permissions for the attributes.
