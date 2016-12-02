@@ -1,3 +1,5 @@
+import bcrypt
+from pyramid.compat import native_
 from pyramid import authentication as base_auth
 
 from kinto.core.storage import exceptions as storage_exceptions
@@ -11,9 +13,11 @@ def account_check(username, password, request):
                                                 object_id=username)
     except storage_exceptions.RecordNotFoundError:
         return None
-    # XXX: bcrypt whatever
-    if existing['password'] == password:
-        return True  # anything but None.
+
+    hashed = existing['password']
+    pwd_str = native_(password)
+    if hashed == bcrypt.hashpw(pwd_str, hashed):
+        return True  # Match! Return anything but None.
 
 
 class AccountsAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):

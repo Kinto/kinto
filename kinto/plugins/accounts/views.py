@@ -1,6 +1,8 @@
 import functools
 
+import bcrypt
 import colander
+from pyramid.compat import native_
 from pyramid.settings import aslist
 from pyramid.exceptions import HTTPForbidden
 from pyramid.security import Authenticated, Everyone
@@ -74,10 +76,12 @@ class Account(resource.ShareableResource):
     def process_record(self, new, old=None):
         new = super(Account, self).process_record(new, old)
 
-        # XXX: bcrypt whatever
-        # new["password"] = bcrypt(...)
+        # Store password safely in database.
+        pwd_str = native_(new["password"])
+        new["password"] = bcrypt.hashpw(pwd_str, bcrypt.gensalt())
 
-        # Administrators can reach other accounts. Anonymous have no selected_userid.
+        # Administrators can reach other accounts and anonymous have no
+        # selected_userid. So do not try to enforce.
         if self.context.is_administrator or self.context.is_anonymous:
             return new
 

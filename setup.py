@@ -19,6 +19,7 @@ CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 installed_with_pypy = platform.python_implementation() == 'PyPy'
 
 REQUIREMENTS = [
+    'bcrypt',
     'colander',
     'colorama',
     'cornice >= 2.1',
