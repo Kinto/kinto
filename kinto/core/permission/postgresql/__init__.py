@@ -367,7 +367,6 @@ class Permission(PermissionBase):
         if len(object_id_list) == 0:
             return
 
-        has_pattern = any(['*' in i for i in object_id_list])
         object_ids_values = ','.join(["('%s')" % o.replace('*', '%')
                                       for o in object_id_list])
         query = """
@@ -378,7 +377,6 @@ class Permission(PermissionBase):
          USING object_ids
          WHERE object_id LIKE column1;"""
         safeholders = {
-            'operator': 'LIKE' if has_pattern else '=',
             'object_ids_values': object_ids_values
         }
         with self.client.connect() as conn:
