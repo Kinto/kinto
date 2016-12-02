@@ -32,14 +32,6 @@ class AccountCreationTest(AccountsWebTest):
         self.app.post_json('/accounts', {'data': {'id': 'alice', 'password': '123456'}},
                            status=201)
 
-    # def test_username_is_generated_if_not_provided(self):
-    #     resp = self.app.post_json('/accounts', {'data': {'password': 's3cr3t'}})
-    #     user_id = resp.json['data']['id']
-    #     assert len(user_id) == 8
-    #     assert user_id.lower() == user_id
-    #     self.app.get('/accounts/%s' % user_id,
-    #                  headers=get_user_headers(user_id, 's3cr3t'))
-
     def test_account_can_be_created_with_put(self):
         self.app.put_json('/accounts/alice', {'data': {'password': '123456'}}, status=201)
 
@@ -64,6 +56,11 @@ class AccountCreationTest(AccountsWebTest):
         resp = self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bouh'}},
                                   status=403)
         assert 'already exists' in resp.json['message']
+
+    def test_username_and_account_id_must_match(self):
+        resp = self.app.put_json('/accounts/alice', {'data': {'id': 'bob', 'password': 'bouh'}},
+                                 status=400)
+        assert 'does not match' in resp.json['message']
 
     def test_returns_existing_account_if_authenticated(self):
         self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bouh'}},
