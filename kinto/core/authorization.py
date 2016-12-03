@@ -114,7 +114,6 @@ class RouteFactory(object):
 
     def __init__(self, request):
         # Store some shortcuts.
-        self._settings = request.registry.settings
         permission = request.registry.permission
         self._check_permission = permission.check_permission
         self._get_accessible_objects = permission.get_accessible_objects
@@ -136,11 +135,7 @@ class RouteFactory(object):
             # To obtain shared records on a collection endpoint, use a match:
             self._object_id_match = self.get_permission_object_id(request, '*')
 
-    def allowed_principals(self, permission=None):
-        permission = permission or self.required_permission
-        setting = '%s_%s_principals' % (self.resource_name, permission)
-        allowed_principals = aslist(self._settings.get(setting, ''))
-        return set(allowed_principals)
+        self._settings = request.registry.settings
 
     def check_permission(self, principals, bound_perms):
         """Read allowed principals from settings, if not any, query the permission
@@ -149,9 +144,11 @@ class RouteFactory(object):
         if not bound_perms:
             bound_perms = [(self.resource_name, self.required_permission)]
         for (_, permission) in bound_perms:
-            allowed_principals = self.allowed_principals(permission)
-            if bool(allowed_principals & set(principals)):
-                return True
+            setting = '%s_%s_principals' % (self.resource_name, permission)
+            allowed_principals = aslist(self._settings.get(setting, ''))
+            if allowed_principals:
+                if bool(set(allowed_principals) & set(principals)):
+                    return True
         return self._check_permission(principals, bound_perms)
 
     def fetch_shared_records(self, perm, principals, get_bound_permissions):

@@ -3,6 +3,7 @@ import colander
 from pyramid.compat import native_
 from pyramid.exceptions import HTTPForbidden
 from pyramid.security import Authenticated, Everyone
+from pyramid.settings import aslist
 
 from kinto.core import resource
 from kinto.core.errors import raise_invalid, http_error
@@ -18,11 +19,16 @@ class Account(resource.ShareableResource):
     schema = AccountSchema
 
     def __init__(self, request, context):
-        context.is_anonymous = Authenticated not in request.effective_principals
-        context.is_administrator = len(set(context.allowed_principals(permission='write')) &
+        # Store if current user is administrator (before accessing get_parent_id())
+        allowed_from_settings = aslist(request.registry.settings.get('account_write_principals', []))
+        context.is_administrator = len(set(allowed_from_settings) &
                                        set(request.prefixed_principals)) > 0
+        # Shortcut to check if current is anonymous (before get_parent_id()).
+        context.is_anonymous = Authenticated not in request.effective_principals
+
         super(Account, self).__init__(request, context)
 
+        # Overwrite the current principal set by ShareableResource.
         if self.model.current_principal == Everyone:
             # Creation is anonymous, but author with write perm is this:
             # XXX: only works if policy name is account in settings.
