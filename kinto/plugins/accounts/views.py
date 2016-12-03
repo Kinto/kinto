@@ -1,11 +1,11 @@
 import bcrypt
 import colander
-from pyramid.compat import native_
 from pyramid.exceptions import HTTPForbidden
 from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
 
 from kinto.core import resource
+from kinto.core.utils import encode_header
 from kinto.core.errors import raise_invalid, http_error
 
 
@@ -76,7 +76,7 @@ class Account(resource.ShareableResource):
         new = super(Account, self).process_record(new, old)
 
         # Store password safely in database.
-        pwd_str = native_(new["password"])
+        pwd_str = encode_header(new["password"])
         new["password"] = bcrypt.hashpw(pwd_str, bcrypt.gensalt())
 
         # Administrators can reach other accounts and anonymous have no

@@ -1,7 +1,7 @@
 import bcrypt
-from pyramid.compat import native_
 from pyramid import authentication as base_auth
 
+from kinto.core.utils import encode_header
 from kinto.core.storage import exceptions as storage_exceptions
 
 
@@ -15,7 +15,7 @@ def account_check(username, password, request):
         return None
 
     hashed = existing['password']
-    pwd_str = native_(password)
+    pwd_str = encode_header(password)
     if hashed == bcrypt.hashpw(pwd_str, hashed):
         return True  # Match! Return anything but None.
 
