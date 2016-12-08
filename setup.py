@@ -12,6 +12,7 @@ def read_file(filename):
         content = f.read()
     return content
 
+
 README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
@@ -61,6 +62,7 @@ SETUP_REQUIRES = [
 ]
 
 TEST_REQUIREMENTS = [
+    'bravado_core',
     'pytest',
     'WebTest'
 ]
