@@ -319,7 +319,8 @@ class PermissionTest(object):
         self.permission.add_principal_to_ace('/a/url1/id', 'write', 'user1')
         per_object_ids = self.permission.get_accessible_objects(
             ['user1'],
-            [('/url1/[a-z]+', 'write')])
+            [('/url1/*', 'write')],
+            with_children=False)
         self.assertEquals(sorted(per_object_ids.keys()), ['/url1/id'])
 
     def test_accessible_objects_several_bound_permissions(self):
