@@ -195,13 +195,7 @@ class RouteFactory(object):
                 object_uri = utils.instance_uri(request,
                                                 self.resource_name,
                                                 **matchdict)
-                if object_id == '*':
-                    # Express the object_uri pattern with precision
-                    # XXX: we could get the model.id_generator pattern, but
-                    # since the backend replace * by .* we can't.
-                    # See Kinto/kinto#970
-                    id_pattern = "[a-zA-Z0-9_-]+"
-                    object_uri = object_uri.replace('%2A', id_pattern)
+                object_uri = object_uri.replace('%2A', '*')
             except KeyError:
                 # Maybe the resource has no single record endpoint.
                 # We consider that object URIs in permissions backend will
