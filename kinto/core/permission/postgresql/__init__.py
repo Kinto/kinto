@@ -200,7 +200,7 @@ class Permission(PermissionBase):
             results = result.fetchall()
         return set([r['principal'] for r in results])
 
-    def get_accessible_objects(self, principals, bound_permissions=None):
+    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True):
         principals_values = ','.join(["('%s')" % p for p in principals])
         if bound_permissions is None:
             # Return all objects on which the specified principals have some
@@ -221,11 +221,14 @@ class Permission(PermissionBase):
             # (e.g. root object /buckets)
             return {}
         else:
-            has_pattern = any(['+' in o or '*' in o for (o, p) in bound_permissions])
-            if has_pattern:
-                bound_permissions = [(o.replace('*', '%'), p)
-                                     for (o, p) in bound_permissions]
+            bound_permissions = [(o.replace('*', '%'), p)
+                                 for (o, p) in bound_permissions]
             perms_values = ','.join(["('%s', '%s')" % p for p in bound_permissions])
+            if with_children:
+                object_id_condition = 'object_id LIKE pattern'
+            else:
+                object_id_condition = ("object_id LIKE pattern "
+                                       "AND object_id NOT LIKE pattern || '/%'")
             query = """
             WITH required_perms AS (
               VALUES %(perms)s
@@ -243,10 +246,10 @@ class Permission(PermissionBase):
             )
             SELECT object_id, permission
               FROM potential_objects
-             WHERE object_id %(operator)s pattern;
+             WHERE %(object_id_condition)s;
             """ % dict(perms=perms_values,
                        principals=principals_values,
-                       operator='SIMILAR TO' if has_pattern else '=')
+                       object_id_condition=object_id_condition)
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query)
