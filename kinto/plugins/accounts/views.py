@@ -5,7 +5,6 @@ from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
 
 from kinto.core import resource
-from kinto.core.utils import encode_header
 from kinto.core.errors import raise_invalid, http_error
 
 
@@ -20,8 +19,8 @@ class Account(resource.ShareableResource):
 
     def __init__(self, request, context):
         # Store if current user is administrator (before accessing get_parent_id())
-        allowed_from_settings = aslist(request.registry.settings.get('account_write_principals', []))
-        context.is_administrator = len(set(allowed_from_settings) &
+        allowed_from_settings = request.registry.settings.get('account_write_principals', [])
+        context.is_administrator = len(set(aslist(allowed_from_settings)) &
                                        set(request.prefixed_principals)) > 0
         # Shortcut to check if current is anonymous (before get_parent_id()).
         context.is_anonymous = Authenticated not in request.effective_principals
@@ -76,7 +75,7 @@ class Account(resource.ShareableResource):
         new = super(Account, self).process_record(new, old)
 
         # Store password safely in database.
-        pwd_str = encode_header(new["password"])
+        pwd_str = new["password"].encode(encoding='utf-8')
         new["password"] = bcrypt.hashpw(pwd_str, bcrypt.gensalt())
 
         # Administrators can reach other accounts and anonymous have no

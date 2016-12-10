@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import unittest
 
 from kinto.core.testing import get_user_headers
@@ -29,7 +32,7 @@ class HelloViewTest(AccountsWebTest):
 class AccountCreationTest(AccountsWebTest):
 
     def test_anyone_can_create_an_account(self):
-        self.app.post_json('/accounts', {'data': {'id': 'alice', 'password': '123456'}},
+        self.app.post_json('/accounts', {'data': {'id': 'alice', 'password': '12éé6'}},
                            status=201)
 
     def test_account_can_be_created_with_put(self):
