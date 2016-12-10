@@ -1,6 +1,10 @@
-import json
 import os
+import json
+import yaml
+import pkg_resources
 
+from pyramid import httpexceptions
+from pyramid.settings import aslist
 from pyramid.security import NO_PERMISSION_REQUIRED
 from kinto.core import Service
 from kinto.core.utils import recursive_update_dict
@@ -13,6 +17,8 @@ swagger = Service(name="swagger", path='/swagger.json', description="OpenAPI des
 
 @swagger.get(permission=NO_PERMISSION_REQUIRED)
 def swagger_view(request):
+
+    # Only build json once
     try:
         return swagger_view.__json__
     except AttributeError:
@@ -20,11 +26,50 @@ def swagger_view(request):
 
     settings = request.registry.settings
 
-    # Swagger basic info
+    # Base swagger spec
+    files = [
+        settings.get('swagger_file', ''),  # From config
+        os.path.join(ORIGIN, 'swagger.yaml'),  # Relative to the package root.
+        os.path.join(HERE, 'swagger.yaml')  # Relative to this file.
+    ]
+
+    files = [f for f in files if os.path.exists(f)]
+
+    # Get first file that exists
+    if files:
+        files = files[:1]
+    else:
+        raise httpexceptions.HTTPNotFound()
+
+    # Plugin swagger extensions
+    if settings.get('swagger_extensions'):
+        includes = aslist(settings['includes'])
+        for app in includes:
+            # prefer json instead of yaml
+            paths = [
+                pkg_resources.resource_filename(app, 'swagger.json'),
+                pkg_resources.resource_filename(app, 'swagger.yaml')
+            ]
+
+            paths = [f for f in paths if os.path.exists(f)]
+            files += paths[:1]
+
+    swagger_view.__json__ = {}
+    # Read and merge files
+    for path in files:
+        abs_path = os.path.abspath(path)
+        with open(abs_path) as f:
+            name, ext = os.path.splitext(abs_path)
+            if ext == '.yaml':
+                spec = yaml.load(f)
+            else:
+                spec = json.load(f)
+            recursive_update_dict(swagger_view.__json__, spec)
+
+    # Update instance fields
     info = dict(
         title=settings['project_name'],
-        version=settings['http_api_version'],
-    )
+        version=settings['http_api_version'])
 
     schemes = [settings.get('http_scheme') or 'http']
 
@@ -32,17 +77,8 @@ def swagger_view(request):
         info=info,
         host=request.host,
         basePath=request.path.replace(swagger.path, ''),
-        schemes=schemes,
-    )
+        schemes=schemes)
 
-    files = [
-        os.path.join(ORIGIN, 'swagger.json'),  # Relative to the package root.
-        os.path.join(HERE, 'swagger.json')  # Relative to this file.
-    ]
-    for version_file in files:
-        file_path = os.path.abspath(version_file)
-        if os.path.exists(file_path):
-            with open(file_path) as f:
-                swagger_view.__json__ = json.load(f)
-                recursive_update_dict(swagger_view.__json__, data)
-                return swagger_view.__json__
+    recursive_update_dict(swagger_view.__json__, data)
+
+    return swagger_view.__json__

@@ -27,6 +27,7 @@ REQUIREMENTS = [
     'jsonpatch',
     'python-dateutil',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
+    'PyYAML',
     'transaction',
     'pyramid_tm',
     'requests',
