@@ -38,6 +38,7 @@ Protocol is now at version **1.13**. See `API changelog`_.
 - Replaced insecure use of ``random.random()`` and ``random.choice(...)`` with
   more secure ``random.SystemRandom().random()`` and
   ``random.SystemRandom().choice(...)``. (#955)
+- Removed usage of pattern matching in PostgreSQL when not necessary (ref #907, fixes #974)
 
 
 5.0.0 (2016-11-18)
