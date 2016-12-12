@@ -1,4 +1,6 @@
 swagger: '2.0'
+
+# May be redefined from settings
 info:
   title: kinto
   version: '1.13'
@@ -16,32 +18,49 @@ securityDefinitions:
   basicAuth:
     type: basic
     description: HTTP Basic Authentication.
+security:
+  - basicAuth: []
+
+# May be overwritten in methods
 consumes:
   - application/json
 produces:
   - application/json
+
+# Resources
 tags:
   - name: Buckets
   - name: Groups
   - name: Collections
   - name: Records
+  - name: Batch
   - name: Utilities
+
+
 paths:
-  /:
+
+  #
+  # Utilities
+  #
+
+  '/':
     get:
       tags:
         - Utilities
       operationId: server_info
+      security: []
       description: Information about the running instance.
       responses:
         '200':
           $ref: '#/responses/server-info'
-  /__heartbeat__:
+
+  '/__heartbeat__':
     get:
       description: Return the status of dependent services.
       tags:
         - Utilities
       operationId: __heartbeat
+      security: []
       responses:
         '200':
           description: Object with subsystems status.
@@ -69,21 +88,25 @@ paths:
                 type: boolean
             additionalProperties:
               type: boolean
-  /__lbheartbeat__:
+
+  '/__lbheartbeat__':
     get:
       tags:
         - Utilities
       operationId: __lbheartbeat
+      security: []
       responses:
         '200':
           description: Returns empty object.
           schema:
             type: object
-  /__version__:
+
+  '/__version__':
     get:
       tags:
         - Utilities
       operationId: __version
+      security: []
       responses:
         '200':
           description: Returns object with distribution details.
@@ -91,32 +114,45 @@ paths:
             type: object
         '404':
           description: version.json file not found.
-  /batch:
-    post:
-      tags:
-        - Utilities
-      operationId: batch
-      description: Send multiple operations in one request.
-      parameters:
-        - $ref: '#/parameters/batch'
-      security:
-        - basicAuth: []
-      responses:
-        '200':
-          $ref: '#/responses/batch-200'
-        '400':
-          $ref: '#/responses/batch-400'
-  /contribute.json:
+
+  '/contribute.json':
     get:
       tags:
         - Utilities
       operationId: contribute
+      security: []
       responses:
         '200':
           description: Open source contribution information.
           schema:
             type: object
-  /buckets:
+
+  #
+  # Batch requests
+  #
+
+  /batch:
+    post:
+      tags:
+        - Batch
+      operationId: batch
+      description: Send multiple operations in one request.
+      parameters:
+        - $ref: '#/parameters/batch'
+      responses:
+        '200':
+          $ref: '#/responses/batch-200'
+        '400':
+          $ref: '#/responses/batch-400'
+
+  #
+  # Data endpoints
+  #
+
+  '/buckets':
+    parameters:
+      - $ref: '#/parameters/If-Match'
+      - $ref: '#/parameters/If-None-Match'
     get:
       tags:
         - Buckets
@@ -129,8 +165,6 @@ paths:
         - $ref: '#/parameters/_limit'
         - $ref: '#/parameters/_token'
         - $ref: '#/parameters/_fields'
-      security:
-        - basicAuth: []
       responses:
         '200':
           $ref: '#/responses/list-get-200'
@@ -158,17 +192,11 @@ paths:
           required: false
           schema:
             $ref: '#/definitions/Bucket'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return an existing bucket.
-          schema:
-            $ref: '#/definitions/Bucket'
+          $ref: '#/responses/bucket-post-200'
         '201':
-          description: Return created bucket.
-          schema:
-            $ref: '#/definitions/Bucket'
+          $ref: '#/responses/bucket-post-201'
         '400':
           $ref: '#/responses/list-post-400'
         '401':
@@ -205,6 +233,7 @@ paths:
           $ref: '#/responses/list-delete-406'
         '412':
           $ref: '#/responses/list-delete-412'
+
   '/buckets/{bucket_id}':
     parameters:
       - in: path
@@ -212,19 +241,17 @@ paths:
         description: Bucket id.
         required: true
         type: string
+      - $ref: '#/parameters/If-Match'
+      - $ref: '#/parameters/If-None-Match'
       - $ref: '#/parameters/_fields'
     get:
       tags:
         - Buckets
       operationId: get_bucket
       description: Retrieve an existing bucket.
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return matched bucket.
-          schema:
-            $ref: '#/definitions/Bucket'
+          $ref: '#/responses/bucket-get-200'
         '304':
           $ref: '#/responses/object-get-304'
         '400':
@@ -246,17 +273,11 @@ paths:
       description: Create or replace a bucket.
       parameters:
         - $ref: '#/parameters/bucket'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return replaced bucket.
-          schema:
-            $ref: '#/definitions/Bucket'
+          $ref: '#/responses/bucket-put-200'
         '201':
-          description: Return created Bucket.
-          schema:
-            $ref: '#/definitions/Bucket'
+          $ref: '#/responses/bucket-put-201'
         '400':
           $ref: '#/responses/object-put-400'
         '401':
@@ -280,13 +301,9 @@ paths:
       description: Modify an existing bucket.
       parameters:
         - $ref: '#/parameters/bucket'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return updated bucket.
-          schema:
-            $ref: '#/definitions/Bucket'
+          $ref: '#/responses/bucket-patch-200'
         '400':
           $ref: '#/responses/object-patch-400'
         '401':
@@ -306,8 +323,6 @@ paths:
         - Buckets
       operationId: delete_bucket
       description: Delete a bucket.
-      security:
-        - basicAuth: []
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
@@ -323,6 +338,7 @@ paths:
           $ref: '#/responses/object-delete-406'
         '412':
           $ref: '#/responses/object-delete-412'
+
   '/buckets/{bucket_id}/groups':
     parameters:
       - in: path
@@ -330,6 +346,8 @@ paths:
         description: Bucket id.
         required: true
         type: string
+      - $ref: '#/parameters/If-Match'
+      - $ref: '#/parameters/If-None-Match'
     get:
       tags:
         - Groups
@@ -342,8 +360,6 @@ paths:
         - $ref: '#/parameters/_limit'
         - $ref: '#/parameters/_token'
         - $ref: '#/parameters/_fields'
-      security:
-        - basicAuth: []
       responses:
         '200':
           $ref: '#/responses/list-get-200'
@@ -366,17 +382,11 @@ paths:
       description: Create a group.
       parameters:
         - $ref: '#/parameters/group'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return an existing group.
-          schema:
-            $ref: '#/definitions/Group'
+          $ref: '#/responses/group-post-200'
         '201':
-          description: Return created group.
-          schema:
-            $ref: '#/definitions/Group'
+          $ref: '#/responses/group-post-201'
         '400':
           $ref: '#/responses/list-post-400'
         '401':
@@ -398,8 +408,6 @@ paths:
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
-      security:
-        - basicAuth: []
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -415,6 +423,7 @@ paths:
           $ref: '#/responses/list-delete-406'
         '412':
           $ref: '#/responses/list-delete-412'
+
   '/buckets/{bucket_id}/groups/{group_id}':
     parameters:
       - in: path
@@ -427,19 +436,17 @@ paths:
         description: Group id.
         required: true
         type: string
+      - $ref: '#/parameters/If-Match'
+      - $ref: '#/parameters/If-None-Match'
       - $ref: '#/parameters/_fields'
     get:
       tags:
         - Groups
       operationId: get_group
       description: Retrieve a group.
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return matched group.
-          schema:
-            $ref: '#/definitions/Group'
+          $ref: '#/responses/group-get-200'
         '304':
           $ref: '#/responses/object-get-304'
         '400':
@@ -461,17 +468,11 @@ paths:
       description: Update a group.
       parameters:
         - $ref: '#/parameters/group'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return replaced group.
-          schema:
-            $ref: '#/definitions/Group'
+          $ref: '#/responses/group-put-200'
         '201':
-          description: Return created group.
-          schema:
-            $ref: '#/definitions/Group'
+          $ref: '#/responses/group-put-201'
         '400':
           $ref: '#/responses/object-put-400'
         '401':
@@ -495,13 +496,9 @@ paths:
         - application/json-patch+json
       parameters:
         - $ref: '#/parameters/group'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return updated group.
-          schema:
-            $ref: '#/definitions/Group'
+          $ref: '#/responses/group-patch-200'
         '400':
           $ref: '#/responses/object-patch-400'
         '401':
@@ -521,8 +518,6 @@ paths:
         - Groups
       operationId: delete_group
       description: Delete a group.
-      security:
-        - basicAuth: []
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
@@ -538,6 +533,7 @@ paths:
           $ref: '#/responses/object-delete-406'
         '412':
           $ref: '#/responses/object-delete-412'
+
   '/buckets/{bucket_id}/collections':
     parameters:
       - in: path
@@ -545,6 +541,8 @@ paths:
         description: Bucket id.
         required: true
         type: string
+      - $ref: '#/parameters/If-Match'
+      - $ref: '#/parameters/If-None-Match'
     get:
       tags:
         - Collections
@@ -557,8 +555,6 @@ paths:
         - $ref: '#/parameters/_limit'
         - $ref: '#/parameters/_token'
         - $ref: '#/parameters/_fields'
-      security:
-        - basicAuth: []
       responses:
         '200':
           $ref: '#/responses/list-get-200'
@@ -581,17 +577,11 @@ paths:
       description: Create a collection.
       parameters:
         - $ref: '#/parameters/collection'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return existing collection.
-          schema:
-            $ref: '#/definitions/Collection'
+          $ref: '#/responses/collection-post-200'
         '201':
-          description: Return created collection.
-          schema:
-            $ref: '#/definitions/Collection'
+          $ref: '#/responses/collection-post-201'
         '400':
           $ref: '#/responses/list-post-400'
         '401':
@@ -613,8 +603,6 @@ paths:
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
-      security:
-        - basicAuth: []
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -630,6 +618,7 @@ paths:
           $ref: '#/responses/list-delete-406'
         '412':
           $ref: '#/responses/list-delete-412'
+
   '/buckets/{bucket_id}/collections/{collection_id}':
     parameters:
       - in: path
@@ -642,19 +631,17 @@ paths:
         description: Colection id.
         required: true
         type: string
+      - $ref: '#/parameters/If-Match'
+      - $ref: '#/parameters/If-None-Match'
       - $ref: '#/parameters/_fields'
     get:
       tags:
         - Collections
       operationId: get_collection
       description: Retreive an existing collection.
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return matching collection.
-          schema:
-            $ref: '#/definitions/Collection'
+          $ref: '#/responses/collection-get-200'
         '304':
           $ref: '#/responses/object-get-304'
         '400':
@@ -676,17 +663,11 @@ paths:
       description: Create or replace a collection.
       parameters:
         - $ref: '#/parameters/collection'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return replaced collection.
-          schema:
-            $ref: '#/definitions/Collection'
+          $ref: '#/responses/collection-put-200'
         '201':
-          description: Return created collection.
-          schema:
-            $ref: '#/definitions/Collection'
+          $ref: '#/responses/collection-put-201'
         '400':
           $ref: '#/responses/object-put-400'
         '401':
@@ -710,13 +691,9 @@ paths:
         - application/json-patch+json
       parameters:
         - $ref: '#/parameters/collection'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return updated group.
-          schema:
-            $ref: '#/definitions/Collection'
+          $ref: '#/responses/collection-patch-200'
         '400':
           $ref: '#/responses/object-patch-400'
         '401':
@@ -736,8 +713,6 @@ paths:
         - Collections
       operationId: delete_collection
       description: Delete a collection.
-      security:
-        - basicAuth: []
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
@@ -753,6 +728,7 @@ paths:
           $ref: '#/responses/object-delete-406'
         '412':
           $ref: '#/responses/object-delete-412'
+
   '/buckets/{bucket_id}/collections/{collection_id}/records':
     parameters:
       - in: path
@@ -765,6 +741,8 @@ paths:
         description: Collection id.
         required: true
         type: string
+      - $ref: '#/parameters/If-Match'
+      - $ref: '#/parameters/If-None-Match'
     get:
       tags:
         - Records
@@ -777,8 +755,6 @@ paths:
         - $ref: '#/parameters/_limit'
         - $ref: '#/parameters/_token'
         - $ref: '#/parameters/_fields'
-      security:
-        - basicAuth: []
       responses:
         '200':
           $ref: '#/responses/list-get-200'
@@ -801,17 +777,11 @@ paths:
       description: Upload a record.
       parameters:
         - $ref: '#/parameters/record'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return existing record.
-          schema:
-            $ref: '#/definitions/Record'
+          $ref: '#/responses/record-post-200'
         '201':
-          description: Return created record.
-          schema:
-            $ref: '#/definitions/Record'
+          $ref: '#/responses/record-post-201'
         '400':
           $ref: '#/responses/list-post-400'
         '401':
@@ -833,8 +803,6 @@ paths:
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
-      security:
-        - basicAuth: []
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -850,6 +818,7 @@ paths:
           $ref: '#/responses/list-delete-406'
         '412':
           $ref: '#/responses/list-delete-412'
+
   '/buckets/{bucket_id}/collections/{collection_id}/records/{record_id}':
     parameters:
       - in: path
@@ -868,18 +837,16 @@ paths:
         required: true
         type: string
       - $ref: '#/parameters/_fields'
+      - $ref: '#/parameters/If-Match'
+      - $ref: '#/parameters/If-None-Match'
     get:
       tags:
         - Records
       operationId: get_record
       description: Retrieve a single record.
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return matching record.
-          schema:
-            $ref: '#/definitions/Record'
+          $ref: '#/responses/record-get-200'
         '304':
           $ref: '#/responses/object-get-304'
         '400':
@@ -901,17 +868,11 @@ paths:
       description: Create or replace a record.
       parameters:
         - $ref: '#/parameters/record'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return replaced record.
-          schema:
-            $ref: '#/definitions/Record'
+          $ref: '#/responses/record-put-200'
         '201':
-          description: Return created record.
-          schema:
-            $ref: '#/definitions/Record'
+          $ref: '#/responses/record-put-201'
         '400':
           $ref: '#/responses/object-put-400'
         '401':
@@ -935,13 +896,9 @@ paths:
         - application/json-patch+json
       parameters:
         - $ref: '#/parameters/record'
-      security:
-        - basicAuth: []
       responses:
         '200':
-          description: Return updated record.
-          schema:
-            $ref: '#/definitions/Record'
+          $ref: '#/responses/record-patch-200'
         '400':
           $ref: '#/responses/object-patch-400'
         '401':
@@ -961,8 +918,6 @@ paths:
         - Records
       description: Delete a single record.
       operationId: delete_record
-      security:
-        - basicAuth: []
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
@@ -978,7 +933,14 @@ paths:
           $ref: '#/responses/object-delete-406'
         '412':
           $ref: '#/responses/object-delete-412'
+
+
 definitions:
+
+  #
+  # Resource Objects
+  #
+
   Bucket:
     type: object
     properties:
@@ -1014,11 +976,7 @@ definitions:
             items:
               type: string
             uniqueItems: true
-          'record:create':
-            type: array
-            items:
-              type: string
-            uniqueItems: true
+
   Group:
     type: object
     properties:
@@ -1051,6 +1009,7 @@ definitions:
             items:
               type: string
             uniqueItems: true
+
   Collection:
     type: object
     properties:
@@ -1085,6 +1044,7 @@ definitions:
             items:
               type: string
             uniqueItems: true
+
   Record:
     type: object
     properties:
@@ -1110,6 +1070,11 @@ definitions:
             items:
               type: string
             uniqueItems: true
+
+  #
+  # Resource List
+  #
+
   List:
     type: object
     properties:
@@ -1124,17 +1089,34 @@ definitions:
               type: integer
           x-properties:
             type: any
+
+  #
+  # Auxiliary Object schemas
+  #
+
   Error:
     type: object
     properties:
       code:
+        description: The HTTP status code.
         type: integer
       errno:
+        description: Application-leval error number.
         type: integer
       error:
+        description: Description of the HTTP error type.
+        type: string
+      message:
+        description: Context information about the error.
+        type: string
+      info:
+        description: Link to an online resource with details.
         type: string
     x-properties:
-      type: any
+      details:
+        description: Additional details.
+        type: any
+
   Deleted:
     type: object
     properties:
@@ -1144,19 +1126,53 @@ definitions:
         type: integer
       deleted:
         type: boolean
+
+
 parameters:
+
+  #
+  # Headers
+  #
+
+  If-Match:
+    in: header
+    name: If-Match
+    description: >-
+      Provide a timestamp to see if a resource has changed, avoid changes and
+      returns 412 if it does.
+    required: false
+    type: string
+    pattern: \"[0-9]+\"
+
+  If-None-Match:
+    in: header
+    name: If-None-Match
+    description: >-
+      Provide a timestamp to see if a resource has changed, avoid overwriting
+      objects with the same id if it does. Returns 304 with empty body if nothing
+      has changed.
+    required: false
+    type: string
+    pattern: \"[0-9]+\"
+
+  #
+  # Querystrings
+  #
+
   _since:
     in: query
     name: _since
     description: Get entries after a timestamp.
     required: false
     type: integer
+
   _before:
     in: query
     name: _before
     description: Get entries before a timestamp.
     required: false
     type: integer
+
   _sort:
     in: query
     name: _sort
@@ -1166,18 +1182,21 @@ parameters:
     items:
       type: string
     collectionFormat: csv
+
   _limit:
     in: query
     name: _limit
     description: Limit objects on a list.
     required: false
     type: integer
+
   _token:
     in: query
     name: _token
     description: Set offset on a limited list.
     required: false
     type: integer
+
   _fields:
     in: query
     name: _fields
@@ -1187,6 +1206,11 @@ parameters:
     items:
       type: string
     collectionFormat: csv
+
+  #
+  # Body
+  #
+
   bucket:
     in: body
     name: bucket
@@ -1194,6 +1218,7 @@ parameters:
     required: false
     schema:
       $ref: '#/definitions/Bucket'
+
   group:
     in: body
     name: group
@@ -1201,6 +1226,7 @@ parameters:
     required: true
     schema:
       $ref: '#/definitions/Group'
+
   collection:
     in: body
     name: collection
@@ -1208,6 +1234,7 @@ parameters:
     required: false
     schema:
       $ref: '#/definitions/Collection'
+
   record:
     in: body
     name: record
@@ -1215,6 +1242,7 @@ parameters:
     required: false
     schema:
       $ref: '#/definitions/Record'
+
   batch:
     in: body
     name: batch
@@ -1269,7 +1297,14 @@ parameters:
               type: object
               additionalProperties:
                 type: string
+
+
 responses:
+
+  #
+  # Utilities
+  #
+
   server-info:
     description: Object with server properties.
     schema:
@@ -1300,6 +1335,11 @@ responses:
             type: all
       x-properties:
         type: all
+
+  #
+  # Batch
+  #
+
   batch-200:
     description: Operation responses.
     schema:
@@ -1322,8 +1362,272 @@ responses:
     description: The request body is invalid.
     schema:
       $ref: '#/definitions/Error'
+
+
+  #
+  # Bucket messages
+  #
+
+  bucket-post-200:
+    description: Return an existing bucket.
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  bucket-post-201:
+    description: Return created bucket.
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  bucket-get-200:
+    description: Return matched bucket.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  bucket-put-200:
+    description: Return replaced bucket.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  bucket-put-201:
+    description: Return created Bucket.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  bucket-patch-200:
+    description: Return updated bucket.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  #
+  # Group messages
+  #
+
+  group-post-200:
+    description: Return an existing group.
+    schema:
+      $ref: '#/definitions/Group'
+
+  group-post-201:
+    description: Return created group.
+    schema:
+      $ref: '#/definitions/Group'
+
+  group-get-200:
+    description: Return matched group.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Group'
+
+  group-put-200:
+    description: Return replaced group.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Group'
+
+  group-put-201:
+    description: Return created group.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Group'
+
+  group-patch-200:
+    description: Return updated group.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Group'
+
+
+  #
+  # Collection messages
+  #
+
+  collection-post-200:
+    description: Return an existing collection.
+    schema:
+      $ref: '#/definitions/Collection'
+
+  collection-post-201:
+    description: Return created collection.
+    schema:
+      $ref: '#/definitions/Collection'
+
+  collection-get-200:
+    description: Return matched collection.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Collection'
+
+  collection-put-200:
+    description: Return replaced collection.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Collection'
+
+  collection-put-201:
+    description: Return created collection.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Collection'
+
+  collection-patch-200:
+    description: Return updated collection.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Collection'
+
+  #
+  # Record messages
+  #
+
+  record-post-200:
+    description: Return an existing record.
+    schema:
+      $ref: '#/definitions/Record'
+
+  record-post-201:
+    description: Return created record.
+    schema:
+      $ref: '#/definitions/Record'
+
+  record-get-200:
+    description: Return matched record.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Record'
+
+  record-put-200:
+    description: Return replaced record.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Record'
+
+  record-put-201:
+    description: Return created record.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Record'
+
+  record-patch-200:
+    description: Return updated record.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+    schema:
+      $ref: '#/definitions/Record'
+
+  #
+  # Generic object messages
+  #
+
+  # GET
+
   object-get-304:
     description: Object did not change since value in ``If-None-Match`` header.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
   object-get-400:
     description: The request headers are invalid.
     schema:
@@ -1350,6 +1654,9 @@ responses:
     description: Object changed since value in ``If-Match`` header.
     schema:
       $ref: '#/definitions/Error'
+
+  # PUT
+
   object-put-400:
     description: The request body is invalid.
     schema:
@@ -1406,6 +1713,9 @@ responses:
     description: The client request was not sent with a correct Content-Type.
     schema:
       $ref: '#/definitions/Error'
+
+  # DELETE
+
   object-delete-200:
     description: Return the deleted object.
     schema:
@@ -1436,12 +1746,35 @@ responses:
     description: Object changed or deleted since value in ``If-Match`` header.
     schema:
       $ref: '#/definitions/Error'
+
+  #
+  # List messages
+  #
+
+  # GET
+
   list-get-200:
-    description: The request was processed.
+    description: Return the requested object list.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
+      Total-Records:
+        type: integer
     schema:
       $ref: '#/definitions/List'
   list-get-304:
     description: List has not changed since value in ``If-None-Match`` header.
+    headers:
+      ETag:
+        type: string
+        pattern: \"[0-9]+\"
+      Last-Modified:
+        type: string
+        format: dateTime
   list-get-400:
     description: The request headers or querystring are invalid.
     schema:
@@ -1464,6 +1797,9 @@ responses:
     description: List has changed since value in ``If-Match`` header.
     schema:
       $ref: '#/definitions/Error'
+
+  # POST
+
   list-post-400:
     description: The request body is invalid
     schema:
@@ -1490,6 +1826,9 @@ responses:
     description: The client request was not sent with a correct Content-Type.
     schema:
       $ref: '#/definitions/Error'
+
+  # DELETE
+
   list-delete-200:
     description: The objects were deleted.
     schema:

@@ -11,6 +11,7 @@ class SwaggerRequestsValidationTest(SwaggerTest):
 
         self.request = IncomingRequest()
         self.request.path = {}
+        self.request.headers = {}
         self.request.query = {}
         self.request._json = {}
         self.request.json = lambda: self.request._json
@@ -101,5 +102,15 @@ class SwaggerRequestsValidationTest(SwaggerTest):
         ]
         for query in queries:
             self.request.query = query
+            self.assertRaises(ValidationError, unmarshal_request,
+                              self.request, self.resources['Buckets'].get_buckets)
+
+    def test_validate_headers(self):
+        headers = [
+            {'If-None-Match': '123'},
+            {'If-Match': '123'},
+        ]
+        for head in headers:
+            self.request.headers = head
             self.assertRaises(ValidationError, unmarshal_request,
                               self.request, self.resources['Buckets'].get_buckets)

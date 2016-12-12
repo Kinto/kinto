@@ -14,6 +14,7 @@ class SwaggerRecordRequestsTest(SwaggerTest):
             'collection_id': 'c1',
             'record_id': 'r1',
         }
+        self.request.headers = {}
         self.request.query = {}
         self.request.json = lambda: MINIMALIST_RECORD
 

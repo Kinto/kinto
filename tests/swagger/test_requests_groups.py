@@ -14,6 +14,7 @@ class SwaggerGroupRequestsTest(SwaggerTest):
             'bucket_id': 'b1',
             'group_id': 'g1',
         }
+        self.request.headers = {}
         self.request.query = {}
         self.request.json = lambda: MINIMALIST_GROUP
 

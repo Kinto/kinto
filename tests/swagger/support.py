@@ -45,11 +45,20 @@ class SwaggerTest(BaseWebTest, unittest.TestCase):
     def cast_bravado_response(self, response):
         resp = OutgoingResponse()
         resp.text = response.body
+
         # FIXME: Empty response fails with Bravado and Python 3
         # See https://github.com/Yelp/bravado-core/issues/134
         if not resp.text:
             resp.text = None
+
         resp.headers = response.headers
+        # Response headers integer fields are not casted by default
+        for k, v in resp.headers.items():
+            try:
+                resp.headers[k] = int(v)
+            except ValueError:
+                pass
+
         # FIXME: Drop charset from application/json response on Pyramid
         # See https://github.com/Pylons/pyramid/issues/2860
         resp.content_type = response.headers.get('Content-Type', '').split(';')[0]

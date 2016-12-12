@@ -12,6 +12,7 @@ class SwaggerBucketRequestsTest(SwaggerTest):
         self.request.path = {
             'bucket_id': 'b1',
         }
+        self.request.headers = {}
         self.request.query = {}
         self.request.json = lambda: MINIMALIST_BUCKET
 
