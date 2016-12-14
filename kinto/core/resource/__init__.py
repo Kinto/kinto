@@ -95,9 +95,9 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
             argument_getter = getattr(viewset, '%s_arguments' % endpoint_type)
             view_args = argument_getter(resource_cls, method)
 
-            # We need to support JSON-merge for validation, so the approch
-            # is to validate the Content-Type and then cast it as regular JSON
-            # request.
+            # FIXME: We need to support JSON-merge validation, so the approch
+            # is to validate the Content-Type as a JSON variant and then cast
+            # the request as a regular JSON request.
             def validate_json_content_type(req, *args, **kargs):
                 """
                 Cast JSON Content-Type variations as JSON for validation as
@@ -112,7 +112,8 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
 
                 return req
 
-            view_args['validators'].insert(0, validate_json_content_type)
+            if 'validators' in view_args:
+                view_args['validators'].insert(0, validate_json_content_type)
 
             view = viewset.get_view(endpoint_type, method.lower())
             service.add_view(method, view, klass=resource_cls, **view_args)
@@ -125,7 +126,6 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
             if method.lower() == "patch":
                 view_args['content_type'] = "application/json-patch+json"
                 view_args.pop('schema', None)
-                view_args.pop('validators', None)
                 service.add_view(method, view, klass=resource_cls, **view_args)
 
         return service

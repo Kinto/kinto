@@ -307,7 +307,7 @@ class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
     _record_url = '/buckets/beers/collections/barley/records/%s'
 
     def setUp(self):
-        super(RecordsViewPatchTest, self).setUp()
+        super(RecordsViewMergeTest, self).setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.put_json('/buckets/beers/collections/barley',
