@@ -228,80 +228,6 @@ class PatchTest(BaseTest):
         self.assertEquals(self.stored['id'], self.result['id'])
         self.assertEquals(self.result['position'], 10)
 
-    def test_merge_patch_updates_attributes_recursively(self):
-        header = self.resource.request.headers
-        header['Content-Type'] = 'application/merge-patch+json'
-        self.resource.request.json = {'data': {'a': {'b': 'bbb',
-                                                     'c': 'ccc'}}}
-        self.resource.patch()
-        self.resource.request.json = {'data': {'a': {'b': 'aaa',
-                                                     'c': None}}}
-        result = self.resource.patch()['data']
-        self.assertEqual(result['a']['b'], 'aaa')
-
-    def test_merge_patch_removes_attribute_if_none(self):
-        header = self.resource.request.headers
-        header['Content-Type'] = 'application/merge-patch+json'
-        self.resource.request.json = {'data': {'field': 'aaa'}}
-        self.resource.patch()
-        self.resource.request.json = {'data': {'field': None}}
-        result = self.resource.patch()['data']
-        self.assertNotIn('field', result)
-        result = self.resource.get()['data']
-        self.assertNotIn('field', result)
-
-    def test_merge_patch_removes_attributes_recursively_if_none(self):
-        header = self.resource.request.headers
-        header['Content-Type'] = 'application/merge-patch+json'
-        self.resource.request.json = {'data': {'a': {'b': 'aaa'}}}
-        self.resource.patch()
-        self.resource.request.json = {'data': {'a': {'b': None}}}
-        result = self.resource.patch()['data']
-        self.assertIn('a', result)
-        self.assertNotIn('b', result['a'])
-        self.resource.request.json = {'data': {'aa': {'bb': {'cc': None}}}}
-        result = self.resource.patch()['data']
-        self.assertIn('aa', result)
-        self.assertIn('bb', result['aa'])
-        self.assertNotIn('cc', result['aa']['bb'])
-
-    def test_merge_patch_doesnt_remove_attribute_if_false(self):
-        header = self.resource.request.headers
-        header['Content-Type'] = 'application/merge-patch+json'
-        self.resource.request.json = {'data': {'field': 0}}
-        result = self.resource.patch()['data']
-        self.assertIn('field', result)
-        self.resource.request.json = {'data': {'field': False}}
-        result = self.resource.patch()['data']
-        self.assertIn('field', result)
-        self.resource.request.json = {'data': {'field': {}}}
-        result = self.resource.patch()['data']
-        self.assertIn('field', result)
-
-    def test_patch_doesnt_remove_attribute_if_not_merge_header(self):
-        header = self.resource.request.headers
-        header['Content-Type'] = 'application/json'
-        self.resource.request.json = {'data': {'field': 'aaa'}}
-        self.resource.patch()
-        self.resource.request.json = {'data': {'field': None}}
-        result = self.resource.patch()['data']
-        self.assertIn('field', result)
-        result = self.resource.get()['data']
-        self.assertIn('field', result)
-
-    def test_merge_patch_doesnt_remove_previously_inserted_nones(self):
-        header = self.resource.request.headers
-        header['Content-Type'] = 'application/json'
-        self.resource.request.json = {'data': {'field': 'aaa'}}
-        result = self.resource.patch()['data']
-        self.resource.request.json = {'data': {'field': None}}
-        result = self.resource.patch()['data']
-        self.assertIn('field', result)
-        header['Content-Type'] = 'application/merge-patch+json'
-        self.resource.request.json = {'data': {'position': 10}}
-        result = self.resource.patch()['data']
-        self.assertIn('field', result)
-
     def test_record_timestamp_is_not_updated_if_none_for_missing_field(self):
         self.resource.request.json = {'data': {'polo': None}}
         result = self.resource.patch()['data']
@@ -346,6 +272,93 @@ class PatchTest(BaseTest):
                                return_value={'unread': True, 'position': 0}):
             result = self.resource.patch()['data']
         self.assertDictEqual(result, {'unread': True, 'position': 0})
+
+
+class MergePatchTest(BaseTest):
+
+    def setUp(self):
+        super(MergePatchTest, self).setUp()
+        self.stored = self.model.create_record({})
+        self.resource.record_id = self.stored['id']
+        self.resource.request.validated_content_type = (
+            'application/merge-patch+json'
+        )
+
+        class ArticleSchema(ResourceSchema):
+            unread = colander.SchemaNode(colander.Boolean(), missing=colander.drop)
+            position = colander.SchemaNode(colander.Int(), missing=colander.drop)
+
+        self.resource.schema = ArticleSchema
+
+    def test_merge_patch_updates_attributes_recursively(self):
+        self.resource.request.json = {'data': {'a': {'b': 'bbb',
+                                                     'c': 'ccc'}}}
+        self.resource.patch()
+        self.resource.request.json = {'data': {'a': {'b': 'aaa',
+                                                     'c': None}}}
+        result = self.resource.patch()['data']
+        self.assertEqual(result['a']['b'], 'aaa')
+
+    def test_merge_patch_removes_attribute_if_none(self):
+        self.resource.request.json = {'data': {'field': 'aaa'}}
+        self.resource.patch()
+        self.resource.request.json = {'data': {'field': None}}
+        result = self.resource.patch()['data']
+        self.assertNotIn('field', result)
+        result = self.resource.get()['data']
+        self.assertNotIn('field', result)
+
+    def test_merge_patch_removes_attributes_recursively_if_none(self):
+        self.resource.request.json = {'data': {'a': {'b': 'aaa'}}}
+        self.resource.patch()
+        self.resource.request.json = {'data': {'a': {'b': None}}}
+        result = self.resource.patch()['data']
+        self.assertIn('a', result)
+        self.assertNotIn('b', result['a'])
+        self.resource.request.json = {'data': {'aa': {'bb': {'cc': None}}}}
+        result = self.resource.patch()['data']
+        self.assertIn('aa', result)
+        self.assertIn('bb', result['aa'])
+        self.assertNotIn('cc', result['aa']['bb'])
+
+    def test_merge_patch_doesnt_remove_attribute_if_false(self):
+        self.resource.request.json = {'data': {'field': 0}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
+        self.resource.request.json = {'data': {'field': False}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
+        self.resource.request.json = {'data': {'field': {}}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
+
+    def test_patch_doesnt_remove_attribute_if_not_merge_header(self):
+        self.resource.request.validated_content_type = (
+            'application/json'
+        )
+        self.resource.request.json = {'data': {'field': 'aaa'}}
+        self.resource.patch()
+        self.resource.request.json = {'data': {'field': None}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
+        result = self.resource.get()['data']
+        self.assertIn('field', result)
+
+    def test_merge_patch_doesnt_remove_previously_inserted_nones(self):
+        self.resource.request.validated_content_type = (
+            'application/json'
+        )
+        self.resource.request.json = {'data': {'field': 'aaa'}}
+        result = self.resource.patch()['data']
+        self.resource.request.json = {'data': {'field': None}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
+        self.resource.request.validated_content_type = (
+            'application/merge-patch+json'
+        )
+        self.resource.request.json = {'data': {'position': 10}}
+        result = self.resource.patch()['data']
+        self.assertIn('field', result)
 
 
 class JsonPatchTest(BaseTest):
