@@ -95,6 +95,25 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
             argument_getter = getattr(viewset, '%s_arguments' % endpoint_type)
             view_args = argument_getter(resource_cls, method)
 
+            # We need to support JSON-merge for validation, so the approch
+            # is to validate the Content-Type and then cast it as regular JSON
+            # request.
+            def validate_json_content_type(req, *args, **kargs):
+                """
+                Cast JSON Content-Type variations as JSON for validation as
+                they are JSON anyways.
+                """
+
+                if re.match('^application/(.*?)json$', req.content_type):
+                    req.validated_content_type = req.content_type
+                    req.content_type = 'application/json'
+                else:
+                    req.validated_content_type = None
+
+                return req
+
+            view_args['validators'].insert(0, validate_json_content_type)
+
             view = viewset.get_view(endpoint_type, method.lower())
             service.add_view(method, view, klass=resource_cls, **view_args)
 
@@ -657,9 +676,8 @@ class UserResource(object):
             applied_changes = requested_changes.copy()
             updated = record.copy()
 
-            content_type = str(self.request.headers.get('Content-Type')).lower()
             # recursive patch and remove field if null attribute is passed (RFC 7396)
-            if content_type == 'application/merge-patch+json':
+            if self.request.validated_content_type == 'application/merge-patch+json':
                 recursive_update_dict(updated, applied_changes, ignores=[None])
             else:
                 updated.update(**applied_changes)
