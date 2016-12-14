@@ -39,6 +39,8 @@ Protocol is now at version **1.13**. See `API changelog`_.
   more secure ``random.SystemRandom().random()`` and
   ``random.SystemRandom().choice(...)``. (#955)
 - Removed usage of pattern matching in PostgreSQL when not necessary (ref #907, fixes #974)
+- Validate JSON Content-Type variations (``application/json-patch+json`` and
+  ``application/merge-patch+json``) and cast Content-Type as regular JSON (fixes #979)
 
 
 5.0.0 (2016-11-18)
