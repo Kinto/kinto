@@ -98,7 +98,7 @@ class SwaggerRequestsValidationTest(SwaggerTest):
             {'_since': 'aaa'},
             {'_before': 'aaa'},
             {'_limit': 'aaa'},
-            {'_token': 'aaa'},
+            {'_token': {}},
         ]
         for query in queries:
             self.request.query = query

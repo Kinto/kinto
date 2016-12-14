@@ -1,5 +1,9 @@
 swagger: '2.0'
 
+externalDocs:
+  description: Full Documentation
+  url: http://kinto.readthedocs.io
+
 # May be redefined from settings
 info:
   title: kinto
@@ -7,9 +11,26 @@ info:
   description: >-
     Kinto is a minimalist JSON storage service with synchronisation and sharing
     abilities. It is meant to be easy to use and easy to self-host.
+
+
+    **Limitations of this OpenAPI specification:**
+      1. Any object on Kinto can have additional attributes with any type
+      that are not specied on the object schema. This may be supported on some
+      utilities that support `x-properties`.
+      2. [Filtering](http://kinto.readthedocs.io/en/stable/api/1.x/filtering.html)
+      is supported on any field by using `?{prefix}{field_name}={value}`.
+      3. [Backoff headers](http://kinto.readthedocs.io/en/stable/api/1.x/backoff.html)
+      may occur with any response, but they are only present if the server is
+      in heavy load, so we cannot validate in every request. Thet are listed only
+      on the default error message.
+      4. [Collection schemas](http://kinto.readthedocs.io/en/stable/api/1.x/collections.html#collection-json-schema)
+      can be provided when defining a collection, but they are not validated by
+      this specification.
+
   license:
     name: Apache License (2.0)
     url: 'http://www.apache.org/licenses/LICENSE-2.0'
+
 host: kinto.dev.mozaws.net
 basePath: /v1
 schemes:
@@ -59,7 +80,7 @@ paths:
       description: Return the status of dependent services.
       tags:
         - Utilities
-      operationId: __heartbeat
+      operationId: __heartbeat__
       security: []
       responses:
         '200':
@@ -93,7 +114,7 @@ paths:
     get:
       tags:
         - Utilities
-      operationId: __lbheartbeat
+      operationId: __lbheartbeat__
       security: []
       responses:
         '200':
@@ -105,7 +126,7 @@ paths:
     get:
       tags:
         - Utilities
-      operationId: __version
+      operationId: __version__
       security: []
       responses:
         '200':
@@ -119,7 +140,7 @@ paths:
     get:
       tags:
         - Utilities
-      operationId: contribute
+      operationId: __contribute__
       security: []
       responses:
         '200':
@@ -180,6 +201,8 @@ paths:
           $ref: '#/responses/list-get-406'
         '412':
           $ref: '#/responses/list-get-412'
+        default:
+          $ref: '#/responses/default'
     post:
       tags:
         - Buckets
@@ -209,6 +232,8 @@ paths:
           $ref: '#/responses/list-post-412'
         '415':
           $ref: '#/responses/list-post-415'
+        default:
+          $ref: '#/responses/default'
     delete:
       tags:
         - Buckets
@@ -233,6 +258,8 @@ paths:
           $ref: '#/responses/list-delete-406'
         '412':
           $ref: '#/responses/list-delete-412'
+        default:
+          $ref: '#/responses/default'
 
   '/buckets/{bucket_id}':
     parameters:
@@ -266,6 +293,8 @@ paths:
           $ref: '#/responses/object-get-406'
         '412':
           $ref: '#/responses/object-get-412'
+        default:
+          $ref: '#/responses/default'
     put:
       tags:
         - Buckets
@@ -290,6 +319,8 @@ paths:
           $ref: '#/responses/object-put-412'
         '415':
           $ref: '#/responses/object-put-415'
+        default:
+          $ref: '#/responses/default'
     patch:
       tags:
         - Buckets
@@ -318,6 +349,8 @@ paths:
           $ref: '#/responses/object-patch-412'
         '415':
           $ref: '#/responses/object-patch-415'
+        default:
+          $ref: '#/responses/default'
     delete:
       tags:
         - Buckets
@@ -338,6 +371,8 @@ paths:
           $ref: '#/responses/object-delete-406'
         '412':
           $ref: '#/responses/object-delete-412'
+        default:
+          $ref: '#/responses/default'
 
   '/buckets/{bucket_id}/groups':
     parameters:
@@ -375,6 +410,8 @@ paths:
           $ref: '#/responses/list-get-406'
         '412':
           $ref: '#/responses/list-get-412'
+        default:
+          $ref: '#/responses/default'
     post:
       tags:
         - Groups
@@ -399,6 +436,8 @@ paths:
           $ref: '#/responses/list-post-412'
         '415':
           $ref: '#/responses/list-post-415'
+        default:
+          $ref: '#/responses/default'
     delete:
       tags:
         - Groups
@@ -423,6 +462,8 @@ paths:
           $ref: '#/responses/list-delete-406'
         '412':
           $ref: '#/responses/list-delete-412'
+        default:
+          $ref: '#/responses/default'
 
   '/buckets/{bucket_id}/groups/{group_id}':
     parameters:
@@ -461,6 +502,8 @@ paths:
           $ref: '#/responses/object-get-406'
         '412':
           $ref: '#/responses/object-get-412'
+        default:
+          $ref: '#/responses/default'
     put:
       tags:
         - Groups
@@ -485,6 +528,8 @@ paths:
           $ref: '#/responses/object-put-412'
         '415':
           $ref: '#/responses/object-put-415'
+        default:
+          $ref: '#/responses/default'
     patch:
       tags:
         - Groups
@@ -513,6 +558,8 @@ paths:
           $ref: '#/responses/object-patch-412'
         '415':
           $ref: '#/responses/object-patch-415'
+        default:
+          $ref: '#/responses/default'
     delete:
       tags:
         - Groups
@@ -533,6 +580,8 @@ paths:
           $ref: '#/responses/object-delete-406'
         '412':
           $ref: '#/responses/object-delete-412'
+        default:
+          $ref: '#/responses/default'
 
   '/buckets/{bucket_id}/collections':
     parameters:
@@ -570,6 +619,8 @@ paths:
           $ref: '#/responses/list-get-406'
         '412':
           $ref: '#/responses/list-get-412'
+        default:
+          $ref: '#/responses/default'
     post:
       tags:
         - Collections
@@ -594,6 +645,8 @@ paths:
           $ref: '#/responses/list-post-412'
         '415':
           $ref: '#/responses/list-post-415'
+        default:
+          $ref: '#/responses/default'
     delete:
       tags:
         - Collections
@@ -618,6 +671,8 @@ paths:
           $ref: '#/responses/list-delete-406'
         '412':
           $ref: '#/responses/list-delete-412'
+        default:
+          $ref: '#/responses/default'
 
   '/buckets/{bucket_id}/collections/{collection_id}':
     parameters:
@@ -656,6 +711,8 @@ paths:
           $ref: '#/responses/object-get-406'
         '412':
           $ref: '#/responses/object-get-412'
+        default:
+          $ref: '#/responses/default'
     put:
       tags:
         - Collections
@@ -680,6 +737,8 @@ paths:
           $ref: '#/responses/object-put-412'
         '415':
           $ref: '#/responses/object-put-415'
+        default:
+          $ref: '#/responses/default'
     patch:
       tags:
         - Collections
@@ -708,6 +767,8 @@ paths:
           $ref: '#/responses/object-patch-412'
         '415':
           $ref: '#/responses/object-patch-415'
+        default:
+          $ref: '#/responses/default'
     delete:
       tags:
         - Collections
@@ -728,6 +789,8 @@ paths:
           $ref: '#/responses/object-delete-406'
         '412':
           $ref: '#/responses/object-delete-412'
+        default:
+          $ref: '#/responses/default'
 
   '/buckets/{bucket_id}/collections/{collection_id}/records':
     parameters:
@@ -770,6 +833,8 @@ paths:
           $ref: '#/responses/list-get-406'
         '412':
           $ref: '#/responses/list-get-412'
+        default:
+          $ref: '#/responses/default'
     post:
       tags:
         - Records
@@ -794,6 +859,8 @@ paths:
           $ref: '#/responses/list-post-412'
         '415':
           $ref: '#/responses/list-post-415'
+        default:
+          $ref: '#/responses/default'
     delete:
       tags:
         - Records
@@ -818,6 +885,8 @@ paths:
           $ref: '#/responses/list-delete-406'
         '412':
           $ref: '#/responses/list-delete-412'
+        default:
+          $ref: '#/responses/default'
 
   '/buckets/{bucket_id}/collections/{collection_id}/records/{record_id}':
     parameters:
@@ -861,6 +930,8 @@ paths:
           $ref: '#/responses/object-get-406'
         '412':
           $ref: '#/responses/object-get-412'
+        default:
+          $ref: '#/responses/default'
     put:
       tags:
         - Records
@@ -885,6 +956,8 @@ paths:
           $ref: '#/responses/object-put-412'
         '415':
           $ref: '#/responses/object-put-415'
+        default:
+          $ref: '#/responses/default'
     patch:
       tags:
         - Records
@@ -913,6 +986,8 @@ paths:
           $ref: '#/responses/object-patch-412'
         '415':
           $ref: '#/responses/object-patch-415'
+        default:
+          $ref: '#/responses/default'
     delete:
       tags:
         - Records
@@ -933,6 +1008,8 @@ paths:
           $ref: '#/responses/object-delete-406'
         '412':
           $ref: '#/responses/object-delete-412'
+        default:
+          $ref: '#/responses/default'
 
 
 definitions:
@@ -948,13 +1025,20 @@ definitions:
         type: object
         properties:
           id:
+            description: >-
+              Bucket object id. Should be unique.
             type: string
           last_modified:
+            description:  The timestamp of the last modification.
             type: integer
         x-properties:
           type: any
       permissions:
         type: object
+        description: >-
+          The access control lists for the bucket. Inherited to all
+          groups and collections on the bucket. Will show as an empty object
+          if the user has no write permissions.
         properties:
           read:
             type: array
@@ -984,10 +1068,14 @@ definitions:
         type: object
         properties:
           id:
+            description: >-
+              Group object id. Should be unique under a same bucket.
             type: string
           last_modified:
+            description:  The timestamp of the last modification.
             type: integer
           members:
+            description: List of user principals from the group.
             type: array
             uniqueItems: true
             items:
@@ -997,6 +1085,9 @@ definitions:
         required:
           - members
       permissions:
+        description: >-
+          The access control lists for the group. Will show as an empty object
+          if the user has no write permissions.
         type: object
         properties:
           read:
@@ -1017,24 +1108,44 @@ definitions:
         type: object
         properties:
           id:
+            description: >-
+              Collection object id. Should be unique under a same bucket.
             type: string
           last_modified:
-            type: integer
-          cache_expires:
+            description:  The timestamp of the last modification.
             type: integer
           schema:
+            description: >-
+              A JSON schema to validate the collection records.
             type: object
+            x-properties:
+              type: any
+          cache_expires:
+            description: >-
+              Add a Cache-Control field to response headers specifying how long
+              clients (or proxies) should cache the collection records
+              (in seconds).
+            type: integer
         x-properties:
           type: any
       permissions:
+        description: >-
+          The access control lists for the collection. Inherited to all records.
+          Will show as an empty object if the user has no write permissions.
         type: object
         properties:
           read:
+            description: >-
+              List of user principals that can read the collection object and
+              all its records.
             type: array
             items:
               type: string
             uniqueItems: true
           write:
+            description: >-
+              List of user principals that can read read, update and delete the
+              collection object and all its records.
             type: array
             items:
               type: string
@@ -1052,20 +1163,31 @@ definitions:
         type: object
         properties:
           id:
+            description: >-
+              Record object id. Should be unique under a same collection.
             type: string
           last_modified:
+            description: The timestamp of the last modification.
             type: integer
         x-properties:
           type: any
       permissions:
+        description: >-
+          The access control lists for the record. Will show as an empty object
+          if the user has no write permissions.
         type: object
         properties:
           read:
+            description: >-
+              List of user principals that can read the record.
             type: array
             items:
               type: string
             uniqueItems: true
           write:
+            description: >-
+              List of user principals that can read, update and delete
+              the record.
             type: array
             items:
               type: string
@@ -1079,13 +1201,16 @@ definitions:
     type: object
     properties:
       data:
+        description: List of objects.
         type: array
         items:
           type: object
           properties:
             id:
+              description:  The object id.
               type: string
             last_modified:
+              description:  The timestamp of the object last modification.
               type: integer
           x-properties:
             type: any
@@ -1128,10 +1253,11 @@ definitions:
         type: boolean
 
 
+
 parameters:
 
   #
-  # Headers
+  # Request Headers
   #
 
   If-Match:
@@ -1176,7 +1302,9 @@ parameters:
   _sort:
     in: query
     name: _sort
-    description: Fields to sort ascending on a list (use -field to sort descending).
+    description: >-
+      Comma separareted list of fields to sort ascending on a list
+      (use -field to sort descending).
     required: false
     type: array
     items:
@@ -1193,14 +1321,15 @@ parameters:
   _token:
     in: query
     name: _token
-    description: Set offset on a limited list.
+    description: Continuation token of a limited list.
     required: false
-    type: integer
+    type: string
 
   _fields:
     in: query
     name: _fields
-    description: Fields to compose response (id and last_modified are always returned).
+    description: >-
+      Fields to compose response (id and last_modified are always returned).
     required: false
     type: array
     items:
@@ -1299,7 +1428,40 @@ parameters:
                 type: string
 
 
+
 responses:
+
+  #
+  # Default response (also used as a template for others)
+  #
+
+  default:
+    description: >-
+      The response doesn't match any of the documented cases.
+    headers:
+      # We may include all response headers here since we are failing anyway.
+      Backoff:
+        description: >-
+          Time (in seconds) that a client should avoid doing unnecessary
+          requests. Added when the server is in heavy load.
+        type: integer
+        default: 30
+      ETag:
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
+        default: '"123456789"'
+      Last-Modified:
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
+        default: "Mon, 12 Dec 2016 23:45:14 GMT"
+    schema:
+      type: object
+      x-properties:
+        type: all
 
   #
   # Utilities
@@ -1370,11 +1532,21 @@ responses:
 
   bucket-post-200:
     description: Return an existing bucket.
+    # headers:
+    #   ETag:
+    #     $ref: '#/responses/default/headers/ETag'
+    #   Last-Modified:
+    #     $ref: '#/responses/default/headers/Last-Modified'
     schema:
-      $ref: '#/definitions/Bucket'
+     $ref: '#/definitions/Bucket'
 
   bucket-post-201:
     description: Return created bucket.
+    # headers:
+    #   ETag:
+    #     $ref: '#/responses/default/headers/ETag'
+    #   Last-Modified:
+    #     $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Bucket'
 
@@ -1382,11 +1554,9 @@ responses:
     description: Return matched bucket.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Bucket'
 
@@ -1394,11 +1564,9 @@ responses:
     description: Return replaced bucket.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Bucket'
 
@@ -1406,11 +1574,9 @@ responses:
     description: Return created Bucket.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Bucket'
 
@@ -1418,11 +1584,9 @@ responses:
     description: Return updated bucket.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Bucket'
 
@@ -1432,11 +1596,21 @@ responses:
 
   group-post-200:
     description: Return an existing group.
+    # headers:
+    #   ETag:
+    #     $ref: '#/responses/default/headers/ETag'
+    #   Last-Modified:
+    #     $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Group'
 
   group-post-201:
     description: Return created group.
+    # headers:
+    #   ETag:
+    #     $ref: '#/responses/default/headers/ETag'
+    #   Last-Modified:
+    #     $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Group'
 
@@ -1444,11 +1618,9 @@ responses:
     description: Return matched group.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Group'
 
@@ -1456,11 +1628,9 @@ responses:
     description: Return replaced group.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Group'
 
@@ -1468,11 +1638,9 @@ responses:
     description: Return created group.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Group'
 
@@ -1480,11 +1648,9 @@ responses:
     description: Return updated group.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Group'
 
@@ -1495,11 +1661,21 @@ responses:
 
   collection-post-200:
     description: Return an existing collection.
+    # headers:
+    #   ETag:
+    #     $ref: '#/responses/default/headers/ETag'
+    #   Last-Modified:
+    #     $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Collection'
 
   collection-post-201:
     description: Return created collection.
+    # headers:
+    #   ETag:
+    #     $ref: '#/responses/default/headers/ETag'
+    #   Last-Modified:
+    #     $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1507,11 +1683,9 @@ responses:
     description: Return matched collection.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1519,11 +1693,9 @@ responses:
     description: Return replaced collection.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1531,11 +1703,9 @@ responses:
     description: Return created collection.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1543,11 +1713,9 @@ responses:
     description: Return updated collection.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1557,11 +1725,21 @@ responses:
 
   record-post-200:
     description: Return an existing record.
+    # headers:
+    #   ETag:
+    #     $ref: '#/responses/default/headers/ETag'
+    #   Last-Modified:
+    #     $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Record'
 
   record-post-201:
     description: Return created record.
+    # headers:
+    #   ETag:
+    #     $ref: '#/responses/default/headers/ETag'
+    #   Last-Modified:
+    #     $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Record'
 
@@ -1569,11 +1747,9 @@ responses:
     description: Return matched record.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Record'
 
@@ -1581,11 +1757,9 @@ responses:
     description: Return replaced record.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Record'
 
@@ -1593,11 +1767,9 @@ responses:
     description: Return created record.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Record'
 
@@ -1605,11 +1777,9 @@ responses:
     description: Return updated record.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Record'
 
@@ -1623,11 +1793,9 @@ responses:
     description: Object did not change since value in ``If-None-Match`` header.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
   object-get-400:
     description: The request headers are invalid.
     schema:
@@ -1706,7 +1874,7 @@ responses:
     schema:
       $ref: '#/definitions/Error'
   object-patch-412:
-    description: Object changed or deleted since value in ``If-Match`` header.
+    description: Object changed or deleted since value in ``If-Match`` header
     schema:
       $ref: '#/definitions/Error'
   object-patch-415:
@@ -1718,6 +1886,11 @@ responses:
 
   object-delete-200:
     description: Return the deleted object.
+    # headers:
+    #   ETag:
+    #     $ref: '#/responses/default/headers/ETag'
+    #   Last-Modified:
+    #     $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Deleted'
   object-delete-400:
@@ -1757,24 +1930,18 @@ responses:
     description: Return the requested object list.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
-      Total-Records:
-        type: integer
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/List'
   list-get-304:
     description: List has not changed since value in ``If-None-Match`` header.
     headers:
       ETag:
-        type: string
-        pattern: \"[0-9]+\"
+        $ref: '#/responses/default/headers/ETag'
       Last-Modified:
-        type: string
-        format: dateTime
+        $ref: '#/responses/default/headers/Last-Modified'
   list-get-400:
     description: The request headers or querystring are invalid.
     schema:
@@ -1831,10 +1998,15 @@ responses:
 
   list-delete-200:
     description: The objects were deleted.
+    # headers:
+    #   ETag:
+    #     $ref: '#/responses/default/headers/ETag'
+    #   Last-Modified:
+    #     $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/List'
   list-delete-400:
-    description: The request body is invalid
+    description: The request body is invalid.
     schema:
       $ref: '#/definitions/Error'
   list-delete-401:
