@@ -275,14 +275,12 @@ class PatchTest(BaseTest):
 
 
 class MergePatchTest(BaseTest):
-
     def setUp(self):
         super(MergePatchTest, self).setUp()
         self.stored = self.model.create_record({})
         self.resource.record_id = self.stored['id']
-        self.resource.request.validated_content_type = (
-            'application/merge-patch+json'
-        )
+        self.headers = self.resource.request.headers
+        self.headers['Content-Type'] = 'application/merge-patch+json'
 
         class ArticleSchema(ResourceSchema):
             unread = colander.SchemaNode(colander.Boolean(), missing=colander.drop)
@@ -333,9 +331,7 @@ class MergePatchTest(BaseTest):
         self.assertIn('field', result)
 
     def test_patch_doesnt_remove_attribute_if_not_merge_header(self):
-        self.resource.request.validated_content_type = (
-            'application/json'
-        )
+        self.headers['Content-Type'] = 'application/json'
         self.resource.request.json = {'data': {'field': 'aaa'}}
         self.resource.patch()
         self.resource.request.json = {'data': {'field': None}}
@@ -345,17 +341,13 @@ class MergePatchTest(BaseTest):
         self.assertIn('field', result)
 
     def test_merge_patch_doesnt_remove_previously_inserted_nones(self):
-        self.resource.request.validated_content_type = (
-            'application/json'
-        )
+        self.headers['Content-Type'] = 'application/json'
         self.resource.request.json = {'data': {'field': 'aaa'}}
         result = self.resource.patch()['data']
         self.resource.request.json = {'data': {'field': None}}
         result = self.resource.patch()['data']
         self.assertIn('field', result)
-        self.resource.request.validated_content_type = (
-            'application/merge-patch+json'
-        )
+        self.headers['Content-Type'] = 'application/merge-patch+json'
         self.resource.request.json = {'data': {'position': 10}}
         result = self.resource.patch()['data']
         self.assertIn('field', result)
