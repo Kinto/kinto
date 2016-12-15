@@ -9,7 +9,6 @@ This document describes changes between each past release.
 **Protocol**
 
 - Add a ``basicauth`` capability when activated on the server. (#937)
-- Activate ``basicauth`` in admin by default. (#943)
 - Add ability to delete history entries using ``DELETE`` (#958)
 
 Protocol is now at version **1.13**. See `API changelog`_.
@@ -26,6 +25,7 @@ Protocol is now at version **1.13**. See `API changelog`_.
 
 **New features**
 
+- Activate ``basicauth`` in admin by default. (#943)
 - Add a setting to limit the maximum number of bytes cached in the memory backend. (#610)
 - Add a setting to exclude certain resources from being tracked by history (fixes #964)
 
