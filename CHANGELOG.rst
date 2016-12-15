@@ -22,6 +22,7 @@ Protocol is now at version **1.13**. See `API changelog`_.
   modified via a batch request (fixes #942)
 - Fix crash on redirection when path contains control characters (fixes #962)
 - Fix performance issue when fetching shared objects from plural endpoints (fixes #965)
+- Fix JSON-Merge validation (fixes #979) 
 
 **New features**
 

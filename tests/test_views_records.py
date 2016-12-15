@@ -301,6 +301,49 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                           headers=headers, status=201)
 
 
+class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
+
+    collection_url = '/buckets/beers/collections/barley/records'
+    _record_url = '/buckets/beers/collections/barley/records/%s'
+
+    def setUp(self):
+        super(RecordsViewMergeTest, self).setUp()
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley',
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        record = MINIMALIST_RECORD.copy()
+        record['data'] = {}
+        record['data']['grain'] = {'one': 1}
+        resp = self.app.post_json(self.collection_url,
+                                  record,
+                                  headers=self.headers)
+        self.record = resp.json['data']
+        self.record_url = self._record_url % self.record['id']
+
+    def test_merge_patch(self):
+        headers = self.headers.copy()
+        headers['Content-Type'] = 'application/merge-patch+json'
+        json = {'data': {'grain': {'two': 2}}}
+        resp = self.app.patch_json(self.record_url,
+                                   json,
+                                   headers=headers,
+                                   status=200)
+        self.assertEquals(resp.json['data']['grain']['one'], 1)
+        self.assertEquals(resp.json['data']['grain']['two'], 2)
+
+    def test_merge_patch_remove_nones(self):
+        headers = self.headers.copy()
+        headers['Content-Type'] = 'application/merge-patch+json'
+        json = {'data': {'grain': {'one': None}}}
+        resp = self.app.patch_json(self.record_url,
+                                   json,
+                                   headers=headers,
+                                   status=200)
+        self.assertNotIn('one', resp.json['data']['grain'])
+
+
 class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
