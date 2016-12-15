@@ -96,7 +96,7 @@ class SwaggerResourcesTest(SwaggerTest):
     def validate_request_call(self, op, **kargs):
         params = unmarshal_request(self.request, op)
         response = self.app.request(op.path_name.format(**params),
-                                    body=json.dumps(self.request.json()),
+                                    body=json.dumps(self.request.json()).encode(),
                                     method=op.http_method.upper(),
                                     headers=self.headers, **kargs)
         schema = self.spec.deref(op.op_spec['responses'][str(response.status_code)])

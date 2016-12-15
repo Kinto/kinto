@@ -57,6 +57,7 @@ tags:
   - name: Records
   - name: Batch
   - name: Utilities
+  - name: Kinto
 
 
 paths:
@@ -69,6 +70,7 @@ paths:
     get:
       tags:
         - Utilities
+        - Kinto
       operationId: server_info
       security: []
       description: Information about the running instance.
@@ -83,6 +85,7 @@ paths:
       description: Return the status of dependent services.
       tags:
         - Utilities
+        - Kinto
       operationId: __heartbeat__
       security: []
       responses:
@@ -120,6 +123,7 @@ paths:
     get:
       tags:
         - Utilities
+        - Kinto
       operationId: __lbheartbeat__
       security: []
       responses:
@@ -134,6 +138,7 @@ paths:
     get:
       tags:
         - Utilities
+        - Kinto
       operationId: __version__
       security: []
       responses:
@@ -152,6 +157,7 @@ paths:
     get:
       tags:
         - Utilities
+        - Kinto
       operationId: __contribute__
       security: []
       responses:
@@ -169,6 +175,7 @@ paths:
     post:
       tags:
         - Batch
+        - Kinto
       operationId: batch
       description: Send multiple operations in one request.
       parameters:
@@ -191,6 +198,7 @@ paths:
     get:
       tags:
         - Buckets
+        - Kinto
       operationId: get_buckets
       description: List all acessible buckets.
       parameters:
@@ -220,6 +228,7 @@ paths:
     post:
       tags:
         - Buckets
+        - Kinto
       operationId: create_bucket
       description: Create a bucket.
       parameters:
@@ -251,6 +260,7 @@ paths:
     delete:
       tags:
         - Buckets
+        - Kinto
       operationId: delete_buckets
       description: Delete all writable buckets.
       parameters:
@@ -288,6 +298,7 @@ paths:
     get:
       tags:
         - Buckets
+        - Kinto
       operationId: get_bucket
       description: Retrieve an existing bucket.
       responses:
@@ -312,6 +323,7 @@ paths:
     put:
       tags:
         - Buckets
+        - Kinto
       operationId: update_bucket
       description: Create or replace a bucket.
       parameters:
@@ -338,6 +350,7 @@ paths:
     patch:
       tags:
         - Buckets
+        - Kinto
       operationId: patch_bucket
       consumes:
         - application/json
@@ -368,6 +381,7 @@ paths:
     delete:
       tags:
         - Buckets
+        - Kinto
       operationId: delete_bucket
       description: Delete a bucket.
       responses:
@@ -400,6 +414,7 @@ paths:
     get:
       tags:
         - Groups
+        - Kinto
       operationId: get_groups
       description: Retrieve the list of bucket’s group.
       parameters:
@@ -429,6 +444,7 @@ paths:
     post:
       tags:
         - Groups
+        - Kinto
       operationId: create_group
       description: Create a group.
       parameters:
@@ -455,6 +471,7 @@ paths:
     delete:
       tags:
         - Groups
+        - Kinto
       operationId: delete_groups
       description: Delete writable groups.
       parameters:
@@ -497,6 +514,7 @@ paths:
     get:
       tags:
         - Groups
+        - Kinto
       operationId: get_group
       description: Retrieve a group.
       responses:
@@ -521,6 +539,7 @@ paths:
     put:
       tags:
         - Groups
+        - Kinto
       operationId: update_group
       description: Update a group.
       parameters:
@@ -547,6 +566,7 @@ paths:
     patch:
       tags:
         - Groups
+        - Kinto
       operationId: patch_group
       description: Modify an existing group.
       consumes:
@@ -577,6 +597,7 @@ paths:
     delete:
       tags:
         - Groups
+        - Kinto
       operationId: delete_group
       description: Delete a group.
       responses:
@@ -609,6 +630,7 @@ paths:
     get:
       tags:
         - Collections
+        - Kinto
       operationId: get_collections
       description: List bucket’s collections.
       parameters:
@@ -638,6 +660,7 @@ paths:
     post:
       tags:
         - Collections
+        - Kinto
       operationId: create_collection
       description: Create a collection.
       parameters:
@@ -664,6 +687,7 @@ paths:
     delete:
       tags:
         - Collections
+        - Kinto
       operationId: delete_collections
       description: Delete writable collections.
       parameters:
@@ -706,6 +730,7 @@ paths:
     get:
       tags:
         - Collections
+        - Kinto
       operationId: get_collection
       description: Retreive an existing collection.
       responses:
@@ -730,6 +755,7 @@ paths:
     put:
       tags:
         - Collections
+        - Kinto
       operationId: update_collection
       description: Create or replace a collection.
       parameters:
@@ -756,6 +782,7 @@ paths:
     patch:
       tags:
         - Collections
+        - Kinto
       operationId: patch_collection
       description: Modify an existing collection.
       consumes:
@@ -786,6 +813,7 @@ paths:
     delete:
       tags:
         - Collections
+        - Kinto
       operationId: delete_collection
       description: Delete a collection.
       responses:
@@ -823,6 +851,7 @@ paths:
     get:
       tags:
         - Records
+        - Kinto
       operationId: get_records
       description: Retrieve stored records.
       parameters:
@@ -852,6 +881,7 @@ paths:
     post:
       tags:
         - Records
+        - Kinto
       operationId: create_record
       description: Upload a record.
       parameters:
@@ -878,6 +908,7 @@ paths:
     delete:
       tags:
         - Records
+        - Kinto
       operationId: delete_records
       description: Delete stored records.
       parameters:
@@ -925,6 +956,7 @@ paths:
     get:
       tags:
         - Records
+        - Kinto
       operationId: get_record
       description: Retrieve a single record.
       responses:
@@ -949,6 +981,7 @@ paths:
     put:
       tags:
         - Records
+        - Kinto
       operationId: update_record
       description: Create or replace a record.
       parameters:
@@ -975,6 +1008,7 @@ paths:
     patch:
       tags:
         - Records
+        - Kinto
       operationId: patch_record
       description: Modify an existing record.
       consumes:
@@ -1005,6 +1039,7 @@ paths:
     delete:
       tags:
         - Records
+        - Kinto
       description: Delete a single record.
       operationId: delete_record
       responses:
