@@ -42,6 +42,7 @@ securityDefinitions:
 security:
   - basicAuth: []
 
+
 # May be overwritten in methods
 consumes:
   - application/json
@@ -74,6 +75,8 @@ paths:
       responses:
         '200':
           $ref: '#/responses/server-info'
+        default:
+          $ref: '#/responses/default'
 
   '/__heartbeat__':
     get:
@@ -96,6 +99,7 @@ paths:
                 type: boolean
             additionalProperties:
               type: boolean
+
         '503':
           description: One or more systems are failing.
           schema:
@@ -109,6 +113,8 @@ paths:
                 type: boolean
             additionalProperties:
               type: boolean
+        default:
+          $ref: '#/responses/default'
 
   '/__lbheartbeat__':
     get:
@@ -121,6 +127,8 @@ paths:
           description: Returns empty object.
           schema:
             type: object
+        default:
+          $ref: '#/responses/default'
 
   '/__version__':
     get:
@@ -135,6 +143,10 @@ paths:
             type: object
         '404':
           description: version.json file not found.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          $ref: '#/responses/default'
 
   '/contribute.json':
     get:
@@ -147,12 +159,13 @@ paths:
           description: Open source contribution information.
           schema:
             type: object
-
+        default:
+          $ref: '#/responses/default'
   #
   # Batch requests
   #
 
-  /batch:
+  '/batch':
     post:
       tags:
         - Batch
@@ -165,7 +178,8 @@ paths:
           $ref: '#/responses/batch-200'
         '400':
           $ref: '#/responses/batch-400'
-
+        default:
+          $ref: '#/responses/default'
   #
   # Data endpoints
   #
