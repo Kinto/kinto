@@ -3,6 +3,7 @@ import unittest
 from bravado_core.spec import Spec
 from bravado_core.resource import build_resources
 from bravado_core.response import OutgoingResponse
+from bravado_core.request import IncomingRequest
 
 from ..support import (BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_GROUP,
                        MINIMALIST_COLLECTION, MINIMALIST_RECORD)
@@ -18,7 +19,6 @@ resources = build_resources(spec)
 class SwaggerTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
-
         # FIXME: solve memory issues from generating the spec multiple times
         self.spec_dict = spec_dict
         self.spec = spec
@@ -41,6 +41,13 @@ class SwaggerTest(BaseWebTest, unittest.TestCase):
         self.record = self.app.put_json('/buckets/b1/collections/c1/records/r1',
                                         MINIMALIST_RECORD,
                                         headers=self.headers).json
+
+        # Create raw Bravado request
+        self.request = IncomingRequest()
+        self.request.path = {}
+        self.request.headers = {}
+        self.request.query = {}
+        self.request.json = lambda: {}
 
     def cast_bravado_response(self, response):
         resp = OutgoingResponse()
