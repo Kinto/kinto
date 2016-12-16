@@ -261,7 +261,8 @@ def heartbeat(backend):
             else:
                 if random.SystemRandom().random() < _HEARTBEAT_DELETE_RATE:
                     backend.delete_all(_HEARTBEAT_COLLECTION_ID,
-                                       _HEART_PARENT_ID, auth=auth)
+                                       _HEART_PARENT_ID, with_deleted=False,
+                                       auth=auth)
                 else:
                     backend.create(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
                                    _HEARTBEAT_RECORD, auth=auth)

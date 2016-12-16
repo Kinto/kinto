@@ -142,6 +142,19 @@ class BaseTestStorage(object):
 
         self.assertTrue(exc_handler.called)
 
+    def test_ping_leaves_no_tombstone(self):
+        request = DummyRequest()
+        request.headers['Authorization'] = 'Basic bWF0OjI='
+        ping = heartbeat(self.storage)
+        with mock.patch('kinto.core.storage.random.SystemRandom.random', return_value=0.7):
+            ping(request)
+        with mock.patch('kinto.core.storage.random.SystemRandom.random', return_value=0.5):
+            ping(request)
+        records, count = self.storage.get_all(parent_id='__heartbeat__',
+                                              collection_id='__heartbeat__',
+                                              include_deleted=True)
+        self.assertEqual(len(records), 0)
+
     def test_create_adds_the_record_id(self):
         record = self.create_record()
         self.assertIsNotNone(record['id'])
