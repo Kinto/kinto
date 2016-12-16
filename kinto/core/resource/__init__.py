@@ -786,7 +786,15 @@ class UserResource(object):
         if not if_none_match:
             return
 
-        if_none_match = decode_header(if_none_match)
+        error_details = {
+            'location': 'header',
+            'description': "Invalid value for If-None-Match"
+        }
+
+        try:
+            if_none_match = decode_header(if_none_match)
+        except UnicodeDecodeError:
+            raise_invalid(self.request, **error_details)
 
         try:
             if not (if_none_match[0] == if_none_match[-1] == '"'):
@@ -795,10 +803,6 @@ class UserResource(object):
         except (IndexError, ValueError):
             if if_none_match == '*':
                 return
-            error_details = {
-                'location': 'header',
-                'description': "Invalid value for If-None-Match"
-            }
             raise_invalid(self.request, **error_details)
 
         if record:
@@ -824,9 +828,18 @@ class UserResource(object):
         if not if_match and not if_none_match:
             return
 
-        if_match = decode_header(if_match) if if_match else None
+        error_details = {
+            'location': 'header',
+            'description': ("Invalid value for If-Match. The value should "
+                            "be integer between double quotes.")}
 
-        if record and if_none_match and decode_header(if_none_match) == '*':
+        try:
+            if_match = decode_header(if_match) if if_match else None
+            if_none_match = decode_header(if_none_match) if if_none_match else None
+        except UnicodeDecodeError:
+            raise_invalid(self.request, **error_details)
+
+        if record and if_none_match == '*':
             if record.get(self.model.deleted_field, False):
                 # Tombstones should not prevent creation.
                 return
@@ -837,12 +850,6 @@ class UserResource(object):
                     raise ValueError()
                 modified_since = int(if_match[1:-1])
             except (IndexError, ValueError):
-                message = ("Invalid value for If-Match. The value should "
-                           "be integer between double quotes.")
-                error_details = {
-                    'location': 'header',
-                    'description': message
-                }
                 raise_invalid(self.request, **error_details)
         else:
             # In case _raise_304_if_not_modified() did not raise.

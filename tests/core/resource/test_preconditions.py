@@ -53,6 +53,11 @@ class NotModifiedTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
+    def test_if_none_match_bad_unicode_raises_invalid(self):
+        self.resource.request.headers['If-None-Match'] = b'utf8 \xe9'
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
+
     def test_if_none_match_without_quotes_raises_invalid(self):
         self.resource.request.headers['If-None-Match'] = '1234'
         self.assertRaises(httpexceptions.HTTPBadRequest,
@@ -248,5 +253,10 @@ class ModifiedMeanwhileTest(BaseTest):
 
     def test_if_match_not_integer_raises_invalid(self):
         self.resource.request.headers['If-Match'] = '"abc"'
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
+
+    def test_if_match_bad_unicode_raises_invalid(self):
+        self.resource.request.headers['If-Match'] = b'utf8 \xe9'
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
