@@ -78,11 +78,10 @@ def setup_version_redirection(config):
             # CORS responses should always have status 200.
             return utils.reapply_cors(request, Response())
 
-        path = request.matchdict['path']
         querystring = request.url[(request.url.rindex(request.path) +
                                    len(request.path)):]
-        redirect = '/%s/%s%s' % (route_prefix, path, querystring)
-        raise HTTPTemporaryRedirect(redirect.encode('utf-8').decode('latin1'))
+        redirect = '/%s%s%s' % (route_prefix, request.path, querystring)
+        raise HTTPTemporaryRedirect(redirect)
 
     # Disable the route prefix passed by the app.
     config.route_prefix = None
