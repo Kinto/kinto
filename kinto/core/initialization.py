@@ -82,7 +82,7 @@ def setup_version_redirection(config):
         querystring = request.url[(request.url.rindex(request.path) +
                                    len(request.path)):]
         redirect = '/%s/%s%s' % (route_prefix, path, querystring)
-        raise HTTPTemporaryRedirect(redirect.encode('utf-8'))
+        raise HTTPTemporaryRedirect(redirect.encode('utf-8').decode('latin1'))
 
     # Disable the route prefix passed by the app.
     config.route_prefix = None
