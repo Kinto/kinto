@@ -20,6 +20,7 @@ Protocol is now at version **1.13**. See `API changelog`_.
 - Fix ``record_id`` attribute in history entries when several records are
   modified via a batch request (fixes #942)
 - Fix crash on redirection when path contains control characters (fixes #962)
+- Fix crash on redirection when path contains unicode characters (#982)
 - Fix performance issue when fetching shared objects from plural endpoints (fixes #965)
 - Fix JSON-Merge validation (fixes #979)
 - Fix crash when ``If-Match`` or ``If-None-Match`` headers contain invalid
