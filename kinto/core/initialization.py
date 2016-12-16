@@ -15,7 +15,6 @@ from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.settings import asbool, aslist
 from pyramid_multiauth import (MultiAuthenticationPolicy,
                                MultiAuthPolicySelected)
-from six.moves.urllib import parse as urlparse
 
 try:
     import newrelic.agent
@@ -83,8 +82,7 @@ def setup_version_redirection(config):
         querystring = request.url[(request.url.rindex(request.path) +
                                    len(request.path)):]
         redirect = '/%s/%s%s' % (route_prefix, path, querystring)
-        redirect = urlparse.quote_plus(redirect.encode('utf-8'))
-        raise HTTPTemporaryRedirect(redirect)
+        raise HTTPTemporaryRedirect(redirect.encode('utf-8'))
 
     # Disable the route prefix passed by the app.
     config.route_prefix = None
