@@ -183,6 +183,9 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
     def test_redirection_does_not_allow_control_characters(self):
         self.app.get('/9l2j7%0A21m2n', status=404)
 
+    def test_redirection_allows_unicode_characters(self):
+        self.app.get('/crlftest%E5%98%8AXTest:crlftest/', status=307)
+
 
 class TrailingSlashRedirectViewTest(FormattedErrorMixin, BaseWebTest,
                                     unittest.TestCase):
