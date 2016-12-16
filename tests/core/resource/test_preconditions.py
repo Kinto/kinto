@@ -54,7 +54,7 @@ class NotModifiedTest(BaseTest):
                           self.resource.collection_get)
 
     def test_if_none_match_bad_unicode_raises_invalid(self):
-        self.resource.request.headers['If-None-Match'] = 'utf8 \xe9'
+        self.resource.request.headers['If-None-Match'] = b'utf8 \xe9'
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
@@ -257,6 +257,6 @@ class ModifiedMeanwhileTest(BaseTest):
                           self.resource.collection_get)
 
     def test_if_match_bad_unicode_raises_invalid(self):
-        self.resource.request.headers['If-Match'] = 'utf8 \xe9'
+        self.resource.request.headers['If-Match'] = b'utf8 \xe9'
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
