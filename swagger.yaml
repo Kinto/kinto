@@ -20,8 +20,8 @@ info:
       2. [Filtering](http://kinto.readthedocs.io/en/stable/api/1.x/filtering.html)
       is supported on any field by using `?{prefix}{field_name}={value}`.
       3. [Backoff headers](http://kinto.readthedocs.io/en/stable/api/1.x/backoff.html)
-      may occur with any response, but they are only present if the server is
-      in heavy load, so we cannot validate in every request. Thet are listed only
+      may occur with any response, but they are only present if the server is under
+      in heavy load, so we cannot validate them on every request. They are listed only
       on the default error message.
       4. [Collection schemas](http://kinto.readthedocs.io/en/stable/api/1.x/collections.html#collection-json-schema)
       can be provided when defining a collection, but they are not validated by
@@ -1352,7 +1352,7 @@ parameters:
     in: query
     name: _sort
     description: >-
-      Comma separareted list of fields to sort ascending on a list
+      Comma separeted list of fields to sort ascending on a list
       (use -field to sort descending).
     required: false
     type: array
