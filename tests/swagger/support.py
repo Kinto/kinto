@@ -9,22 +9,32 @@ from ..support import (BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_GROUP,
                        MINIMALIST_COLLECTION, MINIMALIST_RECORD)
 
 
-app = BaseWebTest().make_app()
-
-spec_dict = app.get('/swagger.json').json
-spec = Spec.from_dict(spec_dict)
-resources = build_resources(spec)
-
-
 class SwaggerTest(BaseWebTest, unittest.TestCase):
 
-    def setUp(self):
-        # FIXME: solve memory issues from generating the spec multiple times
-        self.spec_dict = spec_dict
-        self.spec = spec
-        self.resources = resources
+    # FIXME: solve memory issues from generating the spec multiple times
+    app = BaseWebTest().make_app()
 
+    spec_dict = app.get('/swagger.json').json
+    spec = Spec.from_dict(spec_dict)
+    resources = build_resources(spec)
+
+    def setUp(self):
         super(SwaggerTest, self).setUp()
+
+        self.params = {
+            'bucket_id': 'b1',
+            'group_id': 'g1',
+            'collection_id': 'c1',
+            'record_id': 'r1',
+            'bucket': MINIMALIST_BUCKET,
+            'group': MINIMALIST_GROUP,
+            'collection': MINIMALIST_COLLECTION,
+            'record': MINIMALIST_RECORD,
+            'batch': {
+                'requests': [{'path': '/v1/buckets'}],
+                'defaults': {'method': 'POST'},
+            }
+        }
 
         self.bucket = self.app.put_json('/buckets/b1',
                                         MINIMALIST_BUCKET,
@@ -44,10 +54,13 @@ class SwaggerTest(BaseWebTest, unittest.TestCase):
 
         # Create raw Bravado request
         self.request = IncomingRequest()
+        self.request.url = ''
+        self.request.data = ''
         self.request.path = {}
         self.request.headers = {}
         self.request.query = {}
-        self.request.json = lambda: {}
+        self.request._json = {}
+        self.request.json = lambda: self.request._json
 
     def cast_bravado_response(self, response):
         resp = OutgoingResponse()
