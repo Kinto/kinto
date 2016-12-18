@@ -114,3 +114,111 @@ class SwaggerRequestsValidationTest(SwaggerTest):
             self.request.headers = head
             self.assertRaises(ValidationError, unmarshal_request,
                               self.request, self.resources['Buckets'].get_buckets)
+
+    def test_validate_batch_requests_method(self):
+        self.request._json = {
+            'requests': [
+                {
+                    'method': 'AAA',
+                    'path': '/buckets/b1',
+                },
+            ]
+        }
+        self.assertRaises(ValidationError, unmarshal_request,
+                          self.request, self.resources['Batch'].batch)
+
+    def test_validate_batch_requests_path(self):
+        self.request._json = {
+            'requests': [
+                {
+                    'method': 'GET',
+                    'path': 123,
+                },
+            ]
+        }
+        self.assertRaises(ValidationError, unmarshal_request,
+                          self.request, self.resources['Batch'].batch)
+
+    def test_validate_batch_requests_body(self):
+        self.request._json = {
+            'requests': [
+                {
+                    'method': 'GET',
+                    'path': '/buckets/b1',
+                    'body': []
+                },
+            ]
+        }
+        self.assertRaises(ValidationError, unmarshal_request,
+                          self.request, self.resources['Batch'].batch)
+
+    def test_validate_batch_requests_header(self):
+        self.request._json = {
+            'requests': [
+                {
+                    'method': 'GET',
+                    'path': '/buckets/b1',
+                    'body': {},
+                    'headers': []
+                },
+            ]
+        }
+        self.assertRaises(ValidationError, unmarshal_request,
+                          self.request, self.resources['Batch'].batch)
+
+    def test_validate_batch_defaults(self):
+        self.request._json = {
+            'defaults': [],
+            'requests': [
+                {
+                    'method': 'GET',
+                    'path': '/buckets/b1',
+                },
+            ]
+        }
+        self.assertRaises(ValidationError, unmarshal_request,
+                          self.request, self.resources['Batch'].batch)
+
+    def test_validate_batch_defaults_method(self):
+        self.request._json = {
+            'defaults': {
+                'method': 'AAA'
+            },
+            'requests': [
+                {
+                    'path': '/buckets/b1',
+                },
+            ]
+        }
+        self.assertRaises(ValidationError, unmarshal_request,
+                          self.request, self.resources['Batch'].batch)
+
+    def test_validate_batch_defaults_body(self):
+        self.request._json = {
+            'defaults': {
+                'body': []
+            },
+            'requests': [
+                {
+                    'method': 'PUT',
+                    'path': '/buckets/b1',
+                },
+            ]
+        }
+        self.assertRaises(ValidationError, unmarshal_request,
+                          self.request, self.resources['Batch'].batch)
+
+    def test_validate_batch_defaults_headers(self):
+        self.request._json = {
+            'defaults': {
+                'headers': []
+            },
+            'requests': [
+                {
+                    'method': 'GET',
+                    'path': '/buckets/b1',
+                },
+            ]
+        }
+        self.assertRaises(ValidationError, unmarshal_request,
+                          self.request, self.resources['Batch'].batch)
