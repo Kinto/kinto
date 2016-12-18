@@ -135,6 +135,19 @@ class DeleteTest(BaseTest):
         result = self.resource.delete()['data']
         self.assertNotEqual(result['last_modified'], record['last_modified'])
 
+    def test_etag_is_provided(self):
+        record = self.model.create_record({'field': 'value'})
+        self.resource.record_id = record['id']
+        self.resource.delete()
+        self.assertIn('ETag', self.last_response.headers)
+
+    def test_etag_contains_deleted_timestamp(self):
+        record = self.model.create_record({'field': 'value'})
+        self.resource.record_id = record['id']
+        deleted = self.resource.delete()
+        expected = ('"%s"' % deleted['data']['last_modified'])
+        self.assertEqual(expected, self.last_response.headers['ETag'])
+
     def test_delete_record_returns_stripped_record(self):
         record = self.model.create_record({'field': 'value'})
         self.resource.record_id = record['id']

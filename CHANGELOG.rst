@@ -26,6 +26,7 @@ Protocol is now at version **1.13**. See `API changelog`_.
 - Fix JSON-Merge validation (fixes #979)
 - Fix crash when ``If-Match`` or ``If-None-Match`` headers contain invalid
   unicode data (fixes #983)
+- Add missing ``ETag`` and ``Last-Modified`` headers on ``POST`` and ``DELETE`` (#980)
 
 **New features**
 
