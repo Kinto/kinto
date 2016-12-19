@@ -342,6 +342,10 @@ class UserResource(object):
             record = self.model.create_record(new_record)
             self.request.response.status_code = 201
             action = ACTIONS.CREATE
+
+        timestamp = record[self.model.modified_field]
+        self._add_timestamp_header(self.request.response, timestamp=timestamp)
+
         return self.postprocess(record, action=action)
 
     def collection_delete(self):
@@ -360,6 +364,13 @@ class UserResource(object):
         filters = self._extract_filters()
         records, _ = self.model.get_records(filters=filters)
         deleted = self.model.delete_records(filters=filters)
+
+        if deleted:
+            # Get timestamp of the last deleted field
+            timestamp = deleted[-1][self.model.modified_field]
+            self._add_timestamp_header(self.request.response, timestamp=timestamp)
+        else:
+            self._add_timestamp_header(self.request.response)
 
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
         return self.postprocess(deleted, action=action, old=records)
@@ -565,6 +576,9 @@ class UserResource(object):
                 last_modified = None
 
         deleted = self.model.delete_record(record, last_modified=last_modified)
+        timestamp = deleted[self.model.modified_field]
+        self._add_timestamp_header(self.request.response, timestamp=timestamp)
+
         return self.postprocess(deleted, action=ACTIONS.DELETE, old=record)
 
     #
