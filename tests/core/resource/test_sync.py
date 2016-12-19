@@ -184,11 +184,16 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
         # Create record while other is fetching
         time.sleep(.020)  # 20 msec
-        record = self.resource.collection_post()['data']
+        # Instantiate a new resource/request to avoid shared references with
+        # the other one running in a thread:
+        resource = self.resource_class(request=self.get_request(),
+                                       context=self.get_context())
+        resource.request.validated = {'body': {'data': {}}}
+        record = resource.collection_post()['data']
         timestamps['post'] = record['last_modified']
 
         # Wait for the fetch to finish
         thread.join()
 
         # Make sure fetch timestamp is below (for next fetch)
-        self.assertTrue(timestamps['post'] > timestamps['fetch'])
+        self.assertGreater(timestamps['post'], timestamps['fetch'])

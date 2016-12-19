@@ -342,8 +342,10 @@ class UserResource(object):
             record = self.model.create_record(new_record)
             self.request.response.status_code = 201
             action = ACTIONS.CREATE
+
         timestamp = record[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
+
         return self.postprocess(record, action=action)
 
     def collection_delete(self):
