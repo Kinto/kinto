@@ -128,14 +128,20 @@ timestamp.
 
 ::
 
-    usage: kinto purge-deleted [-h] [--before TIMESTAMP]
+    usage: kinto purge-deleted [-h] [--bucket BUCKET] [--collection COLLECTION]
+                               [--timestamp TIMESTAMP]
 
     optional arguments:
       -h, --help            show this help message and exit
-      --before TIMESTAMP    The maximum timestamp (exclusive).
+      --bucket BUCKET       Limit the purge to a specific bucket.
+      --collection COLLECTION
+                            Limit the purge to a specific collection.
+      --timestamp TIMESTAMP
+                            The maximum timestamp (exclusive).
+
 
 For example:
 
 ::
 
-    kinto --ini=config/postgresql.ini purge-deleted --timestamp=1469006316530
+    kinto --ini=config/postgresql.ini purge-deleted --bucket=blog --timestamp=1469006316530

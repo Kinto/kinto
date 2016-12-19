@@ -74,6 +74,12 @@ def main(args=None):
                                    help='The collection to remove.',
                                    required=True)
         elif command == 'purge-deleted':
+            subparser.add_argument('--bucket',
+                                   help='Limit the purge to a specific bucket.',
+                                   default='*')
+            subparser.add_argument('--collection',
+                                   help='Limit the purge to a specific collection.',
+                                   default=None)
             subparser.add_argument('--timestamp',
                                    help='The maximum timestamp (exclusive).',
                                    type=int,
@@ -147,7 +153,14 @@ def main(args=None):
 
     elif which_command == 'purge-deleted':
         env = bootstrap(config_file)
-        return scripts.purge_deleted(env, parsed_args['timestamp'])
+        bid = parsed_args['bucket']
+        parent_id = '/buckets/%s' % bid
+        cid = parsed_args['collection']
+        if cid is not None:
+            parent_id += '/collections/%s' % cid
+        return scripts.purge_deleted(env,
+                                     parsed_args['timestamp'],
+                                     parent_id)
 
     elif which_command == 'start':
         pserve_argv = ['pserve', config_file]

@@ -118,15 +118,22 @@ class PurgeDeletedTest(unittest.TestCase):
         self.registry = mock.MagicMock()
 
     def test_purge_deleted_with_no_timestamp(self):
-        code = scripts.purge_deleted({'registry': self.registry}, None)
+        code = scripts.purge_deleted({'registry': self.registry}, None, '*')
         assert code == 0
         self.registry.storage.purge_deleted.assert_called_with(parent_id='*',
                                                                collection_id=None,
                                                                before=None)
 
     def test_purge_deleted_with_timestamp(self):
-        code = scripts.purge_deleted({'registry': self.registry}, 4)
+        code = scripts.purge_deleted({'registry': self.registry}, 4, '*')
         assert code == 0
         self.registry.storage.purge_deleted.assert_called_with(parent_id='*',
+                                                               collection_id=None,
+                                                               before=4)
+
+    def test_purge_deleted_with_parent_id(self):
+        code = scripts.purge_deleted({'registry': self.registry}, 4, '/buckets/bid')
+        assert code == 0
+        self.registry.storage.purge_deleted.assert_called_with(parent_id='/buckets/bid',
                                                                collection_id=None,
                                                                before=4)
