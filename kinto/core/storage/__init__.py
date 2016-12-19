@@ -254,18 +254,18 @@ def heartbeat(backend):
         """
         try:
             auth = request.headers.get('Authorization')
+            storage_kw = dict(collection_id=_HEARTBEAT_COLLECTION_ID,
+                              parent_id=_HEART_PARENT_ID,
+                              auth=auth)
             if asbool(request.registry.settings.get('readonly')):
                 # Do not try to write in readonly mode.
-                backend.get_all(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
-                                auth=auth)
+                backend.get_all(**storage_kw)
             else:
                 if random.SystemRandom().random() < _HEARTBEAT_DELETE_RATE:
-                    backend.delete_all(_HEARTBEAT_COLLECTION_ID,
-                                       _HEART_PARENT_ID, with_deleted=False,
-                                       auth=auth)
+                    backend.delete_all(**storage_kw)
+                    backend.purge_deleted(**storage_kw)  # Kinto/kinto#985
                 else:
-                    backend.create(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
-                                   _HEARTBEAT_RECORD, auth=auth)
+                    backend.create(record=_HEARTBEAT_RECORD, **storage_kw)
             return True
         except:
             logger.exception("Heartbeat Error")
