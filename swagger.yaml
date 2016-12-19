@@ -16,7 +16,7 @@ info:
     **Limitations of this OpenAPI specification:**
       1. Any object on Kinto can have additional attributes with any type
       that are not specied on the object schema. This may be supported on some
-      utilities that support `x-properties`.
+      utilities by using `additionalProperties` fields without defined type.
       2. [Filtering](http://kinto.readthedocs.io/en/stable/api/1.x/filtering.html)
       is supported on any field by using `?{prefix}{field_name}={value}`.
       3. [Backoff headers](http://kinto.readthedocs.io/en/stable/api/1.x/backoff.html)
@@ -1081,9 +1081,7 @@ definitions:
             description:  The timestamp of the last modification.
             type: integer
         additionalProperties:
-          description: Anything.
-        x-properties:
-          type: any
+          description: Any extra field that applies.
       permissions:
         type: object
         description: >-
@@ -1131,8 +1129,8 @@ definitions:
             uniqueItems: true
             items:
               type: string
-        x-properties:
-          type: any
+        additionalProperties:
+          description: Any extra field that applies.
         required:
           - members
       permissions:
@@ -1169,16 +1167,16 @@ definitions:
             description: >-
               A JSON schema to validate the collection records.
             type: object
-            x-properties:
-              type: any
+            additionalProperties:
+              description: JSON Schema valid properties.
           cache_expires:
             description: >-
               Add a Cache-Control field to response headers specifying how long
               clients (or proxies) should cache the collection records
               (in seconds).
             type: integer
-        x-properties:
-          type: any
+        additionalProperties:
+          description: Any extra field that applies.
       permissions:
         description: >-
           The access control lists for the collection. Inherited to all records.
@@ -1220,8 +1218,8 @@ definitions:
           last_modified:
             description: The timestamp of the last modification.
             type: integer
-        x-properties:
-          type: any
+        additionalProperties:
+          description: Any extra field that applies.
       permissions:
         description: >-
           The access control lists for the record. Will show as an empty object
@@ -1263,8 +1261,8 @@ definitions:
             last_modified:
               description:  The timestamp of the object last modification.
               type: integer
-          x-properties:
-            type: any
+          additionalProperties:
+            description: Any extra field that applies.
 
   #
   # Auxiliary Object schemas
@@ -1288,10 +1286,9 @@ definitions:
       info:
         description: Link to an online resource with details.
         type: string
-    x-properties:
-      details:
-        description: Additional details.
-        type: any
+    additionalProperties:
+        description: Extra error details.
+
 
   Deleted:
     type: object
@@ -1460,8 +1457,8 @@ parameters:
                         type: string
                       last_modified:
                         type: integer
-                    x-properties:
-                      type: any
+                    additionalProperties:
+                      description: Extra fields.
                   permissions:
                     type: object
                     properties:
@@ -1508,8 +1505,8 @@ parameters:
                       type: string
                     last_modified:
                       type: integer
-                  x-properties:
-                    type: any
+                  additionalProperties:
+                    description: Extra fields.
                 permissions:
                   type: object
                   properties:
@@ -1525,12 +1522,12 @@ parameters:
                       uniqueItems: true
                   additionalProperties:
                     description: Resource specific permissions.
+
             headers:
               type: object
               additionalProperties:
                 description: HTTP headers to be used on all requests.
                 type: string
-
 
 
 responses:
@@ -1564,8 +1561,8 @@ responses:
         default: "Mon, 12 Dec 2016 23:45:14 GMT"
     schema:
       type: object
-      x-properties:
-        type: all
+      additionalProperties:
+        description: Any schema.
 
   #
   # Utilities
@@ -1597,10 +1594,10 @@ responses:
               type: integer
             readonly:
               type: boolean
-          x-properties:
-            type: all
-      x-properties:
-        type: all
+          additionalProperties:
+            description: Extra server settings.
+      additionalProperties:
+        description: More info fields.
 
   #
   # Batch
