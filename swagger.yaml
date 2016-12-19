@@ -1080,6 +1080,8 @@ definitions:
           last_modified:
             description:  The timestamp of the last modification.
             type: integer
+        additionalProperties:
+          description: Anything.
         x-properties:
           type: any
       permissions:
@@ -1430,11 +1432,13 @@ parameters:
       type: object
       properties:
         requests:
+          description: List of operations that should be performed.
           type: array
           items:
             type: object
             properties:
               method:
+                description: HTTP method of the request.
                 type: string
                 enum:
                   - GET
@@ -1443,26 +1447,46 @@ parameters:
                   - PATCH
                   - DELETE
               path:
+                description: URL path of the request.
                 type: string
               body:
                 type: object
+                description: Request body.
                 properties:
                   data:
                     type: object
+                    properties:
+                      id:
+                        type: string
+                      last_modified:
+                        type: integer
                     x-properties:
                       type: any
                   permissions:
                     type: object
-                    x-properties:
-                      type: any
+                    properties:
+                      read:
+                        type: array
+                        items:
+                          type: string
+                        uniqueItems: true
+                      write:
+                        type: array
+                        items:
+                          type: string
+                        uniqueItems: true
+                    additionalProperties:
+                      description: Resource specific permissions.
               headers:
                 type: object
                 additionalProperties:
+                  description: HTTP headers to be used with the request.
                   type: string
         defaults:
           type: object
           properties:
             method:
+              description: HTTP method to be used on all requests.
               type: string
               enum:
                 - GET
@@ -1471,21 +1495,40 @@ parameters:
                 - PATCH
                 - DELETE
             path:
+              description: URL path to be used on all requests.
               type: string
             body:
               type: object
+              description: Request body to be used on all requests.
               properties:
                 data:
                   type: object
+                  properties:
+                    id:
+                      type: string
+                    last_modified:
+                      type: integer
                   x-properties:
                     type: any
                 permissions:
                   type: object
-                  x-properties:
-                    type: any
+                  properties:
+                    read:
+                      type: array
+                      items:
+                        type: string
+                      uniqueItems: true
+                    write:
+                      type: array
+                      items:
+                        type: string
+                      uniqueItems: true
+                  additionalProperties:
+                    description: Resource specific permissions.
             headers:
               type: object
               additionalProperties:
+                description: HTTP headers to be used on all requests.
                 type: string
 
 
