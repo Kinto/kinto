@@ -146,7 +146,7 @@ class TestMain(unittest.TestCase):
         with mock.patch('kinto.__main__.scripts.purge_deleted') as purge_deleted:
             purge_deleted.return_value = mock.sentinel.purge_deleted
             main(['--ini', TEMP_KINTO_INI, 'init', '--backend', 'memory'])
-            res = main(['--ini', TEMP_KINTO_INI, 'purge-deleted', '--bucket', 'b'])
+            main(['--ini', TEMP_KINTO_INI, 'purge-deleted', '--bucket', 'b'])
             args, kwargs = purge_deleted.call_args
             self.assertEqual(args[2], "/buckets/b")
 
@@ -154,7 +154,7 @@ class TestMain(unittest.TestCase):
         with mock.patch('kinto.__main__.scripts.purge_deleted') as purge_deleted:
             purge_deleted.return_value = mock.sentinel.purge_deleted
             main(['--ini', TEMP_KINTO_INI, 'init', '--backend', 'memory'])
-            res = main(['--ini', TEMP_KINTO_INI, 'purge-deleted', '--collection', 'c'])
+            main(['--ini', TEMP_KINTO_INI, 'purge-deleted', '--collection', 'c'])
             args, kwargs = purge_deleted.call_args
             self.assertEqual(args[2], "/buckets/*/collections/c")
 
@@ -162,8 +162,8 @@ class TestMain(unittest.TestCase):
         with mock.patch('kinto.__main__.scripts.purge_deleted') as purge_deleted:
             purge_deleted.return_value = mock.sentinel.purge_deleted
             main(['--ini', TEMP_KINTO_INI, 'init', '--backend', 'memory'])
-            res = main(['--ini', TEMP_KINTO_INI, 'purge-deleted',
-                        '--bucket', 'b', '--collection', 'c'])
+            main(['--ini', TEMP_KINTO_INI, 'purge-deleted',
+                  '--bucket', 'b', '--collection', 'c'])
             args, kwargs = purge_deleted.call_args
             self.assertEqual(args[2], "/buckets/b/collections/c")
 
