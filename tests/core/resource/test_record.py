@@ -30,7 +30,7 @@ class GetTest(BaseTest):
         # Create another one, bump collection timestamp.
         self.model.create_record({'field': 'value'})
         self.resource.get()
-        expected = ('"%s"' % record['last_modified'])
+        expected = '"%s"' % record['last_modified']
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
 
@@ -48,7 +48,7 @@ class PutTest(BaseTest):
     def test_etag_contains_record_new_timestamp(self):
         self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
         new = self.resource.put()['data']
-        expected = ('"%s"' % new['last_modified'])
+        expected = '"%s"' % new['last_modified']
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_returns_201_if_created(self):
@@ -145,7 +145,7 @@ class DeleteTest(BaseTest):
         record = self.model.create_record({'field': 'value'})
         self.resource.record_id = record['id']
         deleted = self.resource.delete()
-        expected = ('"%s"' % deleted['data']['last_modified'])
+        expected = '"%s"' % deleted['data']['last_modified']
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_delete_record_returns_stripped_record(self):
@@ -223,13 +223,13 @@ class PatchTest(BaseTest):
         self.assertIn('ETag', self.last_response.headers)
 
     def test_etag_contains_record_new_timestamp(self):
-        expected = ('"%s"' % self.result['last_modified'])
+        expected = '"%s"' % self.result['last_modified']
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_etag_contains_old_timestamp_if_no_field_changed(self):
         self.resource.request.json = {'data': {'position': 10}}
         self.resource.patch()['data']
-        expected = ('"%s"' % self.result['last_modified'])
+        expected = '"%s"' % self.result['last_modified']
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_modify_record_updates_timestamp(self):
