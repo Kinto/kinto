@@ -111,6 +111,9 @@ For each token, Kinto will calculate a unique user ID which is
 related to your Kinto instance. It uses a bit of cryptography and the value of
 the ``user_hmac_secret`` setting.
 
+In other words, every string provided in Basic Auth is valid, and leads to a
+unique user ID.
+
 .. note::
 
     Two Kinto instances using the same ``user_hmac_secret`` will
