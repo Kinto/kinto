@@ -14,9 +14,8 @@ info:
 
 
     **Limitations of this OpenAPI specification:**
-      1. Any object on Kinto can have additional attributes with any type
-      that are not specied on the object schema. This may be supported on some
-      utilities by using `additionalProperties` fields without defined type.
+      1. Validation on OR clauses is not supported (e.g. provide `data` or `permissions`
+      in patch operations).
       2. [Filtering](http://kinto.readthedocs.io/en/stable/api/1.x/filtering.html)
       is supported on any field by using `?{prefix}{field_name}={value}`.
       3. [Backoff headers](http://kinto.readthedocs.io/en/stable/api/1.x/backoff.html)
@@ -57,8 +56,7 @@ tags:
   - name: Records
   - name: Batch
   - name: Utilities
-  - name: Kinto
-
+  - name: Kinto  # Wrap Kinto resources for better code generation
 
 paths:
 
@@ -192,9 +190,6 @@ paths:
   #
 
   '/buckets':
-    parameters:
-      - $ref: '#/parameters/If-Match'
-      - $ref: '#/parameters/If-None-Match'
     get:
       tags:
         - Buckets
@@ -202,6 +197,8 @@ paths:
       operationId: get_buckets
       description: List all acessible buckets.
       parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
@@ -238,6 +235,8 @@ paths:
           required: false
           schema:
             $ref: '#/definitions/Bucket'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
       responses:
         '200':
           $ref: '#/responses/bucket-post-200'
@@ -267,6 +266,8 @@ paths:
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -292,15 +293,16 @@ paths:
         description: Bucket id.
         required: true
         type: string
-      - $ref: '#/parameters/If-Match'
-      - $ref: '#/parameters/If-None-Match'
-      - $ref: '#/parameters/_fields'
     get:
       tags:
         - Buckets
         - Kinto
       operationId: get_bucket
       description: Retrieve an existing bucket.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/bucket-get-200'
@@ -328,6 +330,9 @@ paths:
       description: Create or replace a bucket.
       parameters:
         - $ref: '#/parameters/bucket'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/bucket-put-200'
@@ -359,6 +364,9 @@ paths:
       description: Modify an existing bucket.
       parameters:
         - $ref: '#/parameters/bucket'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/bucket-patch-200'
@@ -384,6 +392,10 @@ paths:
         - Kinto
       operationId: delete_bucket
       description: Delete a bucket.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
@@ -409,8 +421,6 @@ paths:
         description: Bucket id.
         required: true
         type: string
-      - $ref: '#/parameters/If-Match'
-      - $ref: '#/parameters/If-None-Match'
     get:
       tags:
         - Groups
@@ -418,6 +428,8 @@ paths:
       operationId: get_groups
       description: Retrieve the list of bucket’s group.
       parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
@@ -449,6 +461,8 @@ paths:
       description: Create a group.
       parameters:
         - $ref: '#/parameters/group'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
       responses:
         '200':
           $ref: '#/responses/group-post-200'
@@ -475,6 +489,8 @@ paths:
       operationId: delete_groups
       description: Delete writable groups.
       parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
@@ -508,15 +524,16 @@ paths:
         description: Group id.
         required: true
         type: string
-      - $ref: '#/parameters/If-Match'
-      - $ref: '#/parameters/If-None-Match'
-      - $ref: '#/parameters/_fields'
     get:
       tags:
         - Groups
         - Kinto
       operationId: get_group
       description: Retrieve a group.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/group-get-200'
@@ -544,6 +561,9 @@ paths:
       description: Update a group.
       parameters:
         - $ref: '#/parameters/group'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/group-put-200'
@@ -575,6 +595,9 @@ paths:
         - application/json-patch+json
       parameters:
         - $ref: '#/parameters/group'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/group-patch-200'
@@ -600,6 +623,10 @@ paths:
         - Kinto
       operationId: delete_group
       description: Delete a group.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
@@ -625,8 +652,6 @@ paths:
         description: Bucket id.
         required: true
         type: string
-      - $ref: '#/parameters/If-Match'
-      - $ref: '#/parameters/If-None-Match'
     get:
       tags:
         - Collections
@@ -634,6 +659,8 @@ paths:
       operationId: get_collections
       description: List bucket’s collections.
       parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
@@ -665,6 +692,8 @@ paths:
       description: Create a collection.
       parameters:
         - $ref: '#/parameters/collection'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
       responses:
         '200':
           $ref: '#/responses/collection-post-200'
@@ -691,6 +720,8 @@ paths:
       operationId: delete_collections
       description: Delete writable collections.
       parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
@@ -724,15 +755,16 @@ paths:
         description: Colection id.
         required: true
         type: string
-      - $ref: '#/parameters/If-Match'
-      - $ref: '#/parameters/If-None-Match'
-      - $ref: '#/parameters/_fields'
     get:
       tags:
         - Collections
         - Kinto
       operationId: get_collection
       description: Retreive an existing collection.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/collection-get-200'
@@ -760,6 +792,9 @@ paths:
       description: Create or replace a collection.
       parameters:
         - $ref: '#/parameters/collection'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/collection-put-200'
@@ -791,6 +826,9 @@ paths:
         - application/json-patch+json
       parameters:
         - $ref: '#/parameters/collection'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/collection-patch-200'
@@ -816,6 +854,10 @@ paths:
         - Kinto
       operationId: delete_collection
       description: Delete a collection.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
@@ -846,8 +888,6 @@ paths:
         description: Collection id.
         required: true
         type: string
-      - $ref: '#/parameters/If-Match'
-      - $ref: '#/parameters/If-None-Match'
     get:
       tags:
         - Records
@@ -855,6 +895,8 @@ paths:
       operationId: get_records
       description: Retrieve stored records.
       parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
@@ -886,6 +928,8 @@ paths:
       description: Upload a record.
       parameters:
         - $ref: '#/parameters/record'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
       responses:
         '200':
           $ref: '#/responses/record-post-200'
@@ -912,6 +956,8 @@ paths:
       operationId: delete_records
       description: Delete stored records.
       parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
@@ -950,15 +996,16 @@ paths:
         description: Record id.
         required: true
         type: string
-      - $ref: '#/parameters/_fields'
-      - $ref: '#/parameters/If-Match'
-      - $ref: '#/parameters/If-None-Match'
     get:
       tags:
         - Records
         - Kinto
       operationId: get_record
       description: Retrieve a single record.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/record-get-200'
@@ -986,6 +1033,9 @@ paths:
       description: Create or replace a record.
       parameters:
         - $ref: '#/parameters/record'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/record-put-200'
@@ -1017,6 +1067,9 @@ paths:
         - application/json-patch+json
       parameters:
         - $ref: '#/parameters/record'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/record-patch-200'
@@ -1040,8 +1093,12 @@ paths:
       tags:
         - Records
         - Kinto
-      description: Delete a single record.
       operationId: delete_record
+      description: Delete a single record.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
