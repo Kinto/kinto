@@ -85,3 +85,18 @@ def delete_collection(env, bucket_id, collection_id):
     current_transaction.commit()
 
     return 0
+
+
+def purge_deleted(env, timestamp):
+    if timestamp is None:
+        logger.warning('Purge all tombstones.')
+    else:
+        logger.info('Purge tombstones before %r.' % timestamp)
+    registry = env['registry']
+
+    count = registry.storage.purge_deleted(parent_id='*', collection_id=None, before=timestamp)
+    current_transaction.commit()
+
+    logger.info('%s tombstone(s) deleted.' % count)
+
+    return 0

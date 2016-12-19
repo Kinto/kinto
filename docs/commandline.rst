@@ -113,3 +113,29 @@ For example:
 
     This command does not go through the HTTP API and won't trigger
     :class:`kinto.core.events.ResourceChanged` events.
+
+
+Purge tombstones
+----------------
+
+Remove the traces of deleted objects from the ``storage`` backend until a particular
+timestamp.
+
+.. warning::
+
+    Clients won't be able to catch up the deletions if their last synchronization
+    occured before the specified timestamp.
+
+::
+
+    usage: kinto purge-deleted [-h] [--before TIMESTAMP]
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --before TIMESTAMP    The maximum timestamp (exclusive).
+
+For example:
+
+::
+
+    kinto --ini=config/postgresql.ini purge-deleted --timestamp=1469006316530
