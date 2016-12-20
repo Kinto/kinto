@@ -42,7 +42,7 @@ def swagger_view(request):
 
     # Plugin swagger extensions
     if settings.get('swagger_extensions'):
-        includes = aslist(settings['includes'])
+        includes = aslist(settings.get('includes', ''))
         for app in includes:
             f = pkg_resources.resource_filename(app, 'swagger.yaml')
             if os.path.exists(f):
@@ -64,15 +64,20 @@ def swagger_view(request):
 
     schemes = [settings.get('http_scheme') or 'http']
 
-    # Default security should match all security defs
-    auth_types = swagger_view.__json__.get('securityDefinitions', {})
-    security = swagger_view.__json__.get('security', [])
+    security_defs = swagger_view.__json__.get('securityDefinitions', {})
 
-    # Security definitions are JSON objects with a single key
+    # BasicAuth is a non extension capability, so we should check it from config
+    if 'basicauth' in aslist(settings.get('multiauth.policies', '')):
+        basicauth = {'type': 'basic',
+                     'description': 'HTTP Basic Authentication.'}
+        security_defs['basicAuth'] = basicauth
+
+    # Security options are JSON objects with a single key
+    security = swagger_view.__json__.get('security', [])
     security_names = [next(iter(security_def)) for security_def in security]
 
-    # Include securityDefinitions that are not on default security
-    for name, prop in auth_types.items():
+    # include securityDefinitions that are not on default security options
+    for name, prop in security_defs.items():
         security_def = {name: prop.get('scopes', {}).keys()}
         if name not in security_names:
             security.append(security_def)
@@ -82,6 +87,7 @@ def swagger_view(request):
         host=request.host,
         basePath=request.path.replace(swagger.path, ''),
         schemes=schemes,
+        securityDefinitions=security_defs,
         security=security)
 
     recursive_update_dict(swagger_view.__json__, data)

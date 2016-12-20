@@ -7,7 +7,7 @@ externalDocs:
 # May be redefined from settings
 info:
   title: kinto
-  version: '1.13'
+  version: ''
   description: >-
     Kinto is a minimalist JSON storage service with synchronisation and sharing
     abilities. It is meant to be easy to use and easy to self-host.
@@ -31,22 +31,20 @@ info:
     name: Apache License (2.0)
     url: 'http://www.apache.org/licenses/LICENSE-2.0'
 
-host: kinto.dev.mozaws.net
 basePath: /v1
+
 schemes:
   - https
-securityDefinitions:
-  basicAuth:
-    type: basic
-    description: HTTP Basic Authentication.
+
+securityDefinitions: {}
 
 # Default security
-security:
-  - basicAuth: []
+security: []
 
 # Default Content-Types
 consumes:
   - application/json
+
 produces:
   - application/json
 
