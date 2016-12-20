@@ -1,5 +1,4 @@
 import os
-import json
 import yaml
 import pkg_resources
 
@@ -29,7 +28,7 @@ def swagger_view(request):
     # Base swagger spec
     files = [
         settings.get('swagger_file', ''),  # From config
-        os.path.join(ORIGIN, 'swagger.yaml'),  # Relative to the package root.
+        os.path.join(ORIGIN, 'swagger.yaml'),  # Relative to the package root
         os.path.join(HERE, 'swagger.yaml')  # Relative to this file.
     ]
 
@@ -45,25 +44,17 @@ def swagger_view(request):
     if settings.get('swagger_extensions'):
         includes = aslist(settings['includes'])
         for app in includes:
-            # prefer json instead of yaml
-            paths = [
-                pkg_resources.resource_filename(app, 'swagger.json'),
-                pkg_resources.resource_filename(app, 'swagger.yaml')
-            ]
-
-            paths = [f for f in paths if os.path.exists(f)]
-            files += paths[:1]
+            f = pkg_resources.resource_filename(app, 'swagger.yaml')
+            if os.path.exists(f):
+                files.append(f)
 
     swagger_view.__json__ = {}
+
     # Read and merge files
     for path in files:
         abs_path = os.path.abspath(path)
         with open(abs_path) as f:
-            name, ext = os.path.splitext(abs_path)
-            if ext == '.yaml':
-                spec = yaml.load(f)
-            else:
-                spec = json.load(f)
+            spec = yaml.load(f)
             recursive_update_dict(swagger_view.__json__, spec)
 
     # Update instance fields
