@@ -663,7 +663,7 @@ class UserResource(object):
             except ValueError as e:
                 error_details = {
                     'location': 'body',
-                    'description': 'JSON Patch operation failed'
+                    'description': 'JSON Patch operation failed: %s' % e
                 }
                 raise_invalid(self.request, **error_details)
 
