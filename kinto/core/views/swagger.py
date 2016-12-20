@@ -64,11 +64,23 @@ def swagger_view(request):
 
     schemes = [settings.get('http_scheme') or 'http']
 
+    # Default security match all security defs
+    auth_types = swagger_view.__json__.get('securityDefinitions', {})
+    security = swagger_view.__json__.get('security', [])
+
+    for name, prop in auth_types.items():
+        scopes = prop.get('scopes', [])
+        # Drop scope descriptions
+        security_def = {name: [scope.keys()[0] for scope in scopes]}
+        if security_def not in security:
+            security.append(security_def)
+
     data = dict(
         info=info,
         host=request.host,
         basePath=request.path.replace(swagger.path, ''),
-        schemes=schemes)
+        schemes=schemes,
+        security=security)
 
     recursive_update_dict(swagger_view.__json__, data)
 

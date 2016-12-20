@@ -37,3 +37,25 @@ class SwaggerViewTest(BaseWebTest, unittest.TestCase):
             with mock.patch('pkg_resources.resource_filename', lambda pkg, f: path):
                 response = self.app.get('/swagger.json')
                 self.assertEquals(response.json['swagger'], '3.0')
+
+    def test_default_security_extensions(self):
+        path = tempfile.mktemp(suffix='.yaml')
+        content = {
+            'securityDefinitions': {
+                'fxa': {
+                    'type': 'oauth2',
+                    'authorizationUrl': 'https://oauth-stable.dev.lcip.org',
+                    'flow': 'implicit',
+                    'scopes': [{'kinto': 'Basic scope'}]
+                }
+            }
+        }
+        with open(path, 'w') as f:
+            yaml.dump(content, f)
+
+        self.addCleanup(lambda: os.remove(path))
+
+        with mock.patch.dict(self.app.app.registry.settings, [('includes', 'fxa')]):
+            with mock.patch('pkg_resources.resource_filename', lambda pkg, f: path):
+                response = self.app.get('/swagger.json')
+                self.assertIn({'fxa': ['kinto']}, response.json['security'])
