@@ -138,6 +138,15 @@ class RouteFactory(object):
             self.resource_name = request.current_resource_name
             self.on_collection = getattr(service, "type", None) == "collection"
 
+            # Try to fetch the target object. Its existence will affect permissions checking.
+            if not self.on_collection and request.method.lower() in ("put", "delete", "patch"):
+                resource = service.resource(request=request, context=self)
+                try:
+                    # Save a reference, to avoid refetching from storage in resource.
+                    self.current_record = resource.model.get_record(resource.record_id)
+                except storage_exceptions.RecordNotFoundError:
+                    pass
+
             self.permission_object_id, self.required_permission = (
                 self._find_required_permission(request, service))
 
@@ -237,13 +246,7 @@ class RouteFactory(object):
         # In the case of a "PUT", check if the targetted record already
         # exists, return "write" if it does, "create" otherwise.
         if request.method.lower() == "put":
-            resource = service.resource(request=request, context=self)
-            try:
-                record = resource.model.get_record(resource.record_id)
-                # Save a reference, to avoid refetching from storage in
-                # resource.
-                self.current_record = record
-            except storage_exceptions.RecordNotFoundError:
+            if self.current_record is None:
                 # The record does not exist, the permission to create on
                 # the related collection is required.
                 permission_object_id = collection_path
@@ -256,17 +259,5 @@ class RouteFactory(object):
                     required_permission = "create"
                 else:
                     required_permission = "write"
-
-        # In the case of "DELETE" or "PATCH" on an object, try to fetch it in
-        # order to adjust the response status based on parent permissions.
-        if not self.on_collection and request.method.lower() in ("delete", "patch"):
-            resource = service.resource(request=request, context=self)
-            try:
-                record = resource.model.get_record(resource.record_id)
-                # Save a reference, to avoid refetching from storage in
-                # resource.
-                self.current_record = record
-            except storage_exceptions.RecordNotFoundError:
-                pass
 
         return (permission_object_id, required_permission)
