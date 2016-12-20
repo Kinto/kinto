@@ -9,7 +9,7 @@ iso8601==0.1.11
 jsonpatch==1.14
 jsonpointer==1.10
 jsonschema==2.5.1
-newrelic==2.74.0.54
+newrelic==2.76.0.55
 PasteDeploy==1.5.2
 psycopg2==2.6.2
 pyramid==1.7.3
@@ -19,7 +19,7 @@ python-dateutil==2.6.0
 PyYAML==3.12
 raven==5.32.0
 repoze.lru==0.6
-requests==2.12.1
+requests==2.12.4
 simplejson==3.10.0
 six==1.10.0
 SQLAlchemy==1.1.4
@@ -33,5 +33,5 @@ waitress==1.0.1
 WebOb==1.6.3
 Werkzeug==0.11.11
 zope.deprecation==4.2.0
-zope.interface==4.3.2
+zope.interface==4.3.3
 zope.sqlalchemy==0.7.7
