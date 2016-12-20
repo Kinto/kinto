@@ -39,11 +39,12 @@ securityDefinitions:
   basicAuth:
     type: basic
     description: HTTP Basic Authentication.
+
+# Default security
 security:
   - basicAuth: []
 
-
-# May be overwritten in methods
+# Default Content-Types
 consumes:
   - application/json
 produces:
@@ -264,11 +265,14 @@ paths:
       operationId: delete_buckets
       description: Delete all writable buckets.
       parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
-        - $ref: '#/parameters/If-Match'
-        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -495,6 +499,9 @@ paths:
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -726,6 +733,9 @@ paths:
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -962,6 +972,9 @@ paths:
         - $ref: '#/parameters/_since'
         - $ref: '#/parameters/_before'
         - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -1755,21 +1768,21 @@ responses:
 
   group-post-200:
     description: Return an existing group.
-    # headers:
-    #   ETag:
-    #     $ref: '#/responses/default/headers/ETag'
-    #   Last-Modified:
-    #     $ref: '#/responses/default/headers/Last-Modified'
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Group'
 
   group-post-201:
     description: Return created group.
-    # headers:
-    #   ETag:
-    #     $ref: '#/responses/default/headers/ETag'
-    #   Last-Modified:
-    #     $ref: '#/responses/default/headers/Last-Modified'
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Group'
 
@@ -1820,21 +1833,21 @@ responses:
 
   collection-post-200:
     description: Return an existing collection.
-    # headers:
-    #   ETag:
-    #     $ref: '#/responses/default/headers/ETag'
-    #   Last-Modified:
-    #     $ref: '#/responses/default/headers/Last-Modified'
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Collection'
 
   collection-post-201:
     description: Return created collection.
-    # headers:
-    #   ETag:
-    #     $ref: '#/responses/default/headers/ETag'
-    #   Last-Modified:
-    #     $ref: '#/responses/default/headers/Last-Modified'
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1884,21 +1897,21 @@ responses:
 
   record-post-200:
     description: Return an existing record.
-    # headers:
-    #   ETag:
-    #     $ref: '#/responses/default/headers/ETag'
-    #   Last-Modified:
-    #     $ref: '#/responses/default/headers/Last-Modified'
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Record'
 
   record-post-201:
     description: Return created record.
-    # headers:
-    #   ETag:
-    #     $ref: '#/responses/default/headers/ETag'
-    #   Last-Modified:
-    #     $ref: '#/responses/default/headers/Last-Modified'
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Record'
 
@@ -2045,11 +2058,11 @@ responses:
 
   object-delete-200:
     description: Return the deleted object.
-    # headers:
-    #   ETag:
-    #     $ref: '#/responses/default/headers/ETag'
-    #   Last-Modified:
-    #     $ref: '#/responses/default/headers/Last-Modified'
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Deleted'
   object-delete-400:
@@ -2157,11 +2170,11 @@ responses:
 
   list-delete-200:
     description: The objects were deleted.
-    # headers:
-    #   ETag:
-    #     $ref: '#/responses/default/headers/ETag'
-    #   Last-Modified:
-    #     $ref: '#/responses/default/headers/Last-Modified'
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/List'
   list-delete-400:
