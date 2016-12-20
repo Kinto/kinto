@@ -64,13 +64,17 @@ def swagger_view(request):
 
     schemes = [settings.get('http_scheme') or 'http']
 
-    # Default security match all security defs
+    # Default security should match all security defs
     auth_types = swagger_view.__json__.get('securityDefinitions', {})
     security = swagger_view.__json__.get('security', [])
 
+    # Security definitions are JSON objects with a single key
+    security_names = [next(iter(security_def)) for security_def in security]
+
+    # Include securityDefinitions that are not on default security
     for name, prop in auth_types.items():
         security_def = {name: prop.get('scopes', {}).keys()}
-        if security_def not in security:
+        if name not in security_names:
             security.append(security_def)
 
     data = dict(
