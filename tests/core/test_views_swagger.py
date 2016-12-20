@@ -46,7 +46,7 @@ class SwaggerViewTest(BaseWebTest, unittest.TestCase):
                     'type': 'oauth2',
                     'authorizationUrl': 'https://oauth-stable.dev.lcip.org',
                     'flow': 'implicit',
-                    'scopes': [{'kinto': 'Basic scope'}]
+                    'scopes': {'kinto': 'Basic scope'}
                 }
             }
         }
@@ -58,4 +58,8 @@ class SwaggerViewTest(BaseWebTest, unittest.TestCase):
         with mock.patch.dict(self.app.app.registry.settings, [('includes', 'fxa')]):
             with mock.patch('pkg_resources.resource_filename', lambda pkg, f: path):
                 response = self.app.get('/swagger.json')
+                self.assertEqual(['basicAuth', 'fxa'],
+                                 sorted(response.json['securityDefinitions'].keys()))
+                self.assertDictContainsSubset(content['securityDefinitions'],
+                                              response.json['securityDefinitions'])
                 self.assertIn({'fxa': ['kinto']}, response.json['security'])

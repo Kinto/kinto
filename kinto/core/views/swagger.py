@@ -69,9 +69,7 @@ def swagger_view(request):
     security = swagger_view.__json__.get('security', [])
 
     for name, prop in auth_types.items():
-        scopes = prop.get('scopes', [])
-        # Drop scope descriptions
-        security_def = {name: [scope.keys()[0] for scope in scopes]}
+        security_def = {name: prop.get('scopes', {}).keys()}
         if security_def not in security:
             security.append(security_def)
 
