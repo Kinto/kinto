@@ -351,6 +351,9 @@ class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(RecordsViewPatchTest, self).setUp()
+        self.patch_headers = self.headers.copy()
+        self.patch_headers['Content-Type'] = 'application/json-patch+json'
+
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.put_json('/buckets/beers/collections/barley',
@@ -367,12 +370,10 @@ class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
         self.record_url = self._record_url % self.record['id']
 
     def test_patch_add_permissions(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'application/json-patch+json'
         json = [{'op': 'add', 'path': '/permissions/read/me', 'value': 'me'}]
         resp = self.app.patch_json(self.record_url,
                                    json,
-                                   headers=headers,
+                                   headers=self.patch_headers,
                                    status=200)
 
         perms = resp.json['permissions']
@@ -380,12 +381,10 @@ class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
         self.assertIn('alice', perms['read'])
 
     def test_patch_update_permissions(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'application/json-patch+json'
         json = [{'op': 'add', 'path': '/permissions/read', 'value': ['me']}]
         resp = self.app.patch_json(self.record_url,
                                    json,
-                                   headers=headers,
+                                   headers=self.patch_headers,
                                    status=200)
 
         perms = resp.json['permissions']
@@ -393,27 +392,22 @@ class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
         self.assertNotIn(('alice', 'bob'), perms['read'])
 
     def test_patch_remove_permissions(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'application/json-patch+json'
         json = [{'op': 'remove', 'path': '/permissions/read/alice'}]
         resp = self.app.patch_json(self.record_url,
                                    json,
-                                   headers=headers,
+                                   headers=self.patch_headers,
                                    status=200)
-
         perms = resp.json['permissions']
         self.assertNotIn('alice', perms['read'])
 
     def test_patch_move_permissions(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'application/json-patch+json'
         json = [
             {'op': 'move', 'from': '/permissions/read/alice',
                            'path': '/data/old'}
         ]
         resp = self.app.patch_json(self.record_url,
                                    json,
-                                   headers=headers,
+                                   headers=self.patch_headers,
                                    status=200)
 
         perms = resp.json['permissions']
@@ -422,10 +416,8 @@ class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
         self.assertEquals('alice', data['old'])
 
     def test_patch_raises_400_on_wrong_path(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'application/json-patch+json'
         json = [{'op': 'add', 'path': '/permissions/destroy/me'}]
         self.app.patch_json(self.record_url,
                             json,
-                            headers=headers,
+                            headers=self.patch_headers,
                             status=400)
