@@ -48,6 +48,7 @@ Protocol is now at version **1.13**. See `API changelog`_.
   ``random.SystemRandom().choice(...)``. (#955)
 - Removed usage of pattern matching in PostgreSQL when not necessary (ref #907, fixes #974)
 - Insist about authentication in concepts documentation (ref #976)
+- Upgrade to Kinto-Admin 1.6.0
 
 
 5.0.0 (2016-11-18)
