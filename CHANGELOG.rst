@@ -10,6 +10,8 @@ This document describes changes between each past release.
 
 - Add a ``basicauth`` capability when activated on the server. (#937)
 - Add ability to delete history entries using ``DELETE`` (#958)
+- Add an `OpenAPI specification <https://kinto.readthedocs.io/en/latest/api/1.x/openapi.html>`
+  for the HTTP API on ``/swagger.json`` (#997)
 
 Protocol is now at version **1.13**. See `API changelog`_.
 

@@ -15,6 +15,7 @@ Changelog
 '''''''''''''''''
 
 - Add ``DELETE`` to the history endpoint.
+- Add an OpenAPI 2.0 specification on ``GET /swagger.json`` endpoint.
 
 1.12 (2016-11-18)
 '''''''''''''''''
