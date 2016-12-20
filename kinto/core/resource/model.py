@@ -111,12 +111,22 @@ class Model(object):
             comparison (see `kinto.core.utils.COMPARISON`). All filters
             are combined using *AND*.
         :type filters: list of :class:`kinto.core.storage.Filter`
-        :param sorting: XXX
-        :type sorting: XXX
-        :param pagination_rules: XXX
-        :type pagination_rules: XXX
-        :param limit: XXX
-        :type limit: XXX
+
+        :param sorting: Optionnally sort the records by attribute.
+            Each sort instruction in this list refers to a field and a
+            direction (negative means descending). All sort instructions are
+            cumulative.
+        :type sorting: list of :class:`kinto.core.storage.Sort`
+
+        :param pagination_rules: Optionnally paginate the deletion of records.
+            This list of rules aims to reduce the set of records to the current
+            page. A rule is a list of filters (see `filters` parameter),
+            and all rules are combined using *OR*.
+        :type pagination_rules: list of list of
+            :class:`kinto.core.storage.Filter`
+
+        :param int limit: Optionnally limit the number of records to be
+           deleted.
 
         :param str parent_id: optional filter for parent id
 
