@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 import mock
 
@@ -182,6 +183,14 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     def test_redirection_does_not_allow_control_characters(self):
         self.app.get('/9l2j7%0A21m2n', status=404)
+
+    def test_redirection_allows_unicode_characters(self):
+        # URL with unicode: /crlftest嘊/
+        self.app.get('/crlftest%E5%98%8A/', status=307)
+
+    def test_redirection_allows_unicode_characters_in_querystring(self):
+        # URL with unicode: /crlftest?name=嘊
+        self.app.get('/crlftest?name=%E5%98%8A', status=307)
 
 
 class TrailingSlashRedirectViewTest(FormattedErrorMixin, BaseWebTest,

@@ -71,7 +71,7 @@ class ObtainRecordPermissionTest(PermissionTest):
 
     def test_permissions_are_hidden_if_user_has_only_read_permission(self):
         self.resource.model.current_principal = 'account:readonly'
-        self.resource.model.effective_principals = []
+        self.resource.model.prefixed_principals = []
         result = self.resource.get()
         self.assertEqual(result['permissions'], {})
 

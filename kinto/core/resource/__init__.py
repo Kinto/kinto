@@ -285,8 +285,6 @@ class UserResource(object):
             include_deleted=include_deleted)
 
         offset = offset + len(records)
-        next_page = None
-
         if limit and len(records) == limit and offset < total_records:
             lastrecord = records[-1]
             next_page = self._next_page_url(sorting, limit, lastrecord, offset)
@@ -342,6 +340,10 @@ class UserResource(object):
             record = self.model.create_record(new_record)
             self.request.response.status_code = 201
             action = ACTIONS.CREATE
+
+        timestamp = record[self.model.modified_field]
+        self._add_timestamp_header(self.request.response, timestamp=timestamp)
+
         return self.postprocess(record, action=action)
 
     def collection_delete(self):
@@ -358,8 +360,31 @@ class UserResource(object):
         self._raise_412_if_modified()
 
         filters = self._extract_filters()
-        records, _ = self.model.get_records(filters=filters)
-        deleted = self.model.delete_records(filters=filters)
+        limit = self._extract_limit()
+        sorting = self._extract_sorting(limit)
+        pagination_rules, offset = self._extract_pagination_rules_from_token(limit, sorting)
+
+        records, total_records = self.model.get_records(filters=filters,
+                                                        sorting=sorting,
+                                                        limit=limit,
+                                                        pagination_rules=pagination_rules)
+        deleted = self.model.delete_records(filters=filters,
+                                            sorting=sorting,
+                                            limit=limit,
+                                            pagination_rules=pagination_rules)
+        if deleted:
+            lastrecord = deleted[-1]
+            # Get timestamp of the last deleted field
+            timestamp = lastrecord[self.model.modified_field]
+            self._add_timestamp_header(self.request.response, timestamp=timestamp)
+
+            # Add pagination header
+            offset = offset + len(deleted)
+            if limit and len(deleted) == limit and offset < total_records:
+                next_page = self._next_page_url(sorting, limit, lastrecord, offset)
+                self.request.response.headers['Next-Page'] = encode_header(next_page)
+        else:
+            self._add_timestamp_header(self.request.response)
 
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
         return self.postprocess(deleted, action=action, old=records)
@@ -565,6 +590,9 @@ class UserResource(object):
                 last_modified = None
 
         deleted = self.model.delete_record(record, last_modified=last_modified)
+        timestamp = deleted[self.model.modified_field]
+        self._add_timestamp_header(self.request.response, timestamp=timestamp)
+
         return self.postprocess(deleted, action=ACTIONS.DELETE, old=record)
 
     #
@@ -649,7 +677,7 @@ class UserResource(object):
             except ValueError as e:
                 error_details = {
                     'location': 'body',
-                    'description': 'JSON Patch operation failed'
+                    'description': 'JSON Patch operation failed: %s' % e
                 }
                 raise_invalid(self.request, **error_details)
 
@@ -786,7 +814,15 @@ class UserResource(object):
         if not if_none_match:
             return
 
-        if_none_match = decode_header(if_none_match)
+        error_details = {
+            'location': 'header',
+            'description': "Invalid value for If-None-Match"
+        }
+
+        try:
+            if_none_match = decode_header(if_none_match)
+        except UnicodeDecodeError:
+            raise_invalid(self.request, **error_details)
 
         try:
             if not (if_none_match[0] == if_none_match[-1] == '"'):
@@ -795,10 +831,6 @@ class UserResource(object):
         except (IndexError, ValueError):
             if if_none_match == '*':
                 return
-            error_details = {
-                'location': 'header',
-                'description': "Invalid value for If-None-Match"
-            }
             raise_invalid(self.request, **error_details)
 
         if record:
@@ -824,9 +856,18 @@ class UserResource(object):
         if not if_match and not if_none_match:
             return
 
-        if_match = decode_header(if_match) if if_match else None
+        error_details = {
+            'location': 'header',
+            'description': ("Invalid value for If-Match. The value should "
+                            "be integer between double quotes.")}
 
-        if record and if_none_match and decode_header(if_none_match) == '*':
+        try:
+            if_match = decode_header(if_match) if if_match else None
+            if_none_match = decode_header(if_none_match) if if_none_match else None
+        except UnicodeDecodeError:
+            raise_invalid(self.request, **error_details)
+
+        if record and if_none_match == '*':
             if record.get(self.model.deleted_field, False):
                 # Tombstones should not prevent creation.
                 return
@@ -837,12 +878,6 @@ class UserResource(object):
                     raise ValueError()
                 modified_since = int(if_match[1:-1])
             except (IndexError, ValueError):
-                message = ("Invalid value for If-Match. The value should "
-                           "be integer between double quotes.")
-                error_details = {
-                    'location': 'header',
-                    'description': message
-                }
                 raise_invalid(self.request, **error_details)
         else:
             # In case _raise_304_if_not_modified() did not raise.
@@ -1132,7 +1167,7 @@ class ShareableResource(UserResource):
             self.model.current_principal = Everyone
         else:
             self.model.current_principal = self.request.prefixed_userid
-        self.model.effective_principals = self.request.effective_principals
+        self.model.prefixed_principals = self.request.prefixed_principals
 
         if self.context:
             self.model.get_permission_object_id = functools.partial(

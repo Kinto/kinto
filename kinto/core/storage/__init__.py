@@ -164,6 +164,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def delete_all(self, collection_id, parent_id, filters=None,
+                   sorting=None, pagination_rules=None, limit=None,
                    id_field=DEFAULT_ID_FIELD, with_deleted=True,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
@@ -175,6 +176,22 @@ class StorageBase(object):
 
         :param filters: Optionnally filter the objects to delete.
         :type filters: list of :class:`kinto.core.storage.Filter`
+        :param sorting: Optionnally sort the objects by attribute.
+            Each sort instruction in this list refers to a field and a
+            direction (negative means descending). All sort instructions are
+            cumulative.
+        :type sorting: list of :class:`kinto.core.storage.Sort`
+
+        :param pagination_rules: Optionnally paginate the deletion of objects.
+            This list of rules aims to reduce the set of objects to the current
+            page. A rule is a list of filters (see `filters` parameter),
+            and all rules are combined using *OR*.
+        :type pagination_rules: list of list of
+            :class:`kinto.core.storage.Filter`
+
+        :param int limit: Optionnally limit the number of objects to be
+            deleted.
+
         :param bool with_deleted: track deleted records with a tombstone
 
         :returns: the list of deleted objects, with minimal set of attributes.
@@ -254,17 +271,18 @@ def heartbeat(backend):
         """
         try:
             auth = request.headers.get('Authorization')
+            storage_kw = dict(collection_id=_HEARTBEAT_COLLECTION_ID,
+                              parent_id=_HEART_PARENT_ID,
+                              auth=auth)
             if asbool(request.registry.settings.get('readonly')):
                 # Do not try to write in readonly mode.
-                backend.get_all(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
-                                auth=auth)
+                backend.get_all(**storage_kw)
             else:
                 if random.SystemRandom().random() < _HEARTBEAT_DELETE_RATE:
-                    backend.delete_all(_HEARTBEAT_COLLECTION_ID,
-                                       _HEART_PARENT_ID, auth=auth)
+                    backend.delete_all(**storage_kw)
+                    backend.purge_deleted(**storage_kw)  # Kinto/kinto#985
                 else:
-                    backend.create(_HEARTBEAT_COLLECTION_ID, _HEART_PARENT_ID,
-                                   _HEARTBEAT_RECORD, auth=auth)
+                    backend.create(record=_HEARTBEAT_RECORD, **storage_kw)
             return True
         except:
             logger.exception("Heartbeat Error")

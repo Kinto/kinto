@@ -54,12 +54,27 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
                         '.html#list-of-available-url-parameters')
             })
 
-    def test_the_timestamp_header_is_equal_to_last_modification(self):
+    def test_get_timestamp_header_is_equal_to_last_modification(self):
         result = self.resource.collection_post()['data']
         modification = result['last_modified']
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
         self.resource.collection_get()
+        header = int(self.last_response.headers['ETag'][1:-1])
+        self.assertEqual(header, modification)
+
+    def test_delete_timestamp_header_is_equal_to_last_deleted(self):
+        self.resource.collection_post()['data']
+        self.resource = self.resource_class(request=self.get_request(),
+                                            context=self.get_context())
+        result = self.resource.collection_delete()
+        modification = max([record['last_modified'] for record in result['data']])
+        header = int(self.last_response.headers['ETag'][1:-1])
+        self.assertEqual(header, modification)
+
+    def test_post_timestamp_header_is_equal_to_creation(self):
+        result = self.resource.collection_post()['data']
+        modification = result['last_modified']
         header = int(self.last_response.headers['ETag'][1:-1])
         self.assertEqual(header, modification)
 
@@ -169,11 +184,16 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
         # Create record while other is fetching
         time.sleep(.020)  # 20 msec
-        record = self.resource.collection_post()['data']
+        # Instantiate a new resource/request to avoid shared references with
+        # the other one running in a thread:
+        resource = self.resource_class(request=self.get_request(),
+                                       context=self.get_context())
+        resource.request.validated = {'body': {'data': {}}}
+        record = resource.collection_post()['data']
         timestamps['post'] = record['last_modified']
 
         # Wait for the fetch to finish
         thread.join()
 
         # Make sure fetch timestamp is below (for next fetch)
-        self.assertTrue(timestamps['post'] > timestamps['fetch'])
+        self.assertGreater(timestamps['post'], timestamps['fetch'])

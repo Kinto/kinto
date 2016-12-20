@@ -22,7 +22,7 @@ installed_with_pypy = platform.python_implementation() == 'PyPy'
 REQUIREMENTS = [
     'colander',
     'colorama',
-    'cornice >= 2.1',
+    'cornice >= 2.3',
     'jsonschema',
     'jsonpatch',
     'python-dateutil',
