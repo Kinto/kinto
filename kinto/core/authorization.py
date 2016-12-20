@@ -71,6 +71,17 @@ class AuthorizationPolicy(object):
 
         allowed = context.check_permission(principals, bound_perms)
 
+        # Here we consider that parent URI is one path level above.
+        parent_uri = '/'.join(object_id.split('/')[:-1])
+
+        # If not allowed to delete/patch, and target object is missing, and
+        # allowed to read the parent, then view is permitted (will raise 404
+        # later anyway). See Kinto/kinto#918
+        is_record_unknown = not context.on_collection and context.current_record is None
+        if context.required_permission == "write" and is_record_unknown:
+            bound_perms = self.get_bound_permissions(parent_uri, "read")
+            allowed = context.check_permission(principals, bound_perms)
+
         # If not allowed on this collection, but some records are shared with
         # the current user, then authorize.
         # The ShareableResource class will take care of the filtering.
@@ -81,8 +92,6 @@ class AuthorizationPolicy(object):
                                                   self.get_bound_permissions)
             # If allowed to create this kind of object on parent, then allow to obtain the list.
             if len(bound_perms) > 0:
-                # Here we consider that parent URI is one path level above.
-                parent_uri = '/'.join(object_id.split('/')[:-1])
                 parent_create_perm = [(parent_uri, create_permission)]
             else:
                 parent_create_perm = [('', 'create')]  # Root object.
@@ -247,5 +256,17 @@ class RouteFactory(object):
                     required_permission = "create"
                 else:
                     required_permission = "write"
+
+        # In the case of "DELETE" or "PATCH" on an object, try to fetch it in
+        # order to adjust the response status based on parent permissions.
+        if not self.on_collection and request.method.lower() in ("delete", "patch"):
+            resource = service.resource(request=request, context=self)
+            try:
+                record = resource.model.get_record(resource.record_id)
+                # Save a reference, to avoid refetching from storage in
+                # resource.
+                self.current_record = record
+            except storage_exceptions.RecordNotFoundError:
+                pass
 
         return (permission_object_id, required_permission)
