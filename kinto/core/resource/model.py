@@ -100,7 +100,8 @@ class Model(object):
             auth=self.auth)
         return records, total_records
 
-    def delete_records(self, filters=None, parent_id=None):
+    def delete_records(self, filters=None, sorting=None, pagination_rules=None,
+                       limit=None, parent_id=None):
         """Delete multiple collection records.
 
         Override to post-process records after their deletion from storage.
@@ -110,6 +111,12 @@ class Model(object):
             comparison (see `kinto.core.utils.COMPARISON`). All filters
             are combined using *AND*.
         :type filters: list of :class:`kinto.core.storage.Filter`
+        :param sorting: XXX
+        :type sorting: XXX
+        :param pagination_rules: XXX
+        :type pagination_rules: XXX
+        :param limit: XXX
+        :type limit: XXX
 
         :param str parent_id: optional filter for parent id
 
@@ -119,6 +126,9 @@ class Model(object):
         return self.storage.delete_all(collection_id=self.collection_id,
                                        parent_id=parent_id,
                                        filters=filters,
+                                       sorting=sorting,
+                                       pagination_rules=pagination_rules,
+                                       limit=limit,
                                        id_field=self.id_field,
                                        modified_field=self.modified_field,
                                        deleted_field=self.deleted_field,
@@ -265,10 +275,14 @@ class ShareableModel(Model):
         annotated[self.permissions_field] = permissions
         return annotated
 
-    def delete_records(self, filters=None, parent_id=None):
+    def delete_records(self, filters=None, sorting=None, pagination_rules=None,
+                       limit=None, parent_id=None):
         """Delete permissions when collection records are deleted in bulk.
         """
         deleted = super(ShareableModel, self).delete_records(filters,
+                                                             sorting,
+                                                             pagination_rules,
+                                                             limit,
                                                              parent_id)
         # Take a huge shortcut in case we want to delete everything.
         if not filters:

@@ -164,6 +164,7 @@ class StorageBase(object):
         raise NotImplementedError
 
     def delete_all(self, collection_id, parent_id, filters=None,
+                   sorting=None, pagination_rules=None, limit=None,
                    id_field=DEFAULT_ID_FIELD, with_deleted=True,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,

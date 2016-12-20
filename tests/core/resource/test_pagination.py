@@ -10,9 +10,9 @@ from kinto.core.utils import json
 from . import BaseTest
 
 
-class PaginationTest(BaseTest):
+class BasePaginationTest(BaseTest):
     def setUp(self):
-        super(PaginationTest, self).setUp()
+        super(BasePaginationTest, self).setUp()
         self.patch_known_field.start()
 
         indices = list(range(20))
@@ -34,6 +34,8 @@ class PaginationTest(BaseTest):
         self.last_response.headers = {}
         return queryparams
 
+
+class PaginationTest(BasePaginationTest):
     def test_return_data(self):
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 20)
@@ -193,6 +195,26 @@ class PaginationTest(BaseTest):
             '_since': '123', '_limit': '20',
             '_token': b64encode(invalid_token.encode('ascii')).decode('ascii')}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
+
+
+class PaginatedDeleteTest(BasePaginationTest):
+    def test_handle_limit_on_delete(self):
+        self.resource.request.GET = {'_limit': '3'}
+        result = self.resource.collection_delete()
+        self.assertEqual(len(result['data']), 3)
+
+    def test_paginated_delete(self):
+        all_records = self.resource.collection_get()
+        expected_ids = [r['id'] for r in all_records['data']]
+        # Page 1
+        self.resource.request.GET['_limit'] = '10'
+        results1 = self.resource.collection_delete()
+        results1_ids = [r['id'] for r in results1['data']]
+        self._setup_next_page()
+        # Page 2
+        results2 = self.resource.collection_delete()
+        results2_ids = [r['id'] for r in results2['data']]
+        self.assertEqual(expected_ids, results1_ids + results2_ids)
 
 
 class BuildPaginationTokenTest(BaseTest):

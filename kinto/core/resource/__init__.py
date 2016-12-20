@@ -285,8 +285,6 @@ class UserResource(object):
             include_deleted=include_deleted)
 
         offset = offset + len(records)
-        next_page = None
-
         if limit and len(records) == limit and offset < total_records:
             lastrecord = records[-1]
             next_page = self._next_page_url(sorting, limit, lastrecord, offset)
@@ -362,13 +360,29 @@ class UserResource(object):
         self._raise_412_if_modified()
 
         filters = self._extract_filters()
-        records, _ = self.model.get_records(filters=filters)
-        deleted = self.model.delete_records(filters=filters)
+        limit = self._extract_limit()
+        sorting = self._extract_sorting(limit)
+        pagination_rules, offset = self._extract_pagination_rules_from_token(limit, sorting)
 
+        records, total_records = self.model.get_records(filters=filters,
+                                                        sorting=sorting,
+                                                        limit=limit,
+                                                        pagination_rules=pagination_rules)
+        deleted = self.model.delete_records(filters=filters,
+                                            sorting=sorting,
+                                            limit=limit,
+                                            pagination_rules=pagination_rules)
         if deleted:
+            lastrecord = deleted[-1]
             # Get timestamp of the last deleted field
-            timestamp = deleted[-1][self.model.modified_field]
+            timestamp = lastrecord[self.model.modified_field]
             self._add_timestamp_header(self.request.response, timestamp=timestamp)
+
+            # Add pagination header
+            offset = offset + len(deleted)
+            if limit and len(deleted) == limit and offset < total_records:
+                next_page = self._next_page_url(sorting, limit, lastrecord, offset)
+                self.request.response.headers['Next-Page'] = encode_header(next_page)
         else:
             self._add_timestamp_header(self.request.response)
 

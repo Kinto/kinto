@@ -885,6 +885,31 @@ class DeletedRecordsTest(object):
         _, count = self.storage.get_all(**self.storage_kw)
         self.assertEqual(count, 1)
 
+    def test_delete_all_supports_limit(self):
+        self.create_record()
+        self.create_record()
+        self.storage.delete_all(limit=1, **self.storage_kw)
+        _, count = self.storage.get_all(**self.storage_kw)
+        self.assertEqual(count, 1)
+
+    def test_delete_all_supports_sorting(self):
+        for i in range(5):
+            self.create_record({'foo': i})
+        sorting = [Sort('foo', -1)]
+        self.storage.delete_all(limit=2, sorting=sorting, **self.storage_kw)
+        records, count = self.storage.get_all(sorting=sorting, **self.storage_kw)
+        self.assertEqual(count, 3)
+        self.assertEqual(records[0]['foo'], 2)
+
+    def test_delete_all_supports_pagination_rules(self):
+        for i in range(6):
+            self.create_record({'foo': i})
+
+        pagination_rules = [[Filter('foo', 3, utils.COMPARISON.GT)]]
+        deleted = self.storage.delete_all(limit=4, pagination_rules=pagination_rules,
+                                          **self.storage_kw)
+        self.assertEqual(len(deleted), 2)
+
     def test_purge_deleted_remove_all_tombstones(self):
         self.create_record()
         self.create_record()
