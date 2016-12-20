@@ -249,6 +249,17 @@ class ChildrenCreationTest(PermissionsTest):
                            {'data': {'id': 'child', 'members': []}},
                            headers=self.bob_headers_safe_creation, status=403)
 
+    def test_delete_returns_404_on_unknown_if_only_allowed_to_read(self):
+        self.app.delete('/buckets/read/groups/g1',
+                        headers=self.bob_headers,
+                        status=404)
+
+    def test_patch_returns_404_on_unknown_if_only_allowed_to_read(self):
+        self.app.patch_json('/buckets/read/groups/g1',
+                            {'data': {'members': []}},
+                            headers=self.bob_headers,
+                            status=404)
+
 
 class ParentMetadataTest(PermissionsTest):
     def setUp(self):

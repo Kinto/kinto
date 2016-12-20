@@ -28,6 +28,7 @@ Protocol is now at version **1.13**. See `API changelog`_.
   unicode data (fixes #983)
 - Add missing ``ETag`` and ``Last-Modified`` headers on ``POST`` and ``DELETE``
   responses (#980)
+- Return 404 on non-existing objects for users with read permissions (fixes #918)
 
 **New features**
 

@@ -64,12 +64,20 @@ class AuthorizationPolicy(object):
             permission = create_permission
 
         object_id = context.permission_object_id
-        if self.get_bound_permissions is None:
-            bound_perms = [(object_id, permission)]
-        else:
-            bound_perms = self.get_bound_permissions(object_id, permission)
+        bound_perms = self._get_bound_permissions(object_id, permission)
 
         allowed = context.check_permission(principals, bound_perms)
+
+        # Here we consider that parent URI is one path level above.
+        parent_uri = '/'.join(object_id.split('/')[:-1]) if object_id else None
+
+        # If not allowed to delete/patch, and target object is missing, and
+        # allowed to read the parent, then view is permitted (will raise 404
+        # later anyway). See Kinto/kinto#918
+        is_record_unknown = not context.on_collection and context.current_record is None
+        if context.required_permission == "write" and is_record_unknown:
+            bound_perms = self._get_bound_permissions(parent_uri, "read")
+            allowed = context.check_permission(principals, bound_perms)
 
         # If not allowed on this collection, but some records are shared with
         # the current user, then authorize.
@@ -81,8 +89,6 @@ class AuthorizationPolicy(object):
                                                   self.get_bound_permissions)
             # If allowed to create this kind of object on parent, then allow to obtain the list.
             if len(bound_perms) > 0:
-                # Here we consider that parent URI is one path level above.
-                parent_uri = '/'.join(object_id.split('/')[:-1])
                 parent_create_perm = [(parent_uri, create_permission)]
             else:
                 parent_create_perm = [('', 'create')]  # Root object.
@@ -91,6 +97,11 @@ class AuthorizationPolicy(object):
             allowed = shared or allowed_to_create
 
         return allowed
+
+    def _get_bound_permissions(self, object_id, permission):
+        if self.get_bound_permissions is None:
+            return [(object_id, permission)]
+        return self.get_bound_permissions(object_id, permission)
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER
@@ -128,6 +139,15 @@ class RouteFactory(object):
         if is_on_resource:
             self.resource_name = request.current_resource_name
             self.on_collection = getattr(service, "type", None) == "collection"
+
+            # Try to fetch the target object. Its existence will affect permissions checking.
+            if not self.on_collection and request.method.lower() in ("put", "delete", "patch"):
+                resource = service.resource(request=request, context=self)
+                try:
+                    # Save a reference, to avoid refetching from storage in resource.
+                    self.current_record = resource.model.get_record(resource.record_id)
+                except storage_exceptions.RecordNotFoundError:
+                    pass
 
             self.permission_object_id, self.required_permission = (
                 self._find_required_permission(request, service))
@@ -228,13 +248,7 @@ class RouteFactory(object):
         # In the case of a "PUT", check if the targetted record already
         # exists, return "write" if it does, "create" otherwise.
         if request.method.lower() == "put":
-            resource = service.resource(request=request, context=self)
-            try:
-                record = resource.model.get_record(resource.record_id)
-                # Save a reference, to avoid refetching from storage in
-                # resource.
-                self.current_record = record
-            except storage_exceptions.RecordNotFoundError:
+            if self.current_record is None:
                 # The record does not exist, the permission to create on
                 # the related collection is required.
                 permission_object_id = collection_path

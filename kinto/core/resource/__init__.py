@@ -663,7 +663,7 @@ class UserResource(object):
             except ValueError as e:
                 error_details = {
                     'location': 'body',
-                    'description': 'JSON Patch operation failed'
+                    'description': 'JSON Patch operation failed: %s' % e
                 }
                 raise_invalid(self.request, **error_details)
 
@@ -1153,7 +1153,7 @@ class ShareableResource(UserResource):
             self.model.current_principal = Everyone
         else:
             self.model.current_principal = self.request.prefixed_userid
-        self.model.effective_principals = self.request.effective_principals
+        self.model.prefixed_principals = self.request.prefixed_principals
 
         if self.context:
             self.model.get_permission_object_id = functools.partial(

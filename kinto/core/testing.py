@@ -37,6 +37,7 @@ class DummyRequest(mock.MagicMock):
             'system.Everyone',
             'system.Authenticated',
             'bob']
+        self.prefixed_principals = self.effective_principals + [self.prefixed_userid]
         self.json = {}
         self.validated = {}
         self.matchdict = {}
