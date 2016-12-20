@@ -248,6 +248,7 @@ class Storage(MemoryBasedStorage):
 
     @synchronized
     def delete_all(self, collection_id, parent_id, filters=None,
+                   sorting=None, pagination_rules=None, limit=None,
                    id_field=DEFAULT_ID_FIELD, with_deleted=True,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
@@ -255,7 +256,8 @@ class Storage(MemoryBasedStorage):
         records = _get_objects_by_parent_id(self._store, parent_id, collection_id, with_meta=True)
         records, count = self.extract_record_set(records=records,
                                                  filters=filters,
-                                                 sorting=None,
+                                                 sorting=sorting,
+                                                 pagination_rules=pagination_rules, limit=limit,
                                                  id_field=id_field,
                                                  deleted_field=deleted_field)
 

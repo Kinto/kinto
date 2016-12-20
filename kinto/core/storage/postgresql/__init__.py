@@ -392,6 +392,7 @@ class Storage(StorageBase):
         return record
 
     def delete_all(self, collection_id, parent_id, filters=None,
+                   sorting=None, pagination_rules=None, limit=None,
                    id_field=DEFAULT_ID_FIELD, with_deleted=True,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
@@ -401,9 +402,14 @@ class Storage(StorageBase):
             WITH deleted_records AS (
                 DELETE
                 FROM records
-                WHERE %(parent_id_filter)s
-                      %(collection_id_filter)s
-                      %(conditions_filter)s
+                WHERE id IN (SELECT id
+                             FROM records
+                             WHERE %(parent_id_filter)s
+                                   %(collection_id_filter)s
+                                   %(conditions_filter)s
+                                   %(pagination_rules)s
+                             %(sorting)s
+                             %(pagination_limit)s)
                 RETURNING id, parent_id, collection_id
             )
             INSERT INTO deleted (id, parent_id, collection_id)
@@ -415,9 +421,14 @@ class Storage(StorageBase):
             query = """
             DELETE
             FROM records
-            WHERE %(parent_id_filter)s
-                  %(collection_id_filter)s
-                  %(conditions_filter)s
+            WHERE id IN (SELECT id
+                         FROM records
+                         WHERE %(parent_id_filter)s
+                               %(collection_id_filter)s
+                               %(conditions_filter)s
+                               %(pagination_rules)s
+                         %(sorting)s
+                         %(pagination_limit)s)
             RETURNING id, as_epoch(last_modified) AS last_modified;
             """
 
@@ -445,6 +456,22 @@ class Storage(StorageBase):
                                                         modified_field)
             safeholders['conditions_filter'] = 'AND %s' % safe_sql
             placeholders.update(**holders)
+
+        if sorting:
+            sql, holders = self._format_sorting(sorting, id_field,
+                                                modified_field)
+            safeholders['sorting'] = sql
+            placeholders.update(**holders)
+
+        if pagination_rules:
+            sql, holders = self._format_pagination(pagination_rules, id_field,
+                                                   modified_field)
+            safeholders['pagination_rules'] = 'AND %s' % sql
+            placeholders.update(**holders)
+
+        if limit:
+            # We validate the limit value in the resource class as integer.
+            safeholders['pagination_limit'] = 'LIMIT %s' % limit
 
         with self.client.connect() as conn:
             result = conn.execute(query % safeholders, placeholders)
