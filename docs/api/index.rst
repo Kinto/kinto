@@ -11,10 +11,11 @@ API
 Changelog
 ---------
 
-1.13 (unreleased)
+1.13 (2016-12-19)
 '''''''''''''''''
 
 - Add ``DELETE`` to the history endpoint.
+- Add a ``basicauth`` capability when activated on the server
 
 1.12 (2016-11-18)
 '''''''''''''''''

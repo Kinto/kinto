@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-5.0.1 (unreleased)
+5.1.0 (2016-12-19)
 ------------------
 
 **Protocol**
@@ -36,6 +36,14 @@ Protocol is now at version **1.13**. See `API changelog`_.
 - Activate ``basicauth`` in admin by default. (#943)
 - Add a setting to limit the maximum number of bytes cached in the memory backend. (#610)
 - Add a setting to exclude certain resources from being tracked by history (fixes #964)
+
+**Backend changes**
+
+- ``storage.delete_all()`` now accepts ``sorting``, ``pagination_rules`` and ``limit``
+  parameters (#997)
+- ``permissions.get_accessible_objects()`` does not support Regexp and now accepts
+  a ``with_children`` parameter (#975)
+- ``cache.set()`` now logs a warning if ``ttl`` is ``None`` (#967)
 
 **Internal changes**
 
