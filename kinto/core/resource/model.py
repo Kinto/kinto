@@ -244,7 +244,7 @@ class ShareableModel(Model):
         self.get_permission_object_id = None
         # Current user main principal.
         self.current_principal = None
-        self.effective_principals = None
+        self.prefixed_principals = None
 
     def _allow_write(self, perm_object_id):
         """Helper to give the ``write`` permission to the current user.
@@ -257,7 +257,7 @@ class ShareableModel(Model):
         permissions = self.permission.get_object_permissions(perm_object_id)
         # Permissions are not returned if user only has read permission.
         writers = permissions.get('write', [])
-        principals = self.effective_principals + [self.current_principal]
+        principals = self.prefixed_principals + [self.current_principal]
         if len(set(writers) & set(principals)) == 0:
             permissions = {}
         # Insert the permissions values in the response.
