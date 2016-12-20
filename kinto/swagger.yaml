@@ -24,7 +24,7 @@ info:
       in heavy load, so we cannot validate them on every request. They are listed only
       on the default error message.
       4. [Collection schemas](http://kinto.readthedocs.io/en/stable/api/1.x/collections.html#collection-json-schema)
-      can be provided when defining a collection and should be a valid JSONSchema object,
+      can be provided when defining a collection and should be a valid JSON Schema object,
       but this is not validated by this specification.
 
   license:
@@ -1704,21 +1704,21 @@ responses:
 
   bucket-post-200:
     description: Return an existing bucket.
-    # headers:
-    #   ETag:
-    #     $ref: '#/responses/default/headers/ETag'
-    #   Last-Modified:
-    #     $ref: '#/responses/default/headers/Last-Modified'
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
      $ref: '#/definitions/Bucket'
 
   bucket-post-201:
     description: Return created bucket.
-    # headers:
-    #   ETag:
-    #     $ref: '#/responses/default/headers/ETag'
-    #   Last-Modified:
-    #     $ref: '#/responses/default/headers/Last-Modified'
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
     schema:
       $ref: '#/definitions/Bucket'
 
