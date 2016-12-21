@@ -41,12 +41,11 @@ def swagger_view(request):
         raise httpexceptions.HTTPNotFound()
 
     # Plugin swagger extensions
-    if settings.get('swagger_extensions'):
-        includes = aslist(settings.get('includes', ''))
-        for app in includes:
-            f = pkg_resources.resource_filename(app, 'swagger.yaml')
-            if os.path.exists(f):
-                files.append(f)
+    includes = aslist(settings.get('includes', ''))
+    for app in includes:
+        f = pkg_resources.resource_filename(app, 'swagger.yaml')
+        if os.path.exists(f):
+            files.append(f)
 
     swagger_view.__json__ = {}
 

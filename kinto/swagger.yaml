@@ -13,19 +13,9 @@ info:
     abilities. It is meant to be easy to use and easy to self-host.
 
 
-    **Limitations of this OpenAPI specification:**
-      1. Validation on OR clauses is not supported (e.g. provide `data` or `permissions`
-      in patch operations).
-      2. [Filtering](http://kinto.readthedocs.io/en/stable/api/1.x/filtering.html)
-      is supported on any field by using `?{prefix}{field_name}={value}`. But swagger
-      doesn't have support for patterned querystrings.
-      3. [Backoff headers](http://kinto.readthedocs.io/en/stable/api/1.x/backoff.html)
-      may occur with any response, but they are only present if the server is under
-      in heavy load, so we cannot validate them on every request. They are listed only
-      on the default error message.
-      4. [Collection schemas](http://kinto.readthedocs.io/en/stable/api/1.x/collections.html#collection-json-schema)
-      can be provided when defining a collection and should be a valid JSON Schema object,
-      but this is not validated by this specification.
+    **Note:** This OpenAPI specification is not fully compliant with the Kinto API
+    and contain some undocumented Swagger schemas. For a list of known limitations
+    please refer to the [Oficial Kinto documentation](kinto.readthedocs.io/en/stable/api/1.x/openapi.html).
 
   license:
     name: Apache License (2.0)
@@ -1492,6 +1482,7 @@ parameters:
           type: array
           items:
             type: object
+            # FIXME: Batch validation strongly depends on OR validation clauses
             properties:
               method:
                 description: HTTP method of the request.

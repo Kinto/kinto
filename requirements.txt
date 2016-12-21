@@ -16,7 +16,7 @@ pyramid==1.7.3
 pyramid-multiauth==0.9.0
 pyramid-tm==1.1.1
 python-dateutil==2.6.0
-PyYAML==3.12
+ruamel.yaml==0.13.4
 raven==5.32.0
 repoze.lru==0.6
 requests==2.12.4
