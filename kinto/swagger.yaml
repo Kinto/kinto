@@ -629,7 +629,7 @@ paths:
         - Kinto
       operationId: delete_group
       description: Delete a group.
-      parameters:
+      parameters: 
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_fields'
@@ -1014,7 +1014,7 @@ paths:
         - Kinto
       operationId: get_record
       description: Retrieve a single record.
-      parameters:
+      parameters:      
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_fields'
@@ -1044,7 +1044,7 @@ paths:
       operationId: update_record
       description: Create or replace a record.
       parameters:
-        - $ref: '#/parameters/record'
+        - $ref: '#/parameters/record'      
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_fields'
@@ -1078,7 +1078,7 @@ paths:
         - application/merge-patch+json
         - application/json-patch+json
       parameters:
-        - $ref: '#/parameters/record'
+        - $ref: '#/parameters/record'      
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_fields'
@@ -1107,7 +1107,7 @@ paths:
         - Kinto
       operationId: delete_record
       description: Delete a single record.
-      parameters:
+      parameters:   
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_fields'
@@ -1149,8 +1149,7 @@ definitions:
           last_modified:
             description:  The timestamp of the last modification.
             type: integer
-        additionalProperties:
-          description: Any extra field that applies.
+        additionalProperties: {}
       permissions:
         type: object
         description: >-
@@ -1198,8 +1197,7 @@ definitions:
             uniqueItems: true
             items:
               type: string
-        additionalProperties:
-          description: Any extra field that applies.
+        additionalProperties: {}
         required:
           - members
       permissions:
@@ -1236,16 +1234,14 @@ definitions:
             description: >-
               A JSON schema to validate the collection records.
             type: object
-            additionalProperties:
-              description: JSON Schema valid properties.
+            additionalProperties: {}
           cache_expires:
             description: >-
               Add a Cache-Control field to response headers specifying how long
               clients (or proxies) should cache the collection records
               (in seconds).
             type: integer
-        additionalProperties:
-          description: Any extra field that applies.
+        additionalProperties: {}
       permissions:
         description: >-
           The access control lists for the collection. Inherited to all records.
@@ -1287,8 +1283,7 @@ definitions:
           last_modified:
             description: The timestamp of the last modification.
             type: integer
-        additionalProperties:
-          description: Any extra field that applies.
+        additionalProperties: {}
       permissions:
         description: >-
           The access control lists for the record. Will show as an empty object
@@ -1330,8 +1325,7 @@ definitions:
             last_modified:
               description:  The timestamp of the object last modification.
               type: integer
-          additionalProperties:
-            description: Any extra field that applies.
+          additionalProperties: {}
 
   #
   # Auxiliary Object schemas
@@ -1355,8 +1349,7 @@ definitions:
       info:
         description: Link to an online resource with details.
         type: string
-    additionalProperties:
-        description: Extra error details.
+    additionalProperties: {}
 
 
   Deleted:
@@ -1408,7 +1401,7 @@ parameters:
     description: Get entries after a timestamp.
     required: false
     type: integer
-
+  
   _before:
     in: query
     name: _before
@@ -1526,8 +1519,7 @@ parameters:
                         type: string
                       last_modified:
                         type: integer
-                    additionalProperties:
-                      description: Extra fields.
+                    additionalProperties: {}
                   permissions:
                     type: object
                     properties:
@@ -1541,12 +1533,10 @@ parameters:
                         items:
                           type: string
                         uniqueItems: true
-                    additionalProperties:
-                      description: Resource specific permissions.
+                    additionalProperties: {}
               headers:
                 type: object
-                additionalProperties:
-                  description: HTTP headers to be used with the request.
+                additionalProperties: 
                   type: string
         defaults:
           type: object
@@ -1574,8 +1564,7 @@ parameters:
                       type: string
                     last_modified:
                       type: integer
-                  additionalProperties:
-                    description: Extra fields.
+                  additionalProperties: {}
                 permissions:
                   type: object
                   properties:
@@ -1589,13 +1578,11 @@ parameters:
                       items:
                         type: string
                       uniqueItems: true
-                  additionalProperties:
-                    description: Resource specific permissions.
+                  additionalProperties: {}
 
             headers:
               type: object
-              additionalProperties:
-                description: HTTP headers to be used on all requests.
+              additionalProperties: 
                 type: string
 
 
@@ -1630,8 +1617,7 @@ responses:
         default: "Mon, 12 Dec 2016 23:45:14 GMT"
     schema:
       type: object
-      additionalProperties:
-        description: Any schema.
+      additionalProperties: {}
 
   #
   # Utilities
@@ -1663,10 +1649,8 @@ responses:
               type: integer
             readonly:
               type: boolean
-          additionalProperties:
-            description: Extra server settings.
-      additionalProperties:
-        description: More info fields.
+          additionalProperties: {}
+      additionalProperties: {}
 
   #
   # Batch
