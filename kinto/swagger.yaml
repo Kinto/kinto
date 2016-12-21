@@ -2070,6 +2070,9 @@ responses:
   list-get-200:
     description: Return the requested object list.
     headers:
+      Total-Records:
+        type: integer
+        description: Number of objects on the list.
       ETag:
         $ref: '#/responses/default/headers/ETag'
       Last-Modified:
