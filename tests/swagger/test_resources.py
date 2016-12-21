@@ -1,44 +1,91 @@
-import unittest
-import six
+import json
 
+from bravado_core.request import unmarshal_request
 from bravado_core.response import validate_response
-from bravado_core.param import marshal_param
 
-from .support import SwaggerTest
-
-
-class MetaResourcesTest(type):
-    """Metaprogram test cases for easy debugging."""
-
-    def __init__(cls, *args, **kargs):
-        unittest.case.TestCase = cls
-        cls.generate_test_resources()
-
-    def generate_test_resources(cls):
-        for resource in cls.resources.values():
-            for op_id, op in resource.operations.items():
-                if op_id not in cls.allowed_failures:
-                    setattr(cls, 'test_resource_%s' % op_id,
-                            lambda self: cls.validate_request_call(self, op))
+from .support import (SwaggerTest, MINIMALIST_BUCKET, MINIMALIST_GROUP,
+                      MINIMALIST_COLLECTION, MINIMALIST_RECORD)
 
 
-class SwaggerResourcesTest(six.with_metaclass(MetaResourcesTest, SwaggerTest)):
+class SwaggerResourcesTest(SwaggerTest):
 
     allowed_failures = ['version']
 
+    def test_resource_utilities(self):
+        resource = self.resources['Utilities']
+        for op_id, op in resource.operations.items():
+                if op_id not in self.allowed_failures:
+                    self.validate_request_call(op)
+
+    def test_resource_batch(self):
+        resource = self.resources['Batch']
+        for op in resource.operations.values():
+            requests = [{'path': '/v1/buckets'}]
+            defaults = {'method': 'POST'}
+            self.request.json = lambda: dict(
+                requests=requests,
+                defaults=defaults
+            )
+            self.validate_request_call(op)
+
+    def test_resource_buckets(self):
+        resource = self.resources['Buckets']
+
+        for op in resource.operations.values():
+            self.app.put_json('/buckets/b1',
+                              MINIMALIST_BUCKET, headers=self.headers)
+            self.request.path = {
+                'bucket_id': 'b1',
+            }
+            self.request.json = lambda: MINIMALIST_BUCKET
+            self.validate_request_call(op)
+
+    def test_resource_groups(self):
+        resource = self.resources['Groups']
+
+        for op in resource.operations.values():
+            self.app.put_json('/buckets/b1/groups/g1',
+                              MINIMALIST_GROUP, headers=self.headers)
+            self.request.path = {
+                'bucket_id': 'b1',
+                'group_id': 'g1',
+            }
+            self.request.json = lambda: MINIMALIST_GROUP
+            self.validate_request_call(op)
+
+    def test_resource_collections(self):
+        resource = self.resources['Collections']
+
+        for op in resource.operations.values():
+            self.app.put_json('/buckets/b1/collections/c1',
+                              MINIMALIST_COLLECTION, headers=self.headers)
+            self.request.path = {
+                'bucket_id': 'b1',
+                'collection_id': 'c1',
+            }
+            self.request.json = lambda: MINIMALIST_COLLECTION
+            self.validate_request_call(op)
+
+    def test_resource_records(self):
+        resource = self.resources['Records']
+
+        for op in resource.operations.values():
+            self.app.put_json('/buckets/b1/collections/c1/records/r1',
+                              MINIMALIST_RECORD, headers=self.headers)
+            self.request.path = {
+                'bucket_id': 'b1',
+                'collection_id': 'c1',
+                'record_id': 'r1',
+            }
+            self.request.json = lambda: MINIMALIST_RECORD
+            self.validate_request_call(op)
+
     def validate_request_call(self, op, **kargs):
-
-        self.request.url = op.path_name
-
-        request = self.request.__dict__
-        for param_id, param in op.params.items():
-            marshal_param(param, self.params.get(param_id), request)
-
-        response = self.app.request(request['url'],
-                                    body=request['data'].encode(),
+        params = unmarshal_request(self.request, op)
+        response = self.app.request(op.path_name.format(**params),
+                                    body=json.dumps(self.request.json()).encode(),
                                     method=op.http_method.upper(),
                                     headers=self.headers, **kargs)
-
         schema = self.spec.deref(op.op_spec['responses'][str(response.status_code)])
         casted_resp = self.cast_bravado_response(response)
         validate_response(schema, op, casted_resp)

@@ -11,30 +11,17 @@ from ..support import (BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_GROUP,
 
 class SwaggerTest(BaseWebTest, unittest.TestCase):
 
-    # FIXME: solve memory issues from generating the spec multiple times
-    app = BaseWebTest().make_app()
+    @classmethod
+    def setUpClass(cls):
+        # FIXME: solve memory issues from generating the spec multiple times
+        app = BaseWebTest().make_app()
 
-    spec_dict = app.get('/swagger.json').json
-    spec = Spec.from_dict(spec_dict)
-    resources = build_resources(spec)
+        cls.spec_dict = app.get('/swagger.json').json
+        cls.spec = Spec.from_dict(cls.spec_dict)
+        cls.resources = build_resources(cls.spec)
 
     def setUp(self):
         super(SwaggerTest, self).setUp()
-
-        self.params = {
-            'bucket_id': 'b1',
-            'group_id': 'g1',
-            'collection_id': 'c1',
-            'record_id': 'r1',
-            'bucket': MINIMALIST_BUCKET,
-            'group': MINIMALIST_GROUP,
-            'collection': MINIMALIST_COLLECTION,
-            'record': MINIMALIST_RECORD,
-            'batch': {
-                'requests': [{'path': '/v1/buckets'}],
-                'defaults': {'method': 'POST'},
-            }
-        }
 
         self.bucket = self.app.put_json('/buckets/b1',
                                         MINIMALIST_BUCKET,
