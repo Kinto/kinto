@@ -33,9 +33,6 @@ info:
 
 basePath: /v1
 
-schemes:
-  - https
-
 securityDefinitions: {}
 
 # Default security
@@ -629,7 +626,7 @@ paths:
         - Kinto
       operationId: delete_group
       description: Delete a group.
-      parameters: 
+      parameters:
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_fields'
@@ -1014,7 +1011,7 @@ paths:
         - Kinto
       operationId: get_record
       description: Retrieve a single record.
-      parameters:      
+      parameters:
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_fields'
@@ -1044,7 +1041,7 @@ paths:
       operationId: update_record
       description: Create or replace a record.
       parameters:
-        - $ref: '#/parameters/record'      
+        - $ref: '#/parameters/record'
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_fields'
@@ -1078,7 +1075,7 @@ paths:
         - application/merge-patch+json
         - application/json-patch+json
       parameters:
-        - $ref: '#/parameters/record'      
+        - $ref: '#/parameters/record'
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_fields'
@@ -1107,7 +1104,7 @@ paths:
         - Kinto
       operationId: delete_record
       description: Delete a single record.
-      parameters:   
+      parameters:
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/_fields'
@@ -1401,7 +1398,7 @@ parameters:
     description: Get entries after a timestamp.
     required: false
     type: integer
-  
+
   _before:
     in: query
     name: _before
@@ -1536,7 +1533,7 @@ parameters:
                     additionalProperties: {}
               headers:
                 type: object
-                additionalProperties: 
+                additionalProperties:
                   type: string
         defaults:
           type: object
@@ -1579,10 +1576,9 @@ parameters:
                         type: string
                       uniqueItems: true
                   additionalProperties: {}
-
             headers:
               type: object
-              additionalProperties: 
+              additionalProperties:
                 type: string
 
 
