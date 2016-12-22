@@ -1,7 +1,7 @@
 from .support import SwaggerTest
 
 
-class SwaggerHistoryTest(SwaggerTest):
+class SwaggerPluginsTest(SwaggerTest):
 
     def test_get_history(self):
         op = self.resources['History'].get_history

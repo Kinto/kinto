@@ -106,12 +106,10 @@ responses:
               target:
                 type: object
                 description: Affected object after the modification.
-                schema:
-                  type: object
-                  properties:
-                    data:
-                      type: object
-                      additionalProperties: {}
-                    permissions:
-                      type: object
-                      additionalProperties: {}
+                properties:
+                  data:
+                    type: object
+                    additionalProperties: {}
+                  permissions:
+                    type: object
+                    additionalProperties: {}
