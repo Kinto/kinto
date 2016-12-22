@@ -12,6 +12,7 @@ def read_file(filename):
         content = f.read()
     return content
 
+
 README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
@@ -26,6 +27,7 @@ REQUIREMENTS = [
     'jsonpatch',
     'python-dateutil',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
+    'ruamel.yaml',
     'transaction',
     'pyramid_tm',
     'requests',
@@ -61,6 +63,7 @@ SETUP_REQUIRES = [
 ]
 
 TEST_REQUIREMENTS = [
+    'bravado_core',
     'pytest',
     'WebTest'
 ]
@@ -108,7 +111,7 @@ setup(name='kinto',
       author_email='storage-team@mozilla.com',
       url='https://github.com/Kinto/kinto',
       packages=find_packages(),
-      package_data={'': ['*.rst', '*.py']},
+      package_data={'': ['*.rst', '*.py', '*.yaml']},
       include_package_data=True,
       zip_safe=False,
       setup_requires=SETUP_REQUIRES,
