@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   version: ''
-  title: Kinto history
+  title: Kinto History Plugin
 paths:
   '/buckets/{bucket_id}/history':
     parameters:
@@ -60,32 +60,58 @@ responses:
           items:
             type: object
             properties:
-              action:
+              id:
                 type: string
-              bucket_id:
-                type: string
-              collection_id:
-                type: string
-              record_id:
-                type: string
-              group_id:
-                type: string
+                description: Id of the history entry.
               last_modified:
                 type: integer
+                description: Last modification (creation) of the history entry.
               date:
                 type: string
                 format: datetime
-              id:
+                description: Event timestamp.
+              action:
                 type: string
+                description: Type of the modification.
+                enum:
+                  - create
+                  - update
+                  - delete
+              bucket_id:
+                type: string
+                description: Bucket involved in the operation.
+              collection_id:
+                type: string
+                description: Collection involved in the operation.
+              record_id:
+                type: string
+                description: Record involved in the operation.
+              group_id:
+                type: string
+                description: Group involved in the operation.
               resource_name:
                 type: string
-              timestamp:
-                type: integer
+                description: Type of the modified resource.
+                enum:
+                  - bucket
+                  - group
+                  - collection
+                  - record
               uri:
                 type: string
+                description: Path of the modified resource.
               user_id:
                 type: string
+                description: User principal that performed the action.
               target:
                 type: object
-
-
+                description: Affected object after the modification.
+                schema:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      additionalProperties: {}
+                    permissions:
+                      type: object
+                      additionalProperties: {}
