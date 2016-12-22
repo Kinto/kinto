@@ -14,6 +14,7 @@ class SwaggerTest(BaseWebTest, unittest.TestCase):
 
     settings = {'includes': [
         'kinto.plugins.history',
+        'kinto.plugins.admin',
     ]}
 
     @classmethod
