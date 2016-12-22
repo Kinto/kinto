@@ -64,6 +64,13 @@ class DeleteModelTest(BaseTest):
         records = result['data']
         self.assertEqual(len(records), 1)
 
+    def test_delete_collection_gives_number_of_deletable_records_in_headers(self):
+        self.resource.request.GET = {'_limit': '1'}
+        self.resource.collection_delete()
+        headers = self.last_response.headers
+        count = headers['Total-Records']
+        self.assertEquals(int(count), 2)
+
 
 class IsolatedModelsTest(BaseTest):
     def setUp(self):

@@ -386,6 +386,9 @@ class UserResource(object):
         else:
             self._add_timestamp_header(self.request.response)
 
+        headers = self.request.response.headers
+        headers['Total-Records'] = encode_header('%s' % total_records)
+
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
         return self.postprocess(deleted, action=action, old=records)
 

@@ -9,6 +9,14 @@ This document describes changes between each past release.
 - Nothing changed yet.
 
 
+5.1.1 (Unreleased)
+------------------
+
+**Bug fixes**
+
+- Add missing ``Total-Records`` headers on ``DELETE`` with plural endpoints (fixes #1000)
+
+
 5.1.0 (2016-12-19)
 ------------------
 
