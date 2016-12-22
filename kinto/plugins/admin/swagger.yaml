@@ -11,7 +11,7 @@ paths:
       security: []
       produces:
         - text/html
-      responses: 
+      responses:
         '200':
           description: Show admin page.
         default:

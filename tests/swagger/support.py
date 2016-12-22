@@ -12,10 +12,12 @@ from ..support import (BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_GROUP,
 
 class SwaggerTest(BaseWebTest, unittest.TestCase):
 
-    settings = {'includes': [
-        'kinto.plugins.history',
-        'kinto.plugins.admin',
-    ]}
+    settings = {
+        'includes': [
+            'kinto.plugins.history',
+            'kinto.plugins.admin',
+        ]
+    }
 
     @classmethod
     def setUpClass(cls):
@@ -25,9 +27,6 @@ class SwaggerTest(BaseWebTest, unittest.TestCase):
         cls.spec_dict = app.get('/swagger.json').json
         cls.spec = Spec.from_dict(cls.spec_dict)
         cls.resources = build_resources(cls.spec)
-
-    def get_app_settings(self, extras=None):
-        return self.settings
 
     def setUp(self):
         super(SwaggerTest, self).setUp()
@@ -57,6 +56,11 @@ class SwaggerTest(BaseWebTest, unittest.TestCase):
         self.request.query = {}
         self.request._json = {}
         self.request.json = lambda: self.request._json
+
+    def get_app_settings(self, extras=None):
+        settings = super(SwaggerTest, self).get_app_settings(extras)
+        settings.update(self.settings)
+        return settings
 
     def cast_bravado_response(self, response):
         resp = OutgoingResponse()
