@@ -1,0 +1,91 @@
+swagger: '2.0'
+info:
+  version: ''
+  title: Kinto history
+paths:
+  '/buckets/{bucket_id}/history':
+    parameters:
+      - required: true
+        type: string
+        description: Bucket id.
+        in: path
+        name: bucket_id
+    get:
+      operationId: get_history
+      tags:
+        - History
+        - Kinto
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          $ref: '#/responses/history-get-200'
+        '400':
+          $ref: '#/responses/list-get-400'
+        '401':
+          $ref: '#/responses/list-get-401'
+        '403':
+          $ref: '#/responses/list-get-403'
+        '406':
+          $ref: '#/responses/list-get-406'
+    delete:
+      operationId: delete_history
+      tags:
+        - History
+        - Kinto
+      produces:
+        - application/json
+      responses:
+        '200':
+          $ref: '#/responses/list-delete-200'
+        '400':
+          $ref: '#/responses/list-delete-400'
+        '401':
+          $ref: '#/responses/list-delete-401'
+        '403':
+          $ref: '#/responses/list-delete-403'
+        '406':
+          $ref: '#/responses/list-delete-406'
+
+responses:
+  history-get-200:
+    description: Returns the history for a bucket and all its children.
+    schema:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+              bucket_id:
+                type: string
+              collection_id:
+                type: string
+              record_id:
+                type: string
+              group_id:
+                type: string
+              last_modified:
+                type: integer
+              date:
+                type: string
+                format: datetime
+              id:
+                type: string
+              resource_name:
+                type: string
+              timestamp:
+                type: integer
+              uri:
+                type: string
+              user_id:
+                type: string
+              target:
+                type: object
+
+
