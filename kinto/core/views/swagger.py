@@ -1,7 +1,7 @@
 import os
-import yaml
 import pkg_resources
 
+from ruamel import yaml
 from pyramid import httpexceptions
 from pyramid.settings import aslist
 from pyramid.security import NO_PERMISSION_REQUIRED

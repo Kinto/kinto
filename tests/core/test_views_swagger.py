@@ -1,8 +1,9 @@
+import os
 import unittest
 import mock
-import yaml
 import tempfile
-import os
+
+from ruamel import yaml
 
 from kinto.core.views.swagger import swagger_view
 from .support import BaseWebTest
