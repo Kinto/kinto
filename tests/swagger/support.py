@@ -16,7 +16,7 @@ class SwaggerTest(BaseWebTest, unittest.TestCase):
         # FIXME: solve memory issues from generating the spec multiple times
         app = BaseWebTest().make_app()
 
-        cls.spec_dict = app.get('/swagger.json').json
+        cls.spec_dict = app.get('/__api__').json
         cls.spec = Spec.from_dict(cls.spec_dict)
         cls.resources = build_resources(cls.spec)
 

@@ -11,7 +11,7 @@ from kinto.core.utils import recursive_update_dict
 HERE = os.path.dirname(os.path.abspath(__file__))
 ORIGIN = os.path.dirname(os.path.dirname(HERE))
 
-swagger = Service(name="swagger", path='/swagger.json', description="OpenAPI description")
+swagger = Service(name="swagger", path='/__api__', description="OpenAPI description")
 
 
 @swagger.get(permission=NO_PERMISSION_REQUIRED)

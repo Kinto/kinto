@@ -9,8 +9,8 @@ is a standard to describe REST APIs in a human and computer readable format
 and allow several features like interactive documentation and automated
 client generation.
 
-GET /swagger.json
-=================
+GET /__api__
+============
 
 Returns the OpenAPI description for the running instance of Kinto on JSON format.
 

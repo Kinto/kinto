@@ -19,11 +19,11 @@ class SwaggerViewTest(BaseWebTest, unittest.TestCase):
     tearDown = setUp
 
     def test_get_spec_at_root(self):
-        self.app.get('/swagger.json')
+        self.app.get('/__api__')
 
     def test_404_with_no_files(self):
         with mock.patch('os.path.exists', lambda f: False):
-            self.app.get('/swagger.json', status=404)
+            self.app.get('/__api__', status=404)
 
     def test_extensions(self):
         path = tempfile.mktemp(suffix='.yaml')
@@ -35,7 +35,7 @@ class SwaggerViewTest(BaseWebTest, unittest.TestCase):
 
         with mock.patch.dict(self.app.app.registry.settings, [('includes', 'package')]):
             with mock.patch('pkg_resources.resource_filename', lambda pkg, f: path):
-                response = self.app.get('/swagger.json')
+                response = self.app.get('/__api__')
                 self.assertEquals(response.json['swagger'], '3.0')
 
     def test_default_security_extensions(self):
@@ -57,7 +57,7 @@ class SwaggerViewTest(BaseWebTest, unittest.TestCase):
 
         with mock.patch.dict(self.app.app.registry.settings, [('includes', 'fxa')]):
             with mock.patch('pkg_resources.resource_filename', lambda pkg, f: path):
-                response = self.app.get('/swagger.json')
+                response = self.app.get('/__api__')
                 self.assertEqual(['basicAuth', 'fxa'],
                                  sorted(response.json['securityDefinitions'].keys()))
                 self.assertDictContainsSubset(content['securityDefinitions'],
