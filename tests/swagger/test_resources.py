@@ -1,8 +1,3 @@
-import json
-
-from bravado_core.request import unmarshal_request
-from bravado_core.response import validate_response
-
 from .support import (SwaggerTest, MINIMALIST_BUCKET, MINIMALIST_GROUP,
                       MINIMALIST_COLLECTION, MINIMALIST_RECORD)
 
@@ -79,14 +74,3 @@ class SwaggerResourcesTest(SwaggerTest):
             }
             self.request.json = lambda: MINIMALIST_RECORD
             self.validate_request_call(op)
-
-    def validate_request_call(self, op, **kargs):
-        params = unmarshal_request(self.request, op)
-        response = self.app.request(op.path_name.format(**params),
-                                    body=json.dumps(self.request.json()).encode(),
-                                    method=op.http_method.upper(),
-                                    headers=self.headers, **kargs)
-        schema = self.spec.deref(op.op_spec['responses'][str(response.status_code)])
-        casted_resp = self.cast_bravado_response(response)
-        validate_response(schema, op, casted_resp)
-        return response
