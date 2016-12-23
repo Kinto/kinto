@@ -3,18 +3,19 @@ Changelog
 
 This document describes changes between each past release.
 
-5.2.0 (unreleased)
+5.2.0 (Unreleased)
 ------------------
 
-- Nothing changed yet.
+**Protocol**
 
+- Add an `OpenAPI specification <https://kinto.readthedocs.io/en/latest/api/1.x/openapi.html>`
+  for the HTTP API on ``/swagger.json`` (#997)
 
-5.1.1 (Unreleased)
-------------------
+Protocol is now at version **1.14**. See `API changelog`_.
 
 **Bug fixes**
 
-- Add missing ``Total-Records`` headers on ``DELETE`` with plural endpoints (fixes #1000)
+- Add missing ``Total-Records`` field on ``DELETE`` header with plural endpoints (fixes #1000)
 
 
 5.1.0 (2016-12-19)

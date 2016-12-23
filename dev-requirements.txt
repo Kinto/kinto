@@ -1,3 +1,4 @@
+bravado_core
 flake8
 mock
 pytest
