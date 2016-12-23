@@ -11,6 +11,9 @@ This document describes changes between each past release.
 - Add an `OpenAPI specification <https://kinto.readthedocs.io/en/latest/api/1.x/openapi.html>`
   for the HTTP API on ``/swagger.json`` (#997)
 
+**New features**
+- ``GET  /admin`` now raises ``307  Temporary Redirect`` to ``/admin/`` with admin plugin.
+
 Protocol is now at version **1.14**. See `API changelog`_.
 
 5.1.0 (2016-12-19)
