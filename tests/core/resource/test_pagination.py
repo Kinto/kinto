@@ -58,6 +58,13 @@ class PaginationTest(BasePaginationTest):
             result = self.resource.collection_get()
             self.assertEqual(len(result['data']), 5)
 
+    def test_return_total_records_in_headers(self):
+        self.resource.request.GET = {'_limit': '5'}
+        self.resource.collection_get()
+        headers = self.last_response.headers
+        count = headers['Total-Records']
+        self.assertEquals(int(count), 20)
+
     def test_return_next_page_url_is_given_in_headers(self):
         self.resource.request.GET = {'_limit': '10'}
         self.resource.collection_get()
@@ -215,6 +222,13 @@ class PaginatedDeleteTest(BasePaginationTest):
         results2 = self.resource.collection_delete()
         results2_ids = [r['id'] for r in results2['data']]
         self.assertEqual(expected_ids, results1_ids + results2_ids)
+
+    def test_return_total_records_in_headers_matching_deletable(self):
+        self.resource.request.GET = {'_limit': '5'}
+        self.resource.collection_delete()
+        headers = self.last_response.headers
+        count = headers['Total-Records']
+        self.assertEquals(int(count), 20)
 
 
 class BuildPaginationTokenTest(BaseTest):
