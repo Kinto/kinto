@@ -12,7 +12,8 @@ This document describes changes between each past release.
   for the HTTP API on ``/swagger.json`` (#997)
 
 **New features**
-- ``GET  /admin`` now raises ``307  Temporary Redirect`` to ``/admin/`` with admin plugin.
+- When admin is enabled, ``/v1/admin`` does not return ``404`` anymore, but now redirects to
+  ``/v1/admin/`` (with trailing slash).
 
 Protocol is now at version **1.14**. See `API changelog`_.
 
