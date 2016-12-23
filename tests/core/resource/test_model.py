@@ -8,12 +8,6 @@ class ModelTest(BaseTest):
         super(ModelTest, self).setUp()
         self.record = self.model.create_record({'field': 'value'})
 
-    def test_list_gives_number_of_results_in_headers(self):
-        self.resource.collection_get()
-        headers = self.last_response.headers
-        count = headers['Total-Records']
-        self.assertEquals(int(count), 1)
-
     def test_list_returns_all_records_in_data(self):
         result = self.resource.collection_get()
         records = result['data']

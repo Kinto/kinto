@@ -2143,6 +2143,9 @@ responses:
   list-delete-200:
     description: The objects were deleted.
     headers:
+      Total-Records:
+        type: integer
+        description: Number of objects on the list.
       ETag:
         $ref: '#/responses/default/headers/ETag'
       Last-Modified:

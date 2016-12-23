@@ -13,6 +13,11 @@ This document describes changes between each past release.
 
 Protocol is now at version **1.14**. See `API changelog`_.
 
+**Bug fixes**
+
+- Add missing ``Total-Records`` field on ``DELETE`` header with plural endpoints (fixes #1000)
+
+
 5.1.0 (2016-12-19)
 ------------------
 
