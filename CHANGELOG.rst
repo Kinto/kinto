@@ -6,7 +6,7 @@ This document describes changes between each past release.
 5.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Changed default listening address from 0.0.0.0 to 127.0.0.1 (#949)
 
 
 5.1.0 (2016-12-19)
