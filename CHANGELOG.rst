@@ -3,8 +3,25 @@ Changelog
 
 This document describes changes between each past release.
 
-5.2.0 (unreleased)
+5.2.0 (Unreleased)
 ------------------
+
+**Protocol**
+
+- Add an `OpenAPI specification <https://kinto.readthedocs.io/en/latest/api/1.x/openapi.html>`
+  for the HTTP API on ``/swagger.json`` (#997)
+
+**New features**
+- When admin is enabled, ``/v1/admin`` does not return ``404`` anymore, but now redirects to
+  ``/v1/admin/`` (with trailing slash).
+
+Protocol is now at version **1.14**. See `API changelog`_.
+
+**Bug fixes**
+
+- Add missing ``Total-Records`` field on ``DELETE`` header with plural endpoints (fixes #1000)
+
+**Internal changes**
 
 - Changed default listening address from 0.0.0.0 to 127.0.0.1 (#949)
 
