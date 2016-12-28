@@ -21,6 +21,10 @@ Protocol is now at version **1.14**. See `API changelog`_.
 
 - Add missing ``Total-Records`` field on ``DELETE`` header with plural endpoints (fixes #1000)
 
+**Internal changes**
+
+- Changed default listening address from 0.0.0.0 to 127.0.0.1 (#949)
+
 
 5.1.0 (2016-12-19)
 ------------------
