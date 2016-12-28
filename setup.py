@@ -26,6 +26,7 @@ REQUIREMENTS = [
     'jsonschema',
     'jsonpatch',
     'python-dateutil',
+    'pyramid>1.7,<1.8',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
     'ruamel.yaml',
     'transaction',
