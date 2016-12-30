@@ -74,6 +74,7 @@ update-kinto-admin:
 	cd kinto/plugins/admin/; npm install && npm run build
 	cd kinto/plugins/admin/; sed -i "s/ version=\".*\"/ version=\"$$(npm list | egrep kinto-admin | cut -d @ -f 2)\"/g" __init__.py
 	git add kinto/plugins/admin/build/static/js/main.*
+	git add kinto/plugins/admin/build/static/css/main.*
 
 $(SERVER_CONFIG):
 	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init

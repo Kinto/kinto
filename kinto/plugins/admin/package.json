@@ -7,7 +7,7 @@
     "react-scripts": "0.7.0"
   },
   "dependencies": {
-    "kinto-admin": "1.6.0",
+    "kinto-admin": "1.7.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2"
   },

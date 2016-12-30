@@ -24,6 +24,7 @@ Protocol is now at version **1.14**. See `API changelog`_.
 **Internal changes**
 
 - Changed default listening address from 0.0.0.0 to 127.0.0.1 (#949)
+- Upgrade to Kinto-Admin 1.7.0
 
 
 5.1.0 (2016-12-19)
