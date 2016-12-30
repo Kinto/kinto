@@ -11,11 +11,11 @@ This document describes changes between each past release.
 - Add an `OpenAPI specification <https://kinto.readthedocs.io/en/latest/api/1.x/openapi.html>`
   for the HTTP API on ``/swagger.json`` (#997)
 
+Protocol is now at version **1.14**. See `API changelog`_.
+
 **New features**
 - When admin is enabled, ``/v1/admin`` does not return ``404`` anymore, but now redirects to
   ``/v1/admin/`` (with trailing slash).
-
-Protocol is now at version **1.14**. See `API changelog`_.
 
 **Bug fixes**
 
