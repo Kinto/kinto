@@ -13,7 +13,7 @@ RUN \
     apt-get install -y build-essential git python3-dev libssl-dev libffi-dev libpq-dev; \
     pip3 install -e /code[postgresql,monitoring]; \
     pip3 install kinto-pusher kinto-fxa kinto-attachment ; \
-    kinto --ini $KINTO_INI init --backend=memory; \
+    kinto --ini $KINTO_INI init --host 0.0.0.0 --backend=memory; \
     apt-get remove -y -qq build-essential git python3-dev libssl-dev libffi-dev libpq-dev; \
     apt-get autoremove -y -qq; \
     apt-get clean -y
