@@ -120,22 +120,6 @@ class ConfigTest(unittest.TestCase):
             'config_file_timestamp': strftime('%a, %d %b %Y %H:%M:%S %z')
         })
 
-    def test_render_template_creates_directory_if_necessary(self):
-        temp_path = tempfile.mkdtemp()
-        destination = os.path.join(temp_path, 'config/kinto.ini')
-        config.render_template('kinto.tpl', destination, **{
-            'secret': "abcd-ceci-est-un-secret",
-            'storage_backend': 'kinto.core.storage.memory',
-            'cache_backend': 'kinto.core.cache.memory',
-            'permission_backend': 'kinto.core.permission.memory',
-            'storage_url': '',
-            'cache_url':  '',
-            'permission_url': '',
-            'kinto_version': '',
-            'config_file_timestamp': ''
-        })
-        self.assertTrue(os.path.exists(destination))
-
     def test_render_template_works_with_file_in_cwd(self):
         temp_path = tempfile.mkdtemp()
         os.chdir(temp_path)
