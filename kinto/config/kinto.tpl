@@ -4,7 +4,7 @@
 
 [server:main]
 use = egg:waitress#main
-host = 127.0.0.1
+host = {host}
 port = %(http_port)s
 
 

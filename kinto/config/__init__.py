@@ -26,9 +26,10 @@ def render_template(template, destination, **kwargs):
             output.write(rendered)
 
 
-def init(config_file, backend):
+def init(config_file, backend, host='127.0.0.1'):
     values = {}
 
+    values['host'] = host
     values['secret'] = core_utils.random_bytes_hex(32)
 
     values['kinto_version'] = __version__
