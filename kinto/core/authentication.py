@@ -24,7 +24,7 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
     def unauthenticated_userid(self, request):
         settings = request.registry.settings
 
-        credentials = self._get_credentials(request)
+        credentials = base_auth.extract_http_basic_credentials(request)
         if credentials:
             username, password = credentials
             if not username:
