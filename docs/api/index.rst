@@ -14,7 +14,7 @@ Changelog
 1.14 (Unreleased)
 '''''''''''''''''
 
-- Add an OpenAPI 2.0 specification on ``GET /swagger.json`` endpoint.
+- Add an OpenAPI 2.0 specification on ``GET /__api__`` endpoint.
 
 1.13 (2016-12-19)
 '''''''''''''''''
