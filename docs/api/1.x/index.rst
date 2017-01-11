@@ -46,7 +46,7 @@ Cheatsheet
 | `GET`    | :ref:`/__heartbeat__ <api-utilities>`                                                        | :ref:`Return the status of dependent services           |
 |          |                                                                                              | <api-utilities>`                                        |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
-| `GET`    | :ref:`/swagger.json <openapi_spec>`                                                          | :ref:`Return the OpenAPI description of the running     |
+| `GET`    | :ref:`/__api__ <openapi_spec>`                                                               | :ref:`Return the OpenAPI description of the running     |
 |          |                                                                                              | instance <openapi_spec>`                                |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | **Buckets**                                                                                                                                                       |
