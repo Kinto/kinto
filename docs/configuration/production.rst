@@ -25,7 +25,7 @@ Install and setup PostgreSQL
 PostgreSQL client
 -----------------
 
-Before installing the Python libraries for Postgres we need to first install the header files for the PostgreSQL database backend.
+Before installing the Python libraries for PostgreSQL we need to first install the header files for the PostgreSQL database backend.
 
 On Debian / Ubuntu based systems::
 

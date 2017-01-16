@@ -6,7 +6,9 @@ This document describes changes between each past release.
 5.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Quick mention of PostgreSQL commands to run tests locally in contributing docs
 
 
 5.2.0 (2017-01-11)
