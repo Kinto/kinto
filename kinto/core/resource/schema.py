@@ -1,7 +1,8 @@
+import six
 import colander
 from colander import SchemaNode, String
 
-from kinto.core.utils import strip_whitespace, msec_time
+from kinto.core.utils import strip_whitespace, msec_time, decode_header
 
 
 class ResourceSchema(colander.MappingSchema):
@@ -152,26 +153,33 @@ class URL(SchemaNode):
         return strip_whitespace(appstruct)
 
 
-class CSVQuerystring(colander.SchemaNode):
+class FieldList(colander.SchemaNode):
     """String field representing a list of attributes."""
 
-    schema_type = colander.String
-    missing = colander.drop
+    schema_type = colander.Sequence
     error_message = "The value should be a list of comma separated field names"
+    missing = colander.drop
+    fields = colander.SchemaNode(colander.String(), missing=colander.drop)
 
     def deserialize(self, cstruct=colander.null):
-        params = super(CSVQuerystring, self).deserialize(cstruct)
-        if params is colander.drop:
-            return params
-        else:
-            return params.split(',')
+        if isinstance(cstruct, six.string_types):
+            cstruct = cstruct.split(',')
+        return super(FieldList, self).deserialize(cstruct)
 
 
-class HeaderQuotedInteger(colander.SchemaNode):
+class HeaderField(colander.SchemaNode):
+    """Basic header field SchemaNode."""
+
+    def deserialize(self, cstruct=colander.null):
+        if isinstance(cstruct, six.binary_type):
+            cstruct = decode_header(cstruct)
+        return super(HeaderField, self).deserialize(cstruct)
+
+
+class HeaderQuotedInteger(HeaderField):
     """Integer between "" used in precondition headers."""
 
     schema_type = colander.String
-    missing = colander.drop
     error_message = "The value should be integer between double quotes"
     validator = colander.Any(colander.Regex('^"([0-9]+?)"$', msg=error_message),
                              colander.Regex('\*'))
@@ -187,11 +195,10 @@ class HeaderQuotedInteger(colander.SchemaNode):
 class HeaderSchema(colander.MappingSchema):
     if_match = HeaderQuotedInteger(name='If-Match', missing=colander.drop)
     if_none_match = HeaderQuotedInteger(name='If-None-Match', missing=colander.drop)
-    response_behaviour = colander.SchemaNode(colander.String(),
-                                             name='Response-Behavior',
-                                             validator=colander.OneOf(
-                                                 ['full', 'light', 'diff']),
-                                             missing=colander.drop)
+    response_behaviour = HeaderField(colander.String(),
+                                     name='Response-Behavior',
+                                     validator=colander.OneOf(['full', 'light', 'diff']),
+                                     missing=colander.drop)
 
     @staticmethod
     def schema_type():
@@ -200,8 +207,8 @@ class HeaderSchema(colander.MappingSchema):
 
 class QuerySchema(colander.MappingSchema):
     _limit = colander.SchemaNode(colander.Integer(), missing=colander.drop)
-    _fields = CSVQuerystring()
-    _sort = CSVQuerystring()
+    _fields = FieldList()
+    _sort = FieldList()
     _token = colander.SchemaNode(colander.String(), missing=colander.drop)
 
     @staticmethod

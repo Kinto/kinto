@@ -542,8 +542,7 @@ class UserResource(object):
                 new_record[extra_field] = existing[extra_field]
 
         # Adjust response according to ``Response-Behavior`` header
-        body_behavior = self.request.validated.get('header',
-                                                   {}).get('Response-Behavior', 'full')
+        body_behavior = self.request.validated['header'].get('Response-Behavior', 'full')
 
         if body_behavior.lower() == 'light':
             # Only fields that were changed.
@@ -813,7 +812,7 @@ class UserResource(object):
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified`
         """
-        if_none_match = self.request.validated.get('header', {}).get('If-None-Match')
+        if_none_match = self.request.validated['header'].get('If-None-Match')
 
         if not if_none_match:
             return
@@ -838,8 +837,8 @@ class UserResource(object):
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed`
         """
-        if_match = self.request.validated.get('header', {}).get('If-Match')
-        if_none_match = self.request.validated.get('header', {}).get('If-None-Match')
+        if_match = self.request.validated['header'].get('If-Match')
+        if_none_match = self.request.validated['header'].get('If-None-Match')
 
         if not if_match and not if_none_match:
             return
@@ -887,7 +886,7 @@ class UserResource(object):
     def _extract_partial_fields(self):
         """Extract the fields to do the projection from QueryString parameters.
         """
-        fields = self.request.validated.get('querystring', {}).get('_fields')
+        fields = self.request.validated['querystring'].get('_fields')
         if fields:
             root_fields = [f.split('.')[0] for f in fields]
             known_fields = self._get_known_fields()
@@ -910,7 +909,7 @@ class UserResource(object):
     def _extract_limit(self):
         """Extract limit value from QueryString parameters."""
         paginate_by = self.request.registry.settings['paginate_by']
-        limit = self.request.validated.get('querystring', {}).get('_limit', paginate_by)
+        limit = self.request.validated['querystring'].get('_limit', paginate_by)
 
         # If limit is higher than paginate_by setting, ignore it.
         if limit and paginate_by:
@@ -921,7 +920,7 @@ class UserResource(object):
     def _extract_filters(self, queryparams=None):
         """Extracts filters from QueryString parameters."""
         if not queryparams:
-            queryparams = self.request.validated.get('querystring', {})
+            queryparams = self.request.validated['querystring']
 
         filters = []
 
@@ -998,7 +997,7 @@ class UserResource(object):
 
     def _extract_sorting(self, limit):
         """Extracts filters from QueryString parameters."""
-        specified = self.request.validated.get('querystring', {}).get('_sort', [])
+        specified = self.request.validated['querystring'].get('_sort', [])
         sorting = []
         modified_field_used = self.model.modified_field in specified
         for field in specified:
@@ -1053,7 +1052,7 @@ class UserResource(object):
 
     def _extract_pagination_rules_from_token(self, limit, sorting):
         """Get pagination params."""
-        token = self.request.validated.get('querystring', {}).get('_token', None)
+        token = self.request.validated['querystring'].get('_token', None)
         filters = []
         offset = 0
         if token:
