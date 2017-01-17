@@ -17,7 +17,7 @@ from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
-    encode_header, decode_header, dict_subset, recursive_update_dict,
+    encode_header, dict_subset, recursive_update_dict,
     apply_json_patch
 )
 
@@ -542,7 +542,8 @@ class UserResource(object):
                 new_record[extra_field] = existing[extra_field]
 
         # Adjust response according to ``Response-Behavior`` header
-        body_behavior = self.request.headers.get('Response-Behavior', 'full')
+        body_behavior = self.request.validated.get('header',
+                                                   {}).get('Response-Behavior', 'full')
 
         if body_behavior.lower() == 'light':
             # Only fields that were changed.
@@ -812,36 +813,20 @@ class UserResource(object):
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified`
         """
-        if_none_match = self.request.headers.get('If-None-Match')
+        if_none_match = self.request.validated.get('header', {}).get('If-None-Match')
 
         if not if_none_match:
             return
 
-        error_details = {
-            'location': 'header',
-            'description': "Invalid value for If-None-Match"
-        }
-
-        try:
-            if_none_match = decode_header(if_none_match)
-        except UnicodeDecodeError:
-            raise_invalid(self.request, **error_details)
-
-        try:
-            if not (if_none_match[0] == if_none_match[-1] == '"'):
-                raise ValueError()
-            modified_since = int(if_none_match[1:-1])
-        except (IndexError, ValueError):
-            if if_none_match == '*':
-                return
-            raise_invalid(self.request, **error_details)
+        if if_none_match == '*':
+            return
 
         if record:
             current_timestamp = record[self.model.modified_field]
         else:
             current_timestamp = self.model.timestamp()
 
-        if current_timestamp <= modified_since:
+        if current_timestamp <= if_none_match:
             response = HTTPNotModified()
             self._add_timestamp_header(response, timestamp=current_timestamp)
             raise response
@@ -853,22 +838,11 @@ class UserResource(object):
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed`
         """
-        if_match = self.request.headers.get('If-Match')
-        if_none_match = self.request.headers.get('If-None-Match')
+        if_match = self.request.validated.get('header', {}).get('If-Match')
+        if_none_match = self.request.validated.get('header', {}).get('If-None-Match')
 
         if not if_match and not if_none_match:
             return
-
-        error_details = {
-            'location': 'header',
-            'description': ("Invalid value for If-Match. The value should "
-                            "be integer between double quotes.")}
-
-        try:
-            if_match = decode_header(if_match) if if_match else None
-            if_none_match = decode_header(if_none_match) if if_none_match else None
-        except UnicodeDecodeError:
-            raise_invalid(self.request, **error_details)
 
         if record and if_none_match == '*':
             if record.get(self.model.deleted_field, False):
@@ -876,12 +850,7 @@ class UserResource(object):
                 return
             modified_since = -1  # Always raise.
         elif if_match:
-            try:
-                if not (if_match[0] == if_match[-1] == '"'):
-                    raise ValueError()
-                modified_since = int(if_match[1:-1])
-            except (IndexError, ValueError):
-                raise_invalid(self.request, **error_details)
+            modified_since = if_match
         else:
             # In case _raise_304_if_not_modified() did not raise.
             return
@@ -918,9 +887,8 @@ class UserResource(object):
     def _extract_partial_fields(self):
         """Extract the fields to do the projection from QueryString parameters.
         """
-        fields = self.request.GET.get('_fields', None)
+        fields = self.request.validated.get('querystring', {}).get('_fields')
         if fields:
-            fields = fields.split(',')
             root_fields = [f.split('.')[0] for f in fields]
             known_fields = self._get_known_fields()
             invalid_fields = set(root_fields) - set(known_fields)
@@ -942,16 +910,7 @@ class UserResource(object):
     def _extract_limit(self):
         """Extract limit value from QueryString parameters."""
         paginate_by = self.request.registry.settings['paginate_by']
-        limit = self.request.GET.get('_limit', paginate_by)
-        if limit:
-            try:
-                limit = int(limit)
-            except ValueError:
-                error_details = {
-                    'location': 'querystring',
-                    'description': "_limit should be an integer"
-                }
-                raise_invalid(self.request, **error_details)
+        limit = self.request.validated.get('querystring', {}).get('_limit', paginate_by)
 
         # If limit is higher than paginate_by setting, ignore it.
         if limit and paginate_by:
@@ -962,7 +921,7 @@ class UserResource(object):
     def _extract_filters(self, queryparams=None):
         """Extracts filters from QueryString parameters."""
         if not queryparams:
-            queryparams = self.request.GET
+            queryparams = self.request.validated.get('querystring', {})
 
         filters = []
 
@@ -1039,7 +998,7 @@ class UserResource(object):
 
     def _extract_sorting(self, limit):
         """Extracts filters from QueryString parameters."""
-        specified = self.request.GET.get('_sort', '').split(',')
+        specified = self.request.validated.get('querystring', {}).get('_sort', [])
         sorting = []
         modified_field_used = self.model.modified_field in specified
         for field in specified:
@@ -1094,8 +1053,7 @@ class UserResource(object):
 
     def _extract_pagination_rules_from_token(self, limit, sorting):
         """Get pagination params."""
-        queryparams = self.request.GET
-        token = queryparams.get('_token', None)
+        token = self.request.validated.get('querystring', {}).get('_token', None)
         filters = []
         offset = 0
         if token:
