@@ -39,7 +39,7 @@ kinto.storage_url = {storage_url}
 # kinto.storage_max_backlog = -1
 kinto.cache_backend = {cache_backend}
 kinto.cache_url = {cache_url}
-# kinto.cache_prefix = {cahce_prefix}
+# kinto.cache_prefix = {cache_prefix}
 # kinto.cache_max_size_bytes = 524288
 # kinto.cache_pool_size = 25
 # kinto.cache_max_overflow = 5
@@ -262,8 +262,10 @@ kinto.includes = kinto.plugins.default_bucket
 #
 # kinto.statsd_url = udp://localhost:8125
 # kinto.statsd_prefix = kinto-prod
+#
 # kinto.http_scheme = https
 # kinto.http_host = kinto.services.mozilla.com
+#
 # kinto.backoff = 10
 # kinto.retry_after_seconds = 30
 # kinto.eos =
