@@ -12,10 +12,10 @@ class NotModifiedTest(BaseTest):
 
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
+        self.resource.request.validated = self.validated.copy()
         self.resource.collection_get()
         self.validated = self.resource.request.validated
         current = self.last_response.headers['ETag'][1:-1]
-        self.validated['header'] = {}
         self.validated['header']['If-None-Match'] = int(current)
 
     def test_collection_returns_200_if_change_meanwhile(self):
@@ -59,7 +59,6 @@ class ModifiedMeanwhileTest(BaseTest):
         self.validated = self.resource.request.validated
         current = self.last_response.headers['ETag'][1:-1]
         previous = int(current) - 10
-        self.validated['header'] = {}
         self.validated['header']['If-Match'] = previous
 
     def test_preconditions_errors_are_json_formatted(self):

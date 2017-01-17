@@ -25,7 +25,6 @@ class BasePaginationTest(BaseTest):
             }
             self.model.create_record(record)
 
-        self.resource.request.validated = {'querystring': {}}
         self.validated = self.resource.request.validated
 
     def _setup_next_page(self):

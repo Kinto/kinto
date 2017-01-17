@@ -23,6 +23,8 @@ class BaseTest(unittest.TestCase):
         self.model = self.resource.model
         self.patch_known_field = mock.patch.object(self.resource,
                                                    'is_known_field')
+        self.validated = {'body': {}, 'header': {}, 'querystring': {}}
+        self.resource.request.validated = self.validated
 
     def tearDown(self):
         mock.patch.stopall()

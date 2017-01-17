@@ -105,7 +105,7 @@ class PermissionsSchemaTest(unittest.TestCase):
 class CSVQuerystringSchemaTest(unittest.TestCase):
 
     def setUp(self):
-        self.schema = schema.CSVQuerystring()
+        self.schema = schema.FieldList()
 
     def test_deserialize_as_list(self):
         value = 'foo,-bar,123'
@@ -120,7 +120,7 @@ class CSVQuerystringSchemaTest(unittest.TestCase):
     def test_handle_empty(self):
         value = ''
         deserialized = self.schema.deserialize(value)
-        self.assertEquals(deserialized, colander.drop)
+        self.assertEquals(deserialized, [])
 
     def test_raises_invalid_if_not_string(self):
         value = 123

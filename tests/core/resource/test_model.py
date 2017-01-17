@@ -18,7 +18,7 @@ class ModelTest(BaseTest):
 class CreateTest(BaseTest):
     def setUp(self):
         super(CreateTest, self).setUp()
-        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
+        self.resource.request.validated['body'] = {'data': {'field': 'new'}}
 
     def test_new_records_are_linked_to_owner(self):
         resp = self.resource.collection_post()['data']

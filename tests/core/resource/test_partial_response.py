@@ -25,7 +25,7 @@ class PartialResponseBase(BaseTest):
             })
         self.resource.record_id = self.record['id']
         self.resource.request = self.get_request()
-        self.validated = self.resource.request.validated
+        self.resource.request.validated = self.validated
         self.validated['querystring'] = {}
 
 

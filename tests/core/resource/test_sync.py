@@ -15,7 +15,6 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
     def setUp(self):
         super(SinceModifiedTest, self).setUp()
-        self.validated = self.resource.request.validated
         self.validated['body'] = {'data': {}}
 
         with mock.patch.object(self.model.storage,
@@ -59,6 +58,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         modification = result['last_modified']
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
+        self.resource.request.validated = self.validated
         self.resource.collection_get()
         header = int(self.last_response.headers['ETag'][1:-1])
         self.assertEqual(header, modification)
@@ -67,6 +67,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.resource.collection_post()['data']
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
+        self.resource.request.validated = self.validated
         result = self.resource.collection_delete()
         modification = max([record['last_modified'] for record in result['data']])
         header = int(self.last_response.headers['ETag'][1:-1])
@@ -188,7 +189,8 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         # the other one running in a thread:
         resource = self.resource_class(request=self.get_request(),
                                        context=self.get_context())
-        resource.request.validated = {'body': {'data': {}}}
+        resource.request.validated = self.validated
+        resource.request.validated['body'] = {'data': {}}
         record = resource.collection_post()['data']
         timestamps['post'] = record['last_modified']
 
