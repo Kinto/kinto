@@ -172,7 +172,10 @@ class HeaderField(colander.SchemaNode):
 
     def deserialize(self, cstruct=colander.null):
         if isinstance(cstruct, six.binary_type):
-            cstruct = decode_header(cstruct)
+            try:
+                cstruct = decode_header(cstruct)
+            except UnicodeDecodeError:
+                raise colander.Invalid(self, msg='Headers should be UTF-8 encoded')
         return super(HeaderField, self).deserialize(cstruct)
 
 
@@ -188,8 +191,8 @@ class HeaderQuotedInteger(HeaderField):
         param = super(HeaderQuotedInteger, self).deserialize(cstruct)
         if param is colander.drop or param == '*':
             return param
-        else:
-            return int(param[1:-1])
+
+        return int(param[1:-1])
 
 
 class HeaderSchema(colander.MappingSchema):
