@@ -150,3 +150,65 @@ class URL(SchemaNode):
 
     def preparer(self, appstruct):
         return strip_whitespace(appstruct)
+
+
+class CSVQuerystring(colander.SchemaNode):
+    """String field representing a list of attributes."""
+
+    schema_type = colander.String
+    missing = colander.drop
+    error_message = "The value should be a list of comma separated field names"
+
+    def deserialize(self, cstruct=colander.null):
+        params = super(CSVQuerystring, self).deserialize(cstruct)
+        if params is colander.drop:
+            return params
+        else:
+            return params.split(',')
+
+
+class HeaderQuotedInteger(colander.SchemaNode):
+    """Integer between "" used in precondition headers."""
+
+    schema_type = colander.String
+    missing = colander.drop
+    error_message = "The value should be integer between double quotes"
+    validator = colander.Any(colander.Regex('^"([0-9]+?)"$', msg=error_message),
+                             colander.Regex('\*'))
+
+    def deserialize(self, cstruct=colander.null):
+        param = super(HeaderQuotedInteger, self).deserialize(cstruct)
+        if param is colander.drop or param == '*':
+            return param
+        else:
+            return int(param[1:-1])
+
+
+class HeaderSchema(colander.MappingSchema):
+    if_match = HeaderQuotedInteger(name='If-Match', missing=colander.drop)
+    if_none_match = HeaderQuotedInteger(name='If-None-Match', missing=colander.drop)
+    response_behaviour = colander.SchemaNode(colander.String(),
+                                             name='Response-Behavior',
+                                             validator=colander.OneOf(
+                                                 ['full', 'light', 'diff']),
+                                             missing=colander.drop)
+
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='preserve')
+
+
+class QuerySchema(colander.MappingSchema):
+    _limit = colander.SchemaNode(colander.Integer(), missing=colander.drop)
+    _fields = CSVQuerystring()
+    _sort = CSVQuerystring()
+    _token = colander.SchemaNode(colander.String(), missing=colander.drop)
+
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='preserve')
+
+
+class RequestSchema(colander.MappingSchema):
+    header = HeaderSchema(missing=colander.drop)
+    querystring = QuerySchema(missing=colander.drop)
