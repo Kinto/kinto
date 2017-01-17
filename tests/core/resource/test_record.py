@@ -167,7 +167,8 @@ class DeleteTest(BaseTest):
         result = self.resource.delete()['data']
         self.assertEqual(result[self.model.modified_field], last_modified)
 
-        self.resource.request.GET = {'_since': '0', 'deleted': 'true'}
+        self.resource.request.validated['querystring'] = {
+            '_since': '0', 'deleted': 'true'}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 1)
         retrieved = result['data'][0]
@@ -272,7 +273,9 @@ class PatchTest(BaseTest):
 
     def test_returns_changed_fields_among_provided_if_behaviour_is_diff(self):
         self.resource.request.json = {'data': {'unread': True, 'position': 15}}
-        self.resource.request.headers['Response-Behavior'] = 'diff'
+        self.resource.request.validated['header'] = {
+            'Response-Behavior': 'diff'
+        }
         with mock.patch.object(self.resource.model, 'update_record',
                                return_value={'unread': True, 'position': 0}):
             result = self.resource.patch()['data']
@@ -280,7 +283,9 @@ class PatchTest(BaseTest):
 
     def test_returns_changed_fields_if_behaviour_is_light(self):
         self.resource.request.json = {'data': {'unread': True, 'position': 15}}
-        self.resource.request.headers['Response-Behavior'] = 'light'
+        self.resource.request.validated['header'] = {
+            'Response-Behavior': 'light'
+        }
         with mock.patch.object(self.resource.model, 'update_record',
                                return_value={'unread': True, 'position': 0}):
             result = self.resource.patch()['data']

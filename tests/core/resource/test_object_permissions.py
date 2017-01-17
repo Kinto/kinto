@@ -169,7 +169,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
                          ['basicauth:bob', 'jean-louis'])
 
     def test_412_errors_do_not_put_permission_in_record(self):
-        self.resource.request.headers['If-Match'] = '"1234567"'  # invalid
+        self.resource.request.validated['header'] = {'If-Match': 1234567}  # invalid
         try:
             self.resource.put()
         except httpexceptions.HTTPPreconditionFailed as e:
@@ -227,7 +227,7 @@ class GuestCollectionListTest(PermissionTest):
         self.assertEqual(len(result['data']), 2)
 
     def test_guest_collection_can_be_filtered(self):
-        self.resource.request.GET = {'letter': 'a'}
+        self.resource.request.validated['querystring'] = {'letter': 'a'}
         with mock.patch.object(self.resource, 'is_known_field'):
             result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 1)
@@ -280,7 +280,7 @@ class GuestCollectionDeleteTest(PermissionTest):
         self.assertEqual(len(result['data']), 2)
 
     def test_guest_collection_can_be_filtered(self):
-        self.resource.request.GET = {'letter': 'b'}
+        self.resource.request.validated['querystring'] = {'letter': 'b'}
         with mock.patch.object(self.resource, 'is_known_field'):
             result = self.resource.collection_delete()
         self.assertEqual(len(result['data']), 1)
