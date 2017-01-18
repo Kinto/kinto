@@ -156,5 +156,5 @@ class Cache(CacheBase):
 
 def load_from_config(config):
     settings = config.get_settings()
-    client = create_from_config(config, prefix='cache_')
+    client = create_from_config(config, prefix='cache_', with_transaction=False)
     return Cache(client=client, cache_prefix=settings['cache_prefix'])
