@@ -16,7 +16,7 @@ from kinto.core.errors import http_error, raise_invalid, send_alert, ERRORS
 from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
-    COMPARISON, classname, native_value, decode64, encode64, json,
+    COMPARISON, classname, decode64, encode64, json,
     encode_header, dict_subset, recursive_update_dict,
     apply_json_patch
 )
@@ -576,20 +576,11 @@ class UserResource(object):
         self._raise_412_if_modified(record)
 
         # Retreive the last_modified information from a querystring if present.
-        last_modified = self.request.GET.get('last_modified')
-        if last_modified:
-            last_modified = native_value(last_modified.strip('"'))
-            if not isinstance(last_modified, six.integer_types):
-                error_details = {
-                    'name': 'last_modified',
-                    'location': 'querystring',
-                    'description': 'Invalid value for %s' % last_modified
-                }
-                raise_invalid(self.request, **error_details)
+        last_modified = self.request.validated['querystring'].get('last_modified')
 
-            # If less or equal than current record. Ignore it.
-            if last_modified <= record[self.model.modified_field]:
-                last_modified = None
+        # If less or equal than current record. Ignore it.
+        if last_modified and last_modified <= record[self.model.modified_field]:
+            last_modified = None
 
         deleted = self.model.delete_record(record, last_modified=last_modified)
         timestamp = deleted[self.model.modified_field]
@@ -923,7 +914,7 @@ class UserResource(object):
 
         filters = []
 
-        for param, paramvalue in queryparams.items():
+        for param, value in queryparams.items():
             param = param.strip()
 
             error_details = {
@@ -940,10 +931,6 @@ class UserResource(object):
 
             # Handle the _since specific filter.
             if param in ('_since', '_to', '_before'):
-                value = native_value(paramvalue.strip('"'))
-
-                if not isinstance(value, six.integer_types):
-                    raise_invalid(self.request, **error_details)
 
                 if param == '_since':
                     operator = COMPARISON.GT
@@ -974,11 +961,7 @@ class UserResource(object):
                 error_details['description'] = error_msg
                 raise_invalid(self.request, **error_details)
 
-            value = native_value(paramvalue)
-
             if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
-                value = set([native_value(v) for v in paramvalue.split(',')])
-
                 all_integers = all([isinstance(v, six.integer_types)
                                     for v in value])
                 all_strings = all([isinstance(v, six.text_type)

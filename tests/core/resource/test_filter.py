@@ -26,7 +26,7 @@ class FilteringTest(BaseTest):
         since = self.model.timestamp()
         r = self.model.create_record({})
         self.model.delete_record(r)
-        self.validated['querystring'] = {'_since': '%s' % since, 'deleted': 'true'}
+        self.validated['querystring'] = {'_since': since, 'deleted': True}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 1)
         self.assertTrue(result['data'][0]['deleted'])
@@ -41,36 +41,36 @@ class FilteringTest(BaseTest):
     def test_list_cannot_be_filtered_on_deleted_without_since(self):
         r = self.model.create_record({})
         self.model.delete_record(r)
-        self.validated['querystring'] = {'deleted': 'true'}
+        self.validated['querystring'] = {'deleted': True}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 0)
 
     def test_filter_works_with_empty_list(self):
         self.resource.model.parent_id = 'alice'
-        self.validated['querystring'] = {'status': '1'}
+        self.validated['querystring'] = {'status': 1}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 0)
 
     def test_number_of_records_matches_filter(self):
-        self.validated['querystring'] = {'status': '1'}
+        self.validated['querystring'] = {'status': 1}
         self.resource.collection_get()
         headers = self.last_response.headers
         self.assertEqual(int(headers['Total-Records']), 2)
 
     def test_single_basic_filter_by_attribute(self):
-        self.validated['querystring'] = {'status': '1'}
+        self.validated['querystring'] = {'status': 1}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 2)
 
     def test_filter_on_unknown_attribute_raises_error(self):
         self.patch_known_field.stop()
-        self.validated['querystring'] = {'foo': '1'}
+        self.validated['querystring'] = {'foo': 1}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_filter_errors_are_json_formatted(self):
         self.patch_known_field.stop()
-        self.validated['querystring'] = {'foo': '1'}
+        self.validated['querystring'] = {'foo': 1}
         try:
             self.resource.collection_get()
         except httpexceptions.HTTPBadRequest as e:
@@ -86,12 +86,12 @@ class FilteringTest(BaseTest):
 
     def test_regexp_is_strict_for_min_and_max(self):
         self.patch_known_field.stop()
-        self.validated['querystring'] = {'madmax_status': '1'}
+        self.validated['querystring'] = {'madmax_status': 1}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_double_basic_filter_by_attribute(self):
-        self.validated['querystring'] = {'status': '1', 'favorite': 'true'}
+        self.validated['querystring'] = {'status': 1, 'favorite': True}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 1)
 
@@ -134,64 +134,64 @@ class FilteringTest(BaseTest):
         self.assertEqual(len(result['data']), 0)
 
     def test_different_value(self):
-        self.validated['querystring'] = {'not_status': '2'}
+        self.validated['querystring'] = {'not_status': 2}
         result = self.resource.collection_get()
         values = [item['status'] for item in result['data']]
         self.assertTrue(all([value != 2 for value in values]))
 
     def test_minimal_value(self):
-        self.validated['querystring'] = {'min_status': '2'}
+        self.validated['querystring'] = {'min_status': 2}
         result = self.resource.collection_get()
         values = [item['status'] for item in result['data']]
         self.assertTrue(all([value >= 2 for value in values]))
 
     def test_gt_value(self):
-        self.validated['querystring'] = {'gt_status': '2'}
+        self.validated['querystring'] = {'gt_status': 2}
         result = self.resource.collection_get()
         values = [item['status'] for item in result['data']]
         self.assertTrue(all([value > 2 for value in values]))
 
     def test_maximal_value(self):
-        self.validated['querystring'] = {'max_status': '2'}
+        self.validated['querystring'] = {'max_status': 2}
         result = self.resource.collection_get()
         values = [item['status'] for item in result['data']]
         self.assertTrue(all([value <= 2 for value in values]))
 
     def test_lt_value(self):
-        self.validated['querystring'] = {'lt_status': '2'}
+        self.validated['querystring'] = {'lt_status': 2}
         result = self.resource.collection_get()
         values = [item['status'] for item in result['data']]
         self.assertTrue(all([value < 2 for value in values]))
 
     def test_in_values(self):
-        self.validated['querystring'] = {'in_status': '0,1'}
+        self.validated['querystring'] = {'in_status': [0, 1]}
         result = self.resource.collection_get()
         values = [item['status'] for item in result['data']]
         self.assertEqual(sorted(values), [0, 0, 1, 1])
 
     def test_exclude_values(self):
-        self.validated['querystring'] = {'exclude_status': '0'}
+        self.validated['querystring'] = {'exclude_status': [0]}
         result = self.resource.collection_get()
         values = [item['status'] for item in result['data']]
         self.assertEqual(sorted(values), [1, 1, 2, 2, 3, 3])
 
     def test_include_returns_400_if_value_has_wrong_type(self):
-        self.validated['querystring'] = {'in_id': '0,1'}
+        self.validated['querystring'] = {'in_id': [0, 1]}
         with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
             self.resource.collection_get()
         self.assertIn('in_id', cm.exception.json['message'])
 
-        self.validated['querystring'] = {'in_last_modified': 'a,b'}
+        self.validated['querystring'] = {'in_last_modified': ['a', 'b']}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
     def test_exclude_returns_400_if_value_has_wrong_type(self):
-        self.validated['querystring'] = {'exclude_id': '0,1'}
+        self.validated['querystring'] = {'exclude_id': [0, 1]}
         with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
             self.resource.collection_get()
         self.assertIn('exclude_id', cm.exception.json['message'])
 
-        self.validated['querystring'] = {'exclude_last_modified': 'a,b'}
+        self.validated['querystring'] = {'exclude_last_modified': ['a', 'b']}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
@@ -209,7 +209,7 @@ class SubobjectFilteringTest(BaseTest):
             self.model.create_record(record)
 
     def test_records_can_be_filtered_by_subobjects(self):
-        self.validated['querystring'] = {'party.voters': '1'}
+        self.validated['querystring'] = {'party.voters': 1}
         result = self.resource.collection_get()
         values = [item['party']['voters'] for item in result['data']]
         self.assertEqual(sorted(values), [1])
@@ -220,7 +220,7 @@ class SubobjectFilteringTest(BaseTest):
         self.assertEqual(len(result['data']), 0)
 
     def test_subobjects_filters_works_with_directives(self):
-        self.validated['querystring'] = {'in_party.voters': '1,2,3'}
+        self.validated['querystring'] = {'in_party.voters': [1, 2, 3]}
         result = self.resource.collection_get()
         values = [item['party']['voters'] for item in result['data']]
         self.assertEqual(sorted(values), [1, 2, 3])

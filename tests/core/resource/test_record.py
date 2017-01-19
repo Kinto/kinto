@@ -160,39 +160,22 @@ class DeleteTest(BaseTest):
         record = self.model.create_record({'field': 'value'})
         last_modified = record[self.model.modified_field] + 20
         self.resource.record_id = record['id']
-        self.resource.request.GET = {
-            'last_modified': '%s' % last_modified
-        }
-
+        self.validated['querystring']['last_modified'] = last_modified
         result = self.resource.delete()['data']
+        self.resource.request.validated = self.validated
         self.assertEqual(result[self.model.modified_field], last_modified)
-
-        self.resource.request.validated['querystring'] = {
-            '_since': '0', 'deleted': 'true'}
+        self.validated['querystring'] = {
+            '_since': 0, 'deleted': True}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 1)
         retrieved = result['data'][0]
         self.assertEqual(retrieved[self.model.modified_field], last_modified)
 
-    def test_delete_validates_the_last_modified_in_querystring(self):
-        record = self.model.create_record({'field': 'value'})
-        self.resource.record_id = record['id']
-        self.resource.request.GET = {'last_modified': 'abc'}
-        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.delete)
-
-    def test_delete_accepts_the_last_modified_between_quotes(self):
-        record = self.model.create_record({'field': 'value'})
-        last_modified = record[self.model.modified_field] + 20
-        self.resource.record_id = record['id']
-        self.resource.request.GET = {'last_modified': '"%s"' % last_modified}
-        result = self.resource.delete()['data']
-        self.assertEqual(result[self.model.modified_field], last_modified)
-
     def test_delete_ignores_last_modified_if_equal(self):
         record = self.model.create_record({'field': 'value'})
         last_modified = record[self.model.modified_field]
         self.resource.record_id = record['id']
-        self.resource.request.GET = {'last_modified': '%s' % last_modified}
+        self.validated['querystring']['last_modified'] = last_modified
         result = self.resource.delete()['data']
         self.assertGreater(result[self.model.modified_field], last_modified)
 
@@ -200,7 +183,7 @@ class DeleteTest(BaseTest):
         record = self.model.create_record({'field': 'value'})
         last_modified = record[self.model.modified_field] - 20
         self.resource.record_id = record['id']
-        self.resource.request.GET = {'last_modified': '%s' % last_modified}
+        self.validated['querystring']['last_modified'] = last_modified
         result = self.resource.delete()['data']
         self.assertGreater(result[self.model.modified_field], last_modified)
 

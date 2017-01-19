@@ -1,3 +1,4 @@
+import six
 import colander
 import mock
 
@@ -102,7 +103,32 @@ class PermissionsSchemaTest(unittest.TestCase):
                           perms)
 
 
-class CSVQuerystringSchemaTest(unittest.TestCase):
+class HeaderFieldSchemaTest(unittest.TestCase):
+
+    def setUp(self):
+        self.schema = schema.HeaderField(colander.String())
+
+    def test_decode_unicode(self):
+        value = six.u('\xe7 is not a c')
+        deserialized = self.schema.deserialize(value.encode('utf-8'))
+        self.assertEquals(deserialized, value)
+
+    def test_bad_unicode_raises_invalid(self):
+        value = b'utf8 \xe9'
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          value)
+
+
+class QueryFieldSchemaTest(unittest.TestCase):
+
+    def test_deserialize_integer_between_quotes(self):
+        self.schema = schema.QueryField(colander.Integer())
+        deserialized = self.schema.deserialize("123")
+        self.assertEquals(deserialized, 123)
+
+
+class FieldListSchemaTest(unittest.TestCase):
 
     def setUp(self):
         self.schema = schema.FieldList()
@@ -164,12 +190,6 @@ class HeaderQuotedIntegerSchemaTest(unittest.TestCase):
 
     def test_empty_raises_invalid(self):
         value = '""'
-        self.assertRaises(colander.Invalid,
-                          self.schema.deserialize,
-                          value)
-
-    def test_bad_unicode_raises_invalid(self):
-        value = b'utf8 \xe9'
         self.assertRaises(colander.Invalid,
                           self.schema.deserialize,
                           value)

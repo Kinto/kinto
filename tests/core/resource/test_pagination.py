@@ -146,7 +146,7 @@ class PaginationTest(BasePaginationTest):
                          results1['data'] + results2['data'])
 
     def test_handle_filtering_sorting(self):
-        self.validated['querystring'] = {'_sort': ['-status', 'title'], 'status': '2',
+        self.validated['querystring'] = {'_sort': ['-status', 'title'], 'status': 2,
                                          '_limit': 20}
         expected_results = self.resource.collection_get()
         self.validated['querystring']['_limit'] = 3
@@ -167,7 +167,7 @@ class PaginationTest(BasePaginationTest):
                          results1['data'] + results2['data'])
 
     def test_handle_since(self):
-        self.validated['querystring'] = {'_since': '123', '_limit': 20}
+        self.validated['querystring'] = {'_since': 123, '_limit': 20}
         expected_results = self.resource.collection_get()
         self.validated['querystring']['_limit'] = 10
         results1 = self.resource.collection_get()
@@ -178,26 +178,26 @@ class PaginationTest(BasePaginationTest):
 
     def test_token_wrong_base64(self):
         self.validated['querystring'] = {
-            '_since': '123', '_limit': 20, '_token': '123'}
+            '_since': 123, '_limit': 20, '_token': '123'}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 
     def test_token_wrong_json(self):
         self.validated['querystring'] = {
-            '_since': '123', '_limit': 20,
+            '_since': 123, '_limit': 20,
             '_token': b64encode('{"toto":'.encode('ascii')).decode('ascii')}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 
     def test_token_wrong_json_fields(self):
         badtoken = '{"toto": {"tutu": 1}}'
         self.validated['querystring'] = {
-            '_since': '123', '_limit': 20,
+            '_since': 123, '_limit': 20,
             '_token': b64encode(badtoken.encode('ascii')).decode('ascii')}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 
     def test_raises_bad_request_if_token_has_bad_data_structure(self):
         invalid_token = json.dumps([[('last_modified', 0, '>')]])
         self.validated['querystring'] = {
-            '_since': '123', '_limit': 20,
+            '_since': 123, '_limit': 20,
             '_token': b64encode(invalid_token.encode('ascii')).decode('ascii')}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 

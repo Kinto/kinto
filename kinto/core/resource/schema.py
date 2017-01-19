@@ -2,7 +2,7 @@ import six
 import colander
 from colander import SchemaNode, String
 
-from kinto.core.utils import strip_whitespace, msec_time, decode_header
+from kinto.core.utils import strip_whitespace, msec_time, decode_header, native_value
 
 
 class ResourceSchema(colander.MappingSchema):
@@ -153,20 +153,6 @@ class URL(SchemaNode):
         return strip_whitespace(appstruct)
 
 
-class FieldList(colander.SchemaNode):
-    """String field representing a list of attributes."""
-
-    schema_type = colander.Sequence
-    error_message = "The value should be a list of comma separated field names"
-    missing = colander.drop
-    fields = colander.SchemaNode(colander.String(), missing=colander.drop)
-
-    def deserialize(self, cstruct=colander.null):
-        if isinstance(cstruct, six.string_types):
-            cstruct = cstruct.split(',')
-        return super(FieldList, self).deserialize(cstruct)
-
-
 class HeaderField(colander.SchemaNode):
     """Basic header field SchemaNode."""
 
@@ -177,6 +163,31 @@ class HeaderField(colander.SchemaNode):
             except UnicodeDecodeError:
                 raise colander.Invalid(self, msg='Headers should be UTF-8 encoded')
         return super(HeaderField, self).deserialize(cstruct)
+
+
+class QueryField(colander.SchemaNode):
+    """Basic querystring field SchemaNode."""
+
+    missing = colander.drop
+
+    def deserialize(self, cstruct=colander.null):
+        if isinstance(cstruct, six.string_types):
+            cstruct = native_value(cstruct)
+        return super(QueryField, self).deserialize(cstruct)
+
+
+class FieldList(QueryField):
+    """String field representing a list of attributes."""
+
+    schema_type = colander.Sequence
+    error_message = "The value should be a list of comma separated attributes"
+    missing = colander.drop
+    fields = colander.SchemaNode(colander.String(), missing=colander.drop)
+
+    def deserialize(self, cstruct=colander.null):
+        if isinstance(cstruct, six.string_types):
+            cstruct = cstruct.split(',')
+        return super(FieldList, self).deserialize(cstruct)
 
 
 class HeaderQuotedInteger(HeaderField):
@@ -196,6 +207,8 @@ class HeaderQuotedInteger(HeaderField):
 
 
 class HeaderSchema(colander.MappingSchema):
+    """Schema used for validating and deserializing request headers. """
+
     if_match = HeaderQuotedInteger(name='If-Match', missing=colander.drop)
     if_none_match = HeaderQuotedInteger(name='If-None-Match', missing=colander.drop)
     response_behaviour = HeaderField(colander.String(),
@@ -209,14 +222,43 @@ class HeaderSchema(colander.MappingSchema):
 
 
 class QuerySchema(colander.MappingSchema):
-    _limit = colander.SchemaNode(colander.Integer(), missing=colander.drop)
+    """
+    Schema used for validating and deserializing querystrings. It will include
+    and try to guess the type of unknown fields (filters) on deserialization.
+    """
+
+    _limit = QueryField(colander.Integer())
     _fields = FieldList()
     _sort = FieldList()
-    _token = colander.SchemaNode(colander.String(), missing=colander.drop)
+    _token = QueryField(colander.String())
+    _since = QueryField(colander.Integer())
+    _to = QueryField(colander.Integer())
+    _before = QueryField(colander.Integer())
+    last_modified = QueryField(colander.Integer())
 
     @staticmethod
     def schema_type():
-        return colander.Mapping(unknown='preserve')
+        return colander.Mapping(unknown='ignore')
+
+    def deserialize(self, cstruct=colander.null):
+        values = {}
+
+        schema_values = super(QuerySchema, self).deserialize(cstruct)
+        if schema_values is colander.drop:
+            return schema_values
+
+        # Deserialize filters
+        for k, v in cstruct.items():
+            # Deserialize lists used on in_ and exclude_ filters
+            if k.startswith('in_') or k.startswith('exclude_'):
+                as_list = FieldList().deserialize(v)
+                if isinstance(as_list, list):
+                    values[k] = [native_value(v) for v in as_list]
+            else:
+                values[k] = native_value(v)
+
+        values.update(schema_values)
+        return values
 
 
 class JsonPatchOperationSchema(colander.MappingSchema):
