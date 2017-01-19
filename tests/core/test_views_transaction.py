@@ -122,6 +122,7 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
         self.assertEqual(len(resp.json['data']), 0)
 
 
+@skip_if_no_postgresql
 class TransactionCacheTest(PostgreSQLTest, unittest.TestCase):
     def setUp(self):
         def cache_and_fails(this, *args, **kwargs):
