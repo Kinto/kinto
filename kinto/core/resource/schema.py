@@ -219,6 +219,32 @@ class QuerySchema(colander.MappingSchema):
         return colander.Mapping(unknown='preserve')
 
 
+class JsonPatchOperationSchema(colander.MappingSchema):
+    """Single JSON Patch Operation."""
+
+    op = colander.SchemaNode(colander.String(),
+                             validator=colander.OneOf(
+                                 ['test', 'add', 'remove', 'replace', 'move', 'copy']))
+    path = colander.SchemaNode(colander.String())
+    from_ = colander.SchemaNode(colander.String(), name='from', missing=colander.drop)
+
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='preserve')
+
+
+class JsonPatchBodySchema(colander.Sequence):
+    """Body used with JSON Patch (application/json-patch+json) as in RFC 6902."""
+
+    operations = JsonPatchOperationSchema(missing=colander.drop)
+
+
 class RequestSchema(colander.MappingSchema):
+    """Baseline schema for kinto requests."""
+
     header = HeaderSchema(missing=colander.drop)
     querystring = QuerySchema(missing=colander.drop)
+
+
+class JsonPatchRequestSchema(RequestSchema):
+    body = JsonPatchBodySchema()

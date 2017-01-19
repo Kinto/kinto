@@ -22,7 +22,7 @@ from kinto.core.utils import (
 )
 
 from .model import Model, ShareableModel
-from .schema import ResourceSchema
+from .schema import ResourceSchema, JsonPatchRequestSchema
 from .viewset import ViewSet, ShareableViewSet
 
 
@@ -105,8 +105,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
             # predicate.
             if method.lower() == "patch":
                 view_args['content_type'] = "application/json-patch+json"
-                view_args.pop('schema', None)
-                view_args.pop('validators', None)
+                view_args['schema'] = JsonPatchRequestSchema()
                 service.add_view(method, view, klass=resource_cls, **view_args)
 
         return service
