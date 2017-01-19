@@ -6,7 +6,9 @@ This document describes changes between each past release.
 5.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Cache backend transactions are not bound to the request/response cycle anymore (fixes #879)
 
 
 5.2.0 (2017-01-11)
