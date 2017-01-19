@@ -9,6 +9,8 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Cache backend transactions are not bound to the request/response cycle anymore (fixes #879)
+- Quick mention of PostgreSQL commands to run tests locally in contributing docs.
+- Use YAML ``safe_load`` for the swagger file. (#1022)
 
 
 5.2.0 (2017-01-11)
