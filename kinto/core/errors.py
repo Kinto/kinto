@@ -115,7 +115,7 @@ def http_error(httpexception, errno=None,
     return response
 
 
-def json_error_handler(errors):
+def json_error_handler(request):
     """Cornice JSON error handler, returning consistant JSON formatted errors
     from schema validation errors.
 
@@ -131,9 +131,9 @@ def json_error_handler(errors):
         Only the first error of the list is formatted in the response.
         (c.f. HTTP API).
     """
-    assert len(errors) != 0
-
+    errors = request.errors
     sorted_errors = sorted(errors, key=lambda x: six.text_type(x['name']))
+    # In Cornice, we call error handler if at least one error was set.
     error = sorted_errors[0]
     name = error['name']
     description = error['description']
@@ -156,7 +156,7 @@ def json_error_handler(errors):
                           message=message,
                           details=errors)
     response.status = errors.status
-    response = reapply_cors(errors.request, response)
+    response = reapply_cors(request, response)
     return response
 
 
@@ -171,8 +171,7 @@ def raise_invalid(request, location='body', name=None, description=None,
     :raises: :class:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
     """
     request.errors.add(location, name, description, **kwargs)
-    request.errors.request = request  # Needed by json_error_handler to reapply_cors
-    response = json_error_handler(request.errors)
+    response = json_error_handler(request)
     raise response
 
 

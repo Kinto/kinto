@@ -3,6 +3,7 @@
 *.stamp
 *.db
 .venv/
+.eggs/
 .coverage
 .tox/
 loadtests/.env.install
@@ -10,4 +11,8 @@ docs/_build/
 .cache/
 *.un~
 config/*.ini
+version.json
 dist
+kinto/plugins/admin/node_modules
+kinto/plugins/admin/coverage
+kinto/plugins/admin/npm-debug.log

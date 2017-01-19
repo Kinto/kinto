@@ -15,32 +15,24 @@ abilities. It is meant to be **easy to use** and **easy to self-host**.
 Why use Kinto?
 ==============
 
-We believe data belongs to the users, and not to the application authors. When
-writing applications, data should be made available to any device, connected or
-offline, and everything should be in sync.
+    Don't build silos. Redecentralize the Web!
 
-Rather than spending a non-trivial amount of time and expertise on implementing
-all that (and then maintaining it!), you could use Kinto, that does all that
-for you:
+It's hard for frontend developers to respect users privacy when building applications
+that work offline, store data remotely, and synchronise accross devices.
+Existing solutions either rely on big corporations that crave user data, or require
+a non-trivial amount of time and expertise to setup a new server for every new project.
 
-- Expose your data over an HTTP interface, unlike databases like PostgreSQL
-- Use simple HTTP requests rather than SQL
-- Use `Kinto.js <https://kintojs.readthedocs.io/en/latest/>`_ to easily
-  implement offline first clients
-- Choose the database you want from those that Kinto supports, and use a
-  unified API to access its data
-- Manage your data using the handy
-  `admin UI <http://kinto.github.io/kinto-admin/>`_
-- Easily
-  :ref:`set up live push notifications <tutorial-notifications-websockets>`
-  for live updates of your application
-- Make it possible to
-  :ref:`share data between users <api-permissions>`
-  (using fine-grained permissions)
-- Take advantage of
-  :ref:`schema validation <collection-json-schema>`
-  if you need it
-- :ref:`Track changes <api-history>` on your application data
+We want to help developers focus on the frontend, and we don't want the challenge
+of storing user data to get in their way. The path between a new idea and deploying to
+production should be short!
+
+Also, we believe data belong to the users, and not necessarily to the application authors.
+Applications should be decoupled from the storage location, and users should be
+able to choose where their personal data are stored.
+
+The backend can often be universal, generic and resuable. We envision mutualisation
+of services and self-hosting: the backend is deployed, secured and scaled
+only once for several applications.
 
 
 .. _use-cases:
@@ -48,17 +40,45 @@ for you:
 Use cases
 =========
 
-- A generic Web database for frontend applications.
-- Build collaborative applications with fine-grained permissions.
-- Store encrypted data at a location you control.
-- Synchronise application data between different devices.
+- **A generic Web database**: JSON store for mobile and Web apps, games, or IoT...
+- **Quickly prototype frontend applications**: don't lose time with server stuff,
+  the backend for your next single page app is already there.
+- **Applications as static files**: just host your apps on Github pages, your storage backend
+  is elsewhere!
+- **Offline-first applications**: data can also be stored locally and published later.
+- **Build collaborative applications** with real time updates and fine-grained permissions.
+- **Synchronise application data** between different devices.
+- **Content delivery**: manage remote content or configuracion for your apps via an administration UI
+- **Data collection**: easily collect structured data from surveys, forms, analytics.
+- **Store encrypted data** at a location users can control, ensuring better privacy and security.
 
 .. note::
 
     At Mozilla, *Kinto* is used in *Firefox* for global synchronization
-    of frequently changed settings like blocklists, and the Web Extensions storage.sync API;
-    as well as in *Firefox for Android* for A/B testing and delivering extra
+    of frequently changed settings like blocklists, and the Web Extensions storage.sync API.
+    It is also used in *Firefox for Android* for A/B testing and delivering extra
     assets like fonts or hyphenation dictionnaries.
+
+
+How?
+====
+
+Kinto is an HTTP API in front of a database. Interactions with the server are simple HTTP requests
+rather than complex SQL or map-reduce queries. It is meant to be minimalist and simple.
+
+Permissions can be set on the stored objects, making it possible to share data between users.
+
+We provide a demo server to start immediately, a one-click installer on Heroku for long
+term hosting and a Docker image to even run it yourself. (`Let me start now! <tutorials/install>`)
+
+The JavaScript and Python development kits (SDK) provide basic abstractions to store
+and retrieve data from your applications. Our JavaScript client for browsers leverages IndexedDB
+to work completely offline and synchronise data when online.
+
+It's even possible for data to be encrypted on the client to keep user data safe on the server.
+
+The ecosystem is growing and plugins already provide advanced features like history tracking,
+push notifications, file attachments, schema validation...
 
 
 Key features
@@ -107,6 +127,7 @@ Key features
 - :ref:`Pluggable storage, cache, and permission backends
   <configuration-backends>`
 - Configuration via a INI file or environment variables
+- Optional :ref:`JSON schema validation <collection-json-schema>`
 - Built-in monitoring
 - Cache control
 
@@ -148,6 +169,10 @@ Key features
    :alt: https://commons.wikimedia.org/wiki/File:React.js_logo.svg
    :width: 50px
 
+.. |logo-quotas| image:: images/logo-quotas.svg
+   :alt: Mobile Cloud by Thays Malcher from the Noun Project
+   :width: 50px
+
 .. |logo-demos| image:: images/logo-demos.svg
    :alt: https://thenounproject.com/search/?q=tutorial&i=24313
    :width: 50px
@@ -166,19 +191,27 @@ Key features
 | <api-history>`                              | <tutorials>`                                |
 +---------------------------------------------+---------------------------------------------+
 | |logo-attachment|                           | |logo-signature|                            |
-| :github:`File attachments on records        | :github:`Digital signature and workflows    |
-| <Kinto/kinto-attachment>`                   | <Kinto/kinto-signer>`                       |
+| :github:`File attachments on records        | :github:`Digital signature and review       |
+| <Kinto/kinto-attachment>`                   | workflows <Kinto/kinto-signer>`             |
 +---------------------------------------------+---------------------------------------------+
-| |logo-boilerplate|                          | |logo-demos|                                |
-| :github:`Kinto+React boilerplate            | :ref:`Example applications <app-examples>`  |
-| <Kinto/kinto-react-boilerplate>`            |                                             |
+| |logo-quotas|                               | |logo-boilerplate|                          |
+| :ref:`Storage quotas                        | :github:`Kinto+React boilerplate            |
+| <api-quotas>`                               | <Kinto/kinto-react-boilerplate>`            |
 +---------------------------------------------+---------------------------------------------+
+
+**Learn from examples**
+
+|logo-demos| Check out :ref:`the list of example applications <app-examples>`,
+or our :ref:`tutorials <tutorials>`!
+
+**Elsewhere**
+
+- `kinto-http-java <https://github.com/intesens/kinto-http-java>`_: A Java HTTP Client
+- `ember-kinto <https://github.com/ptgamr/ember-kinto>`_: Offline first Ember Data adapter
 
 **Coming soon**
 
 - Push notifications using `the Push API <https://developer.mozilla.org/en-US/docs/Web/API/Push_API>`_ (:github:`under construction <Kinto/kinto-webpush>`)
-- `Storage quotas <https://github.com/Kinto/kinto/wiki/Quotas>`_
-- `Review and validation workflows <https://github.com/Kinto/kinto/wiki/SignOff>`_
 
 (See `our roadmap <https://github.com/Kinto/kinto/wiki/Roadmap>`_)
 

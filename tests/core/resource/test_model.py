@@ -8,12 +8,6 @@ class ModelTest(BaseTest):
         super(ModelTest, self).setUp()
         self.record = self.model.create_record({'field': 'value'})
 
-    def test_list_gives_number_of_results_in_headers(self):
-        self.resource.collection_get()
-        headers = self.last_response.headers
-        count = headers['Total-Records']
-        self.assertEquals(int(count), 1)
-
     def test_list_returns_all_records_in_data(self):
         result = self.resource.collection_get()
         records = result['data']
@@ -24,7 +18,7 @@ class ModelTest(BaseTest):
 class CreateTest(BaseTest):
     def setUp(self):
         super(CreateTest, self).setUp()
-        self.resource.request.validated = {'data': {'field': 'new'}}
+        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
 
     def test_new_records_are_linked_to_owner(self):
         resp = self.resource.collection_post()['data']
@@ -87,7 +81,7 @@ class IsolatedModelsTest(BaseTest):
         self.assertEquals(len(records), 0)
 
     def test_update_record_of_another_user_will_create_it(self):
-        self.resource.request.validated = {'data': {'some': 'record'}}
+        self.resource.request.validated = {'body': {'data': {'some': 'record'}}}
         self.resource.put()
         self.model.get_record(record_id=self.stored['id'],
                               parent_id='basicauth:alice')  # not raising

@@ -91,7 +91,7 @@ class Permission(PermissionBase):
         return members
 
     @synchronized
-    def get_accessible_objects(self, principals, bound_permissions=None):
+    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True):
         principals = set(principals)
         candidates = []
         if bound_permissions is None:
@@ -100,7 +100,8 @@ class Permission(PermissionBase):
                 candidates.append((object_id, permission, value))
         else:
             for pattern, perm in bound_permissions:
-                regexp = re.compile(pattern.replace('*', '.*'))
+                id_match = '.*' if with_children else '[^/]+'
+                regexp = re.compile('^%s$' % pattern.replace('*', id_match))
                 for key, value in self._store.items():
                     if key.endswith(perm):
                         object_id = key.split(':')[1]
@@ -153,8 +154,10 @@ class Permission(PermissionBase):
         to_delete = []
         for key in self._store.keys():
             object_id = key.split(':')[1]
-            if object_id in object_id_list:
-                to_delete.append(key)
+            for pattern in object_id_list:
+                regexp = re.compile('^%s$' % pattern.replace('*', '.*'))
+                if regexp.match(object_id):
+                    to_delete.append(key)
         for k in to_delete:
             del self._store[k]
 

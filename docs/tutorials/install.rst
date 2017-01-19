@@ -34,16 +34,23 @@ got a few different options:
    :alt: Deploy on Heroku
 
 .. |scalingo-button| image:: ../images/scalingo-button.svg
-   :target: https://my.scalingo.com/deploy?source=https://github.com/Scalingo/kinto-scalingo
+   :target: https://my.scalingo.com/deploy?source=https://github.com/Kinto/kinto-scalingo
    :alt: Deploy on Scalingo
+   
+.. |alwaysdata-button| image:: ../images/alwaysdata-button.svg
+   :target: https://kinto.github.io/kinto-alwaysdata/
+   :alt: Deploy on Alwaysdata
 
 +----------------+------------------------------------------------+------------------------+
 | Provider       | What you get / Plan                            | Link / Install button  |
 +================+================================================+========================+
 | Heroku         | Free plan for up to 10.000 rows on PostgreSQL. |  |heroku-button|       |
 +----------------+------------------------------------------------+------------------------+
-| Scalingo       | 3 months free trial with 512MB RAM, 512MB      |  |scalingo-button|     |
+| Scalingo       | 1 month free trial with 512MB RAM, 512MB       |  |scalingo-button|     |
 |                | storage and a PostgreSQL database.             |                        |
++----------------+------------------------------------------------+------------------------+
+| Alwaysdata     | Open an account and deploy Kinto on it.        |  |alwaysdata-button|   |
+|                | 10 MB of free storage.                         |                        |
 +----------------+------------------------------------------------+------------------------+
 
 
@@ -114,6 +121,45 @@ with a *PostgreSQL* container.
     wget https://raw.githubusercontent.com/Kinto/kinto/master/docker-compose.yml
     sudo docker-compose up
 
+Now you can:
+
+- Stop the containers with ``docker-compose stop``.
+- Start the containers with ``docker-compose up -d`` (``-d`` is for background/daemon).
+- Connect to PostgreSQL service with ``docker-compose exec --user postgres db psql``.
+- Install a plugin into kinto with ``docker-compose exec web pip3 install kinto-pusher``.
+- Inspect the kinto config file with ``docker-compose exec web cat /etc/kinto/kinto.ini``.
+
+If you want to change the settings, you need to mount a custom settings file
+into the *Kinto* container. Hopefully Docker Compose lets you do that the exact
+same way Docker does (assuming you have created the config file ``./config/kinto.ini``):
+
+::
+
+    db:
+      image: postgres
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+    web:
+      image: kinto/kinto-server
+      links:
+       - db
+      ports:
+       - "8888:8888"
+      volumes:
+        - ./config:/etc/kinto
+
+Note that with the above example,``config/kinto.ini`` must define the following options
+(where ``postgres:postgres`` is the user/password you defined in ``docker-compose.yml``):
+
+::
+
+    kinto.cache_backend = kinto.core.cache.postgresql
+    kinto.cache_url = postgres://postgres:postgres@db/postgres
+    kinto.storage_backend = kinto.core.storage.postgresql
+    kinto.storage_url = postgres://postgres:postgres@db/postgres
+    kinto.permission_backend = kinto.core.permission.postgresql
+    kinto.permission_url = postgres://postgres:postgres@db/postgres
 
 .. _run-kinto-python:
 

@@ -12,7 +12,7 @@ class CacheBase(object):
 
     def __init__(self, *args, **kwargs):
         self.prefix = kwargs['cache_prefix']
-        pass
+        self.max_size_bytes = kwargs.get('cache_max_size_bytes')
 
     def initialize_schema(self, dry_run=False):
         """Create every necessary objects (like tables or indices) in the
@@ -84,7 +84,7 @@ def heartbeat(backend):
         # No specific case for readonly mode because the cache should
         # continue to work in that mode.
         try:
-            if random.random() < _HEARTBEAT_DELETE_RATE:
+            if random.SystemRandom().random() < _HEARTBEAT_DELETE_RATE:
                 backend.delete(_HEARTBEAT_KEY)
             else:
                 backend.set(_HEARTBEAT_KEY, 'alive', _HEARTBEAT_TTL_SECONDS)

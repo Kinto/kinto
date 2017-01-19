@@ -57,6 +57,11 @@ def main(args=None):
                                    dest='backend',
                                    required=False,
                                    default=None)
+            subparser.add_argument('--host',
+                                   help='Host to listen() on.',
+                                   dest='host',
+                                   required=False,
+                                   default='127.0.0.1')
         elif command == 'migrate':
             subparser.add_argument('--dry-run',
                                    action='store_true',
@@ -114,7 +119,7 @@ def main(args=None):
                 except KeyError:
                     pass
 
-        init(config_file, backend)
+        init(config_file, backend, parsed_args['host'])
 
         # Install postgresql libraries if necessary
         if backend == "postgresql":

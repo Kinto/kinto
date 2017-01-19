@@ -1,0 +1,18 @@
+swagger: '2.0'
+info:
+  version: ''
+  title: Kinto Admin plugin
+paths:
+  '/admin/':
+    get:
+      operationId: admin
+      tags:
+        - Admin
+      security: []
+      produces:
+        - text/html
+      responses:
+        '200':
+          description: Show admin page.
+        default:
+          $ref: '#/responses/default'

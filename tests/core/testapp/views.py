@@ -13,12 +13,12 @@ class MushroomSchema(resource.ResourceSchema):
 
 @resource.register()
 class Mushroom(resource.UserResource):
-    mapping = MushroomSchema()
+    schema = MushroomSchema
 
 
 @resource.register()
 class Toadstool(resource.ShareableResource):
-    mapping = MushroomSchema()
+    schema = MushroomSchema
 
 
 class StrictSchema(resource.ResourceSchema):
@@ -28,7 +28,7 @@ class StrictSchema(resource.ResourceSchema):
 
 @resource.register()
 class Moisture(resource.ShareableResource):
-    mapping = StrictSchema()
+    schema = StrictSchema
 
 
 class PsilocybinSchema(resource.ResourceSchema):
@@ -40,7 +40,7 @@ class PsilocybinSchema(resource.ResourceSchema):
 
 @resource.register()
 class Psilo(resource.ShareableResource):
-    mapping = PsilocybinSchema()
+    schema = PsilocybinSchema
 
 
 @resource.register()

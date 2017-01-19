@@ -63,9 +63,9 @@ class CacheTest(object):
         self.client_error_patcher.start()
         ping = heartbeat(self.cache)
         self.assertFalse(ping(self.request))
-        with mock.patch('kinto.core.cache.random.random', return_value=0.6):
+        with mock.patch('kinto.core.cache.random.SystemRandom.random', return_value=0.6):
             self.assertFalse(ping(self.request))
-        with mock.patch('kinto.core.cache.random.random', return_value=0.4):
+        with mock.patch('kinto.core.cache.random.SystemRandom.random', return_value=0.4):
             self.assertFalse(ping(self.request))
 
     def test_ping_returns_true_if_available(self):

@@ -17,7 +17,8 @@ from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
     COMPARISON, classname, native_value, decode64, encode64, json,
-    encode_header, decode_header, dict_subset, recursive_update_dict
+    encode_header, decode_header, dict_subset, recursive_update_dict,
+    apply_json_patch
 )
 
 from .model import Model, ShareableModel
@@ -97,6 +98,17 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
             view = viewset.get_view(endpoint_type, method.lower())
             service.add_view(method, view, klass=resource_cls, **view_args)
 
+            # We support JSON-patch on PATCH views. Since the body payload
+            # of JSON Patch is not a dict (mapping) but an array, we can't
+            # use the same schema as for other PATCH protocols. We add another
+            # dedicated view for PATCH, but targetting a different content_type
+            # predicate.
+            if method.lower() == "patch":
+                view_args['content_type'] = "application/json-patch+json"
+                view_args.pop('schema', None)
+                view_args.pop('validators', None)
+                service.add_view(method, view, klass=resource_cls, **view_args)
+
         return service
 
     def callback(context, name, ob):
@@ -134,7 +146,7 @@ class UserResource(object):
     interacting the :mod:`kinto.core.storage` and :mod:`kinto.core.permission`
     backends."""
 
-    mapping = ResourceSchema()
+    schema = ResourceSchema
     """Schema to validate records."""
 
     def __init__(self, request, context=None):
@@ -161,6 +173,9 @@ class UserResource(object):
         self.context = context
         self.record_id = self.request.matchdict.get('id')
         self.force_patch_update = False
+
+        content_type = str(self.request.headers.get('Content-Type')).lower()
+        self._is_json_patch = content_type == 'application/json-patch+json'
 
         # Log resource context.
         logger.bind(collection_id=self.model.collection_id,
@@ -202,8 +217,8 @@ class UserResource(object):
         return request.prefixed_userid
 
     def _get_known_fields(self):
-        """Return all the `field` defined in the ressource mapping."""
-        known_fields = [c.name for c in self.mapping.children] + \
+        """Return all the `field` defined in the ressource schema."""
+        known_fields = [c.name for c in self.schema().children] + \
                        [self.model.id_field,
                         self.model.modified_field,
                         self.model.deleted_field]
@@ -218,7 +233,7 @@ class UserResource(object):
         :rtype: bool
 
         """
-        if self.mapping.get_option('preserve_unknown'):
+        if self.schema.get_option('preserve_unknown'):
             return True
 
         known_fields = self._get_known_fields()
@@ -270,8 +285,6 @@ class UserResource(object):
             include_deleted=include_deleted)
 
         offset = offset + len(records)
-        next_page = None
-
         if limit and len(records) == limit and offset < total_records:
             lastrecord = records[-1]
             next_page = self._next_page_url(sorting, limit, lastrecord, offset)
@@ -306,7 +319,7 @@ class UserResource(object):
             Add custom behaviour by overriding
             :meth:`kinto.core.resource.UserResource.process_record`
         """
-        new_record = self.request.validated.get('data', {})
+        new_record = self.request.validated['body'].get('data', {})
         try:
             # Since ``id`` does not belong to schema, it is not in validated
             # data. Must look up in body.
@@ -327,6 +340,10 @@ class UserResource(object):
             record = self.model.create_record(new_record)
             self.request.response.status_code = 201
             action = ACTIONS.CREATE
+
+        timestamp = record[self.model.modified_field]
+        self._add_timestamp_header(self.request.response, timestamp=timestamp)
+
         return self.postprocess(record, action=action)
 
     def collection_delete(self):
@@ -343,8 +360,34 @@ class UserResource(object):
         self._raise_412_if_modified()
 
         filters = self._extract_filters()
-        records, _ = self.model.get_records(filters=filters)
-        deleted = self.model.delete_records(filters=filters)
+        limit = self._extract_limit()
+        sorting = self._extract_sorting(limit)
+        pagination_rules, offset = self._extract_pagination_rules_from_token(limit, sorting)
+
+        records, total_records = self.model.get_records(filters=filters,
+                                                        sorting=sorting,
+                                                        limit=limit,
+                                                        pagination_rules=pagination_rules)
+        deleted = self.model.delete_records(filters=filters,
+                                            sorting=sorting,
+                                            limit=limit,
+                                            pagination_rules=pagination_rules)
+        if deleted:
+            lastrecord = deleted[-1]
+            # Get timestamp of the last deleted field
+            timestamp = lastrecord[self.model.modified_field]
+            self._add_timestamp_header(self.request.response, timestamp=timestamp)
+
+            # Add pagination header
+            offset = offset + len(deleted)
+            if limit and len(deleted) == limit and offset < total_records:
+                next_page = self._next_page_url(sorting, limit, lastrecord, offset)
+                self.request.response.headers['Next-Page'] = encode_header(next_page)
+        else:
+            self._add_timestamp_header(self.request.response)
+
+        headers = self.request.response.headers
+        headers['Total-Records'] = encode_header('%s' % total_records)
 
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
         return self.postprocess(deleted, action=action, old=records)
@@ -415,7 +458,7 @@ class UserResource(object):
                 self._raise_412_if_modified(existing)
 
         # If `data` is not provided, use existing record (or empty if creation)
-        post_record = self.request.validated.get('data', existing) or {}
+        post_record = self.request.validated['body'].get('data', existing) or {}
 
         record_id = post_record.setdefault(id_field, self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
@@ -460,19 +503,24 @@ class UserResource(object):
         existing = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(existing)
 
-        try:
-            # `data` attribute may not be present if only perms are patched.
-            changes = self.request.json.get('data', {})
-        except ValueError:
-            # If no `data` nor `permissions` is provided in patch, reject!
-            # XXX: This should happen in schema instead (c.f. ShareableViewSet)
-            error_details = {
-                'name': 'data',
-                'description': 'Provide at least one of data or permissions',
-            }
-            raise_invalid(self.request, **error_details)
+        # patch is specified as a list of of operations (RFC 6902)
+        if self._is_json_patch:
+            requested_changes = self.request.json
+        else:
+            try:
+                # `data` attribute may not be present if only perms are patched.
+                requested_changes = self.request.json.get('data', {})
+            except ValueError:
+                # If no `data` nor `permissions` is provided in patch, reject!
+                # XXX: This should happen in schema instead (c.f. ShareableViewSet)
+                error_details = {
+                    'name': 'data',
+                    'description': 'Provide at least one of data or permissions',
+                }
+                raise_invalid(self.request, **error_details)
 
-        updated = self.apply_changes(existing, changes=changes)
+        updated, applied_changes = self.apply_changes(existing,
+                                                      requested_changes=requested_changes)
 
         record_id = updated.setdefault(self.model.id_field,
                                        self.record_id)
@@ -480,7 +528,7 @@ class UserResource(object):
 
         new_record = self.process_record(updated, old=existing)
 
-        changed_fields = [k for k in changes.keys()
+        changed_fields = [k for k in applied_changes.keys()
                           if existing.get(k) != new_record.get(k)]
 
         # Save in storage if necessary.
@@ -503,7 +551,7 @@ class UserResource(object):
         elif body_behavior.lower() == 'diff':
             # Only fields that are different from those provided.
             data = {k: new_record[k] for k in changed_fields
-                    if changes.get(k) != new_record.get(k)}
+                    if applied_changes.get(k) != new_record.get(k)}
         else:
             data = new_record
 
@@ -545,6 +593,9 @@ class UserResource(object):
                 last_modified = None
 
         deleted = self.model.delete_record(record, last_modified=last_modified)
+        timestamp = deleted[self.model.modified_field]
+        self._add_timestamp_header(self.request.response, timestamp=timestamp)
+
         return self.postprocess(deleted, action=ACTIONS.DELETE, old=record)
 
     #
@@ -599,7 +650,7 @@ class UserResource(object):
 
         return new
 
-    def apply_changes(self, record, changes):
+    def apply_changes(self, record, requested_changes):
         """Merge `changes` into `record` fields.
 
         .. note::
@@ -610,44 +661,59 @@ class UserResource(object):
 
         .. code-block:: python
 
-            def apply_changes(self, record, changes):
+            def apply_changes(self, record, requested_changes):
                 # Ignore value change if inferior
                 if record['position'] > changes.get('position', -1):
                     changes.pop('position', None)
-                return super(MyResource, self).apply_changes(record, changes)
+                return super(MyResource, self).apply_changes(record, requested_changes)
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if result does not comply with resource schema.
 
         :returns: the new record with `changes` applied.
-        :rtype: dict
+        :rtype: tuple
         """
-        for field, value in changes.items():
+        if self._is_json_patch:
+            try:
+                applied_changes = apply_json_patch(record, requested_changes)['data']
+                updated = applied_changes.copy()
+            except ValueError as e:
+                error_details = {
+                    'location': 'body',
+                    'description': 'JSON Patch operation failed: %s' % e
+                }
+                raise_invalid(self.request, **error_details)
+
+        else:
+            applied_changes = requested_changes.copy()
+            updated = record.copy()
+
+            content_type = str(self.request.headers.get('Content-Type')).lower()
+            # recursive patch and remove field if null attribute is passed (RFC 7396)
+            if content_type == 'application/merge-patch+json':
+                recursive_update_dict(updated, applied_changes, ignores=[None])
+            else:
+                updated.update(**applied_changes)
+
+        for field, value in applied_changes.items():
             has_changed = record.get(field, value) != value
-            if self.mapping.is_readonly(field) and has_changed:
+            if self.schema.is_readonly(field) and has_changed:
                 error_details = {
                     'name': field,
                     'description': 'Cannot modify {0}'.format(field)
                 }
                 raise_invalid(self.request, **error_details)
 
-        updated = record.copy()
-
-        # recursive patch and remove field if null attribute is passed (RFC 7396)
-        content_type = str(self.request.headers.get('Content-Type'))
-        if content_type == 'application/merge-patch+json':
-            recursive_update_dict(updated, changes, ignores=[None])
-        else:
-            updated.update(**changes)
-
         try:
-            return self.mapping.deserialize(updated)
+            validated = self.schema().deserialize(updated)
         except colander.Invalid as e:
             # Transform the errors we got from colander into Cornice errors.
             # We could not rely on Service schema because the record should be
             # validated only once the changes are applied
             for field, error in e.asdict().items():
                 raise_invalid(self.request, name=field, description=error)
+
+        return validated, applied_changes
 
     def postprocess(self, result, action=ACTIONS.READ, old=None):
         body = {
@@ -680,8 +746,12 @@ class UserResource(object):
         try:
             return self.model.get_record(record_id)
         except storage_exceptions.RecordNotFoundError:
-            response = http_error(HTTPNotFound(),
-                                  errno=ERRORS.INVALID_RESOURCE_ID)
+            details = {
+                "id": record_id,
+                "resource_name": self.request.current_resource_name
+            }
+            response = http_error(HTTPNotFound(), errno=ERRORS.INVALID_RESOURCE_ID,
+                                  details=details)
             raise response
 
     def _add_timestamp_header(self, response, timestamp=None):
@@ -747,7 +817,15 @@ class UserResource(object):
         if not if_none_match:
             return
 
-        if_none_match = decode_header(if_none_match)
+        error_details = {
+            'location': 'header',
+            'description': "Invalid value for If-None-Match"
+        }
+
+        try:
+            if_none_match = decode_header(if_none_match)
+        except UnicodeDecodeError:
+            raise_invalid(self.request, **error_details)
 
         try:
             if not (if_none_match[0] == if_none_match[-1] == '"'):
@@ -756,10 +834,6 @@ class UserResource(object):
         except (IndexError, ValueError):
             if if_none_match == '*':
                 return
-            error_details = {
-                'location': 'headers',
-                'description': "Invalid value for If-None-Match"
-            }
             raise_invalid(self.request, **error_details)
 
         if record:
@@ -785,9 +859,18 @@ class UserResource(object):
         if not if_match and not if_none_match:
             return
 
-        if_match = decode_header(if_match) if if_match else None
+        error_details = {
+            'location': 'header',
+            'description': ("Invalid value for If-Match. The value should "
+                            "be integer between double quotes.")}
 
-        if record and if_none_match and decode_header(if_none_match) == '*':
+        try:
+            if_match = decode_header(if_match) if if_match else None
+            if_none_match = decode_header(if_none_match) if if_none_match else None
+        except UnicodeDecodeError:
+            raise_invalid(self.request, **error_details)
+
+        if record and if_none_match == '*':
             if record.get(self.model.deleted_field, False):
                 # Tombstones should not prevent creation.
                 return
@@ -798,12 +881,6 @@ class UserResource(object):
                     raise ValueError()
                 modified_since = int(if_match[1:-1])
             except (IndexError, ValueError):
-                message = ("Invalid value for If-Match. The value should "
-                           "be integer between double quotes.")
-                error_details = {
-                    'location': 'headers',
-                    'description': message
-                }
                 raise_invalid(self.request, **error_details)
         else:
             # In case _raise_304_if_not_modified() did not raise.
@@ -847,7 +924,7 @@ class UserResource(object):
             root_fields = [f.split('.')[0] for f in fields]
             known_fields = self._get_known_fields()
             invalid_fields = set(root_fields) - set(known_fields)
-            preserve_unknown = self.mapping.get_option('preserve_unknown')
+            preserve_unknown = self.schema.get_option('preserve_unknown')
             if not preserve_unknown and invalid_fields:
                 error_msg = "Fields %s do not exist" % ','.join(invalid_fields)
                 error_details = {
@@ -1093,7 +1170,7 @@ class ShareableResource(UserResource):
             self.model.current_principal = Everyone
         else:
             self.model.current_principal = self.request.prefixed_userid
-        self.model.effective_principals = self.request.effective_principals
+        self.model.prefixed_principals = self.request.prefixed_principals
 
         if self.context:
             self.model.get_permission_object_id = functools.partial(
@@ -1139,7 +1216,13 @@ class ShareableResource(UserResource):
         existing ACE is removed (using empty list).
         """
         new = super(ShareableResource, self).process_record(new, old)
-        permissions = self.request.validated.get('permissions', {})
+
+        # patch is specified as a list of of operations (RFC 6902)
+        if self._is_json_patch:
+            changes = self.request.json
+            permissions = apply_json_patch(old, changes)['permissions']
+        else:
+            permissions = self.request.validated['body'].get('permissions', {})
 
         annotated = new.copy()
 

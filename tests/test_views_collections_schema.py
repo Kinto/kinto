@@ -25,7 +25,7 @@ class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
     def test_schema_should_be_json_schema(self):
         newschema = SCHEMA.copy()
         newschema['type'] = 'Washmachine'
-        self.app.put_json(BUCKET_URL, headers=self.headers)
+        self.app.put(BUCKET_URL, headers=self.headers)
         self.app.put(COLLECTION_URL, headers=self.headers)
         resp = self.app.put_json(COLLECTION_URL,
                                  {'data': {'schema': newschema}},
@@ -56,8 +56,8 @@ class BaseWebTestWithSchema(BaseWebTest):
 
     def setUp(self):
         super(BaseWebTestWithSchema, self).setUp()
-        self.app.put_json(BUCKET_URL, headers=self.headers)
-        self.app.put_json(COLLECTION_URL, headers=self.headers)
+        self.app.put(BUCKET_URL, headers=self.headers)
+        self.app.put(COLLECTION_URL, headers=self.headers)
 
 
 class MissingSchemaTest(BaseWebTestWithSchema, unittest.TestCase):

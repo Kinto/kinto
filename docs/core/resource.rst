@@ -31,7 +31,7 @@ Full example
 
     @resource.register()
     class Bookmark(resource.UserResource):
-        mapping = BookmarkSchema()
+        schema = BookmarkSchema
 
         def process_record(self, new, old=None):
             new = super(Bookmark, self).process_record(new, old)
@@ -62,7 +62,7 @@ URLs can be specified during registration:
     @resource.register(collection_path='/user/bookmarks',
                        record_path='/user/bookmarks/{{id}}')
     class Bookmark(resource.UserResource):
-        mapping = BookmarkSchema()
+        schema = BookmarkSchema
 
 .. note::
 
@@ -77,7 +77,7 @@ Override the base schema to add extra fields using the `Colander API <http://doc
 
 .. code-block:: python
 
-    class Movie(ResourceSchema):
+    class Movie(resource.ResourceSchema):
         director = colander.SchemaNode(colander.String())
         year = colander.SchemaNode(colander.Int(),
                                    validator=colander.Range(min=1850))

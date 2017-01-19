@@ -13,24 +13,17 @@ from .support import BaseWebTest, USER_PRINCIPAL
 
 
 class PostgreSQLTest(BaseWebTest):
-    def setUp(self):
-        super(PostgreSQLTest, self).setUp()
-        self.storage.initialize_schema()
-        self.permission.initialize_schema()
-
-    def tearDown(self):
-        super(BaseWebTest, self).tearDown()
-        self.storage.flush()
-        self.permission.flush()
-
     def get_app_settings(self, extras=None):
         settings = super(PostgreSQLTest, self).get_app_settings(extras)
         if sqlalchemy is not None:
             from .test_storage import PostgreSQLStorageTest
+            from .test_cache import PostgreSQLCacheTest
             from .test_permission import PostgreSQLPermissionTest
             settings.update(**PostgreSQLStorageTest.settings)
+            settings.update(**PostgreSQLCacheTest.settings)
             settings.update(**PostgreSQLPermissionTest.settings)
             settings.pop('storage_poolclass', None)
+            settings.pop('cache_poolclass', None)
             settings.pop('permission_poolclass', None)
         return settings
 
@@ -127,6 +120,34 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
 
         resp = self.app.get('/psilos', headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
+
+
+@skip_if_no_postgresql
+class TransactionCacheTest(PostgreSQLTest, unittest.TestCase):
+    def setUp(self):
+        def cache_and_fails(this, *args, **kwargs):
+            self.cache.set('test-cache', 'a value', ttl=100)
+            raise BackendError('boom')
+
+        patch = mock.patch.object(
+            self.permission,
+            'add_principal_to_ace',
+            wraps=cache_and_fails)
+        self.addCleanup(patch.stop)
+        patch.start()
+
+    def test_cache_backend_operations_are_always_committed(self):
+        self.app.post_json('/psilos',
+                           {'data': {'name': 'Amanite'}},
+                           headers=self.headers,
+                           status=503)
+
+        # Storage was rolled back.
+        resp = self.app.get('/psilos', headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 0)
+
+        # Cache was committed.
+        self.assertEqual(self.cache.get('test-cache'), 'a value')
 
 
 @skip_if_no_postgresql

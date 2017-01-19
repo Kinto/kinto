@@ -100,7 +100,8 @@ class Model(object):
             auth=self.auth)
         return records, total_records
 
-    def delete_records(self, filters=None, parent_id=None):
+    def delete_records(self, filters=None, sorting=None, pagination_rules=None,
+                       limit=None, parent_id=None):
         """Delete multiple collection records.
 
         Override to post-process records after their deletion from storage.
@@ -111,6 +112,22 @@ class Model(object):
             are combined using *AND*.
         :type filters: list of :class:`kinto.core.storage.Filter`
 
+        :param sorting: Optionnally sort the records by attribute.
+            Each sort instruction in this list refers to a field and a
+            direction (negative means descending). All sort instructions are
+            cumulative.
+        :type sorting: list of :class:`kinto.core.storage.Sort`
+
+        :param pagination_rules: Optionnally paginate the deletion of records.
+            This list of rules aims to reduce the set of records to the current
+            page. A rule is a list of filters (see `filters` parameter),
+            and all rules are combined using *OR*.
+        :type pagination_rules: list of list of
+            :class:`kinto.core.storage.Filter`
+
+        :param int limit: Optionnally limit the number of records to be
+           deleted.
+
         :param str parent_id: optional filter for parent id
 
         :returns: The list of deleted records from storage.
@@ -119,6 +136,9 @@ class Model(object):
         return self.storage.delete_all(collection_id=self.collection_id,
                                        parent_id=parent_id,
                                        filters=filters,
+                                       sorting=sorting,
+                                       pagination_rules=pagination_rules,
+                                       limit=limit,
                                        id_field=self.id_field,
                                        modified_field=self.modified_field,
                                        deleted_field=self.deleted_field,
@@ -244,7 +264,7 @@ class ShareableModel(Model):
         self.get_permission_object_id = None
         # Current user main principal.
         self.current_principal = None
-        self.effective_principals = None
+        self.prefixed_principals = None
 
     def _allow_write(self, perm_object_id):
         """Helper to give the ``write`` permission to the current user.
@@ -257,7 +277,7 @@ class ShareableModel(Model):
         permissions = self.permission.get_object_permissions(perm_object_id)
         # Permissions are not returned if user only has read permission.
         writers = permissions.get('write', [])
-        principals = self.effective_principals + [self.current_principal]
+        principals = self.prefixed_principals + [self.current_principal]
         if len(set(writers) & set(principals)) == 0:
             permissions = {}
         # Insert the permissions values in the response.
@@ -265,13 +285,21 @@ class ShareableModel(Model):
         annotated[self.permissions_field] = permissions
         return annotated
 
-    def delete_records(self, filters=None, parent_id=None):
+    def delete_records(self, filters=None, sorting=None, pagination_rules=None,
+                       limit=None, parent_id=None):
         """Delete permissions when collection records are deleted in bulk.
         """
         deleted = super(ShareableModel, self).delete_records(filters,
+                                                             sorting,
+                                                             pagination_rules,
+                                                             limit,
                                                              parent_id)
-        perm_ids = [self.get_permission_object_id(object_id=r[self.id_field])
-                    for r in deleted]
+        # Take a huge shortcut in case we want to delete everything.
+        if not filters:
+            perm_ids = [self.get_permission_object_id(object_id='*')]
+        else:
+            perm_ids = [self.get_permission_object_id(object_id=r[self.id_field])
+                        for r in deleted]
         self.permission.delete_object_permissions(*perm_ids)
         return deleted
 

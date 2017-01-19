@@ -24,10 +24,10 @@ class HistorySchema(resource.ResourceSchema):
 @resource.register(name='history',
                    collection_path='/buckets/{{bucket_id}}/history',
                    record_path=None,
-                   collection_methods=('GET',))
+                   collection_methods=('GET', 'DELETE'))
 class History(resource.ShareableResource):
 
-    mapping = HistorySchema()
+    schema = HistorySchema
 
     def get_parent_id(self, request):
         self.bucket_id = request.matchdict['bucket_id']

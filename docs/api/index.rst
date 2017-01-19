@@ -11,14 +11,28 @@ API
 Changelog
 ---------
 
-
-1.12 (2016-10-11)
+1.14 (Unreleased)
 '''''''''''''''''
 
-- Add support to JSON merge ``patch`` when using 
+- Add an OpenAPI 2.0 specification on ``GET /__api__`` endpoint.
+
+1.13 (2016-12-19)
+'''''''''''''''''
+
+- Add ``DELETE`` to the history endpoint.
+- Add a ``basicauth`` capability when activated on the server
+
+1.12 (2016-11-18)
+'''''''''''''''''
+
+- Add a list of ``principals`` to ``hello`` view.
+- ``details`` attribute present in response of 404 errors.
+- Add support of *JSON patch* format to ``PATCH`` endpoints when using
+  ``Content-Type: application/json-patch+json`` (as in RFC 6902).
+  For more details, see `JSON-Patch Format <1.x/records.html#json-patch-operations>`_.
+- Add support of *JSON merge* format to ``PATCH`` endpoints when using
   ``Content-Type: application/merge-patch+json`` (as in RFC 7396).
-- When ``null`` argument is provided with merge ``patch``, the field is now
-  removed from the object.
+  which allows to remove attributes by passing ``null`` values.
 
 1.11 (2016-10-04)
 '''''''''''''''''

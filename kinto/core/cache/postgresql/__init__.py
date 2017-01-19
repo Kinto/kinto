@@ -122,6 +122,8 @@ class Cache(CacheBase):
             conn.execute(query, dict(ttl=ttl, key=self.prefix + key))
 
     def set(self, key, value, ttl=None):
+        if ttl is None:
+            logger.warning("No TTL for cache key %r" % key)
         query = """
         WITH upsert AS (
             UPDATE cache SET value = :value, ttl = sec2ttl(:ttl)
@@ -154,5 +156,5 @@ class Cache(CacheBase):
 
 def load_from_config(config):
     settings = config.get_settings()
-    client = create_from_config(config, prefix='cache_')
+    client = create_from_config(config, prefix='cache_', with_transaction=False)
     return Cache(client=client, cache_prefix=settings['cache_prefix'])

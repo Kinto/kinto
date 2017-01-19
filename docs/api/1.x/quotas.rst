@@ -90,8 +90,8 @@ Storage`` HTTP error.
     Server: waitress
 
     {
-        "code": 507, 
-        "errno": 121, 
-        "error": "Insufficient Storage", 
+        "code": 507,
+        "errno": 121,
+        "error": "Insufficient Storage",
         "message": "Collection maximum number of objects exceeded (2 > 1 objects)"
     }

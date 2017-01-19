@@ -121,27 +121,68 @@ Get started!
 
     git clone git@github.com:your_name_here/kinto.git
 
-3. Install and run *Kinto* locally (:ref:`more details <run-kinto-from-source>`)::
+3. Setup a local PostgreSQL database for the tests (:ref:`more details <postgresql-install>`)::
+
+    sudo apt-get install postgresql
+    sudo -n -u postgres -s -- psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" -U postgres
+    sudo -n -u postgres -s -- psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
+    sudo -n -u postgres -s -- psql -c "ALTER DATABASE testdb SET TIMEZONE TO UTC;" -U postgres
+
+4. Install and run *Kinto* locally (:ref:`more details <run-kinto-from-source>`)::
 
     make serve
 
-4. Create a branch for local development::
+5. Create a branch for local development::
 
     git checkout -b name-of-your-bugfix-or-feature
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass the tests::
+6. When you're done making changes, check that your changes pass the tests::
 
     make tests
 
-6. Commit your changes and push your branch to GitHub::
+7. Commit your changes and push your branch to GitHub::
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
     $ git push origin name-of-your-bugfix-or-feature
 
-7. Submit a pull request through the GitHub website.
+8. Submit a pull request through the GitHub website.
+
+
+Testing methodology
+-------------------
+
+The `tests are the specifications <http://blog.mathieu-leplatre.info/your-tests-as-your-specs.html>`_.
+
+* Each test class represents a situation or feature (e.g. ``class AnonymousCreationTest(unittest.TestCase):``)
+* Each test method represents an aspect of the specification (e.g. ``def test_creation_is_allowed_if_enabled_in_settings(self):``)
+* Each test method is independant
+* The assertions should only correspond to the aspect of the specification that this method targets
+* The ``setUp()`` method contains some initialization steps that are shared among the methods
+* If the methods have different initialization steps, they should probably be split into different test classes
+
+When contributing a **bug fix**:
+
+1. Write a test that reproduces the problem: it should fail because of the bug
+2. Fix the faulty piece of code
+3. The test should now pass
+
+When contributing a **new feature**:
+
+* Do not rush on the code
+* Step by step, you'll write tests for each aspect and each edge case of the feature
+* Start very small: one simple test for the simplest situation
+
+Once you get that simple bit working, you can iterate like this, `a.k.a TDD <https://en.wikipedia.org/wiki/Test-driven_development>`_:
+
+1. Add a new test that will fail because the code does not handle the new case
+2. Make the test pass with some new code
+3. Track your changes: ``git add -A``
+4. Refactor and clean-up if necessary. If you're lost, go back to the previous step with ``git checkout <file>``
+5. Commit the changes: ``git commit -am "feature X"``
+6. Go to step 1
 
 
 Pull request guidelines

@@ -57,11 +57,12 @@ class PostgreSQLClient(object):
                 # Give back to pool if commit done manually.
                 session.close()
 
+
 # Reuse existing client if same URL.
 _CLIENTS = defaultdict(dict)
 
 
-def create_from_config(config, prefix=''):
+def create_from_config(config, prefix='', with_transaction=True):
     """Create a PostgreSQLClient client using settings in the provided config.
     """
     if sqlalchemy is None:
@@ -76,8 +77,9 @@ def create_from_config(config, prefix=''):
     # Custom Kinto settings, unsupported by SQLAlchemy.
     settings.pop(prefix + 'backend', None)
     settings.pop(prefix + 'max_fetch_size', None)
+    settings.pop(prefix + 'max_size_bytes', None)
     settings.pop(prefix + 'prefix', None)
-    transaction_per_request = settings.pop('transaction_per_request', False)
+    transaction_per_request = with_transaction and settings.pop('transaction_per_request', False)
 
     url = settings[prefix + 'url']
     existing_client = _CLIENTS[transaction_per_request].get(url)

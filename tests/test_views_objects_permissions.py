@@ -77,6 +77,11 @@ class CollectionPermissionsTest(PermissionsTest):
                           MINIMALIST_COLLECTION,
                           headers=self.headers)
 
+    def test_passing_unicode_on_parent_id_is_supported(self):
+        self.app.get('/buckets/block%C2%93%C2%96sts/collections/barley',
+                     headers=self.alice_headers,
+                     status=403)
+
     def test_read_is_allowed_if_read_on_bucket(self):
         self.app.get('/buckets/beer/collections/barley',
                      headers=self.alice_headers)
@@ -243,6 +248,17 @@ class ChildrenCreationTest(PermissionsTest):
         self.app.post_json('/buckets/read/groups',
                            {'data': {'id': 'child', 'members': []}},
                            headers=self.bob_headers_safe_creation, status=403)
+
+    def test_delete_returns_404_on_unknown_if_only_allowed_to_read(self):
+        self.app.delete('/buckets/read/groups/g1',
+                        headers=self.bob_headers,
+                        status=404)
+
+    def test_patch_returns_404_on_unknown_if_only_allowed_to_read(self):
+        self.app.patch_json('/buckets/read/groups/g1',
+                            {'data': {'members': []}},
+                            headers=self.bob_headers,
+                            status=404)
 
 
 class ParentMetadataTest(PermissionsTest):

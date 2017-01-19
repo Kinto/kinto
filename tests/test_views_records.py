@@ -38,7 +38,15 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     def test_unknown_collection_raises_404(self):
         other_collection = self.collection_url.replace('barley', 'pills')
-        self.app.get(other_collection, headers=self.headers, status=404)
+        resp = self.app.get(other_collection, headers=self.headers, status=404)
+        self.assertEqual(resp.json['details']['id'], 'pills')
+        self.assertEqual(resp.json['details']['resource_name'], 'collection')
+
+    def test_unknown_record_raises_404(self):
+        other_record = self.record_url.replace(self.record['id'], self.record['id']+'blah')
+        response = self.app.get(other_record, headers=self.headers, status=404)
+        self.assertEqual(response.json['details']['id'], self.record['id']+'blah')
+        self.assertEqual(response.json['details']['resource_name'], 'record')
 
     def test_unknown_collection_does_not_query_timestamp(self):
         other_collection = self.collection_url.replace('barley', 'pills')
@@ -291,3 +299,125 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         headers['If-None-Match'] = '*'
         self.app.put_json(self.record_url, MINIMALIST_RECORD,
                           headers=headers, status=201)
+
+
+class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
+
+    collection_url = '/buckets/beers/collections/barley/records'
+    _record_url = '/buckets/beers/collections/barley/records/%s'
+
+    def setUp(self):
+        super(RecordsViewMergeTest, self).setUp()
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley',
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        record = MINIMALIST_RECORD.copy()
+        record['data'] = {}
+        record['data']['grain'] = {'one': 1}
+        resp = self.app.post_json(self.collection_url,
+                                  record,
+                                  headers=self.headers)
+        self.record = resp.json['data']
+        self.record_url = self._record_url % self.record['id']
+
+    def test_merge_patch(self):
+        headers = self.headers.copy()
+        headers['Content-Type'] = 'application/merge-patch+json'
+        json = {'data': {'grain': {'two': 2}}}
+        resp = self.app.patch_json(self.record_url,
+                                   json,
+                                   headers=headers,
+                                   status=200)
+        self.assertEquals(resp.json['data']['grain']['one'], 1)
+        self.assertEquals(resp.json['data']['grain']['two'], 2)
+
+    def test_merge_patch_remove_nones(self):
+        headers = self.headers.copy()
+        headers['Content-Type'] = 'application/merge-patch+json'
+        json = {'data': {'grain': {'one': None}}}
+        resp = self.app.patch_json(self.record_url,
+                                   json,
+                                   headers=headers,
+                                   status=200)
+        self.assertNotIn('one', resp.json['data']['grain'])
+
+
+class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
+
+    collection_url = '/buckets/beers/collections/barley/records'
+    _record_url = '/buckets/beers/collections/barley/records/%s'
+
+    def setUp(self):
+        super(RecordsViewPatchTest, self).setUp()
+        self.patch_headers = self.headers.copy()
+        self.patch_headers['Content-Type'] = 'application/json-patch+json'
+
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley',
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        record = MINIMALIST_RECORD.copy()
+        record['permissions'] = {}
+        record['permissions']['read'] = ['alice', 'carla']
+        record['permissions']['write'] = ['bob']
+        resp = self.app.post_json(self.collection_url,
+                                  record,
+                                  headers=self.headers)
+        self.record = resp.json['data']
+        self.record_url = self._record_url % self.record['id']
+
+    def test_patch_add_permissions(self):
+        json = [{'op': 'add', 'path': '/permissions/read/me', 'value': 'me'}]
+        resp = self.app.patch_json(self.record_url,
+                                   json,
+                                   headers=self.patch_headers,
+                                   status=200)
+
+        perms = resp.json['permissions']
+        self.assertIn('me', perms['read'])
+        self.assertIn('alice', perms['read'])
+
+    def test_patch_update_permissions(self):
+        json = [{'op': 'add', 'path': '/permissions/read', 'value': ['me']}]
+        resp = self.app.patch_json(self.record_url,
+                                   json,
+                                   headers=self.patch_headers,
+                                   status=200)
+
+        perms = resp.json['permissions']
+        self.assertIn('me', perms['read'])
+        self.assertNotIn(('alice', 'bob'), perms['read'])
+
+    def test_patch_remove_permissions(self):
+        json = [{'op': 'remove', 'path': '/permissions/read/alice'}]
+        resp = self.app.patch_json(self.record_url,
+                                   json,
+                                   headers=self.patch_headers,
+                                   status=200)
+        perms = resp.json['permissions']
+        self.assertNotIn('alice', perms['read'])
+
+    def test_patch_move_permissions(self):
+        json = [
+            {'op': 'move', 'from': '/permissions/read/alice',
+                           'path': '/data/old'}
+        ]
+        resp = self.app.patch_json(self.record_url,
+                                   json,
+                                   headers=self.patch_headers,
+                                   status=200)
+
+        perms = resp.json['permissions']
+        data = resp.json['data']
+        self.assertNotIn('alice', perms['read'])
+        self.assertEquals('alice', data['old'])
+
+    def test_patch_raises_400_on_wrong_path(self):
+        json = [{'op': 'add', 'path': '/permissions/destroy/me'}]
+        self.app.patch_json(self.record_url,
+                            json,
+                            headers=self.patch_headers,
+                            status=400)

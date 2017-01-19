@@ -65,6 +65,16 @@ Permissions can refer to the *group* URI instead of an individual user - this ma
 it easy to define "roles", especially if the same set of permissions is applied
 to several objects.
 
+.. _concepts-authentication:
+
+Authentication
+==============
+
+Kinto doesn't provide users management, like user sign-up, password modification, etc.
+
+Kinto can rely on a third-party called "`Identity provider <https://en.wikipedia.org/wiki/Identity_provider>`_"
+like *Auth0*, *Github* or *Google* in order to authenticate the incoming request and assign a :term:`user id`.
+
 .. _concepts-permissions:
 
 Permissions

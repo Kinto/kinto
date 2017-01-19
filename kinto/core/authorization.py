@@ -1,12 +1,13 @@
 import functools
 
+import six
 from pyramid.settings import aslist
 from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
 from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
-from kinto.core.authentication import prefixed_userid
+
 
 # A permission is called "dynamic" when it's computed at request time.
 DYNAMIC = 'dynamic'
@@ -53,18 +54,7 @@ class AuthorizationPolicy(object):
         if permission == PRIVATE:
             return Authenticated in principals
 
-        # Add prefixed user id to principals.
-        prefixed_userid = context.get_prefixed_userid()
-        if prefixed_userid and ':' in prefixed_userid:
-            principals = principals + [prefixed_userid]
-            prefix, user_id = prefixed_userid.split(':', 1)
-            # Remove unprefixed user id to avoid conflicts.
-            # (it is added via Pyramid Authn policy effective principals)
-            if user_id in principals:
-                principals.remove(user_id)
-            # Retro-compatibility with cliquet 2.0 '_' user id prefixes.
-            # Just in case it was used in permissions definitions.
-            principals.append('%s_%s' % (prefix, user_id))
+        principals = context.get_prefixed_principals()
 
         if permission == DYNAMIC:
             permission = context.required_permission
@@ -74,12 +64,20 @@ class AuthorizationPolicy(object):
             permission = create_permission
 
         object_id = context.permission_object_id
-        if self.get_bound_permissions is None:
-            bound_perms = [(object_id, permission)]
-        else:
-            bound_perms = self.get_bound_permissions(object_id, permission)
+        bound_perms = self._get_bound_permissions(object_id, permission)
 
         allowed = context.check_permission(principals, bound_perms)
+
+        # Here we consider that parent URI is one path level above.
+        parent_uri = '/'.join(object_id.split('/')[:-1]) if object_id else None
+
+        # If not allowed to delete/patch, and target object is missing, and
+        # allowed to read the parent, then view is permitted (will raise 404
+        # later anyway). See Kinto/kinto#918
+        is_record_unknown = not context.on_collection and context.current_record is None
+        if context.required_permission == "write" and is_record_unknown:
+            bound_perms = self._get_bound_permissions(parent_uri, "read")
+            allowed = context.check_permission(principals, bound_perms)
 
         # If not allowed on this collection, but some records are shared with
         # the current user, then authorize.
@@ -91,8 +89,6 @@ class AuthorizationPolicy(object):
                                                   self.get_bound_permissions)
             # If allowed to create this kind of object on parent, then allow to obtain the list.
             if len(bound_perms) > 0:
-                # Here we consider that parent URI is one path level above.
-                parent_uri = '/'.join(object_id.split('/')[:-1])
                 parent_create_perm = [(parent_uri, create_permission)]
             else:
                 parent_create_perm = [('', 'create')]  # Root object.
@@ -101,6 +97,11 @@ class AuthorizationPolicy(object):
             allowed = shared or allowed_to_create
 
         return allowed
+
+    def _get_bound_permissions(self, object_id, permission):
+        if self.get_bound_permissions is None:
+            return [(object_id, permission)]
+        return self.get_bound_permissions(object_id, permission)
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER
@@ -123,13 +124,12 @@ class RouteFactory(object):
     }
 
     def __init__(self, request):
-        # Make it available for the authorization policy.
-        self.get_prefixed_userid = functools.partial(prefixed_userid, request)
-
         # Store some shortcuts.
         permission = request.registry.permission
         self._check_permission = permission.check_permission
         self._get_accessible_objects = permission.get_accessible_objects
+
+        self.get_prefixed_principals = functools.partial(utils.prefixed_principals, request)
 
         # Store current resource and required permission.
         service = utils.current_service(request)
@@ -139,6 +139,15 @@ class RouteFactory(object):
         if is_on_resource:
             self.resource_name = request.current_resource_name
             self.on_collection = getattr(service, "type", None) == "collection"
+
+            # Try to fetch the target object. Its existence will affect permissions checking.
+            if not self.on_collection and request.method.lower() in ("put", "delete", "patch"):
+                resource = service.resource(request=request, context=self)
+                try:
+                    # Save a reference, to avoid refetching from storage in resource.
+                    self.current_record = resource.model.get_record(resource.record_id)
+                except storage_exceptions.RecordNotFoundError:
+                    pass
 
             self.permission_object_id, self.required_permission = (
                 self._find_required_permission(request, service))
@@ -179,7 +188,7 @@ class RouteFactory(object):
             bound_perms = get_bound_permissions(self._object_id_match, perm)
         else:
             bound_perms = [(self._object_id_match, perm)]
-        by_obj_id = self._get_accessible_objects(principals, bound_perms)
+        by_obj_id = self._get_accessible_objects(principals, bound_perms, with_children=False)
         ids = by_obj_id.keys()
         # Store for later use in ``ShareableResource``.
         self.shared_ids = [self._extract_object_id(id_) for id_ in ids]
@@ -206,8 +215,7 @@ class RouteFactory(object):
                 object_uri = utils.instance_uri(request,
                                                 self.resource_name,
                                                 **matchdict)
-                if object_id == '*':
-                    object_uri = object_uri.replace('%2A', '*')
+                object_uri = object_uri.replace('%2A', '*')
             except KeyError:
                 # Maybe the resource has no single record endpoint.
                 # We consider that object URIs in permissions backend will
@@ -234,18 +242,13 @@ class RouteFactory(object):
         required_permission = self.method_permissions.get(method)
 
         # For create permission, the object id is the plural endpoint.
-        collection_path = service.collection_path.format(**request.matchdict)
+        collection_path = six.text_type(service.collection_path)
+        collection_path = collection_path.format(**request.matchdict)
 
         # In the case of a "PUT", check if the targetted record already
         # exists, return "write" if it does, "create" otherwise.
         if request.method.lower() == "put":
-            resource = service.resource(request=request, context=self)
-            try:
-                record = resource.model.get_record(resource.record_id)
-                # Save a reference, to avoid refetching from storage in
-                # resource.
-                self.current_record = record
-            except storage_exceptions.RecordNotFoundError:
+            if self.current_record is None:
                 # The record does not exist, the permission to create on
                 # the related collection is required.
                 permission_object_id = collection_path

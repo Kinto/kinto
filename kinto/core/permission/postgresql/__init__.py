@@ -200,9 +200,12 @@ class Permission(PermissionBase):
             results = result.fetchall()
         return set([r['principal'] for r in results])
 
-    def get_accessible_objects(self, principals, bound_permissions=None):
+    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True):
         principals_values = ','.join(["('%s')" % p for p in principals])
         if bound_permissions is None:
+            # Return all objects on which the specified principals have some
+            # permissions.
+            # (e.g. permissions endpoint which lists everything)
             query = """
             WITH user_principals AS (
               VALUES %(principals)s
@@ -212,9 +215,20 @@ class Permission(PermissionBase):
               JOIN user_principals
                 ON (principal = user_principals.column1);
             """ % dict(principals=principals_values)
+        elif len(bound_permissions) == 0:
+            # If the list of object permissions to filter on is empty, then
+            # do not bother querying the backend. The result will be empty.
+            # (e.g. root object /buckets)
+            return {}
         else:
-            perms = [(o.replace('*', '.*'), p) for (o, p) in bound_permissions]
-            perms_values = ','.join(["('%s', '%s')" % p for p in perms])
+            bound_permissions = [(o.replace('*', '%'), p)
+                                 for (o, p) in bound_permissions]
+            perms_values = ','.join(["('%s', '%s')" % p for p in bound_permissions])
+            if with_children:
+                object_id_condition = 'object_id LIKE pattern'
+            else:
+                object_id_condition = ("object_id LIKE pattern "
+                                       "AND object_id NOT LIKE pattern || '/%'")
             query = """
             WITH required_perms AS (
               VALUES %(perms)s
@@ -232,9 +246,10 @@ class Permission(PermissionBase):
             )
             SELECT object_id, permission
               FROM potential_objects
-             WHERE object_id ~ pattern;
+             WHERE %(object_id_condition)s;
             """ % dict(perms=perms_values,
-                       principals=principals_values)
+                       principals=principals_values,
+                       object_id_condition=object_id_condition)
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query)
@@ -355,11 +370,20 @@ class Permission(PermissionBase):
         if len(object_id_list) == 0:
             return
 
+        object_ids_values = ','.join(["('%s')" % o.replace('*', '%')
+                                      for o in object_id_list])
         query = """
+        WITH object_ids AS (
+          VALUES %(object_ids_values)s
+        )
         DELETE FROM access_control_entries
-         WHERE object_id IN :object_id_list;"""
+         USING object_ids
+         WHERE object_id LIKE column1;"""
+        safeholders = {
+            'object_ids_values': object_ids_values
+        }
         with self.client.connect() as conn:
-            conn.execute(query, dict(object_id_list=tuple(object_id_list)))
+            conn.execute(query % safeholders)
 
 
 def load_from_config(config):

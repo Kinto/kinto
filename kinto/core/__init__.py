@@ -1,18 +1,19 @@
 """Main entry point
 """
 import pkg_resources
+import tempfile
 
 from cornice import Service as CorniceService
 from pyramid.settings import aslist
 
-from kinto.core import authentication
 from kinto.core import errors
 from kinto.core import events
 from kinto.core.initialization import (  # NOQA
     initialize, install_middlewares,
     load_default_settings)
 from kinto.core.utils import (
-    follow_subrequest, current_service, current_resource_name)
+    follow_subrequest, current_service, current_resource_name,
+    prefixed_userid, prefixed_principals)
 from kinto.core.logs import logger
 
 
@@ -27,6 +28,7 @@ DEFAULT_SETTINGS = {
     'cache_url': '',
     'cache_pool_size': 25,
     'cache_prefix': '',
+    'cache_max_size_bytes': 524288,
     'cors_origins': '*',
     'cors_max_age_seconds': 3600,
     'eos': None,
@@ -62,7 +64,7 @@ DEFAULT_SETTINGS = {
     'permission_backend': '',
     'permission_url': '',
     'permission_pool_size': 25,
-    'profiler_dir': '/tmp',
+    'profiler_dir': tempfile.gettempdir(),
     'profiler_enabled': False,
     'project_docs': '',
     'project_name': '',
@@ -87,7 +89,8 @@ DEFAULT_SETTINGS = {
     'multiauth.policy.basicauth.use': ('kinto.core.authentication.'
                                        'BasicAuthAuthenticationPolicy'),
     'multiauth.authorization_policy': ('kinto.core.authorization.'
-                                       'AuthorizationPolicy')
+                                       'AuthorizationPolicy'),
+    'swagger_file': 'swagger.yaml',
 }
 
 
@@ -100,8 +103,8 @@ class Service(CorniceService):
     default_cors_headers = ('Backoff', 'Retry-After', 'Alert',
                             'Content-Length')
 
-    def error_handler(self, error):
-        return errors.json_error_handler(error)
+    def error_handler(self, request):
+        return errors.json_error_handler(request)
 
     @classmethod
     def init_from_settings(cls, settings):
@@ -154,9 +157,12 @@ def includeme(config):
 
     # Custom helpers.
     config.add_request_method(follow_subrequest)
-    config.add_request_method(authentication.prefixed_userid, property=True)
-    config.add_request_method(lambda r: {'id': r.prefixed_userid},
-                              name='get_user_info')
+    config.add_request_method(prefixed_userid, property=True)
+    config.add_request_method(prefixed_principals, reify=True)
+    config.add_request_method(lambda r: {
+        'id': r.prefixed_userid,
+        'principals': r.prefixed_principals},
+        name='get_user_info')
     config.add_request_method(current_resource_name, reify=True)
     config.add_request_method(current_service, reify=True)
     config.commit()

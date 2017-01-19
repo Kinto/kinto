@@ -88,7 +88,7 @@ class PermissionBase(object):
         """
         raise NotImplementedError
 
-    def get_accessible_objects(self, principals, bound_permissions=None):
+    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True):
         """Return the list of objects where the specified `principals`
         have some permissions.
 
@@ -99,6 +99,7 @@ class PermissionBase(object):
         :param list bound_permissions: An optional list of tuples
             (object_id, permission) to limit the results.
             The object ids can be a pattern, (e.g. ``*``, ``'/my/articles*'``).
+        :param boolean with_children: Include the children of object ids or not.
 
         :returns: A mapping whose keys are the object_ids and the values are
             the related list of permissions.

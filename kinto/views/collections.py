@@ -34,7 +34,7 @@ class CollectionSchema(resource.ResourceSchema):
                    collection_path='/buckets/{{bucket_id}}/collections',
                    record_path='/buckets/{{bucket_id}}/collections/{{id}}')
 class Collection(resource.ShareableResource):
-    mapping = CollectionSchema()
+    schema = CollectionSchema
     permissions = ('read', 'write', 'record:create')
 
     def get_parent_id(self, request):
@@ -50,6 +50,7 @@ def on_collections_deleted(event):
     """Some collections were deleted, delete records.
     """
     storage = event.request.registry.storage
+    permission = event.request.registry.permission
 
     for change in event.impacted_records:
         collection = change['old']
@@ -62,3 +63,4 @@ def on_collections_deleted(event):
                            with_deleted=False)
         storage.purge_deleted(collection_id='record',
                               parent_id=parent_id)
+        permission.delete_object_permissions(parent_id + '*')

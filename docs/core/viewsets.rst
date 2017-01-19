@@ -27,7 +27,7 @@ Viewsets defaults can be overriden by passing arguments to the
 
     @resource.register(collection_methods=('GET',))
     class Resource(resource.UserResource):
-        mapping = BookmarkSchema()
+        schema = BookmarkSchema
 
 
 Subclassing
@@ -52,7 +52,7 @@ can be subclassed and specified during registration:
 
     @resource.register(viewset=NoSchemaViewSet())
     class Resource(resource.UserResource):
-        mapping = BookmarkSchema()
+        schema = BookmarkSchema
 
 
 ViewSet class

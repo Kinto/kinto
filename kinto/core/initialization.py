@@ -9,11 +9,13 @@ from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import (HTTPTemporaryRedirect, HTTPGone,
                                     HTTPBadRequest)
 from pyramid.renderers import JSON as JSONRenderer
+from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.settings import asbool, aslist
 from pyramid_multiauth import (MultiAuthenticationPolicy,
                                MultiAuthPolicySelected)
+
 try:
     import newrelic.agent
 except ImportError:  # pragma: no cover
@@ -72,17 +74,20 @@ def setup_version_redirection(config):
         return
 
     def _redirect_to_version_view(request):
-        path = request.matchdict['path']
+        if request.method.lower() == 'options':
+            # CORS responses should always have status 200.
+            return utils.reapply_cors(request, Response())
+
         querystring = request.url[(request.url.rindex(request.path) +
                                    len(request.path)):]
-        redirect = '/%s/%s%s' % (route_prefix, path, querystring)
+        redirect = '/%s%s%s' % (route_prefix, request.path, querystring)
         raise HTTPTemporaryRedirect(redirect)
 
     # Disable the route prefix passed by the app.
     config.route_prefix = None
 
     config.add_route(name='redirect_to_version',
-                     pattern='/{path:(?!v[0-9]+).*}')
+                     pattern=r'/{path:(?!v[0-9]+)[^\r\n]*}')
 
     config.add_view(view=_redirect_to_version_view,
                     route_name='redirect_to_version',
@@ -96,6 +101,11 @@ def setup_authentication(config):
     from configuration.
     """
     config.include('pyramid_multiauth')
+    settings = config.get_settings()
+
+    policies = aslist(settings['multiauth.policies'])
+    if 'basicauth' in policies:
+        config.include('kinto.core.authentication')
 
     # Track policy used, for prefixing user_id and for logging.
     def on_policy_selected(event):
@@ -244,9 +254,9 @@ def setup_statsd(config):
 
         config.registry.statsd = client
 
-        client.watch_execution_time(config.registry.cache, prefix='cache')
-        client.watch_execution_time(config.registry.storage, prefix='storage')
-        client.watch_execution_time(config.registry.permission, prefix='permission')
+        client.watch_execution_time(config.registry.cache, prefix='backend')
+        client.watch_execution_time(config.registry.storage, prefix='backend')
+        client.watch_execution_time(config.registry.permission, prefix='backend')
 
         # Commit so that configured policy can be queried.
         config.commit()

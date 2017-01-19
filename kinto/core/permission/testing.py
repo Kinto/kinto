@@ -288,6 +288,10 @@ class PermissionTest(object):
                           set(['write', 'record:create']))
         self.assertEquals(per_object_ids['id2'], set(['read']))
 
+    def test_accessible_objects_supports_empty_list(self):
+        per_object_ids = self.permission.get_accessible_objects(['user1', 'group'], [])
+        self.assertEquals(per_object_ids, {})
+
     def test_accessible_objects_from_permission(self):
         self.permission.add_principal_to_ace('id1', 'write', 'user1')
         self.permission.add_principal_to_ace('id1', 'read', 'user1')
@@ -307,6 +311,16 @@ class PermissionTest(object):
         per_object_ids = self.permission.get_accessible_objects(
             ['user1'],
             [('*url1*', 'write')])
+        self.assertEquals(sorted(per_object_ids.keys()), ['/url1/id'])
+
+    def test_accessible_objects_with_pattern_matches_whole_id(self):
+        self.permission.add_principal_to_ace('/url1/id', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url1/id/sub', 'write', 'user1')
+        self.permission.add_principal_to_ace('/a/url1/id', 'write', 'user1')
+        per_object_ids = self.permission.get_accessible_objects(
+            ['user1'],
+            [('/url1/*', 'write')],
+            with_children=False)
         self.assertEquals(sorted(per_object_ids.keys()), ['/url1/id'])
 
     def test_accessible_objects_several_bound_permissions(self):
@@ -463,3 +477,16 @@ class PermissionTest(object):
 
     def test_delete_object_permissions_supports_empty_list(self):
         self.permission.delete_object_permissions()  # Not failing
+
+    def test_delete_object_permissions_supports_pattern_matching(self):
+        self.permission.add_principal_to_ace('/url/b/id/1', 'write', 'user1')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
+        self.permission.add_principal_to_ace('/url/a/id/1', 'read', 'user3')
+        self.permission.add_principal_to_ace('/url/a/id/3', 'create', 'user4')
+
+        self.permission.delete_object_permissions('/url/a*')
+
+        self.assertDictEqual(self.permission.get_object_permissions('/url/a/id/1'), {})
+        self.assertDictEqual(
+            self.permission.get_object_permissions('/url/b/id/1'),
+            {'write': {'user1'}})

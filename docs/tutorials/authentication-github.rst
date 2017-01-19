@@ -193,7 +193,7 @@ We will simply make a call to the Github user API and try to obtain the ``login`
             return user_id
 
         def forget(self, request):
-            return [('WWW-Authenticate', '%s realm="%s"' % (GITHUB_METHOD, self.realm)]
+            return [('WWW-Authenticate', '%s realm="%s"' % (GITHUB_METHOD, self.realm))]
 
         def _get_credentials(self, request):
             authorization = request.headers.get('Authorization', '')
@@ -210,6 +210,7 @@ We will simply make a call to the Github user API and try to obtain the ``login`
                 resp.raise_for_status()
                 userinfo = resp.json()
                 user_id = userinfo['login']
+                return user_id
             except Exception as e:
                 logger.warn(e)
                 return None

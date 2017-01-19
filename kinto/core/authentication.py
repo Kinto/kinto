@@ -3,20 +3,6 @@ from pyramid import authentication as base_auth
 from kinto.core import utils
 
 
-def prefixed_userid(request):
-    """In Kinto users ids are prefixed with the policy name that is
-    contained in Pyramid Multiauth.
-    If a custom authn policy is used, without authn_type, this method returns
-    the user id without prefix.
-    """
-    # If pyramid_multiauth is used, a ``authn_type`` is set on request
-    # when a policy succesfully authenticates a user.
-    # (see :func:`kinto.core.initialization.setup_authentication`)
-    authn_type = getattr(request, 'authn_type', None)
-    if authn_type is not None:
-        return authn_type + ':' + request.selected_userid
-
-
 class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
     """Basic auth implementation.
 
@@ -50,3 +36,11 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
             credentials = '%s:%s' % credentials
             userid = utils.hmac_digest(hmac_secret, credentials)
             return userid
+
+
+def includeme(config):
+    config.add_api_capability(
+        "basicauth",
+        description="Very basic authentication sessions. Not for production use.",
+        url="http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html",
+    )

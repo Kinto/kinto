@@ -1,0 +1,2180 @@
+swagger: '2.0'
+
+externalDocs:
+  description: Full Documentation
+  url: http://kinto.readthedocs.io
+
+# May be redefined from settings
+info:
+  title: kinto
+  version: ''
+  description: >-
+    Kinto is a minimalist JSON storage service with synchronisation and sharing
+    abilities. It is meant to be easy to use and easy to self-host.
+
+
+    **Note:** This OpenAPI specification is not fully compliant with the Kinto API
+    and contain some undocumented Swagger schemas. For a list of known limitations
+    please refer to the [Oficial Kinto documentation](kinto.readthedocs.io/en/stable/api/1.x/openapi.html).
+
+  license:
+    name: Apache License (2.0)
+    url: 'http://www.apache.org/licenses/LICENSE-2.0'
+
+basePath: /v1
+
+securityDefinitions: {}
+
+# Default security
+security: []
+
+# Default Content-Types
+consumes:
+  - application/json
+
+produces:
+  - application/json
+
+# Resources
+tags:
+  - name: Buckets
+  - name: Groups
+  - name: Collections
+  - name: Records
+  - name: Batch
+  - name: Utilities
+  - name: Kinto  # Wrap Kinto resources for better code generation
+
+paths:
+
+  #
+  # Utilities
+  #
+
+  '/':
+    get:
+      tags:
+        - Utilities
+        - Kinto
+      operationId: server_info
+      security: []
+      description: Information about the running instance.
+      responses:
+        '200':
+          $ref: '#/responses/server-info'
+        default:
+          $ref: '#/responses/default'
+
+  '/__heartbeat__':
+    get:
+      description: Return the status of dependent services.
+      tags:
+        - Utilities
+        - Kinto
+      operationId: __heartbeat__
+      security: []
+      responses:
+        '200':
+          description: Object with subsystems status.
+          schema:
+            type: object
+            properties:
+              cache:
+                type: boolean
+              storage:
+                type: boolean
+              permission:
+                type: boolean
+            additionalProperties:
+              type: boolean
+
+        '503':
+          description: One or more systems are failing.
+          schema:
+            type: object
+            properties:
+              cache:
+                type: boolean
+              storage:
+                type: boolean
+              permission:
+                type: boolean
+            additionalProperties:
+              type: boolean
+        default:
+          $ref: '#/responses/default'
+
+  '/__lbheartbeat__':
+    get:
+      tags:
+        - Utilities
+        - Kinto
+      operationId: __lbheartbeat__
+      security: []
+      responses:
+        '200':
+          description: Returns empty object.
+          schema:
+            type: object
+        default:
+          $ref: '#/responses/default'
+
+  '/__version__':
+    get:
+      tags:
+        - Utilities
+        - Kinto
+      operationId: __version__
+      security: []
+      responses:
+        '200':
+          description: Returns object with distribution details.
+          schema:
+            type: object
+        '404':
+          description: version.json file not found.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          $ref: '#/responses/default'
+
+  '/contribute.json':
+    get:
+      tags:
+        - Utilities
+        - Kinto
+      operationId: __contribute__
+      security: []
+      responses:
+        '200':
+          description: Open source contribution information.
+          schema:
+            type: object
+        default:
+          $ref: '#/responses/default'
+  #
+  # Batch requests
+  #
+
+  '/batch':
+    post:
+      tags:
+        - Batch
+        - Kinto
+      operationId: batch
+      description: Send multiple operations in one request.
+      parameters:
+        - $ref: '#/parameters/batch'
+      responses:
+        '200':
+          $ref: '#/responses/batch-200'
+        '400':
+          $ref: '#/responses/batch-400'
+        default:
+          $ref: '#/responses/default'
+  #
+  # Data endpoints
+  #
+
+  '/buckets':
+    get:
+      tags:
+        - Buckets
+        - Kinto
+      operationId: get_buckets
+      description: List all acessible buckets.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_since'
+        - $ref: '#/parameters/_before'
+        - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/list-get-200'
+        '304':
+          $ref: '#/responses/list-get-304'
+        '400':
+          $ref: '#/responses/list-get-400'
+        '401':
+          $ref: '#/responses/list-get-401'
+        '403':
+          $ref: '#/responses/list-get-403'
+        '406':
+          $ref: '#/responses/list-get-406'
+        '412':
+          $ref: '#/responses/list-get-412'
+        default:
+          $ref: '#/responses/default'
+    post:
+      tags:
+        - Buckets
+        - Kinto
+      operationId: create_bucket
+      description: Create a bucket.
+      parameters:
+        - in: body
+          name: bucket
+          description: Bucket information.
+          required: false
+          schema:
+            $ref: '#/definitions/Bucket'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+      responses:
+        '200':
+          $ref: '#/responses/bucket-post-200'
+        '201':
+          $ref: '#/responses/bucket-post-201'
+        '400':
+          $ref: '#/responses/list-post-400'
+        '401':
+          $ref: '#/responses/list-post-401'
+        '403':
+          $ref: '#/responses/list-post-403'
+        '406':
+          $ref: '#/responses/list-post-406'
+        '412':
+          $ref: '#/responses/list-post-412'
+        '415':
+          $ref: '#/responses/list-post-415'
+        default:
+          $ref: '#/responses/default'
+    delete:
+      tags:
+        - Buckets
+        - Kinto
+      operationId: delete_buckets
+      description: Delete all writable buckets.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_since'
+        - $ref: '#/parameters/_before'
+        - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/list-delete-200'
+        '400':
+          $ref: '#/responses/list-delete-400'
+        '401':
+          $ref: '#/responses/list-delete-401'
+        '403':
+          $ref: '#/responses/list-delete-403'
+        '405':
+          $ref: '#/responses/list-delete-405'
+        '406':
+          $ref: '#/responses/list-delete-406'
+        '412':
+          $ref: '#/responses/list-delete-412'
+        default:
+          $ref: '#/responses/default'
+
+  '/buckets/{bucket_id}':
+    parameters:
+      - in: path
+        name: bucket_id
+        description: Bucket id.
+        required: true
+        type: string
+    get:
+      tags:
+        - Buckets
+        - Kinto
+      operationId: get_bucket
+      description: Retrieve an existing bucket.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/bucket-get-200'
+        '304':
+          $ref: '#/responses/object-get-304'
+        '400':
+          $ref: '#/responses/object-get-400'
+        '401':
+          $ref: '#/responses/object-get-401'
+        '403':
+          $ref: '#/responses/object-get-403'
+        '404':
+          $ref: '#/responses/object-get-404'
+        '406':
+          $ref: '#/responses/object-get-406'
+        '412':
+          $ref: '#/responses/object-get-412'
+        default:
+          $ref: '#/responses/default'
+    put:
+      tags:
+        - Buckets
+        - Kinto
+      operationId: update_bucket
+      description: Create or replace a bucket.
+      parameters:
+        - $ref: '#/parameters/bucket'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/bucket-put-200'
+        '201':
+          $ref: '#/responses/bucket-put-201'
+        '400':
+          $ref: '#/responses/object-put-400'
+        '401':
+          $ref: '#/responses/object-put-401'
+        '403':
+          $ref: '#/responses/object-put-403'
+        '406':
+          $ref: '#/responses/object-put-406'
+        '412':
+          $ref: '#/responses/object-put-412'
+        '415':
+          $ref: '#/responses/object-put-415'
+        default:
+          $ref: '#/responses/default'
+    patch:
+      tags:
+        - Buckets
+        - Kinto
+      operationId: patch_bucket
+      consumes:
+        - application/json
+        - application/merge-patch+json
+        - application/json-patch+json
+      description: Modify an existing bucket.
+      parameters:
+        - $ref: '#/parameters/bucket'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/bucket-patch-200'
+        '400':
+          $ref: '#/responses/object-patch-400'
+        '401':
+          $ref: '#/responses/object-patch-401'
+        '403':
+          $ref: '#/responses/object-patch-403'
+        '404':
+          $ref: '#/responses/object-patch-404'
+        '406':
+          $ref: '#/responses/object-patch-406'
+        '412':
+          $ref: '#/responses/object-patch-412'
+        '415':
+          $ref: '#/responses/object-patch-415'
+        default:
+          $ref: '#/responses/default'
+    delete:
+      tags:
+        - Buckets
+        - Kinto
+      operationId: delete_bucket
+      description: Delete a bucket.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/object-delete-200'
+        '400':
+          $ref: '#/responses/object-delete-400'
+        '401':
+          $ref: '#/responses/object-delete-401'
+        '403':
+          $ref: '#/responses/object-delete-403'
+        '404':
+          $ref: '#/responses/object-delete-404'
+        '406':
+          $ref: '#/responses/object-delete-406'
+        '412':
+          $ref: '#/responses/object-delete-412'
+        default:
+          $ref: '#/responses/default'
+
+  '/buckets/{bucket_id}/groups':
+    parameters:
+      - in: path
+        name: bucket_id
+        description: Bucket id.
+        required: true
+        type: string
+    get:
+      tags:
+        - Groups
+        - Kinto
+      operationId: get_groups
+      description: Retrieve the list of bucket’s group.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_since'
+        - $ref: '#/parameters/_before'
+        - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/list-get-200'
+        '304':
+          $ref: '#/responses/list-get-304'
+        '400':
+          $ref: '#/responses/list-get-400'
+        '401':
+          $ref: '#/responses/list-get-401'
+        '403':
+          $ref: '#/responses/list-get-403'
+        '406':
+          $ref: '#/responses/list-get-406'
+        '412':
+          $ref: '#/responses/list-get-412'
+        default:
+          $ref: '#/responses/default'
+    post:
+      tags:
+        - Groups
+        - Kinto
+      operationId: create_group
+      description: Create a group.
+      parameters:
+        - $ref: '#/parameters/group'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+      responses:
+        '200':
+          $ref: '#/responses/group-post-200'
+        '201':
+          $ref: '#/responses/group-post-201'
+        '400':
+          $ref: '#/responses/list-post-400'
+        '401':
+          $ref: '#/responses/list-post-401'
+        '403':
+          $ref: '#/responses/list-post-403'
+        '406':
+          $ref: '#/responses/list-post-406'
+        '412':
+          $ref: '#/responses/list-post-412'
+        '415':
+          $ref: '#/responses/list-post-415'
+        default:
+          $ref: '#/responses/default'
+    delete:
+      tags:
+        - Groups
+        - Kinto
+      operationId: delete_groups
+      description: Delete writable groups.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_since'
+        - $ref: '#/parameters/_before'
+        - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/list-delete-200'
+        '400':
+          $ref: '#/responses/list-delete-400'
+        '401':
+          $ref: '#/responses/list-delete-401'
+        '403':
+          $ref: '#/responses/list-delete-403'
+        '405':
+          $ref: '#/responses/list-delete-405'
+        '406':
+          $ref: '#/responses/list-delete-406'
+        '412':
+          $ref: '#/responses/list-delete-412'
+        default:
+          $ref: '#/responses/default'
+
+  '/buckets/{bucket_id}/groups/{group_id}':
+    parameters:
+      - in: path
+        name: bucket_id
+        description: Bucket id.
+        required: true
+        type: string
+      - in: path
+        name: group_id
+        description: Group id.
+        required: true
+        type: string
+    get:
+      tags:
+        - Groups
+        - Kinto
+      operationId: get_group
+      description: Retrieve a group.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/group-get-200'
+        '304':
+          $ref: '#/responses/object-get-304'
+        '400':
+          $ref: '#/responses/object-get-400'
+        '401':
+          $ref: '#/responses/object-get-401'
+        '403':
+          $ref: '#/responses/object-get-403'
+        '404':
+          $ref: '#/responses/object-get-404'
+        '406':
+          $ref: '#/responses/object-get-406'
+        '412':
+          $ref: '#/responses/object-get-412'
+        default:
+          $ref: '#/responses/default'
+    put:
+      tags:
+        - Groups
+        - Kinto
+      operationId: update_group
+      description: Update a group.
+      parameters:
+        - $ref: '#/parameters/group'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/group-put-200'
+        '201':
+          $ref: '#/responses/group-put-201'
+        '400':
+          $ref: '#/responses/object-put-400'
+        '401':
+          $ref: '#/responses/object-put-401'
+        '403':
+          $ref: '#/responses/object-put-403'
+        '406':
+          $ref: '#/responses/object-put-406'
+        '412':
+          $ref: '#/responses/object-put-412'
+        '415':
+          $ref: '#/responses/object-put-415'
+        default:
+          $ref: '#/responses/default'
+    patch:
+      tags:
+        - Groups
+        - Kinto
+      operationId: patch_group
+      description: Modify an existing group.
+      consumes:
+        - application/json
+        - application/merge-patch+json
+        - application/json-patch+json
+      parameters:
+        - $ref: '#/parameters/group'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/group-patch-200'
+        '400':
+          $ref: '#/responses/object-patch-400'
+        '401':
+          $ref: '#/responses/object-patch-401'
+        '403':
+          $ref: '#/responses/object-patch-403'
+        '404':
+          $ref: '#/responses/object-patch-404'
+        '406':
+          $ref: '#/responses/object-patch-406'
+        '412':
+          $ref: '#/responses/object-patch-412'
+        '415':
+          $ref: '#/responses/object-patch-415'
+        default:
+          $ref: '#/responses/default'
+    delete:
+      tags:
+        - Groups
+        - Kinto
+      operationId: delete_group
+      description: Delete a group.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/object-delete-200'
+        '400':
+          $ref: '#/responses/object-delete-400'
+        '401':
+          $ref: '#/responses/object-delete-401'
+        '403':
+          $ref: '#/responses/object-delete-403'
+        '404':
+          $ref: '#/responses/object-delete-404'
+        '406':
+          $ref: '#/responses/object-delete-406'
+        '412':
+          $ref: '#/responses/object-delete-412'
+        default:
+          $ref: '#/responses/default'
+
+  '/buckets/{bucket_id}/collections':
+    parameters:
+      - in: path
+        name: bucket_id
+        description: Bucket id.
+        required: true
+        type: string
+    get:
+      tags:
+        - Collections
+        - Kinto
+      operationId: get_collections
+      description: List bucket’s collections.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_since'
+        - $ref: '#/parameters/_before'
+        - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/list-get-200'
+        '304':
+          $ref: '#/responses/list-get-304'
+        '400':
+          $ref: '#/responses/list-get-400'
+        '401':
+          $ref: '#/responses/list-get-401'
+        '403':
+          $ref: '#/responses/list-get-403'
+        '406':
+          $ref: '#/responses/list-get-406'
+        '412':
+          $ref: '#/responses/list-get-412'
+        default:
+          $ref: '#/responses/default'
+    post:
+      tags:
+        - Collections
+        - Kinto
+      operationId: create_collection
+      description: Create a collection.
+      parameters:
+        - $ref: '#/parameters/collection'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+      responses:
+        '200':
+          $ref: '#/responses/collection-post-200'
+        '201':
+          $ref: '#/responses/collection-post-201'
+        '400':
+          $ref: '#/responses/list-post-400'
+        '401':
+          $ref: '#/responses/list-post-401'
+        '403':
+          $ref: '#/responses/list-post-403'
+        '406':
+          $ref: '#/responses/list-post-406'
+        '412':
+          $ref: '#/responses/list-post-412'
+        '415':
+          $ref: '#/responses/list-post-415'
+        default:
+          $ref: '#/responses/default'
+    delete:
+      tags:
+        - Collections
+        - Kinto
+      operationId: delete_collections
+      description: Delete writable collections.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_since'
+        - $ref: '#/parameters/_before'
+        - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/list-delete-200'
+        '400':
+          $ref: '#/responses/list-delete-400'
+        '401':
+          $ref: '#/responses/list-delete-401'
+        '403':
+          $ref: '#/responses/list-delete-403'
+        '405':
+          $ref: '#/responses/list-delete-405'
+        '406':
+          $ref: '#/responses/list-delete-406'
+        '412':
+          $ref: '#/responses/list-delete-412'
+        default:
+          $ref: '#/responses/default'
+
+  '/buckets/{bucket_id}/collections/{collection_id}':
+    parameters:
+      - in: path
+        name: bucket_id
+        description: Bucket id.
+        required: true
+        type: string
+      - in: path
+        name: collection_id
+        description: Colection id.
+        required: true
+        type: string
+    get:
+      tags:
+        - Collections
+        - Kinto
+      operationId: get_collection
+      description: Retreive an existing collection.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/collection-get-200'
+        '304':
+          $ref: '#/responses/object-get-304'
+        '400':
+          $ref: '#/responses/object-get-400'
+        '401':
+          $ref: '#/responses/object-get-401'
+        '403':
+          $ref: '#/responses/object-get-403'
+        '404':
+          $ref: '#/responses/object-get-404'
+        '406':
+          $ref: '#/responses/object-get-406'
+        '412':
+          $ref: '#/responses/object-get-412'
+        default:
+          $ref: '#/responses/default'
+    put:
+      tags:
+        - Collections
+        - Kinto
+      operationId: update_collection
+      description: Create or replace a collection.
+      parameters:
+        - $ref: '#/parameters/collection'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/collection-put-200'
+        '201':
+          $ref: '#/responses/collection-put-201'
+        '400':
+          $ref: '#/responses/object-put-400'
+        '401':
+          $ref: '#/responses/object-put-401'
+        '403':
+          $ref: '#/responses/object-put-403'
+        '406':
+          $ref: '#/responses/object-put-406'
+        '412':
+          $ref: '#/responses/object-put-412'
+        '415':
+          $ref: '#/responses/object-put-415'
+        default:
+          $ref: '#/responses/default'
+    patch:
+      tags:
+        - Collections
+        - Kinto
+      operationId: patch_collection
+      description: Modify an existing collection.
+      consumes:
+        - application/json
+        - application/merge-patch+json
+        - application/json-patch+json
+      parameters:
+        - $ref: '#/parameters/collection'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/collection-patch-200'
+        '400':
+          $ref: '#/responses/object-patch-400'
+        '401':
+          $ref: '#/responses/object-patch-401'
+        '403':
+          $ref: '#/responses/object-patch-403'
+        '404':
+          $ref: '#/responses/object-patch-404'
+        '406':
+          $ref: '#/responses/object-patch-406'
+        '412':
+          $ref: '#/responses/object-patch-412'
+        '415':
+          $ref: '#/responses/object-patch-415'
+        default:
+          $ref: '#/responses/default'
+    delete:
+      tags:
+        - Collections
+        - Kinto
+      operationId: delete_collection
+      description: Delete a collection.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/object-delete-200'
+        '400':
+          $ref: '#/responses/object-delete-400'
+        '401':
+          $ref: '#/responses/object-delete-401'
+        '403':
+          $ref: '#/responses/object-delete-403'
+        '404':
+          $ref: '#/responses/object-delete-404'
+        '406':
+          $ref: '#/responses/object-delete-406'
+        '412':
+          $ref: '#/responses/object-delete-412'
+        default:
+          $ref: '#/responses/default'
+
+  '/buckets/{bucket_id}/collections/{collection_id}/records':
+    parameters:
+      - in: path
+        name: bucket_id
+        description: Bucket id.
+        required: true
+        type: string
+      - in: path
+        name: collection_id
+        description: Collection id.
+        required: true
+        type: string
+    get:
+      tags:
+        - Records
+        - Kinto
+      operationId: get_records
+      description: Retrieve stored records.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_since'
+        - $ref: '#/parameters/_before'
+        - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/list-get-200'
+        '304':
+          $ref: '#/responses/list-get-304'
+        '400':
+          $ref: '#/responses/list-get-400'
+        '401':
+          $ref: '#/responses/list-get-401'
+        '403':
+          $ref: '#/responses/list-get-403'
+        '406':
+          $ref: '#/responses/list-get-406'
+        '412':
+          $ref: '#/responses/list-get-412'
+        default:
+          $ref: '#/responses/default'
+    post:
+      tags:
+        - Records
+        - Kinto
+      operationId: create_record
+      description: Upload a record.
+      parameters:
+        - $ref: '#/parameters/record'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+      responses:
+        '200':
+          $ref: '#/responses/record-post-200'
+        '201':
+          $ref: '#/responses/record-post-201'
+        '400':
+          $ref: '#/responses/list-post-400'
+        '401':
+          $ref: '#/responses/list-post-401'
+        '403':
+          $ref: '#/responses/list-post-403'
+        '406':
+          $ref: '#/responses/list-post-406'
+        '412':
+          $ref: '#/responses/list-post-412'
+        '415':
+          $ref: '#/responses/list-post-415'
+        default:
+          $ref: '#/responses/default'
+    delete:
+      tags:
+        - Records
+        - Kinto
+      operationId: delete_records
+      description: Delete stored records.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_since'
+        - $ref: '#/parameters/_before'
+        - $ref: '#/parameters/_sort'
+        - $ref: '#/parameters/_limit'
+        - $ref: '#/parameters/_token'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/list-delete-200'
+        '400':
+          $ref: '#/responses/list-delete-400'
+        '401':
+          $ref: '#/responses/list-delete-401'
+        '403':
+          $ref: '#/responses/list-delete-403'
+        '405':
+          $ref: '#/responses/list-delete-405'
+        '406':
+          $ref: '#/responses/list-delete-406'
+        '412':
+          $ref: '#/responses/list-delete-412'
+        default:
+          $ref: '#/responses/default'
+
+  '/buckets/{bucket_id}/collections/{collection_id}/records/{record_id}':
+    parameters:
+      - in: path
+        name: bucket_id
+        description: Bucket id.
+        required: true
+        type: string
+      - in: path
+        name: collection_id
+        description: Colection id.
+        required: true
+        type: string
+      - in: path
+        name: record_id
+        description: Record id.
+        required: true
+        type: string
+    get:
+      tags:
+        - Records
+        - Kinto
+      operationId: get_record
+      description: Retrieve a single record.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/record-get-200'
+        '304':
+          $ref: '#/responses/object-get-304'
+        '400':
+          $ref: '#/responses/object-get-400'
+        '401':
+          $ref: '#/responses/object-get-401'
+        '403':
+          $ref: '#/responses/object-get-403'
+        '404':
+          $ref: '#/responses/object-get-404'
+        '406':
+          $ref: '#/responses/object-get-406'
+        '412':
+          $ref: '#/responses/object-get-412'
+        default:
+          $ref: '#/responses/default'
+    put:
+      tags:
+        - Records
+        - Kinto
+      operationId: update_record
+      description: Create or replace a record.
+      parameters:
+        - $ref: '#/parameters/record'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/record-put-200'
+        '201':
+          $ref: '#/responses/record-put-201'
+        '400':
+          $ref: '#/responses/object-put-400'
+        '401':
+          $ref: '#/responses/object-put-401'
+        '403':
+          $ref: '#/responses/object-put-403'
+        '406':
+          $ref: '#/responses/object-put-406'
+        '412':
+          $ref: '#/responses/object-put-412'
+        '415':
+          $ref: '#/responses/object-put-415'
+        default:
+          $ref: '#/responses/default'
+    patch:
+      tags:
+        - Records
+        - Kinto
+      operationId: patch_record
+      description: Modify an existing record.
+      consumes:
+        - application/json
+        - application/merge-patch+json
+        - application/json-patch+json
+      parameters:
+        - $ref: '#/parameters/record'
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/record-patch-200'
+        '400':
+          $ref: '#/responses/object-patch-400'
+        '401':
+          $ref: '#/responses/object-patch-401'
+        '403':
+          $ref: '#/responses/object-patch-403'
+        '404':
+          $ref: '#/responses/object-patch-404'
+        '406':
+          $ref: '#/responses/object-patch-406'
+        '412':
+          $ref: '#/responses/object-patch-412'
+        '415':
+          $ref: '#/responses/object-patch-415'
+        default:
+          $ref: '#/responses/default'
+    delete:
+      tags:
+        - Records
+        - Kinto
+      operationId: delete_record
+      description: Delete a single record.
+      parameters:
+        - $ref: '#/parameters/If-Match'
+        - $ref: '#/parameters/If-None-Match'
+        - $ref: '#/parameters/_fields'
+      responses:
+        '200':
+          $ref: '#/responses/object-delete-200'
+        '400':
+          $ref: '#/responses/object-delete-400'
+        '401':
+          $ref: '#/responses/object-delete-401'
+        '403':
+          $ref: '#/responses/object-delete-403'
+        '404':
+          $ref: '#/responses/object-delete-404'
+        '406':
+          $ref: '#/responses/object-delete-406'
+        '412':
+          $ref: '#/responses/object-delete-412'
+        default:
+          $ref: '#/responses/default'
+
+
+definitions:
+
+  #
+  # Resource Objects
+  #
+
+  Bucket:
+    type: object
+    properties:
+      data:
+        type: object
+        properties:
+          id:
+            description: >-
+              Bucket object id. Should be unique.
+            type: string
+          last_modified:
+            description:  The timestamp of the last modification.
+            type: integer
+        additionalProperties: {}
+      permissions:
+        type: object
+        description: >-
+          The access control lists for the bucket. Inherited to all
+          groups and collections on the bucket. Will show as an empty object
+          if the user has no write permissions.
+        properties:
+          read:
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+          write:
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+          'group:create':
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+          'collection:create':
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+
+  Group:
+    type: object
+    properties:
+      data:
+        type: object
+        properties:
+          id:
+            description: >-
+              Group object id. Should be unique under a same bucket.
+            type: string
+          last_modified:
+            description:  The timestamp of the last modification.
+            type: integer
+          members:
+            description: List of user principals from the group.
+            type: array
+            uniqueItems: true
+            items:
+              type: string
+        additionalProperties: {}
+        required:
+          - members
+      permissions:
+        description: >-
+          The access control lists for the group. Will show as an empty object
+          if the user has no write permissions.
+        type: object
+        properties:
+          read:
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+          write:
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+
+  Collection:
+    type: object
+    properties:
+      data:
+        type: object
+        properties:
+          id:
+            description: >-
+              Collection object id. Should be unique under a same bucket.
+            type: string
+          last_modified:
+            description:  The timestamp of the last modification.
+            type: integer
+          schema:
+            description: >-
+              A JSON schema to validate the collection records.
+            type: object
+            additionalProperties: {}
+          cache_expires:
+            description: >-
+              Add a Cache-Control field to response headers specifying how long
+              clients (or proxies) should cache the collection records
+              (in seconds).
+            type: integer
+        additionalProperties: {}
+      permissions:
+        description: >-
+          The access control lists for the collection. Inherited to all records.
+          Will show as an empty object if the user has no write permissions.
+        type: object
+        properties:
+          read:
+            description: >-
+              List of user principals that can read the collection object and
+              all its records.
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+          write:
+            description: >-
+              List of user principals that can read read, update and delete the
+              collection object and all its records.
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+          'record:create':
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+
+  Record:
+    type: object
+    properties:
+      data:
+        type: object
+        properties:
+          id:
+            description: >-
+              Record object id. Should be unique under a same collection.
+            type: string
+          last_modified:
+            description: The timestamp of the last modification.
+            type: integer
+        additionalProperties: {}
+      permissions:
+        description: >-
+          The access control lists for the record. Will show as an empty object
+          if the user has no write permissions.
+        type: object
+        properties:
+          read:
+            description: >-
+              List of user principals that can read the record.
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+          write:
+            description: >-
+              List of user principals that can read, update and delete
+              the record.
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+
+  #
+  # Resource List
+  #
+
+  List:
+    type: object
+    properties:
+      data:
+        description: List of objects.
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              description:  The object id.
+              type: string
+            last_modified:
+              description:  The timestamp of the object last modification.
+              type: integer
+          additionalProperties: {}
+
+  #
+  # Auxiliary Object schemas
+  #
+
+  Error:
+    type: object
+    properties:
+      code:
+        description: The HTTP status code.
+        type: integer
+      errno:
+        description: Application-leval error number.
+        type: integer
+      error:
+        description: Description of the HTTP error type.
+        type: string
+      message:
+        description: Context information about the error.
+        type: string
+      info:
+        description: Link to an online resource with details.
+        type: string
+    additionalProperties: {}
+
+
+  Deleted:
+    type: object
+    properties:
+      id:
+        type: string
+      last_modified:
+        type: integer
+      deleted:
+        type: boolean
+
+
+
+parameters:
+
+  #
+  # Request Headers
+  #
+
+  If-Match:
+    in: header
+    name: If-Match
+    description: >-
+      Provide a timestamp to see if a resource has changed, avoid changes and
+      returns 412 if it does.
+    required: false
+    type: string
+    pattern: \"[0-9]+\"
+
+  If-None-Match:
+    in: header
+    name: If-None-Match
+    description: >-
+      Provide a timestamp to see if a resource has changed, avoid overwriting
+      objects with the same id if it does. Returns 304 with empty body if nothing
+      has changed.
+    required: false
+    type: string
+    pattern: \"[0-9]+\"
+
+  #
+  # Querystrings
+  #
+
+  _since:
+    in: query
+    name: _since
+    description: Get entries after a timestamp.
+    required: false
+    type: integer
+
+  _before:
+    in: query
+    name: _before
+    description: Get entries before a timestamp.
+    required: false
+    type: integer
+
+  _sort:
+    in: query
+    name: _sort
+    description: >-
+      Comma separeted list of fields to sort ascending on a list
+      (use -field to sort descending).
+    required: false
+    type: array
+    items:
+      type: string
+    collectionFormat: csv
+
+  _limit:
+    in: query
+    name: _limit
+    description: Limit objects on a list.
+    required: false
+    type: integer
+
+  _token:
+    in: query
+    name: _token
+    description: Continuation token of a limited list.
+    required: false
+    type: string
+
+  _fields:
+    in: query
+    name: _fields
+    description: >-
+      Fields to compose response (id and last_modified are always returned).
+    required: false
+    type: array
+    items:
+      type: string
+    collectionFormat: csv
+
+  #
+  # Body
+  #
+
+  bucket:
+    in: body
+    name: bucket
+    description: Bucket information.
+    required: false
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  group:
+    in: body
+    name: group
+    description: Group information.
+    required: true
+    schema:
+      $ref: '#/definitions/Group'
+
+  collection:
+    in: body
+    name: collection
+    description: Collection information.
+    required: false
+    schema:
+      $ref: '#/definitions/Collection'
+
+  record:
+    in: body
+    name: record
+    description: Record information.
+    required: false
+    schema:
+      $ref: '#/definitions/Record'
+
+  batch:
+    in: body
+    name: batch
+    description: Batch operation properties.
+    required: true
+    schema:
+      type: object
+      properties:
+        requests:
+          description: List of operations that should be performed.
+          type: array
+          items:
+            type: object
+            # FIXME: Batch validation strongly depends on OR validation clauses
+            properties:
+              method:
+                description: HTTP method of the request.
+                type: string
+                enum:
+                  - GET
+                  - POST
+                  - PUT
+                  - PATCH
+                  - DELETE
+              path:
+                description: URL path of the request.
+                type: string
+              body:
+                type: object
+                description: Request body.
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      last_modified:
+                        type: integer
+                    additionalProperties: {}
+                  permissions:
+                    type: object
+                    properties:
+                      read:
+                        type: array
+                        items:
+                          type: string
+                        uniqueItems: true
+                      write:
+                        type: array
+                        items:
+                          type: string
+                        uniqueItems: true
+                    additionalProperties: {}
+              headers:
+                type: object
+                additionalProperties:
+                  type: string
+        defaults:
+          type: object
+          properties:
+            method:
+              description: HTTP method to be used on all requests.
+              type: string
+              enum:
+                - GET
+                - POST
+                - PUT
+                - PATCH
+                - DELETE
+            path:
+              description: URL path to be used on all requests.
+              type: string
+            body:
+              type: object
+              description: Request body to be used on all requests.
+              properties:
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    last_modified:
+                      type: integer
+                  additionalProperties: {}
+                permissions:
+                  type: object
+                  properties:
+                    read:
+                      type: array
+                      items:
+                        type: string
+                      uniqueItems: true
+                    write:
+                      type: array
+                      items:
+                        type: string
+                      uniqueItems: true
+                  additionalProperties: {}
+            headers:
+              type: object
+              additionalProperties:
+                type: string
+
+
+responses:
+
+  #
+  # Default response (also used as a template for others)
+  #
+
+  default:
+    description: >-
+      The response doesn't match any of the documented cases.
+    headers:
+      # We may include all response headers here since we are failing anyway.
+      Backoff:
+        description: >-
+          Time (in seconds) that a client should avoid doing unnecessary
+          requests. Added when the server is in heavy load.
+        type: integer
+        default: 30
+      ETag:
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
+        default: '"123456789"'
+      Last-Modified:
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
+        default: "Mon, 12 Dec 2016 23:45:14 GMT"
+    schema:
+      type: object
+      additionalProperties: {}
+
+  #
+  # Utilities
+  #
+
+  server-info:
+    description: Object with server properties.
+    schema:
+      type: object
+      properties:
+        project_name:
+          type: string
+        url:
+          type: string
+        project_version:
+          type: string
+        http_api_version:
+          type: string
+        project_docs:
+          type: string
+        capabilities:
+          type: object
+          additionalProperties:
+            type: object
+        settings:
+          type: object
+          properties:
+            batch_max_requests:
+              type: integer
+            readonly:
+              type: boolean
+          additionalProperties: {}
+      additionalProperties: {}
+
+  #
+  # Batch
+  #
+
+  batch-200:
+    description: Operation responses.
+    schema:
+      type: object
+      properties:
+        responses:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: integer
+              path:
+                type: string
+              body:
+                type: object
+              headers:
+                type: object
+  batch-400:
+    description: The request body is invalid.
+    schema:
+      $ref: '#/definitions/Error'
+
+
+  #
+  # Bucket messages
+  #
+
+  bucket-post-200:
+    description: Return an existing bucket.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+     $ref: '#/definitions/Bucket'
+
+  bucket-post-201:
+    description: Return created bucket.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  bucket-get-200:
+    description: Return matched bucket.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  bucket-put-200:
+    description: Return replaced bucket.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  bucket-put-201:
+    description: Return created Bucket.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  bucket-patch-200:
+    description: Return updated bucket.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Bucket'
+
+  #
+  # Group messages
+  #
+
+  group-post-200:
+    description: Return an existing group.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Group'
+
+  group-post-201:
+    description: Return created group.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Group'
+
+  group-get-200:
+    description: Return matched group.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Group'
+
+  group-put-200:
+    description: Return replaced group.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Group'
+
+  group-put-201:
+    description: Return created group.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Group'
+
+  group-patch-200:
+    description: Return updated group.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Group'
+
+
+  #
+  # Collection messages
+  #
+
+  collection-post-200:
+    description: Return an existing collection.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Collection'
+
+  collection-post-201:
+    description: Return created collection.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Collection'
+
+  collection-get-200:
+    description: Return matched collection.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Collection'
+
+  collection-put-200:
+    description: Return replaced collection.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Collection'
+
+  collection-put-201:
+    description: Return created collection.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Collection'
+
+  collection-patch-200:
+    description: Return updated collection.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Collection'
+
+  #
+  # Record messages
+  #
+
+  record-post-200:
+    description: Return an existing record.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Record'
+
+  record-post-201:
+    description: Return created record.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Record'
+
+  record-get-200:
+    description: Return matched record.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Record'
+
+  record-put-200:
+    description: Return replaced record.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Record'
+
+  record-put-201:
+    description: Return created record.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Record'
+
+  record-patch-200:
+    description: Return updated record.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Record'
+
+  #
+  # Generic object messages
+  #
+
+  # GET
+
+  object-get-304:
+    description: Object did not change since value in ``If-None-Match`` header.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+  object-get-400:
+    description: The request headers are invalid.
+    schema:
+      $ref: '#/definitions/Error'
+  object-get-401:
+    description: The request is missing authentication headers.
+    schema:
+      $ref: '#/definitions/Error'
+  object-get-403:
+    description: >-
+      The user is not allowed to perform the operation, or the resource is not
+      accessible.
+    schema:
+      $ref: '#/definitions/Error'
+  object-get-404:
+    description: The object does not exist or was deleted.
+    schema:
+      $ref: '#/definitions/Error'
+  object-get-406:
+    description: The client doesn't accept supported responses Content-Type.
+    schema:
+      $ref: '#/definitions/Error'
+  object-get-412:
+    description: Object changed since value in ``If-Match`` header.
+    schema:
+      $ref: '#/definitions/Error'
+
+  # PUT
+
+  object-put-400:
+    description: The request body is invalid.
+    schema:
+      $ref: '#/definitions/Error'
+  object-put-401:
+    description: The request is missing authentication headers.
+    schema:
+      $ref: '#/definitions/Error'
+  object-put-403:
+    description: >-
+      The user is not allowed to perform the operation, or the resource is not
+      accessible.
+    schema:
+      $ref: '#/definitions/Error'
+  object-put-406:
+    description: The client doesn't accept supported responses Content-Type.
+    schema:
+      $ref: '#/definitions/Error'
+  object-put-412:
+    description: Object changed or deleted since value in ``If-Match`` header.
+    schema:
+      $ref: '#/definitions/Error'
+  object-put-415:
+    description: The client request was not sent with a correct Content-Type.
+    schema:
+      $ref: '#/definitions/Error'
+  object-patch-400:
+    description: The request body is invalid.
+    schema:
+      $ref: '#/definitions/Error'
+  object-patch-401:
+    description: The request is missing authentication headers.
+    schema:
+      $ref: '#/definitions/Error'
+  object-patch-403:
+    description: >-
+      The user is not allowed to perform the operation, or the resource is not
+      accessible.
+    schema:
+      $ref: '#/definitions/Error'
+  object-patch-404:
+    description: The object does not exist or was deleted.
+    schema:
+      $ref: '#/definitions/Error'
+  object-patch-406:
+    description: The client doesn't accept supported responses Content-Type.
+    schema:
+      $ref: '#/definitions/Error'
+  object-patch-412:
+    description: Object changed or deleted since value in ``If-Match`` header
+    schema:
+      $ref: '#/definitions/Error'
+  object-patch-415:
+    description: The client request was not sent with a correct Content-Type.
+    schema:
+      $ref: '#/definitions/Error'
+
+  # DELETE
+
+  object-delete-200:
+    description: Return the deleted object.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/Deleted'
+  object-delete-400:
+    description: The request headers are invalid.
+    schema:
+      $ref: '#/definitions/Error'
+  object-delete-401:
+    description: The request is missing authentication headers.
+    schema:
+      $ref: '#/definitions/Error'
+  object-delete-403:
+    description: >-
+      The user is not allowed to perform the operation, or the resource is not
+      accessible.
+    schema:
+      $ref: '#/definitions/Error'
+  object-delete-404:
+    description: The object does not exist or was already deleted.
+    schema:
+      $ref: '#/definitions/Error'
+  object-delete-406:
+    description: The client doesn't accept supported responses Content-Type.
+    schema:
+      $ref: '#/definitions/Error'
+  object-delete-412:
+    description: Object changed or deleted since value in ``If-Match`` header.
+    schema:
+      $ref: '#/definitions/Error'
+
+  #
+  # List messages
+  #
+
+  # GET
+
+  list-get-200:
+    description: Return the requested object list.
+    headers:
+      Total-Records:
+        type: integer
+        description: Number of objects on the list.
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/List'
+  list-get-304:
+    description: List has not changed since value in ``If-None-Match`` header.
+    headers:
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+  list-get-400:
+    description: The request headers or querystring are invalid.
+    schema:
+      $ref: '#/definitions/Error'
+  list-get-401:
+    description: The request is missing authentication headers.
+    schema:
+      $ref: '#/definitions/Error'
+  list-get-403:
+    description: >-
+      The user is not allowed to perform the operation, or the resource is not
+      accessible.
+    schema:
+      $ref: '#/definitions/Error'
+  list-get-406:
+    description: The client doesn't accept supported responses Content-Type.
+    schema:
+      $ref: '#/definitions/Error'
+  list-get-412:
+    description: List has changed since value in ``If-Match`` header.
+    schema:
+      $ref: '#/definitions/Error'
+
+  # POST
+
+  list-post-400:
+    description: The request body is invalid
+    schema:
+      $ref: '#/definitions/Error'
+  list-post-401:
+    description: The request is missing authentication headers.
+    schema:
+      $ref: '#/definitions/Error'
+  list-post-403:
+    description: >-
+      The user is not allowed to perform the operation, or the resource is not
+      accessible.
+    schema:
+      $ref: '#/definitions/Error'
+  list-post-406:
+    description: The client doesn't accept supported responses Content-Type.
+    schema:
+      $ref: '#/definitions/Error'
+  list-post-412:
+    description: List has changed since value in ``If-Match`` header.
+    schema:
+      $ref: '#/definitions/Error'
+  list-post-415:
+    description: The client request was not sent with a correct Content-Type.
+    schema:
+      $ref: '#/definitions/Error'
+
+  # DELETE
+
+  list-delete-200:
+    description: The objects were deleted.
+    headers:
+      Total-Records:
+        type: integer
+        description: Number of objects on the list.
+      ETag:
+        $ref: '#/responses/default/headers/ETag'
+      Last-Modified:
+        $ref: '#/responses/default/headers/Last-Modified'
+    schema:
+      $ref: '#/definitions/List'
+  list-delete-400:
+    description: The request body is invalid.
+    schema:
+      $ref: '#/definitions/Error'
+  list-delete-401:
+    description: The request is missing authentication headers.
+    schema:
+      $ref: '#/definitions/Error'
+  list-delete-403:
+    description: >-
+      The user is not allowed to perform the operation, or the resource is not
+      accessible.
+    schema:
+      $ref: '#/definitions/Error'
+  list-delete-405:
+    description: This endpoint is not available.
+    schema:
+      $ref: '#/definitions/Error'
+  list-delete-406:
+    description: The client doesn't accept supported responses Content-Type.
+    schema:
+      $ref: '#/definitions/Error'
+  list-delete-412:
+    description: List has changed since value in ``If-Match`` header.
+    schema:
+      $ref: '#/definitions/Error'

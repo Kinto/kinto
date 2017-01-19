@@ -14,6 +14,7 @@ Tutorials
    authentication-github
    custom-id-generator
    permissions
+   client-side-encryption
    write-plugin
    permission-setups
    app-examples

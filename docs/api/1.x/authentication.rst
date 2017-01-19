@@ -75,6 +75,9 @@ When using arbitrary tokens make sure that:
  - each user has a different one;
  - a user always uses the same token.
 
+You can check if Basic Auth is enabled on the server side by checking
+the ``basicauth`` capability.
+
 
 How to Authenticate with Basic Auth?
 ------------------------------------
@@ -107,6 +110,9 @@ How does Kinto know it is a valid Basic Auth token?
 For each token, Kinto will calculate a unique user ID which is
 related to your Kinto instance. It uses a bit of cryptography and the value of
 the ``user_hmac_secret`` setting.
+
+In other words, every string provided in the *Basic Auth* header will be valid,
+and will lead to a unique user ID.
 
 .. note::
 

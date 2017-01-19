@@ -2,16 +2,17 @@ import random
 import string
 
 from kinto.core.storage import generators, exceptions
-from pyramid import httpexceptions
+from pyramid.httpexceptions import HTTPNotFound
+from kinto.core.errors import http_error, ERRORS
 
 
 class NameGenerator(generators.Generator):
     def __call__(self):
-        ascii_letters = ('abcdefghijklmopqrstuvwxyz'
-                         'ABCDEFGHIJKLMOPQRSTUVWXYZ')
-        alphabet = ascii_letters + string.digits + '-_'
-        letters = [random.choice(ascii_letters + string.digits)]
-        letters += [random.choice(alphabet) for x in range(7)]
+        alpha_num = string.ascii_letters + string.digits
+        alphabet = alpha_num + '-_'
+        letters = [random.SystemRandom().choice(alpha_num)]
+        letters += [random.SystemRandom().choice(alphabet) for x in range(7)]
+
         return ''.join(letters)
 
 
@@ -29,4 +30,9 @@ def object_exists_or_404(request, collection_id, object_id, parent_id=''):
                            object_id=object_id)
     except exceptions.RecordNotFoundError:
         # XXX: We gave up putting details about parent id here (See #53).
-        raise httpexceptions.HTTPNotFound()
+        details = {
+            "id": object_id,
+            "resource_name": collection_id
+        }
+        response = http_error(HTTPNotFound(), errno=ERRORS.MISSING_RESOURCE, details=details)
+        raise response
