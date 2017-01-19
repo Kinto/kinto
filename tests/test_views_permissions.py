@@ -114,15 +114,31 @@ class GroupsPermissionTest(PermissionsViewTest):
                           MINIMALIST_COLLECTION,
                           headers=self.headers)
 
+        self.app.put_json('/buckets/sodas',
+                          MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/groups/admins',
+                          {'data': {'members': [self.admin_principal]}},
+                          headers=self.headers)
+        self.app.put_json('/buckets/sodas/collections/sprite',
+                          {'permissions': {'read': ['/buckets/beers/groups/admins']}},
+                          headers=self.headers)
+
     def test_permissions_granted_via_groups_are_listed(self):
         resp = self.app.get('/permissions', headers=self.admin_headers)
         buckets = [e for e in resp.json['data'] if e['resource_name'] == 'bucket']
         self.assertEqual(buckets[0]['id'], 'beers')
         self.assertIn('write', buckets[0]['permissions'])
 
+        collections = [e for e in resp.json['data'] if e['resource_name'] == 'collection']
+        self.assertEqual(collections[0]['id'], 'sprite')
+        self.assertEqual(collections[0]['bucket_id'], 'sodas')
+        self.assertIn('read', collections[0]['permissions'])
+
     def test_permissions_inherited_are_not_listed(self):
         resp = self.app.get('/permissions', headers=self.admin_headers)
-        collections = [e for e in resp.json['data'] if e['resource_name'] == 'collection']
+        collections = [e for e in resp.json['data']
+                       if e['bucket_id'] == 'beers' and e['resource_name'] == 'collection']
         self.assertEqual(len(collections), 0)
 
 

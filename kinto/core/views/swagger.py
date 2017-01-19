@@ -53,7 +53,7 @@ def swagger_view(request):
     for path in files:
         abs_path = os.path.abspath(path)
         with open(abs_path) as f:
-            spec = yaml.load(f)
+            spec = yaml.safe_load(f)
             recursive_update_dict(swagger_view.__json__, spec)
 
     # Update instance fields

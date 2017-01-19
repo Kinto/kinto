@@ -45,6 +45,7 @@ Contributors
 * Nicolas Perriault <nperriault@mozilla.com>
 * Niraj <https://github.com/niraj8>
 * Oron Gola <oron.golar@gmail.com>
+* PeriGK <per.gkolias@gmail.com>
 * Rektide <rektide@voodoowarez.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
 * Rodolphe Quiédeville <rodolphe@quiedeville.org>
