@@ -292,10 +292,10 @@ class MergePatchTest(BaseTest):
 
     def test_merge_patch_updates_attributes_recursively(self):
         self.validated['body'] = {'data': {'a': {'b': 'bbb',
-                                                     'c': 'ccc'}}}
+                                                 'c': 'ccc'}}}
         self.resource.patch()
         self.validated['body'] = {'data': {'a': {'b': 'aaa',
-                                                     'c': None}}}
+                                                 'c': None}}}
         result = self.resource.patch()['data']
         self.assertEqual(result['a']['b'], 'aaa')
 
