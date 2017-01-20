@@ -153,8 +153,17 @@ class URL(SchemaNode):
         return strip_whitespace(appstruct)
 
 
+class Any(colander.SchemaType):
+    """Colander type agnostic field."""
+
+    def deserialize(self, node, cstruct):
+        return cstruct
+
+
 class HeaderField(colander.SchemaNode):
     """Basic header field SchemaNode."""
+
+    missing = colander.drop
 
     def deserialize(self, cstruct=colander.null):
         if isinstance(cstruct, six.binary_type):
@@ -209,12 +218,13 @@ class HeaderQuotedInteger(HeaderField):
 class HeaderSchema(colander.MappingSchema):
     """Schema used for validating and deserializing request headers. """
 
-    if_match = HeaderQuotedInteger(name='If-Match', missing=colander.drop)
-    if_none_match = HeaderQuotedInteger(name='If-None-Match', missing=colander.drop)
-    response_behaviour = HeaderField(colander.String(),
-                                     name='Response-Behavior',
-                                     validator=colander.OneOf(['full', 'light', 'diff']),
-                                     missing=colander.drop)
+    def response_behavior_validator():
+        return colander.OneOf(['full', 'light', 'diff'])
+
+    if_match = HeaderQuotedInteger(name='If-Match')
+    if_none_match = HeaderQuotedInteger(name='If-None-Match')
+    response_behaviour = HeaderField(colander.String(), name='Response-Behavior',
+                                     validator=response_behavior_validator())
 
     @staticmethod
     def schema_type():
@@ -224,7 +234,7 @@ class HeaderSchema(colander.MappingSchema):
 class QuerySchema(colander.MappingSchema):
     """
     Schema used for validating and deserializing querystrings. It will include
-    and try to guess the type of unknown fields (filters) on deserialization.
+    and try to guess the type of unknown fields (field filters) on deserialization.
     """
 
     _limit = QueryField(colander.Integer())
@@ -241,13 +251,20 @@ class QuerySchema(colander.MappingSchema):
         return colander.Mapping(unknown='ignore')
 
     def deserialize(self, cstruct=colander.null):
+        """
+        Deserialize and validate the QuerySchema fields and try to deserialize and
+        get the native value of additional filds (field filters) that may be present
+        on the cstruct.
+
+        e.g:: ?exclude_id=a,b&deleted=true -> {'exclude_id': ['a', 'b'], deleted: True}
+        """
         values = {}
 
         schema_values = super(QuerySchema, self).deserialize(cstruct)
         if schema_values is colander.drop:
             return schema_values
 
-        # Deserialize filters
+        # Deserialize querystring field filters (see docstring e.g)
         for k, v in cstruct.items():
             # Deserialize lists used on in_ and exclude_ filters
             if k.startswith('in_') or k.startswith('exclude_'):
@@ -264,18 +281,25 @@ class QuerySchema(colander.MappingSchema):
 class JsonPatchOperationSchema(colander.MappingSchema):
     """Single JSON Patch Operation."""
 
-    op = colander.SchemaNode(colander.String(),
-                             validator=colander.OneOf(
-                                 ['test', 'add', 'remove', 'replace', 'move', 'copy']))
-    path = colander.SchemaNode(colander.String())
-    from_ = colander.SchemaNode(colander.String(), name='from', missing=colander.drop)
+    def op_validator():
+        op_values = ['test', 'add', 'remove', 'replace', 'move', 'copy']
+        return colander.OneOf(op_values)
+
+    def path_validator():
+        return colander.Regex('(/\w*)+')
+
+    op = colander.SchemaNode(colander.String(), validator=op_validator())
+    path = colander.SchemaNode(colander.String(), validator=path_validator())
+    from_ = colander.SchemaNode(colander.String(), name='from',
+                                validator=path_validator(), missing=colander.drop)
+    value = colander.SchemaNode(Any(), missing=colander.drop)
 
     @staticmethod
     def schema_type():
-        return colander.Mapping(unknown='preserve')
+        return colander.Mapping(unknown='raise')
 
 
-class JsonPatchBodySchema(colander.Sequence):
+class JsonPatchBodySchema(colander.SequenceSchema):
     """Body used with JSON Patch (application/json-patch+json) as in RFC 6902."""
 
     operations = JsonPatchOperationSchema(missing=colander.drop)
