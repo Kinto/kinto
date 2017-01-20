@@ -101,8 +101,9 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         self.assertIn('Recursive', resp.json['message'])
 
     def test_batch_validates_json(self):
-        body =  """{"requests": [{"path": "/v0/"},]}"""
-        resp = self.app.post('/batch', body, status=400, headers={'Content-Type': 'application/json'})
+        body = """{"requests": [{"path": "/v0/"},]}"""
+        resp = self.app.post('/batch', body, status=400,
+                             headers={'Content-Type': 'application/json'})
         self.assertIn('Invalid JSON', resp.json['message'])
 
     def test_responses_are_resolved_with_api_with_prefix(self):
