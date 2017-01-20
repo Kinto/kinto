@@ -5,6 +5,7 @@ from pyramid import testing
 
 from kinto.core import authorization, DEFAULT_SETTINGS
 from kinto.core.resource import ViewSet, ShareableViewSet, register_resource
+from kinto.core.resource.viewset import PartialSchema
 from kinto.core.testing import unittest
 
 
@@ -80,7 +81,7 @@ class ViewSetTest(unittest.TestCase):
         arguments = viewset.collection_arguments(resource, 'get')
         self.assertIn('schema', arguments)
 
-    @mock.patch('kinto.core.resource.viewset.colander')
+    @mock.patch('kinto.core.resource.viewset.RequestSchema')
     def test_a_default_schema_is_added_when_method_doesnt_match(self, mocked):
         viewset = ViewSet(
             validate_schema_for=('GET', )
@@ -89,12 +90,11 @@ class ViewSetTest(unittest.TestCase):
         mocked.Mapping.return_value = mock.sentinel.default_schema
 
         arguments = viewset.collection_arguments(resource, 'POST')
-        self.assertEquals(arguments['schema'].schema_type(), mock.sentinel.default_schema)
         self.assertNotEqual(arguments['schema'], resource.schema)
 
-        mocked.Mapping.assert_called_with(unknown='preserve')
+        mocked.assert_called_with()
 
-    @mock.patch('kinto.core.resource.viewset.SimpleSchema')
+    @mock.patch('kinto.core.resource.viewset.RequestSchema')
     def test_class_parameters_are_used_for_collection_arguments(self, mocked):
         default_arguments = {
             'cors_headers': mock.sentinel.cors_headers,
@@ -133,7 +133,7 @@ class ViewSetTest(unittest.TestCase):
             }
         )
 
-    @mock.patch('kinto.core.resource.viewset.SimpleSchema')
+    @mock.patch('kinto.core.resource.viewset.RequestSchema')
     def test_default_arguments_are_used_for_record_arguments(self, mocked):
         default_arguments = {
             'cors_headers': mock.sentinel.cors_headers,
@@ -172,7 +172,7 @@ class ViewSetTest(unittest.TestCase):
             }
         )
 
-    @mock.patch('kinto.core.resource.viewset.SimpleSchema')
+    @mock.patch('kinto.core.resource.viewset.RequestSchema')
     def test_class_parameters_overwrite_each_others(self, mocked):
         # Some class parameters should overwrite each others.
         # The more specifics should prevail over the more generics.
@@ -210,7 +210,7 @@ class ViewSetTest(unittest.TestCase):
             }
         )
 
-    @mock.patch('kinto.core.resource.viewset.SimpleSchema')
+    @mock.patch('kinto.core.resource.viewset.RequestSchema')
     def test_service_arguments_arent_inherited_by_record_arguments(self, mocked):
         service_arguments = {
             'description': 'The little book of calm',
@@ -353,6 +353,14 @@ class ViewSetTest(unittest.TestCase):
         is_enabled = viewset.is_endpoint_enabled('record', 'fake', 'head',
                                                  config)
         self.assertTrue(is_enabled)
+
+
+class TestPartialSchemaTest(unittest.TestCase):
+
+    def test_partial_schema_ignores_unknown(self):
+        schema = PartialSchema()
+        result = schema.deserialize({'foo': 'bar'})
+        self.assertEquals(result, {})
 
 
 class ShareableViewSetTest(unittest.TestCase):

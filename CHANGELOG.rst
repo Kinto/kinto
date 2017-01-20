@@ -15,6 +15,8 @@ This document describes changes between each past release.
 - Cache backend transactions are not bound to the request/response cycle anymore (fixes #879)
 - Quick mention of PostgreSQL commands to run tests locally in contributing docs.
 - Use YAML ``safe_load`` for the swagger file. (#1022)
+- Request headers and querystrings are now validated using cornice schemas (#873).
+- JSON Patch format is now validated using cornice (#880).
 - Upgraded to Kinto-Admin 1.8.0
 
 

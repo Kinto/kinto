@@ -18,7 +18,7 @@ class ModelTest(BaseTest):
 class CreateTest(BaseTest):
     def setUp(self):
         super(CreateTest, self).setUp()
-        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
+        self.resource.request.validated['body'] = {'data': {'field': 'new'}}
 
     def test_new_records_are_linked_to_owner(self):
         resp = self.resource.collection_post()['data']
@@ -51,9 +51,9 @@ class DeleteModelTest(BaseTest):
         self.assertIn('deleted', deleted)
 
     def test_delete_supports_collection_filters(self):
-        self.resource.request.GET = {'field': 'a'}
+        self.resource.request.validated['querystring'] = {'field': 'a'}
         self.resource.collection_delete()
-        self.resource.request.GET = {}
+        self.resource.request.validated['querystring'] = {}
         result = self.resource.collection_get()
         records = result['data']
         self.assertEqual(len(records), 1)

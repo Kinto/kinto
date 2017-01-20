@@ -2,9 +2,6 @@ import json
 import mock
 import time
 
-import six
-from pyramid import httpexceptions
-
 from kinto.core.utils import decode_header
 from kinto.core.testing import ThreadMixin
 
@@ -15,8 +12,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
     def setUp(self):
         super(SinceModifiedTest, self).setUp()
-
-        self.resource.request.validated = {'body': {'data': {}}}
+        self.validated['body'] = {'data': {}}
 
         with mock.patch.object(self.model.storage,
                                '_bump_timestamp') as msec_mocked:
@@ -25,22 +21,22 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
                 self.resource.collection_post()
 
     def test_filter_with_since_is_exclusive(self):
-        self.resource.request.GET = {'_since': '3'}
+        self.validated['querystring'] = {'_since': 3}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 2)
 
     def test_filter_with__to_is_exclusive(self):
-        self.resource.request.GET = {'_to': '3'}
+        self.validated['querystring'] = {'_to': 3}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 3)
 
     def test_filter_with__before_is_exclusive(self):
-        self.resource.request.GET = {'_before': '3'}
+        self.validated['querystring'] = {'_before': 3}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 3)
 
     def test_filter_with__to_return_an_alert_header(self):
-        self.resource.request.GET = {'_to': '3'}
+        self.validated['querystring'] = {'_to': 3}
         self.resource.collection_get()
         self.assertIn('Alert', self.resource.request.response.headers)
         alert = self.resource.request.response.headers['Alert']
@@ -59,6 +55,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         modification = result['last_modified']
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
+        self.resource.request.validated = self.validated
         self.resource.collection_get()
         header = int(self.last_response.headers['ETag'][1:-1])
         self.assertEqual(header, modification)
@@ -67,6 +64,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.resource.collection_post()['data']
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
+        self.resource.request.validated = self.validated
         result = self.resource.collection_delete()
         modification = max([record['last_modified'] for record in result['data']])
         header = int(self.last_response.headers['ETag'][1:-1])
@@ -79,32 +77,16 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.assertEqual(header, modification)
 
     def test_filter_with_since_accepts_numeric_value(self):
-        self.resource.request.GET = {'_since': '6'}
+        self.validated['querystring'] = {'_since': 6}
         self.resource.collection_post()
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 1)
-
-    def test_filter_with_since_accepts_quoted_numeric_value(self):
-        self.resource.collection_post()
-        self.resource.request.GET = {'_since': '"6"'}
-        result = self.resource.collection_get()
-        self.assertEqual(len(result['data']), 1)
-
-    def test_filter_with_since_rejects_non_numeric_value(self):
-        self.resource.request.GET = {'_since': 'abc'}
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)
-
-    def test_filter_with_since_rejects_decimal_value(self):
-        self.resource.request.GET = {'_since': '1.2'}
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)
 
     def test_filter_from_last_modified_is_exclusive(self):
         result = self.resource.collection_post()['data']
         current = result['last_modified']
 
-        self.resource.request.GET = {'_since': six.text_type(current)}
+        self.validated['querystring'] = {'_since': current}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 0)
 
@@ -116,7 +98,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.resource.record_id = result['id']
         self.resource.delete()
 
-        self.resource.request.GET = {'_since': six.text_type(current)}
+        self.validated['querystring'] = {'_since': current}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 1)
         self.assertTrue(result['data'][0]['deleted'])
@@ -125,13 +107,13 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.resource.collection_get()
         current = int(self.last_response.headers['ETag'][1:-1])
 
-        self.resource.request.GET = {'_since': six.text_type(current)}
+        self.validated['querystring'] = {'_since': current}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 0)
 
     def test_filter_works_with_empty_list(self):
         self.resource.model.parent_id = 'alice'
-        self.resource.request.GET = {'_since': '3'}
+        self.validated['querystring'] = {'_since': 3}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 0)
 
@@ -188,7 +170,8 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         # the other one running in a thread:
         resource = self.resource_class(request=self.get_request(),
                                        context=self.get_context())
-        resource.request.validated = {'body': {'data': {}}}
+        resource.request.validated = self.validated
+        resource.request.validated['body'] = {'data': {}}
         record = resource.collection_post()['data']
         timestamps['post'] = record['last_modified']
 
