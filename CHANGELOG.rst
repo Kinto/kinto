@@ -6,6 +6,10 @@ This document describes changes between each past release.
 5.3.0 (unreleased)
 ------------------
 
+**Bug fixes**
+
+- Fix crash with batch endpoint when list of requests contains trailing comma (fixes #1024)
+
 **Internal changes**
 
 - Cache backend transactions are not bound to the request/response cycle anymore (fixes #879)
