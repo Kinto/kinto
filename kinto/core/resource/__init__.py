@@ -504,12 +504,11 @@ class UserResource(object):
 
         # patch is specified as a list of of operations (RFC 6902)
         if self._is_json_patch:
-            requested_changes = self.request.json
+            requested_changes = self.request.validated['body']
         else:
-            try:
-                # `data` attribute may not be present if only perms are patched.
-                requested_changes = self.request.json.get('data', {})
-            except ValueError:
+            # `data` attribute may not be present if only perms are patched.
+            body = self.request.validated['body']
+            if not body:
                 # If no `data` nor `permissions` is provided in patch, reject!
                 # XXX: This should happen in schema instead (c.f. ShareableViewSet)
                 error_details = {
@@ -517,6 +516,7 @@ class UserResource(object):
                     'description': 'Provide at least one of data or permissions',
                 }
                 raise_invalid(self.request, **error_details)
+            requested_changes = body.get('data', {})
 
         updated, applied_changes = self.apply_changes(existing,
                                                       requested_changes=requested_changes)
@@ -1158,7 +1158,7 @@ class ShareableResource(UserResource):
 
         # patch is specified as a list of of operations (RFC 6902)
         if self._is_json_patch:
-            changes = self.request.json
+            changes = self.request.validated['body']
             permissions = apply_json_patch(old, changes)['permissions']
         else:
             permissions = self.request.validated['body'].get('permissions', {})
