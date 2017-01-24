@@ -3,7 +3,16 @@ Changelog
 
 This document describes changes between each past release.
 
-5.3.0 (unreleased)
+5.4.0 (unreleased)
+------------------
+
+**Internal changes**
+
+- Remove JSON Patch content-type from accepted types on the viewset, since it is handled
+  in a separate view (#1031).
+
+
+5.3.0 (2017-01-20)
 ------------------
 
 **Bug fixes**
@@ -18,8 +27,6 @@ This document describes changes between each past release.
 - Request headers and querystrings are now validated using cornice schemas (#873).
 - JSON Patch format is now validated using cornice (#880).
 - Upgraded to Kinto-Admin 1.8.0
-- Remove JSON Patch content-type from accepted types on the viewset, since it is handled
-  in a separate view (#1031).
 
 
 5.2.0 (2017-01-11)
