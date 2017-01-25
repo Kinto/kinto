@@ -9,7 +9,7 @@ from kinto.core import authorization
 from kinto.core.schema import PermissionsSchema
 from kinto.core.schema.request import (RequestSchema, RecordRequestSchema,
                                        CollectionRequestSchema)
-from kinto.core.schema.response import ResourceReponses, SharableResourseResponses
+from kinto.core.schema.response import ResourceReponses, ShareableResourseResponses
 
 
 CONTENT_TYPES = ["application/json"]
@@ -95,6 +95,8 @@ class ViewSet(object):
                          'Cache-Control', 'Expires', 'Pragma')
     }
 
+    responses = ResourceReponses()
+
     def __init__(self, **kwargs):
         self.update(**kwargs)
         self.record_arguments = functools.partial(self.get_view_arguments,
@@ -139,8 +141,8 @@ class ViewSet(object):
         args['schema'] = request_schema
 
         # Api documentation arguments
-        args['response_schemas'] = ResourceReponses.get(endpoint_type,
-                                                        method, record_schema)
+        args['response_schemas'] = self.responses.get(endpoint_type, method,
+                                                      record_schema)
 
         validators = args.get('validators', [])
         validators.append(colander_validator)
@@ -230,6 +232,9 @@ class ShareableViewSet(ViewSet):
     The views will rely on dynamic permissions (e.g. create with PUT if
     record does not exist), and solicit the cliquet RouteFactory.
     """
+
+    responses = ShareableResourseResponses()
+
     def get_record_schema(self, resource_cls, method):
         """Return the Cornice schema for the given method.
         """
@@ -269,11 +274,6 @@ class ShareableViewSet(ViewSet):
                                                                 method)
         args['permission'] = authorization.DYNAMIC
 
-        # Api documentation arguments
-        record_schema = self.get_record_schema(resource_cls, method)
-        args['response_schemas'] = SharableResourseResponses.get(endpoint_type,
-                                                                 method,
-                                                                 record_schema)
         return args
 
     def get_service_arguments(self):

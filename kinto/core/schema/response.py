@@ -93,7 +93,6 @@ class ResourceReponses(object):
             description="The object does not exist or was already deleted."),
     }
 
-    @classmethod
     def update_record_schema(self, responses, schema):
 
         schema = schema.clone()
@@ -112,7 +111,6 @@ class ResourceReponses(object):
                     schema.__delitem__('permissions')
                 response['body']['data'] = colander.SequenceSchema(schema['data'])
 
-    @classmethod
     def get(self, endpoint_type, method, schema=None):
 
         responses = self.default_schemas.copy()
@@ -133,13 +131,14 @@ class ResourceReponses(object):
         return responses
 
 
-class SharableResourseResponses(ResourceReponses):
+class ShareableResourseResponses(ResourceReponses):
 
-    default_schemas = ResourceReponses.default_schemas.copy()
-    default_schemas.update({
-        '401': ErrorResponseSchema(
-            description="The request is missing authentication headers."),
-        '403': ErrorResponseSchema(
-            description=("The user is not allowed to perform the operation, "
-                         "or the resource is not accessible.")),
-    })
+    def __init__(self):
+        super(ShareableResourseResponses, self).__init__()
+        self.default_schemas.update({
+            '401': ErrorResponseSchema(
+                description="The request is missing authentication headers."),
+            '403': ErrorResponseSchema(
+                description=("The user is not allowed to perform the operation, "
+                             "or the resource is not accessible.")),
+        })

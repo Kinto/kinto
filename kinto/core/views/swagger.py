@@ -64,7 +64,7 @@ def security_policies_generator(service, method, security_roles=[]):
         met, view, args = definition
         if met == method:
             break
-    print(args.keys())
+
     if args.get('permission') == '__no_permission_required__':
         return []
     else:
