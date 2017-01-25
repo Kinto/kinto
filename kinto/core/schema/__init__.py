@@ -253,5 +253,3 @@ class JsonPatchOperationSchema(colander.MappingSchema):
     @staticmethod
     def schema_type():
         return colander.Mapping(unknown='raise')
-
-

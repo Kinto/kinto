@@ -2,7 +2,7 @@ import colander
 
 from kinto.core.schema import (QueryField, HeaderField, FieldList,
                                HeaderQuotedInteger, JsonPatchOperationSchema)
-from kinto.core.utils import strip_whitespace, msec_time, decode_header, native_value
+from kinto.core.utils import native_value
 
 
 class HeaderSchema(colander.MappingSchema):

@@ -1,10 +1,8 @@
-import os
-import pkg_resources
-
 from pyramid.security import NO_PERMISSION_REQUIRED
 from cornice.service import get_services
 from cornice_swagger import CorniceSwagger
 from cornice_swagger.converters.schema import TypeConversionDispatcher, TypeConverter
+
 from kinto.core import Service
 from kinto.core.schema import Any
 
@@ -71,6 +69,6 @@ def swagger_view(request):
                      default_tags=tag_generator, default_op_ids=operation_id_generator,
                      swagger=base_spec)
 
-    swagger_view.__json__  = spec
+    swagger_view.__json__ = spec
 
     return swagger_view.__json__

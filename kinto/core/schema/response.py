@@ -1,6 +1,6 @@
 import colander
 
-from kinto.core.schema import (ErrorSchema, ResourceSchema, PermissionsSchema,
+from kinto.core.schema import (ErrorSchema, ResourceSchema,
                                HeaderQuotedInteger, TimeStamp)
 
 
