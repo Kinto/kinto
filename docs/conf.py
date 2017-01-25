@@ -65,16 +65,16 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Kinto'
-copyright = u'2015-2016 — Mozilla Services'
+copyright = u'2015-2017 — Mozilla Services'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = '5.2'
+version = '5.3'
 # The full version, including alpha/beta/rc tags.
-release = '5.2.0'
+release = '5.3.0'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

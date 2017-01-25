@@ -25,12 +25,14 @@ class BasePaginationTest(BaseTest):
             }
             self.model.create_record(record)
 
+        self.validated = self.resource.request.validated
+
     def _setup_next_page(self):
         next_page = self.last_response.headers['Next-Page']
         url_fragments = urlparse(next_page)
         queryparams = parse_qs(url_fragments.query)
-        self.resource.request.GET['_token'] = queryparams['_token'][0]
-        self.resource.request.GET['_limit'] = queryparams['_limit'][0]
+        self.validated['querystring']['_token'] = queryparams['_token'][0]
+        self.validated['querystring']['_limit'] = int(queryparams['_limit'][0])
         self.last_response.headers = {}
         return queryparams
 
@@ -41,7 +43,7 @@ class PaginationTest(BasePaginationTest):
         self.assertEqual(len(result['data']), 20)
 
     def test_handle_limit(self):
-        self.resource.request.GET = {'_limit': '10'}
+        self.validated['querystring'] = {'_limit': 10}
         result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 10)
 
@@ -54,31 +56,31 @@ class PaginationTest(BasePaginationTest):
     def test_forced_limit_has_precedence_over_provided_limit(self):
         with mock.patch.dict(self.resource.request.registry.settings, [
                 ('paginate_by', 5)]):
-            self.resource.request.GET = {'_limit': '10'}
+            self.validated['querystring'] = {'_limit': 10}
             result = self.resource.collection_get()
             self.assertEqual(len(result['data']), 5)
 
     def test_return_total_records_in_headers(self):
-        self.resource.request.GET = {'_limit': '5'}
+        self.validated['querystring'] = {'_limit': 5}
         self.resource.collection_get()
         headers = self.last_response.headers
         count = headers['Total-Records']
         self.assertEquals(int(count), 20)
 
     def test_return_next_page_url_is_given_in_headers(self):
-        self.resource.request.GET = {'_limit': '10'}
+        self.validated['querystring'] = {'_limit': 10}
         self.resource.collection_get()
         self.assertIn('Next-Page', self.last_response.headers)
 
     def test_next_page_url_has_got_querystring(self):
-        self.resource.request.GET = {'_limit': '10'}
+        self.validated['querystring'] = {'_limit': 10}
         self.resource.collection_get()
         queryparams = self._setup_next_page()
         self.assertIn('_limit', queryparams)
         self.assertIn('_token', queryparams)
 
     def test_next_page_url_gives_distinct_records(self):
-        self.resource.request.GET = {'_limit': '10'}
+        self.validated['querystring'] = {'_limit': 10}
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
@@ -98,7 +100,7 @@ class PaginationTest(BasePaginationTest):
             self.assertFalse(results_id1.intersection(results_id2))
 
     def test_twice_the_same_next_page(self):
-        self.resource.request.GET = {'_limit': '10'}
+        self.validated['querystring'] = {'_limit': 10}
         self.resource.collection_get()
         first_next = self.last_response.headers['Next-Page']
         self.resource.collection_get()
@@ -110,23 +112,23 @@ class PaginationTest(BasePaginationTest):
         self.assertNotIn('Next-Page', self.last_response.headers)
 
     def test_stops_giving_next_page_at_the_end_sets(self):
-        self.resource.request.GET = {'_limit': '11'}
+        self.validated['querystring'] = {'_limit': 11}
         self.resource.collection_get()
         self._setup_next_page()
         self.resource.collection_get()
         self.assertNotIn('Next-Page', self.last_response.headers)
 
     def test_stops_giving_next_page_at_the_end_sets_on_exact_limit(self):
-        self.resource.request.GET = {'_limit': '10'}
+        self.validated['querystring'] = {'_limit': 10}
         self.resource.collection_get()
         self._setup_next_page()
         self.resource.collection_get()
         self.assertNotIn('Next-Page', self.last_response.headers)
 
     def test_handle_simple_sorting(self):
-        self.resource.request.GET = {'_sort': '-status', '_limit': '20'}
+        self.validated['querystring'] = {'_sort': ['-status'], '_limit': 20}
         expected_results = self.resource.collection_get()
-        self.resource.request.GET['_limit'] = '10'
+        self.validated['querystring']['_limit'] = 10
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
@@ -134,9 +136,9 @@ class PaginationTest(BasePaginationTest):
                          results1['data'] + results2['data'])
 
     def test_handle_multiple_sorting(self):
-        self.resource.request.GET = {'_sort': '-status,title', '_limit': '20'}
+        self.validated['querystring'] = {'_sort': ['-status', 'title'], '_limit': 20}
         expected_results = self.resource.collection_get()
-        self.resource.request.GET['_limit'] = '10'
+        self.validated['querystring']['_limit'] = 10
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
@@ -144,10 +146,10 @@ class PaginationTest(BasePaginationTest):
                          results1['data'] + results2['data'])
 
     def test_handle_filtering_sorting(self):
-        self.resource.request.GET = {'_sort': '-status,title', 'status': '2',
-                                     '_limit': '20'}
+        self.validated['querystring'] = {'_sort': ['-status', 'title'], 'status': 2,
+                                         '_limit': 20}
         expected_results = self.resource.collection_get()
-        self.resource.request.GET['_limit'] = '3'
+        self.validated['querystring']['_limit'] = 3
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
@@ -155,9 +157,9 @@ class PaginationTest(BasePaginationTest):
                          results1['data'] + results2['data'])
 
     def test_handle_sorting_desc(self):
-        self.resource.request.GET = {'_sort': 'status,-title', '_limit': '20'}
+        self.validated['querystring'] = {'_sort': ['status', '-title'], '_limit': 20}
         expected_results = self.resource.collection_get()
-        self.resource.request.GET['_limit'] = '10'
+        self.validated['querystring']['_limit'] = 10
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
@@ -165,48 +167,44 @@ class PaginationTest(BasePaginationTest):
                          results1['data'] + results2['data'])
 
     def test_handle_since(self):
-        self.resource.request.GET = {'_since': '123', '_limit': '20'}
+        self.validated['querystring'] = {'_since': 123, '_limit': 20}
         expected_results = self.resource.collection_get()
-        self.resource.request.GET['_limit'] = '10'
+        self.validated['querystring']['_limit'] = 10
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()
         self.assertEqual(expected_results['data'],
                          results1['data'] + results2['data'])
 
-    def test_wrong_limit_raise_400(self):
-        self.resource.request.GET = {'_since': '123', '_limit': 'toto'}
-        self.assertRaises(HTTPBadRequest, self.resource.collection_get)
-
     def test_token_wrong_base64(self):
-        self.resource.request.GET = {'_since': '123', '_limit': '20',
-                                     '_token': '123'}
+        self.validated['querystring'] = {
+            '_since': 123, '_limit': 20, '_token': '123'}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 
     def test_token_wrong_json(self):
-        self.resource.request.GET = {
-            '_since': '123', '_limit': '20',
+        self.validated['querystring'] = {
+            '_since': 123, '_limit': 20,
             '_token': b64encode('{"toto":'.encode('ascii')).decode('ascii')}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 
     def test_token_wrong_json_fields(self):
         badtoken = '{"toto": {"tutu": 1}}'
-        self.resource.request.GET = {
-            '_since': '123', '_limit': '20',
+        self.validated['querystring'] = {
+            '_since': 123, '_limit': 20,
             '_token': b64encode(badtoken.encode('ascii')).decode('ascii')}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 
     def test_raises_bad_request_if_token_has_bad_data_structure(self):
         invalid_token = json.dumps([[('last_modified', 0, '>')]])
-        self.resource.request.GET = {
-            '_since': '123', '_limit': '20',
+        self.validated['querystring'] = {
+            '_since': 123, '_limit': 20,
             '_token': b64encode(invalid_token.encode('ascii')).decode('ascii')}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 
 
 class PaginatedDeleteTest(BasePaginationTest):
     def test_handle_limit_on_delete(self):
-        self.resource.request.GET = {'_limit': '3'}
+        self.validated['querystring'] = {'_limit': 3}
         result = self.resource.collection_delete()
         self.assertEqual(len(result['data']), 3)
 
@@ -214,7 +212,7 @@ class PaginatedDeleteTest(BasePaginationTest):
         all_records = self.resource.collection_get()
         expected_ids = [r['id'] for r in all_records['data']]
         # Page 1
-        self.resource.request.GET['_limit'] = '10'
+        self.validated['querystring']['_limit'] = 10
         results1 = self.resource.collection_delete()
         results1_ids = [r['id'] for r in results1['data']]
         self._setup_next_page()
@@ -224,7 +222,7 @@ class PaginatedDeleteTest(BasePaginationTest):
         self.assertEqual(expected_ids, results1_ids + results2_ids)
 
     def test_return_total_records_in_headers_matching_deletable(self):
-        self.resource.request.GET = {'_limit': '5'}
+        self.validated['querystring'] = {'_limit': 5}
         self.resource.collection_delete()
         headers = self.last_response.headers
         count = headers['Total-Records']

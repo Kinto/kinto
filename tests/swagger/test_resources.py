@@ -32,7 +32,9 @@ class SwaggerResourcesTest(SwaggerTest):
             self.request.path = {
                 'bucket_id': 'b1',
             }
-            self.request.json = lambda: MINIMALIST_BUCKET
+            bucket = MINIMALIST_BUCKET.copy()
+            bucket['data'] = {'foo': 'bar'}
+            self.request.json = lambda: bucket
             self.validate_request_call(op)
 
     def test_resource_groups(self):
@@ -58,7 +60,9 @@ class SwaggerResourcesTest(SwaggerTest):
                 'bucket_id': 'b1',
                 'collection_id': 'c1',
             }
-            self.request.json = lambda: MINIMALIST_COLLECTION
+            collection = MINIMALIST_COLLECTION.copy()
+            collection['data'] = {'foo': 'bar'}
+            self.request.json = lambda: collection
             self.validate_request_call(op)
 
     def test_resource_records(self):

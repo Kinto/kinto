@@ -44,7 +44,7 @@ class ObtainRecordPermissionTest(PermissionTest):
         self.permission.add_principal_to_ace(record_uri, 'read', 'account:readonly')
         self.permission.add_principal_to_ace(record_uri, 'write', 'basicauth:bob')
         self.resource.record_id = record_id
-        self.resource.request.validated = {'body': {'data': {}}}
+        self.resource.request.validated['body'] = {'data': {}}
         self.resource.request.path = record_uri
 
     def test_permissions_are_provided_in_record_get(self):
@@ -86,7 +86,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
                                              'read',
                                              'account:readonly')
         self.resource.record_id = record_id
-        self.resource.request.validated = {'body': {'data': {}}}
+        self.resource.request.validated['body'] = {'data': {}}
         self.resource.request.path = self.record_uri
 
     def test_write_permission_is_given_to_creator_on_post(self):
@@ -106,7 +106,8 @@ class SpecifyRecordPermissionTest(PermissionTest):
         request = self.get_request()
         # Simulate an anonymous PUT
         request.method = 'PUT'
-        request.validated = {'body': {'data': self.record}}
+        request.validated = self.resource.request.validated.copy()
+        request.validated['body'] = {'data': self.record}
         request.prefixed_userid = None
         request.matchdict = {'id': self.record['id']}
         resource = self.resource_class(request=request,
@@ -118,7 +119,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
         perms = {'write': ['jean-louis']}
         self.resource.request.method = 'POST'
         self.resource.context.object_uri = '/articles'
-        self.resource.request.validated = {'body': {'data': {}, 'permissions': perms}}
+        self.resource.request.validated['body'] = {'data': {}, 'permissions': perms}
         result = self.resource.collection_post()
         self.assertEqual(sorted(result['permissions']['write']),
                          ['basicauth:bob', 'jean-louis'])
@@ -134,7 +135,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
 
     def test_permissions_are_modified_with_patch(self):
         perms = {'write': ['jean-louis']}
-        self.resource.request.validated = {'body': {'permissions': perms}}
+        self.resource.request.validated['body'] = {'permissions': perms}
         self.resource.request.method = 'PATCH'
         result = self.resource.patch()
         permissions = result['permissions']
@@ -148,7 +149,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
                                              'jean-louis')
 
         perms = {'write': []}
-        self.resource.request.validated = {'body': {'permissions': perms}}
+        self.resource.request.validated['body'] = {'permissions': perms}
         self.resource.request.method = 'PATCH'
         result = self.resource.patch()
         permissions = result['permissions']
@@ -161,7 +162,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
                                              'jean-louis')
 
         perms = {'read': []}
-        self.resource.request.validated = {'body': {'permissions': perms}}
+        self.resource.request.validated['body'] = {'permissions': perms}
         self.resource.request.method = 'PATCH'
         result = self.resource.patch()
         self.assertNotIn('read', result['permissions'])
@@ -169,7 +170,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
                          ['basicauth:bob', 'jean-louis'])
 
     def test_412_errors_do_not_put_permission_in_record(self):
-        self.resource.request.headers['If-Match'] = '"1234567"'  # invalid
+        self.resource.request.validated['header'] = {'If-Match': 1234567}  # invalid
         try:
             self.resource.put()
         except httpexceptions.HTTPPreconditionFailed as e:
@@ -227,7 +228,7 @@ class GuestCollectionListTest(PermissionTest):
         self.assertEqual(len(result['data']), 2)
 
     def test_guest_collection_can_be_filtered(self):
-        self.resource.request.GET = {'letter': 'a'}
+        self.resource.request.validated['querystring'] = {'letter': 'a'}
         with mock.patch.object(self.resource, 'is_known_field'):
             result = self.resource.collection_get()
         self.assertEqual(len(result['data']), 1)
@@ -280,7 +281,7 @@ class GuestCollectionDeleteTest(PermissionTest):
         self.assertEqual(len(result['data']), 2)
 
     def test_guest_collection_can_be_filtered(self):
-        self.resource.request.GET = {'letter': 'b'}
+        self.resource.request.validated['querystring'] = {'letter': 'b'}
         with mock.patch.object(self.resource, 'is_known_field'):
             result = self.resource.collection_delete()
         self.assertEqual(len(result['data']), 1)

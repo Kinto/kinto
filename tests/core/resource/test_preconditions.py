@@ -12,12 +12,14 @@ class NotModifiedTest(BaseTest):
 
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
+        self.resource.request.validated = self.validated.copy()
         self.resource.collection_get()
-        current = self.last_response.headers['ETag']
-        self.resource.request.headers['If-None-Match'] = current
+        self.validated = self.resource.request.validated
+        current = self.last_response.headers['ETag'][1:-1]
+        self.validated['header']['If-None-Match'] = int(current)
 
     def test_collection_returns_200_if_change_meanwhile(self):
-        self.resource.request.headers['If-None-Match'] = '"42"'
+        self.validated['header']['If-None-Match'] = 42
         self.resource.collection_get()  # Not raising.
 
     def test_collection_returns_304_if_no_change_meanwhile(self):
@@ -48,37 +50,16 @@ class NotModifiedTest(BaseTest):
             error = e
         self.assertNotIn('1970', error.headers['Last-Modified'])
 
-    def test_if_none_match_empty_raises_invalid(self):
-        self.resource.request.headers['If-None-Match'] = '""'
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)
-
-    def test_if_none_match_bad_unicode_raises_invalid(self):
-        self.resource.request.headers['If-None-Match'] = b'utf8 \xe9'
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)
-
-    def test_if_none_match_without_quotes_raises_invalid(self):
-        self.resource.request.headers['If-None-Match'] = '1234'
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)
-
-    def test_if_none_match_not_integer_raises_invalid(self):
-        self.resource.request.headers['If-None-Match'] = '"ab"'
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)
-
 
 class ModifiedMeanwhileTest(BaseTest):
     def setUp(self):
         super(ModifiedMeanwhileTest, self).setUp()
         self.stored = self.model.create_record({})
-
         self.resource.collection_get()
+        self.validated = self.resource.request.validated
         current = self.last_response.headers['ETag'][1:-1]
         previous = int(current) - 10
-        if_match = ('"%s"' % previous)
-        self.resource.request.headers['If-Match'] = if_match
+        self.validated['header']['If-Match'] = previous
 
     def test_preconditions_errors_are_json_formatted(self):
         try:
@@ -135,7 +116,7 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertIsNotNone(error.headers.get('Last-Modified'))
 
     def test_create_returns_412_if_changed_meanwhile(self):
-        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
+        self.validated['body'] = {'data': {'field': 'new'}}
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.collection_post)
 
@@ -146,8 +127,8 @@ class ModifiedMeanwhileTest(BaseTest):
                           self.resource.put)
 
     def test_put_returns_412_if_changed_and_none_match_present(self):
-        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
-        self.resource.request.headers['If-None-Match'] = '"42"'
+        self.validated['body'] = {'data': {'field': 'new'}}
+        self.validated['header']['If-None-Match'] = 42
         self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
@@ -167,52 +148,52 @@ class ModifiedMeanwhileTest(BaseTest):
                           self.resource.put)
 
     def test_put_if_none_match_star_fails_if_record_exists(self):
-        self.resource.request.headers.pop('If-Match')
-        self.resource.request.headers['If-None-Match'] = '*'
+        self.validated['header'].pop('If-Match')
+        self.validated['header']['If-None-Match'] = '*'
         self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
     def test_get_if_none_match_star_fails_if_record_exists(self):
-        self.resource.request.headers.pop('If-Match')
-        self.resource.request.headers['If-None-Match'] = '*'
+        self.validated['header'].pop('If-Match')
+        self.validated['header']['If-None-Match'] = '*'
         self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.get)
 
     def test_put_if_none_match_star_succeeds_if_record_does_not_exist(self):
-        self.resource.request.headers.pop('If-Match')
-        self.resource.request.headers['If-None-Match'] = '*'
-        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
+        self.validated['header'].pop('If-Match')
+        self.validated['header']['If-None-Match'] = '*'
+        self.validated['body'] = {'data': {'field': 'new'}}
         self.resource.record_id = self.resource.model.id_generator()
         self.resource.put()  # not raising.
 
     def test_put_if_none_match_star_succeeds_if_tombstone_exists(self):
         self.model.delete_record(self.stored)
-        self.resource.request.headers.pop('If-Match')
-        self.resource.request.headers['If-None-Match'] = '*'
-        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
+        self.validated['header'].pop('If-Match')
+        self.validated['header']['If-None-Match'] = '*'
+        self.validated['body'] = {'data': {'field': 'new'}}
         self.resource.record_id = self.stored['id']
         self.resource.put()  # not raising.
 
     def test_post_if_none_match_star_fails_if_record_exists(self):
-        self.resource.request.headers.pop('If-Match')
-        self.resource.request.headers['If-None-Match'] = '*'
+        self.validated['header'].pop('If-Match')
+        self.validated['header']['If-None-Match'] = '*'
         self.resource.request.json = {
             'data': {
                 'id': self.stored['id'],
                 'field': 'new'}}
-        self.resource.request.validated = {'body': self.resource.request.json}
+        self.validated['body'] = self.resource.request.json
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.collection_post)
 
     def test_post_if_none_match_star_succeeds_if_record_does_not_exist(self):
-        self.resource.request.headers.pop('If-Match')
-        self.resource.request.headers['If-None-Match'] = '*'
-        self.resource.request.validated = {'body': {
+        self.validated['header'].pop('If-Match')
+        self.validated['header']['If-None-Match'] = '*'
+        self.validated['body'] = {
             'data': {
                 'id': self.resource.model.id_generator(),
-                'field': 'new'}}}
+                'field': 'new'}}
         self.resource.collection_post()  # not raising.
 
     def test_patch_returns_412_if_changed_meanwhile(self):
@@ -237,26 +218,3 @@ class ModifiedMeanwhileTest(BaseTest):
     def test_delete_all_returns_412_if_changed_meanwhile(self):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.collection_delete)
-
-    def test_if_match_without_quotes_raises_invalid(self):
-        with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
-            self.resource.request.headers['If-Match'] = '123456'
-            self.resource.collection_get()
-        expected_message = ('header: Invalid value for If-Match. The value '
-                            'should be integer between double quotes.')
-        self.assertEquals(cm.exception.json['message'], expected_message)
-
-    def test_if_match_empty_raises_invalid(self):
-        self.resource.request.headers['If-Match'] = '""'
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)
-
-    def test_if_match_not_integer_raises_invalid(self):
-        self.resource.request.headers['If-Match'] = '"abc"'
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)
-
-    def test_if_match_bad_unicode_raises_invalid(self):
-        self.resource.request.headers['If-Match'] = b'utf8 \xe9'
-        self.assertRaises(httpexceptions.HTTPBadRequest,
-                          self.resource.collection_get)

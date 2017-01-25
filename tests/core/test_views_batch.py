@@ -100,6 +100,12 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/batch', body, status=400)
         self.assertIn('Recursive', resp.json['message'])
 
+    def test_batch_validates_json(self):
+        body = """{"requests": [{"path": "/v0/"},]}"""
+        resp = self.app.post('/batch', body, status=400,
+                             headers={'Content-Type': 'application/json'})
+        self.assertIn('Invalid JSON', resp.json['message'])
+
     def test_responses_are_resolved_with_api_with_prefix(self):
         request = {'path': '/'}
         body = {'requests': [request]}
@@ -145,8 +151,8 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/batch', body, status=200)
         self.assertEqual(resp.json['responses'][1]['status'], 400)
         self.assertEqual(resp.json['responses'][1]['body']['message'],
-                         ('header: Invalid value for If-Match. The value '
-                          'should be integer between double quotes.'))
+                         ('If-Match in header: The value should be integer between '
+                          'double quotes; String does not match expected pattern'))
 
     def test_412_errors_are_forwarded(self):
         headers = self.headers.copy()
