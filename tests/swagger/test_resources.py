@@ -24,13 +24,13 @@ class SwaggerResourcesTest(SwaggerTest):
             self.validate_request_call(op)
 
     def test_resource_buckets(self):
-        resource = self.resources['Buckets']
+        resource = self.resources['Bucket']
 
         for op in resource.operations.values():
             self.app.put_json('/buckets/b1',
                               MINIMALIST_BUCKET, headers=self.headers)
             self.request.path = {
-                'bucket_id': 'b1',
+                'id': 'b1',
             }
             bucket = MINIMALIST_BUCKET.copy()
             bucket['data'] = {'foo': 'bar'}
@@ -38,27 +38,27 @@ class SwaggerResourcesTest(SwaggerTest):
             self.validate_request_call(op)
 
     def test_resource_groups(self):
-        resource = self.resources['Groups']
+        resource = self.resources['Group']
 
         for op in resource.operations.values():
             self.app.put_json('/buckets/b1/groups/g1',
                               MINIMALIST_GROUP, headers=self.headers)
             self.request.path = {
                 'bucket_id': 'b1',
-                'group_id': 'g1',
+                'id': 'g1',
             }
             self.request.json = lambda: MINIMALIST_GROUP
             self.validate_request_call(op)
 
     def test_resource_collections(self):
-        resource = self.resources['Collections']
+        resource = self.resources['Collection']
 
         for op in resource.operations.values():
             self.app.put_json('/buckets/b1/collections/c1',
                               MINIMALIST_COLLECTION, headers=self.headers)
             self.request.path = {
                 'bucket_id': 'b1',
-                'collection_id': 'c1',
+                'id': 'c1',
             }
             collection = MINIMALIST_COLLECTION.copy()
             collection['data'] = {'foo': 'bar'}
@@ -66,7 +66,7 @@ class SwaggerResourcesTest(SwaggerTest):
             self.validate_request_call(op)
 
     def test_resource_records(self):
-        resource = self.resources['Records']
+        resource = self.resources['Record']
 
         for op in resource.operations.values():
             self.app.put_json('/buckets/b1/collections/c1/records/r1',
@@ -74,7 +74,7 @@ class SwaggerResourcesTest(SwaggerTest):
             self.request.path = {
                 'bucket_id': 'b1',
                 'collection_id': 'c1',
-                'record_id': 'r1',
+                'id': 'r1',
             }
             self.request.json = lambda: MINIMALIST_RECORD
             self.validate_request_call(op)

@@ -9,7 +9,7 @@ class SwaggerRecordResponsesTest(SwaggerTest):
         response = self.app.get('/buckets/b1/collections/c1/records/r1',
                                 headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Records'].get_record
+        op = self.resources['Record'].get_record
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -17,7 +17,7 @@ class SwaggerRecordResponsesTest(SwaggerTest):
         response = self.app.post_json('/buckets/b1/collections/c1/records',
                                       self.record, headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Records'].create_record
+        op = self.resources['Record'].create_record
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -25,7 +25,7 @@ class SwaggerRecordResponsesTest(SwaggerTest):
         response = self.app.post_json('/buckets/b1/collections/c1/records',
                                       MINIMALIST_RECORD, headers=self.headers, status=201)
         response = self.cast_bravado_response(response)
-        op = self.resources['Records'].create_record
+        op = self.resources['Record'].create_record
         schema = self.spec.deref(op.op_spec['responses']['201'])
         validate_response(schema, op, response)
 
@@ -33,7 +33,7 @@ class SwaggerRecordResponsesTest(SwaggerTest):
         response = self.app.put_json('/buckets/b1/collections/c1/records/r1',
                                      MINIMALIST_RECORD, headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Records'].update_record
+        op = self.resources['Record'].update_record
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -41,7 +41,7 @@ class SwaggerRecordResponsesTest(SwaggerTest):
         response = self.app.put_json('/buckets/b1/collections/c1/records/r2',
                                      MINIMALIST_RECORD, headers=self.headers, status=201)
         response = self.cast_bravado_response(response)
-        op = self.resources['Records'].update_record
+        op = self.resources['Record'].update_record
         schema = self.spec.deref(op.op_spec['responses']['201'])
         validate_response(schema, op, response)
 
@@ -49,7 +49,7 @@ class SwaggerRecordResponsesTest(SwaggerTest):
         response = self.app.delete('/buckets/b1/collections/c1/records/r1',
                                    headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Records'].delete_record
+        op = self.resources['Record'].delete_record
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -57,7 +57,7 @@ class SwaggerRecordResponsesTest(SwaggerTest):
         response = self.app.get('/buckets/b1/collections/c1/records',
                                 headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Records'].get_records
+        op = self.resources['Record'].get_records
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -65,6 +65,6 @@ class SwaggerRecordResponsesTest(SwaggerTest):
         response = self.app.delete('/buckets/b1/collections/c1/records',
                                    headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Records'].delete_records
+        op = self.resources['Record'].delete_records
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)

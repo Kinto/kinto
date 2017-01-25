@@ -9,7 +9,7 @@ class SwaggerGroupResponsesTest(SwaggerTest):
         response = self.app.get('/buckets/b1/groups/g1',
                                 headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Groups'].get_group
+        op = self.resources['Group'].get_group
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -17,7 +17,7 @@ class SwaggerGroupResponsesTest(SwaggerTest):
         response = self.app.post_json('/buckets/b1/groups', self.group,
                                       headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Groups'].create_group
+        op = self.resources['Group'].create_group
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -25,7 +25,7 @@ class SwaggerGroupResponsesTest(SwaggerTest):
         response = self.app.post_json('/buckets/b1/groups', MINIMALIST_GROUP,
                                       headers=self.headers, status=201)
         response = self.cast_bravado_response(response)
-        op = self.resources['Groups'].create_group
+        op = self.resources['Group'].create_group
         schema = self.spec.deref(op.op_spec['responses']['201'])
         validate_response(schema, op, response)
 
@@ -33,7 +33,7 @@ class SwaggerGroupResponsesTest(SwaggerTest):
         response = self.app.put_json('/buckets/b1/groups/g1', MINIMALIST_GROUP,
                                      headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Groups'].update_group
+        op = self.resources['Group'].update_group
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -41,7 +41,7 @@ class SwaggerGroupResponsesTest(SwaggerTest):
         response = self.app.put_json('/buckets/b1/groups/g2', MINIMALIST_GROUP,
                                      headers=self.headers, status=201)
         response = self.cast_bravado_response(response)
-        op = self.resources['Groups'].update_group
+        op = self.resources['Group'].update_group
         schema = self.spec.deref(op.op_spec['responses']['201'])
         validate_response(schema, op, response)
 
@@ -49,7 +49,7 @@ class SwaggerGroupResponsesTest(SwaggerTest):
         response = self.app.delete('/buckets/b1/groups/g1',
                                    headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Groups'].delete_group
+        op = self.resources['Group'].delete_group
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -57,7 +57,7 @@ class SwaggerGroupResponsesTest(SwaggerTest):
         response = self.app.get('/buckets/b1/groups',
                                 headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Groups'].get_groups
+        op = self.resources['Group'].get_groups
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -65,6 +65,6 @@ class SwaggerGroupResponsesTest(SwaggerTest):
         response = self.app.delete('/buckets/b1/groups',
                                    headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Groups'].delete_groups
+        op = self.resources['Group'].delete_groups
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)

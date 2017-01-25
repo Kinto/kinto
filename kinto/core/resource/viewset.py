@@ -6,10 +6,10 @@ from cornice.validators import colander_validator
 from pyramid.settings import asbool
 
 from kinto.core import authorization
+from kinto.core.schema import PermissionsSchema
 from kinto.core.schema.request import (RequestSchema, RecordRequestSchema,
                                        CollectionRequestSchema)
 from kinto.core.schema.response import ResourceReponses, SharableResourseResponses
-from kinto.core.resource.schema import PermissionsSchema
 
 
 CONTENT_TYPES = ["application/json"]

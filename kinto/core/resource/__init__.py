@@ -15,6 +15,8 @@ from kinto.core import Service
 from kinto.core.errors import http_error, raise_invalid, send_alert, ERRORS
 from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
+from kinto.core.schema import ResourceSchema
+from kinto.core.schema.request import JsonPatchRequestSchema
 from kinto.core.utils import (
     COMPARISON, classname, decode64, encode64, json,
     encode_header, dict_subset, recursive_update_dict,
@@ -22,7 +24,6 @@ from kinto.core.utils import (
 )
 
 from .model import Model, ShareableModel
-from .schema import ResourceSchema, JsonPatchRequestSchema
 from .viewset import ViewSet, ShareableViewSet
 
 

@@ -9,7 +9,7 @@ class SwaggerBucketResponsesTest(SwaggerTest):
         response = self.app.get('/buckets/b1',
                                 headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Buckets'].get_bucket
+        op = self.resources['Bucket'].get_bucket
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -17,7 +17,7 @@ class SwaggerBucketResponsesTest(SwaggerTest):
         response = self.app.post_json('/buckets', self.bucket,
                                       headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Buckets'].create_bucket
+        op = self.resources['Bucket'].create_bucket
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -25,7 +25,7 @@ class SwaggerBucketResponsesTest(SwaggerTest):
         response = self.app.post_json('/buckets', MINIMALIST_BUCKET,
                                       headers=self.headers, status=201)
         response = self.cast_bravado_response(response)
-        op = self.resources['Buckets'].create_bucket
+        op = self.resources['Bucket'].create_bucket
         schema = self.spec.deref(op.op_spec['responses']['201'])
         validate_response(schema, op, response)
 
@@ -33,7 +33,7 @@ class SwaggerBucketResponsesTest(SwaggerTest):
         response = self.app.put('/buckets/b1',
                                 headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Buckets'].update_bucket
+        op = self.resources['Bucket'].update_bucket
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -41,7 +41,7 @@ class SwaggerBucketResponsesTest(SwaggerTest):
         response = self.app.put('/buckets/b2',
                                 headers=self.headers, status=201)
         response = self.cast_bravado_response(response)
-        op = self.resources['Buckets'].update_bucket
+        op = self.resources['Bucket'].update_bucket
         schema = self.spec.deref(op.op_spec['responses']['201'])
         validate_response(schema, op, response)
 
@@ -49,7 +49,7 @@ class SwaggerBucketResponsesTest(SwaggerTest):
         response = self.app.delete('/buckets/b1',
                                    headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Buckets'].delete_bucket
+        op = self.resources['Bucket'].delete_bucket
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -57,7 +57,7 @@ class SwaggerBucketResponsesTest(SwaggerTest):
         response = self.app.get('/buckets',
                                 headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Buckets'].get_buckets
+        op = self.resources['Bucket'].get_buckets
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -65,6 +65,6 @@ class SwaggerBucketResponsesTest(SwaggerTest):
         response = self.app.delete('/buckets',
                                    headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Buckets'].delete_buckets
+        op = self.resources['Bucket'].delete_buckets
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
