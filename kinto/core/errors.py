@@ -1,5 +1,4 @@
 import six
-import colander
 from pyramid import httpexceptions
 from enum import Enum
 
@@ -100,7 +99,7 @@ def http_error(httpexception, errno=None,
         "code": code or httpexception.code,
         "errno": errno,
         "error": error or httpexception.title,
-        "message": message or colander.drop,
+        "message": message,
         "info": info,
         "details": details,
     }
