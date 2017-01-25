@@ -1,3 +1,4 @@
+import colander
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import aslist
 from cornice.service import get_services
@@ -11,16 +12,75 @@ from kinto.core.schema import Any
 swagger = Service(name="swagger", path='/__api__', description="OpenAPI description")
 
 
+class SwaggerResponseSchema(colander.MappingSchema):
+    body = colander.MappingSchema(unknown='preserve')
+
+
+swagger_response_schemas = {
+    '200': SwaggerResponseSchema(
+        description='Return an OpenAPI description og the running instance.')
+}
+
+
+@swagger.get(permission=NO_PERMISSION_REQUIRED, tags=['Utilities'],
+             operation_id='__api__', response_schemas=swagger_response_schemas)
+def swagger_view(request):
+
+    # Only build json once
+    try:
+        return swagger_view.__json__
+    except AttributeError:
+        pass
+
+    services = get_services()
+    settings = request.registry.settings
+    generator = CorniceSwagger(services)
+
+    # XXX: Add type converter to the dispatcher
+    # https://github.com/Cornices/cornice.ext.swagger/pull/48
+    TypeConversionDispatcher.converters[Any] = AnyTypeConverter
+
+    security_defs = {}
+    security_roles = []
+
+    # BasicAuth is a non extension capability, so we should check it from config
+    if 'basicauth' in aslist(settings.get('multiauth.policies', '')):
+        basicauth = {'type': 'basic',
+                     'description': 'HTTP Basic Authentication.'}
+        security_defs['basicAuth'] = basicauth
+        security_roles.append({'basicAuth': []})
+
+    def security_generator(service, method):
+        return security_policies_generator(service, method, security_roles)
+
+    base_spec = {
+        'host': request.host,
+        'schemes': [settings.get('http_scheme') or 'http'],
+        'basePath': request.path.replace(swagger.path, ''),
+        'securityDefinitions': security_defs,
+    }
+
+    spec = generator(
+        title=settings['project_name'],
+        version=settings['http_api_version'],
+        base_path=request.path.replace(swagger.path, ''),
+        ignore_ctypes=["application/json-patch+json"],
+        default_tags=tag_generator,
+        default_op_ids=operation_id_generator,
+        default_security=security_generator,
+        swagger=base_spec
+    )
+
+    swagger_view.__json__ = spec
+
+    return swagger_view.__json__
+
+
 class AnyTypeConverter(TypeConverter):
     """Convert type agnostic parameter to swagger."""
 
     def __call__(self, schema_node):
         return {}
-
-
-# XXX: Add type converter to the dispatcher
-# https://github.com/Cornices/cornice.ext.swagger/pull/48
-TypeConversionDispatcher.converters[Any] = AnyTypeConverter
 
 
 def tag_generator(service, method):
@@ -69,52 +129,3 @@ def security_policies_generator(service, method, security_roles=[]):
         return []
     else:
         return security_roles
-
-
-@swagger.get(permission=NO_PERMISSION_REQUIRED)
-def swagger_view(request):
-
-    # Only build json once
-    try:
-        return swagger_view.__json__
-    except AttributeError:
-        pass
-
-    services = get_services()
-    settings = request.registry.settings
-    generator = CorniceSwagger(services)
-
-    security_defs = {}
-    security_roles = []
-
-    # BasicAuth is a non extension capability, so we should check it from config
-    if 'basicauth' in aslist(settings.get('multiauth.policies', '')):
-        basicauth = {'type': 'basic',
-                     'description': 'HTTP Basic Authentication.'}
-        security_defs['basicAuth'] = basicauth
-        security_roles.append({'basicAuth': []})
-
-    def security_generator(service, method):
-        return security_policies_generator(service, method, security_roles)
-
-    base_spec = {
-        'host': request.host,
-        'schemes': [settings.get('http_scheme') or 'http'],
-        'basePath': request.path.replace(swagger.path, ''),
-        'securityDefinitions': security_defs,
-    }
-
-    spec = generator(
-        title=settings['project_name'],
-        version=settings['http_api_version'],
-        base_path=request.path.replace(swagger.path, ''),
-        ignore_ctypes=["application/json-patch+json"],
-        default_tags=tag_generator,
-        default_op_ids=operation_id_generator,
-        default_security=security_generator,
-        swagger=base_spec
-    )
-
-    swagger_view.__json__ = spec
-
-    return swagger_view.__json__
