@@ -6,13 +6,15 @@ from cornice.validators import colander_validator
 from pyramid.settings import asbool
 
 from kinto.core import authorization
-from kinto.core.resource.schema import PermissionsSchema, RequestSchema
+from kinto.core.schema.request import (RequestSchema, RecordRequestSchema,
+                                       CollectionRequestSchema)
+from kinto.core.schema.response import ResourceReponses, SharableResourseResponses
+from kinto.core.resource.schema import PermissionsSchema
 
 
 CONTENT_TYPES = ["application/json"]
 
-PATCH_CONTENT_TYPES = ["application/json-patch+json",
-                       "application/merge-patch+json"]
+PATCH_CONTENT_TYPES = ["application/merge-patch+json"]
 
 
 class StrictSchema(colander.MappingSchema):
@@ -61,10 +63,12 @@ class ViewSet(object):
     default_arguments = {
         'permission': authorization.PRIVATE,
         'accept': CONTENT_TYPES,
+        'schema': RequestSchema
     }
 
     default_post_arguments = {
         "content_type": CONTENT_TYPES,
+        'schema': RecordRequestSchema
     }
 
     default_put_arguments = {
@@ -75,13 +79,17 @@ class ViewSet(object):
         "content_type": CONTENT_TYPES + PATCH_CONTENT_TYPES
     }
 
-    default_collection_arguments = {}
+    default_collection_arguments = {
+        'schema': CollectionRequestSchema
+    }
     collection_get_arguments = {
         'cors_headers': ('Next-Page', 'Total-Records', 'Last-Modified', 'ETag',
                          'Cache-Control', 'Expires', 'Pragma')
     }
 
-    default_record_arguments = {}
+    default_record_arguments = {
+        'schema': RecordRequestSchema
+    }
     record_get_arguments = {
         'cors_headers': ('Last-Modified', 'ETag',
                          'Cache-Control', 'Expires', 'Pragma')
@@ -119,14 +127,20 @@ class ViewSet(object):
         endpoint_args = getattr(self, by_method, {})
         args.update(**endpoint_args)
 
+        request_schema = args['schema']
+
+        record_schema = self.get_record_schema(resource_cls, method)
+        request_schema = request_schema()
+        record_schema.name = 'body'
+
         if method.lower() in map(str.lower, self.validate_schema_for):
-            schema = RequestSchema()
-            record_schema = self.get_record_schema(resource_cls, method)
-            record_schema.name = 'body'
-            schema.add(record_schema)
-            args['schema'] = schema
-        else:
-            args['schema'] = RequestSchema()
+            request_schema.add(record_schema)
+
+        args['schema'] = request_schema
+
+        # Api documentation arguments
+        args['response_schemas'] = ResourceReponses.get(endpoint_type,
+                                                        method, record_schema)
 
         validators = args.get('validators', [])
         validators.append(colander_validator)
@@ -146,8 +160,12 @@ class ViewSet(object):
                 warnings.warn(message, DeprecationWarning)
                 resource_schema = resource_cls.mapping.__class__
 
+        resource_schema = resource_schema(name='data')
+        resource_schema['id'] = colander.SchemaNode(colander.String(),
+                                                    missing=colander.drop)
+
         payload_schema = StrictSchema()
-        payload_schema.add(resource_schema(name='data'))
+        payload_schema.add(resource_schema)
         return payload_schema
 
     def get_view(self, endpoint_type, method):
@@ -235,8 +253,11 @@ class ShareableViewSet(ViewSet):
 
         allowed_permissions = resource_cls.permissions
 
-        payload_schema = StrictSchema()
-        payload_schema.add(resource_schema(name='data', **schema_kw))
+        payload_schema = StrictSchema(missing=schema_kw['missing'])
+        resource_schema = resource_schema(name='data', **schema_kw)
+        resource_schema['id'] = colander.SchemaNode(colander.String(),
+                                                    missing=colander.drop)
+        payload_schema.add(resource_schema)
         payload_schema.add(PermissionsSchema(name='permissions',
                                              missing=colander.drop,
                                              permissions=allowed_permissions))
@@ -247,6 +268,12 @@ class ShareableViewSet(ViewSet):
                                                                 resource_cls,
                                                                 method)
         args['permission'] = authorization.DYNAMIC
+
+        # Api documentation arguments
+        record_schema = self.get_record_schema(resource_cls, method)
+        args['response_schemas'] = SharableResourseResponses.get(endpoint_type,
+                                                                 method,
+                                                                 record_schema)
         return args
 
     def get_service_arguments(self):
