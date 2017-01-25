@@ -1,17 +1,50 @@
 import os
 import pkg_resources
 
-from ruamel import yaml
-from pyramid import httpexceptions
-from pyramid.settings import aslist
 from pyramid.security import NO_PERMISSION_REQUIRED
+from cornice.service import get_services
+from cornice_swagger import CorniceSwagger
+from cornice_swagger.converters.schema import TypeConversionDispatcher, TypeConverter
 from kinto.core import Service
-from kinto.core.utils import recursive_update_dict
+from kinto.core.schema import Any
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ORIGIN = os.path.dirname(os.path.dirname(HERE))
+
+class AnyTypeConverter(TypeConverter):
+
+    def __call__(self, schema_node):
+        return {}
+
+
+TypeConversionDispatcher.converters[Any] = AnyTypeConverter
+
 
 swagger = Service(name="swagger", path='/__api__', description="OpenAPI description")
+
+
+def tag_generator(service, method):
+    base_tag = service.name.capitalize()
+    base_tag = base_tag.replace('-collection', '')
+    base_tag = base_tag.replace('-record', '')
+    return [base_tag, "Kinto"]
+
+
+def operation_id_generator(service, method):
+    method = method.lower()
+    method_mapping = {
+        'post': 'create',
+        'put': 'update'
+    }
+    if method in method_mapping:
+        method = method_mapping[method]
+
+    resource = service.name
+    if method == 'create':
+        resource = resource.replace('-collection', '')
+    else:
+        resource = resource.replace('-collection', 's')
+    resource = resource.replace('-record', '')
+    op_id = "%s_%s" % (method, resource)
+    return op_id
 
 
 @swagger.get(permission=NO_PERMISSION_REQUIRED)
@@ -23,72 +56,21 @@ def swagger_view(request):
     except AttributeError:
         pass
 
+    services = get_services()
     settings = request.registry.settings
+    generator = CorniceSwagger(services)
 
-    # Base swagger spec
-    files = [
-        settings.get('swagger_file', ''),  # From config
-        os.path.join(ORIGIN, 'swagger.yaml'),  # Relative to the package root
-        os.path.join(HERE, 'swagger.yaml')  # Relative to this file.
-    ]
+    base_spec = {
+        'host': request.host,
+        'schemes': [settings.get('http_scheme') or 'http'],
+        'basePath': request.path.replace(swagger.path, ''),
+    }
 
-    files = [f for f in files if os.path.exists(f)]
+    spec = generator(settings['project_name'], settings['http_api_version'],
+                     ignore_ctypes=["application/json-patch+json"],
+                     default_tags=tag_generator, default_op_ids=operation_id_generator,
+                     swagger=base_spec)
 
-    # Get first file that exists
-    if files:
-        files = files[:1]
-    else:
-        raise httpexceptions.HTTPNotFound()
-
-    # Plugin swagger extensions
-    includes = aslist(settings.get('includes', ''))
-    for app in includes:
-        f = pkg_resources.resource_filename(app, 'swagger.yaml')
-        if os.path.exists(f):
-            files.append(f)
-
-    swagger_view.__json__ = {}
-
-    # Read and merge files
-    for path in files:
-        abs_path = os.path.abspath(path)
-        with open(abs_path) as f:
-            spec = yaml.safe_load(f)
-            recursive_update_dict(swagger_view.__json__, spec)
-
-    # Update instance fields
-    info = dict(
-        title=settings['project_name'],
-        version=settings['http_api_version'])
-
-    schemes = [settings.get('http_scheme') or 'http']
-
-    security_defs = swagger_view.__json__.get('securityDefinitions', {})
-
-    # BasicAuth is a non extension capability, so we should check it from config
-    if 'basicauth' in aslist(settings.get('multiauth.policies', '')):
-        basicauth = {'type': 'basic',
-                     'description': 'HTTP Basic Authentication.'}
-        security_defs['basicAuth'] = basicauth
-
-    # Security options are JSON objects with a single key
-    security = swagger_view.__json__.get('security', [])
-    security_names = [next(iter(security_def)) for security_def in security]
-
-    # include securityDefinitions that are not on default security options
-    for name, prop in security_defs.items():
-        security_def = {name: prop.get('scopes', {}).keys()}
-        if name not in security_names:
-            security.append(security_def)
-
-    data = dict(
-        info=info,
-        host=request.host,
-        basePath=request.path.replace(swagger.path, ''),
-        schemes=schemes,
-        securityDefinitions=security_defs,
-        security=security)
-
-    recursive_update_dict(swagger_view.__json__, data)
+    swagger_view.__json__  = spec
 
     return swagger_view.__json__

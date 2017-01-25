@@ -2,6 +2,7 @@ colander==1.3.1
 colorama==0.3.7
 contextlib2==0.5.4
 cornice==2.4.0
+cornice_swagger==0.4.0
 enum34==1.1.6
 functools32==3.2.3.post2
 futures==3.0.5
@@ -20,7 +21,6 @@ raven==5.32.0
 repoze.lru==0.6
 requests==2.12.5
 ruamel.ordereddict==0.4.9
-ruamel.yaml==0.13.9
 simplejson==3.10.0
 six==1.10.0
 SQLAlchemy==1.1.5

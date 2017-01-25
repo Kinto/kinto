@@ -23,6 +23,7 @@ REQUIREMENTS = [
     'colander',
     'colorama',
     'cornice >= 2.4',
+    'cornice_swagger >= 0.4'
     'jsonschema',
     'jsonpatch',
     'python-dateutil',
