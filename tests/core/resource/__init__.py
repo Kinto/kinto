@@ -29,8 +29,9 @@ class BaseTest(unittest.TestCase):
     def tearDown(self):
         mock.patch.stopall()
 
-    def get_request(self):
+    def get_request(self, resource_name=''):
         request = DummyRequest(method='GET')
+        request.current_resource_name = resource_name
         request.registry.storage = self.storage
         return request
 
