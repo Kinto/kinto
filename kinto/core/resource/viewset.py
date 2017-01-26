@@ -11,8 +11,7 @@ from kinto.core.resource.schema import PermissionsSchema, RequestSchema
 
 CONTENT_TYPES = ["application/json"]
 
-PATCH_CONTENT_TYPES = ["application/json-patch+json",
-                       "application/merge-patch+json"]
+PATCH_CONTENT_TYPES = ["application/merge-patch+json"]
 
 
 class StrictSchema(colander.MappingSchema):
