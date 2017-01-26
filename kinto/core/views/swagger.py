@@ -89,6 +89,7 @@ def tag_generator(service, method):
     base_tag = service.name.capitalize()
     base_tag = base_tag.replace('-collection', '')
     base_tag = base_tag.replace('-record', '')
+
     return [base_tag]
 
 
@@ -107,6 +108,7 @@ def operation_id_generator(service, method):
     if method == 'create':
         resource = resource.replace('-collection', '')
 
+    resource = resource.replace('y-collection', 'ies')  # y/ies plural
     resource = resource.replace('-collection', 's')
     resource = resource.replace('-record', '')
     op_id = "%s_%s" % (method, resource)
