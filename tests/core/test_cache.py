@@ -94,3 +94,11 @@ class PostgreSQLCacheTest(CacheTest, unittest.TestCase):
             self.cache.client,
             'session_factory',
             side_effect=sqlalchemy.exc.SQLAlchemyError)
+
+    def test_retry_on_integrity_error(self):
+        import psycopg2
+        connect = mock.MagicMock()
+        connect.__enter__.return_value.execute.side_effect = [psycopg2.IntegrityError, None]
+        with mock.patch.object(self.cache.client, 'connect', return_value=connect):
+            self.cache.set('this[]', 'value')
+            assert connect.__enter__.return_value.execute.call_count == 2

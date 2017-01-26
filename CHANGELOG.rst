@@ -6,6 +6,10 @@ This document describes changes between each past release.
 5.4.0 (unreleased)
 ------------------
 
+**Bug fixes**
+
+- Retries to set value in cache in case of IntegrityError (fixes #1035)
+
 **Internal changes**
 
 - Remove JSON Patch content-type from accepted types on the viewset, since it is handled

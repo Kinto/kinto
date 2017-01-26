@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from functools import wraps
 
 import os
 
@@ -6,6 +7,17 @@ from kinto.core import logger
 from kinto.core.cache import CacheBase
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import json
+
+
+def retry_on_failure(func):
+    @wraps(func)
+    def wraps_func(self, *args, **kwargs):
+        import psycopg2
+        try:
+            return func(self, *args, **kwargs)
+        except psycopg2.IntegrityError:
+            return func(self, *args, **kwargs)
+    return wraps_func
 
 
 class Cache(CacheBase):
@@ -121,6 +133,7 @@ class Cache(CacheBase):
         with self.client.connect() as conn:
             conn.execute(query, dict(ttl=ttl, key=self.prefix + key))
 
+    @retry_on_failure
     def set(self, key, value, ttl=None):
         if ttl is None:
             logger.warning("No TTL for cache key %r" % key)
