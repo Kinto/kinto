@@ -31,7 +31,7 @@ REQUIREMENTS = [
     'ruamel.yaml',
     'transaction',
     'pyramid_tm',
-    'requests',
+    'requests < 2.13.0',
     'six',
     'structlog >= 16.1.0',
     'enum34',
