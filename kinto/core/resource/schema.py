@@ -102,6 +102,9 @@ class PermissionsSchema(colander.SchemaNode):
             if self.known_perms:
                 colander.OneOf(choices=self.known_perms)(self, perm)
 
+            # Add a String list child node with the name of ``perm``.
+            self.add(self._get_node_principals(perm))
+
         # End up by deserializing a mapping whose keys are now known.
         return super(PermissionsSchema, self).deserialize(permissions)
 
