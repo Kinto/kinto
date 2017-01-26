@@ -8,7 +8,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
-- Retries to set value in cache in case of IntegrityError (fixes #1035)
+- Retries to set value in PostgreSQL cache backend in case of IntegrityError (fixes #1035)
 
 **Internal changes**
 
