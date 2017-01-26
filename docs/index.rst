@@ -11,6 +11,7 @@ Table of content
    :maxdepth: 1
 
    overview
+   kinto-admin
    concepts
    community
    tutorials/index
