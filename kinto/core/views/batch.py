@@ -8,7 +8,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from kinto.core import errors
 from kinto.core import logger
 from kinto.core import Service
-from kinto.core.schema.response import ErrorResponseSchema
+from kinto.core.errors import ErrorSchema
 from kinto.core.utils import merge_dicts, build_request, build_response
 
 
@@ -85,6 +85,10 @@ class BatchResponseBodySchema(colander.MappingSchema):
 
 class BatchResponse(colander.MappingSchema):
     body = BatchResponseBodySchema()
+
+
+class ErrorResponseSchema(colander.MappingSchema):
+    body = ErrorSchema()
 
 
 batch_responses = {

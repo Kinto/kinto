@@ -6,10 +6,9 @@ from cornice.validators import colander_validator
 from pyramid.settings import asbool
 
 from kinto.core import authorization
-from kinto.core.schema import PermissionsSchema
-from kinto.core.schema.request import (RequestSchema, RecordRequestSchema,
-                                       CollectionRequestSchema)
-from kinto.core.schema.response import ResourceReponses, ShareableResourseResponses
+
+from .schema import (PermissionsSchema, RecordRequestSchema, CollectionRequestSchema,
+                     ResourceReponses, ShareableResourseResponses)
 
 
 CONTENT_TYPES = ["application/json"]
@@ -63,7 +62,6 @@ class ViewSet(object):
     default_arguments = {
         'permission': authorization.PRIVATE,
         'accept': CONTENT_TYPES,
-        'schema': RequestSchema
     }
 
     default_post_arguments = {
