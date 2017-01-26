@@ -7,26 +7,28 @@ import time
 from kinto.core import logger
 from kinto.core.cache import CacheBase
 from kinto.core.storage.postgresql.client import create_from_config
+from kinto.core.storage.exceptions import BackendError
 from kinto.core.utils import json
 
 DELAY_BETWEEN_RETRIES_IN_SECONDS = 0.05
-MAX_RETRIES = 10
+MAX_RETRIES = 5
 
 
 def retry_on_failure(func):
+
     @wraps(func)
     def wraps_func(self, *args, **kwargs):
+        tries = kwargs.pop('tries', 0)
         import psycopg2
-        delay = -1 * DELAY_BETWEEN_RETRIES_IN_SECONDS
-        tries = 0
         try:
             return func(self, *args, **kwargs)
-        except psycopg2.IntegrityError:
+        except psycopg2.IntegrityError as e:
             if tries < MAX_RETRIES:
-                tries += 1
-                delay += DELAY_BETWEEN_RETRIES_IN_SECONDS
-                time.sleep(delay)
-            return func(self, *args, **kwargs)
+                delay = (tries - 1) * DELAY_BETWEEN_RETRIES_IN_SECONDS
+                if delay > 0:
+                    time.sleep(delay)
+                return wraps_func(self, tries=(tries + 1), *args, **kwargs)
+            raise BackendError(original=e)
     return wraps_func
 
 
