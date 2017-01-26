@@ -15,11 +15,11 @@ MAX_RETRIES = 5
 
 
 def retry_on_failure(func):
+    import psycopg2
 
     @wraps(func)
     def wraps_func(self, *args, **kwargs):
         tries = kwargs.pop('tries', 0)
-        import psycopg2
         try:
             return func(self, *args, **kwargs)
         except psycopg2.IntegrityError as e:
