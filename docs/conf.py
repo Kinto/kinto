@@ -112,7 +112,6 @@ nitpick_ignore = [
     ('py:obj', 'tuple'),
     # Member autodoc fails with those:
     # kinto.core.resource.schema
-    #('py:class', 'type'),
     ('py:class', 'Integer'),
     ('py:class', 'String'),
     # kinto.core.resource
