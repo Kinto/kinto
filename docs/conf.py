@@ -102,13 +102,13 @@ nitpicky = True
 nitpick_ignore = [
     ('py:obj', 'Exception'),
     ('py:obj', 'bool'),
+    ('py:obj', 'cornice.Service'),
     ('py:obj', 'dict'),
     ('py:obj', 'float'),
     ('py:obj', 'int'),
     ('py:obj', 'list'),
     ('py:obj', 'str'),
     ('py:obj', 'tuple'),
-    ('py:obj', 'cornice.Service'),
     # Member autodoc fails with those:
     # kinto.core.resource.schema
     ('py:class', 'Integer'),
@@ -119,6 +119,7 @@ nitpick_ignore = [
     ('py:class', 'ShareableModel'),
     ('py:class', 'ShareableViewSet'),
     ('py:class', 'ViewSet'),
+    ('py:class', 'Sequence')
 ]
 
 
@@ -150,8 +151,8 @@ rst_epilog = """
 .. |status-503| replace:: ``503 Service Unavailable``
 """
 
-# --
 
+# --
 def setup(app):
     # path relative to _static
     app.add_stylesheet('theme_overrides.css')

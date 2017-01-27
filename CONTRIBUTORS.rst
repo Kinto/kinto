@@ -52,6 +52,7 @@ Contributors
 * Sahil Dua <sahildua2305@gmail.com>
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
+* Sunakshi Tejwani <sunakshitejwani@gmail.com>
 * Surya Prashanth <prashantsurya@ymail.com>
 * SwhGo_oN
 * Tarek Ziade <tarek@mozilla.com>
