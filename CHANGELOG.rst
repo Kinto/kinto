@@ -10,6 +10,7 @@ This document describes changes between each past release.
 
 - Remove JSON Patch content-type from accepted types on the viewset, since it is handled
   in a separate view (#1031).
+- Upgraded to Kinto-Admin 1.8.1
 
 
 5.3.0 (2017-01-20)
