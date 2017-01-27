@@ -100,7 +100,6 @@ autodoc_member_order = 'bysource'
 # See: http://stackoverflow.com/a/30624034/186202
 nitpicky = True
 nitpick_ignore = [
-   
     ('py:obj', 'Exception'),
     ('py:obj', 'bool'),
     ('py:obj', 'cornice.Service'),
@@ -120,8 +119,7 @@ nitpick_ignore = [
     ('py:class', 'ShareableModel'),
     ('py:class', 'ShareableViewSet'),
     ('py:class', 'ViewSet'),
-    ('py:class','Sequence')
-	
+    ('py:class', 'Sequence')
 ]
 
 
@@ -153,8 +151,8 @@ rst_epilog = """
 .. |status-503| replace:: ``503 Service Unavailable``
 """
 
-# --
 
+# --
 def setup(app):
     # path relative to _static
     app.add_stylesheet('theme_overrides.css')
