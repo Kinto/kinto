@@ -6,7 +6,9 @@ from cornice.validators import colander_validator
 from pyramid.settings import asbool
 
 from kinto.core import authorization
-from kinto.core.resource.schema import PermissionsSchema, RequestSchema
+from kinto.core.resource.schema import (PermissionsSchema, RequestSchema, PatchRequestSchema,
+                                        GetRequestSchema, CollectionRequestSchema,
+                                        CollectionGetRequestSchema)
 
 
 CONTENT_TYPES = ["application/json"]
@@ -60,6 +62,7 @@ class ViewSet(object):
     default_arguments = {
         'permission': authorization.PRIVATE,
         'accept': CONTENT_TYPES,
+        'schema': RequestSchema,
     }
 
     default_post_arguments = {
@@ -71,17 +74,24 @@ class ViewSet(object):
     }
 
     default_patch_arguments = {
-        "content_type": CONTENT_TYPES + PATCH_CONTENT_TYPES
+        "content_type": CONTENT_TYPES + PATCH_CONTENT_TYPES,
+        'schema': PatchRequestSchema,
     }
 
-    default_collection_arguments = {}
+    default_collection_arguments = {
+        'schema': CollectionRequestSchema,
+    }
     collection_get_arguments = {
+        'schema': CollectionGetRequestSchema,
         'cors_headers': ('Next-Page', 'Total-Records', 'Last-Modified', 'ETag',
                          'Cache-Control', 'Expires', 'Pragma')
     }
-
+    collection_post_arguments = {
+        'schema': RequestSchema,
+    }
     default_record_arguments = {}
     record_get_arguments = {
+        'schema': GetRequestSchema,
         'cors_headers': ('Last-Modified', 'ETag',
                          'Cache-Control', 'Expires', 'Pragma')
     }
@@ -118,14 +128,17 @@ class ViewSet(object):
         endpoint_args = getattr(self, by_method, {})
         args.update(**endpoint_args)
 
+        request_schema = args.get('schema', RequestSchema)
+
+        # Instantiate request schema
+        request_schema = request_schema()
+
         if method.lower() in map(str.lower, self.validate_schema_for):
-            schema = RequestSchema()
             record_schema = self.get_record_schema(resource_cls, method)
             record_schema.name = 'body'
-            schema.add(record_schema)
-            args['schema'] = schema
-        else:
-            args['schema'] = RequestSchema()
+            request_schema.add(record_schema)
+
+        args['schema'] = request_schema
 
         validators = args.get('validators', [])
         validators.append(colander_validator)

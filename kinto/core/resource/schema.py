@@ -218,13 +218,8 @@ class HeaderQuotedInteger(HeaderField):
 class HeaderSchema(colander.MappingSchema):
     """Schema used for validating and deserializing request headers. """
 
-    def response_behavior_validator():
-        return colander.OneOf(['full', 'light', 'diff'])
-
     if_match = HeaderQuotedInteger(name='If-Match')
     if_none_match = HeaderQuotedInteger(name='If-None-Match')
-    response_behaviour = HeaderField(colander.String(), name='Response-Behavior',
-                                     validator=response_behavior_validator())
 
     @staticmethod
     def schema_type():
@@ -236,15 +231,7 @@ class QuerySchema(colander.MappingSchema):
     Schema used for validating and deserializing querystrings. It will include
     and try to guess the type of unknown fields (field filters) on deserialization.
     """
-
-    _limit = QueryField(colander.Integer())
-    _fields = FieldList()
-    _sort = FieldList()
-    _token = QueryField(colander.String())
-    _since = QueryField(colander.Integer())
-    _to = QueryField(colander.Integer())
-    _before = QueryField(colander.Integer())
-    last_modified = QueryField(colander.Integer())
+    missing = colander.drop
 
     @staticmethod
     def schema_type():
@@ -306,10 +293,50 @@ class JsonPatchBodySchema(colander.SequenceSchema):
 
 
 class RequestSchema(colander.MappingSchema):
-    """Baseline schema for kinto requests."""
+    """Base schema for kinto requests."""
 
     header = HeaderSchema(missing=colander.drop)
     querystring = QuerySchema(missing=colander.drop)
+
+
+class CollectionRequestSchema(RequestSchema):
+
+    @colander.instantiate()
+    class querystring(QuerySchema):
+        _limit = QueryField(colander.Integer())
+        _sort = FieldList()
+        _token = QueryField(colander.String())
+        _since = QueryField(colander.Integer())
+        _to = QueryField(colander.Integer())
+        _before = QueryField(colander.Integer())
+        id = QueryField(colander.String())
+        last_modified = QueryField(colander.Integer())
+
+
+class GetRequestSchema(RequestSchema):
+
+    @colander.instantiate(missing=colander.drop)
+    class querystring(QuerySchema):
+        _fields = FieldList()
+
+
+class CollectionGetRequestSchema(CollectionRequestSchema):
+
+    @colander.instantiate(missing=colander.drop)
+    class querystring(QuerySchema):
+        _fields = FieldList()
+
+
+class PatchRequestSchema(RequestSchema):
+
+    @colander.instantiate(missing=colander.drop)
+    class header(HeaderSchema):
+
+        def response_behavior_validator():
+            return colander.OneOf(['full', 'light', 'diff'])
+
+        response_behaviour = HeaderField(colander.String(), name='Response-Behavior',
+                                         validator=response_behavior_validator())
 
 
 class JsonPatchRequestSchema(RequestSchema):

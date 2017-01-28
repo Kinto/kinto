@@ -86,6 +86,9 @@ class ViewSetTest(unittest.TestCase):
         viewset = ViewSet(
             validate_schema_for=('GET', )
         )
+        viewset.default_arguments = {}
+        viewset.default_collection_arguments = {}
+        viewset.collection_post_arguments = {}
         resource = mock.MagicMock()
         mocked.Mapping.return_value = mock.sentinel.default_schema
 
