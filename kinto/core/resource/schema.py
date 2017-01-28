@@ -79,25 +79,11 @@ class PermissionsSchema(colander.SchemaNode):
         self.known_perms = kwargs.pop('permissions', tuple())
         super(PermissionsSchema, self).__init__(*args, **kwargs)
 
-    @property
-    def known_perms(self):
-        return self._known_perms
-
-    @known_perms.setter
-    def known_perms(self, perms):
-        self._known_perms = perms
-        # Clear previous definition
-        self.children = []
-
-        # Set new valid definitions
         for perm in self.known_perms:
             self[perm] = self._get_node_principals(perm)
 
-        # Update type
-        self.typ = self.schema_type()
-
     def schema_type(self):
-        if self._known_perms:
+        if self.known_perms:
             return colander.Mapping(unknown='raise')
         else:
             return colander.Mapping(unknown='preserve')
