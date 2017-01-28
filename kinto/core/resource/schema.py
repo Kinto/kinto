@@ -74,34 +74,47 @@ class PermissionsSchema(colander.SchemaNode):
         }
 
     """
+
     def __init__(self, *args, **kwargs):
         self.known_perms = kwargs.pop('permissions', tuple())
         super(PermissionsSchema, self).__init__(*args, **kwargs)
 
-    @staticmethod
-    def schema_type():
-        return colander.Mapping(unknown='preserve')
+    @property
+    def known_perms(self):
+        return self._known_perms
+
+    @known_perms.setter
+    def known_perms(self, perms):
+        self._known_perms = perms
+        # Clear previous definition
+        self.children = []
+
+        # Set new valid definitions
+        for perm in self.known_perms:
+            self[perm] = self._get_node_principals(perm)
+
+        # Update type
+        self.typ = self.schema_type()
+
+    def schema_type(self):
+        if self._known_perms:
+            return colander.Mapping(unknown='raise')
+        else:
+            return colander.Mapping(unknown='preserve')
 
     def deserialize(self, cstruct=colander.null):
-        # Start by deserializing a simple mapping.
         permissions = super(PermissionsSchema, self).deserialize(cstruct)
 
-        # In case it is optional in parent schema.
-        if permissions in (colander.null, colander.drop):
+        # If empty or defined children, just deserialize
+        if self.known_perms or permissions == colander.null:
             return permissions
 
-        # Remove potential extra children from previous deserialization.
-        self.children = []
-        for perm in permissions.keys():
-            # If know permissions is limited, then validate inline.
-            if self.known_perms:
-                colander.OneOf(choices=self.known_perms)(self, perm)
+        # Else validate fields that are not on the schema
+        for perm in cstruct.values():
+            colander.SequenceSchema(colander.SchemaNode(colander.String()),
+                                    missing=colander.drop).deserialize(perm)
 
-            # Add a String list child node with the name of ``perm``.
-            self.add(self._get_node_principals(perm))
-
-        # End up by deserializing a mapping whose keys are now known.
-        return super(PermissionsSchema, self).deserialize(permissions)
+        return permissions
 
     def _get_node_principals(self, perm):
         principal = colander.SchemaNode(colander.String())
