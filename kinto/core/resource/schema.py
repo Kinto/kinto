@@ -324,7 +324,15 @@ class CollectionGetRequestSchema(CollectionRequestSchema):
 
     @colander.instantiate(missing=colander.drop)
     class querystring(QuerySchema):
+        _limit = QueryField(colander.Integer())
+        _sort = FieldList()
+        _token = QueryField(colander.String())
+        _since = QueryField(colander.Integer())
+        _to = QueryField(colander.Integer())
+        _before = QueryField(colander.Integer())
         _fields = FieldList()
+        id = QueryField(colander.String())
+        last_modified = QueryField(colander.Integer())
 
 
 class PatchRequestSchema(RequestSchema):
