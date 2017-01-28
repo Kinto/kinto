@@ -89,17 +89,22 @@ class PermissionsSchema(colander.SchemaNode):
             return colander.Mapping(unknown='preserve')
 
     def deserialize(self, cstruct=colander.null):
-        permissions = super(PermissionsSchema, self).deserialize(cstruct)
 
-        # If empty or defined children, just deserialize
-        if self.known_perms or permissions == colander.null:
-            return permissions
+        if cstruct in (colander.null, colander.drop):
+            return super(PermissionsSchema, self).deserialize(cstruct)
+
+        # If permissions are listed, check fields and produce fancy error messages
+        elif self.known_perms:
+            for perm in cstruct:
+                colander.OneOf(choices=self.known_perms)(self, perm)
 
         # Else validate fields that are not on the schema
-        for perm in cstruct.values():
-            colander.SequenceSchema(colander.SchemaNode(colander.String()),
-                                    missing=colander.drop).deserialize(perm)
+        else:
+            for perm in cstruct.values():
+                colander.SequenceSchema(colander.SchemaNode(colander.String()),
+                                        missing=colander.drop).deserialize(perm)
 
+        permissions = super(PermissionsSchema, self).deserialize(cstruct)
         return permissions
 
     def _get_node_principals(self, perm):
