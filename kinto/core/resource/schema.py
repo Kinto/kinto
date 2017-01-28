@@ -97,14 +97,14 @@ class PermissionsSchema(colander.SchemaNode):
         elif self.known_perms:
             for perm in cstruct:
                 colander.OneOf(choices=self.known_perms)(self, perm)
+            return super(PermissionsSchema, self).deserialize(cstruct)
 
-        # Else validate fields that are not on the schema
-        else:
-            for perm in cstruct.values():
-                colander.SequenceSchema(colander.SchemaNode(colander.String()),
-                                        missing=colander.drop).deserialize(perm)
-
-        permissions = super(PermissionsSchema, self).deserialize(cstruct)
+        # Else deserialize the fields that are not on the schema
+        permissions = {}
+        for perm, principals in cstruct.items():
+            node = colander.SequenceSchema(colander.SchemaNode(colander.String()),
+                                           missing=colander.drop).deserialize(principals)
+            permissions[perm] = node
         return permissions
 
     def _get_node_principals(self, perm):
