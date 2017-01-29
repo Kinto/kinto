@@ -5,6 +5,9 @@ from colander import SchemaNode, String
 from kinto.core.utils import strip_whitespace, msec_time, decode_header, native_value
 
 
+# Resource related schemas
+
+
 class ResourceSchema(colander.MappingSchema):
     """Base resource schema, with *Cliquet* specific built-in options."""
 
@@ -107,6 +110,9 @@ class PermissionsSchema(colander.SchemaNode):
         principal = colander.SchemaNode(colander.String())
         return colander.SchemaNode(colander.Sequence(), principal, name=perm,
                                    missing=colander.drop)
+
+
+# Generic schema nodes
 
 
 class TimeStamp(colander.SchemaNode):
@@ -215,8 +221,13 @@ class HeaderQuotedInteger(HeaderField):
         return int(param[1:-1])
 
 
+# Header schemas
+
+
 class HeaderSchema(colander.MappingSchema):
-    """Schema used for validating and deserializing request headers. """
+    """Base schema used for validating and deserializing request headers. """
+
+    missing = colander.drop
 
     if_match = HeaderQuotedInteger(name='If-Match')
     if_none_match = HeaderQuotedInteger(name='If-None-Match')
@@ -224,6 +235,19 @@ class HeaderSchema(colander.MappingSchema):
     @staticmethod
     def schema_type():
         return colander.Mapping(unknown='preserve')
+
+
+class PatchHeaderSchema(HeaderSchema):
+    """Header schema used with patch requests."""
+
+    def response_behavior_validator():
+        return colander.OneOf(['full', 'light', 'diff'])
+
+    response_behaviour = HeaderField(colander.String(), name='Response-Behavior',
+                                     validator=response_behavior_validator())
+
+
+# Querystring schemas
 
 
 class QuerySchema(colander.MappingSchema):
@@ -265,6 +289,28 @@ class QuerySchema(colander.MappingSchema):
         return values
 
 
+class GetQuerySchema(QuerySchema):
+    """Querystring validated fields for get requests."""
+
+    _fields = FieldList()
+
+
+class CollectionQuerySchema(QuerySchema):
+    """Querystring validated fields used with collections."""
+
+    _limit = QueryField(colander.Integer())
+    _sort = FieldList()
+    _token = QueryField(colander.String())
+    _since = QueryField(colander.Integer())
+    _to = QueryField(colander.Integer())
+    _before = QueryField(colander.Integer())
+    id = QueryField(colander.String())
+    last_modified = QueryField(colander.Integer())
+
+
+# Body Schemas
+
+
 class JsonPatchOperationSchema(colander.MappingSchema):
     """Single JSON Patch Operation."""
 
@@ -292,60 +338,43 @@ class JsonPatchBodySchema(colander.SequenceSchema):
     operations = JsonPatchOperationSchema(missing=colander.drop)
 
 
+# Request schemas
+
+
 class RequestSchema(colander.MappingSchema):
     """Base schema for kinto requests."""
 
-    header = HeaderSchema(missing=colander.drop)
-    querystring = QuerySchema(missing=colander.drop)
-
-
-class CollectionRequestSchema(RequestSchema):
-
-    @colander.instantiate()
-    class querystring(QuerySchema):
-        _limit = QueryField(colander.Integer())
-        _sort = FieldList()
-        _token = QueryField(colander.String())
-        _since = QueryField(colander.Integer())
-        _to = QueryField(colander.Integer())
-        _before = QueryField(colander.Integer())
-        id = QueryField(colander.String())
-        last_modified = QueryField(colander.Integer())
+    header = HeaderSchema()
+    querystring = QuerySchema()
 
 
 class GetRequestSchema(RequestSchema):
+    """Base request schema for get requests."""
 
-    @colander.instantiate(missing=colander.drop)
-    class querystring(QuerySchema):
-        _fields = FieldList()
-
-
-class CollectionGetRequestSchema(CollectionRequestSchema):
-
-    @colander.instantiate(missing=colander.drop)
-    class querystring(QuerySchema):
-        _limit = QueryField(colander.Integer())
-        _sort = FieldList()
-        _token = QueryField(colander.String())
-        _since = QueryField(colander.Integer())
-        _to = QueryField(colander.Integer())
-        _before = QueryField(colander.Integer())
-        _fields = FieldList()
-        id = QueryField(colander.String())
-        last_modified = QueryField(colander.Integer())
+    querystring = GetQuerySchema()
 
 
 class PatchRequestSchema(RequestSchema):
+    """Base request schema for patch requests."""
 
-    @colander.instantiate(missing=colander.drop)
-    class header(HeaderSchema):
-
-        def response_behavior_validator():
-            return colander.OneOf(['full', 'light', 'diff'])
-
-        response_behaviour = HeaderField(colander.String(), name='Response-Behavior',
-                                         validator=response_behavior_validator())
+    header = PatchHeaderSchema()
 
 
-class JsonPatchRequestSchema(RequestSchema):
+class CollectionRequestSchema(RequestSchema):
+    """Request schema used with collections."""
+
+    querystring = CollectionQuerySchema()
+
+
+class CollectionGetRequestSchema(CollectionRequestSchema):
+    """Collection get request schema."""
+
+    @colander.instantiate()
+    class querystring(CollectionQuerySchema, GetQuerySchema):
+        pass
+
+
+class JsonPatchRequestSchema(PatchRequestSchema):
+    """JSON Patch (application/json-patch+json) request schema."""
+
     body = JsonPatchBodySchema()
