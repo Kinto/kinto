@@ -213,3 +213,80 @@ class RequestSchemaTest(unittest.TestCase):
     def test_drops(self):
         deserialized = self.schema.deserialize({})
         self.assertEquals(deserialized, {})
+
+
+class GetRequestSchemaTest(unittest.TestCase):
+
+    def setUp(self):
+        self.schema = schema.GetRequestSchema()
+
+    def test_get_deserialize_fields(self):
+        value = {'querystring': {'_fields': 'foo,bar'}}
+        deserialized = self.schema.deserialize(value)
+        expected = {'querystring': {'_fields': ['foo', 'bar']}}
+        self.assertEquals(deserialized, expected)
+
+
+class PatchRequestSchemaTest(unittest.TestCase):
+
+    def setUp(self):
+        self.schema = schema.PatchRequestSchema()
+
+    def test_patch_deserialize_response_behavior(self):
+        value = {'header': {'Response-Behavior': 'diff'}}
+        deserialized = self.schema.deserialize(value)
+        self.assertEquals(deserialized, value)
+
+    def test_patch_validate_response_behavior(self):
+        invalid = {'header': {'Response-Behavior': 'impolite'}}
+        self.assertRaises(colander.Invalid, self.schema.deserialize, invalid)
+
+
+class CollectionRequestSchemaTest(unittest.TestCase):
+
+    def setUp(self):
+        self.schema = schema.CollectionRequestSchema()
+
+    def test_collection_deserialize_sort(self):
+        value = {'querystring': {'_sort': 'foo,-bar'}}
+        deserialized = self.schema.deserialize(value)
+        expected = {'querystring': {'_sort': ['foo', '-bar']}}
+        self.assertEquals(deserialized, expected)
+
+    def test_collection_validate_limit(self):
+        invalid = {'querystring': {'_limit': 'foo'}}
+        self.assertRaises(colander.Invalid, self.schema.deserialize, invalid)
+
+    def test_collection_validate_since(self):
+        invalid = {'querystring': {'_since': 'bar'}}
+        self.assertRaises(colander.Invalid, self.schema.deserialize, invalid)
+
+    def test_collection_validate_to(self):
+        invalid = {'querystring': {'_to': 'qux'}}
+        self.assertRaises(colander.Invalid, self.schema.deserialize, invalid)
+
+    def test_collection_validate_before(self):
+        invalid = {'querystring': {'_before': 'bah'}}
+        self.assertRaises(colander.Invalid, self.schema.deserialize, invalid)
+
+    def test_collection_validate_last_modified(self):
+        invalid = {'querystring': {'last_modified': 'yesterday'}}
+        self.assertRaises(colander.Invalid, self.schema.deserialize, invalid)
+
+
+class CollectionGetRequestSchemaTest(unittest.TestCase):
+
+    def setUp(self):
+        self.schema = schema.CollectionGetRequestSchema()
+
+    def test_deserialize_get_fields(self):
+        value = {'querystring': {'_fields': 'foo,bar'}}
+        deserialized = self.schema.deserialize(value)
+        expected = {'querystring': {'_fields': ['foo', 'bar']}}
+        self.assertEquals(deserialized, expected)
+
+    def test_deserialize_collection_fields(self):
+        value = {'querystring': {'_sort': 'foo,-bar'}}
+        deserialized = self.schema.deserialize(value)
+        expected = {'querystring': {'_sort': ['foo', '-bar']}}
+        self.assertEquals(deserialized, expected)
