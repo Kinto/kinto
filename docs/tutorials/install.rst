@@ -36,7 +36,7 @@ got a few different options:
 .. |scalingo-button| image:: ../images/scalingo-button.svg
    :target: https://my.scalingo.com/deploy?source=https://github.com/Kinto/kinto-scalingo
    :alt: Deploy on Scalingo
-   
+
 .. |alwaysdata-button| image:: ../images/alwaysdata-button.svg
    :target: https://kinto.github.io/kinto-alwaysdata/
    :alt: Deploy on Alwaysdata
