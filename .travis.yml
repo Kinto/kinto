@@ -36,7 +36,3 @@ matrix:
     - env: ACTION=loadtest_simulation
       before_script: echo 'Simulation'
       script: make loadtest-check-simulation
-    - env: TOX_ENV=pypy
-      script: if [ "${TRAVIS_BRANCH}" = "master" ]; then tox -e $TOX_ENV; else true; fi;
-  allow_failures:
-    - env: TOX_ENV=pypy

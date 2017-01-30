@@ -12,25 +12,7 @@ from binascii import hexlify
 from six.moves.urllib import parse as urlparse
 from enum import Enum
 
-# ujson is not installable with pypy
-try:  # pragma: no cover
-    import ujson as json  # NOQA
-
-    def json_serializer(v, **kw):
-        return json.dumps(v, escape_forward_slashes=False)
-
-except ImportError:  # pragma: no cover
-    import json  # NOQA
-
-    json_serializer = json.dumps
-
-try:
-    # Register psycopg2cffi as psycopg2
-    from psycopg2cffi import compat
-except ImportError:  # pragma: no cover
-    pass
-else:  # pragma: no cover
-    compat.register()
+import ujson as json  # NOQA
 
 try:
     import sqlalchemy
@@ -45,6 +27,10 @@ from pyramid.settings import aslist
 from pyramid.view import render_view_to_response
 from cornice import cors
 from colander import null
+
+
+def json_serializer(v, **kw):
+    return json.dumps(v, escape_forward_slashes=False)
 
 
 def strip_whitespace(v):

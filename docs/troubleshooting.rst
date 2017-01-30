@@ -162,10 +162,3 @@ memory.
 To fix this, increase the open file limit for non-root user::
 
   $ ulimit -n 1024
-
-
-ERROR: InterpreterNotFound: pypy
-================================
-
-You need to install `Pypy <http://pypy.org/>`_ so that it can be found
-by tox.
