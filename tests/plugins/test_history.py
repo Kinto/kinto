@@ -1,3 +1,4 @@
+import json
 import re
 import unittest
 import mock
@@ -333,7 +334,7 @@ class HistoryDeletionTest(HistoryWebTest):
 
     def test_partial_deletion(self):
         resp = self.app.get('/buckets/bid/history', headers=self.headers)
-        before = int(resp.headers['ETag'])
+        before = int(json.loads(resp.headers['ETag']))
         self.app.put('/buckets/bid/collections/cid2', headers=self.headers)
 
         # Delete everything before the last entry (exclusive)
