@@ -1,7 +1,7 @@
 import re
 
+from kinto.core.decorators import synchronized
 from kinto.core.permission import PermissionBase
-from kinto.core.utils import synchronized
 
 
 class Permission(PermissionBase):

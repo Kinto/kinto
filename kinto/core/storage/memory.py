@@ -3,10 +3,11 @@ import operator
 from collections import defaultdict
 
 from kinto.core import utils
+from kinto.core.decorators import synchronized
 from kinto.core.storage import (
     StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
-from kinto.core.utils import COMPARISON, synchronized
+from kinto.core.utils import COMPARISON
 
 
 def tree():
