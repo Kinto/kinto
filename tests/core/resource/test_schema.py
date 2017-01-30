@@ -83,6 +83,12 @@ class PermissionsSchemaTest(unittest.TestCase):
         deserialized = self.schema.deserialize(perms)
         self.assertEqual(deserialized, perms)
 
+    def test_raises_invalid_if_not_a_mapping(self):
+        perms = ['gab']
+        self.assertRaises(colander.Invalid,
+                          self.schema.deserialize,
+                          perms)
+
     def test_raises_invalid_if_permission_is_unknown(self):
         self.schema.known_perms = ('can_sleep',)
         perms = {'can_work': ['mat']}
