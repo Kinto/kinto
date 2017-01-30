@@ -6,12 +6,17 @@ This document describes changes between each past release.
 5.4.0 (unreleased)
 ------------------
 
+**Bug fixes**
+
+- Retries to set value in PostgreSQL cache backend in case of IntegrityError (fixes #1035)
+
 **Internal changes**
 
 - Remove JSON Patch content-type from accepted types on the viewset, since it is handled
   in a separate view (#1031).
 - Permission schema children fields are now set during initialization instead of on
   deserialization (#1046).
+- Upgraded to Kinto-Admin 1.8.1
 
 
 5.3.0 (2017-01-20)
