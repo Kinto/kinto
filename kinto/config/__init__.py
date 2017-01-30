@@ -33,8 +33,7 @@ def init(config_file, backend, host='127.0.0.1'):
     values['secret'] = core_utils.random_bytes_hex(32)
 
     values['kinto_version'] = __version__
-    values['config_file_timestamp'] = core_utils._encoded(
-        strftime('%a, %d %b %Y %H:%M:%S %z'))
+    values['config_file_timestamp'] = str(strftime('%a, %d %b %Y %H:%M:%S %z'))
 
     values['storage_backend'] = "kinto.core.storage.%s" % backend
     values['cache_backend'] = "kinto.core.cache.%s" % backend
