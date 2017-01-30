@@ -62,7 +62,7 @@ class ClassicLogRendererTest(unittest.TestCase):
 
     def test_output_is_serialized_as_string(self):
         value = self.renderer(self.logger, 'debug', {})
-        self.assertIsInstance(value, bytes)
+        self.assertIsInstance(value, str)
 
     def test_output_is_simple_if_no_request_is_bound(self):
         value = self.renderer(self.logger, 'debug', {'event': ':)'})
@@ -114,7 +114,7 @@ class MozillaHekaRendererTest(unittest.TestCase):
 
     def test_output_is_serialized_json(self):
         value = self.renderer(self.logger, 'debug', {})
-        self.assertIsInstance(value, bytes)
+        self.assertIsInstance(value, str)
 
     def test_standard_entries_are_filled(self):
         with mock.patch('kinto.core.utils.msec_time', return_value=12):
