@@ -7,7 +7,7 @@ except ImportError:  # pragma: no cover
     statsd_module = None
 
 from pyramid.exceptions import ConfigurationError
-import urlparse
+from urllib.parse import urlparse
 
 from kinto.core import utils
 
@@ -53,7 +53,7 @@ def load_from_config(config):
 
     settings = config.get_settings()
     uri = settings['statsd_url']
-    uri = urlparse.urlparse(uri)
+    uri = urlparse(uri)
 
     if settings['project_name'] != '':
         prefix = settings['project_name']

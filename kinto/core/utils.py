@@ -8,7 +8,7 @@ import re
 import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
-import urlparse
+from urllib.parse import unquote
 from enum import Enum
 
 import ujson as json  # NOQA
@@ -343,7 +343,7 @@ def build_response(response, request):
     :param request: the request that was used to get the response.
     """
     dict_obj = {}
-    dict_obj['path'] = urlparse.unquote(request.path)
+    dict_obj['path'] = unquote(request.path)
     dict_obj['status'] = response.status_code
     dict_obj['headers'] = dict(response.headers)
 
