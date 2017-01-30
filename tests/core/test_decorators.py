@@ -1,5 +1,7 @@
 import mock
+import pytest
 from six import StringIO
+from pyramid.httpexceptions import HTTPOk
 from kinto.core.decorators import cache_forever
 
 
@@ -12,6 +14,11 @@ def demo1(request):
 @cache_forever
 def demo2(request, name):
     return "demo2: " + name
+
+
+@cache_forever
+def demo3(request):
+    return request.response
 
 
 def test_cache_forever_decorator_call_the_decorated_function_once():
@@ -46,3 +53,11 @@ def test_each_function_is_cached_separately_for_the_life_of_the_process():
     assert response1 != response2
     assert response1 == 'demo1'
     assert response2 == 'demo2: Henri'
+
+
+def test_should_not_cache_responses():
+    request = mock.MagicMock()
+    request.response = HTTPOk()
+
+    with pytest.raises(ValueError):
+        demo3(request)
