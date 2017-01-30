@@ -7,7 +7,7 @@ import sys
 import tempfile
 import unittest
 
-from StringIO import StringIO
+from io import StringIO
 
 from kinto import __version__ as kinto_version
 from kinto.__main__ import main, DEFAULT_LOG_FORMAT
