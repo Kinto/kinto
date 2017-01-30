@@ -190,8 +190,7 @@ class QueryField(colander.SchemaNode):
     missing = colander.drop
 
     def deserialize(self, cstruct=colander.null):
-        if isinstance(cstruct, bytes):
-            cstruct = native_value(cstruct)
+        cstruct = native_value(cstruct)
         return super(QueryField, self).deserialize(cstruct)
 
 
