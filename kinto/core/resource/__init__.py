@@ -17,8 +17,7 @@ from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
     COMPARISON, classname, decode64, encode64, json,
-    encode_header, dict_subset, recursive_update_dict,
-    apply_json_patch
+    dict_subset, recursive_update_dict, apply_json_patch
 )
 
 from .model import Model, ShareableModel
@@ -287,7 +286,7 @@ class UserResource(object):
         if limit and len(records) == limit and offset < total_records:
             lastrecord = records[-1]
             next_page = self._next_page_url(sorting, limit, lastrecord, offset)
-            headers['Next-Page'] = encode_header(next_page)
+            headers['Next-Page'] = next_page
 
         if partial_fields:
             records = [
@@ -297,7 +296,7 @@ class UserResource(object):
 
         # Bind metric about response size.
         logger.bind(nb_records=len(records), limit=limit)
-        headers['Total-Records'] = encode_header('%s' % total_records)
+        headers['Total-Records'] = str(total_records)
 
         return self.postprocess(records)
 
@@ -381,12 +380,12 @@ class UserResource(object):
             offset = offset + len(deleted)
             if limit and len(deleted) == limit and offset < total_records:
                 next_page = self._next_page_url(sorting, limit, lastrecord, offset)
-                self.request.response.headers['Next-Page'] = encode_header(next_page)
+                self.request.response.headers['Next-Page'] = next_page
         else:
             self._add_timestamp_header(self.request.response)
 
         headers = self.request.response.headers
-        headers['Total-Records'] = encode_header('%s' % total_records)
+        headers['Total-Records'] = str(total_records)
 
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
         return self.postprocess(deleted, action=action, old=records)
@@ -753,7 +752,7 @@ class UserResource(object):
         # Pyramid takes care of converting.
         response.last_modified = timestamp / 1000.0
         # Return timestamp as ETag.
-        response.headers['ETag'] = encode_header('"%s"' % timestamp)
+        response.headers['ETag'] = '"{}"'.format(timestamp)
 
     def _add_cache_header(self, response):
         """Add Cache-Control and Expire headers, based a on a setting for the

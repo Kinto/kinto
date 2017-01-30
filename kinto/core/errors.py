@@ -2,7 +2,7 @@ from pyramid import httpexceptions
 from enum import Enum
 
 from kinto.core.logs import logger
-from kinto.core.utils import json, reapply_cors, encode_header
+from kinto.core.utils import json, reapply_cors
 
 
 class ERRORS(Enum):
@@ -184,8 +184,8 @@ def send_alert(request, message=None, url=None, code='soft-eol'):
     if url is None:
         url = request.registry.settings['project_docs']
 
-    request.response.headers['Alert'] = encode_header(json.dumps({
+    request.response.headers['Alert'] = json.dumps({
         'code': code,
         'message': message,
         'url': url
-    }))
+    })

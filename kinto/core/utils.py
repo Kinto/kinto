@@ -212,9 +212,8 @@ def reapply_cors(request, response):
         if origin:
             settings = request.registry.settings
             allowed_origins = set(aslist(settings['cors_origins']))
-            required_origins = {'*', decode_header(origin)}
+            required_origins = {'*', origin}
             if allowed_origins.intersection(required_origins):
-                origin = encode_header(origin)
                 response.headers['Access-Control-Allow-Origin'] = origin
 
         # Import service here because kinto.core import utils
@@ -318,8 +317,7 @@ def build_request(original, dict_obj):
     # Payload is always a dict (from ``BatchRequestSchema.body``).
     # Send it as JSON for subrequests.
     if isinstance(payload, dict):
-        headers['Content-Type'] = encode_header(
-            'application/json; charset=utf-8')
+        headers['Content-Type'] = 'application/json; charset=utf-8'
         payload = json.dumps(payload)
 
     request = Request.blank(path=path.decode('latin-1'),

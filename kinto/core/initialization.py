@@ -128,8 +128,7 @@ def setup_backoff(config):
         # Add backoff in response headers.
         backoff = config.registry.settings['backoff']
         if backoff is not None:
-            backoff = utils.encode_header('%s' % backoff)
-            event.response.headers['Backoff'] = backoff
+            event.response.headers['Backoff'] = str(backoff)
 
     config.add_subscriber(on_new_response, NewResponse)
 

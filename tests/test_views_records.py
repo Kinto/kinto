@@ -3,7 +3,6 @@ import mock
 import re
 import unittest
 
-from kinto.core.utils import decode_header
 from kinto.core.testing import get_user_headers
 
 from .support import (BaseWebTest, MINIMALIST_RECORD,
@@ -163,16 +162,14 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     def test_create_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        old_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        old_timestamp = int(json.loads(collection_resp.headers['ETag']))
         self.app.post_json(self.collection_url,
                            MINIMALIST_RECORD,
                            headers=self.headers,
                            status=201)
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        new_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        new_timestamp = int(json.loads(collection_resp.headers['ETag']))
         assert old_timestamp < new_timestamp
 
     def test_create_a_record_without_id_generates_a_uuid(self):
@@ -220,30 +217,26 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     def test_update_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        old_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        old_timestamp = int(json.loads(collection_resp.headers['ETag']))
         self.app.put_json(self.record_url,
                           MINIMALIST_RECORD,
                           headers=self.headers,
                           status=200)
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        new_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        new_timestamp = int(json.loads(collection_resp.headers['ETag']))
         assert old_timestamp < new_timestamp
 
     def test_delete_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        old_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        old_timestamp = int(json.loads(collection_resp.headers['ETag']))
         self.app.delete(self.record_url,
                         headers=self.headers,
                         status=200)
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        new_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        new_timestamp = int(json.loads(collection_resp.headers['ETag']))
         assert old_timestamp < new_timestamp
 
     def test_record_is_accessible_by_group_member(self):

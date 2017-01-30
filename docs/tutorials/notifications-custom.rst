@@ -321,6 +321,6 @@ But 2 seconds later, look at the worker output:
 
 ::
 
-    {u'resource_name': u'record', u'user_id': u'basicauth:fea1e21d339299506d89e60f048cefd5b424ea641ba48267c35a4ce921439fa4', u'timestamp': 1453459942672, u'uri': u'/buckets/c8c94a74-5bf6-9fb0-5b72-b0777da6718e/collections/assets/records', u'bucket_id': u'c8c94a74-5bf6-9fb0-5b72-b0777da6718e', u'action': u'create', u'collection_id': u'assets'}
+    {'resource_name': 'record', 'user_id': 'basicauth:fea1e21d339299506d89e60f048cefd5b424ea641ba48267c35a4ce921439fa4', 'timestamp': 1453459942672, 'uri': '/buckets/c8c94a74-5bf6-9fb0-5b72-b0777da6718e/collections/assets/records', 'bucket_id': 'c8c94a74-5bf6-9fb0-5b72-b0777da6718e', 'action': 'create', 'collection_id': 'assets'}
 
 It worked!

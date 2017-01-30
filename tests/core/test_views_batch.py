@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import colander
 import mock
 import uuid
@@ -361,31 +360,31 @@ class BatchServiceTest(unittest.TestCase):
                       subrequest.headers['Content-Type'])
 
     def test_subrequests_body_have_utf8_charset(self):
-        request = {'path': '/', 'body': {'json': u"😂"}}
+        request = {'path': '/', 'body': {'json': "😂"}}
         self.post({'requests': [request]})
         subrequest, = self.request.invoke_subrequest.call_args[0]
         self.assertIn('charset=utf-8', subrequest.headers['Content-Type'])
-        wanted = {"json": u"😂"}
+        wanted = {"json": "😂"}
         self.assertEqual(subrequest.body.decode('utf8'),
                          json.dumps(wanted))
 
     def test_subrequests_paths_are_url_encoded(self):
-        request = {'path': u'/test?param=©'}
+        request = {'path': '/test?param=©'}
         self.post({'requests': [request]})
         subrequest, = self.request.invoke_subrequest.call_args[0]
-        self.assertEqual(subrequest.path, u'/v0/test')
-        self.assertEqual(subrequest.GET['param'], u'©')
+        self.assertEqual(subrequest.path, '/v0/test')
+        self.assertEqual(subrequest.GET['param'], '©')
 
     def test_subrequests_responses_paths_are_url_decoded(self):
-        request = {'path': u'/test?param=©'}
+        request = {'path': '/test?param=©'}
         resp = self.post({'requests': [request]})
         path = resp['responses'][0]['path']
-        self.assertEqual(path, u'/v0/test')
+        self.assertEqual(path, '/v0/test')
 
     def test_response_body_is_string_if_remote_response_is_not_json(self):
         response = Response(body='Internal Error')
         self.request.invoke_subrequest.return_value = response
-        request = {'path': u'/test'}
+        request = {'path': '/test'}
         resp = self.post({'requests': [request]})
         body = resp['responses'][0]['body'].decode('utf-8')
         self.assertEqual(body, 'Internal Error')

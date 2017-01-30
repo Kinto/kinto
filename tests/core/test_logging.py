@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 import os
 import re
@@ -103,8 +102,8 @@ class ClassicLogRendererTest(unittest.TestCase):
                           ' app.event nb_records=5'), strip_ansi(value))
 
     def test_fields_values_support_unicode(self):
-        value = self.renderer(self.logger, 'critical', {'value': u'\u2014'})
-        self.assertIn(u'\u2014', value)
+        value = self.renderer(self.logger, 'critical', {'value': '\u2014'})
+        self.assertIn('\u2014', value)
 
 
 class MozillaHekaRendererTest(unittest.TestCase):

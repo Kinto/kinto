@@ -7,7 +7,7 @@ from pyramid.view import view_config
 from kinto.core.errors import http_error, ERRORS
 from kinto.core.logs import logger
 from kinto.core.storage import exceptions as storage_exceptions
-from kinto.core.utils import reapply_cors, encode_header
+from kinto.core.utils import reapply_cors
 
 
 @view_config(context=httpexceptions.HTTPForbidden,
@@ -80,7 +80,7 @@ def service_unavailable(response, request):
                               message=error_msg)
 
     retry_after = request.registry.settings['retry_after_seconds']
-    response.headers["Retry-After"] = encode_header('%s' % retry_after)
+    response.headers["Retry-After"] = str(retry_after)
     return reapply_cors(request, response)
 
 

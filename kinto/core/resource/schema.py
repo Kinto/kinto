@@ -1,7 +1,7 @@
 import colander
 from colander import SchemaNode, String
 
-from kinto.core.utils import strip_whitespace, msec_time, decode_header, native_value
+from kinto.core.utils import strip_whitespace, msec_time, native_value
 
 
 # Resource related schemas

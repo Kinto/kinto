@@ -36,13 +36,13 @@ class ClassicLogRenderer(object):
 
         if 'path' in event_dict:
             pattern = (BRIGHT +
-                       u'"{method: <5} {path}{querystring}"' +
+                       '"{method: <5} {path}{querystring}"' +
                        RESET_ALL +
-                       YELLOW + u' {code} ({t} ms)' +
+                       YELLOW + ' {code} ({t} ms)' +
                        RESET_ALL +
-                       u' {event} {context}')
+                       ' {event} {context}')
         else:
-            pattern = u'{event} {context}'
+            pattern = '{event} {context}'
 
         output = {}
         for field in ['method', 'path', 'code', 't', 'event']:

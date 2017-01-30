@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import unittest
 import os
 import pytest
@@ -14,8 +12,8 @@ from pyramid import testing
 
 from kinto.core.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
-    current_service, encode_header, decode_header, follow_subrequest,
-    build_request, dict_subset, dict_merge, parse_resource
+    current_service, follow_subrequest, build_request, dict_subset, dict_merge,
+    parse_resource
 )
 from kinto.core.testing import DummyRequest
 
@@ -142,53 +140,6 @@ class BuildRequestTest(unittest.TestCase):
         original = build_real_request({'PATH_INFO': '/foo'})
         request = build_request(original, {"path": "bar"})
         self.assertTrue(hasattr(request, 'current_service'))
-
-
-class EncodeHeaderTest(unittest.TestCase):
-
-    def test_returns_a_string_if_passed_a_string(self):
-        entry = str('Toto')
-        value = encode_header(entry)
-        self.assertEqual(entry, value)
-        self.assertEqual(type(value), str)
-
-    def test_returns_a_string_if_passed_bytes(self):
-        entry = 'Toto'.encode('utf-8')
-        value = encode_header(entry)
-        self.assertEqual(type(value), str)
-
-    def test_returns_a_string_if_passed_bytes_and_encoding(self):
-        entry = 'Rémy'.encode('latin-1')
-        value = encode_header(entry, 'latin-1')
-        self.assertEqual(type(value), str)
-
-    def test_returns_a_string_if_passed_unicode(self):
-        entry = 'Rémy'
-        value = encode_header(entry)
-        self.assertEqual(type(value), str)
-
-    def test_returns_a_string_if_passed_unicode_with_encoding(self):
-        entry = 'Rémy'
-        value = encode_header(entry, 'latin-1')
-        self.assertEqual(type(value), str)
-
-
-class DecodeHeaderTest(unittest.TestCase):
-
-    def test_returns_an_unicode_string_if_passed_a_string(self):
-        entry = 'Toto'
-        value = decode_header(entry)
-        self.assertEqual(entry, value)
-
-    def test_returns_an_unicode__string_if_passed_bytes(self):
-        entry = 'Toto'.encode('utf-8')
-        value = decode_header(entry)
-        self.assertEqual(type(value), str)
-
-    def test_returns_an_unicode__string_if_passed_bytes_and_encoding(self):
-        entry = 'Rémy'.encode('latin-1')
-        value = decode_header(entry, 'latin-1')
-        self.assertEqual(type(value), str)
 
 
 class FollowSubrequestTest(unittest.TestCase):
