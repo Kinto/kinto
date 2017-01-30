@@ -1,11 +1,39 @@
 from __future__ import absolute_import
+from functools import wraps
 
 import os
+import time
 
 from kinto.core import logger
 from kinto.core.cache import CacheBase
 from kinto.core.storage.postgresql.client import create_from_config
+from kinto.core.storage.exceptions import BackendError
 from kinto.core.utils import json
+
+
+DELAY_BETWEEN_RETRIES_IN_SECONDS = 0.005
+MAX_RETRIES = 10
+
+
+def retry_on_failure(func):
+    try:
+        import psycopg2
+    except ImportError:  # pragma: no cover
+        pass  # Do not break (but will fail nicely later anyway)
+
+    @wraps(func)
+    def wraps_func(self, *args, **kwargs):
+        tries = kwargs.pop('tries', 0)
+        try:
+            return func(self, *args, **kwargs)
+        except psycopg2.IntegrityError as e:
+            if tries < MAX_RETRIES:
+                # Skip delay the 2 first times.
+                delay = max(0, tries - 1) * DELAY_BETWEEN_RETRIES_IN_SECONDS
+                time.sleep(delay)
+                return wraps_func(self, tries=(tries + 1), *args, **kwargs)
+            raise BackendError(original=e)
+    return wraps_func
 
 
 class Cache(CacheBase):
@@ -121,6 +149,7 @@ class Cache(CacheBase):
         with self.client.connect() as conn:
             conn.execute(query, dict(ttl=ttl, key=self.prefix + key))
 
+    @retry_on_failure
     def set(self, key, value, ttl=None):
         if ttl is None:
             logger.warning("No TTL for cache key %r" % key)
