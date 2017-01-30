@@ -238,7 +238,7 @@ class HeaderSchema(colander.MappingSchema):
 
 
 class PatchHeaderSchema(HeaderSchema):
-    """Header schema used with patch requests."""
+    """Header schema used with PATCH requests."""
 
     def response_behavior_validator():
         return colander.OneOf(['full', 'light', 'diff'])
@@ -289,12 +289,6 @@ class QuerySchema(colander.MappingSchema):
         return values
 
 
-class GetQuerySchema(QuerySchema):
-    """Querystring validated fields for get requests."""
-
-    _fields = FieldList()
-
-
 class CollectionQuerySchema(QuerySchema):
     """Querystring validated fields used with collections."""
 
@@ -308,7 +302,47 @@ class CollectionQuerySchema(QuerySchema):
     last_modified = QueryField(colander.Integer())
 
 
+class RecordGetQuerySchema(QuerySchema):
+    """Querystring validated fields for GET record requests."""
+
+    _fields = FieldList()
+
+
+class CollectionGetQuerySchema(CollectionQuerySchema):
+    """Querystring validated fields for GET collection requests."""
+
+    _fields = FieldList()
+
+
 # Body Schemas
+
+
+class RecordSchema(colander.MappingSchema):
+
+    data = colander.deferred
+
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='raise')
+
+    def bind(self, data=None, permissions=None, **kwargs):
+        binded = super(RecordSchema, self).bind(**kwargs)
+
+        if data:
+            # Check if empty record is allowed.
+            # (e.g every schema fields have defaults)
+            try:
+                data.deserialize({})
+            except colander.Invalid:
+                pass
+            else:
+                data.default = {}
+                data.missing = colander.drop
+            binded['data'] = data.bind(**kwargs)
+        if permissions:
+            binded['permissions'] = permissions.bind(**kwargs)
+
+        return binded
 
 
 class JsonPatchOperationSchema(colander.MappingSchema):
@@ -347,34 +381,29 @@ class RequestSchema(colander.MappingSchema):
     header = HeaderSchema()
     querystring = QuerySchema()
 
+    def bind(self, header=None, querystring=None, **kwargs):
+        binded = super(RequestSchema, self).bind(**kwargs)
+        if header:
+            binded['header'] = header.bind(**kwargs)
+        if querystring:
+            binded['querystring'] = querystring.bind(**kwargs)
 
-class GetRequestSchema(RequestSchema):
-    """Base request schema for get requests."""
-
-    querystring = GetQuerySchema()
-
-
-class PatchRequestSchema(RequestSchema):
-    """Base request schema for patch requests."""
-
-    header = PatchHeaderSchema()
+        return binded
 
 
-class CollectionRequestSchema(RequestSchema):
-    """Request schema used with collections."""
+class PayloadRequestSchema(RequestSchema):
+    """Base schema for methods that use a JSON request body."""
 
-    querystring = CollectionQuerySchema()
+    body = RecordSchema()
 
-
-class CollectionGetRequestSchema(CollectionRequestSchema):
-    """Collection get request schema."""
-
-    @colander.instantiate()
-    class querystring(CollectionQuerySchema, GetQuerySchema):
-        pass
+    def bind(self, body=None, **kwargs):
+        binded = super(RequestSchema, self).bind(**kwargs)
+        if body:
+            binded['body'] = body.bind(**kwargs)
+        return binded
 
 
-class JsonPatchRequestSchema(PatchRequestSchema):
+class JsonPatchRequestSchema(RequestSchema):
     """JSON Patch (application/json-patch+json) request schema."""
 
     body = JsonPatchBodySchema()

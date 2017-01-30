@@ -218,7 +218,8 @@ class RequestSchemaTest(unittest.TestCase):
 class GetRequestSchemaTest(unittest.TestCase):
 
     def setUp(self):
-        self.schema = schema.GetRequestSchema()
+        self.schema = schema.RequestSchema().bind(
+            querystring=schema.RecordGetQuerySchema())
 
     def test_get_deserialize_fields(self):
         value = {'querystring': {'_fields': 'foo,bar'}}
@@ -230,7 +231,8 @@ class GetRequestSchemaTest(unittest.TestCase):
 class PatchRequestSchemaTest(unittest.TestCase):
 
     def setUp(self):
-        self.schema = schema.PatchRequestSchema()
+        self.schema = schema.RequestSchema().bind(
+            header=schema.PatchHeaderSchema())
 
     def test_patch_deserialize_response_behavior(self):
         value = {'header': {'Response-Behavior': 'diff'}}
@@ -245,7 +247,8 @@ class PatchRequestSchemaTest(unittest.TestCase):
 class CollectionRequestSchemaTest(unittest.TestCase):
 
     def setUp(self):
-        self.schema = schema.CollectionRequestSchema()
+        self.schema = schema.RequestSchema().bind(
+            querystring=schema.CollectionQuerySchema())
 
     def test_collection_deserialize_sort(self):
         value = {'querystring': {'_sort': 'foo,-bar'}}
@@ -277,7 +280,8 @@ class CollectionRequestSchemaTest(unittest.TestCase):
 class CollectionGetRequestSchemaTest(unittest.TestCase):
 
     def setUp(self):
-        self.schema = schema.CollectionGetRequestSchema()
+        self.schema = schema.RequestSchema().bind(
+            querystring=schema.CollectionGetQuerySchema())
 
     def test_deserialize_get_fields(self):
         value = {'querystring': {'_fields': 'foo,bar'}}
