@@ -6,7 +6,6 @@ import jsonpatch
 import os
 import re
 import six
-import threading
 import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
@@ -104,28 +103,6 @@ def recursive_update_dict(root, changes, ignores=()):
                     root.pop(k)
             else:
                 root[k] = v
-
-
-def synchronized(method):
-    """Class method decorator to make sure two threads do not execute some code
-    at the same time (c.f Java ``synchronized`` keyword).
-
-    The decorator installs a mutex on the class instance.
-    """
-    def decorated(self, *args, **kwargs):
-        try:
-            lock = getattr(self, '__lock__')
-        except AttributeError:
-            lock = threading.RLock()
-            setattr(self, '__lock__', lock)
-
-        lock.acquire()
-        try:
-            result = method(self, *args, **kwargs)
-        finally:
-            lock.release()
-        return result
-    return decorated
 
 
 def random_bytes_hex(bytes_length):
