@@ -23,12 +23,12 @@ REQUIREMENTS = [
     'colander',
     'colorama',
     'cornice >= 2.4',
+    'cornice_swagger >= 0.4',
     'jsonschema',
     'jsonpatch',
     'python-dateutil',
     'pyramid>1.7,<1.8',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
-    'ruamel.yaml',
     'transaction',
     'pyramid_tm',
     'requests < 2.13.0',

@@ -144,6 +144,9 @@ def includeme(config):
     # Setup cornice.
     config.include("cornice")
 
+    # Setup cornice openAPI documentation
+    config.include("cornice_swagger")
+
     # Per-request transaction.
     config.include("pyramid_tm")
 

@@ -1,20 +1,29 @@
-import os
-import pkg_resources
-
-from ruamel import yaml
-from pyramid import httpexceptions
-from pyramid.settings import aslist
+import colander
 from pyramid.security import NO_PERMISSION_REQUIRED
-from kinto.core import Service
-from kinto.core.utils import recursive_update_dict
+from pyramid.settings import aslist
+from cornice.service import get_services
+from cornice_swagger import CorniceSwagger
+from cornice_swagger.converters.schema import TypeConversionDispatcher, TypeConverter
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ORIGIN = os.path.dirname(os.path.dirname(HERE))
+from kinto.core import Service
+from kinto.core.schema import Any
+
 
 swagger = Service(name="swagger", path='/__api__', description="OpenAPI description")
 
 
-@swagger.get(permission=NO_PERMISSION_REQUIRED)
+class SwaggerResponseSchema(colander.MappingSchema):
+    body = colander.MappingSchema(unknown='preserve')
+
+
+swagger_response_schemas = {
+    '200': SwaggerResponseSchema(
+        description='Return an OpenAPI description og the running instance.')
+}
+
+
+@swagger.get(permission=NO_PERMISSION_REQUIRED, tags=['Utilities'],
+             operation_id='__api__', response_schemas=swagger_response_schemas)
 def swagger_view(request):
 
     # Only build json once
@@ -23,72 +32,102 @@ def swagger_view(request):
     except AttributeError:
         pass
 
+    services = get_services()
     settings = request.registry.settings
+    generator = CorniceSwagger(services)
 
-    # Base swagger spec
-    files = [
-        settings.get('swagger_file', ''),  # From config
-        os.path.join(ORIGIN, 'swagger.yaml'),  # Relative to the package root
-        os.path.join(HERE, 'swagger.yaml')  # Relative to this file.
-    ]
+    # XXX: Add type converter to the dispatcher
+    # https://github.com/Cornices/cornice.ext.swagger/pull/48
+    TypeConversionDispatcher.converters[Any] = AnyTypeConverter
 
-    files = [f for f in files if os.path.exists(f)]
-
-    # Get first file that exists
-    if files:
-        files = files[:1]
-    else:
-        raise httpexceptions.HTTPNotFound()
-
-    # Plugin swagger extensions
-    includes = aslist(settings.get('includes', ''))
-    for app in includes:
-        f = pkg_resources.resource_filename(app, 'swagger.yaml')
-        if os.path.exists(f):
-            files.append(f)
-
-    swagger_view.__json__ = {}
-
-    # Read and merge files
-    for path in files:
-        abs_path = os.path.abspath(path)
-        with open(abs_path) as f:
-            spec = yaml.safe_load(f)
-            recursive_update_dict(swagger_view.__json__, spec)
-
-    # Update instance fields
-    info = dict(
-        title=settings['project_name'],
-        version=settings['http_api_version'])
-
-    schemes = [settings.get('http_scheme') or 'http']
-
-    security_defs = swagger_view.__json__.get('securityDefinitions', {})
+    security_defs = {}
+    security_roles = []
 
     # BasicAuth is a non extension capability, so we should check it from config
     if 'basicauth' in aslist(settings.get('multiauth.policies', '')):
         basicauth = {'type': 'basic',
                      'description': 'HTTP Basic Authentication.'}
         security_defs['basicAuth'] = basicauth
+        security_roles.append({'basicAuth': []})
 
-    # Security options are JSON objects with a single key
-    security = swagger_view.__json__.get('security', [])
-    security_names = [next(iter(security_def)) for security_def in security]
+    def security_generator(service, method):
+        return security_policies_generator(service, method, security_roles)
 
-    # include securityDefinitions that are not on default security options
-    for name, prop in security_defs.items():
-        security_def = {name: prop.get('scopes', {}).keys()}
-        if name not in security_names:
-            security.append(security_def)
+    base_spec = {
+        'host': request.host,
+        'schemes': [settings.get('http_scheme') or 'http'],
+        'basePath': request.path.replace(swagger.path, ''),
+        'securityDefinitions': security_defs,
+    }
 
-    data = dict(
-        info=info,
-        host=request.host,
-        basePath=request.path.replace(swagger.path, ''),
-        schemes=schemes,
-        securityDefinitions=security_defs,
-        security=security)
+    spec = generator(
+        title=settings['project_name'],
+        version=settings['http_api_version'],
+        base_path=request.path.replace(swagger.path, ''),
+        ignore_ctypes=["application/json-patch+json"],
+        default_tags=tag_generator,
+        default_op_ids=operation_id_generator,
+        default_security=security_generator,
+        swagger=base_spec
+    )
 
-    recursive_update_dict(swagger_view.__json__, data)
+    swagger_view.__json__ = spec
 
     return swagger_view.__json__
+
+
+class AnyTypeConverter(TypeConverter):
+    """Convert type agnostic parameter to swagger."""
+
+    def __call__(self, schema_node):
+        return {}
+
+
+def tag_generator(service, method):
+    """Povides default swagger tags to views."""
+
+    base_tag = service.name.capitalize()
+    base_tag = base_tag.replace('-collection', '')
+    base_tag = base_tag.replace('-record', '')
+
+    return [base_tag]
+
+
+def operation_id_generator(service, method):
+    """Povides default operation ids to methods if not defined on view."""
+
+    method = method.lower()
+    method_mapping = {
+        'post': 'create',
+        'put': 'update'
+    }
+    if method in method_mapping:
+        method = method_mapping[method]
+
+    resource = service.name
+    if method == 'create':
+        resource = resource.replace('-collection', '')
+
+    resource = resource.replace('y-collection', 'ies')  # y/ies plural
+    resource = resource.replace('-collection', 's')
+    resource = resource.replace('-record', '')
+    op_id = "%s_%s" % (method, resource)
+
+    return op_id
+
+
+def security_policies_generator(service, method, security_roles=[]):
+    """Provides OpenAPI security properties based on kinto policies."""
+
+    definitions = service.definitions
+
+    # Get method view arguments
+    for definition in definitions:
+        met, view, args = definition
+        if met == method:
+            break
+
+    if args.get('permission') == '__no_permission_required__':
+        return []
+    else:
+        return security_roles

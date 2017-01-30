@@ -1,9 +1,12 @@
-import six
 import colander
-from colander import SchemaNode, String
 
-from kinto.core.utils import strip_whitespace, msec_time, decode_header, native_value
+from kinto.core.schema import (Any, QueryField, HeaderField, FieldList,
+                               TimeStamp, HeaderQuotedInteger)
+from kinto.core.errors import ErrorSchema
+from kinto.core.utils import native_value
 
+
+# Object Schemas
 
 class ResourceSchema(colander.MappingSchema):
     """Base resource schema, with *Cliquet* specific built-in options."""
@@ -77,6 +80,8 @@ class PermissionsSchema(colander.SchemaNode):
     def __init__(self, *args, **kwargs):
         self.known_perms = kwargs.pop('permissions', tuple())
         super(PermissionsSchema, self).__init__(*args, **kwargs)
+        for perm in self.known_perms:
+            self[perm] = self._get_node_principals(perm)
 
     @staticmethod
     def schema_type():
@@ -104,116 +109,21 @@ class PermissionsSchema(colander.SchemaNode):
         return super(PermissionsSchema, self).deserialize(permissions)
 
     def _get_node_principals(self, perm):
-        principal = colander.SchemaNode(colander.String())
+        principal = colander.SchemaNode(colander.String(),
+                                        missing=colander.drop)
         return colander.SchemaNode(colander.Sequence(), principal, name=perm,
                                    missing=colander.drop)
 
 
-class TimeStamp(colander.SchemaNode):
-    """Basic integer schema field that can be set to current server timestamp
-    in milliseconds if no value is provided.
-
-    .. code-block:: python
-
-        class Book(ResourceSchema):
-            added_on = TimeStamp()
-            read_on = TimeStamp(auto_now=False, missing=-1)
-    """
-    schema_type = colander.Integer
-
-    title = 'Epoch timestamp'
-    """Default field title."""
-
-    auto_now = True
-    """Set to current server timestamp (*milliseconds*) if not provided."""
-
-    missing = None
-    """Default field value if not provided in record."""
-
-    def deserialize(self, cstruct=colander.null):
-        if cstruct is colander.null and self.auto_now:
-            cstruct = msec_time()
-        return super(TimeStamp, self).deserialize(cstruct)
+class RecordSchema(colander.MappingSchema):
+    data = ResourceSchema(missing=colander.drop)
 
 
-class URL(SchemaNode):
-    """String field representing a URL, with max length of 2048.
-    This is basically a shortcut for string field with
-    `~colander:colander.url`.
-
-    .. code-block:: python
-
-        class BookmarkSchema(ResourceSchema):
-            url = URL()
-    """
-    schema_type = String
-    validator = colander.All(colander.url, colander.Length(min=1, max=2048))
-
-    def preparer(self, appstruct):
-        return strip_whitespace(appstruct)
+class CollectionSchema(colander.MappingSchema):
+    data = colander.SequenceSchema(ResourceSchema(missing=colander.drop))
 
 
-class Any(colander.SchemaType):
-    """Colander type agnostic field."""
-
-    def deserialize(self, node, cstruct):
-        return cstruct
-
-
-class HeaderField(colander.SchemaNode):
-    """Basic header field SchemaNode."""
-
-    missing = colander.drop
-
-    def deserialize(self, cstruct=colander.null):
-        if isinstance(cstruct, six.binary_type):
-            try:
-                cstruct = decode_header(cstruct)
-            except UnicodeDecodeError:
-                raise colander.Invalid(self, msg='Headers should be UTF-8 encoded')
-        return super(HeaderField, self).deserialize(cstruct)
-
-
-class QueryField(colander.SchemaNode):
-    """Basic querystring field SchemaNode."""
-
-    missing = colander.drop
-
-    def deserialize(self, cstruct=colander.null):
-        if isinstance(cstruct, six.string_types):
-            cstruct = native_value(cstruct)
-        return super(QueryField, self).deserialize(cstruct)
-
-
-class FieldList(QueryField):
-    """String field representing a list of attributes."""
-
-    schema_type = colander.Sequence
-    error_message = "The value should be a list of comma separated attributes"
-    missing = colander.drop
-    fields = colander.SchemaNode(colander.String(), missing=colander.drop)
-
-    def deserialize(self, cstruct=colander.null):
-        if isinstance(cstruct, six.string_types):
-            cstruct = cstruct.split(',')
-        return super(FieldList, self).deserialize(cstruct)
-
-
-class HeaderQuotedInteger(HeaderField):
-    """Integer between "" used in precondition headers."""
-
-    schema_type = colander.String
-    error_message = "The value should be integer between double quotes"
-    validator = colander.Any(colander.Regex('^"([0-9]+?)"$', msg=error_message),
-                             colander.Regex('\*'))
-
-    def deserialize(self, cstruct=colander.null):
-        param = super(HeaderQuotedInteger, self).deserialize(cstruct)
-        if param is colander.drop or param == '*':
-            return param
-
-        return int(param[1:-1])
-
+# Request Schemas
 
 class HeaderSchema(colander.MappingSchema):
     """Schema used for validating and deserializing request headers. """
@@ -236,15 +146,6 @@ class QuerySchema(colander.MappingSchema):
     Schema used for validating and deserializing querystrings. It will include
     and try to guess the type of unknown fields (field filters) on deserialization.
     """
-
-    _limit = QueryField(colander.Integer())
-    _fields = FieldList()
-    _sort = FieldList()
-    _token = QueryField(colander.String())
-    _since = QueryField(colander.Integer())
-    _to = QueryField(colander.Integer())
-    _before = QueryField(colander.Integer())
-    last_modified = QueryField(colander.Integer())
 
     @staticmethod
     def schema_type():
@@ -278,6 +179,38 @@ class QuerySchema(colander.MappingSchema):
         return values
 
 
+class RecordQuerySchema(QuerySchema):
+
+    _fields = FieldList()
+
+
+class CollectionQuerySchema(QuerySchema):
+
+    _fields = FieldList()
+    _limit = QueryField(colander.Integer())
+    _sort = FieldList()
+    _token = QueryField(colander.String())
+    _since = QueryField(colander.Integer())
+    _to = QueryField(colander.Integer())
+    _before = QueryField(colander.Integer())
+    last_modified = QueryField(colander.Integer())
+
+
+class RequestSchema(colander.MappingSchema):
+    """Baseline schema for kinto requests."""
+
+    header = HeaderSchema(missing=colander.drop)
+    querystring = QuerySchema(missing=colander.drop)
+
+
+class RecordRequestSchema(RequestSchema):
+    querystring = RecordQuerySchema(missing=colander.drop)
+
+
+class CollectionRequestSchema(RequestSchema):
+    querystring = CollectionQuerySchema(missing=colander.drop)
+
+
 class JsonPatchOperationSchema(colander.MappingSchema):
     """Single JSON Patch Operation."""
 
@@ -299,18 +232,142 @@ class JsonPatchOperationSchema(colander.MappingSchema):
         return colander.Mapping(unknown='raise')
 
 
-class JsonPatchBodySchema(colander.SequenceSchema):
+class JsonPatchRequestSchema(RecordRequestSchema):
     """Body used with JSON Patch (application/json-patch+json) as in RFC 6902."""
 
-    operations = JsonPatchOperationSchema(missing=colander.drop)
+    body = colander.SequenceSchema(JsonPatchOperationSchema(missing=colander.drop),
+                                   missing=colander.drop)
 
 
-class RequestSchema(colander.MappingSchema):
-    """Baseline schema for kinto requests."""
+# Response schemas
 
-    header = HeaderSchema(missing=colander.drop)
-    querystring = QuerySchema(missing=colander.drop)
+class ResponseHeaderSchema(colander.MappingSchema):
+    etag = HeaderQuotedInteger(name='Etag')
+    last_modified = colander.SchemaNode(colander.String(), name='Last-Modified')
 
 
-class JsonPatchRequestSchema(RequestSchema):
-    body = JsonPatchBodySchema()
+class ErrorResponseSchema(colander.MappingSchema):
+    body = ErrorSchema()
+
+
+class NotModifiedResponseSchema(colander.MappingSchema):
+    header = ResponseHeaderSchema()
+
+
+class RecordResponseSchema(colander.MappingSchema):
+    header = ResponseHeaderSchema()
+    body = RecordSchema()
+
+
+class CollectionResponseSchema(colander.MappingSchema):
+    header = ResponseHeaderSchema()
+    body = CollectionSchema()
+
+
+class ResourceReponses(object):
+
+    default_schemas = {
+        '400': ErrorResponseSchema(
+            description="The request is invalid."),
+        '406': ErrorResponseSchema(
+            description="The client doesn't accept supported responses Content-Type."),
+        '412': ErrorResponseSchema(
+            description="Record was changed or deleted since value in `If-Match` header."),
+        'default': ErrorResponseSchema(
+            description="Unexpected error."),
+
+    }
+    default_record_schemas = {
+        '200': RecordResponseSchema(
+            description="Return the target object.")
+    }
+    default_collection_schemas = {
+        '200': CollectionResponseSchema(
+            description="Return a list of matching objects.")
+    }
+    default_get_schemas = {
+        '304': NotModifiedResponseSchema(
+            description="Reponse has not changed since value in If-None-Match header")
+    }
+    default_post_schemas = {
+        '200': RecordResponseSchema(
+            description="Return an existing object."),
+        '201': RecordResponseSchema(
+            description="Return a created object."),
+        '415': ErrorResponseSchema(
+            description="The client request was not sent with a correct Content-Type.")
+    }
+    default_put_schemas = {
+        '201': RecordResponseSchema(
+            description="Return created object."),
+        '415': ErrorResponseSchema(
+            description="The client request was not sent with a correct Content-Type.")
+    }
+    default_patch_schemas = {
+        '415': ErrorResponseSchema(
+            description="The client request was not sent with a correct Content-Type.")
+    }
+    default_delete_schemas = {
+    }
+    record_get_schemas = {
+        '404': ErrorResponseSchema(
+            description="The object does not exist or was deleted."),
+    }
+    record_patch_schemas = {
+        '404': ErrorResponseSchema(
+            description="The object does not exist or was deleted."),
+    }
+    record_delete_schemas = {
+        '404': ErrorResponseSchema(
+            description="The object does not exist or was already deleted."),
+    }
+
+    def update_record_schema(self, responses, schema):
+
+        schema = schema.clone()
+        schema['data']['last_modified'] = TimeStamp()
+
+        for response in responses.values():
+            body = response.get('body')
+
+            # Update record schema
+            if isinstance(body, RecordSchema):
+                response['body'] = schema
+
+            # Update collection schema
+            elif isinstance(body, CollectionSchema):
+                if 'permissions' in schema:
+                    schema.__delitem__('permissions')
+                response['body']['data'] = colander.SequenceSchema(schema['data'])
+
+    def get(self, endpoint_type, method, schema=None):
+
+        responses = self.default_schemas.copy()
+        type_responses = getattr(self, 'default_%s_schemas' % endpoint_type)
+        responses.update(**type_responses)
+
+        verb_responses = 'default_%s_schemas' % method.lower()
+        method_args = getattr(self, verb_responses, {})
+        responses.update(**method_args)
+
+        method_responses = '%s_%s_schemas' % (endpoint_type, method.lower())
+        endpoint_args = getattr(self, method_responses, {})
+        responses.update(**endpoint_args)
+
+        if schema:
+            self.update_record_schema(responses, schema)
+
+        return responses
+
+
+class ShareableResourseResponses(ResourceReponses):
+
+    def __init__(self):
+        super(ShareableResourseResponses, self).__init__()
+        self.default_schemas.update({
+            '401': ErrorResponseSchema(
+                description="The request is missing authentication headers."),
+            '403': ErrorResponseSchema(
+                description=("The user is not allowed to perform the operation, "
+                             "or the resource is not accessible.")),
+        })

@@ -9,7 +9,7 @@ class SwaggerCollectionResponsesTest(SwaggerTest):
         response = self.app.get('/buckets/b1/collections/c1',
                                 headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Collections'].get_collection
+        op = self.resources['Collection'].get_collection
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -17,7 +17,7 @@ class SwaggerCollectionResponsesTest(SwaggerTest):
         response = self.app.post_json('/buckets/b1/collections', self.collection,
                                       headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Collections'].create_collection
+        op = self.resources['Collection'].create_collection
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -25,7 +25,7 @@ class SwaggerCollectionResponsesTest(SwaggerTest):
         response = self.app.post_json('/buckets/b1/collections', MINIMALIST_COLLECTION,
                                       headers=self.headers, status=201)
         response = self.cast_bravado_response(response)
-        op = self.resources['Collections'].create_collection
+        op = self.resources['Collection'].create_collection
         schema = self.spec.deref(op.op_spec['responses']['201'])
         validate_response(schema, op, response)
 
@@ -33,7 +33,7 @@ class SwaggerCollectionResponsesTest(SwaggerTest):
         response = self.app.put_json('/buckets/b1/collections/c1', MINIMALIST_COLLECTION,
                                      headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Collections'].update_collection
+        op = self.resources['Collection'].update_collection
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -41,7 +41,7 @@ class SwaggerCollectionResponsesTest(SwaggerTest):
         response = self.app.put_json('/buckets/b1/collections/c2', MINIMALIST_COLLECTION,
                                      headers=self.headers, status=201)
         response = self.cast_bravado_response(response)
-        op = self.resources['Collections'].update_collection
+        op = self.resources['Collection'].update_collection
         schema = self.spec.deref(op.op_spec['responses']['201'])
         validate_response(schema, op, response)
 
@@ -49,7 +49,7 @@ class SwaggerCollectionResponsesTest(SwaggerTest):
         response = self.app.delete('/buckets/b1/collections/c1',
                                    headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Collections'].delete_collection
+        op = self.resources['Collection'].delete_collection
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -57,7 +57,7 @@ class SwaggerCollectionResponsesTest(SwaggerTest):
         response = self.app.get('/buckets/b1/collections',
                                 headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Collections'].get_collections
+        op = self.resources['Collection'].get_collections
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
 
@@ -65,6 +65,6 @@ class SwaggerCollectionResponsesTest(SwaggerTest):
         response = self.app.delete('/buckets/b1/collections',
                                    headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
-        op = self.resources['Collections'].delete_collections
+        op = self.resources['Collection'].delete_collections
         schema = self.spec.deref(op.op_spec['responses']['200'])
         validate_response(schema, op, response)
