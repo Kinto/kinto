@@ -1,6 +1,5 @@
 import mock
 import unittest
-from six import text_type
 from uuid import UUID
 
 from pyramid.httpexceptions import HTTPBadRequest
@@ -33,7 +32,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         hmac_secret = settings['userid_hmac_secret']
         bucket_id = hmac_digest(hmac_secret, self.principal)[:32]
 
-        self.assertEqual(result['data']['id'], text_type(UUID(bucket_id)))
+        self.assertEqual(result['data']['id'], str(UUID(bucket_id)))
         self.assertEqual(result['permissions']['write'], [self.principal])
 
     def test_default_bucket_can_still_be_explicitly_created(self):

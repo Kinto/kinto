@@ -2,7 +2,6 @@ import os
 import unittest
 
 import mock
-import six
 from pyramid import testing
 
 from kinto.core.cache import postgresql as postgresql_cache
@@ -125,7 +124,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
                                 data=json.dumps(before))
             result = conn.execute(query, placeholders)
             inserted = result.fetchone()
-            before['id'] = six.text_type(inserted['id'])
+            before['id'] = str(inserted['id'])
             before['last_modified'] = inserted['last_modified']
 
         # In cliquet 1.6, version = 1.

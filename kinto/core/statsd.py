@@ -7,7 +7,7 @@ except ImportError:  # pragma: no cover
     statsd_module = None
 
 from pyramid.exceptions import ConfigurationError
-from six.moves.urllib import parse as urlparse
+import urlparse
 
 from kinto.core import utils
 

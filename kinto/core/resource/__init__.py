@@ -3,7 +3,7 @@ import functools
 
 import colander
 import venusian
-import six
+
 from pyramid import exceptions as pyramid_exceptions
 from pyramid.decorator import reify
 from pyramid.security import Everyone
@@ -788,7 +788,7 @@ class UserResource(object):
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        is_string = isinstance(record_id, six.string_types)
+        is_string = isinstance(record_id, str)
         if not is_string or not self.model.id_generator.match(record_id):
             error_details = {
                 'location': 'path',
@@ -962,9 +962,9 @@ class UserResource(object):
                 raise_invalid(self.request, **error_details)
 
             if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
-                all_integers = all([isinstance(v, six.integer_types)
+                all_integers = all([isinstance(v, int)
                                     for v in value])
-                all_strings = all([isinstance(v, six.text_type)
+                all_strings = all([isinstance(v, str)
                                    for v in value])
                 has_invalid_value = (
                     (field == self.model.id_field and not all_strings) or

@@ -1,6 +1,6 @@
 import mock
 import pytest
-from six import StringIO
+from StringIO import StringIO
 from pyramid.httpexceptions import HTTPOk
 from kinto.core.decorators import cache_forever
 

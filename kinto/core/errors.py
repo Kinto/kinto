@@ -1,4 +1,3 @@
-import six
 from pyramid import httpexceptions
 from enum import Enum
 
@@ -132,13 +131,13 @@ def json_error_handler(request):
         (c.f. HTTP API).
     """
     errors = request.errors
-    sorted_errors = sorted(errors, key=lambda x: six.text_type(x['name']))
+    sorted_errors = sorted(errors, key=lambda x: str(x['name']))
     # In Cornice, we call error handler if at least one error was set.
     error = sorted_errors[0]
     name = error['name']
     description = error['description']
 
-    if isinstance(description, six.binary_type):
+    if isinstance(description, bytes):
         description = error['description'].decode('utf-8')
 
     if name is not None:

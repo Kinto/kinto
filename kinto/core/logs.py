@@ -1,7 +1,6 @@
 import os
 
 import colorama
-import six
 import structlog
 
 from kinto.core import utils
@@ -12,9 +11,9 @@ logger = structlog.get_logger()
 
 def decode_value(value):
     try:
-        return six.text_type(value)
+        return str(value)
     except UnicodeDecodeError:  # pragma: no cover
-        return six.binary_type(value).decode('utf-8')
+        return bytes(value).decode('utf-8')
 
 
 class ClassicLogRenderer(object):
@@ -118,7 +117,7 @@ class MozillaHekaRenderer(object):
             if isinstance(value, dict):
                 value = utils.json.dumps(value)
             elif isinstance(value, (list, tuple)):
-                if not all([isinstance(i, six.string_types) for i in value]):
+                if not all([isinstance(i, str) for i in value]):
                     value = utils.json.dumps(value)
 
             event_dict['Fields'][f] = value

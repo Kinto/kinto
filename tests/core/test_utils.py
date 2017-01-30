@@ -6,7 +6,6 @@ import pytest
 
 import colander
 import mock
-import six
 from kinto.core import includeme
 from kinto.core import DEFAULT_SETTINGS
 from pyramid import httpexceptions
@@ -90,7 +89,7 @@ class CryptographicRandomBytesTest(unittest.TestCase):
 
     def test_return_text_string(self):
         value = random_bytes_hex(16)
-        self.assertIsInstance(value, six.text_type)
+        self.assertIsInstance(value, str)
 
 
 class HmacDigestTest(unittest.TestCase):
@@ -164,12 +163,12 @@ class EncodeHeaderTest(unittest.TestCase):
         self.assertEqual(type(value), str)
 
     def test_returns_a_string_if_passed_unicode(self):
-        entry = six.text_type('Rémy')
+        entry = 'Rémy'
         value = encode_header(entry)
         self.assertEqual(type(value), str)
 
     def test_returns_a_string_if_passed_unicode_with_encoding(self):
-        entry = six.text_type('Rémy')
+        entry = 'Rémy'
         value = encode_header(entry, 'latin-1')
         self.assertEqual(type(value), str)
 
@@ -184,12 +183,12 @@ class DecodeHeaderTest(unittest.TestCase):
     def test_returns_an_unicode__string_if_passed_bytes(self):
         entry = 'Toto'.encode('utf-8')
         value = decode_header(entry)
-        self.assertEqual(type(value), six.text_type)
+        self.assertEqual(type(value), str)
 
     def test_returns_an_unicode__string_if_passed_bytes_and_encoding(self):
         entry = 'Rémy'.encode('latin-1')
         value = decode_header(entry, 'latin-1')
-        self.assertEqual(type(value), six.text_type)
+        self.assertEqual(type(value), str)
 
 
 class FollowSubrequestTest(unittest.TestCase):

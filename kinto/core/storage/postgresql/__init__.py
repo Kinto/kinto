@@ -2,8 +2,6 @@ import os
 import warnings
 from collections import defaultdict
 
-import six
-
 from kinto.core import logger
 from kinto.core.storage import (
     StorageBase, exceptions,
@@ -437,7 +435,7 @@ class Storage(StorageBase):
         placeholders = dict(parent_id=parent_id,
                             collection_id=collection_id)
         # Safe strings
-        safeholders = defaultdict(six.text_type)
+        safeholders = defaultdict(str)
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
             safeholders['parent_id_filter'] = 'parent_id LIKE :parent_id'
@@ -503,7 +501,7 @@ class Storage(StorageBase):
         placeholders = dict(parent_id=parent_id,
                             collection_id=collection_id)
         # Safe strings
-        safeholders = defaultdict(six.text_type)
+        safeholders = defaultdict(str)
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
             safeholders['parent_id_filter'] = 'parent_id LIKE :parent_id'
@@ -584,7 +582,7 @@ class Storage(StorageBase):
                             deleted_field=deleted_field)
 
         # Safe strings
-        safeholders = defaultdict(six.text_type)
+        safeholders = defaultdict(str)
         safeholders['max_fetch_size'] = self._max_fetch_size
 
         # Handle parent_id as a regex only if it contains *
@@ -694,7 +692,7 @@ class Storage(StorageBase):
             if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 # For the IN operator, let psycopg escape the values list.
                 # Otherwise JSON-ify the native value (e.g. True -> 'true')
-                if not isinstance(filtr.value, six.string_types):
+                if not isinstance(filtr.value, str):
                     value = json.dumps(filtr.value).strip('"')
             else:
                 value = tuple(value)

@@ -1,8 +1,6 @@
 import re
 from uuid import uuid4
 
-import six
-
 
 class Generator(object):
     """Base generator for records ids.
@@ -57,4 +55,4 @@ Universally_unique_identifier#Random_UUID_probability_of_duplicates>`_).
     """UUID4 accurate pattern."""
 
     def __call__(self):
-        return six.text_type(uuid4())
+        return str(uuid4())

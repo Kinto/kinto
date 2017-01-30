@@ -1,6 +1,5 @@
 import functools
 
-import six
 from pyramid.settings import aslist
 from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
@@ -242,7 +241,7 @@ class RouteFactory(object):
         required_permission = self.method_permissions.get(method)
 
         # For create permission, the object id is the plural endpoint.
-        collection_path = six.text_type(service.collection_path)
+        collection_path = str(service.collection_path)
         collection_path = collection_path.format(**request.matchdict)
 
         # In the case of a "PUT", check if the targetted record already

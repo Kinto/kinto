@@ -1,4 +1,3 @@
-import six
 import colander
 import mock
 
@@ -115,7 +114,7 @@ class HeaderFieldSchemaTest(unittest.TestCase):
         self.schema = schema.HeaderField(colander.String())
 
     def test_decode_unicode(self):
-        value = six.u('\xe7 is not a c')
+        value = '\xe7 is not a c'
         deserialized = self.schema.deserialize(value.encode('utf-8'))
         self.assertEquals(deserialized, value)
 

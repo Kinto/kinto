@@ -1,5 +1,4 @@
 import colander
-import six
 
 from cornice.validators import colander_validator
 from pyramid import httpexceptions
@@ -22,7 +21,7 @@ def string_values(node, cstruct):
 
         Should be associated to a ``colander.Mapping`` schema node.
     """
-    are_strings = [isinstance(v, six.string_types) for v in cstruct.values()]
+    are_strings = [isinstance(v, str) for v in cstruct.values()]
     if not all(are_strings):
         error_msg = '%s contains non string value' % cstruct
         raise colander.Invalid(node, error_msg)

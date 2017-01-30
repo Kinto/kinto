@@ -1,6 +1,6 @@
 SERVER_CONFIG = config/kinto.ini
 
-VIRTUALENV = virtualenv
+VIRTUALENV = virtualenv --python=python3
 SPHINX_BUILDDIR = docs/_build
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON = $(VENV)/bin/python

@@ -1,6 +1,5 @@
 import uuid
 
-import six
 from pyramid import httpexceptions
 from pyramid.settings import asbool
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
@@ -172,7 +171,7 @@ def default_bucket_id(request):
     secret = settings['userid_hmac_secret']
     # Build the user unguessable bucket_id UUID from its user_id
     digest = hmac_digest(secret, request.prefixed_userid)
-    return six.text_type(uuid.UUID(digest[:32]))
+    return str(uuid.UUID(digest[:32]))
 
 
 def get_user_info(request):
