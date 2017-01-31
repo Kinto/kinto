@@ -3,6 +3,14 @@ Changelog
 
 This document describes changes between each past release.
 
+5.3.2 (2017-01-31)
+------------------
+
+**Bug fixes**
+
+- Retries to set value in PostgreSQL cache backend in case of BackendError (fixes #1052)
+
+
 5.3.1 (2017-01-30)
 ------------------
 

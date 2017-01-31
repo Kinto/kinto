@@ -16,23 +16,18 @@ MAX_RETRIES = 10
 
 
 def retry_on_failure(func):
-    try:
-        import psycopg2
-    except ImportError:  # pragma: no cover
-        pass  # Do not break (but will fail nicely later anyway)
-
     @wraps(func)
     def wraps_func(self, *args, **kwargs):
         tries = kwargs.pop('tries', 0)
         try:
             return func(self, *args, **kwargs)
-        except psycopg2.IntegrityError as e:
+        except BackendError as e:
             if tries < MAX_RETRIES:
                 # Skip delay the 2 first times.
                 delay = max(0, tries - 1) * DELAY_BETWEEN_RETRIES_IN_SECONDS
                 time.sleep(delay)
                 return wraps_func(self, tries=(tries + 1), *args, **kwargs)
-            raise BackendError(original=e)
+            raise e
     return wraps_func
 
 
