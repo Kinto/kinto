@@ -74,34 +74,39 @@ class PermissionsSchema(colander.SchemaNode):
         }
 
     """
+
     def __init__(self, *args, **kwargs):
         self.known_perms = kwargs.pop('permissions', tuple())
         super(PermissionsSchema, self).__init__(*args, **kwargs)
 
-    @staticmethod
-    def schema_type():
-        return colander.Mapping(unknown='preserve')
+        for perm in self.known_perms:
+            self[perm] = self._get_node_principals(perm)
+
+    def schema_type(self):
+        if self.known_perms:
+            return colander.Mapping(unknown='raise')
+        else:
+            return colander.Mapping(unknown='preserve')
 
     def deserialize(self, cstruct=colander.null):
-        # Start by deserializing a simple mapping.
-        permissions = super(PermissionsSchema, self).deserialize(cstruct)
 
-        # In case it is optional in parent schema.
-        if permissions in (colander.null, colander.drop):
-            return permissions
+        # If permissions are not a mapping (e.g null or invalid), try deserializing
+        if not isinstance(cstruct, dict):
+            return super(PermissionsSchema, self).deserialize(cstruct)
 
-        # Remove potential extra children from previous deserialization.
-        self.children = []
-        for perm in permissions.keys():
-            # If know permissions is limited, then validate inline.
-            if self.known_perms:
+        # If permissions are listed, check fields and produce fancy error messages
+        if self.known_perms:
+            for perm in cstruct:
                 colander.OneOf(choices=self.known_perms)(self, perm)
+            return super(PermissionsSchema, self).deserialize(cstruct)
 
-            # Add a String list child node with the name of ``perm``.
-            self.add(self._get_node_principals(perm))
+        # Else deserialize the fields that are not on the schema
+        permissions = {}
+        perm_schema = colander.SequenceSchema(colander.SchemaNode(colander.String()))
+        for perm, principals in cstruct.items():
+            permissions[perm] = perm_schema.deserialize(principals)
 
-        # End up by deserializing a mapping whose keys are now known.
-        return super(PermissionsSchema, self).deserialize(permissions)
+        return permissions
 
     def _get_node_principals(self, perm):
         principal = colander.SchemaNode(colander.String())
