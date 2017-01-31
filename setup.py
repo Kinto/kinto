@@ -1,4 +1,3 @@
-import platform
 import codecs
 import os
 from setuptools import setup, find_packages
@@ -17,8 +16,6 @@ README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
-installed_with_pypy = platform.python_implementation() == 'PyPy'
-
 REQUIREMENTS = [
     'colander',
     'colorama',
@@ -26,7 +23,7 @@ REQUIREMENTS = [
     'jsonschema',
     'jsonpatch',
     'python-dateutil',
-    'pyramid>1.7,<1.8',
+    'pyramid >1.7,<1.8',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
     'ruamel.yaml',
     'transaction',
@@ -36,24 +33,14 @@ REQUIREMENTS = [
     'structlog >= 16.1.0',
     'enum34',
     'waitress',
+    'ujson >= 1.35'
 ]
 
-if installed_with_pypy:
-    # We install psycopg2cffi instead of psycopg2 when dealing with pypy
-    # Note: JSONB support landed after psycopg2cffi 2.7.0
-    POSTGRESQL_REQUIRES = [
-        'SQLAlchemy',
-        'psycopg2cffi>2.7.0',
-        'zope.sqlalchemy',
-    ]
-else:
-    # ujson is not pypy compliant, as it uses the CPython C API
-    REQUIREMENTS.append('ujson >= 1.35')
-    POSTGRESQL_REQUIRES = [
-        'SQLAlchemy',
-        'psycopg2>2.5',
-        'zope.sqlalchemy',
-    ]
+POSTGRESQL_REQUIRES = [
+    'SQLAlchemy',
+    'psycopg2 > 2.5',
+    'zope.sqlalchemy',
+]
 
 REDIS_REQUIRES = [
     'kinto_redis'
@@ -102,7 +89,6 @@ setup(name='kinto',
           "Programming Language :: Python :: 3.4",
           "Programming Language :: Python :: 3.5",
           "Programming Language :: Python :: Implementation :: CPython",
-          "Programming Language :: Python :: Implementation :: PyPy",
           "Topic :: Internet :: WWW/HTTP",
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
           "License :: OSI Approved :: Apache Software License"
