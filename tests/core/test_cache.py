@@ -5,9 +5,9 @@ import time
 from kinto.core.utils import sqlalchemy
 from kinto.core.cache import (CacheBase, memory as memory_backend,
                               postgresql as postgresql_backend)
-
-from kinto.core.testing import skip_if_no_postgresql
 from kinto.core.cache.testing import CacheTest
+from kinto.core.storage.exceptions import BackendError
+from kinto.core.testing import skip_if_no_postgresql
 
 
 class CacheBaseTest(unittest.TestCase):
@@ -94,3 +94,19 @@ class PostgreSQLCacheTest(CacheTest, unittest.TestCase):
             self.cache.client,
             'session_factory',
             side_effect=sqlalchemy.exc.SQLAlchemyError)
+
+    def test_retry_on_integrity_error(self):
+        import psycopg2
+        connect = mock.MagicMock()
+        connect.__enter__.return_value.execute.side_effect = [psycopg2.IntegrityError, None]
+        with mock.patch.object(self.cache.client, 'connect', return_value=connect):
+            self.cache.set('this[]', 'value')
+            assert connect.__enter__.return_value.execute.call_count == 2
+
+    def test_retry_on_integrity_error_and_raises_after_a_few_tries(self):
+        import psycopg2
+        connect = mock.MagicMock()
+        connect.__enter__.return_value.execute.side_effect = psycopg2.IntegrityError
+        with mock.patch.object(self.cache.client, 'connect', return_value=connect):
+            with self.assertRaises(BackendError):
+                self.cache.set('this[]', 'value')

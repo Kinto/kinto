@@ -6,13 +6,24 @@ This document describes changes between each past release.
 5.4.0 (unreleased)
 ------------------
 
+- Nothing changed yet.
+
+
+5.3.1 (2017-01-30)
+------------------
+
+**Bug fixes**
+
+- Retries to set value in PostgreSQL cache backend in case of IntegrityError (fixes #1035)
+
 **Internal changes**
 
 - Remove JSON Patch content-type from accepted types on the viewset, since it is handled
   in a separate view (#1031).
+- Upgraded to Kinto-Admin 1.8.1
+- Configure the Kinto Admin auth methods from the server configuration (#1042)
 - Request schemas (including validation and deserialization) are now isolated by method
-  and endpoint type.
-
+  and endpoint type (#1047).
 
 5.3.0 (2017-01-20)
 ------------------

@@ -27,6 +27,13 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('/admin/')
         assert "html" in resp.body.decode('utf-8')
 
+    def test_admin_index_contains_authMethods_configurations(self):
+        self.maxDiff = None
+        resp = self.app.get('/admin/')
+        body = resp.body.decode('utf-8')
+        assert "authMethods" in body
+        assert "basicauth" in body
+
     def test_admin_redirect_without_trailing_slash(self):
         resp = self.app.get('/admin', status=307)
         self.assertTrue(resp.headers['location'].endswith('/admin/'))
