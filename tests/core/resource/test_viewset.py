@@ -1,11 +1,12 @@
 import mock
+import colander
 from cornice.validators import colander_validator
 from pyramid import exceptions
 from pyramid import testing
 
 from kinto.core import authorization, DEFAULT_SETTINGS
 from kinto.core.resource import ViewSet, ShareableViewSet, register_resource
-from kinto.core.resource.viewset import PartialSchema
+from kinto.core.resource.viewset import PartialSchema, StrictSchema
 from kinto.core.resource.schema import ResourceSchema
 from kinto.core.testing import unittest
 
@@ -348,12 +349,16 @@ class ViewSetTest(unittest.TestCase):
         self.assertTrue(is_enabled)
 
 
-class TestPartialSchemaTest(unittest.TestCase):
+class TestViewsetSchemasTest(unittest.TestCase):
 
     def test_partial_schema_ignores_unknown(self):
         schema = PartialSchema()
         result = schema.deserialize({'foo': 'bar'})
         self.assertEquals(result, {})
+
+    def test_strict_schema_raise_on_unknown(self):
+        schema = StrictSchema()
+        self.assertRaises(colander.Invalid, schema.deserialize, {'foo': 'bar'})
 
 
 class ShareableViewSetTest(unittest.TestCase):
