@@ -20,7 +20,7 @@ CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 installed_with_pypy = platform.python_implementation() == 'PyPy'
 
 REQUIREMENTS = [
-    'colander',
+    'colander >= 1.3.2',
     'colorama',
     'cornice >= 2.4',
     'jsonschema',
