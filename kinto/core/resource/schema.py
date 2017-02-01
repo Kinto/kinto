@@ -319,15 +319,9 @@ class CollectionGetQuerySchema(CollectionQuerySchema):
 
 class RecordSchema(colander.MappingSchema):
 
-    data = colander.deferred
-
-    @staticmethod
-    def schema_type():
-        return colander.Mapping(unknown='raise')
-
-    def bind(self, data=None, permissions=None, **kwargs):
-        binded = super(RecordSchema, self).bind(**kwargs)
-
+    @colander.deferred
+    def data(node, kwargs):
+        data = kwargs.get('data')
         if data:
             # Check if empty record is allowed.
             # (e.g every schema fields have defaults)
@@ -338,11 +332,18 @@ class RecordSchema(colander.MappingSchema):
             else:
                 data.default = {}
                 data.missing = colander.drop
-            binded['data'] = data.bind(**kwargs)
-        if permissions:
-            binded['permissions'] = permissions.bind(**kwargs)
+        return data
 
-        return binded
+    @colander.deferred
+    def permissions(node, kwargs):
+        def get_perms(node, kwargs):
+            return kwargs.get('permissions')
+        # Set if node is provided, else keep deferred
+        return get_perms(node, kwargs) or colander.deferred(get_perms)
+
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='raise')
 
 
 class JsonPatchOperationSchema(colander.MappingSchema):
@@ -378,32 +379,36 @@ class JsonPatchBodySchema(colander.SequenceSchema):
 class RequestSchema(colander.MappingSchema):
     """Base schema for kinto requests."""
 
-    header = HeaderSchema()
-    querystring = QuerySchema()
+    @colander.deferred
+    def header(node, kwargs):
+        return kwargs.get('header')
 
-    def bind(self, header=None, querystring=None, **kwargs):
-        binded = super(RequestSchema, self).bind(**kwargs)
-        if header:
-            binded['header'] = header.bind(**kwargs)
-        if querystring:
-            binded['querystring'] = querystring.bind(**kwargs)
+    @colander.deferred
+    def querystring(node, kwargs):
+        return kwargs.get('querystring')
 
-        return binded
+    def after_bind(self, node, kw):
+        # Set default bindings
+        if not self.get('header'):
+            self['header'] = HeaderSchema()
+        if not self.get('querystring'):
+            self['querystring'] = QuerySchema()
 
 
 class PayloadRequestSchema(RequestSchema):
     """Base schema for methods that use a JSON request body."""
 
-    body = RecordSchema()
-
-    def bind(self, body=None, **kwargs):
-        binded = super(RequestSchema, self).bind(**kwargs)
-        if body:
-            binded['body'] = body.bind(**kwargs)
-        return binded
+    @colander.deferred
+    def body(node, kwargs):
+        def get_body(node, kwargs):
+            return kwargs.get('body')
+        # Set if node is provided, else keep deferred (and allow bindind later)
+        return get_body(node, kwargs) or colander.deferred(get_body)
 
 
 class JsonPatchRequestSchema(RequestSchema):
     """JSON Patch (application/json-patch+json) request schema."""
 
     body = JsonPatchBodySchema()
+    querystring = QuerySchema()
+    header = PatchHeaderSchema()
