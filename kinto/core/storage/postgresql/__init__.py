@@ -217,7 +217,7 @@ class Storage(StorageBase):
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
         id_generator = id_generator or self.id_generator
-        record = record.copy()
+        record = {**record}
         if id_field in record:
             # Raise unicity error if record with same id already exists.
             try:
@@ -229,7 +229,7 @@ class Storage(StorageBase):
             record[id_field] = id_generator()
 
         # Remove redundancy in data field
-        query_record = record.copy()
+        query_record = {**record}
         query_record.pop(id_field, None)
         query_record.pop(modified_field, None)
 
@@ -290,7 +290,7 @@ class Storage(StorageBase):
                auth=None):
 
         # Remove redundancy in data field
-        query_record = record.copy()
+        query_record = {**record}
         query_record.pop(id_field, None)
         query_record.pop(modified_field, None)
 
@@ -322,8 +322,7 @@ class Storage(StorageBase):
                             last_modified=record.get(modified_field),
                             data=json.dumps(query_record))
 
-        record = record.copy()
-        record[id_field] = object_id
+        record = {**record, id_field: object_id}
 
         with self.client.connect() as conn:
             # Create or update ?

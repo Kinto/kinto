@@ -117,7 +117,7 @@ class ViewSet(object):
         :param resource_cls: the resource class.
         :param str method: the HTTP method.
         """
-        args = self.default_arguments.copy()
+        args = {**self.default_arguments}
         default_arguments = getattr(self,
                                     'default_%s_arguments' % endpoint_type)
         args.update(**default_arguments)
@@ -194,7 +194,7 @@ class ViewSet(object):
             endpoint_type=endpoint_type)
 
     def get_service_arguments(self):
-        return self.service_arguments.copy()
+        return {**self.service_arguments}
 
     def is_endpoint_enabled(self, endpoint_type, resource_name, method,
                             settings):

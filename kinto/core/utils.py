@@ -465,7 +465,7 @@ def apply_json_patch(record, ops):
     :returns dict data: patched record data.
              dict permissions: patched record permissions
     """
-    data = record.copy()
+    data = {**record}
 
     # Permissions should always have read and write fields defined (to allow add)
     permissions = {'read': set(), 'write': set()}

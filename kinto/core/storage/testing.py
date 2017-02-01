@@ -48,8 +48,7 @@ class BaseTestStorage(object):
 
     def create_record(self, record=None, id_generator=None, **kwargs):
         record = record or self.record
-        kw = self.storage_kw.copy()
-        kw.update(**kwargs)
+        kw = {**self.storage_kw, **kwargs}
         return self.storage.create(record=record,
                                    id_generator=id_generator,
                                    **kw)
@@ -176,23 +175,20 @@ class BaseTestStorage(object):
         self.create_record(parent_id=unicode_id, collection_id=unicode_id)
 
     def test_create_does_not_overwrite_the_provided_id(self):
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
+        record = {**self.record, self.id_field: RECORD_ID}
         stored = self.create_record(record=record)
         self.assertEqual(stored[self.id_field], RECORD_ID)
 
     def test_create_raise_unicity_error_if_provided_id_exists(self):
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
+        record = {**self.record, self.id_field: RECORD_ID}
         self.create_record(record=record)
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
+        record = {**self.record, self.id_field: RECORD_ID}
         self.assertRaises(exceptions.UnicityError,
                           self.create_record,
                           record=record)
 
     def test_create_does_generate_a_new_last_modified_field(self):
-        record = self.record.copy()
+        record = {**self.record}
         self.assertNotIn(self.modified_field, record)
         created = self.create_record(record=record)
         self.assertIn(self.modified_field, created)
@@ -570,9 +566,7 @@ class TimestampsTest(object):
     def test_create_uses_specified_last_modified_if_collection_empty(self):
         # Collection is empty, create a new record with a specified timestamp.
         last_modified = 1448881675541
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
-        record[self.modified_field] = last_modified
+        record = {**self.record, self.id_field: RECORD_ID, self.modified_field: last_modified}
         self.create_record(record=record)
 
         # Check that the record was assigned the specified timestamp.
@@ -589,9 +583,9 @@ class TimestampsTest(object):
         timestamp_before = first_record[self.modified_field]
 
         # Create a new record with its timestamp in the past.
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
-        record[self.modified_field] = timestamp_before - 10
+        record = {**self.record,
+                  self.id_field: RECORD_ID,
+                  self.modified_field: timestamp_before - 10}
         self.create_record(record=record)
 
         # Check that record timestamp is the one specified.
@@ -610,9 +604,9 @@ class TimestampsTest(object):
         timestamp_before = first_record[self.modified_field]
 
         # Create a new record with its timestamp in the past.
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
-        record[self.modified_field] = timestamp_before
+        record = {**self.record,
+                  self.id_field: RECORD_ID,
+                  self.modified_field: timestamp_before}
         self.create_record(record=record)
 
         # Check that record timestamp is the one specified.
@@ -1156,9 +1150,9 @@ class ParentRecordAccessTest(object):
         record = self.create_record()
 
         new_record = {"another": "record"}
-        kw = self.storage_kw.copy()
-        kw['parent_id'] = self.other_parent_id
-        kw['auth'] = self.other_auth
+        kw = {**self.storage_kw,
+              'parent_id': self.other_parent_id,
+              'auth': self.other_auth}
         self.storage.update(object_id=record['id'], record=new_record, **kw)
 
         not_updated = self.storage.get(object_id=record['id'],

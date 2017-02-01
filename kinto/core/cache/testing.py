@@ -33,7 +33,7 @@ class CacheTest(object):
         self.cache.flush()
 
     def get_backend_prefix(self, prefix):
-        settings_prefix = self.settings.copy()
+        settings_prefix = {**self.settings}
         settings_prefix['cache_prefix'] = prefix
         config_prefix = self._get_config(settings=settings_prefix)
 

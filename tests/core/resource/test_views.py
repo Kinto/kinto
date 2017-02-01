@@ -264,8 +264,7 @@ class RecordAuthzGrantedOnCollectionTest(AuthzAuthnTest):
         super(RecordAuthzGrantedOnCollectionTest, self).setUp()
         self.add_permission(self.collection_url, 'toadstool:create')
 
-        self.guest_headers = self.headers.copy()
-        self.guest_headers['Authorization'] = "Basic bmF0aW06"
+        self.guest_headers = {**self.headers, 'Authorization': "Basic bmF0aW06"}
         resp = self.app.get('/', headers=self.guest_headers)
         self.guest_id = resp.json['user']['id']
 
@@ -418,8 +417,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                           status=400)
 
     def test_id_is_validated_on_post(self):
-        record = MINIMALIST_RECORD.copy()
-        record['id'] = 3.14
+        record = {**MINIMALIST_RECORD, 'id': 3.14}
         self.app.post_json(self.collection_url,
                            {'data': record},
                            headers=self.headers,
@@ -433,60 +431,43 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
                                status=400)
 
     def test_id_is_preserved_on_post(self):
-        record = MINIMALIST_RECORD.copy()
-        record_id = record['id'] = '472be9ec-26fe-461b-8282-9c4e4b207ab3'
+        record = {**MINIMALIST_RECORD, 'id': '472be9ec-26fe-461b-8282-9c4e4b207ab3'}
         resp = self.app.post_json(self.collection_url,
                                   {'data': record},
                                   headers=self.headers)
-        self.assertEqual(resp.json['data']['id'], record_id)
+        self.assertEqual(resp.json['data']['id'], record['id'])
 
     def test_200_is_returned_if_id_matches_existing_record(self):
-        record = MINIMALIST_RECORD.copy()
-        record['id'] = self.record['id']
+        record = {**MINIMALIST_RECORD, 'id': self.record['id']}
         self.app.post_json(self.collection_url,
                            {'data': record},
                            headers=self.headers,
                            status=200)
 
     def test_invalid_accept_header_on_collections_returns_406(self):
-        headers = self.headers.copy()
-        headers['Accept'] = 'text/plain'
-        resp = self.app.post(self.collection_url,
-                             '',
-                             headers=headers,
-                             status=406)
+        headers = {**self.headers, 'Accept': 'text/plain'}
+        resp = self.app.post(self.collection_url, '', headers=headers, status=406)
         self.assertEqual(resp.json['code'], 406)
         message = "Accept header should be one of ['application/json']"
         self.assertEqual(resp.json['message'], message)
 
     def test_invalid_content_type_header_on_collections_returns_415(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'text/plain'
-        resp = self.app.post(self.collection_url,
-                             '',
-                             headers=headers,
-                             status=415)
+        headers = {**self.headers, 'Content-Type': 'text/plain'}
+        resp = self.app.post(self.collection_url, '', headers=headers, status=415)
         self.assertEqual(resp.json['code'], 415)
         message = "Content-Type header should be one of ['application/json']"
         self.assertEqual(resp.json['message'], message)
 
     def test_invalid_accept_header_on_record_returns_406(self):
-        headers = self.headers.copy()
-        headers['Accept'] = 'text/plain'
-        resp = self.app.get(self.get_item_url(),
-                            headers=headers,
-                            status=406)
+        headers = {**self.headers, 'Accept': 'text/plain'}
+        resp = self.app.get(self.get_item_url(), headers=headers, status=406)
         self.assertEqual(resp.json['code'], 406)
         message = "Accept header should be one of ['application/json']"
         self.assertEqual(resp.json['message'], message)
 
     def test_invalid_content_type_header_on_record_returns_415(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'text/plain'
-        resp = self.app.patch_json(self.get_item_url(),
-                                   '',
-                                   headers=headers,
-                                   status=415)
+        headers = {**self.headers, 'Content-Type': 'text/plain'}
+        resp = self.app.patch_json(self.get_item_url(), '', headers=headers, status=415)
         self.assertEqual(resp.json['code'], 415)
         messages = (
             "Content-Type header should be one of [",
@@ -511,11 +492,9 @@ class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
         self.record = resp.json['data']
 
     def test_last_modified_is_not_validated_and_overwritten(self):
-        record = MINIMALIST_RECORD.copy()
-        record['last_modified'] = 'abc'
-        body = {'data': record}
+        record = {**MINIMALIST_RECORD, 'last_modified': 'abc'}
         resp = self.app.post_json(self.collection_url,
-                                  body,
+                                  {'data': record},
                                   headers=self.headers)
         self.assertNotEqual(resp.json['data']['last_modified'], 'abc')
 
@@ -527,11 +506,9 @@ class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
         self.assertNotEqual(resp.json['data']['last_modified'], 'abc')
 
     def test_replace_works_with_invalid_last_modified(self):
-        record = MINIMALIST_RECORD.copy()
-        record['last_modified'] = 'abc'
-        body = {'data': record}
+        record = {**MINIMALIST_RECORD, 'last_modified': 'abc'}
         resp = self.app.put_json(self.get_item_url(),
-                                 body,
+                                 {'data': record},
                                  headers=self.headers)
         self.assertNotEqual(resp.json['data']['last_modified'], 'abc')
 
@@ -765,8 +742,7 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
         self.assertIn('https://', resp.headers['Next-Page'])
 
     def test_next_page_url_relies_on_headers_information(self):
-        headers = self.headers.copy()
-        headers['Host'] = 'https://server.name:443'
+        headers = {**self.headers, 'Host': 'https://server.name:443'}
         resp = self.app.get(self.collection_url + '?_limit=1',
                             headers=headers)
         self.assertIn('https://server.name:443', resp.headers['Next-Page'])

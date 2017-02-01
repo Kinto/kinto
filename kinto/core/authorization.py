@@ -208,8 +208,7 @@ class RouteFactory(object):
             # With the current request on a collection, the record URI must
             # be found out by inspecting the collection service and its sibling
             # record service.
-            matchdict = request.matchdict.copy()
-            matchdict['id'] = object_id
+            matchdict = {**request.matchdict, 'id': object_id}
             try:
                 object_uri = utils.instance_uri(request,
                                                 self.resource_name,

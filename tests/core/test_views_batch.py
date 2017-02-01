@@ -138,8 +138,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(record['name'], 'Trompette de la mort')
 
     def test_400_error_message_is_forwarded(self):
-        headers = self.headers.copy()
-        headers['If-Match'] = '"*"'
+        headers = {**self.headers, 'If-Match': '"*"'}
         request = {
             'method': 'PUT',
             'path': '/mushrooms/%s' % str(uuid.uuid4()),
@@ -154,8 +153,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
                           'double quotes; String does not match expected pattern'))
 
     def test_412_errors_are_forwarded(self):
-        headers = self.headers.copy()
-        headers['If-None-Match'] = '*'
+        headers = {**self.headers, 'If-None-Match': '*'}
         request = {
             'method': 'PUT',
             'path': '/mushrooms/%s' % str(uuid.uuid4()),

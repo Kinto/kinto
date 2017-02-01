@@ -241,8 +241,7 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
 class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(BatchSubrequestTest, self).setUp()
-        headers = self.headers.copy()
-        headers['User-Agent'] = 'readinglist'
+        headers = {**self.headers, 'User-Agent': 'readinglist'}
         body = {
             'requests': [{
                 'path': '/unknown',

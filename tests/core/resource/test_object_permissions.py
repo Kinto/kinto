@@ -106,8 +106,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
         request = self.get_request()
         # Simulate an anonymous PUT
         request.method = 'PUT'
-        request.validated = self.resource.request.validated.copy()
-        request.validated['body'] = {'data': self.record}
+        request.validated = {**self.resource.request.validated, 'body': {'data': {**self.record}}}
         request.prefixed_userid = None
         request.matchdict = {'id': self.record['id']}
         resource = self.resource_class(request=request,

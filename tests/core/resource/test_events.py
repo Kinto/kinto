@@ -119,8 +119,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         record_id = str(uuid.uuid4())
         record_url = self.get_item_url(record_id)
         self.app.put_json(record_url, self.body, headers=self.headers)
-        headers = self.headers.copy()
-        headers['If-Match'] = '"12345"'
+        headers = {**self.headers, 'If-Match': '"12345"'}
         self.app.put_json(record_url, self.body, headers=headers, status=412)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload['action'],

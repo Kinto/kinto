@@ -45,7 +45,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         self.app.get(self.collection_url, headers=self.headers, status=200)
 
     def test_adding_a_task_for_bob_doesnt_add_it_for_alice(self):
-        record = MINIMALIST_RECORD.copy()
+        record = {**MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url + '/records',
                                   record, headers=get_user_headers('bob'))
         record_id = self.collection_url + '/records/' + resp.json['data']['id']
@@ -92,11 +92,8 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                                   MINIMALIST_RECORD,
                                   headers=self.headers)
         current = resp.json['data']['last_modified']
-        headers = self.headers.copy()
-        headers.update({
-            'Origin': 'http://localhost:8000',
-            'If-None-Match': ('"%s"' % current).encode('utf-8')
-        })
+        headers = {**self.headers, 'Origin': 'http://localhost:8000',
+                   'If-None-Match': ('"%s"' % current).encode('utf-8')}
         resp = self.app.get(self.collection_url + '/records',
                             headers=headers, status=304)
         self.assertIn('Access-Control-Allow-Origin', resp.headers)
@@ -107,11 +104,8 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                                   MINIMALIST_RECORD,
                                   headers=self.headers)
         current = resp.json['data']['last_modified']
-        headers = self.headers.copy()
-        headers.update({
-            'Origin': 'http://localhost:8000',
-            'If-None-Match': ('"%s"' % current).encode('utf-8')
-        })
+        headers = {**self.headers, 'Origin': 'http://localhost:8000',
+                   'If-None-Match': ('"%s"' % current).encode('utf-8')}
         resp = self.app.get(self.collection_url + '/records',
                             headers=headers, status=304)
         self.assertIn('Access-Control-Expose-Headers', resp.headers)
@@ -276,10 +270,8 @@ class EventsTest(DefaultBucketWebTest):
 
     def get_app_settings(self, extras=None):
         settings = super(EventsTest, self).get_app_settings(extras)
-        settings = settings.copy()
-        settings['event_listeners'] = 'testevent',
-        settings['event_listeners.testevent.use'] = (
-            'tests.plugins.test_default_bucket')
+        settings = {**settings, 'event_listeners': 'testevent',
+                    'event_listeners.testevent.use': 'tests.plugins.test_default_bucket'}
         return settings
 
     def test_an_event_is_sent_on_implicit_bucket_creation(self):

@@ -20,10 +20,9 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
 
         self.events = []
 
-        bucket = MINIMALIST_BUCKET.copy()
+        bucket = {**MINIMALIST_BUCKET}
 
-        self.alice_headers = self.headers.copy()
-        self.alice_headers.update(**get_user_headers('alice'))
+        self.alice_headers = {**self.headers, **get_user_headers('alice')}
 
         resp = self.app.get('/', headers=self.alice_headers)
         alice_principal = resp.json['user']['id']

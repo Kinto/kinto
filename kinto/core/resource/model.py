@@ -281,8 +281,7 @@ class ShareableModel(Model):
         if len(set(writers) & set(principals)) == 0:
             permissions = {}
         # Insert the permissions values in the response.
-        annotated = record.copy()
-        annotated[self.permissions_field] = permissions
+        annotated = {**record, self.permissions_field: permissions}
         return annotated
 
     def delete_records(self, filters=None, sorting=None, pagination_rules=None,

@@ -31,7 +31,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(self.record['id'], 'beers')
 
     def test_buckets_names_can_have_underscores(self):
-        bucket = MINIMALIST_BUCKET.copy()
+        bucket = {**MINIMALIST_BUCKET}
         record_url = '/buckets/alexis_beers'
         resp = self.app.put_json(record_url,
                                  bucket,
@@ -51,17 +51,15 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                           status=400)
 
     def test_buckets_should_reject_unaccepted_request_content_type(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'text/plain'
+        headers = {**self.headers, 'Content-Type': 'text/plain'}
         self.app.put('/buckets/beers',
                      MINIMALIST_BUCKET,
                      headers=headers,
                      status=415)
 
     def test_create_permissions_can_be_added_on_buckets(self):
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'collection:create': ['fxa:user'],
-                                 'group:create': ['fxa:user']}
+        bucket = {**MINIMALIST_BUCKET, 'permissions': {'collection:create': ['fxa:user'],
+                                                       'group:create': ['fxa:user']}}
         resp = self.app.put_json('/buckets/beers',
                                  bucket,
                                  headers=self.headers,
@@ -71,17 +69,15 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
         self.assertIn('fxa:user', permissions['group:create'])
 
     def test_wrong_create_permissions_cannot_be_added_on_buckets(self):
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'record:create': ['fxa:user']}
+        bucket = {**MINIMALIST_BUCKET, 'permissions': {'record:create': ['fxa:user']}}
         self.app.put_json('/buckets/beers',
                           bucket,
                           headers=self.headers,
                           status=400)
 
     def test_buckets_can_handle_arbitrary_attributes(self):
-        bucket = MINIMALIST_BUCKET.copy()
         public_key = "5866f245a00bb3a39100d31b2f14d453"
-        bucket['data'] = {'public_key': public_key}
+        bucket = {**MINIMALIST_BUCKET, 'data': {'public_key': public_key}}
         resp = self.app.put_json('/buckets/beers',
                                  bucket,
                                  headers=self.headers,
@@ -91,8 +87,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(data['public_key'], public_key)
 
     def test_buckets_can_be_filtered_by_arbitrary_attribute(self):
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['data'] = {'size': 3}
+        bucket = {**MINIMALIST_BUCKET, 'data': {'size': 3}}
         self.app.put_json('/buckets/beers',
                           bucket,
                           headers=self.headers)
@@ -143,7 +138,7 @@ class BucketCreationTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(r.json['data']['id'], bucket)
 
     def test_bucket_can_be_created_without_body_nor_contenttype(self):
-        headers = self.headers.copy()
+        headers = {**self.headers}
         headers.pop("Content-Type")
         self.app.put('/buckets/catalog', headers=headers)
 
@@ -155,7 +150,7 @@ class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super(BucketReadPermissionTest, self).setUp()
-        bucket = MINIMALIST_BUCKET.copy()
+        bucket = {**MINIMALIST_BUCKET}
         self.app.put_json(self.record_url,
                           bucket,
                           headers=self.headers)
@@ -261,7 +256,6 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(len(resp.json['data']), 0)
 
     def test_can_be_created_after_deletion_with_if_none_match_star(self):
-        headers = self.headers.copy()
-        headers['If-None-Match'] = '*'
+        headers = {**self.headers, 'If-None-Match': '*'}
         self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
                           headers=headers, status=201)

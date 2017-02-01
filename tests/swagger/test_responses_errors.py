@@ -28,8 +28,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
                                         headers=self.headers).json
 
     def test_object_get_304(self):
-        headers = self.headers.copy()
-        headers['If-None-Match'] = '"%d"' % self.bucket['data']['last_modified']
+        headers = {**self.headers, 'If-None-Match': '"%d"' % self.bucket['data']['last_modified']}
         response = self.app.get('/buckets/b1',
                                 headers=headers, status=304)
         response = self.cast_bravado_response(response)
@@ -38,8 +37,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_get_400(self):
-        headers = self.headers.copy()
-        headers['If-None-Match'] = 'aaa'
+        headers = {**self.headers, 'If-None-Match': 'aaa'}
         response = self.app.get('/buckets/b1',
                                 headers=headers, status=400)
         response = self.cast_bravado_response(response)
@@ -55,8 +53,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_get_403(self):
-        headers = self.headers.copy()
-        headers.update(testing.get_user_headers('aaa'))
+        headers = {**self.headers, **testing.get_user_headers('aaa')}
         response = self.app.get('/buckets/b1',
                                 headers=headers, status=403)
         response = self.cast_bravado_response(response)
@@ -73,8 +70,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_get_406(self):
-        headers = self.headers.copy()
-        headers['Accept'] = 'text/html'
+        headers = {**self.headers, 'Accept': 'text/html'}
         response = self.app.get('/buckets/b1',
                                 headers=headers, status=406)
         response = self.cast_bravado_response(response)
@@ -83,8 +79,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_get_412(self):
-        headers = self.headers.copy()
-        headers['If-Match'] = '"%d"' % (self.bucket['data']['last_modified']-1)
+        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
         response = self.app.get('/buckets/b1',
                                 headers=headers, status=412)
         response = self.cast_bravado_response(response)
@@ -108,8 +103,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_put_403(self):
-        headers = self.headers.copy()
-        headers.update(testing.get_user_headers('aaa'))
+        headers = {**self.headers, **testing.get_user_headers('aaa')}
         response = self.app.put_json('/buckets/b1', MINIMALIST_BUCKET,
                                      headers=headers, status=403)
         response = self.cast_bravado_response(response)
@@ -118,8 +112,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_put_406(self):
-        headers = self.headers.copy()
-        headers['Accept'] = 'text/html'
+        headers = {**self.headers, 'Accept': 'text/html'}
         response = self.app.put_json('/buckets/b1', MINIMALIST_BUCKET,
                                      headers=headers, status=406)
         response = self.cast_bravado_response(response)
@@ -128,8 +121,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_put_412(self):
-        headers = self.headers.copy()
-        headers['If-Match'] = '"%d"' % (self.bucket['data']['last_modified']-1)
+        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
         response = self.app.put_json('/buckets/b1', MINIMALIST_BUCKET,
                                      headers=headers, status=412)
         response = self.cast_bravado_response(response)
@@ -138,8 +130,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_put_415(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'text/html'
+        headers = {**self.headers, 'Content-Type': 'text/html'}
         response = self.app.put_json('/buckets/b1', MINIMALIST_BUCKET,
                                      headers=headers, status=415)
         response = self.cast_bravado_response(response)
@@ -163,8 +154,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_patch_403(self):
-        headers = self.headers.copy()
-        headers.update(testing.get_user_headers('aaa'))
+        headers = {**self.headers, **testing.get_user_headers('aaa')}
         response = self.app.patch_json('/buckets/b1', MINIMALIST_BUCKET,
                                        headers=headers, status=403)
         response = self.cast_bravado_response(response)
@@ -182,8 +172,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_patch_406(self):
-        headers = self.headers.copy()
-        headers['Accept'] = 'text/html'
+        headers = {**self.headers, 'Accept': 'text/html'}
         response = self.app.patch_json('/buckets/b1', MINIMALIST_BUCKET,
                                        headers=headers, status=406)
         response = self.cast_bravado_response(response)
@@ -192,8 +181,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_patch_412(self):
-        headers = self.headers.copy()
-        headers['If-Match'] = '"%d"' % (self.bucket['data']['last_modified']-1)
+        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
         response = self.app.patch_json('/buckets/b1', MINIMALIST_BUCKET,
                                        headers=headers, status=412)
         response = self.cast_bravado_response(response)
@@ -202,8 +190,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_patch_415(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'text/html'
+        headers = {**self.headers, 'Content-Type': 'text/html'}
         response = self.app.patch_json('/buckets/b1', MINIMALIST_BUCKET,
                                        headers=headers, status=415)
         response = self.cast_bravado_response(response)
@@ -212,8 +199,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_delete_400(self):
-        headers = self.headers.copy()
-        headers['If-Match'] = 'aaa'
+        headers = {**self.headers, 'If-Match': 'aaa'}
         response = self.app.delete('/buckets/b1',
                                    headers=headers, status=400)
         response = self.cast_bravado_response(response)
@@ -229,8 +215,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_delete_403(self):
-        headers = self.headers.copy()
-        headers.update(testing.get_user_headers('aaa'))
+        headers = {**self.headers, **testing.get_user_headers('aaa')}
         response = self.app.delete('/buckets/b1',
                                    headers=headers, status=403)
         response = self.cast_bravado_response(response)
@@ -247,8 +232,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_delete_406(self):
-        headers = self.headers.copy()
-        headers['Accept'] = 'text/html'
+        headers = {**self.headers, 'Accept': 'text/html'}
         response = self.app.delete('/buckets/b1',
                                    headers=headers, status=406)
         response = self.cast_bravado_response(response)
@@ -257,8 +241,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_delete_412(self):
-        headers = self.headers.copy()
-        headers['If-Match'] = '"%d"' % (self.bucket['data']['last_modified']-1)
+        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
         response = self.app.delete('/buckets/b1',
                                    headers=headers, status=412)
         response = self.cast_bravado_response(response)
@@ -267,8 +250,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_list_get_304(self):
-        headers = self.headers.copy()
-        headers['If-None-Match'] = '"%d"' % self.bucket['data']['last_modified']
+        headers = {**self.headers, 'If-None-Match': '"%d"' % self.bucket['data']['last_modified']}
         response = self.app.get('/buckets',
                                 headers=headers, status=304)
         response = self.cast_bravado_response(response)
@@ -292,8 +274,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_list_get_403(self):
-        headers = self.headers.copy()
-        headers.update(testing.get_user_headers('aaa'))
+        headers = {**self.headers, **testing.get_user_headers('aaa')}
         response = self.app.get('/buckets/b1/collections',
                                 headers=headers, status=403)
         response = self.cast_bravado_response(response)
@@ -302,8 +283,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_list_get_406(self):
-        headers = self.headers.copy()
-        headers['Accept'] = 'text/html'
+        headers = {**self.headers, 'Accept': 'text/html'}
         response = self.app.get('/buckets',
                                 headers=headers, status=406)
         response = self.cast_bravado_response(response)
@@ -312,8 +292,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_list_get_412(self):
-        headers = self.headers.copy()
-        headers['If-Match'] = '"%d"' % (self.bucket['data']['last_modified']-1)
+        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
         response = self.app.get('/buckets/b1',
                                 headers=headers, status=412)
         response = self.cast_bravado_response(response)
@@ -329,8 +308,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_lidt_delete_403(self):
-        headers = self.headers.copy()
-        headers.update(testing.get_user_headers('aaa'))
+        headers = {**self.headers, **testing.get_user_headers('aaa')}
         response = self.app.delete('/buckets/b1/collections',
                                    headers=headers, status=403)
         response = self.cast_bravado_response(response)
@@ -343,8 +321,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         pass
 
     def test_list_delete_406(self):
-        headers = self.headers.copy()
-        headers['Accept'] = 'text/html'
+        headers = {**self.headers, 'Accept': 'text/html'}
         response = self.app.delete('/buckets',
                                    headers=headers, status=406)
         response = self.cast_bravado_response(response)
@@ -353,8 +330,7 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_list_delete_412(self):
-        headers = self.headers.copy()
-        headers['If-Match'] = '"%d"' % (self.bucket['data']['last_modified']-1)
+        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
         response = self.app.delete('/buckets',
                                    headers=headers, status=412)
         response = self.cast_bravado_response(response)

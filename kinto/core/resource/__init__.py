@@ -665,7 +665,7 @@ class UserResource(object):
         if self._is_json_patch:
             try:
                 applied_changes = apply_json_patch(record, requested_changes)['data']
-                updated = applied_changes.copy()
+                updated = {**applied_changes}
             except ValueError as e:
                 error_details = {
                     'location': 'body',
@@ -674,8 +674,8 @@ class UserResource(object):
                 raise_invalid(self.request, **error_details)
 
         else:
-            applied_changes = requested_changes.copy()
-            updated = record.copy()
+            applied_changes = {**requested_changes}
+            updated = {**record}
 
             content_type = str(self.request.headers.get('Content-Type')).lower()
             # recursive patch and remove field if null attribute is passed (RFC 7396)
@@ -1058,9 +1058,7 @@ class UserResource(object):
         """Build the Next-Page header from where we stopped."""
         token = self._build_pagination_token(sorting, last_record, offset)
 
-        params = self.request.GET.copy()
-        params['_limit'] = limit
-        params['_token'] = token
+        params = {**self.request.GET, '_limit': limit, '_token': token}
 
         service = self.request.current_service
         next_page_url = self.request.route_url(service.name, _query=params,
@@ -1145,7 +1143,7 @@ class ShareableResource(UserResource):
         Ref: https://github.com/Kinto/kinto/issues/224
         """
         if record:
-            record = record.copy()
+            record = {**record}
             record.pop(self.model.permissions_field, None)
         return super(ShareableResource, self)._raise_412_if_modified(record)
 
@@ -1162,7 +1160,7 @@ class ShareableResource(UserResource):
         else:
             permissions = self.request.validated['body'].get('permissions', {})
 
-        annotated = new.copy()
+        annotated = {**new}
 
         if permissions:
             is_put = (self.request.method.lower() == 'put')

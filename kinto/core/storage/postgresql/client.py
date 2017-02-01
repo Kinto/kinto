@@ -73,7 +73,7 @@ def create_from_config(config, prefix='', with_transaction=True):
     from zope.sqlalchemy import ZopeTransactionExtension, invalidate
     from sqlalchemy.orm import sessionmaker, scoped_session
 
-    settings = config.get_settings().copy()
+    settings = {**config.get_settings()}
     # Custom Kinto settings, unsupported by SQLAlchemy.
     settings.pop(prefix + 'backend', None)
     settings.pop(prefix + 'max_fetch_size', None)

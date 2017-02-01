@@ -265,8 +265,7 @@ class ApplicationWrapperTest(unittest.TestCase):
 
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
-        settings = kinto.core.DEFAULT_SETTINGS.copy()
-        settings['statsd_url'] = 'udp://host:8080'
+        settings = {**kinto.core.DEFAULT_SETTINGS, 'statsd_url': 'udp://host:8080'}
         self.config = Configurator(settings=settings)
         self.config.registry.storage = {}
         self.config.registry.cache = {}

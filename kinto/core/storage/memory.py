@@ -134,7 +134,7 @@ class Storage(MemoryBasedStorage):
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD, auth=None):
         id_generator = id_generator or self.id_generator
-        record = record.copy()
+        record = {**record}
         if id_field in record:
             # Raise unicity error if record with same id already exists.
             try:
@@ -160,14 +160,14 @@ class Storage(MemoryBasedStorage):
         collection = self._store[parent_id][collection_id]
         if object_id not in collection:
             raise exceptions.RecordNotFoundError(object_id)
-        return collection[object_id].copy()
+        return {**collection[object_id]}
 
     @synchronized
     def update(self, collection_id, parent_id, object_id, record,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
-        record = record.copy()
+        record = {**record}
         record[id_field] = object_id
 
         self.set_record_timestamp(collection_id, parent_id, record,
@@ -195,7 +195,7 @@ class Storage(MemoryBasedStorage):
 
         # Add to deleted items, remove from store.
         if with_deleted:
-            deleted = existing.copy()
+            deleted = {**existing}
             self._cemetery[parent_id][collection_id][object_id] = deleted
         self._store[parent_id][collection_id].pop(object_id)
         return existing

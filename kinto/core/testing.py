@@ -25,7 +25,7 @@ class DummyRequest(mock.MagicMock):
     def __init__(self, *args, **kwargs):
         super(DummyRequest, self).__init__(*args, **kwargs)
         self.upath_info = '/v0/'
-        self.registry = mock.MagicMock(settings=DEFAULT_SETTINGS.copy())
+        self.registry = mock.MagicMock(settings={**DEFAULT_SETTINGS})
         self.registry.id_generators = defaultdict(generators.UUID4)
         self.GET = {}
         self.headers = {}
@@ -157,7 +157,7 @@ class BaseWebTest(object):
         :param dict extras: extra settings values
         :rtype: dict
         """
-        settings = DEFAULT_SETTINGS.copy()
+        settings = {**DEFAULT_SETTINGS}
 
         settings['storage_backend'] = 'kinto.core.storage.memory'
         settings['cache_backend'] = 'kinto.core.cache.memory'

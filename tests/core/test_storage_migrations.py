@@ -20,7 +20,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             return
 
         from .test_storage import PostgreSQLStorageTest
-        self.settings = PostgreSQLStorageTest.settings.copy()
+        self.settings = {**PostgreSQLStorageTest.settings}
         self.config = testing.setUp()
         self.config.add_settings(self.settings)
         self.version = postgresql_storage.Storage.schema_version
@@ -212,7 +212,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
             return
 
         from .test_permission import PostgreSQLPermissionTest
-        settings = PostgreSQLPermissionTest.settings.copy()
+        settings = {**PostgreSQLPermissionTest.settings}
         config = testing.setUp()
         config.add_settings(settings)
         self.permission = postgresql_permission.load_from_config(config)
@@ -251,7 +251,7 @@ class PostgresqlCacheMigrationTest(unittest.TestCase):
             return
 
         from .test_cache import PostgreSQLCacheTest
-        settings = PostgreSQLCacheTest.settings.copy()
+        settings = {**PostgreSQLCacheTest.settings}
         config = testing.setUp()
         config.add_settings(settings)
         self.cache = postgresql_cache.load_from_config(config)

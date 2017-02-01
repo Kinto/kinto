@@ -44,8 +44,7 @@ class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
         super(SpecificSettingsTest, self).setUp()
 
         def create_record_in_collection(bucket_id, collection_id):
-            bucket = MINIMALIST_BUCKET.copy()
-            bucket['permissions'] = {'read': ['system.Everyone']}
+            bucket = {**MINIMALIST_BUCKET, 'permissions': {'read': ['system.Everyone']}}
             self.app.put_json('/buckets/%s' % bucket_id,
                               bucket,
                               headers=self.headers)
@@ -83,8 +82,7 @@ class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
 class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super(CollectionExpiresTest, self).setUp()
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'read': ['system.Everyone']}
+        bucket = {**MINIMALIST_BUCKET, 'permissions': {'read': ['system.Everyone']}}
         self.app.put_json('/buckets/blog',
                           bucket,
                           headers=self.headers)

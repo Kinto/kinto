@@ -130,7 +130,7 @@ class PutTest(BaseTest):
 class DeleteTest(BaseTest):
     def test_delete_record_returns_last_timestamp(self):
         record = {'field': 'value'}
-        record = self.model.create_record(record).copy()
+        record = {**self.model.create_record(record)}
         self.resource.record_id = record['id']
         result = self.resource.delete()['data']
         self.assertNotEqual(result['last_modified'], record['last_modified'])

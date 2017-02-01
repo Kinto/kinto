@@ -23,8 +23,7 @@ VALID_RECORD = {'title': 'About us', 'body': '<h1>About</h1>'}
 
 class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
     def test_schema_should_be_json_schema(self):
-        newschema = SCHEMA.copy()
-        newschema['type'] = 'Washmachine'
+        newschema = {**SCHEMA, 'type': 'Washmachine'}
         self.app.put(BUCKET_URL, headers=self.headers)
         self.app.put(COLLECTION_URL, headers=self.headers)
         resp = self.app.put_json(COLLECTION_URL,
@@ -81,8 +80,7 @@ class MissingSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
 
 class InvalidSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
     def test_schema_should_be_json_schema(self):
-        newschema = SCHEMA.copy()
-        newschema['type'] = 'Washmachine'
+        newschema = {**SCHEMA, 'type': 'Washmachine'}
         resp = self.app.put_json(COLLECTION_URL,
                                  {'data': {'schema': newschema}},
                                  headers=self.headers,
@@ -183,8 +181,7 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
 class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
         super(ExtraPropertiesValidationTest, self).setUp()
-        schema = SCHEMA.copy()
-        schema['additionalProperties'] = False
+        schema = {**SCHEMA, 'additionalProperties': False}
         resp = self.app.put_json(COLLECTION_URL,
                                  {'data': {'schema': schema}},
                                  headers=self.headers)
@@ -216,8 +213,7 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
 
     def test_additional_properties_are_rejected(self):
         record_id = '5443d83f-852a-481a-8e9d-5aa804b05b08'
-        record = VALID_RECORD.copy()
-        record['extra'] = 'blah!'
+        record = {**VALID_RECORD, 'extra': 'blah!'}
         resp = self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
                                  {'data': record},
                                  headers=self.headers,

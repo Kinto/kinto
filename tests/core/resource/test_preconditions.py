@@ -12,7 +12,7 @@ class NotModifiedTest(BaseTest):
 
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
-        self.resource.request.validated = self.validated.copy()
+        self.resource.request.validated = {**self.validated}
         self.resource.collection_get()
         self.validated = self.resource.request.validated
         current = self.last_response.headers['ETag'][1:-1]

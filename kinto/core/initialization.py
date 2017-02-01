@@ -555,7 +555,7 @@ def initialize(config, version=None, project_name='', default_settings=None):
     if not project_name:
         warnings.warn('No value specified for `project_name`')
 
-    kinto_core_defaults = DEFAULT_SETTINGS.copy()
+    kinto_core_defaults = {**DEFAULT_SETTINGS}
 
     if default_settings:
         kinto_core_defaults.update(default_settings)

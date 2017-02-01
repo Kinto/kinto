@@ -23,7 +23,7 @@ class BaseWebTest(testing.BaseWebTest):
         self.headers.update(testing.get_user_headers('mat'))
 
     def get_app_settings(self, extras=None):
-        settings = DEFAULT_SETTINGS.copy()
+        settings = {**DEFAULT_SETTINGS}
         if extras is not None:
             settings.update(extras)
         settings = super(BaseWebTest, self).get_app_settings(extras=settings)
