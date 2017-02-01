@@ -10,8 +10,15 @@ This document describes changes between each past release.
 
 - Remove pypy supports. (#1049)
 
+5.3.3 (unreleased)
+------------------
 
-5.3.2 (unreleased)
+**Bug fixes**
+
+- Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (fixes #1055)
+
+
+5.3.2 (2017-01-31)
 ------------------
 
 **Bug fixes**
