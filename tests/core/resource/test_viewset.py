@@ -7,7 +7,6 @@ from pyramid import testing
 from kinto.core import authorization, DEFAULT_SETTINGS
 from kinto.core.resource import ViewSet, ShareableViewSet, register_resource
 from kinto.core.resource.viewset import PartialSchema, StrictSchema
-from kinto.core.resource.schema import ResourceSchema
 from kinto.core.testing import unittest
 
 
@@ -349,6 +348,59 @@ class ViewSetTest(unittest.TestCase):
         self.assertTrue(is_enabled)
 
 
+class TestViewsetBindedSchemas(unittest.TestCase):
+
+    def setUp(self):
+        self.viewset = ViewSet()
+        self.resource = mock.MagicMock()
+
+    def test_request_schemas_have_header_and_querystring(self):
+        self.viewset = ViewSet(
+            default_get_arguments={},
+            default_record_arguments={},
+            record_get_arguments={}
+        )
+        arguments = self.viewset.record_arguments(self.resource, 'GET')
+        schema = arguments['schema']
+        self.assertIn('querystring', schema)
+        self.assertIn('header', schema)
+
+    def test_payload_request_schemas_have_a_body(self):
+        arguments = self.viewset.record_arguments(self.resource, 'PUT')
+        schema = arguments['schema']
+        self.assertIn('body', schema)
+
+    def test_collection_deserialize_sort(self):
+        arguments = self.viewset.collection_arguments(self.resource, 'DELETE')
+        schema = arguments['schema']
+        value = {'querystring': {'_sort': 'foo,-bar'}}
+        deserialized = schema.deserialize(value)
+        expected = {'querystring': {'_sort': ['foo', '-bar']}}
+        self.assertEquals(deserialized, expected)
+
+    def test_get_collection_deserialize_fields(self):
+        arguments = self.viewset.collection_arguments(self.resource, 'GET')
+        schema = arguments['schema']
+        value = {'querystring': {'_fields': 'foo,bar'}}
+        deserialized = schema.deserialize(value)
+        expected = {'querystring': {'_fields': ['foo', 'bar']}}
+        self.assertEquals(deserialized, expected)
+
+    def test_get_record_deserialize_fields(self):
+        arguments = self.viewset.record_arguments(self.resource, 'GET')
+        schema = arguments['schema']
+        value = {'querystring': {'_fields': 'foo,bar'}}
+        deserialized = schema.deserialize(value)
+        expected = {'querystring': {'_fields': ['foo', 'bar']}}
+        self.assertEquals(deserialized, expected)
+
+    def test_patch_record_validate_response_behavior(self):
+        arguments = self.viewset.collection_arguments(self.resource, 'PATCH')
+        schema = arguments['schema']
+        invalid = {'header': {'Response-Behavior': 'impolite'}}
+        self.assertRaises(colander.Invalid, schema.deserialize, invalid)
+
+
 class TestViewsetSchemasTest(unittest.TestCase):
 
     def test_partial_schema_ignores_unknown(self):
@@ -365,9 +417,7 @@ class ShareableViewSetTest(unittest.TestCase):
 
     def test_permission_dynamic_is_set_by_default(self):
         viewset = ShareableViewSet()
-        resource = mock.sentinel.resource
-        resource.schema = ResourceSchema
-        resource.permissions = ('read', 'write')
+        resource = mock.MagicMock()
         args = viewset.collection_arguments(resource, 'GET')
         self.assertEquals(args['permission'], 'dynamic')
 
@@ -378,10 +428,8 @@ class ShareableViewSetTest(unittest.TestCase):
 
     def test_mapping_is_deprecated(self):
         viewset = ShareableViewSet()
-        resource = mock.sentinel.resource
-        resource.schema = ResourceSchema
-        resource.permissions = ('read', 'write')
-        resource.mapping = ResourceSchema()
+        resource = mock.MagicMock()
+        resource.mapping = mock.MagicMock()
         with mock.patch('kinto.core.resource.viewset.warnings') as mocked:
             viewset.collection_arguments(resource, 'GET')
             msg = "Resource `mapping` is deprecated, use `schema`"

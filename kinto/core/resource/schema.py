@@ -290,7 +290,7 @@ class QuerySchema(colander.MappingSchema):
 
 
 class CollectionQuerySchema(QuerySchema):
-    """Querystring validated fields used with collections."""
+    """Querystring schema used with collections."""
 
     _limit = QueryField(colander.Integer())
     _sort = FieldList()
@@ -303,13 +303,13 @@ class CollectionQuerySchema(QuerySchema):
 
 
 class RecordGetQuerySchema(QuerySchema):
-    """Querystring validated fields for GET record requests."""
+    """Querystring schema for GET record requests."""
 
     _fields = FieldList()
 
 
 class CollectionGetQuerySchema(CollectionQuerySchema):
-    """Querystring validated fields for GET collection requests."""
+    """Querystring schema for GET collection requests."""
 
     _fields = FieldList()
 
