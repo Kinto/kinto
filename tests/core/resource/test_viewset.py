@@ -1,11 +1,12 @@
 import mock
+import colander
 from cornice.validators import colander_validator
 from pyramid import exceptions
 from pyramid import testing
 
 from kinto.core import authorization, DEFAULT_SETTINGS
 from kinto.core.resource import ViewSet, ShareableViewSet, register_resource
-from kinto.core.resource.viewset import PartialSchema
+from kinto.core.resource.viewset import PartialSchema, StrictSchema
 from kinto.core.testing import unittest
 
 
@@ -53,43 +54,36 @@ class ViewSetTest(unittest.TestCase):
     def test_default_arguments_are_copied_before_being_returned(self):
         original_arguments = {}
         viewset = ViewSet(
-            collection_get_arguments=original_arguments,
-            validate_schema_for=()
-        )
-        arguments = viewset.collection_arguments(mock.sentinel.resource, 'GET')
+            collection_get_arguments=original_arguments)
+        arguments = viewset.collection_arguments(mock.MagicMock(), 'GET')
         self.assertEquals(original_arguments, {})
         self.assertNotEquals(original_arguments, arguments)
 
     def test_permission_private_is_set_by_default(self):
         viewset = ViewSet()
-        args = viewset.collection_arguments(mock.sentinel.resource, 'GET')
+        args = viewset.collection_arguments(mock.MagicMock(), 'GET')
         self.assertEquals(args['permission'], 'private')
 
     def test_schema_is_added_when_method_matches(self):
-        viewset = ViewSet(
-            validate_schema_for=('GET', )
-        )
+        viewset = ViewSet()
         resource = mock.MagicMock()
         arguments = viewset.collection_arguments(resource, 'GET')
         self.assertIn('schema', arguments)
 
     def test_schema_is_added_when_uppercase_method_matches(self):
         viewset = ViewSet(
-            validate_schema_for=('GET', )
+            collection_methods=('GET', 'DELETE')
         )
-        resource = mock.MagicMock()
-        arguments = viewset.collection_arguments(resource, 'get')
+        arguments = viewset.collection_arguments(mock.MagicMock(), 'get')
         self.assertIn('schema', arguments)
 
     @mock.patch('kinto.core.resource.viewset.RequestSchema')
     def test_a_default_schema_is_added_when_method_doesnt_match(self, mocked):
-        viewset = ViewSet(
-            validate_schema_for=('GET', )
-        )
+        viewset = ViewSet()
         resource = mock.MagicMock()
         mocked.Mapping.return_value = mock.sentinel.default_schema
 
-        arguments = viewset.collection_arguments(resource, 'POST')
+        arguments = viewset.collection_arguments(resource, 'GET')
         self.assertNotEqual(arguments['schema'], resource.schema)
 
         mocked.assert_called_with()
@@ -119,12 +113,12 @@ class ViewSetTest(unittest.TestCase):
             collection_get_arguments=collection_get_arguments
         )
 
-        arguments = viewset.collection_arguments(mock.MagicMock, 'get')
+        arguments = viewset.collection_arguments(mock.MagicMock(), 'get')
 
         self.assertDictEqual(
             arguments,
             {
-                'schema': mocked(),
+                'schema': mocked().bind(),
                 'accept': mock.sentinel.accept,
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.cors_origins,
@@ -158,12 +152,12 @@ class ViewSetTest(unittest.TestCase):
             record_get_arguments=record_get_arguments
         )
 
-        arguments = viewset.record_arguments(mock.MagicMock, 'get')
+        arguments = viewset.record_arguments(mock.MagicMock(), 'get')
 
         self.assertDictEqual(
             arguments,
             {
-                'schema': mocked(),
+                'schema': mocked().bind(),
                 'accept': mock.sentinel.accept,
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.record_cors_origins,
@@ -197,12 +191,12 @@ class ViewSetTest(unittest.TestCase):
             record_get_arguments=record_get_arguments,
         )
 
-        arguments = viewset.record_arguments(mock.MagicMock, 'get')
+        arguments = viewset.record_arguments(mock.MagicMock(), 'get')
 
         self.assertDictEqual(
             arguments,
             {
-                'schema': mocked(),
+                'schema': mocked().bind(),
                 'cors_headers': mock.sentinel.default_cors_headers,
                 'error_handler': mock.sentinel.default_record_error_handler,
                 'cors_origins': mock.sentinel.record_get_cors_origin,
@@ -219,7 +213,6 @@ class ViewSetTest(unittest.TestCase):
         default_arguments = {
             'cors_headers': mock.sentinel.cors_headers,
         }
-
         viewset = ViewSet(
             default_arguments=default_arguments,
             service_arguments=service_arguments,
@@ -227,12 +220,12 @@ class ViewSetTest(unittest.TestCase):
             record_get_arguments={}
         )
 
-        arguments = viewset.record_arguments(mock.MagicMock, 'get')
+        arguments = viewset.record_arguments(mock.MagicMock(), 'get')
 
         self.assertDictEqual(
             arguments,
             {
-                'schema': mocked(),
+                'schema': mocked().bind(),
                 'cors_headers': mock.sentinel.cors_headers,
                 'validators': [colander_validator]
             }
@@ -355,18 +348,77 @@ class ViewSetTest(unittest.TestCase):
         self.assertTrue(is_enabled)
 
 
-class TestPartialSchemaTest(unittest.TestCase):
+class TestViewsetBindedSchemas(unittest.TestCase):
+
+    def setUp(self):
+        self.viewset = ViewSet()
+        self.resource = mock.MagicMock()
+
+    def test_request_schemas_have_header_and_querystring(self):
+        self.viewset = ViewSet(
+            default_get_arguments={},
+            default_record_arguments={},
+            record_get_arguments={}
+        )
+        arguments = self.viewset.record_arguments(self.resource, 'GET')
+        schema = arguments['schema']
+        self.assertIn('querystring', schema)
+        self.assertIn('header', schema)
+
+    def test_payload_request_schemas_have_a_body(self):
+        arguments = self.viewset.record_arguments(self.resource, 'PUT')
+        schema = arguments['schema']
+        self.assertIn('body', schema)
+
+    def test_collection_deserialize_sort(self):
+        arguments = self.viewset.collection_arguments(self.resource, 'DELETE')
+        schema = arguments['schema']
+        value = {'querystring': {'_sort': 'foo,-bar'}}
+        deserialized = schema.deserialize(value)
+        expected = {'querystring': {'_sort': ['foo', '-bar']}}
+        self.assertEquals(deserialized, expected)
+
+    def test_get_collection_deserialize_fields(self):
+        arguments = self.viewset.collection_arguments(self.resource, 'GET')
+        schema = arguments['schema']
+        value = {'querystring': {'_fields': 'foo,bar'}}
+        deserialized = schema.deserialize(value)
+        expected = {'querystring': {'_fields': ['foo', 'bar']}}
+        self.assertEquals(deserialized, expected)
+
+    def test_get_record_deserialize_fields(self):
+        arguments = self.viewset.record_arguments(self.resource, 'GET')
+        schema = arguments['schema']
+        value = {'querystring': {'_fields': 'foo,bar'}}
+        deserialized = schema.deserialize(value)
+        expected = {'querystring': {'_fields': ['foo', 'bar']}}
+        self.assertEquals(deserialized, expected)
+
+    def test_patch_record_validate_response_behavior(self):
+        arguments = self.viewset.collection_arguments(self.resource, 'PATCH')
+        schema = arguments['schema']
+        invalid = {'header': {'Response-Behavior': 'impolite'}}
+        self.assertRaises(colander.Invalid, schema.deserialize, invalid)
+
+
+class TestViewsetSchemasTest(unittest.TestCase):
 
     def test_partial_schema_ignores_unknown(self):
         schema = PartialSchema()
         result = schema.deserialize({'foo': 'bar'})
         self.assertEquals(result, {})
 
+    def test_strict_schema_raise_on_unknown(self):
+        schema = StrictSchema()
+        self.assertRaises(colander.Invalid, schema.deserialize, {'foo': 'bar'})
+
 
 class ShareableViewSetTest(unittest.TestCase):
+
     def test_permission_dynamic_is_set_by_default(self):
         viewset = ShareableViewSet()
-        args = viewset.collection_arguments(mock.sentinel.resource, 'GET')
+        resource = mock.MagicMock()
+        args = viewset.collection_arguments(resource, 'GET')
         self.assertEquals(args['permission'], 'dynamic')
 
     def test_get_service_arguments_has_default_factory(self):
@@ -375,9 +427,7 @@ class ShareableViewSetTest(unittest.TestCase):
         self.assertEqual(args['factory'], authorization.RouteFactory)
 
     def test_mapping_is_deprecated(self):
-        viewset = ShareableViewSet(
-            validate_schema_for=('GET', )
-        )
+        viewset = ShareableViewSet()
         resource = mock.MagicMock()
         resource.mapping = mock.MagicMock()
         with mock.patch('kinto.core.resource.viewset.warnings') as mocked:

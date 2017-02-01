@@ -6,7 +6,10 @@ from cornice.validators import colander_validator
 from pyramid.settings import asbool
 
 from kinto.core import authorization
-from kinto.core.resource.schema import PermissionsSchema, RequestSchema
+from kinto.core.resource.schema import (PermissionsSchema, RequestSchema, PayloadRequestSchema,
+                                        PatchHeaderSchema, CollectionQuerySchema,
+                                        CollectionGetQuerySchema, RecordGetQuerySchema,
+                                        RecordSchema)
 
 
 CONTENT_TYPES = ["application/json"]
@@ -47,7 +50,6 @@ class ViewSet(object):
 
     collection_methods = ('GET', 'POST', 'DELETE')
     record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
-    validate_schema_for = ('POST', 'PUT', 'PATCH')
 
     readonly_methods = ('GET', 'OPTIONS', 'HEAD')
 
@@ -60,28 +62,38 @@ class ViewSet(object):
     default_arguments = {
         'permission': authorization.PRIVATE,
         'accept': CONTENT_TYPES,
+        'schema': RequestSchema(),
     }
 
     default_post_arguments = {
         "content_type": CONTENT_TYPES,
+        'schema': PayloadRequestSchema(),
     }
 
     default_put_arguments = {
         "content_type": CONTENT_TYPES,
+        'schema': PayloadRequestSchema(),
     }
 
     default_patch_arguments = {
-        "content_type": CONTENT_TYPES + PATCH_CONTENT_TYPES
+        "content_type": CONTENT_TYPES + PATCH_CONTENT_TYPES,
+        'schema': PayloadRequestSchema().bind(header=PatchHeaderSchema()),
     }
 
-    default_collection_arguments = {}
+    default_collection_arguments = {
+        'schema': RequestSchema().bind(querystring=CollectionQuerySchema()),
+    }
     collection_get_arguments = {
+        'schema': RequestSchema().bind(querystring=CollectionGetQuerySchema()),
         'cors_headers': ('Next-Page', 'Total-Records', 'Last-Modified', 'ETag',
                          'Cache-Control', 'Expires', 'Pragma')
     }
-
+    collection_post_arguments = {
+        'schema': PayloadRequestSchema(),
+    }
     default_record_arguments = {}
     record_get_arguments = {
+        'schema': RequestSchema().bind(querystring=RecordGetQuerySchema()),
         'cors_headers': ('Last-Modified', 'ETag',
                          'Cache-Control', 'Expires', 'Pragma')
     }
@@ -118,14 +130,11 @@ class ViewSet(object):
         endpoint_args = getattr(self, by_method, {})
         args.update(**endpoint_args)
 
-        if method.lower() in map(str.lower, self.validate_schema_for):
-            schema = RequestSchema()
-            record_schema = self.get_record_schema(resource_cls, method)
-            record_schema.name = 'body'
-            schema.add(record_schema)
-            args['schema'] = schema
-        else:
-            args['schema'] = RequestSchema()
+        request_schema = args.get('schema', RequestSchema())
+        record_schema = self.get_record_schema(resource_cls, method)
+        request_schema = request_schema.bind(body=record_schema)
+
+        args['schema'] = request_schema
 
         validators = args.get('validators', [])
         validators.append(colander_validator)
@@ -145,9 +154,9 @@ class ViewSet(object):
                 warnings.warn(message, DeprecationWarning)
                 resource_schema = resource_cls.mapping.__class__
 
-        payload_schema = StrictSchema()
-        payload_schema.add(resource_schema(name='data'))
-        return payload_schema
+        record_schema = RecordSchema().bind(data=resource_schema())
+
+        return record_schema
 
     def get_view(self, endpoint_type, method):
         """Return the view method name located on the resource object, for the
@@ -214,32 +223,12 @@ class ShareableViewSet(ViewSet):
     def get_record_schema(self, resource_cls, method):
         """Return the Cornice schema for the given method.
         """
-        if method.lower() == 'patch':
-            resource_schema = SimpleSchema
-        else:
-            resource_schema = resource_cls.schema
-            if hasattr(resource_cls, 'mapping'):
-                message = "Resource `mapping` is deprecated, use `schema`"
-                warnings.warn(message, DeprecationWarning)
-                resource_schema = resource_cls.mapping.__class__
-
-        try:
-            # Check if empty record is allowed.
-            # (e.g every schema fields have defaults)
-            resource_schema().deserialize({})
-        except colander.Invalid:
-            schema_kw = dict(missing=colander.required)
-        else:
-            schema_kw = dict(default={}, missing=colander.drop)
-
+        record_schema = super(ShareableViewSet, self).get_record_schema(resource_cls, method)
         allowed_permissions = resource_cls.permissions
-
-        payload_schema = StrictSchema()
-        payload_schema.add(resource_schema(name='data', **schema_kw))
-        payload_schema.add(PermissionsSchema(name='permissions',
-                                             missing=colander.drop,
-                                             permissions=allowed_permissions))
-        return payload_schema
+        permissions = PermissionsSchema(name='permissions', missing=colander.drop,
+                                        permissions=allowed_permissions)
+        record_schema = record_schema.bind(permissions=permissions)
+        return record_schema
 
     def get_view_arguments(self, endpoint_type, resource_cls, method):
         args = super(ShareableViewSet, self).get_view_arguments(endpoint_type,

@@ -34,7 +34,8 @@ This document describes changes between each past release.
   deserialization (#1046).
 - Upgraded to Kinto-Admin 1.8.1
 - Configure the Kinto Admin auth methods from the server configuration (#1042)
-
+- Request schemas (including validation and deserialization) are now isolated by method
+  and endpoint type (#1047).
 
 5.3.0 (2017-01-20)
 ------------------

@@ -5,6 +5,9 @@ from colander import SchemaNode, String
 from kinto.core.utils import strip_whitespace, msec_time, decode_header, native_value
 
 
+# Resource related schemas
+
+
 class ResourceSchema(colander.MappingSchema):
     """Base resource schema, with *Cliquet* specific built-in options."""
 
@@ -114,6 +117,9 @@ class PermissionsSchema(colander.SchemaNode):
                                    missing=colander.drop)
 
 
+# Generic schema nodes
+
+
 class TimeStamp(colander.SchemaNode):
     """Basic integer schema field that can be set to current server timestamp
     in milliseconds if no value is provided.
@@ -220,20 +226,33 @@ class HeaderQuotedInteger(HeaderField):
         return int(param[1:-1])
 
 
-class HeaderSchema(colander.MappingSchema):
-    """Schema used for validating and deserializing request headers. """
+# Header schemas
 
-    def response_behavior_validator():
-        return colander.OneOf(['full', 'light', 'diff'])
+
+class HeaderSchema(colander.MappingSchema):
+    """Base schema used for validating and deserializing request headers. """
+
+    missing = colander.drop
 
     if_match = HeaderQuotedInteger(name='If-Match')
     if_none_match = HeaderQuotedInteger(name='If-None-Match')
-    response_behaviour = HeaderField(colander.String(), name='Response-Behavior',
-                                     validator=response_behavior_validator())
 
     @staticmethod
     def schema_type():
         return colander.Mapping(unknown='preserve')
+
+
+class PatchHeaderSchema(HeaderSchema):
+    """Header schema used with PATCH requests."""
+
+    def response_behavior_validator():
+        return colander.OneOf(['full', 'light', 'diff'])
+
+    response_behaviour = HeaderField(colander.String(), name='Response-Behavior',
+                                     validator=response_behavior_validator())
+
+
+# Querystring schemas
 
 
 class QuerySchema(colander.MappingSchema):
@@ -241,15 +260,7 @@ class QuerySchema(colander.MappingSchema):
     Schema used for validating and deserializing querystrings. It will include
     and try to guess the type of unknown fields (field filters) on deserialization.
     """
-
-    _limit = QueryField(colander.Integer())
-    _fields = FieldList()
-    _sort = FieldList()
-    _token = QueryField(colander.String())
-    _since = QueryField(colander.Integer())
-    _to = QueryField(colander.Integer())
-    _before = QueryField(colander.Integer())
-    last_modified = QueryField(colander.Integer())
+    missing = colander.drop
 
     @staticmethod
     def schema_type():
@@ -283,6 +294,64 @@ class QuerySchema(colander.MappingSchema):
         return values
 
 
+class CollectionQuerySchema(QuerySchema):
+    """Querystring schema used with collections."""
+
+    _limit = QueryField(colander.Integer())
+    _sort = FieldList()
+    _token = QueryField(colander.String())
+    _since = QueryField(colander.Integer())
+    _to = QueryField(colander.Integer())
+    _before = QueryField(colander.Integer())
+    id = QueryField(colander.String())
+    last_modified = QueryField(colander.Integer())
+
+
+class RecordGetQuerySchema(QuerySchema):
+    """Querystring schema for GET record requests."""
+
+    _fields = FieldList()
+
+
+class CollectionGetQuerySchema(CollectionQuerySchema):
+    """Querystring schema for GET collection requests."""
+
+    _fields = FieldList()
+
+
+# Body Schemas
+
+
+class RecordSchema(colander.MappingSchema):
+
+    @colander.deferred
+    def data(node, kwargs):
+        data = kwargs.get('data')
+        if data:
+            # Check if empty record is allowed.
+            # (e.g every schema fields have defaults)
+            try:
+                data.deserialize({})
+            except colander.Invalid:
+                pass
+            else:
+                data.default = {}
+                data.missing = colander.drop
+        return data
+
+    @colander.deferred
+    def permissions(node, kwargs):
+        def get_perms(node, kwargs):
+            return kwargs.get('permissions')
+        # Set if node is provided, else keep deferred. This allows binding the body
+        # on Resource first and bind permissions later if using SharableResource.
+        return get_perms(node, kwargs) or colander.deferred(get_perms)
+
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='raise')
+
+
 class JsonPatchOperationSchema(colander.MappingSchema):
     """Single JSON Patch Operation."""
 
@@ -310,12 +379,42 @@ class JsonPatchBodySchema(colander.SequenceSchema):
     operations = JsonPatchOperationSchema(missing=colander.drop)
 
 
-class RequestSchema(colander.MappingSchema):
-    """Baseline schema for kinto requests."""
+# Request schemas
 
-    header = HeaderSchema(missing=colander.drop)
-    querystring = QuerySchema(missing=colander.drop)
+
+class RequestSchema(colander.MappingSchema):
+    """Base schema for kinto requests."""
+
+    @colander.deferred
+    def header(node, kwargs):
+        return kwargs.get('header')
+
+    @colander.deferred
+    def querystring(node, kwargs):
+        return kwargs.get('querystring')
+
+    def after_bind(self, node, kw):
+        # Set default bindings
+        if not self.get('header'):
+            self['header'] = HeaderSchema()
+        if not self.get('querystring'):
+            self['querystring'] = QuerySchema()
+
+
+class PayloadRequestSchema(RequestSchema):
+    """Base schema for methods that use a JSON request body."""
+
+    @colander.deferred
+    def body(node, kwargs):
+        def get_body(node, kwargs):
+            return kwargs.get('body')
+        # Set if node is provided, else keep deferred (and allow bindind later)
+        return get_body(node, kwargs) or colander.deferred(get_body)
 
 
 class JsonPatchRequestSchema(RequestSchema):
+    """JSON Patch (application/json-patch+json) request schema."""
+
     body = JsonPatchBodySchema()
+    querystring = QuerySchema()
+    header = PatchHeaderSchema()

@@ -201,21 +201,94 @@ class HeaderQuotedIntegerSchemaTest(unittest.TestCase):
                           value)
 
 
+class RecordSchemaTest(unittest.TestCase):
+
+    def setUp(self):
+        self.schema = schema.RecordSchema()
+
+    def test_binds_data(self):
+        bound = self.schema.bind(data=schema.ResourceSchema())
+        value = {'data': {'foo': 'bar'}}
+        deserialized = bound.deserialize(value)
+        self.assertEquals(deserialized, value)
+
+    def test_binds_permissions(self):
+        permissions = schema.PermissionsSchema(permissions=('sleep', ))
+        bound = self.schema.bind(permissions=permissions)
+        value = {'permissions': {'sleep': []}}
+        deserialized = bound.deserialize(value)
+        self.assertEquals(deserialized, value)
+
+    def test_allow_binding_perms_after_data(self):
+        bound = self.schema.bind(data=schema.ResourceSchema())
+        permissions = schema.PermissionsSchema(permissions=('sleep', ))
+        bound = bound.bind(permissions=permissions)
+        value = {'data': {'foo': 'bar'}, 'permissions': {'sleep': []}}
+        deserialized = bound.deserialize(value)
+        self.assertEquals(deserialized, value)
+
+    def test_doesnt_allow_permissions_unless_bound(self):
+        bound = self.schema.bind(data=schema.ResourceSchema())
+        value = {'permissions': {'sleep': []}}
+        self.assertRaises(colander.UnsupportedFields, bound.deserialize, value)
+
+
 class RequestSchemaTest(unittest.TestCase):
 
     def setUp(self):
         self.schema = schema.RequestSchema()
 
+    def test_header_supports_binding(self):
+        header = colander.MappingSchema(missing={'foo': 'bar'})
+        bound = self.schema.bind(header=header)
+        deserialized = bound.deserialize({})
+        self.assertEquals(deserialized['header'], {'foo': 'bar'})
+
+    def test_querystring_supports_binding(self):
+        querystring = colander.MappingSchema(missing={'foo': 'bar'})
+        bound = self.schema.bind(querystring=querystring)
+        deserialized = bound.deserialize({})
+        self.assertEquals(deserialized['querystring'], {'foo': 'bar'})
+
+    def test_default_header_if_not_bound(self):
+        bound = self.schema.bind()
+        self.assertEquals(type(bound['header']), schema.HeaderSchema)
+
+    def test_default_querystring_if_not_bound(self):
+        bound = self.schema.bind()
+        self.assertEquals(type(bound['querystring']), schema.QuerySchema)
+
     def test_header_preserve_unkown_fields(self):
         value = {'header': {'foo': 'bar'}}
-        deserialized = self.schema.deserialize(value)
+        deserialized = self.schema.bind().deserialize(value)
         self.assertEquals(deserialized, value)
 
     def test_querystring_preserve_unkown_fields(self):
         value = {'querystring': {'foo': 'bar'}}
-        deserialized = self.schema.deserialize(value)
+        deserialized = self.schema.bind().deserialize(value)
         self.assertEquals(deserialized, value)
 
     def test_drops(self):
-        deserialized = self.schema.deserialize({})
+        deserialized = self.schema.bind().deserialize({})
         self.assertEquals(deserialized, {})
+
+
+class PayloadRequestSchemaTest(unittest.TestCase):
+
+    def setUp(self):
+        self.schema = schema.PayloadRequestSchema()
+
+    def test_body_supports_binding(self):
+        body = colander.MappingSchema(missing={'foo': 'bar'})
+        bound = self.schema.bind(body=body)
+        deserialized = bound.deserialize({})
+        self.assertEquals(deserialized['body'], {'foo': 'bar'})
+
+    def test_body_supports_binding_after_other_binds(self):
+        querystring = colander.MappingSchema(missing={'foo': 'bar'})
+        bound = self.schema.bind(querystring=querystring)
+        body = colander.MappingSchema(missing={'foo': 'beer'})
+        bound = bound.bind(body=body)
+        deserialized = bound.deserialize({})
+        self.assertEquals(deserialized['querystring'], {'foo': 'bar'})
+        self.assertEquals(deserialized['body'], {'foo': 'beer'})

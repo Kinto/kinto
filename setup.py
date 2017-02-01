@@ -17,7 +17,7 @@ CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
-    'colander',
+    'colander >= 1.3.2',
     'colorama',
     'cornice >= 2.4',
     'jsonschema',
