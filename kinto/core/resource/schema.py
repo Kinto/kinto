@@ -338,7 +338,8 @@ class RecordSchema(colander.MappingSchema):
     def permissions(node, kwargs):
         def get_perms(node, kwargs):
             return kwargs.get('permissions')
-        # Set if node is provided, else keep deferred
+        # Set if node is provided, else keep deferred. This allows binding the body 
+        # on Resource first and bind permissions later if using SharableResource.
         return get_perms(node, kwargs) or colander.deferred(get_perms)
 
     @staticmethod
