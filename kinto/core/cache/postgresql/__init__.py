@@ -149,13 +149,11 @@ class Cache(CacheBase):
         if ttl is None:
             logger.warning("No TTL for cache key %r" % key)
         query = """
-        WITH upsert AS (
-            UPDATE cache SET value = :value, ttl = sec2ttl(:ttl)
-             WHERE key=:key
-            RETURNING *)
         INSERT INTO cache (key, value, ttl)
-        SELECT :key, :value, sec2ttl(:ttl)
-        WHERE NOT EXISTS (SELECT * FROM upsert)
+        VALUES (:key, :value, sec2ttl(:ttl))
+        ON CONFLICT (key) DO UPDATE
+        SET value = :value,
+            ttl = sec2ttl(:ttl);
         """
         value = json.dumps(value)
         with self.client.connect() as conn:
