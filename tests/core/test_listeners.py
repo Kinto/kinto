@@ -12,21 +12,21 @@ from kinto.core.testing import unittest
 UID = str(uuid.uuid4())
 
 
-class ViewSet(object):
+class ViewSet:
     def get_name(*args, **kw):
         return 'collection'
 
 
-class Service(object):
+class Service:
     viewset = ViewSet()
 
 
-class Match(object):
+class Match:
     cornice_services = {'watev': Service()}
     pattern = 'watev'
 
 
-class Request(object):
+class Request:
     path = '/1/bucket/collection/'
     prefixed_userid = 'tarek'
     matchdict = {'id': UID}

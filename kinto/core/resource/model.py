@@ -1,4 +1,4 @@
-class Model(object):
+class Model:
     """A collection stores and manipulate records in its attached storage.
 
     It is not aware of HTTP environment nor HTTP API.

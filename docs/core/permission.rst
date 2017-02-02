@@ -323,7 +323,7 @@ For example, a simplistic example with the previous resource viewset:
 
     from pyramid.security import IAuthorizationPolicy
 
-    class MyRootFactory(object):
+    class MyRootFactory:
         def __init__(self, request):
             self.current_resource = None
             service = request.current_service
@@ -332,7 +332,7 @@ For example, a simplistic example with the previous resource viewset:
 
 
     @implementer(IAuthorizationPolicy)
-    class AuthorizationPolicy(object):
+    class AuthorizationPolicy:
         def permits(self, context, principals, permission):
             if context.current_resource == BlogArticle:
                 if permission == 'publish':

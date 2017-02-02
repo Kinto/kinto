@@ -50,7 +50,7 @@ class BaseWebTest(testing.BaseWebTest):
 
 
 @implementer(IAuthorizationPolicy)
-class AllowAuthorizationPolicy(object):
+class AllowAuthorizationPolicy:
     def permits(self, context, principals, permission):
         if permission == PRIVATE:
             return Authenticated in principals

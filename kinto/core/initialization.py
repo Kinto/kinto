@@ -380,7 +380,7 @@ def setup_logging(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
-class EventActionFilter(object):
+class EventActionFilter:
     def __init__(self, actions, config):
         actions = ACTIONS.from_string_list(actions)
         self.actions = [action.value for action in actions]
@@ -393,7 +393,7 @@ class EventActionFilter(object):
         return not action or action in self.actions
 
 
-class EventResourceFilter(object):
+class EventResourceFilter:
     def __init__(self, resources, config):
         self.resources = resources
 

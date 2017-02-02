@@ -66,7 +66,7 @@ def get_request_class(prefix):
     return PrefixedRequestClass
 
 
-class FormattedErrorMixin(object):
+class FormattedErrorMixin:
     """Test mixin in order to perform advanced error responses assertions.
     """
 
@@ -103,7 +103,7 @@ def get_user_headers(user):
     }
 
 
-class BaseWebTest(object):
+class BaseWebTest:
     """Base Web Test to test your kinto.core service.
 
     It setups the database before each test and delete it after.
@@ -175,7 +175,7 @@ class BaseWebTest(object):
         self.permission.flush()
 
 
-class ThreadMixin(object):
+class ThreadMixin:
 
     def setUp(self):
         super(ThreadMixin, self).setUp()

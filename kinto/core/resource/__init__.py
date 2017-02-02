@@ -132,7 +132,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
     return callback
 
 
-class UserResource(object):
+class UserResource:
     """Base resource class providing every endpoint."""
 
     default_viewset = ViewSet

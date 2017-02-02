@@ -422,7 +422,7 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
 
 
 def load_from_config(config, prefix):
-    class ClassListener(object):
+    class ClassListener:
         def __call__(self, event):
             pass
     return ClassListener()

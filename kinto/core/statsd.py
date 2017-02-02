@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 from kinto.core import utils
 
 
-class Client(object):
+class Client:
     def __init__(self, host, port, prefix):
         self._client = statsd_module.StatsClient(host, port, prefix=prefix)
 

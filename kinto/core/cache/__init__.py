@@ -8,7 +8,7 @@ _HEARTBEAT_KEY = '__heartbeat__'
 _HEARTBEAT_TTL_SECONDS = 3600
 
 
-class CacheBase(object):
+class CacheBase:
 
     def __init__(self, *args, **kwargs):
         self.prefix = kwargs['cache_prefix']

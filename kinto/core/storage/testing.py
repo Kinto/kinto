@@ -10,7 +10,7 @@ from kinto.core.storage import exceptions, Filter, Sort, heartbeat
 RECORD_ID = '472be9ec-26fe-461b-8282-9c4e4b207ab3'
 
 
-class BaseTestStorage(object):
+class BaseTestStorage:
     backend = None
 
     settings = {}
@@ -481,7 +481,7 @@ class BaseTestStorage(object):
         self.assertEqual(len(records), 4)
 
 
-class TimestampsTest(object):
+class TimestampsTest:
     def test_timestamp_are_incremented_on_create(self):
         self.create_record()  # init
         before = self.storage.collection_timestamp(**self.storage_kw)
@@ -680,7 +680,7 @@ class TimestampsTest(object):
         self.assertGreater(timestamp, timestamp_before)
 
 
-class DeletedRecordsTest(object):
+class DeletedRecordsTest:
     def _get_last_modified_filters(self):
         start = self.storage.collection_timestamp(**self.storage_kw)
         time.sleep(0.1)
@@ -1125,7 +1125,7 @@ class DeletedRecordsTest(object):
         self.assertNotIn('deleted', records[1])
 
 
-class ParentRecordAccessTest(object):
+class ParentRecordAccessTest:
     def test_parent_cannot_access_other_parent_record(self):
         record = self.create_record()
         self.assertRaises(

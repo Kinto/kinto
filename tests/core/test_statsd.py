@@ -9,7 +9,7 @@ from kinto.core import statsd
 from .support import BaseWebTest
 
 
-class TestedClass(object):
+class TestedClass:
     attribute = 3.14
 
     def test_method(self):

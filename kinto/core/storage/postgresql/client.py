@@ -8,7 +8,7 @@ from kinto.core.utils import sqlalchemy
 import transaction as zope_transaction
 
 
-class PostgreSQLClient(object):
+class PostgreSQLClient:
     def __init__(self, session_factory, commit_manually=True, invalidate=None):
         self.session_factory = session_factory
         self.commit_manually = commit_manually

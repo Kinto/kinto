@@ -7,7 +7,7 @@ from kinto.core.storage import exceptions
 from kinto.core.cache import heartbeat
 
 
-class CacheTest(object):
+class CacheTest:
     backend = None
     settings = {}
 

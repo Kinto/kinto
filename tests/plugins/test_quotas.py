@@ -531,7 +531,7 @@ class QuotaListenerTest(QuotaWebTest):
                              object_id=QUOTA_COLLECTION_ID)
 
 
-class QuotaBucketRecordMixin(object):
+class QuotaBucketRecordMixin:
     def test_507_is_raised_if_quota_exceeded_on_record_creation(self):
         self.create_bucket()
         self.create_collection()
@@ -564,7 +564,7 @@ class QuotaBucketRecordMixin(object):
         assert len(resp.json['data']) == 1
 
 
-class QuotaBucketUpdateMixin(object):
+class QuotaBucketUpdateMixin:
     def test_507_is_raised_if_quota_exceeded_on_record_update(self):
         self.create_bucket()
         self.create_collection()
@@ -720,7 +720,7 @@ class QuotaBucketUpdateMixin(object):
         })
 
 
-class QuotaBucketMixin(object):
+class QuotaBucketMixin:
     def test_507_is_raised_if_quota_exceeded_on_collection_creation(self):
         self.create_bucket()
         self.create_collection()
@@ -858,7 +858,7 @@ class QuotaMaxBytesPerItemExceededBucketListenerTest(
         return settings
 
 
-class QuotaCollectionMixin(object):
+class QuotaCollectionMixin:
     def test_507_is_raised_if_quota_exceeded_on_record_creation(self):
         self.create_bucket()
         self.create_collection()
@@ -883,7 +883,7 @@ class QuotaCollectionMixin(object):
         })
 
 
-class QuotaCollectionUpdateMixin(object):
+class QuotaCollectionUpdateMixin:
     def test_507_is_raised_if_quota_exceeded_on_record_update(self):
         self.create_bucket()
         self.create_collection()

@@ -19,7 +19,7 @@ class ACTIONS(Enum):
         return tuple(ACTIONS(el) for el in elements)
 
 
-class _ResourceEvent(object):
+class _ResourceEvent:
     def __init__(self, payload, request):
         self.payload = payload
         self.request = request

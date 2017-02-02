@@ -7,7 +7,7 @@ from kinto.core.permission import heartbeat
 from kinto.core.testing import DummyRequest
 
 
-class PermissionTest(object):
+class PermissionTest:
     backend = None
     settings = {}
 

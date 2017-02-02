@@ -2,7 +2,7 @@ import re
 from uuid import uuid4
 
 
-class Generator(object):
+class Generator:
     """Base generator for records ids.
 
     Id generators are used by storage backend during record creation, and at

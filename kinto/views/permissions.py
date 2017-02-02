@@ -46,7 +46,7 @@ def allowed_from_settings(settings, principals):
     return from_settings
 
 
-class PermissionsModel(object):
+class PermissionsModel:
     id_field = 'id'
     modified_field = 'last_modified'
     deleted_field = 'deleted'

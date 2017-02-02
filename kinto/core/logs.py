@@ -16,7 +16,7 @@ def decode_value(value):
         return bytes(value).decode('utf-8')
 
 
-class ClassicLogRenderer(object):
+class ClassicLogRenderer:
     """Classic log output for structlog.
 
     ::
@@ -64,7 +64,7 @@ class ClassicLogRenderer(object):
         return log_msg
 
 
-class MozillaHekaRenderer(object):
+class MozillaHekaRenderer:
     """Build structured log entries as expected by Mozilla Services standard:
 
     * https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard

@@ -39,7 +39,7 @@ def groupfinder(userid, request):
 
 
 @implementer(IAuthorizationPolicy)
-class AuthorizationPolicy(object):
+class AuthorizationPolicy:
     """Default authorization class, that leverages the permission backend
     for shareable resources.
     """
@@ -106,7 +106,7 @@ class AuthorizationPolicy(object):
         raise NotImplementedError()  # PRAGMA NOCOVER
 
 
-class RouteFactory(object):
+class RouteFactory:
     resource_name = None
     on_collection = False
     required_permission = None
