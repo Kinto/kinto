@@ -169,10 +169,10 @@ class Cache(CacheBase):
         params = dict(key=self.prefix + key, value=value, ttl=ttl)
         with self.client.connect() as conn:
             server_version = conn.connection().dialect.server_version_info
-            if server_version < (9, 5):
-                conn.execute(query_pg_94, params)
-            else:
+            if server_version >= (9, 5):
                 conn.execute(query, params)
+            else:
+                conn.execute(query_pg_94, params)
 
     def get(self, key):
         purge = "DELETE FROM cache WHERE ttl IS NOT NULL AND now() > ttl;"
