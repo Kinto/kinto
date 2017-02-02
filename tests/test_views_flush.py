@@ -54,8 +54,7 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         config = Configurator(settings=settings)
         config.add_subscriber(self.listener, ServerFlushed)
         config.commit()
-        return super().make_app(settings=settings,
-                                                   config=config)
+        return super().make_app(settings=settings, config=config)
 
     def get_app_settings(self, extras=None):
         if extras is None:

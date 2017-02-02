@@ -49,8 +49,7 @@ class BaseEventTest(BaseWebTest):
         for event_cls in self.subscribed:
             config.add_subscriber(self.listener, event_cls)
         config.commit()
-        return super().make_app(settings=settings,
-                                                   config=config)
+        return super().make_app(settings=settings, config=config)
 
 
 class ResourceReadTest(BaseEventTest, unittest.TestCase):

@@ -288,11 +288,7 @@ class ShareableModel(Model):
                        limit=None, parent_id=None):
         """Delete permissions when collection records are deleted in bulk.
         """
-        deleted = super().delete_records(filters,
-                                                             sorting,
-                                                             pagination_rules,
-                                                             limit,
-                                                             parent_id)
+        deleted = super().delete_records(filters, sorting, pagination_rules, limit, parent_id)
         # Take a huge shortcut in case we want to delete everything.
         if not filters:
             perm_ids = [self.get_permission_object_id(object_id='*')]

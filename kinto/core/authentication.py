@@ -13,9 +13,7 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
     def __init__(self, *args, **kwargs):
         def noop_check(*a):
             return []
-        super().__init__(noop_check,
-                                                            *args,
-                                                            **kwargs)
+        super().__init__(noop_check, *args, **kwargs)
 
     def effective_principals(self, request):
         # Bypass default Pyramid construction of principals because
