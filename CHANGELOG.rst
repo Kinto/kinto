@@ -3,10 +3,17 @@ Changelog
 
 This document describes changes between each past release.
 
-5.3.3 (unreleased)
+5.3.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+- Update the cache backend to use the new upsert behavior from PostgreSQL 9.5 (fixes #1055)
+
+
+5.3.3 (2017-02-02)
+------------------
+
+- Errorneous release.
 
 
 5.3.2 (2017-01-31)
