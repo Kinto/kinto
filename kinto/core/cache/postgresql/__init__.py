@@ -148,19 +148,31 @@ class Cache(CacheBase):
     def set(self, key, value, ttl=None):
         if ttl is None:
             logger.warning("No TTL for cache key %r" % key)
+        # Query for PostgreSQL 9.5+
         query = """
+        INSERT INTO cache (key, value, ttl)
+        VALUES (:key, :value, sec2ttl(:ttl))
+        ON CONFLICT (key) DO
+        UPDATE SET value = :value, ttl = sec2ttl(:ttl);
+        """
+        # Query for PostgreSQL 9.4
+        query_pg_94 = """
         WITH upsert AS (
             UPDATE cache SET value = :value, ttl = sec2ttl(:ttl)
-             WHERE key=:key
+             WHERE key = :key
             RETURNING *)
         INSERT INTO cache (key, value, ttl)
         SELECT :key, :value, sec2ttl(:ttl)
-        WHERE NOT EXISTS (SELECT * FROM upsert)
+        WHERE NOT EXISTS (SELECT * FROM upsert);
         """
         value = json.dumps(value)
+        params = dict(key=self.prefix + key, value=value, ttl=ttl)
         with self.client.connect() as conn:
-            conn.execute(query, dict(key=self.prefix + key,
-                                     value=value, ttl=ttl))
+            server_version = conn.connection().dialect.server_version_info
+            if server_version >= (9, 5):
+                conn.execute(query, params)
+            else:
+                conn.execute(query_pg_94, params)
 
     def get(self, key):
         purge = "DELETE FROM cache WHERE ttl IS NOT NULL AND now() > ttl;"
