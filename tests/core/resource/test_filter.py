@@ -6,7 +6,7 @@ from . import BaseTest
 
 class FilteringTest(BaseTest):
     def setUp(self):
-        super(FilteringTest, self).setUp()
+        super().setUp()
         self.validated = self.resource.request.validated
         self.patch_known_field.start()
         records = [
@@ -198,7 +198,7 @@ class FilteringTest(BaseTest):
 
 class SubobjectFilteringTest(BaseTest):
     def setUp(self):
-        super(SubobjectFilteringTest, self).setUp()
+        super().setUp()
         self.validated = self.resource.request.validated
         self.patch_known_field.start()
         for i in range(6):

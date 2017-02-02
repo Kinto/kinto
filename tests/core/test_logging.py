@@ -29,7 +29,7 @@ def strip_ansi(text):
 
 class LoggingSetupTest(unittest.TestCase):
     def tearDown(self):
-        super(LoggingSetupTest, self).tearDown()
+        super().tearDown()
         core_logs.structlog.reset_defaults()
 
     def test_classic_logger_is_used_by_default(self):
@@ -184,13 +184,13 @@ class MozillaHekaRendererTest(unittest.TestCase):
 
 class RequestSummaryTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(RequestSummaryTest, self).setUp()
+        super().setUp()
         config = testing.setUp()
         config.registry.settings = DEFAULT_SETTINGS
         initialization.setup_logging(config)
 
     def tearDown(self):
-        super(RequestSummaryTest, self).tearDown()
+        super().tearDown()
         core_logs.structlog.reset_defaults()
 
     def test_request_summary_is_sent_as_info(self):
@@ -240,7 +240,7 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
 
 class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(BatchSubrequestTest, self).setUp()
+        super().setUp()
         headers = {**self.headers, 'User-Agent': 'readinglist'}
         body = {
             'requests': [{
@@ -281,13 +281,13 @@ class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
 
 class ResourceInfoTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(ResourceInfoTest, self).setUp()
+        super().setUp()
         config = testing.setUp()
         config.registry.settings = DEFAULT_SETTINGS
         initialization.setup_logging(config)
 
     def tearDown(self):
-        super(ResourceInfoTest, self).tearDown()
+        super().tearDown()
         core_logs.structlog.reset_defaults()
 
     def test_collection_id_is_bound(self):

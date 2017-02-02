@@ -14,7 +14,7 @@ from kinto.core.testing import skip_if_no_postgresql
 @skip_if_no_postgresql
 class PostgresqlStorageMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(PostgresqlStorageMigrationTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         from kinto.core.utils import sqlalchemy
         if sqlalchemy is None:
             return
@@ -206,7 +206,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 @skip_if_no_postgresql
 class PostgresqlPermissionMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kw):
-        super(PostgresqlPermissionMigrationTest, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         from kinto.core.utils import sqlalchemy
         if sqlalchemy is None:
             return
@@ -245,7 +245,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
 @skip_if_no_postgresql
 class PostgresqlCacheMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kw):
-        super(PostgresqlCacheMigrationTest, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         from kinto.core.utils import sqlalchemy
         if sqlalchemy is None:
             return

@@ -14,7 +14,7 @@ from .support import BaseWebTest, USER_PRINCIPAL
 
 class PostgreSQLTest(BaseWebTest):
     def get_app_settings(self, extras=None):
-        settings = super(PostgreSQLTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         if sqlalchemy is not None:
             from .test_storage import PostgreSQLStorageTest
             from .test_cache import PostgreSQLCacheTest
@@ -227,7 +227,7 @@ class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
 class WithoutTransactionTest(PostgreSQLTest, unittest.TestCase):
 
     def get_app_settings(self, extras=None):
-        settings = super(WithoutTransactionTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['transaction_per_request'] = False
         return settings
 

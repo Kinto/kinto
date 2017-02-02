@@ -73,7 +73,7 @@ class MozillaHekaRenderer:
     ENV_VERSION = '2.0'
 
     def __init__(self, settings):
-        super(MozillaHekaRenderer, self).__init__()
+        super().__init__()
         self.appname = settings['project_name']
         self.hostname = utils.read_env('HOSTNAME', os.uname()[1])
         self.pid = os.getpid()

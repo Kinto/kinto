@@ -598,7 +598,7 @@ class UserResource:
         .. code-block:: python
 
             def process_record(self, new, old=None):
-                new = super(MyResource, self).process_record(new, old)
+                new = super().process_record(new, old)
                 version = old['version'] if old else 0
                 new['version'] = version + 1
                 return new
@@ -610,7 +610,7 @@ class UserResource:
             from kinto.core.errors import raise_invalid
 
             def process_record(self, new, old=None):
-                new = super(MyResource, self).process_record(new, old)
+                new = super().process_record(new, old)
                 if new['browser'] not in request.headers['User-Agent']:
                     raise_invalid(self.request, name='browser', error='Wrong')
                 return new
@@ -654,7 +654,7 @@ class UserResource:
                 # Ignore value change if inferior
                 if record['position'] > changes.get('position', -1):
                     changes.pop('position', None)
-                return super(MyResource, self).apply_changes(record, requested_changes)
+                return super().apply_changes(record, requested_changes)
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if result does not comply with resource schema.
@@ -1093,7 +1093,7 @@ class ShareableResource(UserResource):
     """List of allowed permissions names."""
 
     def __init__(self, *args, **kwargs):
-        super(ShareableResource, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # In base resource, PATCH only hit storage if no data has changed.
         # Here, we force update because we add the current principal to
         # the ``write`` ACE.
@@ -1129,7 +1129,7 @@ class ShareableResource(UserResource):
 
         XXX: find more elegant approach to add custom filters.
         """
-        filters = super(ShareableResource, self)._extract_filters(queryparams)
+        filters = super()._extract_filters(queryparams)
 
         ids = self.context.shared_ids
         if ids is not None:
@@ -1145,13 +1145,13 @@ class ShareableResource(UserResource):
         if record:
             record = {**record}
             record.pop(self.model.permissions_field, None)
-        return super(ShareableResource, self)._raise_412_if_modified(record)
+        return super()._raise_412_if_modified(record)
 
     def process_record(self, new, old=None):
         """Read permissions from request body, and in the case of ``PUT`` every
         existing ACE is removed (using empty list).
         """
-        new = super(ShareableResource, self).process_record(new, old)
+        new = super().process_record(new, old)
 
         # patch is specified as a list of of operations (RFC 6902)
         if self._is_json_patch:
@@ -1190,6 +1190,6 @@ class ShareableResource(UserResource):
                 # Remove permissions from event payload.
                 old.pop(self.model.permissions_field, None)
 
-        data = super(ShareableResource, self).postprocess(result, action, old)
+        data = super().postprocess(result, action, old)
         body.update(data)
         return body

@@ -56,7 +56,7 @@ class PostgreSQLPermissionTest(PermissionTest, unittest.TestCase):
     }
 
     def setUp(self):
-        super(PostgreSQLPermissionTest, self).setUp()
+        super().setUp()
         self.client_error_patcher = [mock.patch.object(
             self.permission.client,
             'session_factory',

@@ -179,7 +179,7 @@ class CollectionAuthzDeniedTest(AuthzAuthnTest):
 
 class RecordAuthzGrantedTest(AuthzAuthnTest):
     def setUp(self):
-        super(RecordAuthzGrantedTest, self).setUp()
+        super().setUp()
         self.add_permission(self.collection_url, 'toadstool:create')
 
         resp = self.app.post_json(self.collection_url,
@@ -215,7 +215,7 @@ class RecordAuthzGrantedTest(AuthzAuthnTest):
 
 class RecordAuthzDeniedTest(AuthzAuthnTest):
     def setUp(self):
-        super(RecordAuthzDeniedTest, self).setUp()
+        super().setUp()
         # Add permission to create a sample record.
         self.add_permission(self.collection_url, 'toadstool:create')
         resp = self.app.post_json(self.collection_url,
@@ -261,7 +261,7 @@ class RecordAuthzDeniedTest(AuthzAuthnTest):
 
 class RecordAuthzGrantedOnCollectionTest(AuthzAuthnTest):
     def setUp(self):
-        super(RecordAuthzGrantedOnCollectionTest, self).setUp()
+        super().setUp()
         self.add_permission(self.collection_url, 'toadstool:create')
 
         self.guest_headers = {**self.headers, 'Authorization': "Basic bmF0aW06"}
@@ -353,7 +353,7 @@ class OptionalSchemaTest(BaseWebTest, unittest.TestCase):
 
 class InvalidRecordTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(InvalidRecordTest, self).setUp()
+        super().setUp()
         body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
                                   body,
@@ -484,7 +484,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
 
 class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(IgnoredFieldsTest, self).setUp()
+        super().setUp()
         body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
                                   body,
@@ -515,11 +515,11 @@ class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
 
 class InvalidBodyTest(BaseWebTest, unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(InvalidBodyTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.invalid_body = "{'foo>}"
 
     def setUp(self):
-        super(InvalidBodyTest, self).setUp()
+        super().setUp()
         body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
                                   body,
@@ -602,7 +602,7 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
     collection_url = '/toadstools'
 
     def setUp(self):
-        super(InvalidPermissionsTest, self).setUp()
+        super().setUp()
         body = {'data': MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url,
                                   body,
@@ -651,7 +651,7 @@ class CacheControlTest(BaseWebTest, unittest.TestCase):
     collection_url = '/toadstools'
 
     def get_app_settings(self, extras=None):
-        settings = super(CacheControlTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['toadstool_cache_expires_seconds'] = 3600
         settings['toadstool_read_principals'] = 'system.Everyone'
         settings['psilo_cache_expires_seconds'] = 0
@@ -683,7 +683,7 @@ class CacheControlTest(BaseWebTest, unittest.TestCase):
 
 class StorageErrorTest(BaseWebTest, unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(StorageErrorTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.error = storage_exceptions.BackendError(ValueError())
         self.storage_error_patcher = mock.patch(
             'kinto.core.storage.memory.Storage.create',
@@ -714,7 +714,7 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
     """
 
     def setUp(self):
-        super(PaginationNextURLTest, self).setUp()
+        super().setUp()
         body = {'data': MINIMALIST_RECORD}
         self.app.post_json(self.collection_url,
                            body,
@@ -754,7 +754,7 @@ class SchemaLessPartialResponseTest(BaseWebTest, unittest.TestCase):
     collection_url = '/spores'
 
     def setUp(self):
-        super(SchemaLessPartialResponseTest, self).setUp()
+        super().setUp()
         body = {'data': {'size': 42, 'category': 'some-cat', 'owner': 'loco'}}
         resp = self.app.post_json(self.collection_url,
                                   body,

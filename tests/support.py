@@ -19,14 +19,14 @@ class BaseWebTest(testing.BaseWebTest):
     principal = USER_PRINCIPAL
 
     def __init__(self, *args, **kwargs):
-        super(BaseWebTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.headers.update(testing.get_user_headers('mat'))
 
     def get_app_settings(self, extras=None):
         settings = {**DEFAULT_SETTINGS}
         if extras is not None:
             settings.update(extras)
-        settings = super(BaseWebTest, self).get_app_settings(extras=settings)
+        settings = super().get_app_settings(extras=settings)
         return settings
 
     def create_group(self, bucket_id, group_id, members=None):

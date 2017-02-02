@@ -100,7 +100,7 @@ class StatsdClientTest(unittest.TestCase):
 @skip_if_no_statsd
 class TimingTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, *args, **kwargs):
-        settings = super(TimingTest, self).get_app_settings(*args, **kwargs)
+        settings = super().get_app_settings(*args, **kwargs)
         if not statsd.statsd_module:
             return settings
 

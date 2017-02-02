@@ -68,7 +68,7 @@ class Storage(StorageBase):
     schema_version = 14
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
-        super(Storage, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.client = client
         self._max_fetch_size = max_fetch_size
 

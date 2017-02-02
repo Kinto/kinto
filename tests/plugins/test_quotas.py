@@ -61,7 +61,7 @@ class QuotaWebTest(support.BaseWebTest, unittest.TestCase):
         self.record = resp.json['data']
 
     def get_app_settings(self, extras=None):
-        settings = super(QuotaWebTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
 
         # Setup the postgresql backend for transaction support.
         settings['storage_backend'] = 'kinto.core.storage.postgresql'

@@ -13,7 +13,7 @@ class BackendError(Exception):
         if message is None:
             message = "%s: %s" % (original.__class__.__name__,
                                   original)
-        super(BackendError, self).__init__(message, *args, **kwargs)
+        super().__init__(message, *args, **kwargs)
 
 
 class RecordNotFoundError(Exception):
@@ -38,4 +38,4 @@ class UnicityError(IntegrityError):
         self.field = field
         self.record = record
         self.msg = "{0} is not unique: {1}".format(field, record)
-        super(UnicityError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)

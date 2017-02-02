@@ -13,17 +13,17 @@ class PermissionTest(BaseTest):
 
     def setUp(self):
         self.permission = Permission()
-        super(PermissionTest, self).setUp()
+        super().setUp()
 
     def get_request(self):
-        request = super(PermissionTest, self).get_request()
+        request = super().get_request()
         request.registry.permission = self.permission
         return request
 
 
 class CollectionPermissionTest(PermissionTest):
     def setUp(self):
-        super(CollectionPermissionTest, self).setUp()
+        super().setUp()
         self.result = self.resource.collection_get()
 
     def test_permissions_are_not_provided_in_collection_get(self):
@@ -36,7 +36,7 @@ class CollectionPermissionTest(PermissionTest):
 
 class ObtainRecordPermissionTest(PermissionTest):
     def setUp(self):
-        super(ObtainRecordPermissionTest, self).setUp()
+        super().setUp()
         record = self.resource.model.create_record({})
         record_id = record['id']
         record_uri = '/articles/%s' % record_id
@@ -78,7 +78,7 @@ class ObtainRecordPermissionTest(PermissionTest):
 
 class SpecifyRecordPermissionTest(PermissionTest):
     def setUp(self):
-        super(SpecifyRecordPermissionTest, self).setUp()
+        super().setUp()
         self.record = self.resource.model.create_record({})
         record_id = self.record['id']
         self.record_uri = '/articles/%s' % record_id
@@ -181,7 +181,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
 
 class DeletedRecordPermissionTest(PermissionTest):
     def setUp(self):
-        super(DeletedRecordPermissionTest, self).setUp()
+        super().setUp()
         record = self.resource.model.create_record({})
         self.resource.record_id = record_id = record['id']
         self.record_uri = '/articles/%s' % record_id
@@ -207,7 +207,7 @@ class DeletedRecordPermissionTest(PermissionTest):
 
 class GuestCollectionListTest(PermissionTest):
     def setUp(self):
-        super(GuestCollectionListTest, self).setUp()
+        super().setUp()
         record1 = self.resource.model.create_record({'letter': 'a'})
         record2 = self.resource.model.create_record({'letter': 'b'})
         record3 = self.resource.model.create_record({'letter': 'c'})
@@ -249,7 +249,7 @@ class GuestCollectionListTest(PermissionTest):
 
 class GuestCollectionDeleteTest(PermissionTest):
     def setUp(self):
-        super(GuestCollectionDeleteTest, self).setUp()
+        super().setUp()
         record1 = self.resource.model.create_record({'letter': 'a'})
         record2 = self.resource.model.create_record({'letter': 'b'})
         record3 = self.resource.model.create_record({'letter': 'c'})
@@ -269,7 +269,7 @@ class GuestCollectionDeleteTest(PermissionTest):
         self.resource.request.method = 'DELETE'
 
     def get_request(self):
-        request = super(GuestCollectionDeleteTest, self).get_request()
+        request = super().get_request()
         # RouteFactory must be aware of DELETE to query 'write' permission.
         request.method = 'DELETE'
         return request

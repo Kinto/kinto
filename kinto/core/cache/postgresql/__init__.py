@@ -62,7 +62,7 @@ class Cache(CacheBase):
     :noindex:
     """  # NOQA
     def __init__(self, client, *args, **kwargs):
-        super(Cache, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.client = client
 
     def initialize_schema(self, dry_run=False):

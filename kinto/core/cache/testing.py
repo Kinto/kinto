@@ -12,7 +12,7 @@ class CacheTest:
     settings = {}
 
     def setUp(self):
-        super(CacheTest, self).setUp()
+        super().setUp()
         self.cache = self.backend.load_from_config(self._get_config())
         self.cache.initialize_schema()
         self.request = None
@@ -29,7 +29,7 @@ class CacheTest:
 
     def tearDown(self):
         mock.patch.stopall()
-        super(CacheTest, self).tearDown()
+        super().tearDown()
         self.cache.flush()
 
     def get_backend_prefix(self, prefix):

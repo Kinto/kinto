@@ -15,7 +15,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
     record_url = '/buckets/beers'
 
     def setUp(self):
-        super(BucketViewTest, self).setUp()
+        super().setUp()
         resp = self.app.put_json(self.record_url,
                                  MINIMALIST_BUCKET,
                                  headers=self.headers)
@@ -98,7 +98,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
 class BucketListTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extras=None):
-        settings = super(BucketListTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['bucket_create_principals'] = self.principal
         return settings
 
@@ -149,7 +149,7 @@ class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
     record_url = '/buckets/beers'
 
     def setUp(self):
-        super(BucketReadPermissionTest, self).setUp()
+        super().setUp()
         bucket = {**MINIMALIST_BUCKET}
         self.app.put_json(self.record_url,
                           bucket,
@@ -198,7 +198,7 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.delete(self.bucket_url, headers=self.headers)
 
     def get_app_settings(self, extras=None):
-        settings = super(BucketDeletionTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         # Give the permission to read, to get an explicit 404 once deleted.
         settings['kinto.bucket_read_principals'] = self.principal
         return settings

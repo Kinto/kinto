@@ -34,7 +34,7 @@ class History(resource.ShareableResource):
         return instance_uri(request, 'bucket', id=self.bucket_id)
 
     def _extract_filters(self, queryparams=None):
-        filters = super(History, self)._extract_filters(queryparams)
+        filters = super()._extract_filters(queryparams)
         filters_str_id = []
         for filt in filters:
             if filt.field in ('record_id', 'collection_id', 'bucket_id'):

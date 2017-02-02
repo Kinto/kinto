@@ -10,7 +10,7 @@ from .support import (BaseWebTest,
 class PermissionsTest(BaseWebTest, unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
-        super(PermissionsTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.alice_headers = {**self.headers, **get_user_headers('alice')}
         self.bob_headers = {**self.headers, **get_user_headers('bob')}
 

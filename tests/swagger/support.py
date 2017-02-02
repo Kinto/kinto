@@ -29,7 +29,7 @@ class SwaggerTest(BaseWebTest, unittest.TestCase):
         cls.resources = build_resources(cls.spec)
 
     def setUp(self):
-        super(SwaggerTest, self).setUp()
+        super().setUp()
 
         self.bucket = self.app.put_json('/buckets/b1',
                                         MINIMALIST_BUCKET,
@@ -58,7 +58,7 @@ class SwaggerTest(BaseWebTest, unittest.TestCase):
         self.request.json = lambda: self.request._json
 
     def get_app_settings(self, extras=None):
-        settings = super(SwaggerTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings.update(self.settings)
         return settings
 

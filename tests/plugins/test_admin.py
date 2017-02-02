@@ -5,7 +5,7 @@ from ..support import BaseWebTest
 class AdminViewTest(BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extras=None):
-        settings = super(AdminViewTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['includes'] = 'kinto.plugins.admin'
         return settings
 

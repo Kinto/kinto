@@ -36,7 +36,7 @@ class GetTest(BaseTest):
 
 class PutTest(BaseTest):
     def setUp(self):
-        super(PutTest, self).setUp()
+        super().setUp()
         self.record = self.model.create_record({'field': 'old'})
         self.resource.record_id = self.record['id']
 
@@ -190,7 +190,7 @@ class DeleteTest(BaseTest):
 
 class PatchTest(BaseTest):
     def setUp(self):
-        super(PatchTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({})
         self.resource.record_id = self.stored['id']
         self.validated['body'] = {'data': {'position': 10}}
@@ -278,7 +278,7 @@ class PatchTest(BaseTest):
 
 class MergePatchTest(BaseTest):
     def setUp(self):
-        super(MergePatchTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({})
         self.resource.record_id = self.stored['id']
         self.headers = self.resource.request.headers
@@ -357,7 +357,7 @@ class MergePatchTest(BaseTest):
 
 class JsonPatchTest(BaseTest):
     def setUp(self):
-        super(JsonPatchTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({})
         self.resource.record_id = self.stored['id']
         self.validated['body'] = {'data': {'a': 'aaa', 'b': ['bb', 'bbb'], 'd': []}}
@@ -468,7 +468,7 @@ class JsonPatchTest(BaseTest):
 
 class UnknownRecordTest(BaseTest):
     def setUp(self):
-        super(UnknownRecordTest, self).setUp()
+        super().setUp()
         self.unknown_id = '1cea99eb-5e3d-44ad-a53a-2fb68473b538'
         self.resource.record_id = self.unknown_id
         self.validated['body'] = {'data': {'field': 'new'}}
@@ -489,7 +489,7 @@ class UnknownRecordTest(BaseTest):
 
 class InvalidIdTest(BaseTest):
     def setUp(self):
-        super(InvalidIdTest, self).setUp()
+        super().setUp()
         self.resource.record_id = 'a*b'
 
     def test_get_with_invalid_id_raises_400(self):
@@ -507,7 +507,7 @@ class InvalidIdTest(BaseTest):
 
 class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
-        super(ReadonlyFieldsTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({'age': 32})
         self.resource.schema.Options.readonly_fields = ('age',)
         self.resource.record_id = self.stored['id']

@@ -10,7 +10,7 @@ from . import BaseTest
 class SinceModifiedTest(ThreadMixin, BaseTest):
 
     def setUp(self):
-        super(SinceModifiedTest, self).setUp()
+        super().setUp()
         self.validated['body'] = {'data': {}}
 
         with mock.patch.object(self.model.storage,

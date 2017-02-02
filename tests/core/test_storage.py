@@ -76,7 +76,7 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
     backend = memory
 
     def setUp(self):
-        super(MemoryStorageTest, self).setUp()
+        super().setUp()
         self.client_error_patcher = mock.patch.object(
             self.storage,
             '_bump_timestamp',
@@ -109,7 +109,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     }
 
     def setUp(self):
-        super(PostgreSQLStorageTest, self).setUp()
+        super().setUp()
         self.client_error_patcher = mock.patch.object(
             self.storage.client,
             'session_factory',

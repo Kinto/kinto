@@ -11,7 +11,7 @@ MINIMALIST_RECORD = {'name': 'Champignon'}
 
 class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(CORSOriginHeadersTest, self).setUp()
+        super().setUp()
         self.headers['Origin'] = 'notmyidea.org'
 
         body = {'data': MINIMALIST_RECORD}
@@ -181,7 +181,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
 
 class CORSMaxAgeTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(CORSMaxAgeTest, self).setUp()
+        super().setUp()
         self.headers.update({
             'Origin': 'lolnet.org',
             'Access-Control-Request-Method': 'GET'

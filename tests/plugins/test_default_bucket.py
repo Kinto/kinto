@@ -15,7 +15,7 @@ from ..support import BaseWebTest, MINIMALIST_RECORD
 class DefaultBucketWebTest(BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extras=None):
-        settings = super(DefaultBucketWebTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['includes'] = 'kinto.plugins.default_bucket'
         return settings
 
@@ -265,11 +265,11 @@ def load_from_config(config, prefix):
 
 class EventsTest(DefaultBucketWebTest):
     def tearDown(self):
-        super(EventsTest, self).tearDown()
+        super().tearDown()
         del _events[:]
 
     def get_app_settings(self, extras=None):
-        settings = super(EventsTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings = {**settings, 'event_listeners': 'testevent',
                     'event_listeners.testevent.use': 'tests.plugins.test_default_bucket'}
         return settings
@@ -326,7 +326,7 @@ class EventsTest(DefaultBucketWebTest):
 class ReadonlyDefaultBucket(DefaultBucketWebTest):
 
     def get_app_settings(self, extras=None):
-        settings = super(ReadonlyDefaultBucket, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['readonly'] = True
         return settings
 
@@ -336,7 +336,7 @@ class ReadonlyDefaultBucket(DefaultBucketWebTest):
 
 class BackendErrorTest(DefaultBucketWebTest):
     def setUp(self):
-        super(BackendErrorTest, self).setUp()
+        super().setUp()
         self.patcher = mock.patch.object(
             self.storage, 'create',
             side_effect=storage_exceptions.BackendError())

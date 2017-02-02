@@ -79,7 +79,7 @@ class PermissionsSchema(colander.SchemaNode):
 
     def __init__(self, *args, **kwargs):
         self.known_perms = kwargs.pop('permissions', tuple())
-        super(PermissionsSchema, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for perm in self.known_perms:
             self[perm] = self._get_node_principals(perm)
@@ -94,13 +94,13 @@ class PermissionsSchema(colander.SchemaNode):
 
         # If permissions are not a mapping (e.g null or invalid), try deserializing
         if not isinstance(cstruct, dict):
-            return super(PermissionsSchema, self).deserialize(cstruct)
+            return super().deserialize(cstruct)
 
         # If permissions are listed, check fields and produce fancy error messages
         if self.known_perms:
             for perm in cstruct:
                 colander.OneOf(choices=self.known_perms)(self, perm)
-            return super(PermissionsSchema, self).deserialize(cstruct)
+            return super().deserialize(cstruct)
 
         # Else deserialize the fields that are not on the schema
         permissions = {}
@@ -143,7 +143,7 @@ class TimeStamp(colander.SchemaNode):
     def deserialize(self, cstruct=colander.null):
         if cstruct is colander.null and self.auto_now:
             cstruct = msec_time()
-        return super(TimeStamp, self).deserialize(cstruct)
+        return super().deserialize(cstruct)
 
 
 class URL(SchemaNode):
@@ -181,7 +181,7 @@ class HeaderField(colander.SchemaNode):
                 cstruct = cstruct.decode('utf-8')
             except UnicodeDecodeError:
                 raise colander.Invalid(self, msg='Headers should be UTF-8 encoded')
-        return super(HeaderField, self).deserialize(cstruct)
+        return super().deserialize(cstruct)
 
 
 class QueryField(colander.SchemaNode):
@@ -191,7 +191,7 @@ class QueryField(colander.SchemaNode):
 
     def deserialize(self, cstruct=colander.null):
         cstruct = native_value(cstruct)
-        return super(QueryField, self).deserialize(cstruct)
+        return super().deserialize(cstruct)
 
 
 class FieldList(QueryField):
@@ -205,7 +205,7 @@ class FieldList(QueryField):
     def deserialize(self, cstruct=colander.null):
         if isinstance(cstruct, str):
             cstruct = cstruct.split(',')
-        return super(FieldList, self).deserialize(cstruct)
+        return super().deserialize(cstruct)
 
 
 class HeaderQuotedInteger(HeaderField):
@@ -217,7 +217,7 @@ class HeaderQuotedInteger(HeaderField):
                              colander.Regex('\*'))
 
     def deserialize(self, cstruct=colander.null):
-        param = super(HeaderQuotedInteger, self).deserialize(cstruct)
+        param = super().deserialize(cstruct)
         if param is colander.drop or param == '*':
             return param
 
@@ -274,7 +274,7 @@ class QuerySchema(colander.MappingSchema):
         """
         values = {}
 
-        schema_values = super(QuerySchema, self).deserialize(cstruct)
+        schema_values = super().deserialize(cstruct)
         if schema_values is colander.drop:
             return schema_values
 

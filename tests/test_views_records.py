@@ -16,7 +16,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     _record_url = '/buckets/beers/collections/barley/records/%s'
 
     def setUp(self):
-        super(RecordsViewTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.put_json('/buckets/beers/collections/barley',
@@ -295,7 +295,7 @@ class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
     _record_url = '/buckets/beers/collections/barley/records/%s'
 
     def setUp(self):
-        super(RecordsViewMergeTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.put_json('/buckets/beers/collections/barley',
@@ -333,7 +333,7 @@ class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
     _record_url = '/buckets/beers/collections/barley/records/%s'
 
     def setUp(self):
-        super(RecordsViewPatchTest, self).setUp()
+        super().setUp()
         self.patch_headers = {**self.headers, 'Content-Type': 'application/json-patch+json'}
 
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,

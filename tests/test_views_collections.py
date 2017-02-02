@@ -12,7 +12,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
     collection_url = '/buckets/beers/collections/barley'
 
     def setUp(self):
-        super(CollectionViewTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         resp = self.app.put_json(self.collection_url,
@@ -102,7 +102,7 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
     collection_url = '/buckets/beers/collections/barley'
 
     def setUp(self):
-        super(CollectionDeletionTest, self).setUp()
+        super().setUp()
         bucket = {**MINIMALIST_BUCKET,
                   'permissions': {'collection:create': ['system.Everyone'],
                                   'read': ['system.Everyone']}}
@@ -154,7 +154,7 @@ class CollectionCreationTest(BaseWebTest, unittest.TestCase):
     collections_url = '/buckets/beers/collections'
 
     def setUp(self):
-        super(CollectionCreationTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
 

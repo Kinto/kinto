@@ -9,7 +9,7 @@ from ..support import (MINIMALIST_BUCKET, MINIMALIST_GROUP,
 class SwaggerObjectErrorResponsesTest(SwaggerTest):
 
     def setUp(self):
-        super(SwaggerObjectErrorResponsesTest, self).setUp()
+        super().setUp()
 
         self.bucket = self.app.put_json('/buckets/b1',
                                         MINIMALIST_BUCKET,

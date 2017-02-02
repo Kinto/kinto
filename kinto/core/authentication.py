@@ -13,7 +13,7 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
     def __init__(self, *args, **kwargs):
         def noop_check(*a):
             return []
-        super(BasicAuthAuthenticationPolicy, self).__init__(noop_check,
+        super().__init__(noop_check,
                                                             *args,
                                                             **kwargs)
 

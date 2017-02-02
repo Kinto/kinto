@@ -231,13 +231,13 @@ class ShareableViewSet(ViewSet):
         return record_schema
 
     def get_view_arguments(self, endpoint_type, resource_cls, method):
-        args = super(ShareableViewSet, self).get_view_arguments(endpoint_type,
+        args = super().get_view_arguments(endpoint_type,
                                                                 resource_cls,
                                                                 method)
         args['permission'] = authorization.DYNAMIC
         return args
 
     def get_service_arguments(self):
-        args = super(ShareableViewSet, self).get_service_arguments()
+        args = super().get_service_arguments()
         args['factory'] = self.factory
         return args

@@ -46,7 +46,7 @@ class BatchPayloadSchema(colander.MappingSchema):
                                    BatchRequestSchema())
 
     def __init__(self, *args, **kwargs):
-        super(BatchPayloadSchema, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # On defaults, path is not mandatory.
         self.get('defaults').get('path').missing = colander.drop
 
@@ -60,7 +60,7 @@ class BatchPayloadSchema(colander.MappingSchema):
                 for request in requests:
                     if isinstance(request, dict):
                         merge_dicts(request, defaults)
-        return super(BatchPayloadSchema, self).deserialize(cstruct)
+        return super().deserialize(cstruct)
 
 
 class BatchRequest(colander.MappingSchema):

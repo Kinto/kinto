@@ -49,12 +49,12 @@ class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
 
 class BaseWebTestWithSchema(BaseWebTest):
     def get_app_settings(self, extras=None):
-        settings = super(BaseWebTestWithSchema, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['experimental_collection_schema_validation'] = 'True'
         return settings
 
     def setUp(self):
-        super(BaseWebTestWithSchema, self).setUp()
+        super().setUp()
         self.app.put(BUCKET_URL, headers=self.headers)
         self.app.put(COLLECTION_URL, headers=self.headers)
 
@@ -91,7 +91,7 @@ class InvalidSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
 
 class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
-        super(RecordsValidationTest, self).setUp()
+        super().setUp()
         resp = self.app.put_json(COLLECTION_URL,
                                  {'data': {'schema': SCHEMA}},
                                  headers=self.headers)
@@ -180,7 +180,7 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
 
 class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
-        super(ExtraPropertiesValidationTest, self).setUp()
+        super().setUp()
         schema = {**SCHEMA, 'additionalProperties': False}
         resp = self.app.put_json(COLLECTION_URL,
                                  {'data': {'schema': schema}},

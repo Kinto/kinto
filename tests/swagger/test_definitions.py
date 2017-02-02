@@ -7,7 +7,7 @@ from .support import SwaggerTest
 class SwaggerDefinitionsTest(SwaggerTest):
 
     def setUp(self):
-        super(SwaggerDefinitionsTest, self).setUp()
+        super().setUp()
 
     def test_definitions_validate_id(self):
         schema = self.spec.deref(self.spec_dict['definitions']['Bucket'])

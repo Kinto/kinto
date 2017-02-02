@@ -6,13 +6,13 @@ from .support import (BaseWebTest, MINIMALIST_BUCKET,
 
 class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extras=None):
-        settings = super(GlobalSettingsTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['kinto.record_cache_expires_seconds'] = 3600
         settings['kinto.record_read_principals'] = 'system.Everyone'
         return settings
 
     def setUp(self):
-        super(GlobalSettingsTest, self).setUp()
+        super().setUp()
         self.create_bucket('blog')
         self.app.put_json('/buckets/blog/collections/cached',
                           MINIMALIST_COLLECTION,
@@ -35,13 +35,13 @@ class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
 
 class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extras=None):
-        settings = super(SpecificSettingsTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['kinto.blog_record_cache_expires_seconds'] = '30'
         settings['kinto.browser_top500_record_cache_expires_seconds'] = '60'
         return settings
 
     def setUp(self):
-        super(SpecificSettingsTest, self).setUp()
+        super().setUp()
 
         def create_record_in_collection(bucket_id, collection_id):
             bucket = {**MINIMALIST_BUCKET, 'permissions': {'read': ['system.Everyone']}}
@@ -81,7 +81,7 @@ class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
 
 class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(CollectionExpiresTest, self).setUp()
+        super().setUp()
         bucket = {**MINIMALIST_BUCKET, 'permissions': {'read': ['system.Everyone']}}
         self.app.put_json('/buckets/blog',
                           bucket,

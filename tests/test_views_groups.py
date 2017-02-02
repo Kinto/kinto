@@ -12,7 +12,7 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
     record_url = '/buckets/beers/groups/moderators'
 
     def setUp(self):
-        super(GroupViewTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         resp = self.app.put_json(self.record_url,
@@ -130,7 +130,7 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
     group_url = '/buckets/beers/groups/moderators'
 
     def setUp(self):
-        super(GroupManagementTest, self).setUp()
+        super().setUp()
         self.create_bucket('beers')
 
     def test_groups_can_be_deleted(self):
@@ -237,7 +237,7 @@ class InvalidGroupTest(BaseWebTest, unittest.TestCase):
     group_url = '/buckets/beers/groups/moderators'
 
     def setUp(self):
-        super(InvalidGroupTest, self).setUp()
+        super().setUp()
         self.create_bucket('beers')
 
     def test_groups_data_is_required_with_put(self):

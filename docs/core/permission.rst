@@ -294,7 +294,7 @@ on the resource during registration.
     class MyViewSet(resource.ViewSet):
 
         def get_view_arguments(self, endpoint_type, resource_cls, method):
-            args = super(MyViewSet, self).get_view_arguments(endpoint_type,
+            args = super().get_view_arguments(endpoint_type,
                                                              resource_cls,
                                                              method)
             if method.lower() not in ('get', 'head'):
@@ -302,7 +302,7 @@ on the resource during registration.
             return args
 
         def get_service_arguments(self):
-            args = super(MyViewSet, self).get_service_arguments()
+            args = super().get_service_arguments()
             args['factory'] = myapp.MyRootFactory
             return args
 

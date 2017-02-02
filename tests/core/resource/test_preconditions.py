@@ -7,7 +7,7 @@ from . import BaseTest
 
 class NotModifiedTest(BaseTest):
     def setUp(self):
-        super(NotModifiedTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({})
 
         self.resource = self.resource_class(request=self.get_request(),
@@ -53,7 +53,7 @@ class NotModifiedTest(BaseTest):
 
 class ModifiedMeanwhileTest(BaseTest):
     def setUp(self):
-        super(ModifiedMeanwhileTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({})
         self.resource.collection_get()
         self.validated = self.resource.request.validated

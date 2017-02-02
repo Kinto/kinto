@@ -158,19 +158,19 @@ class Permissions(resource.ShareableResource):
     schema = PermissionsSchema
 
     def __init__(self, request, context=None):
-        super(Permissions, self).__init__(request, context)
+        super().__init__(request, context)
         self.model = PermissionsModel(request)
 
     def _extract_sorting(self, limit):
         # Permissions entries are not stored with timestamp, so do not
         # force it.
-        result = super(Permissions, self)._extract_sorting(limit)
+        result = super()._extract_sorting(limit)
         without_last_modified = [s for s in result
                                  if s.field != self.model.modified_field]
         return without_last_modified
 
     def _extract_filters(self, queryparams=None):
-        result = super(Permissions, self)._extract_filters(queryparams)
+        result = super()._extract_filters(queryparams)
         without_last_modified = [s for s in result
                                  if s.field != self.model.modified_field]
         return without_last_modified

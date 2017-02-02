@@ -74,7 +74,7 @@ class Storage(MemoryBasedStorage):
         kinto.storage_backend = kinto.core.storage.memory
     """
     def __init__(self, *args, **kwargs):
-        super(Storage, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.flush()
 
     def flush(self, auth=None):

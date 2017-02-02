@@ -23,7 +23,7 @@ class DummyRequest(mock.MagicMock):
     """Fully mocked request.
     """
     def __init__(self, *args, **kwargs):
-        super(DummyRequest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.upath_info = '/v0/'
         self.registry = mock.MagicMock(settings={**DEFAULT_SETTINGS})
         self.registry.id_generators = defaultdict(generators.UUID4)
@@ -116,7 +116,7 @@ class BaseWebTest:
     """Main application entry"""
 
     def __init__(self, *args, **kwargs):
-        super(BaseWebTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.app = self.make_app()
         self.storage = self.app.app.registry.storage
         self.cache = self.app.app.registry.cache
@@ -169,7 +169,7 @@ class BaseWebTest:
         return settings
 
     def tearDown(self):
-        super(BaseWebTest, self).tearDown()
+        super().tearDown()
         self.storage.flush()
         self.cache.flush()
         self.permission.flush()
@@ -178,11 +178,11 @@ class BaseWebTest:
 class ThreadMixin:
 
     def setUp(self):
-        super(ThreadMixin, self).setUp()
+        super().setUp()
         self._threads = []
 
     def tearDown(self):
-        super(ThreadMixin, self).tearDown()
+        super().tearDown()
 
         for thread in self._threads:
             thread.join()

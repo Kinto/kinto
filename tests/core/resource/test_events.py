@@ -32,13 +32,13 @@ class BaseEventTest(BaseWebTest):
     subscribed = tuple()
 
     def setUp(self):
-        super(BaseEventTest, self).setUp()
+        super().setUp()
         self.events = []
         self.body = {'data': {'name': 'de Paris'}}
 
     def tearDown(self):
         self.events = []
-        super(BaseEventTest, self).tearDown()
+        super().tearDown()
 
     def listener(self, event):
         self.events.append(event)
@@ -49,7 +49,7 @@ class BaseEventTest(BaseWebTest):
         for event_cls in self.subscribed:
             config.add_subscriber(self.listener, event_cls)
         config.commit()
-        return super(BaseEventTest, self).make_app(settings=settings,
+        return super().make_app(settings=settings,
                                                    config=config)
 
 
@@ -431,7 +431,7 @@ def load_from_config(config, prefix):
 @unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
 class StatsDTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, *args, **kwargs):
-        settings = super(StatsDTest, self).get_app_settings(*args, **kwargs)
+        settings = super().get_app_settings(*args, **kwargs)
         if not statsd.statsd_module:
             return settings
 

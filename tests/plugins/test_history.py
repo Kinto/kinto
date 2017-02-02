@@ -28,7 +28,7 @@ class PluginSetup(unittest.TestCase):
 class HistoryWebTest(support.BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extras=None):
-        settings = super(HistoryWebTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['includes'] = 'kinto.plugins.history'
         return settings
 
@@ -528,7 +528,7 @@ class BulkTest(HistoryWebTest):
 class DefaultBucketTest(HistoryWebTest):
 
     def get_app_settings(self, extras=None):
-        settings = super(HistoryWebTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['includes'] = ('kinto.plugins.default_bucket '
                                 'kinto.plugins.history')
         return settings
@@ -581,7 +581,7 @@ class DefaultBucketTest(HistoryWebTest):
 class PermissionsTest(HistoryWebTest):
 
     def get_app_settings(self, extras=None):
-        settings = super(PermissionsTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['experimental_permissions_endpoint'] = 'true'
         return settings
 
@@ -715,7 +715,7 @@ class PermissionsTest(HistoryWebTest):
 class ExcludeResourcesTest(HistoryWebTest):
 
     def get_app_settings(self, extras=None):
-        settings = super(ExcludeResourcesTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['history.exclude_resources'] = ('/buckets/a '
                                                  '/buckets/b/collections/a '
                                                  '/buckets/b/groups/a')

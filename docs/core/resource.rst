@@ -34,7 +34,7 @@ Full example
         schema = BookmarkSchema
 
         def process_record(self, new, old=None):
-            new = super(Bookmark, self).process_record(new, old)
+            new = super().process_record(new, old)
             if new['device'] != old['device']:
                 new['device'] = self.request.headers.get('User-Agent')
 
@@ -136,7 +136,7 @@ a custom model can be plugged-in:
 
     class TrackedModel(resource.Model):
         def create_record(self, record, parent_id=None):
-            record = super(TrackedModel, self).create_record(record, parent_id)
+            record = super().create_record(record, parent_id)
             trackid = index.track(record)
             record['trackid'] = trackid
             return record
@@ -241,7 +241,7 @@ or at the resource level:
     @resource.register()
     class Mushroom(resource.UserResource):
         def __init__(request):
-            super(Mushroom, self).__init__(request)
+            super().__init__(request)
             self.model.id_generator = MsecId()
 
 

@@ -16,7 +16,7 @@ class BaseTestStorage:
     settings = {}
 
     def setUp(self):
-        super(BaseTestStorage, self).setUp()
+        super().setUp()
         self.storage = self.backend.load_from_config(self._get_config())
         self.storage.initialize_schema()
         self.id_field = 'id'
@@ -43,7 +43,7 @@ class BaseTestStorage:
 
     def tearDown(self):
         mock.patch.stopall()
-        super(BaseTestStorage, self).tearDown()
+        super().tearDown()
         self.storage.flush()
 
     def create_record(self, record=None, id_generator=None, **kwargs):

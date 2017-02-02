@@ -5,7 +5,7 @@ from . import BaseTest
 
 class ModelTest(BaseTest):
     def setUp(self):
-        super(ModelTest, self).setUp()
+        super().setUp()
         self.record = self.model.create_record({'field': 'value'})
 
     def test_list_returns_all_records_in_data(self):
@@ -17,7 +17,7 @@ class ModelTest(BaseTest):
 
 class CreateTest(BaseTest):
     def setUp(self):
-        super(CreateTest, self).setUp()
+        super().setUp()
         self.resource.request.validated['body'] = {'data': {'field': 'new'}}
 
     def test_new_records_are_linked_to_owner(self):
@@ -34,7 +34,7 @@ class CreateTest(BaseTest):
 
 class DeleteModelTest(BaseTest):
     def setUp(self):
-        super(DeleteModelTest, self).setUp()
+        super().setUp()
         self.patch_known_field.start()
         self.model.create_record({'field': 'a'})
         self.model.create_record({'field': 'b'})
@@ -61,17 +61,17 @@ class DeleteModelTest(BaseTest):
 
 class IsolatedModelsTest(BaseTest):
     def setUp(self):
-        super(IsolatedModelsTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({}, parent_id='bob')
         self.resource.record_id = self.stored['id']
 
     def get_request(self):
-        request = super(IsolatedModelsTest, self).get_request()
+        request = super().get_request()
         request.prefixed_userid = 'basicauth:alice'
         return request
 
     def get_context(self):
-        context = super(IsolatedModelsTest, self).get_context()
+        context = super().get_context()
         context.prefixed_userid = 'basicauth:alice'
         return context
 

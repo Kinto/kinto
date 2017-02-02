@@ -15,7 +15,7 @@ class Cache(CacheBase):
     """
 
     def __init__(self, *args, **kwargs):
-        super(Cache, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.flush()
 
     def initialize_schema(self, dry_run=False):

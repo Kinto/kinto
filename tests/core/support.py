@@ -29,7 +29,7 @@ class BaseWebTest(testing.BaseWebTest):
     collection_url = '/mushrooms'
 
     def __init__(self, *args, **kwargs):
-        super(BaseWebTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.headers.update(testing.get_user_headers('mat'))
 
     def get_app_settings(self, extras=None):
@@ -40,7 +40,7 @@ class BaseWebTest(testing.BaseWebTest):
         extras.setdefault('project_docs', 'https://kinto.readthedocs.io/')
         extras.setdefault('multiauth.authorization_policy',
                           self.authorization_policy)
-        return super(BaseWebTest, self).get_app_settings(extras)
+        return super().get_app_settings(extras)
 
     def get_item_url(self, id=None):
         """Return the URL of the item using self.item_url."""
