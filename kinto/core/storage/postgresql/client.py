@@ -50,8 +50,7 @@ class PostgreSQLClient:
             logger.error(e)
             if session and with_transaction:
                 session.rollback()
-            raise exceptions.BackendError(original=e)
-
+            raise exceptions.BackendError(original=e) from e
         finally:
             if session and self.commit_manually:
                 # Give back to pool if commit done manually.
