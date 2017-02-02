@@ -150,13 +150,10 @@ class Cache(CacheBase):
             logger.warning("No TTL for cache key %r" % key)
         # Query for PostgreSQL 9.5+
         query = """
-        WITH upsert AS (
-            UPDATE cache SET value = :value, ttl = sec2ttl(:ttl)
-             WHERE key=:key
-            RETURNING *)
         INSERT INTO cache (key, value, ttl)
-        SELECT :key, :value, sec2ttl(:ttl)
-        WHERE NOT EXISTS (SELECT * FROM upsert)
+        VALUES (:key, :value, sec2ttl(:ttl))
+        ON CONFLICT (key) DO
+        UPDATE SET value = :value, ttl = sec2ttl(:ttl);
         """
         # Query for PostgreSQL 9.4
         query_pg_94 = """
