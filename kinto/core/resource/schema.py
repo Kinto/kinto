@@ -1,7 +1,30 @@
+import warnings
+
 import colander
 
-from kinto.core.schema import Any, HeaderField, QueryField, HeaderQuotedInteger, FieldList
+from kinto.core.schema import (Any, HeaderField, QueryField, HeaderQuotedInteger,
+                               FieldList, TimeStamp, URL)
 from kinto.core.utils import native_value
+
+
+class TimeStamp(TimeStamp):
+    """This schema is deprecated, you shoud use `kinto.core.schema.TimeStamp instead."""
+
+    def __init__(self, *args, **kwargs):
+        message = ("`kinto.core.resource.schema.TimeStamp` is deprecated, ",
+                   "use `kinto.core.schema.TimeStamp` instead.")
+        warnings.warn(message, DeprecationWarning)
+        super(TimeStamp, self).__init__(*args, **kwargs)
+
+
+class URL(URL):
+    """This schema is deprecated, you shoud use `kinto.core.schema.URL instead."""
+
+    def __init__(self, *args, **kwargs):
+        message = ("`kinto.core.resource.schema.URL` is deprecated, ",
+                   "use `kinto.core.schema.URL` instead.")
+        warnings.warn(message, DeprecationWarning)
+        super(URL, self).__init__(*args, **kwargs)
 
 
 # Resource related schemas

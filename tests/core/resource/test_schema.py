@@ -1,8 +1,26 @@
 import six
 import colander
+import mock
 
 from kinto.core.testing import unittest
 from kinto.core.resource import schema
+
+
+class DepracatedSchemasTest(unittest.TestCase):
+
+    def test_resource_timestamp_is_depracated(self):
+        with mock.patch('kinto.core.resource.schema.warnings') as mocked:
+            schema.TimeStamp()
+            message = ("`kinto.core.resource.schema.TimeStamp` is deprecated, ",
+                       "use `kinto.core.schema.TimeStamp` instead.")
+            mocked.warn.assert_called_with(message, DeprecationWarning)
+
+    def test_resource_URL_is_depracated(self):
+        with mock.patch('kinto.core.resource.schema.warnings') as mocked:
+            schema.URL()
+            message = ("`kinto.core.resource.schema.URL` is deprecated, ",
+                       "use `kinto.core.schema.URL` instead.")
+            mocked.warn.assert_called_with(message, DeprecationWarning)
 
 
 class ResourceSchemaTest(unittest.TestCase):
