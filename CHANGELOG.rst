@@ -8,12 +8,11 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
-**PostgreSQL 9.5**
-
-- Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (fixes #1055)
+- Upgraded to PostgreSQL 9.5
 
 **Internal changes**
 
+- Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (fixes #1055)
 - Remove pypy supports. (#1049)
 
 
