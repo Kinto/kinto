@@ -6,12 +6,17 @@ This document describes changes between each past release.
 6.0.0 (unreleased)
 ------------------
 
+**Breaking changes**
+
+- Upgraded to PostgreSQL 9.5
+
 **Internal changes**
 
+- Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (fixes #1055)
 - Remove pypy supports. (#1049)
 
 
-5.3.2 (unreleased)
+5.3.2 (2017-01-31)
 ------------------
 
 **Bug fixes**

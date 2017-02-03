@@ -1,9 +1,10 @@
+dist: trusty
 language: python
 python: 2.7
 cache: pip
 services: redis-server
 addons:
-  postgresql: "9.4"
+  postgresql: "9.5"
 env:
   - TOX_ENV=py27
   - TOX_ENV=py34
@@ -14,7 +15,7 @@ install:
   - pip install tox
 before_script:
   - echo "Pull request ${TRAVIS_PULL_REQUEST}"
-  - sudo sed -i "s/fsync/#fsync/" /etc/postgresql/9.4/main/postgresql.conf
+  - sudo sed -i "s/fsync/#fsync/" /etc/postgresql/9.5/main/postgresql.conf
   - sudo /etc/init.d/postgresql restart
   - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
   - make version-file
