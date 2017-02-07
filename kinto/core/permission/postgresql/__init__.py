@@ -209,24 +209,16 @@ class Permission(PermissionBase):
     def get_accessible_objects(self, principals, bound_permissions=None, with_children=True):
         placeholders = {}
 
-        principals_values = []
-        for i, principal in enumerate(principals):
-            placeholders['principal_{}'.format(i)] = principal
-            principals_values.append("(:principal_{})".format(i))
-
         if bound_permissions is None:
             # Return all objects on which the specified principals have some
             # permissions.
             # (e.g. permissions endpoint which lists everything)
             query = """
-            WITH user_principals AS (
-              VALUES %(principals)s
-            )
             SELECT object_id, permission
               FROM access_control_entries
-              JOIN user_principals
-                ON (principal = user_principals.column1);
-            """ % dict(principals=','.join(principals_values))
+             WHERE principal IN :principals
+            """
+            placeholders['principals'] = tuple(principals)
 
         elif len(bound_permissions) == 0:
             # If the list of object permissions to filter on is empty, then
@@ -234,6 +226,11 @@ class Permission(PermissionBase):
             # (e.g. root object /buckets)
             return {}
         else:
+            principals_values = []
+            for i, principal in enumerate(principals):
+                placeholders['principal_{}'.format(i)] = principal
+                principals_values.append("(:principal_{})".format(i))
+
             perm_values = []
             for i, (obj, perm) in enumerate(bound_permissions):
                 placeholders['obj_{}'.format(i)] = obj.replace('*', '%')
