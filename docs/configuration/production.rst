@@ -17,7 +17,7 @@ backend for production.
 Install and setup PostgreSQL
 ============================
 
-(*requires PostgreSQL 9.4 or higher*).
+(*requires PostgreSQL 9.5 or higher*).
 
 *Kinto* dependencies do not include *PostgreSQL* tooling and drivers by default, which should be installed and configured before proceeding to the next steps. More information is available at the `PostgreSQL Documentation <http://www.postgresql.org/docs>`_.
 
