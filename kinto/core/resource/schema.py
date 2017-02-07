@@ -8,7 +8,7 @@ from kinto.core.utils import native_value
 
 
 class TimeStamp(TimeStamp):
-    """This schema is deprecated, you shoud use `kinto.core.schema.TimeStamp instead."""
+    """This schema is deprecated, you shoud use `kinto.core.schema.TimeStamp` instead."""
 
     def __init__(self, *args, **kwargs):
         message = ("`kinto.core.resource.schema.TimeStamp` is deprecated, ",
@@ -18,7 +18,7 @@ class TimeStamp(TimeStamp):
 
 
 class URL(URL):
-    """This schema is deprecated, you shoud use `kinto.core.schema.URL instead."""
+    """This schema is deprecated, you shoud use `kinto.core.schema.URL` instead."""
 
     def __init__(self, *args, **kwargs):
         message = ("`kinto.core.resource.schema.URL` is deprecated, ",

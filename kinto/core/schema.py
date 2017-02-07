@@ -1,8 +1,7 @@
-"""
-This module contains generic schemas used by the core. You should declare schemas that
+"""This module contains generic schemas used by the core. You should declare schemas that
 may be reused across the `kinto.core` here.
 
-.. note::
+.. note:: This module is reserve for generic schemas only.
 
     - If a schema is resource specific, you should use `kinto.core.resource.schema`.
     - If a schema is view specific, you should declare it on the respective view.
