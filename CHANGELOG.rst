@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-5.3.5 (unreleased)
+5.3.5 (2017-02-08)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Prevent injections in the PostgreSQL permission backend (#1061)
 
 
 5.3.4 (2017-02-02)
