@@ -10,7 +10,6 @@ iso8601==0.1.11
 jsonpatch==1.15
 jsonpointer==1.10
 jsonschema==2.6.0
--e git+git@github.com:Kinto/kinto.git@6e48130a577c227acdfa79ca3085eb5fc7d6a18c#egg=kinto
 newrelic==2.78.0.57
 packaging==16.8
 PasteDeploy==1.5.2
