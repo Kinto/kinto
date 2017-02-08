@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Upgraded to PostgreSQL 9.5
 
+**Bug fixes**
+
+- Prevent injections in the PostgreSQL permission backend
+
 **Internal changes**
 
 - Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (fixes #1055)

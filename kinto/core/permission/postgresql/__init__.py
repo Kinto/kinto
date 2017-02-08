@@ -186,7 +186,13 @@ class Permission(PermissionBase):
         if not bound_permissions:
             return set()
 
-        perm_values = ','.join(["('%s', '%s')" % p for p in bound_permissions])
+        placeholders = {}
+        perm_values = []
+        for i, (obj, perm) in enumerate(bound_permissions):
+            placeholders['obj_{}'.format(i)] = obj
+            placeholders['perm_{}'.format(i)] = perm
+            perm_values.append("(:obj_{0}, :perm_{0})".format(i))
+
         query = """
         WITH required_perms AS (
           VALUES %s
@@ -194,36 +200,43 @@ class Permission(PermissionBase):
         SELECT principal
           FROM required_perms JOIN access_control_entries
             ON (object_id = column1 AND permission = column2);
-        """ % perm_values
+        """ % ','.join(perm_values)
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query)
+            result = conn.execute(query, placeholders)
             results = result.fetchall()
         return set([r['principal'] for r in results])
 
     def get_accessible_objects(self, principals, bound_permissions=None, with_children=True):
-        principals_values = ','.join(["('%s')" % p for p in principals])
+        placeholders = {}
+
         if bound_permissions is None:
             # Return all objects on which the specified principals have some
             # permissions.
             # (e.g. permissions endpoint which lists everything)
             query = """
-            WITH user_principals AS (
-              VALUES %(principals)s
-            )
             SELECT object_id, permission
               FROM access_control_entries
-              JOIN user_principals
-                ON (principal = user_principals.column1);
-            """ % dict(principals=principals_values)
+             WHERE principal IN :principals
+            """
+            placeholders['principals'] = tuple(principals)
+
         elif len(bound_permissions) == 0:
             # If the list of object permissions to filter on is empty, then
             # do not bother querying the backend. The result will be empty.
             # (e.g. root object /buckets)
             return {}
         else:
-            bound_permissions = [(o.replace('*', '%'), p)
-                                 for (o, p) in bound_permissions]
-            perms_values = ','.join(["('%s', '%s')" % p for p in bound_permissions])
+            principals_values = []
+            for i, principal in enumerate(principals):
+                placeholders['principal_{}'.format(i)] = principal
+                principals_values.append("(:principal_{})".format(i))
+
+            perm_values = []
+            for i, (obj, perm) in enumerate(bound_permissions):
+                placeholders['obj_{}'.format(i)] = obj.replace('*', '%')
+                placeholders['perm_{}'.format(i)] = perm
+                perm_values.append("(:obj_{0}, :perm_{0})".format(i))
+
             if with_children:
                 object_id_condition = 'object_id LIKE pattern'
             else:
@@ -247,12 +260,12 @@ class Permission(PermissionBase):
             SELECT object_id, permission
               FROM potential_objects
              WHERE %(object_id_condition)s;
-            """ % dict(perms=perms_values,
-                       principals=principals_values,
+            """ % dict(perms=','.join(perm_values),
+                       principals=','.join(principals_values),
                        object_id_condition=object_id_condition)
 
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query)
+            result = conn.execute(query, placeholders)
             results = result.fetchall()
 
         perms_by_id = {}
@@ -264,8 +277,18 @@ class Permission(PermissionBase):
         if not bound_permissions:
             return False
 
-        principals_values = ','.join(["('%s')" % p for p in principals])
-        perm_values = ','.join(["('%s', '%s')" % p for p in bound_permissions])
+        placeholders = {}
+        perms_values = []
+        for i, (obj, perm) in enumerate(bound_permissions):
+            placeholders['obj_{}'.format(i)] = obj
+            placeholders['perm_{}'.format(i)] = perm
+            perms_values.append("(:obj_{0}, :perm_{0})".format(i))
+
+        principals_values = []
+        for i, principal in enumerate(principals):
+            placeholders['principal_{}'.format(i)] = principal
+            principals_values.append("(:principal_{})".format(i))
+
         query = """
         WITH required_perms AS (
           VALUES %(perms)s
@@ -281,14 +304,21 @@ class Permission(PermissionBase):
         SELECT COUNT(*) AS matched
           FROM required_principals JOIN allowed_principals
             ON (required_principals.column1 = principal);
-        """ % dict(perms=perm_values, principals=principals_values)
+        """ % dict(perms=','.join(perms_values),
+                   principals=','.join(principals_values))
 
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query)
+            result = conn.execute(query, placeholders)
             total = result.fetchone()
         return total['matched'] > 0
 
     def get_objects_permissions(self, objects_ids, permissions=None):
+        object_ids_values = []
+        placeholders = {}
+        for i, obj_id in enumerate(objects_ids):
+            object_ids_values.append("({0}, :obj_id_{0})".format(i))
+            placeholders['obj_id_{}'.format(i)] = obj_id
+
         query = """
         WITH required_object_ids AS (
           VALUES %(objects_ids)s
@@ -299,13 +329,10 @@ class Permission(PermissionBase):
               %(permissions_condition)s
         ORDER BY column1 ASC;
         """
-        obj_ids_values = ','.join(["(%s, '%s')" % t
-                                   for t in enumerate(objects_ids)])
         safeholders = {
-            'objects_ids': obj_ids_values,
+            'objects_ids': ','.join(object_ids_values),
             'permissions_condition': ''
         }
-        placeholders = {}
         if permissions is not None:
             safeholders['permissions_condition'] = """
               WHERE permission IN :permissions"""
@@ -370,8 +397,12 @@ class Permission(PermissionBase):
         if len(object_id_list) == 0:
             return
 
-        object_ids_values = ','.join(["('%s')" % o.replace('*', '%')
-                                      for o in object_id_list])
+        object_ids_values = []
+        placeholders = {}
+        for i, obj_id in enumerate(object_id_list):
+            object_ids_values.append("(:obj_id_{})".format(i))
+            placeholders['obj_id_{}'.format(i)] = obj_id.replace('*', '%')
+
         query = """
         WITH object_ids AS (
           VALUES %(object_ids_values)s
@@ -380,10 +411,10 @@ class Permission(PermissionBase):
          USING object_ids
          WHERE object_id LIKE column1;"""
         safeholders = {
-            'object_ids_values': object_ids_values
+            'object_ids_values': ','.join(object_ids_values)
         }
         with self.client.connect() as conn:
-            conn.execute(query % safeholders)
+            conn.execute(query % safeholders, placeholders)
 
 
 def load_from_config(config):
