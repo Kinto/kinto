@@ -13,6 +13,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Prevent injections in the PostgreSQL permission backend
+- Fix crash on ``If-Match: *``
 
 **Internal changes**
 
