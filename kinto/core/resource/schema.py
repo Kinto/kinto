@@ -203,9 +203,8 @@ class HeaderQuotedInteger(HeaderField):
     """Integer between "" used in precondition headers."""
 
     schema_type = colander.String
-    error_message = "The value should be integer between double quotes"
-    validator = colander.Any(colander.Regex('^"([0-9]+?)"$', msg=error_message),
-                             colander.Regex('\*'))
+    error_message = "The value should be integer between double quotes."
+    validator = colander.Regex('^"([0-9]+?)"$|\*', msg=error_message)
 
     def deserialize(self, cstruct=colander.null):
         param = super(HeaderQuotedInteger, self).deserialize(cstruct)
