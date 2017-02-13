@@ -838,7 +838,7 @@ class UserResource(object):
                 # Tombstones should not prevent creation.
                 return
             modified_since = -1  # Always raise.
-        elif if_match:
+        elif if_match and if_match != '*':
             modified_since = if_match
         else:
             # In case _raise_304_if_not_modified() did not raise.
