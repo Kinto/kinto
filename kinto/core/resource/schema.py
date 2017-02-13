@@ -11,7 +11,7 @@ class TimeStamp(TimeStamp):
     """This schema is deprecated, you shoud use `kinto.core.schema.TimeStamp` instead."""
 
     def __init__(self, *args, **kwargs):
-        message = ("`kinto.core.resource.schema.TimeStamp` is deprecated, ",
+        message = ("`kinto.core.resource.schema.TimeStamp` is deprecated, "
                    "use `kinto.core.schema.TimeStamp` instead.")
         warnings.warn(message, DeprecationWarning)
         super(TimeStamp, self).__init__(*args, **kwargs)
@@ -21,7 +21,7 @@ class URL(URL):
     """This schema is deprecated, you shoud use `kinto.core.schema.URL` instead."""
 
     def __init__(self, *args, **kwargs):
-        message = ("`kinto.core.resource.schema.URL` is deprecated, ",
+        message = ("`kinto.core.resource.schema.URL` is deprecated, "
                    "use `kinto.core.schema.URL` instead.")
         warnings.warn(message, DeprecationWarning)
         super(URL, self).__init__(*args, **kwargs)
