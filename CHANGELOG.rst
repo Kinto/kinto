@@ -6,7 +6,9 @@ This document describes changes between each past release.
 5.3.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix crash on ``If-Match: *`` (#1064)
 
 
 5.3.5 (2017-02-08)

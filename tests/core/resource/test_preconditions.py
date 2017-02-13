@@ -196,6 +196,14 @@ class ModifiedMeanwhileTest(BaseTest):
                 'field': 'new'}}
         self.resource.collection_post()  # not raising.
 
+    def test_post_if_match_star_succeeds_if_record_does_exist(self):
+        self.validated['header']['If-Match'] = '*'
+        self.validated['body'] = {
+            'data': {
+                'id': self.resource.model.id_generator(),
+                'field': 'new'}}
+        self.resource.collection_post()  # not raising.
+
     def test_patch_returns_412_if_changed_meanwhile(self):
         self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
