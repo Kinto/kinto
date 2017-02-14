@@ -212,18 +212,19 @@ class QuerySchema(colander.MappingSchema):
 class CollectionQuerySchema(QuerySchema):
     """Querystring schema used with collections."""
 
-    _limit = QueryField(colander.Integer())
+    _limit = QueryField(colander.Integer(),
+                        validator=colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE))
     _sort = FieldList()
     _token = QueryField(colander.String())
     _since = QueryField(colander.Integer(),
-                        validator=colander.Range(max=POSTGRESQL_MAX_INTEGER_VALUE))
+                        validator=colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE))
     _to = QueryField(colander.Integer(),
-                     validator=colander.Range(max=POSTGRESQL_MAX_INTEGER_VALUE))
+                     validator=colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE))
     _before = QueryField(colander.Integer(),
-                         validator=colander.Range(max=POSTGRESQL_MAX_INTEGER_VALUE))
+                         validator=colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE))
     id = QueryField(colander.String())
     last_modified = QueryField(colander.Integer(),
-                               validator=colander.Range(max=POSTGRESQL_MAX_INTEGER_VALUE))
+                               validator=colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE))
 
 
 class RecordGetQuerySchema(QuerySchema):

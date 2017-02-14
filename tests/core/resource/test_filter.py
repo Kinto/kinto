@@ -1,7 +1,6 @@
 from pyramid import httpexceptions
 
 from kinto.core.errors import ERRORS
-from kinto.core.resource.schema import POSTGRESQL_MAX_INTEGER_VALUE
 from . import BaseTest
 
 

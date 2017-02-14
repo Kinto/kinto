@@ -294,7 +294,7 @@ class CollectionQuerySchemaTest(unittest.TestCase):
 
     def setUp(self):
         self.schema = schema.CollectionQuerySchema()
-        self.record = {
+        self.querystring = {
             '_limit': '2',
             '_sort': 'toto,tata',
             '_token': 'abc',
@@ -305,8 +305,8 @@ class CollectionQuerySchemaTest(unittest.TestCase):
             'last_modified': '9874'
         }
 
-    def test_decode_valid_record(self):
-        deserialized = self.schema.deserialize(self.record)
+    def test_decode_valid_querystring(self):
+        deserialized = self.schema.deserialize(self.querystring)
         self.assertEquals(deserialized, {
             '_limit': 2,
             '_sort': ['toto', 'tata'],
@@ -318,22 +318,52 @@ class CollectionQuerySchemaTest(unittest.TestCase):
             'last_modified': 9874
         })
 
+    def test_raises_invalid_for_to_big_integer_in_limit(self):
+        querystring = self.querystring.copy()
+        querystring['_limit'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
     def test_raises_invalid_for_to_big_integer_in_since(self):
-        record = self.record.copy()
-        record['_since'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
-        self.assertRaises(colander.Invalid, self.schema.deserialize, record)
+        querystring = self.querystring.copy()
+        querystring['_since'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
 
     def test_raises_invalid_for_to_big_integer_in_to(self):
-        record = self.record.copy()
-        record['_to'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
-        self.assertRaises(colander.Invalid, self.schema.deserialize, record)
+        querystring = self.querystring.copy()
+        querystring['_to'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
 
     def test_raises_invalid_for_to_big_integer_in_before(self):
-        record = self.record.copy()
-        record['_before'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
-        self.assertRaises(colander.Invalid, self.schema.deserialize, record)
+        querystring = self.querystring.copy()
+        querystring['_before'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
 
     def test_raises_invalid_for_to_big_integer_in_last_modified(self):
-        record = self.record.copy()
-        record['last_modified'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
-        self.assertRaises(colander.Invalid, self.schema.deserialize, record)
+        querystring = self.querystring.copy()
+        querystring['last_modified'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_negative_integer_in_limit(self):
+        querystring = self.querystring.copy()
+        querystring['_limit'] = -1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_negative_integer_in_since(self):
+        querystring = self.querystring.copy()
+        querystring['_since'] = -1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_negative_integer_in_to(self):
+        querystring = self.querystring.copy()
+        querystring['_to'] = -1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_negative_integer_in_before(self):
+        querystring = self.querystring.copy()
+        querystring['_before'] = -1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_negative_integer_in_last_modified(self):
+        querystring = self.querystring.copy()
+        querystring['last_modified'] = -1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
