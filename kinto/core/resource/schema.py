@@ -5,6 +5,10 @@ from colander import SchemaNode, String
 from kinto.core.utils import strip_whitespace, msec_time, decode_header, native_value
 
 
+POSTGRESQL_MAX_INTEGER_VALUE = 2**63
+positive_big_integer = colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE)
+
+
 class ResourceSchema(colander.MappingSchema):
     """Base resource schema, with *Cliquet* specific built-in options."""
 
@@ -236,14 +240,14 @@ class QuerySchema(colander.MappingSchema):
     and try to guess the type of unknown fields (field filters) on deserialization.
     """
 
-    _limit = QueryField(colander.Integer())
+    _limit = QueryField(colander.Integer(), validator=positive_big_integer)
     _fields = FieldList()
     _sort = FieldList()
     _token = QueryField(colander.String())
-    _since = QueryField(colander.Integer())
-    _to = QueryField(colander.Integer())
-    _before = QueryField(colander.Integer())
-    last_modified = QueryField(colander.Integer())
+    _since = QueryField(colander.Integer(), validator=positive_big_integer)
+    _to = QueryField(colander.Integer(), validator=positive_big_integer)
+    _before = QueryField(colander.Integer(), validator=positive_big_integer)
+    last_modified = QueryField(colander.Integer(), validator=positive_big_integer)
 
     @staticmethod
     def schema_type():

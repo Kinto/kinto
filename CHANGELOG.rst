@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix crash on ``If-Match: *`` (#1064)
+- Handle Integer overflow in querystring parameters. (#1076)
 
 
 5.3.5 (2017-02-08)
