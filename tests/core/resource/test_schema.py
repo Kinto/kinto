@@ -288,3 +288,52 @@ class PayloadRequestSchemaTest(unittest.TestCase):
         deserialized = bound.deserialize({})
         self.assertEquals(deserialized['querystring'], {'foo': 'bar'})
         self.assertEquals(deserialized['body'], {'foo': 'beer'})
+
+
+class CollectionQuerySchemaTest(unittest.TestCase):
+
+    def setUp(self):
+        self.schema = schema.CollectionQuerySchema()
+        self.record = {
+            '_limit': '2',
+            '_sort': 'toto,tata',
+            '_token': 'abc',
+            '_since': '1234',
+            '_to': '7890',
+            '_before': '4567',
+            'id': 'toot',
+            'last_modified': '9874'
+        }
+
+    def test_decode_valid_record(self):
+        deserialized = self.schema.deserialize(self.record)
+        self.assertEquals(deserialized, {
+            '_limit': 2,
+            '_sort': ['toto', 'tata'],
+            '_token': 'abc',
+            '_since': 1234,
+            '_to': 7890,
+            '_before': 4567,
+            'id': 'toot',
+            'last_modified': 9874
+        })
+
+    def test_raises_invalid_for_to_big_integer_in_since(self):
+        record = self.record.copy()
+        record['_since'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, record)
+
+    def test_raises_invalid_for_to_big_integer_in_to(self):
+        record = self.record.copy()
+        record['_to'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, record)
+
+    def test_raises_invalid_for_to_big_integer_in_before(self):
+        record = self.record.copy()
+        record['_before'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, record)
+
+    def test_raises_invalid_for_to_big_integer_in_last_modified(self):
+        record = self.record.copy()
+        record['last_modified'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, record)

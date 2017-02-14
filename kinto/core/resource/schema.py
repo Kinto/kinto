@@ -6,6 +6,8 @@ from kinto.core.schema import (Any, HeaderField, QueryField, HeaderQuotedInteger
                                FieldList, TimeStamp, URL)
 from kinto.core.utils import native_value
 
+POSTGRESQL_MAX_INTEGER_VALUE = 9223372036854775807
+
 
 class TimeStamp(TimeStamp):
     """This schema is deprecated, you shoud use `kinto.core.schema.TimeStamp` instead."""
@@ -213,11 +215,15 @@ class CollectionQuerySchema(QuerySchema):
     _limit = QueryField(colander.Integer())
     _sort = FieldList()
     _token = QueryField(colander.String())
-    _since = QueryField(colander.Integer())
-    _to = QueryField(colander.Integer())
-    _before = QueryField(colander.Integer())
+    _since = QueryField(colander.Integer(),
+                        validator=colander.Range(max=POSTGRESQL_MAX_INTEGER_VALUE))
+    _to = QueryField(colander.Integer(),
+                     validator=colander.Range(max=POSTGRESQL_MAX_INTEGER_VALUE))
+    _before = QueryField(colander.Integer(),
+                         validator=colander.Range(max=POSTGRESQL_MAX_INTEGER_VALUE))
     id = QueryField(colander.String())
-    last_modified = QueryField(colander.Integer())
+    last_modified = QueryField(colander.Integer(),
+                               validator=colander.Range(max=POSTGRESQL_MAX_INTEGER_VALUE))
 
 
 class RecordGetQuerySchema(QuerySchema):
