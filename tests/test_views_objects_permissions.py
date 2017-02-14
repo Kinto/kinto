@@ -103,6 +103,17 @@ class CollectionPermissionsTest(PermissionsTest):
                           headers=self.alice_headers,
                           status=403)
 
+    def test_permission_backend_prevent_sql_injections(self):
+        self.app.get("/buckets/beer'", headers=self.headers, status=403)
+        self.app.get("/buckets/beer'/collections/barley", headers=self.headers, status=403)
+        self.app.get("/buckets/beer'/groups/barley", headers=self.headers, status=403)
+
+        self.app.get("/buckets/beer/collections/barley'", headers=self.headers, status=400)
+        # XXX: We should validate the collection ID on the records collection endpoint. #1077
+        self.app.get("/buckets/beer/collections/barley'/records", headers=self.headers, status=404)
+
+        self.app.get("/buckets/beer/groups/barley'", headers=self.headers, status=400)
+
 
 class GroupPermissionsTest(PermissionsTest):
 
