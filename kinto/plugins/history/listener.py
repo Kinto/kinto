@@ -96,7 +96,7 @@ def on_resource_changed(event):
         eventattrs = dict(**payload)
         eventattrs.pop('timestamp', None)  # Already in target `last_modified`.
         eventattrs.pop('bucket_id', None)
-        eventattrs['%s_id' % resource_name] = obj_id
+        eventattrs['{}_id'.format(resource_name)] = obj_id
         eventattrs['uri'] = uri
         attrs = dict(date=datetime.now().isoformat(),
                      target={'data': target, 'permissions': perms},
@@ -116,5 +116,5 @@ def on_resource_changed(event):
         entry_principals.update(perms.get('write', []))
         entry_perms = {'read': list(entry_principals)}
         # /buckets/{id}/history is the URI for the list of history entries.
-        entry_perm_id = '/buckets/%s/history/%s' % (bucket_id, entry['id'])
+        entry_perm_id = '/buckets/{}/history/{}'.format(bucket_id, entry['id'])
         permission.replace_object_permissions(entry_perm_id, entry_perms)

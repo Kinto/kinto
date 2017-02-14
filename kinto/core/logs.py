@@ -49,8 +49,8 @@ class ClassicLogRenderer:
             output[field] = decode_value(event_dict.pop(field, '?'))
 
         querystring = event_dict.pop('querystring', {})
-        params = [decode_value('%s=%s' % qs) for qs in querystring.items()]
-        output['querystring'] = '?%s' % '&'.join(params) if params else ''
+        params = [decode_value('{}={}'.format(*qs)) for qs in querystring.items()]
+        output['querystring'] = '?{}'.format('&'.join(params) if params else '')
 
         output['context'] = " ".join(
             CYAN + key + RESET_ALL +

@@ -67,7 +67,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
     def register_service(endpoint_type, settings):
         """Registers a service in cornice, for the given type.
         """
-        path_pattern = getattr(viewset, '%s_path' % endpoint_type)
+        path_pattern = getattr(viewset, '{}_path'.format(endpoint_type))
         path_values = {'resource_name': resource_name}
         path = path_pattern.format(**path_values)
 
@@ -85,13 +85,13 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
         service.record_path = (viewset.record_path.format(**path_values)
                                if viewset.record_path is not None else None)
 
-        methods = getattr(viewset, '%s_methods' % endpoint_type)
+        methods = getattr(viewset, '{}_methods'.format(endpoint_type))
         for method in methods:
             if not viewset.is_endpoint_enabled(
                     endpoint_type, resource_name, method.lower(), settings):
                 continue
 
-            argument_getter = getattr(viewset, '%s_arguments' % endpoint_type)
+            argument_getter = getattr(viewset, '{}_arguments'.format(endpoint_type))
             view_args = argument_getter(resource_cls, method)
 
             view = viewset.get_view(endpoint_type, method.lower())
@@ -669,7 +669,7 @@ class UserResource:
             except ValueError as e:
                 error_details = {
                     'location': 'body',
-                    'description': 'JSON Patch operation failed: %s' % e
+                    'description': 'JSON Patch operation failed: {}'.format(e)
                 }
                 raise_invalid(self.request, **error_details)
 
@@ -769,7 +769,7 @@ class UserResource:
             ``304 Not modified`` is returned before serving content from cache.
         """
         resource_name = self.context.resource_name if self.context else ''
-        setting_key = '%s_cache_expires_seconds' % resource_name
+        setting_key = '{}_cache_expires_seconds'.format(resource_name)
         collection_expires = self.request.registry.settings.get(setting_key)
         is_anonymous = self.request.prefixed_userid is None
         if collection_expires and is_anonymous:
@@ -882,7 +882,7 @@ class UserResource:
             invalid_fields = set(root_fields) - set(known_fields)
             preserve_unknown = self.schema.get_option('preserve_unknown')
             if not preserve_unknown and invalid_fields:
-                error_msg = "Fields %s do not exist" % ','.join(invalid_fields)
+                error_msg = "Fields {} do not exist".format(','.join(invalid_fields))
                 error_details = {
                     'name': "Invalid _fields parameter",
                     'description': error_msg
@@ -919,7 +919,7 @@ class UserResource:
             error_details = {
                 'name': param,
                 'location': 'querystring',
-                'description': 'Invalid value for %s' % param
+                'description': 'Invalid value for {}'.format(param)
             }
 
             # Ignore specific fields

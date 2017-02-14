@@ -381,7 +381,7 @@ def apply_sorting(records, sorting):
 
 def _get_objects_by_parent_id(store, parent_id, collection_id, with_meta=False):
     if parent_id is not None:
-        parent_id_match = re.compile("^%s$" % parent_id.replace('*', '.*'))
+        parent_id_match = re.compile("^{}$".format(parent_id.replace('*', '.*')))
         by_parent_id = {pid: collections
                         for pid, collections in store.items()
                         if parent_id_match.match(pid)}

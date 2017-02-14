@@ -119,14 +119,14 @@ class ViewSet:
         """
         args = {**self.default_arguments}
         default_arguments = getattr(self,
-                                    'default_%s_arguments' % endpoint_type)
+                                    'default_{}_arguments'.format(endpoint_type))
         args.update(**default_arguments)
 
-        by_http_verb = 'default_%s_arguments' % method.lower()
+        by_http_verb = 'default_{}_arguments'.format(method.lower())
         method_args = getattr(self, by_http_verb, {})
         args.update(**method_args)
 
-        by_method = '%s_%s_arguments' % (endpoint_type, method.lower())
+        by_method = '{}_{}_arguments'.format(endpoint_type, method.lower())
         endpoint_args = getattr(self, by_method, {})
         args.update(**endpoint_args)
 
@@ -167,7 +167,7 @@ class ViewSet:
         """
         if endpoint_type == 'record':
             return method.lower()
-        return '%s_%s' % (endpoint_type, method.lower())
+        return '{}_{}'.format(endpoint_type, method.lower())
 
     def get_name(self, resource_cls):
         """Returns the name of the resource.
@@ -208,7 +208,7 @@ class ViewSet:
         if readonly_enabled and not readonly_method:
             return False
 
-        setting_enabled = '%s_%s_%s_enabled' % (
+        setting_enabled = '{}_{}_{}_enabled'.format(
             endpoint_type, resource_name, method.lower())
         return asbool(settings.get(setting_enabled, True))
 

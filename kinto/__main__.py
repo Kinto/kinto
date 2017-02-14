@@ -102,7 +102,7 @@ def main(args=None):
 
     if which_command == 'init':
         if os.path.exists(config_file):
-            print("%s already exists." % config_file, file=sys.stderr)
+            print("{} already exists.".format(config_file), file=sys.stderr)
             return 1
 
         backend = parsed_args['backend']
@@ -149,7 +149,7 @@ def main(args=None):
         pserve_argv = ['pserve', config_file]
         if parsed_args['reload']:
             pserve_argv.append('--reload')
-        pserve_argv.append('http_port=%s' % parsed_args['port'])
+        pserve_argv.append('http_port={}'.format(parsed_args['port']))
         pserve.main(pserve_argv)
 
     elif which_command == 'version':

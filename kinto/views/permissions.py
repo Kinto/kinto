@@ -35,7 +35,9 @@ def allowed_from_settings(settings, principals):
             continue
         # ``collection_create_principals`` means ``collection:create`` in bucket.
         if permission == 'create':
-            permission = '%s:%s' % (resource_name, permission)
+            permission = '{resource_name}:{permission}'.format(
+                resource_name=resource_name,
+                permission=permission)
             resource_name = {  # resource parents.
                 'bucket': '',
                 'collection': 'bucket',

@@ -21,8 +21,8 @@ def migrate(env, dry_run=False):
     for backend in ('cache', 'storage', 'permission'):
         if hasattr(registry, backend):
             if readonly_mode and backend in readonly_backends:
-                message = ('Cannot migrate the %s backend while '
-                           'in readonly mode.' % backend)
+                message = ('Cannot migrate the {} backend while '
+                           'in readonly mode.'.format(backend))
                 logger.error(message)
             else:
                 getattr(registry, backend).initialize_schema(dry_run=dry_run)
@@ -38,8 +38,8 @@ def delete_collection(env, bucket_id, collection_id):
         logger.error(message)
         return 31
 
-    bucket = '/buckets/%s' % bucket_id
-    collection = '/buckets/%s/collections/%s' % (bucket_id, collection_id)
+    bucket = '/buckets/{}'.format(bucket_id)
+    collection = '/buckets/{}/collections/{}'.format(bucket_id, collection_id)
 
     try:
         registry.storage.get(collection_id='bucket',

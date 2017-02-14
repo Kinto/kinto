@@ -23,7 +23,7 @@ class Client:
             value = getattr(obj, name)
             is_method = isinstance(value, types.MethodType)
             if not name.startswith('_') and is_method:
-                statsd_key = "%s.%s.%s" % (prefix, classname, name)
+                statsd_key = "{}.{}.{}".format(prefix, classname, name)
                 decorated_method = self.timer(statsd_key)(value)
                 setattr(obj, name, decorated_method)
 

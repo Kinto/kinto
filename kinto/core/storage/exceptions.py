@@ -11,8 +11,8 @@ class BackendError(Exception):
     def __init__(self, original=None, message=None, *args, **kwargs):
         self.original = original
         if message is None:
-            message = "%s: %s" % (original.__class__.__name__,
-                                  original)
+            message = "{}: {}".format(original.__class__.__name__,
+                                      original)
         super().__init__(message, *args, **kwargs)
 
 

@@ -96,7 +96,7 @@ def resource_create_object(request, resource_cls, uri):
     if not resource.model.id_generator.match(obj_id):
         error_details = {
             'location': 'path',
-            'description': "Invalid %s id" % resource_name
+            'description': "Invalid {} id".format(resource_name)
         }
         raise_invalid(resource.request, **error_details)
 
@@ -138,7 +138,7 @@ def default_bucket(request):
     # Make sure the collection exists
     create_collection(request, bucket_id)
 
-    path = request.path.replace('/buckets/default', '/buckets/%s' % bucket_id)
+    path = request.path.replace('/buckets/default', '/buckets/{}'.format(bucket_id))
     querystring = request.url[(request.url.index(request.path) +
                                len(request.path)):]
     try:

@@ -31,7 +31,7 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
                 return
 
             hmac_secret = settings['userid_hmac_secret']
-            credentials = '%s:%s' % credentials
+            credentials = '{}:{}'.format(*credentials)
             userid = utils.hmac_digest(hmac_secret, credentials)
             return userid
 

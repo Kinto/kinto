@@ -142,7 +142,7 @@ def _inherited_permissions(object_uri, permission):
 
     # When requesting permissions for a single object, we check if they are any
     # specific inherited permissions for the attributes.
-    attributes_permission = '%s:attributes' % permission if not plural else permission
+    attributes_permission = '{}:attributes'.format(permission) if not plural else permission
     inherited_perms = object_perms_tree.get(attributes_permission, object_perms_tree[permission])
 
     granters = set()

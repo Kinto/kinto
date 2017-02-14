@@ -55,10 +55,10 @@ def page_not_found(response, request):
 
         if request.path.endswith('/'):
             path = request.path.rstrip('/')
-            redirect = '%s%s' % (path, querystring)
+            redirect = '{}{}'.format(path, querystring)
         elif request.path == '/' + request.registry.route_prefix:
             # Case for /v0 -> /v0/
-            redirect = '/%s/%s' % (request.registry.route_prefix, querystring)
+            redirect = '/{}/{}'.format(request.registry.route_prefix, querystring)
 
         if redirect:
             return reapply_cors(request, HTTPTemporaryRedirect(redirect))

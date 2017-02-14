@@ -84,7 +84,7 @@ def create_from_config(config, prefix='', with_transaction=True):
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
         msg = ("Reuse existing PostgreSQL connection. "
-               "Parameters %s* will be ignored." % prefix)
+               "Parameters {}* will be ignored.".format(prefix))
         warnings.warn(msg)
         return existing_client
 

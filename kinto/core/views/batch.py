@@ -23,7 +23,7 @@ def string_values(node, cstruct):
     """
     are_strings = [isinstance(v, str) for v in cstruct.values()]
     if not all(are_strings):
-        error_msg = '%s contains non string value' % cstruct
+        error_msg = '{} contains non string value'.format(cstruct)
         raise colander.Invalid(node, error_msg)
 
 
@@ -80,12 +80,12 @@ def post_batch(request):
 
     limit = request.registry.settings['batch_max_requests']
     if limit and len(requests) > int(limit):
-        error_msg = 'Number of requests is limited to %s' % limit
+        error_msg = 'Number of requests is limited to {}'.format(limit)
         request.errors.add('body', 'requests', error_msg)
         return
 
     if any([batch.path in req['path'] for req in requests]):
-        error_msg = 'Recursive call on %s endpoint is forbidden.' % batch.path
+        error_msg = 'Recursive call on {} endpoint is forbidden.'.format(batch.path)
         request.errors.add('body', 'requests', error_msg)
         return
 

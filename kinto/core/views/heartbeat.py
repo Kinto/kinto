@@ -49,8 +49,8 @@ def get_heartbeat(request):
     # Log timed-out heartbeats.
     for future in not_done:
         name = future.__heartbeat_name
-        error_msg = "%r heartbeat has exceeded timeout of %s seconds."
-        logger.error(error_msg % (name, seconds))
+        error_msg = "'{}' heartbeat has exceeded timeout of {} seconds."
+        logger.error(error_msg.format(name, seconds))
 
     # If any has failed, return a 503 error response.
     has_error = not all([v or v is None for v in status.values()])

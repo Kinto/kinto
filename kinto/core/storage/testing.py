@@ -545,7 +545,7 @@ class TimestampsTest:
         time.sleep(0.002)  # 2 msec
         after = utils.msec_time()
         self.assertTrue(before < now < after,
-                        '%s < %s < %s' % (before, now, after))
+                        '{} < {} < {}'.format(before, now, after))
 
     def test_timestamp_are_always_incremented_above_existing_value(self):
         # Create a record with normal clock
@@ -561,7 +561,7 @@ class TimestampsTest:
 
         # Expect the last one to be based on the highest value
         self.assertTrue(0 < current < after,
-                        '0 < %s < %s' % (current, after))
+                        '0 < {} < {}'.format(current, after))
 
     def test_create_uses_specified_last_modified_if_collection_empty(self):
         # Collection is empty, create a new record with a specified timestamp.

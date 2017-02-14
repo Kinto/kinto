@@ -298,7 +298,7 @@ def build_request(original, dict_obj):
     :param original: the original request.
     :param dict_obj: a dict object with the sub-request specifications.
     """
-    api_prefix = '/%s' % original.upath_info.split('/')[1]
+    api_prefix = '/{}'.format(original.upath_info.split('/')[1])
     path = dict_obj['path']
     if not path.startswith(api_prefix):
         path = api_prefix + path
@@ -402,7 +402,7 @@ def view_lookup(request, uri):
     :rtype: tuple
     :returns: the resource name and the associated matchdict.
     """
-    api_prefix = '/%s' % request.upath_info.split('/')[1]
+    api_prefix = '/{}'.format(request.upath_info.split('/')[1])
     path = (api_prefix + uri)
 
     q = request.registry.queryUtility
@@ -421,8 +421,8 @@ def view_lookup(request, uri):
 
 def instance_uri(request, resource_name, **params):
     """Return the URI for the given resource."""
-    return strip_uri_prefix(request.route_path('%s-record' % resource_name,
-                                               **params))
+    return strip_uri_prefix(request.route_path(
+        '{}-record'.format(resource_name), **params))
 
 
 def parse_resource(resource):

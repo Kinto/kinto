@@ -58,7 +58,7 @@ class AuthorizationPolicy:
         if permission == DYNAMIC:
             permission = context.required_permission
 
-        create_permission = '%s:create' % context.resource_name
+        create_permission = '{}:create'.format(context.resource_name)
         if permission == 'create':
             permission = create_permission
 
@@ -163,7 +163,7 @@ class RouteFactory:
         if not bound_perms:
             bound_perms = [(self.resource_name, self.required_permission)]
         for (_, permission) in bound_perms:
-            setting = '%s_%s_principals' % (self.resource_name, permission)
+            setting = '{}_{}_principals'.format(self.resource_name, permission)
             allowed_principals = aslist(self._settings.get(setting, ''))
             if allowed_principals:
                 if bool(set(allowed_principals) & set(principals)):
