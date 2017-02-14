@@ -116,9 +116,7 @@ class HeaderFieldSchemaTest(unittest.TestCase):
 
     def test_bad_unicode_raises_invalid(self):
         value = b'utf8 \xe9'
-        self.assertRaises(colander.Invalid,
-                          self.schema.deserialize,
-                          value)
+        self.assertRaises(colander.Invalid, self.schema.deserialize, value)
 
 
 class QueryFieldSchemaTest(unittest.TestCase):

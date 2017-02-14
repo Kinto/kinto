@@ -27,7 +27,6 @@ class URL(URL):
         super().__init__(*args, **kwargs)
 
 
-
 # Resource related schemas
 
 

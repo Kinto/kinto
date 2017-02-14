@@ -7,10 +7,9 @@ may be reused across the `kinto.core` here.
     - If a schema is view specific, you should declare it on the respective view.
 """
 
-import six
 import colander
 
-from kinto.core.utils import strip_whitespace, msec_time, decode_header, native_value
+from kinto.core.utils import strip_whitespace, msec_time, native_value
 
 
 class TimeStamp(colander.SchemaNode):
@@ -70,9 +69,9 @@ class HeaderField(colander.SchemaNode):
     missing = colander.drop
 
     def deserialize(self, cstruct=colander.null):
-        if isinstance(cstruct, six.binary_type):
+        if isinstance(cstruct, bytes):
             try:
-                cstruct = decode_header(cstruct)
+                cstruct = cstruct.decode('utf-8')
             except UnicodeDecodeError:
                 raise colander.Invalid(self, msg='Headers should be UTF-8 encoded')
         return super(HeaderField, self).deserialize(cstruct)
@@ -84,7 +83,7 @@ class QueryField(colander.SchemaNode):
     missing = colander.drop
 
     def deserialize(self, cstruct=colander.null):
-        if isinstance(cstruct, six.string_types):
+        if isinstance(cstruct, str):
             cstruct = native_value(cstruct)
         return super(QueryField, self).deserialize(cstruct)
 
@@ -98,7 +97,7 @@ class FieldList(QueryField):
     fields = colander.SchemaNode(colander.String(), missing=colander.drop)
 
     def deserialize(self, cstruct=colander.null):
-        if isinstance(cstruct, six.string_types):
+        if isinstance(cstruct, str):
             cstruct = cstruct.split(',')
         return super(FieldList, self).deserialize(cstruct)
 
