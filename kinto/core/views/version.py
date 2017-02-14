@@ -1,6 +1,7 @@
 import json
 import os
 
+import colander
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 from kinto.core import Service
@@ -8,10 +9,22 @@ from kinto.core import Service
 HERE = os.path.dirname(os.path.abspath(__file__))
 ORIGIN = os.path.dirname(os.path.dirname(HERE))
 
+
+class VersionResponseSchema(colander.MappingSchema):
+    body = colander.SchemaNode(colander.Mapping(unknown='preserve'))
+
+
+version_response_schemas = {
+    '200': VersionResponseSchema(
+        description='Return the running Instance version information.')
+}
+
+
 version = Service(name="version", path='/__version__', description="Version")
 
 
-@version.get(permission=NO_PERMISSION_REQUIRED)
+@version.get(permission=NO_PERMISSION_REQUIRED, tags=['Utilities'],
+             operation_id='__version__', response_schemas=version_response_schemas)
 def version_view(request):
     try:
         return version_view.__json__

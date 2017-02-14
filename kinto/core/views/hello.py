@@ -1,3 +1,4 @@
+import colander
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
 from kinto.core import Service
@@ -5,7 +6,18 @@ from kinto.core import Service
 hello = Service(name="hello", path='/', description="Welcome")
 
 
-@hello.get(permission=NO_PERMISSION_REQUIRED)
+class HelloResponseSchema(colander.MappingSchema):
+    body = colander.SchemaNode(colander.Mapping(unknown='preserve'))
+
+
+hello_response_schemas = {
+    '200': HelloResponseSchema(
+        description='Return information about the running Instance.')
+}
+
+
+@hello.get(permission=NO_PERMISSION_REQUIRED, tags=['Utilities'],
+           operation_id='server_info', response_schemas=hello_response_schemas)
 def get_hello(request):
     """Return information regarding the current instance."""
     settings = request.registry.settings
