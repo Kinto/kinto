@@ -4,6 +4,7 @@ import warnings
 import colander
 from cornice.validators import colander_validator
 from pyramid.settings import asbool
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import authorization
 
@@ -49,8 +50,8 @@ class ViewSet(object):
     collection_path = "/{resource_name}s"
     record_path = "/{resource_name}s/{{id}}"
 
-    collection_methods = ('GET', 'POST', 'DELETE')
-    record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
+    collection_methods = ('GET', 'POST', 'DELETE', 'OPTIONS')
+    record_methods = ('GET', 'PUT', 'PATCH', 'DELETE', 'OPTIONS')
 
     readonly_methods = ('GET', 'OPTIONS', 'HEAD')
 
@@ -242,7 +243,10 @@ class ShareableViewSet(ViewSet):
         args = super(ShareableViewSet, self).get_view_arguments(endpoint_type,
                                                                 resource_cls,
                                                                 method)
-        args['permission'] = authorization.DYNAMIC
+        if method.lower() == 'options':
+            args['permission'] = NO_PERMISSION_REQUIRED
+        else:
+            args['permission'] = authorization.DYNAMIC
         return args
 
     def get_service_arguments(self):

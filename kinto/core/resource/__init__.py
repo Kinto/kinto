@@ -12,6 +12,7 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
 
 from kinto.core import logger
 from kinto.core import Service
+from kinto.core.api import OpenAPI
 from kinto.core.errors import http_error, raise_invalid, send_alert, ERRORS
 from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
@@ -391,6 +392,13 @@ class UserResource(object):
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
         return self.postprocess(deleted, action=action, old=records)
 
+    def collection_options(self):
+        """OpenAPI documentation of the collection service. Provides information
+        about all available collection methods."""
+
+        service = self.request.current_service
+        return OpenAPI([service], self.request).generate()
+
     def get(self):
         """Record ``GET`` endpoint: retrieve a record.
 
@@ -587,6 +595,12 @@ class UserResource(object):
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
         return self.postprocess(deleted, action=ACTIONS.DELETE, old=record)
+
+    def options(self):
+        """OpenAPI documentation of the record service. Provides information
+        about all available record methods"""
+        service = self.request.current_service
+        return OpenAPI([service], self.request).generate()
 
     #
     # Data processing
