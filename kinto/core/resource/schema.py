@@ -6,7 +6,9 @@ from kinto.core.schema import (Any, HeaderField, QueryField, HeaderQuotedInteger
                                FieldList, TimeStamp, URL)
 from kinto.core.utils import native_value
 
-POSTGRESQL_MAX_INTEGER_VALUE = 9223372036854775807
+POSTGRESQL_MAX_INTEGER_VALUE = 2**64 / 2
+
+POSITIVE_BIG_INTEGER = colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE)
 
 
 class TimeStamp(TimeStamp):
@@ -212,19 +214,14 @@ class QuerySchema(colander.MappingSchema):
 class CollectionQuerySchema(QuerySchema):
     """Querystring schema used with collections."""
 
-    _limit = QueryField(colander.Integer(),
-                        validator=colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE))
+    _limit = QueryField(colander.Integer(), validator=POSITIVE_BIG_INTEGER)
     _sort = FieldList()
     _token = QueryField(colander.String())
-    _since = QueryField(colander.Integer(),
-                        validator=colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE))
-    _to = QueryField(colander.Integer(),
-                     validator=colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE))
-    _before = QueryField(colander.Integer(),
-                         validator=colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE))
+    _since = QueryField(colander.Integer(), validator=POSITIVE_BIG_INTEGER)
+    _to = QueryField(colander.Integer(), validator=POSITIVE_BIG_INTEGER)
+    _before = QueryField(colander.Integer(), validator=POSITIVE_BIG_INTEGER)
     id = QueryField(colander.String())
-    last_modified = QueryField(colander.Integer(),
-                               validator=colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE))
+    last_modified = QueryField(colander.Integer(), validator=POSITIVE_BIG_INTEGER)
 
 
 class RecordGetQuerySchema(QuerySchema):
