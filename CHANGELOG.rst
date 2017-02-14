@@ -8,12 +8,13 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
-- Upgraded to PostgreSQL 9.5
+- Upgraded to PostgreSQL 9.5  (#1056)
 
 **Bug fixes**
 
-- Prevent injections in the PostgreSQL permission backend
-- Fix crash on ``If-Match: *``
+- Prevent injections in the PostgreSQL permission backend. (#1061)
+- Fix crash on ``If-Match: *`` (#1064)
+- Handle Integer overflow in querystring parameters. (#1076)
 
 **Internal changes**
 
@@ -27,7 +28,7 @@ This document describes changes between each past release.
 - Request schemas (including validation and deserialization) are now isolated by method
   and endpoint type (#1047).
 - Move generic API schemas (e.g TimeStamps and HeaderFields) from `kinto.core.resource.schema`
-  to a sepate file on `kinto.core.schema`.
+  to a sepate file on `kinto.core.schema`. (#1054)
 
 
 5.3.2 (2017-01-31)
