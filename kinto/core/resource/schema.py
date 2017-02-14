@@ -452,6 +452,9 @@ class ShareableResourseResponses(ResourceReponses):
 
     def __init__(self):
         super(ShareableResourseResponses, self).__init__()
+
+        # Add permission related responses to defaults
+        self.default_schemas = self.default_schemas.copy()
         self.default_schemas.update({
             '401': ErrorResponseSchema(
                 description="The request is missing authentication headers."),
