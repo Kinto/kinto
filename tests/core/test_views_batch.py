@@ -190,7 +190,7 @@ class BatchSchemaTest(unittest.TestCase):
 
     def test_list_of_requests_must_be_dicts(self):
         request = 42
-        self.assertInvalid({'requests': [request]})
+        self.assertInvalid({'defaults': {'path': '/'}, 'requests': [request]})
 
     def test_request_path_must_start_with_slash(self):
         request = {'path': 'http://localhost'}
