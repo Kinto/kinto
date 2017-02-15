@@ -16,6 +16,43 @@ class OpenAPI(CorniceSwagger):
     custom_type_converters = {Any: AnyTypeConverter}
     """Kinto additional type converters."""
 
+    security_definitions = {}
+    """Kinto security definitions. May be used for setting other security methods
+    by plugins with the ``expose_authentication_method`` call."""
+
+    security_roles = {}
+    """Kinto resource security roles. May be used for setting OAuth roles by plugins
+    with the ``expose_authentication_method`` call."""
+
+    @classmethod
+    def expose_authentication_method(cls, method_name, definition):
+        """Allow security extensions to expose authentication methods on the
+        OpenAPI documentation. The definition field should correspond to a
+        valid OpenAPI security definition. Refer the OpenAPI 2.0 specification
+        for more information. Below are some examples for BasicAuth and OAuth2:
+
+        ..code-block:: python
+
+            {
+                "type": "basic",
+                "description" "My basicauth method."
+
+            }
+
+        ..code-block:: python
+
+            {
+                "type": "oauth2",
+                "authorizationUrl": "https://oauth-stable.dev.lcip.org/v1",
+                "flow": "implicit",
+                "scopes": {"kinto": "Kinto user scope."}
+            }
+
+
+        """
+        cls.security_definitions[method_name] = definition
+        cls.security_roles = {method_name: definition.get('scopes', {}).keys()}
+
     def __init__(self, services, request):
         super(OpenAPI, self).__init__(services)
 
@@ -32,10 +69,10 @@ class OpenAPI(CorniceSwagger):
             self.base_path = '/'
 
     def generate(self):
-
         base_spec = {
             'host': self.request.host,
             'schemes': [self.settings.get('http_scheme') or 'http'],
+            'securityDefinitions': self.security_definitions,
         }
 
         return super(OpenAPI, self).generate(swagger=base_spec)
@@ -69,3 +106,19 @@ class OpenAPI(CorniceSwagger):
         op_id = "{}_{}".format(method, resource)
 
         return op_id
+
+    def default_security(self, service, method):
+        """Provides OpenAPI security properties based on kinto policies."""
+
+        definitions = service.definitions
+
+        # Get method view arguments
+        for definition in definitions:
+            met, view, args = definition
+            if met == method:
+                break
+
+        if args.get('permission') == '__no_permission_required__':
+            return []
+        else:
+            return [{name: roles} for name, roles in self.security_roles.items()]

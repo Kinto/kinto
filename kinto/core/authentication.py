@@ -1,6 +1,7 @@
 from pyramid import authentication as base_auth
 
 from kinto.core import utils
+from kinto.core.api import OpenAPI
 
 
 class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
@@ -44,3 +45,4 @@ def includeme(config):
         description="Very basic authentication sessions. Not for production use.",
         url="http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html",
     )
+    OpenAPI.expose_authentication_method('basicauth', {'type': 'basic'})
