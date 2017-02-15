@@ -113,7 +113,7 @@ def http_error(httpexception, errno=None,
         "error": error or httpexception.title,
         "message": message,
         "info": info,
-        "details": details,
+        "details": details or colander.drop,
     }
 
     response = httpexception

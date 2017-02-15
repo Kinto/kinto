@@ -22,6 +22,7 @@ class FakeViewSet(ViewSet):
         self.collection_arguments = self.arguments
         self.record_arguments = self.arguments
         self.update = mock.MagicMock()
+        self.responses = mock.MagicMock()
 
     def arguments(self, resource, method):
         # By default, returns an empty dict of arguments.
@@ -55,17 +56,20 @@ class ViewSetTest(unittest.TestCase):
         original_arguments = {}
         viewset = ViewSet(
             collection_get_arguments=original_arguments)
+        viewset.responses = mock.MagicMock()
         arguments = viewset.collection_arguments(mock.MagicMock(), 'GET')
         self.assertEquals(original_arguments, {})
         self.assertNotEquals(original_arguments, arguments)
 
     def test_permission_private_is_set_by_default(self):
         viewset = ViewSet()
+        viewset.responses = mock.MagicMock()
         args = viewset.collection_arguments(mock.MagicMock(), 'GET')
         self.assertEquals(args['permission'], 'private')
 
     def test_schema_is_added_when_method_matches(self):
         viewset = ViewSet()
+        viewset.responses = mock.MagicMock()
         resource = mock.MagicMock()
         arguments = viewset.collection_arguments(resource, 'GET')
         self.assertIn('schema', arguments)
@@ -74,6 +78,7 @@ class ViewSetTest(unittest.TestCase):
         viewset = ViewSet(
             collection_methods=('GET', 'DELETE')
         )
+        viewset.responses = mock.MagicMock()
         arguments = viewset.collection_arguments(mock.MagicMock(), 'get')
         self.assertIn('schema', arguments)
 
@@ -81,6 +86,7 @@ class ViewSetTest(unittest.TestCase):
     def test_a_default_schema_is_added_when_method_doesnt_match(self, mocked):
         viewset = ViewSet()
         resource = mock.MagicMock()
+        viewset.responses = mock.MagicMock()
         mocked.Mapping.return_value = mock.sentinel.default_schema
 
         arguments = viewset.collection_arguments(resource, 'GET')
@@ -113,6 +119,7 @@ class ViewSetTest(unittest.TestCase):
             collection_get_arguments=collection_get_arguments
         )
 
+        viewset.responses = mock.MagicMock()
         arguments = viewset.collection_arguments(mock.MagicMock(), 'get')
 
         self.assertDictEqual(
@@ -123,7 +130,8 @@ class ViewSetTest(unittest.TestCase):
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.cors_origins,
                 'error_handler': mock.sentinel.error_handler,
-                'validators': [colander_validator]
+                'validators': [colander_validator],
+                'response_schemas': viewset.responses.get_and_bind()
             }
         )
 
@@ -152,6 +160,7 @@ class ViewSetTest(unittest.TestCase):
             record_get_arguments=record_get_arguments
         )
 
+        viewset.responses = mock.MagicMock()
         arguments = viewset.record_arguments(mock.MagicMock(), 'get')
 
         self.assertDictEqual(
@@ -162,7 +171,8 @@ class ViewSetTest(unittest.TestCase):
                 'cors_headers': mock.sentinel.cors_headers,
                 'cors_origins': mock.sentinel.record_cors_origins,
                 'error_handler': mock.sentinel.error_handler,
-                'validators': [colander_validator]
+                'validators': [colander_validator],
+                'response_schemas': viewset.responses.get_and_bind()
             }
         )
 
@@ -191,6 +201,7 @@ class ViewSetTest(unittest.TestCase):
             record_get_arguments=record_get_arguments,
         )
 
+        viewset.responses = mock.MagicMock()
         arguments = viewset.record_arguments(mock.MagicMock(), 'get')
 
         self.assertDictEqual(
@@ -200,7 +211,8 @@ class ViewSetTest(unittest.TestCase):
                 'cors_headers': mock.sentinel.default_cors_headers,
                 'error_handler': mock.sentinel.default_record_error_handler,
                 'cors_origins': mock.sentinel.record_get_cors_origin,
-                'validators': [colander_validator]
+                'validators': [colander_validator],
+                'response_schemas': viewset.responses.get_and_bind()
             }
         )
 
@@ -220,6 +232,7 @@ class ViewSetTest(unittest.TestCase):
             record_get_arguments={}
         )
 
+        viewset.responses = mock.MagicMock()
         arguments = viewset.record_arguments(mock.MagicMock(), 'get')
 
         self.assertDictEqual(
@@ -227,7 +240,8 @@ class ViewSetTest(unittest.TestCase):
             {
                 'schema': mocked().bind(),
                 'cors_headers': mock.sentinel.cors_headers,
-                'validators': [colander_validator]
+                'validators': [colander_validator],
+                'response_schemas': viewset.responses.get_and_bind()
             }
         )
 
@@ -352,6 +366,7 @@ class TestViewsetBindedSchemas(unittest.TestCase):
 
     def setUp(self):
         self.viewset = ViewSet()
+        self.viewset.responses = mock.MagicMock()
         self.resource = mock.MagicMock()
 
     def test_request_schemas_have_header_and_querystring(self):
@@ -417,6 +432,7 @@ class ShareableViewSetTest(unittest.TestCase):
 
     def test_permission_dynamic_is_set_by_default(self):
         viewset = ShareableViewSet()
+        viewset.responses = mock.MagicMock()
         resource = mock.MagicMock()
         args = viewset.collection_arguments(resource, 'GET')
         self.assertEquals(args['permission'], 'dynamic')
@@ -428,6 +444,7 @@ class ShareableViewSetTest(unittest.TestCase):
 
     def test_mapping_is_deprecated(self):
         viewset = ShareableViewSet()
+        viewset.responses = mock.MagicMock()
         resource = mock.MagicMock()
         resource.mapping = mock.MagicMock()
         with mock.patch('kinto.core.resource.viewset.warnings') as mocked:
