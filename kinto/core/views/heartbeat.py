@@ -74,8 +74,12 @@ def get_heartbeat(request):
     return status
 
 
+class LbHeartbeatResponseSchema(colander.MappingSchema):
+    body = colander.SchemaNode(colander.Mapping())
+
+
 lbheartbeat_responses = {
-    '200': colander.MappingSchema(
+    '200': LbHeartbeatResponseSchema(
         description="Returned if server is reachable.")
 }
 

@@ -136,10 +136,11 @@ class ViewSet(object):
         request_schema = args.get('schema', RequestSchema())
         record_schema = self.get_record_schema(resource_cls, method)
         request_schema = request_schema.bind(body=record_schema)
+        response_schemas = self.responses.get_and_bind(endpoint_type, method,
+                                                       record=record_schema)
 
         args['schema'] = request_schema
-        args['response_schemas'] = self.responses.get_and_bind(endpoint_type, method,
-                                                               record=record_schema)
+        args['response_schemas'] = response_schemas
 
         validators = args.get('validators', [])
         validators.append(colander_validator)
@@ -150,7 +151,7 @@ class ViewSet(object):
     def get_record_schema(self, resource_cls, method):
         """Return the Cornice schema for the given method.
         """
-        if method.lower() == 'patch':
+        if method.lower() in ('patch', 'delete'):
             resource_schema = SimpleSchema
         else:
             resource_schema = resource_cls.schema
