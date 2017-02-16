@@ -689,7 +689,7 @@ class UserResource:
             if self.schema.is_readonly(field) and has_changed:
                 error_details = {
                     'name': field,
-                    'description': 'Cannot modify {0}'.format(field)
+                    'description': 'Cannot modify {}'.format(field)
                 }
                 raise_invalid(self.request, **error_details)
 
@@ -956,7 +956,7 @@ class UserResource:
                 operator, field = COMPARISON.EQ, param
 
             if not self.is_known_field(field):
-                error_msg = "Unknown filter field '{0}'".format(param)
+                error_msg = "Unknown filter field '{}'".format(param)
                 error_details['description'] = error_msg
                 raise_invalid(self.request, **error_details)
 
@@ -990,7 +990,7 @@ class UserResource:
                 if not self.is_known_field(field):
                     error_details = {
                         'location': 'querystring',
-                        'description': "Unknown sort field '{0}'".format(field)
+                        'description': "Unknown sort field '{}'".format(field)
                     }
                     raise_invalid(self.request, **error_details)
 

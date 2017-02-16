@@ -28,7 +28,7 @@ class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
         self.assertIn('Expires', r.headers)
         self.assertEqual(r.headers['Cache-Control'], 'max-age=3600')
 
-        r = self.app.get(url + '/{record_id}'.format(record_id=self.record['id']))
+        r = self.app.get('{}/{}'.format(url, self.record['id']))
         self.assertIn('Expires', r.headers)
         self.assertEqual(r.headers['Cache-Control'], 'max-age=3600')
 
@@ -45,12 +45,9 @@ class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
 
         def create_record_in_collection(bucket_id, collection_id):
             bucket = {**MINIMALIST_BUCKET, 'permissions': {'read': ['system.Everyone']}}
-            self.app.put_json('/buckets/{bucket_id}'.format(bucket_id=bucket_id),
-                              bucket,
-                              headers=self.headers)
-            collection_url = '/buckets/{bucket_id}/collections/{collection_id}'.format(
-                bucket_id=bucket_id,
-                collection_id=collection_id)
+            self.app.put_json('/buckets/{}'.format(bucket_id),
+                              bucket, headers=self.headers)
+            collection_url = '/buckets/{}/collections/{}'.format(bucket_id, collection_id)
             self.app.put_json(collection_url,
                               MINIMALIST_COLLECTION,
                               headers=self.headers)
@@ -65,18 +62,18 @@ class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
     def assertHasCache(self, url, age):
         r = self.app.get(url)
         self.assertIn('Expires', r.headers)
-        self.assertEqual(r.headers['Cache-Control'], 'max-age={age}'.format(age=age))
+        self.assertEqual(r.headers['Cache-Control'], 'max-age={}'.format(age))
 
     def test_for_records_on_a_specific_bucket(self):
         collection_url = '/buckets/blog/collections/cached/records'
         self.assertHasCache(collection_url, 30)
-        record_url = collection_url + '/{record_id}'.format(record_id=self.blog_record['id'])
+        record_url = '{}/{}'.format(collection_url, self.blog_record['id'])
         self.assertHasCache(record_url, 30)
 
     def test_for_records_on_a_specific_collection(self):
         collection_url = '/buckets/browser/collections/top500/records'
         self.assertHasCache(collection_url, 60)
-        record_url = collection_url + '/{record_id}'.format(record_id=self.app_record['id'])
+        record_url = '{}/{}'.format(collection_url, self.app_record['id'])
         self.assertHasCache(record_url, 60)
 
 

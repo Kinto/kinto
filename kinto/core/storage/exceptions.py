@@ -37,5 +37,5 @@ class UnicityError(IntegrityError):
     def __init__(self, field, record, *args, **kwargs):
         self.field = field
         self.record = record
-        self.msg = "{0} is not unique: {1}".format(field, record)
+        self.msg = "{} is not unique: {}".format(field, record)
         super().__init__(*args, **kwargs)

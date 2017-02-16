@@ -211,7 +211,7 @@ class ChildrenCreationTest(PermissionsTest):
                           {'permissions': {'read': ['system.Authenticated']}},
                           headers=self.alice_headers)
         for parent in ('create', 'write', 'read'):
-            self.app.put_json('/buckets/{parent}/groups/child'.format(parent=parent),
+            self.app.put_json('/buckets/{}/groups/child'.format(parent),
                               MINIMALIST_GROUP,
                               headers=self.alice_headers)
         self.bob_headers_safe_creation = dict({'If-None-Match': '*'},

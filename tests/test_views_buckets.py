@@ -193,7 +193,7 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
                                MINIMALIST_RECORD,
                                headers=self.headers)
         record_id = r.json['data']['id']
-        self.record_url = self.collection_url + '/records/{record_id}'.format(record_id=record_id)
+        self.record_url = self.collection_url + '/records/{}'.format(record_id)
         # Delete the bucket.
         self.app.delete(self.bucket_url, headers=self.headers)
 
@@ -230,7 +230,7 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.collection_url, headers=self.headers, status=404)
 
         # Verify tombstones
-        resp = self.app.get('{bucket_url}/collections?_since=0'.format(bucket_url=self.bucket_url),
+        resp = self.app.get('{}/collections?_since=0'.format(self.bucket_url),
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
@@ -239,7 +239,7 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers)
         self.app.get(self.group_url, headers=self.headers, status=404)
         # Verify tombstones
-        resp = self.app.get('{bucket_url}/groups?_since=0'.format(bucket_url=self.bucket_url),
+        resp = self.app.get('{}/groups?_since=0'.format(self.bucket_url),
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
@@ -251,9 +251,8 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.record_url, headers=self.headers, status=404)
 
         # Verify tombstones
-        resp = self.app.get(
-            '{collection_url}/records?_since=0'.format(collection_url=self.collection_url),
-            headers=self.headers)
+        resp = self.app.get('{}/records?_since=0'.format(self.collection_url),
+                            headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
     def test_can_be_created_after_deletion_with_if_none_match_star(self):
