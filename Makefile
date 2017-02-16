@@ -30,8 +30,6 @@ help:
 	@echo "  clean                       remove *.pyc files and __pycache__ directory"
 	@echo "  distclean                   remove *.egg-info files and *.egg, build and dist directories"
 	@echo "  maintainer-clean            remove the .tox and the .venv directories"
-	@echo "  loadtest-check-tutorial     load test the using tutorial"
-	@echo "  loadtest-check-simulation   load test using a simulation"
 	@echo "  docs                        build the docs"
 	@echo "Check the Makefile to know exactly what each target is doing."
 
@@ -111,22 +109,6 @@ distclean: clean
 
 maintainer-clean: distclean
 	rm -fr .venv/ .tox/
-
-loadtest-check-tutorial: install-postgres
-	$(VENV)/bin/kinto --ini loadtests/server.ini migrate > kinto.log &&\
-	$(VENV)/bin/kinto --ini loadtests/server.ini start > kinto.log & PID=$$! && \
-	  rm kinto.log || cat kinto.log; \
-	  sleep 1 && cd loadtests && \
-	  make tutorial SERVER_URL=http://127.0.0.1:8888; \
-	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
-
-loadtest-check-simulation: install-postgres
-	$(VENV)/bin/kinto --ini loadtests/server.ini migrate > kinto.log &&\
-	$(VENV)/bin/kinto --ini loadtests/server.ini start > kinto.log & PID=$$! && \
-	  rm kinto.log || cat kinto.log; \
-	  sleep 1 && cd loadtests && \
-	  make simulation SERVER_URL=http://127.0.0.1:8888; \
-	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
 
 docs: install-docs
 	$(VENV)/bin/sphinx-build -a -W -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html

@@ -749,12 +749,11 @@ Update the configuration file with the following values:
     kinto.profiler_enabled = true
     kinto.profiler_dir = /tmp/profiling
 
-Run a load test (*for example*):
+Run some request on the server (*for example*):
 
 ::
 
-    cd loadtests/
-    SERVER_URL=http://localhost:8888 make bench -e
+    http GET http://localhost:8888/v1/
 
 
 Render execution graphs using GraphViz:
