@@ -1,3 +1,4 @@
+from __future__ import division
 import warnings
 
 import colander
@@ -7,6 +8,10 @@ from kinto.core.schema import (Any, HeaderField, QueryField, HeaderQuotedInteger
 from kinto.core.errors import ErrorSchema
 from kinto.core.utils import native_value
 
+POSTGRESQL_MAX_INTEGER_VALUE = 2**64 // 2
+
+positive_big_integer = colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE)
+
 
 class TimeStamp(TimeStamp):
     """This schema is deprecated, you shoud use `kinto.core.schema.TimeStamp` instead."""
@@ -15,7 +20,7 @@ class TimeStamp(TimeStamp):
         message = ("`kinto.core.resource.schema.TimeStamp` is deprecated, "
                    "use `kinto.core.schema.TimeStamp` instead.")
         warnings.warn(message, DeprecationWarning)
-        super(TimeStamp, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class URL(URL):
@@ -25,7 +30,7 @@ class URL(URL):
         message = ("`kinto.core.resource.schema.URL` is deprecated, "
                    "use `kinto.core.schema.URL` instead.")
         warnings.warn(message, DeprecationWarning)
-        super(URL, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 # Resource related schemas
@@ -103,7 +108,7 @@ class PermissionsSchema(colander.SchemaNode):
 
     def __init__(self, *args, **kwargs):
         self.known_perms = kwargs.pop('permissions', tuple())
-        super(PermissionsSchema, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for perm in self.known_perms:
             self[perm] = self._get_node_principals(perm)
@@ -118,13 +123,13 @@ class PermissionsSchema(colander.SchemaNode):
 
         # If permissions are not a mapping (e.g null or invalid), try deserializing
         if not isinstance(cstruct, dict):
-            return super(PermissionsSchema, self).deserialize(cstruct)
+            return super().deserialize(cstruct)
 
         # If permissions are listed, check fields and produce fancy error messages
         if self.known_perms:
             for perm in cstruct:
                 colander.OneOf(choices=self.known_perms)(self, perm)
-            return super(PermissionsSchema, self).deserialize(cstruct)
+            return super().deserialize(cstruct)
 
         # Else deserialize the fields that are not on the schema
         permissions = {}
@@ -190,7 +195,7 @@ class QuerySchema(colander.MappingSchema):
         """
         values = {}
 
-        schema_values = super(QuerySchema, self).deserialize(cstruct)
+        schema_values = super().deserialize(cstruct)
         if schema_values is colander.drop:
             return schema_values
 
@@ -211,14 +216,14 @@ class QuerySchema(colander.MappingSchema):
 class CollectionQuerySchema(QuerySchema):
     """Querystring schema used with collections."""
 
-    _limit = QueryField(colander.Integer())
+    _limit = QueryField(colander.Integer(), validator=positive_big_integer)
     _sort = FieldList()
     _token = QueryField(colander.String())
-    _since = QueryField(colander.Integer())
-    _to = QueryField(colander.Integer())
-    _before = QueryField(colander.Integer())
+    _since = QueryField(colander.Integer(), validator=positive_big_integer)
+    _to = QueryField(colander.Integer(), validator=positive_big_integer)
+    _before = QueryField(colander.Integer(), validator=positive_big_integer)
     id = QueryField(colander.String())
-    last_modified = QueryField(colander.Integer())
+    last_modified = QueryField(colander.Integer(), validator=positive_big_integer)
 
 
 class RecordGetQuerySchema(QuerySchema):

@@ -6,7 +6,7 @@ from kinto.core.logs import logger
 __HEARTBEAT_KEY__ = '__heartbeat__'
 
 
-class PermissionBase(object):
+class PermissionBase:
 
     def __init__(self, *args, **kwargs):
         pass

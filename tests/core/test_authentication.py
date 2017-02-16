@@ -98,11 +98,11 @@ class BasicAuthenticationPolicyTest(unittest.TestCase):
 
     def test_userid_is_built_using_password(self):
         auth_password = utils.encode64('user:secret1', encoding='ascii')
-        self.request.headers['Authorization'] = 'Basic %s' % auth_password
+        self.request.headers['Authorization'] = 'Basic {}'.format(auth_password)
         user_id1 = self.policy.unauthenticated_userid(self.request)
 
         auth_password = utils.encode64('user:secret2', encoding='ascii')
-        self.request.headers['Authorization'] = 'Basic %s' % auth_password
+        self.request.headers['Authorization'] = 'Basic {}'.format(auth_password)
         user_id2 = self.policy.unauthenticated_userid(self.request)
 
         self.assertNotEqual(user_id1, user_id2)
@@ -114,12 +114,12 @@ class BasicAuthenticationPolicyTest(unittest.TestCase):
 
     def test_returns_none_if_username_is_empty(self):
         auth_password = utils.encode64(':secret', encoding='ascii')
-        self.request.headers['Authorization'] = 'Basic %s' % auth_password
+        self.request.headers['Authorization'] = 'Basic {}'.format(auth_password)
         user_id = self.policy.unauthenticated_userid(self.request)
         self.assertIsNone(user_id)
 
     def test_providing_empty_password_is_supported(self):
         auth_password = utils.encode64('secret:', encoding='ascii')
-        self.request.headers['Authorization'] = 'Basic %s' % auth_password
+        self.request.headers['Authorization'] = 'Basic {}'.format(auth_password)
         user_id = self.policy.unauthenticated_userid(self.request)
         self.assertIsNotNone(user_id)

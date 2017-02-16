@@ -2,7 +2,6 @@ import os
 import unittest
 
 import mock
-import six
 from pyramid import testing
 
 from kinto.core.cache import postgresql as postgresql_cache
@@ -15,13 +14,13 @@ from kinto.core.testing import skip_if_no_postgresql
 @skip_if_no_postgresql
 class PostgresqlStorageMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(PostgresqlStorageMigrationTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         from kinto.core.utils import sqlalchemy
         if sqlalchemy is None:
             return
 
         from .test_storage import PostgreSQLStorageTest
-        self.settings = PostgreSQLStorageTest.settings.copy()
+        self.settings = {**PostgreSQLStorageTest.settings}
         self.config = testing.setUp()
         self.config.add_settings(self.settings)
         self.version = postgresql_storage.Storage.schema_version
@@ -125,7 +124,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
                                 data=json.dumps(before))
             result = conn.execute(query, placeholders)
             inserted = result.fetchone()
-            before['id'] = six.text_type(inserted['id'])
+            before['id'] = str(inserted['id'])
             before['last_modified'] = inserted['last_modified']
 
         # In cliquet 1.6, version = 1.
@@ -207,13 +206,13 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 @skip_if_no_postgresql
 class PostgresqlPermissionMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kw):
-        super(PostgresqlPermissionMigrationTest, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         from kinto.core.utils import sqlalchemy
         if sqlalchemy is None:
             return
 
         from .test_permission import PostgreSQLPermissionTest
-        settings = PostgreSQLPermissionTest.settings.copy()
+        settings = {**PostgreSQLPermissionTest.settings}
         config = testing.setUp()
         config.add_settings(settings)
         self.permission = postgresql_permission.load_from_config(config)
@@ -246,13 +245,13 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
 @skip_if_no_postgresql
 class PostgresqlCacheMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kw):
-        super(PostgresqlCacheMigrationTest, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         from kinto.core.utils import sqlalchemy
         if sqlalchemy is None:
             return
 
         from .test_cache import PostgreSQLCacheTest
-        settings = PostgreSQLCacheTest.settings.copy()
+        settings = {**PostgreSQLCacheTest.settings}
         config = testing.setUp()
         config.add_settings(settings)
         self.cache = postgresql_cache.load_from_config(config)

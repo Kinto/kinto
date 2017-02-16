@@ -5,11 +5,10 @@ import hmac
 import jsonpatch
 import os
 import re
-import six
 import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
-from six.moves.urllib import parse as urlparse
+from urllib.parse import unquote
 from enum import Enum
 
 import ujson as json  # NOQA
@@ -106,7 +105,7 @@ def native_value(value):
     :param str value: value to interprete.
     :returns: the value coerced to python type
     """
-    if isinstance(value, six.string_types):
+    if isinstance(value, str):
         if value.lower() in ['on', 'true', 'yes']:
             value = True
         elif value.lower() in ['off', 'false', 'no']:
@@ -147,7 +146,7 @@ def decode64(encoded_content, encoding='utf-8'):
 
 def hmac_digest(secret, message, encoding='utf-8'):
     """Return hex digest of a message HMAC using secret"""
-    if isinstance(secret, six.text_type):
+    if isinstance(secret, str):
         secret = secret.encode(encoding)
     return hmac.new(secret,
                     message.encode(encoding),
@@ -213,9 +212,8 @@ def reapply_cors(request, response):
         if origin:
             settings = request.registry.settings
             allowed_origins = set(aslist(settings['cors_origins']))
-            required_origins = {'*', decode_header(origin)}
+            required_origins = {'*', origin}
             if allowed_origins.intersection(required_origins):
-                origin = encode_header(origin)
                 response.headers['Access-Control-Allow-Origin'] = origin
 
         # Import service here because kinto.core import utils
@@ -266,7 +264,7 @@ def prefixed_userid(request):
     # (see :func:`kinto.core.initialization.setup_authentication`)
     authn_type = getattr(request, 'authn_type', None)
     if authn_type is not None:
-        return authn_type + ':' + request.selected_userid
+        return '{}:{}'.format(authn_type, request.selected_userid)
 
 
 def prefixed_principals(request):
@@ -300,7 +298,7 @@ def build_request(original, dict_obj):
     :param original: the original request.
     :param dict_obj: a dict object with the sub-request specifications.
     """
-    api_prefix = '/%s' % original.upath_info.split('/')[1]
+    api_prefix = '/{}'.format(original.upath_info.split('/')[1])
     path = dict_obj['path']
     if not path.startswith(api_prefix):
         path = api_prefix + path
@@ -319,14 +317,10 @@ def build_request(original, dict_obj):
     # Payload is always a dict (from ``BatchRequestSchema.body``).
     # Send it as JSON for subrequests.
     if isinstance(payload, dict):
-        headers['Content-Type'] = encode_header(
-            'application/json; charset=utf-8')
+        headers['Content-Type'] = 'application/json; charset=utf-8'
         payload = json.dumps(payload)
 
-    if six.PY3:  # pragma: no cover
-        path = path.decode('latin-1')
-
-    request = Request.blank(path=path,
+    request = Request.blank(path=path.decode('latin-1'),
                             headers=headers,
                             POST=payload,
                             method=method)
@@ -349,7 +343,7 @@ def build_response(response, request):
     :param request: the request that was used to get the response.
     """
     dict_obj = {}
-    dict_obj['path'] = urlparse.unquote(request.path)
+    dict_obj['path'] = unquote(request.path)
     dict_obj['status'] = response.status_code
     dict_obj['headers'] = dict(response.headers)
 
@@ -391,35 +385,11 @@ def follow_subrequest(request, subrequest, **kwargs):
         return request.invoke_subrequest(new_request, **kwargs), new_request
 
 
-def encode_header(value, encoding='utf-8'):
-    return _encoded(value, encoding)
-
-
-def _encoded(value, encoding='utf-8'):
-    """Make sure the value is of type ``str`` in both PY2 and PY3."""
-    value_type = type(value)
-    if value_type != str:
-        # Test for Python3
-        if value_type == six.binary_type:  # pragma: no cover
-            value = value.decode(encoding)
-        # Test for Python2
-        elif value_type == six.text_type:  # pragma: no cover
-            value = value.encode(encoding)
-    return value
-
-
-def decode_header(value, encoding='utf-8'):
-    """Make sure the header is an unicode string."""
-    if type(value) == six.binary_type:
-        value = value.decode(encoding)
-    return value
-
-
 def strip_uri_prefix(path):
     """
     Remove potential version prefix in URI.
     """
-    return re.sub(r'^(/v\d+)?', '', six.text_type(path))
+    return re.sub(r'^(/v\d+)?', '', str(path))
 
 
 def view_lookup(request, uri):
@@ -432,9 +402,8 @@ def view_lookup(request, uri):
     :rtype: tuple
     :returns: the resource name and the associated matchdict.
     """
-    api_prefix = '/%s' % request.upath_info.split('/')[1]
-    # Path should be bytes in PY2, and unicode in PY3
-    path = _encoded(api_prefix + uri)
+    api_prefix = '/{}'.format(request.upath_info.split('/')[1])
+    path = (api_prefix + uri)
 
     q = request.registry.queryUtility
     routes_mapper = q(IRoutesMapper)
@@ -452,8 +421,8 @@ def view_lookup(request, uri):
 
 def instance_uri(request, resource_name, **params):
     """Return the URI for the given resource."""
-    return strip_uri_prefix(request.route_path('%s-record' % resource_name,
-                                               **params))
+    return strip_uri_prefix(request.route_path(
+        '{}-record'.format(resource_name), **params))
 
 
 def parse_resource(resource):
@@ -496,7 +465,7 @@ def apply_json_patch(record, ops):
     :returns dict data: patched record data.
              dict permissions: patched record permissions
     """
-    data = record.copy()
+    data = {**record}
 
     # Permissions should always have read and write fields defined (to allow add)
     permissions = {'read': set(), 'write': set()}

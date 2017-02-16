@@ -1,6 +1,5 @@
 import mock
 import unittest
-from six import text_type
 from uuid import UUID
 
 from pyramid.httpexceptions import HTTPBadRequest
@@ -16,7 +15,7 @@ from ..support import BaseWebTest, MINIMALIST_RECORD
 class DefaultBucketWebTest(BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extras=None):
-        settings = super(DefaultBucketWebTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['includes'] = 'kinto.plugins.default_bucket'
         return settings
 
@@ -33,7 +32,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         hmac_secret = settings['userid_hmac_secret']
         bucket_id = hmac_digest(hmac_secret, self.principal)[:32]
 
-        self.assertEqual(result['data']['id'], text_type(UUID(bucket_id)))
+        self.assertEqual(result['data']['id'], str(UUID(bucket_id)))
         self.assertEqual(result['permissions']['write'], [self.principal])
 
     def test_default_bucket_can_still_be_explicitly_created(self):
@@ -46,10 +45,10 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         self.app.get(self.collection_url, headers=self.headers, status=200)
 
     def test_adding_a_task_for_bob_doesnt_add_it_for_alice(self):
-        record = MINIMALIST_RECORD.copy()
+        record = {**MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url + '/records',
                                   record, headers=get_user_headers('bob'))
-        record_id = self.collection_url + '/records/' + resp.json['data']['id']
+        record_id = '{}/records/{}'.format(self.collection_url, resp.json['data']['id'])
         resp = self.app.get(record_id, headers=get_user_headers('alice'),
                             status=404)
 
@@ -65,7 +64,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         try:
             UUID(bucket_id)
         except ValueError:
-            self.fail('bucket_id: %s is not a valid UUID.' % bucket_id)
+            self.fail('bucket_id: {} is not a valid UUID.'.format(bucket_id))
 
     def test_second_call_on_default_bucket_doesnt_raise_a_412(self):
         self.app.get(self.bucket_url, headers=self.headers)
@@ -93,11 +92,8 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                                   MINIMALIST_RECORD,
                                   headers=self.headers)
         current = resp.json['data']['last_modified']
-        headers = self.headers.copy()
-        headers.update({
-            'Origin': 'http://localhost:8000',
-            'If-None-Match': ('"%s"' % current).encode('utf-8')
-        })
+        headers = {**self.headers, 'Origin': 'http://localhost:8000',
+                   'If-None-Match': ('"{}"'.format(current)).encode('utf-8')}
         resp = self.app.get(self.collection_url + '/records',
                             headers=headers, status=304)
         self.assertIn('Access-Control-Allow-Origin', resp.headers)
@@ -108,11 +104,8 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                                   MINIMALIST_RECORD,
                                   headers=self.headers)
         current = resp.json['data']['last_modified']
-        headers = self.headers.copy()
-        headers.update({
-            'Origin': 'http://localhost:8000',
-            'If-None-Match': ('"%s"' % current).encode('utf-8')
-        })
+        headers = {**self.headers, 'Origin': 'http://localhost:8000',
+                   'If-None-Match': ('"{}"'.format(current)).encode('utf-8')}
         resp = self.app.get(self.collection_url + '/records',
                             headers=headers, status=304)
         self.assertIn('Access-Control-Expose-Headers', resp.headers)
@@ -272,15 +265,13 @@ def load_from_config(config, prefix):
 
 class EventsTest(DefaultBucketWebTest):
     def tearDown(self):
-        super(EventsTest, self).tearDown()
+        super().tearDown()
         del _events[:]
 
     def get_app_settings(self, extras=None):
-        settings = super(EventsTest, self).get_app_settings(extras)
-        settings = settings.copy()
-        settings['event_listeners'] = 'testevent',
-        settings['event_listeners.testevent.use'] = (
-            'tests.plugins.test_default_bucket')
+        settings = super().get_app_settings(extras)
+        settings = {**settings, 'event_listeners': 'testevent',
+                    'event_listeners.testevent.use': 'tests.plugins.test_default_bucket'}
         return settings
 
     def test_an_event_is_sent_on_implicit_bucket_creation(self):
@@ -312,7 +303,7 @@ class EventsTest(DefaultBucketWebTest):
         assert 'subpath' not in _events[0].payload
         assert _events[0].payload['action'] == 'create'
         assert _events[0].payload['bucket_id'] == bucket_id
-        assert _events[0].payload['uri'] == '/buckets/%s' % bucket_id
+        assert _events[0].payload['uri'] == '/buckets/{}'.format(bucket_id)
 
         # Implicit creation of collection
         assert 'subpath' not in _events[1].payload
@@ -320,8 +311,7 @@ class EventsTest(DefaultBucketWebTest):
         assert _events[1].payload['resource_name'] == 'collection'
         assert _events[1].payload['bucket_id'] == bucket_id
         assert _events[1].payload['collection_id'] == 'articles'
-        assert _events[1].payload['uri'] == ('/buckets/%s/collections'
-                                             '/articles') % bucket_id
+        assert _events[1].payload['uri'] == '/buckets/{}/collections/articles'.format(bucket_id)
 
         # Creation of record
         assert _events[2].payload['action'] == 'create'
@@ -335,7 +325,7 @@ class EventsTest(DefaultBucketWebTest):
 class ReadonlyDefaultBucket(DefaultBucketWebTest):
 
     def get_app_settings(self, extras=None):
-        settings = super(ReadonlyDefaultBucket, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['readonly'] = True
         return settings
 
@@ -345,7 +335,7 @@ class ReadonlyDefaultBucket(DefaultBucketWebTest):
 
 class BackendErrorTest(DefaultBucketWebTest):
     def setUp(self):
-        super(BackendErrorTest, self).setUp()
+        super().setUp()
         self.patcher = mock.patch.object(
             self.storage, 'create',
             side_effect=storage_exceptions.BackendError())

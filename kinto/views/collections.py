@@ -12,7 +12,7 @@ class JSONSchemaMapping(colander.SchemaNode):
 
     def deserialize(self, cstruct=colander.null):
         # Start by deserializing a simple mapping.
-        validated = super(JSONSchemaMapping, self).deserialize(cstruct)
+        validated = super().deserialize(cstruct)
 
         # In case it is optional in parent schema.
         if not validated or validated in (colander.null, colander.drop):

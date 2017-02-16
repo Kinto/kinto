@@ -2,7 +2,7 @@ import random
 from base64 import b64encode, b64decode
 
 import mock
-from six.moves.urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse
 from pyramid.httpexceptions import HTTPBadRequest
 
 from kinto.core.utils import json
@@ -12,7 +12,7 @@ from . import BaseTest
 
 class BasePaginationTest(BaseTest):
     def setUp(self):
-        super(BasePaginationTest, self).setUp()
+        super().setUp()
         self.patch_known_field.start()
 
         indices = list(range(20))
@@ -231,7 +231,7 @@ class PaginatedDeleteTest(BasePaginationTest):
 
 class BuildPaginationTokenTest(BaseTest):
     def setUp(self):
-        super(BuildPaginationTokenTest, self).setUp()
+        super().setUp()
         self.patch_known_field.start()
         self.record = {
             'id': 1, 'status': 2, 'unread': True,

@@ -12,7 +12,7 @@ ACTIONS = ('create_put',)
 
 class SchemaValidationTest(BaseLoadTest):
     def __init__(self, *args, **kwargs):
-        super(SchemaValidationTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._init_collections()
 
     def _init_collections(self):

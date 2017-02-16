@@ -85,7 +85,7 @@ It is a wrapper basically, and the code is kept simple for the simplicity of thi
 
     import elasticsearch
 
-    class Indexer(object):
+    class Indexer:
         def __init__(self, hosts):
             self.client = elasticsearch.Elasticsearch(hosts)
 

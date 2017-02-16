@@ -1,14 +1,13 @@
 dist: trusty
 language: python
-python: 2.7
+python: 3.5
 cache: pip
 services: redis-server
 addons:
   postgresql: "9.5"
 env:
-  - TOX_ENV=py27
-  - TOX_ENV=py34
-  - TOX_ENV=py27-raw
+  - TOX_ENV=py35
+  - TOX_ENV=py35-raw
   - TOX_ENV=flake8
   - TOX_ENV=docs
 install:
@@ -31,9 +30,3 @@ matrix:
     - python: 3.6
       env:
         - TOX_ENV=py36
-    - env: ACTION=loadtest_tutorial
-      before_script: echo 'Tutorial'
-      script: make loadtest-check-tutorial
-    - env: ACTION=loadtest_simulation
-      before_script: echo 'Simulation'
-      script: make loadtest-check-simulation

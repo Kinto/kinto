@@ -29,7 +29,7 @@ class FakeViewSet(ViewSet):
         return {}
 
 
-class FakeResource(object):
+class FakeResource:
     """Fake resource class used for tests"""
     name = "fake"
 

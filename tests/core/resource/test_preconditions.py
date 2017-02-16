@@ -7,12 +7,12 @@ from . import BaseTest
 
 class NotModifiedTest(BaseTest):
     def setUp(self):
-        super(NotModifiedTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({})
 
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
-        self.resource.request.validated = self.validated.copy()
+        self.resource.request.validated = {**self.validated}
         self.resource.collection_get()
         self.validated = self.resource.request.validated
         current = self.last_response.headers['ETag'][1:-1]
@@ -53,7 +53,7 @@ class NotModifiedTest(BaseTest):
 
 class ModifiedMeanwhileTest(BaseTest):
     def setUp(self):
-        super(ModifiedMeanwhileTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({})
         self.resource.collection_get()
         self.validated = self.resource.request.validated

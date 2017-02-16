@@ -5,12 +5,12 @@ class CacheExpires(BaseTest):
     setting = 'test_cache_expires_seconds'
 
     def get_context(self):
-        context = super(CacheExpires, self).get_context()
+        context = super().get_context()
         context.resource_name = 'test'
         return context
 
     def get_request(self):
-        request = super(CacheExpires, self).get_request()
+        request = super().get_request()
         request.prefixed_userid = None  # Anonymous.
         return request
 

@@ -9,7 +9,7 @@ from . import BaseTest
 
 class SortingTest(BaseTest):
     def setUp(self):
-        super(SortingTest, self).setUp()
+        super().setUp()
         self.patch_known_field.start()
 
         indices = list(range(20))
@@ -119,7 +119,7 @@ class SortingTest(BaseTest):
 
 class SubobjectSortingTest(BaseTest):
     def setUp(self):
-        super(SubobjectSortingTest, self).setUp()
+        super().setUp()
         self.patch_known_field.start()
 
         indices = list(range(20))

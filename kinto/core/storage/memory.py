@@ -74,7 +74,7 @@ class Storage(MemoryBasedStorage):
         kinto.storage_backend = kinto.core.storage.memory
     """
     def __init__(self, *args, **kwargs):
-        super(Storage, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.flush()
 
     def flush(self, auth=None):
@@ -134,7 +134,7 @@ class Storage(MemoryBasedStorage):
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD, auth=None):
         id_generator = id_generator or self.id_generator
-        record = record.copy()
+        record = {**record}
         if id_field in record:
             # Raise unicity error if record with same id already exists.
             try:
@@ -160,14 +160,14 @@ class Storage(MemoryBasedStorage):
         collection = self._store[parent_id][collection_id]
         if object_id not in collection:
             raise exceptions.RecordNotFoundError(object_id)
-        return collection[object_id].copy()
+        return {**collection[object_id]}
 
     @synchronized
     def update(self, collection_id, parent_id, object_id, record,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
-        record = record.copy()
+        record = {**record}
         record[id_field] = object_id
 
         self.set_record_timestamp(collection_id, parent_id, record,
@@ -195,7 +195,7 @@ class Storage(MemoryBasedStorage):
 
         # Add to deleted items, remove from store.
         if with_deleted:
-            deleted = existing.copy()
+            deleted = {**existing}
             self._cemetery[parent_id][collection_id][object_id] = deleted
         self._store[parent_id][collection_id].pop(object_id)
         return existing
@@ -381,7 +381,7 @@ def apply_sorting(records, sorting):
 
 def _get_objects_by_parent_id(store, parent_id, collection_id, with_meta=False):
     if parent_id is not None:
-        parent_id_match = re.compile("^%s$" % parent_id.replace('*', '.*'))
+        parent_id_match = re.compile("^{}$".format(parent_id.replace('*', '.*')))
         by_parent_id = {pid: collections
                         for pid, collections in store.items()
                         if parent_id_match.match(pid)}

@@ -7,7 +7,7 @@ from .support import SwaggerTest
 class SwaggerRequestsValidationTest(SwaggerTest):
 
     def setUp(self):
-        super(SwaggerRequestsValidationTest, self).setUp()
+        super().setUp()
 
         self.request = IncomingRequest()
         self.request.path = {}

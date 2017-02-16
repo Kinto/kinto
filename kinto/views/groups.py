@@ -7,7 +7,7 @@ from pyramid.events import subscriber
 
 def validate_member(node, member):
     if member.startswith('/buckets/') or member == 'system.Everyone':
-        raise colander.Invalid(node, "%r is not a valid user ID." % member)
+        raise colander.Invalid(node, "'{}' is not a valid user ID.".format(member))
 
 
 class GroupSchema(resource.ResourceSchema):

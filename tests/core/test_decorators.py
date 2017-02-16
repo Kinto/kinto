@@ -1,6 +1,6 @@
 import mock
 import pytest
-from six import StringIO
+from io import StringIO
 from pyramid.httpexceptions import HTTPOk
 from kinto.core.decorators import cache_forever
 
@@ -13,7 +13,7 @@ def demo1(request):
 
 @cache_forever
 def demo2(request, name):
-    return "demo2: " + name
+    return "demo2: {}".format(name)
 
 
 @cache_forever

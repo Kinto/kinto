@@ -1,3 +1,4 @@
+import json
 import re
 import unittest
 import mock
@@ -27,7 +28,7 @@ class PluginSetup(unittest.TestCase):
 class HistoryWebTest(support.BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extras=None):
-        settings = super(HistoryWebTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['includes'] = 'kinto.plugins.history'
         return settings
 
@@ -69,7 +70,7 @@ class HistoryViewTest(HistoryWebTest):
     def test_only_collection_endpoint_is_available(self):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
-        url = '%s/%s' % (self.bucket_uri, entry['id'])
+        url = '{}/{}'.format(self.bucket_uri, entry['id'])
         self.app.get(url, headers=self.headers, status=404)
         self.app.put(url, headers=self.headers, status=404)
         self.app.patch(url, headers=self.headers, status=404)
@@ -159,7 +160,7 @@ class HistoryViewTest(HistoryWebTest):
         assert 'bucket_id' not in entry
         assert entry['collection_id'] == cid
         assert entry['action'] == 'create'
-        assert entry['uri'] == '/buckets/test/collections/%s' % cid
+        assert entry['uri'] == '/buckets/test/collections/{}'.format(cid)
 
     def test_tracks_collection_attributes_update(self):
         body = {'data': {'foo': 'baz'}}
@@ -208,7 +209,7 @@ class HistoryViewTest(HistoryWebTest):
         assert 'bucket_id' not in entry
         assert entry['group_id'] == self.group['id']
         assert entry['action'] == 'create'
-        assert entry['uri'] == '/buckets/test/groups/%s' % self.group['id']
+        assert entry['uri'] == '/buckets/test/groups/{}'.format(self.group['id'])
 
     def test_tracks_group_attributes_update(self):
         body = {'data': {'foo': 'baz', 'members': ['lui']}}
@@ -262,9 +263,9 @@ class HistoryViewTest(HistoryWebTest):
         assert entry['collection_id'] == cid
         assert entry['record_id'] == rid
         assert entry['action'] == 'create'
-        assert entry['uri'] == '/buckets/test/collections/%s/records/%s' % (cid, rid)  # NOQA
+        assert entry['uri'] == '/buckets/test/collections/{}/records/{}'.format(cid, rid)
         assert entry['target']['data']['foo'] == 42
-        assert entry['target']['permissions']['write'][0].startswith('basicauth:')  # NOQA
+        assert entry['target']['permissions']['write'][0].startswith('basicauth:')
 
     def test_tracks_record_attributes_update(self):
         resp = self.app.patch_json(self.record_uri, {'data': {'foo': 'baz'}},
@@ -333,11 +334,11 @@ class HistoryDeletionTest(HistoryWebTest):
 
     def test_partial_deletion(self):
         resp = self.app.get('/buckets/bid/history', headers=self.headers)
-        before = resp.headers['ETag']
+        before = int(json.loads(resp.headers['ETag']))
         self.app.put('/buckets/bid/collections/cid2', headers=self.headers)
 
         # Delete everything before the last entry (exclusive)
-        self.app.delete('/buckets/bid/history?_before=%s' % before,
+        self.app.delete('/buckets/bid/history?_before={}'.format(before),
                         headers=self.headers)
 
         resp = self.app.get('/buckets/bid/history', headers=self.headers)
@@ -385,14 +386,14 @@ class FilteringTest(HistoryWebTest):
 
     def test_filter_by_uri(self):
         uri = '/buckets/bid/collections/cid/records/rid'
-        resp = self.app.get('/buckets/bid/history?uri=%s' % uri,
+        resp = self.app.get('/buckets/bid/history?uri={}'.format(uri),
                             headers=self.headers)
         assert len(resp.json['data']) == 3  # create / update / delete
 
     def test_allows_diff_between_two_versions_of_a_record(self):
         uri = '/buckets/bid/collections/cid/records/rid'
-        querystring = '?uri=%s&_limit=2&_sort=last_modified' % uri
-        resp = self.app.get('/buckets/bid/history' + querystring,
+        querystring = '?uri={}&_limit=2&_sort=last_modified'.format(uri)
+        resp = self.app.get('/buckets/bid/history{}'.format(querystring),
                             headers=self.headers)
         entries = resp.json['data']
         version1 = entries[0]['target']['data']
@@ -513,7 +514,7 @@ class BulkTest(HistoryWebTest):
         # Kinto/kinto#942
         requests = [{
             'method': 'PATCH',
-            'path': '/buckets/bid/collections/cid/records/%s' % l,
+            'path': '/buckets/bid/collections/cid/records/{}'.format(l),
             'body': {'data': {'label': l}}} for l in ('a', 'b', 'c')]
         self.app.post_json('/batch', {'requests': requests}, headers=self.headers)
         resp = self.app.get('/buckets/bid/history', headers=self.headers)
@@ -527,7 +528,7 @@ class BulkTest(HistoryWebTest):
 class DefaultBucketTest(HistoryWebTest):
 
     def get_app_settings(self, extras=None):
-        settings = super(HistoryWebTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['includes'] = ('kinto.plugins.default_bucket '
                                 'kinto.plugins.history')
         return settings
@@ -535,7 +536,7 @@ class DefaultBucketTest(HistoryWebTest):
     def setUp(self):
         resp = self.app.get('/', headers=self.headers)
         self.bucket_id = resp.json['user']['bucket']
-        self.history_uri = '/buckets/%s/history' % self.bucket_id
+        self.history_uri = '/buckets/{}/history'.format(self.bucket_id)
 
     def test_history_can_be_accessed_via_default_alias(self):
         self.app.get('/buckets/default/collections/blah',
@@ -554,33 +555,33 @@ class DefaultBucketTest(HistoryWebTest):
         entries = resp.json['data']
         assert len(entries) == 3
 
-        bucket_uri = '/buckets/%s' % self.bucket_id
+        bucket_uri = '/buckets/{}'.format(self.bucket_id)
         assert entries[2]['resource_name'] == 'bucket'
         assert entries[2]['bucket_id'] == self.bucket_id
         assert entries[2]['uri'] == bucket_uri
-        assert entries[2]['target']['permissions']['write'][0] == self.principal  # NOQA
+        assert entries[2]['target']['permissions']['write'][0] == self.principal
 
         collection_uri = bucket_uri + '/collections/blah'
         assert entries[1]['resource_name'] == 'collection'
         assert 'bucket_id' not in entries[1]
         assert entries[1]['collection_id'] == 'blah'
         assert entries[1]['uri'] == collection_uri
-        assert entries[1]['target']['permissions']['write'][0] == self.principal  # NOQA
+        assert entries[1]['target']['permissions']['write'][0] == self.principal
 
-        record_uri = collection_uri + '/records/%s' % record['id']
+        record_uri = collection_uri + '/records/{}'.format(record['id'])
         assert entries[0]['resource_name'] == 'record'
         assert 'bucket_id' not in entries[1]
         assert entries[0]['collection_id'] == 'blah'
         assert entries[0]['record_id'] == record['id']
         assert entries[0]['uri'] == record_uri
         assert entries[0]['target']['data']['foo'] == 42
-        assert entries[0]['target']['permissions']['write'][0] == self.principal  # NOQA
+        assert entries[0]['target']['permissions']['write'][0] == self.principal
 
 
 class PermissionsTest(HistoryWebTest):
 
     def get_app_settings(self, extras=None):
-        settings = super(PermissionsTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['experimental_permissions_endpoint'] = 'true'
         return settings
 
@@ -714,7 +715,7 @@ class PermissionsTest(HistoryWebTest):
 class ExcludeResourcesTest(HistoryWebTest):
 
     def get_app_settings(self, extras=None):
-        settings = super(ExcludeResourcesTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['history.exclude_resources'] = ('/buckets/a '
                                                  '/buckets/b/collections/a '
                                                  '/buckets/b/groups/a')

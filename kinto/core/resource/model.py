@@ -1,4 +1,4 @@
-class Model(object):
+class Model:
     """A collection stores and manipulate records in its attached storage.
 
     It is not aware of HTTP environment nor HTTP API.
@@ -170,7 +170,7 @@ class Model(object):
         .. code-block:: python
 
             def create_record(self, record):
-                record = super(MyModel, self).create_record(record)
+                record = super().create_record(record)
                 idx = index.store(record)
                 record['index'] = idx
                 return record
@@ -199,7 +199,7 @@ class Model(object):
         .. code-block:: python
 
             def update_record(self, record, parent_id=None):
-                record = super(MyModel, self).update_record(record, parent_id)
+                record = super().update_record(record, parent_id)
                 subject = 'Record {} was changed'.format(record[self.id_field])
                 send_email(subject)
                 return record
@@ -228,7 +228,7 @@ class Model(object):
         .. code-block:: python
 
             def delete_record(self, record):
-                deleted = super(MyModel, self).delete_record(record)
+                deleted = super().delete_record(record)
                 erase_media(record)
                 deleted['media'] = 0
                 return deleted
@@ -257,7 +257,7 @@ class ShareableModel(Model):
     permissions_field = '__permissions__'
 
     def __init__(self, *args, **kwargs):
-        super(ShareableModel, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Permission backend.
         self.permission = None
         # Object permission id.
@@ -281,19 +281,14 @@ class ShareableModel(Model):
         if len(set(writers) & set(principals)) == 0:
             permissions = {}
         # Insert the permissions values in the response.
-        annotated = record.copy()
-        annotated[self.permissions_field] = permissions
+        annotated = {**record, self.permissions_field: permissions}
         return annotated
 
     def delete_records(self, filters=None, sorting=None, pagination_rules=None,
                        limit=None, parent_id=None):
         """Delete permissions when collection records are deleted in bulk.
         """
-        deleted = super(ShareableModel, self).delete_records(filters,
-                                                             sorting,
-                                                             pagination_rules,
-                                                             limit,
-                                                             parent_id)
+        deleted = super().delete_records(filters, sorting, pagination_rules, limit, parent_id)
         # Take a huge shortcut in case we want to delete everything.
         if not filters:
             perm_ids = [self.get_permission_object_id(object_id='*')]
@@ -306,7 +301,7 @@ class ShareableModel(Model):
     def get_record(self, record_id, parent_id=None):
         """Fetch current permissions and add them to returned record.
         """
-        record = super(ShareableModel, self).get_record(record_id, parent_id)
+        record = super().get_record(record_id, parent_id)
         perm_object_id = self.get_permission_object_id(record_id)
 
         return self._annotate(record, perm_object_id)
@@ -317,7 +312,7 @@ class ShareableModel(Model):
         The current principal is added to the owner (``write`` permission).
         """
         permissions = record.pop(self.permissions_field, {})
-        record = super(ShareableModel, self).create_record(record, parent_id)
+        record = super().create_record(record, parent_id)
         record_id = record[self.id_field]
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)
@@ -334,7 +329,7 @@ class ShareableModel(Model):
         The current principal is added to the owner (``write`` permission).
         """
         permissions = record.pop(self.permissions_field, {})
-        record = super(ShareableModel, self).update_record(record, parent_id)
+        record = super().update_record(record, parent_id)
         record_id = record[self.id_field]
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)
@@ -345,7 +340,7 @@ class ShareableModel(Model):
     def delete_record(self, record_id, parent_id=None, last_modified=None):
         """Delete record and its associated permissions.
         """
-        record = super(ShareableModel, self).delete_record(
+        record = super().delete_record(
             record_id, parent_id, last_modified=last_modified)
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.delete_object_permissions(perm_object_id)

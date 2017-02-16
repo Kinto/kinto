@@ -137,7 +137,7 @@ def on_resource_changed(event):
         if max_bytes_per_item is not None and action != "delete":
             if new_size > max_bytes_per_item:
                 message = ("Maximum bytes per object exceeded "
-                           "(%d > %d Bytes." % (new_size, max_bytes_per_item))
+                           "({} > {} Bytes.".format(new_size, max_bytes_per_item))
                 raise http_error(HTTPInsufficientStorage(),
                                  errno=ERRORS.FORBIDDEN.value,
                                  message=message)
@@ -183,8 +183,8 @@ def on_resource_changed(event):
     if bucket_max_bytes is not None:
         if bucket_info['storage_size'] > bucket_max_bytes:
             message = ("Bucket maximum total size exceeded "
-                       "(%d > %d Bytes). " % (bucket_info['storage_size'],
-                                              bucket_max_bytes))
+                       "({} > {} Bytes). ".format(bucket_info['storage_size'],
+                                                  bucket_max_bytes))
             raise http_error(HTTPInsufficientStorage(),
                              errno=ERRORS.FORBIDDEN.value,
                              message=message)
@@ -192,8 +192,8 @@ def on_resource_changed(event):
     if bucket_max_items is not None:
         if bucket_info['record_count'] > bucket_max_items:
             message = ("Bucket maximum number of objects exceeded "
-                       "(%d > %d objects)." % (bucket_info['record_count'],
-                                               bucket_max_items))
+                       "({} > {} objects).".format(bucket_info['record_count'],
+                                                   bucket_max_items))
             raise http_error(HTTPInsufficientStorage(),
                              errno=ERRORS.FORBIDDEN.value,
                              message=message)
@@ -201,8 +201,8 @@ def on_resource_changed(event):
     if collection_max_bytes is not None:
         if collection_info['storage_size'] > collection_max_bytes:
             message = ("Collection maximum size exceeded "
-                       "(%d > %d Bytes)." % (collection_info['storage_size'],
-                                             collection_max_bytes))
+                       "({} > {} Bytes).".format(collection_info['storage_size'],
+                                                 collection_max_bytes))
             raise http_error(HTTPInsufficientStorage(),
                              errno=ERRORS.FORBIDDEN.value,
                              message=message)
@@ -210,8 +210,8 @@ def on_resource_changed(event):
     if collection_max_items is not None:
         if collection_info['record_count'] > collection_max_items:
             message = ("Collection maximum number of objects exceeded "
-                       "(%d > %d objects)." % (collection_info['record_count'],
-                                               collection_max_items))
+                       "({} > {} objects).".format(collection_info['record_count'],
+                                                   collection_max_items))
             raise http_error(HTTPInsufficientStorage(),
                              errno=ERRORS.FORBIDDEN.value,
                              message=message)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 import mock
 
@@ -26,8 +25,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
     def test_backoff_headers_is_present_on_304(self):
         first = self.app.get(self.sample_url, headers=self.headers)
         etag = first.headers['ETag']
-        headers = self.headers.copy()
-        headers['If-None-Match'] = etag
+        headers = {**self.headers, 'If-None-Match': etag}
         with mock.patch.dict(self.app.app.registry.settings, [('backoff', 10)]):
             response = self.app.get(self.sample_url, headers=headers, status=304)
         self.assertIn('Backoff', response.headers)

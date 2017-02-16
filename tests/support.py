@@ -19,14 +19,14 @@ class BaseWebTest(testing.BaseWebTest):
     principal = USER_PRINCIPAL
 
     def __init__(self, *args, **kwargs):
-        super(BaseWebTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.headers.update(testing.get_user_headers('mat'))
 
     def get_app_settings(self, extras=None):
-        settings = DEFAULT_SETTINGS.copy()
+        settings = {**DEFAULT_SETTINGS}
         if extras is not None:
             settings.update(extras)
-        settings = super(BaseWebTest, self).get_app_settings(extras=settings)
+        settings = super().get_app_settings(extras=settings)
         return settings
 
     def create_group(self, bucket_id, group_id, members=None):
@@ -34,10 +34,10 @@ class BaseWebTest(testing.BaseWebTest):
             group = MINIMALIST_GROUP
         else:
             group = {'data': {'members': members}}
-        group_url = '/buckets/%s/groups/%s' % (bucket_id, group_id)
+        group_url = '/buckets/{}/groups/{}'.format(bucket_id, group_id)
         self.app.put_json(group_url, group,
                           headers=self.headers, status=201)
 
     def create_bucket(self, bucket_id):
-        self.app.put_json('/buckets/%s' % bucket_id, MINIMALIST_BUCKET,
+        self.app.put_json('/buckets/{}'.format(bucket_id), MINIMALIST_BUCKET,
                           headers=self.headers, status=201)

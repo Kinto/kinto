@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import mock
 
 from kinto.core.utils import sqlalchemy
@@ -78,7 +76,7 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
     backend = memory
 
     def setUp(self):
-        super(MemoryStorageTest, self).setUp()
+        super().setUp()
         self.client_error_patcher = mock.patch.object(
             self.storage,
             '_bump_timestamp',
@@ -111,7 +109,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     }
 
     def setUp(self):
-        super(PostgreSQLStorageTest, self).setUp()
+        super().setUp()
         self.client_error_patcher = mock.patch.object(
             self.storage.client,
             'session_factory',
@@ -119,13 +117,12 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
 
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
         for i in range(4):
-            self.create_record({'phone': 'tel-%s' % i})
+            self.create_record({'phone': 'tel-{}'.format(i)})
 
         results, count = self.storage.get_all(**self.storage_kw)
         self.assertEqual(len(results), 4)
 
-        settings = self.settings.copy()
-        settings['storage_max_fetch_size'] = 2
+        settings = {**self.settings, 'storage_max_fetch_size': 2}
         config = self._get_config(settings=settings)
         limited = self.backend.load_from_config(config)
 
@@ -164,8 +161,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
 
     def test_warns_if_configured_pool_size_differs_for_same_backend_type(self):
         self.backend.load_from_config(self._get_config())
-        settings = self.settings.copy()
-        settings['storage_pool_size'] = 1
+        settings = {**self.settings, 'storage_pool_size': 1}
         msg = ('Reuse existing PostgreSQL connection. Parameters storage_* '
                'will be ignored.')
         with mock.patch('kinto.core.storage.postgresql.client.'

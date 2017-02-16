@@ -7,7 +7,7 @@ from . import BaseTest
 
 class PartialResponseBase(BaseTest):
     def setUp(self):
-        super(PartialResponseBase, self).setUp()
+        super().setUp()
         self.resource._get_known_fields = lambda: ['field', 'other', 'orig']
         self.record = self.model.create_record(
             {

@@ -6,5 +6,4 @@ kinto-redis
 mock
 webtest
 cornice
-enum
 pyramid

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Kinto documentation build configuration file, created by
 # sphinx-quickstart on Mon Feb  2 15:08:06 2015.
@@ -64,8 +63,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Kinto'
-copyright = u'2015-2017 — Mozilla Services'
+project = 'Kinto'
+copyright = '2015-2017 — Mozilla Services'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -175,8 +174,8 @@ latex_elements = {}
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ('index', 'Kinto.tex', u'Kinto Documentation',
-     u'Mozilla Services — Da French Team', 'manual'),
+    ('index', 'Kinto.tex', 'Kinto Documentation',
+     'Mozilla Services — Da French Team', 'manual'),
 ]
 
 
@@ -185,8 +184,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'kinto', u'Kinto Documentation',
-     [u'Mozilla Services — Da French Team'], 1)
+    ('index', 'kinto', 'Kinto Documentation',
+     ['Mozilla Services — Da French Team'], 1)
 ]
 
 
@@ -196,8 +195,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'Kinto', u'Kinto Documentation',
-     u'Mozilla Services — Da French Team', 'Kinto',
+    ('index', 'Kinto', 'Kinto Documentation',
+     'Mozilla Services — Da French Team', 'Kinto',
      'A remote storage service with syncing and sharing abilities.',
      'Miscellaneous'),
 ]

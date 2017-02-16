@@ -1,4 +1,4 @@
-class ListenerBase(object):
+class ListenerBase:
     def __init__(self, *args, **kwargs):
         pass
 

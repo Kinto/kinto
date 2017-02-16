@@ -14,7 +14,7 @@ def admin_home_view(request):
     settings = {
         "authMethods": aslist(request.registry.settings.get('multiauth.policies'))
     }
-    globalSettings = "<script>window.globalSettings = %s;</script>" % json.dumps(settings)
+    globalSettings = "<script>window.globalSettings = {};</script>".format(json.dumps(settings))
 
     # Update the file built by react-scripts to load the globalSettings.
     with open(os.path.join(HERE, 'build/index.html')) as f:
