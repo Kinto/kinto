@@ -88,7 +88,7 @@ class SwaggerTest(BaseWebTest, unittest.TestCase):
 
     def validate_request_call(self, op, **kargs):
         params = unmarshal_request(self.request, op)
-        response = self.app.request(op.path_name.format(**params),
+        response = self.app.request(op.path_name.format_map(params),
                                     body=json.dumps(self.request.json()).encode(),
                                     method=op.http_method.upper(),
                                     headers=self.headers, **kargs)

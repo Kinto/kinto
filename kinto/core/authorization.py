@@ -241,7 +241,7 @@ class RouteFactory:
 
         # For create permission, the object id is the plural endpoint.
         collection_path = str(service.collection_path)
-        collection_path = collection_path.format(**request.matchdict)
+        collection_path = collection_path.format_map(request.matchdict)
 
         # In the case of a "PUT", check if the targetted record already
         # exists, return "write" if it does, "create" otherwise.

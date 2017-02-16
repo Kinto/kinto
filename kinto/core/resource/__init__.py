@@ -69,7 +69,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
         """
         path_pattern = getattr(viewset, '{}_path'.format(endpoint_type))
         path_values = {'resource_name': resource_name}
-        path = path_pattern.format(**path_values)
+        path = path_pattern.format_map(path_values)
 
         name = viewset.get_service_name(endpoint_type, resource_cls)
 
@@ -81,8 +81,8 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
         service.resource = resource_cls
         service.type = endpoint_type
         # Attach collection and record paths.
-        service.collection_path = viewset.collection_path.format(**path_values)
-        service.record_path = (viewset.record_path.format(**path_values)
+        service.collection_path = viewset.collection_path.format_map(path_values)
+        service.record_path = (viewset.record_path.format_map(path_values)
                                if viewset.record_path is not None else None)
 
         methods = getattr(viewset, '{}_methods'.format(endpoint_type))

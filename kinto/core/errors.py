@@ -144,9 +144,9 @@ def json_error_handler(request):
         if name in description:
             message = description
         else:
-            message = '{name} in {location}: {description}'.format(**error)
+            message = '{name} in {location}: {description}'.format_map(error)
     else:
-        message = '{location}: {description}'.format(**error)
+        message = '{location}: {description}'.format_map(error)
 
     response = http_error(httpexceptions.HTTPBadRequest(),
                           code=errors.status,

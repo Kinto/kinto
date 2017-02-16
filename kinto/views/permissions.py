@@ -86,7 +86,7 @@ class PermissionsModel:
             storage = self.request.registry.storage
             every_bucket, _ = storage.get_all(parent_id='', collection_id='bucket')
             for bucket in every_bucket:
-                bucket_uri = '/buckets/{id}'.format(**bucket)
+                bucket_uri = '/buckets/{id}'.format_map(bucket)
                 for res in allowed_resources:
                     resource_perms = from_settings[res]
                     # Bucket is always fetched.

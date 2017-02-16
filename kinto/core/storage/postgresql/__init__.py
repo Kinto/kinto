@@ -470,7 +470,7 @@ class Storage(StorageBase):
             safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
 
         with self.client.connect() as conn:
-            result = conn.execute(query.format(**safeholders), placeholders)
+            result = conn.execute(query.format_map(safeholders), placeholders)
             deleted = result.fetchmany(self._max_fetch_size)
 
         records = []
@@ -518,7 +518,7 @@ class Storage(StorageBase):
             placeholders['before'] = before
 
         with self.client.connect() as conn:
-            result = conn.execute(query.format(**safeholders), placeholders)
+            result = conn.execute(query.format_map(safeholders), placeholders)
 
         return result.rowcount
 
@@ -617,7 +617,7 @@ class Storage(StorageBase):
             safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
 
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query.format(**safeholders), placeholders)
+            result = conn.execute(query.format_map(safeholders), placeholders)
             retrieved = result.fetchmany(self._max_fetch_size)
 
         if not len(retrieved):

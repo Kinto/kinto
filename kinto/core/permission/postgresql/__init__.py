@@ -339,7 +339,7 @@ class Permission(PermissionBase):
             placeholders["permissions"] = tuple(permissions)
 
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query.format(**safeholders), placeholders)
+            result = conn.execute(query.format_map(safeholders), placeholders)
             rows = result.fetchall()
 
         groupby_id = OrderedDict()
@@ -414,7 +414,7 @@ class Permission(PermissionBase):
             'object_ids_values': ','.join(object_ids_values)
         }
         with self.client.connect() as conn:
-            conn.execute(query.format(**safeholders), placeholders)
+            conn.execute(query.format_map(safeholders), placeholders)
 
 
 def load_from_config(config):

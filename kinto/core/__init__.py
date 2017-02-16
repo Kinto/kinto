@@ -181,4 +181,4 @@ def includeme(config):
 
     # Give sign of life.
     msg = "Running {project_name} {project_version}."
-    logger.info(msg.format(**settings))
+    logger.info(msg.format_map(settings))

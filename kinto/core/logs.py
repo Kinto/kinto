@@ -60,7 +60,7 @@ class ClassicLogRenderer:
             for key in sorted(event_dict.keys())
         )
 
-        log_msg = pattern.format(**output)
+        log_msg = pattern.format_map(output)
         return log_msg
 
 

@@ -283,7 +283,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
             # Simulate a resource that has no record_path (only list).
             if service_name == 'article-record':
                 raise KeyError
-            return '/comments/sub/{id}'.format(**kwargs)
+            return '/comments/sub/{id}'.format_map(kwargs)
 
         self.request.route_path.side_effect = route_path
 
