@@ -273,3 +273,8 @@ class FunctionalTest(unittest.TestCase):
         records_ids = [r['id'] for r in records]
         self.assertIn(alice_task_id, records_ids)
         self.assertIn(bob_task_id, records_ids)
+
+    def test_check_for_lists(self):
+        # List buckets should not be forbidden
+        resp = self.session.get('{}/buckets'.format(self.server_url))
+        self.assertEqual(resp.status_code, 200)
