@@ -24,9 +24,10 @@ help:
 	@echo "  update-kinto-admin          update the built-in admin plugin to the last Kinto Admin UI version"
 	@echo "  serve                       start the kinto server on default port"
 	@echo "  migrate                     run the kinto migrations"
-	@echo "  tests-once                  only run the tests once with the default python interpreter"
 	@echo "  flake8                      run the flake8 linter"
 	@echo "  tests                       run all the tests with all the supported python interpreters (same as travis)"
+	@echo "  tests-once                  only run the tests once with the default python interpreter"
+	@echo "  functional                  run functional test against a real kinto"
 	@echo "  clean                       remove *.pyc files and __pycache__ directory"
 	@echo "  distclean                   remove *.egg-info files and *.egg, build and dist directories"
 	@echo "  maintainer-clean            remove the .tox and the .venv directories"
@@ -98,6 +99,15 @@ flake8: install-dev
 
 tests: version-file
 	$(VENV)/bin/tox
+
+need-kinto-running:
+	@curl http://localhost:8888/v0/ 2>/dev/null 1>&2 || (echo "Run 'make runkinto' before starting tests." && exit 1)
+
+runkinto: install-dev
+	$(VENV)/bin/kinto --ini tests/functional.ini start
+
+functional: install-dev need-kinto-running
+	$(VENV)/bin/py.test tests/functional.py
 
 clean:
 	find . -name '*.pyc' -delete
