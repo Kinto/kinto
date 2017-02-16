@@ -18,13 +18,11 @@ class PermissionTest(object):
         self.request = DummyRequest()
         self.client_error_patcher = []
 
-    def _get_config(self, settings=None):
+    def _get_config(self):
         """Mock Pyramid config object.
         """
-        if settings is None:
-            settings = self.settings
         config = testing.setUp()
-        config.add_settings(settings)
+        config.add_settings(self.settings)
         return config
 
     def tearDown(self):

@@ -9,16 +9,10 @@ import transaction as zope_transaction
 
 
 class PostgreSQLClient(object):
-    def __init__(self, session_factory, commit_manually=True, invalidate=None):
+    def __init__(self, session_factory, invalidate, commit_manually=True):
         self.session_factory = session_factory
         self.commit_manually = commit_manually
-        self.invalidate = invalidate or (lambda session: None)
-
-        # # Register ujson, globally for all futur cursors
-        # with self.connect() as cursor:
-        #     psycopg2.extras.register_json(cursor,
-        #                                   globally=True,
-        #                                   loads=json.loads)
+        self.invalidate = invalidate
 
     @contextlib.contextmanager
     def connect(self, readonly=False, force_commit=False):

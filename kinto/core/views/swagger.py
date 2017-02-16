@@ -47,14 +47,14 @@ def swagger_view(request):
         if os.path.exists(f):
             files.append(f)
 
-    swagger_view.__json__ = {}
+    result = {}
 
     # Read and merge files
     for path in files:
         abs_path = os.path.abspath(path)
         with open(abs_path) as f:
             spec = yaml.safe_load(f)
-            recursive_update_dict(swagger_view.__json__, spec)
+            recursive_update_dict(result, spec)
 
     # Update instance fields
     info = dict(
@@ -63,7 +63,7 @@ def swagger_view(request):
 
     schemes = [settings.get('http_scheme') or 'http']
 
-    security_defs = swagger_view.__json__.get('securityDefinitions', {})
+    security_defs = result.get('securityDefinitions', {})
 
     # BasicAuth is a non extension capability, so we should check it from config
     if 'basicauth' in aslist(settings.get('multiauth.policies', '')):
@@ -72,13 +72,13 @@ def swagger_view(request):
         security_defs['basicAuth'] = basicauth
 
     # Security options are JSON objects with a single key
-    security = swagger_view.__json__.get('security', [])
+    security = result.get('security', [])
     security_names = [next(iter(security_def)) for security_def in security]
 
     # include securityDefinitions that are not on default security options
     for name, prop in security_defs.items():
-        security_def = {name: prop.get('scopes', {}).keys()}
         if name not in security_names:
+            security_def = {name: prop.get('scopes', {}).keys()}
             security.append(security_def)
 
     data = dict(
@@ -89,6 +89,8 @@ def swagger_view(request):
         securityDefinitions=security_defs,
         security=security)
 
-    recursive_update_dict(swagger_view.__json__, data)
+    recursive_update_dict(result, data)
 
-    return swagger_view.__json__
+    swagger_view.__json__ = result
+
+    return result
