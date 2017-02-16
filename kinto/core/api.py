@@ -51,7 +51,7 @@ class OpenAPI(CorniceSwagger):
 
         """
         cls.security_definitions[method_name] = definition
-        cls.security_roles = {method_name: definition.get('scopes', {}).keys()}
+        cls.security_roles[method_name] = definition.get('scopes', {}).keys()
 
     def __init__(self, services, request):
         super(OpenAPI, self).__init__(services)
@@ -63,10 +63,8 @@ class OpenAPI(CorniceSwagger):
         self.api_version = self.settings['http_api_version']
         self.ignore_ctypes = ['application/json-patch+json']
 
-        try:
-            self.base_path = '/v{}'.format(self.api_version.split('.')[0])
-        except KeyError:
-            self.base_path = '/'
+        # Matches the base routing address - See kinto.core.initialization
+        self.base_path = '/v{}'.format(self.api_version.split('.')[0])
 
     def generate(self):
         base_spec = {
@@ -121,4 +119,4 @@ class OpenAPI(CorniceSwagger):
         if args.get('permission') == '__no_permission_required__':
             return []
         else:
-            return [{name: roles} for name, roles in self.security_roles.items()]
+            return [{name: list(roles)} for name, roles in self.security_roles.items()]

@@ -37,6 +37,7 @@ class BaseWebTest(testing.BaseWebTest):
             extras = {}
         extras.setdefault('project_name', 'myapp')
         extras.setdefault('project_version', '0.0.1')
+        extras.setdefault('http_api_version', '0.1')
         extras.setdefault('project_docs', 'https://kinto.readthedocs.io/')
         extras.setdefault('multiauth.authorization_policy',
                           self.authorization_policy)
