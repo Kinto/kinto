@@ -380,7 +380,7 @@ class CollectionResponseSchema(colander.MappingSchema):
         return collection
 
 
-class ResourceReponses(object):
+class ResourceReponses:
     """Class that wraps and handles Resource responses."""
 
     default_schemas = {
@@ -455,15 +455,14 @@ class ResourceReponses(object):
 class ShareableResourseResponses(ResourceReponses):
     """Class that wraps and handles SharableResource responses."""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
 
         # Add permission related responses to defaults
-        self.default_schemas = self.default_schemas.copy()
-        self.default_schemas.update({
+        self.default_schemas = {
             '401': ErrorResponseSchema(
                 description="The request is missing authentication headers."),
             '403': ErrorResponseSchema(
                 description=("The user is not allowed to perform the operation, "
                              "or the resource is not accessible.")),
-        })
+            **self.default_schemas
+        }
