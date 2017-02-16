@@ -53,6 +53,14 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         with self.storage.client.connect() as conn:
             conn.execute(q)
 
+    def test_does_not_execute_if_ran_with_dry(self):
+        self.storage.initialize_schema(dry_run=True)
+        query = """SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'records';"""
+        with self.storage.client.connect(readonly=True) as conn:
+            result = conn.execute(query)
+            self.assertEqual(result.rowcount, 0)
+
     def test_schema_sets_the_current_version(self):
         version = self.storage._get_installed_version()
         self.assertEqual(version, self.version)

@@ -68,8 +68,13 @@ class InitializationTest(unittest.TestCase):
                          'kinto')
 
     def test_warns_if_not_https(self):
-        config = Configurator(settings={'kinto.http_scheme': 'http'})
         with mock.patch('kinto.core.initialization.warnings.warn') as mocked:
+            config = Configurator(settings={'project_name': 'kinto',
+                                            'kinto.http_scheme': 'https'})
+            kinto.core.initialize(config, '0.0.1')
+            self.assertFalse(mocked.called)
+
+            config = Configurator(settings={'kinto.http_scheme': 'http'})
             kinto.core.initialize(config, '0.0.1')
             error_msg = 'HTTPS is not enabled'
             mocked.assert_any_call(error_msg)

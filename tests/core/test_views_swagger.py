@@ -39,6 +39,17 @@ class SwaggerViewTest(BaseWebTest, unittest.TestCase):
                 response = self.app.get('/__api__')
                 self.assertEquals(response.json['swagger'], '3.0')
 
+    def test_extensions_with_missing_resource(self):
+        with mock.patch.dict(self.app.app.registry.settings, [('includes', 'package')]):
+            # If the filename does not exist, it does not fail.
+            with mock.patch('pkg_resources.resource_filename', lambda pkg, f: 'miss'):
+                self.app.get('/__api__')
+
+    def test_security_without_basicauth(self):
+        with mock.patch.dict(self.app.app.registry.settings, [('multiauth.policies', '')]):
+            resp = self.app.get('/__api__')
+        self.assertEqual([], resp.json['securityDefinitions'].keys())
+
     def test_default_security_extensions(self):
         path = tempfile.mktemp(suffix='.yaml')
         content = {

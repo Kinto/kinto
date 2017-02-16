@@ -16,7 +16,7 @@ from pyramid import testing
 from kinto.core.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
     current_service, encode_header, decode_header, follow_subrequest,
-    build_request, dict_subset, dict_merge, parse_resource
+    build_request, dict_subset, dict_merge, parse_resource, recursive_update_dict
 )
 from kinto.core.testing import DummyRequest
 
@@ -258,6 +258,15 @@ class DictMergeTest(unittest.TestCase):
         obtained = dict_merge(dict(a=1, b=dict(c=2)), dict(b=dict(d=4)))
         expected = dict(a=1, b=dict(c=2, d=4))
         self.assertEqual(obtained, expected)
+
+
+class RecursiveUpdateDictTest(unittest.TestCase):
+
+    def test_merge(self):
+        a = {}
+        recursive_update_dict(a, {'b': {'c': 1}, 'd': 2})
+        self.assertEqual(a['b']['c'], 1)
+        self.assertEqual(a['d'], 2)
 
 
 class ParseResourceTest(unittest.TestCase):

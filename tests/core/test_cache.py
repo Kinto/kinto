@@ -76,6 +76,13 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
         assert self.cache.get('foo000') is None
         assert self.cache.get('foobar') == 'tata'
 
+    def test_size_quota_can_be_set_to_zero(self):
+        before = self.cache.max_size_bytes
+        self.cache.max_size_bytes = 0
+        self.cache.set('foobar', 'tata')
+        self.cache.max_size_bytes = before
+        assert self.cache.get('foobar') == 'tata'
+
 
 @skip_if_no_postgresql
 class PostgreSQLCacheTest(CacheTest, unittest.TestCase):

@@ -104,6 +104,9 @@ class PermissionTest(object):
         retrieved = self.permission.get_user_principals(user_id)
         self.assertEquals(retrieved, {principal})
 
+    def test_can_remove_a_principal_for_an_unknown_user(self):
+        self.permission.remove_user_principal('foo', 'bar')
+
     def test_can_remove_a_principal_for_a_user(self):
         user_id = 'foo'
         principal = 'bar'
