@@ -67,7 +67,7 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
     def test_add_over_quota_clean_oversized_items(self):
         for x in range(100):
             # Each entry is 70 bytes
-            self.cache.set('foo{}'.format(str(x).zfill(3)), 'toto')
+            self.cache.set('foo{0:03d}'.format(x), 'toto')
             time.sleep(0.001)
         assert self.cache.get('foo000') == 'toto'
         # This should delete the 2 first entries
