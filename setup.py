@@ -76,7 +76,7 @@ ENTRY_POINTS = {
 
 
 setup(name='kinto',
-      version='5.4.0.dev0',
+      version='6.0.0.dev0',
       description='Kinto Web Service - Store, Sync, Share, and Self-Host.',
       long_description="{}\n\n{}\n\n{}".format(README, CHANGELOG, CONTRIBUTORS),
       license='Apache License (2.0)',
