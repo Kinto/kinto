@@ -1,9 +1,11 @@
 import os.path
-from six.moves.urllib.parse import urljoin
+from urllib.parse import urljoin
 
-import uuid
 import random
+import re
 import unittest
+import uuid
+
 import requests
 
 
@@ -140,3 +142,134 @@ class FunctionalTest(unittest.TestCase):
         # Delete all the things
         resp = self.session.delete(collection_url)
         self.assertEqual(resp.status_code, 200)
+
+    def test_user_shared_bucket_tutorial(self):
+        bucket_id = 'bucket-%s' % uuid.uuid4()
+        collection_id = 'tasks-%s' % uuid.uuid4()
+        bucket_url = urljoin(self.server_url, '/buckets/{}'.format(bucket_id))
+        collection_url = '{}/collections/{}/records'.format(bucket_url, collection_id)
+
+        # Create a new bucket and check for permissions
+        resp = self.session.put(bucket_url)
+        # In case of concurrent execution, it may have been created already.
+        self.assertIn(resp.status_code, (200, 201))
+        record = resp.json()
+        self.assertIn('write', record['permissions'])
+
+        # Create a new collection and check for permissions
+        permissions = {"record:create": ['system.Authenticated']}
+        resp = self.session.put(
+            re.sub('/records$', '', collection_url),
+            json={'permissions': permissions})
+        # In case of concurrent execution, it may have been created already.
+        self.assertIn(resp.status_code, (200, 201))
+        record = resp.json()
+        self.assertIn('record:create', record['permissions'])
+        self.assertIn('system.Authenticated',
+                      record['permissions']['record:create'])
+
+        # Create a new tasks for Alice
+        alice_auth = ('token', 'alice-secret-%s' % uuid.uuid4())
+        alice_task = build_task()
+        resp = self.session.post(
+            collection_url,
+            json={'data': alice_task},
+            auth=alice_auth)
+        self.assertEqual(resp.status_code, 201)
+        record = resp.json()
+        self.assertIn('write', record['permissions'])
+        alice_task_id = record['data']['id']
+
+        bob_auth = ('token', 'bob-secret-%s' % uuid.uuid4())
+
+        # Bob has no task yet.
+        resp = self.session.get(collection_url, auth=bob_auth)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.json()['data']), 0)
+
+        # Create a new tasks for Bob
+        bob_task = build_task()
+        resp = self.session.post(
+            collection_url,
+            json={'data': bob_task},
+            auth=bob_auth)
+        self.assertEqual(resp.status_code, 201)
+        record = resp.json()
+        self.assertIn('write', record['permissions'])
+        bob_user_id = record['permissions']['write'][0]
+        bob_task_id = record['data']['id']
+
+        # Now that he has a task, he should see his.
+        resp = self.session.get(collection_url, auth=bob_auth)
+        self.assertEqual(resp.status_code, 200)
+        records = resp.json()['data']
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]['id'], bob_task_id)
+
+        record_url = '{}/{}'.format(collection_url, alice_task_id)
+
+        # Share Alice's task with Bob
+        resp = self.session.patch(record_url,
+                                  json={'permissions': {'read': [bob_user_id]}},
+                                  auth=alice_auth)
+        self.assertEqual(resp.status_code, 200)
+        record = resp.json()
+        self.assertIn('write', record['permissions'])
+        alice_task_id = record['data']['id']
+
+        # Check that Bob can access it
+        resp = self.session.get(record_url, auth=bob_auth)
+        self.assertEqual(resp.status_code, 200)
+
+        # Get mary's userid
+        mary_auth = ('token', 'mary-secret-%s' % uuid.uuid4())
+        resp = self.session.get('{}/'.format(self.server_url), auth=mary_auth)
+        self.assertEqual(resp.status_code, 200)
+        record = resp.json()
+        mary_user_id = record['user']['id']
+
+        # Allow group creation on bucket
+        permissions = {"group:create": ['system.Authenticated']}
+        resp = self.session.put(bucket_url,
+                                json={'permissions': permissions})
+        self.assertEqual(resp.status_code, 200)
+        record = resp.json()
+        self.assertIn('group:create', record['permissions'])
+        self.assertIn('system.Authenticated',
+                      record['permissions']['group:create'])
+
+        # Create Alice's friend group with Bob and Mary
+        group_url = '{}/groups/alices-friends'.format(bucket_url)
+        resp = self.session.put(group_url,
+                                json={'data': {'members': [mary_user_id, bob_user_id]}},
+                                auth=alice_auth)
+        self.assertEqual(resp.status_code, 201)
+
+        # Give Alice's task permission for that group
+        group_id = '/buckets/{}/groups/alices-friends'.format(bucket_id)
+        resp = self.session.patch(record_url,
+                                  json={'permissions': {'read': [group_id]}},
+                                  auth=alice_auth)
+        self.assertEqual(resp.status_code, 200)
+        record = resp.json()
+        self.assertIn(group_id, record['permissions']['read'])
+
+        # Try to access Alice's task with Mary
+        resp = self.session.get(record_url, auth=mary_auth)
+        self.assertEqual(resp.status_code, 200)
+
+        # Check that Mary's collection_get sees Alice's task
+        resp = self.session.get(collection_url, auth=mary_auth)
+        self.assertEqual(resp.status_code, 200)
+        records = resp.json()['data']
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]['id'], alice_task_id)
+
+        # Check that Bob's collection_get sees both his and Alice's tasks
+        resp = self.session.get(collection_url, auth=bob_auth)
+        self.assertEqual(resp.status_code, 200)
+        records = resp.json()['data']
+        self.assertEqual(len(records), 2)
+        records_ids = [r['id'] for r in records]
+        self.assertIn(alice_task_id, records_ids)
+        self.assertIn(bob_task_id, records_ids)
