@@ -30,7 +30,8 @@ matrix:
     - python: 3.6
       env:
         - TOX_ENV=py36
-    - before_install:
+    - env: TOX_ENV=loadtests
+      before_install:
         - make install-dev
-        - make runkinto &
+        - make runkinto & .venv/bin/kinto --ini tests/functional.ini migrate
       script: make functional
