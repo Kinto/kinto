@@ -18,7 +18,9 @@ swagger_response_schemas = {
 }
 
 
-@swagger.get(permission=NO_PERMISSION_REQUIRED)
+@swagger.get(permission=NO_PERMISSION_REQUIRED,
+             response_schemas=swagger_response_schemas,
+             tags=['Utilities'], operation_id='get_openapi_spec')
 def swagger_view(request):
 
     # Only build json once
