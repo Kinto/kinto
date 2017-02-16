@@ -435,14 +435,14 @@ class ResourceReponses(object):
         of status codes mapping cloned and binded responses."""
 
         responses = self.default_schemas.copy()
-        type_responses = getattr(self, 'default_%s_schemas' % endpoint_type)
+        type_responses = getattr(self, 'default_{}_schemas'.format(endpoint_type))
         responses.update(**type_responses)
 
-        verb_responses = 'default_%s_schemas' % method.lower()
+        verb_responses = 'default_{}_schemas'.format(method.lower())
         method_args = getattr(self, verb_responses, {})
         responses.update(**method_args)
 
-        method_responses = '%s_%s_schemas' % (endpoint_type, method.lower())
+        method_responses = '{}_{}_schemas'.format(endpoint_type, method.lower())
         endpoint_args = getattr(self, method_responses, {})
         responses.update(**endpoint_args)
 
@@ -456,7 +456,7 @@ class ShareableResourseResponses(ResourceReponses):
     """Class that wraps and handles SharableResource responses."""
 
     def __init__(self):
-        super(ShareableResourseResponses, self).__init__()
+        super().__init__()
 
         # Add permission related responses to defaults
         self.default_schemas = self.default_schemas.copy()

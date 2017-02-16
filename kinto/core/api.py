@@ -54,7 +54,7 @@ class OpenAPI(CorniceSwagger):
         cls.security_roles[method_name] = definition.get('scopes', {}).keys()
 
     def __init__(self, services, request):
-        super(OpenAPI, self).__init__(services)
+        super().__init__(services)
 
         self.request = request
         self.settings = request.registry.settings
