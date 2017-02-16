@@ -1,3 +1,4 @@
+from __future__ import division
 import warnings
 
 import colander
@@ -5,6 +6,10 @@ import colander
 from kinto.core.schema import (Any, HeaderField, QueryField, HeaderQuotedInteger,
                                FieldList, TimeStamp, URL)
 from kinto.core.utils import native_value
+
+POSTGRESQL_MAX_INTEGER_VALUE = 2**64 // 2
+
+positive_big_integer = colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE)
 
 
 class TimeStamp(TimeStamp):
@@ -210,14 +215,14 @@ class QuerySchema(colander.MappingSchema):
 class CollectionQuerySchema(QuerySchema):
     """Querystring schema used with collections."""
 
-    _limit = QueryField(colander.Integer())
+    _limit = QueryField(colander.Integer(), validator=positive_big_integer)
     _sort = FieldList()
     _token = QueryField(colander.String())
-    _since = QueryField(colander.Integer())
-    _to = QueryField(colander.Integer())
-    _before = QueryField(colander.Integer())
+    _since = QueryField(colander.Integer(), validator=positive_big_integer)
+    _to = QueryField(colander.Integer(), validator=positive_big_integer)
+    _before = QueryField(colander.Integer(), validator=positive_big_integer)
     id = QueryField(colander.String())
-    last_modified = QueryField(colander.Integer())
+    last_modified = QueryField(colander.Integer(), validator=positive_big_integer)
 
 
 class RecordGetQuerySchema(QuerySchema):
