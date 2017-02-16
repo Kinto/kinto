@@ -6,7 +6,7 @@ This document describes changes between each past release.
 5.3.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Upgraded the kinto-admin to version 1.9.0 (#1086)
 
 
 5.3.6 (2017-02-20)
