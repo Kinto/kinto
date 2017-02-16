@@ -83,7 +83,7 @@ class Cache(CacheBase):
         sql_file = os.path.join(here, 'schema.sql')
 
         if dry_run:
-            logger.info("Create cache schema from %s" % sql_file)
+            logger.info("Create cache schema from '{}'".format(sql_file))
             return
 
         # Since called outside request, force commit.
@@ -123,7 +123,7 @@ class Cache(CacheBase):
 
     def set(self, key, value, ttl=None):
         if ttl is None:
-            logger.warning("No TTL for cache key %r" % key)
+            logger.warning("No TTL for cache key '{}'".format(key))
         query = """
         INSERT INTO cache (key, value, ttl)
         VALUES (:key, :value, sec2ttl(:ttl))

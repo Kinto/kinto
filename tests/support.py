@@ -34,10 +34,10 @@ class BaseWebTest(testing.BaseWebTest):
             group = MINIMALIST_GROUP
         else:
             group = {'data': {'members': members}}
-        group_url = '/buckets/%s/groups/%s' % (bucket_id, group_id)
+        group_url = '/buckets/{}/groups/{}'.format(bucket_id, group_id)
         self.app.put_json(group_url, group,
                           headers=self.headers, status=201)
 
     def create_bucket(self, bucket_id):
-        self.app.put_json('/buckets/%s' % bucket_id, MINIMALIST_BUCKET,
+        self.app.put_json('/buckets/{}'.format(bucket_id), MINIMALIST_BUCKET,
                           headers=self.headers, status=201)

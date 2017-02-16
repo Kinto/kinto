@@ -13,7 +13,7 @@ from .support import (BaseWebTest, MINIMALIST_RECORD,
 class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
-    _record_url = '/buckets/beers/collections/barley/records/%s'
+    _record_url = '/buckets/beers/collections/barley/records/{}'
 
     def setUp(self):
         super().setUp()
@@ -26,7 +26,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                                   MINIMALIST_RECORD,
                                   headers=self.headers)
         self.record = resp.json['data']
-        self.record_url = self._record_url % self.record['id']
+        self.record_url = self._record_url.format(self.record['id'])
 
     def test_records_can_be_accessed_by_id(self):
         self.app.get(self.record_url, headers=self.headers)
@@ -141,7 +141,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         for i in range(3):
             record = {**MINIMALIST_RECORD, 'data': {
                 **MINIMALIST_RECORD['data'],
-                'name': 'Stout %s' % i}
+                'name': 'Stout {}'.format(i)}
             }
             self.app.post_json(self.collection_url,
                                record,
@@ -292,7 +292,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
-    _record_url = '/buckets/beers/collections/barley/records/%s'
+    _record_url = '/buckets/beers/collections/barley/records/{}'
 
     def setUp(self):
         super().setUp()
@@ -305,7 +305,7 @@ class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json(self.collection_url, record,
                                   headers=self.headers)
         self.record = resp.json['data']
-        self.record_url = self._record_url % self.record['id']
+        self.record_url = self._record_url.format(self.record['id'])
 
     def test_merge_patch(self):
         headers = {**self.headers, 'Content-Type': 'application/merge-patch+json'}
@@ -330,7 +330,7 @@ class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
 class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
-    _record_url = '/buckets/beers/collections/barley/records/%s'
+    _record_url = '/buckets/beers/collections/barley/records/{}'
 
     def setUp(self):
         super().setUp()
@@ -349,7 +349,7 @@ class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
                                   record,
                                   headers=self.headers)
         self.record = resp.json['data']
-        self.record_url = self._record_url % self.record['id']
+        self.record_url = self._record_url.format(self.record['id'])
 
     def test_patch_add_permissions(self):
         json = [{'op': 'add', 'path': '/permissions/read/me', 'value': 'me'}]

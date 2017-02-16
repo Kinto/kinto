@@ -127,7 +127,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
     def test_body_is_transmitted_during_redirect(self):
         request = {
             'method': 'PUT',
-            'path': '/mushrooms/%s/' % str(uuid.uuid4()),
+            'path': '/mushrooms/{}/'.format(str(uuid.uuid4())),
             'body': {'data': {'name': 'Trompette de la mort'}}
         }
         body = {'requests': [request]}
@@ -141,7 +141,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         headers = {**self.headers, 'If-Match': '"*"'}
         request = {
             'method': 'PUT',
-            'path': '/mushrooms/%s' % str(uuid.uuid4()),
+            'path': '/mushrooms/{}'.format(str(uuid.uuid4())),
             'body': {'data': {'name': 'Trompette de la mort'}},
             'headers': headers
         }
@@ -155,7 +155,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         headers = {**self.headers, 'If-None-Match': '*'}
         request = {
             'method': 'PUT',
-            'path': '/mushrooms/%s' % str(uuid.uuid4()),
+            'path': '/mushrooms/{}'.format(str(uuid.uuid4())),
             'body': {'data': {'name': 'Trompette de la mort'}},
             'headers': headers
         }

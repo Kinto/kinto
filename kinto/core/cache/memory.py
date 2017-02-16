@@ -61,7 +61,7 @@ class Cache(CacheBase):
         if ttl is not None:
             self.expire(key, ttl)
         else:
-            logger.warning("No TTL for cache key %r" % key)
+            logger.warning("No TTL for cache key '{}'".format(key))
         item_key = self.prefix + key
         self._store[item_key] = value
         self._created_at[item_key] = msec_time()

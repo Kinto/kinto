@@ -43,7 +43,7 @@ def get_heartbeat(request):
     for future in done:
         exc = future.exception()
         if exc is not None:
-            logger.error("%r heartbeat failed." % future.__heartbeat_name)
+            logger.error("'{}' heartbeat failed.".format(future.__heartbeat_name))
             logger.error(exc)
 
     # Log timed-out heartbeats.

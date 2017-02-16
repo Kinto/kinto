@@ -28,7 +28,8 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
                                         headers=self.headers).json
 
     def test_object_get_304(self):
-        headers = {**self.headers, 'If-None-Match': '"%d"' % self.bucket['data']['last_modified']}
+        headers = {**self.headers,
+                   'If-None-Match': '"{}"'.format(self.bucket['data']['last_modified'])}
         response = self.app.get('/buckets/b1',
                                 headers=headers, status=304)
         response = self.cast_bravado_response(response)
@@ -79,7 +80,8 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_get_412(self):
-        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
+        headers = {**self.headers,
+                   'If-Match': '"{}"'.format(self.bucket['data']['last_modified']-1)}
         response = self.app.get('/buckets/b1',
                                 headers=headers, status=412)
         response = self.cast_bravado_response(response)
@@ -121,7 +123,8 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_put_412(self):
-        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
+        headers = {**self.headers,
+                   'If-Match': '"{}"'.format(self.bucket['data']['last_modified']-1)}
         response = self.app.put_json('/buckets/b1', MINIMALIST_BUCKET,
                                      headers=headers, status=412)
         response = self.cast_bravado_response(response)
@@ -181,7 +184,8 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_patch_412(self):
-        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
+        headers = {**self.headers,
+                   'If-Match': '"{}"'.format(self.bucket['data']['last_modified']-1)}
         response = self.app.patch_json('/buckets/b1', MINIMALIST_BUCKET,
                                        headers=headers, status=412)
         response = self.cast_bravado_response(response)
@@ -241,7 +245,8 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_object_delete_412(self):
-        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
+        headers = {**self.headers,
+                   'If-Match': '"{}"'.format(self.bucket['data']['last_modified']-1)}
         response = self.app.delete('/buckets/b1',
                                    headers=headers, status=412)
         response = self.cast_bravado_response(response)
@@ -250,7 +255,8 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_list_get_304(self):
-        headers = {**self.headers, 'If-None-Match': '"%d"' % self.bucket['data']['last_modified']}
+        headers = {**self.headers,
+                   'If-None-Match': '"{}"'.format(self.bucket['data']['last_modified'])}
         response = self.app.get('/buckets',
                                 headers=headers, status=304)
         response = self.cast_bravado_response(response)
@@ -292,7 +298,8 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_list_get_412(self):
-        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
+        headers = {**self.headers,
+                   'If-Match': '"{}"'.format(self.bucket['data']['last_modified']-1)}
         response = self.app.get('/buckets/b1',
                                 headers=headers, status=412)
         response = self.cast_bravado_response(response)
@@ -330,7 +337,8 @@ class SwaggerObjectErrorResponsesTest(SwaggerTest):
         validate_response(schema, op, response)
 
     def test_list_delete_412(self):
-        headers = {**self.headers, 'If-Match': '"%d"' % (self.bucket['data']['last_modified']-1)}
+        headers = {**self.headers,
+                   'If-Match': '"{}"'.format(self.bucket['data']['last_modified']-1)}
         response = self.app.delete('/buckets',
                                    headers=headers, status=412)
         response = self.cast_bravado_response(response)

@@ -78,7 +78,7 @@ class CryptographicRandomBytesTest(unittest.TestCase):
         try:
             int(value, 16)
         except ValueError:
-            self.fail("%s is not an hexadecimal value." % value)
+            self.fail("{} is not an hexadecimal value.".format(value))
 
     def test_return_right_length_string(self):
         for x in range(2, 4):

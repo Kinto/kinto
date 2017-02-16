@@ -75,7 +75,7 @@ def authorize(permits=True, authz_class=None):
         @functools.wraps(f)
         def wrapped(*args, **kwargs):
             with mock.patch(
-                    '%s.permits' % authz_class,
+                    '{}.permits'.format(authz_class),
                     return_value=permits):
                 return f(*args, **kwargs)
         return wrapped

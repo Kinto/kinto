@@ -34,7 +34,7 @@ class FilteringTest(BaseTest):
     def test_filter_on_id_is_supported(self):
         self.patch_known_field.stop()
         r = self.model.create_record({})
-        self.validated['querystring'] = {'id': '%s' % r['id']}
+        self.validated['querystring'] = {'id': '{}'.format(r['id'])}
         result = self.resource.collection_get()
         self.assertEqual(result['data'][0], r)
 

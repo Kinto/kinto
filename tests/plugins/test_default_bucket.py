@@ -64,7 +64,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         try:
             UUID(bucket_id)
         except ValueError:
-            self.fail('bucket_id: %s is not a valid UUID.' % bucket_id)
+            self.fail('bucket_id: {} is not a valid UUID.'.format(bucket_id))
 
     def test_second_call_on_default_bucket_doesnt_raise_a_412(self):
         self.app.get(self.bucket_url, headers=self.headers)
@@ -93,7 +93,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                                   headers=self.headers)
         current = resp.json['data']['last_modified']
         headers = {**self.headers, 'Origin': 'http://localhost:8000',
-                   'If-None-Match': ('"%s"' % current).encode('utf-8')}
+                   'If-None-Match': ('"{}"'.format(current)).encode('utf-8')}
         resp = self.app.get(self.collection_url + '/records',
                             headers=headers, status=304)
         self.assertIn('Access-Control-Allow-Origin', resp.headers)
@@ -105,7 +105,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                                   headers=self.headers)
         current = resp.json['data']['last_modified']
         headers = {**self.headers, 'Origin': 'http://localhost:8000',
-                   'If-None-Match': ('"%s"' % current).encode('utf-8')}
+                   'If-None-Match': ('"{}"'.format(current)).encode('utf-8')}
         resp = self.app.get(self.collection_url + '/records',
                             headers=headers, status=304)
         self.assertIn('Access-Control-Expose-Headers', resp.headers)
@@ -303,7 +303,7 @@ class EventsTest(DefaultBucketWebTest):
         assert 'subpath' not in _events[0].payload
         assert _events[0].payload['action'] == 'create'
         assert _events[0].payload['bucket_id'] == bucket_id
-        assert _events[0].payload['uri'] == '/buckets/%s' % bucket_id
+        assert _events[0].payload['uri'] == '/buckets/{}'.format(bucket_id)
 
         # Implicit creation of collection
         assert 'subpath' not in _events[1].payload
@@ -311,8 +311,7 @@ class EventsTest(DefaultBucketWebTest):
         assert _events[1].payload['resource_name'] == 'collection'
         assert _events[1].payload['bucket_id'] == bucket_id
         assert _events[1].payload['collection_id'] == 'articles'
-        assert _events[1].payload['uri'] == ('/buckets/%s/collections'
-                                             '/articles') % bucket_id
+        assert _events[1].payload['uri'] == '/buckets/{}/collections/articles'.format(bucket_id)
 
         # Creation of record
         assert _events[2].payload['action'] == 'create'

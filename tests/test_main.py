@@ -148,7 +148,7 @@ class TestMain(unittest.TestCase):
     def test_cli_can_display_kinto_version(self):
         with mock.patch('sys.stdout', new_callable=StringIO) as mock_stdout:
             res = main(['version'])
-            assert mock_stdout.getvalue() == '%s\n' % kinto_version
+            assert mock_stdout.getvalue() == '{}\n'.format(kinto_version)
             assert res == 0
 
     def test_cli_can_configure_logger_in_quiet(self):

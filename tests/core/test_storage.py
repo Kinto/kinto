@@ -117,7 +117,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
 
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
         for i in range(4):
-            self.create_record({'phone': 'tel-%s' % i})
+            self.create_record({'phone': 'tel-{}'.format(i)})
 
         results, count = self.storage.get_all(**self.storage_kw)
         self.assertEqual(len(results), 4)

@@ -46,7 +46,7 @@ def delete_collection(env, bucket_id, collection_id):
                              parent_id='',
                              object_id=bucket_id)
     except storage_exceptions.RecordNotFoundError:
-        logger.error("Bucket %r does not exist." % bucket)
+        logger.error("Bucket '{}' does not exist.".format(bucket))
         return 32
 
     try:
@@ -54,22 +54,22 @@ def delete_collection(env, bucket_id, collection_id):
                              parent_id=bucket,
                              object_id=collection_id)
     except storage_exceptions.RecordNotFoundError:
-        logger.error("Collection %r does not exist." % collection)
+        logger.error("Collection '{}' does not exist.".format(collection))
         return 33
 
     deleted = registry.storage.delete_all(collection_id='record',
                                           parent_id=collection,
                                           with_deleted=False)
     if len(deleted) == 0:
-        logger.info('No records found for %r.' % collection)
+        logger.info("No records found for '{}'.".format(collection))
     else:
-        logger.info('%d record(s) were deleted.' % len(deleted))
+        logger.info('{} record(s) were deleted.'.format(len(deleted)))
 
     registry.storage.delete(collection_id='collection',
                             parent_id=bucket,
                             object_id=collection_id,
                             with_deleted=False)
-    logger.info("%r collection object was deleted." % collection)
+    logger.info("'{}' collection object was deleted.".format(collection))
 
     record = ('/buckets/{bucket_id}'
               '/collections/{collection_id}'

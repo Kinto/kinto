@@ -114,7 +114,7 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
                                MINIMALIST_RECORD,
                                headers=self.headers)
         record_id = r.json['data']['id']
-        self.record_url = self.collection_url + '/records/%s' % record_id
+        self.record_url = self.collection_url + '/records/{}'.format(record_id)
         self.app.delete(self.collection_url, headers=self.headers)
 
     def test_collections_can_be_deleted(self):
@@ -139,7 +139,7 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.record_url, headers=self.headers, status=404)
 
         # Verify tombstones
-        resp = self.app.get('%s/records?_since=0' % self.collection_url,
+        resp = self.app.get('{}/records?_since=0'.format(self.collection_url),
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 

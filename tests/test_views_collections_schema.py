@@ -121,7 +121,7 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                                   headers=self.headers,
                                   status=201)
         record_id = resp.json['data']['id']
-        self.app.patch_json('%s/%s' % (RECORDS_URL, record_id),
+        self.app.patch_json('{}/{}'.format(RECORDS_URL, record_id),
                             {'data': {'title': 3.14}},
                             headers=self.headers,
                             status=400)
@@ -132,7 +132,7 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                                   headers=self.headers,
                                   status=201)
         record_id = resp.json['data']['id']
-        self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
+        self.app.put_json('{}/{}'.format(RECORDS_URL, record_id),
                           {'data': {'body': '<h1>Without title</h1>'}},
                           headers=self.headers,
                           status=400)
@@ -173,7 +173,7 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                            {'data': VALID_RECORD},
                            headers=self.headers)
 
-        resp = self.app.get(RECORDS_URL + '?min_schema=%s' % schema_version,
+        resp = self.app.get(RECORDS_URL + '?min_schema={}'.format(schema_version),
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 1)
 
@@ -194,13 +194,13 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
 
     def test_record_can_be_validated_on_put(self):
         record_id = '5443d83f-852a-481a-8e9d-5aa804b05b08'
-        self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
+        self.app.put_json('{}/{}'.format(RECORDS_URL, record_id),
                           {'data': VALID_RECORD},
                           headers=self.headers)
 
     def test_records_are_validated_on_patch(self):
         record_id = '5443d83f-852a-481a-8e9d-5aa804b05b08'
-        record_url = '%s/%s' % (RECORDS_URL, record_id)
+        record_url = '{}/{}'.format(RECORDS_URL, record_id)
         resp = self.app.put_json(record_url,
                                  {'data': VALID_RECORD},
                                  headers=self.headers)
@@ -214,7 +214,7 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def test_additional_properties_are_rejected(self):
         record_id = '5443d83f-852a-481a-8e9d-5aa804b05b08'
         record = {**VALID_RECORD, 'extra': 'blah!'}
-        resp = self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
+        resp = self.app.put_json('{}/{}'.format(RECORDS_URL, record_id),
                                  {'data': record},
                                  headers=self.headers,
                                  status=400)

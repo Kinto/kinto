@@ -416,7 +416,7 @@ def setup_listeners(config):
     listeners = aslist(settings['event_listeners'])
 
     for name in listeners:
-        logger.info('Setting up %r listener' % name)
+        logger.info("Setting up '{}' listener".format(name))
         prefix = 'event_listeners.{}.'.format(name)
 
         try:

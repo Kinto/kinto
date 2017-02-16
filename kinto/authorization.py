@@ -119,8 +119,8 @@ def _relative_object_uri(resource_name, object_uri):
         if resource_name == parent_resource_name:
             return parent_uri
 
-    error_msg = 'Cannot get URL of resource %r from parent %r.'
-    raise ValueError(error_msg % (resource_name, object_uri))
+    error_msg = "Cannot get URL of resource '{}' from parent '{}'."
+    raise ValueError(error_msg.format(resource_name, object_uri))
 
 
 def _inherited_permissions(object_uri, permission):

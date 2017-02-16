@@ -39,7 +39,7 @@ class ObtainRecordPermissionTest(PermissionTest):
         super().setUp()
         record = self.resource.model.create_record({})
         record_id = record['id']
-        record_uri = '/articles/%s' % record_id
+        record_uri = '/articles/{}'.format(record_id)
         self.permission.add_principal_to_ace(record_uri, 'read', 'basicauth:bob')
         self.permission.add_principal_to_ace(record_uri, 'read', 'account:readonly')
         self.permission.add_principal_to_ace(record_uri, 'write', 'basicauth:bob')
@@ -81,7 +81,7 @@ class SpecifyRecordPermissionTest(PermissionTest):
         super().setUp()
         self.record = self.resource.model.create_record({})
         record_id = self.record['id']
-        self.record_uri = '/articles/%s' % record_id
+        self.record_uri = '/articles/{}'.format(record_id)
         self.permission.add_principal_to_ace(self.record_uri,
                                              'read',
                                              'account:readonly')
@@ -184,7 +184,7 @@ class DeletedRecordPermissionTest(PermissionTest):
         super().setUp()
         record = self.resource.model.create_record({})
         self.resource.record_id = record_id = record['id']
-        self.record_uri = '/articles/%s' % record_id
+        self.record_uri = '/articles/{}'.format(record_id)
         self.resource.request.route_path.return_value = self.record_uri
         self.resource.request.path = self.record_uri
         self.permission.add_principal_to_ace(self.record_uri,
@@ -212,9 +212,9 @@ class GuestCollectionListTest(PermissionTest):
         record2 = self.resource.model.create_record({'letter': 'b'})
         record3 = self.resource.model.create_record({'letter': 'c'})
 
-        uri1 = '/articles/%s' % record1['id']
-        uri2 = '/articles/%s' % record2['id']
-        uri3 = '/articles/%s' % record3['id']
+        uri1 = '/articles/{}'.format(record1['id'])
+        uri2 = '/articles/{}'.format(record2['id'])
+        uri3 = '/articles/{}'.format(record3['id'])
 
         self.permission.add_principal_to_ace(uri1, 'read', 'fxa:user')
         self.permission.add_principal_to_ace(uri2, 'read', 'group')
@@ -255,10 +255,10 @@ class GuestCollectionDeleteTest(PermissionTest):
         record3 = self.resource.model.create_record({'letter': 'c'})
         record4 = self.resource.model.create_record({'letter': 'd'})
 
-        uri1 = '/articles/%s' % record1['id']
-        uri2 = '/articles/%s' % record2['id']
-        uri3 = '/articles/%s' % record3['id']
-        uri4 = '/articles/%s' % record4['id']
+        uri1 = '/articles/{}'.format(record1['id'])
+        uri2 = '/articles/{}'.format(record2['id'])
+        uri3 = '/articles/{}'.format(record3['id'])
+        uri4 = '/articles/{}'.format(record4['id'])
 
         self.permission.add_principal_to_ace(uri1, 'read', 'fxa:user')
         self.permission.add_principal_to_ace(uri2, 'write', 'fxa:user')

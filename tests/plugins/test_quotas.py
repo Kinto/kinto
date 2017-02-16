@@ -241,13 +241,13 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_bucket()
         self.create_collection()
         body = {'data': {'foo': 42}}
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
         self.app.delete(self.collection_uri, headers=self.headers)
         data = self.storage.get(collection_id=QUOTA_RESOURCE_NAME,
@@ -364,15 +364,15 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_bucket()
         self.create_collection()
         body = {'data': {'foo': 42}}
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.delete('%s/records' % self.collection_uri,
+        self.app.delete('{}/records'.format(self.collection_uri),
                         headers=self.headers)
         storage_size = record_size(self.bucket) + record_size(self.collection)
         data = self.storage.get(collection_id=QUOTA_RESOURCE_NAME,
@@ -388,7 +388,7 @@ class QuotaListenerTest(QuotaWebTest):
         body = {
             'defaults': {
                 'method': 'POST',
-                'path': '%s/records' % self.collection_uri,
+                'path': '{}/records'.format(self.collection_uri),
             },
             'requests': [{
                 'path': self.bucket_uri,
@@ -418,7 +418,7 @@ class QuotaListenerTest(QuotaWebTest):
         body = {
             'defaults': {
                 'method': 'POST',
-                'path': '%s/collections' % self.bucket_uri,
+                'path': '{}/collections'.format(self.bucket_uri),
             },
             'requests': [{
                 'path': self.bucket_uri,
@@ -445,13 +445,13 @@ class QuotaListenerTest(QuotaWebTest):
                 'method': 'PUT',
             },
             'requests': [{
-                'path': '%s/collections/a' % self.bucket_uri,
+                'path': '{}/collections/a'.format(self.bucket_uri),
                 'body': {'data': {'attr': 100}},
             }, {
-                'path': '%s/collections/b' % self.bucket_uri,
+                'path': '{}/collections/b'.format(self.bucket_uri),
                 'body': {'data': {'attr': 2000}},
             }, {
-                'path': '%s/collections/c' % self.bucket_uri,
+                'path': '{}/collections/c'.format(self.bucket_uri),
                 'body': {'data': {'attr': 30000}}
             }]
         }
@@ -473,7 +473,7 @@ class QuotaListenerTest(QuotaWebTest):
         body = {
             'defaults': {
                 'method': 'POST',
-                'path': '%s/collections' % self.bucket_uri,
+                'path': '{}/collections'.format(self.bucket_uri),
             },
             'requests': [{
                 'body': {'data': {'id': 'a', 'attr': 1}},
@@ -490,11 +490,11 @@ class QuotaListenerTest(QuotaWebTest):
                 'method': 'DELETE',
             },
             'requests': [{
-                'path': '%s/collections/a' % self.bucket_uri
+                'path': '{}/collections/a'.format(self.bucket_uri)
             }, {
-                'path': '%s/collections/b' % self.bucket_uri
+                'path': '{}/collections/b'.format(self.bucket_uri)
             }, {
-                'path': '%s/collections/c' % self.bucket_uri
+                'path': '{}/collections/c'.format(self.bucket_uri)
             }, {
                 'path': self.collection_uri
             }]
@@ -512,17 +512,17 @@ class QuotaListenerTest(QuotaWebTest):
 
         with pytest.raises(RecordNotFoundError):
             self.storage.get(collection_id=QUOTA_RESOURCE_NAME,
-                             parent_id='%s/collections/a' % self.bucket_uri,
+                             parent_id='{}/collections/a'.format(self.bucket_uri),
                              object_id=QUOTA_COLLECTION_ID)
 
         with pytest.raises(RecordNotFoundError):
             self.storage.get(collection_id=QUOTA_RESOURCE_NAME,
-                             parent_id='%s/collections/b' % self.bucket_uri,
+                             parent_id='{}/collections/b'.format(self.bucket_uri),
                              object_id=QUOTA_COLLECTION_ID)
 
         with pytest.raises(RecordNotFoundError):
             self.storage.get(collection_id=QUOTA_RESOURCE_NAME,
-                             parent_id='%s/collections/c' % self.bucket_uri,
+                             parent_id='{}/collections/c'.format(self.bucket_uri),
                              object_id=QUOTA_COLLECTION_ID)
 
         with pytest.raises(RecordNotFoundError):
@@ -537,7 +537,7 @@ class QuotaBucketRecordMixin:
         self.create_collection()
         self.create_record()
         body = {'data': {'foo': 42}}
-        resp = self.app.post_json('%s/records' % self.collection_uri,
+        resp = self.app.post_json('{}/records'.format(self.collection_uri),
                                   body, headers=self.headers, status=507)
 
         # Check that the storage was not updated.
@@ -559,7 +559,7 @@ class QuotaBucketRecordMixin:
         })
 
         # Check that the record wasn't created
-        resp = self.app.get('%s/records' % self.collection_uri,
+        resp = self.app.get('{}/records'.format(self.collection_uri),
                             headers=self.headers)
         assert len(resp.json['data']) == 1
 
@@ -726,7 +726,7 @@ class QuotaBucketMixin:
         self.create_collection()
         self.create_record()
         body = {'data': {'foo': 42}}
-        resp = self.app.post_json('%s/collections' % self.bucket_uri,
+        resp = self.app.post_json('{}/collections'.format(self.bucket_uri),
                                   body, headers=self.headers, status=507)
 
         storage_size = record_size(self.bucket)
@@ -747,7 +747,7 @@ class QuotaBucketMixin:
         })
 
         # Check that the collection wasn't created
-        resp = self.app.get('%s/collections' % self.bucket_uri,
+        resp = self.app.get('{}/collections'.format(self.bucket_uri),
                             headers=self.headers)
         assert len(resp.json['data']) == 1
 
@@ -777,7 +777,7 @@ class QuotaBucketMixin:
         })
 
         # Check that the group wasn't created
-        resp = self.app.get('%s/groups' % self.bucket_uri,
+        resp = self.app.get('{}/groups'.format(self.bucket_uri),
                             headers=self.headers)
         assert len(resp.json['data']) == 0
 
@@ -858,7 +858,7 @@ class QuotaCollectionMixin:
         self.create_collection()
         self.create_record()
         body = {'data': {'foo': 42}}
-        resp = self.app.post_json('%s/records' % self.collection_uri,
+        resp = self.app.post_json('{}/records'.format(self.collection_uri),
                                   body, headers=self.headers, status=507)
 
         # Check that the storage was not updated.
