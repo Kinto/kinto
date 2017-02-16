@@ -27,6 +27,7 @@ This document describes changes between each past release.
   and endpoint type (#1047).
 - Move generic API schemas (e.g TimeStamps and HeaderFields) from `kinto.core.resource.schema`
   to a sepate file on `kinto.core.schema`. (#1054)
+- Upgraded the kinto-admin to version 1.9.0 (#1086)
 
 
 5.3.2 (2017-01-31)
