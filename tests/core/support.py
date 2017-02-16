@@ -46,7 +46,7 @@ class BaseWebTest(testing.BaseWebTest):
         """Return the URL of the item using self.item_url."""
         if id is None:
             id = self.record['id']
-        return self.collection_url + '/' + str(id)
+        return '{}/{}'.format(self.collection_url, id)
 
 
 @implementer(IAuthorizationPolicy)

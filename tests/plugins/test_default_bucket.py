@@ -48,7 +48,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         record = {**MINIMALIST_RECORD}
         resp = self.app.post_json(self.collection_url + '/records',
                                   record, headers=get_user_headers('bob'))
-        record_id = self.collection_url + '/records/' + resp.json['data']['id']
+        record_id = '{}/records/{}'.format(self.collection_url, resp.json['data']['id'])
         resp = self.app.get(record_id, headers=get_user_headers('alice'),
                             status=404)
 

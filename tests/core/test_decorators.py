@@ -13,7 +13,7 @@ def demo1(request):
 
 @cache_forever
 def demo2(request, name):
-    return "demo2: " + name
+    return "demo2: {}".format(name)
 
 
 @cache_forever

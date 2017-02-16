@@ -426,7 +426,7 @@ def setup_listeners(config):
         except (ImportError, AttributeError):
             module_setting = prefix + "use"
             # Read from ENV or settings.
-            module_value = utils.read_env(project_name + "." + module_setting,
+            module_value = utils.read_env('{}.{}'.format(project_name, module_setting),
                                           settings.get(module_setting))
             listener_mod = config.maybe_dotted(module_value)
             listener = listener_mod.load_from_config(config, prefix)
@@ -440,7 +440,7 @@ def setup_listeners(config):
         # Optional filter by event action.
         actions_setting = prefix + "actions"
         # Read from ENV or settings.
-        actions_value = utils.read_env(project_name + "." + actions_setting,
+        actions_value = utils.read_env('{}.{}'.format(project_name, actions_setting),
                                        settings.get(actions_setting, ""))
         actions = aslist(actions_value)
         if len(actions) > 0:
@@ -451,7 +451,7 @@ def setup_listeners(config):
         # Optional filter by event resource name.
         resource_setting = prefix + "resources"
         # Read from ENV or settings.
-        resource_value = utils.read_env(project_name + "." + resource_setting,
+        resource_value = utils.read_env('{}.{}'.format(project_name, resource_setting),
                                         settings.get(resource_setting, ""))
         resource_names = aslist(resource_value)
 
@@ -478,8 +478,8 @@ def load_default_settings(config, default_settings):
         unprefixed = key
         if key.startswith('kinto.') or key.startswith(project_name + '.'):
             unprefixed = key.split('.', 1)[1]
-        project_prefix = project_name + '.' + unprefixed
-        kinto_prefix = 'kinto.' + unprefixed
+        project_prefix = '{}.{}'.format(project_name, unprefixed)
+        kinto_prefix = 'kinto.{}'.format(unprefixed)
         return unprefixed, project_prefix, kinto_prefix
 
     # Fill settings with default values if not defined.

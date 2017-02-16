@@ -193,7 +193,7 @@ class RecordPermissionsTest(PermissionsTest):
                                   MINIMALIST_RECORD,
                                   headers=self.headers)
         record = resp.json['data']
-        resp = self.app.patch_json(collection_url + '/' + record['id'],
+        resp = self.app.patch_json('{}/{}'.format(collection_url, record['id']),
                                    {'permissions': {'read': ['fxa:user']}},
                                    headers=self.headers)
         self.assertIn('fxa:user', resp.json['permissions']['read'])

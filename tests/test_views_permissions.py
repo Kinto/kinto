@@ -30,7 +30,7 @@ class EntriesTest(PermissionsViewTest):
         self.app.put_json('/buckets/beers/groups/amateurs',
                           MINIMALIST_GROUP,
                           headers=self.headers)
-        self.app.put_json('/buckets/beers/collections/barley/records/' + RECORD_ID,  # noqa
+        self.app.put_json('/buckets/beers/collections/barley/records/{}'.format(RECORD_ID),
                           MINIMALIST_RECORD,
                           headers=self.headers)
 

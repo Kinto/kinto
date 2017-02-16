@@ -393,7 +393,7 @@ class FilteringTest(HistoryWebTest):
     def test_allows_diff_between_two_versions_of_a_record(self):
         uri = '/buckets/bid/collections/cid/records/rid'
         querystring = '?uri={}&_limit=2&_sort=last_modified'.format(uri)
-        resp = self.app.get('/buckets/bid/history' + querystring,
+        resp = self.app.get('/buckets/bid/history{}'.format(querystring),
                             headers=self.headers)
         entries = resp.json['data']
         version1 = entries[0]['target']['data']

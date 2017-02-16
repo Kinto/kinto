@@ -101,7 +101,7 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
                 'permissions': {'read': ['group:readers']}}
         resp = self.app.post_json('/psilos', body,
                                   headers=self.headers)
-        object_uri = '/psilos/' + resp.json['data']['id']
+        object_uri = '/psilos/{}'.format(resp.json['data']['id'])
 
         body.pop('data')
         resp = self.app.put_json(object_uri, body, headers=self.headers)
@@ -113,7 +113,7 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
                 'permissions': {'read': ['group:readers']}}
         resp = self.app.post_json('/spores', body,
                                   headers=self.headers)
-        object_uri = '/spores/' + resp.json['data']['id']
+        object_uri = '/spores/{}'.format(resp.json['data']['id'])
         self.add_permission(object_uri, 'write')
 
         body.pop('data')
@@ -592,7 +592,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
                                   body,
                                   headers=self.headers)
         record = resp.json['data']
-        item_url = '/toadstools/' + record['id']
+        item_url = '/toadstools/{}'.format(record['id'])
         self.app.patch(item_url,
                        headers=self.headers,
                        status=400)

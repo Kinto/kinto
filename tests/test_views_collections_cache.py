@@ -98,7 +98,7 @@ class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
                                   MINIMALIST_RECORD,
                                   headers=self.headers)
         self.record = resp.json['data']
-        self.record_url = self.records_url + '/' + self.record['id']
+        self.record_url = '{}/{}'.format(self.records_url, self.record['id'])
 
     def test_cache_expires_must_be_an_integer(self):
         self.app.put_json(self.collection_url,

@@ -124,8 +124,8 @@ class Storage(StorageBase):
                         " from %s" % filepath)
             if not dry_run:
                 self._execute_sql_file(filepath)
-        logger.info("PostgreSQL storage schema migration " +
-                    ("simulated." if dry_run else "done."))
+        logger.info("PostgreSQL storage schema migration {}".format(
+            "simulated." if dry_run else "done."))
 
     def _check_database_timezone(self):
         # Make sure database has UTC timezone.

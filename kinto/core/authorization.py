@@ -218,7 +218,7 @@ class RouteFactory:
                 # Maybe the resource has no single record endpoint.
                 # We consider that object URIs in permissions backend will
                 # be stored naively:
-                object_uri = object_uri + '/' + object_id
+                object_uri = '{}/{}'.format(object_uri, object_id)
 
         return object_uri
 

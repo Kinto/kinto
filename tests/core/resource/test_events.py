@@ -207,7 +207,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         resp = app.post_json('/psilos', self.body,
                              headers=self.headers, status=201)
         record = resp.json['data']
-        record_url = '/psilos/' + record['id']
+        record_url = '/psilos/{}'.format(record['id'])
         app.patch_json(record_url, {"data": {"name": "De barcelona"}},
                        headers=self.headers)
         impacted_records = self.events[-1].impacted_records

@@ -264,7 +264,7 @@ def prefixed_userid(request):
     # (see :func:`kinto.core.initialization.setup_authentication`)
     authn_type = getattr(request, 'authn_type', None)
     if authn_type is not None:
-        return authn_type + ':' + request.selected_userid
+        return '{}:{}'.format(authn_type, request.selected_userid)
 
 
 def prefixed_principals(request):
