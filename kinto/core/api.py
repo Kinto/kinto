@@ -12,26 +12,23 @@ class AnyTypeConverter(TypeConverter):
 
 
 class OpenAPI(CorniceSwagger):
+    """OpenAPI documentation generator."""
 
     custom_type_converters = {Any: AnyTypeConverter}
     """Kinto additional type converters."""
 
     security_definitions = {}
-    """Kinto security definitions. May be used for setting other security methods
-    by plugins with the ``expose_authentication_method`` call."""
+    """Kinto security definitions. May be used for setting other security methods."""
 
     security_roles = {}
-    """Kinto resource security roles. May be used for setting OAuth roles by plugins
-    with the ``expose_authentication_method`` call."""
+    """Kinto resource security roles. May be used for setting OAuth roles by plugins."""
 
     @classmethod
     def expose_authentication_method(cls, method_name, definition):
         """Allow security extensions to expose authentication methods on the
         OpenAPI documentation. The definition field should correspond to a
         valid OpenAPI security definition. Refer the OpenAPI 2.0 specification
-        for more information. Below are some examples for BasicAuth and OAuth2:
-
-        ..code-block:: python
+        for more information. Below are some examples for BasicAuth and OAuth2::
 
             {
                 "type": "basic",
@@ -39,15 +36,12 @@ class OpenAPI(CorniceSwagger):
 
             }
 
-        ..code-block:: python
-
             {
                 "type": "oauth2",
                 "authorizationUrl": "https://oauth-stable.dev.lcip.org/v1",
                 "flow": "implicit",
                 "scopes": {"kinto": "Kinto user scope."}
             }
-
 
         """
         cls.security_definitions[method_name] = definition
